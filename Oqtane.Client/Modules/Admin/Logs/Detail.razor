@@ -10,100 +10,32 @@
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
     <div class="container">
-        <div class="row mb-1 align-items-center">
-
-            <div class="col-sm-9">
-
-            </div>
-        </div>
-        <div class="row mb-1 align-items-center">
-
-            <div class="col-sm-9">
-
-            </div>
-        </div>
-        <div class="row mb-1 align-items-center">
-
-            <div class="col-sm-9">
-
-            </div>
-        </div>
-        <div class="row mb-1 align-items-center">
-
-            <div class="col-sm-9">
-
-            </div>
-        </div>
-        <div class="row mb-1 align-items-center">
-
-            <div class="col-sm-9">
-
-            </div>
-        </div>
-        <div class="row mb-1 align-items-center">
-
-            <div class="col-sm-9">
-
-            </div>
-        </div>
-        <div class="row mb-1 align-items-center">
-
-            <div class="col-sm-9">
-
-            </div>
-        </div>
-        <div class="row mb-1 align-items-center">
-
-            <div class="col-sm-9">
-
-            </div>
-        </div>
-        <div class="row mb-1 align-items-center">
-
-            <div class="col-sm-9">
-
-            </div>
-        </div>
-        <div class="row mb-1 align-items-center">
-
-            <div class="col-sm-9">
-
-            </div>
-        </div>
-        <div class="row mb-1 align-items-center">
-
-            <div class="col-sm-9">
-
-            </div>
-        </div>
-
-    </div>
        <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="dateTime" HelpText="The date and time of this log" ResourceKey="DateTime">Date/Time: </Label>
+            <Label Class="col-sm-3" For="dateTime" HelpText="The date and time of this log" ResourceKey="DateTime">Date/Time: </Label>
             <div class="col-sm-9">
                 <input id="dateTime" class="form-control" @bind="@_logDate" readonly />
             </div>
        </div>
        <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="level" HelpText="The level of this log" ResourceKey="Level">Level: </Label>
+            <Label Class="col-sm-3" For="level" HelpText="The level of this log" ResourceKey="Level">Level: </Label>
             <div class="col-sm-9">
                 <input id="level" class="form-control" @bind="@_level" readonly />
             </div>
        </div>
        <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="feature" HelpText="The feature that was affected" ResourceKey="Feature">Feature: </Label>
+            <Label Class="col-sm-3" For="feature" HelpText="The feature that was affected" ResourceKey="Feature">Feature: </Label>
             <div class="col-sm-9">
                 <input id="feature" class="form-control" @bind="@_feature" readonly />
             </div>
        </div>
        <div class="row mb-1 align-items-center">
-                 <Label Class="col-sm-3" For="function" HelpText="The function that was performed" ResourceKey="Function">Function: </Label>
+            <Label Class="col-sm-3" For="function" HelpText="The function that was performed" ResourceKey="Function">Function: </Label>
             <div class="col-sm-9">
                 <input id="function" class="form-control" @bind="@_function" readonly />
             </div>
        </div>
        <div class="row mb-1 align-items-center">
-               <Label Class="col-sm-3" For="category" HelpText="The categories that were affected" ResourceKey="Category">Category: </Label>
+            <Label Class="col-sm-3" For="category" HelpText="The categories that were affected" ResourceKey="Category">Category: </Label>
             <div class="col-sm-9">
                 <input id="category" class="form-control" @bind="@_category" readonly />
             </div>
@@ -111,7 +43,7 @@
         @if (_pageName != string.Empty)
         {
            <div class="row mb-1 align-items-center">
-                   <Label Class="col-sm-3" For="page" HelpText="The page that was affected" ResourceKey="Page">Page: </Label>
+                <Label Class="col-sm-3" For="page" HelpText="The page that was affected" ResourceKey="Page">Page: </Label>
                 <div class="col-sm-9">
                     <input id="page" class="form-control" @bind="@_pageName" readonly />
                 </div>
@@ -120,7 +52,7 @@
         @if (_moduleTitle != string.Empty)
         {
            <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="module" HelpText="The module that was affected" ResourceKey="Module">Module: </Label>
+                <Label Class="col-sm-3" For="module" HelpText="The module that was affected" ResourceKey="Module">Module: </Label>
                 <div class="col-sm-9">
                     <input id="module" class="form-control" @bind="@_moduleTitle" readonly />
                 </div>
@@ -129,26 +61,26 @@
         @if (_username != string.Empty)
         {
            <div class="row mb-1 align-items-center">
-                   <Label Class="col-sm-3" For="user" HelpText="The user that caused this log" ResourceKey="User">User: </Label>
+                <Label Class="col-sm-3" For="user" HelpText="The user that caused this log" ResourceKey="User">User: </Label>
                  <div class="col-sm-9">
                     <input id="user" class="form-control" @bind="@_username" readonly />
                 </div>
            </div>
         }
        <div class="row mb-1 align-items-center">
-               <Label Class="col-sm-3" For="url" HelpText="The url the log comes from" ResourceKey="Url">Url: </Label>
+            <Label Class="col-sm-3" For="url" HelpText="The url the log comes from" ResourceKey="Url">Url: </Label>
             <div class="col-sm-9">
                 <input id="url" class="form-control" @bind="@_url" readonly />
             </div>
        </div>
        <div class="row mb-1 align-items-center">
-               <Label Class="col-sm-3" For="template" HelpText="What the log is about" ResourceKey="Template">Template: </Label>
+            <Label Class="col-sm-3" For="template" HelpText="What the log is about" ResourceKey="Template">Template: </Label>
             <div class="col-sm-9">
                 <input id="template" class="form-control" @bind="@_template" readonly />
             </div>
        </div>
        <div class="row mb-1 align-items-center">
-                 <Label Class="col-sm-3" For="message" HelpText="The message that the system generated" ResourceKey="Message">Message: </Label>
+            <Label Class="col-sm-3" For="message" HelpText="The message that the system generated" ResourceKey="Message">Message: </Label>
             <div class="col-sm-9">
                 <textarea id="message" class="form-control" @bind="@_message" rows="5" readonly></textarea>
             </div>
@@ -156,24 +88,25 @@
         @if (!string.IsNullOrEmpty(_exception))
         {
            <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="exception" HelpText="The exceptions generated by the system" ResourceKey="Exception">Exception: </Label>
-               <div class="col-sm-9">
+                <Label Class="col-sm-3" For="exception" HelpText="The exceptions generated by the system" ResourceKey="Exception">Exception: </Label>
+				<div class="col-sm-9">
                     <textarea id="exception" class="form-control" @bind="@_exception" rows="5" readonly></textarea>
                 </div>
            </div>
         }
        <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="properties" HelpText="The properties that were affected" ResourceKey="Properties">Properties: </Label>
+            <Label Class="col-sm-3" For="properties" HelpText="The properties that were affected" ResourceKey="Properties">Properties: </Label>
             <div class="col-sm-9">
                 <textarea id="properties" class="form-control" @bind="@_properties" rows="5" readonly></textarea>
             </div>
        </div>
        <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="server" HelpText="The server that was affected" ResourceKey="Server">Server: </Label>
-           <div class="col-sm-9">
+            <Label Class="col-sm-3" For="server" HelpText="The server that was affected" ResourceKey="Server">Server: </Label>
+			<div class="col-sm-9">
                 <input id="server" class="form-control" @bind="@_server" readonly />
             </div>
         </div>
+    </div>
 
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 

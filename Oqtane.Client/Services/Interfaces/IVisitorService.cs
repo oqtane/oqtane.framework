@@ -17,5 +17,13 @@ namespace Oqtane.Services
         /// <param name="siteId">ID-reference of a <see cref="Site"/></param>
         /// <returns></returns>
         Task<List<Visitor>> GetVisitorsAsync(int siteId, DateTime fromDate);
+
+        /// <summary>
+        /// Get a specific <see cref="Visitor"/> of this <see cref="Site"/>.
+        ///
+        /// </summary>
+        /// <param name="visitorId">ID-reference of a <see cref="Visitor"/></param>
+        /// <returns></returns>
+        Task<Visitor> GetVisitorAsync(int visitorId);
     }
 }

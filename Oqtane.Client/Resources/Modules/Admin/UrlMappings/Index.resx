@@ -132,11 +132,11 @@
   <data name="User" xml:space="preserve">
     <value>User</value>
   </data>
-  <data name="Visited" xml:space="preserve">
-    <value>Visited</value>
+  <data name="Requested" xml:space="preserve">
+    <value>Requested</value>
   </data>
-  <data name="Visits" xml:space="preserve">
-    <value>Visits</value>
+  <data name="Requests" xml:space="preserve">
+    <value>Requests</value>
   </data>
   <data name="Mapped" xml:space="preserve">
     <value>Mapped Urls</value>

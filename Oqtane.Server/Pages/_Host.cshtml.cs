@@ -189,19 +189,33 @@ namespace Oqtane.Pages
 
         private void TrackVisitor(int SiteId)
         {
+            // get request attributes
+            string ip = HttpContext.Connection.RemoteIpAddress.ToString();
+            string useragent = Request.Headers[HeaderNames.UserAgent];
+            string language = Request.Headers[HeaderNames.AcceptLanguage];
+            if (language.Contains(","))
+            {
+                language = language.Substring(0, language.IndexOf(","));
+            }
+            string url = Request.GetEncodedUrl();
+            string referrer = Request.Headers[HeaderNames.Referer];
+            int? userid = null;
+            if (User.HasClaim(item => item.Type == ClaimTypes.PrimarySid))
+            {
+                userid = int.Parse(User.Claims.First(item => item.Type == ClaimTypes.PrimarySid).Value);
+            }
+
             var VisitorCookie = "APP_VISITOR_" + SiteId.ToString();
             if (!int.TryParse(Request.Cookies[VisitorCookie], out VisitorId))
             {
                 var visitor = new Visitor();
                 visitor.SiteId = SiteId;
-                visitor.IPAddress = HttpContext.Connection.RemoteIpAddress.ToString();
-                visitor.UserAgent = Request.Headers[HeaderNames.UserAgent];
-                visitor.Language = Request.Headers[HeaderNames.AcceptLanguage];
-                if (visitor.Language.Contains(","))
-                {
-                    visitor.Language = visitor.Language.Substring(0, visitor.Language.IndexOf(","));
-                }
-                visitor.UserId = null;
+                visitor.IPAddress = ip;
+                visitor.UserAgent = useragent;
+                visitor.Language = language;
+                visitor.Url = url;
+                visitor.Referrer = referrer;
+                visitor.UserId = userid;
                 visitor.Visits = 1;
                 visitor.CreatedOn = DateTime.UtcNow;
                 visitor.VisitedOn = DateTime.UtcNow;
@@ -222,16 +236,17 @@ namespace Oqtane.Pages
                 var visitor = _visitors.GetVisitor(VisitorId);
                 if (visitor != null)
                 {
-                    visitor.IPAddress = HttpContext.Connection.RemoteIpAddress.ToString();
-                    visitor.UserAgent = Request.Headers[HeaderNames.UserAgent];
-                    visitor.Language = Request.Headers[HeaderNames.AcceptLanguage];
-                    if (visitor.Language.Contains(","))
+                    visitor.IPAddress = ip;
+                    visitor.UserAgent = useragent;
+                    visitor.Language = language;
+                    visitor.Url = url;
+                    if (!string.IsNullOrEmpty(referrer))
                     {
-                        visitor.Language = visitor.Language.Substring(0, visitor.Language.IndexOf(","));
+                        visitor.Referrer = referrer;
                     }
-                    if (User.HasClaim(item => item.Type == ClaimTypes.PrimarySid))
+                    if (userid != null)
                     {
-                        visitor.UserId = int.Parse(User.Claims.First(item => item.Type == ClaimTypes.PrimarySid).Value);
+                        visitor.UserId = userid;
                     }
                     visitor.Visits += 1;
                     visitor.VisitedOn = DateTime.UtcNow;

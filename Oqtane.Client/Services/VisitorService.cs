@@ -28,5 +28,10 @@ namespace Oqtane.Services
             List<Visitor> visitors = await GetJsonAsync<List<Visitor>>($"{Apiurl}?siteid={siteId}&fromdate={fromDate.ToString("dd-MMM-yyyy")}");
             return visitors.OrderByDescending(item => item.VisitedOn).ToList();
         }
+
+        public async Task<Visitor> GetVisitorAsync(int visitorId)
+        {
+            return await GetJsonAsync<Visitor>($"{Apiurl}/{visitorId}");
+        }
     }
 }

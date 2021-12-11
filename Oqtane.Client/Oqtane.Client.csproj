@@ -35,10 +35,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <TrimmerRootAssembly Include="System.Runtime" />
     <TrimmerRootAssembly Include="System.Linq.Parallel" />
     <TrimmerRootAssembly Include="System.Runtime.CompilerServices.VisualC" />

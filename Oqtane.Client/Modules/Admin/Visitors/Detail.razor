@@ -1,0 +1,123 @@
+@namespace Oqtane.Modules.Admin.Visitors
+@using System.Globalization
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IVisitorService VisitorService
+@inject IUserService UserService
+@inject IStringLocalizer<Detail> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+    <div class="container">
+       <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="ip" HelpText="The last recorded IP address for this visitor" ResourceKey="IP">IP Address: </Label>
+            <div class="col-sm-9">
+                <input id="ip" class="form-control" @bind="@_ip" readonly />
+            </div>
+       </div>
+       <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="language" HelpText="The last recorded language for this visitor" ResourceKey="Language">Language: </Label>
+            <div class="col-sm-9">
+                <input id="language" class="form-control" @bind="@_language" readonly />
+            </div>
+       </div>
+       <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="useragent" HelpText="The last recorded user agent for this visitor" ResourceKey="UserAgent">User Agent: </Label>
+            <div class="col-sm-9">
+                <input id="useragent" class="form-control" @bind="@_useragent" readonly />
+            </div>
+       </div>
+       <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="url" HelpText="The last recorded url for this visitor" ResourceKey="Url">Url: </Label>
+            <div class="col-sm-9">
+                <input id="url" class="form-control" @bind="@_url" readonly />
+            </div>
+       </div>
+       <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="referrer" HelpText="The last recorded referrer for this visitor" ResourceKey="Referrer">Referrer: </Label>
+            <div class="col-sm-9">
+                <input id="referrer" class="form-control" @bind="@_referrer" readonly />
+            </div>
+       </div>
+        @if (_user != string.Empty)
+        {
+           <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="user" HelpText="The last recorded user associated with this visitor" ResourceKey="User">User: </Label>
+                <div class="col-sm-9">
+                    <input id="user" class="form-control" @bind="@_user" readonly />
+                </div>
+           </div>
+        }
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="visits" HelpText="The total number of visits by this visitor all time" ResourceKey="Visits">Visits: </Label>
+            <div class="col-sm-9">
+                <input id="visits" class="form-control" @bind="@_visits" readonly />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="visited" HelpText="The last recorded date/time when the visitor visited the site" ResourceKey="Visited">Visited: </Label>
+                <div class="col-sm-9">
+                <input id="visited" class="form-control" @bind="@_visited" readonly />
+            </div>
+        </div>
+       <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="created" HelpText="The first recorded date/time when this visitor visited the site" ResourceKey="Created">Created: </Label>
+            <div class="col-sm-9">
+                <input id="created" class="form-control" @bind="@_created" readonly />
+            </div>
+       </div>
+	</div>
+
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+
+@code {
+	private int _visitorId;
+	private string _ip = string.Empty;
+	private string _language = string.Empty;
+	private string _useragent = string.Empty;
+	private string _url = string.Empty;
+	private string _referrer = string.Empty;
+	private string _user = string.Empty;
+	private string _visits = string.Empty;
+	private string _visited = string.Empty;
+	private string _created = string.Empty;
+
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			_visitorId = Int32.Parse(PageState.QueryString["id"]);
+			var visitor = await VisitorService.GetVisitorAsync(_visitorId);
+			if (visitor != null)
+			{
+				_ip = visitor.IPAddress;
+				_language = visitor.Language;
+				_useragent = visitor.UserAgent;
+				_url = visitor.Url;
+				_referrer = visitor.Referrer;
+				_visits = visitor.Visits.ToString();
+				_visited = visitor.VisitedOn.ToString(CultureInfo.CurrentCulture);
+				_created = visitor.CreatedOn.ToString(CultureInfo.CurrentCulture);
+
+				if (visitor.UserId != null)
+				{
+					var user = await UserService.GetUserAsync(visitor.UserId.Value, PageState.Site.SiteId);
+					if (user != null)
+					{
+						_user = user.DisplayName;
+					}
+				}
+			}
+			else
+			{
+				AddModuleMessage(Localizer["Error.LoadVisitor"], MessageType.Error);
+			}
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Loading Visitor {VisitorId} {Error}", _visitorId, ex.Message);
+			AddModuleMessage(Localizer["Error.LoadVisitor"], MessageType.Error);
+		}
+	}
+    }

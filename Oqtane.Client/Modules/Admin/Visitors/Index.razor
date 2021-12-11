@@ -33,13 +33,16 @@ else
 			<br/>
 			<Pager Items="@_visitors">
 				<Header>
+					<th style="width: 1px;">&nbsp;</th>
 					<th>@Localizer["IP"]</th>
 					<th>@Localizer["User"]</th>
 					<th>@Localizer["Language"]</th>
 					<th>@Localizer["Visits"]</th>
 					<th>@Localizer["Visited"]</th>
+					<th>@Localizer["Created"]</th>
 				</Header>
 				<Row>
+					<td><ActionLink Action="Detail" Parameters="@($"id=" + context.VisitorId.ToString())" ResourceKey="Details" /></td>
 					<td>@context.IPAddress</td>
 					<td>
 						@if (context.UserId != null)
@@ -50,6 +53,7 @@ else
 					<td>@context.Language</td>
 					<td>@context.Visits</td>
 					<td>@context.VisitedOn</td>
+					<td>@context.CreatedOn</td>
 				</Row>
 			</Pager>
 	</TabPanel>

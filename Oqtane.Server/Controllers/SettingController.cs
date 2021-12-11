@@ -204,11 +204,14 @@ namespace Oqtane.Controllers
                     }
                     break;
                 case EntityNames.Visitor:
-                    authorized = false;
                     var visitorCookie = "APP_VISITOR_" + _alias.SiteId.ToString();
                     if (int.TryParse(Request.Cookies[visitorCookie], out int visitorId))
                     {
                         authorized = (visitorId == entityId);
+                    }
+                    else
+                    {
+                        authorized = User.IsInRole(RoleNames.Admin);
                     }
                     break;
             }
