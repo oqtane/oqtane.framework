@@ -183,7 +183,16 @@
   <data name="Runtimes.Text" xml:space="preserve">
     <value>Runtimes: </value>
   </data>
-  <data name="Definition.Name" xml:space="preserve">
+  <data name="Definition.Heading" xml:space="preserve">
     <value>Definition</value>
+  </data>
+  <data name="Information.Heading" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="Permissions.Heading" xml:space="preserve">
+    <value>Permissions</value>
+  </data>
+  <data name="Information.Text" xml:space="preserve">
+    <value>Information</value>
   </data>
 </root>
