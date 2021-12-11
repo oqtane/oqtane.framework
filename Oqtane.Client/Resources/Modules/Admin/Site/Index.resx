@@ -303,4 +303,19 @@
   <data name="SMTPSettings.Heading" xml:space="preserve">
     <value>SMTP Settings</value>
   </data>
+  <data name="ConnectionString.Text" xml:space="preserve">
+    <value>Connection:</value>
+  </data>
+  <data name="Database.Text" xml:space="preserve">
+    <value>Database:</value>
+  </data>
+  <data name="ConnectionString.HelpText" xml:space="preserve">
+    <value>The connection information for the database</value>
+  </data>
+  <data name="Database.HelpText" xml:space="preserve">
+    <value>The database for the tenant</value>
+  </data>
+  <data name="DeleteSite.Text" xml:space="preserve">
+    <value>Delete Site</value>
+  </data>
 </root>

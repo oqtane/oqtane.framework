@@ -144,4 +144,13 @@
   <data name="Users.Heading" xml:space="preserve">
     <value>Users</value>
   </data>
+  <data name="DeleteUser.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="EditUser.Text" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Roles.Text" xml:space="preserve">
+    <value>Roles</value>
+  </data>
 </root>

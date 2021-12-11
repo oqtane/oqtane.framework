@@ -162,4 +162,13 @@
   <data name="Urls.Heading" xml:space="preserve">
     <value>Urls</value>
   </data>
+  <data name="Requested" xml:space="preserve">
+    <value>Requested</value>
+  </data>
+  <data name="Requests" xml:space="preserve">
+    <value>Requests</value>
+  </data>
+  <data name="Url" xml:space="preserve">
+    <value>Url</value>
+  </data>
 </root>
