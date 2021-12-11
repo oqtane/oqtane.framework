@@ -51,11 +51,11 @@ else
     {
         <Pager Items="@_logs">
             <Header>
-            <th style="width: 1px;">&nbsp;</th>
-            <th>@Localizer["Date"]</th>
-            <th>@Localizer["Level"]</th>
-            <th>@Localizer["Feature"]</th>
-            <th>@Localizer["Function"]</th>
+				<th style="width: 1px;">&nbsp;</th>
+				<th>@Localizer["Date"]</th>
+				<th>@Localizer["Level"]</th>
+				<th>@Localizer["Feature"]</th>
+				<th>@Localizer["Function"]</th>
             </Header>
             <Row>
                 <td class="@GetClass(context.Function)"><ActionLink Action="Detail" Parameters="@($"id=" + context.LogId.ToString())" ResourceKey="LogDetails" /></td>

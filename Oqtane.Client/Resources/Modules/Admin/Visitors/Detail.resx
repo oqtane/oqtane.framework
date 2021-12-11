@@ -117,52 +117,61 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Url" xml:space="preserve">
-    <value>Url</value>
+  <data name="IP.Text" xml:space="preserve">
+    <value>IP Address:</value>
   </data>
-  <data name="Visited" xml:space="preserve">
-    <value>Visited</value>
+  <data name="IP.HelpText" xml:space="preserve">
+    <value>The last recorded IP address for this visitor</value>
   </data>
-  <data name="Visits" xml:space="preserve">
-    <value>Visits</value>
+  <data name="Language.HelpText" xml:space="preserve">
+    <value>The last recorded language for this visitor</value>
   </data>
-  <data name="AllVisitors" xml:space="preserve">
-    <value>All Visitors</value>
+  <data name="Language.Text" xml:space="preserve">
+    <value>Language:</value>
   </data>
-  <data name="PastDay" xml:space="preserve">
-    <value>Past Day</value>
+  <data name="Error.LoadVisitor" xml:space="preserve">
+    <value>Error Loading Visitor</value>
   </data>
-  <data name="PastMonth" xml:space="preserve">
-    <value>Past Month</value>
+  <data name="Created.HelpText" xml:space="preserve">
+    <value>The frst recorded date/time when the visitor visited the site</value>
   </data>
-  <data name="PastWeek" xml:space="preserve">
-    <value>Past Week</value>
+  <data name="Created.Text" xml:space="preserve">
+    <value>Created:</value>
   </data>
-  <data name="UsersOnly" xml:space="preserve">
-    <value>Users Only</value>
+  <data name="Referrer.HelpText" xml:space="preserve">
+    <value>The last recorded referrer for this visitor</value>
   </data>
-  <data name="Language" xml:space="preserve">
-    <value>Language</value>
+  <data name="Referrer.Text" xml:space="preserve">
+    <value>Referrer:</value>
   </data>
-  <data name="Error.SaveSiteSettings" xml:space="preserve">
-    <value>Error Saving Settings</value>
+  <data name="Url.HelpText" xml:space="preserve">
+    <value>The last recorded Url for this visitor</value>
   </data>
-  <data name="Settings.Heading" xml:space="preserve">
-    <value>Settings</value>
+  <data name="Url.Text" xml:space="preserve">
+    <value>Url:</value>
   </data>
-  <data name="Success.SaveSiteSettings" xml:space="preserve">
-    <value>Settings Saved Successfully</value>
+  <data name="User.HelpText" xml:space="preserve">
+    <value>The last recorded user associated with this visitor</value>
   </data>
-  <data name="Visitors.Heading" xml:space="preserve">
-    <value>Visitors</value>
+  <data name="User.Text" xml:space="preserve">
+    <value>User:</value>
   </data>
-  <data name="VisitorTracking.HelpText" xml:space="preserve">
-    <value>Specify if visitor tracking is enabled</value>
+  <data name="UserAgent.HelpText" xml:space="preserve">
+    <value>The last recorded user agent for this visitor</value>
   </data>
-  <data name="VisitorTracking.Text" xml:space="preserve">
-    <value>Visitor Tracking Enabled?</value>
+  <data name="UserAgent.Text" xml:space="preserve">
+    <value>User Agent:</value>
   </data>
-  <data name="Created" xml:space="preserve">
-    <value>Created</value>
+  <data name="Visited.HelpText" xml:space="preserve">
+    <value>The last recorded date/time when the visitor visited the site</value>
+  </data>
+  <data name="Visited.Text" xml:space="preserve">
+    <value>Visited:</value>
+  </data>
+  <data name="Visits.HelpText" xml:space="preserve">
+    <value>The total number of visits by this visitor all time</value>
+  </data>
+  <data name="Visits.Text" xml:space="preserve">
+    <value>Visits:</value>
   </data>
 </root>
