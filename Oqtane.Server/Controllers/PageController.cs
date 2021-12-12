@@ -22,11 +22,12 @@ namespace Oqtane.Controllers
         private readonly IPermissionRepository _permissionRepository;
         private readonly ISettingRepository _settings;
         private readonly IUserPermissions _userPermissions;
+        private readonly IUrlMappingRepository _urlMappings;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public PageController(IPageRepository pages, IModuleRepository modules, IPageModuleRepository pageModules, IPermissionRepository permissionRepository, ISettingRepository settings, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
+        public PageController(IPageRepository pages, IModuleRepository modules, IPageModuleRepository pageModules, IPermissionRepository permissionRepository, ISettingRepository settings, IUserPermissions userPermissions, IUrlMappingRepository urlMappings, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
         {
             _pages = pages;
             _modules = modules;
@@ -34,6 +35,7 @@ namespace Oqtane.Controllers
             _permissionRepository = permissionRepository;
             _settings = settings;
             _userPermissions = userPermissions;
+            _urlMappings = urlMappings;
             _syncManager = syncManager;
             _logger = logger;
             _alias = tenantManager.GetAlias();
@@ -252,17 +254,34 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public Page Put(int id, [FromBody] Page page)
         {
-            if (ModelState.IsValid && page.SiteId == _alias.SiteId && _pages.GetPage(page.PageId, false) != null && _userPermissions.IsAuthorized(User, EntityNames.Page, page.PageId, PermissionNames.Edit))
+            // get current page
+            var currentPage = _pages.GetPage(page.PageId, false);
+
+            if (ModelState.IsValid && page.SiteId == _alias.SiteId && currentPage != null && _userPermissions.IsAuthorized(User, EntityNames.Page, page.PageId, PermissionNames.Edit))
             {
-                // preserve page permissions
-                var oldPermissions = _permissionRepository.GetPermissions(EntityNames.Page, page.PageId).ToList();
+                // get current page permissions
+                var currentPermissions = _permissionRepository.GetPermissions(EntityNames.Page, page.PageId).ToList();
 
                 page = _pages.UpdatePage(page);
 
-                // get differences between old and new page permissions
+                // save url mapping if page path changed
+                if (currentPage.Path != page.Path)
+                {
+                    var url = HttpContext.Request.Scheme + "://" + _alias.Name + "/";
+                    var urlMapping = new UrlMapping();
+                    urlMapping.SiteId = page.SiteId;
+                    urlMapping.Url = url + currentPage.Path;
+                    urlMapping.MappedUrl = url + page.Path;
+                    urlMapping.Requests = 0;
+                    urlMapping.CreatedOn = System.DateTime.UtcNow;
+                    urlMapping.RequestedOn = System.DateTime.UtcNow;
+                    _urlMappings.AddUrlMapping(urlMapping);
+                }
+
+                // get differences between current and new page permissions
                 var newPermissions = _permissionRepository.DecodePermissions(page.Permissions, page.SiteId, EntityNames.Page, page.PageId).ToList();
-                var added = GetPermissionsDifferences(newPermissions, oldPermissions);
-                var removed = GetPermissionsDifferences(oldPermissions, newPermissions);
+                var added = GetPermissionsDifferences(newPermissions, currentPermissions);
+                var removed = GetPermissionsDifferences(currentPermissions, newPermissions);
 
                 // synchronize module permissions
                 if (added.Count > 0 || removed.Count > 0)
@@ -270,7 +289,6 @@ namespace Oqtane.Controllers
                     foreach (PageModule pageModule in _pageModules.GetPageModules(page.PageId, "").ToList())
                     {
                         var modulePermissions = _permissionRepository.GetPermissions(EntityNames.Module, pageModule.Module.ModuleId).ToList();
-                        //var modulePermissions = _permissionRepository.DecodePermissions(pageModule.Module.Permissions, page.SiteId, EntityNames.Module, pageModule.ModuleId).ToList();
                         // permissions added
                         foreach(Permission permission in added)
                         {
