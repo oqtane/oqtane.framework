@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Hosting;
 using Oqtane.Extensions;
 using Oqtane.Shared;
 using System.IO;
+using Oqtane.Documentation;
 
 namespace Oqtane.SiteTemplates
 {
+    [PrivateApi("Mark Site-Template classes as private, since it's not very useful in the public docs")]
     public class DefaultSiteTemplate : ISiteTemplate
     {
 
@@ -128,6 +130,35 @@ namespace Oqtane.SiteTemplates
                             new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                         }.EncodePermissions(),
                         Content = "<p>Oqtane offers native support for user personalized pages. If a page is identified as personalizable by the site administrator in the page settings, when an authenticated user visits the page they will see an edit button at the top right corner of the page next to their username. When they click this button the sytem will create a new version of the page and allow them to edit the page content.</p>"
+                    }
+                }
+            });
+            _pageTemplates.Add(new PageTemplate
+            {
+                Name = "Develop",
+                Parent = "",
+                Order = 7,
+                Path = "develop",
+                Icon = "oi oi-wrench",
+                IsNavigation = true,
+                IsPersonalizable = true,
+                PagePermissions = new List<Permission> {
+                    new Permission(PermissionNames.View, RoleNames.Host, true),
+                    new Permission(PermissionNames.Edit, RoleNames.Host, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule> {
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Software Development", Pane = PaneNames.Admin,
+                        ModulePermissions = new List<Permission> {
+                            new Permission(PermissionNames.View, RoleNames.Host, true),
+                            new Permission(PermissionNames.Edit, RoleNames.Host, true)
+                        }.EncodePermissions(),
+                        Content = "<p>Oqtane offers a Module Creator which allows you to create new modules to extend the framework with additional capabilities. Simply provide some basic information and the system will scaffold a completely functional module which includes all of the necessary code files and assets to get you up and running as quickly as possible.</p>"
+                    },
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.ModuleCreator, Oqtane.Client", Title = "Module Creator", Pane = PaneNames.Admin,
+                        ModulePermissions = new List<Permission> {
+                            new Permission(PermissionNames.View, RoleNames.Host, true),
+                            new Permission(PermissionNames.Edit, RoleNames.Host, true)
+                        }.EncodePermissions()
                     }
                 }
             });

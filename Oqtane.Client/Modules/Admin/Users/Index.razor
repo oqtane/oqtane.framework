@@ -3,6 +3,7 @@
 @inject IUserRoleService UserRoleService
 @inject IUserService UserService
 @inject ISettingService SettingService
+@inject ISiteService SiteService
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -14,45 +15,65 @@
 }
 else
 {
-    <div class="container">
-        <div class="row mb-1 align-items-center">
-            <div class="col-sm-4">
-                <ActionLink Action="Add" Text="Add User" ResourceKey="AddUser" />
-            </div>
-            <div class="col-sm-4">
-                <input class="form-control" @bind="@_search" />
-            </div>
-            <div class="col-sm-4">
-                <button class="btn btn-secondary" @onclick="OnSearch">@SharedLocalizer["Search"]</button>
-            </div>
-        </div>
-    </div>
-    <Pager Items="@userroles">
-        <Header>
-        <th style="width: 1px;">&nbsp;</th>
-        <th style="width: 1px;">&nbsp;</th>
-        <th style="width: 1px;">&nbsp;</th>
-        <th>@SharedLocalizer["Name"]</th>
-        </Header>
-        <Row>
-            <td>
-                <ActionLink Action="Edit" Parameters="@($"id=" + context.UserId.ToString())" ResourceKey="EditUser" />
-            </td>
-            <td>
-                <ActionDialog Header="Delete User" Message="@string.Format(Localizer["Confirm.User.Delete"], context.User.DisplayName)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUser(context))" Disabled="@(context.UserId == PageState.User.UserId)" ResourceKey="DeleteUser" />
-            </td>
-            <td>
-                <ActionLink Action="Roles" Parameters="@($"id=" + context.UserId.ToString())" ResourceKey="Roles" />
-            </td>
-            <td>@context.User.DisplayName</td>
-        </Row>
-    </Pager>
+    <TabStrip>
+        <TabPanel Name="Users" Heading="Users" ResourceKey="Users">
+			<div class="container">
+				<div class="row mb-1 align-items-center">
+					<div class="col-sm-4">
+						<ActionLink Action="Add" Text="Add User" ResourceKey="AddUser" />
+					</div>
+					<div class="col-sm-4">
+						<input class="form-control" @bind="@_search" />
+					</div>
+					<div class="col-sm-4">
+						<button type="button" class="btn btn-secondary" @onclick="OnSearch">@SharedLocalizer["Search"]</button>
+					</div>
+				</div>
+			</div>
+			<Pager Items="@userroles">
+				<Header>
+				<th style="width: 1px;">&nbsp;</th>
+				<th style="width: 1px;">&nbsp;</th>
+				<th style="width: 1px;">&nbsp;</th>
+				<th>@SharedLocalizer["Name"]</th>
+				</Header>
+				<Row>
+					<td>
+						<ActionLink Action="Edit" Parameters="@($"id=" + context.UserId.ToString())" ResourceKey="EditUser" />
+					</td>
+					<td>
+						<ActionDialog Header="Delete User" Message="@string.Format(Localizer["Confirm.User.Delete"], context.User.DisplayName)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUser(context))" Disabled="@(context.UserId == PageState.User.UserId)" ResourceKey="DeleteUser" />
+					</td>
+					<td>
+						<ActionLink Action="Roles" Parameters="@($"id=" + context.UserId.ToString())" ResourceKey="Roles" />
+					</td>
+					<td>@context.User.DisplayName</td>
+				</Row>
+			</Pager>
+	</TabPanel>
+        <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings">
+			<div class="container">
+				<div class="row mb-1 align-items-center">
+					<Label Class="col-sm-3" For="allowregistration" HelpText="Do you want to allow visitors to be able to register for a user account on the site" ResourceKey="AllowRegistration">Allow User Registration? </Label>
+					<div class="col-sm-9">
+						<select id="allowregistration" class="form-select" @bind="@_allowregistration" required>
+							<option value="True">@SharedLocalizer["Yes"]</option>
+							<option value="False">@SharedLocalizer["No"]</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<br />
+			<button type="button" class="btn btn-success" @onclick="SaveSiteSettings">@SharedLocalizer["Save"]</button>
+		</TabPanel>
+	</TabStrip>
 }
 
 @code {
     private List<UserRole> allroles;
     private List<UserRole> userroles;
     private string _search;
+	private string _allowregistration;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -61,6 +82,7 @@ else
         allroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
         await LoadSettingsAsync();
         userroles = Search(_search);
+		_allowregistration = PageState.Site.AllowRegistration.ToString();
     }
 
     private List<UserRole> Search(string search)
@@ -121,5 +143,21 @@ else
         SettingService.SetSetting(settings, settingSearch, _search);
         await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
     }
+
+	private async Task SaveSiteSettings()
+	{
+		try
+		{
+			var site = PageState.Site;
+			site.AllowRegistration = bool.Parse(_allowregistration);
+			await SiteService.UpdateSiteAsync(site);
+			AddModuleMessage(Localizer["Success.SaveSiteSettings"], MessageType.Success);
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Saving Site Settings {Error}", ex.Message);
+			AddModuleMessage(Localizer["Error.SaveSiteSettings"], MessageType.Error);
+		}
+	}
 
 }

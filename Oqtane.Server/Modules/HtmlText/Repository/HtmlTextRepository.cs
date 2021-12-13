@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using Oqtane.Modules.HtmlText.Models;
+using Oqtane.Documentation;
 
 namespace Oqtane.Modules.HtmlText.Repository
 {
+    [PrivateApi("Mark HtmlText classes as private, since it's not very useful in the public docs")]
     public class HtmlTextRepository : IHtmlTextRepository, IService
     {
         private readonly HtmlTextContext _db;

@@ -15,16 +15,16 @@
 }
 
 @code {
-    public override List<Resource> Resources => new List<Resource>()
+	public override List<Resource> Resources => new List<Resource>()
     {
         new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" }
     };
 
-    private string content = "";
+	private string content = "";
 
-    protected override async Task OnParametersSetAsync()
-    {
-        try
+	protected override async Task OnParametersSetAsync()
+	{
+		try
         {
             var htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId);
             if (htmltext != null)
@@ -35,8 +35,8 @@
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "An Error Occurred Loading Html/Text Content. " + ex.Message);
-            AddModuleMessage(ex.Message, MessageType.Error);
+			await logger.LogError(ex, "Error Loading Content {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Content.Load"], MessageType.Error);
         }
     }
 }

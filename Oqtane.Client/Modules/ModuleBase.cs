@@ -136,7 +136,12 @@ namespace Oqtane.Modules
 
         public string ImageUrl(int fileid, int width, int height, string mode)
         {
-            return Utilities.ImageUrl(PageState.Alias, fileid, width, height, mode);
+            return ImageUrl(fileid, width, height, mode, 0);
+        }
+
+        public string ImageUrl(int fileid, int width, int height, string mode, int rotate)
+        {
+            return Utilities.ImageUrl(PageState.Alias, fileid, width, height, mode, rotate);
         }
 
         public virtual Dictionary<string, string> GetUrlParameters(string parametersTemplate = "")

@@ -67,7 +67,7 @@ V.3.1.0 ( Q4 2021 )
 - [ ] Authentication extensibility via Social logins / Azure B2C
 - [ ] Allow configuration of password complexity for local authentication
 
-V.3.0.0 ( Nov 10, 2021 )
+V.3.0.0 ( Nov 11, 2021 )
 - [x] Migration to .NET 6
 - [x] Blazor hosting model flexibility per site
 - [x] Blazor WebAssembly prerendering support
@@ -129,9 +129,12 @@ V.1.0.0 ( May 19, 2020 - released in conjunction with .NET Core 3.2 )
 - [x] Dynamic CSS/Lazy Loading
 
 # Background
-Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology and a Single Page Application (SPA) architecture. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly templates (skins), and extensibility via third party modules.
+Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology and a Single Page Application (SPA) architecture. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly themes, and extensibility via third party modules.
 
 # Release Announcements
+
+[Oqtane 3.0](https://www.oqtane.org/Resources/Blog/PostId/551/announcing-oqtane-30-for-net-6)
+
 [Oqtane 2.2](https://www.oqtane.org/Resources/Blog/PostId/549/oqtane-22-upgrades-to-bootstrap-5)
 
 [Oqtane 2.1](https://www.oqtane.org/Resources/Blog/PostId/548/oqtane-21-now-supports-multiple-databases)

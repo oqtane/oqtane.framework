@@ -21,6 +21,7 @@ namespace Oqtane.Services
         }
 
         private string Apiurl => CreateApiUrl("Setting", _siteState.Alias);
+
         public async Task<Dictionary<string, string>> GetTenantSettingsAsync()
         {
             return await GetSettingsAsync(EntityNames.Tenant, -1);
@@ -71,6 +72,16 @@ namespace Oqtane.Services
             await UpdateSettingsAsync(moduleSettings, EntityNames.Module, moduleId);
         }
 
+        public async Task<Dictionary<string, string>> GetModuleDefinitionSettingsAsync(int moduleDefinitionId)
+        {
+            return await GetSettingsAsync(EntityNames.ModuleDefinition, moduleDefinitionId);
+        }
+
+        public async Task UpdateModuleDefinitionSettingsAsync(Dictionary<string, string> moduleDefinitionSettings, int moduleDefinitionId)
+        {
+            await UpdateSettingsAsync(moduleDefinitionSettings, EntityNames.ModuleDefinition, moduleDefinitionId);
+        }
+
         public async Task<Dictionary<string, string>> GetUserSettingsAsync(int userId)
         {
             return await GetSettingsAsync(EntityNames.User, userId);
@@ -89,6 +100,16 @@ namespace Oqtane.Services
         public async Task UpdateFolderSettingsAsync(Dictionary<string, string> folderSettings, int folderId)
         {
             await UpdateSettingsAsync(folderSettings, EntityNames.Folder, folderId);
+        }
+
+        public async Task<Dictionary<string, string>> GetHostSettingsAsync()
+        {
+            return await GetSettingsAsync(EntityNames.Host, -1);
+        }
+
+        public async Task UpdateHostSettingsAsync(Dictionary<string, string> hostSettings)
+        {
+            await UpdateSettingsAsync(hostSettings, EntityNames.Host, -1);
         }
 
         public async Task<Dictionary<string, string>> GetSettingsAsync(string entityName, int entityId)
@@ -144,9 +165,9 @@ namespace Oqtane.Services
         }
 
 
-        public async Task<Setting> GetSettingAsync(int settingId)
+        public async Task<Setting> GetSettingAsync(string entityName, int settingId)
         {
-            return await GetJsonAsync<Setting>($"{Apiurl}/{settingId}");
+            return await GetJsonAsync<Setting>($"{Apiurl}/{settingId}/{entityName}");
         }
 
         public async Task<Setting> AddSettingAsync(Setting setting)
@@ -159,9 +180,9 @@ namespace Oqtane.Services
             return await PutJsonAsync<Setting>($"{Apiurl}/{setting.SettingId}", setting);
         }
 
-        public async Task DeleteSettingAsync(int settingId)
+        public async Task DeleteSettingAsync(string entityName, int settingId)
         {
-            await DeleteAsync($"{Apiurl}/{settingId}");
+            await DeleteAsync($"{Apiurl}/{settingId}/{entityName}");
         }
 
 
@@ -220,5 +241,19 @@ namespace Oqtane.Services
             }
             return settings1;
         }
+
+        [Obsolete("GetSettingAsync(int settingId) is deprecated. Use GetSettingAsync(string entityName, int settingId) instead.", false)]
+        public async Task<Setting> GetSettingAsync(int settingId)
+        {
+            return await GetJsonAsync<Setting>($"{Apiurl}/{settingId}/tenant");
+        }
+
+        [Obsolete("DeleteSettingAsync(int settingId) is deprecated. Use DeleteSettingAsync(string entityName, int settingId) instead.", false)]
+        public async Task DeleteSettingAsync(int settingId)
+        {
+            await DeleteAsync($"{Apiurl}/{settingId}/tenant");
+        }
+
+
     }
 }

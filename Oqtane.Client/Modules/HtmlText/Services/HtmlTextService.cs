@@ -1,10 +1,12 @@
 using System.Net.Http;
 using System.Threading.Tasks;
+using Oqtane.Documentation;
 using Oqtane.Services;
 using Oqtane.Shared;
 
 namespace Oqtane.Modules.HtmlText.Services
 {
+    [PrivateApi("Mark HtmlText classes as private, since it's not very useful in the public docs")]
     public class HtmlTextService : ServiceBase, IHtmlTextService, IService
     {        
         public HtmlTextService(HttpClient http, SiteState siteState) : base(http, siteState) {}

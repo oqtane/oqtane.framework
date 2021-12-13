@@ -30,8 +30,8 @@
     public override List<Resource> Resources => new List<Resource>()
 {
         new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" },
-        new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill1.3.6.bubble.css" },
-        new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill1.3.6.snow.css" }
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill1.3.7.bubble.css" },
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill1.3.7.snow.css" }
     };
 
     private RichTextEditor RichTextEditorHtml;
@@ -65,8 +65,8 @@
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "An Error Occurred Loading Html/Text Content. " + ex.Message);
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Loading Content {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Content.Load"], MessageType.Error);
         }
     }
 
@@ -91,7 +91,7 @@
                 await HtmlTextService.AddHtmlTextAsync(htmltext);
             }
 
-            await logger.LogInformation("Html/Text Content Saved {HtmlText}", htmltext);
+            await logger.LogInformation("Content Saved {HtmlText}", htmltext);
             NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)

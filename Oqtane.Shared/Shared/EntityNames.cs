@@ -1,4 +1,4 @@
-﻿namespace Oqtane.Shared
+namespace Oqtane.Shared
 {
     public class EntityNames
     {
@@ -10,5 +10,7 @@
         public const string Page = "Page";
         public const string Folder = "Folder";
         public const string User = "User";
+        public const string Visitor = "Visitor";
+        public const string Host = "Host";
     }
 }

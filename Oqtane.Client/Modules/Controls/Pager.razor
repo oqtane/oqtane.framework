@@ -4,7 +4,7 @@
 
 @if (ItemList != null)
 {
-    @if (Toolbar == "Top" && _pages > 0 && Items.Count() > _maxItems)
+    @if ((Toolbar == "Top" || Toolbar == "Both") && _pages > 0 && Items.Count() > _maxItems)
     {
         <ul class="pagination justify-content-center my-2">
             <li class="page-item@((_page > 1) ? "" : " disabled")">
@@ -101,7 +101,7 @@
             }
         </div>
     }
-    @if (Toolbar == "Bottom" && _pages > 0 && Items.Count() > _maxItems)
+    @if ((Toolbar == "Bottom"  || Toolbar == "Both") && _pages > 0 && Items.Count() > _maxItems)
     {
         <ul class="pagination justify-content-center my-2">
             <li class="page-item@((_page > 1) ? "" : " disabled")">
@@ -164,7 +164,7 @@
     public string Format { get; set; } // Table or Grid
 
     [Parameter]
-    public string Toolbar { get; set; } // Top or Bottom
+    public string Toolbar { get; set; } // Top, Bottom or Both
 
     [Parameter]
     public RenderFragment Header { get; set; } = null;

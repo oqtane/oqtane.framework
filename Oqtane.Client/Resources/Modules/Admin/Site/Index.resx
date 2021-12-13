@@ -129,7 +129,7 @@
   <data name="DefaultContainer.Text" xml:space="preserve">
     <value>Default Container: </value>
   </data>
-  <data name="Appearance.Name" xml:space="preserve">
+  <data name="Appearance.Heading" xml:space="preserve">
     <value>Appearance</value>
   </data>
   <data name="DefaultAdminContainer" xml:space="preserve">
@@ -170,9 +170,6 @@
   </data>
   <data name="Aliases.HelpText" xml:space="preserve">
     <value>The aliases for the site. An alias can be a domain name (www.site.com) or a virtual folder (ie. www.site.com/folder). If a site has multiple aliases they should be separated by commas.</value>
-  </data>
-  <data name="AllowRegistration.HelpText" xml:space="preserve">
-    <value>Do you want the users to be able to register for an account on the site</value>
   </data>
   <data name="IsDeleted.HelpText" xml:space="preserve">
     <value>Is this site deleted?</value>
@@ -224,9 +221,6 @@
   </data>
   <data name="Aliases.Text" xml:space="preserve">
     <value>Aliases: </value>
-  </data>
-  <data name="AllowRegistration.Text" xml:space="preserve">
-    <value>Allow User Registration? </value>
   </data>
   <data name="IsDeleted.Text" xml:space="preserve">
     <value>Is Deleted? </value>
@@ -282,7 +276,7 @@
   <data name="Theme.Select" xml:space="preserve">
     <value>Select Theme</value>
   </data>
-  <data name="Hosting" xml:space="preserve">
+  <data name="Hosting.Heading" xml:space="preserve">
     <value>Hosting Model</value>
   </data>
   <data name="Prerender.HelpText" xml:space="preserve">
@@ -299,5 +293,29 @@
   </data>
   <data name="Browse" xml:space="preserve">
     <value>Browse</value>
+  </data>
+  <data name="TenantInformation.Heading" xml:space="preserve">
+    <value>Tenant Information</value>
+  </data>
+  <data name="PWASettings.Heading" xml:space="preserve">
+    <value>PWA Settings</value>
+  </data>
+  <data name="SMTPSettings.Heading" xml:space="preserve">
+    <value>SMTP Settings</value>
+  </data>
+  <data name="ConnectionString.Text" xml:space="preserve">
+    <value>Connection:</value>
+  </data>
+  <data name="Database.Text" xml:space="preserve">
+    <value>Database:</value>
+  </data>
+  <data name="ConnectionString.HelpText" xml:space="preserve">
+    <value>The connection information for the database</value>
+  </data>
+  <data name="Database.HelpText" xml:space="preserve">
+    <value>The database for the tenant</value>
+  </data>
+  <data name="DeleteSite.Text" xml:space="preserve">
+    <value>Delete Site</value>
   </data>
 </root>

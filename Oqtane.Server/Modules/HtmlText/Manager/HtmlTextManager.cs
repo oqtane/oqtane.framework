@@ -7,11 +7,13 @@ using Oqtane.Enums;
 using Oqtane.Repository;
 using Oqtane.Shared;
 using Oqtane.Migrations.Framework;
+using Oqtane.Documentation;
 
 // ReSharper disable ConvertToUsingDeclaration
 
 namespace Oqtane.Modules.HtmlText.Manager
 {
+    [PrivateApi("Mark HtmlText classes as private, since it's not very useful in the public docs")]
     public class HtmlTextManager : MigratableModuleBase, IInstallable, IPortable
     {
         private readonly IHtmlTextRepository _htmlText;

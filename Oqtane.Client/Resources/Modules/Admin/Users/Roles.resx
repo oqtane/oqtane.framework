@@ -177,4 +177,7 @@
   <data name="Expiry" xml:space="preserve">
     <value>Expiry</value>
   </data>
+  <data name="DeleteUserRole.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
 </root>

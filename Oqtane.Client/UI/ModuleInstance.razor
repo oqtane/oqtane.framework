@@ -1,78 +1,104 @@
 @namespace Oqtane.UI
 @inject IStringLocalizer<ModuleInstance> Localizer
+@inject ILogService LoggingService
+@inherits ErrorBoundary
 
-<ModuleMessage Message="@_message" Type="@_messagetype" />
-@DynamicComponent
-@if (_progressindicator)
+@if (CurrentException is null)
 {
-    <div class="app-progress-indicator"></div>
+    <ModuleMessage Message="@_message" Type="@_messageType"/>
+    @if (ModuleType != null)
+    {
+        <DynamicComponent Type="@ModuleType" Parameters="@ModuleParameters"></DynamicComponent>
+        @if (_progressIndicator)
+        {
+            <div class="app-progress-indicator"></div>
+        }
+    }
+}
+else 
+{
+	@if (!string.IsNullOrEmpty(_error))
+	{
+		<ModuleMessage Message="@_error" Type="@MessageType.Error"/>
+	}
 }
 
 @code {
-    private string _message;
-    private MessageType _messagetype;
-    private bool _progressindicator = false;
+	private string _message;
+	private string _error;
+	private MessageType _messageType;
+	private bool _progressIndicator = false;
 
-    [CascadingParameter]
-    protected PageState PageState { get; set; }
+	private Type ModuleType { get; set; }
+	private IDictionary<string, object> ModuleParameters { get; set; }
 
-    [CascadingParameter]
-    private Module ModuleState { get; set; }
+	[CascadingParameter]
+	protected PageState PageState { get; set; }
 
-    private ModuleMessage ModuleMessage { get; set; }
+	[CascadingParameter]
+	private Module ModuleState { get; set; }
 
-    private RenderFragment DynamicComponent { get; set; }
+	private ModuleMessage ModuleMessage { get; set; }
 
-    protected override void OnParametersSet()
-    {
-        _message = "";
+	protected override void OnParametersSet()
+	{
+		_message = "";
+		if (!string.IsNullOrEmpty(ModuleState.ModuleType))
+		{
+			ModuleType = Type.GetType(ModuleState.ModuleType);
+			if (ModuleType != null)
+			{
+				ModuleParameters = new Dictionary<string, object> { { "ModuleInstance", this } };
+				return;
+			}
+			// module does not exist with typename specified
+			_message = string.Format(Localizer["Error.Module.InvalidName"], Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0));
+			_messageType = MessageType.Error;
+		}
+		else
+		{
+			_message = string.Format(Localizer["Error.Module.InvalidType"], ModuleState.ModuleDefinitionName);
+			_messageType = MessageType.Error;
+		}
+	}
 
-        DynamicComponent = builder =>
-        {
-            Type moduleType = null;
-            if (!string.IsNullOrEmpty(ModuleState.ModuleType))
-            {
-                moduleType = Type.GetType(ModuleState.ModuleType);
+	public void AddModuleMessage(string message, MessageType type)
+	{
+		_message = message;
+		_messageType = type;
+		_progressIndicator = false;
+		StateHasChanged();
+	}
 
-                if (moduleType != null)
-                {
-                    builder.OpenComponent(0, moduleType);
-					builder.AddAttribute(1, "ModuleInstance", this);
-                    builder.CloseComponent();
-                }
-                else
-                {
-                    // module does not exist with typename specified
-                    _message = string.Format(Localizer["Error.Module.InvalidName"], Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0));
-                    _messagetype = MessageType.Error;
-                }
-            }
-            else
-            {
-                _message = string.Format(Localizer["Error.Module.InvalidType"], ModuleState.ModuleDefinitionName);
-                _messagetype = MessageType.Error;
-            }
+	public void ShowProgressIndicator()
+	{
+		_progressIndicator = true;
+		StateHasChanged();
+	}
 
-        };
+	public void HideProgressIndicator()
+	{
+		_progressIndicator = false;
+		StateHasChanged();
+	}
+
+	protected override async Task OnErrorAsync(Exception exception)
+	{
+		// retrieve friendly localized error
+		_error =  Localizer["Error.Module.Exception"];
+		// log error
+		int? userId = (PageState.User != null) ? PageState.User.UserId : null;
+		string category = GetType().AssemblyQualifiedName;
+		string feature = Utilities.GetTypeNameLastSegment(category, 1);
+		await LoggingService.Log(null, ModuleState.PageId, ModuleState.ModuleId, userId, category, feature, LogFunction.Other, LogLevel.Error, exception, "An Unexpected Error Has Occurred In {ModuleDefinitionName}: {Error}", ModuleState.ModuleDefinitionName, exception.Message);
+		await base.OnErrorAsync(exception);
+		return;
+	}
+
+	public new void Recover()
+	{
+		_error = "";
+		base.Recover();
     }
 
-    public void AddModuleMessage(string message, MessageType type)
-    {
-        _message = message;
-        _messagetype = type;
-        _progressindicator = false;
-        StateHasChanged();
-    }
-
-    public void ShowProgressIndicator()
-    {
-        _progressindicator = true;
-        StateHasChanged();
-    }
-
-    public void HideProgressIndicator()
-    {
-        _progressindicator = false;
-        StateHasChanged();
-    }
 }

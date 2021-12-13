@@ -114,8 +114,13 @@ namespace Oqtane.Shared
 
         public static string ImageUrl(Alias alias, int fileId, int width, int height, string mode)
         {
+            return ImageUrl(alias, fileId, width, height, mode, 0);
+        }
+
+        public static string ImageUrl(Alias alias, int fileId, int width, int height, string mode, int rotate)
+        {
             var aliasUrl = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path : "";
-            return $"{aliasUrl}{Constants.ImageUrl}{fileId}/{width}/{height}/{mode}";
+            return $"{aliasUrl}{Constants.ImageUrl}{fileId}/{width}/{height}/{mode}/{rotate}";
         }
 
         public static string TenantUrl(Alias alias, string url)

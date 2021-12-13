@@ -126,4 +126,31 @@
   <data name="DeleteUser.Header" xml:space="preserve">
     <value>Delete User</value>
   </data>
+  <data name="AllowRegistration.HelpText" xml:space="preserve">
+    <value>Do you want the users to be able to register for an account on the site</value>
+  </data>
+  <data name="AllowRegistration.Text" xml:space="preserve">
+    <value>Allow User Registration? </value>
+  </data>
+  <data name="Error.SaveSiteSettings" xml:space="preserve">
+    <value>Error Saving Settings</value>
+  </data>
+  <data name="Settings.Heading" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Success.SaveSiteSettings" xml:space="preserve">
+    <value>Settings Saved Successfully</value>
+  </data>
+  <data name="Users.Heading" xml:space="preserve">
+    <value>Users</value>
+  </data>
+  <data name="DeleteUser.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="EditUser.Text" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Roles.Text" xml:space="preserve">
+    <value>Roles</value>
+  </data>
 </root>

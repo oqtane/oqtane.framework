@@ -615,13 +615,70 @@ namespace Oqtane.Repository
                     }
                 }
             });
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Url Mappings",
+                Parent = "Admin",
+                Order = 15,
+                Path = "admin/urlmappings",
+                Icon = Icons.LinkBroken,
+                IsNavigation = true,
+                IsPersonalizable = false,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, RoleNames.Admin, true),
+                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.UrlMappings.Index).ToModuleDefinitionName(), Title = "Url Mappings", Pane = PaneNames.Admin,
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, RoleNames.Admin, true),
+                            new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Visitor Management",
+                Parent = "Admin",
+                Order = 17,
+                Path = "admin/visitors",
+                Icon = Icons.Eye,
+                IsNavigation = true,
+                IsPersonalizable = false,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, RoleNames.Admin, true),
+                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Visitors.Index).ToModuleDefinitionName(), Title = "Visitor Management", Pane = PaneNames.Admin,
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, RoleNames.Admin, true),
+                            new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
 
             // host pages
             pageTemplates.Add(new PageTemplate
             {
                 Name = "Event Log",
                 Parent = "Admin",
-                Order = 15,
+                Order = 19,
                 Path = "admin/log",
                 Icon = Icons.MagnifyingGlass,
                 IsNavigation = false,
@@ -649,7 +706,7 @@ namespace Oqtane.Repository
             {
                 Name = "Site Management",
                 Parent = "Admin",
-                Order = 17,
+                Order = 21,
                 Path = "admin/sites",
                 Icon = Icons.Globe,
                 IsNavigation = false,
@@ -677,7 +734,7 @@ namespace Oqtane.Repository
             {
                 Name = "Module Management",
                 Parent = "Admin",
-                Order = 19,
+                Order = 23,
                 Path = "admin/modules",
                 Icon = Icons.Browser,
                 IsNavigation = false,
@@ -705,7 +762,7 @@ namespace Oqtane.Repository
             {
                 Name = "Theme Management",
                 Parent = "Admin",
-                Order = 21,
+                Order = 25,
                 Path = "admin/themes",
                 Icon = Icons.Brush,
                 IsNavigation = false,
@@ -733,7 +790,7 @@ namespace Oqtane.Repository
             {
                 Name = "Language Management",
                 Parent = "Admin",
-                Order = 23,
+                Order = 27,
                 Path = "admin/languages",
                 Icon = Icons.Text,
                 IsNavigation = false,
@@ -765,7 +822,7 @@ namespace Oqtane.Repository
             {
                 Name = "Scheduled Jobs",
                 Parent = "Admin",
-                Order = 25,
+                Order = 29,
                 Path = "admin/jobs",
                 Icon = Icons.Timer,
                 IsNavigation = false,
@@ -793,7 +850,7 @@ namespace Oqtane.Repository
             {
                 Name = "Sql Management",
                 Parent = "Admin",
-                Order = 27,
+                Order = 31,
                 Path = "admin/sql",
                 Icon = Icons.Spreadsheet,
                 IsNavigation = false,
@@ -821,7 +878,7 @@ namespace Oqtane.Repository
             {
                 Name = "System Info",
                 Parent = "Admin",
-                Order = 29,
+                Order = 33,
                 Path = "admin/system",
                 Icon = Icons.MedicalCross,
                 IsNavigation = false,
@@ -849,7 +906,7 @@ namespace Oqtane.Repository
             {
                 Name = "System Update",
                 Parent = "Admin",
-                Order = 31,
+                Order = 35,
                 Path = "admin/update",
                 Icon = Icons.Aperture,
                 IsNavigation = false,

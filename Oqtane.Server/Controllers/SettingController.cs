@@ -33,36 +33,66 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>
         [HttpGet]
-        public IEnumerable<Setting> Get(string entityname, int entityid)
+        public IEnumerable<Setting> Get(string entityName, int entityid)
         {
             List<Setting> settings = new List<Setting>();
-            if (IsAuthorized(entityname, entityid, PermissionNames.View))
+            if (IsAuthorized(entityName, entityid, PermissionNames.View))
             {
-                settings = _settings.GetSettings(entityname, entityid).ToList();
-                if (entityname == EntityNames.Site && !User.IsInRole(RoleNames.Admin))
+                settings = _settings.GetSettings(entityName, entityid).ToList();
+
+                // ispublic filter 
+                switch (entityName)
                 {
-                    settings = settings.Where(item => item.IsPublic).ToList();
+                    case EntityNames.Tenant:
+                    case EntityNames.ModuleDefinition:
+                    case EntityNames.Host:
+                        if (!User.IsInRole(RoleNames.Host))
+                        {
+                            settings = settings.Where(item => item.IsPublic).ToList();
+                        }
+                        break;
+                    case EntityNames.Site:
+                        if (!User.IsInRole(RoleNames.Admin))
+                        {
+                            settings = settings.Where(item => item.IsPublic).ToList();
+                        }
+                        break;
                 }
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Settings {EntityName} {EntityId}", entityname, entityid);
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Settings {EntityName} {EntityId}", entityName, entityid);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
             return settings;
         }
 
-        // GET api/<controller>/5
-        [HttpGet("{id}")]
-        public Setting Get(int id)
+        // GET api/<controller>/5/xxx
+        [HttpGet("{id}/{entityName}")]
+        public Setting Get(int id, string entityName)
         {
-            Setting setting = _settings.GetSetting(id);
+            Setting setting = _settings.GetSetting(entityName, id);
             if (IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.View))
             {
-                if (setting.EntityName == EntityNames.Site && !User.IsInRole(RoleNames.Admin) && !setting.IsPublic)
+                // ispublic filter
+                switch (entityName)
                 {
-                    setting = null;
+                    case EntityNames.Tenant:
+                    case EntityNames.ModuleDefinition:
+                    case EntityNames.Host:
+                        if (!User.IsInRole(RoleNames.Host) && !setting.IsPublic)
+                        {
+                            setting = null;
+                        }
+                        break;
+                    case EntityNames.Site:
+                        if (!User.IsInRole(RoleNames.Admin) && !setting.IsPublic)
+                        {
+                            setting = null;
+                        }
+                        break;
                 }
+
                 return setting;
             }
             else
@@ -111,14 +141,14 @@ namespace Oqtane.Controllers
             return setting;
         }
 
-        // DELETE api/<controller>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        // DELETE api/<controller>/5/xxx
+        [HttpDelete("{id}/{entityName}")]
+        public void Delete(string entityName, int id)
         {
-            Setting setting = _settings.GetSetting(id);
+            Setting setting = _settings.GetSetting(entityName, id);
             if (IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
-                _settings.DeleteSetting(id);
+                _settings.DeleteSetting(setting.EntityName, id);
                 AddSyncEvent(setting.EntityName);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Setting Deleted {Setting}", setting);
             }
@@ -140,7 +170,16 @@ namespace Oqtane.Controllers
             switch (entityName)
             {
                 case EntityNames.Tenant:
-                    authorized = User.IsInRole(RoleNames.Host);
+                case EntityNames.ModuleDefinition:
+                case EntityNames.Host:
+                    if (permissionName == PermissionNames.Edit)
+                    {
+                        authorized = User.IsInRole(RoleNames.Host);
+                    }
+                    else
+                    {
+                        authorized = true;
+                    }
                     break;
                 case EntityNames.Site:
                     if (permissionName == PermissionNames.Edit)
@@ -162,6 +201,17 @@ namespace Oqtane.Controllers
                     if (permissionName == PermissionNames.Edit)
                     {
                         authorized = User.IsInRole(RoleNames.Admin) || (_userPermissions.GetUser(User).UserId == entityId);
+                    }
+                    break;
+                case EntityNames.Visitor:
+                    var visitorCookie = "APP_VISITOR_" + _alias.SiteId.ToString();
+                    if (int.TryParse(Request.Cookies[visitorCookie], out int visitorId))
+                    {
+                        authorized = (visitorId == entityId);
+                    }
+                    else
+                    {
+                        authorized = User.IsInRole(RoleNames.Admin);
                     }
                     break;
             }

@@ -189,4 +189,7 @@
   <data name="Create" xml:space="preserve">
     <value>Create</value>
   </data>
+  <data name="LogDetails.Text" xml:space="preserve">
+    <value>Details</value>
+  </data>
 </root>
