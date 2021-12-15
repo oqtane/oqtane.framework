@@ -93,6 +93,32 @@ namespace Oqtane.Repository
             }
         }
 
+        public void DeleteSettings(string entityName, int entityId)
+        {
+            if (IsMaster(entityName))
+            {
+                IEnumerable<Setting> settings = _master.Setting
+                    .Where(item => item.EntityName == entityName)
+                    .Where(item => item.EntityId == entityId);
+                foreach (Setting setting in settings)
+                {
+                    _master.Setting.Remove(setting);
+                }
+                _master.SaveChanges();
+            }
+            else
+            {
+                IEnumerable<Setting> settings = _tenant.Setting
+                    .Where(item => item.EntityName == entityName)
+                    .Where(item => item.EntityId == entityId);
+                foreach (Setting setting in settings)
+                {
+                    _tenant.Setting.Remove(setting);
+                }
+                _tenant.SaveChanges();
+            }
+        }
+
         private bool IsMaster(string EntityName)
         {
             return (EntityName == EntityNames.ModuleDefinition || EntityName == EntityNames.Host);
