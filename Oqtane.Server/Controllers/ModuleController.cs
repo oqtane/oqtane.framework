@@ -171,9 +171,15 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             var module = _modules.GetModule(id);
-            if (module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Page, module.ModuleId, PermissionNames.Edit))
+            if (module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
             {
                 _modules.DeleteModule(id);
+
+                _settings.GetSettings(EntityNames.Module, id)?.ToList().ForEach(ms =>
+                {
+                    _settings.DeleteSetting(EntityNames.Module, ms.SettingId);
+                });
+
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Deleted {ModuleId}", id);
             }
