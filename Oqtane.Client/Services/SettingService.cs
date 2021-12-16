@@ -134,12 +134,19 @@ namespace Oqtane.Services
                 bool ispublic = false;
                 if (value.StartsWith("[Public]"))
                 {
-                    if (entityName == EntityNames.Site)
+                    switch (entityName)
                     {
-                        ispublic = true;
+                        case EntityNames.Site:
+                        case EntityNames.ModuleDefinition:
+                            ispublic = true;
+                            break;
+                        default:
+                            ispublic = false;
+                            break;
                     }
-                    value = value.Substring(8); // remove [Public]
+                    value = value.Substring(8); // remove [Public]                   
                 }
+
 
                 Setting setting = settingsList.FirstOrDefault(item => item.SettingName.Equals(kvp.Key, StringComparison.OrdinalIgnoreCase));
                 if (setting == null)
