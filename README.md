@@ -61,11 +61,17 @@ Backlog (Not Yet Assigned)
 - [ ] Enhance alias concept with a tabular UI and additional configuration properties
 - [ ] Allow language specification in Url (#1731)
 
-V.3.1.0 ( Q4 2021 )
+V.3.1.0 ( Q1 2022 )
 - [ ] Token based authenticaton / authorization via OAuth2 / OpenID Connect
 - [ ] Provide Single Sign On (SSO) for other applications
 - [ ] Authentication extensibility via Social logins / Azure B2C
 - [ ] Allow configuration of password complexity for local authentication
+- [ ] User account lockout support
+
+V.3.0.1 ( Dec 12, 2021 )
+- [x] Url mapping for broken links, content migration
+- [x] Visitor tracking for usage insights, personalization
+- [x] User experience improvements in Page and Module management
 
 V.3.0.0 ( Nov 11, 2021 )
 - [x] Migration to .NET 6
