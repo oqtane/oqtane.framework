@@ -120,11 +120,6 @@
         new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-interop.js" }
     };
 
-    protected override void OnInitialized()
-    {
-        _content = Content; // raw HTML
-    }
-
     protected override async Task OnParametersSetAsync()
     {
         _content = Content; // raw HTML
