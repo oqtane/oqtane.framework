@@ -130,30 +130,9 @@ namespace Oqtane.Pages
                             // page does not exist
                             var url = route.SiteUrl + "/" + route.PagePath;
                             var urlMapping = _urlMappings.GetUrlMapping(site.SiteId, url);
-                            if (urlMapping == null)
+                            if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
                             {
-                                if (site.CaptureBrokenUrls)
-                                {
-                                    urlMapping = new UrlMapping();
-                                    urlMapping.SiteId = site.SiteId;
-                                    urlMapping.Url = url;
-                                    urlMapping.MappedUrl = "";
-                                    urlMapping.Requests = 1;
-                                    urlMapping.CreatedOn = DateTime.UtcNow;
-                                    urlMapping.RequestedOn = DateTime.UtcNow;
-                                    _urlMappings.AddUrlMapping(urlMapping);
-                                }
-                            }
-                            else
-                            {
-                                urlMapping.Requests += 1;
-                                urlMapping.RequestedOn = DateTime.UtcNow;
-                                _urlMappings.UpdateUrlMapping(urlMapping);
-
-                                if (!string.IsNullOrEmpty(urlMapping.MappedUrl))
-                                {
-                                    return RedirectPermanent(urlMapping.MappedUrl);
-                                }
+                                return RedirectPermanent(urlMapping.MappedUrl);
                             }
                         }
                     }

@@ -25,6 +25,14 @@ namespace Oqtane.Services
         Task<UrlMapping> GetUrlMappingAsync(int urlMappingId);
 
         /// <summary>
+        /// Get one specific <see cref="UrlMapping"/>
+        /// </summary>
+        /// <param name="siteId">ID-reference of a <see cref="Site"/></param>
+        /// <param name="url">A url</param>
+        /// <returns></returns>
+        Task<UrlMapping> GetUrlMappingAsync(int siteId, string url);
+
+        /// <summary>
         /// Add / save a new <see cref="UrlMapping"/> to the database.
         /// </summary>
         /// <param name="urlMapping"></param>

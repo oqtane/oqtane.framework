@@ -47,15 +47,14 @@ namespace Oqtane.Controllers
         [HttpGet("{id}")]
         public Visitor Get(int id)
         {
-            bool authorized;
-            var visitorCookie = "APP_VISITOR_" + _alias.SiteId.ToString();
-            if (int.TryParse(Request.Cookies[visitorCookie], out int visitorId))
+            bool authorized = User.IsInRole(RoleNames.Admin);
+            if (!authorized)
             {
-                authorized = (visitorId == id);
-            }
-            else
-            {
-                authorized = User.IsInRole(RoleNames.Admin);
+                var visitorCookie = "APP_VISITOR_" + _alias.SiteId.ToString();
+                if (int.TryParse(Request.Cookies[visitorCookie], out int visitorId))
+                {
+                    authorized = (visitorId == id);
+                }
             }
 
             var visitor = _visitors.GetVisitor(id);

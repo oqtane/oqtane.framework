@@ -9,6 +9,7 @@
 @inject IPageService PageService
 @inject IUserService UserService
 @inject IModuleService ModuleService
+@inject IUrlMappingService UrlMappingService
 @inject ILogService LogService
 @implements IHandleAfterRender
 
@@ -83,133 +84,133 @@
 		var querystring = ParseQueryString(route.Query);
 
         // reload the client application if there is a forced reload or the user navigated to a site with a different alias 
-        if (querystring.ContainsKey("reload") || (!route.AbsolutePath.Substring(1).ToLower().StartsWith(SiteState.Alias.Path.ToLower()) && !string.IsNullOrEmpty(SiteState.Alias.Path)))
-        {
-            NavigationManager.NavigateTo(_absoluteUri.Replace("?reload", ""), true);
-            return;
-        }
-        else
-        {
-            // the refresh parameter is used to refresh the PageState
-            if (querystring.ContainsKey("refresh"))
-            {
-                refresh = UI.Refresh.Site;
-            }
-        }
+		if (querystring.ContainsKey("reload") || (!route.AbsolutePath.Substring(1).ToLower().StartsWith(SiteState.Alias.Path.ToLower()) && !string.IsNullOrEmpty(SiteState.Alias.Path)))
+		{
+			NavigationManager.NavigateTo(_absoluteUri.Replace("?reload", ""), true);
+			return;
+		}
+		else
+		{
+		// the refresh parameter is used to refresh the PageState
+			if (querystring.ContainsKey("refresh"))
+			{
+				refresh = UI.Refresh.Site;
+			}
+		}
 
-        if (PageState != null)
-        {
-            editmode = PageState.EditMode;
-            lastsyncdate = PageState.LastSyncDate;
-        }
+		if (PageState != null)
+		{
+			editmode = PageState.EditMode;
+			lastsyncdate = PageState.LastSyncDate;
+		}
 
         // process any sync events
-        var sync = await SyncService.GetSyncAsync(lastsyncdate);
-        lastsyncdate = sync.SyncDate;
-        if (sync.SyncEvents.Any())
-        {
-            // reload client application if server was restarted or site runtime/rendermode was modified
-            if (PageState != null && sync.SyncEvents.Exists(item => (item.TenantId == -1 || item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId) && item.Reload))
-            {
-                NavigationManager.NavigateTo(_absoluteUri, true);
-                return;
-            }
-            if (sync.SyncEvents.Exists(item => item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId))
-            {
-                refresh = UI.Refresh.Site;
-            }
-        }
+		var sync = await SyncService.GetSyncAsync(lastsyncdate);
+		lastsyncdate = sync.SyncDate;
+		if (sync.SyncEvents.Any())
+		{
+		// reload client application if server was restarted or site runtime/rendermode was modified
+			if (PageState != null && sync.SyncEvents.Exists(item => (item.TenantId == -1 || item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId) && item.Reload))
+			{
+				NavigationManager.NavigateTo(_absoluteUri, true);
+				return;
+			}
+			if (sync.SyncEvents.Exists(item => item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId))
+			{
+				refresh = UI.Refresh.Site;
+			}
+		}
 
-        if (refresh == UI.Refresh.Site || PageState == null || PageState.Alias.SiteId != SiteState.Alias.SiteId)
-        {
-            site = await SiteService.GetSiteAsync(SiteState.Alias.SiteId);
-            refresh = UI.Refresh.Site;
-        }
-        else
-        {
-            site = PageState.Site;
-        }
+		if (refresh == UI.Refresh.Site || PageState == null || PageState.Alias.SiteId != SiteState.Alias.SiteId)
+		{
+			site = await SiteService.GetSiteAsync(SiteState.Alias.SiteId);
+			refresh = UI.Refresh.Site;
+		}
+		else
+		{
+			site = PageState.Site;
+		}
 
-        if (site != null)
-        {
-            if (PageState == null || refresh == UI.Refresh.Site)
-            {
-                // get user
-                var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-                if (authState.User.Identity.IsAuthenticated)
-                {
-                    user = await UserService.GetUserAsync(authState.User.Identity.Name, site.SiteId);
-                    user.IsAuthenticated = authState.User.Identity.IsAuthenticated;
-                }
-            }
-            else
-            {
-                user = PageState.User;
-            }
+		if (site != null)
+		{
+			if (PageState == null || refresh == UI.Refresh.Site)
+			{
+			// get user
+				var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+				if (authState.User.Identity.IsAuthenticated)
+				{
+					user = await UserService.GetUserAsync(authState.User.Identity.Name, site.SiteId);
+					user.IsAuthenticated = authState.User.Identity.IsAuthenticated;
+				}
+			}
+			else
+			{
+				user = PageState.User;
+			}
 
-            // process any sync events for user
-            if (refresh != UI.Refresh.Site && user != null && sync.SyncEvents.Any())
-            {
-                if (sync.SyncEvents.Exists(item => item.EntityName == EntityNames.User && item.EntityId == user.UserId))
-                {
-                    refresh = UI.Refresh.Site;
-                }
-            }
+			// process any sync events for user
+			if (refresh != UI.Refresh.Site && user != null && sync.SyncEvents.Any())
+			{
+				if (sync.SyncEvents.Exists(item => item.EntityName == EntityNames.User && item.EntityId == user.UserId))
+				{
+					refresh = UI.Refresh.Site;
+				}
+			}
 
-            if (PageState == null || refresh == UI.Refresh.Site)
-            {
-                pages = await PageService.GetPagesAsync(site.SiteId);
-            }
-            else
-            {
-                pages = PageState.Pages;
-            }
+			if (PageState == null || refresh == UI.Refresh.Site)
+			{
+				pages = await PageService.GetPagesAsync(site.SiteId);
+			}
+			else
+			{
+				pages = PageState.Pages;
+			}
 
-            if (PageState == null || refresh == UI.Refresh.Site)
-            {
-                page = pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
-            }
-            else
-            {
-                page = PageState.Page;
-            }
+			if (PageState == null || refresh == UI.Refresh.Site)
+			{
+				page = pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
+			}
+			else
+			{
+				page = PageState.Page;
+			}
 
-            // get the page if the path has changed
-            if (page == null || page.Path != route.PagePath)
-            {
-                page = pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
+			// get the page if the path has changed
+			if (page == null || page.Path != route.PagePath)
+			{
+				page = pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
 				// if the home page path does not exist then use the first page in the collection (a future enhancement would allow the admin to specify the home page)
 				if (page == null && route.PagePath == "")
 				{
 					page = pages.FirstOrDefault();
 				}
-                editmode = false;
-            }
+				editmode = false;
+			}
 
-            if (page != null)
-            {
-                if (PageState == null)
-                {
-                    editmode = false;
-                }
+			if (page != null)
+			{
+				if (PageState == null)
+				{
+					editmode = false;
+				}
 
-                // check if user is authorized to view page
-                if (UserSecurity.IsAuthorized(user, PermissionNames.View, page.Permissions))
-                {
-                    page = await ProcessPage(page, site, user);
+				// check if user is authorized to view page
+				if (UserSecurity.IsAuthorized(user, PermissionNames.View, page.Permissions))
+				{
+					page = await ProcessPage(page, site, user);
 
-                    if (PageState == null || refresh == UI.Refresh.Site)
-                    {
-                        modules = await ModuleService.GetModulesAsync(site.SiteId);
-                    }
-                    else
-                    {
-                        modules = PageState.Modules;
-                    }
+					if (PageState == null || refresh == UI.Refresh.Site)
+					{
+						modules = await ModuleService.GetModulesAsync(site.SiteId);
+					}
+					else
+					{
+						modules = PageState.Modules;
+					}
 
-                    (page, modules) = ProcessModules(page, modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType);
+					(page, modules) = ProcessModules(page, modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType);
 
-                    _pagestate = new PageState
+					_pagestate = new PageState
                     {
                         Alias = SiteState.Alias,
                         Site = site,
@@ -228,25 +229,33 @@
 						VisitorId = VisitorId
                     };
 
-                    OnStateChange?.Invoke(_pagestate);
-                }
-            }
-            else
-            {
-                if (user == null)
-                {
-                    // redirect to login page
-                    NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "login", "?returnurl=" + route.AbsolutePath));
-                }
-                else
-                {
-                    await LogService.Log(null, null, user.UserId, GetType().AssemblyQualifiedName, Utilities.GetTypeNameLastSegment(GetType().AssemblyQualifiedName, 1), LogFunction.Security, LogLevel.Error, null, "Page Does Not Exist Or User Is Not Authorized To View Page {Path}", route.PagePath);
-                    if (route.PagePath != "")
-                    {
-                        // redirect to home page
-                        NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "", ""));
-                    }
-                }
+					OnStateChange?.Invoke(_pagestate);
+				}
+			}
+			else // page not found
+			{
+				var urlMapping = await UrlMappingService.GetUrlMappingAsync(site.SiteId, route.SiteUrl + "/" + route.PagePath);
+				if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
+				{
+					NavigationManager.NavigateTo(urlMapping.MappedUrl, false);
+				}
+				else // not mapped
+				{
+					if (user == null)
+					{
+						// redirect to login page if user not logged in as they may need to be authenticated
+						NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "login", "?returnurl=" + route.AbsolutePath));
+					}
+					else
+					{
+						await LogService.Log(null, null, user.UserId, GetType().AssemblyQualifiedName, Utilities.GetTypeNameLastSegment(GetType().AssemblyQualifiedName, 1), LogFunction.Security, LogLevel.Error, null, "Page Does Not Exist Or User Is Not Authorized To View Page {Path}", route.PagePath);
+						if (route.PagePath != "")
+						{
+							// redirect to home page
+							NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "", ""));
+						}
+					}
+				}
             }
         }
         else

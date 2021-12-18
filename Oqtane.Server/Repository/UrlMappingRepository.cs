@@ -9,12 +9,14 @@ namespace Oqtane.Repository
     public class UrlMappingRepository : IUrlMappingRepository
     {
         private TenantDBContext _db;
+        private readonly ISiteRepository _sites;
 
-        public UrlMappingRepository(TenantDBContext context)
+        public UrlMappingRepository(TenantDBContext context, ISiteRepository sites)
         {
             _db = context;
+            _sites = sites;
         }
-            
+
         public IEnumerable<UrlMapping> GetUrlMappings(int siteId, bool isMapped)
         {
             if (isMapped)
@@ -60,7 +62,29 @@ namespace Oqtane.Repository
 
         public UrlMapping GetUrlMapping(int siteId, string url)
         {
-            return _db.UrlMapping.Where(item => item.SiteId == siteId && item.Url == url).FirstOrDefault();
+            var urlMapping = _db.UrlMapping.Where(item => item.SiteId == siteId && item.Url == url).FirstOrDefault();
+            if (urlMapping == null)
+            {
+                var site = _sites.GetSite(siteId);
+                if (site.CaptureBrokenUrls)
+                {
+                    urlMapping = new UrlMapping();
+                    urlMapping.SiteId = siteId;
+                    urlMapping.Url = url;
+                    urlMapping.MappedUrl = "";
+                    urlMapping.Requests = 1;
+                    urlMapping.CreatedOn = DateTime.UtcNow;
+                    urlMapping.RequestedOn = DateTime.UtcNow;
+                    urlMapping = AddUrlMapping(urlMapping);
+                }
+            }
+            else
+            {
+                urlMapping.Requests += 1;
+                urlMapping.RequestedOn = DateTime.UtcNow;
+                urlMapping = UpdateUrlMapping(urlMapping);
+            }
+            return urlMapping;
         }
 
         public void DeleteUrlMapping(int urlMappingId)
