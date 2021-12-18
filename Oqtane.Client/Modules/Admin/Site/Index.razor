@@ -476,12 +476,12 @@
                             site = await SiteService.UpdateSiteAsync(site);
 
                             var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
-                            SettingService.SetSetting(settings, "SMTPHost", _smtphost);
-                            SettingService.SetSetting(settings, "SMTPPort", _smtpport);
-                            SettingService.SetSetting(settings, "SMTPSSL", _smtpssl);
-                            SettingService.SetSetting(settings, "SMTPUsername", _smtpusername);
-                            SettingService.SetSetting(settings, "SMTPPassword", _smtppassword);
-                            SettingService.SetSetting(settings, "SMTPSender", _smtpsender);
+                            SettingService.SetSetting(settings, "SMTPHost", _smtphost, false);
+                            SettingService.SetSetting(settings, "SMTPPort", _smtpport, false);
+                            SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, false);
+                            SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, false);
+                            SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, false);
+                            SettingService.SetSetting(settings, "SMTPSender", _smtpsender, false);
                             await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 
                             if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))

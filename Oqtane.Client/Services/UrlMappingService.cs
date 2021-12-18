@@ -5,6 +5,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Oqtane.Documentation;
 using Oqtane.Shared;
+using System.Net;
 
 namespace Oqtane.Services
 {
@@ -31,6 +32,11 @@ namespace Oqtane.Services
         public async Task<UrlMapping> GetUrlMappingAsync(int urlMappingId)
         {
             return await GetJsonAsync<UrlMapping>($"{Apiurl}/{urlMappingId}");
+        }
+
+        public async Task<UrlMapping> GetUrlMappingAsync(int siteId, string url)
+        {
+            return await GetJsonAsync<UrlMapping>($"{Apiurl}/url/{siteId}?url={WebUtility.UrlEncode(url)}");
         }
 
         public async Task<UrlMapping> AddUrlMappingAsync(UrlMapping role)

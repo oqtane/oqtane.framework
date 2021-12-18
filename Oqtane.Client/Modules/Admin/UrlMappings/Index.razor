@@ -40,10 +40,10 @@ else
 					<td><ActionLink Action="Edit" Parameters="@($"id=" + context.UrlMappingId.ToString())" ResourceKey="Edit" /></td>
 					<td><ActionDialog Header="Delete Url Mapping" Message="@string.Format(Localizer["Confirm.DeleteUrlMapping"], context.Url)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUrlMapping(context))" ResourceKey="DeleteUrlMapping" /></td>
 					<td>
-						<a href="" onclick="@(() => BrowseUrl(context.Url))">@context.Url</a>
+						<a href="@context.Url">@context.Url</a>
 						@if (_mapped)
 						{
-							@((MarkupString)"<br />&gt;&gt;&nbsp;")<a href="" onclick="@(() => BrowseUrl(context.MappedUrl))">@context.MappedUrl</a>
+							@((MarkupString)"<br />&gt;&gt;&nbsp;")<a href="@context.MappedUrl">@context.MappedUrl</a>
 						}
 					</td>
 					<td>@context.Requests</td>
@@ -94,11 +94,6 @@ else
 		{
 			await logger.LogError(ex, "Error On TypeChanged");
 		}
-	}
-
-	private void BrowseUrl(string url)
-	{
-		NavigationManager.NavigateTo(url, true);		
 	}
 
 	private async Task DeleteUrlMapping(UrlMapping urlMapping)

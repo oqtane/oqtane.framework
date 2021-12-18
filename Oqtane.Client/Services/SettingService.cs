@@ -131,22 +131,13 @@ namespace Oqtane.Services
             foreach (KeyValuePair<string, string> kvp in settings)
             {
                 string value = kvp.Value;
-                bool ispublic = false;
-                if (value.StartsWith("[Public]"))
-                {
-                    switch (entityName)
-                    {
-                        case EntityNames.Site:
-                        case EntityNames.ModuleDefinition:
-                            ispublic = true;
-                            break;
-                        default:
-                            ispublic = false;
-                            break;
-                    }
-                    value = value.Substring(8); // remove [Public]                   
-                }
+                bool ispublic = true;
 
+                if (value.StartsWith("[Private]"))
+                {
+                    value = value.Substring(9); // remove [Private]                   
+                    ispublic = false;
+                }
 
                 Setting setting = settingsList.FirstOrDefault(item => item.SettingName.Equals(kvp.Key, StringComparison.OrdinalIgnoreCase));
                 if (setting == null)
@@ -205,7 +196,7 @@ namespace Oqtane.Services
 
         public Dictionary<string, string> SetSetting(Dictionary<string, string> settings, string settingName, string settingValue)
         {
-            return SetSetting(settings, settingName, settingValue, false);
+            return SetSetting(settings, settingName, settingValue, true);
         }
 
         public Dictionary<string, string> SetSetting(Dictionary<string, string> settings, string settingName, string settingValue, bool isPublic)
@@ -214,7 +205,7 @@ namespace Oqtane.Services
             {
                 settings = new Dictionary<string, string>();
             }
-            settingValue = (isPublic) ? "[Public]" + settingValue : settingValue;
+            settingValue = (isPublic) ? settingValue : "[Private]" + settingValue;
             if (settings.ContainsKey(settingName))
             {
                 settings[settingName] = settingValue;

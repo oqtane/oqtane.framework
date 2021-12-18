@@ -48,13 +48,30 @@ namespace Oqtane.Controllers
         public UrlMapping Get(int id)
         {
             var urlMapping = _urlMappings.GetUrlMapping(id);
-            if (urlMapping != null && (urlMapping.SiteId == _alias.SiteId))
+            if (urlMapping != null && urlMapping.SiteId == _alias.SiteId)
             {
                 return urlMapping;
             }
             else
             { 
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized UrlMapping Get Attempt {UrlMappingId}", id);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return null;
+            }
+        }
+
+        // GET api/<controller>/url/x?url=y
+        [HttpGet("url/{siteid}")]
+        public UrlMapping Get(int siteid, string url)
+        {            
+            var urlMapping = _urlMappings.GetUrlMapping(siteid, WebUtility.UrlDecode(url));
+            if (urlMapping != null && urlMapping.SiteId == _alias.SiteId)
+            {
+                return urlMapping;
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized UrlMapping Get Attempt {SiteId} {Url}", siteid, url);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
