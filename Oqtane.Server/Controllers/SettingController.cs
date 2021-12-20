@@ -188,7 +188,7 @@ namespace Oqtane.Controllers
                 default: // custom entity
                     if (permissionName == PermissionNames.Edit)
                     {
-                        authorized = User.IsInRole(RoleNames.Admin);
+                        authorized = User.IsInRole(RoleNames.Admin) || _userPermissions.IsAuthorized(User, entityName, entityId, permissionName);
                     }
                     else
                     {
@@ -231,7 +231,7 @@ namespace Oqtane.Controllers
                     }
                     break;
                 default: // custom entity
-                    filter = !User.IsInRole(RoleNames.Admin);
+                    filter = !User.IsInRole(RoleNames.Admin) && !_userPermissions.IsAuthorized(User, entityName, entityId, PermissionNames.Edit);
                     break;
             }
             return filter;
