@@ -30,6 +30,11 @@ namespace Oqtane.Models
         /// </summary>
         public int SiteId { get; set; }
 
+        /// <summary>
+        /// Specifies if the alias is the default for the tenant/site. Requests for non-default aliases are redirected to the default alias.
+        /// </summary>
+        public bool IsDefault { get; set; }
+
         /// <inheritdoc />
         public string CreatedBy { get; set; }
 
@@ -62,5 +67,6 @@ namespace Oqtane.Models
                 }
             }
         }
+
     }
 }

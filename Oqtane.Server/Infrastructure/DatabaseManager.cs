@@ -367,7 +367,9 @@ namespace Oqtane.Infrastructure
                             tenant = db.Tenant.FirstOrDefault(item => item.Name == install.TenantName);
                         }
 
-                        foreach (var aliasName in install.Aliases.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries))
+                        var aliasNames = install.Aliases.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray();
+                        var firstAlias = aliasNames[0];
+                        foreach (var aliasName in aliasNames)
                         {
                             if (tenant != null)
                             {
@@ -376,6 +378,7 @@ namespace Oqtane.Infrastructure
                                     Name = aliasName,
                                     TenantId = tenant.TenantId,
                                     SiteId = -1,
+                                    IsDefault = (aliasName == firstAlias),
                                     CreatedBy = "",
                                     CreatedOn = DateTime.UtcNow,
                                     ModifiedBy = "",
@@ -558,7 +561,8 @@ namespace Oqtane.Infrastructure
                     {
                         // set the alias explicitly so the tenant can be resolved
                         var aliases = scope.ServiceProvider.GetRequiredService<IAliasRepository>();
-                        var firstAlias = install.Aliases.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)[0];
+                        var aliasNames = install.Aliases.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray();
+                        var firstAlias = aliasNames[0];
                         var alias = aliases.GetAliases().FirstOrDefault(item => item.Name == firstAlias);
                         var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
                         tenantManager.SetAlias(alias);
@@ -650,7 +654,7 @@ namespace Oqtane.Infrastructure
                                 }
                             }
 
-                            foreach (var aliasName in install.Aliases.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                            foreach (var aliasName in aliasNames)
                             {
                                 alias = aliases.GetAliases().FirstOrDefault(item => item.Name == aliasName);
                                 if (alias != null)

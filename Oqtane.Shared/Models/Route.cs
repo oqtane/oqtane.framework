@@ -30,7 +30,7 @@ namespace Oqtane.Models
             Action = "";
             UrlParameters = "";
 
-            if (AliasPath.Length != 0)
+            if (AliasPath.Length != 0 && PagePath.StartsWith("/" + AliasPath))
             {
                 PagePath = PagePath.Substring(AliasPath.Length + 1);
             }
