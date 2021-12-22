@@ -129,9 +129,6 @@
   <data name="DefaultContainer.Text" xml:space="preserve">
     <value>Default Container: </value>
   </data>
-  <data name="Appearance.Heading" xml:space="preserve">
-    <value>Appearance</value>
-  </data>
   <data name="DefaultAdminContainer" xml:space="preserve">
     <value>Default Admin Container</value>
   </data>
@@ -223,7 +220,7 @@
     <value>Aliases: </value>
   </data>
   <data name="IsDeleted.Text" xml:space="preserve">
-    <value>Is Deleted? </value>
+    <value>Deleted? </value>
   </data>
   <data name="Logo.Text" xml:space="preserve">
     <value>Logo: </value>
@@ -317,5 +314,14 @@
   </data>
   <data name="DeleteSite.Text" xml:space="preserve">
     <value>Delete Site</value>
+  </data>
+  <data name="DefaultAlias.HelpText" xml:space="preserve">
+    <value>The default alias for the site. Requests for non-default aliases will be redirected to the default alias.</value>
+  </data>
+    <data name="DefaultAlias.Text" xml:space="preserve">
+    <value>Default Alias: </value>
+  </data>
+  <data name="Aliases.Heading" xml:space="preserve">
+    <value>Aliases</value>
   </data>
 </root>

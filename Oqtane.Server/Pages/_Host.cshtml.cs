@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using System.Net;
 
 namespace Oqtane.Pages
 {
@@ -32,8 +33,9 @@ namespace Oqtane.Pages
         private readonly IPageRepository _pages;
         private readonly IUrlMappingRepository _urlMappings;
         private readonly IVisitorRepository _visitors;
+        private readonly IAliasRepository _aliases;
 
-        public HostModel(IConfiguration configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, ISiteRepository sites, IPageRepository pages, IUrlMappingRepository urlMappings, IVisitorRepository visitors)
+        public HostModel(IConfiguration configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, ISiteRepository sites, IPageRepository pages, IUrlMappingRepository urlMappings, IVisitorRepository visitors, IAliasRepository aliases)
         {
             _configuration = configuration;
             _tenantManager = tenantManager;
@@ -44,6 +46,7 @@ namespace Oqtane.Pages
             _pages = pages;
             _urlMappings = urlMappings;
             _visitors = visitors;
+            _aliases = aliases;
         }
 
         public string AntiForgeryToken = "";
@@ -77,11 +80,25 @@ namespace Oqtane.Pages
                 var alias = _tenantManager.GetAlias();
                 if (alias != null)
                 {
-                    Route route = new Route(HttpContext.Request.GetEncodedUrl(), alias.Path);
+                    var url = WebUtility.UrlDecode(HttpContext.Request.GetEncodedUrl());
+
+                    // redirect non-default alias
+                    if (!alias.IsDefault)
+                    {
+                        var redirect = _aliases.GetAliases()
+                            .Where(item => item.TenantId == alias.TenantId && item.SiteId == alias.SiteId && item.IsDefault)
+                            .FirstOrDefault();
+                        if (redirect != null)
+                        {
+                            return RedirectPermanent(url.Replace(alias.Name, redirect.Name));
+                        }
+                    }
 
                     var site = _sites.GetSite(alias.SiteId);
                     if (site != null)
                     {
+                        Route route = new Route(url, alias.Path);
+
                         if (!string.IsNullOrEmpty(site.Runtime))
                         {
                             Runtime = site.Runtime;
@@ -128,7 +145,7 @@ namespace Oqtane.Pages
                         else
                         {
                             // page does not exist
-                            var url = route.SiteUrl + "/" + route.PagePath;
+                            url = route.SiteUrl + "/" + route.PagePath;
                             var urlMapping = _urlMappings.GetUrlMapping(site.SiteId, url);
                             if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
                             {

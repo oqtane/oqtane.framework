@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
@@ -72,7 +73,7 @@ namespace Oqtane.Repository
             int start = segments.Length;
             for (int i = 0; i < segments.Length; i++)
             {
-                if (segments[i] == "api" || segments[i] == "pages" || segments[i] == "*")
+                if (segments[i] == "api" || segments[i] == "pages" || segments[i] == Constants.ModuleDelimiter)
                 {
                     start = i;
                     break;
@@ -89,8 +90,18 @@ namespace Oqtane.Repository
                 }
             }
 
-            // return fallback alias if none found
-            return alias ?? aliases.Find(item => item.Name.Equals("*"));
+            // auto register alias if there is only a single tenant/site
+            if (alias == null && aliases.Select(item => new { item.TenantId, item.SiteId }).Distinct().Count() == 1)
+            {
+                alias = new Alias();
+                alias.TenantId = aliases.First().TenantId;
+                alias.SiteId = aliases.First().SiteId;
+                alias.Name = url;
+                alias.IsDefault = false;
+                alias = AddAlias(alias);
+            }
+
+            return alias;
         }
 
         public void DeleteAlias(int aliasId)

@@ -43,7 +43,7 @@ else
         _sites = new List<Alias>();
         foreach (Alias alias in aliases)
         {
-            if (!_sites.Exists(item => item.TenantId == alias.TenantId && item.SiteId == alias.SiteId))
+            if (alias.IsDefault && !_sites.Exists(item => item.TenantId == alias.TenantId && item.SiteId == alias.SiteId))
             {
                 _sites.Add(alias);
             }
@@ -52,16 +52,11 @@ else
 
     private void Edit(string name)
     {
-        if (name.Equals("*"))
-        {
-            var uri = new Uri(NavigationManager.Uri);
-            name = uri.Authority;
-        }
-        NavigationManager.NavigateTo(_scheme + name + "/admin/site/?reload");
+        NavigationManager.NavigateTo(_scheme + name + "/admin/site", true);
     }
 
     private void Browse(string name)
     {
-        NavigationManager.NavigateTo(_scheme + name + "/?reload");
+        NavigationManager.NavigateTo(_scheme + name, true);
     }
 }

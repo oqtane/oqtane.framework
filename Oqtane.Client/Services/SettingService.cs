@@ -152,7 +152,7 @@ namespace Oqtane.Services
                 }
                 else
                 {
-                    if (setting.SettingValue != kvp.Value)
+                    if (setting.SettingValue != value || setting.IsPublic != ispublic)
                     {
                         setting.SettingValue = value;
                         setting.IsPublic = ispublic;
