@@ -17,7 +17,7 @@
     <script src="js/app.js"></script>
     <script src="js/loadjs.min.js"></script>
     <link rel="stylesheet" href="css/app.css" />
-    @Html.Raw(@Model.HeadResources)
+    @Html.Raw(Model.HeadResources)
 </head>
 <body>
     @(Html.AntiForgeryToken())
@@ -48,8 +48,8 @@
     }
 	@if (!string.IsNullOrEmpty(Model.PWAScript))
 	{
-		@Model.PWAScript
+		@Html.Raw(Model.PWAScript)
 	}
-    @Html.Raw(@Model.BodyResources)
+    @Html.Raw(Model.BodyResources)
 </body>
 </html>
