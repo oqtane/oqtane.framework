@@ -171,4 +171,7 @@
   <data name="Created" xml:space="preserve">
     <value>Created</value>
   </data>
+  <data name="Details.Text" xml:space="preserve">
+    <value>Details</value>
+  </data>
 </root>
