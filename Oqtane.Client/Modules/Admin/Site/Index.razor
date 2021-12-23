@@ -424,7 +424,6 @@
 								{
 									site.Runtime = _runtime;
 									site.RenderMode = _runtime + _prerender;
-									refresh = true;
 									reload = true; // needs to be reloaded on server
 								}
 							}
@@ -525,7 +524,7 @@
 
 							await logger.LogInformation("Site Settings Saved {Site}", site);
 
-							if (refresh)
+							if (refresh || reload)
 							{
 								NavigationManager.NavigateTo(NavigateUrl(true), reload); // refresh/reload
 							}
