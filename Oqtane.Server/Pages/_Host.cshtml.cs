@@ -258,7 +258,7 @@ namespace Oqtane.Pages
         private string CreatePWAScript(Alias alias, Site site, Route route)
         {
             return
-            "<script>" +
+            "<script id=\"app-pwa\">" +
                 "setTimeout(() => { " +
                     "var manifest = { " +
                         "\"name\": \"" + site.Name + "\", " +
@@ -283,6 +283,8 @@ namespace Oqtane.Pages
                     "document.getElementById('app-manifest').setAttribute('href', url); " +
                 "} " +
                 ", 1000);" +
+            "</script>" + Environment.NewLine +
+            "<script id=\"app-serviceworker\">" +
                 "if ('serviceWorker' in navigator) { " +
                     "navigator.serviceWorker.register('/service-worker.js').then(function(registration) { " +
                         "console.log('ServiceWorker Registration Successful'); " +
