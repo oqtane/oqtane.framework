@@ -19,6 +19,7 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using System.Net;
+using Microsoft.Extensions.Primitives;
 
 namespace Oqtane.Pages
 {
@@ -186,15 +187,15 @@ namespace Oqtane.Pages
         private void TrackVisitor(int SiteId)
         {
             // get request attributes
-            string ip = HttpContext.Connection.RemoteIpAddress.ToString();
-            string useragent = Request.Headers[HeaderNames.UserAgent];
-            string language = Request.Headers[HeaderNames.AcceptLanguage];
+            string ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "";
+            string useragent = (Request.Headers[HeaderNames.UserAgent] != StringValues.Empty) ? Request.Headers[HeaderNames.UserAgent] : "";
+            string language = (Request.Headers[HeaderNames.AcceptLanguage] != StringValues.Empty) ? Request.Headers[HeaderNames.AcceptLanguage] : "";
             if (language.Contains(","))
             {
                 language = language.Substring(0, language.IndexOf(","));
             }
             string url = Request.GetEncodedUrl();
-            string referrer = Request.Headers[HeaderNames.Referer];
+            string referrer = (Request.Headers[HeaderNames.Referer] != StringValues.Empty) ? Request.Headers[HeaderNames.Referer] : "";
             int? userid = null;
             if (User.HasClaim(item => item.Type == ClaimTypes.PrimarySid))
             {
