@@ -114,7 +114,7 @@ namespace Oqtane.Infrastructure
                                 jobLogs.UpdateJobLog(log);
 
                                 // update the job
-                                job.NextExecution = CalculateNextExecution(NextExecution, job.Frequency, job.Interval);
+                                job.NextExecution = CalculateNextExecution(NextExecution, job);
                                 job.IsExecuting = false;
                                 jobs.UpdateJob(job);
 
@@ -140,21 +140,31 @@ namespace Oqtane.Infrastructure
 
         }
 
-        private DateTime CalculateNextExecution(DateTime nextExecution, string frequency, int interval)
+        private DateTime CalculateNextExecution(DateTime nextExecution, Job job)
         {
-            switch (frequency)
+            switch (job.Frequency)
             {
                 case "m": // minutes
-                    nextExecution = nextExecution.AddMinutes(interval);
+                    nextExecution = nextExecution.AddMinutes(job.Interval);
                     break;
                 case "H": // hours
-                    nextExecution = nextExecution.AddHours(interval);
+                    nextExecution = nextExecution.AddHours(job.Interval);
                     break;
                 case "d": // days
-                    nextExecution = nextExecution.AddDays(interval);
+                    nextExecution = nextExecution.AddDays(job.Interval);
+                    if (job.StartDate != null && job.StartDate.Value.TimeOfDay.TotalSeconds != 0)
+                    {
+                        // set the start time
+                        nextExecution = nextExecution.Date.Add(job.StartDate.Value.TimeOfDay);
+                    }
                     break;
                 case "M": // months
-                    nextExecution = nextExecution.AddMonths(interval);
+                    nextExecution = nextExecution.AddMonths(job.Interval);
+                    if (job.StartDate != null && job.StartDate.Value.TimeOfDay.TotalSeconds != 0)
+                    {
+                        // set the start time
+                        nextExecution = nextExecution.Date.Add(job.StartDate.Value.TimeOfDay);
+                    }
                     break;
             }
             if (nextExecution < DateTime.UtcNow)
@@ -168,7 +178,6 @@ namespace Oqtane.Infrastructure
         {
             try
             {
-                // set IsExecuting to false in case this job was forcefully terminated previously 
                 using (var scope = _serviceScopeFactory.CreateScope())
                 {
                     string jobTypeName = Utilities.GetFullTypeName(GetType().AssemblyQualifiedName);
@@ -176,15 +185,17 @@ namespace Oqtane.Infrastructure
                     Job job = jobs.GetJobs().Where(item => item.JobType == jobTypeName).FirstOrDefault();
                     if (job != null)
                     {
+                        // reset in case this job was forcefully terminated previously 
                         job.IsStarted = true;
                         job.IsExecuting = false;
                         jobs.UpdateJob(job);
                     }
                     else
                     {
-                        // auto registration - does not run on initial installation but will run after restart
+                        // auto registration - job will not run on initial installation but will run after restart
                         job = new Job { JobType = jobTypeName };
-                        // optional properties
+
+                        // optional HostedServiceBase properties
                         var jobType = Type.GetType(jobTypeName);
                         var jobObject = ActivatorUtilities.CreateInstance(scope.ServiceProvider, jobType) as HostedServiceBase;
                         if (jobObject.Name != "")
@@ -203,6 +214,7 @@ namespace Oqtane.Infrastructure
                         job.IsEnabled = jobObject.IsEnabled;
                         job.IsStarted = true;
                         job.IsExecuting = false;
+                        job.NextExecution = null;
                         jobs.AddJob(job);
                     }
                 }
@@ -224,13 +236,27 @@ namespace Oqtane.Infrastructure
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            if (_executingTask == null)
-            {
-                return;
-            }
-
             try
             {
+                using (var scope = _serviceScopeFactory.CreateScope())
+                {
+                    string jobTypeName = Utilities.GetFullTypeName(GetType().AssemblyQualifiedName);
+                    IJobRepository jobs = scope.ServiceProvider.GetRequiredService<IJobRepository>();
+                    Job job = jobs.GetJobs().Where(item => item.JobType == jobTypeName).FirstOrDefault();
+                    if (job != null)
+                    {
+                        // reset job 
+                        job.IsStarted = false;
+                        job.IsExecuting = false;
+                        jobs.UpdateJob(job);
+                    }
+                }
+
+                if (_executingTask == null)
+                {
+                    return;
+                }
+
                 _cancellationTokenSource.Cancel();
             }
             finally
