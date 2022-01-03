@@ -234,10 +234,12 @@
 			}
 			else // page not found
 			{
-				var urlMapping = await UrlMappingService.GetUrlMappingAsync(site.SiteId, route.SiteUrl + "/" + route.PagePath);
+				// look for url mapping
+				var urlMapping = await UrlMappingService.GetUrlMappingAsync(site.SiteId, route.PagePath);
 				if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
 				{
-					NavigationManager.NavigateTo(urlMapping.MappedUrl, false);
+                    var url = (urlMapping.MappedUrl.StartsWith("http")) ? urlMapping.MappedUrl : route.SiteUrl + "/" + urlMapping.MappedUrl;
+					NavigationManager.NavigateTo(url, false);
 				}
 				else // not mapped
 				{

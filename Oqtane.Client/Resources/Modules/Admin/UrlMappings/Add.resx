@@ -121,10 +121,10 @@
     <value>Redirect To:</value>
   </data>
   <data name="MappedUrl.HelpText" xml:space="preserve">
-    <value>A fully qualified Url where the user will be redirected</value>
+    <value>A relative or absolute Url where the user will be redirected</value>
   </data>
   <data name="Url.HelpText" xml:space="preserve">
-    <value>A fully qualified Url for this site</value>
+    <value>An absolute Url identifying a path to a specific page in the site</value>
   </data>
   <data name="Url.Text" xml:space="preserve">
     <value>Url:</value>
@@ -134,5 +134,11 @@
   </data>
   <data name="Message.InfoRequired" xml:space="preserve">
     <value>Please Provide All Required Information</value>
+  </data>
+  <data name="Message.DuplicateUrlMapping" xml:space="preserve">
+    <value>The Url and Redirect To cannot be the same</value>
+  </data>
+  <data name="Message.SaveUrlMapping" xml:space="preserve">
+    <value>The Url must belong to the current site</value>
   </data>
 </root>

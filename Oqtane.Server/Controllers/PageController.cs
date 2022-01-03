@@ -261,11 +261,10 @@ namespace Oqtane.Controllers
                 // save url mapping if page path changed
                 if (currentPage.Path != page.Path)
                 {
-                    var url = HttpContext.Request.Scheme + "://" + _alias.Name + "/";
                     var urlMapping = new UrlMapping();
                     urlMapping.SiteId = page.SiteId;
-                    urlMapping.Url = url + currentPage.Path;
-                    urlMapping.MappedUrl = url + page.Path;
+                    urlMapping.Url = currentPage.Path;
+                    urlMapping.MappedUrl = page.Path;
                     urlMapping.Requests = 0;
                     urlMapping.CreatedOn = System.DateTime.UtcNow;
                     urlMapping.RequestedOn = System.DateTime.UtcNow;

@@ -143,14 +143,14 @@ namespace Oqtane.Pages
                                 ThemeType = page.ThemeType;
                             }
                         }
-                        else
+                        else // page not found
                         {
-                            // page does not exist
-                            url = route.SiteUrl + "/" + route.PagePath;
-                            var urlMapping = _urlMappings.GetUrlMapping(site.SiteId, url);
+                            // look for url mapping
+                            var urlMapping = _urlMappings.GetUrlMapping(site.SiteId, route.PagePath);
                             if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
                             {
-                                return RedirectPermanent(urlMapping.MappedUrl);
+                                url = (urlMapping.MappedUrl.StartsWith("http")) ? urlMapping.MappedUrl : route.SiteUrl + "/" + urlMapping.MappedUrl;
+                                return RedirectPermanent(url);
                             }
                         }
                     }
@@ -190,10 +190,9 @@ namespace Oqtane.Pages
             string ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "";
             string useragent = (Request.Headers[HeaderNames.UserAgent] != StringValues.Empty) ? Request.Headers[HeaderNames.UserAgent] : "";
             string language = (Request.Headers[HeaderNames.AcceptLanguage] != StringValues.Empty) ? Request.Headers[HeaderNames.AcceptLanguage] : "";
-            if (language.Contains(","))
-            {
-                language = language.Substring(0, language.IndexOf(","));
-            }
+            language = (language.Contains(",")) ? language.Substring(0, language.IndexOf(",")) : language;
+            language = (language.Contains(";")) ? language.Substring(0, language.IndexOf(";")) : language;
+            language = (language.Trim().Length == 0) ? "*" : language;
             string url = Request.GetEncodedUrl();
             string referrer = (Request.Headers[HeaderNames.Referer] != StringValues.Empty) ? Request.Headers[HeaderNames.Referer] : "";
             int? userid = null;
