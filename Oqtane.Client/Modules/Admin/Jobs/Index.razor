@@ -36,13 +36,13 @@ else
             <td>@context.NextExecution</td>
             <td>
                 @if (context.IsStarted)
-                    {
+                {
                     <button type="button" class="btn btn-danger" @onclick="(async () => await StopJob(context.JobId))">@Localizer["Stop"]</button>
-                    }
-                    else
-                    {
+                }
+                else
+                {
                     <button type="button" class="btn btn-success" @onclick="(async () => await StartJob(context.JobId))">@Localizer["Start"]</button>
-                    }
+                }
             </td>
         </Row>
     </Pager>
@@ -100,11 +100,6 @@ else
                 break;
         }
 
-        if (interval > 1)
-        {
-            result += Localizer["s"];
-        }
-
         return result;
     }
 
@@ -114,6 +109,7 @@ else
         {
             await JobService.DeleteJobAsync(job.JobId);
             await logger.LogInformation("Job Deleted {Job}", job);
+			_jobs = await JobService.GetJobsAsync();
             StateHasChanged();
         }
         catch (Exception ex)
@@ -125,12 +121,36 @@ else
 
     private async Task StartJob(int jobId)
     {
-        await JobService.StartJobAsync(jobId);
+        try
+        {
+			await JobService.StartJobAsync(jobId);
+            await logger.LogInformation("Job Started {JobId}", jobId);
+            AddModuleMessage(Localizer["Message.Job.Start"], MessageType.Success);
+			_jobs = await JobService.GetJobsAsync();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Starting Job {JobId} {Error}", jobId, ex.Message);
+            AddModuleMessage(Localizer["Error.Job.Start"], MessageType.Error);
+        }
     }
 
     private async Task StopJob(int jobId)
     {
-        await JobService.StopJobAsync(jobId);
+        try
+        {
+			await JobService.StopJobAsync(jobId);
+            await logger.LogInformation("Job Stopped {JobId}", jobId);
+            AddModuleMessage(Localizer["Message.Job.Stop"], MessageType.Success);
+			_jobs = await JobService.GetJobsAsync();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Stopping Job {JobId} {Error}", jobId, ex.Message);
+            AddModuleMessage(Localizer["Error.Job.Stop"], MessageType.Error);
+        }
     }
 
     private async Task Refresh()
