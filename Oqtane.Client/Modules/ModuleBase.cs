@@ -134,14 +134,19 @@ namespace Oqtane.Modules
             return Utilities.ContentUrl(PageState.Alias, fileid, asAttachment);
         }
 
-        public string ImageUrl(int fileid, int width, int height, string mode)
+        public string ImageUrl(int fileid, int width, int height)
         {
-            return ImageUrl(fileid, width, height, mode, 0);
+            return ImageUrl(fileid, width, height, "");
         }
 
-        public string ImageUrl(int fileid, int width, int height, string mode, int rotate)
+        public string ImageUrl(int fileid, int width, int height, string mode)
         {
-            return Utilities.ImageUrl(PageState.Alias, fileid, width, height, mode, rotate);
+            return ImageUrl(fileid, width, height, mode, "", "", 0, false);
+        }
+
+        public string ImageUrl(int fileid, int width, int height, string mode, string position, string background, int rotate, bool recreate)
+        {
+            return Utilities.ImageUrl(PageState.Alias, fileid, width, height, mode, position, background, rotate, recreate);
         }
 
         public virtual Dictionary<string, string> GetUrlParameters(string parametersTemplate = "")

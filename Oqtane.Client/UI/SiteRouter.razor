@@ -83,7 +83,7 @@
 		var action = (!string.IsNullOrEmpty(route.Action)) ? route.Action : Constants.DefaultAction; 
 		var querystring = ParseQueryString(route.Query);
 
-        // reload the client application if there is a forced reload or the user navigated to a site with a different alias 
+		// reload the client application if there is a forced reload or the user navigated to a site with a different alias 
 		if (querystring.ContainsKey("reload") || (!route.AbsolutePath.Substring(1).ToLower().StartsWith(SiteState.Alias.Path.ToLower()) && !string.IsNullOrEmpty(SiteState.Alias.Path)))
 		{
 			NavigationManager.NavigateTo(_absoluteUri.Replace("?reload", ""), true);
@@ -91,7 +91,7 @@
 		}
 		else
 		{
-		// the refresh parameter is used to refresh the PageState
+			// the refresh parameter is used to refresh the PageState
 			if (querystring.ContainsKey("refresh"))
 			{
 				refresh = UI.Refresh.Site;
@@ -104,12 +104,12 @@
 			lastsyncdate = PageState.LastSyncDate;
 		}
 
-        // process any sync events
+		// process any sync events
 		var sync = await SyncService.GetSyncAsync(lastsyncdate);
 		lastsyncdate = sync.SyncDate;
 		if (sync.SyncEvents.Any())
 		{
-		// reload client application if server was restarted or site runtime/rendermode was modified
+			// reload client application if server was restarted or site runtime/rendermode was modified
 			if (PageState != null && sync.SyncEvents.Exists(item => (item.TenantId == -1 || item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId) && item.Reload))
 			{
 				NavigationManager.NavigateTo(_absoluteUri, true);
@@ -135,12 +135,15 @@
 		{
 			if (PageState == null || refresh == UI.Refresh.Site)
 			{
-			// get user
+				// get user
 				var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
 				if (authState.User.Identity.IsAuthenticated)
 				{
 					user = await UserService.GetUserAsync(authState.User.Identity.Name, site.SiteId);
-					user.IsAuthenticated = authState.User.Identity.IsAuthenticated;
+					if (user != null)
+					{
+						user.IsAuthenticated = authState.User.Identity.IsAuthenticated;
+					}
 				}
 			}
 			else

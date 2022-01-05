@@ -133,16 +133,16 @@
     <value>Every</value>
   </data>
   <data name="Minute" xml:space="preserve">
-    <value>Minute</value>
+    <value>Minute(s)</value>
   </data>
   <data name="Hour" xml:space="preserve">
-    <value>Hour</value>
+    <value>Hour(s)</value>
   </data>
   <data name="Day" xml:space="preserve">
-    <value>Day</value>
+    <value>Day(s)</value>
   </data>
   <data name="Month" xml:space="preserve">
-    <value>Month</value>
+    <value>Month(s)</value>
   </data>
   <data name="Error.Job.Delete" xml:space="preserve">
     <value>Error Deleting Job</value>
@@ -185,5 +185,8 @@
   </data>
   <data name="Message.Job.Stop" xml:space="preserve">
     <value>The process responsible for executing this job has been stopped. In order to restart the process you will need to use the Start button or restart the application.</value>
+  </data>
+  <data name="Week" xml:space="preserve">
+    <value>Week(s)</value>
   </data>
 </root>
