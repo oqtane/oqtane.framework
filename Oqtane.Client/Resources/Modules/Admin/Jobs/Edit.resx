@@ -186,4 +186,7 @@
   <data name="NextExecution.Text" xml:space="preserve">
     <value>Next Execution: </value>
   </data>
+  <data name="Week(s)" xml:space="preserve">
+    <value>Week(s)</value>
+  </data>
 </root>

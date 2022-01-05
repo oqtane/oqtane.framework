@@ -158,6 +158,14 @@ namespace Oqtane.Infrastructure
                         nextExecution = nextExecution.Date.Add(job.StartDate.Value.TimeOfDay);
                     }
                     break;
+                case "w": // weeks
+                    nextExecution = nextExecution.AddDays(job.Interval * 7);
+                    if (job.StartDate != null && job.StartDate.Value.TimeOfDay.TotalSeconds != 0)
+                    {
+                        // set the start time
+                        nextExecution = nextExecution.Date.Add(job.StartDate.Value.TimeOfDay);
+                    }
+                    break;
                 case "M": // months
                     nextExecution = nextExecution.AddMonths(job.Interval);
                     if (job.StartDate != null && job.StartDate.Value.TimeOfDay.TotalSeconds != 0)
