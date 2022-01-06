@@ -3,7 +3,7 @@
 @inject ISettingService SettingService
 
 <div class="@_classes">
-    @if (_title)
+    @if (_title && ModuleState.Title != "-")
     {
         <div class="row px-4">
             <div class="d-flex flex-nowrap">
