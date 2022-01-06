@@ -142,7 +142,7 @@
     <value>Site Settings Saved</value>
   </data>
   <data name="Message.Aliases.Taken" xml:space="preserve">
-    <value>An Alias Specified Has Already Been Used For Another Site</value>
+    <value>The Default Alias Has Not Been Specified Or An Alias Was Specified That Has Already Been Used For Another Site</value>
   </data>
   <data name="Message.Required.SiteName" xml:space="preserve">
     <value>You Must Provide A Site Name, Alias, And Default Theme/Container</value>

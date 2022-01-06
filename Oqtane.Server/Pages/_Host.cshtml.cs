@@ -86,12 +86,17 @@ namespace Oqtane.Pages
                     // redirect non-default alias
                     if (!alias.IsDefault)
                     {
-                        var redirect = _aliases.GetAliases()
-                            .Where(item => item.TenantId == alias.TenantId && item.SiteId == alias.SiteId && item.IsDefault)
-                            .FirstOrDefault();
-                        if (redirect != null)
+                        var aliases = _aliases.GetAliases().Where(item => item.TenantId == alias.TenantId && item.SiteId == alias.SiteId);
+                        if (aliases.Where(item => item.IsDefault).FirstOrDefault() != null)
                         {
-                            return RedirectPermanent(url.Replace(alias.Name, redirect.Name));
+                            return RedirectPermanent(url.Replace(alias.Name, aliases.Where(item => item.IsDefault).FirstOrDefault().Name));
+                        }
+                        else // no default specified - use first alias
+                        {
+                            if (alias.Name.Trim() != aliases.First().Name.Trim())
+                            {
+                                return RedirectPermanent(url.Replace(alias.Name, aliases.First().Name));
+                            }
                         }
                     }
 
@@ -303,7 +308,7 @@ namespace Oqtane.Pages
                 var obj = Activator.CreateInstance(type) as IHostResources;
                 foreach (var resource in obj.Resources)
                 {
-                    ProcessResource(resource);
+                    ProcessResource(resource, 0);
                 }
             }
         }
@@ -323,7 +328,7 @@ namespace Oqtane.Pages
                     {
                         if (resource.Declaration == ResourceDeclaration.Global)
                         {
-                            ProcessResource(resource);
+                            ProcessResource(resource, 0);
                         }
                     }
                 }
@@ -341,24 +346,25 @@ namespace Oqtane.Pages
                 var obj = Activator.CreateInstance(type) as IThemeControl;
                 if (obj.Resources != null)
                 {
+                    int count = 0; // required for local stylesheets for current theme
                     foreach (var resource in obj.Resources)
                     {
                         if (resource.Declaration == ResourceDeclaration.Global || (Utilities.GetFullTypeName(type.AssemblyQualifiedName) == ThemeType && resource.ResourceType == ResourceType.Stylesheet))
                         {
-                            ProcessResource(resource);
+                            ProcessResource(resource, count++);
                         }
                     }
                 }
             }
         }
-        private void ProcessResource(Resource resource)
+        private void ProcessResource(Resource resource, int count)
         {
             switch (resource.ResourceType)
             {
                 case ResourceType.Stylesheet:
                     if (!HeadResources.Contains(resource.Url, StringComparison.OrdinalIgnoreCase))
                     {
-                        var id = (resource.Declaration == ResourceDeclaration.Global) ? "" : "id=\"app-stylesheet-" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + "-00\" ";
+                        var id = (resource.Declaration == ResourceDeclaration.Global) ? "" : "id=\"app-stylesheet-" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + "-" + count.ToString("00") + "\" ";
                         HeadResources += "<link " + id + "rel=\"stylesheet\" href=\"" + resource.Url + "\"" + CrossOrigin(resource.CrossOrigin) + Integrity(resource.Integrity) + " />" + Environment.NewLine;
                     }
                     break;
