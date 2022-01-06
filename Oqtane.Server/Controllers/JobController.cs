@@ -55,7 +55,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Job Post Attempt {Alias}", job);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Job Post Attempt {Job}", job);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 job = null;
             }
@@ -74,7 +74,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Job Put Attempt {Alias}", job);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Job Put Attempt {Job}", job);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 job = null;
             }
