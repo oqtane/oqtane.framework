@@ -8,9 +8,9 @@ namespace Oqtane.Migrations.Master
 {
     [DbContext(typeof(MasterDBContext))]
     [Migration("Master.03.00.02.01")]
-    public class AddAliasRedirect : MultiDatabaseMigration
+    public class AddAliasIsDefault : MultiDatabaseMigration
     {
-        public AddAliasRedirect(IDatabase database) : base(database)
+        public AddAliasIsDefault(IDatabase database) : base(database)
         {
         }
 
@@ -19,7 +19,7 @@ namespace Oqtane.Migrations.Master
             //Add Column to Alias table
             var aliasEntityBuilder = new AliasEntityBuilder(migrationBuilder, ActiveDatabase);
             aliasEntityBuilder.AddBooleanColumn("IsDefault", true);
-            aliasEntityBuilder.UpdateColumn("IsDefault", "1", "bool", "");
+            aliasEntityBuilder.UpdateColumn("IsDefault", "0", "bool", "");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
