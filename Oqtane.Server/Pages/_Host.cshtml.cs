@@ -35,8 +35,9 @@ namespace Oqtane.Pages
         private readonly IUrlMappingRepository _urlMappings;
         private readonly IVisitorRepository _visitors;
         private readonly IAliasRepository _aliases;
+        private readonly ISettingRepository _settings;
 
-        public HostModel(IConfiguration configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, ISiteRepository sites, IPageRepository pages, IUrlMappingRepository urlMappings, IVisitorRepository visitors, IAliasRepository aliases)
+        public HostModel(IConfiguration configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, ISiteRepository sites, IPageRepository pages, IUrlMappingRepository urlMappings, IVisitorRepository visitors, IAliasRepository aliases, ISettingRepository settings)
         {
             _configuration = configuration;
             _tenantManager = tenantManager;
@@ -48,6 +49,7 @@ namespace Oqtane.Pages
             _urlMappings = urlMappings;
             _visitors = visitors;
             _aliases = aliases;
+            _settings = settings;
         }
 
         public string AntiForgeryToken = "";
@@ -198,6 +200,20 @@ namespace Oqtane.Pages
             language = (language.Contains(",")) ? language.Substring(0, language.IndexOf(",")) : language;
             language = (language.Contains(";")) ? language.Substring(0, language.IndexOf(";")) : language;
             language = (language.Trim().Length == 0) ? "*" : language;
+
+            // filter
+            var filter = _settings.GetSetting(EntityNames.Site, SiteId, "VisitorFilter");
+            if (filter != null && !string.IsNullOrEmpty(filter.SettingValue))
+            {
+                foreach (string term in filter.SettingValue.ToLower().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray())
+                {
+                    if (ip.ToLower().Contains(term) || useragent.ToLower().Contains(term) || language.ToLower().Contains(term))
+                    {
+                        return;
+                    }
+                }
+            }
+
             string url = Request.GetEncodedUrl();
             string referrer = (Request.Headers[HeaderNames.Referer] != StringValues.Empty) ? Request.Headers[HeaderNames.Referer] : "";
             int? userid = null;

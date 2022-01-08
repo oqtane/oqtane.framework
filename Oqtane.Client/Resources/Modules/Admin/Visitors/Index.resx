@@ -156,11 +156,11 @@
   <data name="Visitors.Heading" xml:space="preserve">
     <value>Visitors</value>
   </data>
-  <data name="VisitorTracking.HelpText" xml:space="preserve">
+  <data name="Tracking.HelpText" xml:space="preserve">
     <value>Specify if visitor tracking is enabled</value>
   </data>
-  <data name="VisitorTracking.Text" xml:space="preserve">
-    <value>Visitor Tracking Enabled?</value>
+  <data name="Tracking.Text" xml:space="preserve">
+    <value>Tracking Enabled?</value>
   </data>
   <data name="IP" xml:space="preserve">
     <value>IP</value>
@@ -173,5 +173,17 @@
   </data>
   <data name="Details.Text" xml:space="preserve">
     <value>Details</value>
+  </data>
+  <data name="Filter.HelpText" xml:space="preserve">
+    <value>Comma delimited list of terms which may exist in IP addresses, user agents, or languages which identify visitors which should not be tracked (ie. bots)</value>
+  </data>
+  <data name="Filter.Text" xml:space="preserve">
+    <value>Filter:</value>
+  </data>
+  <data name="Retention.HelpText" xml:space="preserve">
+    <value>Number of days of visitor activity to retain</value>
+  </data>
+  <data name="Retention.Text" xml:space="preserve">
+    <value>Retention (Days):</value>
   </data>
 </root>

@@ -11,5 +11,6 @@ namespace Oqtane.Repository
         Visitor UpdateVisitor(Visitor visitor);
         Visitor GetVisitor(int visitorId);
         void DeleteVisitor(int visitorId);
+        int DeleteVisitors(int age);
     }
 }
