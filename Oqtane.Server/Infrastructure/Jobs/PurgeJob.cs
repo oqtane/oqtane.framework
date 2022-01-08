@@ -42,22 +42,25 @@ namespace Oqtane.Infrastructure
                 Dictionary<string, string> settings = GetSettings(settingRepository.GetSettings(EntityNames.Site, site.SiteId).ToList());
 
                 // purge event log
-                int logretention = 30;
-                if (settings.ContainsKey("LogRetention") && settings["LogRetention"] != "")
+                int retention = 30; // 30 days
+                if (settings.ContainsKey("LogRetention") && !string.IsNullOrEmpty(settings["LogRetention"]))
                 {
-                    logretention = int.Parse(settings["LogRetention"]);
+                    retention = int.Parse(settings["LogRetention"]);
                 }
-                int count = logRepository.DeleteLogs(logretention);
-                log += count.ToString() + " Event Logs Purged<br />";
+                int count = logRepository.DeleteLogs(retention);
+                log += count.ToString() + " Events Purged<br />";
 
                 // purge visitors
-                int visitorrention = 30;
-                if (settings.ContainsKey("VisitorRetention") && settings["VisitorRetention"] != "")
+                if (site.VisitorTracking)
                 {
-                    visitorrention = int.Parse(settings["VisitorRetention"]);
+                    retention = 30; // 30 days
+                    if (settings.ContainsKey("VisitorRetention") && !string.IsNullOrEmpty(settings["VisitorRetention"]))
+                    {
+                        retention = int.Parse(settings["VisitorRetention"]);
+                    }
+                    count = visitorRepository.DeleteVisitors(retention);
+                    log += count.ToString() + " Visitors Purged<br />";
                 }
-                count = visitorRepository.DeleteVisitors(visitorrention);
-                log += count.ToString() + " Visitors Purged<br />";
             }
 
             return log;
