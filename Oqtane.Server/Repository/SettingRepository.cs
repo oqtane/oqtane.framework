@@ -77,6 +77,18 @@ namespace Oqtane.Repository
             }
         }
 
+        public Setting GetSetting(string entityName, int entityId, string settingName)
+        {
+            if (IsMaster(entityName))
+            {
+                return _master.Setting.Where(item => item.EntityName == entityName && item.EntityId == entityId && item.SettingName == settingName).FirstOrDefault();
+            }
+            else
+            {
+                return _tenant.Setting.Where(item => item.EntityName == entityName && item.EntityId == entityId && item.SettingName == settingName).FirstOrDefault();
+            }
+        }
+
         public void DeleteSetting(string entityName, int settingId)
         {
             if (IsMaster(entityName))

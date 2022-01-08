@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using Oqtane.Models;
 
@@ -46,6 +47,24 @@ namespace Oqtane.Repository
         {
             _db.Log.Add(log);
             _db.SaveChanges();
+        }
+
+        public int DeleteLogs(int age)
+        {
+            // delete logs in batches of 100 records
+            int count = 0;
+            var purgedate = DateTime.Now.AddDays(-age);
+            var logs = _db.Log.Where(item => item.Level != "Error" && item.LogDate < purgedate)
+                .OrderBy(item => item.LogDate).Take(100).ToList();
+            while (logs.Count > 0)
+            {
+                count += logs.Count;
+                _db.Log.RemoveRange(logs);
+                _db.SaveChanges();
+                logs = _db.Log.Where(item => item.Level != "Error" && item.LogDate < purgedate)
+                    .OrderBy(item => item.LogDate).Take(100).ToList();
+            }
+            return count;
         }
     }
 }
