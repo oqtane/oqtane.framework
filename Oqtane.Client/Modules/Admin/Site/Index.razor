@@ -628,7 +628,7 @@
 		foreach (Alias alias in _aliases)
 		{
 			_urls += (_urls == string.Empty) ? alias.Name.Trim() : ", " + alias.Name.Trim();
-			if (alias.IsDefault) _defaultalias = alias.Name.Trim();
+			if (alias.IsDefault && string.IsNullOrEmpty(_defaultalias)) _defaultalias = alias.Name.Trim();
 		}
 		if (string.IsNullOrEmpty(_defaultalias)) _defaultalias = _aliases.First().Name.Trim();
 	}

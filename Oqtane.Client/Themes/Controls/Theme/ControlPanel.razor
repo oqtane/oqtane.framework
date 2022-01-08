@@ -46,178 +46,178 @@
 		</div>
 		<div class="@BodyClass">
 			<div class="container-fluid">
-			@if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
-			{
-				<div class="row d-flex">
-					<div class="col">
-						<button type="button" data-bs-dismiss="offcanvas" class="btn btn-primary col-12" @onclick=@(async () => Navigate("Admin"))>@Localizer["AdminDash"]</button>
+				@if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
+				{
+					<div class="row d-flex">
+						<div class="col">
+							<button type="button" data-bs-dismiss="offcanvas" class="btn btn-primary col-12" @onclick=@(async () => Navigate("Admin"))>@Localizer["AdminDash"]</button>
+						</div>
 					</div>
-				</div>
 
-				<hr class="app-rule" />
+					<hr class="app-rule" />
 
-				<div class="row">
-					<div class="col text-center">
-						<label class="control-label">@Localizer["Page.Manage"] </label>
+					<div class="row">
+						<div class="col text-center">
+							<label class="control-label">@Localizer["Page.Manage"] </label>
+						</div>
 					</div>
-				</div>
-				<div class="row d-flex">
-					<div class="col d-flex justify-content-between">
-						<button type="button" class="btn btn-secondary col me-1" data-bs-dismiss="offcanvas" @onclick=@(async () => Navigate("Add"))>@SharedLocalizer["Add"]</button>
-						<button type="button" class="btn btn-secondary col" data-bs-dismiss="offcanvas" @onclick=@(async () => Navigate("Edit"))>@SharedLocalizer["Edit"]</button>
-						<button type="button" class="btn btn-danger col ms-1" @onclick="ConfirmDelete">@SharedLocalizer["Delete"]</button>
+					<div class="row d-flex mb-2">
+						<div class="col d-flex justify-content-between">
+							<button type="button" class="btn btn-secondary col me-1" data-bs-dismiss="offcanvas" @onclick=@(async () => Navigate("Add"))>@SharedLocalizer["Add"]</button>
+							<button type="button" class="btn btn-secondary col" data-bs-dismiss="offcanvas" @onclick=@(async () => Navigate("Edit"))>@SharedLocalizer["Edit"]</button>
+							<button type="button" class="btn btn-danger col ms-1" @onclick="ConfirmDelete">@SharedLocalizer["Delete"]</button>
+						</div>
 					</div>
-				</div>
-				<br />
-				<div class="row d-flex">
-					<div class="col">
-						@if (UserSecurity.GetPermissionStrings(PageState.Page.Permissions).FirstOrDefault(item => item.PermissionName == PermissionNames.View).Permissions.Split(';').Contains(RoleNames.Everyone))
-						{
-							<button type="button" class="btn btn-secondary col-12" @onclick=@(async () => Publish("unpublish"))>@Localizer["Page.Unpublish"]</button>
-						}
-						else
-						{
-							<button type="button" class="btn btn-secondary col-12" @onclick=@(async () => Publish("publish"))>@Localizer["Page.Publish"]</button>
-						}
+					<div class="row d-flex">
+						<div class="col">
+							@if (UserSecurity.GetPermissionStrings(PageState.Page.Permissions).FirstOrDefault(item => item.PermissionName == PermissionNames.View).Permissions.Split(';').Contains(RoleNames.Everyone))
+							{
+								<button type="button" class="btn btn-secondary col-12" @onclick=@(async () => Publish("unpublish"))>@Localizer["Page.Unpublish"]</button>
+							}
+							else
+							{
+								<button type="button" class="btn btn-secondary col-12" @onclick=@(async () => Publish("publish"))>@Localizer["Page.Publish"]</button>
+							}
+						</div>
 					</div>
-				</div>
-			}
+				}
 
-			@if (_deleteConfirmation)
-			{
-				<div class="app-admin-modal">
-					<div class="modal" tabindex="-1" role="dialog">
-						<div class="modal-dialog">
-							<div class="modal-content">
-								<div class="modal-header">
-									<h5 class="modal-title">@Localizer["Page.Delete"]</h5>
-									<button type="button" class="btn-close" aria-label="Close" @onclick="ConfirmDelete"></button>
-								</div>
-								<div class="modal-body">
-									<p>Are You Sure You Want To Delete This Page?</p>
-								</div>
-								<div class="modal-footer">
-									<button type="button" class="btn btn-danger" @onclick="DeletePage">@SharedLocalizer["Delete"]</button>
-									<button type="button" class="btn btn-secondary" @onclick="ConfirmDelete">@SharedLocalizer["Cancel"]</button>
+				@if (_deleteConfirmation)
+				{
+					<div class="app-admin-modal">
+						<div class="modal" tabindex="-1" role="dialog">
+							<div class="modal-dialog">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h5 class="modal-title">@Localizer["Page.Delete"]</h5>
+										<button type="button" class="btn-close" aria-label="Close" @onclick="ConfirmDelete"></button>
+									</div>
+									<div class="modal-body">
+										<p>Are You Sure You Want To Delete This Page?</p>
+									</div>
+									<div class="modal-footer">
+										<button type="button" class="btn btn-danger" @onclick="DeletePage">@SharedLocalizer["Delete"]</button>
+										<button type="button" class="btn btn-secondary" @onclick="ConfirmDelete">@SharedLocalizer["Cancel"]</button>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-			}
-			<hr class="app-rule" />
-			<div class="row">
-				<div class="col text-center">
-					<label for="Module" class="control-label">@Localizer["Module.Manage"] </label>
-					<select class="form-select" @bind="@ModuleType">
-						<option value="new">@Localizer["Module.AddNew"]</option>
-						<option value="existing">@Localizer["Module.AddExisting"]</option>
-					</select>
-					@if (ModuleType == "new")
-					{
-						@if (_moduleDefinitions != null)
+				}
+				<hr class="app-rule" />
+				<div class="row">
+					<div class="col text-center">
+						<label for="Module" class="control-label">@Localizer["Module.Manage"] </label>
+						<select class="form-select" @bind="@ModuleType">
+							<option value="new">@Localizer["Module.AddNew"]</option>
+							<option value="existing">@Localizer["Module.AddExisting"]</option>
+						</select>
+						@if (ModuleType == "new")
 						{
-							<select class="form-select" @onchange="(e => CategoryChanged(e))">
-								@foreach (var category in _categories)
-								{
-									if (category == Category)
+							@if (_moduleDefinitions != null)
+							{
+								<select class="form-select" @onchange="(e => CategoryChanged(e))">
+									@foreach (var category in _categories)
 									{
-										<option value="@category" selected>@category @Localizer["Modules"]</option>
+										if (category == Category)
+										{
+											<option value="@category" selected>@category @Localizer["Modules"]</option>
+										}
+										else
+										{
+											<option value="@category">@category @Localizer["Modules"]</option>
+										}
+									}
+								</select>
+								<select class="form-select" @onchange="(e => ModuleChanged(e))">
+									@if (ModuleDefinitionName == "-")
+									{
+										<option value="-" selected>&lt;@Localizer["Module.Select"]&gt;</option>
 									}
 									else
 									{
-										<option value="@category">@category @Localizer["Modules"]</option>
+										<option value="-">&lt;@Localizer["Module.Select"]&gt;</option>
 									}
-								}
-							</select>
-							<select class="form-select" @onchange="(e => ModuleChanged(e))">
-								@if (ModuleDefinitionName == "-")
-								{
-									<option value="-" selected>&lt;@Localizer["Module.Select"]&gt;</option>
-								}
-								else
-								{
-									<option value="-">&lt;@Localizer["Module.Select"]&gt;</option>
-								}
-								@foreach (var moduledefinition in _moduleDefinitions)
-								{
-									if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Utilize, moduledefinition.Permissions))
+									@foreach (var moduledefinition in _moduleDefinitions)
 									{
-										if (moduledefinition.Runtimes == "" || moduledefinition.Runtimes.Contains(PageState.Runtime.ToString()))
+										if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Utilize, moduledefinition.Permissions))
 										{
-											<option value="@moduledefinition.ModuleDefinitionName">@moduledefinition.Name</option>
+											if (moduledefinition.Runtimes == "" || moduledefinition.Runtimes.Contains(PageState.Runtime.ToString()))
+											{
+												<option value="@moduledefinition.ModuleDefinitionName">@moduledefinition.Name</option>
+											}
 										}
 									}
+								</select>
+							}
+						}
+						else
+						{
+							<select class="form-select" @onchange="(e => PageChanged(e))">
+								<option value="-">&lt;@Localizer["Page.Select"]&gt;</option>
+								@foreach (Page p in _pages)
+								{
+									<option value="@p.PageId">@p.Name</option>
 								}
 							</select>
-							@((MarkupString) Description)
+							<select class="form-select" @bind="@ModuleId">
+								<option value="-">&lt;@Localizer["Module.Select"]&gt;</option>
+								@foreach (Module module in _modules)
+								{
+									<option value="@module.ModuleId">@module.Title</option>
+								}
+							</select>
 						}
-					}
-					else
-					{
-						<select class="form-select" @onchange="(e => PageChanged(e))">
-							<option value="-">&lt;@Localizer["Page.Select"]&gt;</option>
-							@foreach (Page p in _pages)
-							{
-								<option value="@p.PageId">@p.Name</option>
-							}
-						</select>
-						<select class="form-select" @bind="@ModuleId">
-							<option value="-">&lt;@Localizer["Module.Select"]&gt;</option>
-							@foreach (Module module in _modules)
-							{
-								<option value="@module.ModuleId">@module.Title</option>
-							}
-						</select>
-					}
+					</div>
 				</div>
-			</div>
-			<div class="row">
-				<div class="col text-center">
-					<label for="Title" class="control-label">@Localizer["Title"] </label>
-					<input type="text" name="Title" class="form-control" @bind="@Title" />
-				</div>
-			</div>
-			@if (_pane.Length > 1)
-			{
 				<div class="row">
 					<div class="col text-center">
-						<label for="Pane" class="control-label">@Localizer["Pane"] </label>
-						<select class="form-select" @bind="@Pane">
-							@foreach (string pane in PageState.Page.Panes)
+						<label for="Title" class="control-label">@Localizer["Title"] </label>
+						<input type="text" name="Title" class="form-control" @bind="@Title" />
+					</div>
+				</div>
+				@if (_pane.Length > 1)
+				{
+					<div class="row">
+						<div class="col text-center">
+							<label for="Pane" class="control-label">@Localizer["Pane"] </label>
+							<select class="form-select" @bind="@Pane">
+								@foreach (string pane in PageState.Page.Panes)
+								{
+									<option value="@pane">@pane Pane</option>
+								}
+							</select>
+						</div>
+					</div>
+				}
+				<div class="row">
+					<div class="col text-center">
+						<label for="Container" class="control-label">@Localizer["Container"] </label>
+						<select class="form-select" @bind="@ContainerType">
+							@foreach (var container in _containers)
 							{
-								<option value="@pane">@pane Pane</option>
+								<option value="@container.TypeName">@container.Name</option>
 							}
 						</select>
 					</div>
 				</div>
-			}
-			<div class="row">
-				<div class="col text-center">
-					<label for="Container" class="control-label">@Localizer["Container"] </label>
-					<select class="form-select" @bind="@ContainerType">
-						@foreach (var container in _containers)
-						{
-							<option value="@container.TypeName">@container.Name</option>
-						}
-					</select>
+				<div class="row">
+					<div class="col text-center">
+						<label for="visibility" class="control-label">@Localizer["Visibility"]</label>
+						<select class="form-select" @bind="@Visibility">
+							<option value="edit" selected>@Localizer["VisibilityEdit"]</option>
+							<option value="view">@Localizer["VisibilityView"]</option>
+						</select>
+					</div>
 				</div>
-			</div>
-			<br />
-			<button type="button" class="btn btn-primary col-12" @onclick="@AddModule">@Localizer["Page.Module.Add"]</button>
-			@((MarkupString) Message)
-			@if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-			{
-				<hr class="app-rule" />
-				<NavLink class="btn btn-info col-12" data-bs-dismiss="offcanvas" href="@NavigateUrl("admin/update")">@Localizer["System.Update"]</NavLink>
-			}
+				<button type="button" class="btn btn-success col-12 mt-4" @onclick="@AddModule">@Localizer["Page.Module.Add"]</button>
+				@((MarkupString) Message)
 			</div>
 		</div>
 	</div>
 }
 
 @code{
-
 	private bool _deleteConfirmation = false;
 	private List<string> _categories = new List<string>();
 	private List<ModuleDefinition> _allModuleDefinitions;
@@ -242,7 +242,7 @@
 				_category = value;
 				_moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(Category)).ToList();
 				ModuleDefinitionName = "-";
-				Description = "";
+				Message = "";
 				StateHasChanged();
 				_ = UpdateSettingsAsync();
 			}
@@ -262,11 +262,9 @@
 		}
 	}
 
-
-	protected string Description { get; private set; } = "";
-
 	protected string Title { get; private set; } = "";
 	protected string ContainerType { get; private set; } = "";
+	protected string Visibility { get; private set; } = "edit";
 	protected string Message { get; private set; } = "";
 
 	[Parameter]
@@ -320,13 +318,12 @@
 		if (ModuleDefinitionName != "-")
 		{
 			var moduleDefinition = _moduleDefinitions.FirstOrDefault(item => item.ModuleDefinitionName == ModuleDefinitionName);
-			Description = "<br /><div class=\"alert alert-info\" role=\"alert\">" + moduleDefinition.Description + "</div>";
+			Message = "<div class=\"alert alert-info mt-2 text-center\" role=\"alert\">" + moduleDefinition.Description + "</div>";
 		}
 		else
 		{
-			Description = "";
+			Message = "";
 		}
-
 		StateHasChanged();
 	}
 
@@ -359,9 +356,17 @@
 					module.ModuleDefinitionName = ModuleDefinitionName;
 					module.AllPages = false;
 
-					// set module view permissions to page edit permissions
 					List<PermissionString> permissions = UserSecurity.GetPermissionStrings(PageState.Page.Permissions);
-					permissions.Find(p => p.PermissionName == PermissionNames.View).Permissions = permissions.Find(p => p.PermissionName == PermissionNames.Edit).Permissions;
+					if (Visibility == "view")
+					{
+						// set module view permissions to page view permissions
+						permissions.Find(p => p.PermissionName == PermissionNames.View).Permissions = permissions.Find(p => p.PermissionName == PermissionNames.View).Permissions;
+					}
+					else
+					{
+						// set module view permissions to page edit permissions
+						permissions.Find(p => p.PermissionName == PermissionNames.View).Permissions = permissions.Find(p => p.PermissionName == PermissionNames.Edit).Permissions;
+					}
 					module.Permissions = UserSecurity.SetPermissionStrings(permissions);
 
 					module = await ModuleService.AddModuleAsync(module);
