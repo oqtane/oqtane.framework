@@ -99,32 +99,36 @@
 </TabStrip>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-    private string _version = string.Empty;
-    private string _clrversion = string.Empty;
-    private string _osversion = string.Empty;
-    private string _serverpath = string.Empty;
-    private string _servertime = string.Empty;
-    private string _installationid = string.Empty;
+	private string _version = string.Empty;
+	private string _clrversion = string.Empty;
+	private string _osversion = string.Empty;
+	private string _serverpath = string.Empty;
+	private string _servertime = string.Empty;
+	private string _installationid = string.Empty;
 
-    private string _detailederrors = string.Empty;
-    private string _logginglevel = string.Empty;
-    private string _swagger = string.Empty;
-    private string _packageservice = string.Empty;
+	private string _detailederrors = string.Empty;
+	private string _logginglevel = string.Empty;
+	private string _swagger = string.Empty;
+	private string _packageservice = string.Empty;
 
-    protected override async Task OnInitializedAsync()
-    {
-        _version = Constants.Version;
+	protected override async Task OnInitializedAsync()
+	{
+		_version = Constants.Version;
 
-        Dictionary<string, string> systeminfo = await SystemService.GetSystemInfoAsync();
-        if (systeminfo != null)
-        {
-            _clrversion = systeminfo["clrversion"];
-            _osversion = systeminfo["osversion"];
-            _serverpath = systeminfo["serverpath"];
-            _servertime = systeminfo["servertime"];
-            _installationid = systeminfo["installationid"];
+		Dictionary<string, string> systeminfo = await SystemService.GetSystemInfoAsync();
+		if (systeminfo != null)
+		{
+			_clrversion = systeminfo["clrversion"];
+			_osversion = systeminfo["osversion"];
+			_serverpath = systeminfo["serverpath"];
+			_servertime = systeminfo["servertime"];
+			if (DateTime.TryParse(_servertime, out DateTime date))
+			{
+				_servertime += " (" + date.ToUniversalTime().ToString() + " UTC)";
+			}
+			_installationid = systeminfo["installationid"];
 
             _detailederrors = systeminfo["detailederrors"];
             _logginglevel = systeminfo["logginglevel"];
