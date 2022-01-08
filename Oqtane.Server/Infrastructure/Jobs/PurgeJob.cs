@@ -37,18 +37,27 @@ namespace Oqtane.Infrastructure
             foreach (Site site in sites)
             {
                 log += "Processing Site: " + site.Name + "<br />";
+                int retention;
+                int count;
 
                 // get site settings
                 Dictionary<string, string> settings = GetSettings(settingRepository.GetSettings(EntityNames.Site, site.SiteId).ToList());
 
                 // purge event log
-                int retention = 30; // 30 days
+                retention = 30; // 30 days
                 if (settings.ContainsKey("LogRetention") && !string.IsNullOrEmpty(settings["LogRetention"]))
                 {
                     retention = int.Parse(settings["LogRetention"]);
                 }
-                int count = logRepository.DeleteLogs(retention);
-                log += count.ToString() + " Events Purged<br />";
+                try
+                {
+                    count = logRepository.DeleteLogs(retention);
+                    log += count.ToString() + " Events Purged<br />";
+                }
+                catch (Exception ex)
+                {
+                    log += $"Error Purging Events - {ex.Message}<br />";
+                }
 
                 // purge visitors
                 if (site.VisitorTracking)
@@ -58,8 +67,15 @@ namespace Oqtane.Infrastructure
                     {
                         retention = int.Parse(settings["VisitorRetention"]);
                     }
-                    count = visitorRepository.DeleteVisitors(retention);
-                    log += count.ToString() + " Visitors Purged<br />";
+                    try
+                    {
+                        count = visitorRepository.DeleteVisitors(retention);
+                        log += count.ToString() + " Visitors Purged<br />";
+                    }
+                    catch (Exception ex)
+                    {
+                        log += $"Error Purging Visitors - {ex.Message}<br />";
+                    }
                 }
             }
 
