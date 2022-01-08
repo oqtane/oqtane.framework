@@ -25,8 +25,8 @@ else
     [Parameter]
     public string HelpText { get; set; } // optional - tooltip for this label
 
-    private string _spanclass = "app-tooltip";
-    private string _labelclass = "form-label";
+    private string _spanclass;
+    private string _labelclass;
     private string _helptext = string.Empty;
 
     protected override void OnParametersSet()
@@ -36,11 +36,15 @@ else
         if (!string.IsNullOrEmpty(HelpText))
         {
             _helptext = Localize(nameof(HelpText), HelpText);
-            _spanclass += (!string.IsNullOrEmpty(Class)) ? " " + Class : "";
+            _labelclass = "form-label";
+
+            var spanclass = (!string.IsNullOrEmpty(Class)) ? " " + Class : "";
+            _spanclass = "app-tooltip" + spanclass;
         }
         else
         {
-            _labelclass += (!string.IsNullOrEmpty(Class)) ? " " + Class : "";
+            var labelclass = (!string.IsNullOrEmpty(Class)) ? " " + Class : "";
+            _labelclass = "form-label" + labelclass;
         }
 
         var text = Localize("Text", String.Empty);
