@@ -19,7 +19,6 @@ using Oqtane.Extensions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.PixelFormats;
 using System.Net.Http;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1

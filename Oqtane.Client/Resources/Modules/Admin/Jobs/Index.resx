@@ -189,4 +189,7 @@
   <data name="Week" xml:space="preserve">
     <value>Week(s)</value>
   </data>
+  <data name="Once" xml:space="preserve">
+    <value>Execute Once</value>
+  </data>
 </root>

@@ -115,6 +115,11 @@ namespace Oqtane.Infrastructure
 
                                 // update the job
                                 job.NextExecution = CalculateNextExecution(NextExecution, job);
+                                if (job.Frequency == "O") // one time
+                                {
+                                    job.EndDate = DateTime.UtcNow;
+                                    job.NextExecution = null;
+                                }
                                 job.IsExecuting = false;
                                 jobs.UpdateJob(job);
 
@@ -173,6 +178,8 @@ namespace Oqtane.Infrastructure
                         // set the start time
                         nextExecution = nextExecution.Date.Add(job.StartDate.Value.TimeOfDay);
                     }
+                    break;
+                case "O": // one time
                     break;
             }
             if (nextExecution < DateTime.UtcNow)
