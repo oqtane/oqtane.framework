@@ -19,9 +19,10 @@
             <label for="Confirm" class="control-label">@Localizer["Password.Confirm"] </label>
             <input type="password" class="form-control" placeholder="Password" @bind="@_confirm" id="Confirm" required />
         </div>
-        <button type="button" class="btn btn-primary" @onclick="Reset">@Localizer["Password.Reset"]</button>
-        <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
     </div>
+    <br />
+    <button type="button" class="btn btn-primary" @onclick="Reset">@Localizer["Password.Reset"]</button>
+    <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
 </form>
 
 @code {

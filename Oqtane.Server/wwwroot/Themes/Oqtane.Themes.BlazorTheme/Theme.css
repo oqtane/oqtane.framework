@@ -137,7 +137,7 @@
         position: fixed;
         left: 275px;
         top: 15px;
-        z-index: 3
+        z-index: 6
     }
 
     .sidebar {
@@ -145,13 +145,13 @@
         height: 100vh;
         position: sticky;
         top: 0;
-        z-index: 1
+        z-index: 4
     }
 
     .main .top-row {
         position: sticky;
         top: 0;
-        z-index: 2
+        z-index: 5
     }
 
     .main > div {
@@ -207,7 +207,7 @@
         top: 150px;
         width: 100%;
         left: 0;
-        z-index: 1;
+        z-index: 4;
     }
 
     .sidebar {

@@ -49,60 +49,62 @@ else
 }
 
 @code {
-    private List<Job> _jobs;
+	private List<Job> _jobs;
 
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+	public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
-    protected override async Task OnParametersSetAsync()
-    {
-        _jobs = await JobService.GetJobsAsync();
-    }
+	protected override async Task OnParametersSetAsync()
+	{
+		_jobs = await JobService.GetJobsAsync();
+	}
 
-    private string DisplayStatus(bool isEnabled, bool isExecuting)
-    {
-        var status = string.Empty;
-        if (!isEnabled)
-        {
-            status = Localizer["Disabled"];
-        }
-        else
-        {
-            if (isExecuting)
-            {
-                status = Localizer["Executing"];
-            }
-            else
-            {
-                status = Localizer["Idle"];
-            }
-        }
+	private string DisplayStatus(bool isEnabled, bool isExecuting)
+	{
+		var status = string.Empty;
+		if (!isEnabled)
+		{
+			status = Localizer["Disabled"];
+		}
+		else
+		{
+			if (isExecuting)
+			{
+				status = Localizer["Executing"];
+			}
+			else
+			{
+				status = Localizer["Idle"];
+			}
+		}
 
-        return status;
-    }
+		return status;
+	}
 
 
-    private string DisplayFrequency(int interval, string frequency)
-    {
-        var result = $"{Localizer["Every"]} {interval.ToString()} ";
-        switch (frequency)
-        {
-            case "m":
-                result += Localizer["Minute"];
-                break;
-            case "H":
-                result += Localizer["Hour"];
-                break;
-            case "d":
-                result += Localizer["Day"];
-                break;
-            case "w":
-                result += Localizer["Week"];
-                break;
-            case "M":
-                result += Localizer["Month"];
-                break;
-        }
-
+	private string DisplayFrequency(int interval, string frequency)
+	{
+		var result = "";
+		switch (frequency)
+		{
+			case "m":
+				result = $"{Localizer["Every"]} {interval.ToString()} " + Localizer["Minute"];
+				break;
+			case "H":
+				result = $"{Localizer["Every"]} {interval.ToString()} " + Localizer["Hour"];
+				break;
+			case "d":
+				result = $"{Localizer["Every"]} {interval.ToString()} " + Localizer["Day"];
+				break;
+			case "w":
+				result = $"{Localizer["Every"]} {interval.ToString()} " + Localizer["Week"];
+				break;
+			case "M":
+				result = $"{Localizer["Every"]} {interval.ToString()} " + Localizer["Month"];
+				break;
+			case "O":
+				result = Localizer["Once"];
+				break;
+		}
         return result;
     }
 

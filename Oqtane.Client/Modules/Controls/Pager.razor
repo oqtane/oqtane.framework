@@ -107,8 +107,8 @@
             <li class="page-item@((_page > 1) ? "" : " disabled")">
                 <a class="page-link" @onclick=@(async () => UpdateList(1))><span class="oi oi-media-step-backward" title="start" aria-hidden="true"></span></a>
             </li>
-            @if (_pages > _displayPages)
-            {
+            @if (_pages > _displayPages && _displayPages > 1)
+             {
                 <li class="page-item@((_page > _displayPages) ? "" : " disabled")">
                     <a class="page-link" @onclick=@(async () => SkipPages("back"))><span class="oi oi-media-skip-backward" title="skip back" aria-hidden="true"></span></a>
                 </li>
@@ -135,7 +135,7 @@
             <li class="page-item@((_page < _pages) ? "" : " disabled")">
                 <a class="page-link" @onclick=@(async () => NavigateToPage("next"))><span class="oi oi-chevron-right" title="next" aria-hidden="true"></span></a>
             </li>
-            @if (_pages > _displayPages)
+            @if (_pages > _displayPages && _displayPages > 1)
             {
                 <li class="page-item@((_endPage < _pages) ? "" : " disabled")">
                     <a class="page-link" @onclick=@(async () => SkipPages("forward"))><span class="oi oi-media-skip-forward" title="skip forward" aria-hidden="true"></span></a>
@@ -145,7 +145,7 @@
                 <a class="page-link" @onclick=@(async () => UpdateList(_pages))><span class="oi oi-media-step-forward" title="end" aria-hidden="true"></span></a>
             </li>
             <li class="page-item disabled">
-                <a class="page-link">Page @_page of @_pages</a>
+               <a class="page-link" style="white-space: nowrap;">Page @_page of @_pages</a>
             </li>
         </ul>
     }
