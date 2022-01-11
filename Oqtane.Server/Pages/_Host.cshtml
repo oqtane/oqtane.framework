@@ -21,9 +21,7 @@
 </head>
 <body>
     @(Html.AntiForgeryToken())
-    <app>
-        <component type="typeof(Oqtane.App)" render-mode="@Model.RenderMode" param-AntiForgeryToken="@Model.AntiForgeryToken" param-Runtime="@Model.Runtime" param-RenderMode="@Model.RenderMode.ToString()" param-VisitorId="@Model.VisitorId" />
-    </app>
+    <component type="typeof(Oqtane.App)" render-mode="@Model.RenderMode" param-AntiForgeryToken="@Model.AntiForgeryToken" param-Runtime="@Model.Runtime" param-RenderMode="@Model.RenderMode.ToString()" param-VisitorId="@Model.VisitorId" />
 
     <div id="blazor-error-ui">
         <environment include="Staging,Production">
