@@ -46,19 +46,22 @@ namespace Oqtane.Modules
 
         // base lifecycle method for handling JSInterop script registration
 
-        protected override async Task OnInitializedAsync()
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (Resources != null && Resources.Exists(item => item.ResourceType == ResourceType.Script))
+            if (firstRender)
             {
-                var scripts = new List<object>();
-                foreach (Resource resource in Resources.Where(item => item.ResourceType == ResourceType.Script && item.Declaration != ResourceDeclaration.Global))
+                if (Resources != null && Resources.Exists(item => item.ResourceType == ResourceType.Script))
                 {
-                    scripts.Add(new { href = resource.Url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "" });
-                }
-                if (scripts.Any())
-                {
-                    var interop = new Interop(JSRuntime);
-                    await interop.IncludeScripts(scripts.ToArray());
+                    var scripts = new List<object>();
+                    foreach (Resource resource in Resources.Where(item => item.ResourceType == ResourceType.Script && item.Declaration != ResourceDeclaration.Global))
+                    {
+                        scripts.Add(new { href = resource.Url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "" });
+                    }
+                    if (scripts.Any())
+                    {
+                        var interop = new Interop(JSRuntime);
+                        await interop.IncludeScripts(scripts.ToArray());
+                    }
                 }
             }
         }
