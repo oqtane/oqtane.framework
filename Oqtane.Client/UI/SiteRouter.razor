@@ -229,7 +229,8 @@
                         EditMode = editmode,
                         LastSyncDate = lastsyncdate,
                         Runtime = runtime,
-						VisitorId = VisitorId
+						VisitorId = VisitorId,
+						RemoteIPAddress = SiteState.RemoteIPAddress
                     };
 
 					OnStateChange?.Invoke(_pagestate);

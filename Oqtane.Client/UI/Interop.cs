@@ -262,5 +262,22 @@ namespace Oqtane.UI
                 return Task.CompletedTask;
             }
         }
+
+        public Task ScrollTo(int top, int left, string behavior)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(behavior)) behavior = "smooth";
+                _jsRuntime.InvokeVoidAsync(
+                    "Oqtane.Interop.scrollTo",
+                    top, left, behavior);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
+
     }
 }

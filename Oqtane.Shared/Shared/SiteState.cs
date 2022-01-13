@@ -7,6 +7,6 @@ namespace Oqtane.Shared
     {
         public Alias Alias { get; set; }
         public string AntiForgeryToken { get; set; } // for use in client services
-
+        public string RemoteIPAddress { get; set; } // captured in _host as cannot be reliably retrieved on Blazor Server
     }
 }

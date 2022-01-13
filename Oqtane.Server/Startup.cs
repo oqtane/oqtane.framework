@@ -15,6 +15,7 @@ using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Shared;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace Oqtane
 {
@@ -49,7 +50,13 @@ namespace Oqtane
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            // Register localization services
+            // process forwarded headers on load balancers and proxy servers
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
+
+            // register localization services
             services.AddLocalization(options => options.ResourcesPath = "Resources");
 
             services.AddOptions<List<Database>>().Bind(Configuration.GetSection(SettingKeys.AvailableDatabasesSection));
@@ -111,7 +118,6 @@ namespace Oqtane
             services.AddOqtane(_runtime, _supportedCultures);
             services.AddOqtaneDbContext();
 
-
             services.AddMvc()
                 .AddNewtonsoftJson()
                 .AddOqtaneApplicationParts() // register any Controllers from custom modules
@@ -133,9 +139,11 @@ namespace Oqtane
             {
                 app.UseDeveloperExceptionPage();
                 app.UseWebAssemblyDebugging();
+                app.UseForwardedHeaders();
             }
             else
             {
+                app.UseForwardedHeaders();
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }

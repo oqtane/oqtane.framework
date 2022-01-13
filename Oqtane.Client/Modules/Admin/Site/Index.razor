@@ -533,6 +533,7 @@
 							else
 							{
 								AddModuleMessage(Localizer["Success.Settings.SaveSite"], MessageType.Success);
+								await interop.ScrollTo(0, 0, "smooth");
 							}
 						}
 					}

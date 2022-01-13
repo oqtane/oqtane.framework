@@ -21,5 +21,6 @@ namespace Oqtane.UI
         public DateTime LastSyncDate { get; set; }
         public Oqtane.Shared.Runtime Runtime { get; set; }
         public int VisitorId { get; set; }
+        public string RemoteIPAddress { get; set; }
     }
 }

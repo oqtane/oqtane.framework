@@ -53,7 +53,7 @@ namespace Oqtane.Repository
         {
             // delete logs in batches of 100 records
             int count = 0;
-            var purgedate = DateTime.Now.AddDays(-age);
+            var purgedate = DateTime.UtcNow.AddDays(-age);
             var logs = _db.Log.Where(item => item.Level != "Error" && item.LogDate < purgedate)
                 .OrderBy(item => item.LogDate).Take(100).ToList();
             while (logs.Count > 0)

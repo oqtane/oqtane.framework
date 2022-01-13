@@ -441,8 +441,7 @@ namespace Oqtane.Infrastructure
                         var index = Array.FindIndex(versions, item => item == version);
                         if (index != (versions.Length - 1))
                         {
-                            if (index == -1) index = 0;
-                            for (var i = index; i < versions.Length; i++)
+                            for (var i = (index + 1); i < versions.Length; i++)
                             {
                                 upgrades.Upgrade(tenant, versions[i]);
                             }
