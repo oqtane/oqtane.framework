@@ -133,7 +133,7 @@
     <value>Server Path</value>
   </data>
   <data name="ServerTime.HelpText" xml:space="preserve">
-    <value>Server Time</value>
+    <value>Server Date/Time (in UTC)</value>
   </data>
   <data name="FrameworkVersion.Text" xml:space="preserve">
     <value>Framework Version: </value>
@@ -148,7 +148,7 @@
     <value>Server Path: </value>
   </data>
   <data name="ServerTime.Text" xml:space="preserve">
-    <value>Server Time: </value>
+    <value>Server Date/Time: </value>
   </data>
   <data name="RestartApplication.Header" xml:space="preserve">
     <value>Restart Application</value>

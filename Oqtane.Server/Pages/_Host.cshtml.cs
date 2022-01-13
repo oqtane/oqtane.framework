@@ -56,6 +56,7 @@ namespace Oqtane.Pages
         public string Runtime = "Server";
         public RenderMode RenderMode = RenderMode.Server;
         public int VisitorId = -1;
+        public string RemoteIPAddress = "";
         public string HeadResources = "";
         public string BodyResources = "";
         public string Title = "";
@@ -66,6 +67,7 @@ namespace Oqtane.Pages
         public IActionResult OnGet()
         {
             AntiForgeryToken = _antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
+            RemoteIPAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "";
 
             if (_configuration.GetSection("Runtime").Exists())
             {
@@ -194,12 +196,11 @@ namespace Oqtane.Pages
         private void TrackVisitor(int SiteId)
         {
             // get request attributes
-            string ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "";
             string useragent = (Request.Headers[HeaderNames.UserAgent] != StringValues.Empty) ? Request.Headers[HeaderNames.UserAgent] : "";
             string language = (Request.Headers[HeaderNames.AcceptLanguage] != StringValues.Empty) ? Request.Headers[HeaderNames.AcceptLanguage] : "";
             language = (language.Contains(",")) ? language.Substring(0, language.IndexOf(",")) : language;
             language = (language.Contains(";")) ? language.Substring(0, language.IndexOf(";")) : language;
-            language = (language.Trim().Length == 0) ? "*" : language;
+            language = (language.Trim().Length == 0) ? "??" : language;
 
             // filter
             var filter = _settings.GetSetting(EntityNames.Site, SiteId, "VisitorFilter");
@@ -207,7 +208,7 @@ namespace Oqtane.Pages
             {
                 foreach (string term in filter.SettingValue.ToLower().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray())
                 {
-                    if (ip.ToLower().Contains(term) || useragent.ToLower().Contains(term) || language.ToLower().Contains(term))
+                    if (RemoteIPAddress.ToLower().Contains(term) || useragent.ToLower().Contains(term) || language.ToLower().Contains(term))
                     {
                         return;
                     }
@@ -227,7 +228,7 @@ namespace Oqtane.Pages
             {
                 var visitor = new Visitor();
                 visitor.SiteId = SiteId;
-                visitor.IPAddress = ip;
+                visitor.IPAddress = RemoteIPAddress;
                 visitor.UserAgent = useragent;
                 visitor.Language = language;
                 visitor.Url = url;
@@ -253,7 +254,7 @@ namespace Oqtane.Pages
                 var visitor = _visitors.GetVisitor(VisitorId);
                 if (visitor != null)
                 {
-                    visitor.IPAddress = ip;
+                    visitor.IPAddress = RemoteIPAddress;
                     visitor.UserAgent = useragent;
                     visitor.Language = language;
                     visitor.Url = url;
@@ -380,7 +381,7 @@ namespace Oqtane.Pages
                 case ResourceType.Stylesheet:
                     if (!HeadResources.Contains(resource.Url, StringComparison.OrdinalIgnoreCase))
                     {
-                        var id = (resource.Declaration == ResourceDeclaration.Global) ? "" : "id=\"app-stylesheet-" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + "-" + count.ToString("00") + "\" ";
+                        var id = (resource.Declaration == ResourceDeclaration.Global) ? "" : "id=\"app-stylesheet-" + DateTime.UtcNow.ToString("yyyyMMddHHmmssfff") + "-" + count.ToString("00") + "\" ";
                         HeadResources += "<link " + id + "rel=\"stylesheet\" href=\"" + resource.Url + "\"" + CrossOrigin(resource.CrossOrigin) + Integrity(resource.Integrity) + " />" + Environment.NewLine;
                     }
                     break;

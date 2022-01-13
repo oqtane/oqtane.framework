@@ -31,7 +31,7 @@ namespace Oqtane.Controllers
             systeminfo.Add("osversion", Environment.OSVersion.ToString());
             systeminfo.Add("machinename", Environment.MachineName);
             systeminfo.Add("serverpath", _environment.ContentRootPath);
-            systeminfo.Add("servertime", DateTime.Now.ToString());
+            systeminfo.Add("servertime", DateTime.UtcNow.ToString());
             systeminfo.Add("installationid", _configManager.GetInstallationId());
 
             systeminfo.Add("runtime", _configManager.GetSetting("Runtime", "Server"));

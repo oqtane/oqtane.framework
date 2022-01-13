@@ -52,7 +52,7 @@ namespace Oqtane.Repository
         {
             // delete visitors in batches of 100 records
             int count = 0;
-            var purgedate = DateTime.Now.AddDays(-age);
+            var purgedate = DateTime.UtcNow.AddDays(-age);
             var visitors = _db.Visitor.Where(item => item.Visits <= 1 && item.VisitedOn < purgedate)
                 .OrderBy(item => item.VisitedOn).Take(100).ToList();
             while (visitors.Count > 0)

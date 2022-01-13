@@ -30,28 +30,32 @@
 }
 
 @code {
-    [Parameter]
-    public string AntiForgeryToken { get; set; }
+	[Parameter]
+	public string AntiForgeryToken { get; set; }
 
-    [Parameter]
-    public string Runtime { get; set; }
+	[Parameter]
+	public string Runtime { get; set; }
 
-    [Parameter]
-    public string RenderMode { get; set; }
+	[Parameter]
+	public string RenderMode { get; set; }
 
-    [Parameter]
-    public int VisitorId { get; set; }
+	[Parameter]
+	public int VisitorId { get; set; }
 
-    private bool _initialized = false;
-    private string _display = "display: none;";
-    private Installation _installation = new Installation { Success = false, Message = "" };
+	[Parameter]
+	public string RemoteIPAddress { get; set; }
 
-    private PageState PageState { get; set; }
+	private bool _initialized = false;
+	private string _display = "display: none;";
+	private Installation _installation = new Installation { Success = false, Message = "" };
 
-    protected override async Task OnParametersSetAsync()
-    {
-        SiteState.AntiForgeryToken = AntiForgeryToken;
-        InstallationService.SetAntiForgeryTokenHeader(AntiForgeryToken);
+	private PageState PageState { get; set; }
+
+	protected override async Task OnParametersSetAsync()
+	{
+		SiteState.RemoteIPAddress = RemoteIPAddress;
+		SiteState.AntiForgeryToken = AntiForgeryToken;
+		InstallationService.SetAntiForgeryTokenHeader(AntiForgeryToken);
 
         _installation = await InstallationService.IsInstalled();
         if (_installation.Alias != null)

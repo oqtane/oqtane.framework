@@ -31,7 +31,7 @@
         var interop = new Interop(JsRuntime);
 
         // manage stylesheets for this page 
-        string batch = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+        string batch = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
         var links = new List<object>();
         foreach (Resource resource in PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet && item.Declaration != ResourceDeclaration.Global))
         {
