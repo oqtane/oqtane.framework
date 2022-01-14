@@ -41,9 +41,9 @@ namespace Oqtane.Controllers
             if (IsAuthorized(entityName, entityId, PermissionNames.View))
             {
                 settings = _settings.GetSettings(entityName, entityId).ToList();
-                if (FilterPublic(entityName, entityId))
+                if (FilterPrivate(entityName, entityId))
                 {
-                    settings = settings.Where(item => item.IsPublic).ToList();
+                    settings = settings.Where(item => !item.IsPrivate).ToList();
                 }
             }
             else
@@ -61,7 +61,7 @@ namespace Oqtane.Controllers
             Setting setting = _settings.GetSetting(entityName, id);
             if (IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.View))
             {
-                if (FilterPublic(entityName, id) && !setting.IsPublic)
+                if (FilterPrivate(entityName, id) && setting.IsPrivate)
                 {
                     setting = null;
                 }
@@ -199,7 +199,7 @@ namespace Oqtane.Controllers
             return authorized;
         }
 
-        private bool FilterPublic(string entityName, int entityId)
+        private bool FilterPrivate(string entityName, int entityId)
         {
             bool filter = false;
             switch (entityName)

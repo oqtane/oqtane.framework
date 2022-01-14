@@ -5,44 +5,45 @@
 @inject IStringLocalizer<Settings> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-    <div class="container">
-        <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="files" ResourceKey="Allow File Management" HelpText="Specify If Editors Can Upload and Select Files">Allow File Management: </Label>
-            <div class="col-sm-9">
-                <select id="files" class="form-select" @bind="@_allowfilemanagement">
-                    <option value="true">@SharedLocalizer["Yes"]</option>
-                    <option value="false">@SharedLocalizer["No"]</option>
-                </select>
-            </div>
+<div class="container">
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="files" ResourceKey="AllowFileManagement" ResourceType="@resourceType" HelpText="Specify If Editors Can Upload and Select Files">Allow File Management: </Label>
+        <div class="col-sm-9">
+            <select id="files" class="form-select" @bind="@_allowfilemanagement">
+                <option value="true">@SharedLocalizer["Yes"]</option>
+                <option value="false">@SharedLocalizer["No"]</option>
+            </select>
         </div>
     </div>
+</div>
 
-    @code {
-        private string _allowfilemanagement;
+@code {		
+	private string resourceType = "Oqtane.Modules.HtmlText.Settings, Oqtane.Client"; // for localization
+    private string _allowfilemanagement;
 
-        protected override void OnInitialized()
+    protected override void OnInitialized()
+    {
+        try
         {
-            try
-            {
-                _allowfilemanagement = SettingService.GetSetting(ModuleState.Settings, "AllowFileManagement", "true");
-            }
-            catch (Exception ex)
-            {
-                ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
-            }
+            _allowfilemanagement = SettingService.GetSetting(ModuleState.Settings, "AllowFileManagement", "true");
         }
-
-        public async Task UpdateSettings()
+        catch (Exception ex)
         {
-            try
-            {
-                var settings = ModuleState.Settings;
-                settings = SettingService.SetSetting(settings, "AllowFileManagement", _allowfilemanagement);
-                await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
-            }
-            catch (Exception ex)
-            {
-                ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
-            }
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
+
+    public async Task UpdateSettings()
+    {
+        try
+        {
+			var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+            settings = SettingService.SetSetting(settings, "AllowFileManagement", _allowfilemanagement);
+            await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+        }
+        catch (Exception ex)
+        {
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+}

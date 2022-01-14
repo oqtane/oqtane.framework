@@ -13,6 +13,9 @@ namespace Oqtane.Modules.Controls
         [Parameter]
         public string ResourceKey { get; set; }
 
+        [Parameter]
+        public string ResourceType { get; set; }
+
         protected bool IsLocalizable { get; private set; }
 
         protected string Localize(string name) => _localizer?[name] ?? name;
@@ -50,9 +53,14 @@ namespace Oqtane.Modules.Controls
         {
             IsLocalizable = false;
 
-            if (!String.IsNullOrEmpty(ResourceKey) && ModuleState?.ModuleType != null)
+            if (string.IsNullOrEmpty(ResourceType))
             {
-                var moduleType = Type.GetType(ModuleState.ModuleType);
+                ResourceType = ModuleState?.ModuleType;
+            }
+
+            if (!String.IsNullOrEmpty(ResourceKey) && !string.IsNullOrEmpty(ResourceType))
+            {
+                var moduleType = Type.GetType(ResourceType);
                 if (moduleType != null)
                 {
                     using (var scope = ServiceActivator.GetScope())

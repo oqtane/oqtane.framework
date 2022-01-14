@@ -54,21 +54,23 @@
     }
     @if (Format == "Table" && Row != null)
     {
-        <table class="@Class">
-            <thead>
-                <tr>@Header</tr>
-            </thead>
-            <tbody>
-                @foreach (var item in ItemList)
-                {
-                    <tr>@Row(item)</tr>
-                    @if (Detail != null)
-                    {
-                        <tr>@Detail(item)</tr>
-                    }
-                }
-            </tbody>
-        </table>
+		<div class="table-responsive">
+			<table class="@Class">
+				<thead>
+					<tr>@Header</tr>
+				</thead>
+				<tbody>
+					@foreach (var item in ItemList)
+					{
+						<tr>@Row(item)</tr>
+						@if (Detail != null)
+						{
+							<tr>@Detail(item)</tr>
+						}
+					}
+				</tbody>
+			</table>
+		</div>
     }
     @if (Format == "Grid" && Row != null)
     {
