@@ -206,7 +206,7 @@ namespace Oqtane.Services
         /// <returns></returns>
         Dictionary<string, string> SetSetting(Dictionary<string, string> settings, string settingName, string settingValue);
 
-        Dictionary<string, string> SetSetting(Dictionary<string, string> settings, string settingName, string settingValue, bool isPublic);
+        Dictionary<string, string> SetSetting(Dictionary<string, string> settings, string settingName, string settingValue, bool isPrivate);
 
         Dictionary<string, string> MergeSettings(Dictionary<string, string> settings1, Dictionary<string, string> settings2);
 

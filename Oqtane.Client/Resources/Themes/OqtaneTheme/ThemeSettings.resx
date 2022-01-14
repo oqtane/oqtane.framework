@@ -121,7 +121,7 @@
     <value>Specify if a Footer pane should always be displayed in a fixed location at the bottom of the page.</value>
   </data>
   <data name="Footer.Text" xml:space="preserve">
-    <value>Display Footer?</value>
+    <value>Display Fixed Footer?</value>
   </data>
   <data name="Login.HelpText" xml:space="preserve">
     <value>Specify if a Login option should be displayed,  Note that this option does not prevent the login page from being accessible via a direct url.</value>

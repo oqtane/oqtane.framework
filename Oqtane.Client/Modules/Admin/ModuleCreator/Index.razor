@@ -128,7 +128,7 @@ else
                 var moduleDefinition = new ModuleDefinition { Owner = _owner, Name = _module, Description = _description, Template = _template, Version = _reference };
                 moduleDefinition = await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition);
 
-                var settings = ModuleState.Settings;
+				var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
                 SettingService.SetSetting(settings, "ModuleDefinitionName", moduleDefinition.ModuleDefinitionName);
                 await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
 

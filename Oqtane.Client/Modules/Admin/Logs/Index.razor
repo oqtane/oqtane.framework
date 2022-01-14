@@ -195,8 +195,8 @@ else
 	{
 		try
 		{
-			var settings = PageState.Site.Settings;
-			settings = SettingService.SetSetting(settings, "LogRetention", _retention);
+			var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+			settings = SettingService.SetSetting(settings, "LogRetention", _retention, true);
             await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
 
 			AddModuleMessage(Localizer["Success.SaveSiteSettings"], MessageType.Success);

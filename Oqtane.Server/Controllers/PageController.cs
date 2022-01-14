@@ -57,7 +57,7 @@ namespace Oqtane.Controllers
                     if (_userPermissions.IsAuthorized(User, PermissionNames.View, page.Permissions))
                     {
                         page.Settings = settings.Where(item => item.EntityId == page.PageId)
-                            .Where(item => item.IsPublic || _userPermissions.IsAuthorized(User, PermissionNames.Edit, page.Permissions))
+                            .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, page.Permissions))
                             .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                         pages.Add(page);
                     }
@@ -89,7 +89,7 @@ namespace Oqtane.Controllers
             if (page != null && page.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User,PermissionNames.View, page.Permissions))
             {
                 page.Settings = _settings.GetSettings(EntityNames.Page, page.PageId)
-                    .Where(item => item.IsPublic || _userPermissions.IsAuthorized(User, PermissionNames.Edit, page.Permissions))
+                    .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, page.Permissions))
                     .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                 return page;
             }
@@ -109,7 +109,7 @@ namespace Oqtane.Controllers
             if (page != null && page.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, page.Permissions))
             {
                 page.Settings = _settings.GetSettings(EntityNames.Page, page.PageId)
-                    .Where(item => item.IsPublic || _userPermissions.IsAuthorized(User, PermissionNames.Edit, page.Permissions))
+                    .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, page.Permissions))
                     .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                 return page;
             }

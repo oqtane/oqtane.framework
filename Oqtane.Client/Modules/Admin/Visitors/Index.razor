@@ -151,9 +151,9 @@ else
 			site.VisitorTracking = bool.Parse(_tracking);
 			await SiteService.UpdateSiteAsync(site);
 
-			var settings = PageState.Site.Settings;
-			settings = SettingService.SetSetting(settings, "VisitorFilter", _filter);
-			settings = SettingService.SetSetting(settings, "VisitorRetention", _retention);
+			var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+			settings = SettingService.SetSetting(settings, "VisitorFilter", _filter, true);
+			settings = SettingService.SetSetting(settings, "VisitorRetention", _retention, true);
             await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
 
 			AddModuleMessage(Localizer["Success.SaveSiteSettings"], MessageType.Success);

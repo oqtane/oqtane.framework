@@ -8,7 +8,7 @@
 
 <div class="container">
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="scope" ResourceKey="Scope" HelpText="Specify if the settings are applicable to this page or the entire site.">Setting Scope:</Label>
+        <Label Class="col-sm-3" For="scope" ResourceKey="Scope" ResourceType="@resourceType" HelpText="Specify if the settings are applicable to this page or the entire site.">Setting Scope:</Label>
         <div class="col-sm-9">
             <select id="scope" class="form-select" value="@_scope" @onchange="(e => ScopeChanged(e))">
                 @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
@@ -20,7 +20,7 @@
         </div>
     </div>
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="login" ResourceKey="Login" HelpText="Specify if a Login option should be displayed. Note that this option does not prevent the login page from being accessible via a direct url.">Show Login?</Label>
+        <Label Class="col-sm-3" For="login" ResourceKey="Login" ResourceType="@resourceType" HelpText="Specify if a Login option should be displayed. Note that this option does not prevent the login page from being accessible via a direct url.">Show Login?</Label>
         <div class="col-sm-9">
             <select id="login" class="form-select" @bind="@_login">
                 <option value="-">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
@@ -30,7 +30,7 @@
         </div>
     </div>
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="register" ResourceKey="Register" HelpText="Specify if a Register option should be displayed. Note that this option is also dependent on the Allow Registration option in Site Settings.">Show Register?</Label>
+        <Label Class="col-sm-3" For="register" ResourceKey="Register" ResourceType="@resourceType" HelpText="Specify if a Register option should be displayed. Note that this option is also dependent on the Allow Registration option in Site Settings.">Show Register?</Label>
         <div class="col-sm-9">
             <select id="register" class="form-select" @bind="@_register">
                 <option value="-">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
@@ -40,7 +40,7 @@
         </div>
     </div>
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="footer" ResourceKey="Footer" HelpText="Specify if a Footer pane should always be displayed in a fixed location at the bottom of the page">Display Fixed Footer?</Label>
+        <Label Class="col-sm-3" For="footer" ResourceKey="Footer" ResourceType="@resourceType" HelpText="Specify if a Footer pane should always be displayed in a fixed location at the bottom of the page">Display Fixed Footer?</Label>
         <div class="col-sm-9">
             <select id="footer" class="form-select" @bind="@_footer">
                 <option value="-">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
@@ -52,16 +52,17 @@
 </div>
 
 @code {
-    private string _scope = "page";
-    private string _login = "-";
-    private string _register = "-";
-    private string _footer = "-";
+	private string resourceType = "Oqtane.Themes.OqtaneTheme.ThemeSettings, Oqtane.Client"; // for localization
+	private string _scope = "page";
+	private string _login = "-";
+	private string _register = "-";
+	private string _footer = "-";
 
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            await LoadSettings();
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			await LoadSettings();
         }
         catch (Exception ex)
         {
@@ -110,7 +111,7 @@
         {
             if (_scope == "site")
             {
-                var settings = PageState.Site.Settings;
+                var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
                 if (_login != "-")
                 {
                     settings = SettingService.SetSetting(settings, GetType().Namespace + ":Login", _login, true);
@@ -127,7 +128,7 @@
             }
             else
             {
-                var settings = PageState.Page.Settings;
+                var settings = await SettingService.GetPageSettingsAsync(PageState.Page.PageId);
                 if (_login != "-")
                 {
                     settings = SettingService.SetSetting(settings, GetType().Namespace + ":Login", _login);

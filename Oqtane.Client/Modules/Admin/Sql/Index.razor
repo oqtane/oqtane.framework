@@ -57,22 +57,20 @@ else
     {
         @if (_results.Count > 0)
         {
-            <div class="table-responsive">
-                <Pager Class="table table-bordered" Items="@_results">
-                    <Header>
-                        @foreach (KeyValuePair<string, string> kvp in _results.First())
-                        {
-                            <th>@kvp.Key</th>
-                        }
-                    </Header>
-                    <Row>
-                        @foreach (KeyValuePair<string, string> kvp in context)
-                        {
-                            <td>@kvp.Value</td>
-                        }
-                    </Row>
-                </Pager>
-            </div>
+            <Pager Class="table table-bordered" Items="@_results">
+                <Header>
+                    @foreach (KeyValuePair<string, string> kvp in _results.First())
+                    {
+                        <th>@kvp.Key</th>
+                    }
+                </Header>
+                <Row>
+                    @foreach (KeyValuePair<string, string> kvp in context)
+                    {
+                        <td>@kvp.Value</td>
+                    }
+                </Row>
+            </Pager>
         }
         else
         {

@@ -131,12 +131,12 @@ namespace Oqtane.Services
             foreach (KeyValuePair<string, string> kvp in settings)
             {
                 string value = kvp.Value;
-                bool ispublic = true;
+                bool isprivate = false;
 
                 if (value.StartsWith("[Private]"))
                 {
                     value = value.Substring(9); // remove [Private]                   
-                    ispublic = false;
+                    isprivate = true;
                 }
 
                 Setting setting = settingsList.FirstOrDefault(item => item.SettingName.Equals(kvp.Key, StringComparison.OrdinalIgnoreCase));
@@ -147,21 +147,20 @@ namespace Oqtane.Services
                     setting.EntityId = entityId;
                     setting.SettingName = kvp.Key;
                     setting.SettingValue = value;
-                    setting.IsPublic = ispublic;
+                    setting.IsPrivate = isprivate;
                     setting = await AddSettingAsync(setting);
                 }
                 else
                 {
-                    if (setting.SettingValue != value || setting.IsPublic != ispublic)
+                    if (setting.SettingValue != value)
                     {
                         setting.SettingValue = value;
-                        setting.IsPublic = ispublic;
+                        setting.IsPrivate = isprivate;
                         setting = await UpdateSettingAsync(setting);
                     }
                 }
             }
         }
-
 
         public async Task<Setting> GetSettingAsync(string entityName, int settingId)
         {
@@ -196,16 +195,16 @@ namespace Oqtane.Services
 
         public Dictionary<string, string> SetSetting(Dictionary<string, string> settings, string settingName, string settingValue)
         {
-            return SetSetting(settings, settingName, settingValue, true);
+            return SetSetting(settings, settingName, settingValue, false);
         }
 
-        public Dictionary<string, string> SetSetting(Dictionary<string, string> settings, string settingName, string settingValue, bool isPublic)
+        public Dictionary<string, string> SetSetting(Dictionary<string, string> settings, string settingName, string settingValue, bool isPrivate)
         {
             if (settings == null)
             {
                 settings = new Dictionary<string, string>();
             }
-            settingValue = (isPublic) ? settingValue : "[Private]" + settingValue;
+            settingValue = (isPrivate) ? "[Private]" + settingValue : settingValue;
             if (settings.ContainsKey(settingName))
             {
                 settings[settingName] = settingValue;
