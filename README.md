@@ -157,17 +157,17 @@ Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalke
 
 [Oqtane POC](https://www.oqtane.org/Resources/Blog/PostId/520/announcing-oqtane-a-modular-application-framework-for-blazor)
 
-# Architecture
-
-The following diagram visualizes the client and server components in the Oqtane architecture.
-
-![Architecture](https://github.com/oqtane/framework/blob/master/screenshots/Architecture.png?raw=true "Oqtane Architecture")
-
 # Reference Implementations
 
 [Built On Blazor!](https://builtonblazor.net) - a showcase of sites built on Blazor
 
 [.NET Foundation Project Trends](https://www.dnfprojects.com) - tracks the most active .NET Foundation open source projects based on GitHub activity
+
+# Architecture
+
+The following diagram visualizes the client and server components in the Oqtane architecture.
+
+![Architecture](https://github.com/oqtane/framework/blob/master/screenshots/Architecture.png?raw=true "Oqtane Architecture")
 
 # Databases
 
