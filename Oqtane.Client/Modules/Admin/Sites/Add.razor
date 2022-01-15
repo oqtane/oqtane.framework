@@ -372,8 +372,7 @@ else
                         if (installation.Success)
                         {
                             var aliasname = config.Aliases.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)[0];
-                            var uri = new Uri(NavigationManager.Uri);
-                            NavigationManager.NavigateTo(uri.Scheme + "://" + aliasname, true);
+                            NavigationManager.NavigateTo(PageState.Uri.Scheme + "://" + aliasname, true);
                         }
                         else
                         {
