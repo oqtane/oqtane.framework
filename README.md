@@ -165,9 +165,9 @@ The following diagram visualizes the client and server components in the Oqtane 
 
 # Reference Implementations
 
-[Built On Blazor!](https://builtonblazor.net)
+[Built On Blazor!](https://builtonblazor.net) - a showcase of sites built on Blazor
 
-[.NET Foundation Project Trends](https://www.dnfprojects.com)
+[.NET Foundation Project Trends](https://www.dnfprojects.com) - tracks the most active .NET Foundation open source projects based on GitHub activity
 
 # Databases
 
