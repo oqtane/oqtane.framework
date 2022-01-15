@@ -131,12 +131,21 @@ namespace Oqtane.Services
             foreach (KeyValuePair<string, string> kvp in settings)
             {
                 string value = kvp.Value;
+                bool modified = false;
                 bool isprivate = false;
 
+                // manage settings modified with SetSetting method
                 if (value.StartsWith("[Private]"))
                 {
-                    value = value.Substring(9); // remove [Private]                   
+                    modified = true;
                     isprivate = true;
+                    value = value.Substring(9);                  
+                }
+                if (value.StartsWith("[Public]"))
+                {
+                    modified = true;
+                    isprivate = false;
+                    value = value.Substring(8);                   
                 }
 
                 Setting setting = settingsList.FirstOrDefault(item => item.SettingName.Equals(kvp.Key, StringComparison.OrdinalIgnoreCase));
@@ -152,7 +161,7 @@ namespace Oqtane.Services
                 }
                 else
                 {
-                    if (setting.SettingValue != value)
+                    if (setting.SettingValue != value || (modified && setting.IsPrivate != isprivate))
                     {
                         setting.SettingValue = value;
                         setting.IsPrivate = isprivate;
@@ -204,7 +213,7 @@ namespace Oqtane.Services
             {
                 settings = new Dictionary<string, string>();
             }
-            settingValue = (isPrivate) ? "[Private]" + settingValue : settingValue;
+            settingValue = (isPrivate) ? "[Private]" + settingValue : "[Public]" + settingValue;
             if (settings.ContainsKey(settingName))
             {
                 settings[settingName] = settingValue;
