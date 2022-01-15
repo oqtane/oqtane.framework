@@ -30,15 +30,11 @@ else
 
 @code {
     private List<Alias> _sites;
-    private string _scheme;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnParametersSetAsync()
     {
-        var uri = new Uri(NavigationManager.Uri);
-        _scheme = uri.Scheme + "://";
-
         var aliases = await AliasService.GetAliasesAsync();
         _sites = new List<Alias>();
         foreach (Alias alias in aliases)
@@ -52,11 +48,11 @@ else
 
     private void Edit(string name)
     {
-        NavigationManager.NavigateTo(_scheme + name + "/admin/site", true);
+        NavigationManager.NavigateTo(PageState.Uri.Scheme + "://" + name + "/admin/site", true);
     }
 
     private void Browse(string name)
     {
-        NavigationManager.NavigateTo(_scheme + name, true);
+        NavigationManager.NavigateTo(PageState.Uri.Scheme + "://" + name, true);
     }
 }

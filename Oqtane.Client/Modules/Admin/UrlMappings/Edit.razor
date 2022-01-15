@@ -64,8 +64,7 @@
 			{
 				try
 				{
-					Uri uri = new Uri(NavigationManager.Uri);
-					var url = uri.Scheme + "://" + uri.Authority + "/";
+					var url = PageState.Uri.Scheme + "://" + PageState.Uri.Authority + "/";
 					url = url + (!string.IsNullOrEmpty(PageState.Alias.Path) ? PageState.Alias.Path + "/" : "");
 
 					var urlmapping = await UrlMappingService.GetUrlMappingAsync(_urlmappingid);
