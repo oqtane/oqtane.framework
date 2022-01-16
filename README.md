@@ -58,14 +58,26 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
 Backlog (Not Yet Assigned)
-- [ ] Enhance alias concept with a tabular UI and additional configuration properties
 - [ ] Allow language specification in Url (#1731)
 
-V.3.1.0 ( Q4 2021 )
-- [ ] Token based authenticaton / authorization via OAuth2 / OpenID Connect
+V.3.1.0 ( Q1 2022 )
+- [ ] Token based authentication / authorization via OAuth2 / OpenID Connect
 - [ ] Provide Single Sign On (SSO) for other applications
 - [ ] Authentication extensibility via Social logins / Azure B2C
 - [ ] Allow configuration of password complexity for local authentication
+- [ ] User account lockout support
+
+V.3.0.2 ( Jan 16, 2022 )
+- [x] Default alias specification, auto alias registration, redirect logic
+- [x] Improvements to visitor tracking and url mapping
+- [x] Scheduler enhancements for stop/start, weekly and one-time jobs
+- [x] Purge job for daily housekeeping of event log and visitors 
+- [x] Granular security filtering for Settings 
+
+V.3.0.1 ( Dec 12, 2021 )
+- [x] Url mapping for broken links, content migration
+- [x] Visitor tracking for usage insights, personalization
+- [x] User experience improvements in Page and Module management
 
 V.3.0.0 ( Nov 11, 2021 )
 - [x] Migration to .NET 6
@@ -144,6 +156,12 @@ Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalke
 [Oqtane 1.0](https://www.oqtane.org/Resources/Blog/PostId/540/announcing-oqtane-10-a-modular-application-framework-for-blazor)
 
 [Oqtane POC](https://www.oqtane.org/Resources/Blog/PostId/520/announcing-oqtane-a-modular-application-framework-for-blazor)
+
+# Reference Implementations
+
+[Built On Blazor!](https://builtonblazor.net) - a showcase of sites built on Blazor
+
+[.NET Foundation Project Trends](https://www.dnfprojects.com) - tracks the most active .NET Foundation open source projects based on GitHub activity
 
 # Architecture
 

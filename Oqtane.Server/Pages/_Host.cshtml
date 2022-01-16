@@ -17,13 +17,11 @@
     <script src="js/app.js"></script>
     <script src="js/loadjs.min.js"></script>
     <link rel="stylesheet" href="css/app.css" />
-    @Html.Raw(@Model.HeadResources)
+    @Html.Raw(Model.HeadResources)
 </head>
 <body>
     @(Html.AntiForgeryToken())
-    <app>
-        <component type="typeof(Oqtane.App)" render-mode="@Model.RenderMode" param-AntiForgeryToken="@Model.AntiForgeryToken" param-Runtime="@Model.Runtime" param-RenderMode="@Model.RenderMode.ToString()" param-VisitorId="@Model.VisitorId" />
-    </app>
+    <component type="typeof(Oqtane.App)" render-mode="@Model.RenderMode" param-AntiForgeryToken="@Model.AntiForgeryToken" param-Runtime="@Model.Runtime" param-RenderMode="@Model.RenderMode.ToString()" param-VisitorId="@Model.VisitorId" />
 
     <div id="blazor-error-ui">
         <environment include="Staging,Production">
@@ -48,8 +46,8 @@
     }
 	@if (!string.IsNullOrEmpty(Model.PWAScript))
 	{
-		@Model.PWAScript
+		@Html.Raw(Model.PWAScript)
 	}
-    @Html.Raw(@Model.BodyResources)
+    @Html.Raw(Model.BodyResources)
 </body>
 </html>

@@ -75,6 +75,7 @@ namespace Oqtane.Controllers
 
                         module.ModuleDefinition = moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName);
                         module.Settings = settings.Where(item => item.EntityId == pagemodule.ModuleId)
+                            .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, pagemodule.Module.Permissions))
                             .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
 
                         modules.Add(module);
@@ -101,7 +102,8 @@ namespace Oqtane.Controllers
                 List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(module.SiteId).ToList();
                 module.ModuleDefinition = moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName);
                 module.Settings = _settings.GetSettings(EntityNames.Module, id)
-                        .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
+                    .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, module.Permissions))
+                    .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                 return module;
             }
             else
@@ -171,7 +173,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             var module = _modules.GetModule(id);
-            if (module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Page, module.ModuleId, PermissionNames.Edit))
+            if (module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
             {
                 _modules.DeleteModule(id);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);

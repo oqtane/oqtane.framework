@@ -26,55 +26,64 @@
 </form>
 
 @code {
-    private ElementReference form;
-    private bool validated = false;
+	private ElementReference form;
+	private bool validated = false;
 
-    private int _urlmappingid;
-    private string _url = string.Empty;
-    private string _mappedurl = string.Empty;
+	private int _urlmappingid;
+	private string _url = string.Empty;
+	private string _mappedurl = string.Empty;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            _urlmappingid = Int32.Parse(PageState.QueryString["id"]);
-            var urlmapping = await UrlMappingService.GetUrlMappingAsync(_urlmappingid);
-            if (urlmapping != null)
-            {
-                _url = urlmapping.Url;
-                _mappedurl = urlmapping.MappedUrl;
-            }
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Loading UrlMapping {UrlMappingId} {Error}", _urlmappingid, ex.Message);
-            AddModuleMessage(Localizer["Error.LoadUrlMapping"], MessageType.Error);
-        }
-    }
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			_urlmappingid = Int32.Parse(PageState.QueryString["id"]);
+			var urlmapping = await UrlMappingService.GetUrlMappingAsync(_urlmappingid);
+			if (urlmapping != null)
+			{
+				_url = urlmapping.Url;
+				_mappedurl = urlmapping.MappedUrl;
+			}
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Loading UrlMapping {UrlMappingId} {Error}", _urlmappingid, ex.Message);
+			AddModuleMessage(Localizer["Error.LoadUrlMapping"], MessageType.Error);
+		}
+	}
 
-    private async Task SaveUrlMapping()
-    {
-        validated = true;
-        var interop = new Interop(JSRuntime);
-        if (await interop.FormValid(form))
-        {
-            var urlmapping = await UrlMappingService.GetUrlMappingAsync(_urlmappingid);
-            urlmapping.MappedUrl = _mappedurl;
+	private async Task SaveUrlMapping()
+	{
+		validated = true;
+		var interop = new Interop(JSRuntime);
+		if (await interop.FormValid(form))
+		{
+			if (_url != _mappedurl)
+			{
+				try
+				{
+					var url = PageState.Uri.Scheme + "://" + PageState.Uri.Authority + "/";
+					url = url + (!string.IsNullOrEmpty(PageState.Alias.Path) ? PageState.Alias.Path + "/" : "");
 
-            try
-            {
-                urlmapping = await UrlMappingService.UpdateUrlMappingAsync(urlmapping);
-                await logger.LogInformation("UrlMapping Saved {UrlMapping}", urlmapping);
-                NavigationManager.NavigateTo(NavigateUrl());
-            }
-            catch (Exception ex)
-            {
-                await logger.LogError(ex, "Error Saving UrlMapping {UrlMapping} {Error}", urlmapping, ex.Message);
-                AddModuleMessage(Localizer["Error.SaveUrlMapping"], MessageType.Error);
-            }
-        }
+					var urlmapping = await UrlMappingService.GetUrlMappingAsync(_urlmappingid);
+					urlmapping.MappedUrl = _mappedurl.Replace(url, "");
+					urlmapping = await UrlMappingService.UpdateUrlMappingAsync(urlmapping);
+					await logger.LogInformation("UrlMapping Saved {UrlMapping}", urlmapping);
+					NavigationManager.NavigateTo(NavigateUrl());
+				}
+				catch (Exception ex)
+				{
+					await logger.LogError(ex, "Error Saving UrlMapping {UrlMappingId} {Error}", _urlmappingid, ex.Message);
+					AddModuleMessage(Localizer["Error.SaveUrlMapping"], MessageType.Error);
+				}
+			}
+			else
+			{
+                AddModuleMessage(Localizer["Message.DuplicateUrlMapping"], MessageType.Warning);
+			}
+		}
         else
         {
             AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);

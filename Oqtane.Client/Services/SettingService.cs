@@ -131,14 +131,21 @@ namespace Oqtane.Services
             foreach (KeyValuePair<string, string> kvp in settings)
             {
                 string value = kvp.Value;
-                bool ispublic = false;
+                bool modified = false;
+                bool isprivate = false;
+
+                // manage settings modified with SetSetting method
+                if (value.StartsWith("[Private]"))
+                {
+                    modified = true;
+                    isprivate = true;
+                    value = value.Substring(9);                  
+                }
                 if (value.StartsWith("[Public]"))
                 {
-                    if (entityName == EntityNames.Site)
-                    {
-                        ispublic = true;
-                    }
-                    value = value.Substring(8); // remove [Public]
+                    modified = true;
+                    isprivate = false;
+                    value = value.Substring(8);                   
                 }
 
                 Setting setting = settingsList.FirstOrDefault(item => item.SettingName.Equals(kvp.Key, StringComparison.OrdinalIgnoreCase));
@@ -149,21 +156,20 @@ namespace Oqtane.Services
                     setting.EntityId = entityId;
                     setting.SettingName = kvp.Key;
                     setting.SettingValue = value;
-                    setting.IsPublic = ispublic;
+                    setting.IsPrivate = isprivate;
                     setting = await AddSettingAsync(setting);
                 }
                 else
                 {
-                    if (setting.SettingValue != kvp.Value)
+                    if (setting.SettingValue != value || (modified && setting.IsPrivate != isprivate))
                     {
                         setting.SettingValue = value;
-                        setting.IsPublic = ispublic;
+                        setting.IsPrivate = isprivate;
                         setting = await UpdateSettingAsync(setting);
                     }
                 }
             }
         }
-
 
         public async Task<Setting> GetSettingAsync(string entityName, int settingId)
         {
@@ -201,13 +207,13 @@ namespace Oqtane.Services
             return SetSetting(settings, settingName, settingValue, false);
         }
 
-        public Dictionary<string, string> SetSetting(Dictionary<string, string> settings, string settingName, string settingValue, bool isPublic)
+        public Dictionary<string, string> SetSetting(Dictionary<string, string> settings, string settingName, string settingValue, bool isPrivate)
         {
             if (settings == null)
             {
                 settings = new Dictionary<string, string>();
             }
-            settingValue = (isPublic) ? "[Public]" + settingValue : settingValue;
+            settingValue = (isPrivate) ? "[Private]" + settingValue : "[Public]" + settingValue;
             if (settings.ContainsKey(settingName))
             {
                 settings[settingName] = settingValue;

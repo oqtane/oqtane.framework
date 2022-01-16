@@ -27,6 +27,6 @@
     protected override void OnInitialized()
     {
         var admin = PageState.Pages.FirstOrDefault(item => item.Path == "admin");
-        _pages = PageState.Pages.Where(item => item.ParentId == admin?.PageId).ToList();
+        _pages = PageState.Pages.Where(item => item.ParentId == admin?.PageId && !item.IsDeleted).ToList();
     }
 }

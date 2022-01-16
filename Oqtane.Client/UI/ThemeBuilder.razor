@@ -28,32 +28,29 @@
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (!firstRender)
+        var interop = new Interop(JsRuntime);
+
+        // manage stylesheets for this page 
+        string batch = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
+        var links = new List<object>();
+        foreach (Resource resource in PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet && item.Declaration != ResourceDeclaration.Global))
+        {
+            links.Add(new { id = "app-stylesheet-" + batch + "-" + (links.Count + 1).ToString("00"), rel = "stylesheet", href = resource.Url, type = "text/css", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", key = "" });
+        }
+        if (links.Any())
+        {
+            await interop.IncludeLinks(links.ToArray());
+        }
+		await interop.RemoveElementsById("app-stylesheet", "", "app-stylesheet-" + batch + "-00");
+
+		// set page title
+		if (!string.IsNullOrEmpty(PageState.Page.Title))
 		{
-			var interop = new Interop(JsRuntime);
-
-			// set page title
-			if (!string.IsNullOrEmpty(PageState.Page.Title))
-			{
-				await interop.UpdateTitle(PageState.Page.Title);
-			}
-			else
-			{
-				await interop.UpdateTitle(PageState.Site.Name + " - " + PageState.Page.Name);
-			}
-
-			// manage stylesheets for this page 
-			string batch = DateTime.Now.ToString("yyyyMMddHHmmssfff");
-			var links = new List<object>();
-			foreach (Resource resource in PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet && item.Declaration != ResourceDeclaration.Global))
-			{
-				links.Add(new { id = "app-stylesheet-" + batch + "-" + (links.Count + 1).ToString("00"), rel = "stylesheet", href = resource.Url, type = "text/css", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", key = "" });
-			}
-			if (links.Any())
-			{
-				await interop.IncludeLinks(links.ToArray());
-			}
-			await interop.RemoveElementsById("app-stylesheet", "", "app-stylesheet-" + batch + "-00");
+			await interop.UpdateTitle(PageState.Page.Title);
+		}
+		else
+		{
+			await interop.UpdateTitle(PageState.Site.Name + " - " + PageState.Page.Name);
 		}
 	}
 }

@@ -177,17 +177,17 @@
             {
                 await UserService.ForgotPasswordAsync(user);
                 await logger.LogInformation(LogFunction.Security, "Password Reset Notification Sent For Username {Username}", _username);
-                _message = "Please Check The Email Address Associated To Your User Account For A Password Reset Notification";
+                _message = Localizer["Message.ForgotUser"];
             }
             else
             {
-                _message = "User Does Not Exist";
+                _message = Localizer["Message.UserDoesNotExist"];
                 _type = MessageType.Warning;
             }
         }
         else
         {
-            _message = "Please Enter The Username Related To Your Account And Then Select The Forgot Password Option Again";
+            _message = Localizer["Message.ForgotPassword"];
         }
 
         StateHasChanged();

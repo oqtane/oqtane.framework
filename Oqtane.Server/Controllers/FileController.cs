@@ -19,7 +19,6 @@ using Oqtane.Extensions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.PixelFormats;
 using System.Net.Http;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
@@ -508,8 +507,8 @@ namespace Oqtane.Controllers
             return System.IO.File.Exists(errorPath) ? PhysicalFile(errorPath, MimeUtilities.GetMimeType(errorPath)) : null;
         }
 
-        [HttpGet("image/{id}/{width}/{height}/{mode?}/{rotate?}")]
-        public IActionResult GetImage(int id, int width, int height, string mode, string rotate)
+        [HttpGet("image/{id}/{width}/{height}/{mode}/{position}/{background}/{rotate}/{recreate}")]
+        public IActionResult GetImage(int id, int width, int height, string mode, string position, string background, string rotate, string recreate)
         {
             var file = _files.GetFile(id);
             if (file != null && file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
@@ -519,21 +518,25 @@ namespace Oqtane.Controllers
                     var filepath = _files.GetFilePath(file);
                     if (System.IO.File.Exists(filepath))
                     {
-                        mode = (string.IsNullOrEmpty(mode)) ? "crop" : mode;
-                        rotate = (string.IsNullOrEmpty(rotate)) ? "0" : rotate;
+                        // validation
+                        if (!Enum.TryParse(mode, true, out ResizeMode _)) mode = "crop";
+                        if (!Enum.TryParse(position, true, out AnchorPositionMode _)) position = "center";
+                        if (!Color.TryParseHex("#" + background, out _)) background = "000000";
+                        if (!int.TryParse(rotate, out _)) rotate = "0";
+                        rotate = (int.Parse(rotate) < 0 || int.Parse(rotate) > 360) ? "0" : rotate;
+                        if (!bool.TryParse(recreate, out _)) recreate = "false";
 
-                        string imagepath = filepath.Replace(Path.GetExtension(filepath), "." + width.ToString() + "x" + height.ToString() + "." + mode.ToLower() + ".png");
-                        if (!System.IO.File.Exists(imagepath))
+                        string imagepath = filepath.Replace(Path.GetExtension(filepath), "." + width.ToString() + "x" + height.ToString() + ".png");
+                        if (!System.IO.File.Exists(imagepath) || bool.Parse(recreate))
                         {
                             if ((_userPermissions.IsAuthorized(User, PermissionNames.Edit, file.Folder.Permissions) ||
-                              !string.IsNullOrEmpty(file.Folder.ImageSizes) && file.Folder.ImageSizes.ToLower().Split(",").Contains(width.ToString() + "x" + height.ToString()))
-                              && Enum.TryParse(mode, true, out ResizeMode resizemode))
+                              !string.IsNullOrEmpty(file.Folder.ImageSizes) && file.Folder.ImageSizes.ToLower().Split(",").Contains(width.ToString() + "x" + height.ToString())))
                             {
-                                imagepath = CreateImage(filepath, width, height, resizemode.ToString(), rotate, imagepath);
+                                imagepath = CreateImage(filepath, width, height, mode, position, background, rotate, imagepath);
                             }
                             else
                             {
-                                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Invalid Image Size For Folder Or Invalid Mode Specification {Folder} {Width} {Height} {Mode}", file.Folder, width, height, mode);
+                                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Invalid Image Size For Folder {Folder} {Width} {Height}", file.Folder, width, height);
                                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                             }
                         }
@@ -569,35 +572,37 @@ namespace Oqtane.Controllers
             return System.IO.File.Exists(errorPath) ? PhysicalFile(errorPath, MimeUtilities.GetMimeType(errorPath)) : null;
         }
 
-        private string CreateImage(string filepath, int width, int height, string mode, string rotate, string imagepath)
+        private string CreateImage(string filepath, int width, int height, string mode, string position, string background, string rotate, string imagepath)
         {
             try
             {
-                FileStream stream = new FileStream(filepath, FileMode.Open, FileAccess.Read);
-                using (Image image = Image.Load(stream))
+                using (var stream = new FileStream(filepath, FileMode.Open, FileAccess.Read))
                 {
-                    Enum.TryParse(mode, true, out ResizeMode resizemode);
-
-                    image.Mutate(x =>
-                        x.Resize(new ResizeOptions
-                        {
-                            Size = new Size(width, height),
-                            Mode = resizemode
-                        })
-                        .BackgroundColor(new Rgba32(255, 255, 255, 0)));
-
-                    if (rotate != "0" && int.TryParse(rotate, out int angle))
+                    stream.Position = 0;
+                    using (var image = Image.Load(stream))
                     {
-                        image.Mutate(x => x.Rotate(angle));
-                    }
+                        int.TryParse(rotate, out int angle);
+                        Enum.TryParse(mode, true, out ResizeMode resizemode);
+                        Enum.TryParse(position, true, out AnchorPositionMode anchorpositionmode);
 
-                    image.Save(imagepath, new PngEncoder());
+                        image.Mutate(x => x
+                            .AutoOrient() // auto orient the image
+                            .Rotate(angle)
+                            .Resize(new ResizeOptions
+                            {
+                                Mode = resizemode,
+                                Position = anchorpositionmode,
+                                Size = new Size(width, height)
+                            })
+                            .BackgroundColor(Color.ParseHex("#" + background)));
+
+                        image.Save(imagepath, new PngEncoder());
+                    }
                 }
-                stream.Close();
             }
             catch (Exception ex) 
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Error Creating Image For File {FilePath} {Width} {Height} {Mode} {Error}", filepath, width, height, mode, ex.Message);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Error Creating Image For File {FilePath} {Width} {Height} {Mode} {Rotate} {Error}", filepath, width, height, mode, rotate, ex.Message);
                 imagepath = "";
             }
 

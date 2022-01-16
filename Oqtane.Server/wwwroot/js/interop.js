@@ -369,5 +369,12 @@ Oqtane.Interop = {
         if (element !== null) {
             element.setAttribute(attribute, value);
         }
+    },
+    scrollTo: function (top, left, behavior) {
+        window.scrollTo({
+            top: top,
+            left: left,
+            behavior: behavior
+        });
     }
 };

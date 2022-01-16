@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Oqtane.Enums;
 using Oqtane.Providers;
 using Oqtane.Security;
 using Oqtane.Services;
@@ -17,6 +18,7 @@ namespace Oqtane.Themes.Controls
         [Inject] public IJSRuntime jsRuntime { get; set; }
         [Inject] public IServiceProvider ServiceProvider { get; set; }
         [Inject] public SiteState SiteState { get; set; }
+        [Inject] public ILogService LoggingService { get; set; }
 
         protected void LoginUser()
         {
@@ -31,6 +33,8 @@ namespace Oqtane.Themes.Controls
         protected async Task LogoutUser()
         {
             await UserService.LogoutUserAsync(PageState.User);
+            await LoggingService.Log(PageState.Alias, PageState.Page.PageId, PageState.ModuleId, PageState.User.UserId, GetType().AssemblyQualifiedName, "Logout", LogFunction.Security, LogLevel.Information, null, "User Logout For Username {Username}", PageState.User.Username);
+
             PageState.User = null;
             bool authorizedtoviewpage = UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, PageState.Page.Permissions);
 

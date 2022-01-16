@@ -57,6 +57,7 @@ namespace Oqtane.Controllers
                     if (_userPermissions.IsAuthorized(User, PermissionNames.View, page.Permissions))
                     {
                         page.Settings = settings.Where(item => item.EntityId == page.PageId)
+                            .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, page.Permissions))
                             .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                         pages.Add(page);
                     }
@@ -85,15 +86,16 @@ namespace Oqtane.Controllers
             {
                 page = _pages.GetPage(id, int.Parse(userid));
             }
-            if (_userPermissions.IsAuthorized(User,PermissionNames.View, page.Permissions))
+            if (page != null && page.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User,PermissionNames.View, page.Permissions))
             {
                 page.Settings = _settings.GetSettings(EntityNames.Page, page.PageId)
-                        .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
+                    .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, page.Permissions))
+                    .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                 return page;
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Page Get Attempt {Page}", page);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Page Get Attempt {PageId} {UserId}", id, userid);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
@@ -104,24 +106,16 @@ namespace Oqtane.Controllers
         public Page Get(string path, int siteid)
         {
             Page page = _pages.GetPage(WebUtility.UrlDecode(path), siteid);
-            if (page != null && page.SiteId == _alias.SiteId)
+            if (page != null && page.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, page.Permissions))
             {
-                if (_userPermissions.IsAuthorized(User,PermissionNames.View, page.Permissions))
-                {
-                    page.Settings = _settings.GetSettings(EntityNames.Page, page.PageId)
-                            .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
-                    return page;
-                }
-                else
-                {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Page Get Attempt {Page}", page);
-                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                    return null;
-                }
+                page.Settings = _settings.GetSettings(EntityNames.Page, page.PageId)
+                    .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, page.Permissions))
+                    .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
+                return page;
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Page Get Attempt {Path} for Site {SiteId}", path, siteid);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Page Get Attempt {SiteId} {Path}", siteid, path);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
@@ -267,11 +261,10 @@ namespace Oqtane.Controllers
                 // save url mapping if page path changed
                 if (currentPage.Path != page.Path)
                 {
-                    var url = HttpContext.Request.Scheme + "://" + _alias.Name + "/";
                     var urlMapping = new UrlMapping();
                     urlMapping.SiteId = page.SiteId;
-                    urlMapping.Url = url + currentPage.Path;
-                    urlMapping.MappedUrl = url + page.Path;
+                    urlMapping.Url = currentPage.Path;
+                    urlMapping.MappedUrl = page.Path;
                     urlMapping.Requests = 0;
                     urlMapping.CreatedOn = System.DateTime.UtcNow;
                     urlMapping.RequestedOn = System.DateTime.UtcNow;

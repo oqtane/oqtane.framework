@@ -77,6 +77,18 @@ namespace Oqtane.Repository
             }
         }
 
+        public Setting GetSetting(string entityName, int entityId, string settingName)
+        {
+            if (IsMaster(entityName))
+            {
+                return _master.Setting.Where(item => item.EntityName == entityName && item.EntityId == entityId && item.SettingName == settingName).FirstOrDefault();
+            }
+            else
+            {
+                return _tenant.Setting.Where(item => item.EntityName == entityName && item.EntityId == entityId && item.SettingName == settingName).FirstOrDefault();
+            }
+        }
+
         public void DeleteSetting(string entityName, int settingId)
         {
             if (IsMaster(entityName))
@@ -89,6 +101,32 @@ namespace Oqtane.Repository
             {
                 Setting setting = _tenant.Setting.Find(settingId);
                 _tenant.Setting.Remove(setting);
+                _tenant.SaveChanges();
+            }
+        }
+
+        public void DeleteSettings(string entityName, int entityId)
+        {
+            if (IsMaster(entityName))
+            {
+                IEnumerable<Setting> settings = _master.Setting
+                    .Where(item => item.EntityName == entityName)
+                    .Where(item => item.EntityId == entityId);
+                foreach (Setting setting in settings)
+                {
+                    _master.Setting.Remove(setting);
+                }
+                _master.SaveChanges();
+            }
+            else
+            {
+                IEnumerable<Setting> settings = _tenant.Setting
+                    .Where(item => item.EntityName == entityName)
+                    .Where(item => item.EntityId == entityId);
+                foreach (Setting setting in settings)
+                {
+                    _tenant.Setting.Remove(setting);
+                }
                 _tenant.SaveChanges();
             }
         }

@@ -89,7 +89,7 @@ else
     {
         var results = allroles.Where(item => item.Role.Name == RoleNames.Registered || (item.Role.Name == RoleNames.Host && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host)));
 
-        if (string.IsNullOrEmpty(_search))
+        if (!string.IsNullOrEmpty(_search))
         {
             results = results.Where(item =>
                 (

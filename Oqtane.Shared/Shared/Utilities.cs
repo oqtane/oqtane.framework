@@ -1,7 +1,6 @@
 using Oqtane.Models;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -107,25 +106,28 @@ namespace Oqtane.Shared
         public static string ContentUrl(Alias alias, int fileId, bool asAttachment)
         {
             var aliasUrl = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path : "";
-            var method = asAttachment ? "/attach":"";
+            var method = asAttachment ? "/attach" : "";
 
             return $"{aliasUrl}{Constants.ContentUrl}{fileId}{method}";
         }
 
         public static string ImageUrl(Alias alias, int fileId, int width, int height, string mode)
         {
-            return ImageUrl(alias, fileId, width, height, mode, 0);
+            return ImageUrl(alias, fileId, width, height, mode, "", "", 0, false);
         }
 
-        public static string ImageUrl(Alias alias, int fileId, int width, int height, string mode, int rotate)
+        public static string ImageUrl(Alias alias, int fileId, int width, int height, string mode, string position, string background, int rotate, bool recreate)
         {
             var aliasUrl = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path : "";
-            return $"{aliasUrl}{Constants.ImageUrl}{fileId}/{width}/{height}/{mode}/{rotate}";
+            mode = string.IsNullOrEmpty(mode) ? "crop" : mode;
+            position = string.IsNullOrEmpty(position) ? "center" : position;
+            background = string.IsNullOrEmpty(background) ? "000000" : background;
+            return $"{aliasUrl}{Constants.ImageUrl}{fileId}/{width}/{height}/{mode}/{position}/{background}/{rotate}/{recreate}";
         }
 
         public static string TenantUrl(Alias alias, string url)
         {
-            url = (!url.StartsWith("/")) ? "/" + url : url; 
+            url = (!url.StartsWith("/")) ? "/" + url : url;
             return (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path + url : url;
         }
 

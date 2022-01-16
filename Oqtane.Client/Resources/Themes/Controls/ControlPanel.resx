@@ -177,4 +177,13 @@
   <data name="System.Update" xml:space="preserve">
     <value>Check For System Updates</value>
   </data>
+  <data name="Visibility" xml:space="preserve">
+    <value>Visibility:</value>
+  </data>
+  <data name="VisibilityEdit" xml:space="preserve">
+    <value>Page Editors Only</value>
+  </data>
+  <data name="VisibilityView" xml:space="preserve">
+    <value>Same As Page</value>
+  </data>
 </root>

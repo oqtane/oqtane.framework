@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Models;
 using Oqtane.Modules;
+using Oqtane.Shared;
 using Module = Oqtane.Models.Module;
 
 namespace Oqtane.Repository
@@ -14,13 +15,15 @@ namespace Oqtane.Repository
     {
         private TenantDBContext _db;
         private readonly IPermissionRepository _permissions;
+        private readonly ISettingRepository _settings;
         private readonly IModuleDefinitionRepository _moduleDefinitions;
         private readonly IServiceProvider _serviceProvider;
 
-        public ModuleRepository(TenantDBContext context, IPermissionRepository permissions, IModuleDefinitionRepository moduleDefinitions, IServiceProvider serviceProvider)
+        public ModuleRepository(TenantDBContext context, IPermissionRepository permissions, ISettingRepository settings, IModuleDefinitionRepository moduleDefinitions, IServiceProvider serviceProvider)
         {
             _db = context;
             _permissions = permissions;
+            _settings = settings;
             _moduleDefinitions = moduleDefinitions;
             _serviceProvider = serviceProvider;
         }
@@ -34,7 +37,7 @@ namespace Oqtane.Repository
         {
             _db.Module.Add(module);
             _db.SaveChanges();
-            _permissions.UpdatePermissions(module.SiteId, "Module", module.ModuleId, module.Permissions);
+            _permissions.UpdatePermissions(module.SiteId, EntityNames.Module, module.ModuleId, module.Permissions);
             return module;
         }
 
@@ -42,7 +45,7 @@ namespace Oqtane.Repository
         {
             _db.Entry(module).State = EntityState.Modified;
             _db.SaveChanges();
-            _permissions.UpdatePermissions(module.SiteId, "Module", module.ModuleId, module.Permissions);
+            _permissions.UpdatePermissions(module.SiteId, EntityNames.Module, module.ModuleId, module.Permissions);
             return module;
         }
 
@@ -64,7 +67,7 @@ namespace Oqtane.Repository
             }
             if (module != null)
             {
-                module.Permissions = _permissions.GetPermissionString("Module", module.ModuleId);
+                module.Permissions = _permissions.GetPermissionString(EntityNames.Module, module.ModuleId);
             }
             return module;
         }
@@ -72,7 +75,8 @@ namespace Oqtane.Repository
         public void DeleteModule(int moduleId)
         {
             Module module = _db.Module.Find(moduleId);
-            _permissions.DeletePermissions(module.SiteId, "Module", moduleId);
+            _permissions.DeletePermissions(module.SiteId, EntityNames.Module, moduleId);
+            _settings.DeleteSettings(EntityNames.Module, moduleId);
             _db.Module.Remove(module);
             _db.SaveChanges();
         }

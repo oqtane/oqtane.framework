@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -8,5 +8,6 @@ namespace Oqtane.Repository
         IEnumerable<Log> GetLogs(int siteId, string level, string function, int rows);
         Log GetLog(int logId);
         void AddLog(Log log);
+        int DeleteLogs(int age);
     }
 }

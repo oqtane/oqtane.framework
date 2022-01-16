@@ -18,6 +18,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using System.Net;
+using Microsoft.Extensions.Primitives;
 
 namespace Oqtane.Pages
 {
@@ -32,8 +34,10 @@ namespace Oqtane.Pages
         private readonly IPageRepository _pages;
         private readonly IUrlMappingRepository _urlMappings;
         private readonly IVisitorRepository _visitors;
+        private readonly IAliasRepository _aliases;
+        private readonly ISettingRepository _settings;
 
-        public HostModel(IConfiguration configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, ISiteRepository sites, IPageRepository pages, IUrlMappingRepository urlMappings, IVisitorRepository visitors)
+        public HostModel(IConfiguration configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, ISiteRepository sites, IPageRepository pages, IUrlMappingRepository urlMappings, IVisitorRepository visitors, IAliasRepository aliases, ISettingRepository settings)
         {
             _configuration = configuration;
             _tenantManager = tenantManager;
@@ -44,12 +48,15 @@ namespace Oqtane.Pages
             _pages = pages;
             _urlMappings = urlMappings;
             _visitors = visitors;
+            _aliases = aliases;
+            _settings = settings;
         }
 
         public string AntiForgeryToken = "";
         public string Runtime = "Server";
         public RenderMode RenderMode = RenderMode.Server;
         public int VisitorId = -1;
+        public string RemoteIPAddress = "";
         public string HeadResources = "";
         public string BodyResources = "";
         public string Title = "";
@@ -60,6 +67,7 @@ namespace Oqtane.Pages
         public IActionResult OnGet()
         {
             AntiForgeryToken = _antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
+            RemoteIPAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "";
 
             if (_configuration.GetSection("Runtime").Exists())
             {
@@ -77,11 +85,30 @@ namespace Oqtane.Pages
                 var alias = _tenantManager.GetAlias();
                 if (alias != null)
                 {
-                    Route route = new Route(HttpContext.Request.GetEncodedUrl(), alias.Path);
+                    var url = WebUtility.UrlDecode(HttpContext.Request.GetEncodedUrl());
+
+                    // redirect non-default alias
+                    if (!alias.IsDefault)
+                    {
+                        var aliases = _aliases.GetAliases().Where(item => item.TenantId == alias.TenantId && item.SiteId == alias.SiteId);
+                        if (aliases.Where(item => item.IsDefault).FirstOrDefault() != null)
+                        {
+                            return RedirectPermanent(url.Replace(alias.Name, aliases.Where(item => item.IsDefault).FirstOrDefault().Name));
+                        }
+                        else // no default specified - use first alias
+                        {
+                            if (alias.Name.Trim() != aliases.First().Name.Trim())
+                            {
+                                return RedirectPermanent(url.Replace(alias.Name, aliases.First().Name));
+                            }
+                        }
+                    }
 
                     var site = _sites.GetSite(alias.SiteId);
                     if (site != null)
                     {
+                        Route route = new Route(url, alias.Path);
+
                         if (!string.IsNullOrEmpty(site.Runtime))
                         {
                             Runtime = site.Runtime;
@@ -125,35 +152,14 @@ namespace Oqtane.Pages
                                 ThemeType = page.ThemeType;
                             }
                         }
-                        else
+                        else // page not found
                         {
-                            // page does not exist
-                            var url = route.SiteUrl + "/" + route.PagePath;
-                            var urlMapping = _urlMappings.GetUrlMapping(site.SiteId, url);
-                            if (urlMapping == null)
+                            // look for url mapping
+                            var urlMapping = _urlMappings.GetUrlMapping(site.SiteId, route.PagePath);
+                            if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
                             {
-                                if (site.CaptureBrokenUrls)
-                                {
-                                    urlMapping = new UrlMapping();
-                                    urlMapping.SiteId = site.SiteId;
-                                    urlMapping.Url = url;
-                                    urlMapping.MappedUrl = "";
-                                    urlMapping.Requests = 1;
-                                    urlMapping.CreatedOn = DateTime.UtcNow;
-                                    urlMapping.RequestedOn = DateTime.UtcNow;
-                                    _urlMappings.AddUrlMapping(urlMapping);
-                                }
-                            }
-                            else
-                            {
-                                urlMapping.Requests += 1;
-                                urlMapping.RequestedOn = DateTime.UtcNow;
-                                _urlMappings.UpdateUrlMapping(urlMapping);
-
-                                if (!string.IsNullOrEmpty(urlMapping.MappedUrl))
-                                {
-                                    return RedirectPermanent(urlMapping.MappedUrl);
-                                }
+                                url = (urlMapping.MappedUrl.StartsWith("http")) ? urlMapping.MappedUrl : route.SiteUrl + "/" + urlMapping.MappedUrl;
+                                return RedirectPermanent(url);
                             }
                         }
                     }
@@ -190,15 +196,27 @@ namespace Oqtane.Pages
         private void TrackVisitor(int SiteId)
         {
             // get request attributes
-            string ip = HttpContext.Connection.RemoteIpAddress.ToString();
-            string useragent = Request.Headers[HeaderNames.UserAgent];
-            string language = Request.Headers[HeaderNames.AcceptLanguage];
-            if (language.Contains(","))
+            string useragent = (Request.Headers[HeaderNames.UserAgent] != StringValues.Empty) ? Request.Headers[HeaderNames.UserAgent] : "";
+            string language = (Request.Headers[HeaderNames.AcceptLanguage] != StringValues.Empty) ? Request.Headers[HeaderNames.AcceptLanguage] : "";
+            language = (language.Contains(",")) ? language.Substring(0, language.IndexOf(",")) : language;
+            language = (language.Contains(";")) ? language.Substring(0, language.IndexOf(";")) : language;
+            language = (language.Trim().Length == 0) ? "??" : language;
+
+            // filter
+            var filter = _settings.GetSetting(EntityNames.Site, SiteId, "VisitorFilter");
+            if (filter != null && !string.IsNullOrEmpty(filter.SettingValue))
             {
-                language = language.Substring(0, language.IndexOf(","));
+                foreach (string term in filter.SettingValue.ToLower().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray())
+                {
+                    if (RemoteIPAddress.ToLower().Contains(term) || useragent.ToLower().Contains(term) || language.ToLower().Contains(term))
+                    {
+                        return;
+                    }
+                }
             }
+
             string url = Request.GetEncodedUrl();
-            string referrer = Request.Headers[HeaderNames.Referer];
+            string referrer = (Request.Headers[HeaderNames.Referer] != StringValues.Empty) ? Request.Headers[HeaderNames.Referer] : "";
             int? userid = null;
             if (User.HasClaim(item => item.Type == ClaimTypes.PrimarySid))
             {
@@ -210,7 +228,7 @@ namespace Oqtane.Pages
             {
                 var visitor = new Visitor();
                 visitor.SiteId = SiteId;
-                visitor.IPAddress = ip;
+                visitor.IPAddress = RemoteIPAddress;
                 visitor.UserAgent = useragent;
                 visitor.Language = language;
                 visitor.Url = url;
@@ -236,7 +254,7 @@ namespace Oqtane.Pages
                 var visitor = _visitors.GetVisitor(VisitorId);
                 if (visitor != null)
                 {
-                    visitor.IPAddress = ip;
+                    visitor.IPAddress = RemoteIPAddress;
                     visitor.UserAgent = useragent;
                     visitor.Language = language;
                     visitor.Url = url;
@@ -262,7 +280,7 @@ namespace Oqtane.Pages
         private string CreatePWAScript(Alias alias, Site site, Route route)
         {
             return
-            "<script>" +
+            "<script id=\"app-pwa\">" +
                 "setTimeout(() => { " +
                     "var manifest = { " +
                         "\"name\": \"" + site.Name + "\", " +
@@ -287,6 +305,8 @@ namespace Oqtane.Pages
                     "document.getElementById('app-manifest').setAttribute('href', url); " +
                 "} " +
                 ", 1000);" +
+            "</script>" + Environment.NewLine +
+            "<script id=\"app-serviceworker\">" +
                 "if ('serviceWorker' in navigator) { " +
                     "navigator.serviceWorker.register('/service-worker.js').then(function(registration) { " +
                         "console.log('ServiceWorker Registration Successful'); " +
@@ -305,7 +325,7 @@ namespace Oqtane.Pages
                 var obj = Activator.CreateInstance(type) as IHostResources;
                 foreach (var resource in obj.Resources)
                 {
-                    ProcessResource(resource);
+                    ProcessResource(resource, 0);
                 }
             }
         }
@@ -325,7 +345,7 @@ namespace Oqtane.Pages
                     {
                         if (resource.Declaration == ResourceDeclaration.Global)
                         {
-                            ProcessResource(resource);
+                            ProcessResource(resource, 0);
                         }
                     }
                 }
@@ -343,24 +363,25 @@ namespace Oqtane.Pages
                 var obj = Activator.CreateInstance(type) as IThemeControl;
                 if (obj.Resources != null)
                 {
+                    int count = 0; // required for local stylesheets for current theme
                     foreach (var resource in obj.Resources)
                     {
                         if (resource.Declaration == ResourceDeclaration.Global || (Utilities.GetFullTypeName(type.AssemblyQualifiedName) == ThemeType && resource.ResourceType == ResourceType.Stylesheet))
                         {
-                            ProcessResource(resource);
+                            ProcessResource(resource, count++);
                         }
                     }
                 }
             }
         }
-        private void ProcessResource(Resource resource)
+        private void ProcessResource(Resource resource, int count)
         {
             switch (resource.ResourceType)
             {
                 case ResourceType.Stylesheet:
                     if (!HeadResources.Contains(resource.Url, StringComparison.OrdinalIgnoreCase))
                     {
-                        var id = (resource.Declaration == ResourceDeclaration.Global) ? "" : "id=\"app-stylesheet-" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + "-00\" ";
+                        var id = (resource.Declaration == ResourceDeclaration.Global) ? "" : "id=\"app-stylesheet-" + DateTime.UtcNow.ToString("yyyyMMddHHmmssfff") + "-" + count.ToString("00") + "\" ";
                         HeadResources += "<link " + id + "rel=\"stylesheet\" href=\"" + resource.Url + "\"" + CrossOrigin(resource.CrossOrigin) + Integrity(resource.Integrity) + " />" + Environment.NewLine;
                     }
                     break;

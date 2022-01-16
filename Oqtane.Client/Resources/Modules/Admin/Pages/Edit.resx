@@ -258,9 +258,6 @@
   <data name="ThemeSettings.Heading" xml:space="preserve">
     <value>Theme Settings</value>
   </data>
-  <data name="Appearance.Hea" xml:space="preserve">
-    <value />
-  </data>
   <data name="Clickable.HelpText" xml:space="preserve">
     <value>Select whether the link in the site navigation is enabled or disabled</value>
   </data>

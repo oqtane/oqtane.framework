@@ -192,4 +192,22 @@
   <data name="LogDetails.Text" xml:space="preserve">
     <value>Details</value>
   </data>
+  <data name="Error.SaveSiteSettings" xml:space="preserve">
+    <value>Error Saving Settings</value>
+  </data>
+  <data name="Events.Heading" xml:space="preserve">
+    <value>Events</value>
+  </data>
+  <data name="Retention.HelpText" xml:space="preserve">
+    <value>Number of days of events to retain</value>
+  </data>
+  <data name="Retention.Text" xml:space="preserve">
+    <value>Retention (Days):</value>
+  </data>
+  <data name="Settings.Heading" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Success.SaveSiteSettings" xml:space="preserve">
+    <value>Settings Saved Successfully</value>
+  </data>
 </root>

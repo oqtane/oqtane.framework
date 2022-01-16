@@ -44,12 +44,9 @@ namespace Oqtane.Controllers
             var site = _sites.GetSite(id);
             if (site.SiteId == _alias.SiteId)
             {
-                var settings = _settings.GetSettings(EntityNames.Site, site.SiteId);
-                if (!User.IsInRole(RoleNames.Admin))
-                {
-                    settings = settings.Where(item => item.IsPublic);
-                }
-                site.Settings = settings.ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
+                site.Settings = _settings.GetSettings(EntityNames.Site, site.SiteId)
+                    .Where(item => !item.IsPrivate || User.IsInRole(RoleNames.Admin))
+                    .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                 return site;
             }
             else

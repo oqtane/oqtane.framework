@@ -138,4 +138,13 @@
   <data name="Info.SignedIn" xml:space="preserve">
     <value>You Are Already Signed In</value>
   </data>
+  <data name="Message.ForgotPassword" xml:space="preserve">
+    <value>Please Enter The Username Related To Your Account And Then Select The Forgot Password Option Again</value>
+  </data>
+  <data name="Message.ForgotUser" xml:space="preserve">
+    <value>Please Check The Email Address Associated To Your User Account For A Password Reset Notification</value>
+  </data>
+  <data name="Message.UserDoesNotExist" xml:space="preserve">
+    <value>User Does Not Exist</value>
+  </data>
 </root>

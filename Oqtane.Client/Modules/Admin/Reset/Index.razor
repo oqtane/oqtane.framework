@@ -7,41 +7,49 @@
 
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <div class="container">
-        <div class="form-group">
-            <label for="Username" class="control-label">@SharedLocalizer["Username"] </label>
-            <input type="text" class="form-control" placeholder="Username" @bind="@_username" readonly id="Username" />
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="username" HelpText="Your username will be populated from the link you received in the password reset notification" ResourceKey="Username">Username: </Label>
+            <div class="col-sm-9">
+                <input id="username" type="text" class="form-control" @bind="@_username" readonly />
+            </div>
         </div>
-        <div class="form-group">
-            <label for="Password" class="control-label">@SharedLocalizer["Password"] </label>
-            <input type="password" class="form-control" placeholder="Password" @bind="@_password" id="Password" required />
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="password" HelpText="The new password. It must satisfy complexity rules for the site." ResourceKey="Password">Password: </Label>
+            <div class="col-sm-9">
+                <input id="password" type="password" class="form-control" @bind="@_password" required />
+            </div>
         </div>
-        <div class="form-group">
-            <label for="Confirm" class="control-label">@Localizer["Password.Confirm"] </label>
-            <input type="password" class="form-control" placeholder="Password" @bind="@_confirm" id="Confirm" required />
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="confirm" HelpText="Enter the password again. It must exactly match the password entered above." ResourceKey="Confirm">Confirm: </Label>
+            <div class="col-sm-9">
+                <input id="confirm" type="password" class="form-control" @bind="@_confirm" required />
+            </div>
         </div>
-        <button type="button" class="btn btn-primary" @onclick="Reset">@Localizer["Password.Reset"]</button>
-        <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
     </div>
+    <br />
+    <button type="button" class="btn btn-primary" @onclick="Reset">@Localizer["Password.Reset"]</button>
+    <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
 </form>
 
 @code {
-    private ElementReference form;
-    private bool validated = false;
-    private string _username = string.Empty;
-    private string _password = string.Empty;
-    private string _confirm = string.Empty;
+	private ElementReference form;
+	private bool validated = false;
+	private string _username = string.Empty;
+	private string _password = string.Empty;
+	private string _confirm = string.Empty;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
-    protected override void OnInitialized()
-    {
-        if (PageState.QueryString.ContainsKey("name") && PageState.QueryString.ContainsKey("token"))
+	protected override async Task OnInitializedAsync()
+	{
+		if (PageState.QueryString.ContainsKey("name") && PageState.QueryString.ContainsKey("token"))
         {
             _username = PageState.QueryString["name"];
         }
         else
         {
-            NavigationManager.NavigateTo(NavigateUrl(string.Empty));
+            await logger.LogError(LogFunction.Security, "Invalid Attempt To Access User Password Reset");
+            NavigationManager.NavigateTo(NavigateUrl("")); // home page
         }
     }
 

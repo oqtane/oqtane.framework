@@ -20,6 +20,7 @@ namespace Oqtane.Controllers
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
+        private readonly string _visitorCookie;
 
         public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
         {
@@ -29,39 +30,25 @@ namespace Oqtane.Controllers
             _syncManager = syncManager;
             _logger = logger;
             _alias = tenantManager.GetAlias();
+            _visitorCookie = "APP_VISITOR_" + _alias.SiteId.ToString();
         }
 
         // GET: api/<controller>
         [HttpGet]
-        public IEnumerable<Setting> Get(string entityName, int entityid)
+        public IEnumerable<Setting> Get(string entityName, int entityId)
         {
             List<Setting> settings = new List<Setting>();
-            if (IsAuthorized(entityName, entityid, PermissionNames.View))
+            if (IsAuthorized(entityName, entityId, PermissionNames.View))
             {
-                settings = _settings.GetSettings(entityName, entityid).ToList();
-
-                // ispublic filter 
-                switch (entityName)
+                settings = _settings.GetSettings(entityName, entityId).ToList();
+                if (FilterPrivate(entityName, entityId))
                 {
-                    case EntityNames.Tenant:
-                    case EntityNames.ModuleDefinition:
-                    case EntityNames.Host:
-                        if (!User.IsInRole(RoleNames.Host))
-                        {
-                            settings = settings.Where(item => item.IsPublic).ToList();
-                        }
-                        break;
-                    case EntityNames.Site:
-                        if (!User.IsInRole(RoleNames.Admin))
-                        {
-                            settings = settings.Where(item => item.IsPublic).ToList();
-                        }
-                        break;
+                    settings = settings.Where(item => !item.IsPrivate).ToList();
                 }
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Settings {EntityName} {EntityId}", entityName, entityid);
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Settings {EntityName} {EntityId}", entityName, entityId);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
             return settings;
@@ -74,30 +61,15 @@ namespace Oqtane.Controllers
             Setting setting = _settings.GetSetting(entityName, id);
             if (IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.View))
             {
-                // ispublic filter
-                switch (entityName)
+                if (FilterPrivate(entityName, id) && setting.IsPrivate)
                 {
-                    case EntityNames.Tenant:
-                    case EntityNames.ModuleDefinition:
-                    case EntityNames.Host:
-                        if (!User.IsInRole(RoleNames.Host) && !setting.IsPublic)
-                        {
-                            setting = null;
-                        }
-                        break;
-                    case EntityNames.Site:
-                        if (!User.IsInRole(RoleNames.Admin) && !setting.IsPublic)
-                        {
-                            setting = null;
-                        }
-                        break;
+                    setting = null;
                 }
-
                 return setting;
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Setting {Setting}", setting);
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Setting {EntityName} {SettingId}", entityName, id);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
@@ -204,18 +176,65 @@ namespace Oqtane.Controllers
                     }
                     break;
                 case EntityNames.Visitor:
-                    var visitorCookie = "APP_VISITOR_" + _alias.SiteId.ToString();
-                    if (int.TryParse(Request.Cookies[visitorCookie], out int visitorId))
+                    authorized = User.IsInRole(RoleNames.Admin);
+                    if (!authorized)
                     {
-                        authorized = (visitorId == entityId);
+                        if (int.TryParse(Request.Cookies[_visitorCookie], out int visitorId))
+                        {
+                            authorized = (visitorId == entityId);
+                        }
+                    }
+                    break;
+                default: // custom entity
+                    if (permissionName == PermissionNames.Edit)
+                    {
+                        authorized = User.IsInRole(RoleNames.Admin) || _userPermissions.IsAuthorized(User, entityName, entityId, permissionName);
                     }
                     else
                     {
-                        authorized = User.IsInRole(RoleNames.Admin);
+                        authorized = true;
                     }
                     break;
             }
             return authorized;
+        }
+
+        private bool FilterPrivate(string entityName, int entityId)
+        {
+            bool filter = false;
+            switch (entityName)
+            {
+                case EntityNames.Tenant:
+                case EntityNames.ModuleDefinition:
+                case EntityNames.Host:
+                    filter = !User.IsInRole(RoleNames.Host);
+                    break;
+                case EntityNames.Site:
+                    filter = !User.IsInRole(RoleNames.Admin);
+                    break;
+                case EntityNames.Page:
+                case EntityNames.Module:
+                case EntityNames.Folder:
+                    filter = !_userPermissions.IsAuthorized(User, entityName, entityId, PermissionNames.Edit);
+                    break;
+                case EntityNames.User:
+                    filter = !User.IsInRole(RoleNames.Admin) && _userPermissions.GetUser(User).UserId != entityId;
+                    break;
+                case EntityNames.Visitor:
+                    if (!User.IsInRole(RoleNames.Admin))
+                    {
+                        filter = true;
+                        if (int.TryParse(Request.Cookies[_visitorCookie], out int visitorId))
+                        {
+                            filter = (visitorId != entityId);
+                        }
+                    }
+                    break;
+                default: // custom entity
+                    filter = !User.IsInRole(RoleNames.Admin) && !_userPermissions.IsAuthorized(User, entityName, entityId, PermissionNames.Edit);
+                    break;
+            }
+            return filter;
         }
 
         private void AddSyncEvent(string EntityName)

@@ -2,6 +2,7 @@
 @inherits ModuleBase
 @inject IVisitorService VisitorService
 @inject ISiteService SiteService
+@inject ISettingService SettingService
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -56,16 +57,28 @@ else
 					<td>@context.CreatedOn</td>
 				</Row>
 			</Pager>
-	</TabPanel>
+		</TabPanel>
         <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings">
 			<div class="container">
 				<div class="row mb-1 align-items-center">
-					<Label Class="col-sm-3" For="visitortracking" HelpText="Specify if visitor tracking is enabled" ResourceKey="VisitorTracking">Visitor Tracking Enabled? </Label>
+					<Label Class="col-sm-3" For="tracking" HelpText="Specify if visitor tracking is enabled" ResourceKey="Tracking">Tracking Enabled? </Label>
 					<div class="col-sm-9">
-						<select id="visitortracking" class="form-select" @bind="@_visitortracking" >
+						<select id="tracking" class="form-select" @bind="@_tracking" >
 							<option value="True">@SharedLocalizer["Yes"]</option>
 							<option value="False">@SharedLocalizer["No"]</option>
 						</select>
+					</div>
+				</div>
+				<div class="row mb-1 align-items-center">
+					<Label Class="col-sm-3" For="filter" HelpText="Comma delimited list of terms which may exist in IP addresses, user agents, or languages which identify visitors which should not be tracked (ie. bots)" ResourceKey="Filter">Filter: </Label>
+					<div class="col-sm-9">
+						<textarea id="filter" class="form-control" @bind="@_filter" rows="3"></textarea>
+					</div>
+				</div>
+				<div class="row mb-1 align-items-center">
+					<Label Class="col-sm-3" For="retention" HelpText="Number of days of visitor activity to retain" ResourceKey="Retention">Retention (Days): </Label>
+					<div class="col-sm-9">
+						<input id="retention" class="form-control" @bind="@_retention" />
 					</div>
 				</div>
 			</div>
@@ -79,14 +92,18 @@ else
 	private bool _users = false;
 	private int _days = 1;
 	private List<Visitor> _visitors;
-	private string _visitortracking;
+	private string _tracking;
+	private string _filter = "";
+	private string _retention = "";
 
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
 	protected override async Task OnParametersSetAsync()
 	{
 		await GetVisitors();
-		_visitortracking = PageState.Site.VisitorTracking.ToString();
+		_tracking = PageState.Site.VisitorTracking.ToString();
+		_filter = SettingService.GetSetting(PageState.Site.Settings, "VisitorFilter", "");
+		_retention = SettingService.GetSetting(PageState.Site.Settings, "VisitorRetention", "30");
 	}
 
 	private async void TypeChanged(ChangeEventArgs e)
@@ -124,15 +141,21 @@ else
 		{
 			_visitors = _visitors.Where(item => item.UserId != null).ToList();
 		}
-    }
+	}
 
 	private async Task SaveSiteSettings()
 	{
 		try
 		{
 			var site = PageState.Site;
-			site.VisitorTracking = bool.Parse(_visitortracking);
+			site.VisitorTracking = bool.Parse(_tracking);
 			await SiteService.UpdateSiteAsync(site);
+
+			var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+			settings = SettingService.SetSetting(settings, "VisitorFilter", _filter, true);
+			settings = SettingService.SetSetting(settings, "VisitorRetention", _retention, true);
+            await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
+
 			AddModuleMessage(Localizer["Success.SaveSiteSettings"], MessageType.Success);
 		}
 		catch (Exception ex)

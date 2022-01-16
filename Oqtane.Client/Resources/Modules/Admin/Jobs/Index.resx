@@ -133,19 +133,16 @@
     <value>Every</value>
   </data>
   <data name="Minute" xml:space="preserve">
-    <value>Minute</value>
+    <value>Minute(s)</value>
   </data>
   <data name="Hour" xml:space="preserve">
-    <value>Hour</value>
+    <value>Hour(s)</value>
   </data>
   <data name="Day" xml:space="preserve">
-    <value>Day</value>
+    <value>Day(s)</value>
   </data>
   <data name="Month" xml:space="preserve">
-    <value>Month</value>
-  </data>
-  <data name="s" xml:space="preserve">
-    <value>s</value>
+    <value>Month(s)</value>
   </data>
   <data name="Error.Job.Delete" xml:space="preserve">
     <value>Error Deleting Job</value>
@@ -176,5 +173,23 @@
   </data>
   <data name="JobLog.Text" xml:space="preserve">
     <value>Log</value>
+  </data>
+  <data name="Error.Job.Start" xml:space="preserve">
+    <value>An error occurred when starting the job</value>
+  </data>
+  <data name="Error.Job.Stop" xml:space="preserve">
+    <value>An error occurred when stopping the job</value>
+  </data>
+  <data name="Message.Job.Start" xml:space="preserve">
+    <value>The process responsible for executing this job has been started. The next execution will be based on the schedule criteria for the job.</value>
+  </data>
+  <data name="Message.Job.Stop" xml:space="preserve">
+    <value>The process responsible for executing this job has been stopped. In order to restart the process you will need to use the Start button or restart the application.</value>
+  </data>
+  <data name="Week" xml:space="preserve">
+    <value>Week(s)</value>
+  </data>
+  <data name="Once" xml:space="preserve">
+    <value>Execute Once</value>
   </data>
 </root>

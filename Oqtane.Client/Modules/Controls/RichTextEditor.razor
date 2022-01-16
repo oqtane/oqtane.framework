@@ -120,18 +120,19 @@
         new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-interop.js" }
     };
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
         _content = Content; // raw HTML
+        await RefreshRichText();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-       var interop = new RichTextEditorInterop(JSRuntime);
-       
-       if (firstRender)
+        var interop = new RichTextEditorInterop(JSRuntime);
+        if (firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
+
 
             await interop.CreateEditor(
                 _editorElement,
@@ -140,15 +141,14 @@
                 Placeholder,
                 Theme,
                 DebugLevel);
+
+            await interop.LoadEditorContent(_editorElement, Content);
+
+            _content = Content; // raw HTML
+
         }
-
-        await interop.LoadEditorContent(_editorElement, Content);
-
-        _content = Content; // raw HTML
-
-        // preserve a copy of the rich text content ( Quill sanitizes content so we need to retrieve it from the editor )
-        _original = await interop.GetHtml(_editorElement);
-
+            // preserve a copy of the rich text content ( Quill sanitizes content so we need to retrieve it from the editor )
+            _original = await interop.GetHtml(_editorElement);
     }
 
     public void CloseFileManager()

@@ -389,7 +389,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
-                if (identityuser != null)
+                if (identityuser != null && !string.IsNullOrEmpty(token))
                 {
                     var result = await _identityUserManager.ConfirmEmailAsync(identityuser, token);
                     if (result.Succeeded)
@@ -398,13 +398,13 @@ namespace Oqtane.Controllers
                     }
                     else
                     {
-                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "Email Verification Failed For {Username}", user.Username);
+                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "Email Verification Failed For {Username} - Error {Error}", user.Username, result.Errors.ToString());
                         user = null;
                     }
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Email Verification Failed For {Username}", user.Username);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Email Verification Failed For {Username}And Token {Token}", user.Username, token);
                     user = null;
                 }
             }
@@ -420,9 +420,14 @@ namespace Oqtane.Controllers
                 IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
                 if (identityuser != null)
                 {
+                    user = _users.GetUser(user.Username);
                     string token = await _identityUserManager.GeneratePasswordResetTokenAsync(identityuser);
                     string url = HttpContext.Request.Scheme + "://" + _alias.Name + "/reset?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
-                    string body = "Dear " + user.DisplayName + ",\n\nPlease Click The Link Displayed Below To Reset Your Password:\n\n" + url + "\n\nThank You!";
+                    string body = "Dear " + user.DisplayName + ",\n\nYou recently requested to reset your password. Please use the link below to complete the process:\n\n" + url +
+                        "\n\nPlease note that the link is only valid for 24 hours so if you are unable to take action within that time period, you should initiate another password reset on the site." +
+                        "\n\nIf you did not request to reset your password you can safely ignore this message." +
+                        "\n\nThank You!";
+                 
                     var notification = new Notification(user.SiteId, null, user, "User Password Reset", body, null);
                     _notifications.AddNotification(notification);
                     _logger.Log(LogLevel.Information, this, LogFunction.Security, "Password Reset Notification Sent For {Username}", user.Username);
@@ -451,13 +456,13 @@ namespace Oqtane.Controllers
                     }
                     else
                     {
-                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "Password Reset Failed For {Username}", user.Username);
+                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "Password Reset Failed For {Username} - Error {Error}", user.Username, result.Errors.ToString());
                         user = null;
                     }
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Password Reset Failed For {Username}", user.Username);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Password Reset Failed For {Username} And Token {Token}", user.Username, token);
                     user = null;
                 }
             }

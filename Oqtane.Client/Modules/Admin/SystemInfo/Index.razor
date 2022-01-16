@@ -33,7 +33,7 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="servertime" HelpText="Server Time" ResourceKey="ServerTime">Server Time: </Label>
+                <Label Class="col-sm-3" For="servertime" HelpText="Server Date/Time (in UTC)" ResourceKey="ServerTime">Server Date/Time: </Label>
                 <div class="col-sm-9">
                     <input id="servertime" class="form-control" @bind="@_servertime" readonly />
                 </div>
@@ -99,32 +99,32 @@
 </TabStrip>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-    private string _version = string.Empty;
-    private string _clrversion = string.Empty;
-    private string _osversion = string.Empty;
-    private string _serverpath = string.Empty;
-    private string _servertime = string.Empty;
-    private string _installationid = string.Empty;
+	private string _version = string.Empty;
+	private string _clrversion = string.Empty;
+	private string _osversion = string.Empty;
+	private string _serverpath = string.Empty;
+	private string _servertime = string.Empty;
+	private string _installationid = string.Empty;
 
-    private string _detailederrors = string.Empty;
-    private string _logginglevel = string.Empty;
-    private string _swagger = string.Empty;
-    private string _packageservice = string.Empty;
+	private string _detailederrors = string.Empty;
+	private string _logginglevel = string.Empty;
+	private string _swagger = string.Empty;
+	private string _packageservice = string.Empty;
 
-    protected override async Task OnInitializedAsync()
-    {
-        _version = Constants.Version;
+	protected override async Task OnInitializedAsync()
+	{
+		_version = Constants.Version;
 
-        Dictionary<string, string> systeminfo = await SystemService.GetSystemInfoAsync();
-        if (systeminfo != null)
-        {
-            _clrversion = systeminfo["clrversion"];
-            _osversion = systeminfo["osversion"];
-            _serverpath = systeminfo["serverpath"];
-            _servertime = systeminfo["servertime"];
-            _installationid = systeminfo["installationid"];
+		Dictionary<string, string> systeminfo = await SystemService.GetSystemInfoAsync();
+		if (systeminfo != null)
+		{
+			_clrversion = systeminfo["clrversion"];
+			_osversion = systeminfo["osversion"];
+			_serverpath = systeminfo["serverpath"];
+			_servertime = systeminfo["servertime"] + " UTC";
+			_installationid = systeminfo["installationid"];
 
             _detailederrors = systeminfo["detailederrors"];
             _logginglevel = systeminfo["logginglevel"];

@@ -1,5 +1,6 @@
 @namespace Oqtane.Modules.Admin.Sites
 @using Oqtane.Interfaces
+@using System.Text.RegularExpressions
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject ITenantService TenantService
@@ -282,6 +283,7 @@ else
         {
             if (_tenantid != "-" && _name != string.Empty && _urls != string.Empty && _themetype != "-" && _containertype != "-" && _sitetemplatetype != "-")
             {
+				_urls = Regex.Replace(_urls, @"\r\n?|\n", ",");
                 var duplicates = new List<string>();
                 var aliases = await AliasService.GetAliasesAsync();
                 foreach (string name in _urls.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
@@ -370,8 +372,7 @@ else
                         if (installation.Success)
                         {
                             var aliasname = config.Aliases.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)[0];
-                            var uri = new Uri(NavigationManager.Uri);
-                            NavigationManager.NavigateTo(uri.Scheme + "://" + aliasname, true);
+                            NavigationManager.NavigateTo(PageState.Uri.Scheme + "://" + aliasname, true);
                         }
                         else
                         {
