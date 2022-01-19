@@ -87,8 +87,8 @@ namespace Oqtane.Pages
                 {
                     var url = WebUtility.UrlDecode(HttpContext.Request.GetEncodedUrl());
 
-                    // redirect non-default alias
-                    if (!alias.IsDefault)
+                    // redirect non-default alias unless you are trying to access site settings
+                    if (!alias.IsDefault && !url.Contains("admin/site"))
                     {
                         var aliases = _aliases.GetAliases().Where(item => item.TenantId == alias.TenantId && item.SiteId == alias.SiteId);
                         if (aliases.Where(item => item.IsDefault).FirstOrDefault() != null)
@@ -196,7 +196,7 @@ namespace Oqtane.Pages
         private void TrackVisitor(int SiteId)
         {
             // get request attributes
-            string useragent = (Request.Headers[HeaderNames.UserAgent] != StringValues.Empty) ? Request.Headers[HeaderNames.UserAgent] : "";
+            string useragent = (Request.Headers[HeaderNames.UserAgent] != StringValues.Empty) ? Request.Headers[HeaderNames.UserAgent] : "(none)";
             string language = (Request.Headers[HeaderNames.AcceptLanguage] != StringValues.Empty) ? Request.Headers[HeaderNames.AcceptLanguage] : "";
             language = (language.Contains(",")) ? language.Substring(0, language.IndexOf(",")) : language;
             language = (language.Contains(";")) ? language.Substring(0, language.IndexOf(";")) : language;

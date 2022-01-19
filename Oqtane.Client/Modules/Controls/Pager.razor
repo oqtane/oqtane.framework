@@ -195,6 +195,9 @@
     [Parameter]
     public string Class { get; set; }
 
+    [Parameter]
+    public Action<int> OnPageChange { get; set; } // optional - executes a method in the calling component when the page changes
+
     private IEnumerable<TableItem> ItemList { get; set; }
 
     protected override void OnParametersSet()
@@ -268,6 +271,7 @@
         {
             _endPage = _pages;
         }
+        OnPageChange?.Invoke(_page);
         StateHasChanged();
     }
 
