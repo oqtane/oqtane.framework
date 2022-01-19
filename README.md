@@ -67,7 +67,7 @@ V.3.1.0 ( Q1 2022 )
 - [ ] Allow configuration of password complexity for local authentication
 - [ ] User account lockout support
 
-V.3.0.2 ( Jan 12, 2022 )
+V.3.0.2 ( Jan 16, 2022 )
 - [x] Default alias specification, auto alias registration, redirect logic
 - [x] Improvements to visitor tracking and url mapping
 - [x] Scheduler enhancements for stop/start, weekly and one-time jobs
