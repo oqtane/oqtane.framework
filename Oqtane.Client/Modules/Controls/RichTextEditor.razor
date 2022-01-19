@@ -115,7 +115,7 @@
 
     public override List<Resource> Resources => new List<Resource>()
     {
-        new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill1.3.7.min.js" },
+        new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill.min.js" },
         new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-blot-formatter.min.js" },
         new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-interop.js" }
     };
@@ -128,11 +128,11 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        var interop = new RichTextEditorInterop(JSRuntime);
         if (firstRender)
         {
-            await base.OnAfterRenderAsync(firstRender);
+			var interop = new RichTextEditorInterop(JSRuntime);
 
+            await base.OnAfterRenderAsync(firstRender);
 
             await interop.CreateEditor(
                 _editorElement,
@@ -146,9 +146,9 @@
 
             _content = Content; // raw HTML
 
-        }
             // preserve a copy of the rich text content ( Quill sanitizes content so we need to retrieve it from the editor )
             _original = await interop.GetHtml(_editorElement);
+        }
     }
 
     public void CloseFileManager()

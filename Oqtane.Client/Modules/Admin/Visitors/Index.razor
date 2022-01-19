@@ -17,13 +17,13 @@ else
 			<div class="container">
 				<div class="row mb-1 align-items-center">
 					<div class="col-sm-6">
-						<select id="type" class="form-select custom-select" @onchange="(e => TypeChanged(e))">
-							<option value="false">@Localizer["AllVisitors"]</option>
-							<option value="true">@Localizer["UsersOnly"]</option>
+						<select id="type" class="form-select custom-select" value="@_type" @onchange="(e => TypeChanged(e))">
+							<option value="visitors">@Localizer["AllVisitors"]</option>
+							<option value="users">@Localizer["UsersOnly"]</option>
 						</select>
 					</div>
 					<div class="col-sm-6">
-						<select id="type" class="form-select custom-select" @onchange="(e => DateChanged(e))">
+						<select id="days" class="form-select custom-select" value="@_days" @onchange="(e => DaysChanged(e))">
 							<option value="1">@Localizer["PastDay"]</option>
 							<option value="7">@Localizer["PastWeek"]</option>
 							<option value="30">@Localizer["PastMonth"]</option>
@@ -32,7 +32,7 @@ else
 				</div>
 			</div>
 			<br/>
-			<Pager Items="@_visitors">
+			<Pager Items="@_visitors" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange">
 				<Header>
 					<th style="width: 1px;">&nbsp;</th>
 					<th>@Localizer["IP"]</th>
@@ -43,7 +43,7 @@ else
 					<th>@Localizer["Created"]</th>
 				</Header>
 				<Row>
-					<td><ActionLink Action="Detail" Parameters="@($"id=" + context.VisitorId.ToString())" ResourceKey="Details" /></td>
+					<td><ActionLink Action="Detail" Parameters="@($"id=" + context.VisitorId.ToString() + "&type=" + _type.ToString() + "&days=" + _days.ToString() + "&page=" + _page.ToString())" ResourceKey="Details" /></td>
 					<td>@context.IPAddress</td>
 					<td>
 						@if (context.UserId != null)
@@ -89,8 +89,9 @@ else
 }
 
 @code {
-	private bool _users = false;
+	private string _type = "visitors";
 	private int _days = 1;
+	private int _page = 1;
 	private List<Visitor> _visitors;
 	private string _tracking;
 	private string _filter = "";
@@ -100,7 +101,21 @@ else
 
 	protected override async Task OnParametersSetAsync()
 	{
+		if (PageState.QueryString.ContainsKey("type"))
+		{
+			_type = PageState.QueryString["type"];
+		}
+		if (PageState.QueryString.ContainsKey("days") && int.TryParse(PageState.QueryString["days"], out int days))
+		{
+			_days = days;
+		}
+		if (PageState.QueryString.ContainsKey("page") && int.TryParse(PageState.QueryString["page"], out int page))
+		{
+			_page = page;
+		}
+
 		await GetVisitors();
+
 		_tracking = PageState.Site.VisitorTracking.ToString();
 		_filter = SettingService.GetSetting(PageState.Site.Settings, "VisitorFilter", "");
 		_retention = SettingService.GetSetting(PageState.Site.Settings, "VisitorRetention", "30");
@@ -110,7 +125,7 @@ else
 	{
 		try
 		{
-			_users = bool.Parse(e.Value.ToString());
+			_type = e.Value.ToString();
 			await GetVisitors();
 			StateHasChanged();
 		}
@@ -120,7 +135,7 @@ else
 		}
 	}
 
-	private async void DateChanged(ChangeEventArgs e)
+	private async void DaysChanged(ChangeEventArgs e)
 	{
 		try
 		{
@@ -137,7 +152,7 @@ else
 	private async Task GetVisitors()
 	{
 		_visitors = await VisitorService.GetVisitorsAsync(PageState.Site.SiteId, DateTime.UtcNow.AddDays(-_days));
-		if (_users)
+		if (_type == "users")
 		{
 			_visitors = _visitors.Where(item => item.UserId != null).ToList();
 		}
@@ -163,5 +178,10 @@ else
 			await logger.LogError(ex, "Error Saving Site Settings {Error}", ex.Message);
 			AddModuleMessage(Localizer["Error.SaveSiteSettings"], MessageType.Error);
 		}
+	}
+
+	private void OnPageChange(int page)
+	{
+		_page = page;	
 	}
 }

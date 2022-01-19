@@ -100,160 +100,172 @@
 }
 
 @code {
-    private string _permissionnames = string.Empty;
-    private List<Role> _roles;
-    private List<PermissionString> _permissions;
-    private List<User> _users = new List<User>();
-    private string _username = string.Empty;
-    private string _message = string.Empty;
+	private string _permissionnames = string.Empty;
+	private List<Role> _roles;
+	private List<PermissionString> _permissions;
+	private List<User> _users = new List<User>();
+	private string _username = string.Empty;
+	private string _message = string.Empty;
 
-    [Parameter]
-    public string EntityName { get; set; }
+	[Parameter]
+	public string EntityName { get; set; }
 
-    [Parameter]
-    public string PermissionNames { get; set; }
+	[Parameter]
+	public string PermissionNames { get; set; }
 
-    [Parameter]
-    public string Permissions { get; set; }
+	[Parameter]
+	public string Permissions { get; set; }
 
-    protected override async Task OnInitializedAsync()
-    {
-        if (string.IsNullOrEmpty(PermissionNames))
-        {
-            _permissionnames = Shared.PermissionNames.View + "," + Shared.PermissionNames.Edit;
-        }
-        else
-        {
-            _permissionnames = PermissionNames;
-        }
+	protected override async Task OnInitializedAsync()
+	{
+		if (string.IsNullOrEmpty(PermissionNames))
+		{
+			_permissionnames = Shared.PermissionNames.View + "," + Shared.PermissionNames.Edit;
+		}
+		else
+		{
+			_permissionnames = PermissionNames;
+		}
 
-        _roles = await RoleService.GetRolesAsync(ModuleState.SiteId);
-        _roles.Insert(0, new Role { Name = RoleNames.Everyone });
+		_roles = await RoleService.GetRolesAsync(ModuleState.SiteId);
+		_roles.Insert(0, new Role { Name = RoleNames.Everyone });
+		if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+		{
+			_roles.Add(new Role { Name = RoleNames.Host });
+		}
 
-        _permissions = new List<PermissionString>();
+		_permissions = new List<PermissionString>();
 
-        foreach (string permissionname in _permissionnames.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-        {
-            // initialize with admin role
-            _permissions.Add(new PermissionString { PermissionName = permissionname, Permissions = RoleNames.Admin });
-        }
+		foreach (string permissionname in _permissionnames.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+		{
+			// initialize with admin role
+			_permissions.Add(new PermissionString { PermissionName = permissionname, Permissions = RoleNames.Admin });
+		}
 
-        if (!string.IsNullOrEmpty(Permissions))
-        {
-            // populate permissions
-            foreach (PermissionString permissionstring in UserSecurity.GetPermissionStrings(Permissions))
-            {
-                if (_permissions.Find(item => item.PermissionName == permissionstring.PermissionName) != null)
-                {
-                    _permissions[_permissions.FindIndex(item => item.PermissionName == permissionstring.PermissionName)].Permissions = permissionstring.Permissions;
-                }
+		if (!string.IsNullOrEmpty(Permissions))
+		{
+			// populate permissions
+			foreach (PermissionString permissionstring in UserSecurity.GetPermissionStrings(Permissions))
+			{
+				if (_permissions.Find(item => item.PermissionName == permissionstring.PermissionName) != null)
+				{
+					_permissions[_permissions.FindIndex(item => item.PermissionName == permissionstring.PermissionName)].Permissions = permissionstring.Permissions;
+				}
 
-                if (permissionstring.Permissions.Contains("["))
-                {
-                    foreach (string user in permissionstring.Permissions.Split(new char[] { '[' }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        if (user.Contains("]"))
-                        {
-                            var userid = int.Parse(user.Substring(0, user.IndexOf("]")));
-                            if (_users.Where(item => item.UserId == userid).FirstOrDefault() == null)
-                            {
-                                _users.Add(await UserService.GetUserAsync(userid, ModuleState.SiteId));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+				if (permissionstring.Permissions.Contains("["))
+				{
+					foreach (string user in permissionstring.Permissions.Split(new char[] { '[' }, StringSplitOptions.RemoveEmptyEntries))
+					{
+						if (user.Contains("]"))
+						{
+							var userid = int.Parse(user.Substring(0, user.IndexOf("]")));
+							if (_users.Where(item => item.UserId == userid).FirstOrDefault() == null)
+							{
+								_users.Add(await UserService.GetUserAsync(userid, ModuleState.SiteId));
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 
-    private bool? GetPermissionValue(string permissions, string securityKey)
-    {
-        if ((";" + permissions + ";").Contains(";" + "!" + securityKey + ";"))
-        {
-            return false; // deny permission
-        }
-        else
-        {
-            if ((";" + permissions + ";").Contains(";" + securityKey + ";"))
-            {
-                return true; // grant permission
-            }
-            else
-            {
-                return null; // not specified
-            }
-        }
-    }
+	private bool? GetPermissionValue(string permissions, string securityKey)
+	{
+		if ((";" + permissions + ";").Contains(";" + "!" + securityKey + ";"))
+		{
+			return false; // deny permission
+		}
+		else
+		{
+			if ((";" + permissions + ";").Contains(";" + securityKey + ";"))
+			{
+				return true; // grant permission
+			}
+			else
+			{
+				return null; // not specified
+			}
+		}
+	}
 
-    private bool GetPermissionDisabled(string roleName)
-        => roleName == RoleNames.Admin
-            ? true
-            : false;
+	private bool GetPermissionDisabled(string roleName)
+		=> (roleName == RoleNames.Admin && !UserSecurity.IsAuthorized(PageState.User, RoleNames.Host)) ? true : false;
 
-    private async Task AddUser()
-    {
-        if (_users.Where(item => item.Username == _username).FirstOrDefault() == null)
-        {
-            try
-            {
-                var user = await UserService.GetUserAsync(_username, ModuleState.SiteId);
-                if (user != null)
-                {
-                    _users.Add(user);
-                }
-            }
-            catch
-            {
-                _message = Localizer["Message.Username.DontExist"];
-            }
-        }
+	private async Task AddUser()
+	{
+		if (_users.Where(item => item.Username == _username).FirstOrDefault() == null)
+		{
+			try
+			{
+				var user = await UserService.GetUserAsync(_username, ModuleState.SiteId);
+				if (user != null)
+				{
+					_users.Add(user);
+				}
+			}
+			catch
+			{
+				_message = Localizer["Message.Username.DontExist"];
+			}
+		}
 
-        _username = string.Empty;
-    }
+		_username = string.Empty;
+	}
 
-    private void PermissionChanged(bool? value, string permissionName, string securityId)
-    {
-        var selected = value;
-        var permission = _permissions.Find(item => item.PermissionName == permissionName);
-        if (permission != null)
-        {
-            var ids = permission.Permissions.Split(';').ToList();
+	private void PermissionChanged(bool? value, string permissionName, string securityId)
+	{
+		var selected = value;
+		var permission = _permissions.Find(item => item.PermissionName == permissionName);
+		if (permission != null)
+		{
+			var ids = permission.Permissions.Split(';').ToList();
 
-            ids.Remove(securityId); // remove grant permission
-            ids.Remove("!" + securityId); // remove deny permission
+			ids.Remove(securityId); // remove grant permission
+			ids.Remove("!" + securityId); // remove deny permission
 
-            switch (selected)
-            {
-                case true:
-                    ids.Add(securityId); // add grant permission
-                    break;
-                case false:
-                    ids.Add("!" + securityId); // add deny permission
-                    break;
-                case null:
-                    break; // permission not specified
-            }
+			switch (selected)
+			{
+				case true:
+					ids.Add(securityId); // add grant permission
+					break;
+				case false:
+					ids.Add("!" + securityId); // add deny permission
+					break;
+				case null:
+					break; // permission not specified
+			}
 
-            _permissions[_permissions.FindIndex(item => item.PermissionName == permissionName)].Permissions = string.Join(";", ids.ToArray());
-        }
-    }
+			_permissions[_permissions.FindIndex(item => item.PermissionName == permissionName)].Permissions = string.Join(";", ids.ToArray());
+		}
+	}
 
-    public string GetPermissions()
-    {
-        ValidatePermissions();
-        return UserSecurity.SetPermissionStrings(_permissions);
-    }
+	public string GetPermissions()
+	{
+		ValidatePermissions();
+		return UserSecurity.SetPermissionStrings(_permissions);
+	}
 
-    private void ValidatePermissions()
-    {
-        PermissionString permission;
-        for (int i = 0; i < _permissions.Count; i++)
-        {
-            permission = _permissions[i];
-            List<string> ids = permission.Permissions.Split(';').ToList();
-            ids.Remove("!" + RoleNames.Everyone); // remove deny all users
-            ids.Remove("!" + RoleNames.Registered); // remove deny registered users
-            permission.Permissions = string.Join(";", ids.ToArray());
+	private void ValidatePermissions()
+	{
+		PermissionString permission;
+		for (int i = 0; i < _permissions.Count; i++)
+		{
+			permission = _permissions[i];
+			List<string> ids = permission.Permissions.Split(';').ToList();
+			ids.Remove("!" + RoleNames.Everyone); // remove deny all users
+			ids.Remove("!" + RoleNames.Registered); // remove deny registered users
+			if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+			{
+				ids.Remove("!" + RoleNames.Admin); // remove deny administrators
+				ids.Remove("!" + RoleNames.Host); // remove deny host users
+				if (!ids.Contains(RoleNames.Host) && !ids.Contains(RoleNames.Admin))
+				{
+					// add administrators role if host user role is not assigned
+					ids.Add(RoleNames.Admin);				
+				}
+			}
+			permission.Permissions = string.Join(";", ids.ToArray());
             _permissions[i] = permission;
         }
     }
