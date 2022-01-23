@@ -36,6 +36,7 @@ else
 				<th style="width: 1px;">&nbsp;</th>
 				<th style="width: 1px;">&nbsp;</th>
 				<th>@SharedLocalizer["Name"]</th>
+				<th>@SharedLocalizer["Username"]</th>
 				</Header>
 				<Row>
 					<td>
@@ -48,6 +49,7 @@ else
 						<ActionLink Action="Roles" Parameters="@($"id=" + context.UserId.ToString())" ResourceKey="Roles" />
 					</td>
 					<td>@context.User.DisplayName</td>
+					<td>@context.User.Username</td>
 				</Row>
 			</Pager>
 	</TabPanel>

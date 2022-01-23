@@ -53,12 +53,14 @@ else
                     <Pager Items="@userroles">
                         <Header>
                             <th>@Localizer["Users"]</th>
+                            <th>@SharedLocalizer["Username"]</th>
                             <th>@Localizer["Effective"]</th>
                             <th>@Localizer["Expiry"]</th>
                             <th>&nbsp;</th>
                         </Header>
                         <Row>
                             <td>@context.User.DisplayName</td>
+                            <td>@context.User.Username</td>
                             <td>@context.EffectiveDate</td>
                             <td>@context.ExpiryDate</td>
                             <td>
