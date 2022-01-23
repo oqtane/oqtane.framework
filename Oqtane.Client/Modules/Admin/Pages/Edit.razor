@@ -384,21 +384,24 @@
     private void ThemeSettings()
     {
         _themeSettingsType = null;
-        var theme = _themeList.FirstOrDefault(item => item.Themes.Any(themecontrol => themecontrol.TypeName.Equals(_themetype)));
-        if (theme != null && !string.IsNullOrEmpty(theme.ThemeSettingsType))
-        {
-            _themeSettingsType = Type.GetType(theme.ThemeSettingsType);
-            if (_themeSettingsType != null)
-            {
-                ThemeSettingsComponent = builder =>
-                {
-                    builder.OpenComponent(0, _themeSettingsType);
-                    builder.AddComponentReferenceCapture(1, inst => { _themeSettings = Convert.ChangeType(inst, _themeSettingsType); });
-                    builder.CloseComponent();
-                };
-            }
-            _refresh = true;
-        }
+		if (PageState.QueryString.ContainsKey("cp")) // can only be displayed if invoked from Control Panel
+		{
+			var theme = _themeList.FirstOrDefault(item => item.Themes.Any(themecontrol => themecontrol.TypeName.Equals(_themetype)));
+			if (theme != null && !string.IsNullOrEmpty(theme.ThemeSettingsType))
+			{
+				_themeSettingsType = Type.GetType(theme.ThemeSettingsType);
+				if (_themeSettingsType != null)
+				{
+					ThemeSettingsComponent = builder =>
+					{
+						builder.OpenComponent(0, _themeSettingsType);
+						builder.AddComponentReferenceCapture(1, inst => { _themeSettings = Convert.ChangeType(inst, _themeSettingsType); });
+						builder.CloseComponent();
+					};
+				}
+				_refresh = true;
+			}
+		}
     }
 
     private async Task SavePage()

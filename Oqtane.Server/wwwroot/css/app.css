@@ -126,6 +126,10 @@ app {
     margin-bottom: 15px;
 }
 
+.app-moduletitle a {
+    scroll-margin-top: 7rem;
+}
+
 /* Tooltips */
 .app-tooltip {
     cursor: help;

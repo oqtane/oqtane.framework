@@ -125,15 +125,18 @@ namespace Oqtane.Repository
                 foreach (Type containertype in containertypes)
                 {
                     var containerobject = Activator.CreateInstance(containertype) as IThemeControl;
-                    theme.Containers.Add(
-                        new ThemeControl
-                        {
-                            TypeName = containertype.FullName + ", " + themeControlType.Assembly.GetName().Name,
-                            Name = (string.IsNullOrEmpty(containerobject.Name)) ? Utilities.GetTypeNameLastSegment(containertype.FullName, 0) : containerobject.Name,
-                            Thumbnail = containerobject.Thumbnail,
-                            Panes = ""
-                        }
-                    );
+                    if (theme.Containers.FirstOrDefault(item => item.TypeName == containertype.FullName + ", " + themeControlType.Assembly.GetName().Name) == null)
+                    {
+                        theme.Containers.Add(
+                            new ThemeControl
+                            {
+                                TypeName = containertype.FullName + ", " + themeControlType.Assembly.GetName().Name,
+                                Name = (string.IsNullOrEmpty(containerobject.Name)) ? Utilities.GetTypeNameLastSegment(containertype.FullName, 0) : containerobject.Name,
+                                Thumbnail = containerobject.Thumbnail,
+                                Panes = ""
+                            }
+                        );
+                    }
                 }
 
                 themes[index] = theme;

@@ -52,6 +52,7 @@ namespace Oqtane.Pages
             _settings = settings;
         }
 
+        public string Language = "en";
         public string AntiForgeryToken = "";
         public string Runtime = "Server";
         public RenderMode RenderMode = RenderMode.Server;
@@ -174,19 +175,29 @@ namespace Oqtane.Pages
                     }
 
                     // set culture if not specified
-                    if (HttpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName] == null)
+                    string culture = HttpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName];
+                    if (culture == null)
                     {
-                        // set default language for site if the culture is not supported
+                        // get default language for site
                         var languages = _languages.GetLanguages(alias.SiteId);
-                        if (languages.Any() && languages.All(l => l.Code != CultureInfo.CurrentUICulture.Name))
+                        if (languages.Any())
                         {
-                            var defaultLanguage = languages.Where(l => l.IsDefault).SingleOrDefault() ?? languages.First();
-                            SetLocalizationCookie(defaultLanguage.Code);
+                            // use default language if specified otherwise use first language in collection
+                            culture = (languages.Where(l => l.IsDefault).SingleOrDefault() ?? languages.First()).Code;
                         }
                         else
                         {
-                            SetLocalizationCookie(_localizationManager.GetDefaultCulture());
+                            culture = _localizationManager.GetDefaultCulture();
                         }
+                        SetLocalizationCookie(culture);
+                    }
+
+                    // set language for page 
+                    if (!string.IsNullOrEmpty(culture))
+                    {
+                        // localization cookie value in form of c=en|uic=en
+                        Language = culture.Split('|')[0];
+                        Language = Language.Replace("c=", "");
                     }
                 }
             }

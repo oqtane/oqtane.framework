@@ -3,7 +3,9 @@
 @attribute [OqtaneIgnore]
 
 <span class="app-moduletitle">
-    @((MarkupString)title)
+	<a id="@ModuleState.PageModuleId.ToString()">
+		@((MarkupString)title)
+	</a>
 </span>
 
 @code {
