@@ -70,7 +70,7 @@ else
 					</div>
 				</div>
 				<div class="row mb-1 align-items-center">
-					<Label Class="col-sm-3" For="filter" HelpText="Comma delimited list of terms which may exist in IP addresses, user agents, or languages which identify visitors which should not be tracked (ie. bots)" ResourceKey="Filter">Filter: </Label>
+					<Label Class="col-sm-3" For="filter" HelpText="Comma delimited list of terms which may exist in IP addresses, user agents, or languages identifying visitors which should not be tracked" ResourceKey="Filter">Filter: </Label>
 					<div class="col-sm-9">
 						<textarea id="filter" class="form-control" @bind="@_filter" rows="3"></textarea>
 					</div>
@@ -117,8 +117,9 @@ else
 		await GetVisitors();
 
 		_tracking = PageState.Site.VisitorTracking.ToString();
-		_filter = SettingService.GetSetting(PageState.Site.Settings, "VisitorFilter", "");
-		_retention = SettingService.GetSetting(PageState.Site.Settings, "VisitorRetention", "30");
+		var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+		_filter = SettingService.GetSetting(settings, "VisitorFilter", Constants.DefaultVisitorFilter);
+		_retention = SettingService.GetSetting(settings, "VisitorRetention", "30");
 	}
 
 	private async void TypeChanged(ChangeEventArgs e)

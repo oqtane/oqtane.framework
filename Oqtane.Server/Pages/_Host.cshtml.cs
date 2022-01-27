@@ -5,7 +5,6 @@ using Oqtane.Modules;
 using Oqtane.Models;
 using Oqtane.Themes;
 using System;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Oqtane.Repository;
@@ -20,6 +19,7 @@ using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using System.Net;
 using Microsoft.Extensions.Primitives;
+using Oqtane.Enums;
 
 namespace Oqtane.Pages
 {
@@ -36,8 +36,9 @@ namespace Oqtane.Pages
         private readonly IVisitorRepository _visitors;
         private readonly IAliasRepository _aliases;
         private readonly ISettingRepository _settings;
+        private readonly ILogManager _logger;
 
-        public HostModel(IConfiguration configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, ISiteRepository sites, IPageRepository pages, IUrlMappingRepository urlMappings, IVisitorRepository visitors, IAliasRepository aliases, ISettingRepository settings)
+        public HostModel(IConfiguration configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, ISiteRepository sites, IPageRepository pages, IUrlMappingRepository urlMappings, IVisitorRepository visitors, IAliasRepository aliases, ISettingRepository settings, ILogManager logger)
         {
             _configuration = configuration;
             _tenantManager = tenantManager;
@@ -50,6 +51,7 @@ namespace Oqtane.Pages
             _visitors = visitors;
             _aliases = aliases;
             _settings = settings;
+            _logger = logger;
         }
 
         public string Language = "en";
@@ -206,85 +208,94 @@ namespace Oqtane.Pages
 
         private void TrackVisitor(int SiteId)
         {
-            // get request attributes
-            string useragent = (Request.Headers[HeaderNames.UserAgent] != StringValues.Empty) ? Request.Headers[HeaderNames.UserAgent] : "(none)";
-            string language = (Request.Headers[HeaderNames.AcceptLanguage] != StringValues.Empty) ? Request.Headers[HeaderNames.AcceptLanguage] : "";
-            language = (language.Contains(",")) ? language.Substring(0, language.IndexOf(",")) : language;
-            language = (language.Contains(";")) ? language.Substring(0, language.IndexOf(";")) : language;
-            language = (language.Trim().Length == 0) ? "??" : language;
-
-            // filter
-            var filter = _settings.GetSetting(EntityNames.Site, SiteId, "VisitorFilter");
-            if (filter != null && !string.IsNullOrEmpty(filter.SettingValue))
+            try
             {
-                foreach (string term in filter.SettingValue.ToLower().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray())
+                // get request attributes
+                string useragent = (Request.Headers[HeaderNames.UserAgent] != StringValues.Empty) ? Request.Headers[HeaderNames.UserAgent] : "(none)";
+                string language = (Request.Headers[HeaderNames.AcceptLanguage] != StringValues.Empty) ? Request.Headers[HeaderNames.AcceptLanguage] : "";
+                language = (language.Contains(",")) ? language.Substring(0, language.IndexOf(",")) : language;
+                language = (language.Contains(";")) ? language.Substring(0, language.IndexOf(";")) : language;
+                language = (language.Trim().Length == 0) ? "??" : language;
+
+                // filter
+                string filter = Constants.DefaultVisitorFilter;
+                var setting = _settings.GetSetting(EntityNames.Site, SiteId, "VisitorFilter");
+                if (setting != null)
+                {
+                    filter = setting.SettingValue;
+                }
+                foreach (string term in filter.ToLower().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray())
                 {
                     if (RemoteIPAddress.ToLower().Contains(term) || useragent.ToLower().Contains(term) || language.ToLower().Contains(term))
                     {
                         return;
                     }
                 }
-            }
 
-            string url = Request.GetEncodedUrl();
-            string referrer = (Request.Headers[HeaderNames.Referer] != StringValues.Empty) ? Request.Headers[HeaderNames.Referer] : "";
-            int? userid = null;
-            if (User.HasClaim(item => item.Type == ClaimTypes.PrimarySid))
-            {
-                userid = int.Parse(User.Claims.First(item => item.Type == ClaimTypes.PrimarySid).Value);
-            }
-
-            var VisitorCookie = "APP_VISITOR_" + SiteId.ToString();
-            if (!int.TryParse(Request.Cookies[VisitorCookie], out VisitorId))
-            {
-                var visitor = new Visitor();
-                visitor.SiteId = SiteId;
-                visitor.IPAddress = RemoteIPAddress;
-                visitor.UserAgent = useragent;
-                visitor.Language = language;
-                visitor.Url = url;
-                visitor.Referrer = referrer;
-                visitor.UserId = userid;
-                visitor.Visits = 1;
-                visitor.CreatedOn = DateTime.UtcNow;
-                visitor.VisitedOn = DateTime.UtcNow;
-                visitor = _visitors.AddVisitor(visitor);
-
-                Response.Cookies.Append(
-                    VisitorCookie,
-                    visitor.VisitorId.ToString(),
-                    new CookieOptions()
-                    {
-                        Expires = DateTimeOffset.UtcNow.AddYears(1),
-                        IsEssential = true
-                    }
-                );
-            }
-            else
-            {
-                var visitor = _visitors.GetVisitor(VisitorId);
-                if (visitor != null)
+                string url = Request.GetEncodedUrl();
+                string referrer = (Request.Headers[HeaderNames.Referer] != StringValues.Empty) ? Request.Headers[HeaderNames.Referer] : "";
+                int? userid = null;
+                if (User.HasClaim(item => item.Type == ClaimTypes.PrimarySid))
                 {
+                    userid = int.Parse(User.Claims.First(item => item.Type == ClaimTypes.PrimarySid).Value);
+                }
+
+                var VisitorCookie = "APP_VISITOR_" + SiteId.ToString();
+                if (!int.TryParse(Request.Cookies[VisitorCookie], out VisitorId))
+                {
+                    var visitor = new Visitor();
+                    visitor.SiteId = SiteId;
                     visitor.IPAddress = RemoteIPAddress;
                     visitor.UserAgent = useragent;
                     visitor.Language = language;
                     visitor.Url = url;
-                    if (!string.IsNullOrEmpty(referrer))
-                    {
-                        visitor.Referrer = referrer;
-                    }
-                    if (userid != null)
-                    {
-                        visitor.UserId = userid;
-                    }
-                    visitor.Visits += 1;
+                    visitor.Referrer = referrer;
+                    visitor.UserId = userid;
+                    visitor.Visits = 1;
+                    visitor.CreatedOn = DateTime.UtcNow;
                     visitor.VisitedOn = DateTime.UtcNow;
-                    _visitors.UpdateVisitor(visitor);
+                    visitor = _visitors.AddVisitor(visitor);
+
+                    Response.Cookies.Append(
+                        VisitorCookie,
+                        visitor.VisitorId.ToString(),
+                        new CookieOptions()
+                        {
+                            Expires = DateTimeOffset.UtcNow.AddYears(1),
+                            IsEssential = true
+                        }
+                    );
                 }
                 else
                 {
-                    Response.Cookies.Delete(VisitorCookie);
+                    var visitor = _visitors.GetVisitor(VisitorId);
+                    if (visitor != null)
+                    {
+                        visitor.IPAddress = RemoteIPAddress;
+                        visitor.UserAgent = useragent;
+                        visitor.Language = language;
+                        visitor.Url = url;
+                        if (!string.IsNullOrEmpty(referrer))
+                        {
+                            visitor.Referrer = referrer;
+                        }
+                        if (userid != null)
+                        {
+                            visitor.UserId = userid;
+                        }
+                        visitor.Visits += 1;
+                        visitor.VisitedOn = DateTime.UtcNow;
+                        _visitors.UpdateVisitor(visitor);
+                    }
+                    else
+                    {
+                        Response.Cookies.Delete(VisitorCookie);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Other, "Error Tracking Visitor {Error}", ex.Message);
             }
         }
 
