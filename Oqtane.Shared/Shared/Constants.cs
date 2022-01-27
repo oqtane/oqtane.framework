@@ -83,5 +83,7 @@ namespace Oqtane.Shared {
         public static readonly string RequestVerificationToken = "__RequestVerificationToken";
         public static readonly string AntiForgeryTokenHeaderName = "X-XSRF-TOKEN-HEADER";
         public static readonly string AntiForgeryTokenCookieName = "X-XSRF-TOKEN-COOKIE";
+
+        public static readonly string DefaultVisitorFilter = "bot,crawler,slurp,spider,(none),??";
     }
 }

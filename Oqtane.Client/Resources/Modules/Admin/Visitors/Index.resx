@@ -175,7 +175,7 @@
     <value>Details</value>
   </data>
   <data name="Filter.HelpText" xml:space="preserve">
-    <value>Comma delimited list of terms which may exist in IP addresses, user agents, or languages which identify visitors which should not be tracked (ie. bots)</value>
+    <value>Comma delimited list of terms which may exist in IP addresses, user agents, or languages identifying visitors which should not be tracked</value>
   </data>
   <data name="Filter.Text" xml:space="preserve">
     <value>Filter:</value>
