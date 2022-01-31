@@ -16,6 +16,8 @@
     <RepositoryType>Git</RepositoryType>
     <RootNamespace>Oqtane</RootNamespace>
     <IsPackable>true</IsPackable>
+    <DefineConstants>$(DefineConstants);OQTANE;OQTANE3;OQTANE3_0_OR_GREATER </DefineConstants>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="wwwroot\Modules\Templates\**" />
