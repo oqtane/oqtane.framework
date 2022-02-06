@@ -14,18 +14,18 @@ namespace Oqtane.Infrastructure
     public class LogManager : ILogManager
     {
         private readonly ILogRepository _logs;
-        private readonly IConfigurationRoot _config;
+        private readonly ITenantManager _tenantManager;
+        private readonly IConfigManager _config;
         private readonly IUserPermissions _userPermissions;
         private readonly IHttpContextAccessor _accessor;
-        private readonly Alias _alias;
 
-        public LogManager(ILogRepository logs, ITenantManager tenantManager, IConfigurationRoot config, IUserPermissions userPermissions, IHttpContextAccessor accessor)
+        public LogManager(ILogRepository logs, ITenantManager tenantManager, IConfigManager config, IUserPermissions userPermissions, IHttpContextAccessor accessor)
         {
             _logs = logs;
+            _tenantManager = tenantManager;
             _config = config;
             _userPermissions = userPermissions;
             _accessor = accessor;
-            _alias = tenantManager.GetAlias();
         }
 
         public void Log(LogLevel level, object @class, LogFunction function, string message, params object[] args)
@@ -48,9 +48,13 @@ namespace Oqtane.Infrastructure
             Log log = new Log();
 
             log.SiteId = siteId;
-            if (log.SiteId == -1 && _alias != null)
+            if (log.SiteId == -1)
             {
-                log.SiteId = _alias.SiteId;
+                var alias = _tenantManager.GetAlias();
+                if (alias != null)
+                {
+                    log.SiteId = alias.SiteId;
+                }
             }
             if (log.SiteId == -1) return; // logs must be site specific
 

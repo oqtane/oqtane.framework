@@ -17,18 +17,17 @@ using Oqtane.Infrastructure;
 using Oqtane.Modules;
 using Oqtane.Repository;
 using Oqtane.Security;
-using Oqtane.Services;
 using Oqtane.Shared;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class OqtaneServiceCollectionExtensions
     {
-        public static IServiceCollection AddOqtane(this IServiceCollection services, Runtime runtime, string[] supportedCultures)
+        public static IServiceCollection AddOqtane(this IServiceCollection services, string[] supportedCultures)
         {
             LoadAssemblies();
             LoadSatelliteAssemblies(supportedCultures);
-            services.AddOqtaneServices(runtime);
+            services.AddOqtaneServices();
 
             return services;
         }
@@ -190,7 +189,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        private static IServiceCollection AddOqtaneServices(this IServiceCollection services, Runtime runtime)
+        private static IServiceCollection AddOqtaneServices(this IServiceCollection services)
         {
             if (services is null)
             {
@@ -228,14 +227,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 foreach (var startup in startUps)
                 {
                     startup.ConfigureServices(services);
-                }
-
-                if (runtime == Runtime.Server)
-                {
-                    // register client startup services if running on server
-                    assembly.GetInstances<IClientStartup>()
-                        .ToList()
-                        .ForEach(x => x.ConfigureServices(services));
                 }
             }
             return services;

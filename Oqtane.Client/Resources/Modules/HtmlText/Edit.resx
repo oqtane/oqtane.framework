@@ -117,10 +117,52 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Confirm.Delete" xml:space="preserve">
+    <value>Are You Sure You Wish To Delete The {0} Version?</value>
+  </data>
+  <data name="Confirm.Restore" xml:space="preserve">
+    <value>Are You Sure You Wish To Restore The {0} Version?</value>
+  </data>
+  <data name="CreatedBy" xml:space="preserve">
+    <value>Created By</value>
+  </data>
+  <data name="CreatedOn" xml:space="preserve">
+    <value>Created On</value>
+  </data>
+  <data name="Delete.Header" xml:space="preserve">
+    <value>Delete Version</value>
+  </data>
+  <data name="Delete.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Error.Content.Delete" xml:space="preserve">
+    <value>Error Deleting Version</value>
+  </data>
   <data name="Error.Content.Load" xml:space="preserve">
     <value>An Error Occurred Loading Content</value>
   </data>
+  <data name="Error.Content.Restore" xml:space="preserve">
+    <value>Error Restoring Version</value>
+  </data>
   <data name="Error.Content.Save" xml:space="preserve">
     <value>An Error Occurred Saving Content</value>
+  </data>
+  <data name="Error.Content.View" xml:space="preserve">
+    <value>Error Viewing Version</value>
+  </data>
+  <data name="Message.Content.Deleted" xml:space="preserve">
+    <value>Version Deleted</value>
+  </data>
+  <data name="Message.Content.Restored" xml:space="preserve">
+    <value>Version Restored</value>
+  </data>
+  <data name="Restore.Header" xml:space="preserve">
+    <value>Restore Version</value>
+  </data>
+  <data name="Restore.Text" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="View.Text" xml:space="preserve">
+    <value>View</value>
   </data>
 </root>

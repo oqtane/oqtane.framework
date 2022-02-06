@@ -264,4 +264,10 @@
   <data name="Clickable.Text" xml:space="preserve">
     <value>Clickable?</value>
   </data>
+  <data name="Meta.HelpText" xml:space="preserve">
+    <value>Optionally enter meta tags (in exactly the form you want them to be included in the page output).</value>
+  </data>
+  <data name="Meta.Text" xml:space="preserve">
+    <value>Meta:</value>
+  </data>
 </root>
