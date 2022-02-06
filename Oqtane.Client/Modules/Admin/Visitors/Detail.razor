@@ -70,7 +70,7 @@
 	</div>
 }
 
-<NavLink class="btn btn-secondary" href="@NavigateUrl(PageState.Page.Path, "type=" + PageState.QueryString["type"] + "&days=" + PageState.QueryString["days"] + "&page=" + PageState.QueryString["page"])">@SharedLocalizer["Cancel"]</NavLink>
+<NavLink class="btn btn-secondary" href="@CloseUrl()">@SharedLocalizer["Cancel"]</NavLink>
 
 @code {
 	private bool _initialized = false;
@@ -123,6 +123,18 @@
 		{
 			await logger.LogError(ex, "Error Loading Visitor {VisitorId} {Error}", _visitorId, ex.Message);
 			AddModuleMessage(Localizer["Error.LoadVisitor"], MessageType.Error);
+		}
+	}
+
+	private string CloseUrl()
+	{
+		if (!PageState.QueryString.ContainsKey("type"))
+		{
+			return NavigateUrl();
+		}
+		else
+		{
+			return NavigateUrl(PageState.Page.Path, "type=" + PageState.QueryString["type"] + "&days=" + PageState.QueryString["days"] + "&page=" + PageState.QueryString["page"]);
 		}
 	}
 }

@@ -25,7 +25,7 @@ namespace Oqtane.Pages
 {
     public class HostModel : PageModel
     {
-        private IConfiguration _configuration;
+        private IConfigManager _configuration;
         private readonly ITenantManager _tenantManager;
         private readonly ILocalizationManager _localizationManager;
         private readonly ILanguageRepository _languages;
@@ -38,7 +38,7 @@ namespace Oqtane.Pages
         private readonly ISettingRepository _settings;
         private readonly ILogManager _logger;
 
-        public HostModel(IConfiguration configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, ISiteRepository sites, IPageRepository pages, IUrlMappingRepository urlMappings, IVisitorRepository visitors, IAliasRepository aliases, ISettingRepository settings, ILogManager logger)
+        public HostModel(IConfigManager configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, ISiteRepository sites, IPageRepository pages, IUrlMappingRepository urlMappings, IVisitorRepository visitors, IAliasRepository aliases, ISettingRepository settings, ILogManager logger)
         {
             _configuration = configuration;
             _tenantManager = tenantManager;
@@ -63,9 +63,11 @@ namespace Oqtane.Pages
         public string HeadResources = "";
         public string BodyResources = "";
         public string Title = "";
+        public string Meta = "";
         public string FavIcon = "favicon.ico";
         public string PWAScript = "";
         public string ThemeType = "";
+        public string Message = "";
 
         public IActionResult OnGet()
         {
@@ -83,7 +85,7 @@ namespace Oqtane.Pages
             }
 
             // if framework is installed 
-            if (!string.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
+            if (_configuration.IsInstalled())
             {
                 var alias = _tenantManager.GetAlias();
                 if (alias != null)
@@ -108,7 +110,7 @@ namespace Oqtane.Pages
                     }
 
                     var site = _sites.GetSite(alias.SiteId);
-                    if (site != null)
+                    if (site != null && !site.IsDeleted)
                     {
                         Route route = new Route(url, alias.Path);
 
@@ -148,6 +150,7 @@ namespace Oqtane.Pages
                             {
                                 Title = Title + " - " + page.Name;
                             }
+                            Meta = page.Meta;
 
                             // include theme resources
                             if (!string.IsNullOrEmpty(page.ThemeType))
@@ -165,42 +168,50 @@ namespace Oqtane.Pages
                                 return RedirectPermanent(url);
                             }
                         }
-                    }
 
-                    // include global resources
-                    var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
-                    foreach (Assembly assembly in assemblies)
-                    {
-                        ProcessHostResources(assembly);
-                        ProcessModuleControls(assembly);
-                        ProcessThemeControls(assembly);
-                    }
-
-                    // set culture if not specified
-                    string culture = HttpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName];
-                    if (culture == null)
-                    {
-                        // get default language for site
-                        var languages = _languages.GetLanguages(alias.SiteId);
-                        if (languages.Any())
+                        // include global resources
+                        var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
+                        foreach (Assembly assembly in assemblies)
                         {
-                            // use default language if specified otherwise use first language in collection
-                            culture = (languages.Where(l => l.IsDefault).SingleOrDefault() ?? languages.First()).Code;
+                            ProcessHostResources(assembly);
+                            ProcessModuleControls(assembly);
+                            ProcessThemeControls(assembly);
                         }
-                        else
-                        {
-                            culture = _localizationManager.GetDefaultCulture();
-                        }
-                        SetLocalizationCookie(culture);
-                    }
 
-                    // set language for page 
-                    if (!string.IsNullOrEmpty(culture))
-                    {
-                        // localization cookie value in form of c=en|uic=en
-                        Language = culture.Split('|')[0];
-                        Language = Language.Replace("c=", "");
+                        // set culture if not specified
+                        string culture = HttpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName];
+                        if (culture == null)
+                        {
+                            // get default language for site
+                            var languages = _languages.GetLanguages(alias.SiteId);
+                            if (languages.Any())
+                            {
+                                // use default language if specified otherwise use first language in collection
+                                culture = (languages.Where(l => l.IsDefault).SingleOrDefault() ?? languages.First()).Code;
+                            }
+                            else
+                            {
+                                culture = _localizationManager.GetDefaultCulture();
+                            }
+                            SetLocalizationCookie(culture);
+                        }
+
+                        // set language for page 
+                        if (!string.IsNullOrEmpty(culture))
+                        {
+                            // localization cookie value in form of c=en|uic=en
+                            Language = culture.Split('|')[0];
+                            Language = Language.Replace("c=", "");
+                        }
                     }
+                    else
+                    {
+                        Message = "Site Is Either Disabled Or Not Configured Correctly";
+                    }
+                }
+                else
+                {
+                    Message = "Site Not Configured Correctly - No Matching Alias Exists For Host Name";
                 }
             }
             return Page();

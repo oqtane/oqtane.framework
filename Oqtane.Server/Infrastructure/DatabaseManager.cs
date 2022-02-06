@@ -28,14 +28,14 @@ namespace Oqtane.Infrastructure
 {
     public class DatabaseManager : IDatabaseManager
     {
-        private readonly IConfigurationRoot _config;
+        private readonly IConfigManager _config;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IWebHostEnvironment _environment;
         private readonly IMemoryCache _cache;
         private readonly IConfigManager _configManager;
         private readonly ILogger<DatabaseManager> _filelogger;
 
-        public DatabaseManager(IConfigurationRoot config, IServiceScopeFactory serviceScopeFactory, IWebHostEnvironment environment, IMemoryCache cache, IConfigManager configManager, ILogger<DatabaseManager> filelogger)
+        public DatabaseManager(IConfigManager config, IServiceScopeFactory serviceScopeFactory, IWebHostEnvironment environment, IMemoryCache cache, IConfigManager configManager, ILogger<DatabaseManager> filelogger)
         {
             _config = config;
             _serviceScopeFactory = serviceScopeFactory;

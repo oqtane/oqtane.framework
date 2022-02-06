@@ -110,7 +110,7 @@
         </div>
     </div>
 }
-<NavLink class="btn btn-secondary" href="@NavigateUrl(PageState.Page.Path, "level=" + PageState.QueryString["level"] + "&function=" + PageState.QueryString["function"] + "&rows=" + PageState.QueryString["rows"] + "&page=" + PageState.QueryString["page"])">@SharedLocalizer["Cancel"]</NavLink>
+<NavLink class="btn btn-secondary" href="@CloseUrl()">@SharedLocalizer["Cancel"]</NavLink>
 
 @code {
 	private bool _initialized = false;
@@ -188,4 +188,16 @@
             AddModuleMessage(Localizer["Error.Log.Load"], MessageType.Error);
         }
     }
+
+	private string CloseUrl()
+	{
+		if (!PageState.QueryString.ContainsKey("level"))
+		{
+			return NavigateUrl();
+		}
+		else
+		{
+			return NavigateUrl(PageState.Page.Path, "level=" + PageState.QueryString["level"] + "&function=" + PageState.QueryString["function"] + "&rows=" + PageState.QueryString["rows"] + "&page=" + PageState.QueryString["page"]);
+		}
+	}
 }

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using Oqtane.Modules.HtmlText.Models;
 using Oqtane.Documentation;
+using System.Collections.Generic;
 
 namespace Oqtane.Modules.HtmlText.Repository
 {
@@ -15,11 +16,15 @@ namespace Oqtane.Modules.HtmlText.Repository
             _db = context;
         }
 
-        public Models.HtmlText GetHtmlText(int moduleId)
+        public IEnumerable<Models.HtmlText> GetHtmlTexts(int moduleId)
         {
-            return _db.HtmlText.FirstOrDefault(item => item.ModuleId == moduleId);
+            return _db.HtmlText.Where(item => item.ModuleId == moduleId);
         }
 
+        public Models.HtmlText GetHtmlText(int htmlTextId)
+        {
+            return _db.HtmlText.Find(htmlTextId);
+        }
 
         public Models.HtmlText AddHtmlText(Models.HtmlText htmlText)
         {
@@ -28,16 +33,9 @@ namespace Oqtane.Modules.HtmlText.Repository
             return htmlText;
         }
 
-        public Models.HtmlText UpdateHtmlText(Models.HtmlText htmlText)
+        public void DeleteHtmlText(int htmlTextId)
         {
-            _db.Entry(htmlText).State = EntityState.Modified;
-            _db.SaveChanges();
-            return htmlText;
-        }
-
-        public void DeleteHtmlText(int moduleId)
-        {
-            Models.HtmlText htmlText = _db.HtmlText.FirstOrDefault(item => item.ModuleId == moduleId);
+            Models.HtmlText htmlText = _db.HtmlText.FirstOrDefault(item => item.HtmlTextId == htmlTextId);
             if (htmlText != null) _db.HtmlText.Remove(htmlText);
             _db.SaveChanges();
         }
