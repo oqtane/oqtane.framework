@@ -128,6 +128,12 @@ namespace Oqtane.Infrastructure
                                 case "refs": // refs/net*/...
                                     filename = ExtractFile(entry, Path.Combine(binPath, "refs"), 2);
                                     break;
+                                case "content": // ...
+                                    filename = ExtractFile(entry, contentRootPath, 1);
+                                    break;
+                                case "contentFiles": // ...
+                                    filename = ExtractFile(entry, contentRootPath, 3);
+                                    break;
                             }
 
                             if (filename != "")
