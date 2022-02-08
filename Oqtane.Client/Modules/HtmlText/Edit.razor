@@ -9,95 +9,186 @@
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-@if (_content != null)
-{
-    <RichTextEditor Content="@_content" AllowFileManagement="@_allowfilemanagement" @ref="@RichTextEditorHtml"></RichTextEditor>
-    <button type="button" class="btn btn-success" @onclick="SaveContent">@SharedLocalizer["Save"]</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-    @if (!string.IsNullOrEmpty(_content))
-    {
-        <br />
-        <br />
-        <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
-    }
-}
+<TabStrip>
+    <TabPanel Name="Edit" Heading="Edit" ResourceKey="Edit">
+		@if (_content != null)
+		{
+			<RichTextEditor Content="@_content" AllowFileManagement="@_allowfilemanagement" @ref="@RichTextEditorHtml"></RichTextEditor>
+			<br />
+			<button type="button" class="btn btn-success" @onclick="SaveContent">@SharedLocalizer["Save"]</button>
+			<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+			@if (!string.IsNullOrEmpty(_content))
+			{
+				<br />
+				<br />
+				<AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
+			}
+		}
+	</TabPanel>
+    <TabPanel Name="Versions" Heading="Versions" ResourceKey="Versions">
+		<Pager Items="@_htmltexts">
+			<Header>
+				<th style="width: 1px;">&nbsp;</th>
+				<th style="width: 1px;">&nbsp;</th>
+				<th style="width: 1px;">&nbsp;</th>
+				<th>@SharedLocalizer["CreatedOn"]</th>
+				<th>@SharedLocalizer["CreatedBy"]</th>
+			</Header>
+			<Row>
+				<td><ActionLink Action="View" Security="SecurityAccessLevel.Edit" OnClick="@(async () => await View(context))" ResourceKey="View" /></td>
+				<td><ActionDialog Header="Restore Version" Message="@string.Format(Localizer["Confirm.Restore"], context.CreatedOn)" Action="Restore" Security="SecurityAccessLevel.Edit" Class="btn btn-success" OnClick="@(async () => await Restore(context))" ResourceKey="Restore" /></td>
+				<td><ActionDialog Header="Delete Version" Message="@string.Format(Localizer["Confirm.Delete"], context.CreatedOn)" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" ResourceKey="Delete" /></td>
+				<td>@context.CreatedOn</td>
+				<td>@context.CreatedBy</td>
+			</Row>
+		</Pager>
+		@((MarkupString)_view)
+	</TabPanel>
+</TabStrip>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
 
-    public override string Title => "Edit Html/Text";
+	public override string Title => "Edit Html/Text";
 
-    public override List<Resource> Resources => new List<Resource>()
-{
+	public override List<Resource> Resources => new List<Resource>()
+	{
         new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" },
         new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill.bubble.css" },
         new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill.snow.css" }
     };
 
-    private RichTextEditor RichTextEditorHtml;
-    private bool _allowfilemanagement;
-    private string _content = null;
-    private string _createdby;
-    private DateTime _createdon;
-    private string _modifiedby;
-    private DateTime _modifiedon;
+	private RichTextEditor RichTextEditorHtml;
+	private bool _allowfilemanagement;
+	private string _content = null;
+	private string _createdby;
+	private DateTime _createdon;
+	private string _modifiedby;
+	private DateTime _modifiedon;
+	private List<Models.HtmlText> _htmltexts;
+	private string _view = "";
 
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            _allowfilemanagement = bool.Parse(SettingService.GetSetting(ModuleState.Settings, "AllowFileManagement", "true"));
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			_allowfilemanagement = bool.Parse(SettingService.GetSetting(ModuleState.Settings, "AllowFileManagement", "true"));
+			await LoadContent();
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Loading Content {Error}", ex.Message);
+			AddModuleMessage(Localizer["Error.Content.Load"], MessageType.Error);
+		}
+	}
 
-            var htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId);
-            if (htmltext != null)
-            {
-                _content = htmltext.Content;
-                _content = Utilities.FormatContent(_content, PageState.Alias, "render");
-                _createdby = htmltext.CreatedBy;
-                _createdon = htmltext.CreatedOn;
-                _modifiedby = htmltext.ModifiedBy;
-                _modifiedon = htmltext.ModifiedOn;
-            }
-            else
-            {
-                _content = string.Empty;
-            }
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Loading Content {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error.Content.Load"], MessageType.Error);
-        }
-    }
+	private async Task LoadContent()
+	{
+		var htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId);
+		if (htmltext != null)
+		{
+			_content = htmltext.Content;
+			_content = Utilities.FormatContent(_content, PageState.Alias, "render");
+			_createdby = htmltext.CreatedBy;
+			_createdon = htmltext.CreatedOn;
+			_modifiedby = htmltext.ModifiedBy;
+			_modifiedon = htmltext.ModifiedOn;
+		}
+		else
+		{
+			_content = string.Empty;
+		}
 
-    private async Task SaveContent()
-    {
-        string content = await RichTextEditorHtml.GetHtml();
-        content = Utilities.FormatContent(content, PageState.Alias, "save");
+		_htmltexts = await HtmlTextService.GetHtmlTextsAsync(ModuleState.ModuleId);
+		_htmltexts = _htmltexts.OrderByDescending(item => item.CreatedOn).ToList();
 
-        try
-        {
-            var htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId);
-            if (htmltext != null)
-            {
-                htmltext.Content = content;
-                await HtmlTextService.UpdateHtmlTextAsync(htmltext);
-            }
-            else
-            {
-                htmltext = new HtmlText();
-                htmltext.ModuleId = ModuleState.ModuleId;
-                htmltext.Content = content;
-                await HtmlTextService.AddHtmlTextAsync(htmltext);
-            }
+		_view = "";
+	}
 
-            await logger.LogInformation("Content Saved {HtmlText}", htmltext);
-            NavigationManager.NavigateTo(NavigateUrl());
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Saving Content {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error.Content.Save"], MessageType.Error);
-        }
-    }
+	private async Task SaveContent()
+	{
+		string content = await RichTextEditorHtml.GetHtml();
+		content = Utilities.FormatContent(content, PageState.Alias, "save");
+
+		try
+		{
+			var htmltext = new HtmlText();
+			htmltext.ModuleId = ModuleState.ModuleId;
+			htmltext.Content = content;
+			await HtmlTextService.AddHtmlTextAsync(htmltext);
+
+			await logger.LogInformation("Content Saved {HtmlText}", htmltext);
+			NavigationManager.NavigateTo(NavigateUrl());
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Saving Content {Error}", ex.Message);
+			AddModuleMessage(Localizer["Error.Content.Save"], MessageType.Error);
+		}
+	}
+
+	private async Task View(Models.HtmlText htmltext)
+	{
+		try
+		{
+			htmltext = await HtmlTextService.GetHtmlTextAsync(htmltext.HtmlTextId, htmltext.ModuleId);
+			if (htmltext != null)
+			{
+				_view = htmltext.Content;
+				_view = Utilities.FormatContent(_view, PageState.Alias, "render");
+				StateHasChanged();
+			}		
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Viewing Content {Error}", ex.Message);
+			AddModuleMessage(Localizer["Error.Content.View"], MessageType.Error);
+		}
+	}
+
+	private async Task Restore(Models.HtmlText htmltext)
+	{
+		try
+		{
+			htmltext = await HtmlTextService.GetHtmlTextAsync(htmltext.HtmlTextId, ModuleState.ModuleId);
+			if (htmltext != null)
+			{
+				var content = htmltext.Content;
+				htmltext = new HtmlText();
+				htmltext.ModuleId = ModuleState.ModuleId;
+				htmltext.Content = content;
+				await HtmlTextService.AddHtmlTextAsync(htmltext);
+				await logger.LogInformation("Content Restored {HtmlText}", htmltext);
+				AddModuleMessage(Localizer["Message.Content.Restored"], MessageType.Success);
+				await LoadContent();
+				StateHasChanged();
+			}				
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Restoring Content {Error}", ex.Message);
+			AddModuleMessage(Localizer["Error.Content.Restore"], MessageType.Error);
+		}
+	}
+
+	private async Task Delete(Models.HtmlText htmltext)
+	{
+		try
+		{
+			htmltext = await HtmlTextService.GetHtmlTextAsync(htmltext.HtmlTextId, ModuleState.ModuleId);
+			if (htmltext != null)
+			{
+				await HtmlTextService.DeleteHtmlTextAsync(htmltext.HtmlTextId, htmltext.ModuleId);
+				await logger.LogInformation("Content Deleted {HtmlText}", htmltext);
+				AddModuleMessage(Localizer["Message.Content.Deleted"], MessageType.Success);
+				await LoadContent();
+				StateHasChanged();
+			}		
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Deleting Content {Error}", ex.Message);
+			AddModuleMessage(Localizer["Error.Content.Delete"], MessageType.Error);
+		}
+	}
 }

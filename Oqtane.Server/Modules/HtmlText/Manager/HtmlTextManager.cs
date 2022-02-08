@@ -43,19 +43,10 @@ namespace Oqtane.Modules.HtmlText.Manager
         public void ImportModule(Module module, string content, string version)
         {
             content = WebUtility.HtmlDecode(content);
-            var htmlText = _htmlText.GetHtmlText(module.ModuleId);
-            if (htmlText != null)
-            {
-                htmlText.Content = content;
-                _htmlText.UpdateHtmlText(htmlText);
-            }
-            else
-            {
-                htmlText = new Models.HtmlText();
-                htmlText.ModuleId = module.ModuleId;
-                htmlText.Content = content;
-                _htmlText.AddHtmlText(htmlText);
-            }
+            var htmlText = new Models.HtmlText();
+            htmlText.ModuleId = module.ModuleId;
+            htmlText.Content = content;
+            _htmlText.AddHtmlText(htmlText);
         }
 
         public bool Install(Tenant tenant, string version)

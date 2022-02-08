@@ -231,4 +231,10 @@
   <data name="Message.Page.Deleted" xml:space="preserve">
     <value>A page with path {0} already exists for the selected parent page in the Recycle Bin. Either recover the page or remove from the Recycle Bin and create it again.</value>
   </data>
+  <data name="Meta.HelpText" xml:space="preserve">
+    <value>Optionally enter meta tags (in exactly the form you want them to be included in the page output).</value>
+  </data>
+  <data name="Meta.Text" xml:space="preserve">
+    <value>Meta:</value>
+  </data>
 </root>

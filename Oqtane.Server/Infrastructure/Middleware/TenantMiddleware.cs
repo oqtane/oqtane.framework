@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 
 namespace Oqtane.Infrastructure
 {
@@ -16,8 +15,8 @@ namespace Oqtane.Infrastructure
         public async Task Invoke(HttpContext context)
         {
             // check if framework is installed
-            var config = context.RequestServices.GetService(typeof(IConfiguration)) as IConfiguration;
-            if (!string.IsNullOrEmpty(config.GetConnectionString("DefaultConnection")))
+            var config = context.RequestServices.GetService(typeof(IConfigManager)) as IConfigManager;
+            if (config.IsInstalled())
             {
                 // get alias
                 var tenantManager = context.RequestServices.GetService(typeof(ITenantManager)) as ITenantManager;

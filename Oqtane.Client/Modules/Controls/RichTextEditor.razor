@@ -71,11 +71,11 @@
                 </div>
                 @if (ReadOnly)
                 {
-                    <textarea class="form-control" placeholder="@Placeholder" @bind="@_content" rows="10" readonly></textarea>
+                    <textarea class="form-control" placeholder="@Placeholder" @bind="@_rawhtml" rows="10" readonly></textarea>
                 }
                 else
                 {
-                    <textarea class="form-control" placeholder="@Placeholder" @bind="@_content" rows="10"></textarea>
+                    <textarea class="form-control" placeholder="@Placeholder" @bind="@_rawhtml" rows="10"></textarea>
                 }
             </TabPanel>
         </TabStrip>
@@ -83,110 +83,121 @@
 </div>
 
 @code {
-    private ElementReference _editorElement;
-    private ElementReference _toolBar;
-    private bool _filemanagervisible = false;
-    private FileManager _fileManager;
-    private string _content = string.Empty;
-    private string _original = string.Empty;
-    private string _message = string.Empty;
+	private ElementReference _editorElement;
+	private ElementReference _toolBar;
+	private bool _filemanagervisible = false;
+	private FileManager _fileManager;
+	private string _richhtml = string.Empty;
+	private string _originalrichhtml = string.Empty;
+	private string _rawhtml = string.Empty;
+	private string _originalrawhtml = string.Empty;
+	private string _message = string.Empty;
 
-    [Parameter]
-    public string Content { get; set; }
+	[Parameter]
+	public string Content { get; set; }
 
-    [Parameter]
-    public bool ReadOnly { get; set; } = false;
+	[Parameter]
+	public bool ReadOnly { get; set; } = false;
 
-    [Parameter]
-    public string Placeholder { get; set; } = "Enter Your Content...";
+	[Parameter]
+	public string Placeholder { get; set; } = "Enter Your Content...";
 
-    // parameters only applicable to rich text editor
-    [Parameter]
-    public RenderFragment ToolbarContent { get; set; }
+	// parameters only applicable to rich text editor
+	[Parameter]
+	public RenderFragment ToolbarContent { get; set; }
 
-    [Parameter]
-    public string Theme { get; set; } = "snow";
+	[Parameter]
+	public string Theme { get; set; } = "snow";
 
-    [Parameter]
-    public string DebugLevel { get; set; } = "info";
+	[Parameter]
+	public string DebugLevel { get; set; } = "info";
 
-    [Parameter]
-    public bool AllowFileManagement { get; set; } = true;
+	[Parameter]
+	public bool AllowFileManagement { get; set; } = true;
 
-    public override List<Resource> Resources => new List<Resource>()
+	public override List<Resource> Resources => new List<Resource>()
     {
         new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill.min.js" },
         new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-blot-formatter.min.js" },
         new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-interop.js" }
     };
 
-    protected override async Task OnParametersSetAsync()
-    {
-        _content = Content; // raw HTML
-        await RefreshRichText();
-    }
+	protected override void OnParametersSet()
+	{
+		_richhtml = Content;
+		_rawhtml = Content;
+		_originalrawhtml = _rawhtml; // preserve for comparison later
+	}
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		await base.OnAfterRenderAsync(firstRender);
+
+		var interop = new RichTextEditorInterop(JSRuntime);
+
+		if (firstRender)
+		{
+			await interop.CreateEditor(
+				_editorElement,
+				_toolBar,
+				ReadOnly,
+				Placeholder,
+				Theme,
+				DebugLevel);
+
+			await interop.LoadEditorContent(_editorElement, _richhtml);
+
+			// preserve a copy of the rich text content (Quill sanitizes content so we need to retrieve it from the editor)
+			_originalrichhtml = await interop.GetHtml(_editorElement);
+		}
+		else
+		{
+			await interop.LoadEditorContent(_editorElement, _richhtml);	
+		}
+	}
+
+	public void CloseFileManager()
+	{
+		_filemanagervisible = false;
+		_message = string.Empty;
+		StateHasChanged();
+	}
+
+	public void RefreshRichText()
+	{
+		_richhtml = _rawhtml;
+		StateHasChanged();
+	}
+
+	public async Task RefreshRawHtml()
+	{
+		var interop = new RichTextEditorInterop(JSRuntime);
+		_rawhtml = await interop.GetHtml(_editorElement);
+		StateHasChanged();
+	}
+
+	public async Task<string> GetHtml()
+	{
+		// evaluate raw html content as first priority
+		if (_rawhtml != _originalrawhtml)
+		{
+			return _rawhtml;
+		}
+		else
+		{
+			// return rich text content if it has changed
 			var interop = new RichTextEditorInterop(JSRuntime);
-
-            await base.OnAfterRenderAsync(firstRender);
-
-            await interop.CreateEditor(
-                _editorElement,
-                _toolBar,
-                ReadOnly,
-                Placeholder,
-                Theme,
-                DebugLevel);
-
-            await interop.LoadEditorContent(_editorElement, Content);
-
-            _content = Content; // raw HTML
-
-            // preserve a copy of the rich text content ( Quill sanitizes content so we need to retrieve it from the editor )
-            _original = await interop.GetHtml(_editorElement);
-        }
-    }
-
-    public void CloseFileManager()
-    {
-        _filemanagervisible = false;
-        _message = string.Empty;
-        StateHasChanged();
-    }
-
-    public async Task RefreshRichText()
-    {
-        var interop = new RichTextEditorInterop(JSRuntime);
-        await interop.LoadEditorContent(_editorElement, _content);
-    }
-
-    public async Task RefreshRawHtml()
-    {
-        var interop = new RichTextEditorInterop(JSRuntime);
-        _content = await interop.GetHtml(_editorElement);
-        StateHasChanged();
-    }
-
-    public async Task<string> GetHtml()
-    {
-        // get rich text content
-        var interop = new RichTextEditorInterop(JSRuntime);
-        string content = await interop.GetHtml(_editorElement);
-
-        if (_original != content)
-        {
-            // rich text content has changed - return it
-            return content;
-        }
-        else
-        {
-            // return raw html content
-            return _content;
-        }
+			var richhtml = await interop.GetHtml(_editorElement);
+			if (richhtml != _originalrichhtml)
+			{
+				return richhtml;
+			}
+			else
+			{
+				// return original raw html content
+				return _originalrawhtml;
+			}
+		}
     }
 
     public async Task InsertImage()
@@ -211,24 +222,5 @@
             _filemanagervisible = true;
         }
         StateHasChanged();
-    }
-
-    // other rich text editor methods which can be used by developers
-    public async Task<string> GetText()
-    {
-        var interop = new RichTextEditorInterop(JSRuntime);
-        return await interop.GetText(_editorElement);
-    }
-
-    public async Task<string> GetContent()
-    {
-        var interop = new RichTextEditorInterop(JSRuntime);
-        return await interop.GetContent(_editorElement);
-    }
-
-    public async Task EnableEditor(bool mode)
-    {
-        var interop = new RichTextEditorInterop(JSRuntime);
-        await interop.EnableEditor(_editorElement, mode);
     }
 }

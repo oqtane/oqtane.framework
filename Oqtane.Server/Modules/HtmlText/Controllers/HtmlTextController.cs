@@ -8,6 +8,8 @@ using Oqtane.Infrastructure;
 using Oqtane.Controllers;
 using System.Net;
 using Oqtane.Documentation;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Oqtane.Modules.HtmlText.Controllers
 {
@@ -22,18 +24,60 @@ namespace Oqtane.Modules.HtmlText.Controllers
             _htmlText = htmlText;
         }
 
-        // GET api/<controller>/5
-        [HttpGet("{id}")]
-        [Authorize(Policy = PolicyNames.ViewModule)]
-        public Models.HtmlText Get(int id)
+        // GET: api/<controller>?moduleid=x
+        [HttpGet]
+        [Authorize(Roles = RoleNames.Registered)]
+        public IEnumerable<Models.HtmlText> Get(string moduleId)
         {
-            if (AuthEntityId(EntityNames.Module) == id)
+            if (int.TryParse(moduleId, out int ModuleId) && AuthEntityId(EntityNames.Module) == ModuleId)
+            {
+                return _htmlText.GetHtmlTexts(ModuleId);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Html/Text Get Attempt {ModuleId}", moduleId);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return null;
+            }
+        }
+
+        // GET api/<controller>/5
+        [HttpGet("{moduleid}")]
+        [Authorize(Policy = PolicyNames.ViewModule)]
+        public Models.HtmlText Get(int moduleId)
+        {
+            if (AuthEntityId(EntityNames.Module) == moduleId)
+            {
+                var htmltexts = _htmlText.GetHtmlTexts(moduleId);
+                if (htmltexts != null && htmltexts.Any())
+                {
+                    return htmltexts.OrderByDescending(item => item.CreatedOn).First();
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Html/Text Get Attempt {ModuleId}", moduleId);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return null;
+            }
+        }
+
+        // GET api/<controller>/5/6
+        [HttpGet("{id}/{moduleid}")]
+        [Authorize(Policy = PolicyNames.ViewModule)]
+        public Models.HtmlText Get(int id, int moduleId)
+        {
+            if (AuthEntityId(EntityNames.Module) == moduleId)
             {
                 return _htmlText.GetHtmlText(id);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized HtmlText Get Attempt {ModuleId}", id);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Html/Text Get Attempt {HtmlTextId}", id);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
@@ -53,27 +97,7 @@ namespace Oqtane.Modules.HtmlText.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized HtmlText Post Attempt {HtmlText}", htmlText);
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                return null;
-            }
-        }
-
-        // PUT api/<controller>/5
-        [ValidateAntiForgeryToken]
-        [HttpPut("{id}")]
-        [Authorize(Policy = PolicyNames.EditModule)]
-        public Models.HtmlText Put(int id, [FromBody] Models.HtmlText htmlText)
-        {
-            if (ModelState.IsValid && AuthEntityId(EntityNames.Module) == htmlText.ModuleId)
-            {
-                htmlText = _htmlText.UpdateHtmlText(htmlText);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Html/Text Updated {HtmlText}", htmlText);
-                return htmlText;
-            }
-            else
-            {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized HtmlText Put Attempt {HtmlText}", htmlText);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Html/Text Post Attempt {HtmlText}", htmlText);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
@@ -81,18 +105,18 @@ namespace Oqtane.Modules.HtmlText.Controllers
 
         // DELETE api/<controller>/5
         [ValidateAntiForgeryToken]
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}/{moduleid}")]
         [Authorize(Policy = PolicyNames.EditModule)]
-        public void Delete(int id)
+        public void Delete(int id, int moduleId)
         {
-            if (AuthEntityId(EntityNames.Module) == id)
+            if (AuthEntityId(EntityNames.Module) == moduleId)
             {
                 _htmlText.DeleteHtmlText(id);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Html/Text Deleted {HtmlTextId}", id);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized HtmlText Delete Attempt {ModuleId}", id);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Html/Text Delete Attempt {HtmlTextId}", id);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
