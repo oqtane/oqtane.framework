@@ -87,9 +87,10 @@
 	private ElementReference _toolBar;
 	private bool _filemanagervisible = false;
 	private FileManager _fileManager;
-	private string _rawhtml = string.Empty;
 	private string _richhtml = string.Empty;
-	private string _original = string.Empty;
+	private string _originalrichhtml = string.Empty;
+	private string _rawhtml = string.Empty;
+	private string _originalrawhtml = string.Empty;
 	private string _message = string.Empty;
 
 	[Parameter]
@@ -123,9 +124,9 @@
 
 	protected override void OnParametersSet()
 	{
-		_rawhtml = Content;
 		_richhtml = Content;
-		_original = _rawhtml; // preserve original content for comparison
+		_rawhtml = Content;
+		_originalrawhtml = _rawhtml; // preserve for comparison later
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -143,9 +144,16 @@
 				Placeholder,
 				Theme,
 				DebugLevel);
-		}
 
-		await interop.LoadEditorContent(_editorElement, _richhtml);
+			await interop.LoadEditorContent(_editorElement, _richhtml);
+
+			// preserve a copy of the rich text content (Quill sanitizes content so we need to retrieve it from the editor)
+			_originalrichhtml = await interop.GetHtml(_editorElement);
+		}
+		else
+		{
+			await interop.LoadEditorContent(_editorElement, _richhtml);	
+		}
 	}
 
 	public void CloseFileManager()
@@ -158,29 +166,38 @@
 	public void RefreshRichText()
 	{
 		_richhtml = _rawhtml;
-        StateHasChanged();
-    }
+		StateHasChanged();
+	}
 
-    public async Task RefreshRawHtml()
-    {
-        var interop = new RichTextEditorInterop(JSRuntime);
-        _rawhtml = await interop.GetHtml(_editorElement);
-        StateHasChanged();
-    }
+	public async Task RefreshRawHtml()
+	{
+		var interop = new RichTextEditorInterop(JSRuntime);
+		_rawhtml = await interop.GetHtml(_editorElement);
+		StateHasChanged();
+	}
 
-    public async Task<string> GetHtml()
-    {
-		// return raw content if it has changed
-        if (_original != _rawhtml)
-        {
-            return _rawhtml;
-        }
-        else
-        {
-			// otherwise return rich text content
+	public async Task<string> GetHtml()
+	{
+		// evaluate raw html content as first priority
+		if (_rawhtml != _originalrawhtml)
+		{
+			return _rawhtml;
+		}
+		else
+		{
+			// return rich text content if it has changed
 			var interop = new RichTextEditorInterop(JSRuntime);
-			return await interop.GetHtml(_editorElement);
-        }
+			var richhtml = await interop.GetHtml(_editorElement);
+			if (richhtml != _originalrichhtml)
+			{
+				return richhtml;
+			}
+			else
+			{
+				// return original raw html content
+				return _originalrawhtml;
+			}
+		}
     }
 
     public async Task InsertImage()
