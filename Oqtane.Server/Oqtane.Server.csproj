@@ -16,7 +16,7 @@
     <RepositoryType>Git</RepositoryType>
     <RootNamespace>Oqtane</RootNamespace>
     <IsPackable>true</IsPackable>
-    <DefineConstants>$(DefineConstants);OQTANE;OQTANE3;OQTANE3_0_OR_GREATER </DefineConstants>
+    <DefineConstants>$(DefineConstants);OQTANE;OQTANE3</DefineConstants>
     <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
   <ItemGroup>
