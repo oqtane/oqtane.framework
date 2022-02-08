@@ -21,7 +21,8 @@ namespace Oqtane.Migrations.Tenant
             settingEntityBuilder.AddBooleanColumn("IsPrivate", true);
             settingEntityBuilder.UpdateColumn("IsPrivate", "0", "bool", "");
             settingEntityBuilder.UpdateColumn("IsPrivate", "1", "bool", "EntityName = 'Site' AND SettingName LIKE 'SMTP%'");
-            settingEntityBuilder.DropColumn("IsPublic");
+            if (ActiveDatabase.Name != "Sqlite")
+                settingEntityBuilder.DropColumn("IsPublic");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
