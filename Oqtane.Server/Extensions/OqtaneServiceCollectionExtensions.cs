@@ -17,6 +17,7 @@ using Oqtane.Infrastructure;
 using Oqtane.Modules;
 using Oqtane.Repository;
 using Oqtane.Security;
+using Oqtane.Services;
 using Oqtane.Shared;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -222,12 +223,15 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
                 }
 
-                // register server startup services
-                var startUps = assembly.GetInstances<IServerStartup>();
-                foreach (var startup in startUps)
-                {
-                    startup.ConfigureServices(services);
-                }
+                // dynamically register server startup services
+                assembly.GetInstances<IServerStartup>()
+                    .ToList()
+                    .ForEach(x => x.ConfigureServices(services));
+
+                // dynamically register client startup services (these services will only be used when running on Blazor Server)
+                assembly.GetInstances<IClientStartup>()
+                    .ToList()
+                    .ForEach(x => x.ConfigureServices(services));
             }
             return services;
         }

@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.NetworkInformation;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Databases.Interfaces;
-using Oqtane.Interfaces;
 // ReSharper disable BuiltInTypeReferenceStyleForMemberAccess
 
 namespace Oqtane.Migrations.EntityBuilders
@@ -126,7 +124,7 @@ namespace Oqtane.Migrations.EntityBuilders
 
         public void DropColumn(string name)
         {
-            _migrationBuilder.DropColumn(RewriteName(name), RewriteName(EntityTableName));
+            ActiveDatabase.DropColumn(_migrationBuilder, RewriteName(name), RewriteName(EntityTableName));
         }
 
 

@@ -41,6 +41,11 @@ namespace Oqtane.Repository
             return _db.Visitor.Find(visitorId);
         }
 
+        public Visitor GetVisitor(int siteId, string IPAddress)
+        {
+            return _db.Visitor.FirstOrDefault(item => item.SiteId == siteId && item.IPAddress == IPAddress);
+        }
+
         public void DeleteVisitor(int visitorId)
         {
             Visitor visitor = _db.Visitor.Find(visitorId);
