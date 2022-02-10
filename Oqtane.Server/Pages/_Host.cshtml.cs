@@ -254,6 +254,35 @@ namespace Oqtane.Pages
                 var VisitorCookie = "APP_VISITOR_" + SiteId.ToString();
                 if (!int.TryParse(Request.Cookies[VisitorCookie], out VisitorId))
                 {
+                    VisitorId = -1;
+                    bool correlate = true;
+                    setting = _settings.GetSetting(EntityNames.Site, SiteId, "VisitorCorrelation");
+                    if (setting != null)
+                    {
+                        correlate = bool.Parse(setting.SettingValue);
+                    }
+                    if (correlate)
+                    {
+                        var visitor = _visitors.GetVisitor(SiteId, RemoteIPAddress);
+                        if (visitor != null)
+                        {
+                            VisitorId = visitor.VisitorId;
+
+                            Response.Cookies.Append(
+                                VisitorCookie,
+                                VisitorId.ToString(),
+                                new CookieOptions()
+                                {
+                                    Expires = DateTimeOffset.UtcNow.AddYears(1),
+                                    IsEssential = true
+                                }
+                            );
+                        }
+                    }
+                }
+
+                if (VisitorId == -1)
+                {
                     var visitor = new Visitor();
                     visitor.SiteId = SiteId;
                     visitor.IPAddress = RemoteIPAddress;

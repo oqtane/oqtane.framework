@@ -10,6 +10,7 @@ namespace Oqtane.Repository
         Visitor AddVisitor(Visitor visitor);
         Visitor UpdateVisitor(Visitor visitor);
         Visitor GetVisitor(int visitorId);
+        Visitor GetVisitor(int siteId, string IPAddress);
         void DeleteVisitor(int visitorId);
         int DeleteVisitors(int age);
     }

@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Databases.Interfaces;
@@ -73,6 +74,11 @@ namespace Oqtane.Databases
         public virtual void UpdateIdentityStoreTableNames(ModelBuilder builder)
         {
 
+        }
+
+        public virtual void DropColumn(MigrationBuilder builder, string name, string table)
+        {
+            builder.DropColumn(name, table);
         }
 
         public abstract DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString);

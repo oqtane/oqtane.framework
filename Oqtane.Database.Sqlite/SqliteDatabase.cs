@@ -30,6 +30,11 @@ namespace Oqtane.Database.Sqlite
             return table.Column<int>(name: name, nullable: false).Annotation("Sqlite:Autoincrement", true);
         }
 
+        public override void DropColumn(MigrationBuilder builder, string name, string table)
+        {
+            // not implemented as SQLite does not support dropping columns
+        }
+
         public override string ConcatenateSql(params string[] values)
         {
             var returnValue = String.Empty;
