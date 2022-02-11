@@ -230,10 +230,10 @@ namespace Oqtane.Pages
 
                 // filter
                 string filter = Constants.DefaultVisitorFilter;
-                var setting = _settings.GetSetting(EntityNames.Site, SiteId, "VisitorFilter");
-                if (setting != null)
+                var settings = _settings.GetSettings(EntityNames.Site, SiteId);
+                if (settings.Any(item => item.SettingName == "VisitorFilter"))
                 {
-                    filter = setting.SettingValue;
+                    filter = settings.First(item => item.SettingName == "VisitorFilter").SettingValue;
                 }
                 foreach (string term in filter.ToLower().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray())
                 {
@@ -243,6 +243,7 @@ namespace Oqtane.Pages
                     }
                 }
 
+                // get other request attributes
                 string url = Request.GetEncodedUrl();
                 string referrer = (Request.Headers[HeaderNames.Referer] != StringValues.Empty) ? Request.Headers[HeaderNames.Referer] : "";
                 int? userid = null;
@@ -251,39 +252,34 @@ namespace Oqtane.Pages
                     userid = int.Parse(User.Claims.First(item => item.Type == ClaimTypes.PrimarySid).Value);
                 }
 
+                // check if cookie already exists
+                Visitor visitor = null;
+                bool addcookie = false;
                 var VisitorCookie = "APP_VISITOR_" + SiteId.ToString();
                 if (!int.TryParse(Request.Cookies[VisitorCookie], out VisitorId))
                 {
+                    // if enabled use IP Address correlation
                     VisitorId = -1;
                     bool correlate = true;
-                    setting = _settings.GetSetting(EntityNames.Site, SiteId, "VisitorCorrelation");
-                    if (setting != null)
+                    if (settings.Any(item => item.SettingName == "VisitorCorrelation"))
                     {
-                        correlate = bool.Parse(setting.SettingValue);
+                        correlate = bool.Parse(settings.First(item => item.SettingName == "VisitorCorrelation").SettingValue);
                     }
                     if (correlate)
                     {
-                        var visitor = _visitors.GetVisitor(SiteId, RemoteIPAddress);
+                        visitor = _visitors.GetVisitor(SiteId, RemoteIPAddress);
                         if (visitor != null)
                         {
                             VisitorId = visitor.VisitorId;
-
-                            Response.Cookies.Append(
-                                VisitorCookie,
-                                VisitorId.ToString(),
-                                new CookieOptions()
-                                {
-                                    Expires = DateTimeOffset.UtcNow.AddYears(1),
-                                    IsEssential = true
-                                }
-                            );
+                            addcookie = true;
                         }
                     }
                 }
 
                 if (VisitorId == -1)
                 {
-                    var visitor = new Visitor();
+                    // create new visitor
+                    visitor = new Visitor();
                     visitor.SiteId = SiteId;
                     visitor.IPAddress = RemoteIPAddress;
                     visitor.UserAgent = useragent;
@@ -295,22 +291,19 @@ namespace Oqtane.Pages
                     visitor.CreatedOn = DateTime.UtcNow;
                     visitor.VisitedOn = DateTime.UtcNow;
                     visitor = _visitors.AddVisitor(visitor);
-
-                    Response.Cookies.Append(
-                        VisitorCookie,
-                        visitor.VisitorId.ToString(),
-                        new CookieOptions()
-                        {
-                            Expires = DateTimeOffset.UtcNow.AddYears(1),
-                            IsEssential = true
-                        }
-                    );
+                    VisitorId = visitor.VisitorId;
+                    addcookie = true;
                 }
                 else
                 {
-                    var visitor = _visitors.GetVisitor(VisitorId);
+                    if (visitor == null)
+                    {
+                        // get visitor if it was not previously loaded
+                        visitor = _visitors.GetVisitor(VisitorId);
+                    }
                     if (visitor != null)
                     {
+                        // update visitor
                         visitor.IPAddress = RemoteIPAddress;
                         visitor.UserAgent = useragent;
                         visitor.Language = language;
@@ -329,8 +322,23 @@ namespace Oqtane.Pages
                     }
                     else
                     {
+                        // remove cookie if VisitorId does not exist
                         Response.Cookies.Delete(VisitorCookie);
                     }
+                }
+
+                // append cookie
+                if (addcookie)
+                {
+                    Response.Cookies.Append(
+                        VisitorCookie,
+                        VisitorId.ToString(),
+                        new CookieOptions()
+                        {
+                            Expires = DateTimeOffset.UtcNow.AddYears(1),
+                            IsEssential = true
+                        }
+                    );
                 }
             }
             catch (Exception ex)
