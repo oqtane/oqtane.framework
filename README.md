@@ -43,7 +43,7 @@ Please note that this project is owned by the .NET Foundation and is governed by
 
 **Additional Instructions**
 
-- If you have already installed a previous version of Oqtane and you wish to do a clean database install, simply reset the DefaultConnection value in the Oqtane.Server\appsettings.json file to "". This will trigger a re-install when you run the application which will execute the database installation scripts.
+- If you have already installed a previous version of Oqtane and you wish to do a clean database install, simply reset the DefaultConnection value in the Oqtane.Server\appsettings.json file to "". This will trigger a re-install when you run the application which will execute the database installation.
    
 - If you want to submit pull requests make sure you install the [Github Extension For Visual Studio](https://visualstudio.github.com/). It is recommended you ignore any local changes you have made to the appsettings.json file before you submit a pull request. To automate this activity, open a command prompt and navigate to the /Oqtane.Server/ folder and enter the command "git update-index --skip-worktree appsettings.json" 
 
@@ -55,7 +55,7 @@ Please note that this project is owned by the .NET Foundation and is governed by
 There is a separate [Documentation repository](https://github.com/oqtane/oqtane.docs) which contains a variety of types of documentation for Oqtane, including API documentation that is auto generated using Docfx. The contents of the repository is published to Githib Pages and is available at [https://docs.oqtane.org](https://docs.oqtane.org/)
 
 # Roadmap
-This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
+This project is open source, and therefore is a work in progress...
 
 Backlog (Not Yet Assigned)
 - [ ] Allow language specification in Url (#1731)
@@ -66,6 +66,11 @@ V.3.1.0 ( Q1 2022 )
 - [ ] Authentication extensibility via Social logins / Azure B2C
 - [ ] Allow configuration of password complexity for local authentication
 - [ ] User account lockout support
+
+V.3.0.3 ( Feb 15, 2022 )
+- [x] Url fragment and anchor navigation support
+- [x] Meta tag support in page head
+- [x] Html/Text content versioning support
 
 V.3.0.2 ( Jan 16, 2022 )
 - [x] Default alias specification, auto alias registration, redirect logic
