@@ -24,11 +24,11 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class OqtaneServiceCollectionExtensions
     {
-        public static IServiceCollection AddOqtane(this IServiceCollection services, Runtime runtime, string[] supportedCultures)
+        public static IServiceCollection AddOqtane(this IServiceCollection services, string[] supportedCultures)
         {
             LoadAssemblies();
             LoadSatelliteAssemblies(supportedCultures);
-            services.AddOqtaneServices(runtime);
+            services.AddOqtaneServices();
 
             return services;
         }
@@ -190,7 +190,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        private static IServiceCollection AddOqtaneServices(this IServiceCollection services, Runtime runtime)
+        private static IServiceCollection AddOqtaneServices(this IServiceCollection services)
         {
             if (services is null)
             {
@@ -223,20 +223,15 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
                 }
 
-                // register server startup services
-                var startUps = assembly.GetInstances<IServerStartup>();
-                foreach (var startup in startUps)
-                {
-                    startup.ConfigureServices(services);
-                }
+                // dynamically register server startup services
+                assembly.GetInstances<IServerStartup>()
+                    .ToList()
+                    .ForEach(x => x.ConfigureServices(services));
 
-                if (runtime == Runtime.Server)
-                {
-                    // register client startup services if running on server
-                    assembly.GetInstances<IClientStartup>()
-                        .ToList()
-                        .ForEach(x => x.ConfigureServices(services));
-                }
+                // dynamically register client startup services (these services will only be used when running on Blazor Server)
+                assembly.GetInstances<IClientStartup>()
+                    .ToList()
+                    .ForEach(x => x.ConfigureServices(services));
             }
             return services;
         }

@@ -6,7 +6,6 @@ using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Models;
 using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
 
 namespace Oqtane.Security
 {
@@ -17,8 +16,8 @@ namespace Oqtane.Security
             if (context != null && context.Principal.Identity.IsAuthenticated)
             {
                 // check if framework is installed
-                var config = context.HttpContext.RequestServices.GetService(typeof(IConfiguration)) as IConfiguration;
-                if (!string.IsNullOrEmpty(config.GetConnectionString("DefaultConnection")))
+                var config = context.HttpContext.RequestServices.GetService(typeof(IConfigManager)) as IConfigManager;
+                if (config.IsInstalled())
                 {
                     var tenantManager = context.HttpContext.RequestServices.GetService(typeof(ITenantManager)) as ITenantManager;
                     var alias = tenantManager.GetAlias();

@@ -37,7 +37,7 @@ else
             <td>@context.Name</td>
             <td>@context.Version</td>
             <td>
-                @if(context.AssemblyName == "Oqtane.Client" || PageState.Modules.Where(m => m.ModuleDefinition.ModuleDefinitionId == context.ModuleDefinitionId).Count() > 0)
+                @if(context.AssemblyName == "Oqtane.Client" || PageState.Modules.Where(m => m.ModuleDefinition?.ModuleDefinitionId == context.ModuleDefinitionId).FirstOrDefault() != null)
                 {
                     <span>@SharedLocalizer["Yes"]</span>
                 }

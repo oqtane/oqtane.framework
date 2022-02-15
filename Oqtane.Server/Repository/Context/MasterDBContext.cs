@@ -1,19 +1,16 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Oqtane.Models;
-using Microsoft.Extensions.Configuration;
 using Oqtane.Databases.Interfaces;
 using Oqtane.Extensions;
-using Oqtane.Interfaces;
 using Oqtane.Migrations.Framework;
 using Oqtane.Repository.Databases.Interfaces;
 using Oqtane.Shared;
 using System.Threading.Tasks;
 using System.Threading;
+using Oqtane.Infrastructure;
 
 // ReSharper disable BuiltInTypeReferenceStyleForMemberAccess
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -24,14 +21,14 @@ namespace Oqtane.Repository
     public class MasterDBContext : DbContext, IMultiDatabase
     {
         private readonly IHttpContextAccessor _accessor;
-        private readonly IConfiguration _configuration;
+        private readonly IConfigManager _config;
         private string _connectionString;
         private string _databaseType;
 
-        public MasterDBContext(DbContextOptions<MasterDBContext> options, IHttpContextAccessor accessor, IConfiguration configuration) : base(options)
+        public MasterDBContext(DbContextOptions<MasterDBContext> options, IHttpContextAccessor accessor, IConfigManager config) : base(options)
         {
             _accessor = accessor;
-            _configuration = configuration;
+            _config = config;
         }
 
         public IDatabase ActiveDatabase { get; private set; }
@@ -40,15 +37,15 @@ namespace Oqtane.Repository
         {
             optionsBuilder.ReplaceService<IMigrationsAssembly, MultiDatabaseMigrationsAssembly>();
 
-            if(_configuration != null)
+            if(_config != null)
             {
-                if (!String.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
+                if (_config.IsInstalled())
                 {
-                    _connectionString = _configuration.GetConnectionString("DefaultConnection")
+                    _connectionString = _config.GetConnectionString("DefaultConnection")
                         .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString());
                 }
 
-                _databaseType = _configuration.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
+                _databaseType = _config.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
             }
 
             if (!String.IsNullOrEmpty(_databaseType))

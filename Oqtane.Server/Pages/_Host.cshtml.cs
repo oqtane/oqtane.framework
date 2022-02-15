@@ -5,7 +5,6 @@ using Oqtane.Modules;
 using Oqtane.Models;
 using Oqtane.Themes;
 using System;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Oqtane.Repository;
@@ -20,12 +19,13 @@ using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using System.Net;
 using Microsoft.Extensions.Primitives;
+using Oqtane.Enums;
 
 namespace Oqtane.Pages
 {
     public class HostModel : PageModel
     {
-        private IConfiguration _configuration;
+        private IConfigManager _configuration;
         private readonly ITenantManager _tenantManager;
         private readonly ILocalizationManager _localizationManager;
         private readonly ILanguageRepository _languages;
@@ -36,8 +36,9 @@ namespace Oqtane.Pages
         private readonly IVisitorRepository _visitors;
         private readonly IAliasRepository _aliases;
         private readonly ISettingRepository _settings;
+        private readonly ILogManager _logger;
 
-        public HostModel(IConfiguration configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, ISiteRepository sites, IPageRepository pages, IUrlMappingRepository urlMappings, IVisitorRepository visitors, IAliasRepository aliases, ISettingRepository settings)
+        public HostModel(IConfigManager configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, ISiteRepository sites, IPageRepository pages, IUrlMappingRepository urlMappings, IVisitorRepository visitors, IAliasRepository aliases, ISettingRepository settings, ILogManager logger)
         {
             _configuration = configuration;
             _tenantManager = tenantManager;
@@ -50,8 +51,10 @@ namespace Oqtane.Pages
             _visitors = visitors;
             _aliases = aliases;
             _settings = settings;
+            _logger = logger;
         }
 
+        public string Language = "en";
         public string AntiForgeryToken = "";
         public string Runtime = "Server";
         public RenderMode RenderMode = RenderMode.Server;
@@ -60,9 +63,11 @@ namespace Oqtane.Pages
         public string HeadResources = "";
         public string BodyResources = "";
         public string Title = "";
+        public string Meta = "";
         public string FavIcon = "favicon.ico";
         public string PWAScript = "";
         public string ThemeType = "";
+        public string Message = "";
 
         public IActionResult OnGet()
         {
@@ -80,15 +85,15 @@ namespace Oqtane.Pages
             }
 
             // if framework is installed 
-            if (!string.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
+            if (_configuration.IsInstalled())
             {
                 var alias = _tenantManager.GetAlias();
                 if (alias != null)
                 {
                     var url = WebUtility.UrlDecode(HttpContext.Request.GetEncodedUrl());
 
-                    // redirect non-default alias
-                    if (!alias.IsDefault)
+                    // redirect non-default alias unless you are trying to access site settings
+                    if (!alias.IsDefault && !url.Contains("admin/site"))
                     {
                         var aliases = _aliases.GetAliases().Where(item => item.TenantId == alias.TenantId && item.SiteId == alias.SiteId);
                         if (aliases.Where(item => item.IsDefault).FirstOrDefault() != null)
@@ -105,7 +110,7 @@ namespace Oqtane.Pages
                     }
 
                     var site = _sites.GetSite(alias.SiteId);
-                    if (site != null)
+                    if (site != null && !site.IsDeleted)
                     {
                         Route route = new Route(url, alias.Path);
 
@@ -145,6 +150,7 @@ namespace Oqtane.Pages
                             {
                                 Title = Title + " - " + page.Name;
                             }
+                            Meta = page.Meta;
 
                             // include theme resources
                             if (!string.IsNullOrEmpty(page.ThemeType))
@@ -162,32 +168,50 @@ namespace Oqtane.Pages
                                 return RedirectPermanent(url);
                             }
                         }
-                    }
 
-                    // include global resources
-                    var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
-                    foreach (Assembly assembly in assemblies)
-                    {
-                        ProcessHostResources(assembly);
-                        ProcessModuleControls(assembly);
-                        ProcessThemeControls(assembly);
-                    }
+                        // include global resources
+                        var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
+                        foreach (Assembly assembly in assemblies)
+                        {
+                            ProcessHostResources(assembly);
+                            ProcessModuleControls(assembly);
+                            ProcessThemeControls(assembly);
+                        }
 
-                    // set culture if not specified
-                    if (HttpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName] == null)
-                    {
-                        // set default language for site if the culture is not supported
-                        var languages = _languages.GetLanguages(alias.SiteId);
-                        if (languages.Any() && languages.All(l => l.Code != CultureInfo.CurrentUICulture.Name))
+                        // set culture if not specified
+                        string culture = HttpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName];
+                        if (culture == null)
                         {
-                            var defaultLanguage = languages.Where(l => l.IsDefault).SingleOrDefault() ?? languages.First();
-                            SetLocalizationCookie(defaultLanguage.Code);
+                            // get default language for site
+                            var languages = _languages.GetLanguages(alias.SiteId);
+                            if (languages.Any())
+                            {
+                                // use default language if specified otherwise use first language in collection
+                                culture = (languages.Where(l => l.IsDefault).SingleOrDefault() ?? languages.First()).Code;
+                            }
+                            else
+                            {
+                                culture = _localizationManager.GetDefaultCulture();
+                            }
+                            SetLocalizationCookie(culture);
                         }
-                        else
+
+                        // set language for page 
+                        if (!string.IsNullOrEmpty(culture))
                         {
-                            SetLocalizationCookie(_localizationManager.GetDefaultCulture());
+                            // localization cookie value in form of c=en|uic=en
+                            Language = culture.Split('|')[0];
+                            Language = Language.Replace("c=", "");
                         }
                     }
+                    else
+                    {
+                        Message = "Site Is Either Disabled Or Not Configured Correctly";
+                    }
+                }
+                else
+                {
+                    Message = "Site Not Configured Correctly - No Matching Alias Exists For Host Name";
                 }
             }
             return Page();
@@ -195,85 +219,131 @@ namespace Oqtane.Pages
 
         private void TrackVisitor(int SiteId)
         {
-            // get request attributes
-            string useragent = (Request.Headers[HeaderNames.UserAgent] != StringValues.Empty) ? Request.Headers[HeaderNames.UserAgent] : "";
-            string language = (Request.Headers[HeaderNames.AcceptLanguage] != StringValues.Empty) ? Request.Headers[HeaderNames.AcceptLanguage] : "";
-            language = (language.Contains(",")) ? language.Substring(0, language.IndexOf(",")) : language;
-            language = (language.Contains(";")) ? language.Substring(0, language.IndexOf(";")) : language;
-            language = (language.Trim().Length == 0) ? "??" : language;
-
-            // filter
-            var filter = _settings.GetSetting(EntityNames.Site, SiteId, "VisitorFilter");
-            if (filter != null && !string.IsNullOrEmpty(filter.SettingValue))
+            try
             {
-                foreach (string term in filter.SettingValue.ToLower().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray())
+                // get request attributes
+                string useragent = (Request.Headers[HeaderNames.UserAgent] != StringValues.Empty) ? Request.Headers[HeaderNames.UserAgent] : "(none)";
+                string language = (Request.Headers[HeaderNames.AcceptLanguage] != StringValues.Empty) ? Request.Headers[HeaderNames.AcceptLanguage] : "";
+                language = (language.Contains(",")) ? language.Substring(0, language.IndexOf(",")) : language;
+                language = (language.Contains(";")) ? language.Substring(0, language.IndexOf(";")) : language;
+                language = (language.Trim().Length == 0) ? "??" : language;
+
+                // filter
+                string filter = Constants.DefaultVisitorFilter;
+                var settings = _settings.GetSettings(EntityNames.Site, SiteId);
+                if (settings.Any(item => item.SettingName == "VisitorFilter"))
+                {
+                    filter = settings.First(item => item.SettingName == "VisitorFilter").SettingValue;
+                }
+                foreach (string term in filter.ToLower().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray())
                 {
                     if (RemoteIPAddress.ToLower().Contains(term) || useragent.ToLower().Contains(term) || language.ToLower().Contains(term))
                     {
                         return;
                     }
                 }
-            }
 
-            string url = Request.GetEncodedUrl();
-            string referrer = (Request.Headers[HeaderNames.Referer] != StringValues.Empty) ? Request.Headers[HeaderNames.Referer] : "";
-            int? userid = null;
-            if (User.HasClaim(item => item.Type == ClaimTypes.PrimarySid))
-            {
-                userid = int.Parse(User.Claims.First(item => item.Type == ClaimTypes.PrimarySid).Value);
-            }
-
-            var VisitorCookie = "APP_VISITOR_" + SiteId.ToString();
-            if (!int.TryParse(Request.Cookies[VisitorCookie], out VisitorId))
-            {
-                var visitor = new Visitor();
-                visitor.SiteId = SiteId;
-                visitor.IPAddress = RemoteIPAddress;
-                visitor.UserAgent = useragent;
-                visitor.Language = language;
-                visitor.Url = url;
-                visitor.Referrer = referrer;
-                visitor.UserId = userid;
-                visitor.Visits = 1;
-                visitor.CreatedOn = DateTime.UtcNow;
-                visitor.VisitedOn = DateTime.UtcNow;
-                visitor = _visitors.AddVisitor(visitor);
-
-                Response.Cookies.Append(
-                    VisitorCookie,
-                    visitor.VisitorId.ToString(),
-                    new CookieOptions()
-                    {
-                        Expires = DateTimeOffset.UtcNow.AddYears(1),
-                        IsEssential = true
-                    }
-                );
-            }
-            else
-            {
-                var visitor = _visitors.GetVisitor(VisitorId);
-                if (visitor != null)
+                // get other request attributes
+                string url = Request.GetEncodedUrl();
+                string referrer = (Request.Headers[HeaderNames.Referer] != StringValues.Empty) ? Request.Headers[HeaderNames.Referer] : "";
+                int? userid = null;
+                if (User.HasClaim(item => item.Type == ClaimTypes.PrimarySid))
                 {
+                    userid = int.Parse(User.Claims.First(item => item.Type == ClaimTypes.PrimarySid).Value);
+                }
+
+                // check if cookie already exists
+                Visitor visitor = null;
+                bool addcookie = false;
+                var VisitorCookie = "APP_VISITOR_" + SiteId.ToString();
+                if (!int.TryParse(Request.Cookies[VisitorCookie], out VisitorId))
+                {
+                    // if enabled use IP Address correlation
+                    VisitorId = -1;
+                    bool correlate = true;
+                    if (settings.Any(item => item.SettingName == "VisitorCorrelation"))
+                    {
+                        correlate = bool.Parse(settings.First(item => item.SettingName == "VisitorCorrelation").SettingValue);
+                    }
+                    if (correlate)
+                    {
+                        visitor = _visitors.GetVisitor(SiteId, RemoteIPAddress);
+                        if (visitor != null)
+                        {
+                            VisitorId = visitor.VisitorId;
+                            addcookie = true;
+                        }
+                    }
+                }
+
+                if (VisitorId == -1)
+                {
+                    // create new visitor
+                    visitor = new Visitor();
+                    visitor.SiteId = SiteId;
                     visitor.IPAddress = RemoteIPAddress;
                     visitor.UserAgent = useragent;
                     visitor.Language = language;
                     visitor.Url = url;
-                    if (!string.IsNullOrEmpty(referrer))
-                    {
-                        visitor.Referrer = referrer;
-                    }
-                    if (userid != null)
-                    {
-                        visitor.UserId = userid;
-                    }
-                    visitor.Visits += 1;
+                    visitor.Referrer = referrer;
+                    visitor.UserId = userid;
+                    visitor.Visits = 1;
+                    visitor.CreatedOn = DateTime.UtcNow;
                     visitor.VisitedOn = DateTime.UtcNow;
-                    _visitors.UpdateVisitor(visitor);
+                    visitor = _visitors.AddVisitor(visitor);
+                    VisitorId = visitor.VisitorId;
+                    addcookie = true;
                 }
                 else
                 {
-                    Response.Cookies.Delete(VisitorCookie);
+                    if (visitor == null)
+                    {
+                        // get visitor if it was not previously loaded
+                        visitor = _visitors.GetVisitor(VisitorId);
+                    }
+                    if (visitor != null)
+                    {
+                        // update visitor
+                        visitor.IPAddress = RemoteIPAddress;
+                        visitor.UserAgent = useragent;
+                        visitor.Language = language;
+                        visitor.Url = url;
+                        if (!string.IsNullOrEmpty(referrer))
+                        {
+                            visitor.Referrer = referrer;
+                        }
+                        if (userid != null)
+                        {
+                            visitor.UserId = userid;
+                        }
+                        visitor.Visits += 1;
+                        visitor.VisitedOn = DateTime.UtcNow;
+                        _visitors.UpdateVisitor(visitor);
+                    }
+                    else
+                    {
+                        // remove cookie if VisitorId does not exist
+                        Response.Cookies.Delete(VisitorCookie);
+                    }
                 }
+
+                // append cookie
+                if (addcookie)
+                {
+                    Response.Cookies.Append(
+                        VisitorCookie,
+                        VisitorId.ToString(),
+                        new CookieOptions()
+                        {
+                            Expires = DateTimeOffset.UtcNow.AddYears(1),
+                            IsEssential = true
+                        }
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Other, "Error Tracking Visitor {Error}", ex.Message);
             }
         }
 

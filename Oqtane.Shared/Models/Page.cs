@@ -61,7 +61,12 @@ namespace Oqtane.Models
         /// Reference to a Container which will be used for modules on this page.
         /// </summary>
         public string DefaultContainerType { get; set; }
-        
+
+        /// <summary>
+        /// Meta tags to be included in the head of the page
+        /// </summary>
+        public string Meta { get; set; }
+
         /// <summary>
         /// Icon file for this page.
         /// TODO: unclear what this is for, and what icon library is used. Probably FontAwesome?

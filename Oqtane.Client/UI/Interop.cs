@@ -279,5 +279,19 @@ namespace Oqtane.UI
             }
         }
 
+        public Task ScrollToId(string id)
+        {
+            try
+            {
+                _jsRuntime.InvokeVoidAsync(
+                    "Oqtane.Interop.scrollToId",
+                    id);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
     }
 }

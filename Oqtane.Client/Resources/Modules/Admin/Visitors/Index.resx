@@ -175,7 +175,7 @@
     <value>Details</value>
   </data>
   <data name="Filter.HelpText" xml:space="preserve">
-    <value>Comma delimited list of terms which may exist in IP addresses, user agents, or languages which identify visitors which should not be tracked (ie. bots)</value>
+    <value>Comma delimited list of terms which may exist in IP addresses, user agents, or languages identifying visitors which should not be tracked</value>
   </data>
   <data name="Filter.Text" xml:space="preserve">
     <value>Filter:</value>
@@ -185,5 +185,11 @@
   </data>
   <data name="Retention.Text" xml:space="preserve">
     <value>Retention (Days):</value>
+  </data>
+  <data name="Correlation.HelpText" xml:space="preserve">
+    <value>Indicate if new visitors to this site should be correlated based on their IP Address</value>
+  </data>
+  <data name="Correlation.Text" xml:space="preserve">
+    <value>Correlate Visitors?</value>
   </data>
 </root>

@@ -57,12 +57,12 @@
 		<div class="table-responsive">
 			<table class="@Class">
 				<thead>
-					<tr>@Header</tr>
+					<tr class="@RowClass">@Header</tr>
 				</thead>
 				<tbody>
 					@foreach (var item in ItemList)
 					{
-						<tr>@Row(item)</tr>
+						<tr class="@RowClass">@Row(item)</tr>
 						@if (Detail != null)
 						{
 							<tr>@Detail(item)</tr>
@@ -75,28 +75,37 @@
     @if (Format == "Grid" && Row != null)
     {
         int count = 0;
-        if (ItemList != null)
+		int rows = 0;
+		int cols = 0;
+		if (ItemList != null)
         {
-            count = (int)Math.Ceiling(ItemList.Count() / (decimal)_columns) * _columns;
+			if (_columns == 0)
+			{
+				count = ItemList.Count();
+				rows = 1;
+				cols = count;
+			}
+			else
+			{
+				count = (int)Math.Ceiling(ItemList.Count() / (decimal)_columns) * _columns;
+				rows = count / _columns;
+				cols = _columns;
+			}
         }
         <div class="@Class">
-            @if (Header != null)
+            @for (int row = 0; row < rows; row++)
             {
-                <div class="row"><div class="col">@Header</div></div>
-            }
-            @for (int row = 0; row < (count / _columns); row++)
-            {
-                <div class="row">
-                    @for (int col = 0; col < _columns; col++)
+                <div class="@RowClass">
+                    @for (int col = 0; col < cols; col++)
                     {
                         int index = (row * _columns) + col;
                         if (index < ItemList.Count())
                         {
-                            <div class="col">@Row(ItemList.ElementAt(index))</div>
+                            <div class="@ColumnClass">@Row(ItemList.ElementAt(index))</div>
                         }
                         else
                         {
-                            <div class="col">&nbsp;</div>
+                            <div>&nbsp;</div>
                         }
                     }
                 </div>
@@ -160,7 +169,7 @@
     private int _displayPages = 5;
     private int _startPage = 0;
     private int _endPage = 0;
-    private int _columns = 1;
+    private int _columns = 0;
 
     [Parameter]
     public string Format { get; set; } // Table or Grid
@@ -169,10 +178,10 @@
     public string Toolbar { get; set; } // Top, Bottom or Both
 
     [Parameter]
-    public RenderFragment Header { get; set; } = null;
+    public RenderFragment Header { get; set; } = null; // only applicable to Table layouts
 
     [Parameter]
-    public RenderFragment<TableItem> Row { get; set; } = null;
+    public RenderFragment<TableItem> Row { get; set; } = null; // required
 
     [Parameter]
     public RenderFragment<TableItem> Detail { get; set; } = null; // only applicable to Table layouts
@@ -184,16 +193,25 @@
     public string PageSize { get; set; } // number of items to display on a page
 
     [Parameter]
-    public string Columns { get; set; } // only applicable to Grid layouts
+    public string Columns { get; set; } // only applicable to Grid layouts - default is zero indicating use responsive behavior
 
     [Parameter]
-    public string CurrentPage { get; set; } // optional property to set the initial page to display
+    public string CurrentPage { get; set; } // sets the initial page to display
 
     [Parameter]
     public string DisplayPages { get; set; } // maximum number of page numbers to display for user selection
 
     [Parameter]
-    public string Class { get; set; }
+    public string Class { get; set; } // class for the containing element - ie. <table> for Table or <div> for Grid
+
+    [Parameter]
+    public string RowClass { get; set; } // class for row element - ie. <tr> for Table or <div> for Grid
+
+	[Parameter]
+    public string ColumnClass { get; set; } // class for column element - only applicable to Grid format
+
+    [Parameter]
+    public Action<int> OnPageChange { get; set; } // a method to be executed in the calling component when the page changes
 
     private IEnumerable<TableItem> ItemList { get; set; }
 
@@ -217,11 +235,35 @@
             }
             else
             {
-                Class = "container-fluid px-0";
+                Class = "container-fluid";
             }
         }
 
-        if (!string.IsNullOrEmpty(PageSize))
+        if (string.IsNullOrEmpty(RowClass))
+        {
+            if (Format == "Table")
+            {
+                RowClass = "";
+            }
+            else
+            {
+                RowClass = "row";
+            }
+        }	
+		
+        if (string.IsNullOrEmpty(ColumnClass))
+        {
+            if (Format == "Table")
+            {
+                ColumnClass = "";
+            }
+            else
+            {
+                ColumnClass = "col";
+            }
+        }	
+		
+		if (!string.IsNullOrEmpty(PageSize))
         {
             _maxItems = int.Parse(PageSize);
         }
@@ -268,6 +310,7 @@
         {
             _endPage = _pages;
         }
+        OnPageChange?.Invoke(_page);
         StateHasChanged();
     }
 

@@ -11,6 +11,7 @@
 @inject IModuleService ModuleService
 @inject IUrlMappingService UrlMappingService
 @inject ILogService LogService
+@inject IJSRuntime JSRuntime
 @implements IHandleAfterRender
 
 @DynamicComponent
@@ -234,6 +235,7 @@
                     };
 
 					OnStateChange?.Invoke(_pagestate);
+					await ScrollToFragment(_pagestate.Uri);
 				}
 			}
 			else // page not found
@@ -242,7 +244,7 @@
 				var urlMapping = await UrlMappingService.GetUrlMappingAsync(site.SiteId, route.PagePath);
 				if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
 				{
-                    var url = (urlMapping.MappedUrl.StartsWith("http")) ? urlMapping.MappedUrl : route.SiteUrl + "/" + urlMapping.MappedUrl;
+					var url = (urlMapping.MappedUrl.StartsWith("http")) ? urlMapping.MappedUrl : route.SiteUrl + "/" + urlMapping.MappedUrl;
 					NavigationManager.NavigateTo(url, false);
 				}
 				else // not mapped
@@ -262,238 +264,259 @@
 						}
 					}
 				}
-            }
+			}
+		}
+		else
+		{
+		// site does not exist
+		}
+	}
+
+	private async void LocationChanged(object sender, LocationChangedEventArgs args)
+	{
+		_absoluteUri = args.Location;
+		await Refresh();
+	}
+
+	Task IHandleAfterRender.OnAfterRenderAsync()
+	{
+		if (!_navigationInterceptionEnabled)
+		{
+			_navigationInterceptionEnabled = true;
+			return NavigationInterception.EnableNavigationInterceptionAsync();
+		}
+		return Task.CompletedTask;
+	}
+
+	private Dictionary<string, string> ParseQueryString(string query)
+	{
+		Dictionary<string, string> querystring = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase); // case insensistive keys
+		if (!string.IsNullOrEmpty(query))
+		{
+			if (query.StartsWith("?"))
+			{
+				query = query.Substring(1); // ignore "?"
+			}
+			foreach (string kvp in query.Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries))
+			{
+				if (kvp != "")
+				{
+					if (kvp.Contains("="))
+					{
+						string[] pair = kvp.Split('=');
+						querystring.Add(pair[0], pair[1]);
+					}
+					else
+					{
+						querystring.Add(kvp, "true"); // default parameter when no value is provided
+					}
+				}
+			}
+		}
+		return querystring;
+	}
+
+	private async Task<Page> ProcessPage(Page page, Site site, User user)
+	{
+		try
+		{
+			if (page.IsPersonalizable && user != null)
+			{
+			// load the personalized page
+				page = await PageService.GetPageAsync(page.PageId, user.UserId);
+			}
+
+			if (string.IsNullOrEmpty(page.ThemeType))
+			{
+				page.ThemeType = site.DefaultThemeType;
+			}
+
+			page.Panes = new List<string>();
+			page.Resources = new List<Resource>();
+
+			string panes = PaneNames.Admin;
+			Type themetype = Type.GetType(page.ThemeType);
+			if (themetype == null)
+			{
+			// fallback
+				page.ThemeType = Constants.DefaultTheme;
+				themetype = Type.GetType(Constants.DefaultTheme);
+			}
+			if (themetype != null)
+			{
+				var themeobject = Activator.CreateInstance(themetype) as IThemeControl;
+				if (themeobject != null)
+				{
+					if (!string.IsNullOrEmpty(themeobject.Panes))
+					{
+						panes = themeobject.Panes;
+					}
+					page.Resources = ManagePageResources(page.Resources, themeobject.Resources);
+				}
+			}
+			page.Panes = panes.Replace(";", ",").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+		}
+		catch
+		{
+		// error loading theme or layout
+		}
+
+		return page;
+	}
+
+	private (Page Page, List<Module> Modules) ProcessModules(Page page, List<Module> modules, int moduleid, string action, string defaultcontainertype)
+	{
+		var paneindex = new Dictionary<string, int>();
+		foreach (Module module in modules)
+		{
+		// initialize module control properties
+			module.SecurityAccessLevel = SecurityAccessLevel.Host;
+			module.ControlTitle = "";
+			module.Actions = "";
+			module.UseAdminContainer = false;
+			module.PaneModuleIndex = -1;
+			module.PaneModuleCount = 0;
+
+			if ((module.PageId == page.PageId || module.ModuleId == moduleid))
+			{
+				var typename = Constants.ErrorModule;
+				if (module.ModuleDefinition != null && (module.ModuleDefinition.Runtimes == "" || module.ModuleDefinition.Runtimes.Contains(Runtime)))
+				{
+					typename = module.ModuleDefinition.ControlTypeTemplate;
+
+					// handle default action
+					if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
+					{
+						action = module.ModuleDefinition.DefaultAction;
+					}
+
+					// check if the module defines custom action routes
+					if (module.ModuleDefinition.ControlTypeRoutes != "")
+					{
+						foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+						{
+							if (route.StartsWith(action + "="))
+							{
+								typename = route.Replace(action + "=", "");
+							}
+						}
+					}
+				}
+
+				// ensure component exists and implements IModuleControl
+				module.ModuleType = "";
+				if (Constants.DefaultModuleActions.Contains(action, StringComparer.OrdinalIgnoreCase))
+				{
+					typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, action);
+				}
+				else
+				{
+					typename = typename.Replace(Constants.ActionToken, action);
+				}
+				Type moduletype = Type.GetType(typename, false, true); // case insensitive
+				if (moduletype != null && moduletype.GetInterfaces().Contains(typeof(IModuleControl)))
+				{
+					module.ModuleType = Utilities.GetFullTypeName(moduletype.AssemblyQualifiedName); // get actual type name
+				}
+
+				// get additional metadata from IModuleControl interface
+				if (moduletype != null && module.ModuleType != "")
+				{
+				// retrieve module component resources
+					var moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
+					page.Resources = ManagePageResources(page.Resources, moduleobject.Resources);
+					if (action.ToLower() == "settings" && module.ModuleDefinition != null)
+					{
+					// settings components are embedded within a framework settings module
+						moduletype = Type.GetType(module.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, action), false, true);
+						if (moduletype != null)
+						{
+							moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
+							page.Resources = ManagePageResources(page.Resources, moduleobject.Resources);
+						}
+					}
+
+					// additional metadata needed for admin components
+					if (module.ModuleId == moduleid && action != "")
+					{
+						module.SecurityAccessLevel = moduleobject.SecurityAccessLevel;
+						module.ControlTitle = moduleobject.Title;
+						module.Actions = moduleobject.Actions;
+						module.UseAdminContainer = moduleobject.UseAdminContainer;
+					}
+				}
+
+				// ensure module's pane exists in current page and if not, assign it to the Admin pane
+				if (page.Panes == null || page.Panes.FindIndex(item => item.Equals(module.Pane, StringComparison.OrdinalIgnoreCase)) == -1)
+				{
+					module.Pane = PaneNames.Admin;
+				}
+
+				// calculate module position within pane
+				if (paneindex.ContainsKey(module.Pane.ToLower()))
+				{
+					paneindex[module.Pane.ToLower()] += 1;
+				}
+				else
+				{
+					paneindex.Add(module.Pane.ToLower(), 0);
+				}
+
+				module.PaneModuleIndex = paneindex[module.Pane.ToLower()];
+
+				// container fallback
+				if (string.IsNullOrEmpty(module.ContainerType))
+				{
+					module.ContainerType = defaultcontainertype;
+				}
+			}
+		}
+
+		foreach (Module module in modules.Where(item => item.PageId == page.PageId))
+		{
+			if (paneindex.ContainsKey(module.Pane.ToLower()))
+			{
+				module.PaneModuleCount = paneindex[module.Pane.ToLower()] + 1;
+			}
+		}
+
+		return (page, modules);
+	}
+
+	private List<Resource> ManagePageResources(List<Resource> pageresources, List<Resource> resources)
+	{
+		if (resources != null)
+		{
+			foreach (var resource in resources)
+			{
+			// ensure resource does not exist already
+				if (pageresources.Find(item => item.Url == resource.Url) == null)
+				{
+					pageresources.Add(resource);
+				}
+			}
+		}
+		return pageresources;
+	}
+
+	private async Task ScrollToFragment(Uri uri)
+	{
+		var fragment = uri.Fragment;
+		if (fragment.StartsWith('#'))
+		{
+			// handle text fragment (https://example.org/#test:~:text=foo)
+			var id = fragment.Substring(1);
+			var index = id.IndexOf(":~:", StringComparison.Ordinal);
+			if (index > 0)
+			{
+				id = id.Substring(0, index);
+			}
+
+			if (!string.IsNullOrEmpty(id))
+			{
+				var interop = new Interop(JSRuntime);
+				await interop.ScrollToId(id);
+			}
         }
-        else
-        {
-            // site does not exist
-        }
-    }
-
-    private async void LocationChanged(object sender, LocationChangedEventArgs args)
-    {
-        _absoluteUri = args.Location;
-        await Refresh();
-    }
-
-    Task IHandleAfterRender.OnAfterRenderAsync()
-    {
-        if (!_navigationInterceptionEnabled)
-        {
-            _navigationInterceptionEnabled = true;
-            return NavigationInterception.EnableNavigationInterceptionAsync();
-        }
-        return Task.CompletedTask;
-    }
-
-    private Dictionary<string, string> ParseQueryString(string query)
-    {
-        Dictionary<string, string> querystring = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase); // case insensistive keys
-        if (!string.IsNullOrEmpty(query))
-        {
-            if (query.StartsWith("?"))
-            {
-                query = query.Substring(1); // ignore "?"
-            }
-            foreach (string kvp in query.Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                if (kvp != "")
-                {
-                    if (kvp.Contains("="))
-                    {
-                        string[] pair = kvp.Split('=');
-                        querystring.Add(pair[0], pair[1]);
-                    }
-                    else
-                    {
-                        querystring.Add(kvp, "true"); // default parameter when no value is provided
-                    }
-                }
-            }
-        }
-        return querystring;
-    }
-
-    private async Task<Page> ProcessPage(Page page, Site site, User user)
-    {
-        try
-        {
-            if (page.IsPersonalizable && user != null)
-            {
-                // load the personalized page
-                page = await PageService.GetPageAsync(page.PageId, user.UserId);
-            }
-
-            if (string.IsNullOrEmpty(page.ThemeType))
-            {
-                page.ThemeType = site.DefaultThemeType;
-            }
-
-            page.Panes = new List<string>();
-            page.Resources = new List<Resource>();
-
-            string panes = PaneNames.Admin;
-            Type themetype = Type.GetType(page.ThemeType);
-            if (themetype == null)
-            {
-                // fallback
-                page.ThemeType = Constants.DefaultTheme;
-                themetype = Type.GetType(Constants.DefaultTheme);
-            }
-            if (themetype != null)
-            {
-                var themeobject = Activator.CreateInstance(themetype) as IThemeControl;
-                if (themeobject != null)
-                {
-                    if (!string.IsNullOrEmpty(themeobject.Panes))
-                    {
-                        panes = themeobject.Panes;
-                    }
-                    page.Resources = ManagePageResources(page.Resources, themeobject.Resources);
-                }
-            }
-            page.Panes = panes.Replace(";", ",").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-        }
-        catch
-        {
-            // error loading theme or layout
-        }
-
-        return page;
-    }
-
-    private (Page Page, List<Module> Modules) ProcessModules(Page page, List<Module> modules, int moduleid, string action, string defaultcontainertype)
-    {
-        var paneindex = new Dictionary<string, int>();
-        foreach (Module module in modules)
-        {
-            // initialize module control properties
-            module.SecurityAccessLevel = SecurityAccessLevel.Host;
-            module.ControlTitle = "";
-            module.Actions = "";
-            module.UseAdminContainer = false;
-            module.PaneModuleIndex = -1;
-            module.PaneModuleCount = 0;
-
-            if ((module.PageId == page.PageId || module.ModuleId == moduleid))
-            {
-                var typename = Constants.ErrorModule;
-                if (module.ModuleDefinition != null && (module.ModuleDefinition.Runtimes == "" || module.ModuleDefinition.Runtimes.Contains(Runtime)))
-                {
-                    typename = module.ModuleDefinition.ControlTypeTemplate;
-
-                    // handle default action
-                    if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
-                    {
-                        action = module.ModuleDefinition.DefaultAction;
-                    }
-
-                    // check if the module defines custom action routes
-                    if (module.ModuleDefinition.ControlTypeRoutes != "")
-                    {
-                        foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            if (route.StartsWith(action + "="))
-                            {
-                                typename = route.Replace(action + "=", "");
-                            }
-                        }
-                    }
-                }
-
-                // ensure component exists and implements IModuleControl
-                module.ModuleType = "";
-                if (Constants.DefaultModuleActions.Contains(action, StringComparer.OrdinalIgnoreCase))
-                {
-                    typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, action);
-                }
-                else
-                {
-                    typename = typename.Replace(Constants.ActionToken, action);
-                }
-                Type moduletype = Type.GetType(typename, false, true); // case insensitive
-                if (moduletype != null && moduletype.GetInterfaces().Contains(typeof(IModuleControl)))
-                {
-                    module.ModuleType = Utilities.GetFullTypeName(moduletype.AssemblyQualifiedName); // get actual type name
-                }
-
-                // get additional metadata from IModuleControl interface
-                if (moduletype != null && module.ModuleType != "")
-                {
-                    // retrieve module component resources
-                    var moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
-                    page.Resources = ManagePageResources(page.Resources, moduleobject.Resources);
-                    if (action.ToLower() == "settings" && module.ModuleDefinition != null)
-                    {
-                        // settings components are embedded within a framework settings module
-                        moduletype = Type.GetType(module.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, action), false, true);
-                        if (moduletype != null)
-                        {
-                            moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
-                            page.Resources = ManagePageResources(page.Resources, moduleobject.Resources);
-                        }
-                    }
-
-                    // additional metadata needed for admin components
-                    if (module.ModuleId == moduleid && action != "")
-                    {
-                        module.SecurityAccessLevel = moduleobject.SecurityAccessLevel;
-                        module.ControlTitle = moduleobject.Title;
-                        module.Actions = moduleobject.Actions;
-                        module.UseAdminContainer = moduleobject.UseAdminContainer;
-                    }
-                }
-
-                // ensure module's pane exists in current page and if not, assign it to the Admin pane
-                if (page.Panes == null || page.Panes.FindIndex(item => item.Equals(module.Pane, StringComparison.OrdinalIgnoreCase)) == -1)
-                {
-                    module.Pane = PaneNames.Admin;
-                }
-
-                // calculate module position within pane
-                if (paneindex.ContainsKey(module.Pane.ToLower()))
-                {
-                    paneindex[module.Pane.ToLower()] += 1;
-                }
-                else
-                {
-                    paneindex.Add(module.Pane.ToLower(), 0);
-                }
-
-                module.PaneModuleIndex = paneindex[module.Pane.ToLower()];
-
-                // container fallback
-                if (string.IsNullOrEmpty(module.ContainerType))
-                {
-                    module.ContainerType = defaultcontainertype;
-                }
-            }
-        }
-
-        foreach (Module module in modules.Where(item => item.PageId == page.PageId))
-        {
-            if (paneindex.ContainsKey(module.Pane.ToLower()))
-            {
-                module.PaneModuleCount = paneindex[module.Pane.ToLower()] + 1;
-            }
-        }
-
-        return (page, modules);
-    }
-
-    private List<Resource> ManagePageResources(List<Resource> pageresources, List<Resource> resources)
-    {
-        if (resources != null)
-        {
-            foreach (var resource in resources)
-            {
-                // ensure resource does not exist already
-                if (pageresources.Find(item => item.Url == resource.Url) == null)
-                {
-                    pageresources.Add(resource);
-                }
-            }
-        }
-        return pageresources;
     }
 }

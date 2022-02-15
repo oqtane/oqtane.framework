@@ -17,7 +17,7 @@ else
 				<div class="row mb-1 align-items-center">
 					<div class="col-sm-4">
 						<Label For="level" HelpText="Select the log level for event log items" ResourceKey="Level">Level: </Label><br /><br />
-						<select id="level" class="form-select" @onchange="(e => LevelChanged(e))">
+						<select id="level" class="form-select" value="@_level" @onchange="(e => LevelChanged(e))">
 							<option value="-">&lt;@Localizer["AllLevels"]&gt;</option>
 							<option value="Trace">@Localizer["Trace"]</option>
 							<option value="Debug">@Localizer["Debug"]</option>
@@ -29,7 +29,7 @@ else
 					</div>            
 					<div class="col-sm-4">
 						<Label For="function" HelpText="Select the function for event log items" ResourceKey="Function">Function: </Label><br /><br />
-						<select id="function" class="form-select" @onchange="(e => FunctionChanged(e))">
+						<select id="function" class="form-select" value="@_function" @onchange="(e => FunctionChanged(e))">
 							<option value="-">&lt;@Localizer["AllFunctions"]&gt;</option>
 							<option value="Create">@Localizer["Create"]</option>
 							<option value="Read">@Localizer["Read"]</option>
@@ -41,7 +41,7 @@ else
 					</div>            
 					<div class="col-sm-4">
 						<Label For="rows" HelpText="Select the maximum number of event log items to review. Please note that if you choose more than 10 items the information will be split into pages." ResourceKey="Rows">Maximum Items: </Label><br /><br />
-						<select id="rows" class="form-select" @onchange="(e => RowsChanged(e))">
+						<select id="rows" class="form-select" value="@_rows" @onchange="(e => RowsChanged(e))">
 							<option value="10">10</option>
 							<option value="50">50</option>
 							<option value="100">100</option>
@@ -53,7 +53,7 @@ else
 
 			@if (_logs.Any())
 			{
-				<Pager Items="@_logs">
+				<Pager Items="@_logs" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange">
 					<Header>
 						<th style="width: 1px;">&nbsp;</th>
 						<th>@Localizer["Date"]</th>
@@ -62,7 +62,7 @@ else
 						<th>@Localizer["Function"]</th>
 					</Header>
 					<Row>
-						<td class="@GetClass(context.Function)"><ActionLink Action="Detail" Parameters="@($"id=" + context.LogId.ToString())" ResourceKey="LogDetails" /></td>
+						<td class="@GetClass(context.Function)"><ActionLink Action="Detail" Parameters="@($"id=" + context.LogId.ToString() + "&level=" + _level + "&function=" + _function + "&rows=" + _rows + "&page=" + _page.ToString())" ResourceKey="LogDetails" /></td>
 						<td class="@GetClass(context.Function)">@context.LogDate</td>
 						<td class="@GetClass(context.Function)">@context.Level</td>
 						<td class="@GetClass(context.Function)">@context.Feature</td>
@@ -94,6 +94,7 @@ else
     private string _level = "-";
     private string _function = "-";
     private string _rows = "10";
+	private int _page = 1;
     private List<Log> _logs;
     private string _retention = "";
 
@@ -103,8 +104,27 @@ else
     {
         try
         {
+			if (PageState.QueryString.ContainsKey("level"))
+			{
+				_level = PageState.QueryString["level"];
+			}
+			if (PageState.QueryString.ContainsKey("function"))
+			{
+				_function = PageState.QueryString["function"];
+			}
+			if (PageState.QueryString.ContainsKey("rows"))
+			{
+				_rows = PageState.QueryString["rows"];
+			}
+			if (PageState.QueryString.ContainsKey("page") && int.TryParse(PageState.QueryString["page"], out int page))
+			{
+				_page = page;
+			}
+
             await GetLogs();
-			_retention = SettingService.GetSetting(PageState.Site.Settings, "LogRetention", "30");
+
+			var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+			_retention = SettingService.GetSetting(settings, "LogRetention", "30");
         }
         catch (Exception ex)
         {
@@ -206,6 +226,11 @@ else
 			await logger.LogError(ex, "Error Saving Site Settings {Error}", ex.Message);
 			AddModuleMessage(Localizer["Error.SaveSiteSettings"], MessageType.Error);
 		}
+	}
+
+	private void OnPageChange(int page)
+	{
+		_page = page;	
 	}
 
 }

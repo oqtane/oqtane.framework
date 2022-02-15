@@ -21,7 +21,6 @@ namespace Oqtane
 {
     public class Startup
     {
-        private readonly Runtime _runtime;
         private readonly bool _useSwagger;
         private readonly IWebHostEnvironment _env;
         private readonly string[] _supportedCultures;
@@ -36,7 +35,6 @@ namespace Oqtane
             Configuration = builder.Build();
 
             _supportedCultures = localizationManager.GetSupportedCultures();
-            _runtime = (Configuration.GetSection("Runtime").Value == "WebAssembly") ? Runtime.WebAssembly : Runtime.Server;
 
             //add possibility to switch off swagger on production.
             _useSwagger = Configuration.GetSection("UseSwagger").Value != "false";
@@ -115,7 +113,7 @@ namespace Oqtane
             services.AddOqtaneTransientServices();
 
             // load the external assemblies into the app domain, install services
-            services.AddOqtane(_runtime, _supportedCultures);
+            services.AddOqtane(_supportedCultures);
             services.AddOqtaneDbContext();
 
             services.AddMvc()

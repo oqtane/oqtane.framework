@@ -103,6 +103,12 @@
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="meta" HelpText="Optionally enter meta tags (in exactly the form you want them to be included in the page output)." ResourceKey="Meta">Meta: </Label>
+                            <div class="col-sm-9">
+								<textarea id="meta" class="form-control" @bind="@_meta" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="theme" HelpText="Select the theme for this page" ResourceKey="Theme">Theme: </Label>
                             <div class="col-sm-9">
                                 <select id="theme" class="form-select" value="@_themetype" @onchange="(e => ThemeChanged(e))" required>
@@ -200,6 +206,7 @@
 	private int _pageId;
 	private string _name;
 	private string _title;
+	private string _meta;
 	private string _path;
 	private string _currentparentid;
 	private string _parentid = "-1";
@@ -243,6 +250,7 @@
 			{
 				_name = page.Name;
 				_title = page.Title;
+				_meta = page.Meta;
 				_path = page.Path;
 				_pageModules = PageState.Modules.Where(m => m.PageId == page.PageId && m.IsDeleted == false).ToList();
 
@@ -313,183 +321,187 @@
 			_pageModules.RemoveAll(item => item.PageModuleId == pagemodule.PageModuleId);
 			StateHasChanged();
 			NavigationManager.NavigateTo(NavigationManager.Uri + "&tab=PageModules");
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Deleting Module {Title} {Error}", module.Title, ex.Message);
-            AddModuleMessage(Localizer["Error.Module.Delete"], MessageType.Error);
-        }
-    }
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Deleting Module {Title} {Error}", module.Title, ex.Message);
+			AddModuleMessage(Localizer["Error.Module.Delete"], MessageType.Error);
+		}
+	}
 
-    private async void ParentChanged(ChangeEventArgs e)
-    {
-        try
-        {
-            _parentid = (string)e.Value;
-            _children = new List<Page>();
-            if (_parentid == "-1")
-            {
-                foreach (Page p in PageState.Pages.Where(item => item.ParentId == null))
-                {
-                    if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
-                    {
-                        _children.Add(p);
-                    }
-                }
-            }
-            else
-            {
-                foreach (Page p in PageState.Pages.Where(item => item.ParentId == int.Parse(_parentid)))
-                {
-                    if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
-                    {
-                        _children.Add(p);
-                    }
-                }
-            }
-            if (_parentid == _currentparentid)
-            {
-                _insert = "=";
-            }
-            else
-            {
-                _insert = ">>";
-            }
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Loading Child Pages For Parent {PageId} {Error}", _parentid, ex.Message);
-            AddModuleMessage(Localizer["Error.ChildPage.Load"], MessageType.Error);
-        }
-    }
+	private async void ParentChanged(ChangeEventArgs e)
+	{
+		try
+		{
+			_parentid = (string)e.Value;
+			_children = new List<Page>();
+			if (_parentid == "-1")
+			{
+				foreach (Page p in PageState.Pages.Where(item => item.ParentId == null))
+				{
+					if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
+					{
+						_children.Add(p);
+					}
+				}
+			}
+			else
+			{
+				foreach (Page p in PageState.Pages.Where(item => item.ParentId == int.Parse(_parentid)))
+				{
+					if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
+					{
+						_children.Add(p);
+					}
+				}
+			}
+			if (_parentid == _currentparentid)
+			{
+				_insert = "=";
+			}
+			else
+			{
+				_insert = ">>";
+			}
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Loading Child Pages For Parent {PageId} {Error}", _parentid, ex.Message);
+			AddModuleMessage(Localizer["Error.ChildPage.Load"], MessageType.Error);
+		}
+	}
 
-    private async void ThemeChanged(ChangeEventArgs e)
-    {
-        try
-        {
-            _themetype = (string)e.Value;
-            _containers = ThemeService.GetContainerControls(_themeList, _themetype);
-            _containertype = "-";
-            ThemeSettings();
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", _themetype, ex.Message);
-            AddModuleMessage(Localizer["Error.Pane.Load"], MessageType.Error);
-        }
-    }
+	private async void ThemeChanged(ChangeEventArgs e)
+	{
+		try
+		{
+			_themetype = (string)e.Value;
+			_containers = ThemeService.GetContainerControls(_themeList, _themetype);
+			_containertype = "-";
+			ThemeSettings();
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", _themetype, ex.Message);
+			AddModuleMessage(Localizer["Error.Pane.Load"], MessageType.Error);
+		}
+	}
 
-    private void ThemeSettings()
-    {
-        _themeSettingsType = null;
-        var theme = _themeList.FirstOrDefault(item => item.Themes.Any(themecontrol => themecontrol.TypeName.Equals(_themetype)));
-        if (theme != null && !string.IsNullOrEmpty(theme.ThemeSettingsType))
-        {
-            _themeSettingsType = Type.GetType(theme.ThemeSettingsType);
-            if (_themeSettingsType != null)
-            {
-                ThemeSettingsComponent = builder =>
-                {
-                    builder.OpenComponent(0, _themeSettingsType);
-                    builder.AddComponentReferenceCapture(1, inst => { _themeSettings = Convert.ChangeType(inst, _themeSettingsType); });
-                    builder.CloseComponent();
-                };
-            }
-            _refresh = true;
-        }
-    }
+	private void ThemeSettings()
+	{
+		_themeSettingsType = null;
+		if (PageState.QueryString.ContainsKey("cp")) // can only be displayed if invoked from Control Panel
+		{
+			var theme = _themeList.FirstOrDefault(item => item.Themes.Any(themecontrol => themecontrol.TypeName.Equals(_themetype)));
+			if (theme != null && !string.IsNullOrEmpty(theme.ThemeSettingsType))
+			{
+				_themeSettingsType = Type.GetType(theme.ThemeSettingsType);
+				if (_themeSettingsType != null)
+				{
+					ThemeSettingsComponent = builder =>
+					{
+						builder.OpenComponent(0, _themeSettingsType);
+						builder.AddComponentReferenceCapture(1, inst => { _themeSettings = Convert.ChangeType(inst, _themeSettingsType); });
+						builder.CloseComponent();
+					};
+				}
+				_refresh = true;
+			}
+		}
+	}
 
-    private async Task SavePage()
-    {
-        validated = true;
-        var interop = new Interop(JSRuntime);
-        if (await interop.FormValid(form))
-        {
-            Page page = null;
-            try
-            {
-                if (!string.IsNullOrEmpty(_themetype) && _containertype != "-")
-                {
-                    page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
-                    string currentPath = page.Path;
+	private async Task SavePage()
+	{
+		validated = true;
+		var interop = new Interop(JSRuntime);
+		if (await interop.FormValid(form))
+		{
+			Page page = null;
+			try
+			{
+				if (!string.IsNullOrEmpty(_themetype) && _containertype != "-")
+				{
+					page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
+					string currentPath = page.Path;
 
-                    page.Name = _name;
-                    page.Title = _title;
+					page.Name = _name;
+					page.Title = _title;
 
-                    if (string.IsNullOrEmpty(_path))
-                    {
-                        _path = _name;
-                    }
-                    if (_path.Contains("/"))
-                    {
-                        _path = _path.Substring(_path.LastIndexOf("/") + 1);
-                    }
+					if (string.IsNullOrEmpty(_path))
+					{
+						_path = _name;
+					}
+					if (_path.Contains("/"))
+					{
+						_path = _path.Substring(_path.LastIndexOf("/") + 1);
+					}
 
-                    if (_parentid == "-1")
-                    {
-                        page.ParentId = null;
-                        page.Path = Utilities.GetFriendlyUrl(_path);
-                    }
-                    else
-                    {
-                        page.ParentId = Int32.Parse(_parentid);
-                        Page parent = PageState.Pages.FirstOrDefault(item => item.PageId == page.ParentId);
-                        if (parent.Path == string.Empty)
-                        {
-                            page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
-                        }
-                        else
-                        {
-                            page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(_path);
-                        }
-                    }
+					if (_parentid == "-1")
+					{
+						page.ParentId = null;
+						page.Path = Utilities.GetFriendlyUrl(_path);
+					}
+					else
+					{
+						page.ParentId = Int32.Parse(_parentid);
+						Page parent = PageState.Pages.FirstOrDefault(item => item.PageId == page.ParentId);
+						if (parent.Path == string.Empty)
+						{
+							page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
+						}
+						else
+						{
+							page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(_path);
+						}
+					}
 
-                    if (!PagePathIsUnique(page.Path, page.SiteId, page.PageId, _pageList))
-                    {
-                        AddModuleMessage(string.Format(Localizer["Mesage.Page.PathExists"], _path), MessageType.Warning);
-                        return;
-                    }
+					if (!PagePathIsUnique(page.Path, page.SiteId, page.PageId, _pageList))
+					{
+						AddModuleMessage(string.Format(Localizer["Mesage.Page.PathExists"], _path), MessageType.Warning);
+						return;
+					}
 
-                    if (_insert != "=")
-                    {
-                        Page child;
-                        switch (_insert)
-                        {
-                            case "<<":
-                                page.Order = 0;
-                                break;
-                            case "<":
-                                child = PageState.Pages.FirstOrDefault(item => item.PageId == _childid);
-                                if (child != null) page.Order = child.Order - 1;
-                                break;
-                            case ">":
-                                child = PageState.Pages.FirstOrDefault(item => item.PageId == _childid);
-                                if (child != null) page.Order = child.Order + 1;
-                                break;
-                            case ">>":
-                                page.Order = int.MaxValue;
-                                break;
-                        }
-                    }
-                    page.IsNavigation = (_isnavigation == null || Boolean.Parse(_isnavigation));
-                    page.IsClickable = (_isclickable == null ? true : Boolean.Parse(_isclickable));
-                    page.Url = _url;
-                    page.ThemeType = (_themetype != "-") ? _themetype : string.Empty;
-                    if (!string.IsNullOrEmpty(page.ThemeType) && page.ThemeType == PageState.Site.DefaultThemeType)
-                    {
-                        page.ThemeType = string.Empty;
-                    }
-                    page.DefaultContainerType = (_containertype != "-") ? _containertype : string.Empty;
-                    if (!string.IsNullOrEmpty(page.DefaultContainerType) && page.DefaultContainerType == PageState.Site.DefaultContainerType)
-                    {
-                        page.DefaultContainerType = string.Empty;
-                    }
-                    page.Icon = _icon ?? string.Empty;
-                    page.Permissions = _permissionGrid.GetPermissions();
-                    page.IsPersonalizable = (_ispersonalizable != null && Boolean.Parse(_ispersonalizable));
-                    page.UserId = null;
+					if (_insert != "=")
+					{
+						Page child;
+						switch (_insert)
+						{
+							case "<<":
+								page.Order = 0;
+								break;
+							case "<":
+								child = PageState.Pages.FirstOrDefault(item => item.PageId == _childid);
+								if (child != null) page.Order = child.Order - 1;
+								break;
+							case ">":
+								child = PageState.Pages.FirstOrDefault(item => item.PageId == _childid);
+								if (child != null) page.Order = child.Order + 1;
+								break;
+							case ">>":
+								page.Order = int.MaxValue;
+								break;
+						}
+					}
+					page.IsNavigation = (_isnavigation == null || Boolean.Parse(_isnavigation));
+					page.IsClickable = (_isclickable == null ? true : Boolean.Parse(_isclickable));
+					page.Url = _url;
+					page.ThemeType = (_themetype != "-") ? _themetype : string.Empty;
+					if (!string.IsNullOrEmpty(page.ThemeType) && page.ThemeType == PageState.Site.DefaultThemeType)
+					{
+						page.ThemeType = string.Empty;
+					}
+					page.DefaultContainerType = (_containertype != "-") ? _containertype : string.Empty;
+					if (!string.IsNullOrEmpty(page.DefaultContainerType) && page.DefaultContainerType == PageState.Site.DefaultContainerType)
+					{
+						page.DefaultContainerType = string.Empty;
+					}
+					page.Icon = _icon ?? string.Empty;
+					page.Permissions = _permissionGrid.GetPermissions();
+					page.IsPersonalizable = (_ispersonalizable != null && Boolean.Parse(_ispersonalizable));
+					page.UserId = null;
+					page.Meta = _meta;
 
                     page = await PageService.UpdatePageAsync(page);
                     await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, page.ParentId);
