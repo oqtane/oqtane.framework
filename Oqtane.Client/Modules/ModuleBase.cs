@@ -55,7 +55,7 @@ namespace Oqtane.Modules
                     var scripts = new List<object>();
                     foreach (Resource resource in Resources.Where(item => item.ResourceType == ResourceType.Script && item.Declaration != ResourceDeclaration.Global))
                     {
-                        scripts.Add(new { href = resource.Url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "" });
+                        scripts.Add(new { href = resource.Url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", ismodule = resource.IsModule ?? false});
                     }
                     if (scripts.Any())
                     {

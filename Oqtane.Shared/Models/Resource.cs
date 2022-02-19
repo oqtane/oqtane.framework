@@ -33,8 +33,7 @@ namespace Oqtane.Models
         public string Bundle { get; set; }
 
         /// <summary>
-        /// Determines if the Resource is global, meaning that the entire solution uses it or just some modules.
-        /// TODO: VERIFY that this explanation is correct.
+        /// Determines if the Resource is global or local, meaning that the entire solution uses it or just some modules.
         /// </summary>
         public ResourceDeclaration Declaration { get; set; }
 
@@ -42,5 +41,10 @@ namespace Oqtane.Models
         /// If the Resource should be included in the `head` of the HTML document or the `body`
         /// </summary>
         public ResourceLocation Location { get; set; }
+
+        /// <summary>
+        /// For Scripts this allows type="module" registrations - not applicable to Stylesheets
+        /// </summary>
+        public bool? IsModule { get; set; }
     }
 }
