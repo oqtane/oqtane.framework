@@ -232,7 +232,7 @@ Oqtane.Interop = {
                                 if (path === scripts[s].href && scripts[s].crossorigin !== '') {
                                     element.crossOrigin = scripts[s].crossorigin;
                                 }
-                                if (path === scripts[s].href && scripts[s].ismodule === true) {
+                                if (path === scripts[s].href && scripts[s].es6module === true) {
                                     element.type = "module";
                                 }
                             }

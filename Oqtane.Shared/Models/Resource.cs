@@ -45,6 +45,6 @@ namespace Oqtane.Models
         /// <summary>
         /// For Scripts this allows type="module" registrations - not applicable to Stylesheets
         /// </summary>
-        public bool? IsModule { get; set; }
+        public bool ES6Module { get; set; }
     }
 }
