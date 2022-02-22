@@ -109,7 +109,7 @@ namespace Oqtane.Migrations.EntityBuilders
 
         public void AlterStringColumn(string name, int length, bool nullable = false, bool unicode = true)
         {
-            _migrationBuilder.AlterColumn<string>(RewriteName(name), RewriteName(EntityTableName), maxLength: length, nullable: nullable, unicode: unicode);
+            ActiveDatabase.AlterStringColumn(_migrationBuilder, RewriteName(name), RewriteName(EntityTableName), length, nullable, unicode);
         }
 
         public void AddDecimalColumn(string name, int precision, int scale, bool nullable = false)
