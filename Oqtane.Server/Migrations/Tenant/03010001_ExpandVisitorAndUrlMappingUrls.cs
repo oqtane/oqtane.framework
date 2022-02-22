@@ -16,37 +16,28 @@ namespace Oqtane.Migrations.Tenant
 
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            if (ActiveDatabase.Name != "Sqlite")
-            {
-                var visitorEntityBuilder = new VisitorEntityBuilder(migrationBuilder, ActiveDatabase);
-                visitorEntityBuilder.AlterStringColumn("Url", 2048);
+            var visitorEntityBuilder = new VisitorEntityBuilder(migrationBuilder, ActiveDatabase);
+            visitorEntityBuilder.AlterStringColumn("Url", 2048);
 
-                // Drop the index is needed because the Url is already associated with IX_UrlMapping
-                var urlMappingEntityBuilder = new UrlMappingEntityBuilder(migrationBuilder, ActiveDatabase);
-                urlMappingEntityBuilder.DropForeignKey("FK_UrlMapping_Site");
-                urlMappingEntityBuilder.DropIndex("IX_UrlMapping");
-                urlMappingEntityBuilder.AlterStringColumn("Url", 2048);
-                urlMappingEntityBuilder.AlterStringColumn("MappedUrl", 2048);
-                urlMappingEntityBuilder.AddIndex("IX_UrlMapping", new[] { "SiteId", "Url" }, true);
-                urlMappingEntityBuilder.AddForeignKey("FK_UrlMapping_Site");
-            }
+            var urlMappingEntityBuilder = new UrlMappingEntityBuilder(migrationBuilder, ActiveDatabase);
+            // Drop the index is needed because the Url is already associated with IX_UrlMapping
+            urlMappingEntityBuilder.DropIndex("IX_UrlMapping");
+            urlMappingEntityBuilder.AlterStringColumn("Url", 2048);
+            urlMappingEntityBuilder.AlterStringColumn("MappedUrl", 2048);
+            urlMappingEntityBuilder.AddIndex("IX_UrlMapping", new[] { "SiteId", "Url" }, true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            if (ActiveDatabase.Name != "Sqlite")
-            {
-                var visitorEntityBuilder = new VisitorEntityBuilder(migrationBuilder, ActiveDatabase);
-                visitorEntityBuilder.AlterStringColumn("Url", 500);
+            var visitorEntityBuilder = new VisitorEntityBuilder(migrationBuilder, ActiveDatabase);
+            visitorEntityBuilder.AlterStringColumn("Url", 500);
 
-                var urlMappingEntityBuilder = new UrlMappingEntityBuilder(migrationBuilder, ActiveDatabase);
-                urlMappingEntityBuilder.DropForeignKey("FK_UrlMapping_Site");
-                urlMappingEntityBuilder.DropIndex("IX_UrlMapping");
-                urlMappingEntityBuilder.AlterStringColumn("Url", 500);
-                urlMappingEntityBuilder.AlterStringColumn("MappedUrl", 500);
-                urlMappingEntityBuilder.AddIndex("IX_UrlMapping", new[] { "SiteId", "Url" }, true);
-                urlMappingEntityBuilder.AddForeignKey("FK_UrlMapping_Site");
-            }
+            var urlMappingEntityBuilder = new UrlMappingEntityBuilder(migrationBuilder, ActiveDatabase);
+            // Drop the index is needed because the Url is already associated with IX_UrlMapping
+            urlMappingEntityBuilder.DropIndex("IX_UrlMapping");
+            urlMappingEntityBuilder.AlterStringColumn("Url", 500);
+            urlMappingEntityBuilder.AlterStringColumn("MappedUrl", 500);
+            urlMappingEntityBuilder.AddIndex("IX_UrlMapping", new[] { "SiteId", "Url" }, true);
         }
     }
 }

@@ -35,6 +35,11 @@ namespace Oqtane.Database.Sqlite
             // not implemented as SQLite does not support dropping columns
         }
 
+        public override void AlterStringColumn(MigrationBuilder builder, string name, string table, int length, bool nullable, bool unicode)
+        {
+            // not implemented as SQLite does not support altering columns
+        }
+
         public override string ConcatenateSql(params string[] values)
         {
             var returnValue = String.Empty;
