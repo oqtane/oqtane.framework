@@ -231,4 +231,13 @@
   <data name="RestartApplication.Text" xml:space="preserve">
     <value>Restart Application</value>
   </data>
+  <data name="None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="NotificationLevel.HelpText" xml:space="preserve">
+    <value>The Minimum Logging Level For Which Notifications Should Be Sent To Host Users.</value>
+  </data>
+  <data name="NotificationLevel.Text" xml:space="preserve">
+    <value>Notification Level:</value>
+  </data>
 </root>

@@ -1,4 +1,4 @@
-﻿namespace Oqtane.Shared
+namespace Oqtane.Shared
 {
     public enum LogLevel
     {
@@ -7,6 +7,7 @@
         Information,
         Warning,
         Error,
-        Critical
+        Critical,
+        None
     }
 }
