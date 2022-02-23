@@ -69,6 +69,21 @@
                         <option value="Warning">@Localizer["Warning"]</option>
                         <option value="Error">@Localizer["Error"]</option>
                         <option value="Critical">@Localizer["Critical"]</option>
+                        <option value="None">@Localizer["None"]</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="notificationlevel" HelpText="The Minimum Logging Level For Which Notifications Should Be Sent To Host Users." ResourceKey="NotificationLevel">Notification Level: </Label>
+                <div class="col-sm-9">
+                    <select id="notificationlevel" class="form-select" @bind="@_notificationlevel">
+                        <option value="Trace">@Localizer["Trace"]</option>
+                        <option value="Debug">@Localizer["Debug"]</option>
+                        <option value="Information">@Localizer["Information"]</option>
+                        <option value="Warning">@Localizer["Warning"]</option>
+                        <option value="Error">@Localizer["Error"]</option>
+                        <option value="Critical">@Localizer["Critical"]</option>
+                        <option value="None">@Localizer["None"]</option>
                     </select>
                 </div>
             </div>
@@ -110,6 +125,7 @@
 
 	private string _detailederrors = string.Empty;
 	private string _logginglevel = string.Empty;
+	private string _notificationlevel = string.Empty;
 	private string _swagger = string.Empty;
 	private string _packageservice = string.Empty;
 
@@ -128,6 +144,7 @@
 
             _detailederrors = systeminfo["detailederrors"];
             _logginglevel = systeminfo["logginglevel"];
+            _notificationlevel = systeminfo["notificationlevel"];
             _swagger = systeminfo["swagger"];
             _packageservice = systeminfo["packageservice"];
         }
@@ -140,6 +157,7 @@
             var settings = new Dictionary<string, string>();
             settings.Add("detailederrors", _detailederrors);
             settings.Add("logginglevel", _logginglevel);
+            settings.Add("notificationlevel", _notificationlevel);
             settings.Add("swagger", _swagger);
             settings.Add("packageservice", _packageservice);
             await SystemService.UpdateSystemInfoAsync(settings);

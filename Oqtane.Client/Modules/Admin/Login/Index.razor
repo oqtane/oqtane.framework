@@ -131,7 +131,7 @@
                 }
                 else
                 {
-                    await logger.LogError(LogFunction.Security, "Login Failed For Username {Username}", _username);
+                    await logger.LogInformation(LogFunction.Security, "Login Failed For Username {Username}", _username);
                     AddModuleMessage(Localizer["Error.Login.Fail"], MessageType.Error);
                 }
             }
@@ -152,7 +152,7 @@
                 }
                 else
                 {
-                    await logger.LogError(LogFunction.Security, "Login Failed For Username {Username}", _username);
+                    await logger.LogInformation(LogFunction.Security, "Login Failed For Username {Username}", _username);
                     AddModuleMessage(Localizer["Error.Login.Fail"], MessageType.Error);
                 }
             }
