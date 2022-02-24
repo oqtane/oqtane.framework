@@ -94,9 +94,46 @@ namespace Oqtane.Models
         /// </summary>
         public DateTime? SendOn { get; set; }
 
+
+        // constructors
         public Notification() {}
 
+        public Notification(int siteId, User to, string subject, string body)
+        {
+            ConstructNotification(siteId, null, "", "", to, "", "", subject, body, null, null);
+        }
+
+        public Notification(int siteId, User to, string subject, string body, DateTime sendOn)
+        {
+            ConstructNotification(siteId, null, "", "", to, "", "", subject, body, null, sendOn);
+        }
+
+        public Notification(int siteId, User from, User to, string subject, string body)
+        {
+            ConstructNotification(siteId, from, "", "", to, "", "", subject, body, null, null);
+        }
+
         public Notification(int siteId, User from, User to, string subject, string body, int? parentId)
+        {
+            ConstructNotification(siteId, from, "", "", to, "", "", subject, body, parentId, null);
+        }
+
+        public Notification(int siteId, string toDisplayName, string toEmail, string subject, string body)
+        {
+            ConstructNotification(siteId, null, "", "", null, toDisplayName, toEmail, subject, body, null, null);
+        }
+
+        public Notification(int siteId, string toDisplayName, string toEmail, string subject, string body, DateTime sendOn)
+        {
+            ConstructNotification(siteId, null, "", "", null, toDisplayName, toEmail, subject, body, null, sendOn);
+        }
+
+        public Notification(int siteId, string fromDisplayName, string fromEmail, string toDisplayName, string toEmail, string subject, string body)
+        {
+            ConstructNotification(siteId, null, fromDisplayName, fromEmail, null, toDisplayName, toEmail, subject, body, null, null);
+        }
+
+        private void ConstructNotification(int siteId, User from, string fromDisplayName, string fromEmail, User to, string toDisplayName, string toEmail, string subject, string body, int? parentId, DateTime? sendOn)
         {
             SiteId = siteId;
             if (from != null)
@@ -105,37 +142,38 @@ namespace Oqtane.Models
                 FromDisplayName = from.DisplayName;
                 FromEmail = from.Email;
             }
+            else
+            {
+                FromUserId = null;
+                FromDisplayName = fromDisplayName;
+                FromEmail = fromEmail;
+            }
             if (to != null)
             {
                 ToUserId = to.UserId;
                 ToDisplayName = to.DisplayName;
                 ToEmail = to.Email;
             }
+            else
+            {
+                ToUserId = null;
+                ToDisplayName = toDisplayName;
+                ToEmail = toEmail;
+            }
             Subject = subject;
             Body = body;
             ParentId = parentId;
             CreatedOn = DateTime.UtcNow;
+            if (sendOn != null)
+            {
+                SendOn = sendOn;
+            }
+            else
+            {
+                SendOn = CreatedOn;
+            }
             IsDelivered = false;
             DeliveredOn = null;
-            SendOn = DateTime.UtcNow;
-        }
-
-        public Notification(int siteId, string fromDisplayName, string fromEmail, string toDisplayName, string toEmail, string subject, string body)
-        {
-            SiteId = siteId;
-            FromUserId = null;
-            FromDisplayName = fromDisplayName;
-            FromEmail = fromEmail;
-            ToUserId = null;
-            ToDisplayName = toDisplayName;
-            ToEmail = toEmail;
-            Subject = subject;
-            Body = body;
-            ParentId = null;
-            CreatedOn = DateTime.UtcNow;
-            IsDelivered = false;
-            DeliveredOn = null;
-            SendOn = DateTime.UtcNow;
         }
     }
 
