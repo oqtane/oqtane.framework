@@ -129,6 +129,12 @@
                         <input id="sender" class="form-control" @bind="@_smtpsender" />
                     </div>
                 </div>
+                <div class="row mb-1 align-items-center">
+					<Label Class="col-sm-3" For="retention" HelpText="Number of days of notifications to retain" ResourceKey="Retention">Retention (Days): </Label>
+					<div class="col-sm-9">
+						<input id="retention" class="form-control" @bind="@_retention" />
+					</div>
+                </div>
                 <button type="button" class="btn btn-secondary" @onclick="SendEmail">@Localizer["Smtp.TestConfig"]</button>
                 <br /><br />
             </div>
@@ -261,6 +267,7 @@
 	private string _smtpusername = string.Empty;
 	private string _smtppassword = string.Empty;
 	private string _smtpsender = string.Empty;
+	private string _retention = string.Empty;
 	private string _pwaisenabled;
 	private int _pwaappiconfileid = -1;
 	private FileManager _pwaappiconfilemanager;
@@ -330,6 +337,7 @@
 				_smtpusername = SettingService.GetSetting(settings, "SMTPUsername", string.Empty);
 				_smtppassword = SettingService.GetSetting(settings, "SMTPPassword", string.Empty);
 				_smtpsender = SettingService.GetSetting(settings, "SMTPSender", string.Empty);
+				_retention = SettingService.GetSetting(settings, "NotificationRetention", "30");
 
 				if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
 				{
@@ -479,12 +487,13 @@
 							site = await SiteService.UpdateSiteAsync(site);
 
 							var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
-							SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
-							SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
-							SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
-							SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
-							SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
-							SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
+							settings = SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
+							settings = SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
+							settings = SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
+							settings = SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
+							settings = SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
+							settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
+							settings = SettingService.SetSetting(settings, "NotificationRetention", _retention, true);
 							await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 
 							if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))

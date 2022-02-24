@@ -11,5 +11,6 @@ namespace Oqtane.Repository
         Notification GetNotification(int notificationId);
         Notification GetNotification(int notificationId, bool tracking);
         void DeleteNotification(int notificationId);
+        int DeleteNotifications(int siteId, int age);
     }
 }
