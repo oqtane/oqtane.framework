@@ -173,7 +173,7 @@ namespace Oqtane.Controllers
                             string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
                             string url = HttpContext.Request.Scheme + "://" + _alias.Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
                             string body = "Dear " + user.DisplayName + ",\n\nIn Order To Complete The Registration Of Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
-                            var notification = new Notification(user.SiteId, null, newUser, "User Account Verification", body, null);
+                            var notification = new Notification(user.SiteId, newUser, "User Account Verification", body);
                             _notifications.AddNotification(notification);
                         }
 
@@ -428,7 +428,7 @@ namespace Oqtane.Controllers
                         "\n\nIf you did not request to reset your password you can safely ignore this message." +
                         "\n\nThank You!";
                  
-                    var notification = new Notification(user.SiteId, null, user, "User Password Reset", body, null);
+                    var notification = new Notification(user.SiteId, user, "User Password Reset", body);
                     _notifications.AddNotification(notification);
                     _logger.Log(LogLevel.Information, this, LogFunction.Security, "Password Reset Notification Sent For {Username}", user.Username);
                 }

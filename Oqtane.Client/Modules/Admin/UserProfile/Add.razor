@@ -49,7 +49,7 @@
             var user = await UserService.GetUserAsync(username, PageState.Site.SiteId);
             if (user != null)
             {
-                var notification = new Notification(PageState.Site.SiteId, PageState.User, user, subject, body, null);
+                var notification = new Notification(PageState.Site.SiteId, PageState.User, user, subject, body);
                 notification = await NotificationService.AddNotificationAsync(notification);
                 await logger.LogInformation("Notification Created {NotificationId}", notification.NotificationId);
                 NavigationManager.NavigateTo(NavigateUrl());

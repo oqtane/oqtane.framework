@@ -208,7 +208,7 @@ namespace Oqtane.Infrastructure
                     if (userrole.Role.Name == RoleNames.Host)
                     {
                         var url = _accessor.HttpContext.Request.Scheme + "://" + _tenantManager.GetAlias().Name + "/admin/log";
-                        var notification = new Notification(log.SiteId.Value, null, userrole.User, "Site " + log.Level + " Notification", "Please visit " + url + " for more information", null);
+                        var notification = new Notification(log.SiteId.Value, userrole.User, "Site " + log.Level + " Notification", "Please visit " + url + " for more information");
                         _notifications.AddNotification(notification);
                     }
                 }
