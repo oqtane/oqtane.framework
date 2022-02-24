@@ -201,7 +201,12 @@ namespace Oqtane.Updater
                     log += "Upgrade Process Ended: " + DateTime.UtcNow.ToString() + Environment.NewLine;
 
                     // create upgrade log file
-                    File.WriteAllText(Path.Combine(deployfolder, "Oqtane.Framework.Upgrade." + DateTime.UtcNow.ToString("yyyyMMddHHmm") + ".log"), log);
+                    string logfile = Path.Combine(deployfolder, Path.GetFileNameWithoutExtension(packagename) + ".log");
+                    if (File.Exists(logfile))
+                    {
+                        File.Delete(logfile);
+                    }
+                    File.WriteAllText(logfile, log);
                 }
                 else
                 {
