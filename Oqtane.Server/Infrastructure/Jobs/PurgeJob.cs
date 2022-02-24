@@ -31,6 +31,7 @@ namespace Oqtane.Infrastructure
             var settingRepository = provider.GetRequiredService<ISettingRepository>();
             var logRepository = provider.GetRequiredService<ILogRepository>();
             var visitorRepository = provider.GetRequiredService<IVisitorRepository>();
+            var notificationRepository = provider.GetRequiredService<INotificationRepository>();
 
             // iterate through sites for current tenant
             List<Site> sites = siteRepository.GetSites().ToList();
@@ -51,7 +52,7 @@ namespace Oqtane.Infrastructure
                 }
                 try
                 {
-                    count = logRepository.DeleteLogs(retention);
+                    count = logRepository.DeleteLogs(site.SiteId, retention);
                     log += count.ToString() + " Events Purged<br />";
                 }
                 catch (Exception ex)
@@ -69,13 +70,29 @@ namespace Oqtane.Infrastructure
                     }
                     try
                     {
-                        count = visitorRepository.DeleteVisitors(retention);
+                        count = visitorRepository.DeleteVisitors(site.SiteId, retention);
                         log += count.ToString() + " Visitors Purged<br />";
                     }
                     catch (Exception ex)
                     {
                         log += $"Error Purging Visitors - {ex.Message}<br />";
                     }
+                }
+
+                // purge notifications
+                retention = 30; // 30 days
+                if (settings.ContainsKey("NotificationRetention") && !string.IsNullOrEmpty(settings["NotificationRetention"]))
+                {
+                    retention = int.Parse(settings["NotificationRetention"]);
+                }
+                try
+                {
+                    count = notificationRepository.DeleteNotifications(site.SiteId, retention);
+                    log += count.ToString() + " Notifications Purged<br />";
+                }
+                catch (Exception ex)
+                {
+                    log += $"Error Purging Notifications - {ex.Message}<br />";
                 }
             }
 

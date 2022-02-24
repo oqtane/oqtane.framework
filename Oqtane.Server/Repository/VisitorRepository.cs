@@ -53,19 +53,19 @@ namespace Oqtane.Repository
             _db.SaveChanges();
         }
 
-        public int DeleteVisitors(int age)
+        public int DeleteVisitors(int siteId, int age)
         {
             // delete visitors in batches of 100 records
             int count = 0;
             var purgedate = DateTime.UtcNow.AddDays(-age);
-            var visitors = _db.Visitor.Where(item => item.Visits <= 1 && item.VisitedOn < purgedate)
+            var visitors = _db.Visitor.Where(item => item.SiteId == siteId && item.Visits < 2 && item.VisitedOn < purgedate)
                 .OrderBy(item => item.VisitedOn).Take(100).ToList();
             while (visitors.Count > 0)
             {
                 count += visitors.Count;
                 _db.Visitor.RemoveRange(visitors);
                 _db.SaveChanges();
-                visitors = _db.Visitor.Where(item => item.Visits < 2 && item.VisitedOn < purgedate)
+                visitors = _db.Visitor.Where(item => item.SiteId == siteId && item.Visits < 2 && item.VisitedOn < purgedate)
                     .OrderBy(item => item.VisitedOn).Take(100).ToList();
             }
             return count;
