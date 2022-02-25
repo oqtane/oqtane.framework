@@ -27,7 +27,7 @@ namespace Oqtane.Pages
                 IdentityUser identityuser = await _identityUserManager.FindByNameAsync(username);
                 if (identityuser != null)
                 {
-                    var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, password, false);
+                    var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, password, true);
                     if (result.Succeeded)
                     {
                         validuser = true;

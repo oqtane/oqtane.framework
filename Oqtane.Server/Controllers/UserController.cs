@@ -339,7 +339,7 @@ namespace Oqtane.Controllers
                 IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
                 if (identityuser != null)
                 {
-                    var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, false);
+                    var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, true);
                     if (result.Succeeded)
                     {
                         loginUser = _users.GetUser(identityuser.UserName);
@@ -365,7 +365,22 @@ namespace Oqtane.Controllers
                     }
                     else
                     {
-                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "User Login Failed {Username}", user.Username);
+                        if (result.IsLockedOut)
+                        {
+                            user = _users.GetUser(user.Username);
+                            string token = await _identityUserManager.GeneratePasswordResetTokenAsync(identityuser);
+                            string url = HttpContext.Request.Scheme + "://" + _alias.Name + "/reset?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
+                            string body = "Dear " + user.DisplayName + ",\n\nYou attempted 3 times unsuccessfully to login to your account and it is now locked out. Please wait 10 minutes and then try again... or use the link below to reset your password:\n\n" + url +
+                                "\n\nPlease note that the link is only valid for 24 hours so if you are unable to take action within that time period, you should initiate another password reset on the site." +
+                                "\n\nThank You!";
+                            var notification = new Notification(user.SiteId, user, "User Password Lockout", body);
+                            _notifications.AddNotification(notification);
+                            _logger.Log(LogLevel.Information, this, LogFunction.Security, "Password Lockout Notification Sent For {Username}", user.Username);
+                        }
+                        else
+                        {
+                            _logger.Log(LogLevel.Error, this, LogFunction.Security, "User Login Failed {Username}", user.Username);
+                        }
                     }
                 }
             }
