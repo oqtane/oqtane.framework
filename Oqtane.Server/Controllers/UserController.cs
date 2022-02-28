@@ -247,14 +247,15 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && user.SiteId == _alias.SiteId && _users.GetUser(user.UserId, false) != null && (User.IsInRole(RoleNames.Admin) || User.Identity.Name == user.Username))
             {
-                if (user.Password != "")
+                IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+                if (identityuser != null)
                 {
-                    IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
-                    if (identityuser != null)
+                    identityuser.TwoFactorEnabled = user.TwoFactorEnabled;
+                    if (user.Password != "")
                     {
                         identityuser.PasswordHash = _identityUserManager.PasswordHasher.HashPassword(identityuser, user.Password);
-                        await _identityUserManager.UpdateAsync(identityuser);
                     }
+                    await _identityUserManager.UpdateAsync(identityuser);
                 }
                 user = _users.UpdateUser(user);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.User, user.UserId);
