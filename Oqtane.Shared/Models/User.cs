@@ -97,5 +97,11 @@ namespace Oqtane.Models
         {
             get => "Users\\" + UserId.ToString() + "\\";
         }
+
+        /// <summary>
+        /// Indicates if the user requires 2 factor authentication to sign in
+        /// </summary>
+        [NotMapped]
+        public bool TwoFactorEnabled { get; set; }
     }
 }
