@@ -44,6 +44,21 @@ namespace Oqtane.Models
         public string LastIPAddress { get; set; }
 
         /// <summary>
+        /// Indicates if the user requires 2 factor authentication to sign in
+        /// </summary>
+        public bool TwoFactorRequired { get; set; }
+
+        /// <summary>
+        /// Stores the 2 factor verification code
+        /// </summary>
+        public string TwoFactorCode { get; set; }
+
+        /// <summary>
+        /// The expiry date/time for the 2 factor verification code
+        /// </summary>
+        public DateTime? TwoFactorExpiry { get; set; }
+
+        /// <summary>
         /// Reference to the <see cref="Site"/> this user belongs to.
         /// </summary>
         [NotMapped]
@@ -97,11 +112,5 @@ namespace Oqtane.Models
         {
             get => "Users\\" + UserId.ToString() + "\\";
         }
-
-        /// <summary>
-        /// Indicates if the user requires 2 factor authentication to sign in
-        /// </summary>
-        [NotMapped]
-        public bool TwoFactorEnabled { get; set; }
     }
 }
