@@ -61,11 +61,12 @@ Backlog (Not Yet Assigned)
 - [ ] Allow language specification in Url (#1731)
 
 V.3.1.0 ( Q1 2022 )
+- [x] User account lockout support
+- [x] 2 factor authentication support
+- [ ] Allow configuration of local authentication parameters (ie. password complexity)
+- [ ] Authentication extensibility via OIDC Identity Providers
 - [ ] Token based authentication / authorization via OAuth2 / OpenID Connect
 - [ ] Provide Single Sign On (SSO) for other applications
-- [ ] Authentication extensibility via Social logins / Azure B2C
-- [ ] Allow configuration of password complexity for local authentication
-- [ ] User account lockout support
 
 V.3.0.3 ( Feb 15, 2022 )
 - [x] Url fragment and anchor navigation support
