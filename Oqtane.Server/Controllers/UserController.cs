@@ -97,23 +97,30 @@ namespace Oqtane.Controllers
 
         private User Filter(User user)
         {
-            if (user != null && !User.IsInRole(RoleNames.Admin) && User.Identity.Name?.ToLower() != user.Username.ToLower())
+            if (user != null)
             {
-                user.DisplayName = "";
-                user.Email = "";
-                user.PhotoFileId = null;
-                user.LastLoginOn = DateTime.MinValue;
-                user.LastIPAddress = "";
-                user.Roles = "";
-                user.CreatedBy = "";
-                user.CreatedOn = DateTime.MinValue;
-                user.ModifiedBy = "";
-                user.ModifiedOn = DateTime.MinValue;
-                user.DeletedBy = "";
-                user.DeletedOn = DateTime.MinValue;
-                user.IsDeleted = false;
                 user.Password = "";
                 user.IsAuthenticated = false;
+                user.TwoFactorCode = "";
+                user.TwoFactorExpiry = null;
+
+                if (!User.IsInRole(RoleNames.Admin) && User.Identity.Name?.ToLower() != user.Username.ToLower())
+                {
+                    user.DisplayName = "";
+                    user.Email = "";
+                    user.PhotoFileId = null;
+                    user.LastLoginOn = DateTime.MinValue;
+                    user.LastIPAddress = "";
+                    user.Roles = "";
+                    user.CreatedBy = "";
+                    user.CreatedOn = DateTime.MinValue;
+                    user.ModifiedBy = "";
+                    user.ModifiedOn = DateTime.MinValue;
+                    user.DeletedBy = "";
+                    user.DeletedOn = DateTime.MinValue;
+                    user.IsDeleted = false;
+                    user.TwoFactorRequired = false;
+                }
             }
             return user;
         }
@@ -247,15 +254,14 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && user.SiteId == _alias.SiteId && _users.GetUser(user.UserId, false) != null && (User.IsInRole(RoleNames.Admin) || User.Identity.Name == user.Username))
             {
-                IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
-                if (identityuser != null)
+                if (user.Password != "")
                 {
-                    identityuser.TwoFactorEnabled = user.TwoFactorEnabled;
-                    if (user.Password != "")
+                    IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+                    if (identityuser != null)
                     {
                         identityuser.PasswordHash = _identityUserManager.PasswordHasher.HashPassword(identityuser, user.Password);
+                        await _identityUserManager.UpdateAsync(identityuser);
                     }
-                    await _identityUserManager.UpdateAsync(identityuser);
                 }
                 user = _users.UpdateUser(user);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.User, user.UserId);
@@ -333,7 +339,7 @@ namespace Oqtane.Controllers
         [HttpPost("login")]
         public async Task<User> Login([FromBody] User user, bool setCookie, bool isPersistent)
         {
-            User loginUser = new User { Username = user.Username, IsAuthenticated = false };
+            User loginUser = new User { SiteId = user.SiteId, Username = user.Username, IsAuthenticated = false };
 
             if (ModelState.IsValid)
             {
@@ -343,24 +349,44 @@ namespace Oqtane.Controllers
                     var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, true);
                     if (result.Succeeded)
                     {
-                        loginUser = _users.GetUser(identityuser.UserName);
-                        if (loginUser != null)
+                        user = _users.GetUser(user.Username);
+                        if (user.TwoFactorRequired)
                         {
-                            if (identityuser.EmailConfirmed)
+                            var token = await _identityUserManager.GenerateTwoFactorTokenAsync(identityuser, "Email");
+                            user.TwoFactorCode = token;
+                            user.TwoFactorExpiry = DateTime.UtcNow.AddMinutes(10);
+                            _users.UpdateUser(user);
+
+                            string body = "Dear " + user.DisplayName + ",\n\nYou requested a secure verification code to log in to your account. Please enter the secure verification code on the site:\n\n" + token +
+                                "\n\nPlease note that the code is only valid for 10 minutes so if you are unable to take action within that time period, you should initiate a new login on the site." +
+                                "\n\nThank You!";
+                            var notification = new Notification(loginUser.SiteId, user, "User Verification Code", body);
+                            _notifications.AddNotification(notification);
+
+                            _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Verification Notification Sent For {Username}", user.Username);
+                            loginUser.TwoFactorRequired = true;
+                        }
+                        else
+                        {
+                            loginUser = _users.GetUser(identityuser.UserName);
+                            if (loginUser != null)
                             {
-                                loginUser.IsAuthenticated = true;
-                                loginUser.LastLoginOn = DateTime.UtcNow;
-                                loginUser.LastIPAddress = HttpContext.Connection.RemoteIpAddress.ToString();
-                                _users.UpdateUser(loginUser);
-                                _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful {Username}", user.Username);
-                                if (setCookie)
+                                if (identityuser.EmailConfirmed)
                                 {
-                                    await _identitySignInManager.SignInAsync(identityuser, isPersistent);
+                                    loginUser.IsAuthenticated = true;
+                                    loginUser.LastLoginOn = DateTime.UtcNow;
+                                    loginUser.LastIPAddress = HttpContext.Connection.RemoteIpAddress.ToString();
+                                    _users.UpdateUser(loginUser);
+                                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful {Username}", user.Username);
+                                    if (setCookie)
+                                    {
+                                        await _identitySignInManager.SignInAsync(identityuser, isPersistent);
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Not Verified {Username}", user.Username);
+                                else
+                                {
+                                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Not Verified {Username}", user.Username);
+                                }
                             }
                         }
                     }
@@ -371,16 +397,16 @@ namespace Oqtane.Controllers
                             user = _users.GetUser(user.Username);
                             string token = await _identityUserManager.GeneratePasswordResetTokenAsync(identityuser);
                             string url = HttpContext.Request.Scheme + "://" + _alias.Name + "/reset?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
-                            string body = "Dear " + user.DisplayName + ",\n\nYou attempted 3 times unsuccessfully to login to your account and it is now locked out. Please wait 10 minutes and then try again... or use the link below to reset your password:\n\n" + url +
+                            string body = "Dear " + user.DisplayName + ",\n\nYou attempted 3 times unsuccessfully to log in to your account and it is now locked out. Please wait 10 minutes and then try again... or use the link below to reset your password:\n\n" + url +
                                 "\n\nPlease note that the link is only valid for 24 hours so if you are unable to take action within that time period, you should initiate another password reset on the site." +
                                 "\n\nThank You!";
-                            var notification = new Notification(user.SiteId, user, "User Password Lockout", body);
+                            var notification = new Notification(loginUser.SiteId, user, "User Lockout", body);
                             _notifications.AddNotification(notification);
-                            _logger.Log(LogLevel.Information, this, LogFunction.Security, "Password Lockout Notification Sent For {Username}", user.Username);
+                            _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Lockout Notification Sent For {Username}", user.Username);
                         }
                         else
                         {
-                            _logger.Log(LogLevel.Error, this, LogFunction.Security, "User Login Failed {Username}", user.Username);
+                            _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Failed {Username}", user.Username);
                         }
                     }
                 }
@@ -483,6 +509,27 @@ namespace Oqtane.Controllers
                 }
             }
             return user;
+        }
+
+        // POST api/<controller>/twofactor
+        [HttpPost("twofactor")]
+        public User TwoFactor([FromBody] User user, string token)
+        {
+            User loginUser = new User { SiteId = user.SiteId, Username = user.Username, IsAuthenticated = false };
+
+            if (ModelState.IsValid && !string.IsNullOrEmpty(token))
+            {
+                user = _users.GetUser(user.Username);
+                if (user != null)
+                {
+                    if (user.TwoFactorRequired && user.TwoFactorCode == token && DateTime.UtcNow < user.TwoFactorExpiry)
+                    {
+                        loginUser.IsAuthenticated = true;
+                    }
+                }
+            }
+
+            return loginUser;
         }
 
         // GET api/<controller>/authenticate

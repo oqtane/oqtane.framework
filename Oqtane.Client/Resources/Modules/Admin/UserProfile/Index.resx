@@ -204,4 +204,10 @@
   <data name="Username.Text" xml:space="preserve">
     <value>Username:</value>
   </data>
+  <data name="TwoFactor.HelpText" xml:space="preserve">
+    <value>Indicates if you are using two factor authentication</value>
+  </data>
+  <data name="TwoFactor.Text" xml:space="preserve">
+    <value>Two Factor Authentication?</value>
+  </data>
 </root>

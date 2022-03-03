@@ -68,5 +68,10 @@ namespace Oqtane.Services
         {
             return await PostJsonAsync<User>($"{Apiurl}/reset?token={token}", user);
         }
+
+        public async Task<User> VerifyTwoFactorAsync(User user, string token)
+        {
+            return await PostJsonAsync<User>($"{Apiurl}/twofactor?token={token}", user);
+        }
     }
 }
