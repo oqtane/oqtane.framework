@@ -4,6 +4,7 @@
 @inject IUserService UserService
 @inject ISettingService SettingService
 @inject ISiteService SiteService
+@inject ISystemService SystemService
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -64,6 +65,74 @@ else
 						</select>
 					</div>
 				</div>
+				@if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+				{
+					<br />
+					<Section Name="Password" Heading="Password Settings" ResourceKey="PasswordSettings">
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="minimumlength" HelpText="The Minimum Length For A Password" ResourceKey="RequiredLength">Minimum Length:</Label>
+							<div class="col-sm-9">
+								<input id="minimumlength" class="form-control" @bind="@_minimumlength" required />
+							</div>
+						</div>					
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="uniquecharacters" HelpText="The Minimum Number Of Unique Characters Which A Password Must Contain" ResourceKey="UniqueCharacters">Unique Characters:</Label>
+							<div class="col-sm-9">
+								<input id="uniquecharacters" class="form-control" @bind="@_uniquecharacters" required />
+							</div>
+						</div>					
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="requiredigit" HelpText="Indicate If Passwords Must Contain A Digit" ResourceKey="RequireDigit">Require Digit?</Label>
+							<div class="col-sm-9">
+								<select id="requiredigit" class="form-select" @bind="@_requiredigit" required>
+									<option value="true">@SharedLocalizer["Yes"]</option>
+									<option value="false">@SharedLocalizer["No"]</option>
+								</select>
+							</div>
+						</div>					
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="requireupper" HelpText="Indicate If Passwords Must Contain An Upper Case Character" ResourceKey="RequireUpper">Require Uppercase?</Label>
+							<div class="col-sm-9">
+								<select id="requireupper" class="form-select" @bind="@_requireupper" required>
+									<option value="true">@SharedLocalizer["Yes"]</option>
+									<option value="false">@SharedLocalizer["No"]</option>
+								</select>
+							</div>
+						</div>					
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="requirelower" HelpText="Indicate If Passwords Must Contain A Lower Case Character" ResourceKey="RequireLower">Require Lowercase?</Label>
+							<div class="col-sm-9">
+								<select id="requirelower" class="form-select" @bind="@_requirelower" required>
+									<option value="true">@SharedLocalizer["Yes"]</option>
+									<option value="false">@SharedLocalizer["No"]</option>
+								</select>
+							</div>
+						</div>					
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="requirepunctuation" HelpText="Indicate if Passwords Must Contain A Non-alphanumeric Character (ie. Punctuation)" ResourceKey="RequirePunctuation">Require Punctuation?</Label>
+							<div class="col-sm-9">
+								<select id="requirepunctuation" class="form-select" @bind="@_requirepunctuation" required>
+									<option value="true">@SharedLocalizer["Yes"]</option>
+									<option value="false">@SharedLocalizer["No"]</option>
+								</select>
+							</div>
+						</div>					
+					</Section>
+					<Section Name="Lockout" Heading="Lockout Settings" ResourceKey="LockoutSettings">
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="maximum" HelpText="The Maximum Number Of Sign In Attempts Before A User Is Locked Out" ResourceKey="MaximumFailures">Maximum Failures:</Label>
+							<div class="col-sm-9">
+								<input id="maximum" class="form-control" @bind="@_maximumfailures" required />
+							</div>
+						</div>					
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="lockoutduration" HelpText="The Number Of Minutes A User Should Be Locked Out" ResourceKey="LockoutDuration">Lockout Duration:</Label>
+							<div class="col-sm-9">
+								<input id="lockoutduration" class="form-control" @bind="@_lockoutduration" required />
+							</div>
+						</div>					
+					</Section>
+				}
 			</div>
 			<br />
 			<button type="button" class="btn btn-success" @onclick="SaveSiteSettings">@SharedLocalizer["Save"]</button>
@@ -72,79 +141,104 @@ else
 }
 
 @code {
-    private List<UserRole> allroles;
-    private List<UserRole> userroles;
-    private string _search;
+	private List<UserRole> allroles;
+	private List<UserRole> userroles;
+	private string _search;
+
 	private string _allowregistration;
+	private string _minimumlength = "6";
+	private string _uniquecharacters = "1";
+	private string _requiredigit = "true";
+	private string _requireupper = "true";
+	private string _requirelower = "true";
+	private string _requirepunctuation = "true";
+	private string _maximumfailures = "5";
+	private string _lockoutduration = "5";
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-    protected override async Task OnInitializedAsync()
-    {
-        allroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
-        await LoadSettingsAsync();
-        userroles = Search(_search);
+	protected override async Task OnInitializedAsync()
+	{
+		allroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
+		await LoadSettingsAsync();
+		userroles = Search(_search);
+
 		_allowregistration = PageState.Site.AllowRegistration.ToString();
-    }
+		if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+		{
+			Dictionary<string, object> systeminfo = await SystemService.GetSystemInfoAsync();
+			if (systeminfo != null)
+			{
+				_minimumlength = systeminfo["Password:RequiredLength"].ToString();
+				_uniquecharacters = systeminfo["Password:RequiredUniqueChars"].ToString();
+				_requiredigit = systeminfo["Password:RequireDigit"].ToString();
+				_requireupper = systeminfo["Password:RequireUppercase"].ToString();
+				_requirelower = systeminfo["Password:RequireLowercase"].ToString();
+				_requirepunctuation = systeminfo["Password:RequireNonAlphanumeric"].ToString();
+				_maximumfailures = systeminfo["Lockout:MaxFailedAccessAttempts"].ToString();
+				_lockoutduration = TimeSpan.Parse(systeminfo["Lockout:DefaultLockoutTimeSpan"].ToString()).TotalMinutes.ToString();
+			}
+		}
+	}
 
-    private List<UserRole> Search(string search)
-    {
-        var results = allroles.Where(item => item.Role.Name == RoleNames.Registered || (item.Role.Name == RoleNames.Host && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host)));
+	private List<UserRole> Search(string search)
+	{
+		var results = allroles.Where(item => item.Role.Name == RoleNames.Registered || (item.Role.Name == RoleNames.Host && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host)));
 
-        if (!string.IsNullOrEmpty(_search))
-        {
-            results = results.Where(item =>
-                (
-                    item.User.Username.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    item.User.Email.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    item.User.DisplayName.Contains(search, StringComparison.OrdinalIgnoreCase)
-                )
-            );
-        }
-        return results.ToList();
-    }
+		if (!string.IsNullOrEmpty(_search))
+		{
+			results = results.Where(item =>
+				(
+					item.User.Username.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+					item.User.Email.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+					item.User.DisplayName.Contains(search, StringComparison.OrdinalIgnoreCase)
+				)
+			);
+		}
+		return results.ToList();
+	}
 
-    private async Task OnSearch()
-    {
-        userroles = Search(_search);
-        await UpdateSettingsAsync();
-    }
+	private async Task OnSearch()
+	{
+		userroles = Search(_search);
+		await UpdateSettingsAsync();
+	}
 
-    private async Task DeleteUser(UserRole UserRole)
-    {
-        try
-        {
-            var user = await UserService.GetUserAsync(UserRole.UserId, PageState.Site.SiteId);
-            if (user != null)
-            {
-                await UserService.DeleteUserAsync(user.UserId, PageState.Site.SiteId);
-                await logger.LogInformation("User Deleted {User}", UserRole.User);
-                allroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
-                userroles = Search(_search);
-                StateHasChanged();
-            }
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Deleting User {User} {Error}", UserRole.User, ex.Message);
-            AddModuleMessage(ex.Message, MessageType.Error);
-        }
-    }
+	private async Task DeleteUser(UserRole UserRole)
+	{
+		try
+		{
+			var user = await UserService.GetUserAsync(UserRole.UserId, PageState.Site.SiteId);
+			if (user != null)
+			{
+				await UserService.DeleteUserAsync(user.UserId, PageState.Site.SiteId);
+				await logger.LogInformation("User Deleted {User}", UserRole.User);
+				allroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
+				userroles = Search(_search);
+				StateHasChanged();
+			}
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Deleting User {User} {Error}", UserRole.User, ex.Message);
+			AddModuleMessage(ex.Message, MessageType.Error);
+		}
+	}
 
-    private string settingSearch = "AU-search";
+	private string settingSearch = "AU-search";
 
-    private async Task LoadSettingsAsync()
-    {
-        Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-        _search = SettingService.GetSetting(settings, settingSearch, "");
-    }
+	private async Task LoadSettingsAsync()
+	{
+		Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
+		_search = SettingService.GetSetting(settings, settingSearch, "");
+	}
 
-    private async Task UpdateSettingsAsync()
-    {
-        Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-        SettingService.SetSetting(settings, settingSearch, _search);
-        await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
-    }
+	private async Task UpdateSettingsAsync()
+	{
+		Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
+		SettingService.SetSetting(settings, settingSearch, _search);
+		await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
+	}
 
 	private async Task SaveSiteSettings()
 	{
@@ -153,7 +247,25 @@ else
 			var site = PageState.Site;
 			site.AllowRegistration = bool.Parse(_allowregistration);
 			await SiteService.UpdateSiteAsync(site);
-			AddModuleMessage(Localizer["Success.SaveSiteSettings"], MessageType.Success);
+
+			if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+			{
+				var settings = new Dictionary<string, object>();
+				settings.Add("Password:RequiredLength", _minimumlength);
+				settings.Add("Password:RequiredUniqueChars", _uniquecharacters);
+				settings.Add("Password:RequireDigit", _requiredigit);
+				settings.Add("Password:RequireUppercase", _requireupper);
+				settings.Add("Password:RequireLowercase", _requirelower);
+				settings.Add("Password:RequireNonAlphanumeric", _requirepunctuation);
+				settings.Add("Lockout:MaxFailedAccessAttempts", _maximumfailures);
+				settings.Add("Lockout:DefaultLockoutTimeSpan", TimeSpan.FromMinutes(Convert.ToInt64(_lockoutduration)).ToString());
+				await SystemService.UpdateSystemInfoAsync(settings);
+				AddModuleMessage(Localizer["Success.UpdateConfig.Restart"], MessageType.Success);
+			}
+			else
+			{
+				AddModuleMessage(Localizer["Success.SaveSiteSettings"], MessageType.Success);				
+			}
 		}
 		catch (Exception ex)
 		{

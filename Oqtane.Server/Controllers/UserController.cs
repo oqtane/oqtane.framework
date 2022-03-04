@@ -397,7 +397,7 @@ namespace Oqtane.Controllers
                             user = _users.GetUser(user.Username);
                             string token = await _identityUserManager.GeneratePasswordResetTokenAsync(identityuser);
                             string url = HttpContext.Request.Scheme + "://" + _alias.Name + "/reset?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
-                            string body = "Dear " + user.DisplayName + ",\n\nYou attempted 3 times unsuccessfully to log in to your account and it is now locked out. Please wait 10 minutes and then try again... or use the link below to reset your password:\n\n" + url +
+                            string body = "Dear " + user.DisplayName + ",\n\nYou attempted multiple times unsuccessfully to log in to your account and it is now locked out. Please wait a few minutes and then try again... or use the link below to reset your password:\n\n" + url +
                                 "\n\nPlease note that the link is only valid for 24 hours so if you are unable to take action within that time period, you should initiate another password reset on the site." +
                                 "\n\nThank You!";
                             var notification = new Notification(loginUser.SiteId, user, "User Lockout", body);

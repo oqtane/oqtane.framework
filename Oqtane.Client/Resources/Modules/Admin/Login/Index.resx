@@ -157,10 +157,10 @@
     <value>Verification Failed. Please Ensure You Entered The Code Exactly In The Form Provided In Your Email. If You Wish To Request A New Verification Code Please Select The Cancel Option And Sign In Again. </value>
   </data>
   <data name="Message.TwoFactor" xml:space="preserve">
-    <value>A Secure Verification Code Has Been Sent To Your Email Address. Please Enter The Code That You Received. If You Do Not Receive The Code Within 10 Minutes Or You Have Lost Access To Your Email, Please Contact Your Administrator.</value>
+    <value>A Secure Verification Code Has Been Sent To Your Email Address. Please Enter The Code That You Received. If You Do Not Receive The Code Or You Have Lost Access To Your Email, Please Contact Your Administrator.</value>
   </data>
   <data name="Password.HelpText" xml:space="preserve">
-    <value>Please Enter The Password Related To Your Account. Remember That Passwords Are Case Sensitive. If Your Sign In Attempts Fail 3 Times In Succession, Your Account Will Be Locked Out For 10 Minutes.</value>
+    <value>Please Enter The Password Related To Your Account. Remember That Passwords Are Case Sensitive. If You Attempt Unsuccessfully To Log In To Your Account Multiple Times, You Will Be Locked Out For A Period Of Time.</value>
   </data>
   <data name="Password.Placeholder" xml:space="preserve">
     <value>Password</value>

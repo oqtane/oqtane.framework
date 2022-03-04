@@ -100,7 +100,7 @@ namespace Oqtane.Infrastructure
                 switch (action)
                 {
                     case "set":
-                        jsonObj[currentSection] = value;
+                        jsonObj[currentSection] = JToken.FromObject(value);
                         break;
                     case "remove":
                         if (jsonObj.Property(currentSection) != null)

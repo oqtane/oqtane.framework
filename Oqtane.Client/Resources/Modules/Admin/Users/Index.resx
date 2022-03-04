@@ -153,4 +153,55 @@
   <data name="Roles.Text" xml:space="preserve">
     <value>Roles</value>
   </data>
+  <data name="LockoutDuration.HelpText" xml:space="preserve">
+    <value>The Number Of Minutes A User Should Be Locked Out</value>
+  </data>
+  <data name="LockoutDuration.Text" xml:space="preserve">
+    <value>Lockout Duration:</value>
+  </data>
+  <data name="MaximumFailures.HelpText" xml:space="preserve">
+    <value>The Maximum Number Of Sign In Attempts Before A User Is Locked Out</value>
+  </data>
+  <data name="MaximumFailures.Text" xml:space="preserve">
+    <value>Maximum Failures:</value>
+  </data>
+  <data name="RequireDigit.HelpText" xml:space="preserve">
+    <value>Indicate If Passwords Must Contain A Digit</value>
+  </data>
+  <data name="RequireDigit.Text" xml:space="preserve">
+    <value>Require Digit?</value>
+  </data>
+  <data name="RequiredLength.HelpText" xml:space="preserve">
+    <value>The Minimum Length For A Password</value>
+  </data>
+  <data name="RequiredLength.Text" xml:space="preserve">
+    <value>Minimum Length:</value>
+  </data>
+  <data name="RequireLower.HelpText" xml:space="preserve">
+    <value>Indicate If Passwords Must Contain A Lower Case Character</value>
+  </data>
+  <data name="RequireLower.Text" xml:space="preserve">
+    <value>Require Lowercase?</value>
+  </data>
+  <data name="RequirePunctuation.HelpText" xml:space="preserve">
+    <value>Indicate if Passwords Must Contain A Non-alphanumeric Character (ie. Punctuation)</value>
+  </data>
+  <data name="RequirePunctuation.Text" xml:space="preserve">
+    <value>Require Punctuation?</value>
+  </data>
+  <data name="RequireUpper.HelpText" xml:space="preserve">
+    <value>Indicate If Passwords Must Contain An Upper Case Character</value>
+  </data>
+  <data name="RequireUpper.Text" xml:space="preserve">
+    <value>Require Uppercase?</value>
+  </data>
+  <data name="Success.UpdateConfig.Restart" xml:space="preserve">
+    <value>Configuration Updated. Please Select Restart Application For These Changes To Be Activated.</value>
+  </data>
+  <data name="UniqueCharacters.HelpText" xml:space="preserve">
+    <value>The Minimum Number Of Unique Characters Which A Password Must Contain</value>
+  </data>
+  <data name="UniqueCharacters.Text" xml:space="preserve">
+    <value>Unique Characters:</value>
+  </data>
 </root>
