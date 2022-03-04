@@ -5,6 +5,7 @@ using Oqtane.Shared;
 using System;
 using Microsoft.AspNetCore.Hosting;
 using Oqtane.Infrastructure;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace Oqtane.Controllers
 {
@@ -20,62 +21,76 @@ namespace Oqtane.Controllers
             _configManager = configManager;
         }
 
-        // GET: api/<controller>
+        // GET: api/<controller>?type=x
         [HttpGet]
         [Authorize(Roles = RoleNames.Host)]
-        public Dictionary<string, string> Get()
+        public Dictionary<string, object> Get(string type)
         {
-            Dictionary<string, string> systeminfo = new Dictionary<string, string>();
+            Dictionary<string, object> systeminfo = new Dictionary<string, object>();
 
-            systeminfo.Add("clrversion", Environment.Version.ToString());
-            systeminfo.Add("osversion", Environment.OSVersion.ToString());
-            systeminfo.Add("machinename", Environment.MachineName);
-            systeminfo.Add("serverpath", _environment.ContentRootPath);
-            systeminfo.Add("servertime", DateTime.UtcNow.ToString());
-            systeminfo.Add("installationid", _configManager.GetInstallationId());
-
-            systeminfo.Add("runtime", _configManager.GetSetting("Runtime", "Server"));
-            systeminfo.Add("rendermode", _configManager.GetSetting("RenderMode", "ServerPrerendered"));
-            systeminfo.Add("detailederrors", _configManager.GetSetting("DetailedErrors", "false"));
-            systeminfo.Add("logginglevel", _configManager.GetSetting("Logging:LogLevel:Default", "Information"));
-            systeminfo.Add("notificationlevel", _configManager.GetSetting("Logging:LogLevel:Notify", "Error"));
-            systeminfo.Add("swagger", _configManager.GetSetting("UseSwagger", "true"));
-            systeminfo.Add("packageservice", _configManager.GetSetting("PackageService", "true"));
+            switch (type.ToLower())
+            {
+                case "environment":
+                    systeminfo.Add("CLRVersion", Environment.Version.ToString());
+                    systeminfo.Add("OSVersion", Environment.OSVersion.ToString());
+                    systeminfo.Add("MachineName", Environment.MachineName);
+                    systeminfo.Add("WorkingSet", Environment.WorkingSet.ToString());
+                    systeminfo.Add("TickCount", Environment.TickCount64.ToString());
+                    systeminfo.Add("ContentRootPath", _environment.ContentRootPath);
+                    systeminfo.Add("WebRootPath", _environment.WebRootPath);
+                    systeminfo.Add("ServerTime", DateTime.UtcNow.ToString());
+                    var feature = HttpContext.Features.Get<IHttpConnectionFeature>();
+                    systeminfo.Add("IPAddress", feature?.LocalIpAddress?.ToString());
+                    break;
+                case "configuration":
+                    systeminfo.Add("InstallationId", _configManager.GetInstallationId());
+                    systeminfo.Add("Runtime", _configManager.GetSetting("Runtime", "Server"));
+                    systeminfo.Add("RenderMode", _configManager.GetSetting("RenderMode", "ServerPrerendered"));
+                    systeminfo.Add("DetailedErrors", _configManager.GetSetting("DetailedErrors", "false"));
+                    systeminfo.Add("Logging:LogLevel:Default", _configManager.GetSetting("Logging:LogLevel:Default", "Information"));
+                    systeminfo.Add("Logging:LogLevel:Notify", _configManager.GetSetting("Logging:LogLevel:Notify", "Error"));
+                    systeminfo.Add("UseSwagger", _configManager.GetSetting("UseSwagger", "true"));
+                    systeminfo.Add("PackageService", _configManager.GetSetting("PackageService", "true"));
+                    systeminfo.Add("Password:RequiredLength", _configManager.GetSetting("Password:RequiredLength", "6"));
+                    systeminfo.Add("Password:RequiredUniqueChars", _configManager.GetSetting("Password:RequiredUniqueChars", "1"));
+                    systeminfo.Add("Password:RequireDigit", _configManager.GetSetting("Password:RequireDigit", "true"));
+                    systeminfo.Add("Password:RequireUppercase", _configManager.GetSetting("Password:RequireUppercase", "true"));
+                    systeminfo.Add("Password:RequireLowercase", _configManager.GetSetting("Password:RequireLowercase", "true"));
+                    systeminfo.Add("Password:RequireNonAlphanumeric", _configManager.GetSetting("Password:RequireNonAlphanumeric", "true"));
+                    systeminfo.Add("Lockout:MaxFailedAccessAttempts", _configManager.GetSetting("Lockout:MaxFailedAccessAttempts", "5"));
+                    systeminfo.Add("Lockout:DefaultLockoutTimeSpan", _configManager.GetSetting("Lockout:DefaultLockoutTimeSpan", "00:05:00"));
+                    break;
+            }
 
             return systeminfo;
         }
 
+
+        // GET: api/<controller>
+        [HttpGet("{key}/{value}")]
+        [Authorize(Roles = RoleNames.Host)]
+        public object Get(string key, object value)
+        {
+            return _configManager.GetSetting(key, value);
+        }
+
+        // POST: api/<controller>
         [HttpPost]
         [Authorize(Roles = RoleNames.Host)]
-        public void Post([FromBody] Dictionary<string, string> settings)
+        public void Post([FromBody] Dictionary<string, object> settings)
         {
-            foreach(KeyValuePair<string, string> kvp in settings)
+            foreach(KeyValuePair<string, object> kvp in settings)
             {
-                switch (kvp.Key)
-                {
-                    case "runtime":
-                        _configManager.AddOrUpdateSetting("Runtime", kvp.Value, false);
-                        break;
-                    case "rendermode":
-                        _configManager.AddOrUpdateSetting("RenderMode", kvp.Value, false);
-                        break;
-                    case "detailederrors":
-                        _configManager.AddOrUpdateSetting("DetailedErrors", kvp.Value, false);
-                        break;
-                    case "logginglevel":
-                        _configManager.AddOrUpdateSetting("Logging:LogLevel:Default", kvp.Value, false);
-                        break;
-                    case "notificationlevel":
-                        _configManager.AddOrUpdateSetting("Logging:LogLevel:Notify", kvp.Value, false);
-                        break;
-                    case "swagger":
-                        _configManager.AddOrUpdateSetting("UseSwagger", kvp.Value, false);
-                        break;
-                    case "packageservice":
-                        _configManager.AddOrUpdateSetting("PackageService", kvp.Value, false);
-                        break;
-                }
+                _configManager.AddOrUpdateSetting(kvp.Key, kvp.Value, false);
             }
+        }
+
+        // PUT: api/<controller>
+        [HttpPut("{key}/{value}")]
+        [Authorize(Roles = RoleNames.Host)]
+        public void Put(string key, object value)
+        {
+            _configManager.AddOrUpdateSetting(key, value, false);
         }
     }
 }

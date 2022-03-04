@@ -9,16 +9,34 @@ namespace Oqtane.Services
     public interface ISystemService
     {
         /// <summary>
-        /// returns a key-value directory with the current system information (os-version, clr-version, etc.)
+        /// returns a key-value directory with the current system configuration information
         /// </summary>
         /// <returns></returns>
-        Task<Dictionary<string, string>> GetSystemInfoAsync();
+        Task<Dictionary<string, object>> GetSystemInfoAsync();
+
+        /// <summary>
+        /// returns a key-value directory with the current system information - "environment" or "configuration"
+        /// </summary>
+        /// <returns></returns>
+        Task<Dictionary<string, object>> GetSystemInfoAsync(string type);
+
+        /// <summary>
+        /// returns a config value
+        /// </summary>
+        /// <returns></returns>
+        Task<object> GetSystemInfoAsync(string settingKey, object defaultValue);
 
         /// <summary>
         /// Updates system information
         /// </summary>
         /// <param name="settings"></param>
         /// <returns></returns>
-        Task UpdateSystemInfoAsync(Dictionary<string, string> settings);
+        Task UpdateSystemInfoAsync(Dictionary<string, object> settings);
+
+        /// <summary>
+        /// updates a config value
+        /// </summary>
+        /// <returns></returns>
+        Task UpdateSystemInfoAsync(string settingKey, object settingValue);
     }
 }

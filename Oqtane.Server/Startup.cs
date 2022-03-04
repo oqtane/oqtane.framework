@@ -86,7 +86,7 @@ namespace Oqtane
                 .AddDefaultTokenProviders()
                 .AddClaimsPrincipalFactory<ClaimsPrincipalFactory<IdentityUser>>(); // role claims
 
-            services.ConfigureOqtaneIdentityOptions();
+            services.ConfigureOqtaneIdentityOptions(Configuration);
 
             services.AddAuthentication(Constants.AuthenticationScheme)
                 .AddCookie(Constants.AuthenticationScheme);
