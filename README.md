@@ -63,7 +63,7 @@ Backlog (Not Yet Assigned)
 V.3.1.0 ( Q1 2022 )
 - [x] User account lockout support
 - [x] 2 factor authentication support
-- [ ] Allow configuration of local authentication parameters (ie. password complexity)
+- [x] Allow configuration of local authentication parameters (ie. password complexity)
 - [ ] Authentication extensibility via OIDC Identity Providers
 - [ ] Token based authentication / authorization via OAuth2 / OpenID Connect
 - [ ] Provide Single Sign On (SSO) for other applications
