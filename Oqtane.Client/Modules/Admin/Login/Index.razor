@@ -23,11 +23,14 @@
 						<Label Class="control-label" For="username" HelpText="Please enter your Username" ResourceKey="Username">Username:</Label>
 						<input id="username" type="text" @ref="username" class="form-control input" placeholder="@Localizer["Username.Placeholder"]" @bind="@_username" required />
 					</div>
-					<div class="form-group mt-1">
+					<div class="form-group mt-2">
 						<Label Class="control-label" For="password" HelpText="Please enter your Password" ResourceKey="Password">Password:</Label>
-						<input id="password" type="password" name="Password" class="form-control input" placeholder="@Localizer["Password.Placeholder"]" @bind="@_password" required />
+						<div class="input-group password">
+							<input id="password" type="@_passwordtype" name="Password" class="form-control" placeholder="@Localizer["Password.Placeholder"]" @bind="@_password" required />
+							<button type="button" class="btn btn-secondary" @onclick="@TogglePassword">@_togglepassword</button>
+						</div>
 					</div>
-					<div class="form-group mt-1">
+					<div class="form-group mt-2">
 						<div class="form-check">
 							<input id="remember" type="checkbox" class="form-check-input" @bind="@_remember" />
 							<Label Class="control-label" For="remember" HelpText="Specify if you would like to be signed back in automatically the next time you visit this site" ResourceKey="Remember">Remember Me?</Label>
@@ -64,6 +67,8 @@
 	private string _username = string.Empty;
 	private ElementReference username;
 	private string _password = string.Empty;
+	private string _passwordtype = "password";
+	private string _togglepassword = string.Empty;
 	private bool _remember = false;
 	private string _code = string.Empty;
 
@@ -78,6 +83,8 @@
 
 	protected override async Task OnInitializedAsync()
 	{
+		_togglepassword = Localizer["ShowPassword"];
+
 		if (PageState.QueryString.ContainsKey("returnurl"))
 		{
 			_returnUrl = PageState.QueryString["returnurl"];
@@ -218,11 +225,27 @@
 		StateHasChanged();
 	}
 
-    private async Task KeyPressed(KeyboardEventArgs e)
-    {
-        if (e.Code == "Enter" || e.Code == "NumpadEnter")
-        {
-            await Login();
-        }
-    }
+	private async Task KeyPressed(KeyboardEventArgs e)
+	{
+		if (e.Code == "Enter" || e.Code == "NumpadEnter")
+		{
+			await Login();
+		}
+	}
+
+	private void TogglePassword()
+	{
+		if (_passwordtype == "password")
+		{
+			_passwordtype = "text";
+			_togglepassword = Localizer["HidePassword"];
+		}
+		else
+		{
+			_passwordtype = "password";
+			_togglepassword = Localizer["ShowPassword"];
+		}
+		//StateHasChanged();
+	}
+
 }

@@ -3,3 +3,7 @@
 .Oqtane-Modules-Admin-Login .input {
     width: 200px;
 }
+
+.Oqtane-Modules-Admin-Login .password {
+    width: 270px;
+}
