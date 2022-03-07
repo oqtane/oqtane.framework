@@ -266,17 +266,27 @@ namespace Oqtane.Infrastructure
                         jobs.UpdateJob(job);
                     }
                 }
+            }
+            catch
+            {
+                // error updating the job
+            }
 
-                if (_executingTask == null)
-                {
-                    return;
-                }
+            // stop called without start
+            if (_executingTask == null)
+            {
+                return;
+            }
 
+            try
+            {
+                // force cancellation of the executing method
                 _cancellationTokenSource.Cancel();
             }
             finally
             {
-                await Task.WhenAny(_executingTask, Task.Delay(Timeout.Infinite, cancellationToken));
+                // wait until the task completes or the stop token triggers
+                await Task.WhenAny(_executingTask, Task.Delay(Timeout.Infinite, cancellationToken)).ConfigureAwait(false);
             }
         }
 
