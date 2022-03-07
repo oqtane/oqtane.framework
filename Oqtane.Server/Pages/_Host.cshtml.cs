@@ -395,6 +395,7 @@ namespace Oqtane.Pages
                 var obj = Activator.CreateInstance(type) as IHostResources;
                 foreach (var resource in obj.Resources)
                 {
+                    resource.Declaration = ResourceDeclaration.Global;
                     ProcessResource(resource, 0);
                 }
             }

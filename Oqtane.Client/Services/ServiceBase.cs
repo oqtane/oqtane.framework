@@ -240,7 +240,7 @@ namespace Oqtane.Services
         [Obsolete("This property of ServiceBase is deprecated. Cross tenant service calls are not supported.", false)]
         public Alias Alias { get; set; }
 
-        [Obsolete("This method is obsolete. Use CreateApiUrl(string entityName, int entityId) instead.", false)]
+        [Obsolete("This method is obsolete. Use CreateAuthorizationPolicyUrl(string url, string entityName, int entityId) where entityName = EntityNames.Module instead.", false)]
         public string CreateAuthorizationPolicyUrl(string url, int entityId)
         {
             return url + ((url.Contains("?")) ? "&" : "?") + "entityid=" + entityId.ToString();
