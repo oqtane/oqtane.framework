@@ -252,7 +252,7 @@
 		for (int i = 0; i < _permissions.Count; i++)
 		{
 			permission = _permissions[i];
-			List<string> ids = permission.Permissions.Split(';').ToList();
+			List<string> ids = permission.Permissions.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
 			ids.Remove("!" + RoleNames.Everyone); // remove deny all users
 			ids.Remove("!" + RoleNames.Registered); // remove deny registered users
 			if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
