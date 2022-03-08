@@ -130,12 +130,15 @@
     <value>Install Now</value>
   </data>
   <data name="Error.DbConfig.Load" xml:space="preserve">
-    <value>Error loading Database Configuration Control</value>
+    <value>Error Loading Database Configuration Control</value>
   </data>
   <data name="Message.Require.DbInfo" xml:space="preserve">
-    <value>Please Enter All Required Fields. Ensure Passwords Match And Are Greater Than 5 Characters In Length. Ensure Email Address Provided Is Valid.</value>
+    <value>Please Enter All Required Fields. Ensure Passwords Match And Email Address Provided Is Valid.</value>
   </data>
-  <data name="Register" xml:space="preserve">
+    <data name="Message.Password.Invalid" xml:space="preserve">
+    <value>The Password Provided Does Not Meet The Password Policy. Please Verify The Minimum Password Length And Complexity Requirements.</value>
+  </data>
+    <data name="Register" xml:space="preserve">
     <value>Please Register Me For Major Product Updates And Security Bulletins</value>
   </data>
   <data name="Confirm.HelpText" xml:space="preserve">

@@ -26,12 +26,12 @@ namespace Oqtane.Controllers
         private readonly IUserRoleRepository _userRoles;
         private readonly UserManager<IdentityUser> _identityUserManager;
         private readonly SignInManager<IdentityUser> _identitySignInManager;
+        private readonly ITenantManager _tenantManager;
         private readonly INotificationRepository _notifications;
         private readonly IFolderRepository _folders;
         private readonly ISyncManager _syncManager;
         private readonly ISiteRepository _sites;
         private readonly ILogManager _logger;
-        private readonly Alias _alias;
 
         public UserController(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, ISyncManager syncManager, ISiteRepository sites, ILogManager logger)
         {
@@ -40,12 +40,12 @@ namespace Oqtane.Controllers
             _userRoles = userRoles;
             _identityUserManager = identityUserManager;
             _identitySignInManager = identitySignInManager;
+            _tenantManager = tenantManager;
             _folders = folders;
             _notifications = notifications;
             _syncManager = syncManager;
             _sites = sites;
             _logger = logger;
-            _alias = tenantManager.GetAlias();
         }
 
         // GET api/<controller>/5?siteid=x
@@ -54,7 +54,7 @@ namespace Oqtane.Controllers
         public User Get(int id, string siteid)
         {
             int SiteId;
-            if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
+            if (int.TryParse(siteid, out SiteId) && SiteId == _tenantManager.GetAlias().SiteId)
             {
                 User user = _users.GetUser(id);
                 if (user != null)
@@ -77,7 +77,7 @@ namespace Oqtane.Controllers
         public User Get(string name, string siteid)
         {
             int SiteId;
-            if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
+            if (int.TryParse(siteid, out SiteId) && SiteId == _tenantManager.GetAlias().SiteId)
             {
                 User user = _users.GetUser(name);
                 if (user != null)
@@ -129,7 +129,7 @@ namespace Oqtane.Controllers
         [HttpPost]
         public async Task<User> Post([FromBody] User user)
         {
-            if (ModelState.IsValid && user.SiteId == _alias.SiteId)
+            if (ModelState.IsValid && user.SiteId == _tenantManager.GetAlias().SiteId)
             {
                 var User = await CreateUser(user);
                 return User;
@@ -178,7 +178,7 @@ namespace Oqtane.Controllers
                         if (!verified)
                         {
                             string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
-                            string url = HttpContext.Request.Scheme + "://" + _alias.Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
+                            string url = HttpContext.Request.Scheme + "://" + _tenantManager.GetAlias().Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
                             string body = "Dear " + user.DisplayName + ",\n\nIn Order To Complete The Registration Of Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
                             var notification = new Notification(user.SiteId, newUser, "User Account Verification", body);
                             _notifications.AddNotification(notification);
@@ -252,7 +252,7 @@ namespace Oqtane.Controllers
         [Authorize]
         public async Task<User> Put(int id, [FromBody] User user)
         {
-            if (ModelState.IsValid && user.SiteId == _alias.SiteId && _users.GetUser(user.UserId, false) != null && (User.IsInRole(RoleNames.Admin) || User.Identity.Name == user.Username))
+            if (ModelState.IsValid && user.SiteId == _tenantManager.GetAlias().SiteId && _users.GetUser(user.UserId, false) != null && (User.IsInRole(RoleNames.Admin) || User.Identity.Name == user.Username))
             {
                 if (user.Password != "")
                 {
@@ -264,7 +264,7 @@ namespace Oqtane.Controllers
                     }
                 }
                 user = _users.UpdateUser(user);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.User, user.UserId);
+                _syncManager.AddSyncEvent(_tenantManager.GetAlias().TenantId, EntityNames.User, user.UserId);
                 user.Password = ""; // remove sensitive information
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", user);
             }
@@ -285,7 +285,7 @@ namespace Oqtane.Controllers
         {
             int SiteId;
             User user = _users.GetUser(id);
-            if (user != null && int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
+            if (user != null && int.TryParse(siteid, out SiteId) && SiteId == _tenantManager.GetAlias().SiteId)
             {
                 // remove user roles for site
                 foreach (UserRole userrole in _userRoles.GetUserRoles(user.UserId, SiteId).ToList())
@@ -396,7 +396,7 @@ namespace Oqtane.Controllers
                         {
                             user = _users.GetUser(user.Username);
                             string token = await _identityUserManager.GeneratePasswordResetTokenAsync(identityuser);
-                            string url = HttpContext.Request.Scheme + "://" + _alias.Name + "/reset?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
+                            string url = HttpContext.Request.Scheme + "://" + _tenantManager.GetAlias().Name + "/reset?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
                             string body = "Dear " + user.DisplayName + ",\n\nYou attempted multiple times unsuccessfully to log in to your account and it is now locked out. Please wait a few minutes and then try again... or use the link below to reset your password:\n\n" + url +
                                 "\n\nPlease note that the link is only valid for 24 hours so if you are unable to take action within that time period, you should initiate another password reset on the site." +
                                 "\n\nThank You!";
@@ -464,7 +464,7 @@ namespace Oqtane.Controllers
                 {
                     user = _users.GetUser(user.Username);
                     string token = await _identityUserManager.GeneratePasswordResetTokenAsync(identityuser);
-                    string url = HttpContext.Request.Scheme + "://" + _alias.Name + "/reset?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
+                    string url = HttpContext.Request.Scheme + "://" + _tenantManager.GetAlias().Name + "/reset?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
                     string body = "Dear " + user.DisplayName + ",\n\nYou recently requested to reset your password. Please use the link below to complete the process:\n\n" + url +
                         "\n\nPlease note that the link is only valid for 24 hours so if you are unable to take action within that time period, you should initiate another password reset on the site." +
                         "\n\nIf you did not request to reset your password you can safely ignore this message." +
@@ -530,6 +530,15 @@ namespace Oqtane.Controllers
             }
 
             return loginUser;
+        }
+
+        // GET api/<controller>/validate/x
+        [HttpGet("validate/{password}")]
+        public async Task<bool> Validate(string password)
+        {
+            var validator = new PasswordValidator<IdentityUser>();
+            var result = await validator.ValidateAsync(_identityUserManager, null, password);
+            return result.Succeeded;
         }
 
         // GET api/<controller>/authenticate
