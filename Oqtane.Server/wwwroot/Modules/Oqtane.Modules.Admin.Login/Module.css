@@ -1,9 +1,5 @@
 /* Login Module Custom Styles */
 
-.Oqtane-Modules-Admin-Login .input {
+.Oqtane-Modules-Admin-Login {
     width: 200px;
-}
-
-.Oqtane-Modules-Admin-Login .password {
-    width: 270px;
 }

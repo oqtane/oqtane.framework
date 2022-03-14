@@ -85,5 +85,8 @@ namespace Oqtane.Shared {
         public static readonly string AntiForgeryTokenCookieName = "X-XSRF-TOKEN-COOKIE";
 
         public static readonly string DefaultVisitorFilter = "bot,crawler,slurp,spider,(none),??";
+
+        public static readonly string HttpContextAliasKey = "SiteState.Alias";
+        public static readonly string SiteToken = "{SiteToken}";
     }
 }

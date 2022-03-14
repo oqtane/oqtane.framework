@@ -18,14 +18,19 @@
 		@if (!twofactor)
 		{
 			<form @ref="login" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
-				<div class="container Oqtane-Modules-Admin-Login" @onkeypress="@(e => KeyPressed(e))">
+				<div class="Oqtane-Modules-Admin-Login" @onkeypress="@(e => KeyPressed(e))">
+					@if (PageState.Site.Settings.ContainsKey("OpenIdConnectOptions:Provider") && !string.IsNullOrEmpty(PageState.Site.Settings["OpenIdConnectOptions:Provider"]))
+					{
+						<button type="button" class="btn btn-primary" @onclick="ExternalLogin">Use @PageState.Site.Settings["OpenIdConnectOptions:Provider"]</button>						
+						<hr />
+					}
 					<div class="form-group">
 						<Label Class="control-label" For="username" HelpText="Please enter your Username" ResourceKey="Username">Username:</Label>
-						<input id="username" type="text" @ref="username" class="form-control input" placeholder="@Localizer["Username.Placeholder"]" @bind="@_username" required />
+						<input id="username" type="text" @ref="username" class="form-control" placeholder="@Localizer["Username.Placeholder"]" @bind="@_username" required />
 					</div>
 					<div class="form-group mt-2">
 						<Label Class="control-label" For="password" HelpText="Please enter your Password" ResourceKey="Password">Password:</Label>
-						<div class="input-group password">
+						<div class="input-group">
 							<input id="password" type="@_passwordtype" name="Password" class="form-control" placeholder="@Localizer["Password.Placeholder"]" @bind="@_password" required />
 							<button type="button" class="btn btn-secondary" @onclick="@TogglePassword">@_togglepassword</button>
 						</div>
@@ -49,7 +54,7 @@
 				<div class="container Oqtane-Modules-Admin-Login">
 					<div class="form-group">
 						<Label Class="control-label" For="code" HelpText="Please enter the secure verification code which was sent to you by email" ResourceKey="Code">Verification Code:</Label>
-						<input id="code" class="form-control input" @bind="@_code" placeholder="@Localizer["Code.Placeholder"]" maxlength="6" required />
+						<input id="code" class="form-control" @bind="@_code" placeholder="@Localizer["Code.Placeholder"]" maxlength="6" required />
 					</div>
 					<br />
 					<button type="button" class="btn btn-primary" @onclick="Login">@SharedLocalizer["Login"]</button>
@@ -245,7 +250,11 @@
 			_passwordtype = "password";
 			_togglepassword = Localizer["ShowPassword"];
 		}
-		//StateHasChanged();
+	}
+
+	private void ExternalLogin()
+	{
+        NavigationManager.NavigateTo(Utilities.TenantUrl(PageState.Alias, "/pages/oidc?returnurl=" + _returnUrl), true);
 	}
 
 }

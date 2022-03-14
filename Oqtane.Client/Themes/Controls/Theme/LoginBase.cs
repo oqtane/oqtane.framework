@@ -38,7 +38,7 @@ namespace Oqtane.Themes.Controls
             PageState.User = null;
             bool authorizedtoviewpage = UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, PageState.Page.Permissions);
 
-            if (PageState.Runtime == Oqtane.Shared.Runtime.Server)
+            if (PageState.Runtime == Shared.Runtime.Server)
             {
                 // server-side Blazor needs to post to the Logout page
                 var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, returnurl = !authorizedtoviewpage ? PageState.Alias.Path : PageState.Alias.Path + "/" + PageState.Page.Path };

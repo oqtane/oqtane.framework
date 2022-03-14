@@ -4,7 +4,6 @@
 @inject IUserService UserService
 @inject ISettingService SettingService
 @inject ISiteService SiteService
-@inject ISystemService SystemService
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -65,74 +64,97 @@ else
 						</select>
 					</div>
 				</div>
-				@if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-				{
-					<br />
-					<Section Name="Password" Heading="Password Settings" ResourceKey="PasswordSettings">
-						<div class="row mb-1 align-items-center">
-							<Label Class="col-sm-3" For="minimumlength" HelpText="The Minimum Length For A Password" ResourceKey="RequiredLength">Minimum Length:</Label>
-							<div class="col-sm-9">
-								<input id="minimumlength" class="form-control" @bind="@_minimumlength" required />
-							</div>
-						</div>					
-						<div class="row mb-1 align-items-center">
-							<Label Class="col-sm-3" For="uniquecharacters" HelpText="The Minimum Number Of Unique Characters Which A Password Must Contain" ResourceKey="UniqueCharacters">Unique Characters:</Label>
-							<div class="col-sm-9">
-								<input id="uniquecharacters" class="form-control" @bind="@_uniquecharacters" required />
-							</div>
-						</div>					
-						<div class="row mb-1 align-items-center">
-							<Label Class="col-sm-3" For="requiredigit" HelpText="Indicate If Passwords Must Contain A Digit" ResourceKey="RequireDigit">Require Digit?</Label>
-							<div class="col-sm-9">
-								<select id="requiredigit" class="form-select" @bind="@_requiredigit" required>
-									<option value="true">@SharedLocalizer["Yes"]</option>
-									<option value="false">@SharedLocalizer["No"]</option>
-								</select>
-							</div>
-						</div>					
-						<div class="row mb-1 align-items-center">
-							<Label Class="col-sm-3" For="requireupper" HelpText="Indicate If Passwords Must Contain An Upper Case Character" ResourceKey="RequireUpper">Require Uppercase?</Label>
-							<div class="col-sm-9">
-								<select id="requireupper" class="form-select" @bind="@_requireupper" required>
-									<option value="true">@SharedLocalizer["Yes"]</option>
-									<option value="false">@SharedLocalizer["No"]</option>
-								</select>
-							</div>
-						</div>					
-						<div class="row mb-1 align-items-center">
-							<Label Class="col-sm-3" For="requirelower" HelpText="Indicate If Passwords Must Contain A Lower Case Character" ResourceKey="RequireLower">Require Lowercase?</Label>
-							<div class="col-sm-9">
-								<select id="requirelower" class="form-select" @bind="@_requirelower" required>
-									<option value="true">@SharedLocalizer["Yes"]</option>
-									<option value="false">@SharedLocalizer["No"]</option>
-								</select>
-							</div>
-						</div>					
-						<div class="row mb-1 align-items-center">
-							<Label Class="col-sm-3" For="requirepunctuation" HelpText="Indicate if Passwords Must Contain A Non-alphanumeric Character (ie. Punctuation)" ResourceKey="RequirePunctuation">Require Punctuation?</Label>
-							<div class="col-sm-9">
-								<select id="requirepunctuation" class="form-select" @bind="@_requirepunctuation" required>
-									<option value="true">@SharedLocalizer["Yes"]</option>
-									<option value="false">@SharedLocalizer["No"]</option>
-								</select>
-							</div>
-						</div>					
-					</Section>
-					<Section Name="Lockout" Heading="Lockout Settings" ResourceKey="LockoutSettings">
-						<div class="row mb-1 align-items-center">
-							<Label Class="col-sm-3" For="maximum" HelpText="The Maximum Number Of Sign In Attempts Before A User Is Locked Out" ResourceKey="MaximumFailures">Maximum Failures:</Label>
-							<div class="col-sm-9">
-								<input id="maximum" class="form-control" @bind="@_maximumfailures" required />
-							</div>
-						</div>					
-						<div class="row mb-1 align-items-center">
-							<Label Class="col-sm-3" For="lockoutduration" HelpText="The Number Of Minutes A User Should Be Locked Out" ResourceKey="LockoutDuration">Lockout Duration:</Label>
-							<div class="col-sm-9">
-								<input id="lockoutduration" class="form-control" @bind="@_lockoutduration" required />
-							</div>
-						</div>					
-					</Section>
-				}
+				<br />
+				<Section Name="Password" Heading="Password Settings" ResourceKey="PasswordSettings">
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="minimumlength" HelpText="The Minimum Length For A Password" ResourceKey="RequiredLength">Minimum Length:</Label>
+						<div class="col-sm-9">
+							<input id="minimumlength" class="form-control" @bind="@_minimumlength" required />
+						</div>
+					</div>					
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="uniquecharacters" HelpText="The Minimum Number Of Unique Characters Which A Password Must Contain" ResourceKey="UniqueCharacters">Unique Characters:</Label>
+						<div class="col-sm-9">
+							<input id="uniquecharacters" class="form-control" @bind="@_uniquecharacters" required />
+						</div>
+					</div>					
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="requiredigit" HelpText="Indicate If Passwords Must Contain A Digit" ResourceKey="RequireDigit">Require Digit?</Label>
+						<div class="col-sm-9">
+							<select id="requiredigit" class="form-select" @bind="@_requiredigit" required>
+								<option value="true">@SharedLocalizer["Yes"]</option>
+								<option value="false">@SharedLocalizer["No"]</option>
+							</select>
+						</div>
+					</div>					
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="requireupper" HelpText="Indicate If Passwords Must Contain An Upper Case Character" ResourceKey="RequireUpper">Require Uppercase?</Label>
+						<div class="col-sm-9">
+							<select id="requireupper" class="form-select" @bind="@_requireupper" required>
+								<option value="true">@SharedLocalizer["Yes"]</option>
+								<option value="false">@SharedLocalizer["No"]</option>
+							</select>
+						</div>
+					</div>					
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="requirelower" HelpText="Indicate If Passwords Must Contain A Lower Case Character" ResourceKey="RequireLower">Require Lowercase?</Label>
+						<div class="col-sm-9">
+							<select id="requirelower" class="form-select" @bind="@_requirelower" required>
+								<option value="true">@SharedLocalizer["Yes"]</option>
+								<option value="false">@SharedLocalizer["No"]</option>
+							</select>
+						</div>
+					</div>					
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="requirepunctuation" HelpText="Indicate if Passwords Must Contain A Non-alphanumeric Character (ie. Punctuation)" ResourceKey="RequirePunctuation">Require Punctuation?</Label>
+						<div class="col-sm-9">
+							<select id="requirepunctuation" class="form-select" @bind="@_requirepunctuation" required>
+								<option value="true">@SharedLocalizer["Yes"]</option>
+								<option value="false">@SharedLocalizer["No"]</option>
+							</select>
+						</div>
+					</div>					
+				</Section>
+				<Section Name="Lockout" Heading="Lockout Settings" ResourceKey="LockoutSettings">
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="maximum" HelpText="The Maximum Number Of Sign In Attempts Before A User Is Locked Out" ResourceKey="MaximumFailures">Maximum Failures:</Label>
+						<div class="col-sm-9">
+							<input id="maximum" class="form-control" @bind="@_maximumfailures" required />
+						</div>
+					</div>					
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="lockoutduration" HelpText="The Number Of Minutes A User Should Be Locked Out" ResourceKey="LockoutDuration">Lockout Duration:</Label>
+						<div class="col-sm-9">
+							<input id="lockoutduration" class="form-control" @bind="@_lockoutduration" required />
+						</div>
+					</div>					
+				</Section>
+				<Section Name="OpenIDConnect" Heading="OpenID Connect Settings" ResourceKey="OpenIDConnectSettings">
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="provider" HelpText="The OpenID Connect Provider Name" ResourceKey="Provider">Provider:</Label>
+						<div class="col-sm-9">
+							<input id="provider" class="form-control" @bind="@_provider" />
+						</div>
+					</div>					
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="authority" HelpText="The OpenID Connect Authority" ResourceKey="Authority">Authority:</Label>
+						<div class="col-sm-9">
+							<input id="authority" class="form-control" @bind="@_authority" />
+						</div>
+					</div>					
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="clientid" HelpText="The OpenID Connect Client ID" ResourceKey="ClientID">Client ID:</Label>
+						<div class="col-sm-9">
+							<input id="clientid" class="form-control" @bind="@_clientid" />
+						</div>
+					</div>					
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="clientsecret" HelpText="The OpenID Connect Client Secret" ResourceKey="ClientSecret">Client Secret:</Label>
+						<div class="col-sm-9">
+							<input id="clientsecret" class="form-control" @bind="@_clientsecret" />
+						</div>
+					</div>					
+				</Section>
 			</div>
 			<br />
 			<button type="button" class="btn btn-success" @onclick="SaveSiteSettings">@SharedLocalizer["Save"]</button>
@@ -146,14 +168,18 @@ else
 	private string _search;
 
 	private string _allowregistration;
-	private string _minimumlength = "6";
-	private string _uniquecharacters = "1";
-	private string _requiredigit = "true";
-	private string _requireupper = "true";
-	private string _requirelower = "true";
-	private string _requirepunctuation = "true";
-	private string _maximumfailures = "5";
-	private string _lockoutduration = "5";
+	private string _minimumlength;
+	private string _uniquecharacters;
+	private string _requiredigit;
+	private string _requireupper;
+	private string _requirelower;
+	private string _requirepunctuation;
+	private string _maximumfailures;
+	private string _lockoutduration;
+	private string _provider;
+	private string _authority;
+	private string _clientid;
+	private string _clientsecret;
 
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -164,21 +190,19 @@ else
 		userroles = Search(_search);
 
 		_allowregistration = PageState.Site.AllowRegistration.ToString();
-		if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-		{
-			Dictionary<string, object> systeminfo = await SystemService.GetSystemInfoAsync();
-			if (systeminfo != null)
-			{
-				_minimumlength = systeminfo["Password:RequiredLength"].ToString();
-				_uniquecharacters = systeminfo["Password:RequiredUniqueChars"].ToString();
-				_requiredigit = systeminfo["Password:RequireDigit"].ToString();
-				_requireupper = systeminfo["Password:RequireUppercase"].ToString();
-				_requirelower = systeminfo["Password:RequireLowercase"].ToString();
-				_requirepunctuation = systeminfo["Password:RequireNonAlphanumeric"].ToString();
-				_maximumfailures = systeminfo["Lockout:MaxFailedAccessAttempts"].ToString();
-				_lockoutduration = TimeSpan.Parse(systeminfo["Lockout:DefaultLockoutTimeSpan"].ToString()).TotalMinutes.ToString();
-			}
-		}
+		var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+		_minimumlength = SettingService.GetSetting(settings, "IdentityOptions:Password:RequiredLength", "6");
+		_uniquecharacters = SettingService.GetSetting(settings, "IdentityOptions:Password:RequiredUniqueChars", "1");
+		_requiredigit = SettingService.GetSetting(settings, "IdentityOptions:Password:RequireDigit", "true");
+		_requireupper = SettingService.GetSetting(settings, "IdentityOptions:Password:RequireUppercase", "true");
+		_requirelower = SettingService.GetSetting(settings, "IdentityOptions:Password:RequireLowercase", "true");
+		_requirepunctuation = SettingService.GetSetting(settings, "IdentityOptions:Password:RequireNonAlphanumeric", "true");
+		_maximumfailures = SettingService.GetSetting(settings, "IdentityOptions:Lockout:MaxFailedAccessAttempts", "5");
+		_lockoutduration = TimeSpan.Parse(SettingService.GetSetting(settings, "IdentityOptions:Lockout:DefaultLockoutTimeSpan", "00:05:00")).TotalMinutes.ToString();
+		_provider = SettingService.GetSetting(settings, "OpenIdConnectOptions:Provider", "");
+		_authority = SettingService.GetSetting(settings, "OpenIdConnectOptions:Authority", "");
+		_clientid = SettingService.GetSetting(settings, "OpenIdConnectOptions:ClientId", "");
+		_clientsecret = SettingService.GetSetting(settings, "OpenIdConnectOptions:ClientSecret", "");
 	}
 
 	private List<UserRole> Search(string search)
@@ -248,24 +272,22 @@ else
 			site.AllowRegistration = bool.Parse(_allowregistration);
 			await SiteService.UpdateSiteAsync(site);
 
-			if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-			{
-				var settings = new Dictionary<string, object>();
-				settings.Add("Password:RequiredLength", _minimumlength);
-				settings.Add("Password:RequiredUniqueChars", _uniquecharacters);
-				settings.Add("Password:RequireDigit", _requiredigit);
-				settings.Add("Password:RequireUppercase", _requireupper);
-				settings.Add("Password:RequireLowercase", _requirelower);
-				settings.Add("Password:RequireNonAlphanumeric", _requirepunctuation);
-				settings.Add("Lockout:MaxFailedAccessAttempts", _maximumfailures);
-				settings.Add("Lockout:DefaultLockoutTimeSpan", TimeSpan.FromMinutes(Convert.ToInt64(_lockoutduration)).ToString());
-				await SystemService.UpdateSystemInfoAsync(settings);
-				AddModuleMessage(Localizer["Success.UpdateConfig.Restart"], MessageType.Success);
-			}
-			else
-			{
-				AddModuleMessage(Localizer["Success.SaveSiteSettings"], MessageType.Success);				
-			}
+			var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
+			settings = SettingService.SetSetting(settings, "IdentityOptions:Password:RequiredLength", _minimumlength, true);
+			settings = SettingService.SetSetting(settings, "IdentityOptions:Password:RequiredUniqueChars", _uniquecharacters, true);
+			settings = SettingService.SetSetting(settings, "IdentityOptions:Password:RequireDigit", _requiredigit, true);
+			settings = SettingService.SetSetting(settings, "IdentityOptions:Password:RequireUppercase", _requireupper, true);
+			settings = SettingService.SetSetting(settings, "IdentityOptions:Password:RequireLowercase", _requirelower, true);
+			settings = SettingService.SetSetting(settings, "IdentityOptions:Password:RequireNonAlphanumeric", _requirepunctuation, true);
+			settings = SettingService.SetSetting(settings, "IdentityOptions:Lockout:MaxFailedAccessAttempts", _maximumfailures, true);
+			settings = SettingService.SetSetting(settings, "IdentityOptions:Lockout:DefaultLockoutTimeSpan", TimeSpan.FromMinutes(Convert.ToInt64(_lockoutduration)).ToString(), true);
+			settings = SettingService.SetSetting(settings, "OpenIdConnectOptions:Provider", _provider, false);
+			settings = SettingService.SetSetting(settings, "OpenIdConnectOptions:Authority", _authority, true);
+			settings = SettingService.SetSetting(settings, "OpenIdConnectOptions:ClientId", _clientid, true);
+			settings = SettingService.SetSetting(settings, "OpenIdConnectOptions:ClientSecret", _clientsecret, true);
+			await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
+
+			AddModuleMessage(Localizer["Success.SaveSiteSettings"], MessageType.Success);				
 		}
 		catch (Exception ex)
 		{

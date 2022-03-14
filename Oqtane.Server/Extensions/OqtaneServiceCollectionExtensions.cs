@@ -15,6 +15,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Oqtane.Infrastructure;
+using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Repository;
 using Oqtane.Security;
@@ -58,6 +59,12 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
+        public static OqtaneSiteOptionsBuilder<T> AddOqtaneSiteOptions<T>(this IServiceCollection services)
+            where T : class, IAlias, new()
+        {
+            return new OqtaneSiteOptionsBuilder<T>(services);
+        }
+
         internal static IServiceCollection AddOqtaneSingletonServices(this IServiceCollection services)
         {
             services.AddSingleton<IInstallationManager, InstallationManager>();
@@ -71,6 +78,8 @@ namespace Microsoft.Extensions.DependencyInjection
         internal static IServiceCollection AddOqtaneTransientServices(this IServiceCollection services)
         {
             services.AddTransient<ITenantManager, TenantManager>();
+            services.AddTransient<IAliasAccessor, AliasAccessor>();
+
             services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
             services.AddTransient<IThemeRepository, ThemeRepository>();
             services.AddTransient<IUserPermissions, UserPermissions>();
@@ -120,6 +129,11 @@ namespace Microsoft.Extensions.DependencyInjection
                     return Task.CompletedTask;
                 };
                 options.Events.OnRedirectToAccessDenied = context =>
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Task.CompletedTask;
+                };
+                options.Events.OnRedirectToLogout = context =>
                 {
                     context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                     return Task.CompletedTask;
@@ -314,7 +328,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                         try
                         {
-                            Assembly assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(assemblyFile.FullName)));
+                            Assembly assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(System.IO.File.ReadAllBytes(assemblyFile.FullName)));
                             Debug.WriteLine($"Oqtane Info: Loaded Assembly {assemblyName}");
                         }
                         catch (Exception ex)
@@ -333,9 +347,9 @@ namespace Microsoft.Extensions.DependencyInjection
         private static Assembly ResolveDependencies(AssemblyLoadContext context, AssemblyName name)
         {
             var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location) + Path.DirectorySeparatorChar + name.Name + ".dll";
-            if (File.Exists(assemblyPath))
+            if (System.IO.File.Exists(assemblyPath))
             {
-                return context.LoadFromStream(new MemoryStream(File.ReadAllBytes(assemblyPath)));
+                return context.LoadFromStream(new MemoryStream(System.IO.File.ReadAllBytes(assemblyPath)));
             }
             else
             {

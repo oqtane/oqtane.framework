@@ -16,6 +16,9 @@ using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Shared;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using System.Threading.Tasks;
 
 namespace Oqtane
 {
@@ -72,36 +75,11 @@ namespace Oqtane
             // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )
             services.TryAddHttpClientWithAuthenticationCookie();
 
-            // register custom authorization policies
-            services.AddOqtaneAuthorizationPolicies();
-
             // register scoped core services
             services.AddScoped<IAuthorizationHandler, PermissionHandler>()
                 .AddOqtaneScopedServices();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
-            services.AddIdentityCore<IdentityUser>(options => { })
-                .AddEntityFrameworkStores<TenantDBContext>()
-                .AddSignInManager()
-                .AddDefaultTokenProviders()
-                .AddClaimsPrincipalFactory<ClaimsPrincipalFactory<IdentityUser>>(); // role claims
-
-            services.ConfigureOqtaneIdentityOptions(Configuration);
-
-            services.AddAuthentication(Constants.AuthenticationScheme)
-                .AddCookie(Constants.AuthenticationScheme);
-
-            services.ConfigureOqtaneCookieOptions();
-
-            services.AddAntiforgery(options =>
-            {
-                options.HeaderName = Constants.AntiForgeryTokenHeaderName;
-                options.Cookie.HttpOnly = false;
-                options.Cookie.Name = Constants.AntiForgeryTokenCookieName;
-                options.Cookie.SameSite = SameSiteMode.Strict;
-                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-            });
 
             // register singleton scoped core services
             services.AddSingleton(Configuration)
@@ -117,10 +95,43 @@ namespace Oqtane
             services.AddOqtane(_supportedCultures);
             services.AddOqtaneDbContext();
 
+            services.AddAntiforgery(options =>
+            {
+                options.HeaderName = Constants.AntiForgeryTokenHeaderName;
+                options.Cookie.Name = Constants.AntiForgeryTokenCookieName;
+                options.Cookie.SameSite = SameSiteMode.Strict;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                //options.Cookie.HttpOnly = false;
+            });
+
+            services.AddIdentityCore<IdentityUser>(options => { })
+                .AddEntityFrameworkStores<TenantDBContext>()
+                .AddSignInManager()
+                .AddDefaultTokenProviders()
+                .AddClaimsPrincipalFactory<ClaimsPrincipalFactory<IdentityUser>>(); // role claims
+
+            services.ConfigureOqtaneIdentityOptions(Configuration);
+
+            services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = Constants.AuthenticationScheme;
+                    options.DefaultChallengeScheme = Constants.AuthenticationScheme;
+                })
+                .AddCookie(Constants.AuthenticationScheme)
+                .AddOpenIdConnect();
+
+            services.ConfigureOqtaneCookieOptions();
+
+            services.AddOqtaneSiteOptions<Alias>()
+                .WithSiteIdentity()
+                .WithSiteAuthentication();
+
+            services.AddOqtaneAuthorizationPolicies();
+
             services.AddMvc()
                 .AddNewtonsoftJson()
                 .AddOqtaneApplicationParts() // register any Controllers from custom modules
-                .ConfigureOqtaneMvc(); // any additional configuration from IStart classes.
+                .ConfigureOqtaneMvc(); // any additional configuration from IStartup classes
 
             services.AddSwaggerGen(options =>
             {
