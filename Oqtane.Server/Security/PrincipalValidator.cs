@@ -37,17 +37,20 @@ namespace Oqtane.Security
                             var userRepository = context.HttpContext.RequestServices.GetService(typeof(IUserRepository)) as IUserRepository;
                             var userRoleRepository = context.HttpContext.RequestServices.GetService(typeof(IUserRoleRepository)) as IUserRoleRepository;
 
-                            User user = userRepository.GetUser(context.Principal.Identity.Name);
-                            if (user != null)
+                            if (context.Principal.Identity.Name != null)
                             {
-                                List<UserRole> userroles = userRoleRepository.GetUserRoles(user.UserId, alias.SiteId).ToList();
-                                var identity = UserSecurity.CreateClaimsIdentity(alias, user, userroles);
-                                context.ReplacePrincipal(new ClaimsPrincipal(identity));
-                                context.ShouldRenew = true;
-                            }
-                            else
-                            {
-                                context.RejectPrincipal();
+                                User user = userRepository.GetUser(context.Principal.Identity.Name);
+                                if (user != null)
+                                {
+                                    List<UserRole> userroles = userRoleRepository.GetUserRoles(user.UserId, alias.SiteId).ToList();
+                                    var identity = UserSecurity.CreateClaimsIdentity(alias, user, userroles);
+                                    context.ReplacePrincipal(new ClaimsPrincipal(identity));
+                                    context.ShouldRenew = true;
+                                }
+                                else
+                                {
+                                    context.RejectPrincipal();
+                                }
                             }
                         }
                     }

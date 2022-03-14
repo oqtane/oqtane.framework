@@ -1,5 +1,8 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Oqtane.Repository;
+using Oqtane.Shared;
 
 namespace Oqtane.Infrastructure
 {
@@ -18,19 +21,30 @@ namespace Oqtane.Infrastructure
             var config = context.RequestServices.GetService(typeof(IConfigManager)) as IConfigManager;
             if (config.IsInstalled())
             {
-                // get alias
+                // get alias (note that this also sets SiteState.Alias)
                 var tenantManager = context.RequestServices.GetService(typeof(ITenantManager)) as ITenantManager;
                 var alias = tenantManager.GetAlias();
 
-                // rewrite path by removing alias path prefix from api and pages requests
-                if (alias != null && !string.IsNullOrEmpty(alias.Path))
+                if (alias != null)
                 {
-                    string path = context.Request.Path.ToString();
-                    if (path.StartsWith("/" + alias.Path) && (path.Contains("/api/") || path.Contains("/pages/")))
+                    // get site settings and store alias in HttpContext
+                    var settingRepository = context.RequestServices.GetService(typeof(ISettingRepository)) as ISettingRepository;
+                    alias.SiteSettings = settingRepository.GetSettings(EntityNames.Site)
+                        .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
+                    context.Items.Add(Constants.HttpContextAliasKey, alias);
+
+                    // rewrite path by removing alias path prefix from api and pages requests (for consistent routing)
+                    if (!string.IsNullOrEmpty(alias.Path))
                     {
-                        context.Request.Path = path.Replace("/" + alias.Path, "");
+                        string path = context.Request.Path.ToString();
+                        if (path.StartsWith("/" + alias.Path) && (path.Contains("/api/") || path.Contains("/pages/")))
+                        {
+                            context.Request.Path = path.Replace("/" + alias.Path, "");
+                        }
                     }
+
                 }
+
             }
 
             // continue processing

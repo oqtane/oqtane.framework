@@ -51,14 +51,6 @@ namespace Oqtane.Controllers
                     systeminfo.Add("Logging:LogLevel:Notify", _configManager.GetSetting("Logging:LogLevel:Notify", "Error"));
                     systeminfo.Add("UseSwagger", _configManager.GetSetting("UseSwagger", "true"));
                     systeminfo.Add("PackageService", _configManager.GetSetting("PackageService", "true"));
-                    systeminfo.Add("Password:RequiredLength", _configManager.GetSetting("Password:RequiredLength", "6"));
-                    systeminfo.Add("Password:RequiredUniqueChars", _configManager.GetSetting("Password:RequiredUniqueChars", "1"));
-                    systeminfo.Add("Password:RequireDigit", _configManager.GetSetting("Password:RequireDigit", "true"));
-                    systeminfo.Add("Password:RequireUppercase", _configManager.GetSetting("Password:RequireUppercase", "true"));
-                    systeminfo.Add("Password:RequireLowercase", _configManager.GetSetting("Password:RequireLowercase", "true"));
-                    systeminfo.Add("Password:RequireNonAlphanumeric", _configManager.GetSetting("Password:RequireNonAlphanumeric", "true"));
-                    systeminfo.Add("Lockout:MaxFailedAccessAttempts", _configManager.GetSetting("Lockout:MaxFailedAccessAttempts", "5"));
-                    systeminfo.Add("Lockout:DefaultLockoutTimeSpan", _configManager.GetSetting("Lockout:DefaultLockoutTimeSpan", "00:05:00"));
                     break;
             }
 

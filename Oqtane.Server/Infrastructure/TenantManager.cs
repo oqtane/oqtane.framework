@@ -26,7 +26,7 @@ namespace Oqtane.Infrastructure
         {
             Alias alias = null;
 
-            if (_siteState != null && _siteState.Alias != null)
+            if (_siteState != null && _siteState.Alias != null && _siteState.Alias.AliasId != -1)
             {
                 alias = _siteState.Alias;
             }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
@@ -6,7 +7,7 @@ namespace Oqtane.Models
     /// <summary>
     /// An Alias maps a url like `oqtane.my` or `oqtane.my/products` to a <see cref="Oqtane.Models.Site"/> and <see cref="Oqtane.Models.Tenant"/>
     /// </summary>
-    public class Alias : IAuditable
+    public class Alias : IAlias, IAuditable
     {
         /// <summary>
         /// The primary ID for internal use. It's also used in API calls to identify the site. 
@@ -68,5 +69,22 @@ namespace Oqtane.Models
             }
         }
 
+        /// <summary>
+        /// Unique key used for identifying a site within a runtime process (ie. cache, etc...)
+        /// </summary>
+        [NotMapped]
+        public string SiteKey
+        {
+            get
+            {
+                return TenantId.ToString() + ":" + SiteId.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Site-specific settings
+        /// </summary>
+        [NotMapped]
+        public Dictionary<string, string> SiteSettings { get; set; }
     }
 }
