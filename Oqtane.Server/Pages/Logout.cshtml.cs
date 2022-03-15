@@ -10,7 +10,7 @@ namespace Oqtane.Pages
     [AllowAnonymous]
     public class LogoutModel : PageModel
     {
-        public async Task<IActionResult> OnPostAsync(string returnurl)
+        public async Task<IActionResult> OnGetAsync(string returnurl)
         {
             if (HttpContext.User.Identity.IsAuthenticated)
             {

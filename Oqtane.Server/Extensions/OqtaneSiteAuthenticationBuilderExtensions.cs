@@ -104,7 +104,7 @@ namespace Oqtane.Extensions
                     identityuser.UserName = email;
                     identityuser.Email = email;
                     identityuser.EmailConfirmed = true;
-                    var result = await _identityUserManager.CreateAsync(identityuser, Guid.NewGuid().ToString("N") + "-Xx!");
+                    var result = await _identityUserManager.CreateAsync(identityuser, DateTime.UtcNow.ToString("yyyy-MMM-dd-HH-mm-ss"));
                     if (result.Succeeded)
                     {
                         user = new User();
@@ -164,17 +164,19 @@ namespace Oqtane.Extensions
                 user = _users.GetUser(email);
                 if (user != null)
                 {
+                    var principal = (ClaimsIdentity)context.Principal.Identity;
+
+                    // remove the name claim if it exists in the principal
+                    var nameclaim = principal.Claims.FirstOrDefault(item => item.Type == ClaimTypes.Name);
+                    if (nameclaim != null)
+                    {
+                        principal.RemoveClaim(nameclaim);
+                    }
+
+                    // add Oqtane claims
                     List<UserRole> userroles = _userRoles.GetUserRoles(user.UserId, context.HttpContext.GetAlias().SiteId).ToList();
                     var identity = UserSecurity.CreateClaimsIdentity(context.HttpContext.GetAlias(), user, userroles);
-
-                    var principalIdentity = (ClaimsIdentity)context.Principal.Identity;
-                    foreach (var claim in identity.Claims)
-                    {
-                        if (!principalIdentity.Claims.Contains(claim))
-                        {
-                            principalIdentity.AddClaim(claim);
-                        }
-                    }
+                    principal.AddClaims(identity.Claims);
                 }
             }
             else
