@@ -54,23 +54,6 @@ namespace Oqtane.Infrastructure
                 post.PostConfigure(name, options);
             }
 
-            //if (_validations.Length > 0)
-            //{
-            //    var failures = new List<string>();
-            //    foreach (IValidateOptions<TOptions> validate in _validations)
-            //    {
-            //        ValidateOptionsResult result = validate.Validate(name, options);
-            //        if (result != null && result.Failed)
-            //        {
-            //            failures.AddRange(result.Failures);
-            //        }
-            //    }
-            //    if (failures.Count > 0)
-            //    {
-            //        throw new OptionsValidationException(name, typeof(TOptions), failures);
-            //    }
-            //}
-
             return options;
         }
     }
