@@ -89,7 +89,11 @@ namespace Oqtane.Extensions
 
         private static async Task OnTokenValidated(TokenValidatedContext context)
         {
-            var email = context.Principal.Identity.Name;
+            var email = context.Principal.FindFirstValue(ClaimTypes.Email);
+            var providerKey = context.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
+            var loginProvider = context.HttpContext.GetAlias().SiteSettings["OpenIdConnectOptions:Authority"];
+            var _logger = context.HttpContext.RequestServices.GetRequiredService<ILogManager>();
+
             if (email != null)
             {
                 var _identityUserManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<IdentityUser>>();
@@ -107,6 +111,9 @@ namespace Oqtane.Extensions
                     var result = await _identityUserManager.CreateAsync(identityuser, DateTime.UtcNow.ToString("yyyy-MMM-dd-HH-mm-ss"));
                     if (result.Succeeded)
                     {
+                        // add user login
+                        await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(loginProvider, providerKey, ""));
+
                         user = new User();
                         user.SiteId = context.HttpContext.GetAlias().SiteId;
                         user.Username = email;
@@ -157,13 +164,37 @@ namespace Oqtane.Extensions
                 }
                 else
                 {
-                    email = identityuser.UserName;
+                    var logins = await _identityUserManager.GetLoginsAsync(identityuser);
+                    var login = logins.FirstOrDefault(item => item.LoginProvider == loginProvider);
+                    if (login != null)
+                    {
+                        if (login.ProviderKey == providerKey)
+                        {
+                            user = _users.GetUser(identityuser.UserName);
+                        }
+                        else
+                        {
+                            // provider keys do not match
+                            _logger.Log(LogLevel.Error, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "OpenId Connect Server Provider Key Does Not Match For User {Email}", email);
+                        }
+                    }
+                    else
+                    {
+                        // add user login
+                        await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(loginProvider, providerKey, identityuser.UserName));
+                        user = _users.GetUser(identityuser.UserName);
+                    }
                 }
 
                 // add claims to principal
-                user = _users.GetUser(email);
                 if (user != null)
                 {
+                    // update user
+                    user.LastLoginOn = DateTime.UtcNow;
+                    user.LastIPAddress = context.HttpContext.Connection.RemoteIpAddress.ToString();
+                    _users.UpdateUser(user);
+                    _logger.Log(LogLevel.Information, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "User Login Successful {Username}", user.Username);
+
                     var principal = (ClaimsIdentity)context.Principal.Identity;
 
                     // remove the name claim if it exists in the principal
@@ -181,8 +212,7 @@ namespace Oqtane.Extensions
             }
             else
             {
-                var _logger = context.HttpContext.RequestServices.GetRequiredService<ILogManager>();
-                _logger.Log(LogLevel.Information, "OqtaneSiteAuthenticationBuilderExtensions", Enums.LogFunction.Security, "OpenId Connect Server Did Not Return An Email For User");
+                _logger.Log(LogLevel.Information, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "OpenId Connect Server Did Not Return An Email Claim");
             }
         }
 

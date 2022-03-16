@@ -16,9 +16,6 @@ using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Shared;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using System.Threading.Tasks;
 
 namespace Oqtane
 {
