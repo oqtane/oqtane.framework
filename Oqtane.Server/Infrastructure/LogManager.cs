@@ -34,17 +34,17 @@ namespace Oqtane.Infrastructure
 
         public void Log(LogLevel level, object @class, LogFunction function, string message, params object[] args)
         {
-            Log(-1, level, @class.GetType().AssemblyQualifiedName, function, null, message, args);
+            Log(-1, level, @class, function, null, message, args);
         }
 
         public void Log(LogLevel level, object @class, LogFunction function, Exception exception, string message, params object[] args)
         {
-            Log(-1, level, @class.GetType().AssemblyQualifiedName, function, exception, message, args);
+            Log(-1, level, @class, function, exception, message, args);
         }
 
         public void Log(int siteId, LogLevel level, object @class, LogFunction function, string message, params object[] args)
         {
-            Log(siteId, level, @class.GetType().AssemblyQualifiedName, function, null, message, args);
+            Log(siteId, level, @class, function, null, message, args);
         }
 
         public void Log(int siteId, LogLevel level, object @class, LogFunction function, Exception exception, string message, params object[] args)
@@ -80,8 +80,8 @@ namespace Oqtane.Infrastructure
                 }
             }
 
-            Type type = Type.GetType(@class.ToString());
-            if (type != null)
+            Type type = @class.GetType();
+            if (type != null && type != typeof(string))
             {
                 log.Category = type.AssemblyQualifiedName;
                 log.Feature = Utilities.GetTypeNameLastSegment(log.Category, 0);
