@@ -9,7 +9,11 @@ namespace Oqtane.Pages
     {
         public IActionResult OnGetAsync(string returnurl)
         {
-            return new ChallengeResult(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = !string.IsNullOrEmpty(returnurl) ? returnurl : "/" });
+            returnurl = (returnurl == null) ? "/" : returnurl;
+            returnurl = (!returnurl.StartsWith("/")) ? "/" + returnurl : returnurl;
+
+            return new ChallengeResult(OpenIdConnectDefaults.AuthenticationScheme,
+                new AuthenticationProperties { RedirectUri = returnurl });
         }
     }
 }

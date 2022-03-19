@@ -56,7 +56,7 @@ else
         <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings">
 			<div class="container">
 				<div class="row mb-1 align-items-center">
-					<Label Class="col-sm-3" For="allowregistration" HelpText="Do you want to allow visitors to be able to register for a user account on the site" ResourceKey="AllowRegistration">Allow User Registration? </Label>
+					<Label Class="col-sm-3" For="allowregistration" HelpText="Do You Want To Allow Visitors To Be Able To Register For A User Account On This Site?" ResourceKey="AllowRegistration">Allow User Registration? </Label>
 					<div class="col-sm-9">
 						<select id="allowregistration" class="form-select" @bind="@_allowregistration" required>
 							<option value="True">@SharedLocalizer["Yes"]</option>
@@ -129,31 +129,52 @@ else
 						</div>
 					</div>					
 				</Section>
-				<Section Name="OpenIDConnect" Heading="OpenID Connect Settings" ResourceKey="OpenIDConnectSettings">
+				<Section Name="ExternalLogin" Heading="External Login Settings" ResourceKey="ExternalLoginSettings">
 					<div class="row mb-1 align-items-center">
-						<Label Class="col-sm-3" For="provider" HelpText="The OpenID Connect Provider Name" ResourceKey="Provider">Provider:</Label>
+						<Label Class="col-sm-3" For="provider" HelpText="The OpenID Connect Provider Name. This Name Will Be Displayed On The Login Page" ResourceKey="Provider">Provider:</Label>
 						<div class="col-sm-9">
 							<input id="provider" class="form-control" @bind="@_provider" />
 						</div>
-					</div>					
+					</div>	
 					<div class="row mb-1 align-items-center">
-						<Label Class="col-sm-3" For="authority" HelpText="The OpenID Connect Authority" ResourceKey="Authority">Authority:</Label>
+						<Label Class="col-sm-3" For="authority" HelpText="The Authority Or Issuer URL Associated With The OpenID Connect Provider. " ResourceKey="Authority">Authority:</Label>
 						<div class="col-sm-9">
 							<input id="authority" class="form-control" @bind="@_authority" />
 						</div>
-					</div>					
+					</div>
 					<div class="row mb-1 align-items-center">
 						<Label Class="col-sm-3" For="clientid" HelpText="The OpenID Connect Client ID" ResourceKey="ClientID">Client ID:</Label>
 						<div class="col-sm-9">
 							<input id="clientid" class="form-control" @bind="@_clientid" />
 						</div>
-					</div>					
+					</div>
 					<div class="row mb-1 align-items-center">
 						<Label Class="col-sm-3" For="clientsecret" HelpText="The OpenID Connect Client Secret" ResourceKey="ClientSecret">Client Secret:</Label>
 						<div class="col-sm-9">
 							<input id="clientsecret" class="form-control" @bind="@_clientsecret" />
 						</div>
-					</div>					
+					</div>
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="metadata" HelpText="The Discovery Endpoint For Obtaining Metadata. Only Specify If The OpenID Connect Provider Does Not Use The Standard Approach (ie. /.well-known/openid-configuration)" ResourceKey="Metadata">Metadata Address:</Label>
+						<div class="col-sm-9">
+							<input id="metadata" class="form-control" @bind="@_metadata" />
+						</div>
+					</div>
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="logouturl" HelpText="The Url For Logging Out The User From The OpenID Connect Provider. Only Specify If The OpenID Connect Provider Supports This Feature And You Do Not Want The User To Remain Signed In To The OpenID Connect Provider After Logging Out From The Site." ResourceKey="LogoutUrl">Logout Url:</Label>
+						<div class="col-sm-9">
+							<input id="logouturl" class="form-control" @bind="@_logouturl" />
+						</div>
+					</div>
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="allowsitelogin" HelpText="Do You Want To Allow Users To Sign In Using A Username And Password That Is Managed Locally On This Site? Note That You Should Only Disable This Option If You Have Already Sucessfully Configured An External Login Provider, Or Else You May Lock Yourself Out Of This Site." ResourceKey="AllowSiteLogin">Allow Site Login? </Label>
+						<div class="col-sm-9">
+							<select id="allowsitelogin" class="form-select" @bind="@_allowsitelogin" required>
+								<option value="True">@SharedLocalizer["Yes"]</option>
+								<option value="False">@SharedLocalizer["No"]</option>
+							</select>
+						</div>
+					</div>
 				</Section>
 			</div>
 			<br />
@@ -180,6 +201,9 @@ else
 	private string _authority;
 	private string _clientid;
 	private string _clientsecret;
+	private string _metadata;
+	private string _logouturl;
+	private string _allowsitelogin;
 
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -203,6 +227,9 @@ else
 		_authority = SettingService.GetSetting(settings, "OpenIdConnectOptions:Authority", "");
 		_clientid = SettingService.GetSetting(settings, "OpenIdConnectOptions:ClientId", "");
 		_clientsecret = SettingService.GetSetting(settings, "OpenIdConnectOptions:ClientSecret", "");
+		_metadata = SettingService.GetSetting(settings, "OpenIdConnectOptions:MetadataAddress", "");
+		_logouturl = SettingService.GetSetting(settings, "OpenIdConnectOptions:LogoutUrl", "");
+		_allowsitelogin = SettingService.GetSetting(settings, "AllowSiteLogin", "True");
 	}
 
 	private List<UserRole> Search(string search)
@@ -285,7 +312,11 @@ else
 			settings = SettingService.SetSetting(settings, "OpenIdConnectOptions:Authority", _authority, true);
 			settings = SettingService.SetSetting(settings, "OpenIdConnectOptions:ClientId", _clientid, true);
 			settings = SettingService.SetSetting(settings, "OpenIdConnectOptions:ClientSecret", _clientsecret, true);
+			settings = SettingService.SetSetting(settings, "OpenIdConnectOptions:MetadataAddress", _metadata, true);
+			settings = SettingService.SetSetting(settings, "OpenIdConnectOptions:LogoutUrl", _logouturl, true);
+			settings = SettingService.SetSetting(settings, "AllowSiteLogin", _allowsitelogin, false);
 			await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
+			await SettingService.ClearSiteSettingsCacheAsync(site.SiteId);
 
 			AddModuleMessage(Localizer["Success.SaveSiteSettings"], MessageType.Success);				
 		}
@@ -295,5 +326,4 @@ else
 			AddModuleMessage(Localizer["Error.SaveSiteSettings"], MessageType.Error);
 		}
 	}
-
 }

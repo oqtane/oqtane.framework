@@ -8,6 +8,9 @@ using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using System.Net;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Oqtane.Controllers
 {
@@ -20,14 +23,16 @@ namespace Oqtane.Controllers
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
+        private readonly IOptionsMonitorCache<OpenIdConnectOptions> _optionsMonitorCache;
         private readonly string _visitorCookie;
 
-        public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
+        public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, IOptionsMonitorCache<OpenIdConnectOptions> optionsMonitorCache, ILogManager logger)
         {
             _settings = settings;
             _pageModules = pageModules;
             _userPermissions = userPermissions;
             _syncManager = syncManager;
+            _optionsMonitorCache = optionsMonitorCache;
             _logger = logger;
             _alias = tenantManager.GetAlias();
             _visitorCookie = "APP_VISITOR_" + _alias.SiteId.ToString();
@@ -129,6 +134,15 @@ namespace Oqtane.Controllers
                 _logger.Log(LogLevel.Error, this, LogFunction.Delete, "User Not Authorized To Delete Setting {Setting}", setting);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
+        }
+
+        // DELETE api/<controller>/clear
+        [HttpDelete("clear/{id}")]
+        [Authorize(Roles = RoleNames.Admin)]
+        public void Clear(int id)
+        {
+            _optionsMonitorCache.Clear();
+            _logger.Log(LogLevel.Information, this, LogFunction.Other, "Site Options Cache Cleared");
         }
 
         private bool IsAuthorized(string entityName, int entityId, string permissionName)

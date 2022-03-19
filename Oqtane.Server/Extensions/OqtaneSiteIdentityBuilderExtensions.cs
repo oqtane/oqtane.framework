@@ -15,40 +15,16 @@ namespace Oqtane.Extensions
             builder.AddSiteOptions<IdentityOptions>((options, alias) =>
             {
                 // password options
-                if (alias.SiteSettings.ContainsKey("IdentityOptions:Password:RequiredLength"))
-                {
-                    options.Password.RequiredLength = int.Parse(alias.SiteSettings["IdentityOptions:Password:RequiredLength"]);
-                }
-                if (alias.SiteSettings.ContainsKey("IdentityOptions:Password:RequiredUniqueChars"))
-                {
-                    options.Password.RequiredUniqueChars = int.Parse(alias.SiteSettings["IdentityOptions:Password:RequiredUniqueChars"]);
-                }
-                if (alias.SiteSettings.ContainsKey("IdentityOptions:Password:RequireDigit"))
-                {
-                    options.Password.RequireDigit = bool.Parse(alias.SiteSettings["IdentityOptions:Password:RequireDigit"]);
-                }
-                if (alias.SiteSettings.ContainsKey("IdentityOptions:Password:RequireUppercase"))
-                {
-                    options.Password.RequireUppercase = bool.Parse(alias.SiteSettings["IdentityOptions:Password:RequireUppercase"]);
-                }
-                if (alias.SiteSettings.ContainsKey("IdentityOptions:Password:RequireLowercase"))
-                {
-                    options.Password.RequireLowercase = bool.Parse(alias.SiteSettings["IdentityOptions:Password:RequireLowercase"]);
-                }
-                if (alias.SiteSettings.ContainsKey("IdentityOptions:Password:RequireNonAlphanumeric"))
-                {
-                    options.Password.RequireNonAlphanumeric = bool.Parse(alias.SiteSettings["IdentityOptions:Password:RequireNonAlphanumeric"]);
-                }
+                options.Password.RequiredLength = int.Parse(alias.SiteSettings.GetValue("IdentityOptions:Password:RequiredLength", options.Password.RequiredLength.ToString()));
+                options.Password.RequiredUniqueChars = int.Parse(alias.SiteSettings.GetValue("IdentityOptions:Password:RequiredUniqueChars", options.Password.RequiredUniqueChars.ToString()));
+                options.Password.RequireDigit = bool.Parse(alias.SiteSettings.GetValue("IdentityOptions:Password:RequireDigit", options.Password.RequireDigit.ToString()));
+                options.Password.RequireUppercase = bool.Parse(alias.SiteSettings.GetValue("IdentityOptions:Password:RequireUppercase", options.Password.RequireUppercase.ToString()));
+                options.Password.RequireLowercase = bool.Parse(alias.SiteSettings.GetValue("IdentityOptions:Password:RequireLowercase", options.Password.RequireLowercase.ToString()));
+                options.Password.RequireNonAlphanumeric = bool.Parse(alias.SiteSettings.GetValue("IdentityOptions:Password:RequireNonAlphanumeric", options.Password.RequireNonAlphanumeric.ToString()));
 
                 // lockout options
-                if (alias.SiteSettings.ContainsKey("IdentityOptions:Password:MaxFailedAccessAttempts"))
-                {
-                    options.Lockout.MaxFailedAccessAttempts = int.Parse(alias.SiteSettings["IdentityOptions:Password:MaxFailedAccessAttempts"]);
-                }
-                if (alias.SiteSettings.ContainsKey("IdentityOptions:Password:DefaultLockoutTimeSpan"))
-                {
-                    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.Parse(alias.SiteSettings["IdentityOptions:Password:DefaultLockoutTimeSpan"]);
-                }
+                options.Lockout.MaxFailedAccessAttempts = int.Parse(alias.SiteSettings.GetValue("IdentityOptions:Password:MaxFailedAccessAttempts", options.Lockout.MaxFailedAccessAttempts.ToString()));
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.Parse(alias.SiteSettings.GetValue("IdentityOptions:Password:DefaultLockoutTimeSpan", options.Lockout.DefaultLockoutTimeSpan.ToString()));
             });
 
             return builder;
