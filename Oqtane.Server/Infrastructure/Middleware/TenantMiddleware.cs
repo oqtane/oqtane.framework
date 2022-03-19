@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Repository;
 using Oqtane.Shared;
 
@@ -27,10 +28,15 @@ namespace Oqtane.Infrastructure
 
                 if (alias != null)
                 {
-                    // get site settings and store alias in HttpContext
-                    var settingRepository = context.RequestServices.GetService(typeof(ISettingRepository)) as ISettingRepository;
-                    alias.SiteSettings = settingRepository.GetSettings(EntityNames.Site)
-                        .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
+                    // get site settings
+                    var cache = context.RequestServices.GetService(typeof(IMemoryCache)) as IMemoryCache;
+                    alias.SiteSettings = cache.GetOrCreate("sitesettings:" + alias.SiteKey, entry =>
+                    {
+                        var settingRepository = context.RequestServices.GetService(typeof(ISettingRepository)) as ISettingRepository;
+                        return settingRepository.GetSettings(EntityNames.Site)
+                            .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
+                    });
+                    // save alias in HttpContext
                     context.Items.Add(Constants.HttpContextAliasKey, alias);
 
                     // rewrite path by removing alias path prefix from api and pages requests (for consistent routing)
@@ -42,9 +48,7 @@ namespace Oqtane.Infrastructure
                             context.Request.Path = path.Replace("/" + alias.Path, "");
                         }
                     }
-
                 }
-
             }
 
             // continue processing

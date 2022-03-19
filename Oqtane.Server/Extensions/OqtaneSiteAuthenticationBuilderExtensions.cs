@@ -15,6 +15,8 @@ using Oqtane.Repository;
 using System.IO;
 using System.Collections.Generic;
 using Oqtane.Security;
+using System.Net;
+using Microsoft.AspNetCore.Http;
 
 namespace Oqtane.Extensions
 {
@@ -47,38 +49,41 @@ namespace Oqtane.Extensions
             // site OpenIdConnect options
             builder.AddSiteOptions<OpenIdConnectOptions>((options, alias) =>
             {
-                if (alias.SiteSettings.ContainsKey("OpenIdConnectOptions:Authority"))
-                {
-                    options.Authority = alias.SiteSettings["OpenIdConnectOptions:Authority"];
-                }
-                if (alias.SiteSettings.ContainsKey("OpenIdConnectOptions:ClientId"))
-                {
-                    options.ClientId = alias.SiteSettings["OpenIdConnectOptions:ClientId"];
-                }
-                if (alias.SiteSettings.ContainsKey("OpenIdConnectOptions:ClientSecret"))
-                {
-                    options.ClientSecret = alias.SiteSettings["OpenIdConnectOptions:ClientSecret"];
-                }
-
                 // default options
                 options.SignInScheme = Constants.AuthenticationScheme; // identity cookie
                 options.RequireHttpsMetadata = true;
+                options.SaveTokens = true;
+                options.GetClaimsFromUserInfoEndpoint = true;
+                options.CallbackPath = string.IsNullOrEmpty(alias.Path) ? "/signin-oidc" : "/" + alias.Path + "/signin-oidc";
+                options.ResponseType = OpenIdConnectResponseType.Code; // authorization code flow
+                options.ResponseMode = OpenIdConnectResponseMode.FormPost; // recommended as most secure
                 options.UsePkce = true;
                 options.Scope.Add("openid"); // core claims
                 options.Scope.Add("profile");  // name claims
                 options.Scope.Add("email"); // email claim
-                //options.Scope.Add("offline_access"); // get refresh token
-                options.SaveTokens = true;
-                options.GetClaimsFromUserInfoEndpoint = true;
-                options.CallbackPath = string.IsNullOrEmpty(alias.Path) ? "/signin-oidc" : "/" + alias.Path + "/signin-oidc";
-                options.ResponseType = OpenIdConnectResponseType.Code;
+                //options.Scope.Add("offline_access"); // refresh token
+
+                // cookie config is required to avoid Correlation Failed errors
+                options.NonceCookie.SameSite = SameSiteMode.Unspecified;
+                options.CorrelationCookie.SameSite = SameSiteMode.Unspecified;
+
+                // site options
+                options.Authority = alias.SiteSettings.GetValue("OpenIdConnectOptions:Authority", options.Authority);
+                options.ClientId = alias.SiteSettings.GetValue("OpenIdConnectOptions:ClientId", options.ClientId);
+                options.ClientSecret = alias.SiteSettings.GetValue("OpenIdConnectOptions:ClientSecret", options.ClientSecret);
+                options.MetadataAddress = alias.SiteSettings.GetValue("OpenIdConnectOptions:MetadataAddress", options.MetadataAddress);
+
+                // openid connect events
                 options.Events.OnTokenValidated = OnTokenValidated;
+                options.Events.OnRedirectToIdentityProvider = OnRedirectToIdentityProvider;
+                options.Events.OnRedirectToIdentityProviderForSignOut = OnRedirectToIdentityProviderForSignOut;
+                options.Events.OnRemoteFailure = OnRemoteFailure;
             });
 
             // site ChallengeScheme options 
             builder.AddSiteOptions<AuthenticationOptions>((options, alias) =>
             {
-                if (alias.SiteSettings.ContainsKey("OpenIdConnectOptions:Authority") && !string.IsNullOrEmpty(alias.SiteSettings["OpenIdConnectOptions:Authority"]))
+                if (alias.SiteSettings.GetValue("OpenIdConnectOptions:Authority", "") != "")
                 {
                     options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
                 }
@@ -175,7 +180,7 @@ namespace Oqtane.Extensions
                         else
                         {
                             // provider keys do not match
-                            _logger.Log(LogLevel.Error, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "OpenId Connect Server Provider Key Does Not Match For User {Email}", email);
+                            _logger.Log(LogLevel.Error, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "OpenId Connect Provider Key Does Not Match For User {Email}", email);
                         }
                     }
                     else
@@ -208,12 +213,51 @@ namespace Oqtane.Extensions
                     List<UserRole> userroles = _userRoles.GetUserRoles(user.UserId, context.HttpContext.GetAlias().SiteId).ToList();
                     var identity = UserSecurity.CreateClaimsIdentity(context.HttpContext.GetAlias(), user, userroles);
                     principal.AddClaims(identity.Claims);
+
+                    // add provider
+                    principal.AddClaim(new Claim("Provider", context.HttpContext.GetAlias().SiteSettings["OpenIdConnectOptions:Authority"]));
                 }
             }
             else
             {
-                _logger.Log(LogLevel.Information, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "OpenId Connect Server Did Not Return An Email Claim");
+                _logger.Log(LogLevel.Information, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "OpenId Connect Provider Did Not Return An Email Claim");
             }
+        }
+
+        private static Task OnRedirectToIdentityProvider(RedirectContext context)
+        {
+            //context.ProtocolMessage.SetParameter("key", "value");
+            return Task.CompletedTask;
+        }
+
+        private static Task OnRedirectToIdentityProviderForSignOut(RedirectContext context)
+        {
+            var logoutUrl = context.HttpContext.GetAlias().SiteSettings.GetValue("OpenIdConnectOptions:LogoutUrl", "");
+            if (logoutUrl != "")
+            {
+                var postLogoutUri = context.Properties.RedirectUri;
+                if (!string.IsNullOrEmpty(postLogoutUri))
+                {
+                    if (postLogoutUri.StartsWith("/"))
+                    {
+                        var request = context.Request;
+                        postLogoutUri = request.Scheme + "://" + request.Host + request.PathBase + postLogoutUri;
+                    }
+                    logoutUrl += $"&returnTo={Uri.EscapeDataString(postLogoutUri)}";
+                }
+                context.Response.Redirect(logoutUrl);
+                context.HandleResponse();
+            }
+            return Task.CompletedTask;
+        }
+
+        private static Task OnRemoteFailure(RemoteFailureContext context)
+        {
+            var _logger = context.HttpContext.RequestServices.GetRequiredService<ILogManager>();
+            _logger.Log(LogLevel.Error, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "OpenId Connect Remote Failure {Error}", context.Failure.Message);
+            context.Response.Redirect(context.Properties.RedirectUri);
+            context.HandleResponse();
+            return Task.CompletedTask;
         }
 
         public static bool DecorateService<TService, TImpl>(this IServiceCollection services, params object[] parameters)

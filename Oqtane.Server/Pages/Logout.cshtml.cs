@@ -1,32 +1,37 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Oqtane.Extensions;
 using Oqtane.Shared;
 
 namespace Oqtane.Pages
 {
-    [AllowAnonymous]
+    [Authorize]
     public class LogoutModel : PageModel
     {
         public async Task<IActionResult> OnGetAsync(string returnurl)
         {
-            if (HttpContext.User.Identity.IsAuthenticated)
-            {
-                await HttpContext.SignOutAsync(Constants.AuthenticationScheme);
-            }
+            await HttpContext.SignOutAsync(Constants.AuthenticationScheme);
 
-            if (returnurl == null)
-            {
-                returnurl = "";
-            }
-            if (!returnurl.StartsWith("/"))
-            {
-                returnurl = "/" + returnurl;
-            }
+            returnurl = (returnurl == null) ? "/" : returnurl;
+            returnurl = (!returnurl.StartsWith("/")) ? "/" + returnurl : returnurl;
 
-            return LocalRedirect(Url.Content("~" + returnurl));
+            var provider = HttpContext.User.Claims.FirstOrDefault(item => item.Type == "Provider");
+            var authority = HttpContext.GetAlias().SiteSettings.GetValue("OpenIdConnectOptions:Authority", "");
+            var logoutUrl = HttpContext.GetAlias().SiteSettings.GetValue("OpenIdConnectOptions:LogoutUrl", "");
+            if (provider != null && provider.Value == authority && logoutUrl != "")
+            {
+                return new SignOutResult(OpenIdConnectDefaults.AuthenticationScheme,
+                    new AuthenticationProperties { RedirectUri = returnurl });
+            }
+            else
+            {
+                return LocalRedirect(Url.Content("~" + returnurl));
+            }
         }
     }
 }

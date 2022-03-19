@@ -19,11 +19,13 @@
 		{
 			<form @ref="login" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
 				<div class="Oqtane-Modules-Admin-Login" @onkeypress="@(e => KeyPressed(e))">
-					@if (PageState.Site.Settings.ContainsKey("OpenIdConnectOptions:Provider") && !string.IsNullOrEmpty(PageState.Site.Settings["OpenIdConnectOptions:Provider"]))
-					{
-						<button type="button" class="btn btn-primary" @onclick="ExternalLogin">Use @PageState.Site.Settings["OpenIdConnectOptions:Provider"]</button>						
-						<hr />
-					}
+				@if (_allowexternallogin)
+				{
+					<button type="button" class="btn btn-primary" @onclick="ExternalLogin">Use @PageState.Site.Settings["OpenIdConnectOptions:Provider"]</button>						
+					<br /><br />
+				}
+				@if (_allowsitelogin)
+				{
 					<div class="form-group">
 						<Label Class="control-label" For="username" HelpText="Please enter your Username" ResourceKey="Username">Username:</Label>
 						<input id="username" type="text" @ref="username" class="form-control" placeholder="@Localizer["Username.Placeholder"]" @bind="@_username" required />
@@ -44,7 +46,8 @@
 					<button type="button" class="btn btn-primary" @onclick="Login">@SharedLocalizer["Login"]</button>
 					<button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
 					<br /><br />
-					<button type="button" class="btn btn-secondary" @onclick="Forgot">@Localizer["ForgotPassword"]</button>
+					<button type="button" class="btn btn-secondary" @onclick="Forgot">@Localizer["ForgotPassword"]</button>		
+				}
 				</div>
 			</form>
 		}
@@ -66,6 +69,8 @@
 </AuthorizeView>
 
 @code {
+	private bool _allowsitelogin = true;
+	private bool _allowexternallogin = false;
 	private ElementReference login;
 	private bool validated = false;
 	private bool twofactor = false;
@@ -89,6 +94,16 @@
 	protected override async Task OnInitializedAsync()
 	{
 		_togglepassword = Localizer["ShowPassword"];
+
+		if (PageState.Site.Settings.ContainsKey("AllowSiteLogin") && !string.IsNullOrEmpty(PageState.Site.Settings["AllowSiteLogin"]))
+		{
+			_allowsitelogin = bool.Parse(PageState.Site.Settings["AllowSiteLogin"]);
+		}
+
+		if (PageState.Site.Settings.ContainsKey("OpenIdConnectOptions:Provider") && !string.IsNullOrEmpty(PageState.Site.Settings["OpenIdConnectOptions:Provider"]))
+		{
+			_allowexternallogin = true;
+		}
 
 		if (PageState.QueryString.ContainsKey("returnurl"))
 		{
