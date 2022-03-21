@@ -234,7 +234,7 @@ else
 		_authority = SettingService.GetSetting(settings, "OpenIdConnectOptions:Authority", "");
 		_clientid = SettingService.GetSetting(settings, "OpenIdConnectOptions:ClientId", "");
 		_clientsecret = SettingService.GetSetting(settings, "OpenIdConnectOptions:ClientSecret", "");
-		_redirecturl = PageState.Alias.Name + "/signin-oidc";
+		_redirecturl = PageState.Uri.Scheme + "://" + PageState.Alias.Name + "/signin-oidc";
 		_metadata = SettingService.GetSetting(settings, "OpenIdConnectOptions:MetadataAddress", "");
 		_logouturl = SettingService.GetSetting(settings, "OpenIdConnectOptions:LogoutUrl", "");
 		_allowsitelogin = SettingService.GetSetting(settings, "AllowSiteLogin", "true");
