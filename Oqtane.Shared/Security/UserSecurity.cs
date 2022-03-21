@@ -134,7 +134,7 @@ namespace Oqtane.Security
             {
                 identity.AddClaim(new Claim(ClaimTypes.Name, user.Username));
                 identity.AddClaim(new Claim(ClaimTypes.PrimarySid, user.UserId.ToString()));
-                identity.AddClaim(new Claim(ClaimTypes.GroupSid, alias.AliasId.ToString()));
+                identity.AddClaim(new Claim(ClaimTypes.GroupSid, alias.SiteKey));
                 if (user.Roles.Contains(RoleNames.Host))
                 {
                     // host users are site admins by default
