@@ -81,12 +81,14 @@ namespace Oqtane.Extensions
 
         private static async Task OnTokenValidated(TokenValidatedContext context)
         {
-            var email = context.Principal.FindFirstValue(ClaimTypes.Email);
             var providerKey = context.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
             var loginProvider = context.HttpContext.GetAlias().SiteSettings["OpenIdConnectOptions:Authority"];
             var alias = context.HttpContext.GetAlias();
             var _logger = context.HttpContext.RequestServices.GetRequiredService<ILogManager>();
 
+            // custom logic may be needed here to manipulate Principal sent by Provider - use interface similar to IClaimsTransformation
+
+            var email = context.Principal.FindFirstValue(ClaimTypes.Email);
             if (email != null)
             {
                 var _identityUserManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<IdentityUser>>();
@@ -208,7 +210,7 @@ namespace Oqtane.Extensions
             }
             else
             {
-                _logger.Log(LogLevel.Information, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "OpenId Connect Provider Did Not Return An Email Claim");
+                _logger.Log(LogLevel.Information, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "OpenID Connect Provider Did Not Return An Email Claim To Uniquely Identify The User");
             }
         }
 
@@ -236,7 +238,7 @@ namespace Oqtane.Extensions
         private static Task OnAccessDenied(AccessDeniedContext context)
         {
             var _logger = context.HttpContext.RequestServices.GetRequiredService<ILogManager>();
-            _logger.Log(LogLevel.Information, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "OpenId Connect Access Denied - User May Have Cancelled Their External Login Attempt");
+            _logger.Log(LogLevel.Information, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "OpenID Connect Access Denied - User May Have Cancelled Their External Login Attempt");
             // redirect to login page
             var alias = context.HttpContext.GetAlias();
             context.Response.Redirect(alias.Path + "/login?returnurl=" + context.Properties.RedirectUri);
@@ -247,9 +249,10 @@ namespace Oqtane.Extensions
         private static Task OnRemoteFailure(RemoteFailureContext context)
         {
             var _logger = context.HttpContext.RequestServices.GetRequiredService<ILogManager>();
-            _logger.Log(LogLevel.Error, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "OpenId Connect Remote Failure - {Error}", context.Failure.Message);
-            // redirect to original page
-            context.Response.Redirect(context.Properties.RedirectUri);
+            _logger.Log(LogLevel.Error, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "OpenID Connect Remote Failure - {Error}", context.Failure.Message);
+            // redirect to login page
+            var alias = context.HttpContext.GetAlias();
+            context.Response.Redirect(alias.Path + "/login?returnurl=" + context.Properties.RedirectUri);
             context.HandleResponse();
             return Task.CompletedTask;
         }

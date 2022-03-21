@@ -155,6 +155,12 @@ else
 						</div>
 					</div>
 					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="redirecturl" HelpText="The Redirect Url (or Callback Url) Which May Need To Be Registered With The OpenID Connect Provider" ResourceKey="RedirectUrl">Redirect Url:</Label>
+						<div class="col-sm-9">
+							<input id="redirecturl" class="form-control" @bind="@_redirecturl" readonly />
+						</div>
+					</div>
+					<div class="row mb-1 align-items-center">
 						<Label Class="col-sm-3" For="metadata" HelpText="The Discovery Endpoint For Obtaining Metadata. Only Specify If The OpenID Connect Provider Does Not Use The Standard Approach (ie. /.well-known/openid-configuration)" ResourceKey="Metadata">Metadata Address:</Label>
 						<div class="col-sm-9">
 							<input id="metadata" class="form-control" @bind="@_metadata" />
@@ -201,6 +207,7 @@ else
 	private string _authority;
 	private string _clientid;
 	private string _clientsecret;
+	private string _redirecturl;
 	private string _metadata;
 	private string _logouturl;
 	private string _allowsitelogin;
@@ -227,6 +234,7 @@ else
 		_authority = SettingService.GetSetting(settings, "OpenIdConnectOptions:Authority", "");
 		_clientid = SettingService.GetSetting(settings, "OpenIdConnectOptions:ClientId", "");
 		_clientsecret = SettingService.GetSetting(settings, "OpenIdConnectOptions:ClientSecret", "");
+		_redirecturl = PageState.Alias.Name + "/signin-oidc";
 		_metadata = SettingService.GetSetting(settings, "OpenIdConnectOptions:MetadataAddress", "");
 		_logouturl = SettingService.GetSetting(settings, "OpenIdConnectOptions:LogoutUrl", "");
 		_allowsitelogin = SettingService.GetSetting(settings, "AllowSiteLogin", "true");
