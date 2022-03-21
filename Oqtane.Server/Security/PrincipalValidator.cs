@@ -24,7 +24,7 @@ namespace Oqtane.Security
                     if (alias != null)
                     {
                         // verify principal was authenticated for current tenant
-                        if (context.Principal.Claims.FirstOrDefault(item => item.Type == ClaimTypes.GroupSid)?.Value != alias.AliasId.ToString())
+                        if (context.Principal.Claims.FirstOrDefault(item => item.Type == ClaimTypes.GroupSid)?.Value != alias.SiteKey)
                         {
                             // tenant agnostic requests must be ignored 
                             string path = context.Request.Path.ToString().ToLower();

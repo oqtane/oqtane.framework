@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
@@ -15,7 +14,6 @@ using Oqtane.Repository;
 using System.IO;
 using System.Collections.Generic;
 using Oqtane.Security;
-using System.Net;
 using Microsoft.AspNetCore.Http;
 
 namespace Oqtane.Extensions
@@ -26,18 +24,7 @@ namespace Oqtane.Extensions
             this OqtaneSiteOptionsBuilder<TAlias> builder)
             where TAlias : class, IAlias, new()
         {
-            builder.WithSiteAuthenticationCore();
             builder.WithSiteAuthenticationOptions();
-
-            return builder;
-        }
-
-        public static OqtaneSiteOptionsBuilder<TAlias> WithSiteAuthenticationCore<TAlias>(
-            this OqtaneSiteOptionsBuilder<TAlias> builder)
-            where TAlias : class, IAlias, new()
-        {
-            builder.Services.DecorateService<IAuthenticationService, SiteAuthenticationService<TAlias>>();
-            builder.Services.Replace(ServiceDescriptor.Singleton<IAuthenticationSchemeProvider, SiteAuthenticationSchemeProvider>());
 
             return builder;
         }
@@ -75,8 +62,8 @@ namespace Oqtane.Extensions
 
                 // openid connect events
                 options.Events.OnTokenValidated = OnTokenValidated;
-                options.Events.OnRedirectToIdentityProvider = OnRedirectToIdentityProvider;
                 options.Events.OnRedirectToIdentityProviderForSignOut = OnRedirectToIdentityProviderForSignOut;
+                options.Events.OnAccessDenied = OnAccessDenied;
                 options.Events.OnRemoteFailure = OnRemoteFailure;
             });
 
@@ -97,6 +84,7 @@ namespace Oqtane.Extensions
             var email = context.Principal.FindFirstValue(ClaimTypes.Email);
             var providerKey = context.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
             var loginProvider = context.HttpContext.GetAlias().SiteSettings["OpenIdConnectOptions:Authority"];
+            var alias = context.HttpContext.GetAlias();
             var _logger = context.HttpContext.RequestServices.GetRequiredService<ILogManager>();
 
             if (email != null)
@@ -117,10 +105,10 @@ namespace Oqtane.Extensions
                     if (result.Succeeded)
                     {
                         // add user login
-                        await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(loginProvider, providerKey, ""));
+                        await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(loginProvider, providerKey, email));
 
                         user = new User();
-                        user.SiteId = context.HttpContext.GetAlias().SiteId;
+                        user.SiteId = alias.SiteId;
                         user.Username = email;
                         user.DisplayName = email;
                         user.Email = email;
@@ -145,11 +133,11 @@ namespace Oqtane.Extensions
                                 Capacity = Constants.UserFolderCapacity,
                                 IsSystem = true,
                                 Permissions = new List<Permission>
-                            {
-                                new Permission(PermissionNames.Browse, user.UserId, true),
-                                new Permission(PermissionNames.View, RoleNames.Everyone, true),
-                                new Permission(PermissionNames.Edit, user.UserId, true)
-                            }.EncodePermissions()
+                                {
+                                    new Permission(PermissionNames.Browse, user.UserId, true),
+                                    new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                                    new Permission(PermissionNames.Edit, user.UserId, true)
+                                }.EncodePermissions()
                             });
                         }
 
@@ -210,8 +198,8 @@ namespace Oqtane.Extensions
                     }
 
                     // add Oqtane claims
-                    List<UserRole> userroles = _userRoles.GetUserRoles(user.UserId, context.HttpContext.GetAlias().SiteId).ToList();
-                    var identity = UserSecurity.CreateClaimsIdentity(context.HttpContext.GetAlias(), user, userroles);
+                    List<UserRole> userroles = _userRoles.GetUserRoles(user.UserId, user.SiteId).ToList();
+                    var identity = UserSecurity.CreateClaimsIdentity(alias, user, userroles);
                     principal.AddClaims(identity.Claims);
 
                     // add provider
@@ -222,12 +210,6 @@ namespace Oqtane.Extensions
             {
                 _logger.Log(LogLevel.Information, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "OpenId Connect Provider Did Not Return An Email Claim");
             }
-        }
-
-        private static Task OnRedirectToIdentityProvider(RedirectContext context)
-        {
-            //context.ProtocolMessage.SetParameter("key", "value");
-            return Task.CompletedTask;
         }
 
         private static Task OnRedirectToIdentityProviderForSignOut(RedirectContext context)
@@ -251,59 +233,25 @@ namespace Oqtane.Extensions
             return Task.CompletedTask;
         }
 
-        private static Task OnRemoteFailure(RemoteFailureContext context)
+        private static Task OnAccessDenied(AccessDeniedContext context)
         {
             var _logger = context.HttpContext.RequestServices.GetRequiredService<ILogManager>();
-            _logger.Log(LogLevel.Error, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "OpenId Connect Remote Failure {Error}", context.Failure.Message);
-            context.Response.Redirect(context.Properties.RedirectUri);
+            _logger.Log(LogLevel.Information, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "OpenId Connect Access Denied - User May Have Cancelled Their External Login Attempt");
+            // redirect to login page
+            var alias = context.HttpContext.GetAlias();
+            context.Response.Redirect(alias.Path + "/login?returnurl=" + context.Properties.RedirectUri);
             context.HandleResponse();
             return Task.CompletedTask;
         }
 
-        public static bool DecorateService<TService, TImpl>(this IServiceCollection services, params object[] parameters)
+        private static Task OnRemoteFailure(RemoteFailureContext context)
         {
-            var existingService = services.SingleOrDefault(s => s.ServiceType == typeof(TService));
-            if (existingService == null)
-                return false;
-
-            var newService = new ServiceDescriptor(existingService.ServiceType,
-                sp =>
-                {
-                    TService inner = (TService)ActivatorUtilities.CreateInstance(sp, existingService.ImplementationType!);
-
-                    var parameters2 = new object[parameters.Length + 1];
-                    Array.Copy(parameters, 0, parameters2, 1, parameters.Length);
-                    parameters2[0] = inner;
-
-                    return ActivatorUtilities.CreateInstance<TImpl>(sp, parameters2)!;
-                },
-                existingService.Lifetime);
-
-            if (existingService.ImplementationInstance != null)
-            {
-                newService = new ServiceDescriptor(existingService.ServiceType,
-                    sp =>
-                    {
-                        TService inner = (TService)existingService.ImplementationInstance;
-                        return ActivatorUtilities.CreateInstance<TImpl>(sp, inner, parameters)!;
-                    },
-                    existingService.Lifetime);
-            }
-            else if (existingService.ImplementationFactory != null)
-            {
-                newService = new ServiceDescriptor(existingService.ServiceType,
-                    sp =>
-                    {
-                        TService inner = (TService)existingService.ImplementationFactory(sp);
-                        return ActivatorUtilities.CreateInstance<TImpl>(sp, inner, parameters)!;
-                    },
-                    existingService.Lifetime);
-            }
-
-            services.Remove(existingService);
-            services.Add(newService);
-
-            return true;
+            var _logger = context.HttpContext.RequestServices.GetRequiredService<ILogManager>();
+            _logger.Log(LogLevel.Error, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "OpenId Connect Remote Failure - {Error}", context.Failure.Message);
+            // redirect to original page
+            context.Response.Redirect(context.Properties.RedirectUri);
+            context.HandleResponse();
+            return Task.CompletedTask;
         }
     }
 }

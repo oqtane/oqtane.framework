@@ -33,7 +33,7 @@ namespace Oqtane.Infrastructure
                     alias.SiteSettings = cache.GetOrCreate("sitesettings:" + alias.SiteKey, entry =>
                     {
                         var settingRepository = context.RequestServices.GetService(typeof(ISettingRepository)) as ISettingRepository;
-                        return settingRepository.GetSettings(EntityNames.Site)
+                        return settingRepository.GetSettings(EntityNames.Site, alias.SiteId)
                             .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                     });
                     // save alias in HttpContext

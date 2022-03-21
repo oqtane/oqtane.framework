@@ -170,8 +170,8 @@ else
 						<Label Class="col-sm-3" For="allowsitelogin" HelpText="Do You Want To Allow Users To Sign In Using A Username And Password That Is Managed Locally On This Site? Note That You Should Only Disable This Option If You Have Already Sucessfully Configured An External Login Provider, Or Else You May Lock Yourself Out Of This Site." ResourceKey="AllowSiteLogin">Allow Site Login? </Label>
 						<div class="col-sm-9">
 							<select id="allowsitelogin" class="form-select" @bind="@_allowsitelogin" required>
-								<option value="True">@SharedLocalizer["Yes"]</option>
-								<option value="False">@SharedLocalizer["No"]</option>
+								<option value="true">@SharedLocalizer["Yes"]</option>
+								<option value="false">@SharedLocalizer["No"]</option>
 							</select>
 						</div>
 					</div>
@@ -229,7 +229,7 @@ else
 		_clientsecret = SettingService.GetSetting(settings, "OpenIdConnectOptions:ClientSecret", "");
 		_metadata = SettingService.GetSetting(settings, "OpenIdConnectOptions:MetadataAddress", "");
 		_logouturl = SettingService.GetSetting(settings, "OpenIdConnectOptions:LogoutUrl", "");
-		_allowsitelogin = SettingService.GetSetting(settings, "AllowSiteLogin", "True");
+		_allowsitelogin = SettingService.GetSetting(settings, "AllowSiteLogin", "true");
 	}
 
 	private List<UserRole> Search(string search)
