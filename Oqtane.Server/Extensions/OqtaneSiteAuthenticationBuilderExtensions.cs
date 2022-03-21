@@ -82,13 +82,34 @@ namespace Oqtane.Extensions
         private static async Task OnTokenValidated(TokenValidatedContext context)
         {
             var providerKey = context.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
-            var loginProvider = context.HttpContext.GetAlias().SiteSettings["OpenIdConnectOptions:Authority"];
+            var loginProvider = context.HttpContext.GetAlias().SiteSettings.GetValue("OpenIdConnectOptions:Authority", "");
+            var emailClaimType = context.HttpContext.GetAlias().SiteSettings.GetValue("OpenIdConnectOptions:EmailClaimType", "");
+            if (string.IsNullOrEmpty(emailClaimType))
+            {
+                emailClaimType = ClaimTypes.Email;
+            }
             var alias = context.HttpContext.GetAlias();
             var _logger = context.HttpContext.RequestServices.GetRequiredService<ILogManager>();
 
             // custom logic may be needed here to manipulate Principal sent by Provider - use interface similar to IClaimsTransformation
 
-            var email = context.Principal.FindFirstValue(ClaimTypes.Email);
+            var email = context.Principal.FindFirstValue(emailClaimType);
+
+            // validate email claim
+            if (email == null || !email.Contains("@") || !email.Contains("."))
+            {
+                var emailclaimtype = context.Principal.Claims.FirstOrDefault(item => item.Value.Contains("@") && item.Value.Contains("."));
+                if (emailclaimtype != null)
+                {
+                    email = emailclaimtype.Value;
+                    _logger.Log(LogLevel.Information, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "Please Update The Email Claim Type For The OpenID Connect Provider To {EmailClaimType} In Site Settings", emailclaimtype.Type);
+                }
+                else
+                {
+                    email = null;
+                }
+            }
+
             if (email != null)
             {
                 var _identityUserManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<IdentityUser>>();
@@ -170,7 +191,7 @@ namespace Oqtane.Extensions
                         else
                         {
                             // provider keys do not match
-                            _logger.Log(LogLevel.Error, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "OpenId Connect Provider Key Does Not Match For User {Email}", email);
+                            _logger.Log(LogLevel.Error, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "OpenId Connect Provider Key Does Not Match For User {Email}. Login Denied.", email);
                         }
                     }
                     else
@@ -208,9 +229,9 @@ namespace Oqtane.Extensions
                     principal.AddClaim(new Claim("Provider", context.HttpContext.GetAlias().SiteSettings["OpenIdConnectOptions:Authority"]));
                 }
             }
-            else
+            else // no email claim
             {
-                _logger.Log(LogLevel.Information, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "OpenID Connect Provider Did Not Return An Email Claim To Uniquely Identify The User");
+                _logger.Log(LogLevel.Error, nameof(OqtaneSiteAuthenticationBuilderExtensions), Enums.LogFunction.Security, "OpenID Connect Provider Did Not Return An Email Claim To Uniquely Identify The User");
             }
         }
 

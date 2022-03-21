@@ -161,6 +161,12 @@ else
 						</div>
 					</div>
 					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="emailclaimtype" HelpText="The Type Name For The Email Address Claim Provided By The OpenID Connect Provider" ResourceKey="EmailClaimType">Email Claim Type:</Label>
+						<div class="col-sm-9">
+							<input id="emailclaimtype" class="form-control" @bind="@_emailclaimtype" />
+						</div>
+					</div>
+					<div class="row mb-1 align-items-center">
 						<Label Class="col-sm-3" For="metadata" HelpText="The Discovery Endpoint For Obtaining Metadata. Only Specify If The OpenID Connect Provider Does Not Use The Standard Approach (ie. /.well-known/openid-configuration)" ResourceKey="Metadata">Metadata Address:</Label>
 						<div class="col-sm-9">
 							<input id="metadata" class="form-control" @bind="@_metadata" />
@@ -208,6 +214,7 @@ else
 	private string _clientid;
 	private string _clientsecret;
 	private string _redirecturl;
+	private string _emailclaimtype;
 	private string _metadata;
 	private string _logouturl;
 	private string _allowsitelogin;
@@ -235,6 +242,7 @@ else
 		_clientid = SettingService.GetSetting(settings, "OpenIdConnectOptions:ClientId", "");
 		_clientsecret = SettingService.GetSetting(settings, "OpenIdConnectOptions:ClientSecret", "");
 		_redirecturl = PageState.Uri.Scheme + "://" + PageState.Alias.Name + "/signin-oidc";
+		_emailclaimtype = SettingService.GetSetting(settings, "OpenIdConnectOptions:EmailClaimType", "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress");
 		_metadata = SettingService.GetSetting(settings, "OpenIdConnectOptions:MetadataAddress", "");
 		_logouturl = SettingService.GetSetting(settings, "OpenIdConnectOptions:LogoutUrl", "");
 		_allowsitelogin = SettingService.GetSetting(settings, "AllowSiteLogin", "true");
@@ -320,6 +328,7 @@ else
 			settings = SettingService.SetSetting(settings, "OpenIdConnectOptions:Authority", _authority, true);
 			settings = SettingService.SetSetting(settings, "OpenIdConnectOptions:ClientId", _clientid, true);
 			settings = SettingService.SetSetting(settings, "OpenIdConnectOptions:ClientSecret", _clientsecret, true);
+			settings = SettingService.SetSetting(settings, "OpenIdConnectOptions:EmailClaimType", _emailclaimtype, true);
 			settings = SettingService.SetSetting(settings, "OpenIdConnectOptions:MetadataAddress", _metadata, true);
 			settings = SettingService.SetSetting(settings, "OpenIdConnectOptions:LogoutUrl", _logouturl, true);
 			settings = SettingService.SetSetting(settings, "AllowSiteLogin", _allowsitelogin, false);
