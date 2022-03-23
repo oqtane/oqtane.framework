@@ -189,4 +189,7 @@
   <data name="ShowPassword" xml:space="preserve">
     <value>Show</value>
   </data>
+  <data name="Use" xml:space="preserve">
+    <value>Use</value>
+  </data>
 </root>
