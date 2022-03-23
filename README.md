@@ -62,11 +62,11 @@ Backlog (Not Yet Assigned)
 
 V.3.1.0 ( Q1 2022 )
 - [x] User account lockout support
-- [x] 2 factor authentication support
-- [x] Allow configuration of local authentication parameters (ie. password complexity)
-- [ ] Authentication extensibility via OIDC Identity Providers
-- [ ] Token based authentication / authorization via OAuth2 / OpenID Connect
-- [ ] Provide Single Sign On (SSO) for other applications
+- [x] Two factor authentication support
+- [x] Per-site configuration of password complexity, lockout criteria
+- [x] External login support via OAuth2 / OpenID Connect
+- [x] Support for Single Sign On (SSO) via OpenID Connect
+- [X] Downstream API support
 
 V.3.0.3 ( Feb 15, 2022 )
 - [x] Url fragment and anchor navigation support
