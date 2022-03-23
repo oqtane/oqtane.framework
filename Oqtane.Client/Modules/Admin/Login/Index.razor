@@ -21,7 +21,7 @@
 				<div class="Oqtane-Modules-Admin-Login" @onkeypress="@(e => KeyPressed(e))">
 				@if (_allowexternallogin)
 				{
-					<button type="button" class="btn btn-primary" @onclick="ExternalLogin">Use @PageState.Site.Settings["ExternalLogin:ProviderName"]</button>						
+					<button type="button" class="btn btn-primary" @onclick="ExternalLogin">@Localizer["Use"] @PageState.Site.Settings["ExternalLogin:ProviderName"]</button>						
 					<br /><br />
 				}
 				@if (_allowsitelogin)
