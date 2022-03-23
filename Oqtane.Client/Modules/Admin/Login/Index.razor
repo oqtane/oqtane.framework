@@ -21,7 +21,7 @@
 				<div class="Oqtane-Modules-Admin-Login" @onkeypress="@(e => KeyPressed(e))">
 				@if (_allowexternallogin)
 				{
-					<button type="button" class="btn btn-primary" @onclick="ExternalLogin">Use @PageState.Site.Settings["OpenIdConnectOptions:Provider"]</button>						
+					<button type="button" class="btn btn-primary" @onclick="ExternalLogin">Use @PageState.Site.Settings["ExternalLogin:ProviderName"]</button>						
 					<br /><br />
 				}
 				@if (_allowsitelogin)
@@ -95,12 +95,12 @@
 	{
 		_togglepassword = Localizer["ShowPassword"];
 
-		if (PageState.Site.Settings.ContainsKey("AllowSiteLogin") && !string.IsNullOrEmpty(PageState.Site.Settings["AllowSiteLogin"]))
+		if (PageState.Site.Settings.ContainsKey("ExternalLogin:AllowSiteLogin") && !string.IsNullOrEmpty(PageState.Site.Settings["ExternalLogin:AllowSiteLogin"]))
 		{
-			_allowsitelogin = bool.Parse(PageState.Site.Settings["AllowSiteLogin"]);
+			_allowsitelogin = bool.Parse(PageState.Site.Settings["ExternalLogin:AllowSiteLogin"]);
 		}
 
-		if (PageState.Site.Settings.ContainsKey("OpenIdConnectOptions:Provider") && !string.IsNullOrEmpty(PageState.Site.Settings["OpenIdConnectOptions:Provider"]))
+		if (PageState.Site.Settings.ContainsKey("ExternalLogin:ProviderType") && !string.IsNullOrEmpty(PageState.Site.Settings["ExternalLogin:ProviderType"]))
 		{
 			_allowexternallogin = true;
 		}
@@ -269,7 +269,7 @@
 
 	private void ExternalLogin()
 	{
-        NavigationManager.NavigateTo(Utilities.TenantUrl(PageState.Alias, "/pages/oidc?returnurl=" + _returnUrl), true);
+        NavigationManager.NavigateTo(Utilities.TenantUrl(PageState.Alias, "/pages/external?returnurl=" + _returnUrl), true);
 	}
 
 }

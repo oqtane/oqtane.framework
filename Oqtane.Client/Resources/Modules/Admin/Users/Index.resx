@@ -154,43 +154,43 @@
     <value>Roles</value>
   </data>
   <data name="LockoutDuration.HelpText" xml:space="preserve">
-    <value>The Number Of Minutes A User Should Be Locked Out</value>
+    <value>The number of minutes a user should be locked out</value>
   </data>
   <data name="LockoutDuration.Text" xml:space="preserve">
     <value>Lockout Duration:</value>
   </data>
   <data name="MaximumFailures.HelpText" xml:space="preserve">
-    <value>The Maximum Number Of Sign In Attempts Before A User Is Locked Out</value>
+    <value>The maximum number of sign in attempts before a user is locked out</value>
   </data>
   <data name="MaximumFailures.Text" xml:space="preserve">
     <value>Maximum Failures:</value>
   </data>
   <data name="RequireDigit.HelpText" xml:space="preserve">
-    <value>Indicate If Passwords Must Contain A Digit</value>
+    <value>Indicate if passwords must contain a digit</value>
   </data>
   <data name="RequireDigit.Text" xml:space="preserve">
     <value>Require Digit?</value>
   </data>
   <data name="RequiredLength.HelpText" xml:space="preserve">
-    <value>The Minimum Length For A Password</value>
+    <value>The minimum length for a password</value>
   </data>
   <data name="RequiredLength.Text" xml:space="preserve">
     <value>Minimum Length:</value>
   </data>
   <data name="RequireLower.HelpText" xml:space="preserve">
-    <value>Indicate If Passwords Must Contain A Lower Case Character</value>
+    <value>Indicate if passwords must contain a lower case character</value>
   </data>
   <data name="RequireLower.Text" xml:space="preserve">
     <value>Require Lowercase?</value>
   </data>
   <data name="RequirePunctuation.HelpText" xml:space="preserve">
-    <value>Indicate if Passwords Must Contain A Non-alphanumeric Character (ie. Punctuation)</value>
+    <value>Indicate if passwords must contain a non-alphanumeric character (ie. punctuation)</value>
   </data>
   <data name="RequirePunctuation.Text" xml:space="preserve">
     <value>Require Punctuation?</value>
   </data>
   <data name="RequireUpper.HelpText" xml:space="preserve">
-    <value>Indicate If Passwords Must Contain An Upper Case Character</value>
+    <value>Indicate if passwords must contain an upper case character</value>
   </data>
   <data name="RequireUpper.Text" xml:space="preserve">
     <value>Require Uppercase?</value>
@@ -199,9 +199,114 @@
     <value>Configuration Updated. Please Select Restart Application For These Changes To Be Activated.</value>
   </data>
   <data name="UniqueCharacters.HelpText" xml:space="preserve">
-    <value>The Minimum Number Of Unique Characters Which A Password Must Contain</value>
+    <value>The minimum number of unique characters which a password must contain</value>
   </data>
   <data name="UniqueCharacters.Text" xml:space="preserve">
     <value>Unique Characters:</value>
+  </data>
+  <data name="AllowSiteLogin.HelpText" xml:space="preserve">
+    <value>Do you want to allow users to sign in using a username and password that is managed locally on this site? Note that you should only disable this option if you have already sucessfully configured an external login provider, or else you may lock yourself out of the site.</value>
+  </data>
+  <data name="AllowSiteLogin.Text" xml:space="preserve">
+    <value>Allow Site Login?</value>
+  </data>
+  <data name="Authority.HelpText" xml:space="preserve">
+    <value>The Authority Url or Issuer Url associated with the OpenID Connect provider</value>
+  </data>
+  <data name="Authority.Text" xml:space="preserve">
+    <value>Authority:</value>
+  </data>
+  <data name="AuthorizationUrl.HelpText" xml:space="preserve">
+    <value>The endpoint for obtaining an Authorization Code</value>
+  </data>
+  <data name="AuthorizationUrl.Text" xml:space="preserve">
+    <value>Authorization Url:</value>
+  </data>
+  <data name="ClientID.HelpText" xml:space="preserve">
+    <value>The Client ID from the provider</value>
+  </data>
+  <data name="ClientID.Text" xml:space="preserve">
+    <value>Client ID:</value>
+  </data>
+  <data name="ClientSecret.HelpText" xml:space="preserve">
+    <value>The Client Secret from the provider</value>
+  </data>
+  <data name="ClientSecret.Text" xml:space="preserve">
+    <value>Client Secret:</value>
+  </data>
+  <data name="CreateUsers.HelpText" xml:space="preserve">
+    <value>Do you want new users to be created automatically? If you disable this option, users must already be registered on the site in order to sign in with their external login.</value>
+  </data>
+  <data name="CreateUsers.Text" xml:space="preserve">
+    <value>Create New Users?</value>
+  </data>
+  <data name="DomainFilter.HelpText" xml:space="preserve">
+    <value>Provide any email domain filter criteria (separated by commas). Domains to exclude should be prefixed with an exclamation point (!). For example 'microsoft.com,!hotmail.com' would include microsoft.com email addresses but not hotmail.com email addresses.</value>
+  </data>
+  <data name="DomainFilter.Text" xml:space="preserve">
+    <value>Domain Filter:</value>
+  </data>
+  <data name="EmailClaimType.HelpText" xml:space="preserve">
+    <value>The type name for the email address claim provided by the provider</value>
+  </data>
+  <data name="EmailClaimType.Text" xml:space="preserve">
+    <value>Email Claim Type:</value>
+  </data>
+  <data name="ExternalLoginSettings.Heading" xml:space="preserve">
+    <value>External Login Settings</value>
+  </data>
+  <data name="LockoutSettings.Heading" xml:space="preserve">
+    <value>Lockout Settings</value>
+  </data>
+  <data name="MetadataUrl.HelpText" xml:space="preserve">
+    <value>The discovery endpoint for obtaining metadata for this provider. Only specify if the OpenID Connect provider does not use the standard approach (ie. /.well-known/openid-configuration)</value>
+  </data>
+  <data name="MetadataUrl.Text" xml:space="preserve">
+    <value>Metadata Url:</value>
+  </data>
+  <data name="PasswordSettings.Heading" xml:space="preserve">
+    <value>Password Settings</value>
+  </data>
+  <data name="PKCE.HelpText" xml:space="preserve">
+    <value>Indicate if the provider supports Proof Key for Code Exchange (PKCE)</value>
+  </data>
+  <data name="PKCE.Text" xml:space="preserve">
+    <value>Use PKCE?</value>
+  </data>
+  <data name="ProviderName.HelpText" xml:space="preserve">
+    <value>The external login provider name which will be displayed on the login page</value>
+  </data>
+  <data name="ProviderName.Text" xml:space="preserve">
+    <value>Provider Name:</value>
+  </data>
+  <data name="ProviderType.HelpText" xml:space="preserve">
+    <value>Select the external login provider type</value>
+  </data>
+  <data name="ProviderType.Text" xml:space="preserve">
+    <value>Provider Type:</value>
+  </data>
+  <data name="RedirectUrl.HelpText" xml:space="preserve">
+    <value>The Redirect Url (or Callback Url) which usually needs to be registered with the provider</value>
+  </data>
+  <data name="RedirectUrl.Text" xml:space="preserve">
+    <value>Redirect Url:</value>
+  </data>
+  <data name="Scopes.HelpText" xml:space="preserve">
+    <value>A list of Scopes to request from the provider (separated by commas). If none are specified, standard Scopes will be used by default.</value>
+  </data>
+  <data name="Scopes.Text" xml:space="preserve">
+    <value>Scopes:</value>
+  </data>
+  <data name="TokenUrl.HelpText" xml:space="preserve">
+    <value>The endpoint for obtaining an Auth Token</value>
+  </data>
+  <data name="TokenUrl.Text" xml:space="preserve">
+    <value>Token Url:</value>
+  </data>
+  <data name="UserInfoUrl.HelpText" xml:space="preserve">
+    <value>The endpoint for obtaining user information. This should be an API or Page Url which contains the users email address.</value>
+  </data>
+  <data name="UserInfoUrl.Text" xml:space="preserve">
+    <value>User Info Url:</value>
   </data>
 </root>

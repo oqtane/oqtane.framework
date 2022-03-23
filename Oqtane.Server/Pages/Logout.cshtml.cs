@@ -20,18 +20,7 @@ namespace Oqtane.Pages
             returnurl = (returnurl == null) ? "/" : returnurl;
             returnurl = (!returnurl.StartsWith("/")) ? "/" + returnurl : returnurl;
 
-            var provider = HttpContext.User.Claims.FirstOrDefault(item => item.Type == "Provider");
-            var authority = HttpContext.GetAlias().SiteSettings.GetValue("OpenIdConnectOptions:Authority", "");
-            var logoutUrl = HttpContext.GetAlias().SiteSettings.GetValue("OpenIdConnectOptions:LogoutUrl", "");
-            if (provider != null && provider.Value == authority && logoutUrl != "")
-            {
-                return new SignOutResult(OpenIdConnectDefaults.AuthenticationScheme,
-                    new AuthenticationProperties { RedirectUri = returnurl });
-            }
-            else
-            {
-                return LocalRedirect(Url.Content("~" + returnurl));
-            }
+            return LocalRedirect(Url.Content("~" + returnurl));
         }
     }
 }

@@ -45,7 +45,7 @@ namespace Oqtane.Security
             {
                 if (user == null)
                 {
-                    authorized =  IsAuthorized(-1, "", permissions); // user is not authenticated but may have access to resource
+                    authorized = IsAuthorized(-1, "", permissions); // user is not authenticated but may have access to resource
                 }
                 else
                 {
@@ -151,6 +151,25 @@ namespace Oqtane.Security
                 }
             }
             return identity;
+        }
+
+        public static void ResetClaimsIdentity(ClaimsIdentity identity)
+        {
+            var claim = identity.Claims.FirstOrDefault(item => item.Type == ClaimTypes.Name);
+            if (claim != null)
+            {
+                identity.RemoveClaim(claim);
+            }
+            claim = identity.Claims.FirstOrDefault(item => item.Type == ClaimTypes.PrimarySid);
+            if (claim != null)
+            {
+                identity.RemoveClaim(claim);
+            }
+            claim = identity.Claims.FirstOrDefault(item => item.Type == ClaimTypes.GroupSid);
+            if (claim != null)
+            {
+                identity.RemoveClaim(claim);
+            }
         }
     }
 }
