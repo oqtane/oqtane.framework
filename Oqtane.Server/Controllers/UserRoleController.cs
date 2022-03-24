@@ -73,13 +73,6 @@ namespace Oqtane.Controllers
             var role = _roles.GetRole(userRole.RoleId);
             if (ModelState.IsValid && role != null && SiteValid(role.SiteId) && RoleValid(role.Name))
             {
-                if (role.Name == RoleNames.Host)
-                {
-                    // host roles can only exist at global level - remove all site specific user roles
-                    _userRoles.DeleteUserRoles(userRole.UserId);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Roles Deleted For UserId {UserId}", userRole.UserId);
-                }
-
                 userRole = _userRoles.AddUserRole(userRole);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "User Role Added {UserRole}", userRole);
 

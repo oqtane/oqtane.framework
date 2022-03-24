@@ -2,16 +2,19 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
     public class UserRoleRepository : IUserRoleRepository
     {
         private TenantDBContext _db;
+        private readonly IRoleRepository _roles;
 
-        public UserRoleRepository(TenantDBContext context)
+        public UserRoleRepository(TenantDBContext context, IRoleRepository roles)
         {
             _db = context;
+            _roles = roles;
         }
 
         public IEnumerable<UserRole> GetUserRoles(int siteId)
@@ -34,6 +37,14 @@ namespace Oqtane.Repository
         {
             _db.UserRole.Add(userRole);
             _db.SaveChanges();
+
+            // host roles can only exist at global level - remove any site specific user roles
+            var role = _roles.GetRole(userRole.RoleId);
+            if (role.Name == RoleNames.Host)
+            {
+                DeleteUserRoles(userRole.UserId);
+            }
+
             return userRole;
         }
 

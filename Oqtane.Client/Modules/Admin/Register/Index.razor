@@ -90,9 +90,10 @@ else
                         {
                             SiteId = PageState.Site.SiteId,
                             Username = _username,
-                            DisplayName = (_displayname == string.Empty ? _username : _displayname),
+                            Password = _password,
                             Email = _email,
-                            Password = _password
+                            DisplayName = (_displayname == string.Empty ? _username : _displayname),
+							PhotoFileId = null
                         };
                         user = await UserService.AddUserAsync(user);
 
