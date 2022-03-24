@@ -210,60 +210,43 @@ namespace Oqtane.Extensions
                         var result = await _identityUserManager.CreateAsync(identityuser, DateTime.UtcNow.ToString("yyyy-MMM-dd-HH-mm-ss"));
                         if (result.Succeeded)
                         {
-                            // add user login
-                            await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(providerType, providerKey, ""));
-
-                            user = new User();
-                            user.SiteId = alias.SiteId;
-                            user.Username = email;
-                            user.DisplayName = email;
-                            user.Email = email;
-                            user.LastLoginOn = null;
-                            user.LastIPAddress = "";
+                            user = new User
+                            {
+                                SiteId = alias.SiteId,
+                                Username = email,
+                                DisplayName = email,
+                                Email = email,
+                                LastLoginOn = null,
+                                LastIPAddress = ""
+                            };
                             user = _users.AddUser(user);
 
-                            // add folder for user
-                            var _folders = httpContext.RequestServices.GetRequiredService<IFolderRepository>();
-                            Folder folder = _folders.GetFolder(user.SiteId, Utilities.PathCombine("Users", Path.DirectorySeparatorChar.ToString()));
-                            if (folder != null)
+                            if (user != null)
                             {
-                                _folders.AddFolder(new Folder
-                                {
-                                    SiteId = folder.SiteId,
-                                    ParentId = folder.FolderId,
-                                    Name = "My Folder",
-                                    Type = FolderTypes.Private,
-                                    Path = Utilities.PathCombine(folder.Path, user.UserId.ToString(), Path.DirectorySeparatorChar.ToString()),
-                                    Order = 1,
-                                    ImageSizes = "",
-                                    Capacity = Constants.UserFolderCapacity,
-                                    IsSystem = true,
-                                    Permissions = new List<Permission>
-                                    {
-                                        new Permission(PermissionNames.Browse, user.UserId, true),
-                                        new Permission(PermissionNames.View, RoleNames.Everyone, true),
-                                        new Permission(PermissionNames.Edit, user.UserId, true)
-                                    }.EncodePermissions()
-                                });
-                            }
+                                var _notifications = httpContext.RequestServices.GetRequiredService<INotificationRepository>();
+                                string url = httpContext.Request.Scheme + "://" + alias.Name;
+                                string body = "You Recently Used An External Account To Sign In To Our Site.\n\n" + url + "\n\nThank You!";
+                                var notification = new Notification(user.SiteId, user, "User Account Notification", body);
+                                _notifications.AddNotification(notification);
 
-                            // add auto assigned roles to user for site
-                            var _roles = httpContext.RequestServices.GetRequiredService<IRoleRepository>();
-                            List<Role> roles = _roles.GetRoles(user.SiteId).Where(item => item.IsAutoAssigned).ToList();
-                            foreach (Role role in roles)
-                            {
-                                UserRole userrole = new UserRole();
-                                userrole.UserId = user.UserId;
-                                userrole.RoleId = role.RoleId;
-                                userrole.EffectiveDate = null;
-                                userrole.ExpiryDate = null;
-                                _userRoles.AddUserRole(userrole);
+                                // add user login
+                                await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(providerType, providerKey, ""));
+
+                                _logger.Log(user.SiteId, LogLevel.Information, "ExternalLogin", Enums.LogFunction.Create, "User Added {User}", user);
                             }
+                            else
+                            {
+                                _logger.Log(user.SiteId, LogLevel.Error, "ExternalLogin", Enums.LogFunction.Create, "Unable To Add User {Email}", email);
+                            }
+                        }
+                        else
+                        {
+                            _logger.Log(user.SiteId, LogLevel.Error, "ExternalLogin", Enums.LogFunction.Create, "Unable To Add Identity User {Email} {Error}", email, result.Errors.ToString());
                         }
                     }
                     else
                     {
-                        _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "Creation Of New Users Is Disabled. User With Email Address {Email} Will First Need To Be Registered On The Site.", email);
+                        _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "Creation Of New Users Is Disabled For This Site. User With Email Address {Email} Will First Need To Be Registered On The Site.", email);
                     }
                 }
                 else
@@ -287,24 +270,25 @@ namespace Oqtane.Extensions
                         // add user login
                         await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(providerType, providerKey, ""));
                         user = _users.GetUser(identityuser.UserName);
+                        _logger.Log(user.SiteId, LogLevel.Information, "ExternalLogin", Enums.LogFunction.Create, "External User Login Added For {Email} Using Provider {Provider}", email, providerType);
                     }
                 }
 
                 // add claims to principal
                 if (user != null)
                 {
-                    // update user
-                    user.LastLoginOn = DateTime.UtcNow;
-                    user.LastIPAddress = httpContext.Connection.RemoteIpAddress.ToString();
-                    _users.UpdateUser(user);
-                    _logger.Log(LogLevel.Information, "ExternalLogin", Enums.LogFunction.Security, "User Login Successful For {Username} Using Provider {Provider}", user.Username, providerType);
-
                     // add Oqtane claims
                     var principal = (ClaimsIdentity)claimsPrincipal.Identity;
                     UserSecurity.ResetClaimsIdentity(principal);
                     List<UserRole> userroles = _userRoles.GetUserRoles(user.UserId, user.SiteId).ToList();
                     var identity = UserSecurity.CreateClaimsIdentity(alias, user, userroles);
                     principal.AddClaims(identity.Claims);
+
+                    // update user
+                    user.LastLoginOn = DateTime.UtcNow;
+                    user.LastIPAddress = httpContext.Connection.RemoteIpAddress.ToString();
+                    _users.UpdateUser(user);
+                    _logger.Log(LogLevel.Information, "ExternalLogin", Enums.LogFunction.Security, "External User Login Successful For {Username} Using Provider {Provider}", user.Username, providerType);
                 }
                 else // user not logged in
                 {

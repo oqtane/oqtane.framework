@@ -620,35 +620,12 @@ namespace Oqtane.Infrastructure
                                             LastIPAddress = "",
                                             LastLoginOn = null
                                         };
-
                                         user = users.AddUser(user);
+
+                                        // add host role
                                         var hostRoleId = roles.GetRoles(user.SiteId, true).FirstOrDefault(item => item.Name == RoleNames.Host)?.RoleId ?? 0;
                                         var userRole = new UserRole { UserId = user.UserId, RoleId = hostRoleId, EffectiveDate = null, ExpiryDate = null };
                                         userRoles.AddUserRole(userRole);
-
-                                        // add user folder
-                                        var folder = folders.GetFolder(user.SiteId, Utilities.PathCombine("Users", Path.DirectorySeparatorChar.ToString()));
-                                        if (folder != null)
-                                        {
-                                            folders.AddFolder(new Folder
-                                            {
-                                                SiteId = folder.SiteId,
-                                                ParentId = folder.FolderId,
-                                                Name = "My Folder",
-                                                Type = FolderTypes.Private,
-                                                Path = Utilities.PathCombine(folder.Path, user.UserId.ToString(), Path.DirectorySeparatorChar.ToString()),
-                                                Order = 1,
-                                                ImageSizes = "",
-                                                Capacity = Constants.UserFolderCapacity,
-                                                IsSystem = true,
-                                                Permissions = new List<Permission>
-                                                {
-                                                    new Permission(PermissionNames.Browse, user.UserId, true),
-                                                    new Permission(PermissionNames.View, RoleNames.Everyone, true),
-                                                    new Permission(PermissionNames.Edit, user.UserId, true),
-                                                }.EncodePermissions(),
-                                            });
-                                        }
                                     }
                                 }
                             }

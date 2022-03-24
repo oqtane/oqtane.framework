@@ -162,6 +162,7 @@ namespace Oqtane.Controllers
 
             if (allowregistration)
             {
+                bool succeeded;
                 IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
                 if (identityuser == null)
                 {
@@ -170,73 +171,47 @@ namespace Oqtane.Controllers
                     identityuser.Email = user.Email;
                     identityuser.EmailConfirmed = verified;
                     var result = await _identityUserManager.CreateAsync(identityuser, user.Password);
-                    if (result.Succeeded)
-                    {
-                        user.LastLoginOn = null;
-                        user.LastIPAddress = "";
-                        newUser = _users.AddUser(user);
-                        if (!verified)
-                        {
-                            string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
-                            string url = HttpContext.Request.Scheme + "://" + _tenantManager.GetAlias().Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
-                            string body = "Dear " + user.DisplayName + ",\n\nIn Order To Complete The Registration Of Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
-                            var notification = new Notification(user.SiteId, newUser, "User Account Verification", body);
-                            _notifications.AddNotification(notification);
-                        }
-
-                        // add folder for user
-                        Folder folder = _folders.GetFolder(user.SiteId, Utilities.PathCombine("Users",Path.DirectorySeparatorChar.ToString()));
-                        if (folder != null)
-                        {
-                            _folders.AddFolder(new Folder
-                            {
-                                SiteId = folder.SiteId,
-                                ParentId = folder.FolderId,
-                                Name = "My Folder",
-                                Type = FolderTypes.Private,
-                                Path = Utilities.PathCombine(folder.Path, newUser.UserId.ToString(), Path.DirectorySeparatorChar.ToString()),
-                                Order = 1,
-                                ImageSizes = "",
-                                Capacity = Constants.UserFolderCapacity,
-                                IsSystem = true,
-                                Permissions = new List<Permission>
-                                {
-                                    new Permission(PermissionNames.Browse, newUser.UserId, true),
-                                    new Permission(PermissionNames.View, RoleNames.Everyone, true),
-                                    new Permission(PermissionNames.Edit, newUser.UserId, true)
-                                }.EncodePermissions()
-                            }) ;
-                        }
-                    }
+                    succeeded = result.Succeeded;
                 }
                 else
                 {
                     var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, false);
-                    if (result.Succeeded)
-                    {
-                        newUser = _users.GetUser(user.Username);
-                    }
+                    succeeded = result.Succeeded;
+                    verified = true;
+                }
+
+                if (succeeded)
+                {
+                    user.LastLoginOn = null;
+                    user.LastIPAddress = "";
+                    newUser = _users.AddUser(user);
                 }
 
                 if (newUser != null)
                 {
-                    // add auto assigned roles to user for site
-                    List<Role> roles = _roles.GetRoles(user.SiteId).Where(item => item.IsAutoAssigned).ToList();
-                    foreach (Role role in roles)
+                    if (!verified)
                     {
-                        UserRole userrole = new UserRole();
-                        userrole.UserId = newUser.UserId;
-                        userrole.RoleId = role.RoleId;
-                        userrole.EffectiveDate = null;
-                        userrole.ExpiryDate = null;
-                        _userRoles.AddUserRole(userrole);
+                        string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
+                        string url = HttpContext.Request.Scheme + "://" + _tenantManager.GetAlias().Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
+                        string body = "Dear " + user.DisplayName + ",\n\nIn Order To Complete The Registration Of Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
+                        var notification = new Notification(user.SiteId, newUser, "User Account Verification", body);
+                        _notifications.AddNotification(notification);
                     }
-                }
+                    else
+                    {
+                        string url = HttpContext.Request.Scheme + "://" + _tenantManager.GetAlias().Name;
+                        string body = "Dear " + user.DisplayName + ",\n\nA User Account Has Been Succesfully Created For You. Please Use The Following Link To Access The Site:\n\n" + url + "\n\nThank You!";
+                        var notification = new Notification(user.SiteId, newUser, "User Account Notification", body);
+                        _notifications.AddNotification(notification);
+                    }
 
-                if (newUser != null)
-                {
                     newUser.Password = ""; // remove sensitive information
                     _logger.Log(user.SiteId, LogLevel.Information, this, LogFunction.Create, "User Added {User}", newUser);
+                }
+                else
+                {
+                    user.Password = ""; // remove sensitive information
+                    _logger.Log(user.SiteId, LogLevel.Error, this, LogFunction.Create, "Unable To Add User {User}", user);
                 }
             }
             else
