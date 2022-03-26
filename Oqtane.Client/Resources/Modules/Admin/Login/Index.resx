@@ -127,7 +127,7 @@
     <value>User Account Could Not Be Verified. Please Contact Your Administrator For Further Instructions.</value>
   </data>
   <data name="Error.Login.Fail" xml:space="preserve">
-    <value>Login Failed. Please Remember That Passwords Are Case Sensitive. If You Have Attempted To Sign In 3 Times Unsuccessfully, Your Account Will Be Locked Out For 10 Minutes. Note That User Accounts Require Verification When They Are Initially Created So You May Wish To Check Your Email If You Are A New User.</value>
+    <value>Login Failed. Please Remember That Passwords Are Case Sensitive. If You Have Attempted To Sign In Multiple Times Unsuccessfully, Your Account Will Be Locked Out For A Period Of Time. Note That User Accounts Require Verification When They Are Initially Created So You May Wish To Check Your Email If You Are A New User.</value>
   </data>
   <data name="Message.Required.UserInfo" xml:space="preserve">
     <value>Please Provide All Required Fields</value>

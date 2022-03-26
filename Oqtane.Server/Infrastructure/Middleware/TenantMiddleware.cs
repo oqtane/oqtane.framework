@@ -20,7 +20,9 @@ namespace Oqtane.Infrastructure
         {
             // check if framework is installed
             var config = context.RequestServices.GetService(typeof(IConfigManager)) as IConfigManager;
-            if (config.IsInstalled())
+            string path = context.Request.Path.ToString();
+
+            if (config.IsInstalled() && !path.StartsWith("/_blazor"))
             {
                 // get alias (note that this also sets SiteState.Alias)
                 var tenantManager = context.RequestServices.GetService(typeof(ITenantManager)) as ITenantManager;
@@ -28,7 +30,7 @@ namespace Oqtane.Infrastructure
 
                 if (alias != null)
                 {
-                    // get site settings
+                    // add site settings to alias
                     var cache = context.RequestServices.GetService(typeof(IMemoryCache)) as IMemoryCache;
                     alias.SiteSettings = cache.GetOrCreate("sitesettings:" + alias.SiteKey, entry =>
                     {
@@ -36,13 +38,14 @@ namespace Oqtane.Infrastructure
                         return settingRepository.GetSettings(EntityNames.Site, alias.SiteId)
                             .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                     });
-                    // save alias in HttpContext
+                    // save alias in HttpContext for server-side usage
                     context.Items.Add(Constants.HttpContextAliasKey, alias);
+                    // remove site settings so they are not available client-side
+                    alias.SiteSettings = null;
 
                     // rewrite path by removing alias path prefix from api and pages requests (for consistent routing)
                     if (!string.IsNullOrEmpty(alias.Path))
                     {
-                        string path = context.Request.Path.ToString();
                         if (path.StartsWith("/" + alias.Path) && (path.Contains("/api/") || path.Contains("/pages/")))
                         {
                             context.Request.Path = path.Replace("/" + alias.Path, "");

@@ -1,25 +1,21 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.Options;
-using Oqtane.Models;
 
 namespace Oqtane.Infrastructure
 {
-    public class SiteOptionsFactory<TOptions, TAlias> : IOptionsFactory<TOptions>
+    public class SiteOptionsFactory<TOptions> : IOptionsFactory<TOptions>
         where TOptions : class, new()
-        where TAlias : class, IAlias, new()
     {
         private readonly IConfigureOptions<TOptions>[] _configureOptions;
         private readonly IPostConfigureOptions<TOptions>[] _postConfigureOptions;
-        private readonly IValidateOptions<TOptions>[] _validations;
-        private readonly ISiteOptions<TOptions, TAlias>[] _siteOptions;
+        private readonly ISiteOptions<TOptions>[] _siteOptions;
         private readonly IAliasAccessor _aliasAccessor;
 
-        public SiteOptionsFactory(IEnumerable<IConfigureOptions<TOptions>> configureOptions, IEnumerable<IPostConfigureOptions<TOptions>> postConfigureOptions, IEnumerable<IValidateOptions<TOptions>> validations, IEnumerable<ISiteOptions<TOptions, TAlias>> siteOptions, IAliasAccessor aliasAccessor)
+        public SiteOptionsFactory(IEnumerable<IConfigureOptions<TOptions>> configureOptions, IEnumerable<IPostConfigureOptions<TOptions>> postConfigureOptions, IEnumerable<ISiteOptions<TOptions>> siteOptions, IAliasAccessor aliasAccessor)
         {
             _configureOptions = configureOptions as IConfigureOptions<TOptions>[] ?? new List<IConfigureOptions<TOptions>>(configureOptions).ToArray();
             _postConfigureOptions = postConfigureOptions as IPostConfigureOptions<TOptions>[] ?? new List<IPostConfigureOptions<TOptions>>(postConfigureOptions).ToArray();
-            _validations = validations as IValidateOptions<TOptions>[] ?? new List<IValidateOptions<TOptions>>(validations).ToArray();
-            _siteOptions = siteOptions as ISiteOptions<TOptions, TAlias>[] ?? new List<ISiteOptions<TOptions, TAlias>>(siteOptions).ToArray();
+            _siteOptions = siteOptions as ISiteOptions<TOptions>[] ?? new List<ISiteOptions<TOptions>>(siteOptions).ToArray();
             _aliasAccessor = aliasAccessor;
          }
 
@@ -44,7 +40,7 @@ namespace Oqtane.Infrastructure
             {
                 foreach (var siteOption in _siteOptions)
                 {
-                    siteOption.Configure(options, _aliasAccessor.Alias as TAlias);
+                    siteOption.Configure(options, _aliasAccessor.Alias);
                 }
             }
 

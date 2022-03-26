@@ -82,7 +82,7 @@ namespace Oqtane.Models
         }
 
         /// <summary>
-        /// Site-specific settings
+        /// Site-specific settings (only available on the server via HttpContext for security reasons)
         /// </summary>
         [NotMapped]
         public Dictionary<string, string> SiteSettings { get; set; }

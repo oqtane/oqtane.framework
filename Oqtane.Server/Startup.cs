@@ -115,12 +115,13 @@ namespace Oqtane
                     options.DefaultChallengeScheme = Constants.AuthenticationScheme;
                 })
                 .AddCookie(Constants.AuthenticationScheme)
-                .AddOpenIdConnect("oidc", options => { })
-                .AddOAuth("oauth2", options => { });
+                .AddOpenIdConnect(AuthenticationProviderTypes.OpenIDConnect, options => { })
+                .AddOAuth(AuthenticationProviderTypes.OAuth2, options => { });
 
             services.ConfigureOqtaneCookieOptions();
+            services.ConfigureOqtaneAuthenticationOptions(Configuration);
 
-            services.AddOqtaneSiteOptions<Alias>()
+            services.AddOqtaneSiteOptions()
                 .WithSiteIdentity()
                 .WithSiteAuthentication();
 

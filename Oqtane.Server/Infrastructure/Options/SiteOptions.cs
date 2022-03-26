@@ -3,20 +3,19 @@ using Oqtane.Models;
 
 namespace Oqtane.Infrastructure
 {
-    public class SiteOptions<TOptions, TAlias> : ISiteOptions<TOptions, TAlias>
+    public class SiteOptions<TOptions> : ISiteOptions<TOptions>
         where TOptions : class, new()
-        where TAlias : class, IAlias, new()
     {
-        private readonly Action<TOptions, TAlias> configureOptions;
+        private readonly Action<TOptions, Alias> configureOptions;
 
-        public SiteOptions(Action<TOptions, TAlias> configureOptions)
+        public SiteOptions(Action<TOptions, Alias> configureOptions)
         {
             this.configureOptions = configureOptions;
         }
 
-        public void Configure(TOptions options, TAlias siteOptions)
+        public void Configure(TOptions options, Alias alias)
         {
-            configureOptions(options, siteOptions);
+            configureOptions(options, alias);
         }
     }
 }
