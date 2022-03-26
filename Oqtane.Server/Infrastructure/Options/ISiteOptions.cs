@@ -1,12 +1,10 @@
-
 using Oqtane.Models;
 
 namespace Oqtane.Infrastructure
 {
-    public interface ISiteOptions<TOptions, TAlias>
+    public interface ISiteOptions<TOptions>
         where TOptions : class, new()
-        where TAlias : class, IAlias, new()
     {
-        void Configure(TOptions options, TAlias siteOptions);
+        void Configure(TOptions options, Alias alias);
     }
 }

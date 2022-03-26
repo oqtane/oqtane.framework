@@ -8,9 +8,10 @@ using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using System.Net;
-using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Identity;
 
 namespace Oqtane.Controllers
 {
@@ -23,16 +24,16 @@ namespace Oqtane.Controllers
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
-        private readonly IOptionsMonitorCache<OpenIdConnectOptions> _optionsMonitorCache;
+        private readonly IAliasAccessor _aliasAccessor;
         private readonly string _visitorCookie;
 
-        public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, IOptionsMonitorCache<OpenIdConnectOptions> optionsMonitorCache, ILogManager logger)
+        public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, IAliasAccessor aliasAccessor, ILogManager logger)
         {
             _settings = settings;
             _pageModules = pageModules;
             _userPermissions = userPermissions;
             _syncManager = syncManager;
-            _optionsMonitorCache = optionsMonitorCache;
+            _aliasAccessor = aliasAccessor;
             _logger = logger;
             _alias = tenantManager.GetAlias();
             _visitorCookie = "APP_VISITOR_" + _alias.SiteId.ToString();
@@ -141,7 +142,12 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Admin)]
         public void Clear(int id)
         {
-            _optionsMonitorCache.Clear();
+            var openIdConnectOptionsCache = new SiteOptionsCache<OpenIdConnectOptions>(_aliasAccessor);
+            openIdConnectOptionsCache.Clear();
+            var oAuthOptionsCache = new SiteOptionsCache<OAuthOptions>(_aliasAccessor);
+            oAuthOptionsCache.Clear();
+            var identityOptionsCache = new SiteOptionsCache<IdentityOptions>(_aliasAccessor);
+            identityOptionsCache.Clear();
             _logger.Log(LogLevel.Information, this, LogFunction.Other, "Site Options Cache Cleared");
         }
 

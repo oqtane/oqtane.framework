@@ -135,8 +135,8 @@ else
 						<div class="col-sm-9">
 							<select id="providertype" class="form-select" value="@_providertype" @onchange="(e => ProviderTypeChanged(e))">
 								<option value="" selected>@Localizer["Not Specified"]</option>
-								<option value="oidc">@Localizer["OpenID Connect"]</option>
-								<option value="oauth2">@Localizer["OAuth 2.0"]</option>
+								<option value="@AuthenticationProviderTypes.OpenIDConnect">@Localizer["OpenID Connect"]</option>
+								<option value="@AuthenticationProviderTypes.OAuth2">@Localizer["OAuth 2.0"]</option>
 							</select>
 						</div>
 					</div>		
@@ -149,7 +149,7 @@ else
 							</div>
 						</div>
 					}
-					@if (_providertype == "oidc")
+					@if (_providertype == AuthenticationProviderTypes.OpenIDConnect)
 					{
 						<div class="row mb-1 align-items-center">
 							<Label Class="col-sm-3" For="authority" HelpText="The Authority Url or Issuer Url associated with the OpenID Connect provider" ResourceKey="Authority">Authority:</Label>
@@ -164,7 +164,7 @@ else
 							</div>
 						</div>
 					}
-					@if (_providertype == "oauth2")
+					@if (_providertype == AuthenticationProviderTypes.OAuth2)
 					{
 						<div class="row mb-1 align-items-center">
 							<Label Class="col-sm-3" For="authorizationurl" HelpText="The endpoint for obtaining an Authorization Code" ResourceKey="AuthorizationUrl">Authorization Url:</Label>
@@ -220,7 +220,7 @@ else
 								<input id="redirecturl" class="form-control" @bind="@_redirecturl" readonly />
 							</div>
 						</div>
-						@if (_providertype == "oidc")
+						@if (_providertype == AuthenticationProviderTypes.OpenIDConnect)
 						{
 							<div class="row mb-1 align-items-center">
 								<Label Class="col-sm-3" For="emailclaimtype" HelpText="The type name for the email address claim provided by the provider" ResourceKey="EmailClaimType">Email Claim Type:</Label>
@@ -440,7 +440,7 @@ else
 	private void ProviderTypeChanged(ChangeEventArgs e)
 	{
 		_providertype = (string)e.Value;
-		if (_providertype == "oidc")
+		if (_providertype == AuthenticationProviderTypes.OpenIDConnect)
 		{
 			_scopes = "openid,profile,email";
 		}

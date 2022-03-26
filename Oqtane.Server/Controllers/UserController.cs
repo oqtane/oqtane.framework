@@ -14,7 +14,6 @@ using System.Net;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
-using Oqtane.Extensions;
 
 namespace Oqtane.Controllers
 {

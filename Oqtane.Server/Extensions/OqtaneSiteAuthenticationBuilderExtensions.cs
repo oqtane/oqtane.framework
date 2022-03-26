@@ -11,7 +11,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Oqtane.Repository;
-using System.IO;
 using System.Collections.Generic;
 using Oqtane.Security;
 using Microsoft.AspNetCore.Http;
@@ -24,30 +23,19 @@ namespace Oqtane.Extensions
 {
     public static class OqtaneSiteAuthenticationBuilderExtensions
     {
-        public static OqtaneSiteOptionsBuilder<TAlias> WithSiteAuthentication<TAlias>(
-            this OqtaneSiteOptionsBuilder<TAlias> builder)
-            where TAlias : class, IAlias, new()
-        {
-            builder.WithSiteAuthenticationOptions();
-
-            return builder;
-        }
-
-        public static OqtaneSiteOptionsBuilder<TAlias> WithSiteAuthenticationOptions<TAlias>(
-            this OqtaneSiteOptionsBuilder<TAlias> builder)
-            where TAlias : class, IAlias, new()
+        public static OqtaneSiteOptionsBuilder WithSiteAuthentication(this OqtaneSiteOptionsBuilder builder)
         {
             // site OpenIdConnect options
             builder.AddSiteOptions<OpenIdConnectOptions>((options, alias) =>
             {
-                if (alias.SiteSettings.GetValue("ExternalLogin:ProviderType", "") == "oidc")
+                if (alias.SiteSettings.GetValue("ExternalLogin:ProviderType", "") == AuthenticationProviderTypes.OpenIDConnect)
                 {
                     // default options
                     options.SignInScheme = Constants.AuthenticationScheme; // identity cookie
                     options.RequireHttpsMetadata = true;
                     options.SaveTokens = true;
                     options.GetClaimsFromUserInfoEndpoint = true;
-                    options.CallbackPath = string.IsNullOrEmpty(alias.Path) ? "/signin-oidc" : "/" + alias.Path + "/signin-oidc";
+                    options.CallbackPath = string.IsNullOrEmpty(alias.Path) ? "/signin-" + AuthenticationProviderTypes.OpenIDConnect : "/" + alias.Path + "/signin-" + AuthenticationProviderTypes.OpenIDConnect;
                     options.ResponseType = OpenIdConnectResponseType.Code; // authorization code flow
                     options.ResponseMode = OpenIdConnectResponseMode.FormPost; // recommended as most secure
 
@@ -77,11 +65,11 @@ namespace Oqtane.Extensions
             // site OAuth2.0 options
             builder.AddSiteOptions<OAuthOptions>((options, alias) =>
             {
-                if (alias.SiteSettings.GetValue("ExternalLogin:ProviderType", "") == "oauth2")
+                if (alias.SiteSettings.GetValue("ExternalLogin:ProviderType", "") == AuthenticationProviderTypes.OAuth2)
                 {
                     // default options
                     options.SignInScheme = Constants.AuthenticationScheme; // identity cookie
-                    options.CallbackPath = string.IsNullOrEmpty(alias.Path) ? "/signin-oauth2" : "/" + alias.Path + "/signin-oauth2";
+                    options.CallbackPath = string.IsNullOrEmpty(alias.Path) ? "/signin-" + AuthenticationProviderTypes.OAuth2 : "/" + alias.Path + "/signin-" + AuthenticationProviderTypes.OAuth2;
                     options.SaveTokens = true;
 
                     // site options

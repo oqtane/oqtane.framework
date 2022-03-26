@@ -5,9 +5,8 @@ using Oqtane.Models;
 
 namespace Oqtane.Infrastructure
 {
-    public class SiteOptionsCache<TOptions, TAlias> : IOptionsMonitorCache<TOptions>
-        where TOptions : class
-        where TAlias : class, IAlias, new()
+    public class SiteOptionsCache<TOptions> : IOptionsMonitorCache<TOptions>
+        where TOptions : class, new()
     {
         private readonly IAliasAccessor _aliasAccessor;
         private readonly ConcurrentDictionary<string, IOptionsMonitorCache<TOptions>> map = new ConcurrentDictionary<string, IOptionsMonitorCache<TOptions>>();

@@ -7,6 +7,8 @@ using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -15,7 +17,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Oqtane.Infrastructure;
-using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Repository;
 using Oqtane.Security;
@@ -59,10 +60,9 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        public static OqtaneSiteOptionsBuilder<T> AddOqtaneSiteOptions<T>(this IServiceCollection services)
-            where T : class, IAlias, new()
+        public static OqtaneSiteOptionsBuilder AddOqtaneSiteOptions(this IServiceCollection services)
         {
-            return new OqtaneSiteOptionsBuilder<T>(services);
+            return new OqtaneSiteOptionsBuilder(services);
         }
 
         internal static IServiceCollection AddOqtaneSingletonServices(this IServiceCollection services)
@@ -140,6 +140,15 @@ namespace Microsoft.Extensions.DependencyInjection
                 };
                 options.Events.OnValidatePrincipal = PrincipalValidator.ValidateAsync;
             });
+
+            return services;
+        }
+
+        public static IServiceCollection ConfigureOqtaneAuthenticationOptions(this IServiceCollection services, IConfigurationRoot Configuration)
+        {
+            // settings defined in appsettings
+            services.Configure<OAuthOptions>(Configuration);
+            services.Configure<OpenIdConnectOptions>(Configuration);
 
             return services;
         }

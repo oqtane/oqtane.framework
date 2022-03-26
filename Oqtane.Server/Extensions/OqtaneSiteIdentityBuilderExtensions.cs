@@ -7,9 +7,7 @@ namespace Oqtane.Extensions
 {
     public static class OqtaneSiteIdentityBuilderExtensions
     {
-        public static OqtaneSiteOptionsBuilder<TAlias> WithSiteIdentity<TAlias>(
-            this OqtaneSiteOptionsBuilder<TAlias> builder)
-            where TAlias : class, IAlias, new()
+        public static OqtaneSiteOptionsBuilder WithSiteIdentity(this OqtaneSiteOptionsBuilder builder)
         {
             // site identity options
             builder.AddSiteOptions<IdentityOptions>((options, alias) =>
