@@ -26,9 +26,9 @@ namespace Oqtane.Extensions
         public static OqtaneSiteOptionsBuilder WithSiteAuthentication(this OqtaneSiteOptionsBuilder builder)
         {
             // site OpenIdConnect options
-            builder.AddSiteOptions<OpenIdConnectOptions>((options, alias) =>
+            builder.AddSiteOptions<OpenIdConnectOptions>((options, alias, sitesettings) =>
             {
-                if (alias.SiteSettings.GetValue("ExternalLogin:ProviderType", "") == AuthenticationProviderTypes.OpenIDConnect)
+                if (sitesettings.GetValue("ExternalLogin:ProviderType", "") == AuthenticationProviderTypes.OpenIDConnect)
                 {
                     // default options
                     options.SignInScheme = Constants.AuthenticationScheme; // identity cookie
@@ -44,13 +44,13 @@ namespace Oqtane.Extensions
                     options.CorrelationCookie.SameSite = SameSiteMode.Unspecified;
 
                     // site options
-                    options.Authority = alias.SiteSettings.GetValue("ExternalLogin:Authority", "");
-                    options.MetadataAddress = alias.SiteSettings.GetValue("ExternalLogin:MetadataUrl", "");
-                    options.ClientId = alias.SiteSettings.GetValue("ExternalLogin:ClientId", "");
-                    options.ClientSecret = alias.SiteSettings.GetValue("ExternalLogin:ClientSecret", "");
-                    options.UsePkce = bool.Parse(alias.SiteSettings.GetValue("ExternalLogin:PKCE", "false"));
+                    options.Authority = sitesettings.GetValue("ExternalLogin:Authority", "");
+                    options.MetadataAddress = sitesettings.GetValue("ExternalLogin:MetadataUrl", "");
+                    options.ClientId = sitesettings.GetValue("ExternalLogin:ClientId", "");
+                    options.ClientSecret = sitesettings.GetValue("ExternalLogin:ClientSecret", "");
+                    options.UsePkce = bool.Parse(sitesettings.GetValue("ExternalLogin:PKCE", "false"));
                     options.Scope.Clear();
-                    foreach (var scope in alias.SiteSettings.GetValue("ExternalLogin:Scopes", "openid,profile,email").Split(',', StringSplitOptions.RemoveEmptyEntries))
+                    foreach (var scope in sitesettings.GetValue("ExternalLogin:Scopes", "openid,profile,email").Split(',', StringSplitOptions.RemoveEmptyEntries))
                     {
                         options.Scope.Add(scope);
                     }
@@ -63,9 +63,9 @@ namespace Oqtane.Extensions
             });
 
             // site OAuth2.0 options
-            builder.AddSiteOptions<OAuthOptions>((options, alias) =>
+            builder.AddSiteOptions<OAuthOptions>((options, alias, sitesettings) =>
             {
-                if (alias.SiteSettings.GetValue("ExternalLogin:ProviderType", "") == AuthenticationProviderTypes.OAuth2)
+                if (sitesettings.GetValue("ExternalLogin:ProviderType", "") == AuthenticationProviderTypes.OAuth2)
                 {
                     // default options
                     options.SignInScheme = Constants.AuthenticationScheme; // identity cookie
@@ -73,14 +73,14 @@ namespace Oqtane.Extensions
                     options.SaveTokens = true;
 
                     // site options
-                    options.AuthorizationEndpoint = alias.SiteSettings.GetValue("ExternalLogin:AuthorizationUrl", "");
-                    options.TokenEndpoint = alias.SiteSettings.GetValue("ExternalLogin:TokenUrl", "");
-                    options.UserInformationEndpoint = alias.SiteSettings.GetValue("ExternalLogin:UserInfoUrl", "");
-                    options.ClientId = alias.SiteSettings.GetValue("ExternalLogin:ClientId", "");
-                    options.ClientSecret = alias.SiteSettings.GetValue("ExternalLogin:ClientSecret", "");
-                    options.UsePkce = bool.Parse(alias.SiteSettings.GetValue("ExternalLogin:PKCE", "false"));
+                    options.AuthorizationEndpoint = sitesettings.GetValue("ExternalLogin:AuthorizationUrl", "");
+                    options.TokenEndpoint = sitesettings.GetValue("ExternalLogin:TokenUrl", "");
+                    options.UserInformationEndpoint = sitesettings.GetValue("ExternalLogin:UserInfoUrl", "");
+                    options.ClientId = sitesettings.GetValue("ExternalLogin:ClientId", "");
+                    options.ClientSecret = sitesettings.GetValue("ExternalLogin:ClientSecret", "");
+                    options.UsePkce = bool.Parse(sitesettings.GetValue("ExternalLogin:PKCE", "false"));
                     options.Scope.Clear();
-                    foreach (var scope in alias.SiteSettings.GetValue("ExternalLogin:Scopes", "").Split(',', StringSplitOptions.RemoveEmptyEntries))
+                    foreach (var scope in sitesettings.GetValue("ExternalLogin:Scopes", "").Split(',', StringSplitOptions.RemoveEmptyEntries))
                     {
                         options.Scope.Add(scope);
                     }
@@ -118,7 +118,7 @@ namespace Oqtane.Extensions
                     var regex = new Regex(@"\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*", RegexOptions.IgnoreCase);
                     foreach (Match match in regex.Matches(output))
                     {
-                        if (EmailValid(match.Value, context.HttpContext.GetAlias().SiteSettings.GetValue("ExternalLogin:DomainFilter", "")))
+                        if (EmailValid(match.Value, context.HttpContext.GetSiteSettings().GetValue("ExternalLogin:DomainFilter", "")))
                         {
                             email = match.Value.ToLower();
                             break;
@@ -139,7 +139,7 @@ namespace Oqtane.Extensions
         private static async Task OnTokenValidated(TokenValidatedContext context)
         {
             // OpenID Connect
-            var emailClaimType = context.HttpContext.GetAlias().SiteSettings.GetValue("ExternalLogin:EmailClaimType", "");
+            var emailClaimType = context.HttpContext.GetSiteSettings().GetValue("ExternalLogin:EmailClaimType", "");
             var email = context.Principal.FindFirstValue(emailClaimType);
 
             // login user
@@ -171,14 +171,13 @@ namespace Oqtane.Extensions
         private static async Task LoginUser(string email, HttpContext httpContext, ClaimsPrincipal claimsPrincipal)
         {
             var _logger = httpContext.RequestServices.GetRequiredService<ILogManager>();
-            var alias = httpContext.GetAlias();
 
-            if (EmailValid(email, alias.SiteSettings.GetValue("ExternalLogin:DomainFilter", "")))
+            if (EmailValid(email, httpContext.GetSiteSettings().GetValue("ExternalLogin:DomainFilter", "")))
             {
                 var _identityUserManager = httpContext.RequestServices.GetRequiredService<UserManager<IdentityUser>>();
                 var _users = httpContext.RequestServices.GetRequiredService<IUserRepository>();
                 var _userRoles = httpContext.RequestServices.GetRequiredService<IUserRoleRepository>();
-                var providerType = httpContext.GetAlias().SiteSettings.GetValue("ExternalLogin:ProviderType", "");
+                var providerType = httpContext.GetSiteSettings().GetValue("ExternalLogin:ProviderType", "");
                 var providerKey = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (providerKey == null)
                 {
@@ -189,7 +188,7 @@ namespace Oqtane.Extensions
                 var identityuser = await _identityUserManager.FindByEmailAsync(email);
                 if (identityuser == null)
                 {
-                    if (bool.Parse(alias.SiteSettings.GetValue("ExternalLogin:CreateUsers", "true")))
+                    if (bool.Parse(httpContext.GetSiteSettings().GetValue("ExternalLogin:CreateUsers", "true")))
                     {
                         identityuser = new IdentityUser();
                         identityuser.UserName = email;
@@ -200,7 +199,7 @@ namespace Oqtane.Extensions
                         {
                             user = new User
                             {
-                                SiteId = alias.SiteId,
+                                SiteId = httpContext.GetAlias().SiteId,
                                 Username = email,
                                 DisplayName = email,
                                 Email = email,
@@ -212,7 +211,7 @@ namespace Oqtane.Extensions
                             if (user != null)
                             {
                                 var _notifications = httpContext.RequestServices.GetRequiredService<INotificationRepository>();
-                                string url = httpContext.Request.Scheme + "://" + alias.Name;
+                                string url = httpContext.Request.Scheme + "://" + httpContext.GetAlias().Name;
                                 string body = "You Recently Used An External Account To Sign In To Our Site.\n\n" + url + "\n\nThank You!";
                                 var notification = new Notification(user.SiteId, user, "User Account Notification", body);
                                 _notifications.AddNotification(notification);
@@ -269,7 +268,7 @@ namespace Oqtane.Extensions
                     var principal = (ClaimsIdentity)claimsPrincipal.Identity;
                     UserSecurity.ResetClaimsIdentity(principal);
                     List<UserRole> userroles = _userRoles.GetUserRoles(user.UserId, user.SiteId).ToList();
-                    var identity = UserSecurity.CreateClaimsIdentity(alias, user, userroles);
+                    var identity = UserSecurity.CreateClaimsIdentity(httpContext.GetAlias(), user, userroles);
                     principal.AddClaims(identity.Claims);
 
                     // update user

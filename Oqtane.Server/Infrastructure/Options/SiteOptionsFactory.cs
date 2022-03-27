@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using Oqtane.Extensions;
 
 namespace Oqtane.Infrastructure
 {
@@ -9,14 +11,14 @@ namespace Oqtane.Infrastructure
         private readonly IConfigureOptions<TOptions>[] _configureOptions;
         private readonly IPostConfigureOptions<TOptions>[] _postConfigureOptions;
         private readonly ISiteOptions<TOptions>[] _siteOptions;
-        private readonly IAliasAccessor _aliasAccessor;
+        private readonly IHttpContextAccessor _accessor;
 
-        public SiteOptionsFactory(IEnumerable<IConfigureOptions<TOptions>> configureOptions, IEnumerable<IPostConfigureOptions<TOptions>> postConfigureOptions, IEnumerable<ISiteOptions<TOptions>> siteOptions, IAliasAccessor aliasAccessor)
+        public SiteOptionsFactory(IEnumerable<IConfigureOptions<TOptions>> configureOptions, IEnumerable<IPostConfigureOptions<TOptions>> postConfigureOptions, IEnumerable<ISiteOptions<TOptions>> siteOptions, IHttpContextAccessor accessor)
         {
             _configureOptions = configureOptions as IConfigureOptions<TOptions>[] ?? new List<IConfigureOptions<TOptions>>(configureOptions).ToArray();
             _postConfigureOptions = postConfigureOptions as IPostConfigureOptions<TOptions>[] ?? new List<IPostConfigureOptions<TOptions>>(postConfigureOptions).ToArray();
             _siteOptions = siteOptions as ISiteOptions<TOptions>[] ?? new List<ISiteOptions<TOptions>>(siteOptions).ToArray();
-            _aliasAccessor = aliasAccessor;
+            _accessor = accessor;
          }
 
         public TOptions Create(string name)
@@ -36,11 +38,11 @@ namespace Oqtane.Infrastructure
             }
 
             // override with site specific options
-            if (_aliasAccessor?.Alias != null)
+            if (_accessor.HttpContext?.GetAlias() != null && _accessor.HttpContext?.GetSiteSettings() != null)
             {
                 foreach (var siteOption in _siteOptions)
                 {
-                    siteOption.Configure(options, _aliasAccessor.Alias);
+                    siteOption.Configure(options, _accessor.HttpContext.GetAlias(), _accessor.HttpContext.GetSiteSettings());
                 }
             }
 

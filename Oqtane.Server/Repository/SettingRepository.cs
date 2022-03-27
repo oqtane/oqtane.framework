@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
 
@@ -11,14 +12,14 @@ namespace Oqtane.Repository
     {
         private TenantDBContext _tenant;
         private MasterDBContext _master;
-        private readonly SiteState _siteState;
+        private readonly Alias _alias;
         private readonly IMemoryCache _cache;
 
-        public SettingRepository(TenantDBContext tenant, MasterDBContext master, SiteState siteState, IMemoryCache cache)
+        public SettingRepository(TenantDBContext tenant, MasterDBContext master, ITenantManager tenantManager, IMemoryCache cache)
         {
             _tenant = tenant;
             _master = master;
-            _siteState = siteState;
+            _alias = tenantManager.GetAlias();
             _cache = cache;
         }
 
@@ -149,7 +150,7 @@ namespace Oqtane.Repository
         {
             if (EntityName == EntityNames.Site)
             {
-                _cache.Remove("sitesettings:" + _siteState.Alias.SiteKey);
+                _cache.Remove(Constants.HttpContextSiteSettingsKey + _alias.SiteKey);
             }
         }
     }
