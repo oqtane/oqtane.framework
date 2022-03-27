@@ -14,7 +14,7 @@ namespace Oqtane.Pages
             returnurl = (returnurl == null) ? "/" : returnurl;
             returnurl = (!returnurl.StartsWith("/")) ? "/" + returnurl : returnurl;
 
-            var providertype = HttpContext.GetAlias().SiteSettings.GetValue("ExternalLogin:ProviderType", "");
+            var providertype = HttpContext.GetSiteSettings().GetValue("ExternalLogin:ProviderType", "");
             if (providertype != "")
             {
                     return new ChallengeResult(providertype, new AuthenticationProperties { RedirectUri = returnurl });

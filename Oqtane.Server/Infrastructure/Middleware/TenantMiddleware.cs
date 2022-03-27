@@ -30,18 +30,18 @@ namespace Oqtane.Infrastructure
 
                 if (alias != null)
                 {
-                    // add site settings to alias
+                    // save alias in HttpContext
+                    context.Items.Add(Constants.HttpContextAliasKey, alias);
+
+                    // save site settings in HttpContext
                     var cache = context.RequestServices.GetService(typeof(IMemoryCache)) as IMemoryCache;
-                    alias.SiteSettings = cache.GetOrCreate("sitesettings:" + alias.SiteKey, entry =>
+                    var sitesettings = cache.GetOrCreate(Constants.HttpContextSiteSettingsKey + alias.SiteKey, entry =>
                     {
                         var settingRepository = context.RequestServices.GetService(typeof(ISettingRepository)) as ISettingRepository;
                         return settingRepository.GetSettings(EntityNames.Site, alias.SiteId)
                             .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                     });
-                    // save alias in HttpContext for server-side usage
-                    context.Items.Add(Constants.HttpContextAliasKey, alias);
-                    // remove site settings so they are not available client-side
-                    alias.SiteSettings = null;
+                    context.Items.Add(Constants.HttpContextSiteSettingsKey, sitesettings);
 
                     // rewrite path by removing alias path prefix from api and pages requests (for consistent routing)
                     if (!string.IsNullOrEmpty(alias.Path))

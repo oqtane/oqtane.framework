@@ -87,7 +87,7 @@ namespace Oqtane.Shared
 
         public static readonly string DefaultVisitorFilter = "bot,crawler,slurp,spider,(none),??";
 
-        public static readonly string HttpContextAliasKey = "SiteState.Alias";
-        public static readonly string SiteToken = "{SiteToken}";
+        public static readonly string HttpContextAliasKey = "Alias";
+        public static readonly string HttpContextSiteSettingsKey = "SiteSettings";
     }
 }

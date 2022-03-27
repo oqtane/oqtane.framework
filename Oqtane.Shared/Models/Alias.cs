@@ -7,7 +7,7 @@ namespace Oqtane.Models
     /// <summary>
     /// An Alias maps a url like `oqtane.my` or `oqtane.my/products` to a <see cref="Oqtane.Models.Site"/> and <see cref="Oqtane.Models.Tenant"/>
     /// </summary>
-    public class Alias : IAlias, IAuditable
+    public class Alias : IAuditable
     {
         /// <summary>
         /// The primary ID for internal use. It's also used in API calls to identify the site. 
@@ -84,7 +84,7 @@ namespace Oqtane.Models
         /// <summary>
         /// Site-specific settings (only available on the server via HttpContext for security reasons)
         /// </summary>
-        [NotMapped]
-        public Dictionary<string, string> SiteSettings { get; set; }
+        //[NotMapped]
+        //public Dictionary<string, string> SiteSettings { get; set; }
     }
 }
