@@ -12,14 +12,14 @@ namespace Oqtane.Repository
     {
         private TenantDBContext _tenant;
         private MasterDBContext _master;
-        private readonly Alias _alias;
+        private readonly ITenantManager _tenantManager;
         private readonly IMemoryCache _cache;
 
         public SettingRepository(TenantDBContext tenant, MasterDBContext master, ITenantManager tenantManager, IMemoryCache cache)
         {
             _tenant = tenant;
             _master = master;
-            _alias = tenantManager.GetAlias();
+            _tenantManager = tenantManager;
             _cache = cache;
         }
 
@@ -150,7 +150,7 @@ namespace Oqtane.Repository
         {
             if (EntityName == EntityNames.Site)
             {
-                _cache.Remove(Constants.HttpContextSiteSettingsKey + _alias.SiteKey);
+                _cache.Remove(Constants.HttpContextSiteSettingsKey + _tenantManager.GetAlias().SiteKey);
             }
         }
     }

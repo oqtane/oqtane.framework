@@ -75,11 +75,16 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
+        internal static IServiceCollection AddOqtaneServerScopedServices(this IServiceCollection services)
+        {
+            services.AddScoped<Oqtane.Infrastructure.SiteState>();
+            return services;
+        }
+
         internal static IServiceCollection AddOqtaneTransientServices(this IServiceCollection services)
         {
             services.AddTransient<ITenantManager, TenantManager>();
             services.AddTransient<IAliasAccessor, AliasAccessor>();
-
             services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
             services.AddTransient<IThemeRepository, ThemeRepository>();
             services.AddTransient<IUserPermissions, UserPermissions>();
