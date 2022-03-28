@@ -445,7 +445,7 @@ namespace Oqtane.Controllers
                         "\n\nIf you did not request to reset your password you can safely ignore this message." +
                         "\n\nThank You!";
                  
-                    var notification = new Notification(user.SiteId, user, "User Password Reset", body);
+                    var notification = new Notification(_tenantManager.GetAlias().SiteId, user, "User Password Reset", body);
                     _notifications.AddNotification(notification);
                     _logger.Log(LogLevel.Information, this, LogFunction.Security, "Password Reset Notification Sent For {Username}", user.Username);
                 }
