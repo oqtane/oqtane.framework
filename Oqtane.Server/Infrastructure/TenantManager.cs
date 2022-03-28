@@ -3,7 +3,6 @@ using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Oqtane.Models;
 using Oqtane.Repository;
-using Oqtane.Shared;
 
 namespace Oqtane.Infrastructure
 {
