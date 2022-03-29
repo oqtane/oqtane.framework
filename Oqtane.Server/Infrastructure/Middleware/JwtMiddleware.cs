@@ -32,10 +32,10 @@ namespace Oqtane.Infrastructure
                         var jwtManager = context.RequestServices.GetService(typeof(IJwtManager)) as IJwtManager;
 
                         var token = context.Request.Headers["Authorization"].First().Split(" ").Last();
-                        var user = jwtManager.ValidateToken(token, secret);
+                        var user = jwtManager.ValidateToken(token, secret, "", "");
                         if (user != null)
                         {
-                            // populate principal
+                            // populate principal (reload user roles to ensure most accurate permission assigments)
                             var _userRoles = context.RequestServices.GetService(typeof(IUserRoleRepository)) as IUserRoleRepository;
                             var principal = (ClaimsIdentity)context.User.Identity;
                             UserSecurity.ResetClaimsIdentity(principal);
