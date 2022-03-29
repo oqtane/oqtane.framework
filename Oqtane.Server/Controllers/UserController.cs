@@ -529,10 +529,12 @@ namespace Oqtane.Controllers
             var user = _users.GetUser(User.Identity.Name);
             if (user != null)
             {
-                var secret = HttpContext.GetSiteSettings().GetValue("JwtOptions:Secret", "");
+                var sitesettings = HttpContext.GetSiteSettings();
+                var secret = sitesettings.GetValue("JwtOptions:Secret", "");
                 if (!string.IsNullOrEmpty(secret))
                 {
-                    token = _jwtManager.GenerateToken(_tenantManager.GetAlias(), user, secret, "", "", 525600); // 1 year
+                    var lifetime = 525600; // long-lived token set to 1 year
+                    token = _jwtManager.GenerateToken(_tenantManager.GetAlias(), user, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""), lifetime);
                 }
             }
             return token;
