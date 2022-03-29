@@ -274,7 +274,25 @@ else
 						</div>
 					</div>					
 					<div class="row mb-1 align-items-center">
-						<Label Class="col-sm-3" For="token" HelpText="Select the Create Token button to generate an access token. The token will be valid for 1 year. Be sure to save this token in a safe place as you will not be able to view it in the future." ResourceKey="Token">Access Token:</Label>
+						<Label Class="col-sm-3" For="issuer" HelpText="Optionally provide the issuer of the token" ResourceKey="Secret">Issuer:</Label>
+						<div class="col-sm-9">
+							<input id="issuer" class="form-control" @bind="@_issuer" />
+						</div>
+					</div>					
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="audience" HelpText="Optionally provide the audience for the token" ResourceKey="Secret">Audience:</Label>
+						<div class="col-sm-9">
+							<input id="audience" class="form-control" @bind="@_audience" />
+						</div>
+					</div>					
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="lifetime" HelpText="The number of minutes for which a token should be valid" ResourceKey="Secret">Lifetime:</Label>
+						<div class="col-sm-9">
+							<input id="lifetime" class="form-control" @bind="@_lifetime" />
+						</div>
+					</div>					
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="token" HelpText="Select the Create Token button to generate an access token. Be sure to save this token in a safe place as you will not be able to view it in the future." ResourceKey="Token">Access Token:</Label>
 						<div class="col-sm-9">
 							<div class="input-group">
 								<input id="token" class="form-control" @bind="@_token" />
@@ -325,6 +343,9 @@ else
 	private string _allowsitelogin;
 
 	private string _secret;
+	private string _issuer;
+	private string _audience;
+	private string _lifetime;
 	private string _token;
 
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
@@ -368,6 +389,9 @@ else
 		_allowsitelogin = SettingService.GetSetting(settings, "ExternalLogin:AllowSiteLogin", "true");
 
 		_secret = SettingService.GetSetting(settings, "JwtOptions:Secret", "");
+		_issuer = SettingService.GetSetting(settings, "JwtOptions:Issuer", PageState.Uri.Scheme + "://" + PageState.Alias.Name);
+		_audience = SettingService.GetSetting(settings, "JwtOptions:Audience", "");
+		_lifetime = SettingService.GetSetting(settings, "JwtOptions:Lifetime", "20");
 	}
 
 	private List<UserRole> Search(string search)
@@ -468,6 +492,9 @@ else
 
 			if (!string.IsNullOrEmpty(_secret) && _secret.Length < 16) _secret = (_secret + "????????????????").Substring(0, 16);
 			settings = SettingService.SetSetting(settings, "JwtOptions:Secret", _secret, true);
+			settings = SettingService.SetSetting(settings, "JwtOptions:Issuer", _issuer, true);
+			settings = SettingService.SetSetting(settings, "JwtOptions:Audience", _audience, true);
+			settings = SettingService.SetSetting(settings, "JwtOptions:Lifetime", _lifetime, true);
 
 			await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 			await SettingService.ClearSiteSettingsCacheAsync(site.SiteId);

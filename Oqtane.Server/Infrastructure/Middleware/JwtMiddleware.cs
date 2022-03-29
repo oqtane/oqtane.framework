@@ -25,14 +25,15 @@ namespace Oqtane.Infrastructure
                 var alias = context.GetAlias();
                 if (alias != null)
                 {
-                    var secret = context.GetSiteSettings().GetValue("JwtOptions:Secret", "");
+                    var sitesettings = context.GetSiteSettings();
+                    var secret = sitesettings.GetValue("JwtOptions:Secret", "");
                     if (!string.IsNullOrEmpty(secret))
                     {
                         var logger = context.RequestServices.GetService(typeof(ILogManager)) as ILogManager;
                         var jwtManager = context.RequestServices.GetService(typeof(IJwtManager)) as IJwtManager;
 
                         var token = context.Request.Headers["Authorization"].First().Split(" ").Last();
-                        var user = jwtManager.ValidateToken(token, secret, "", "");
+                        var user = jwtManager.ValidateToken(token, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""));
                         if (user != null)
                         {
                             // populate principal (reload user roles to ensure most accurate permission assigments)
