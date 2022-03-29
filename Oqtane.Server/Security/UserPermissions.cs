@@ -6,6 +6,14 @@ using Oqtane.Repository;
 
 namespace Oqtane.Security
 {
+    public interface IUserPermissions
+    {
+        bool IsAuthorized(ClaimsPrincipal user, string entityName, int entityId, string permissionName);
+        bool IsAuthorized(ClaimsPrincipal user, string permissionName, string permissions);
+        User GetUser(ClaimsPrincipal user);
+        User GetUser();
+    }
+
     public class UserPermissions : IUserPermissions
     {
         private readonly IPermissionRepository _permissions;

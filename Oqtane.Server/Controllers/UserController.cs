@@ -14,6 +14,8 @@ using System.Net;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
+using Oqtane.Security;
+using Oqtane.Extensions;
 
 namespace Oqtane.Controllers
 {
@@ -30,9 +32,10 @@ namespace Oqtane.Controllers
         private readonly IFolderRepository _folders;
         private readonly ISyncManager _syncManager;
         private readonly ISiteRepository _sites;
+        private readonly IJwtManager _jwtManager;
         private readonly ILogManager _logger;
 
-        public UserController(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, ISyncManager syncManager, ISiteRepository sites, ILogManager logger)
+        public UserController(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, ISyncManager syncManager, ISiteRepository sites, IJwtManager jwtManager, ILogManager logger)
         {
             _users = users;
             _roles = roles;
@@ -44,6 +47,7 @@ namespace Oqtane.Controllers
             _notifications = notifications;
             _syncManager = syncManager;
             _sites = sites;
+            _jwtManager = jwtManager;
             _logger = logger;
         }
 
@@ -514,6 +518,24 @@ namespace Oqtane.Controllers
             var validator = new PasswordValidator<IdentityUser>();
             var result = await validator.ValidateAsync(_identityUserManager, null, password);
             return result.Succeeded;
+        }
+
+        // GET api/<controller>/token
+        [HttpGet("token")]
+        [Authorize(Roles = RoleNames.Admin)]
+        public string Token()
+        {
+            var token = "";
+            var user = _users.GetUser(User.Identity.Name);
+            if (user != null)
+            {
+                var secret = HttpContext.GetSiteSettings().GetValue("JwtOptions:Secret", "");
+                if (!string.IsNullOrEmpty(secret))
+                {
+                    token = _jwtManager.GenerateToken(user, secret);
+                }
+            }
+            return token;
         }
 
         // GET api/<controller>/authenticate

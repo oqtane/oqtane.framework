@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Oqtane.Controllers
 {
@@ -142,6 +143,8 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Admin)]
         public void Clear(int id)
         {
+            var cookieAuthenticationOptionsCache = new SiteOptionsCache<CookieAuthenticationOptions>(_aliasAccessor);
+            cookieAuthenticationOptionsCache.Clear();
             var openIdConnectOptionsCache = new SiteOptionsCache<OpenIdConnectOptions>(_aliasAccessor);
             openIdConnectOptionsCache.Clear();
             var oAuthOptionsCache = new SiteOptionsCache<OAuthOptions>(_aliasAccessor);

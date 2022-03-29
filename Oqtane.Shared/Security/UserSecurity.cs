@@ -170,6 +170,11 @@ namespace Oqtane.Security
             {
                 identity.RemoveClaim(claim);
             }
+            var roles = identity.Claims.Where(item => item.Type == ClaimTypes.Role);
+            foreach (var role in roles)
+            {
+                identity.RemoveClaim(role);
+            }
         }
     }
 }

@@ -41,5 +41,8 @@ namespace Oqtane.Extensions
 
         public static IApplicationBuilder UseTenantResolution(this IApplicationBuilder builder)
           => builder.UseMiddleware<TenantMiddleware>();
+
+        public static IApplicationBuilder UseJwtAuthorization(this IApplicationBuilder builder)
+          => builder.UseMiddleware<JwtMiddleware>();
     }
 }

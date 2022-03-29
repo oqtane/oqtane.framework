@@ -79,5 +79,10 @@ namespace Oqtane.Services
         {
             return await GetJsonAsync<bool>($"{Apiurl}/validate/{WebUtility.UrlEncode(password)}");
         }
+
+        public async Task<string> GetTokenAsync()
+        {
+            return await GetStringAsync($"{Apiurl}/token");
+        }
     }
 }
