@@ -10,27 +10,30 @@ namespace Oqtane.Security
 {
     public interface IJwtManager
     {
-        string GenerateToken(User user, string secret);
-        User ValidateToken(string token, string secret);
+        string GenerateToken(Alias alias, User user, string secret, string issuer, string audience, int lifetime);
+        User ValidateToken(string token, string secret, string issuer, string audience);
     }
 
     public class JwtManager : IJwtManager
     {
-        public string GenerateToken(User user, string secret)
+        public string GenerateToken(Alias alias, User user, string secret, string issuer, string audience, int lifetime)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(secret);
+            var identity = UserSecurity.CreateClaimsIdentity(alias, user);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[] { new Claim("id", user.UserId.ToString()), new Claim("name", user.Username) }),
-                Expires = DateTime.UtcNow.AddYears(1),
+                Subject = new ClaimsIdentity(identity),
+                Issuer = issuer,
+                Audience = audience,
+                Expires = DateTime.UtcNow.AddMinutes(lifetime),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
 
-        public User ValidateToken(string token, string secret)
+        public User ValidateToken(string token, string secret, string issuer, string audience)
         {
             if (!string.IsNullOrEmpty(token))
             {
@@ -40,10 +43,13 @@ namespace Oqtane.Security
                 {
                     tokenHandler.ValidateToken(token, new TokenValidationParameters
                     {
-                        ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(key),
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
+                        ValidIssuer = issuer,
+                        ValidAudience = audience,
+                        ValidateIssuerSigningKey = true,
+                        ValidateIssuer = (!string.IsNullOrEmpty(issuer)),
+                        ValidateAudience = (!string.IsNullOrEmpty(audience)),
+                        ValidateLifetime = true,
                         ClockSkew = TimeSpan.Zero
                     }, out SecurityToken validatedToken);
 

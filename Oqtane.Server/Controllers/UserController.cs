@@ -532,7 +532,7 @@ namespace Oqtane.Controllers
                 var secret = HttpContext.GetSiteSettings().GetValue("JwtOptions:Secret", "");
                 if (!string.IsNullOrEmpty(secret))
                 {
-                    token = _jwtManager.GenerateToken(user, secret);
+                    token = _jwtManager.GenerateToken(_tenantManager.GetAlias(), user, secret, "", "", 525600); // 1 year
                 }
             }
             return token;
