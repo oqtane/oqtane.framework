@@ -167,6 +167,7 @@ namespace Oqtane
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseTenantResolution();
+            app.UseJwtAuthorization();
             app.UseBlazorFrameworkFiles();
             app.UseRouting();
             app.UseAuthentication();

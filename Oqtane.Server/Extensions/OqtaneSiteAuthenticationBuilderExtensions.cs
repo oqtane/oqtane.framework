@@ -11,13 +11,13 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Oqtane.Repository;
-using System.Collections.Generic;
 using Oqtane.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Oqtane.Extensions
 {
@@ -25,7 +25,21 @@ namespace Oqtane.Extensions
     {
         public static OqtaneSiteOptionsBuilder WithSiteAuthentication(this OqtaneSiteOptionsBuilder builder)
         {
-            // site OpenIdConnect options
+            // site cookie authentication options
+            builder.AddSiteOptions<CookieAuthenticationOptions>((options, alias, sitesettings) =>
+            {
+                if (sitesettings.GetValue("CookieOptions:CookieType", "domain") == "domain")
+                {
+                    options.Cookie.Name = ".AspNetCore.Identity.Application";
+                }
+                else
+                {
+                    // use unique cookie name for site
+                    options.Cookie.Name = ".AspNetCore.Identity.Application" + alias.SiteKey;
+                }
+            });
+
+            // site OpenId Connect options
             builder.AddSiteOptions<OpenIdConnectOptions>((options, alias, sitesettings) =>
             {
                 if (sitesettings.GetValue("ExternalLogin:ProviderType", "") == AuthenticationProviderTypes.OpenIDConnect)
@@ -33,7 +47,7 @@ namespace Oqtane.Extensions
                     // default options
                     options.SignInScheme = Constants.AuthenticationScheme; // identity cookie
                     options.RequireHttpsMetadata = true;
-                    options.SaveTokens = true;
+                    options.SaveTokens = false;
                     options.GetClaimsFromUserInfoEndpoint = true;
                     options.CallbackPath = string.IsNullOrEmpty(alias.Path) ? "/signin-" + AuthenticationProviderTypes.OpenIDConnect : "/" + alias.Path + "/signin-" + AuthenticationProviderTypes.OpenIDConnect;
                     options.ResponseType = OpenIdConnectResponseType.Code; // authorization code flow
@@ -62,7 +76,7 @@ namespace Oqtane.Extensions
                 }
             });
 
-            // site OAuth2.0 options
+            // site OAuth 2.0 options
             builder.AddSiteOptions<OAuthOptions>((options, alias, sitesettings) =>
             {
                 if (sitesettings.GetValue("ExternalLogin:ProviderType", "") == AuthenticationProviderTypes.OAuth2)
@@ -70,7 +84,7 @@ namespace Oqtane.Extensions
                     // default options
                     options.SignInScheme = Constants.AuthenticationScheme; // identity cookie
                     options.CallbackPath = string.IsNullOrEmpty(alias.Path) ? "/signin-" + AuthenticationProviderTypes.OAuth2 : "/" + alias.Path + "/signin-" + AuthenticationProviderTypes.OAuth2;
-                    options.SaveTokens = true;
+                    options.SaveTokens = false;
 
                     // site options
                     options.AuthorizationEndpoint = sitesettings.GetValue("ExternalLogin:AuthorizationUrl", "");
@@ -264,11 +278,9 @@ namespace Oqtane.Extensions
                 // add claims to principal
                 if (user != null)
                 {
-                    // add Oqtane claims
                     var principal = (ClaimsIdentity)claimsPrincipal.Identity;
                     UserSecurity.ResetClaimsIdentity(principal);
-                    List<UserRole> userroles = _userRoles.GetUserRoles(user.UserId, user.SiteId).ToList();
-                    var identity = UserSecurity.CreateClaimsIdentity(httpContext.GetAlias(), user, userroles);
+                    var identity = UserSecurity.CreateClaimsIdentity(httpContext.GetAlias(), user, _userRoles.GetUserRoles(user.UserId, user.SiteId).ToList());
                     principal.AddClaims(identity.Claims);
 
                     // update user
@@ -277,7 +289,7 @@ namespace Oqtane.Extensions
                     _users.UpdateUser(user);
                     _logger.Log(LogLevel.Information, "ExternalLogin", Enums.LogFunction.Security, "External User Login Successful For {Username} Using Provider {Provider}", user.Username, providerType);
                 }
-                else // user not logged in
+                else // user not valid
                 {
                     await httpContext.SignOutAsync();
                 }

@@ -104,5 +104,10 @@ namespace Oqtane.Services
         /// <returns></returns>
         Task<bool> ValidatePasswordAsync(string password);
 
+        /// <summary>
+        /// Get token for current user
+        /// </summary>
+        /// <returns></returns>
+        Task<string> GetTokenAsync();
     }
 }

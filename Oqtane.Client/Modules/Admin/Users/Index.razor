@@ -129,6 +129,17 @@ else
 						</div>
 					</div>					
 				</Section>
+				<Section Name="Cookie" Heading="Cookie Settings" ResourceKey="CookieSettings">
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="cookietype" HelpText="Cookies are managed per domain by default. However you can also choose to have distinct cookies for each site." ResourceKey="CookieType">Cookie Type:</Label>
+						<div class="col-sm-9">
+							<select id="cookietype" class="form-select" @bind="@_cookietype">
+								<option value="domain">@Localizer["Domain"]</option>
+								<option value="site">@Localizer["Site"]</option>
+							</select>
+						</div>
+					</div>
+				</Section>
 				<Section Name="ExternalLogin" Heading="External Login Settings" ResourceKey="ExternalLoginSettings">
 					<div class="row mb-1 align-items-center">
 						<Label Class="col-sm-3" For="providertype" HelpText="Select the external login provider type" ResourceKey="ProviderType">Provider Type:</Label>
@@ -255,6 +266,23 @@ else
 						</div>
 					}
 				</Section>
+				<Section Name="Token" Heading="Token Settings" ResourceKey="TokenSettings">
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="secret" HelpText="If you want to want to provide API access, please specify a secret which will be used to encrypt your tokens. The secret should be 16 characters or more to ensure optimal security. Please note that if you change this secret, all existing tokens will become invalid and will need to be regenerated." ResourceKey="Secret">Site Secret:</Label>
+						<div class="col-sm-9">
+							<input id="secret" class="form-control" @bind="@_secret" />
+						</div>
+					</div>					
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="token" HelpText="Select the Create Token button to generate an access token. The token will be valid for 1 year. Be sure to save this token in a safe place as you will not be able to view it in the future." ResourceKey="Token">Access Token:</Label>
+						<div class="col-sm-9">
+							<div class="input-group">
+								<input id="token" class="form-control" @bind="@_token" />
+								<button type="button" class="btn btn-secondary" @onclick="@CreateToken">@Localizer["CreateToken"]</button>
+							</div>
+						</div>
+					</div>					
+				</Section>
 			</div>
 			<br />
 			<button type="button" class="btn btn-success" @onclick="SaveSiteSettings">@SharedLocalizer["Save"]</button>
@@ -277,6 +305,8 @@ else
 	private string _maximumfailures;
 	private string _lockoutduration;
 
+	private string _cookietype;
+
 	private string _providertype;
 	private string _providername;
 	private string _authority;
@@ -293,6 +323,9 @@ else
 	private string _domainfilter;
 	private string _createusers;
 	private string _allowsitelogin;
+
+	private string _secret;
+	private string _token;
 
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -311,8 +344,11 @@ else
 		_requireupper = SettingService.GetSetting(settings, "IdentityOptions:Password:RequireUppercase", "true");
 		_requirelower = SettingService.GetSetting(settings, "IdentityOptions:Password:RequireLowercase", "true");
 		_requirepunctuation = SettingService.GetSetting(settings, "IdentityOptions:Password:RequireNonAlphanumeric", "true");
+
 		_maximumfailures = SettingService.GetSetting(settings, "IdentityOptions:Lockout:MaxFailedAccessAttempts", "5");
 		_lockoutduration = TimeSpan.Parse(SettingService.GetSetting(settings, "IdentityOptions:Lockout:DefaultLockoutTimeSpan", "00:05:00")).TotalMinutes.ToString();
+
+		_cookietype = SettingService.GetSetting(settings, "CookieOptions:CookieType", "domain");
 
 		_providertype = SettingService.GetSetting(settings, "ExternalLogin:ProviderType", "");
 		_providername = SettingService.GetSetting(settings, "ExternalLogin:ProviderName", "");
@@ -330,6 +366,8 @@ else
 		_domainfilter = SettingService.GetSetting(settings, "ExternalLogin:DomainFilter", "");
 		_createusers = SettingService.GetSetting(settings, "ExternalLogin:CreateUsers", "true");
 		_allowsitelogin = SettingService.GetSetting(settings, "ExternalLogin:AllowSiteLogin", "true");
+
+		_secret = SettingService.GetSetting(settings, "JwtOptions:Secret", "");
 	}
 
 	private List<UserRole> Search(string search)
@@ -406,8 +444,11 @@ else
 			settings = SettingService.SetSetting(settings, "IdentityOptions:Password:RequireUppercase", _requireupper, true);
 			settings = SettingService.SetSetting(settings, "IdentityOptions:Password:RequireLowercase", _requirelower, true);
 			settings = SettingService.SetSetting(settings, "IdentityOptions:Password:RequireNonAlphanumeric", _requirepunctuation, true);
+
 			settings = SettingService.SetSetting(settings, "IdentityOptions:Lockout:MaxFailedAccessAttempts", _maximumfailures, true);
 			settings = SettingService.SetSetting(settings, "IdentityOptions:Lockout:DefaultLockoutTimeSpan", TimeSpan.FromMinutes(Convert.ToInt64(_lockoutduration)).ToString(), true);
+
+			settings = SettingService.SetSetting(settings, "CookieOptions:CookieType", _cookietype, true);
 
 			settings = SettingService.SetSetting(settings, "ExternalLogin:ProviderType", _providertype, false);
 			settings = SettingService.SetSetting(settings, "ExternalLogin:ProviderName", _providername, false);
@@ -424,6 +465,9 @@ else
 			settings = SettingService.SetSetting(settings, "ExternalLogin:DomainFilter", _domainfilter, true);
 			settings = SettingService.SetSetting(settings, "ExternalLogin:CreateUsers", _createusers, true);
 			settings = SettingService.SetSetting(settings, "ExternalLogin:AllowSiteLogin", _allowsitelogin, false);
+
+			if (!string.IsNullOrEmpty(_secret) && _secret.Length < 16) _secret = (_secret + "????????????????").Substring(0, 16);
+			settings = SettingService.SetSetting(settings, "JwtOptions:Secret", _secret, true);
 
 			await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 			await SettingService.ClearSiteSettingsCacheAsync(site.SiteId);
@@ -450,5 +494,10 @@ else
 		}
 		_redirecturl = PageState.Uri.Scheme + "://" + PageState.Alias.Name + "/signin-" + _providertype;
 		StateHasChanged();
+	}
+
+	private async Task CreateToken()
+	{
+		_token = await UserService.GetTokenAsync();
 	}
 }

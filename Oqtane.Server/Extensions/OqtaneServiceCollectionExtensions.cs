@@ -85,10 +85,12 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddTransient<ITenantManager, TenantManager>();
             services.AddTransient<IAliasAccessor, AliasAccessor>();
-            services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
-            services.AddTransient<IThemeRepository, ThemeRepository>();
             services.AddTransient<IUserPermissions, UserPermissions>();
             services.AddTransient<ITenantResolver, TenantResolver>();
+            services.AddTransient<IJwtManager, JwtManager>();
+
+            services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
+            services.AddTransient<IThemeRepository, ThemeRepository>();
             services.AddTransient<IAliasRepository, AliasRepository>();
             services.AddTransient<ITenantRepository, TenantRepository>();
             services.AddTransient<ISiteRepository, SiteRepository>();
@@ -115,6 +117,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<ILanguageRepository, LanguageRepository>();
             services.AddTransient<IVisitorRepository, VisitorRepository>();
             services.AddTransient<IUrlMappingRepository, UrlMappingRepository>();
+
             // obsolete - replaced by ITenantManager
             services.AddTransient<ITenantResolver, TenantResolver>();
 
@@ -181,7 +184,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.SignIn.RequireConfirmedPhoneNumber = false;
 
                 // User settings
-                options.User.RequireUniqueEmail = false;
+                options.User.RequireUniqueEmail = true;
                 options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
             });
 
