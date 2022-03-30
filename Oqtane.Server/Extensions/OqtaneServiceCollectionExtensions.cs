@@ -194,7 +194,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        internal static IServiceCollection TryAddHttpClientWithAuthenticationCookie(this IServiceCollection services)
+        internal static IServiceCollection AddHttpClients(this IServiceCollection services)
         {
             if (!services.Any(x => x.ServiceType == typeof(HttpClient)))
             {
@@ -215,6 +215,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     return client;
                 });
             }
+
+            services.AddHttpClient("External");
 
             return services;
         }

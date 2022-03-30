@@ -45,6 +45,9 @@
 	[Parameter]
 	public string RemoteIPAddress { get; set; }
 
+	[Parameter]
+	public string AuthorizationToken { get; set; }
+
 	private bool _initialized = false;
 	private string _display = "display: none;";
 	private Installation _installation = new Installation { Success = false, Message = "" };
@@ -55,7 +58,7 @@
 	{
 		SiteState.RemoteIPAddress = RemoteIPAddress;
 		SiteState.AntiForgeryToken = AntiForgeryToken;
-		InstallationService.SetAntiForgeryTokenHeader(AntiForgeryToken);
+		SiteState.AuthorizationToken = AuthorizationToken;
 
         _installation = await InstallationService.IsInstalled();
         if (_installation.Alias != null)

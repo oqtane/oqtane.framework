@@ -133,8 +133,8 @@ namespace Oqtane.Security
             if (alias != null && user != null && !user.IsDeleted)
             {
                 identity.AddClaim(new Claim(ClaimTypes.Name, user.Username));
-                identity.AddClaim(new Claim(ClaimTypes.PrimarySid, user.UserId.ToString()));
-                identity.AddClaim(new Claim(ClaimTypes.GroupSid, alias.SiteKey));
+                identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()));
+                identity.AddClaim(new Claim("sitekey", alias.SiteKey));
                 if (user.Roles.Contains(RoleNames.Host))
                 {
                     // host users are site admins by default
@@ -160,12 +160,12 @@ namespace Oqtane.Security
             {
                 identity.RemoveClaim(claim);
             }
-            claim = identity.Claims.FirstOrDefault(item => item.Type == ClaimTypes.PrimarySid);
+            claim = identity.Claims.FirstOrDefault(item => item.Type == ClaimTypes.NameIdentifier);
             if (claim != null)
             {
                 identity.RemoveClaim(claim);
             }
-            claim = identity.Claims.FirstOrDefault(item => item.Type == ClaimTypes.GroupSid);
+            claim = identity.Claims.FirstOrDefault(item => item.Type == "sitekey");
             if (claim != null)
             {
                 identity.RemoveClaim(claim);

@@ -20,6 +20,8 @@ using System.Security.Claims;
 using System.Net;
 using Microsoft.Extensions.Primitives;
 using Oqtane.Enums;
+using Oqtane.Security;
+using Oqtane.Extensions;
 
 namespace Oqtane.Pages
 {
@@ -30,6 +32,7 @@ namespace Oqtane.Pages
         private readonly ILocalizationManager _localizationManager;
         private readonly ILanguageRepository _languages;
         private readonly IAntiforgery _antiforgery;
+        private readonly IJwtManager _jwtManager;
         private readonly ISiteRepository _sites;
         private readonly IPageRepository _pages;
         private readonly IUrlMappingRepository _urlMappings;
@@ -38,13 +41,14 @@ namespace Oqtane.Pages
         private readonly ISettingRepository _settings;
         private readonly ILogManager _logger;
 
-        public HostModel(IConfigManager configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, ISiteRepository sites, IPageRepository pages, IUrlMappingRepository urlMappings, IVisitorRepository visitors, IAliasRepository aliases, ISettingRepository settings, ILogManager logger)
+        public HostModel(IConfigManager configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, IJwtManager jwtManager, ISiteRepository sites, IPageRepository pages, IUrlMappingRepository urlMappings, IVisitorRepository visitors, IAliasRepository aliases, ISettingRepository settings, ILogManager logger)
         {
             _configuration = configuration;
             _tenantManager = tenantManager;
             _localizationManager = localizationManager;
             _languages = languages;
             _antiforgery = antiforgery;
+            _jwtManager = jwtManager;
             _sites = sites;
             _pages = pages;
             _urlMappings = urlMappings;
@@ -56,6 +60,7 @@ namespace Oqtane.Pages
 
         public string Language = "en";
         public string AntiForgeryToken = "";
+        public string AuthorizationToken = "";
         public string Runtime = "Server";
         public RenderMode RenderMode = RenderMode.Server;
         public int VisitorId = -1;
@@ -132,6 +137,17 @@ namespace Oqtane.Pages
                         }
                         Title = site.Name;
                         ThemeType = site.DefaultThemeType;
+
+                        // get jwt token for downstream APIs
+                        if (User.Identity.IsAuthenticated)
+                        {
+                            var sitesettings = HttpContext.GetSiteSettings();
+                            var secret = sitesettings.GetValue("JwtOptions:Secret", "");
+                            if (!string.IsNullOrEmpty(secret))
+                            {
+                                AuthorizationToken = _jwtManager.GenerateToken(alias, (ClaimsIdentity)User.Identity, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""), int.Parse(sitesettings.GetValue("JwtOptions:Lifetime", "20")));
+                            }
+                        }
 
                         if (site.VisitorTracking)
                         {
@@ -247,9 +263,9 @@ namespace Oqtane.Pages
                 string url = Request.GetEncodedUrl();
                 string referrer = (Request.Headers[HeaderNames.Referer] != StringValues.Empty) ? Request.Headers[HeaderNames.Referer] : "";
                 int? userid = null;
-                if (User.HasClaim(item => item.Type == ClaimTypes.PrimarySid))
+                if (User.HasClaim(item => item.Type == ClaimTypes.NameIdentifier))
                 {
-                    userid = int.Parse(User.Claims.First(item => item.Type == ClaimTypes.PrimarySid).Value);
+                    userid = int.Parse(User.Claims.First(item => item.Type == ClaimTypes.NameIdentifier).Value);
                 }
 
                 // check if cookie already exists

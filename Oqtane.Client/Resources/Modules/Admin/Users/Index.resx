@@ -127,10 +127,10 @@
     <value>Delete User</value>
   </data>
   <data name="AllowRegistration.HelpText" xml:space="preserve">
-    <value>Do you want the users to be able to register for an account on the site</value>
+    <value>Do you want anonymous visitors to be able to register for an account on the site</value>
   </data>
   <data name="AllowRegistration.Text" xml:space="preserve">
-    <value>Allow User Registration? </value>
+    <value>Allow Registration? </value>
   </data>
   <data name="Error.SaveSiteSettings" xml:space="preserve">
     <value>Error Saving Settings</value>
@@ -308,5 +308,50 @@
   </data>
   <data name="UserInfoUrl.Text" xml:space="preserve">
     <value>User Info Url:</value>
+  </data>
+  <data name="Audience.HelpText" xml:space="preserve">
+    <value>Optionally provide the audience for the token</value>
+  </data>
+  <data name="Audience.Text" xml:space="preserve">
+    <value>Audience:</value>
+  </data>
+  <data name="CookieSettings.Heading" xml:space="preserve">
+    <value>Cookie Settings</value>
+  </data>
+  <data name="CookieType.HelpText" xml:space="preserve">
+    <value>Cookies are usually managed per domain. However you can also choose to have distinct cookies for each site.</value>
+  </data>
+  <data name="CookieType.Text" xml:space="preserve">
+    <value>Cookie Type:</value>
+  </data>
+  <data name="CreateToken" xml:space="preserve">
+    <value>Create Token</value>
+  </data>
+  <data name="Issuer.HelpText" xml:space="preserve">
+    <value>Optionally provide the issuer of the token</value>
+  </data>
+  <data name="Issuer.Text" xml:space="preserve">
+    <value>Issuer:</value>
+  </data>
+  <data name="Lifetime.HelpText" xml:space="preserve">
+    <value>The number of minutes for which a token should be valid</value>
+  </data>
+  <data name="Lifetime.Text" xml:space="preserve">
+    <value>Lifetime:</value>
+  </data>
+  <data name="Secret.HelpText" xml:space="preserve">
+    <value>If you want to want to provide API access, please specify a secret which will be used to encrypt your tokens. The secret should be 16 characters or more to ensure optimal security. Please note that if you change this secret, all existing tokens will become invalid and will need to be regenerated.</value>
+  </data>
+  <data name="Secret.Text" xml:space="preserve">
+    <value>Site Secret:</value>
+  </data>
+  <data name="Token.HelpText" xml:space="preserve">
+    <value>Select the Create Token button to generate a long-lived access token (valid for 1 year). Be sure to store this token in a safe location as you will not be able to access it in the future.</value>
+  </data>
+  <data name="Token.Text" xml:space="preserve">
+    <value>Token:</value>
+  </data>
+  <data name="TokenSettings.Heading" xml:space="preserve">
+    <value>Token Settings</value>
   </data>
 </root>
