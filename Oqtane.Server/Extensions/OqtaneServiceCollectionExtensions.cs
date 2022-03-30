@@ -216,7 +216,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 });
             }
 
-            services.AddHttpClient("External");
+            // IHttpClientFactory for calling remote services via RemoteServiceBase
+            services.AddHttpClient();
 
             return services;
         }
