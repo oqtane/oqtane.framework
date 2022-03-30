@@ -49,9 +49,9 @@ namespace Oqtane.Security
             if (user.IsAuthenticated)
             {
                 user.Username = principal.Identity.Name;
-                if (principal.Claims.Any(item => item.Type == ClaimTypes.PrimarySid))
+                if (principal.Claims.Any(item => item.Type == ClaimTypes.NameIdentifier))
                 {
-                    user.UserId = int.Parse(principal.Claims.First(item => item.Type == ClaimTypes.PrimarySid).Value);
+                    user.UserId = int.Parse(principal.Claims.First(item => item.Type == ClaimTypes.NameIdentifier).Value);
                 }
                 foreach (var claim in principal.Claims.Where(item => item.Type == ClaimTypes.Role))
                 {

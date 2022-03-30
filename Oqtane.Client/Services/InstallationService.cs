@@ -50,14 +50,5 @@ namespace Oqtane.Services
         {
             await PostJsonAsync($"{ApiUrl}/register?email={WebUtility.UrlEncode(email)}", true);
         }
-
-        public void SetAntiForgeryTokenHeader(string antiforgerytokenvalue)
-        {
-            if (!string.IsNullOrEmpty(antiforgerytokenvalue))
-            {
-                AddRequestHeader(Constants.AntiForgeryTokenHeaderName, antiforgerytokenvalue);
-            }
-        }
-
     }
 }

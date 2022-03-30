@@ -526,16 +526,12 @@ namespace Oqtane.Controllers
         public string Token()
         {
             var token = "";
-            var user = _users.GetUser(User.Identity.Name);
-            if (user != null)
+            var sitesettings = HttpContext.GetSiteSettings();
+            var secret = sitesettings.GetValue("JwtOptions:Secret", "");
+            if (!string.IsNullOrEmpty(secret))
             {
-                var sitesettings = HttpContext.GetSiteSettings();
-                var secret = sitesettings.GetValue("JwtOptions:Secret", "");
-                if (!string.IsNullOrEmpty(secret))
-                {
-                    var lifetime = 525600; // long-lived token set to 1 year
-                    token = _jwtManager.GenerateToken(_tenantManager.GetAlias(), user, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""), lifetime);
-                }
+                var lifetime = 525600; // long-lived token set to 1 year
+                token = _jwtManager.GenerateToken(_tenantManager.GetAlias(), (ClaimsIdentity)User.Identity, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""), lifetime);
             }
             return token;
         }
@@ -548,7 +544,10 @@ namespace Oqtane.Controllers
             if (user.IsAuthenticated)
             {
                 user.Username = User.Identity.Name;
-                user.UserId = int.Parse(User.Claims.First(item => item.Type == ClaimTypes.PrimarySid).Value);
+                if (User.HasClaim(item => item.Type == ClaimTypes.NameIdentifier))
+                {
+                    user.UserId = int.Parse(User.Claims.First(item => item.Type == ClaimTypes.NameIdentifier).Value);
+                }
                 string roles = "";
                 foreach (var claim in User.Claims.Where(item => item.Type == ClaimTypes.Role))
                 {

@@ -30,6 +30,7 @@ namespace Oqtane.Client
             var httpClient = new HttpClient {BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)};
 
             builder.Services.AddSingleton(httpClient);
+            builder.Services.AddHttpClient("Remote");
             builder.Services.AddOptions();
 
             // Register localization services

@@ -10,20 +10,19 @@ namespace Oqtane.Security
 {
     public interface IJwtManager
     {
-        string GenerateToken(Alias alias, User user, string secret, string issuer, string audience, int lifetime);
+        string GenerateToken(Alias alias, ClaimsIdentity user, string secret, string issuer, string audience, int lifetime);
         User ValidateToken(string token, string secret, string issuer, string audience);
     }
 
     public class JwtManager : IJwtManager
     {
-        public string GenerateToken(Alias alias, User user, string secret, string issuer, string audience, int lifetime)
+        public string GenerateToken(Alias alias, ClaimsIdentity user, string secret, string issuer, string audience, int lifetime)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(secret);
-            var identity = UserSecurity.CreateClaimsIdentity(alias, user);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(identity),
+                Subject = new ClaimsIdentity(user),
                 Issuer = issuer,
                 Audience = audience,
                 Expires = DateTime.UtcNow.AddMinutes(lifetime),
@@ -56,7 +55,7 @@ namespace Oqtane.Security
                     var jwtToken = (JwtSecurityToken)validatedToken;
                     var user = new User
                     {
-                        UserId = int.Parse(jwtToken.Claims.FirstOrDefault(item => item.Type == "id")?.Value),
+                        UserId = int.Parse(jwtToken.Claims.FirstOrDefault(item => item.Type == "nameid")?.Value),
                         Username = jwtToken.Claims.FirstOrDefault(item => item.Type == "name")?.Value
                     };
                     return user;

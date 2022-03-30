@@ -70,7 +70,7 @@ namespace Oqtane
                 });
 
             // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )
-            services.TryAddHttpClientWithAuthenticationCookie();
+            services.AddHttpClients();
 
             // register scoped core services
             services.AddScoped<IAuthorizationHandler, PermissionHandler>()
