@@ -95,15 +95,18 @@ else
 							</select>
 						</div>
 					</div>
-					<div class="row mb-1 align-items-center">
-						<Label Class="col-sm-3" For="cookietype" HelpText="Cookies are usually managed per domain. However you can also choose to have distinct cookies for each site." ResourceKey="CookieType">Cookie Type:</Label>
-						<div class="col-sm-9">
-							<select id="cookietype" class="form-select" @bind="@_cookietype">
-								<option value="domain">@Localizer["Domain"]</option>
-								<option value="site">@Localizer["Site"]</option>
-							</select>
+					@if (!string.IsNullOrEmpty(PageState.Alias.Path))
+					{
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="cookietype" HelpText="Cookies are usually managed per domain. However you can also choose to have distinct cookies for each site (this option is only applicable to micro-sites)." ResourceKey="CookieType">Cookie Type:</Label>
+							<div class="col-sm-9">
+								<select id="cookietype" class="form-select" @bind="@_cookietype">
+									<option value="domain">@Localizer["Domain"]</option>
+									<option value="site">@Localizer["Site"]</option>
+								</select>
+							</div>
 						</div>
-					</div>
+					}
 				</Section>
 				<Section Name="Password" Heading="Password Settings" ResourceKey="PasswordSettings">
 					<div class="row mb-1 align-items-center">

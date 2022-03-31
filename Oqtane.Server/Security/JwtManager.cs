@@ -1,6 +1,5 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
@@ -10,19 +9,19 @@ namespace Oqtane.Security
 {
     public interface IJwtManager
     {
-        string GenerateToken(Alias alias, ClaimsIdentity user, string secret, string issuer, string audience, int lifetime);
-        User ValidateToken(string token, string secret, string issuer, string audience);
+        string GenerateToken(Alias alias, ClaimsIdentity identity, string secret, string issuer, string audience, int lifetime);
+        ClaimsIdentity ValidateToken(string token, string secret, string issuer, string audience);
     }
 
     public class JwtManager : IJwtManager
     {
-        public string GenerateToken(Alias alias, ClaimsIdentity user, string secret, string issuer, string audience, int lifetime)
+        public string GenerateToken(Alias alias, ClaimsIdentity identity, string secret, string issuer, string audience, int lifetime)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(user),
+                Subject = new ClaimsIdentity(identity),
                 Issuer = issuer,
                 Audience = audience,
                 Expires = DateTime.UtcNow.AddMinutes(lifetime),
@@ -32,7 +31,7 @@ namespace Oqtane.Security
             return tokenHandler.WriteToken(token);
         }
 
-        public User ValidateToken(string token, string secret, string issuer, string audience)
+        public ClaimsIdentity ValidateToken(string token, string secret, string issuer, string audience)
         {
             if (!string.IsNullOrEmpty(token))
             {
@@ -53,12 +52,12 @@ namespace Oqtane.Security
                     }, out SecurityToken validatedToken);
 
                     var jwtToken = (JwtSecurityToken)validatedToken;
-                    var user = new User
+                    var identity = new ClaimsIdentity();
+                    foreach (var claim in jwtToken.Claims)
                     {
-                        UserId = int.Parse(jwtToken.Claims.FirstOrDefault(item => item.Type == "nameid")?.Value),
-                        Username = jwtToken.Claims.FirstOrDefault(item => item.Type == "name")?.Value
-                    };
-                    return user;
+                        identity.AddClaim(claim);
+                    }
+                    return identity;
                 }
                 catch
                 {

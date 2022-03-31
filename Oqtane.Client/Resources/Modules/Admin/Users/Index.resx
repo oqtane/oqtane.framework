@@ -319,7 +319,7 @@
     <value>User Settings</value>
   </data>
   <data name="CookieType.HelpText" xml:space="preserve">
-    <value>Login cookies are usually managed per domain. However you can also choose to have distinct cookies for each site.</value>
+    <value>Cookies are usually managed per domain. However you can also choose to have distinct cookies for each site (this option is only applicable to micro-sites).</value>
   </data>
   <data name="CookieType.Text" xml:space="preserve">
     <value>Login Cookie Type:</value>
