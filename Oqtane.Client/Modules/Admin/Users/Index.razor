@@ -239,7 +239,10 @@ else
 						<div class="row mb-1 align-items-center">
 							<Label Class="col-sm-3" For="clientsecret" HelpText="The Client Secret from the provider" ResourceKey="ClientSecret">Client Secret:</Label>
 							<div class="col-sm-9">
-								<input type="password" id="clientsecret" class="form-control" @bind="@_clientsecret" />
+								<div class="input-group">
+									<input type="@_clientsecrettype" id="clientsecret" class="form-control" @bind="@_clientsecret" />
+									<button type="button" class="btn btn-secondary" @onclick="@ToggleClientSecret">@_toggleclientsecret</button>
+								</div>
 							</div>
 						</div>
 						<div class="row mb-1 align-items-center">
@@ -291,9 +294,12 @@ else
 				</Section>
 				<Section Name="Token" Heading="Token Settings" ResourceKey="TokenSettings">
 					<div class="row mb-1 align-items-center">
-						<Label Class="col-sm-3" For="secret" HelpText="If you want to want to provide API access, please specify a secret which will be used to encrypt your tokens. The secret should be 16 characters or more to ensure optimal security. Please note that if you change this secret, all existing tokens will become invalid and will need to be regenerated." ResourceKey="Secret">Site Secret:</Label>
+						<Label Class="col-sm-3" For="secret" HelpText="If you want to want to provide API access, please specify a secret which will be used to encrypt your tokens. The secret should be 16 characters or more to ensure optimal security. Please note that if you change this secret, all existing tokens will become invalid and will need to be regenerated." ResourceKey="Secret">Secret:</Label>
 						<div class="col-sm-9">
-							<input id="secret" class="form-control" @bind="@_secret" />
+							<div class="input-group">
+								<input type="@_secrettype" id="secret" class="form-control" @bind="@_secret" />
+								<button type="button" class="btn btn-secondary" @onclick="@ToggleSecret">@_togglesecret</button>
+							</div>
 						</div>
 					</div>					
 					<div class="row mb-1 align-items-center">
@@ -359,6 +365,8 @@ else
 	private string _userinfourl;
 	private string _clientid;
 	private string _clientsecret;
+	private string _clientsecrettype = "password";
+	private string _toggleclientsecret = string.Empty;
 	private string _scopes;
 	private string _pkce;
 	private string _redirecturl;
@@ -367,6 +375,8 @@ else
 	private string _createusers;
 
 	private string _secret;
+	private string _secrettype = "password";
+	private string _togglesecret = string.Empty;
 	private string _issuer;
 	private string _audience;
 	private string _lifetime;
@@ -405,6 +415,7 @@ else
 		_userinfourl = SettingService.GetSetting(settings, "ExternalLogin:UserInfoUrl", "");
 		_clientid = SettingService.GetSetting(settings, "ExternalLogin:ClientId", "");
 		_clientsecret = SettingService.GetSetting(settings, "ExternalLogin:ClientSecret", "");
+		_toggleclientsecret = Localizer["Show"];
 		_scopes = SettingService.GetSetting(settings, "ExternalLogin:Scopes", "");
 		_pkce = SettingService.GetSetting(settings, "ExternalLogin:PKCE", "false");
 		_redirecturl = PageState.Uri.Scheme + "://" + PageState.Alias.Name + "/signin-" + _providertype;
@@ -413,6 +424,7 @@ else
 		_createusers = SettingService.GetSetting(settings, "ExternalLogin:CreateUsers", "true");
 
 		_secret = SettingService.GetSetting(settings, "JwtOptions:Secret", "");
+		_togglesecret = Localizer["Show"];
 		_issuer = SettingService.GetSetting(settings, "JwtOptions:Issuer", PageState.Uri.Scheme + "://" + PageState.Alias.Name);
 		_audience = SettingService.GetSetting(settings, "JwtOptions:Audience", "");
 		_lifetime = SettingService.GetSetting(settings, "JwtOptions:Lifetime", "20");
@@ -551,5 +563,33 @@ else
 	private async Task CreateToken()
 	{
 		_token = await UserService.GetTokenAsync();
+	}
+
+	private void ToggleClientSecret()
+	{
+		if (_clientsecrettype == "password")
+		{
+			_clientsecrettype = "text";
+			_toggleclientsecret = Localizer["Hide"];
+		}
+		else
+		{
+			_clientsecrettype = "password";
+			_toggleclientsecret = Localizer["Show"];
+		}
+	}
+
+	private void ToggleSecret()
+	{
+		if (_secrettype == "password")
+		{
+			_secrettype = "text";
+			_togglesecret = Localizer["Hide"];
+		}
+		else
+		{
+			_secrettype = "password";
+			_togglesecret = Localizer["Show"];
+		}
 	}
 }

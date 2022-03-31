@@ -120,7 +120,10 @@
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="password" HelpText="Enter the password for your SMTP account" ResourceKey="SmtpPassword">Password: </Label>
                     <div class="col-sm-9">
-                        <input id="password" type="password" class="form-control" @bind="@_smtppassword" />
+						<div class="input-group">
+							<input id="password" type="@_smtppasswordtype" class="form-control" @bind="@_smtppassword" />
+							<button type="button" class="btn btn-secondary" @onclick="@ToggleSMTPPassword">@_togglesmtppassword</button>
+						</div>
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
@@ -266,6 +269,8 @@
 	private string _smtpssl = "False";
 	private string _smtpusername = string.Empty;
 	private string _smtppassword = string.Empty;
+	private string _smtppasswordtype = "password";
+	private string _togglesmtppassword = string.Empty;
 	private string _smtpsender = string.Empty;
 	private string _retention = string.Empty;
 	private string _pwaisenabled;
@@ -336,6 +341,7 @@
 				_smtpssl = SettingService.GetSetting(settings, "SMTPSSL", "False");
 				_smtpusername = SettingService.GetSetting(settings, "SMTPUsername", string.Empty);
 				_smtppassword = SettingService.GetSetting(settings, "SMTPPassword", string.Empty);
+				_togglesmtppassword = Localizer["Show"];
 				_smtpsender = SettingService.GetSetting(settings, "SMTPSender", string.Empty);
 				_retention = SettingService.GetSetting(settings, "NotificationRetention", "30");
 
@@ -643,5 +649,19 @@
 			if (alias.IsDefault && string.IsNullOrEmpty(_defaultalias)) _defaultalias = alias.Name.Trim();
 		}
 		if (string.IsNullOrEmpty(_defaultalias)) _defaultalias = _aliases.First().Name.Trim();
+	}
+
+	private void ToggleSMTPPassword()
+	{
+		if (_smtppasswordtype == "password")
+		{
+			_smtppasswordtype = "text";
+			_togglesmtppassword = Localizer["Hide"];
+		}
+		else
+		{
+			_smtppasswordtype = "password";
+			_togglesmtppassword = Localizer["Show"];
+		}
 	}
 }
