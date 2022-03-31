@@ -95,9 +95,9 @@
 	{
 		_togglepassword = Localizer["ShowPassword"];
 
-		if (PageState.Site.Settings.ContainsKey("ExternalLogin:AllowSiteLogin") && !string.IsNullOrEmpty(PageState.Site.Settings["ExternalLogin:AllowSiteLogin"]))
+		if (PageState.Site.Settings.ContainsKey("LoginOptions:AllowSiteLogin") && !string.IsNullOrEmpty(PageState.Site.Settings["LoginOptions:AllowSiteLogin"]))
 		{
-			_allowsitelogin = bool.Parse(PageState.Site.Settings["ExternalLogin:AllowSiteLogin"]);
+			_allowsitelogin = bool.Parse(PageState.Site.Settings["LoginOptions:AllowSiteLogin"]);
 		}
 
 		if (PageState.Site.Settings.ContainsKey("ExternalLogin:ProviderType") && !string.IsNullOrEmpty(PageState.Site.Settings["ExternalLogin:ProviderType"]))

@@ -55,16 +55,56 @@ else
 	</TabPanel>
         <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings">
 			<div class="container">
-				<div class="row mb-1 align-items-center">
-					<Label Class="col-sm-3" For="allowregistration" HelpText="Do You Want To Allow Visitors To Be Able To Register For A User Account On This Site?" ResourceKey="AllowRegistration">Allow User Registration?</Label>
-					<div class="col-sm-9">
-						<select id="allowregistration" class="form-select" @bind="@_allowregistration" required>
-							<option value="True">@SharedLocalizer["Yes"]</option>
-							<option value="False">@SharedLocalizer["No"]</option>
-						</select>
+				<Section Name="User" Heading="User Settings" ResourceKey="UserSettings">
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="allowregistration" HelpText="Do you want anonymous visitors to be able to register for an account on the site" ResourceKey="AllowRegistration">Allow User Registration?</Label>
+						<div class="col-sm-9">
+							<select id="allowregistration" class="form-select" @bind="@_allowregistration">
+								<option value="True">@SharedLocalizer["Yes"]</option>
+								<option value="False">@SharedLocalizer["No"]</option>
+							</select>
+						</div>
 					</div>
-				</div>
-				<br />
+					@if (_providertype != "")
+					{
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="allowsitelogin" HelpText="Do you want to allow users to sign in using a username and password that is managed locally on this site? Note that you should only disable this option if you have already sucessfully configured an external login provider, or else you may lock yourself out of the site." ResourceKey="AllowSiteLogin">Allow Login?</Label>
+							<div class="col-sm-9">
+								<select id="allowsitelogin" class="form-select" @bind="@_allowsitelogin">
+									<option value="true">@SharedLocalizer["Yes"]</option>
+									<option value="false">@SharedLocalizer["No"]</option>
+								</select>
+							</div>
+						</div>
+					}
+					else
+					{
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="allowsitelogin" HelpText="Do you want to allow users to sign in using a username and password that is managed locally on this site? Note that you should only disable this option if you have already sucessfully configured an external login provider, or else you may lock yourself out of the site." ResourceKey="AllowSiteLogin">Allow Login?</Label>
+							<div class="col-sm-9">
+								<input id="allowsitelogin" class="form-control" value="@SharedLocalizer["Yes"]" readonly />
+							</div>
+						</div>						
+					}
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="twofactor" HelpText="Do you want to allow users to use two factor authentication? Note that the Notification Job in Scheduled Jobs needs to be enabled for this option to work properly." ResourceKey="TwoFactor">Allow Two Factor?</Label>
+						<div class="col-sm-9">
+							<select id="twofactor" class="form-select" @bind="@_twofactor">
+								<option value="true">@SharedLocalizer["Yes"]</option>
+								<option value="false">@SharedLocalizer["No"]</option>
+							</select>
+						</div>
+					</div>
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="cookietype" HelpText="Cookies are usually managed per domain. However you can also choose to have distinct cookies for each site." ResourceKey="CookieType">Cookie Type:</Label>
+						<div class="col-sm-9">
+							<select id="cookietype" class="form-select" @bind="@_cookietype">
+								<option value="domain">@Localizer["Domain"]</option>
+								<option value="site">@Localizer["Site"]</option>
+							</select>
+						</div>
+					</div>
+				</Section>
 				<Section Name="Password" Heading="Password Settings" ResourceKey="PasswordSettings">
 					<div class="row mb-1 align-items-center">
 						<Label Class="col-sm-3" For="minimumlength" HelpText="The Minimum Length For A Password" ResourceKey="RequiredLength">Minimum Length:</Label>
@@ -128,17 +168,6 @@ else
 							<input id="lockoutduration" class="form-control" @bind="@_lockoutduration" required />
 						</div>
 					</div>					
-				</Section>
-				<Section Name="Cookie" Heading="Cookie Settings" ResourceKey="CookieSettings">
-					<div class="row mb-1 align-items-center">
-						<Label Class="col-sm-3" For="cookietype" HelpText="Cookies are usually managed per domain. However you can also choose to have distinct cookies for each site." ResourceKey="CookieType">Cookie Type:</Label>
-						<div class="col-sm-9">
-							<select id="cookietype" class="form-select" @bind="@_cookietype">
-								<option value="domain">@Localizer["Domain"]</option>
-								<option value="site">@Localizer["Site"]</option>
-							</select>
-						</div>
-					</div>
 				</Section>
 				<Section Name="ExternalLogin" Heading="External Login Settings" ResourceKey="ExternalLoginSettings">
 					<div class="row mb-1 align-items-center">
@@ -255,15 +284,6 @@ else
 								</select>
 							</div>
 						</div>
-						<div class="row mb-1 align-items-center">
-							<Label Class="col-sm-3" For="allowsitelogin" HelpText="Do you want to allow users to sign in using a username and password that is managed locally on this site? Note that you should only disable this option if you have already sucessfully configured an external login provider, or else you may lock yourself out of the site." ResourceKey="AllowSiteLogin">Allow Site Login?</Label>
-							<div class="col-sm-9">
-								<select id="allowsitelogin" class="form-select" @bind="@_allowsitelogin">
-									<option value="true">@SharedLocalizer["Yes"]</option>
-									<option value="false">@SharedLocalizer["No"]</option>
-								</select>
-							</div>
-						</div>
 					}
 				</Section>
 				<Section Name="Token" Heading="Token Settings" ResourceKey="TokenSettings">
@@ -314,6 +334,10 @@ else
 	private string _search;
 
 	private string _allowregistration;
+	private string _allowsitelogin;
+	private string _twofactor;
+	private string _cookietype;
+
 	private string _minimumlength;
 	private string _uniquecharacters;
 	private string _requiredigit;
@@ -322,8 +346,6 @@ else
 	private string _requirepunctuation;
 	private string _maximumfailures;
 	private string _lockoutduration;
-
-	private string _cookietype;
 
 	private string _providertype;
 	private string _providername;
@@ -340,7 +362,6 @@ else
 	private string _emailclaimtype;
 	private string _domainfilter;
 	private string _createusers;
-	private string _allowsitelogin;
 
 	private string _secret;
 	private string _issuer;
@@ -356,8 +377,11 @@ else
 		await LoadSettingsAsync();
 		userroles = Search(_search);
 
-		_allowregistration = PageState.Site.AllowRegistration.ToString();
 		var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+		_allowregistration = PageState.Site.AllowRegistration.ToString();
+		_allowsitelogin = SettingService.GetSetting(settings, "LoginOptions:AllowSiteLogin", "true");
+		_twofactor = SettingService.GetSetting(settings, "LoginOptions:TwoFactor", "false");
+		_cookietype = SettingService.GetSetting(settings, "LoginOptions:CookieType", "domain");
 
 		_minimumlength = SettingService.GetSetting(settings, "IdentityOptions:Password:RequiredLength", "6");
 		_uniquecharacters = SettingService.GetSetting(settings, "IdentityOptions:Password:RequiredUniqueChars", "1");
@@ -368,8 +392,6 @@ else
 
 		_maximumfailures = SettingService.GetSetting(settings, "IdentityOptions:Lockout:MaxFailedAccessAttempts", "5");
 		_lockoutduration = TimeSpan.Parse(SettingService.GetSetting(settings, "IdentityOptions:Lockout:DefaultLockoutTimeSpan", "00:05:00")).TotalMinutes.ToString();
-
-		_cookietype = SettingService.GetSetting(settings, "CookieOptions:CookieType", "domain");
 
 		_providertype = SettingService.GetSetting(settings, "ExternalLogin:ProviderType", "");
 		_providername = SettingService.GetSetting(settings, "ExternalLogin:ProviderName", "");
@@ -386,7 +408,6 @@ else
 		_emailclaimtype = SettingService.GetSetting(settings, "ExternalLogin:EmailClaimType", "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress");
 		_domainfilter = SettingService.GetSetting(settings, "ExternalLogin:DomainFilter", "");
 		_createusers = SettingService.GetSetting(settings, "ExternalLogin:CreateUsers", "true");
-		_allowsitelogin = SettingService.GetSetting(settings, "ExternalLogin:AllowSiteLogin", "true");
 
 		_secret = SettingService.GetSetting(settings, "JwtOptions:Secret", "");
 		_issuer = SettingService.GetSetting(settings, "JwtOptions:Issuer", PageState.Uri.Scheme + "://" + PageState.Alias.Name);
@@ -462,6 +483,10 @@ else
 			await SiteService.UpdateSiteAsync(site);
 
 			var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
+			settings = SettingService.SetSetting(settings, "LoginOptions:AllowSiteLogin", _allowsitelogin, false);
+			settings = SettingService.SetSetting(settings, "LoginOptions:TwoFactor", _twofactor, false);
+			settings = SettingService.SetSetting(settings, "LoginOptions:CookieType", _cookietype, true);
+
 			settings = SettingService.SetSetting(settings, "IdentityOptions:Password:RequiredLength", _minimumlength, true);
 			settings = SettingService.SetSetting(settings, "IdentityOptions:Password:RequiredUniqueChars", _uniquecharacters, true);
 			settings = SettingService.SetSetting(settings, "IdentityOptions:Password:RequireDigit", _requiredigit, true);
@@ -471,8 +496,6 @@ else
 
 			settings = SettingService.SetSetting(settings, "IdentityOptions:Lockout:MaxFailedAccessAttempts", _maximumfailures, true);
 			settings = SettingService.SetSetting(settings, "IdentityOptions:Lockout:DefaultLockoutTimeSpan", TimeSpan.FromMinutes(Convert.ToInt64(_lockoutduration)).ToString(), true);
-
-			settings = SettingService.SetSetting(settings, "CookieOptions:CookieType", _cookietype, true);
 
 			settings = SettingService.SetSetting(settings, "ExternalLogin:ProviderType", _providertype, false);
 			settings = SettingService.SetSetting(settings, "ExternalLogin:ProviderName", _providername, false);
@@ -488,7 +511,6 @@ else
 			settings = SettingService.SetSetting(settings, "ExternalLogin:EmailClaimType", _emailclaimtype, true);
 			settings = SettingService.SetSetting(settings, "ExternalLogin:DomainFilter", _domainfilter, true);
 			settings = SettingService.SetSetting(settings, "ExternalLogin:CreateUsers", _createusers, true);
-			settings = SettingService.SetSetting(settings, "ExternalLogin:AllowSiteLogin", _allowsitelogin, false);
 
 			if (!string.IsNullOrEmpty(_secret) && _secret.Length < 16) _secret = (_secret + "????????????????").Substring(0, 16);
 			settings = SettingService.SetSetting(settings, "JwtOptions:Secret", _secret, true);
@@ -497,7 +519,7 @@ else
 			settings = SettingService.SetSetting(settings, "JwtOptions:Lifetime", _lifetime, true);
 
 			await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
-			await SettingService.ClearSiteSettingsCacheAsync(site.SiteId);
+			await SettingService.ClearSiteSettingsCacheAsync();
 
 			AddModuleMessage(Localizer["Success.SaveSiteSettings"], MessageType.Success);				
 		}

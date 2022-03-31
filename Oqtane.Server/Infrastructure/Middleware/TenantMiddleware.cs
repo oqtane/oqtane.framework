@@ -9,11 +9,11 @@ namespace Oqtane.Infrastructure
 {
     internal class TenantMiddleware
     {
-        private readonly RequestDelegate next;
+        private readonly RequestDelegate _next;
 
         public TenantMiddleware(RequestDelegate next)
         {
-            this.next = next;
+            _next = next;
         }
 
         public async Task Invoke(HttpContext context)
@@ -55,7 +55,7 @@ namespace Oqtane.Infrastructure
             }
 
             // continue processing
-            if (next != null) await next(context);
+            if (_next != null) await _next(context);
         }
     }
 }

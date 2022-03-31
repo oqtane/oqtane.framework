@@ -28,7 +28,7 @@ namespace Oqtane.Extensions
             // site cookie authentication options
             builder.AddSiteOptions<CookieAuthenticationOptions>((options, alias, sitesettings) =>
             {
-                if (sitesettings.GetValue("CookieOptions:CookieType", "domain") == "domain")
+                if (sitesettings.GetValue("LoginOptions:CookieType", "domain") == "domain")
                 {
                     options.Cookie.Name = ".AspNetCore.Identity.Application";
                 }

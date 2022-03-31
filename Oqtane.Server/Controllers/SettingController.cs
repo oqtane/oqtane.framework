@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.Options;
 
 namespace Oqtane.Controllers
 {
@@ -23,18 +24,26 @@ namespace Oqtane.Controllers
         private readonly IPageModuleRepository _pageModules;
         private readonly IUserPermissions _userPermissions;
         private readonly ISyncManager _syncManager;
+        private readonly IAliasAccessor _aliasAccessor;
+        private readonly IOptionsMonitorCache<CookieAuthenticationOptions> _cookieCache;
+        private readonly IOptionsMonitorCache<OpenIdConnectOptions> _oidcCache;
+        private readonly IOptionsMonitorCache<OAuthOptions> _oauthCache;
+        private readonly IOptionsMonitorCache<IdentityOptions> _identityCache;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
-        private readonly IAliasAccessor _aliasAccessor;
         private readonly string _visitorCookie;
 
-        public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, IAliasAccessor aliasAccessor, ILogManager logger)
+        public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, IAliasAccessor aliasAccessor, IOptionsMonitorCache<CookieAuthenticationOptions> cookieCache, IOptionsMonitorCache<OpenIdConnectOptions> oidcCache, IOptionsMonitorCache<OAuthOptions> oauthCache, IOptionsMonitorCache<IdentityOptions> identityCache, ILogManager logger)
         {
             _settings = settings;
             _pageModules = pageModules;
             _userPermissions = userPermissions;
             _syncManager = syncManager;
             _aliasAccessor = aliasAccessor;
+            _cookieCache = cookieCache;
+            _oidcCache = oidcCache;
+            _oauthCache = oauthCache;
+            _identityCache = identityCache;
             _logger = logger;
             _alias = tenantManager.GetAlias();
             _visitorCookie = "APP_VISITOR_" + _alias.SiteId.ToString();
@@ -139,18 +148,26 @@ namespace Oqtane.Controllers
         }
 
         // DELETE api/<controller>/clear
-        [HttpDelete("clear/{id}")]
+        [HttpDelete("clear")]
         [Authorize(Roles = RoleNames.Admin)]
-        public void Clear(int id)
+        public void Clear()
         {
-            var cookieAuthenticationOptionsCache = new SiteOptionsCache<CookieAuthenticationOptions>(_aliasAccessor);
-            cookieAuthenticationOptionsCache.Clear();
-            var openIdConnectOptionsCache = new SiteOptionsCache<OpenIdConnectOptions>(_aliasAccessor);
-            openIdConnectOptionsCache.Clear();
-            var oAuthOptionsCache = new SiteOptionsCache<OAuthOptions>(_aliasAccessor);
-            oAuthOptionsCache.Clear();
-            var identityOptionsCache = new SiteOptionsCache<IdentityOptions>(_aliasAccessor);
-            identityOptionsCache.Clear();
+            // clear SiteOptionsCache for each option type
+            var cookieCache = new SiteOptionsCache<CookieAuthenticationOptions>(_aliasAccessor);
+            cookieCache.Clear();
+            var oidcCache = new SiteOptionsCache<OpenIdConnectOptions>(_aliasAccessor);
+            oidcCache.Clear();
+            var oauthCache = new SiteOptionsCache<OAuthOptions>(_aliasAccessor);
+            oauthCache.Clear();
+            var identityCache = new SiteOptionsCache<IdentityOptions>(_aliasAccessor);
+            identityCache.Clear();
+
+            // clear IOptionsMonitorCache for each option type
+            _cookieCache.Clear();
+            _oidcCache.Clear();
+            _oauthCache.Clear();
+            _identityCache.Clear();
+
             _logger.Log(LogLevel.Information, this, LogFunction.Other, "Site Options Cache Cleared");
         }
 

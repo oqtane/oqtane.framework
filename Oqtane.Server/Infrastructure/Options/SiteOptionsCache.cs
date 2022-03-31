@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Options;
-using Oqtane.Models;
 
 namespace Oqtane.Infrastructure
 {
@@ -20,21 +19,7 @@ namespace Oqtane.Infrastructure
         {
             var cache = map.GetOrAdd(GetKey(), new OptionsCache<TOptions>());
             cache.Clear();
-        }
 
-        public void Clear(Alias alias)
-        {
-            var cache = map.GetOrAdd(alias.SiteKey, new OptionsCache<TOptions>());
-
-            cache.Clear();
-        }
-
-        public void ClearAll()
-        {
-            foreach (var cache in map.Values)
-            {
-                cache.Clear();
-            }
         }
 
         public TOptions GetOrAdd(string name, Func<TOptions> createOptions)

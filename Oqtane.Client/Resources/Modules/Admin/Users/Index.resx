@@ -208,7 +208,7 @@
     <value>Do you want to allow users to sign in using a username and password that is managed locally on this site? Note that you should only disable this option if you have already sucessfully configured an external login provider, or else you may lock yourself out of the site.</value>
   </data>
   <data name="AllowSiteLogin.Text" xml:space="preserve">
-    <value>Allow Site Login?</value>
+    <value>Allow Login?</value>
   </data>
   <data name="Authority.HelpText" xml:space="preserve">
     <value>The Authority Url or Issuer Url associated with the OpenID Connect provider</value>
@@ -315,14 +315,14 @@
   <data name="Audience.Text" xml:space="preserve">
     <value>Audience:</value>
   </data>
-  <data name="CookieSettings.Heading" xml:space="preserve">
-    <value>Cookie Settings</value>
+  <data name="UserSettings.Heading" xml:space="preserve">
+    <value>User Settings</value>
   </data>
   <data name="CookieType.HelpText" xml:space="preserve">
-    <value>Cookies are usually managed per domain. However you can also choose to have distinct cookies for each site.</value>
+    <value>Login cookies are usually managed per domain. However you can also choose to have distinct cookies for each site.</value>
   </data>
   <data name="CookieType.Text" xml:space="preserve">
-    <value>Cookie Type:</value>
+    <value>Login Cookie Type:</value>
   </data>
   <data name="CreateToken" xml:space="preserve">
     <value>Create Token</value>
@@ -353,5 +353,11 @@
   </data>
   <data name="TokenSettings.Heading" xml:space="preserve">
     <value>Token Settings</value>
+  </data>
+  <data name="TwoFactor.HelpText" xml:space="preserve">
+    <value>Do you want to allow users to use two factor authentication? Note that the Notification Job in Scheduled Jobs needs to be enabled and your SMTP options need to be configured in Site Settings for this option to work properly.</value>
+  </data>
+  <data name="TwoFactor.Text" xml:space="preserve">
+    <value>Allow Two Factor?</value>
   </data>
 </root>
