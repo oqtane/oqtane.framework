@@ -42,7 +42,7 @@ namespace Oqtane.Services
         /// Clears site option cache
         /// </summary>
         /// <returns></returns>
-        Task ClearSiteSettingsCacheAsync(int siteId);
+        Task ClearSiteSettingsCacheAsync();
 
         /// <summary>
         /// Returns a key-value dictionary of all page settings for the given page

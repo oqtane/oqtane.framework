@@ -36,7 +36,7 @@ namespace Oqtane.Infrastructure
                         var user = jwtManager.ValidateToken(token, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""));
                         if (user != null)
                         {
-                            // populate principal (reload user roles to ensure most accurate permission assigments)
+                            // populate principal (reload user roles to ensure most accurate permissions)
                             var _userRoles = context.RequestServices.GetService(typeof(IUserRoleRepository)) as IUserRoleRepository;
                             var principal = (ClaimsIdentity)context.User.Identity;
                             UserSecurity.ResetClaimsIdentity(principal);
@@ -52,7 +52,8 @@ namespace Oqtane.Infrastructure
                 }
             }
 
-            await _next(context);
+            // continue processing
+            if (_next != null) await _next(context);
         }
     }
 }

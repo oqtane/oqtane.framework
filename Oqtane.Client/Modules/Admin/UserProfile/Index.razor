@@ -41,15 +41,18 @@ else
                         <input id="confirm" type="password" class="form-control" @bind="@confirm" autocomplete="new-password" />
                     </div>
                 </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="twofactor" HelpText="Indicates if you are using two factor authentication. Two factor authentication requires you to enter a verification code sent via email after you sign in." ResourceKey="TwoFactor"></Label>
-                    <div class="col-sm-9">
-						<select id="twofactor" class="form-select" @bind="@twofactor" required>
-							<option value="True">@SharedLocalizer["Yes"]</option>
-							<option value="False">@SharedLocalizer["No"]</option>
-						</select>
-                    </div>
-                </div>
+				@if (allowtwofactor)
+				{
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="twofactor" HelpText="Indicates if you are using two factor authentication. Two factor authentication requires you to enter a verification code sent via email after you sign in." ResourceKey="TwoFactor"></Label>
+						<div class="col-sm-9">
+							<select id="twofactor" class="form-select" @bind="@twofactor" required>
+								<option value="True">@SharedLocalizer["Yes"]</option>
+								<option value="False">@SharedLocalizer["No"]</option>
+							</select>
+						</div>
+					</div>
+				}
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="email" HelpText="Your email address where you wish to receive notifications" ResourceKey="Email"></Label>
                     <div class="col-sm-9">
@@ -216,6 +219,7 @@ else
 	private string username = string.Empty;
 	private string password = string.Empty;
 	private string confirm = string.Empty;
+	private bool allowtwofactor = false;
 	private string twofactor = "False";
 	private string email = string.Empty;
 	private string displayname = string.Empty;
@@ -235,6 +239,11 @@ else
 	{
 		try
 		{
+			if (PageState.Site.Settings.ContainsKey("LoginOptions:TwoFactor") && !string.IsNullOrEmpty(PageState.Site.Settings["LoginOptions:TwoFactor"]))
+			{
+				allowtwofactor = bool.Parse(PageState.Site.Settings["LoginOptions:TwoFactor"]);
+			}
+
 			if (PageState.User != null)
 			{
 				username = PageState.User.Username;
