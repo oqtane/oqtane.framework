@@ -78,6 +78,11 @@ namespace Oqtane.Models
         /// </summary>
         public string RenderMode { get; set; }
 
+        /// <summary>
+        /// Keeps track of site configuration changes and is used by the IUpgradeable interface
+        /// </summary>
+        public string Version { get; set; }
+
         #region IAuditable Properties
 
         /// <inheritdoc/>

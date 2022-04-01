@@ -20,6 +20,7 @@ using Microsoft.Extensions.Primitives;
 using Oqtane.Enums;
 using Oqtane.Security;
 using Oqtane.Extensions;
+using Oqtane.Themes;
 
 namespace Oqtane.Pages
 {
@@ -69,7 +70,6 @@ namespace Oqtane.Pages
         public string Meta = "";
         public string FavIcon = "favicon.ico";
         public string PWAScript = "";
-        public string ThemeType = "";
         public string Message = "";
 
         public IActionResult OnGet()
@@ -134,7 +134,7 @@ namespace Oqtane.Pages
                             PWAScript = CreatePWAScript(alias, site, route);
                         }
                         Title = site.Name;
-                        ThemeType = site.DefaultThemeType;
+                        var ThemeType = site.DefaultThemeType;
 
                         // get jwt token for downstream APIs
                         if (User.Identity.IsAuthenticated)
@@ -153,7 +153,7 @@ namespace Oqtane.Pages
                         }
 
                         var page = _pages.GetPage(route.PagePath, site.SiteId);
-                        if (page != null)
+                        if (page != null & !page.IsDeleted)
                         {
                             // set page title
                             if (!string.IsNullOrEmpty(page.Title))
@@ -171,6 +171,7 @@ namespace Oqtane.Pages
                             {
                                 ThemeType = page.ThemeType;
                             }
+                            ProcessThemeResources(ThemeType);
                         }
                         else // page not found
                         {
@@ -407,19 +408,43 @@ namespace Oqtane.Pages
                 var obj = Activator.CreateInstance(type) as IHostResources;
                 foreach (var resource in obj.Resources)
                 {
-                    ProcessResource(resource);
+                    resource.Level = ResourceLevel.App;
+                    ProcessResource(resource, 0);
                 }
             }
         }
 
-        private void ProcessResource(Resource resource)
+        private void ProcessThemeResources(string ThemeType)
+        {
+            var type = Type.GetType(ThemeType);
+            if (type != null)
+            {
+                var obj = Activator.CreateInstance(type) as IThemeControl;
+                if (obj.Resources != null)
+                {
+                    int count = 1;
+                    foreach (var resource in obj.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
+                    {                        
+                        resource.Level = ResourceLevel.Page;
+                        ProcessResource(resource, count++);
+                    }
+                }
+            }
+        }
+
+        private void ProcessResource(Resource resource, int count)
         {
             switch (resource.ResourceType)
             {
                 case ResourceType.Stylesheet:
                     if (!HeadResources.Contains(resource.Url, StringComparison.OrdinalIgnoreCase))
                     {
-                        HeadResources += "<link rel=\"stylesheet\" href=\"" + resource.Url + "\"" + CrossOrigin(resource.CrossOrigin) + Integrity(resource.Integrity) + " />" + Environment.NewLine;
+                        string id = "";
+                        if (resource.Level == ResourceLevel.Page)
+                        {
+                            id = "id=\"app-stylesheet-" + resource.Level.ToString().ToLower() + "-" + DateTime.UtcNow.ToString("yyyyMMddHHmmssfff") + "-" + count.ToString("00") + "\" ";
+                        }
+                        HeadResources += "<link " + id + "rel=\"stylesheet\" href=\"" + resource.Url + "\"" + CrossOrigin(resource.CrossOrigin) + Integrity(resource.Integrity) + " />" + Environment.NewLine;
                     }
                     break;
                 case ResourceType.Script:

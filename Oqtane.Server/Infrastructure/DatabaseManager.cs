@@ -190,6 +190,10 @@ namespace Oqtane.Infrastructure
                                 if (result.Success)
                                 {
                                     result = CreateSite(install);
+                                    if (result.Success)
+                                    {
+                                        result = MigrateSites();
+                                    }
                                 }
                             }
                         }
@@ -650,6 +654,78 @@ namespace Oqtane.Infrastructure
                 catch (Exception ex)
                 {
                     result.Message = "An Error Occurred Creating Site - " + ex.Message;
+                }
+            }
+
+            if (string.IsNullOrEmpty(result.Message))
+            {
+                result.Success = true;
+            }
+            else
+            {
+                _filelogger.LogError(Utilities.LogMessage(this, result.Message));
+            }
+
+            return result;
+        }
+
+        private Installation MigrateSites()
+        {
+            var result = new Installation { Success = false, Message = string.Empty };
+
+            // find upgrade type
+            Type upgradetype = null;
+            var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
+            foreach (Assembly assembly in assemblies)
+            {
+                var types = assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(IUpgradeable)));
+                if (types.Any())
+                {
+                    upgradetype = types.First();
+                    break;
+                }
+            }
+
+            // execute upgrade
+            if (upgradetype != null)
+            {
+                var obj = Activator.CreateInstance(upgradetype) as IUpgradeable;
+                if (obj != null)
+                {
+                    using (var scope = _serviceScopeFactory.CreateScope())
+                    {
+                        var aliases = scope.ServiceProvider.GetRequiredService<IAliasRepository>();
+                        var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
+                        var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
+
+                        foreach (var alias in aliases.GetAliases().ToList().Where(item => item.IsDefault))
+                        {
+                            var versions = obj.GetVersions(alias);
+                            if (!string.IsNullOrEmpty(versions))
+                            {
+                                tenantManager.SetTenant(alias.TenantId);
+                                var site = sites.GetSites().FirstOrDefault(item => item.SiteId == alias.SiteId);
+                                if (site != null)
+                                {
+                                    foreach (var version in versions.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                                    {
+                                        if (string.IsNullOrEmpty(site.Version) || Version.Parse(version) > Version.Parse(site.Version))
+                                        {
+                                            if (obj.Upgrade(alias, version))
+                                            {
+                                                site.Version = version;
+                                                sites.UpdateSite(site);
+                                            }
+                                            else
+                                            {
+                                                result.Message = "An Error Occurred Executing IUpgradeable Interface For " + alias.Name + " For Version " + version;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
