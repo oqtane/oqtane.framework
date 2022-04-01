@@ -333,9 +333,8 @@
 		if (PageId != "-")
 		{
 			_modules = PageState.Modules
-				.Where(module => module.PageId == int.Parse(PageId)
-									&& !module.IsDeleted
-									&& UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.Permissions))
+				.Where(module => module.PageId == int.Parse(PageId) &&
+				UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.Permissions))
 				.ToList();
 		}
 		ModuleId = "-";

@@ -252,7 +252,7 @@
 				_title = page.Title;
 				_meta = page.Meta;
 				_path = page.Path;
-				_pageModules = PageState.Modules.Where(m => m.PageId == page.PageId && m.IsDeleted == false).ToList();
+				_pageModules = PageState.Modules.Where(m => m.PageId == page.PageId).ToList();
 
 				if (string.IsNullOrEmpty(_path))
 				{

@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Oqtane.Infrastructure;
 using Oqtane.Shared;
-using Oqtane.Modules;
 using Oqtane.Models;
-using Oqtane.Themes;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -190,8 +188,6 @@ namespace Oqtane.Pages
                         foreach (Assembly assembly in assemblies)
                         {
                             ProcessHostResources(assembly);
-                            ProcessModuleControls(assembly);
-                            ProcessThemeControls(assembly);
                         }
 
                         // set culture if not specified
@@ -411,65 +407,19 @@ namespace Oqtane.Pages
                 var obj = Activator.CreateInstance(type) as IHostResources;
                 foreach (var resource in obj.Resources)
                 {
-                    resource.Declaration = ResourceDeclaration.Global;
-                    ProcessResource(resource, 0);
+                    ProcessResource(resource);
                 }
             }
         }
 
-        private void ProcessModuleControls(Assembly assembly)
-        {
-            var types = assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(IModuleControl)));
-            foreach (var type in types)
-            {
-                // Check if type should be ignored
-                if (type.IsOqtaneIgnore()) continue;
-
-                var obj = Activator.CreateInstance(type) as IModuleControl;
-                if (obj.Resources != null)
-                {
-                    foreach (var resource in obj.Resources)
-                    {
-                        if (resource.Declaration == ResourceDeclaration.Global)
-                        {
-                            ProcessResource(resource, 0);
-                        }
-                    }
-                }
-            }
-        }
-
-        private void ProcessThemeControls(Assembly assembly)
-        {
-            var types = assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(IThemeControl)));
-            foreach (var type in types)
-            {
-                // Check if type should be ignored
-                if (type.IsOqtaneIgnore()) continue;
-
-                var obj = Activator.CreateInstance(type) as IThemeControl;
-                if (obj.Resources != null)
-                {
-                    int count = 0; // required for local stylesheets for current theme
-                    foreach (var resource in obj.Resources)
-                    {
-                        if (resource.Declaration == ResourceDeclaration.Global || (Utilities.GetFullTypeName(type.AssemblyQualifiedName) == ThemeType && resource.ResourceType == ResourceType.Stylesheet))
-                        {
-                            ProcessResource(resource, count++);
-                        }
-                    }
-                }
-            }
-        }
-        private void ProcessResource(Resource resource, int count)
+        private void ProcessResource(Resource resource)
         {
             switch (resource.ResourceType)
             {
                 case ResourceType.Stylesheet:
                     if (!HeadResources.Contains(resource.Url, StringComparison.OrdinalIgnoreCase))
                     {
-                        var id = (resource.Declaration == ResourceDeclaration.Global) ? "" : "id=\"app-stylesheet-" + DateTime.UtcNow.ToString("yyyyMMddHHmmssfff") + "-" + count.ToString("00") + "\" ";
-                        HeadResources += "<link " + id + "rel=\"stylesheet\" href=\"" + resource.Url + "\"" + CrossOrigin(resource.CrossOrigin) + Integrity(resource.Integrity) + " />" + Environment.NewLine;
+                        HeadResources += "<link rel=\"stylesheet\" href=\"" + resource.Url + "\"" + CrossOrigin(resource.CrossOrigin) + Integrity(resource.Integrity) + " />" + Environment.NewLine;
                     }
                     break;
                 case ResourceType.Script:

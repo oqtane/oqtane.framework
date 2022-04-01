@@ -28,20 +28,22 @@
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-        var interop = new Interop(JsRuntime);
+		var interop = new Interop(JsRuntime);
 
         // manage stylesheets for this page 
-        string batch = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
-        var links = new List<object>();
-        foreach (Resource resource in PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet && item.Declaration != ResourceDeclaration.Global))
-        {
-            links.Add(new { id = "app-stylesheet-" + batch + "-" + (links.Count + 1).ToString("00"), rel = "stylesheet", href = resource.Url, type = "text/css", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", key = "" });
+		string batch = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
+		var links = new List<object>();
+		foreach (Resource resource in PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
+		{
+			var prefix = "app-stylesheet-" + resource.Level.ToString().ToLower();
+			links.Add(new { id = prefix + "-" + batch + "-" + (links.Count + 1).ToString("00"), rel = "stylesheet", href = resource.Url, type = "text/css", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", insertbefore = prefix });
         }
         if (links.Any())
         {
             await interop.IncludeLinks(links.ToArray());
         }
-		await interop.RemoveElementsById("app-stylesheet", "", "app-stylesheet-" + batch + "-00");
+		await interop.RemoveElementsById("app-stylesheet-page-", "", "app-stylesheet-page-" + batch + "-00");
+		await interop.RemoveElementsById("app-stylesheet-module-", "", "app-stylesheet-module-" + batch + "-00");
 
 		// set page title
 		if (!string.IsNullOrEmpty(PageState.Page.Title))

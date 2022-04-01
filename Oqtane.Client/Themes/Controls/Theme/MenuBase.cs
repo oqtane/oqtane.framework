@@ -30,7 +30,7 @@ namespace Oqtane.Themes.Controls
         private IEnumerable<Page> GetMenuPages()
         {
             var securityLevel = int.MaxValue;
-            foreach (Page p in PageState.Pages.Where(item => item.IsNavigation && !item.IsDeleted))
+            foreach (Page p in PageState.Pages.Where(item => item.IsNavigation))
             {
                 if (p.Level <= securityLevel && UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
                 {
