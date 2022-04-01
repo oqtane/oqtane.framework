@@ -1,3 +1,4 @@
+using System;
 using Oqtane.Shared;
 
 namespace Oqtane.Models
@@ -33,12 +34,12 @@ namespace Oqtane.Models
         public string Bundle { get; set; }
 
         /// <summary>
-        /// Determines if the Resource is global or local, meaning that the entire solution uses it or just some modules.
+        /// For Stylesheets this defines the relative position for cascading purposes
         /// </summary>
-        public ResourceDeclaration Declaration { get; set; }
+        public ResourceLevel Level { get; set; }
 
         /// <summary>
-        /// If the Resource should be included in the `head` of the HTML document or the `body`
+        /// For Scripts this defines if the resource should be included in the Head or Body
         /// </summary>
         public ResourceLocation Location { get; set; }
 
@@ -46,5 +47,9 @@ namespace Oqtane.Models
         /// For Scripts this allows type="module" registrations - not applicable to Stylesheets
         /// </summary>
         public bool ES6Module { get; set; }
+
+
+        [Obsolete("ResourceDeclaration is deprecated", false)]
+        public ResourceDeclaration Declaration { get; set; }
     }
 }

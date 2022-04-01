@@ -164,6 +164,7 @@
 			if (PageState == null || refresh == UI.Refresh.Site)
 			{
 				pages = await PageService.GetPagesAsync(site.SiteId);
+				pages = pages.Where(item => !item.IsDeleted).ToList();
 			}
 			else
 			{
@@ -206,6 +207,7 @@
 					if (PageState == null || refresh == UI.Refresh.Site)
 					{
 						modules = await ModuleService.GetModulesAsync(site.SiteId);
+						modules = modules.Where(item => !item.IsDeleted).ToList();
 					}
 					else
 					{
@@ -268,7 +270,7 @@
 		}
 		else
 		{
-		// site does not exist
+			// site does not exist
 		}
 	}
 
@@ -322,7 +324,7 @@
 		{
 			if (page.IsPersonalizable && user != null)
 			{
-			// load the personalized page
+				// load the personalized page
 				page = await PageService.GetPageAsync(page.PageId, user.UserId);
 			}
 
@@ -338,7 +340,7 @@
 			Type themetype = Type.GetType(page.ThemeType);
 			if (themetype == null)
 			{
-			// fallback
+				// fallback
 				page.ThemeType = Constants.DefaultTheme;
 				themetype = Type.GetType(Constants.DefaultTheme);
 			}
@@ -351,14 +353,14 @@
 					{
 						panes = themeobject.Panes;
 					}
-					page.Resources = ManagePageResources(page.Resources, themeobject.Resources);
+					page.Resources = ManagePageResources(page.Resources, themeobject.Resources, ResourceLevel.Page);
 				}
 			}
 			page.Panes = panes.Replace(";", ",").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 		}
 		catch
 		{
-		// error loading theme or layout
+			// error loading theme or layout
 		}
 
 		return page;
@@ -369,7 +371,7 @@
 		var paneindex = new Dictionary<string, int>();
 		foreach (Module module in modules)
 		{
-		// initialize module control properties
+			// initialize module control properties
 			module.SecurityAccessLevel = SecurityAccessLevel.Host;
 			module.ControlTitle = "";
 			module.Actions = "";
@@ -422,17 +424,17 @@
 				// get additional metadata from IModuleControl interface
 				if (moduletype != null && module.ModuleType != "")
 				{
-				// retrieve module component resources
+					// retrieve module component resources
 					var moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
-					page.Resources = ManagePageResources(page.Resources, moduleobject.Resources);
+					page.Resources = ManagePageResources(page.Resources, moduleobject.Resources, ResourceLevel.Module);
 					if (action.ToLower() == "settings" && module.ModuleDefinition != null)
 					{
-					// settings components are embedded within a framework settings module
+						// settings components are embedded within a framework settings module
 						moduletype = Type.GetType(module.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, action), false, true);
 						if (moduletype != null)
 						{
 							moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
-							page.Resources = ManagePageResources(page.Resources, moduleobject.Resources);
+							page.Resources = ManagePageResources(page.Resources, moduleobject.Resources, ResourceLevel.Module);
 						}
 					}
 
@@ -483,15 +485,16 @@
 		return (page, modules);
 	}
 
-	private List<Resource> ManagePageResources(List<Resource> pageresources, List<Resource> resources)
+	private List<Resource> ManagePageResources(List<Resource> pageresources, List<Resource> resources, ResourceLevel level)
 	{
 		if (resources != null)
 		{
 			foreach (var resource in resources)
 			{
-			// ensure resource does not exist already
+				// ensure resource does not exist already
 				if (pageresources.Find(item => item.Url == resource.Url) == null)
 				{
+					resource.Level = level;
 					pageresources.Add(resource);
 				}
 			}
