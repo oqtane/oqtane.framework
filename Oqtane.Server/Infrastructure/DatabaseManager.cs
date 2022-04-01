@@ -673,52 +673,42 @@ namespace Oqtane.Infrastructure
         {
             var result = new Installation { Success = false, Message = string.Empty };
 
-            // find upgrade type
-            Type upgradetype = null;
-            var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
-            foreach (Assembly assembly in assemblies)
+            using (var scope = _serviceScopeFactory.CreateScope())
             {
-                var types = assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(IUpgradeable)));
-                if (types.Any())
-                {
-                    upgradetype = types.First();
-                    break;
-                }
-            }
+                var aliases = scope.ServiceProvider.GetRequiredService<IAliasRepository>();
+                var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
+                var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
 
-            // execute upgrade
-            if (upgradetype != null)
-            {
-                var obj = Activator.CreateInstance(upgradetype) as IUpgradeable;
-                if (obj != null)
+                var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
+                foreach (Assembly assembly in assemblies)
                 {
-                    using (var scope = _serviceScopeFactory.CreateScope())
+                    foreach (var type in assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(IUpgradeable))))
                     {
-                        var aliases = scope.ServiceProvider.GetRequiredService<IAliasRepository>();
-                        var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
-                        var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
-
-                        foreach (var alias in aliases.GetAliases().ToList().Where(item => item.IsDefault))
+                        var obj = Activator.CreateInstance(type) as IUpgradeable;
+                        if (obj != null)
                         {
-                            var versions = obj.GetVersions(alias);
-                            if (!string.IsNullOrEmpty(versions))
+                            foreach (var alias in aliases.GetAliases().ToList().Where(item => item.IsDefault))
                             {
-                                tenantManager.SetTenant(alias.TenantId);
-                                var site = sites.GetSites().FirstOrDefault(item => item.SiteId == alias.SiteId);
-                                if (site != null)
+                                var versions = obj.GetVersions(alias);
+                                if (!string.IsNullOrEmpty(versions))
                                 {
-                                    foreach (var version in versions.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                                    tenantManager.SetTenant(alias.TenantId);
+                                    var site = sites.GetSites().FirstOrDefault(item => item.SiteId == alias.SiteId);
+                                    if (site != null)
                                     {
-                                        if (string.IsNullOrEmpty(site.Version) || Version.Parse(version) > Version.Parse(site.Version))
+                                        foreach (var version in versions.Split(',', StringSplitOptions.RemoveEmptyEntries))
                                         {
-                                            if (obj.Upgrade(alias, version))
+                                            if (string.IsNullOrEmpty(site.Version) || Version.Parse(version) > Version.Parse(site.Version))
                                             {
-                                                site.Version = version;
-                                                sites.UpdateSite(site);
-                                            }
-                                            else
-                                            {
-                                                result.Message = "An Error Occurred Executing IUpgradeable Interface For " + alias.Name + " For Version " + version;
+                                                if (obj.Upgrade(alias, version))
+                                                {
+                                                    site.Version = version;
+                                                    sites.UpdateSite(site);
+                                                }
+                                                else
+                                                {
+                                                    result.Message = "An Error Occurred Executing IUpgradeable Interface For " + alias.Name + " For Version " + version;
+                                                }
                                             }
                                         }
                                     }

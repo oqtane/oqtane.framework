@@ -12,7 +12,7 @@ namespace Oqtane.Infrastructure
             switch (alias.Name)
             {
                 case "localhost:44357":
-                    // return the list of official release versions for the specific site
+                    // return the comma delimited list of official release versions for the specific site
                     versions = "1.0.0";
                     break;
             }
@@ -25,6 +25,7 @@ namespace Oqtane.Infrastructure
             switch (alias.Name)
             {
                 case "localhost:44357":
+                    // the version cases should match the list of versions returned above
                     switch (version)
                     {
                         case "1.0.0":
