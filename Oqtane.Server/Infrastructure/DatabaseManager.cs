@@ -673,43 +673,61 @@ namespace Oqtane.Infrastructure
         {
             var result = new Installation { Success = false, Message = string.Empty };
 
-            using (var scope = _serviceScopeFactory.CreateScope())
+            // get site upgrades
+            Dictionary<string, Type> siteupgrades = new Dictionary<string, Type>();
+            var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
+            foreach (Assembly assembly in assemblies)
             {
-                var aliases = scope.ServiceProvider.GetRequiredService<IAliasRepository>();
-                var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
-                var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
-
-                var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
-                foreach (Assembly assembly in assemblies)
+                foreach (var type in assembly.GetTypes(typeof(ISiteUpgrade)))
                 {
-                    foreach (var type in assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(IUpgradeable))))
+                    if (Attribute.IsDefined(type, typeof(SiteUpgradeAttribute)))
                     {
-                        var obj = Activator.CreateInstance(type) as IUpgradeable;
-                        if (obj != null)
+                        var attribute = (SiteUpgradeAttribute)Attribute.GetCustomAttribute(type, typeof(SiteUpgradeAttribute));
+                        siteupgrades.Add(attribute.AliasName + " " + attribute.Version, type);
+                    }
+                }
+            }
+
+            // execute site upgrades
+            if (siteupgrades.Count > 0)
+            {
+                using (var scope = _serviceScopeFactory.CreateScope())
+                {
+                    var aliases = scope.ServiceProvider.GetRequiredService<IAliasRepository>();
+                    var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
+                    var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
+                    var logger = scope.ServiceProvider.GetRequiredService<ILogManager>();
+
+                    foreach (var alias in aliases.GetAliases().ToList().Where(item => item.IsDefault))
+                    {
+                        foreach (var upgrade in siteupgrades)
                         {
-                            foreach (var alias in aliases.GetAliases().ToList().Where(item => item.IsDefault))
+                            if (upgrade.Key.StartsWith(alias.Name, StringComparison.OrdinalIgnoreCase))
                             {
-                                var versions = obj.GetVersions(alias);
-                                if (!string.IsNullOrEmpty(versions))
+                                tenantManager.SetTenant(alias.TenantId);
+                                var site = sites.GetSites().FirstOrDefault(item => item.SiteId == alias.SiteId);
+                                if (site != null)
                                 {
-                                    tenantManager.SetTenant(alias.TenantId);
-                                    var site = sites.GetSites().FirstOrDefault(item => item.SiteId == alias.SiteId);
-                                    if (site != null)
+                                    var version = upgrade.Key.Split(' ').Last();
+                                    if (string.IsNullOrEmpty(site.Version) || Version.Parse(version) > Version.Parse(site.Version))
                                     {
-                                        foreach (var version in versions.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                                        try
                                         {
-                                            if (string.IsNullOrEmpty(site.Version) || Version.Parse(version) > Version.Parse(site.Version))
+                                            var obj = Activator.CreateInstance(upgrade.Value) as ISiteUpgrade;
+                                            if (obj.Upgrade(site, alias))
                                             {
-                                                if (obj.Upgrade(alias, version))
-                                                {
-                                                    site.Version = version;
-                                                    sites.UpdateSite(site);
-                                                }
-                                                else
-                                                {
-                                                    result.Message = "An Error Occurred Executing IUpgradeable Interface For " + alias.Name + " For Version " + version;
-                                                }
+                                                site.Version = version;
+                                                sites.UpdateSite(site);
+                                                logger.Log(alias.SiteId, Shared.LogLevel.Information, "Site Upgrade", LogFunction.Other, "Site Upgraded Successfully To Version {version} For {Alias}", version, alias.Name);
                                             }
+                                            else
+                                            {
+                                                logger.Log(alias.SiteId, Shared.LogLevel.Error, "Site Upgrade", LogFunction.Other, "Site Could Not Be Upgraded Using IUpgradeable Interface {Type} For {Alias} And Version {Version}", upgrade.Value, alias.Name, version);
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            logger.Log(alias.SiteId, Shared.LogLevel.Error, "Site Upgrade", LogFunction.Other, "An Error Occurred Executing IUpgradeable Interface {Type} For {Alias} And Version {Version} {Error}", upgrade.Value, alias.Name, version, ex.Message);
                                         }
                                     }
                                 }
@@ -719,15 +737,7 @@ namespace Oqtane.Infrastructure
                 }
             }
 
-            if (string.IsNullOrEmpty(result.Message))
-            {
-                result.Success = true;
-            }
-            else
-            {
-                _filelogger.LogError(Utilities.LogMessage(this, result.Message));
-            }
-
+            result.Success = true;
             return result;
         }
 
