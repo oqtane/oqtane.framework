@@ -678,11 +678,11 @@ namespace Oqtane.Infrastructure
             var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
             foreach (Assembly assembly in assemblies)
             {
-                foreach (var type in assembly.GetTypes(typeof(ISiteUpgrade)))
+                foreach (var type in assembly.GetTypes(typeof(ISiteMigration)))
                 {
-                    if (Attribute.IsDefined(type, typeof(SiteUpgradeAttribute)))
+                    if (Attribute.IsDefined(type, typeof(SiteMigrationAttribute)))
                     {
-                        var attribute = (SiteUpgradeAttribute)Attribute.GetCustomAttribute(type, typeof(SiteUpgradeAttribute));
+                        var attribute = (SiteMigrationAttribute)Attribute.GetCustomAttribute(type, typeof(SiteMigrationAttribute));
                         siteupgrades.Add(attribute.AliasName + " " + attribute.Version, type);
                     }
                 }
@@ -715,21 +715,18 @@ namespace Oqtane.Infrastructure
                                     {
                                         try
                                         {
-                                            var obj = Activator.CreateInstance(upgrade.Value) as ISiteUpgrade;
-                                            if (obj.Upgrade(site, alias))
+                                            var obj = Activator.CreateInstance(upgrade.Value) as ISiteMigration;
+                                            if (obj != null)
                                             {
+                                                obj.Up(site, alias);
                                                 site.Version = version;
                                                 sites.UpdateSite(site);
-                                                logger.Log(alias.SiteId, Shared.LogLevel.Information, "Site Upgrade", LogFunction.Other, "Site Upgraded Successfully To Version {version} For {Alias}", version, alias.Name);
-                                            }
-                                            else
-                                            {
-                                                logger.Log(alias.SiteId, Shared.LogLevel.Error, "Site Upgrade", LogFunction.Other, "Site Could Not Be Upgraded Using IUpgradeable Interface {Type} For {Alias} And Version {Version}", upgrade.Value, alias.Name, version);
+                                                logger.Log(alias.SiteId, Shared.LogLevel.Information, "Site Migration", LogFunction.Other, "Site Migrated Successfully To Version {version} For {Alias}", version, alias.Name);
                                             }
                                         }
                                         catch (Exception ex)
                                         {
-                                            logger.Log(alias.SiteId, Shared.LogLevel.Error, "Site Upgrade", LogFunction.Other, "An Error Occurred Executing IUpgradeable Interface {Type} For {Alias} And Version {Version} {Error}", upgrade.Value, alias.Name, version, ex.Message);
+                                            logger.Log(alias.SiteId, Shared.LogLevel.Error, "Site Migration", LogFunction.Other, "An Error Occurred Executing Site Migration {Type} For {Alias} And Version {Version} {Error}", upgrade.Value, alias.Name, version, ex.Message);
                                         }
                                     }
                                 }
