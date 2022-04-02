@@ -68,8 +68,8 @@ V.3.1.0 ( April 2022 )
 - [x] Support for Single Sign On (SSO) via OpenID Connect
 - [x] External client support via Jwt tokens
 - [x] Downstream API support via Jwt tokens
-- [x] Support cascading aspect of CSS references
-- [x] Site structure/content migration support  
+- [x] CSS resource hierarchy support
+- [x] Site structure/content migration  
 
 V.3.0.3 ( Feb 15, 2022 )
 - [x] Url fragment and anchor navigation support
