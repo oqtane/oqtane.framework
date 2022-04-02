@@ -702,7 +702,9 @@ namespace Oqtane.Infrastructure
                     {
                         foreach (var upgrade in siteupgrades)
                         {
-                            if (upgrade.Key.StartsWith(alias.Name, StringComparison.OrdinalIgnoreCase))
+                            var aliasname = upgrade.Key.Split(' ').First();
+                            // in the future this equality condition could use RegEx to allow for more flexible matching 
+                            if (string.Equals(alias.Name, aliasname, StringComparison.OrdinalIgnoreCase))
                             {
                                 tenantManager.SetTenant(alias.TenantId);
                                 var site = sites.GetSites().FirstOrDefault(item => item.SiteId == alias.SiteId);
