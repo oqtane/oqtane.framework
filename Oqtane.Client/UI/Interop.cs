@@ -72,13 +72,13 @@ namespace Oqtane.UI
             }
         }
 
-        public Task IncludeLink(string id, string rel, string href, string type, string integrity, string crossorigin)
+        public Task IncludeLink(string id, string rel, string href, string type, string integrity, string crossorigin, string includebefore)
         {
             try
             {
                 _jsRuntime.InvokeVoidAsync(
                     "Oqtane.Interop.includeLink",
-                    id, rel, href, type, integrity, crossorigin);
+                    id, rel, href, type, integrity, crossorigin, includebefore);
                 return Task.CompletedTask;
             }
             catch
