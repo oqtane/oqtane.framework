@@ -3,12 +3,12 @@ using System;
 namespace Oqtane.Infrastructure
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class SiteUpgradeAttribute : Attribute
+    public class SiteMigrationAttribute : Attribute
     {
         private string aliasname;
         private string version;
 
-        public SiteUpgradeAttribute(string AliasName, string Version)
+        public SiteMigrationAttribute(string AliasName, string Version)
         {
             aliasname = AliasName;
             version = Version;
