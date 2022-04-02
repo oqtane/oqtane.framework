@@ -60,13 +60,16 @@ This project is open source, and therefore is a work in progress...
 Backlog (Not Yet Assigned)
 - [ ] Allow language specification in Url (#1731)
 
-V.3.1.0 ( Q1 2022 )
+V.3.1.0 ( April 2022 )
 - [x] User account lockout support
 - [x] Two factor authentication support
 - [x] Per-site configuration of password complexity, lockout criteria
 - [x] External login support via OAuth2 / OpenID Connect
 - [x] Support for Single Sign On (SSO) via OpenID Connect
-- [X] Downstream API support
+- [x] External client support via Jwt tokens
+- [x] Downstream API support via Jwt tokens
+- [x] Support cascading aspect of CSS references
+- [x] Site structure/content migration support  
 
 V.3.0.3 ( Feb 15, 2022 )
 - [x] Url fragment and anchor navigation support
