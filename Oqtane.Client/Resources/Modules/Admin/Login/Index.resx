@@ -192,4 +192,13 @@
   <data name="Use" xml:space="preserve">
     <value>Use</value>
   </data>
+  <data name="Error.LoadLogin" xml:space="preserve">
+    <value>Error Loading Login</value>
+  </data>
+  <data name="Error.Login" xml:space="preserve">
+    <value>Error Performing Login</value>
+  </data>
+  <data name="Error.ResetPassword" xml:space="preserve">
+    <value>Error Resetting Password</value>
+  </data>
 </root>

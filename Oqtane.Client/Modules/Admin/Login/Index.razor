@@ -93,45 +93,53 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		_togglepassword = Localizer["ShowPassword"];
-
-		if (PageState.Site.Settings.ContainsKey("LoginOptions:AllowSiteLogin") && !string.IsNullOrEmpty(PageState.Site.Settings["LoginOptions:AllowSiteLogin"]))
+		try
 		{
-			_allowsitelogin = bool.Parse(PageState.Site.Settings["LoginOptions:AllowSiteLogin"]);
-		}
+			_togglepassword = Localizer["ShowPassword"];
 
-		if (PageState.Site.Settings.ContainsKey("ExternalLogin:ProviderType") && !string.IsNullOrEmpty(PageState.Site.Settings["ExternalLogin:ProviderType"]))
-		{
-			_allowexternallogin = true;
-		}
-
-		if (PageState.QueryString.ContainsKey("returnurl"))
-		{
-			_returnUrl = PageState.QueryString["returnurl"];
-		}
-
-		if (PageState.QueryString.ContainsKey("name"))
-		{
-			_username = PageState.QueryString["name"];
-		}
-
-		if (PageState.QueryString.ContainsKey("token"))
-		{
-			var user = new User();
-			user.SiteId = PageState.Site.SiteId;
-			user.Username = _username;
-			user = await UserService.VerifyEmailAsync(user, PageState.QueryString["token"]);
-
-			if (user != null)
+			if (PageState.Site.Settings.ContainsKey("LoginOptions:AllowSiteLogin") && !string.IsNullOrEmpty(PageState.Site.Settings["LoginOptions:AllowSiteLogin"]))
 			{
-				await logger.LogInformation(LogFunction.Security, "Email Verified For For Username {Username}", _username);
-				AddModuleMessage(Localizer["Success.Account.Verified"], MessageType.Info);						
+				_allowsitelogin = bool.Parse(PageState.Site.Settings["LoginOptions:AllowSiteLogin"]);
 			}
-			else
+
+			if (PageState.Site.Settings.ContainsKey("ExternalLogin:ProviderType") && !string.IsNullOrEmpty(PageState.Site.Settings["ExternalLogin:ProviderType"]))
 			{
-				await logger.LogError(LogFunction.Security, "Email Verification Failed For Username {Username}", _username);
-				AddModuleMessage(Localizer["Message.Account.NotVerfied"], MessageType.Warning);						
+				_allowexternallogin = true;
 			}
+
+			if (PageState.QueryString.ContainsKey("returnurl"))
+			{
+				_returnUrl = PageState.QueryString["returnurl"];
+			}
+
+			if (PageState.QueryString.ContainsKey("name"))
+			{
+				_username = PageState.QueryString["name"];
+			}
+
+			if (PageState.QueryString.ContainsKey("token"))
+			{
+				var user = new User();
+				user.SiteId = PageState.Site.SiteId;
+				user.Username = _username;
+				user = await UserService.VerifyEmailAsync(user, PageState.QueryString["token"]);
+
+				if (user != null)
+				{
+					await logger.LogInformation(LogFunction.Security, "Email Verified For For Username {Username}", _username);
+					AddModuleMessage(Localizer["Success.Account.Verified"], MessageType.Info);						
+				}
+				else
+				{
+					await logger.LogError(LogFunction.Security, "Email Verification Failed For Username {Username}", _username);
+					AddModuleMessage(Localizer["Message.Account.NotVerfied"], MessageType.Warning);						
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Loading Login {Error}", ex.Message);
+			AddModuleMessage(Localizer["Error.LoadLogin"], MessageType.Error);
 		}
 	}
 
@@ -145,65 +153,73 @@
 
 	private async Task Login()
 	{
-		validated = true;
-		var interop = new Interop(JSRuntime);
-		if (await interop.FormValid(login))
+		try
 		{
-			var user = new User { SiteId = PageState.Site.SiteId, Username = _username, Password = _password};
-
-			if (!twofactor)
+			validated = true;
+			var interop = new Interop(JSRuntime);
+			if (await interop.FormValid(login))
 			{
-				user = await UserService.LoginUserAsync(user, false, false);
-			}
-			else
-			{
-				user = await UserService.VerifyTwoFactorAsync(user, _code);
-			}
+				var user = new User { SiteId = PageState.Site.SiteId, Username = _username, Password = _password};
 
-			if (user.IsAuthenticated)
-			{
-				await logger.LogInformation(LogFunction.Security, "Login Successful For Username {Username}", _username);
-
-				if (PageState.Runtime == Oqtane.Shared.Runtime.Server)
+				if (!twofactor)
 				{
-					// server-side Blazor needs to post to the Login page so that the cookies are set correctly
-					var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, username = _username, password = _password, remember = _remember, returnurl = _returnUrl };
-					string url = Utilities.TenantUrl(PageState.Alias, "/pages/login/");
-					await interop.SubmitForm(url, fields);
+					user = await UserService.LoginUserAsync(user, false, false);
 				}
 				else
 				{
-					var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
-					authstateprovider.NotifyAuthenticationChanged();
-					NavigationManager.NavigateTo(NavigateUrl(_returnUrl, true));
+					user = await UserService.VerifyTwoFactorAsync(user, _code);
 				}
-			}
-			else
-			{
-				if (user.TwoFactorRequired)
+
+				if (user.IsAuthenticated)
 				{
-					twofactor = true;
-					validated = false;
-					AddModuleMessage(Localizer["Message.TwoFactor"], MessageType.Info);
-				}
-				else
-				{
-					if (!twofactor)
+					await logger.LogInformation(LogFunction.Security, "Login Successful For Username {Username}", _username);
+
+					if (PageState.Runtime == Oqtane.Shared.Runtime.Server)
 					{
-						await logger.LogInformation(LogFunction.Security, "Login Failed For Username {Username}", _username);
-						AddModuleMessage(Localizer["Error.Login.Fail"], MessageType.Error);						
+						// server-side Blazor needs to post to the Login page so that the cookies are set correctly
+						var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, username = _username, password = _password, remember = _remember, returnurl = _returnUrl };
+						string url = Utilities.TenantUrl(PageState.Alias, "/pages/login/");
+						await interop.SubmitForm(url, fields);
 					}
 					else
 					{
-						await logger.LogInformation(LogFunction.Security, "Two Factor Verification Failed For Username {Username}", _username);
-						AddModuleMessage(Localizer["Error.TwoFactor.Fail"], MessageType.Error);						
+						var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
+						authstateprovider.NotifyAuthenticationChanged();
+						NavigationManager.NavigateTo(NavigateUrl(_returnUrl, true));
+					}
+				}
+				else
+				{
+					if (user.TwoFactorRequired)
+					{
+						twofactor = true;
+						validated = false;
+						AddModuleMessage(Localizer["Message.TwoFactor"], MessageType.Info);
+					}
+					else
+					{
+						if (!twofactor)
+						{
+							await logger.LogInformation(LogFunction.Security, "Login Failed For Username {Username}", _username);
+							AddModuleMessage(Localizer["Error.Login.Fail"], MessageType.Error);						
+						}
+						else
+						{
+							await logger.LogInformation(LogFunction.Security, "Two Factor Verification Failed For Username {Username}", _username);
+							AddModuleMessage(Localizer["Error.TwoFactor.Fail"], MessageType.Error);						
+						}
 					}
 				}
 			}
+			else
+			{
+				AddModuleMessage(Localizer["Message.Required.UserInfo"], MessageType.Warning);
+			}
 		}
-		else
+		catch (Exception ex)
 		{
-			AddModuleMessage(Localizer["Message.Required.UserInfo"], MessageType.Warning);
+			await logger.LogError(ex, "Error Performing Login {Error}", ex.Message);
+			AddModuleMessage(Localizer["Error.Login"], MessageType.Error);
 		}
 	}
 
@@ -214,26 +230,34 @@
 
 	private async Task Forgot()
 	{
-		if (_username != string.Empty)
+		try
 		{
-			var user = await UserService.GetUserAsync(_username, PageState.Site.SiteId);
-			if (user != null)
+			if (_username != string.Empty)
 			{
-				await UserService.ForgotPasswordAsync(user);
-				await logger.LogInformation(LogFunction.Security, "Password Reset Notification Sent For Username {Username}", _username);
-				AddModuleMessage(Localizer["Message.ForgotUser"], MessageType.Info);
+				var user = await UserService.GetUserAsync(_username, PageState.Site.SiteId);
+				if (user != null)
+				{
+					await UserService.ForgotPasswordAsync(user);
+					await logger.LogInformation(LogFunction.Security, "Password Reset Notification Sent For Username {Username}", _username);
+					AddModuleMessage(Localizer["Message.ForgotUser"], MessageType.Info);
+				}
+				else
+				{
+					AddModuleMessage(Localizer["Message.UserDoesNotExist"], MessageType.Warning);
+				}
 			}
 			else
 			{
-				AddModuleMessage(Localizer["Message.UserDoesNotExist"], MessageType.Warning);
+				AddModuleMessage(Localizer["Message.ForgotPassword"], MessageType.Info);
 			}
-		}
-		else
-		{
-			AddModuleMessage(Localizer["Message.ForgotPassword"], MessageType.Info);
-		}
 
-		StateHasChanged();
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Resetting Password {Error}", ex.Message);
+			AddModuleMessage(Localizer["Error.ResetPassword"], MessageType.Error);
+		}
 	}
 
 	private void Reset()

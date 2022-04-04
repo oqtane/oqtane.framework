@@ -184,7 +184,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.SignIn.RequireConfirmedPhoneNumber = false;
 
                 // User settings
-                options.User.RequireUniqueEmail = true;
+                options.User.RequireUniqueEmail = false; // changing to true will cause issues for legacy data
                 options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
             });
 
