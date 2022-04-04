@@ -153,7 +153,7 @@ namespace Oqtane.Pages
                         }
 
                         var page = _pages.GetPage(route.PagePath, site.SiteId);
-                        if (page != null & !page.IsDeleted)
+                        if (page != null && !page.IsDeleted)
                         {
                             // set page title
                             if (!string.IsNullOrEmpty(page.Title))
@@ -181,6 +181,14 @@ namespace Oqtane.Pages
                             {
                                 url = (urlMapping.MappedUrl.StartsWith("http")) ? urlMapping.MappedUrl : route.SiteUrl + "/" + urlMapping.MappedUrl;
                                 return RedirectPermanent(url);
+                            }
+                            else
+                            {
+                                if (route.PagePath != "404")
+                                {
+                                    _logger.Log(LogLevel.Information, "Host", LogFunction.Other, "Page Path /{Path} Does Not Exist", route.PagePath);
+                                    return RedirectPermanent(route.SiteUrl + "/404");
+                                }
                             }
                         }
 

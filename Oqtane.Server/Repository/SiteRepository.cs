@@ -390,6 +390,32 @@ namespace Oqtane.Repository
                     }
                 }
             });
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Not Found",
+                Parent = "",
+                Path = "404",
+                Icon = Icons.X,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                    new Permission(PermissionNames.View, RoleNames.Admin, true),
+                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Not Found", Pane = PaneNames.Admin,
+                        ModulePermissions = new List<Permission> {
+                            new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                            new Permission(PermissionNames.View, RoleNames.Admin, true),
+                            new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                        }.EncodePermissions(),
+                        Content = "<p>The page you requested does not exist.</p>"
+                    }
+                }
+            });
 
             // admin pages
             pageTemplates.Add(new PageTemplate

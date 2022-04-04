@@ -258,10 +258,15 @@
 					}
 					else
 					{
-						await LogService.Log(null, null, user.UserId, GetType().AssemblyQualifiedName, Utilities.GetTypeNameLastSegment(GetType().AssemblyQualifiedName, 1), LogFunction.Security, LogLevel.Error, null, "Page Does Not Exist Or User Is Not Authorized To View Page {Path}", route.PagePath);
-						if (route.PagePath != "")
+						if (route.PagePath != "404")
 						{
-							// redirect to home page
+							await LogService.Log(null, null, user.UserId, "SiteRouter", "SiteRouter", LogFunction.Other, LogLevel.Information, null, "Page Path /{Path} Does Not Exist Or User Is Not Authorized To View", route.PagePath);
+							// redirect to 404 page
+							NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "404", ""));
+						}
+						else
+						{
+							// redirect to home page as a fallback
 							NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "", ""));
 						}
 					}
