@@ -71,6 +71,9 @@ V.3.1.0 ( April 2022 )
 - [x] CSS resource hierarchy support
 - [x] Site structure/content migration
 - [x] Event log notifications  
+- [x] 404 page handling
+- [x] Property change component notifications
+
 
 V.3.0.3 ( Feb 15, 2022 )
 - [x] Url fragment and anchor navigation support
