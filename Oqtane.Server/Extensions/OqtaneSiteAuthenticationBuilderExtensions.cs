@@ -199,55 +199,72 @@ namespace Oqtane.Extensions
                 }
                 User user = null;
 
-                var identityuser = await _identityUserManager.FindByEmailAsync(email);
+                bool duplicates = false;
+                IdentityUser identityuser = null;
+                try
+                {
+                    identityuser = await _identityUserManager.FindByEmailAsync(email);
+                }
+                catch
+                {
+                    // FindByEmailAsync will throw an error if the email matches multiple user accounts
+                    duplicates = true;
+                }
                 if (identityuser == null)
                 {
-                    if (bool.Parse(httpContext.GetSiteSettings().GetValue("ExternalLogin:CreateUsers", "true")))
+                    if (duplicates)
                     {
-                        identityuser = new IdentityUser();
-                        identityuser.UserName = email;
-                        identityuser.Email = email;
-                        identityuser.EmailConfirmed = true;
-                        var result = await _identityUserManager.CreateAsync(identityuser, DateTime.UtcNow.ToString("yyyy-MMM-dd-HH-mm-ss"));
-                        if (result.Succeeded)
+                        _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "Multiple Users Exist With Email Address {Email}. Login Denied.", email);
+                    }
+                    else
+                    {
+                        if (bool.Parse(httpContext.GetSiteSettings().GetValue("ExternalLogin:CreateUsers", "true")))
                         {
-                            user = new User
+                            identityuser = new IdentityUser();
+                            identityuser.UserName = email;
+                            identityuser.Email = email;
+                            identityuser.EmailConfirmed = true;
+                            var result = await _identityUserManager.CreateAsync(identityuser, DateTime.UtcNow.ToString("yyyy-MMM-dd-HH-mm-ss"));
+                            if (result.Succeeded)
                             {
-                                SiteId = httpContext.GetAlias().SiteId,
-                                Username = email,
-                                DisplayName = email,
-                                Email = email,
-                                LastLoginOn = null,
-                                LastIPAddress = ""
-                            };
-                            user = _users.AddUser(user);
+                                user = new User
+                                {
+                                    SiteId = httpContext.GetAlias().SiteId,
+                                    Username = email,
+                                    DisplayName = email,
+                                    Email = email,
+                                    LastLoginOn = null,
+                                    LastIPAddress = ""
+                                };
+                                user = _users.AddUser(user);
 
-                            if (user != null)
-                            {
-                                var _notifications = httpContext.RequestServices.GetRequiredService<INotificationRepository>();
-                                string url = httpContext.Request.Scheme + "://" + httpContext.GetAlias().Name;
-                                string body = "You Recently Used An External Account To Sign In To Our Site.\n\n" + url + "\n\nThank You!";
-                                var notification = new Notification(user.SiteId, user, "User Account Notification", body);
-                                _notifications.AddNotification(notification);
+                                if (user != null)
+                                {
+                                    var _notifications = httpContext.RequestServices.GetRequiredService<INotificationRepository>();
+                                    string url = httpContext.Request.Scheme + "://" + httpContext.GetAlias().Name;
+                                    string body = "You Recently Used An External Account To Sign In To Our Site.\n\n" + url + "\n\nThank You!";
+                                    var notification = new Notification(user.SiteId, user, "User Account Notification", body);
+                                    _notifications.AddNotification(notification);
 
-                                // add user login
-                                await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(providerType, providerKey, ""));
+                                    // add user login
+                                    await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(providerType, providerKey, ""));
 
-                                _logger.Log(user.SiteId, LogLevel.Information, "ExternalLogin", Enums.LogFunction.Create, "User Added {User}", user);
+                                    _logger.Log(user.SiteId, LogLevel.Information, "ExternalLogin", Enums.LogFunction.Create, "User Added {User}", user);
+                                }
+                                else
+                                {
+                                    _logger.Log(user.SiteId, LogLevel.Error, "ExternalLogin", Enums.LogFunction.Create, "Unable To Add User {Email}", email);
+                                }
                             }
                             else
                             {
-                                _logger.Log(user.SiteId, LogLevel.Error, "ExternalLogin", Enums.LogFunction.Create, "Unable To Add User {Email}", email);
+                                _logger.Log(user.SiteId, LogLevel.Error, "ExternalLogin", Enums.LogFunction.Create, "Unable To Add Identity User {Email} {Error}", email, result.Errors.ToString());
                             }
                         }
                         else
                         {
-                            _logger.Log(user.SiteId, LogLevel.Error, "ExternalLogin", Enums.LogFunction.Create, "Unable To Add Identity User {Email} {Error}", email, result.Errors.ToString());
+                            _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "Creation Of New Users Is Disabled For This Site. User With Email Address {Email} Will First Need To Be Registered On The Site.", email);
                         }
-                    }
-                    else
-                    {
-                        _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "Creation Of New Users Is Disabled For This Site. User With Email Address {Email} Will First Need To Be Registered On The Site.", email);
                     }
                 }
                 else

@@ -34,7 +34,7 @@ namespace Oqtane.Themes.Controls
         protected async Task LogoutUser()
         {
             await UserService.LogoutUserAsync(PageState.User);
-            await LoggingService.Log(PageState.Alias, PageState.Page.PageId, PageState.ModuleId, PageState.User.UserId, GetType().AssemblyQualifiedName, "Logout", LogFunction.Security, LogLevel.Information, null, "User Logout For Username {Username}", PageState.User.Username);
+            await LoggingService.Log(PageState.Alias, PageState.Page.PageId, null, PageState.User.UserId, GetType().AssemblyQualifiedName, "Logout", LogFunction.Security, LogLevel.Information, null, "User Logout For Username {Username}", PageState.User.Username);
             PageState.User = null;
 
             var url = PageState.Alias.Path + "/" + PageState.Page.Path;
