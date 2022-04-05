@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -68,6 +69,25 @@ namespace Oqtane.Repository
             _db.Notification.Remove(notification);
             _db.SaveChanges();
         }
+
+        public int DeleteNotifications(int siteId, int age)
+        {
+            // delete notifications in batches of 100 records
+            int count = 0;
+            var purgedate = DateTime.UtcNow.AddDays(-age);
+            var notifications = _db.Notification.Where(item => item.SiteId == siteId && item.FromUserId == null && item.IsDelivered && item.DeliveredOn < purgedate)
+                .OrderBy(item => item.DeliveredOn).Take(100).ToList();
+            while (notifications.Count > 0)
+            {
+                count += notifications.Count;
+                _db.Notification.RemoveRange(notifications);
+                _db.SaveChanges();
+                notifications = _db.Notification.Where(item => item.SiteId == siteId && item.FromUserId == null && item.IsDelivered && item.DeliveredOn < purgedate)
+                .OrderBy(item => item.DeliveredOn).Take(100).ToList();
+            }
+            return count;
+        }
+
     }
 
 }

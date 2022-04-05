@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
@@ -68,5 +69,22 @@ namespace Oqtane.Models
             }
         }
 
+        /// <summary>
+        /// Unique key used for identifying a site within a runtime process (ie. cache, etc...)
+        /// </summary>
+        [NotMapped]
+        public string SiteKey
+        {
+            get
+            {
+                return TenantId.ToString() + ":" + SiteId.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Site-specific settings (only available on the server via HttpContext for security reasons)
+        /// </summary>
+        //[NotMapped]
+        //public Dictionary<string, string> SiteSettings { get; set; }
     }
 }

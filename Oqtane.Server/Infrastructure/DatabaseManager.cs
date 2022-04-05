@@ -190,6 +190,10 @@ namespace Oqtane.Infrastructure
                                 if (result.Success)
                                 {
                                     result = CreateSite(install);
+                                    if (result.Success)
+                                    {
+                                        result = MigrateSites();
+                                    }
                                 }
                             }
                         }
@@ -620,35 +624,12 @@ namespace Oqtane.Infrastructure
                                             LastIPAddress = "",
                                             LastLoginOn = null
                                         };
-
                                         user = users.AddUser(user);
+
+                                        // add host role
                                         var hostRoleId = roles.GetRoles(user.SiteId, true).FirstOrDefault(item => item.Name == RoleNames.Host)?.RoleId ?? 0;
                                         var userRole = new UserRole { UserId = user.UserId, RoleId = hostRoleId, EffectiveDate = null, ExpiryDate = null };
                                         userRoles.AddUserRole(userRole);
-
-                                        // add user folder
-                                        var folder = folders.GetFolder(user.SiteId, Utilities.PathCombine("Users", Path.DirectorySeparatorChar.ToString()));
-                                        if (folder != null)
-                                        {
-                                            folders.AddFolder(new Folder
-                                            {
-                                                SiteId = folder.SiteId,
-                                                ParentId = folder.FolderId,
-                                                Name = "My Folder",
-                                                Type = FolderTypes.Private,
-                                                Path = Utilities.PathCombine(folder.Path, user.UserId.ToString(), Path.DirectorySeparatorChar.ToString()),
-                                                Order = 1,
-                                                ImageSizes = "",
-                                                Capacity = Constants.UserFolderCapacity,
-                                                IsSystem = true,
-                                                Permissions = new List<Permission>
-                                                {
-                                                    new Permission(PermissionNames.Browse, user.UserId, true),
-                                                    new Permission(PermissionNames.View, RoleNames.Everyone, true),
-                                                    new Permission(PermissionNames.Edit, user.UserId, true),
-                                                }.EncodePermissions(),
-                                            });
-                                        }
                                     }
                                 }
                             }
@@ -685,6 +666,77 @@ namespace Oqtane.Infrastructure
                 _filelogger.LogError(Utilities.LogMessage(this, result.Message));
             }
 
+            return result;
+        }
+
+        private Installation MigrateSites()
+        {
+            var result = new Installation { Success = false, Message = string.Empty };
+
+            // get site upgrades
+            Dictionary<string, Type> siteupgrades = new Dictionary<string, Type>();
+            var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
+            foreach (Assembly assembly in assemblies)
+            {
+                foreach (var type in assembly.GetTypes(typeof(ISiteMigration)))
+                {
+                    if (Attribute.IsDefined(type, typeof(SiteMigrationAttribute)))
+                    {
+                        var attribute = (SiteMigrationAttribute)Attribute.GetCustomAttribute(type, typeof(SiteMigrationAttribute));
+                        siteupgrades.Add(attribute.AliasName + " " + attribute.Version, type);
+                    }
+                }
+            }
+
+            // execute site upgrades
+            if (siteupgrades.Count > 0)
+            {
+                using (var scope = _serviceScopeFactory.CreateScope())
+                {
+                    var aliases = scope.ServiceProvider.GetRequiredService<IAliasRepository>();
+                    var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
+                    var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
+                    var logger = scope.ServiceProvider.GetRequiredService<ILogManager>();
+
+                    foreach (var alias in aliases.GetAliases().ToList().Where(item => item.IsDefault))
+                    {
+                        foreach (var upgrade in siteupgrades)
+                        {
+                            var aliasname = upgrade.Key.Split(' ').First();
+                            // in the future this equality condition could use RegEx to allow for more flexible matching 
+                            if (string.Equals(alias.Name, aliasname, StringComparison.OrdinalIgnoreCase))
+                            {
+                                tenantManager.SetTenant(alias.TenantId);
+                                var site = sites.GetSites().FirstOrDefault(item => item.SiteId == alias.SiteId);
+                                if (site != null)
+                                {
+                                    var version = upgrade.Key.Split(' ').Last();
+                                    if (string.IsNullOrEmpty(site.Version) || Version.Parse(version) > Version.Parse(site.Version))
+                                    {
+                                        try
+                                        {
+                                            var obj = Activator.CreateInstance(upgrade.Value) as ISiteMigration;
+                                            if (obj != null)
+                                            {
+                                                obj.Up(site, alias);
+                                                site.Version = version;
+                                                sites.UpdateSite(site);
+                                                logger.Log(alias.SiteId, Shared.LogLevel.Information, "Site Migration", LogFunction.Other, "Site Migrated Successfully To Version {version} For {Alias}", version, alias.Name);
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            logger.Log(alias.SiteId, Shared.LogLevel.Error, "Site Migration", LogFunction.Other, "An Error Occurred Executing Site Migration {Type} For {Alias} And Version {Version} {Error}", upgrade.Value, alias.Name, version, ex.Message);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            result.Success = true;
             return result;
         }
 

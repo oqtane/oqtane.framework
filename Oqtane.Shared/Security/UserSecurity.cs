@@ -45,7 +45,7 @@ namespace Oqtane.Security
             {
                 if (user == null)
                 {
-                    authorized =  IsAuthorized(-1, "", permissions); // user is not authenticated but may have access to resource
+                    authorized = IsAuthorized(-1, "", permissions); // user is not authenticated but may have access to resource
                 }
                 else
                 {
@@ -133,8 +133,8 @@ namespace Oqtane.Security
             if (alias != null && user != null && !user.IsDeleted)
             {
                 identity.AddClaim(new Claim(ClaimTypes.Name, user.Username));
-                identity.AddClaim(new Claim(ClaimTypes.PrimarySid, user.UserId.ToString()));
-                identity.AddClaim(new Claim(ClaimTypes.GroupSid, alias.AliasId.ToString()));
+                identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()));
+                identity.AddClaim(new Claim("sitekey", alias.SiteKey));
                 if (user.Roles.Contains(RoleNames.Host))
                 {
                     // host users are site admins by default
@@ -151,6 +151,30 @@ namespace Oqtane.Security
                 }
             }
             return identity;
+        }
+
+        public static void ResetClaimsIdentity(ClaimsIdentity identity)
+        {
+            var claim = identity.Claims.FirstOrDefault(item => item.Type == ClaimTypes.Name);
+            if (claim != null)
+            {
+                identity.RemoveClaim(claim);
+            }
+            claim = identity.Claims.FirstOrDefault(item => item.Type == ClaimTypes.NameIdentifier);
+            if (claim != null)
+            {
+                identity.RemoveClaim(claim);
+            }
+            claim = identity.Claims.FirstOrDefault(item => item.Type == "sitekey");
+            if (claim != null)
+            {
+                identity.RemoveClaim(claim);
+            }
+            var roles = identity.Claims.Where(item => item.Type == ClaimTypes.Role);
+            foreach (var role in roles)
+            {
+                identity.RemoveClaim(role);
+            }
         }
     }
 }

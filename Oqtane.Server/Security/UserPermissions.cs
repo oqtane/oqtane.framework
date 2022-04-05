@@ -6,6 +6,14 @@ using Oqtane.Repository;
 
 namespace Oqtane.Security
 {
+    public interface IUserPermissions
+    {
+        bool IsAuthorized(ClaimsPrincipal user, string entityName, int entityId, string permissionName);
+        bool IsAuthorized(ClaimsPrincipal user, string permissionName, string permissions);
+        User GetUser(ClaimsPrincipal user);
+        User GetUser();
+    }
+
     public class UserPermissions : IUserPermissions
     {
         private readonly IPermissionRepository _permissions;
@@ -41,9 +49,9 @@ namespace Oqtane.Security
             if (user.IsAuthenticated)
             {
                 user.Username = principal.Identity.Name;
-                if (principal.Claims.Any(item => item.Type == ClaimTypes.PrimarySid))
+                if (principal.Claims.Any(item => item.Type == ClaimTypes.NameIdentifier))
                 {
-                    user.UserId = int.Parse(principal.Claims.First(item => item.Type == ClaimTypes.PrimarySid).Value);
+                    user.UserId = int.Parse(principal.Claims.First(item => item.Type == ClaimTypes.NameIdentifier).Value);
                 }
                 foreach (var claim in principal.Claims.Where(item => item.Type == ClaimTypes.Role))
                 {

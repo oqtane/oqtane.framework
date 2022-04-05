@@ -7,9 +7,12 @@ using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
@@ -57,6 +60,11 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
+        public static OqtaneSiteOptionsBuilder AddOqtaneSiteOptions(this IServiceCollection services)
+        {
+            return new OqtaneSiteOptionsBuilder(services);
+        }
+
         internal static IServiceCollection AddOqtaneSingletonServices(this IServiceCollection services)
         {
             services.AddSingleton<IInstallationManager, InstallationManager>();
@@ -67,13 +75,22 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
+        internal static IServiceCollection AddOqtaneServerScopedServices(this IServiceCollection services)
+        {
+            services.AddScoped<Oqtane.Infrastructure.SiteState>();
+            return services;
+        }
+
         internal static IServiceCollection AddOqtaneTransientServices(this IServiceCollection services)
         {
             services.AddTransient<ITenantManager, TenantManager>();
-            services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
-            services.AddTransient<IThemeRepository, ThemeRepository>();
+            services.AddTransient<IAliasAccessor, AliasAccessor>();
             services.AddTransient<IUserPermissions, UserPermissions>();
             services.AddTransient<ITenantResolver, TenantResolver>();
+            services.AddTransient<IJwtManager, JwtManager>();
+
+            services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
+            services.AddTransient<IThemeRepository, ThemeRepository>();
             services.AddTransient<IAliasRepository, AliasRepository>();
             services.AddTransient<ITenantRepository, TenantRepository>();
             services.AddTransient<ISiteRepository, SiteRepository>();
@@ -100,6 +117,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<ILanguageRepository, LanguageRepository>();
             services.AddTransient<IVisitorRepository, VisitorRepository>();
             services.AddTransient<IUrlMappingRepository, UrlMappingRepository>();
+
             // obsolete - replaced by ITenantManager
             services.AddTransient<ITenantResolver, TenantResolver>();
 
@@ -123,36 +141,60 @@ namespace Microsoft.Extensions.DependencyInjection
                     context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                     return Task.CompletedTask;
                 };
+                options.Events.OnRedirectToLogout = context =>
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Task.CompletedTask;
+                };
                 options.Events.OnValidatePrincipal = PrincipalValidator.ValidateAsync;
             });
 
             return services;
         }
 
-        public static IServiceCollection ConfigureOqtaneIdentityOptions(this IServiceCollection services)
+        public static IServiceCollection ConfigureOqtaneAuthenticationOptions(this IServiceCollection services, IConfigurationRoot Configuration)
         {
-            services.Configure<IdentityOptions>(options =>
-            {
-                // Password settings
-                options.Password.RequireDigit = false;
-                options.Password.RequiredLength = 6;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = false;
-                options.Password.RequireLowercase = false;
-
-                // Lockout settings
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
-                options.Lockout.MaxFailedAccessAttempts = 10;
-                options.Lockout.AllowedForNewUsers = true;
-
-                // User settings
-                options.User.RequireUniqueEmail = false;
-            });
+            // settings defined in appsettings
+            services.Configure<OAuthOptions>(Configuration);
+            services.Configure<OpenIdConnectOptions>(Configuration);
 
             return services;
         }
 
-        internal static IServiceCollection TryAddHttpClientWithAuthenticationCookie(this IServiceCollection services)
+        public static IServiceCollection ConfigureOqtaneIdentityOptions(this IServiceCollection services, IConfigurationRoot Configuration)
+        {
+            // default settings
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Password settings
+                options.Password.RequireDigit = true;
+                options.Password.RequiredLength = 6;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequiredUniqueChars = 1;
+
+                // Lockout settings
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = false;
+
+                // SignIn settings
+                options.SignIn.RequireConfirmedEmail = true;
+                options.SignIn.RequireConfirmedPhoneNumber = false;
+
+                // User settings
+                options.User.RequireUniqueEmail = false; // changing to true will cause issues for legacy data
+                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+            });
+
+            // overrides defined in appsettings
+            services.Configure<IdentityOptions>(Configuration);
+
+            return services;
+        }
+
+        internal static IServiceCollection AddHttpClients(this IServiceCollection services)
         {
             if (!services.Any(x => x.ServiceType == typeof(HttpClient)))
             {
@@ -173,6 +215,9 @@ namespace Microsoft.Extensions.DependencyInjection
                     return client;
                 });
             }
+
+            // IHttpClientFactory for calling remote services via RemoteServiceBase
+            services.AddHttpClient();
 
             return services;
         }
@@ -303,7 +348,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                         try
                         {
-                            Assembly assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(assemblyFile.FullName)));
+                            Assembly assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(System.IO.File.ReadAllBytes(assemblyFile.FullName)));
                             Debug.WriteLine($"Oqtane Info: Loaded Assembly {assemblyName}");
                         }
                         catch (Exception ex)
@@ -322,9 +367,9 @@ namespace Microsoft.Extensions.DependencyInjection
         private static Assembly ResolveDependencies(AssemblyLoadContext context, AssemblyName name)
         {
             var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location) + Path.DirectorySeparatorChar + name.Name + ".dll";
-            if (File.Exists(assemblyPath))
+            if (System.IO.File.Exists(assemblyPath))
             {
-                return context.LoadFromStream(new MemoryStream(File.ReadAllBytes(assemblyPath)));
+                return context.LoadFromStream(new MemoryStream(System.IO.File.ReadAllBytes(assemblyPath)));
             }
             else
             {

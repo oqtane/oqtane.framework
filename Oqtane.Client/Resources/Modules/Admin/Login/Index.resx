@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="RememberMe" xml:space="preserve">
-    <value>Remember Me?</value>
-  </data>
   <data name="ForgotPassword" xml:space="preserve">
     <value>Forgot Password</value>
   </data>
@@ -130,10 +127,10 @@
     <value>User Account Could Not Be Verified. Please Contact Your Administrator For Further Instructions.</value>
   </data>
   <data name="Error.Login.Fail" xml:space="preserve">
-    <value>Login Failed. Please Remember That Passwords Are Case Sensitive And User Accounts Require Verification When They Are Initially Created So You May Wish To Check Your Email.</value>
+    <value>Login Failed. Please Remember That Passwords Are Case Sensitive. If You Have Attempted To Sign In Multiple Times Unsuccessfully, Your Account Will Be Locked Out For A Period Of Time. Note That User Accounts Require Verification When They Are Initially Created So You May Wish To Check Your Email If You Are A New User.</value>
   </data>
   <data name="Message.Required.UserInfo" xml:space="preserve">
-    <value>Please Provide Your Username And Password</value>
+    <value>Please Provide All Required Fields</value>
   </data>
   <data name="Info.SignedIn" xml:space="preserve">
     <value>You Are Already Signed In</value>
@@ -146,5 +143,62 @@
   </data>
   <data name="Message.UserDoesNotExist" xml:space="preserve">
     <value>User Does Not Exist</value>
+  </data>
+  <data name="Code.HelpText" xml:space="preserve">
+    <value>Please Enter The Secure Verification Code Which Was Sent To You By Email.</value>
+  </data>
+  <data name="Code.Placeholder" xml:space="preserve">
+    <value>Verification Code</value>
+  </data>
+  <data name="Code.Text" xml:space="preserve">
+    <value>Verification Code:</value>
+  </data>
+  <data name="Error.TwoFactor.Fail" xml:space="preserve">
+    <value>Verification Failed. Please Ensure You Entered The Code Exactly In The Form Provided In Your Email. If You Wish To Request A New Verification Code Please Select The Cancel Option And Sign In Again. </value>
+  </data>
+  <data name="Message.TwoFactor" xml:space="preserve">
+    <value>A Secure Verification Code Has Been Sent To Your Email Address. Please Enter The Code That You Received. If You Do Not Receive The Code Or You Have Lost Access To Your Email, Please Contact Your Administrator.</value>
+  </data>
+  <data name="Password.HelpText" xml:space="preserve">
+    <value>Please Enter The Password Related To Your Account. Remember That Passwords Are Case Sensitive. If You Attempt Unsuccessfully To Log In To Your Account Multiple Times, You Will Be Locked Out For A Period Of Time.</value>
+  </data>
+  <data name="Password.Placeholder" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="Password.Text" xml:space="preserve">
+    <value>Password:</value>
+  </data>
+  <data name="Remember.HelpText" xml:space="preserve">
+    <value>Specify If You Would Like To Be Signed Back In Automatically The Next Time You Visit This Site</value>
+  </data>
+  <data name="Remember.Text" xml:space="preserve">
+    <value>Remember Me?</value>
+  </data>
+  <data name="Username.HelpText" xml:space="preserve">
+    <value>Please Enter The Username Related To Your Account</value>
+  </data>
+  <data name="Username.Placeholder" xml:space="preserve">
+    <value>Username</value>
+  </data>
+  <data name="Username.Text" xml:space="preserve">
+    <value>Username:</value>
+  </data>
+  <data name="HidePassword" xml:space="preserve">
+    <value>Hide</value>
+  </data>
+  <data name="ShowPassword" xml:space="preserve">
+    <value>Show</value>
+  </data>
+  <data name="Use" xml:space="preserve">
+    <value>Use</value>
+  </data>
+  <data name="Error.LoadLogin" xml:space="preserve">
+    <value>Error Loading Login</value>
+  </data>
+  <data name="Error.Login" xml:space="preserve">
+    <value>Error Performing Login</value>
+  </data>
+  <data name="Error.ResetPassword" xml:space="preserve">
+    <value>Error Resetting Password</value>
   </data>
 </root>

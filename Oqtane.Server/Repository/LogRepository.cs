@@ -49,19 +49,19 @@ namespace Oqtane.Repository
             _db.SaveChanges();
         }
 
-        public int DeleteLogs(int age)
+        public int DeleteLogs(int siteId, int age)
         {
             // delete logs in batches of 100 records
             int count = 0;
             var purgedate = DateTime.UtcNow.AddDays(-age);
-            var logs = _db.Log.Where(item => item.Level != "Error" && item.LogDate < purgedate)
+            var logs = _db.Log.Where(item => item.SiteId == siteId && item.Level != "Error" && item.LogDate < purgedate)
                 .OrderBy(item => item.LogDate).Take(100).ToList();
             while (logs.Count > 0)
             {
                 count += logs.Count;
                 _db.Log.RemoveRange(logs);
                 _db.SaveChanges();
-                logs = _db.Log.Where(item => item.Level != "Error" && item.LogDate < purgedate)
+                logs = _db.Log.Where(item => item.SiteId == siteId && item.Level != "Error" && item.LogDate < purgedate)
                     .OrderBy(item => item.LogDate).Take(100).ToList();
             }
             return count;

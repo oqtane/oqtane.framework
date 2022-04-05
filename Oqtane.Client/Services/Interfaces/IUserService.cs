@@ -88,5 +88,26 @@ namespace Oqtane.Services
         /// <param name="token"></param>
         /// <returns></returns>
         Task<User> ResetPasswordAsync(User user, string token);
+
+        /// <summary>
+        /// Verify the two factor verification code <see cref="User"/>
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        Task<User> VerifyTwoFactorAsync(User user, string token);
+
+        /// <summary>
+        /// Validate a users password against the password policy 
+        /// </summary>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        Task<bool> ValidatePasswordAsync(string password);
+
+        /// <summary>
+        /// Get token for current user
+        /// </summary>
+        /// <returns></returns>
+        Task<string> GetTokenAsync();
     }
 }

@@ -318,10 +318,16 @@
   <data name="DefaultAlias.HelpText" xml:space="preserve">
     <value>The default alias for the site. Requests for non-default aliases will be redirected to the default alias.</value>
   </data>
-    <data name="DefaultAlias.Text" xml:space="preserve">
+  <data name="DefaultAlias.Text" xml:space="preserve">
     <value>Default Alias: </value>
   </data>
   <data name="Aliases.Heading" xml:space="preserve">
     <value>Aliases</value>
+  </data>
+  <data name="Hide" xml:space="preserve">
+    <value>Hide</value>
+  </data>
+  <data name="Show" xml:space="preserve">
+    <value>Show</value>
   </data>
 </root>

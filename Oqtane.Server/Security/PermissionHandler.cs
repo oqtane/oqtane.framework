@@ -22,7 +22,7 @@ namespace Oqtane.Security
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
         {
-            // permission is scoped based on entitynames and ids passed as querystring parameters or headers
+            // permission is scoped based on entitynames and ids passed as querystring parameters
             var ctx = _httpContextAccessor.HttpContext;
             if (ctx != null)
             {

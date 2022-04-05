@@ -121,90 +121,97 @@
 		{
 			_databaseName = "LocalDB";
 		}
-        LoadDatabaseConfigComponent();
-    }
+		LoadDatabaseConfigComponent();
+	}
 
-    private void DatabaseChanged(ChangeEventArgs eventArgs)
-    {
-        try
-        {
-            _databaseName = (string)eventArgs.Value;
+	private void DatabaseChanged(ChangeEventArgs eventArgs)
+	{
+		try
+		{
+			_databaseName = (string)eventArgs.Value;
 
-            LoadDatabaseConfigComponent();
-        }
-        catch
-        {
-            _message = Localizer["Error.DbConfig.Load"];
-        }
-    }
+			LoadDatabaseConfigComponent();
+		}
+		catch
+		{
+			_message = Localizer["Error.DbConfig.Load"];
+		}
+	}
 
-    private void LoadDatabaseConfigComponent()
-    {
-        var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
-        if (database != null)
-        {
-            _databaseConfigType = Type.GetType(database.ControlType);
-            DatabaseConfigComponent = builder =>
-            {
-                builder.OpenComponent(0, _databaseConfigType);
-                builder.AddComponentReferenceCapture(1, inst => { _databaseConfig = Convert.ChangeType(inst, _databaseConfigType); });
-                builder.CloseComponent();
-            };
-        }
-    }
+	private void LoadDatabaseConfigComponent()
+	{
+		var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
+		if (database != null)
+		{
+			_databaseConfigType = Type.GetType(database.ControlType);
+			DatabaseConfigComponent = builder =>
+			{
+				builder.OpenComponent(0, _databaseConfigType);
+				builder.AddComponentReferenceCapture(1, inst => { _databaseConfig = Convert.ChangeType(inst, _databaseConfigType); });
+				builder.CloseComponent();
+			};
+		}
+	}
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            var interop = new Interop(JSRuntime);
-            await interop.IncludeLink("", "stylesheet", "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css", "text/css", "sha512-GQGU0fMMi238uA+a/bdWJfpUGKUkBdgfFdgBm72SUQ6BeyWjoY/ton0tEjH+OSH9iP4Dfh+7HM0I9f5eR0L/4w==", "anonymous", "");
-            await interop.IncludeScript("", "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js", "sha512-pax4MlgXjHEPfCwcJLQhigY7+N8rt6bVvWLFyUMuxShv170X53TRzGPmPkZmGBhk+jikR8WBM4yl7A9WMHHqvg==", "anonymous", "", "head", "");
-        }
-    }
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			var interop = new Interop(JSRuntime);
+			await interop.IncludeLink("", "stylesheet", "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css", "text/css", "sha512-GQGU0fMMi238uA+a/bdWJfpUGKUkBdgfFdgBm72SUQ6BeyWjoY/ton0tEjH+OSH9iP4Dfh+7HM0I9f5eR0L/4w==", "anonymous", "");
+			await interop.IncludeScript("", "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js", "sha512-pax4MlgXjHEPfCwcJLQhigY7+N8rt6bVvWLFyUMuxShv170X53TRzGPmPkZmGBhk+jikR8WBM4yl7A9WMHHqvg==", "anonymous", "", "head");
+		}
+	}
 
-    private async Task Install()
-    {
-        var connectionString = String.Empty;
-        if (_databaseConfig is IDatabaseConfigControl databaseConfigControl)
-        {
-            connectionString = databaseConfigControl.GetConnectionString();
-        }
+	private async Task Install()
+	{
+		var connectionString = String.Empty;
+		if (_databaseConfig is IDatabaseConfigControl databaseConfigControl)
+		{
+			connectionString = databaseConfigControl.GetConnectionString();
+		}
 
-        if (connectionString != "" && !string.IsNullOrEmpty(_hostUsername) && _hostPassword.Length >= 6 && _hostPassword == _confirmPassword && !string.IsNullOrEmpty(_hostEmail) && _hostEmail.Contains("@"))
-        {
-            _loadingDisplay = "";
-            StateHasChanged();
+		if (connectionString != "" && !string.IsNullOrEmpty(_hostUsername) && !string.IsNullOrEmpty(_hostPassword) && _hostPassword == _confirmPassword && !string.IsNullOrEmpty(_hostEmail) && _hostEmail.Contains("@"))
+		{
+			if (await UserService.ValidatePasswordAsync(_hostPassword))
+			{
+				_loadingDisplay = "";
+				StateHasChanged();
 
-            Uri uri = new Uri(NavigationManager.Uri);
+				Uri uri = new Uri(NavigationManager.Uri);
 
-            var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
+				var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
 
-            var config = new InstallConfig
-            {
-                DatabaseType = database.DBType,
-                ConnectionString = connectionString,
-                Aliases = uri.Authority,
-                HostUsername = _hostUsername,
-                HostPassword = _hostPassword,
-                HostEmail = _hostEmail,
-                HostName = _hostUsername,
-                TenantName = TenantNames.Master,
-                IsNewTenant = true,
-                SiteName = Constants.DefaultSite,
-                Register = _register
-            };
+				var config = new InstallConfig
+				{
+					DatabaseType = database.DBType,
+					ConnectionString = connectionString,
+					Aliases = uri.Authority,
+					HostUsername = _hostUsername,
+					HostPassword = _hostPassword,
+					HostEmail = _hostEmail,
+					HostName = _hostUsername,
+					TenantName = TenantNames.Master,
+					IsNewTenant = true,
+					SiteName = Constants.DefaultSite,
+					Register = _register
+				};
 
-            var installation = await InstallationService.Install(config);
-            if (installation.Success)
-            {
-                NavigationManager.NavigateTo(uri.Scheme + "://" + uri.Authority, true);
-            }
-            else
-            {
-                _message = installation.Message;
-                _loadingDisplay = "display: none;";
-            }
+				var installation = await InstallationService.Install(config);
+				if (installation.Success)
+				{
+					NavigationManager.NavigateTo(uri.Scheme + "://" + uri.Authority, true);
+				}
+				else
+				{
+					_message = installation.Message;
+					_loadingDisplay = "display: none;";
+				}				
+			}
+			else
+			{
+				_message = Localizer["Message.Password.Invalid"];				
+			}
         }
         else
         {

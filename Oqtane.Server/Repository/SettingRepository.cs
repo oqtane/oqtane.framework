@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
 
@@ -10,11 +12,15 @@ namespace Oqtane.Repository
     {
         private TenantDBContext _tenant;
         private MasterDBContext _master;
+        private readonly ITenantManager _tenantManager;
+        private readonly IMemoryCache _cache;
 
-        public SettingRepository(TenantDBContext tenant, MasterDBContext master)
+        public SettingRepository(TenantDBContext tenant, MasterDBContext master, ITenantManager tenantManager, IMemoryCache cache)
         {
             _tenant = tenant;
             _master = master;
+            _tenantManager = tenantManager;
+            _cache = cache;
         }
 
         public IEnumerable<Setting> GetSettings(string entityName)
@@ -47,6 +53,7 @@ namespace Oqtane.Repository
                 _tenant.Setting.Add(setting);
                 _tenant.SaveChanges();
             }
+            ManageCache(setting.EntityName);
             return setting;
         }
 
@@ -62,6 +69,7 @@ namespace Oqtane.Repository
                 _tenant.Entry(setting).State = EntityState.Modified;
                 _tenant.SaveChanges();
             }
+            ManageCache(setting.EntityName);
             return setting;
         }
 
@@ -103,6 +111,7 @@ namespace Oqtane.Repository
                 _tenant.Setting.Remove(setting);
                 _tenant.SaveChanges();
             }
+            ManageCache(entityName);
         }
 
         public void DeleteSettings(string entityName, int entityId)
@@ -129,11 +138,20 @@ namespace Oqtane.Repository
                 }
                 _tenant.SaveChanges();
             }
+            ManageCache(entityName);
         }
 
         private bool IsMaster(string EntityName)
         {
             return (EntityName == EntityNames.ModuleDefinition || EntityName == EntityNames.Host);
+        }
+
+        private void ManageCache(string EntityName)
+        {
+            if (EntityName == EntityNames.Site)
+            {
+                _cache.Remove(Constants.HttpContextSiteSettingsKey + _tenantManager.GetAlias().SiteKey);
+            }
         }
     }
 }

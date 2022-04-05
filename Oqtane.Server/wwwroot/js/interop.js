@@ -53,14 +53,8 @@ Oqtane.Interop = {
             }
         }
     },
-    includeLink: function (id, rel, href, type, integrity, crossorigin, key) {
-        var link;
-        if (id !== "" && key === "id") {
-            link = document.getElementById(id);
-        }
-        else {
-            link = document.querySelector("link[href=\"" + CSS.escape(href) + "\"]");
-        }
+    includeLink: function (id, rel, href, type, integrity, crossorigin, insertbefore) {
+        var link = document.querySelector("link[href=\"" + CSS.escape(href) + "\"]");
         if (link === null) {
             link = document.createElement("link");
             if (id !== "") {
@@ -77,7 +71,13 @@ Oqtane.Interop = {
             if (crossorigin !== "") {
                 link.crossOrigin = crossorigin;
             }
-            document.head.appendChild(link);
+            if (insertbefore === "") {
+                document.head.appendChild(link);
+            }
+            else {
+                var sibling = document.getElementById(insertbefore);
+                sibling.parentNode.insertBefore(link, sibling);
+            }
         }
         else {
             if (link.id !== id) {
@@ -116,17 +116,11 @@ Oqtane.Interop = {
     },
     includeLinks: function (links) {
         for (let i = 0; i < links.length; i++) {
-            this.includeLink(links[i].id, links[i].rel, links[i].href, links[i].type, links[i].integrity, links[i].crossorigin, links[i].key);
+            this.includeLink(links[i].id, links[i].rel, links[i].href, links[i].type, links[i].integrity, links[i].crossorigin, links[i].insertbefore);
         }
     },
-    includeScript: function (id, src, integrity, crossorigin, content, location, key) {
-        var script;
-        if (id !== "" && key === "id") {
-            script = document.getElementById(id);
-        }
-        else {
-            script = document.querySelector("script[src=\"" + CSS.escape(src) + "\"]");
-        }
+    includeScript: function (id, src, integrity, crossorigin, content, location) {
+        var script = document.querySelector("script[src=\"" + CSS.escape(src) + "\"]");
         if (script === null) {
             script = document.createElement("script");
             if (id !== "") {
@@ -231,6 +225,9 @@ Oqtane.Interop = {
                                 }
                                 if (path === scripts[s].href && scripts[s].crossorigin !== '') {
                                     element.crossOrigin = scripts[s].crossorigin;
+                                }
+                                if (path === scripts[s].href && scripts[s].es6module === true) {
+                                    element.type = "module";
                                 }
                             }
                         }

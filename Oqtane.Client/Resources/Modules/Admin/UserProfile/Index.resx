@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -169,10 +169,10 @@
     <value>Identity</value>
   </data>
   <data name="Confirm.HelpText" xml:space="preserve">
-    <value>If you are changing your password you must enter it again to confirm it matches</value>
+    <value>If you are changing your password you must enter it again to confirm it matches the value entered above</value>
   </data>
   <data name="Confirm.Text" xml:space="preserve">
-    <value>Confirm Password:</value>
+    <value>Confirmation:</value>
   </data>
   <data name="DisplayName.HelpText" xml:space="preserve">
     <value>Your full name</value>
@@ -203,5 +203,11 @@
   </data>
   <data name="Username.Text" xml:space="preserve">
     <value>Username:</value>
+  </data>
+  <data name="TwoFactor.HelpText" xml:space="preserve">
+    <value>Indicates if you are using two factor authentication. Two factor authentication requires you to enter a verification code sent via email after you sign in.</value>
+  </data>
+  <data name="TwoFactor.Text" xml:space="preserve">
+    <value>Two Factor?</value>
   </data>
 </root>

@@ -7,10 +7,6 @@
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-@if (_message != string.Empty)
-{
-    <ModuleMessage Message="@_message" Type="@_type" />
-}
 <AuthorizeView Roles="@RoleNames.Registered">
     <Authorizing>
         <text>...</text>
@@ -19,185 +15,285 @@
 		<div>@Localizer["Info.SignedIn"]</div>
     </Authorized>
     <NotAuthorized>
-        <form @ref="login" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
-            <div class="container Oqtane-Modules-Admin-Login" @onkeypress="@(e => KeyPressed(e))">
-                <div class="form-group">
-                    <label for="Username" class="control-label">@SharedLocalizer["Username"] </label>
-                    <input type="text" @ref="username" name="Username" class="form-control username" placeholder="Username" @bind="@_username" id="Username" required />
-                </div>
-                <div class="form-group">
-                    <label for="Password" class="control-label">@SharedLocalizer["Password"] </label>
-                    <input type="password" name="Password" class="form-control password" placeholder="Password" @bind="@_password" id="Password" required />
-                </div>
-                <div class="form-group">
-                    <div class="form-check form-check-inline">
-                        <label class="form-check-label" for="Remember">@Localizer["RememberMe"]</label>&nbsp;
-                        <input type="checkbox" class="form-check-input" name="Remember" @bind="@_remember" id="Remember" />
-                    </div>
-                </div>
-                <button type="button" class="btn btn-primary" @onclick="Login">@SharedLocalizer["Login"]</button>
-                <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
-                <br /><br />
-                <button type="button" class="btn btn-secondary" @onclick="Forgot">@Localizer["ForgotPassword"]</button>
-            </div>
-        </form>
-    </NotAuthorized>
+		@if (!twofactor)
+		{
+			<form @ref="login" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+				<div class="Oqtane-Modules-Admin-Login" @onkeypress="@(e => KeyPressed(e))">
+				@if (_allowexternallogin)
+				{
+					<button type="button" class="btn btn-primary" @onclick="ExternalLogin">@Localizer["Use"] @PageState.Site.Settings["ExternalLogin:ProviderName"]</button>						
+					<br /><br />
+				}
+				@if (_allowsitelogin)
+				{
+					<div class="form-group">
+						<Label Class="control-label" For="username" HelpText="Please enter your Username" ResourceKey="Username">Username:</Label>
+						<input id="username" type="text" @ref="username" class="form-control" placeholder="@Localizer["Username.Placeholder"]" @bind="@_username" required />
+					</div>
+					<div class="form-group mt-2">
+						<Label Class="control-label" For="password" HelpText="Please enter your Password" ResourceKey="Password">Password:</Label>
+						<div class="input-group">
+							<input id="password" type="@_passwordtype" name="Password" class="form-control" placeholder="@Localizer["Password.Placeholder"]" @bind="@_password" required />
+							<button type="button" class="btn btn-secondary" @onclick="@TogglePassword">@_togglepassword</button>
+						</div>
+					</div>
+					<div class="form-group mt-2">
+						<div class="form-check">
+							<input id="remember" type="checkbox" class="form-check-input" @bind="@_remember" />
+							<Label Class="control-label" For="remember" HelpText="Specify if you would like to be signed back in automatically the next time you visit this site" ResourceKey="Remember">Remember Me?</Label>
+						</div>
+					</div>
+					<button type="button" class="btn btn-primary" @onclick="Login">@SharedLocalizer["Login"]</button>
+					<button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
+					<br /><br />
+					<button type="button" class="btn btn-secondary" @onclick="Forgot">@Localizer["ForgotPassword"]</button>		
+				}
+				</div>
+			</form>
+		}
+		else
+		{
+			<form @ref="login" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+				<div class="container Oqtane-Modules-Admin-Login">
+					<div class="form-group">
+						<Label Class="control-label" For="code" HelpText="Please enter the secure verification code which was sent to you by email" ResourceKey="Code">Verification Code:</Label>
+						<input id="code" class="form-control" @bind="@_code" placeholder="@Localizer["Code.Placeholder"]" maxlength="6" required />
+					</div>
+					<br />
+					<button type="button" class="btn btn-primary" @onclick="Login">@SharedLocalizer["Login"]</button>
+					<button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Cancel"]</button>
+				</div>
+			</form>
+		}
+	</NotAuthorized>
 </AuthorizeView>
 
 @code {
-    private string _returnUrl = string.Empty;
-    private string _message = string.Empty;
-    private MessageType _type = MessageType.Info;
-    private string _username = string.Empty;
-    private string _password = string.Empty;
-    private bool _remember = false;
-    private bool validated = false;
+	private bool _allowsitelogin = true;
+	private bool _allowexternallogin = false;
+	private ElementReference login;
+	private bool validated = false;
+	private bool twofactor = false;
+	private string _username = string.Empty;
+	private ElementReference username;
+	private string _password = string.Empty;
+	private string _passwordtype = "password";
+	private string _togglepassword = string.Empty;
+	private bool _remember = false;
+	private string _code = string.Empty;
 
-    private ElementReference login;
-    private ElementReference username;
+	private string _returnUrl = string.Empty;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
-    public override List<Resource> Resources => new List<Resource>()
+	public override List<Resource> Resources => new List<Resource>()
     {
         new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" }
     };
 
-    protected override async Task OnInitializedAsync()
-    {
-        if (PageState.QueryString.ContainsKey("returnurl"))
-        {
-            _returnUrl = PageState.QueryString["returnurl"];
-        }
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			_togglepassword = Localizer["ShowPassword"];
 
-        if (PageState.QueryString.ContainsKey("name"))
-        {
-            _username = PageState.QueryString["name"];
-        }
+			if (PageState.Site.Settings.ContainsKey("LoginOptions:AllowSiteLogin") && !string.IsNullOrEmpty(PageState.Site.Settings["LoginOptions:AllowSiteLogin"]))
+			{
+				_allowsitelogin = bool.Parse(PageState.Site.Settings["LoginOptions:AllowSiteLogin"]);
+			}
 
-        if (PageState.QueryString.ContainsKey("token"))
-        {
-            var user = new User();
-            user.SiteId = PageState.Site.SiteId;
-            user.Username = _username;
-            user = await UserService.VerifyEmailAsync(user, PageState.QueryString["token"]);
+			if (PageState.Site.Settings.ContainsKey("ExternalLogin:ProviderType") && !string.IsNullOrEmpty(PageState.Site.Settings["ExternalLogin:ProviderType"]))
+			{
+				_allowexternallogin = true;
+			}
 
-            if (user != null)
-            {
-                await logger.LogInformation(LogFunction.Security, "Email Verified For For Username {Username}", _username);
-                _message = Localizer["Success.Account.Verified"];
-            }
-            else
-            {
-                await logger.LogError(LogFunction.Security, "Email Verification Failed For Username {Username}", _username);
-                _message = Localizer["Message.Account.NotVerfied"];
-                _type = MessageType.Warning;
-            }
-        }
-    }
+			if (PageState.QueryString.ContainsKey("returnurl"))
+			{
+				_returnUrl = PageState.QueryString["returnurl"];
+			}
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            if(PageState.User == null)
-            {
-                await username.FocusAsync();
-            }
-        }
-    }
+			if (PageState.QueryString.ContainsKey("name"))
+			{
+				_username = PageState.QueryString["name"];
+			}
 
-    private async Task Login()
-    {
-        validated = true;
-        var interop = new Interop(JSRuntime);
-        if (await interop.FormValid(login))
-        {
-            if (PageState.Runtime == Oqtane.Shared.Runtime.Server)
-            {
-                var user = new User();
-                user.SiteId = PageState.Site.SiteId;
-                user.Username = _username;
-                user.Password = _password;
-                user = await UserService.LoginUserAsync(user, false, false);
+			if (PageState.QueryString.ContainsKey("token"))
+			{
+				var user = new User();
+				user.SiteId = PageState.Site.SiteId;
+				user.Username = _username;
+				user = await UserService.VerifyEmailAsync(user, PageState.QueryString["token"]);
 
-                if (user.IsAuthenticated)
-                {
-                    await logger.LogInformation(LogFunction.Security, "Login Successful For Username {Username}", _username);
-                    // server-side Blazor needs to post to the Login page so that the cookies are set correctly
-                    var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, username = _username, password = _password, remember = _remember, returnurl = _returnUrl };
-                    string url = Utilities.TenantUrl(PageState.Alias, "/pages/login/");
-                    await interop.SubmitForm(url, fields);
-                }
-                else
-                {
-                    await logger.LogError(LogFunction.Security, "Login Failed For Username {Username}", _username);
-                    AddModuleMessage(Localizer["Error.Login.Fail"], MessageType.Error);
-                }
-            }
-            else
-            {
-                // client-side Blazor
-                var user = new User();
-                user.SiteId = PageState.Site.SiteId;
-                user.Username = _username;
-                user.Password = _password;
-                user = await UserService.LoginUserAsync(user, true, _remember);
-                if (user.IsAuthenticated)
-                {
-                    await logger.LogInformation(LogFunction.Security, "Login Successful For Username {Username}", _username);
-                    var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
-                    authstateprovider.NotifyAuthenticationChanged();
-                    NavigationManager.NavigateTo(NavigateUrl(_returnUrl, true));
-                }
-                else
-                {
-                    await logger.LogError(LogFunction.Security, "Login Failed For Username {Username}", _username);
-                    AddModuleMessage(Localizer["Error.Login.Fail"], MessageType.Error);
-                }
-            }
-        }
-        else
-        {
-            AddModuleMessage(Localizer["Message.Required.UserInfo"], MessageType.Warning);
-        }
-    }
+				if (user != null)
+				{
+					await logger.LogInformation(LogFunction.Security, "Email Verified For For Username {Username}", _username);
+					AddModuleMessage(Localizer["Success.Account.Verified"], MessageType.Info);						
+				}
+				else
+				{
+					await logger.LogError(LogFunction.Security, "Email Verification Failed For Username {Username}", _username);
+					AddModuleMessage(Localizer["Message.Account.NotVerfied"], MessageType.Warning);						
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Loading Login {Error}", ex.Message);
+			AddModuleMessage(Localizer["Error.LoadLogin"], MessageType.Error);
+		}
+	}
 
-    private void Cancel()
-    {
-        NavigationManager.NavigateTo(_returnUrl);
-    }
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender && PageState.User == null)
+		{
+			await username.FocusAsync();
+		}
+	}
 
-    private async Task Forgot()
-    {
-        if (_username != string.Empty)
-        {
-            var user = await UserService.GetUserAsync(_username, PageState.Site.SiteId);
-            if (user != null)
-            {
-                await UserService.ForgotPasswordAsync(user);
-                await logger.LogInformation(LogFunction.Security, "Password Reset Notification Sent For Username {Username}", _username);
-                _message = Localizer["Message.ForgotUser"];
-            }
-            else
-            {
-                _message = Localizer["Message.UserDoesNotExist"];
-                _type = MessageType.Warning;
-            }
-        }
-        else
-        {
-            _message = Localizer["Message.ForgotPassword"];
-        }
+	private async Task Login()
+	{
+		try
+		{
+			validated = true;
+			var interop = new Interop(JSRuntime);
+			if (await interop.FormValid(login))
+			{
+				var user = new User { SiteId = PageState.Site.SiteId, Username = _username, Password = _password};
 
-        StateHasChanged();
-    }
+				if (!twofactor)
+				{
+					user = await UserService.LoginUserAsync(user, false, false);
+				}
+				else
+				{
+					user = await UserService.VerifyTwoFactorAsync(user, _code);
+				}
 
-    private async Task KeyPressed(KeyboardEventArgs e)
-    {
-        if (e.Code == "Enter" || e.Code == "NumpadEnter")
-        {
-            await Login();
-        }
-    }
+				if (user.IsAuthenticated)
+				{
+					await logger.LogInformation(LogFunction.Security, "Login Successful For Username {Username}", _username);
+
+					if (PageState.Runtime == Oqtane.Shared.Runtime.Server)
+					{
+						// server-side Blazor needs to post to the Login page so that the cookies are set correctly
+						var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, username = _username, password = _password, remember = _remember, returnurl = _returnUrl };
+						string url = Utilities.TenantUrl(PageState.Alias, "/pages/login/");
+						await interop.SubmitForm(url, fields);
+					}
+					else
+					{
+						var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
+						authstateprovider.NotifyAuthenticationChanged();
+						NavigationManager.NavigateTo(NavigateUrl(_returnUrl, true));
+					}
+				}
+				else
+				{
+					if (user.TwoFactorRequired)
+					{
+						twofactor = true;
+						validated = false;
+						AddModuleMessage(Localizer["Message.TwoFactor"], MessageType.Info);
+					}
+					else
+					{
+						if (!twofactor)
+						{
+							await logger.LogInformation(LogFunction.Security, "Login Failed For Username {Username}", _username);
+							AddModuleMessage(Localizer["Error.Login.Fail"], MessageType.Error);						
+						}
+						else
+						{
+							await logger.LogInformation(LogFunction.Security, "Two Factor Verification Failed For Username {Username}", _username);
+							AddModuleMessage(Localizer["Error.TwoFactor.Fail"], MessageType.Error);						
+						}
+					}
+				}
+			}
+			else
+			{
+				AddModuleMessage(Localizer["Message.Required.UserInfo"], MessageType.Warning);
+			}
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Performing Login {Error}", ex.Message);
+			AddModuleMessage(Localizer["Error.Login"], MessageType.Error);
+		}
+	}
+
+	private void Cancel()
+	{
+		NavigationManager.NavigateTo(_returnUrl);
+	}
+
+	private async Task Forgot()
+	{
+		try
+		{
+			if (_username != string.Empty)
+			{
+				var user = await UserService.GetUserAsync(_username, PageState.Site.SiteId);
+				if (user != null)
+				{
+					await UserService.ForgotPasswordAsync(user);
+					await logger.LogInformation(LogFunction.Security, "Password Reset Notification Sent For Username {Username}", _username);
+					AddModuleMessage(Localizer["Message.ForgotUser"], MessageType.Info);
+				}
+				else
+				{
+					AddModuleMessage(Localizer["Message.UserDoesNotExist"], MessageType.Warning);
+				}
+			}
+			else
+			{
+				AddModuleMessage(Localizer["Message.ForgotPassword"], MessageType.Info);
+			}
+
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Resetting Password {Error}", ex.Message);
+			AddModuleMessage(Localizer["Error.ResetPassword"], MessageType.Error);
+		}
+	}
+
+	private void Reset()
+	{
+		twofactor = false;
+		_username = "";
+		_password = "";
+		ClearModuleMessage();
+		StateHasChanged();
+	}
+
+	private async Task KeyPressed(KeyboardEventArgs e)
+	{
+		if (e.Code == "Enter" || e.Code == "NumpadEnter")
+		{
+			await Login();
+		}
+	}
+
+	private void TogglePassword()
+	{
+		if (_passwordtype == "password")
+		{
+			_passwordtype = "text";
+			_togglepassword = Localizer["HidePassword"];
+		}
+		else
+		{
+			_passwordtype = "password";
+			_togglepassword = Localizer["ShowPassword"];
+		}
+	}
+
+	private void ExternalLogin()
+	{
+        NavigationManager.NavigateTo(Utilities.TenantUrl(PageState.Alias, "/pages/external?returnurl=" + _returnUrl), true);
+	}
+
 }

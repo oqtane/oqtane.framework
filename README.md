@@ -6,7 +6,7 @@
 
 Oqtane is a Modular Application Framework. It leverages Blazor, an open source and cross-platform web UI framework for building single-page apps using .NET and C# instead of JavaScript. Blazor apps are composed of reusable web UI components implemented using C#, HTML, and CSS. Both client and server code is written in C#, allowing you to share code and libraries.
 
-Oqtane is being developed based on some fundamental principles which are outlined in the [Oqtane Philosophy](https://www.oqtane.org/Resources/Blog/PostId/538/oqtane-philosophy).
+Oqtane is being developed based on some fundamental principles which are outlined in the [Oqtane Philosophy](https://www.oqtane.org/blog/!/20/oqtane-philosophy).
 
 Please note that this project is owned by the .NET Foundation and is governed by the **[.NET Foundation Contributor Covenant Code of Conduct](https://dotnetfoundation.org/code-of-conduct)**
 
@@ -60,12 +60,20 @@ This project is open source, and therefore is a work in progress...
 Backlog (Not Yet Assigned)
 - [ ] Allow language specification in Url (#1731)
 
-V.3.1.0 ( Q1 2022 )
-- [ ] Token based authentication / authorization via OAuth2 / OpenID Connect
-- [ ] Provide Single Sign On (SSO) for other applications
-- [ ] Authentication extensibility via Social logins / Azure B2C
-- [ ] Allow configuration of password complexity for local authentication
-- [ ] User account lockout support
+V.3.1.0 ( April 2022 )
+- [x] User account lockout support
+- [x] Two factor authentication support
+- [x] Per-site configuration of password complexity, lockout criteria
+- [x] External login support via OAuth2 / OpenID Connect
+- [x] Support for Single Sign On (SSO) via OpenID Connect
+- [x] External client support via Jwt tokens
+- [x] Downstream API support via Jwt tokens
+- [x] CSS resource hierarchy support
+- [x] Site structure/content migration
+- [x] Event log notifications  
+- [x] 404 page handling
+- [x] Property change component notifications
+
 
 V.3.0.3 ( Feb 15, 2022 )
 - [x] Url fragment and anchor navigation support

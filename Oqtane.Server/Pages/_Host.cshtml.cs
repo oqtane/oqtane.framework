@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Oqtane.Infrastructure;
 using Oqtane.Shared;
-using Oqtane.Modules;
 using Oqtane.Models;
-using Oqtane.Themes;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -20,6 +18,9 @@ using System.Security.Claims;
 using System.Net;
 using Microsoft.Extensions.Primitives;
 using Oqtane.Enums;
+using Oqtane.Security;
+using Oqtane.Extensions;
+using Oqtane.Themes;
 
 namespace Oqtane.Pages
 {
@@ -30,6 +31,7 @@ namespace Oqtane.Pages
         private readonly ILocalizationManager _localizationManager;
         private readonly ILanguageRepository _languages;
         private readonly IAntiforgery _antiforgery;
+        private readonly IJwtManager _jwtManager;
         private readonly ISiteRepository _sites;
         private readonly IPageRepository _pages;
         private readonly IUrlMappingRepository _urlMappings;
@@ -38,13 +40,14 @@ namespace Oqtane.Pages
         private readonly ISettingRepository _settings;
         private readonly ILogManager _logger;
 
-        public HostModel(IConfigManager configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, ISiteRepository sites, IPageRepository pages, IUrlMappingRepository urlMappings, IVisitorRepository visitors, IAliasRepository aliases, ISettingRepository settings, ILogManager logger)
+        public HostModel(IConfigManager configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, IJwtManager jwtManager, ISiteRepository sites, IPageRepository pages, IUrlMappingRepository urlMappings, IVisitorRepository visitors, IAliasRepository aliases, ISettingRepository settings, ILogManager logger)
         {
             _configuration = configuration;
             _tenantManager = tenantManager;
             _localizationManager = localizationManager;
             _languages = languages;
             _antiforgery = antiforgery;
+            _jwtManager = jwtManager;
             _sites = sites;
             _pages = pages;
             _urlMappings = urlMappings;
@@ -56,6 +59,7 @@ namespace Oqtane.Pages
 
         public string Language = "en";
         public string AntiForgeryToken = "";
+        public string AuthorizationToken = "";
         public string Runtime = "Server";
         public RenderMode RenderMode = RenderMode.Server;
         public int VisitorId = -1;
@@ -66,7 +70,6 @@ namespace Oqtane.Pages
         public string Meta = "";
         public string FavIcon = "favicon.ico";
         public string PWAScript = "";
-        public string ThemeType = "";
         public string Message = "";
 
         public IActionResult OnGet()
@@ -131,7 +134,18 @@ namespace Oqtane.Pages
                             PWAScript = CreatePWAScript(alias, site, route);
                         }
                         Title = site.Name;
-                        ThemeType = site.DefaultThemeType;
+                        var ThemeType = site.DefaultThemeType;
+
+                        // get jwt token for downstream APIs
+                        if (User.Identity.IsAuthenticated)
+                        {
+                            var sitesettings = HttpContext.GetSiteSettings();
+                            var secret = sitesettings.GetValue("JwtOptions:Secret", "");
+                            if (!string.IsNullOrEmpty(secret))
+                            {
+                                AuthorizationToken = _jwtManager.GenerateToken(alias, (ClaimsIdentity)User.Identity, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""), int.Parse(sitesettings.GetValue("JwtOptions:Lifetime", "20")));
+                            }
+                        }
 
                         if (site.VisitorTracking)
                         {
@@ -139,7 +153,7 @@ namespace Oqtane.Pages
                         }
 
                         var page = _pages.GetPage(route.PagePath, site.SiteId);
-                        if (page != null)
+                        if (page != null && !page.IsDeleted)
                         {
                             // set page title
                             if (!string.IsNullOrEmpty(page.Title))
@@ -157,6 +171,7 @@ namespace Oqtane.Pages
                             {
                                 ThemeType = page.ThemeType;
                             }
+                            ProcessThemeResources(ThemeType);
                         }
                         else // page not found
                         {
@@ -167,6 +182,14 @@ namespace Oqtane.Pages
                                 url = (urlMapping.MappedUrl.StartsWith("http")) ? urlMapping.MappedUrl : route.SiteUrl + "/" + urlMapping.MappedUrl;
                                 return RedirectPermanent(url);
                             }
+                            else
+                            {
+                                if (route.PagePath != "404")
+                                {
+                                    _logger.Log(LogLevel.Information, "Host", LogFunction.Other, "Page Path /{Path} Does Not Exist", route.PagePath);
+                                    return RedirectPermanent(route.SiteUrl + "/404");
+                                }
+                            }
                         }
 
                         // include global resources
@@ -174,8 +197,6 @@ namespace Oqtane.Pages
                         foreach (Assembly assembly in assemblies)
                         {
                             ProcessHostResources(assembly);
-                            ProcessModuleControls(assembly);
-                            ProcessThemeControls(assembly);
                         }
 
                         // set culture if not specified
@@ -247,9 +268,9 @@ namespace Oqtane.Pages
                 string url = Request.GetEncodedUrl();
                 string referrer = (Request.Headers[HeaderNames.Referer] != StringValues.Empty) ? Request.Headers[HeaderNames.Referer] : "";
                 int? userid = null;
-                if (User.HasClaim(item => item.Type == ClaimTypes.PrimarySid))
+                if (User.HasClaim(item => item.Type == ClaimTypes.NameIdentifier))
                 {
-                    userid = int.Parse(User.Claims.First(item => item.Type == ClaimTypes.PrimarySid).Value);
+                    userid = int.Parse(User.Claims.First(item => item.Type == ClaimTypes.NameIdentifier).Value);
                 }
 
                 // check if cookie already exists
@@ -395,55 +416,30 @@ namespace Oqtane.Pages
                 var obj = Activator.CreateInstance(type) as IHostResources;
                 foreach (var resource in obj.Resources)
                 {
+                    resource.Level = ResourceLevel.App;
                     ProcessResource(resource, 0);
                 }
             }
         }
 
-        private void ProcessModuleControls(Assembly assembly)
+        private void ProcessThemeResources(string ThemeType)
         {
-            var types = assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(IModuleControl)));
-            foreach (var type in types)
+            var type = Type.GetType(ThemeType);
+            if (type != null)
             {
-                // Check if type should be ignored
-                if (type.IsOqtaneIgnore()) continue;
-
-                var obj = Activator.CreateInstance(type) as IModuleControl;
-                if (obj.Resources != null)
-                {
-                    foreach (var resource in obj.Resources)
-                    {
-                        if (resource.Declaration == ResourceDeclaration.Global)
-                        {
-                            ProcessResource(resource, 0);
-                        }
-                    }
-                }
-            }
-        }
-
-        private void ProcessThemeControls(Assembly assembly)
-        {
-            var types = assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(IThemeControl)));
-            foreach (var type in types)
-            {
-                // Check if type should be ignored
-                if (type.IsOqtaneIgnore()) continue;
-
                 var obj = Activator.CreateInstance(type) as IThemeControl;
                 if (obj.Resources != null)
                 {
-                    int count = 0; // required for local stylesheets for current theme
-                    foreach (var resource in obj.Resources)
-                    {
-                        if (resource.Declaration == ResourceDeclaration.Global || (Utilities.GetFullTypeName(type.AssemblyQualifiedName) == ThemeType && resource.ResourceType == ResourceType.Stylesheet))
-                        {
-                            ProcessResource(resource, count++);
-                        }
+                    int count = 1;
+                    foreach (var resource in obj.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
+                    {                        
+                        resource.Level = ResourceLevel.Page;
+                        ProcessResource(resource, count++);
                     }
                 }
             }
         }
+
         private void ProcessResource(Resource resource, int count)
         {
             switch (resource.ResourceType)
@@ -451,7 +447,11 @@ namespace Oqtane.Pages
                 case ResourceType.Stylesheet:
                     if (!HeadResources.Contains(resource.Url, StringComparison.OrdinalIgnoreCase))
                     {
-                        var id = (resource.Declaration == ResourceDeclaration.Global) ? "" : "id=\"app-stylesheet-" + DateTime.UtcNow.ToString("yyyyMMddHHmmssfff") + "-" + count.ToString("00") + "\" ";
+                        string id = "";
+                        if (resource.Level == ResourceLevel.Page)
+                        {
+                            id = "id=\"app-stylesheet-" + resource.Level.ToString().ToLower() + "-" + DateTime.UtcNow.ToString("yyyyMMddHHmmssfff") + "-" + count.ToString("00") + "\" ";
+                        }
                         HeadResources += "<link " + id + "rel=\"stylesheet\" href=\"" + resource.Url + "\"" + CrossOrigin(resource.CrossOrigin) + Integrity(resource.Integrity) + " />" + Environment.NewLine;
                     }
                     break;

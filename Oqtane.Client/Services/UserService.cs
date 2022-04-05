@@ -3,6 +3,7 @@ using Oqtane.Models;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Oqtane.Documentation;
+using System.Net;
 
 namespace Oqtane.Services
 {
@@ -67,6 +68,21 @@ namespace Oqtane.Services
         public async Task<User> ResetPasswordAsync(User user, string token)
         {
             return await PostJsonAsync<User>($"{Apiurl}/reset?token={token}", user);
+        }
+
+        public async Task<User> VerifyTwoFactorAsync(User user, string token)
+        {
+            return await PostJsonAsync<User>($"{Apiurl}/twofactor?token={token}", user);
+        }
+
+        public async Task<bool> ValidatePasswordAsync(string password)
+        {
+            return await GetJsonAsync<bool>($"{Apiurl}/validate/{WebUtility.UrlEncode(password)}");
+        }
+
+        public async Task<string> GetTokenAsync()
+        {
+            return await GetStringAsync($"{Apiurl}/token");
         }
     }
 }

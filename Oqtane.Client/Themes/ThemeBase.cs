@@ -32,9 +32,9 @@ namespace Oqtane.Themes
                 if (Resources != null && Resources.Exists(item => item.ResourceType == ResourceType.Script))
                 {
                     var scripts = new List<object>();
-                    foreach (Resource resource in Resources.Where(item => item.ResourceType == ResourceType.Script && item.Declaration != ResourceDeclaration.Global))
+                    foreach (Resource resource in Resources.Where(item => item.ResourceType == ResourceType.Script))
                     {
-                        scripts.Add(new { href = resource.Url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "" });
+                        scripts.Add(new { href = resource.Url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", es6module = resource.ES6Module });
                     }
                     if (scripts.Any())
                     {

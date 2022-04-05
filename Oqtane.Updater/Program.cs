@@ -25,11 +25,16 @@ namespace Oqtane.Updater
             {
                 string contentrootfolder = args[0];
                 string webrootfolder = args[1];
+
                 string deployfolder = Path.Combine(contentrootfolder, "Packages");
                 string backupfolder = Path.Combine(contentrootfolder, "Backup");
 
                 if (Directory.Exists(deployfolder))
                 {
+                    string log = "Upgrade Process Started: " + DateTime.UtcNow.ToString() + Environment.NewLine;
+                    log += "ContentRootPath: " + contentrootfolder + Environment.NewLine;
+                    log += "WebRootPath: " + webrootfolder + Environment.NewLine;
+
                     string packagename = "";
                     string[] packages = Directory.GetFiles(deployfolder, "Oqtane.Framework.*.Upgrade.zip");
                     if (packages.Length > 0)
@@ -37,15 +42,15 @@ namespace Oqtane.Updater
                         packagename = packages[packages.Length - 1]; // use highest version 
                     }
 
-                    if (packagename != "")
+                    if (packagename != "" && File.Exists(Path.Combine(webrootfolder, "app_offline.bak")))
                     {
-                        // take the app offline
-                        if (File.Exists(Path.Combine(webrootfolder, "app_offline.bak")))
-                        {
-                            File.Copy(Path.Combine(webrootfolder, "app_offline.bak"), Path.Combine(contentrootfolder, "app_offline.htm"), true);
-                        }
+                        log += "Located Upgrade Package: " + packagename + Environment.NewLine;
+
+                        log += "Stopping Application Using: " + Path.Combine(contentrootfolder, "app_offline.htm") + Environment.NewLine;
+                        File.Copy(Path.Combine(webrootfolder, "app_offline.bak"), Path.Combine(contentrootfolder, "app_offline.htm"), true);
 
                         // get list of files in package with local paths
+                        log += "Retrieving List Of Files From Upgrade Package..." + Environment.NewLine;
                         List<string> files = new List<string>();
                         using (ZipArchive archive = ZipFile.OpenRead(packagename))
                         {
@@ -61,6 +66,7 @@ namespace Oqtane.Updater
                         // ensure files are not locked
                         if (CanAccessFiles(files))
                         {
+                            log += "Preparing Backup Folder: " + backupfolder + Environment.NewLine;
                             bool success = true;
                             try
                             {
@@ -73,13 +79,14 @@ namespace Oqtane.Updater
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine(ex.Message);
+                                log += "Error Creating Backup Folder: " + ex.Message + Environment.NewLine;
                                 success = false;
                             }
 
                             // backup files
                             if (success)
                             {
+                                log += "Backing Up Files..." + Environment.NewLine;
                                 foreach (string file in files)
                                 {
                                     string filename = Path.Combine(backupfolder, file.Replace(contentrootfolder + Path.DirectorySeparatorChar, ""));
@@ -96,7 +103,7 @@ namespace Oqtane.Updater
                                     }
                                     catch (Exception ex)
                                     {
-                                        Console.WriteLine(ex.Message);
+                                        log += "Error Backing Up Files: " + ex.Message + Environment.NewLine;
                                         success = false;
                                     }
                                 }
@@ -105,6 +112,7 @@ namespace Oqtane.Updater
                             // extract files
                             if (success)
                             {
+                                log += "Extracting Files From Upgrade Package..." + Environment.NewLine;
                                 try
                                 {
                                     using (ZipArchive archive = ZipFile.OpenRead(packagename))
@@ -125,20 +133,28 @@ namespace Oqtane.Updater
                                 }
                                 catch (Exception ex)
                                 {
-                                    // an error occurred extracting a file
                                     success = false;
-                                    Console.WriteLine("Update Not Successful: Error Extracting Files From Package - " + ex.Message);
+                                    log += "Error Extracting Files From Upgrade Package: " + ex.Message + Environment.NewLine;
                                 }
 
                                 if (success)
                                 {
-                                    // clean up backup
-                                    Directory.Delete(backupfolder, true);
-                                    // delete package
-                                    File.Delete(packagename);
+                                    log += "Removing Backup Folder..." + Environment.NewLine;
+                                    try
+                                    {
+                                        // clean up backup
+                                        Directory.Delete(backupfolder, true);
+                                        // delete package
+                                        File.Delete(packagename);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log += "Error Removing Backup Folder: " + ex.Message + Environment.NewLine;
+                                    }
                                 }
                                 else
                                 {
+                                    log += "Restoring Files From Backup Folder..." + Environment.NewLine;
                                     try
                                     {
                                         // restore on failure
@@ -156,30 +172,41 @@ namespace Oqtane.Updater
                                     }
                                     catch (Exception ex)
                                     {
-                                        Console.WriteLine("Update Not Successful: Error Restoring Files - " + ex.Message);
+                                        log += "Error Restoring Files From Backup Folder: " + ex.Message + Environment.NewLine;
                                     }
                                 }
                             }
                             else
                             {
-                                Console.WriteLine("Update Not Successful: Could Not Backup All Existing Files");
+                                log += "Upgrade Failed: Could Not Backup Files" + Environment.NewLine;
                             }
                         }
                         else
                         {
-                            Console.WriteLine("Upgrade Not Successful: Some Files Are Locked");
+                            log += "Upgrade Failed: Some Files Are Locked By The Hosting Environment" + Environment.NewLine;
                         }
 
                         // bring the app back online
                         if (File.Exists(Path.Combine(contentrootfolder, "app_offline.htm")))
                         {
+                            log += "Restarting Application By Removing: " + Path.Combine(contentrootfolder, "app_offline.htm") + Environment.NewLine;
                             File.Delete(Path.Combine(contentrootfolder, "app_offline.htm"));
                         }
                     }
                     else
                     {
-                        Console.WriteLine("Framework Upgrade Package Not Found");
+                        log += "Framework Upgrade Package Not Found Or " + Path.Combine(webrootfolder, "app_offline.bak") + " Does Not Exist" + Environment.NewLine;
                     }
+
+                    log += "Upgrade Process Ended: " + DateTime.UtcNow.ToString() + Environment.NewLine;
+
+                    // create upgrade log file
+                    string logfile = Path.Combine(deployfolder, Path.GetFileNameWithoutExtension(packagename) + ".log");
+                    if (File.Exists(logfile))
+                    {
+                        File.Delete(logfile);
+                    }
+                    File.WriteAllText(logfile, log);
                 }
                 else
                 {

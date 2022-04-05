@@ -19,13 +19,15 @@
     <script src="js/loadjs.min.js"></script>
     <link rel="stylesheet" href="css/app.css" />
     @Html.Raw(Model.HeadResources)
+	<link id="app-stylesheet-page" rel="stylesheet" href="disabled.css" disabled />
+	<link id="app-stylesheet-module" rel="stylesheet" href="disabled.css" disabled />
 </head>
 <body>
 	@if (string.IsNullOrEmpty(Model.Message))
 	{
 		@(Html.AntiForgeryToken())
 
-		<component type="typeof(Oqtane.App)" render-mode="@Model.RenderMode" param-AntiForgeryToken="@Model.AntiForgeryToken" param-Runtime="@Model.Runtime" param-RenderMode="@Model.RenderMode.ToString()" param-VisitorId="@Model.VisitorId" param-RemoteIPAddress="@Model.RemoteIPAddress" />
+		<component type="typeof(Oqtane.App)" render-mode="@Model.RenderMode" param-AntiForgeryToken="@Model.AntiForgeryToken" param-Runtime="@Model.Runtime" param-RenderMode="@Model.RenderMode.ToString()" param-VisitorId="@Model.VisitorId" param-RemoteIPAddress="@Model.RemoteIPAddress" param-AuthorizationToken="@Model.AuthorizationToken" />
 
 		<div id="blazor-error-ui">
 			<environment include="Staging,Production">

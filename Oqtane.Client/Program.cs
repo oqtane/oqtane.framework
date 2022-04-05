@@ -28,8 +28,9 @@ namespace Oqtane.Client
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
             var httpClient = new HttpClient {BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)};
+            builder.Services.AddSingleton(httpClient);            
+            builder.Services.AddHttpClient(); // IHttpClientFactory for calling remote services via RemoteServiceBase
 
-            builder.Services.AddSingleton(httpClient);
             builder.Services.AddOptions();
 
             // Register localization services

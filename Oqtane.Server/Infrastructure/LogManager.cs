@@ -18,29 +18,33 @@ namespace Oqtane.Infrastructure
         private readonly IConfigManager _config;
         private readonly IUserPermissions _userPermissions;
         private readonly IHttpContextAccessor _accessor;
+        private readonly IUserRoleRepository _userRoles;
+        private readonly INotificationRepository _notifications;
 
-        public LogManager(ILogRepository logs, ITenantManager tenantManager, IConfigManager config, IUserPermissions userPermissions, IHttpContextAccessor accessor)
+        public LogManager(ILogRepository logs, ITenantManager tenantManager, IConfigManager config, IUserPermissions userPermissions, IHttpContextAccessor accessor, IUserRoleRepository userRoles, INotificationRepository notifications)
         {
             _logs = logs;
             _tenantManager = tenantManager;
             _config = config;
             _userPermissions = userPermissions;
             _accessor = accessor;
+            _userRoles = userRoles;
+            _notifications = notifications;
         }
 
         public void Log(LogLevel level, object @class, LogFunction function, string message, params object[] args)
         {
-            Log(-1, level, @class.GetType().AssemblyQualifiedName, function, null, message, args);
+            Log(-1, level, @class, function, null, message, args);
         }
 
         public void Log(LogLevel level, object @class, LogFunction function, Exception exception, string message, params object[] args)
         {
-            Log(-1, level, @class.GetType().AssemblyQualifiedName, function, exception, message, args);
+            Log(-1, level, @class, function, exception, message, args);
         }
 
         public void Log(int siteId, LogLevel level, object @class, LogFunction function, string message, params object[] args)
         {
-            Log(siteId, level, @class.GetType().AssemblyQualifiedName, function, null, message, args);
+            Log(siteId, level, @class, function, null, message, args);
         }
 
         public void Log(int siteId, LogLevel level, object @class, LogFunction function, Exception exception, string message, params object[] args)
@@ -76,8 +80,8 @@ namespace Oqtane.Infrastructure
                 }
             }
 
-            Type type = Type.GetType(@class.ToString());
-            if (type != null)
+            Type type = @class.GetType();
+            if (type != null && type != typeof(string))
             {
                 log.Category = type.AssemblyQualifiedName;
                 log.Feature = Utilities.GetTypeNameLastSegment(log.Category, 0);
@@ -124,11 +128,11 @@ namespace Oqtane.Infrastructure
                 try
                 {
                     _logs.AddLog(log);
+                    SendNotification(log);
                 }
-                catch (Exception ex)
+                catch
                 {
                     // an error occurred writing to the database
-                    var x = ex.Message;
                 }
             }
         }
@@ -187,6 +191,29 @@ namespace Oqtane.Infrastructure
                 log.Properties = "";
             }
             return log;
+        }
+
+        private void SendNotification(Log log)
+        {
+            LogLevel notifylevel = LogLevel.Error;
+            var section = _config.GetSection("Logging:LogLevel:Notify");
+            if (section.Exists())
+            {
+                notifylevel = Enum.Parse<LogLevel>(section.Value);
+            }
+            if (Enum.Parse<LogLevel>(log.Level) >= notifylevel)
+            {
+                foreach (var userrole in _userRoles.GetUserRoles(log.SiteId.Value))
+                {
+                    if (userrole.Role.Name == RoleNames.Host)
+                    {
+                        var url = _accessor.HttpContext.Request.Scheme + "://" + _tenantManager.GetAlias().Name + "/admin/log";
+                        var notification = new Notification(log.SiteId.Value, userrole.User, "Site " + log.Level + " Notification", "Please visit " + url + " for more information");
+                        _notifications.AddNotification(notification);
+                    }
+                }
+
+            }
         }
     }
 }

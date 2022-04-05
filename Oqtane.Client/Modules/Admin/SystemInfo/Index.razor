@@ -27,15 +27,45 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="serverpath" HelpText="Server Path" ResourceKey="ServerPath">Server Path: </Label>
+                <Label Class="col-sm-3" For="machinename" HelpText="Machine Name" ResourceKey="MachineName">Machine Name: </Label>
                 <div class="col-sm-9">
-                    <input id="serverpath" class="form-control" @bind="@_serverpath" readonly />
+                    <input id="machinename" class="form-control" @bind="@_machinename" readonly />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="ipaddress" HelpText="Server IP Address" ResourceKey="IPAddress">IP Address: </Label>
+                <div class="col-sm-9">
+                    <input id="ipaddress" class="form-control" @bind="@_ipaddress" readonly />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="contentrootpath" HelpText="Root Path" ResourceKey="ContentRootPath">Root Path: </Label>
+                <div class="col-sm-9">
+                    <input id="contentrootpath" class="form-control" @bind="@_contentrootpath" readonly />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="webrootpath" HelpText="Web Path" ResourceKey="WebRootPath">Web Path: </Label>
+                <div class="col-sm-9">
+                    <input id="webrootpath" class="form-control" @bind="@_webrootpath" readonly />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="servertime" HelpText="Server Date/Time (in UTC)" ResourceKey="ServerTime">Server Date/Time: </Label>
                 <div class="col-sm-9">
                     <input id="servertime" class="form-control" @bind="@_servertime" readonly />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="tickcount" HelpText="Amount Of Time The Service Has Been Available And Operational" ResourceKey="TickCount">Service Uptime: </Label>
+                <div class="col-sm-9">
+                    <input id="tickcount" class="form-control" @bind="@_tickcount" readonly />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="workingset" HelpText="Memory Allocation Of Service (in MB)" ResourceKey="WorkingSet">Memory Allocation: </Label>
+                <div class="col-sm-9">
+                    <input id="workingset" class="form-control" @bind="@_workingset" readonly />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
@@ -69,6 +99,21 @@
                         <option value="Warning">@Localizer["Warning"]</option>
                         <option value="Error">@Localizer["Error"]</option>
                         <option value="Critical">@Localizer["Critical"]</option>
+                        <option value="None">@Localizer["None"]</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="notificationlevel" HelpText="The Minimum Logging Level For Which Notifications Should Be Sent To Host Users." ResourceKey="NotificationLevel">Notification Level: </Label>
+                <div class="col-sm-9">
+                    <select id="notificationlevel" class="form-select" @bind="@_notificationlevel">
+                        <option value="Trace">@Localizer["Trace"]</option>
+                        <option value="Debug">@Localizer["Debug"]</option>
+                        <option value="Information">@Localizer["Information"]</option>
+                        <option value="Warning">@Localizer["Warning"]</option>
+                        <option value="Error">@Localizer["Error"]</option>
+                        <option value="Critical">@Localizer["Critical"]</option>
+                        <option value="None">@Localizer["None"]</option>
                     </select>
                 </div>
             </div>
@@ -104,12 +149,18 @@
 	private string _version = string.Empty;
 	private string _clrversion = string.Empty;
 	private string _osversion = string.Empty;
-	private string _serverpath = string.Empty;
+	private string _machinename = string.Empty;
+	private string _ipaddress = string.Empty;
+	private string _contentrootpath = string.Empty;
+	private string _webrootpath = string.Empty;
 	private string _servertime = string.Empty;
+	private string _tickcount = string.Empty;
+	private string _workingset = string.Empty;
 	private string _installationid = string.Empty;
 
 	private string _detailederrors = string.Empty;
 	private string _logginglevel = string.Empty;
+	private string _notificationlevel = string.Empty;
 	private string _swagger = string.Empty;
 	private string _packageservice = string.Empty;
 
@@ -117,31 +168,42 @@
 	{
 		_version = Constants.Version;
 
-		Dictionary<string, string> systeminfo = await SystemService.GetSystemInfoAsync();
+		Dictionary<string, object> systeminfo = await SystemService.GetSystemInfoAsync("environment");
 		if (systeminfo != null)
 		{
-			_clrversion = systeminfo["clrversion"];
-			_osversion = systeminfo["osversion"];
-			_serverpath = systeminfo["serverpath"];
-			_servertime = systeminfo["servertime"] + " UTC";
-			_installationid = systeminfo["installationid"];
+			_clrversion = systeminfo["CLRVersion"].ToString();
+			_osversion = systeminfo["OSVersion"].ToString();
+			_machinename = systeminfo["MachineName"].ToString();
+			_ipaddress = systeminfo["IPAddress"].ToString();
+			_contentrootpath = systeminfo["ContentRootPath"].ToString();
+			_webrootpath = systeminfo["WebRootPath"].ToString();
+			_servertime = systeminfo["ServerTime"].ToString() + " UTC";
+			_tickcount = TimeSpan.FromMilliseconds(Convert.ToInt64(systeminfo["TickCount"].ToString())).ToString();
+			_workingset = (Convert.ToInt64(systeminfo["WorkingSet"].ToString()) / 1000000).ToString() + " MB";
+		}
 
-            _detailederrors = systeminfo["detailederrors"];
-            _logginglevel = systeminfo["logginglevel"];
-            _swagger = systeminfo["swagger"];
-            _packageservice = systeminfo["packageservice"];
-        }
-    }
+		systeminfo = await SystemService.GetSystemInfoAsync();
+		if (systeminfo != null)
+		{
+			_installationid = systeminfo["InstallationId"].ToString();
+            _detailederrors = systeminfo["DetailedErrors"].ToString();
+            _logginglevel = systeminfo["Logging:LogLevel:Default"].ToString();
+            _notificationlevel = systeminfo["Logging:LogLevel:Notify"].ToString();
+            _swagger = systeminfo["UseSwagger"].ToString();
+            _packageservice = systeminfo["PackageService"].ToString();
+		}
+	}
 
     private async Task SaveConfig()
     {
         try
         {
-            var settings = new Dictionary<string, string>();
-            settings.Add("detailederrors", _detailederrors);
-            settings.Add("logginglevel", _logginglevel);
-            settings.Add("swagger", _swagger);
-            settings.Add("packageservice", _packageservice);
+            var settings = new Dictionary<string, object>();
+            settings.Add("DetailedErrors", _detailederrors);
+            settings.Add("Logging:LogLevel:Default", _logginglevel);
+            settings.Add("Logging:LogLevel:Notify", _notificationlevel);
+            settings.Add("UseSwagger", _swagger);
+            settings.Add("PackageService", _packageservice);
             await SystemService.UpdateSystemInfoAsync(settings);
             AddModuleMessage(Localizer["Success.UpdateConfig.Restart"], MessageType.Success);
         }

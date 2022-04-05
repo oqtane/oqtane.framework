@@ -1,10 +1,11 @@
 using System;
 
-namespace Oqtane.Shared {
-
-    public class Constants {
-        public static readonly string Version = "3.0.3";
-        public const string ReleaseVersions = "1.0.0,1.0.1,1.0.2,1.0.3,1.0.4,2.0.0,2.0.1,2.0.2,2.1.0,2.2.0,2.3.0,2.3.1,3.0.0,3.0.1,3.0.2,3.0.3";
+namespace Oqtane.Shared
+{
+    public class Constants
+    {
+        public static readonly string Version = "3.1.0";
+        public const string ReleaseVersions = "1.0.0,1.0.1,1.0.2,1.0.3,1.0.4,2.0.0,2.0.1,2.0.2,2.1.0,2.2.0,2.3.0,2.3.1,3.0.0,3.0.1,3.0.2,3.0.3,3.1.0";
         public const string PackageId = "Oqtane.Framework";
         public const string UpdaterPackageId = "Oqtane.Updater";
         public const string PackageRegistryUrl = "https://www.oqtane.net";
@@ -63,7 +64,7 @@ namespace Oqtane.Shared {
         public const string RegisteredRole = RoleNames.Registered;
 
         public const string ImageFiles = "jpg,jpeg,jpe,gif,bmp,png,ico,webp";
-        public const string UploadableFiles = ImageFiles + ",mov,wmv,avi,mp4,mp3,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,zip,nupkg,csv";
+        public const string UploadableFiles = ImageFiles + ",mov,wmv,avi,mp4,mp3,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,zip,nupkg,csv,json,xml,xslt,rss,html,htm,css";
         public const string ReservedDevices = "CON,NUL,PRN,COM0,COM1,COM2,COM3,COM4,COM5,COM6,COM7,COM8,COM9,LPT0,LPT1,LPT2,LPT3,LPT4,LPT5,LPT6,LPT7,LPT8,LPT9,CONIN$,CONOUT$";
 
         public static readonly char[] InvalidFileNameChars =
@@ -85,5 +86,8 @@ namespace Oqtane.Shared {
         public static readonly string AntiForgeryTokenCookieName = "X-XSRF-TOKEN-COOKIE";
 
         public static readonly string DefaultVisitorFilter = "bot,crawler,slurp,spider,(none),??";
+
+        public static readonly string HttpContextAliasKey = "Alias";
+        public static readonly string HttpContextSiteSettingsKey = "SiteSettings";
     }
 }

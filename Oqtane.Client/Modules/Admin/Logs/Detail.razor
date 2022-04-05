@@ -155,7 +155,7 @@
                     }
                 }
 
-                if (log.PageId != null && log.ModuleId != null)
+                if (log.PageId != null && log.ModuleId != null && log.ModuleId != -1)
                 {
                     var pagemodule = await PageModuleService.GetPageModuleAsync(log.PageId.Value, log.ModuleId.Value);
                     if (pagemodule != null)

@@ -129,8 +129,8 @@
   <data name="OSVersion.HelpText" xml:space="preserve">
     <value>Operating System Version</value>
   </data>
-  <data name="ServerPath.HelpText" xml:space="preserve">
-    <value>Server Path</value>
+  <data name="ContentRootPath.HelpText" xml:space="preserve">
+    <value>Server Root Path</value>
   </data>
   <data name="ServerTime.HelpText" xml:space="preserve">
     <value>Server Date/Time (in UTC)</value>
@@ -144,8 +144,8 @@
   <data name="OSVersion.Text" xml:space="preserve">
     <value>OS Version: </value>
   </data>
-  <data name="ServerPath.Text" xml:space="preserve">
-    <value>Server Path: </value>
+  <data name="ContentRootPath.Text" xml:space="preserve">
+    <value>Root Path: </value>
   </data>
   <data name="ServerTime.Text" xml:space="preserve">
     <value>Server Date/Time: </value>
@@ -230,5 +230,44 @@
   </data>
   <data name="RestartApplication.Text" xml:space="preserve">
     <value>Restart Application</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="NotificationLevel.HelpText" xml:space="preserve">
+    <value>The Minimum Logging Level For Which Notifications Should Be Sent To Host Users.</value>
+  </data>
+  <data name="NotificationLevel.Text" xml:space="preserve">
+    <value>Notification Level:</value>
+  </data>
+  <data name="IPAddress.HelpText" xml:space="preserve">
+    <value>Server IP Address</value>
+  </data>
+  <data name="IPAddress.Text" xml:space="preserve">
+    <value>IP Address:</value>
+  </data>
+  <data name="MachineName.HelpText" xml:space="preserve">
+    <value>Server Machine Name</value>
+  </data>
+  <data name="MachineName.Text" xml:space="preserve">
+    <value>Machine Name:</value>
+  </data>
+  <data name="TickCount.HelpText" xml:space="preserve">
+    <value>Amount Of Time The Service Has Been Available And Operational</value>
+  </data>
+  <data name="TickCount.Text" xml:space="preserve">
+    <value>Service Uptime:</value>
+  </data>
+  <data name="WebRootPath.HelpText" xml:space="preserve">
+    <value>Server Web Root Path</value>
+  </data>
+  <data name="WebRootPath.Text" xml:space="preserve">
+    <value>Web Path:</value>
+  </data>
+  <data name="WorkingSet.HelpText" xml:space="preserve">
+    <value>Memory Allocation Of Service (in MB)</value>
+  </data>
+  <data name="WorkingSet.Text" xml:space="preserve">
+    <value>Memory Allocation:</value>
   </data>
 </root>

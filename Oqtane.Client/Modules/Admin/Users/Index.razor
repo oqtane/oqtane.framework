@@ -55,15 +55,281 @@ else
 	</TabPanel>
         <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings">
 			<div class="container">
-				<div class="row mb-1 align-items-center">
-					<Label Class="col-sm-3" For="allowregistration" HelpText="Do you want to allow visitors to be able to register for a user account on the site" ResourceKey="AllowRegistration">Allow User Registration? </Label>
-					<div class="col-sm-9">
-						<select id="allowregistration" class="form-select" @bind="@_allowregistration" required>
-							<option value="True">@SharedLocalizer["Yes"]</option>
-							<option value="False">@SharedLocalizer["No"]</option>
-						</select>
+				<Section Name="User" Heading="User Settings" ResourceKey="UserSettings">
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="allowregistration" HelpText="Do you want anonymous visitors to be able to register for an account on the site" ResourceKey="AllowRegistration">Allow User Registration?</Label>
+						<div class="col-sm-9">
+							<select id="allowregistration" class="form-select" @bind="@_allowregistration">
+								<option value="True">@SharedLocalizer["Yes"]</option>
+								<option value="False">@SharedLocalizer["No"]</option>
+							</select>
+						</div>
 					</div>
-				</div>
+					@if (_providertype != "")
+					{
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="allowsitelogin" HelpText="Do you want to allow users to sign in using a username and password that is managed locally on this site? Note that you should only disable this option if you have already sucessfully configured an external login provider, or else you may lock yourself out of the site." ResourceKey="AllowSiteLogin">Allow Login?</Label>
+							<div class="col-sm-9">
+								<select id="allowsitelogin" class="form-select" @bind="@_allowsitelogin">
+									<option value="true">@SharedLocalizer["Yes"]</option>
+									<option value="false">@SharedLocalizer["No"]</option>
+								</select>
+							</div>
+						</div>
+					}
+					else
+					{
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="allowsitelogin" HelpText="Do you want to allow users to sign in using a username and password that is managed locally on this site? Note that you should only disable this option if you have already sucessfully configured an external login provider, or else you may lock yourself out of the site." ResourceKey="AllowSiteLogin">Allow Login?</Label>
+							<div class="col-sm-9">
+								<input id="allowsitelogin" class="form-control" value="@SharedLocalizer["Yes"]" readonly />
+							</div>
+						</div>						
+					}
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="twofactor" HelpText="Do you want to allow users to use two factor authentication? Note that the Notification Job in Scheduled Jobs needs to be enabled for this option to work properly." ResourceKey="TwoFactor">Allow Two Factor?</Label>
+						<div class="col-sm-9">
+							<select id="twofactor" class="form-select" @bind="@_twofactor">
+								<option value="true">@SharedLocalizer["Yes"]</option>
+								<option value="false">@SharedLocalizer["No"]</option>
+							</select>
+						</div>
+					</div>
+					@if (!string.IsNullOrEmpty(PageState.Alias.Path))
+					{
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="cookietype" HelpText="Cookies are usually managed per domain. However you can also choose to have distinct cookies for each site (this option is only applicable to micro-sites)." ResourceKey="CookieType">Cookie Type:</Label>
+							<div class="col-sm-9">
+								<select id="cookietype" class="form-select" @bind="@_cookietype">
+									<option value="domain">@Localizer["Domain"]</option>
+									<option value="site">@Localizer["Site"]</option>
+								</select>
+							</div>
+						</div>
+					}
+				</Section>
+				<Section Name="Password" Heading="Password Settings" ResourceKey="PasswordSettings">
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="minimumlength" HelpText="The Minimum Length For A Password" ResourceKey="RequiredLength">Minimum Length:</Label>
+						<div class="col-sm-9">
+							<input id="minimumlength" class="form-control" @bind="@_minimumlength" required />
+						</div>
+					</div>					
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="uniquecharacters" HelpText="The Minimum Number Of Unique Characters Which A Password Must Contain" ResourceKey="UniqueCharacters">Unique Characters:</Label>
+						<div class="col-sm-9">
+							<input id="uniquecharacters" class="form-control" @bind="@_uniquecharacters" required />
+						</div>
+					</div>					
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="requiredigit" HelpText="Indicate If Passwords Must Contain A Digit" ResourceKey="RequireDigit">Require Digit?</Label>
+						<div class="col-sm-9">
+							<select id="requiredigit" class="form-select" @bind="@_requiredigit" required>
+								<option value="true">@SharedLocalizer["Yes"]</option>
+								<option value="false">@SharedLocalizer["No"]</option>
+							</select>
+						</div>
+					</div>					
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="requireupper" HelpText="Indicate If Passwords Must Contain An Upper Case Character" ResourceKey="RequireUpper">Require Uppercase?</Label>
+						<div class="col-sm-9">
+							<select id="requireupper" class="form-select" @bind="@_requireupper" required>
+								<option value="true">@SharedLocalizer["Yes"]</option>
+								<option value="false">@SharedLocalizer["No"]</option>
+							</select>
+						</div>
+					</div>					
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="requirelower" HelpText="Indicate If Passwords Must Contain A Lower Case Character" ResourceKey="RequireLower">Require Lowercase?</Label>
+						<div class="col-sm-9">
+							<select id="requirelower" class="form-select" @bind="@_requirelower" required>
+								<option value="true">@SharedLocalizer["Yes"]</option>
+								<option value="false">@SharedLocalizer["No"]</option>
+							</select>
+						</div>
+					</div>
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="requirepunctuation" HelpText="Indicate if Passwords Must Contain A Non-alphanumeric Character (ie. Punctuation)" ResourceKey="RequirePunctuation">Require Punctuation?</Label>
+						<div class="col-sm-9">
+							<select id="requirepunctuation" class="form-select" @bind="@_requirepunctuation" required>
+								<option value="true">@SharedLocalizer["Yes"]</option>
+								<option value="false">@SharedLocalizer["No"]</option>
+							</select>
+						</div>
+					</div>					
+				</Section>
+				<Section Name="Lockout" Heading="Lockout Settings" ResourceKey="LockoutSettings">
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="maximum" HelpText="The Maximum Number Of Sign In Attempts Before A User Is Locked Out" ResourceKey="MaximumFailures">Maximum Failures:</Label>
+						<div class="col-sm-9">
+							<input id="maximum" class="form-control" @bind="@_maximumfailures" required />
+						</div>
+					</div>					
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="lockoutduration" HelpText="The Number Of Minutes A User Should Be Locked Out" ResourceKey="LockoutDuration">Lockout Duration:</Label>
+						<div class="col-sm-9">
+							<input id="lockoutduration" class="form-control" @bind="@_lockoutduration" required />
+						</div>
+					</div>					
+				</Section>
+				<Section Name="ExternalLogin" Heading="External Login Settings" ResourceKey="ExternalLoginSettings">
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="providertype" HelpText="Select the external login provider type" ResourceKey="ProviderType">Provider Type:</Label>
+						<div class="col-sm-9">
+							<select id="providertype" class="form-select" value="@_providertype" @onchange="(e => ProviderTypeChanged(e))">
+								<option value="" selected>@Localizer["Not Specified"]</option>
+								<option value="@AuthenticationProviderTypes.OpenIDConnect">@Localizer["OpenID Connect"]</option>
+								<option value="@AuthenticationProviderTypes.OAuth2">@Localizer["OAuth 2.0"]</option>
+							</select>
+						</div>
+					</div>		
+					@if (_providertype != "")
+					{
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="providername" HelpText="The external login provider name which will be displayed on the login page" ResourceKey="ProviderName">Provider Name:</Label>
+							<div class="col-sm-9">
+								<input id="providername" class="form-control" @bind="@_providername" />
+							</div>
+						</div>
+					}
+					@if (_providertype == AuthenticationProviderTypes.OpenIDConnect)
+					{
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="authority" HelpText="The Authority Url or Issuer Url associated with the OpenID Connect provider" ResourceKey="Authority">Authority:</Label>
+							<div class="col-sm-9">
+								<input id="authority" class="form-control" @bind="@_authority" />
+							</div>
+						</div>
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="metadataurl" HelpText="The discovery endpoint for obtaining metadata for this provider. Only specify if the OpenID Connect provider does not use the standard approach (ie. /.well-known/openid-configuration)" ResourceKey="MetadataUrl">Metadata Url:</Label>
+							<div class="col-sm-9">
+								<input id="metadataurl" class="form-control" @bind="@_metadataurl" />
+							</div>
+						</div>
+					}
+					@if (_providertype == AuthenticationProviderTypes.OAuth2)
+					{
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="authorizationurl" HelpText="The endpoint for obtaining an Authorization Code" ResourceKey="AuthorizationUrl">Authorization Url:</Label>
+							<div class="col-sm-9">
+								<input id="authorizationurl" class="form-control" @bind="@_authorizationurl" />
+							</div>
+						</div>
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="tokenurl" HelpText="The endpoint for obtaining an Auth Token" ResourceKey="TokenUrl">Token Url:</Label>
+							<div class="col-sm-9">
+								<input id="tokenurl" class="form-control" @bind="@_tokenurl" />
+							</div>
+						</div>
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="userinfourl" HelpText="The endpoint for obtaining user information. This should be an API or Page Url which contains the users email address." ResourceKey="UserInfoUrl">User Info Url:</Label>
+							<div class="col-sm-9">
+								<input id="userinfourl" class="form-control" @bind="@_userinfourl" />
+							</div>
+						</div>
+					}
+					@if (_providertype != "")
+					{
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="clientid" HelpText="The Client ID from the provider" ResourceKey="ClientID">Client ID:</Label>
+							<div class="col-sm-9">
+								<input id="clientid" class="form-control" @bind="@_clientid" />
+							</div>
+						</div>
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="clientsecret" HelpText="The Client Secret from the provider" ResourceKey="ClientSecret">Client Secret:</Label>
+							<div class="col-sm-9">
+								<div class="input-group">
+									<input type="@_clientsecrettype" id="clientsecret" class="form-control" @bind="@_clientsecret" />
+									<button type="button" class="btn btn-secondary" @onclick="@ToggleClientSecret">@_toggleclientsecret</button>
+								</div>
+							</div>
+						</div>
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="scopes" HelpText="A list of Scopes to request from the provider (separated by commas). If none are specified, standard Scopes will be used by default." ResourceKey="Scopes">Scopes:</Label>
+							<div class="col-sm-9">
+								<input id="scopes" class="form-control" @bind="@_scopes" />
+							</div>
+						</div>
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="pkce" HelpText="Indicate if the provider supports Proof Key for Code Exchange (PKCE)" ResourceKey="PKCE">Use PKCE?</Label>
+							<div class="col-sm-9">
+								<select id="pkce" class="form-select" @bind="@_pkce" required>
+									<option value="true">@SharedLocalizer["Yes"]</option>
+									<option value="false">@SharedLocalizer["No"]</option>
+								</select>
+							</div>
+						</div>					
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="redirecturl" HelpText="The Redirect Url (or Callback Url) which usually needs to be registered with the provider" ResourceKey="RedirectUrl">Redirect Url:</Label>
+							<div class="col-sm-9">
+								<input id="redirecturl" class="form-control" @bind="@_redirecturl" readonly />
+							</div>
+						</div>
+						@if (_providertype == AuthenticationProviderTypes.OpenIDConnect)
+						{
+							<div class="row mb-1 align-items-center">
+								<Label Class="col-sm-3" For="emailclaimtype" HelpText="The type name for the email address claim provided by the provider" ResourceKey="EmailClaimType">Email Claim Type:</Label>
+								<div class="col-sm-9">
+									<input id="emailclaimtype" class="form-control" @bind="@_emailclaimtype" />
+								</div>
+							</div>
+						}
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="domainfilter" HelpText="Provide any email domain filter criteria (separated by commas). Domains to exclude should be prefixed with an exclamation point (!). For example 'microsoft.com,!hotmail.com' would include microsoft.com email addresses but not hotmail.com email addresses." ResourceKey="DomainFilter">Domain Filter:</Label>
+							<div class="col-sm-9">
+								<input id="domainfilter" class="form-control" @bind="@_domainfilter" />
+							</div>
+						</div>
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="createusers" HelpText="Do you want new users to be created automatically? If you disable this option, users must already be registered on the site in order to sign in with their external login." ResourceKey="CreateUsers">Create New Users?</Label>
+							<div class="col-sm-9">
+								<select id="createusers" class="form-select" @bind="@_createusers">
+									<option value="true">@SharedLocalizer["Yes"]</option>
+									<option value="false">@SharedLocalizer["No"]</option>
+								</select>
+							</div>
+						</div>
+					}
+				</Section>
+				<Section Name="Token" Heading="Token Settings" ResourceKey="TokenSettings">
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="secret" HelpText="If you want to want to provide API access, please specify a secret which will be used to encrypt your tokens. The secret should be 16 characters or more to ensure optimal security. Please note that if you change this secret, all existing tokens will become invalid and will need to be regenerated." ResourceKey="Secret">Secret:</Label>
+						<div class="col-sm-9">
+							<div class="input-group">
+								<input type="@_secrettype" id="secret" class="form-control" @bind="@_secret" />
+								<button type="button" class="btn btn-secondary" @onclick="@ToggleSecret">@_togglesecret</button>
+							</div>
+						</div>
+					</div>					
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="issuer" HelpText="Optionally provide the issuer of the token" ResourceKey="Issuer">Issuer:</Label>
+						<div class="col-sm-9">
+							<input id="issuer" class="form-control" @bind="@_issuer" />
+						</div>
+					</div>					
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="audience" HelpText="Optionally provide the audience for the token" ResourceKey="Audience">Audience:</Label>
+						<div class="col-sm-9">
+							<input id="audience" class="form-control" @bind="@_audience" />
+						</div>
+					</div>					
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="lifetime" HelpText="The number of minutes for which a token should be valid" ResourceKey="Lifetime">Lifetime:</Label>
+						<div class="col-sm-9">
+							<input id="lifetime" class="form-control" @bind="@_lifetime" />
+						</div>
+					</div>					
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="token" HelpText="Select the Create Token button to generate a long-lived access token (valid for 1 year). Be sure to store this token in a safe location as you will not be able to access it in the future." ResourceKey="Token">Access Token:</Label>
+						<div class="col-sm-9">
+							<div class="input-group">
+								<input id="token" class="form-control" @bind="@_token" />
+								<button type="button" class="btn btn-secondary" @onclick="@CreateToken">@Localizer["CreateToken"]</button>
+							</div>
+						</div>
+					</div>					
+				</Section>
 			</div>
 			<br />
 			<button type="button" class="btn btn-success" @onclick="SaveSiteSettings">@SharedLocalizer["Save"]</button>
@@ -72,79 +338,156 @@ else
 }
 
 @code {
-    private List<UserRole> allroles;
-    private List<UserRole> userroles;
-    private string _search;
+	private List<UserRole> allroles;
+	private List<UserRole> userroles;
+	private string _search;
+
 	private string _allowregistration;
+	private string _allowsitelogin;
+	private string _twofactor;
+	private string _cookietype;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+	private string _minimumlength;
+	private string _uniquecharacters;
+	private string _requiredigit;
+	private string _requireupper;
+	private string _requirelower;
+	private string _requirepunctuation;
+	private string _maximumfailures;
+	private string _lockoutduration;
 
-    protected override async Task OnInitializedAsync()
-    {
-        allroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
-        await LoadSettingsAsync();
-        userroles = Search(_search);
+	private string _providertype;
+	private string _providername;
+	private string _authority;
+	private string _metadataurl;
+	private string _authorizationurl;
+	private string _tokenurl;
+	private string _userinfourl;
+	private string _clientid;
+	private string _clientsecret;
+	private string _clientsecrettype = "password";
+	private string _toggleclientsecret = string.Empty;
+	private string _scopes;
+	private string _pkce;
+	private string _redirecturl;
+	private string _emailclaimtype;
+	private string _domainfilter;
+	private string _createusers;
+
+	private string _secret;
+	private string _secrettype = "password";
+	private string _togglesecret = string.Empty;
+	private string _issuer;
+	private string _audience;
+	private string _lifetime;
+	private string _token;
+
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+
+	protected override async Task OnInitializedAsync()
+	{
+		allroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
+		await LoadSettingsAsync();
+		userroles = Search(_search);
+
+		var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
 		_allowregistration = PageState.Site.AllowRegistration.ToString();
-    }
+		_allowsitelogin = SettingService.GetSetting(settings, "LoginOptions:AllowSiteLogin", "true");
+		_twofactor = SettingService.GetSetting(settings, "LoginOptions:TwoFactor", "false");
+		_cookietype = SettingService.GetSetting(settings, "LoginOptions:CookieType", "domain");
 
-    private List<UserRole> Search(string search)
-    {
-        var results = allroles.Where(item => item.Role.Name == RoleNames.Registered || (item.Role.Name == RoleNames.Host && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host)));
+		_minimumlength = SettingService.GetSetting(settings, "IdentityOptions:Password:RequiredLength", "6");
+		_uniquecharacters = SettingService.GetSetting(settings, "IdentityOptions:Password:RequiredUniqueChars", "1");
+		_requiredigit = SettingService.GetSetting(settings, "IdentityOptions:Password:RequireDigit", "true");
+		_requireupper = SettingService.GetSetting(settings, "IdentityOptions:Password:RequireUppercase", "true");
+		_requirelower = SettingService.GetSetting(settings, "IdentityOptions:Password:RequireLowercase", "true");
+		_requirepunctuation = SettingService.GetSetting(settings, "IdentityOptions:Password:RequireNonAlphanumeric", "true");
 
-        if (!string.IsNullOrEmpty(_search))
-        {
-            results = results.Where(item =>
-                (
-                    item.User.Username.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    item.User.Email.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    item.User.DisplayName.Contains(search, StringComparison.OrdinalIgnoreCase)
-                )
-            );
-        }
-        return results.ToList();
-    }
+		_maximumfailures = SettingService.GetSetting(settings, "IdentityOptions:Lockout:MaxFailedAccessAttempts", "5");
+		_lockoutduration = TimeSpan.Parse(SettingService.GetSetting(settings, "IdentityOptions:Lockout:DefaultLockoutTimeSpan", "00:05:00")).TotalMinutes.ToString();
 
-    private async Task OnSearch()
-    {
-        userroles = Search(_search);
-        await UpdateSettingsAsync();
-    }
+		_providertype = SettingService.GetSetting(settings, "ExternalLogin:ProviderType", "");
+		_providername = SettingService.GetSetting(settings, "ExternalLogin:ProviderName", "");
+		_authority = SettingService.GetSetting(settings, "ExternalLogin:Authority", "");
+		_metadataurl = SettingService.GetSetting(settings, "ExternalLogin:MetadataUrl", "");
+		_authorizationurl = SettingService.GetSetting(settings, "ExternalLogin:AuthorizationUrl", "");
+		_tokenurl = SettingService.GetSetting(settings, "ExternalLogin:TokenUrl", "");
+		_userinfourl = SettingService.GetSetting(settings, "ExternalLogin:UserInfoUrl", "");
+		_clientid = SettingService.GetSetting(settings, "ExternalLogin:ClientId", "");
+		_clientsecret = SettingService.GetSetting(settings, "ExternalLogin:ClientSecret", "");
+		_toggleclientsecret = Localizer["Show"];
+		_scopes = SettingService.GetSetting(settings, "ExternalLogin:Scopes", "");
+		_pkce = SettingService.GetSetting(settings, "ExternalLogin:PKCE", "false");
+		_redirecturl = PageState.Uri.Scheme + "://" + PageState.Alias.Name + "/signin-" + _providertype;
+		_emailclaimtype = SettingService.GetSetting(settings, "ExternalLogin:EmailClaimType", "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress");
+		_domainfilter = SettingService.GetSetting(settings, "ExternalLogin:DomainFilter", "");
+		_createusers = SettingService.GetSetting(settings, "ExternalLogin:CreateUsers", "true");
 
-    private async Task DeleteUser(UserRole UserRole)
-    {
-        try
-        {
-            var user = await UserService.GetUserAsync(UserRole.UserId, PageState.Site.SiteId);
-            if (user != null)
-            {
-                await UserService.DeleteUserAsync(user.UserId, PageState.Site.SiteId);
-                await logger.LogInformation("User Deleted {User}", UserRole.User);
-                allroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
-                userroles = Search(_search);
-                StateHasChanged();
-            }
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Deleting User {User} {Error}", UserRole.User, ex.Message);
-            AddModuleMessage(ex.Message, MessageType.Error);
-        }
-    }
+		_secret = SettingService.GetSetting(settings, "JwtOptions:Secret", "");
+		_togglesecret = Localizer["Show"];
+		_issuer = SettingService.GetSetting(settings, "JwtOptions:Issuer", PageState.Uri.Scheme + "://" + PageState.Alias.Name);
+		_audience = SettingService.GetSetting(settings, "JwtOptions:Audience", "");
+		_lifetime = SettingService.GetSetting(settings, "JwtOptions:Lifetime", "20");
+	}
 
-    private string settingSearch = "AU-search";
+	private List<UserRole> Search(string search)
+	{
+		var results = allroles.Where(item => item.Role.Name == RoleNames.Registered || (item.Role.Name == RoleNames.Host && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host)));
 
-    private async Task LoadSettingsAsync()
-    {
-        Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-        _search = SettingService.GetSetting(settings, settingSearch, "");
-    }
+		if (!string.IsNullOrEmpty(_search))
+		{
+			results = results.Where(item =>
+				(
+					item.User.Username.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+					item.User.Email.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+					item.User.DisplayName.Contains(search, StringComparison.OrdinalIgnoreCase)
+				)
+			);
+		}
+		return results.ToList();
+	}
 
-    private async Task UpdateSettingsAsync()
-    {
-        Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-        SettingService.SetSetting(settings, settingSearch, _search);
-        await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
-    }
+	private async Task OnSearch()
+	{
+		userroles = Search(_search);
+		await UpdateSettingsAsync();
+	}
+
+	private async Task DeleteUser(UserRole UserRole)
+	{
+		try
+		{
+			var user = await UserService.GetUserAsync(UserRole.UserId, PageState.Site.SiteId);
+			if (user != null)
+			{
+				await UserService.DeleteUserAsync(user.UserId, PageState.Site.SiteId);
+				await logger.LogInformation("User Deleted {User}", UserRole.User);
+				allroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
+				userroles = Search(_search);
+				StateHasChanged();
+			}
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Deleting User {User} {Error}", UserRole.User, ex.Message);
+			AddModuleMessage(ex.Message, MessageType.Error);
+		}
+	}
+
+	private string settingSearch = "AU-search";
+
+	private async Task LoadSettingsAsync()
+	{
+		Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
+		_search = SettingService.GetSetting(settings, settingSearch, "");
+	}
+
+	private async Task UpdateSettingsAsync()
+	{
+		Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
+		SettingService.SetSetting(settings, settingSearch, _search);
+		await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
+	}
 
 	private async Task SaveSiteSettings()
 	{
@@ -153,7 +496,47 @@ else
 			var site = PageState.Site;
 			site.AllowRegistration = bool.Parse(_allowregistration);
 			await SiteService.UpdateSiteAsync(site);
-			AddModuleMessage(Localizer["Success.SaveSiteSettings"], MessageType.Success);
+
+			var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
+			settings = SettingService.SetSetting(settings, "LoginOptions:AllowSiteLogin", _allowsitelogin, false);
+			settings = SettingService.SetSetting(settings, "LoginOptions:TwoFactor", _twofactor, false);
+			settings = SettingService.SetSetting(settings, "LoginOptions:CookieType", _cookietype, true);
+
+			settings = SettingService.SetSetting(settings, "IdentityOptions:Password:RequiredLength", _minimumlength, true);
+			settings = SettingService.SetSetting(settings, "IdentityOptions:Password:RequiredUniqueChars", _uniquecharacters, true);
+			settings = SettingService.SetSetting(settings, "IdentityOptions:Password:RequireDigit", _requiredigit, true);
+			settings = SettingService.SetSetting(settings, "IdentityOptions:Password:RequireUppercase", _requireupper, true);
+			settings = SettingService.SetSetting(settings, "IdentityOptions:Password:RequireLowercase", _requirelower, true);
+			settings = SettingService.SetSetting(settings, "IdentityOptions:Password:RequireNonAlphanumeric", _requirepunctuation, true);
+
+			settings = SettingService.SetSetting(settings, "IdentityOptions:Lockout:MaxFailedAccessAttempts", _maximumfailures, true);
+			settings = SettingService.SetSetting(settings, "IdentityOptions:Lockout:DefaultLockoutTimeSpan", TimeSpan.FromMinutes(Convert.ToInt64(_lockoutduration)).ToString(), true);
+
+			settings = SettingService.SetSetting(settings, "ExternalLogin:ProviderType", _providertype, false);
+			settings = SettingService.SetSetting(settings, "ExternalLogin:ProviderName", _providername, false);
+			settings = SettingService.SetSetting(settings, "ExternalLogin:Authority", _authority, true);
+			settings = SettingService.SetSetting(settings, "ExternalLogin:MetadataUrl", _metadataurl, true);
+			settings = SettingService.SetSetting(settings, "ExternalLogin:AuthorizationUrl", _authorizationurl, true);
+			settings = SettingService.SetSetting(settings, "ExternalLogin:TokenUrl", _tokenurl, true);
+			settings = SettingService.SetSetting(settings, "ExternalLogin:UserInfoUrl", _userinfourl, true);
+			settings = SettingService.SetSetting(settings, "ExternalLogin:ClientId", _clientid, true);
+			settings = SettingService.SetSetting(settings, "ExternalLogin:ClientSecret", _clientsecret, true);
+			settings = SettingService.SetSetting(settings, "ExternalLogin:Scopes", _scopes, true);
+			settings = SettingService.SetSetting(settings, "ExternalLogin:PKCE", _pkce, true);
+			settings = SettingService.SetSetting(settings, "ExternalLogin:EmailClaimType", _emailclaimtype, true);
+			settings = SettingService.SetSetting(settings, "ExternalLogin:DomainFilter", _domainfilter, true);
+			settings = SettingService.SetSetting(settings, "ExternalLogin:CreateUsers", _createusers, true);
+
+			if (!string.IsNullOrEmpty(_secret) && _secret.Length < 16) _secret = (_secret + "????????????????").Substring(0, 16);
+			settings = SettingService.SetSetting(settings, "JwtOptions:Secret", _secret, true);
+			settings = SettingService.SetSetting(settings, "JwtOptions:Issuer", _issuer, true);
+			settings = SettingService.SetSetting(settings, "JwtOptions:Audience", _audience, true);
+			settings = SettingService.SetSetting(settings, "JwtOptions:Lifetime", _lifetime, true);
+
+			await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
+			await SettingService.ClearSiteSettingsCacheAsync();
+
+			AddModuleMessage(Localizer["Success.SaveSiteSettings"], MessageType.Success);				
 		}
 		catch (Exception ex)
 		{
@@ -162,4 +545,51 @@ else
 		}
 	}
 
+	private void ProviderTypeChanged(ChangeEventArgs e)
+	{
+		_providertype = (string)e.Value;
+		if (_providertype == AuthenticationProviderTypes.OpenIDConnect)
+		{
+			_scopes = "openid,profile,email";
+		}
+		else
+		{
+			_scopes = "";
+		}
+		_redirecturl = PageState.Uri.Scheme + "://" + PageState.Alias.Name + "/signin-" + _providertype;
+		StateHasChanged();
+	}
+
+	private async Task CreateToken()
+	{
+		_token = await UserService.GetTokenAsync();
+	}
+
+	private void ToggleClientSecret()
+	{
+		if (_clientsecrettype == "password")
+		{
+			_clientsecrettype = "text";
+			_toggleclientsecret = Localizer["Hide"];
+		}
+		else
+		{
+			_clientsecrettype = "password";
+			_toggleclientsecret = Localizer["Show"];
+		}
+	}
+
+	private void ToggleSecret()
+	{
+		if (_secrettype == "password")
+		{
+			_secrettype = "text";
+			_togglesecret = Localizer["Hide"];
+		}
+		else
+		{
+			_secrettype = "password";
+			_togglesecret = Localizer["Show"];
+		}
+	}
 }

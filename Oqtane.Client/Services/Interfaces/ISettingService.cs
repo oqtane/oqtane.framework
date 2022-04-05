@@ -39,6 +39,12 @@ namespace Oqtane.Services
         Task UpdateSiteSettingsAsync(Dictionary<string, string> siteSettings, int siteId);
 
         /// <summary>
+        /// Clears site option cache
+        /// </summary>
+        /// <returns></returns>
+        Task ClearSiteSettingsCacheAsync();
+
+        /// <summary>
         /// Returns a key-value dictionary of all page settings for the given page
         /// </summary>
         /// <param name="pageId"></param>
@@ -149,7 +155,6 @@ namespace Oqtane.Services
         /// <returns></returns>
         Task<Dictionary<string, string>> GetSettingsAsync(string entityName, int entityId);
 
-
         /// <summary>
         /// Updates settings for a given entityName and Id
         /// </summary>
@@ -165,7 +170,6 @@ namespace Oqtane.Services
         /// <param name="settingId"></param>
         /// <returns></returns>
         Task<Setting> GetSettingAsync(string entityName, int settingId);
-
 
         /// <summary>
         /// Creates a new setting

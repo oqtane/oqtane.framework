@@ -21,7 +21,9 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string ApiUrl => CreateApiUrl("Installation", null, ControllerRoutes.ApiRoute); // tenant agnostic
+        private string ApiUrl => (_siteState.Alias == null)
+            ? CreateApiUrl("Installation", null, ControllerRoutes.ApiRoute) // tenant agnostic needed for initial installation
+            : CreateApiUrl("Installation", _siteState.Alias); 
 
         public async Task<Installation> IsInstalled()
         {
@@ -48,14 +50,5 @@ namespace Oqtane.Services
         {
             await PostJsonAsync($"{ApiUrl}/register?email={WebUtility.UrlEncode(email)}", true);
         }
-
-        public void SetAntiForgeryTokenHeader(string antiforgerytokenvalue)
-        {
-            if (!string.IsNullOrEmpty(antiforgerytokenvalue))
-            {
-                AddRequestHeader(Constants.AntiForgeryTokenHeaderName, antiforgerytokenvalue);
-            }
-        }
-
     }
 }

@@ -2,11 +2,17 @@ using Oqtane.Models;
 
 namespace Oqtane.Shared
 {
-    // this class is used for passing state between components and services, or controllers and repositories
+    // this class is used for passing state between components and services on the client
     public class SiteState
     {
         public Alias Alias { get; set; }
-        public string AntiForgeryToken { get; set; } // for use in client services
-        public string RemoteIPAddress { get; set; } // captured in _host as cannot be reliably retrieved on Blazor Server
+        public string AntiForgeryToken { get; set; } // passed from server for use in service calls on client
+        public string AuthorizationToken { get; set; } // passed from server for use in service calls on client
+        public string RemoteIPAddress { get; set; } // passed from server as cannot be reliable retrieved on client
+
+
+        private dynamic _properties;
+        public dynamic Properties => _properties ?? (_properties = new PropertyDictionary());
+
     }
 }

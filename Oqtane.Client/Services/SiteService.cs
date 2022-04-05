@@ -16,8 +16,7 @@ namespace Oqtane.Services
         private readonly SiteState _siteState;
 
         public SiteService(HttpClient http, SiteState siteState) : base(http)
-        {
-            
+        {            
             _siteState = siteState;
         }
 

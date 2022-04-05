@@ -1,17 +1,26 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Oqtane.Extensions;
 using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
     public class UserRepository : IUserRepository
     {
         private TenantDBContext _db;
+        private readonly IFolderRepository _folders;
+        private readonly IRoleRepository _roles;
+        private readonly IUserRoleRepository _userroles;
 
-        public UserRepository(TenantDBContext context)
+        public UserRepository(TenantDBContext context, IFolderRepository folders, IRoleRepository roles, IUserRoleRepository userroles)
         {
             _db = context;
+            _folders = folders;
+            _roles = roles;
+            _userroles = userroles;
         }
             
         public IEnumerable<User> GetUsers()
@@ -21,8 +30,52 @@ namespace Oqtane.Repository
 
         public User AddUser(User user)
         {
-            _db.User.Add(user);
-            _db.SaveChanges();
+            if (_db.User.AsNoTracking().FirstOrDefault(item => item.Username == user.Username) == null)
+            {
+                _db.User.Add(user);
+                _db.SaveChanges();
+            }
+            else
+            {
+                user = _db.User.AsNoTracking().First(item => item.Username == user.Username);
+            }
+
+            // add folder for user
+            Folder folder = _folders.GetFolder(user.SiteId, Utilities.PathCombine("Users", Path.DirectorySeparatorChar.ToString()));
+            if (folder != null)
+            {
+                _folders.AddFolder(new Folder
+                {
+                    SiteId = folder.SiteId,
+                    ParentId = folder.FolderId,
+                    Name = "My Folder",
+                    Type = FolderTypes.Private,
+                    Path = Utilities.PathCombine(folder.Path, user.UserId.ToString(), Path.DirectorySeparatorChar.ToString()),
+                    Order = 1,
+                    ImageSizes = "",
+                    Capacity = Constants.UserFolderCapacity,
+                    IsSystem = true,
+                    Permissions = new List<Permission>
+                    {
+                        new Permission(PermissionNames.Browse, user.UserId, true),
+                        new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                        new Permission(PermissionNames.Edit, user.UserId, true)
+                    }.EncodePermissions()
+                });
+            }
+
+            // add auto assigned roles to user for site
+            List<Role> roles = _roles.GetRoles(user.SiteId).Where(item => item.IsAutoAssigned).ToList();
+            foreach (Role role in roles)
+            {
+                UserRole userrole = new UserRole();
+                userrole.UserId = user.UserId;
+                userrole.RoleId = role.RoleId;
+                userrole.EffectiveDate = null;
+                userrole.ExpiryDate = null;
+                _userroles.AddUserRole(userrole);
+            }
+
             return user;
         }
 

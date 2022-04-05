@@ -5,22 +5,29 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Oqtane.Documentation;
 using Oqtane.Models;
 using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
-    [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class ServiceBase
     {
-        private readonly HttpClient _http;
+        private readonly HttpClient _httpClient;
         private readonly SiteState _siteState;
 
-        protected ServiceBase(HttpClient client, SiteState siteState)
+        protected ServiceBase(HttpClient httpClient, SiteState siteState)
         {
-            _http = client;
+            _httpClient = httpClient;
             _siteState = siteState;
+        }
+
+        private HttpClient GetHttpClient()
+        {
+            if (!_httpClient.DefaultRequestHeaders.Contains(Constants.AntiForgeryTokenHeaderName) && _siteState != null && !string.IsNullOrEmpty(_siteState.AntiForgeryToken))
+            {
+                _httpClient.DefaultRequestHeaders.Add(Constants.AntiForgeryTokenHeaderName, _siteState.AntiForgeryToken);
+            }
+            return _httpClient;
         }
 
         // should be used with new constructor
@@ -95,24 +102,9 @@ namespace Oqtane.Services
             }
         }
 
-        // note that HttpClient is registered as a Scoped(shared) service and therefore you should not use request headers whose value can vary over the lifetime of the service
-        protected void AddRequestHeader(string name, string value)
-        {
-            RemoveRequestHeader(name);
-            _http.DefaultRequestHeaders.Add(name, value);
-        }
-
-        protected void RemoveRequestHeader(string name)
-        {
-            if (_http.DefaultRequestHeaders.Contains(name))
-            {
-                _http.DefaultRequestHeaders.Remove(name);
-            }
-        }
-
         protected async Task GetAsync(string uri)
         {
-            var response = await _http.GetAsync(uri);
+            var response = await GetHttpClient().GetAsync(uri);
             CheckResponse(response);
         }
 
@@ -120,7 +112,7 @@ namespace Oqtane.Services
         {
             try
             {
-                return await _http.GetStringAsync(uri);
+                return await GetHttpClient().GetStringAsync(uri);
             }
             catch (Exception e)
             {
@@ -134,7 +126,7 @@ namespace Oqtane.Services
         {
             try
             {
-                return await _http.GetByteArrayAsync(uri);
+                return await GetHttpClient().GetByteArrayAsync(uri);
             }
             catch (Exception e)
             {
@@ -146,7 +138,7 @@ namespace Oqtane.Services
 
         protected async Task<T> GetJsonAsync<T>(string uri)
         {
-            var response = await _http.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, CancellationToken.None);
+            var response = await GetHttpClient().GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, CancellationToken.None);
             if (CheckResponse(response) && ValidateJsonContent(response.Content))
             {
                 return await response.Content.ReadFromJsonAsync<T>();
@@ -157,7 +149,7 @@ namespace Oqtane.Services
 
         protected async Task PutAsync(string uri)
         {
-            var response = await _http.PutAsync(uri, null);
+            var response = await GetHttpClient().PutAsync(uri, null);
             CheckResponse(response);
         }
 
@@ -168,7 +160,7 @@ namespace Oqtane.Services
 
         protected async Task<TResult> PutJsonAsync<TValue, TResult>(string uri, TValue value)
         {
-            var response = await _http.PutAsJsonAsync(uri, value);
+            var response = await GetHttpClient().PutAsJsonAsync(uri, value);
             if (CheckResponse(response) && ValidateJsonContent(response.Content))
             {
                 var result = await response.Content.ReadFromJsonAsync<TResult>();
@@ -179,7 +171,7 @@ namespace Oqtane.Services
 
         protected async Task PostAsync(string uri)
         {
-            var response = await _http.PostAsync(uri, null);
+            var response = await GetHttpClient().PostAsync(uri, null);
             CheckResponse(response);
         }
 
@@ -190,7 +182,7 @@ namespace Oqtane.Services
 
         protected async Task<TResult> PostJsonAsync<TValue, TResult>(string uri, TValue value)
         {
-            var response = await _http.PostAsJsonAsync(uri, value);
+            var response = await GetHttpClient().PostAsJsonAsync(uri, value);
             if (CheckResponse(response) && ValidateJsonContent(response.Content))
             {
                 var result = await response.Content.ReadFromJsonAsync<TResult>();
@@ -202,7 +194,7 @@ namespace Oqtane.Services
 
         protected async Task DeleteAsync(string uri)
         {
-            var response = await _http.DeleteAsync(uri);
+            var response = await GetHttpClient().DeleteAsync(uri);
             CheckResponse(response);
         }
 
@@ -228,7 +220,7 @@ namespace Oqtane.Services
         // This constructor is obsolete. Use ServiceBase(HttpClient client, SiteState siteState) : base(http, siteState) {} instead.
         protected ServiceBase(HttpClient client)
         {
-            _http = client;
+            _httpClient = client;
         }
 
         [Obsolete("This method is obsolete. Use CreateApiUrl(string serviceName, Alias alias) in conjunction with ControllerRoutes.ApiRoute in Controllers instead.", false)]
@@ -240,7 +232,7 @@ namespace Oqtane.Services
         [Obsolete("This property of ServiceBase is deprecated. Cross tenant service calls are not supported.", false)]
         public Alias Alias { get; set; }
 
-        [Obsolete("This method is obsolete. Use CreateApiUrl(string entityName, int entityId) instead.", false)]
+        [Obsolete("This method is obsolete. Use CreateAuthorizationPolicyUrl(string url, string entityName, int entityId) where entityName = EntityNames.Module instead.", false)]
         public string CreateAuthorizationPolicyUrl(string url, int entityId)
         {
             return url + ((url.Contains("?")) ? "&" : "?") + "entityid=" + entityId.ToString();

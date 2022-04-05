@@ -8,6 +8,6 @@ namespace Oqtane.Repository
         IEnumerable<Log> GetLogs(int siteId, string level, string function, int rows);
         Log GetLog(int logId);
         void AddLog(Log log);
-        int DeleteLogs(int age);
+        int DeleteLogs(int siteId, int age);
     }
 }

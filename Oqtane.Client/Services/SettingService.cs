@@ -42,6 +42,11 @@ namespace Oqtane.Services
             await UpdateSettingsAsync(siteSettings, EntityNames.Site, siteId);
         }
 
+        public async Task ClearSiteSettingsCacheAsync()
+        {
+            await DeleteAsync($"{Apiurl}/clear");
+        }
+
         public async Task<Dictionary<string, string>> GetPageSettingsAsync(int pageId)
         {
             return await GetSettingsAsync(EntityNames.Page, pageId);
