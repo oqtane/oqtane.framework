@@ -87,7 +87,7 @@ namespace Oqtane.Repository
 
         public void DeleteUserRoles(int userId)
         {
-            foreach (UserRole userRole in _db.UserRole.Where(item => item.Role.SiteId != null))
+            foreach (UserRole userRole in _db.UserRole.Where(item => item.UserId == userId && item.Role.SiteId != null))
             {
                 _db.UserRole.Remove(userRole);
             }
