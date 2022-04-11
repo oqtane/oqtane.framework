@@ -73,6 +73,7 @@ V.3.1.0 ( April 2022 )
 - [x] Event log notifications  
 - [x] 404 page handling
 - [x] Property change component notifications
+- [x] Support for ES6 JavaScript modules
 
 
 V.3.0.3 ( Feb 15, 2022 )
