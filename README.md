@@ -60,7 +60,7 @@ This project is open source, and therefore is a work in progress...
 Backlog (Not Yet Assigned)
 - [ ] Allow language specification in Url (#1731)
 
-V.3.1.0 ( April 2022 )
+V.3.1.0 ( April 5, 2022 )
 - [x] User account lockout support
 - [x] Two factor authentication support
 - [x] Per-site configuration of password complexity, lockout criteria
