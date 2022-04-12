@@ -192,6 +192,7 @@ namespace Oqtane.Extensions
                 var _users = httpContext.RequestServices.GetRequiredService<IUserRepository>();
                 var _userRoles = httpContext.RequestServices.GetRequiredService<IUserRoleRepository>();
                 var providerType = httpContext.GetSiteSettings().GetValue("ExternalLogin:ProviderType", "");
+                var providerName = httpContext.GetSiteSettings().GetValue("ExternalLogin:ProviderName", "");
                 var providerKey = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (providerKey == null)
                 {
@@ -288,7 +289,7 @@ namespace Oqtane.Extensions
                         // add user login
                         await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(providerType, providerKey, ""));
                         user = _users.GetUser(identityuser.UserName);
-                        _logger.Log(user.SiteId, LogLevel.Information, "ExternalLogin", Enums.LogFunction.Create, "External User Login Added For {Email} Using Provider {Provider}", email, providerType);
+                        _logger.Log(user.SiteId, LogLevel.Information, "ExternalLogin", Enums.LogFunction.Create, "External User Login Added For {Email} Using Provider {Provider}", email, providerName);
                     }
                 }
 
@@ -304,7 +305,7 @@ namespace Oqtane.Extensions
                     user.LastLoginOn = DateTime.UtcNow;
                     user.LastIPAddress = httpContext.Connection.RemoteIpAddress.ToString();
                     _users.UpdateUser(user);
-                    _logger.Log(LogLevel.Information, "ExternalLogin", Enums.LogFunction.Security, "External User Login Successful For {Username} Using Provider {Provider}", user.Username, providerType);
+                    _logger.Log(LogLevel.Information, "ExternalLogin", Enums.LogFunction.Security, "External User Login Successful For {Username} Using Provider {Provider}", user.Username, providerName);
                 }
                 else // user not valid
                 {
