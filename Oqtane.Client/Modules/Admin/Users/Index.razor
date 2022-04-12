@@ -6,6 +6,7 @@
 @inject ISiteService SiteService
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject SiteState SiteState
 
 @if (userroles == null)
 {
@@ -535,6 +536,11 @@ else
 
 			await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 			await SettingService.ClearSiteSettingsCacheAsync();
+
+			if (!string.IsNullOrEmpty(_secret))
+			{
+				SiteState.AuthorizationToken = await UserService.GetTokenAsync();
+			}
 
 			AddModuleMessage(Localizer["Success.SaveSiteSettings"], MessageType.Success);				
 		}

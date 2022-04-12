@@ -715,7 +715,7 @@ namespace Oqtane.Infrastructure
                                     {
                                         try
                                         {
-                                            var obj = Activator.CreateInstance(upgrade.Value) as ISiteMigration;
+                                            var obj = ActivatorUtilities.CreateInstance(scope.ServiceProvider, upgrade.Value) as ISiteMigration;
                                             if (obj != null)
                                             {
                                                 obj.Up(site, alias);
