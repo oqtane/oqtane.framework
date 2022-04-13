@@ -210,4 +210,13 @@
   <data name="TwoFactor.Text" xml:space="preserve">
     <value>Two Factor?</value>
   </data>
+  <data name="DeleteAllNotifications.Header" xml:space="preserve">
+    <value>Clear Notifications</value>
+  </data>
+  <data name="DeleteAllNotifications.Message" xml:space="preserve">
+    <value>Are You Sure You Wish To Permanently Delete All Notifications?</value>
+  </data>
+  <data name="DeleteAllNotifications.Text" xml:space="preserve">
+    <value>Delete ALL Notifications</value>
+  </data>
 </root>
