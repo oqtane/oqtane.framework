@@ -186,7 +186,6 @@ namespace Oqtane.Pages
                             {
                                 if (route.PagePath != "404")
                                 {
-                                    _logger.Log(LogLevel.Information, "Host", LogFunction.Other, "Page Path /{Path} Does Not Exist", route.PagePath);
                                     return RedirectPermanent(route.SiteUrl + "/404");
                                 }
                             }

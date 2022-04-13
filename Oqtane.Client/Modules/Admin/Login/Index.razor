@@ -163,7 +163,8 @@
 
 				if (!twofactor)
 				{
-					user = await UserService.LoginUserAsync(user, false, false);
+					bool setCookie = (PageState.Runtime == Oqtane.Shared.Runtime.WebAssembly);
+					user = await UserService.LoginUserAsync(user, setCookie, false);
 				}
 				else
 				{

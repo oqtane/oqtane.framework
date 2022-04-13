@@ -260,7 +260,6 @@
 					{
 						if (route.PagePath != "404")
 						{
-							await LogService.Log(null, null, user.UserId, "SiteRouter", "SiteRouter", LogFunction.Other, LogLevel.Information, null, "Page Path /{Path} Does Not Exist Or User Is Not Authorized To View", route.PagePath);
 							// redirect to 404 page
 							NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "404", ""));
 						}
