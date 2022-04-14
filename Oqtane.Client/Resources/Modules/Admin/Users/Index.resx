@@ -366,8 +366,8 @@
   <data name="Show" xml:space="preserve">
     <value>Show</value>
   </data>
-  <data name="IsAuthenticated" xml:space="preserve">
-    <value>Is Authenticated</value>
+  <data name="CreatedOn" xml:space="preserve">
+    <value>Created On</value>
   </data>
   <data name="LastIPAddress" xml:space="preserve">
     <value>Last IP Address</value>
