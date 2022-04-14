@@ -168,4 +168,13 @@
   <data name="Username.Text" xml:space="preserve">
     <value>Username:</value>
   </data>
+  <data name="HidePassword" xml:space="preserve">
+    <value>Hide</value>
+  </data>
+  <data name="ShowPassword" xml:space="preserve">
+    <value>Show</value>
+  </data>
+  <data name="Password.Placeholder" xml:space="preserve">
+    <value>Password</value>
+  </data>
 </root>
