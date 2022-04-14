@@ -31,7 +31,7 @@ else
 					</div>
 				</div>
 			</div>
-			<Pager Items="@userroles">
+			<Pager Items="@userroles" RowClass="align-middle">
 				<Header>
 				<th style="width: 1px;">&nbsp;</th>
 				<th style="width: 1px;">&nbsp;</th>
@@ -40,7 +40,7 @@ else
 				<th>@SharedLocalizer["Username"]</th>
 				<th>@Localizer["LastLoginOn"]</th>
 				<th>@Localizer["LastIPAddress"]</th>
-				<th>@Localizer["IsAuthenticated"]</th>
+				<th>@Localizer["CreatedOn"]</th>
 				</Header>
 				<Row>
 					<td>
@@ -56,7 +56,7 @@ else
 					<td>@context.User.Username</td>
 					<td>@string.Format("{0:dd-MMM-yyyy HH:mm:ss}",context.User.LastLoginOn)</td>
                     <td>@context.User.LastIPAddress</td>
-                    <td>@context.User.IsAuthenticated</td>
+                    <td>@string.Format("{0:dd-MMM-yyyy HH:mm:ss}",context.User.CreatedOn)</td>
 
 				</Row>
 			</Pager>
