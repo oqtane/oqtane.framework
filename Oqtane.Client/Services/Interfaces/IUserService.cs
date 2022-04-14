@@ -109,5 +109,11 @@ namespace Oqtane.Services
         /// </summary>
         /// <returns></returns>
         Task<string> GetTokenAsync();
+
+        /// <summary>
+        /// Get personal access token for current user (administrators only)
+        /// </summary>
+        /// <returns></returns>
+        Task<string> GetPersonalAccessTokenAsync();
     }
 }

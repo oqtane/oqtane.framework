@@ -84,5 +84,10 @@ namespace Oqtane.Services
         {
             return await GetStringAsync($"{Apiurl}/token");
         }
+
+        public async Task<string> GetPersonalAccessTokenAsync()
+        {
+            return await GetStringAsync($"{Apiurl}/personalaccesstoken");
+        }
     }
 }

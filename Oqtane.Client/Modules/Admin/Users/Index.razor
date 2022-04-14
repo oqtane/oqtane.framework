@@ -575,7 +575,7 @@ else
 
 	private async Task CreateToken()
 	{
-		_token = await UserService.GetTokenAsync();
+		_token = await UserService.GetPersonalAccessTokenAsync();
 	}
 
 	private void ToggleClientSecret()
