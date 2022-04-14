@@ -31,8 +31,11 @@ else
                 </div>
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="password" HelpText="If you wish to change your password you can enter it here. Please choose a sufficiently secure password." ResourceKey="Password"></Label>
-                    <div class="col-sm-9">
-                        <input id="password" type="password" class="form-control" @bind="@password" autocomplete="new-password" />
+					<div class="col-sm-9">
+                        <div class="input-group">
+						    <input id="password" type="@_passwordtype" name="Password" class="form-control" @bind="@_password" autocomplete="new-password" />
+						    <button type="button" class="btn btn-secondary" @onclick="@TogglePassword">@_togglepassword</button>
+					    </div>
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
@@ -219,7 +222,9 @@ else
 
 @code {
     private string username = string.Empty;
-    private string password = string.Empty;
+    private string _password = string.Empty;
+	private string _passwordtype = "password";
+	private string _togglepassword = string.Empty;
     private string confirm = string.Empty;
     private bool allowtwofactor = false;
     private string twofactor = "False";
@@ -241,6 +246,7 @@ else
     {
         try
         {
+            _togglepassword = Localizer["ShowPassword"];
             if (PageState.Site.Settings.ContainsKey("LoginOptions:TwoFactor") && !string.IsNullOrEmpty(PageState.Site.Settings["LoginOptions:TwoFactor"]))
             {
                 allowtwofactor = bool.Parse(PageState.Site.Settings["LoginOptions:TwoFactor"]);
@@ -303,11 +309,11 @@ else
         {
             if (username != string.Empty && email != string.Empty && ValidateProfiles())
             {
-                if (password == confirm)
+                if (_password == confirm)
                 {
                     var user = PageState.User;
                     user.Username = username;
-                    user.Password = password;
+                    user.Password = _password;
                     user.TwoFactorRequired = bool.Parse(twofactor);
                     user.Email = email;
                     user.DisplayName = (displayname == string.Empty ? username : displayname);
@@ -443,5 +449,19 @@ else
         }
     
     }
+
+    private void TogglePassword()
+	{
+		if (_passwordtype == "password")
+		{
+			_passwordtype = "text";
+			_togglepassword = Localizer["HidePassword"];
+		}
+		else
+		{
+			_passwordtype = "password";
+			_togglepassword = Localizer["ShowPassword"];
+		}
+	}
 
 }
