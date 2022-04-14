@@ -128,10 +128,13 @@ namespace Oqtane
 
             services.AddOqtaneAuthorizationPolicies();
 
-            services.AddMvc()
-                .AddNewtonsoftJson()
-                .AddOqtaneApplicationParts() // register any Controllers from custom modules
-                .ConfigureOqtaneMvc(); // any additional configuration from IStartup classes
+            services.AddMvc(options =>
+            {
+                options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+            })
+            .AddNewtonsoftJson()
+            .AddOqtaneApplicationParts() // register any Controllers from custom modules
+            .ConfigureOqtaneMvc(); // any additional configuration from IStartup classes
 
             services.AddSwaggerGen(options =>
             {

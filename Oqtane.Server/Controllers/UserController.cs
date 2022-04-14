@@ -522,8 +522,23 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/token
         [HttpGet("token")]
-        [Authorize(Roles = RoleNames.Admin)]
+        [Authorize(Roles = RoleNames.Registered)]
         public string Token()
+        {
+            var token = "";
+            var sitesettings = HttpContext.GetSiteSettings();
+            var secret = sitesettings.GetValue("JwtOptions:Secret", "");
+            if (!string.IsNullOrEmpty(secret))
+            {
+                token = _jwtManager.GenerateToken(_tenantManager.GetAlias(), (ClaimsIdentity)User.Identity, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""), int.Parse(sitesettings.GetValue("JwtOptions:Audience", "20")));
+            }
+            return token;
+        }
+
+        // GET api/<controller>/personalaccesstoken
+        [HttpGet("personalaccesstoken")]
+        [Authorize(Roles = RoleNames.Admin)]
+        public string PersonalAccessToken()
         {
             var token = "";
             var sitesettings = HttpContext.GetSiteSettings();
