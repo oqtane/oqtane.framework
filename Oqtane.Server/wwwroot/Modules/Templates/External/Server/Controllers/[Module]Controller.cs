@@ -58,7 +58,6 @@ namespace [Owner].[Module].Controllers
         }
 
         // POST api/<controller>
-        [ValidateAntiForgeryToken]
         [HttpPost]
         [Authorize(Policy = PolicyNames.EditModule)]
         public Models.[Module] Post([FromBody] Models.[Module] [Module])
@@ -78,7 +77,6 @@ namespace [Owner].[Module].Controllers
         }
 
         // PUT api/<controller>/5
-        [ValidateAntiForgeryToken]
         [HttpPut("{id}")]
         [Authorize(Policy = PolicyNames.EditModule)]
         public Models.[Module] Put(int id, [FromBody] Models.[Module] [Module])
@@ -98,7 +96,6 @@ namespace [Owner].[Module].Controllers
         }
 
         // DELETE api/<controller>/5
-        [ValidateAntiForgeryToken]
         [HttpDelete("{id}")]
         [Authorize(Policy = PolicyNames.EditModule)]
         public void Delete(int id)
