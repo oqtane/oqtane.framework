@@ -84,7 +84,6 @@ namespace Oqtane.Modules.HtmlText.Controllers
         }
 
         // POST api/<controller>
-        [ValidateAntiForgeryToken]
         [HttpPost]
         [Authorize(Policy = PolicyNames.EditModule)]
         public Models.HtmlText Post([FromBody] Models.HtmlText htmlText)
@@ -104,7 +103,6 @@ namespace Oqtane.Modules.HtmlText.Controllers
         }
 
         // DELETE api/<controller>/5
-        [ValidateAntiForgeryToken]
         [HttpDelete("{id}/{moduleid}")]
         [Authorize(Policy = PolicyNames.EditModule)]
         public void Delete(int id, int moduleId)
