@@ -203,7 +203,7 @@ namespace Oqtane.Controllers
                     else
                     {
                         string url = HttpContext.Request.Scheme + "://" + _tenantManager.GetAlias().Name;
-                        string body = "Dear " + user.DisplayName + ",\n\nA User Account Has Been Succesfully Created For You. Please Use The Following Link To Access The Site:\n\n" + url + "\n\nThank You!";
+                        string body = "Dear " + user.DisplayName + ",\n\nA User Account Has Been Successfully Created For You. Please Use The Following Link To Access The Site:\n\n" + url + "\n\nThank You!";
                         var notification = new Notification(user.SiteId, newUser, "User Account Notification", body);
                         _notifications.AddNotification(notification);
                     }
@@ -419,7 +419,7 @@ namespace Oqtane.Controllers
                     }
                     else
                     {
-                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "Email Verification Failed For {Username} - Error {Error}", user.Username, result.Errors.ToString());
+                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "Email Verification Failed For {Username} - Error {Error}", user.Username, string.Join(" ", result.Errors.ToList().Select(e => e.Description)));
                         user = null;
                     }
                 }
@@ -477,7 +477,7 @@ namespace Oqtane.Controllers
                     }
                     else
                     {
-                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "Password Reset Failed For {Username} - Error {Error}", user.Username, result.Errors.ToString());
+                        _logger.Log(LogLevel.Information, this, LogFunction.Security, "Password Reset Failed For {Username} - Error {Error}", user.Username, string.Join(" ", result.Errors.ToList().Select(e => e.Description)));
                         user = null;
                     }
                 }
@@ -509,6 +509,38 @@ namespace Oqtane.Controllers
             }
 
             return loginUser;
+        }
+
+        // POST api/<controller>/link
+        [HttpPost("link")]
+        public async Task<User> Link([FromBody] User user, string token, string type, string key, string name)
+        {
+            if (ModelState.IsValid)
+            {
+                IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+                if (identityuser != null && !string.IsNullOrEmpty(token))
+                {
+                    var result = await _identityUserManager.ConfirmEmailAsync(identityuser, token);
+                    if (result.Succeeded)
+                    {
+                        // make LoginProvider multi-tenant aware
+                        type += ":" + user.SiteId.ToString();
+                        await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(type, key, name));
+                        _logger.Log(LogLevel.Information, this, LogFunction.Security, "External Login Linkage Successful For {Username} And Provider {Provider}", user.Username, type);
+                    }
+                    else
+                    {
+                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "External Login Linkage Failed For {Username} - Error {Error}", user.Username, string.Join(" ", result.Errors.ToList().Select(e => e.Description)));
+                        user = null;
+                    }
+                }
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "External Login Linkage Failed For {Username} And Token {Token}", user.Username, token);
+                user = null;
+            }
+            return user;
         }
 
         // GET api/<controller>/validate/x

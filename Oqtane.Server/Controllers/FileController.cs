@@ -137,6 +137,7 @@ namespace Oqtane.Controllers
             {
                 if (File.Name != file.Name || File.FolderId != file.FolderId)
                 {
+                    file.Folder = _folders.GetFolder(file.FolderId);
                     string folderpath = _folders.GetFolderPath(file.Folder);
                     if (!Directory.Exists(folderpath))
                     {

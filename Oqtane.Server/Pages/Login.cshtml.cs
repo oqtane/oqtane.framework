@@ -9,7 +9,6 @@ namespace Oqtane.Pages
     [AllowAnonymous]
     public class LoginModel : PageModel
     {
-
         private readonly UserManager<IdentityUser> _identityUserManager;
         private readonly SignInManager<IdentityUser> _identitySignInManager;
 

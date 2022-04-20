@@ -10,14 +10,9 @@ namespace Oqtane.Services
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class UserService : ServiceBase, IUserService
     {
-        private readonly SiteState _siteState;
+        public UserService(HttpClient http, SiteState siteState) : base(http, siteState) { }
 
-        public UserService(HttpClient http, SiteState siteState) : base(http)
-        {
-            _siteState = siteState;
-        }
-
-        private string Apiurl => CreateApiUrl("User", _siteState.Alias);
+        private string Apiurl => CreateApiUrl("User");
 
         public async Task<User> GetUserAsync(int userId, int siteId)
         {
@@ -89,5 +84,11 @@ namespace Oqtane.Services
         {
             return await GetStringAsync($"{Apiurl}/personalaccesstoken");
         }
+
+        public async Task<User> LinkUserAsync(User user, string token, string type, string key, string name)
+        {
+            return await PostJsonAsync<User>($"{Apiurl}/link?token={token}&type={type}&key={key}&name={name}", user);
+        }
+
     }
 }
