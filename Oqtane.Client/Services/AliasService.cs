@@ -12,18 +12,12 @@ namespace Oqtane.Services
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class AliasService : ServiceBase, IAliasService
     {
-
-        private readonly SiteState _siteState;
-
         /// <summary>
         /// Constructor - should only be used by Dependency Injection
         /// </summary>
-        public AliasService(HttpClient http, SiteState siteState) : base(http)
-        {
-            _siteState = siteState;
-        }
+        public AliasService(HttpClient http, SiteState siteState) : base(http, siteState) { }
 
-        private string ApiUrl => CreateApiUrl("Alias", _siteState.Alias);
+        private string ApiUrl => CreateApiUrl("Alias");
 
         /// <inheritdoc />
         public async Task<List<Alias>> GetAliasesAsync()

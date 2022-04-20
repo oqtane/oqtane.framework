@@ -10,15 +10,9 @@ namespace Oqtane.Services
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class UserRoleService : ServiceBase, IUserRoleService
     {
-        
-        private readonly SiteState _siteState;
+        public UserRoleService(HttpClient http, SiteState siteState) : base(http, siteState) { }
 
-        public UserRoleService(HttpClient http, SiteState siteState) : base(http)
-        {            
-            _siteState = siteState;
-        }
-
-        private string Apiurl => CreateApiUrl("UserRole", _siteState.Alias);
+        private string Apiurl => CreateApiUrl("UserRole");
 
         public async Task<List<UserRole>> GetUserRolesAsync(int siteId)
         {

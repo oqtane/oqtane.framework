@@ -117,22 +117,47 @@
 				_username = PageState.QueryString["name"];
 			}
 
-			if (PageState.QueryString.ContainsKey("token"))
+			if (PageState.QueryString.ContainsKey("token") && !string.IsNullOrEmpty(_username))
 			{
 				var user = new User();
 				user.SiteId = PageState.Site.SiteId;
 				user.Username = _username;
-				user = await UserService.VerifyEmailAsync(user, PageState.QueryString["token"]);
 
-				if (user != null)
+				if (PageState.QueryString.ContainsKey("key"))
 				{
-					await logger.LogInformation(LogFunction.Security, "Email Verified For For Username {Username}", _username);
-					AddModuleMessage(Localizer["Success.Account.Verified"], MessageType.Info);						
+					user = await UserService.LinkUserAsync(user, PageState.QueryString["token"], PageState.Site.Settings["ExternalLogin:ProviderType"], PageState.QueryString["key"], PageState.Site.Settings["ExternalLogin:ProviderName"]);
+					if (user != null)
+					{
+						await logger.LogInformation(LogFunction.Security, "External Login Linkage Successful For Username {Username}", _username);
+						AddModuleMessage(Localizer["Success.Account.Linked"], MessageType.Info);						
+					}
+					else
+					{
+						await logger.LogError(LogFunction.Security, "External Login Linkage Failed For Username {Username}", _username);
+						AddModuleMessage(Localizer["Message.Account.NotLinked"], MessageType.Warning);						
+					}
+					_username = "";
 				}
 				else
 				{
-					await logger.LogError(LogFunction.Security, "Email Verification Failed For Username {Username}", _username);
-					AddModuleMessage(Localizer["Message.Account.NotVerfied"], MessageType.Warning);						
+					user = await UserService.VerifyEmailAsync(user, PageState.QueryString["token"]);
+					if (user != null)
+					{
+						await logger.LogInformation(LogFunction.Security, "Email Verified For For Username {Username}", _username);
+						AddModuleMessage(Localizer["Success.Account.Verified"], MessageType.Info);						
+					}
+					else
+					{
+						await logger.LogError(LogFunction.Security, "Email Verification Failed For Username {Username}", _username);
+						AddModuleMessage(Localizer["Message.Account.NotVerified"], MessageType.Warning);						
+					}
+				}
+			}
+			else
+			{
+				if (PageState.QueryString.ContainsKey("status"))
+				{
+					AddModuleMessage(Localizer["ExternalLoginStatus." + PageState.QueryString["status"]], MessageType.Info);
 				}
 			}
 		}

@@ -14,16 +14,9 @@ namespace Oqtane.Services
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class ModuleDefinitionService : ServiceBase, IModuleDefinitionService
     {
-        private readonly HttpClient _http;
-        private readonly SiteState _siteState;
+        public ModuleDefinitionService(HttpClient http, SiteState siteState) : base(http, siteState) { }
 
-        public ModuleDefinitionService(HttpClient http, SiteState siteState) : base(http)
-        {
-            _http = http;
-            _siteState = siteState;
-        }
-
-        private string Apiurl => CreateApiUrl("ModuleDefinition", _siteState.Alias);
+        private string Apiurl => CreateApiUrl("ModuleDefinition");
 
         public async Task<List<ModuleDefinition>> GetModuleDefinitionsAsync(int siteId)
         {

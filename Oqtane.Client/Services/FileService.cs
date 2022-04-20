@@ -14,16 +14,14 @@ namespace Oqtane.Services
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class FileService : ServiceBase, IFileService
     {
-        private readonly SiteState _siteState;
         private readonly IJSRuntime _jsRuntime;
 
-        public FileService(HttpClient http, SiteState siteState, IJSRuntime jsRuntime) : base(http)
+        public FileService(HttpClient http, SiteState siteState, IJSRuntime jsRuntime) : base(http, siteState)
         {
-            _siteState = siteState;
             _jsRuntime = jsRuntime;
         }
 
-        private string Apiurl => CreateApiUrl("File", _siteState.Alias);
+        private string Apiurl => CreateApiUrl("File");
 
         public async Task<List<File>> GetFilesAsync(int folderId)
         {

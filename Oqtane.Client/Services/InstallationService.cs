@@ -15,7 +15,7 @@ namespace Oqtane.Services
         private readonly NavigationManager _navigationManager;
         private readonly SiteState _siteState;
 
-        public InstallationService(HttpClient http, NavigationManager navigationManager, SiteState siteState) : base(http)
+        public InstallationService(HttpClient http, SiteState siteState, NavigationManager navigationManager) : base(http, siteState)
         {
             _navigationManager = navigationManager;
             _siteState = siteState;

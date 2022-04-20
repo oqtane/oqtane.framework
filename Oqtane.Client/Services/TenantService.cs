@@ -11,14 +11,9 @@ namespace Oqtane.Services
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class TenantService : ServiceBase, ITenantService
     {
-        private readonly SiteState _siteState;
+        public TenantService(HttpClient http, SiteState siteState) : base(http, siteState) { }
 
-        public TenantService(HttpClient http, SiteState siteState) : base(http)
-        {
-            _siteState = siteState;
-        }
-
-        private string Apiurl => CreateApiUrl("Tenant", _siteState.Alias);
+        private string Apiurl => CreateApiUrl("Tenant");
 
         public async Task<List<Tenant>> GetTenantsAsync()
         {

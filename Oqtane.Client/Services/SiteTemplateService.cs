@@ -11,13 +11,9 @@ namespace Oqtane.Services
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class SiteTemplateService : ServiceBase, ISiteTemplateService
     {
-        private readonly SiteState _siteState;
+        public SiteTemplateService(HttpClient http, SiteState siteState) : base(http, siteState) { }
 
-        public SiteTemplateService(HttpClient http, SiteState siteState) : base(http)
-        {
-            _siteState = siteState;
-        }
-        private string Apiurl => CreateApiUrl("SiteTemplate", _siteState.Alias);
+        private string Apiurl => CreateApiUrl("SiteTemplate");
 
         public async Task<List<SiteTemplate>> GetSiteTemplatesAsync()
         {

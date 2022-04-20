@@ -13,16 +13,9 @@ namespace Oqtane.Services
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class PageService : ServiceBase, IPageService
     {
-        
-        private readonly SiteState _siteState;
+        public PageService(HttpClient http, SiteState siteState) : base(http, siteState) { }
 
-        public PageService(HttpClient http, SiteState siteState) : base(http)
-        {
-            
-            _siteState = siteState;
-        }
-
-        private string Apiurl => CreateApiUrl("Page", _siteState.Alias);
+        private string Apiurl => CreateApiUrl("Page");
 
         public async Task<List<Page>> GetPagesAsync(int siteId)
         {

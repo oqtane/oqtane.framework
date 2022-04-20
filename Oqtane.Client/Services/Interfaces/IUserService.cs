@@ -115,5 +115,18 @@ namespace Oqtane.Services
         /// </summary>
         /// <returns></returns>
         Task<string> GetPersonalAccessTokenAsync();
+
+        /// <summary>
+        /// Link an external login with a local user account
+        /// </summary>
+        /// <param name="user">The <see cref="User"/> we're verifying</param>
+        /// <param name="token">A Hash value in the URL which verifies this user got the e-mail (containing this token)</param>
+        /// <param name="type">External Login provider type</param>
+        /// <param name="key">External Login provider key</param>
+        /// <param name="name">External Login provider display name</param>
+        /// <returns></returns>
+        Task<User> LinkUserAsync(User user, string token, string type, string key, string name);
+
+
     }
 }

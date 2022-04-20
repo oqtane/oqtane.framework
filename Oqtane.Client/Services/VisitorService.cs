@@ -12,16 +12,9 @@ namespace Oqtane.Services
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class VisitorService : ServiceBase, IVisitorService
     {
-        
-        private readonly SiteState _siteState;
+        public VisitorService(HttpClient http, SiteState siteState) : base(http, siteState) { }
 
-        public VisitorService(HttpClient http, SiteState siteState) : base(http)
-        {
-            
-            _siteState = siteState;
-        }
-
-        private string Apiurl => CreateApiUrl("Visitor", _siteState.Alias);
+        private string Apiurl => CreateApiUrl("Visitor");
 
         public async Task<List<Visitor>> GetVisitorsAsync(int siteId, DateTime fromDate)
         {
