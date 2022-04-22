@@ -33,7 +33,7 @@ else
                     <Label Class="col-sm-3" For="password" HelpText="If you wish to change your password you can enter it here. Please choose a sufficiently secure password." ResourceKey="Password"></Label>
 					<div class="col-sm-9">
                         <div class="input-group">
-						    <input id="password" type="@_passwordtype" name="Password" class="form-control" @bind="@_password" autocomplete="new-password" />
+						    <input id="password" type="@_passwordtype" class="form-control" @bind="@_password" autocomplete="new-password" />
 						    <button type="button" class="btn btn-secondary" @onclick="@TogglePassword">@_togglepassword</button>
 					    </div>
                     </div>
@@ -41,7 +41,10 @@ else
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="confirm" HelpText="If you are changing your password you must enter it again to confirm it matches" ResourceKey="Confirm"></Label>
                     <div class="col-sm-9">
-                        <input id="confirm" type="password" class="form-control" @bind="@confirm" autocomplete="new-password" />
+                        <div class="input-group">
+							<input id="confirm" type="@_passwordtype" class="form-control" @bind="@confirm" autocomplete="new-password" />
+						    <button type="button" class="btn btn-secondary" @onclick="@TogglePassword">@_togglepassword</button>
+					    </div>
                     </div>
                 </div>
 				@if (allowtwofactor)
@@ -246,10 +249,11 @@ else
     {
         try
         {
-            _togglepassword = Localizer["ShowPassword"];
+            _togglepassword = SharedLocalizer["ShowPassword"];
+
             if (PageState.Site.Settings.ContainsKey("LoginOptions:TwoFactor") && !string.IsNullOrEmpty(PageState.Site.Settings["LoginOptions:TwoFactor"]))
             {
-                allowtwofactor = bool.Parse(PageState.Site.Settings["LoginOptions:TwoFactor"]);
+                allowtwofactor = (PageState.Site.Settings["LoginOptions:TwoFactor"] == "true");
             }
 
             if (PageState.User != null)
@@ -455,12 +459,12 @@ else
 		if (_passwordtype == "password")
 		{
 			_passwordtype = "text";
-			_togglepassword = Localizer["HidePassword"];
+			_togglepassword = SharedLocalizer["HidePassword"];
 		}
 		else
 		{
 			_passwordtype = "password";
-			_togglepassword = Localizer["ShowPassword"];
+			_togglepassword = SharedLocalizer["ShowPassword"];
 		}
 	}
 

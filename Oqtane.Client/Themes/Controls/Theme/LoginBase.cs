@@ -1,10 +1,8 @@
 using System;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Oqtane.Enums;
-using Oqtane.Providers;
 using Oqtane.Security;
 using Oqtane.Services;
 using Oqtane.Shared;
@@ -33,28 +31,19 @@ namespace Oqtane.Themes.Controls
 
         protected async Task LogoutUser()
         {
-            await UserService.LogoutUserAsync(PageState.User);
             await LoggingService.Log(PageState.Alias, PageState.Page.PageId, null, PageState.User.UserId, GetType().AssemblyQualifiedName, "Logout", LogFunction.Security, LogLevel.Information, null, "User Logout For Username {Username}", PageState.User.Username);
-            PageState.User = null;
 
+            // check if anonymous user can access page
             var url = PageState.Alias.Path + "/" + PageState.Page.Path;
-            if (!UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, PageState.Page.Permissions))
+            if (!UserSecurity.IsAuthorized(null, PermissionNames.View, PageState.Page.Permissions))
             {
                 url = PageState.Alias.Path;
             }            
 
-            if (PageState.Runtime == Shared.Runtime.Server)
-            {
-                // server-side Blazor needs to redirect to the Logout page
-                NavigationManager.NavigateTo(Utilities.TenantUrl(PageState.Alias, "/pages/logout/") + "?returnurl=" + WebUtility.UrlEncode(url), true);
-            }
-            else
-            {
-                // client-side Blazor
-                var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
-                authstateprovider.NotifyAuthenticationChanged();
-                NavigationManager.NavigateTo(NavigateUrl(url, true));
-            }
+            // post to the Logout page to complete the logout process
+            var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, returnurl = url };
+            var interop = new Interop(jsRuntime);
+            await interop.SubmitForm(Utilities.TenantUrl(PageState.Alias, "/pages/logout/"), fields);
         }
     }
 }

@@ -45,12 +45,11 @@ namespace Oqtane.Infrastructure
                             };
                             // jwt already contains the roles - we are reloading to ensure most accurate permissions
                             var _userRoles = context.RequestServices.GetService(typeof(IUserRoleRepository)) as IUserRoleRepository;
-                            identity = UserSecurity.CreateClaimsIdentity(alias, user, _userRoles.GetUserRoles(user.UserId, alias.SiteId).ToList());
 
-                            // populate principal
-                            var principal = (ClaimsIdentity)context.User.Identity;
-                            UserSecurity.ResetClaimsIdentity(principal);
-                            principal.AddClaims(identity.Claims);
+                            // set claims identity
+                            var claimsidentity = UserSecurity.CreateClaimsIdentity(alias, user, _userRoles.GetUserRoles(user.UserId, alias.SiteId).ToList());
+                            context.User = new ClaimsPrincipal(claimsidentity);
+
                             logger.Log(alias.SiteId, LogLevel.Information, "TokenValidation", Enums.LogFunction.Security, "Token Validated For User {Username}", user.Username);
                         }
                         else

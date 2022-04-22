@@ -39,9 +39,9 @@ namespace Oqtane.Services
             await DeleteAsync($"{Apiurl}/{userId}?siteid={siteId}");
         }
 
-        public async Task<User> LoginUserAsync(User user, bool setCookie, bool isPersistent)
+        public async Task<User> LoginUserAsync(User user)
         {
-            return await PostJsonAsync<User>($"{Apiurl}/login?setcookie={setCookie}&persistent={isPersistent}", user);
+            return await PostJsonAsync<User>($"{Apiurl}/login", user);
         }
 
         public async Task LogoutUserAsync(User user)

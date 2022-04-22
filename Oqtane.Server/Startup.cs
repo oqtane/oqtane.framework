@@ -130,7 +130,7 @@ namespace Oqtane
 
             services.AddMvc(options =>
             {
-                //options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+                options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             })
             .AddNewtonsoftJson()
             .AddOqtaneApplicationParts() // register any Controllers from custom modules

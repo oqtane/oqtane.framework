@@ -16,13 +16,19 @@
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="password" HelpText="The new password. It must satisfy complexity rules for the site." ResourceKey="Password">Password: </Label>
             <div class="col-sm-9">
-                <input id="password" type="password" class="form-control" @bind="@_password" required />
+				<div class="input-group">
+					<input id="password" type="@_passwordtype" class="form-control" @bind="@_password" autocomplete="new-password" required />
+					<button type="button" class="btn btn-secondary" @onclick="@TogglePassword">@_togglepassword</button>
+				</div>
             </div>
         </div>
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="confirm" HelpText="Enter the password again. It must exactly match the password entered above." ResourceKey="Confirm">Confirm: </Label>
             <div class="col-sm-9">
-                <input id="confirm" type="password" class="form-control" @bind="@_confirm" required />
+				<div class="input-group">
+					<input id="confirm" type="@_passwordtype" class="form-control" @bind="@_confirm" autocomplete="new-password" required />
+					<button type="button" class="btn btn-secondary" @onclick="@TogglePassword">@_togglepassword</button>
+				</div>
             </div>
         </div>
     </div>
@@ -36,12 +42,16 @@
 	private bool validated = false;
 	private string _username = string.Empty;
 	private string _password = string.Empty;
+	private string _passwordtype = "password";
+	private string _togglepassword = string.Empty;
 	private string _confirm = string.Empty;
 
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
 	protected override async Task OnInitializedAsync()
 	{
+		_togglepassword = SharedLocalizer["ShowPassword"];
+
 		if (PageState.QueryString.ContainsKey("name") && PageState.QueryString.ContainsKey("token"))
         {
             _username = PageState.QueryString["name"];
@@ -110,4 +120,18 @@
     {
         NavigationManager.NavigateTo(NavigateUrl(string.Empty));
     }
+
+    private void TogglePassword()
+	{
+		if (_passwordtype == "password")
+		{
+			_passwordtype = "text";
+			_togglepassword = SharedLocalizer["HidePassword"];
+		}
+		else
+		{
+			_passwordtype = "password";
+			_togglepassword = SharedLocalizer["ShowPassword"];
+		}
+	}
 }

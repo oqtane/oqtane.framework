@@ -52,6 +52,7 @@ namespace Oqtane.Controllers
             }
             catch (Exception ex)
             {
+                results.Add(new Dictionary<string, string>() { { "Error", ex.Message } });
                 _logger.Log(LogLevel.Error, this, LogFunction.Other, "Sql Query {Query} Executed on Tenant {TenantId} Resulted In An Error {Error}", sqlquery.Query, sqlquery.TenantId, ex.Message);
             }
             sqlquery.Results = results;

@@ -22,10 +22,15 @@ namespace Oqtane.Services
 
         private HttpClient GetHttpClient()
         {
+            return GetHttpClient(_siteState?.AuthorizationToken);
+        }
+
+        private HttpClient GetHttpClient(string AuthorizationToken)
+        {
             var httpClient = _httpClientFactory.CreateClient("Remote");
-            if (!httpClient.DefaultRequestHeaders.Contains(HeaderNames.Authorization) && _siteState != null && !string.IsNullOrEmpty(_siteState.AuthorizationToken))
+            if (!httpClient.DefaultRequestHeaders.Contains(HeaderNames.Authorization) && !string.IsNullOrEmpty(AuthorizationToken))
             {
-                httpClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + _siteState.AuthorizationToken);
+                httpClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + AuthorizationToken);
             }
             return httpClient;
         }

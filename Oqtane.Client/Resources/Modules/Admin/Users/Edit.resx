@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -182,12 +182,6 @@
   </data>
   <data name="Profile.Heading" xml:space="preserve">
     <value>Profile</value>
-  </data>
-  <data name="HidePassword" xml:space="preserve">
-    <value>Hide</value>
-  </data>
-  <data name="ShowPassword" xml:space="preserve">
-    <value>Show</value>
   </data>
   <data name="Password.Placeholder" xml:space="preserve">
     <value>Password</value>

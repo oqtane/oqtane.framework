@@ -152,14 +152,5 @@ namespace Oqtane.Security
             }
             return identity;
         }
-
-        public static void ResetClaimsIdentity(ClaimsIdentity identity)
-        {
-            var claims = identity.Claims.ToList(); // clone
-            foreach (var claim in claims)
-            {
-                identity.RemoveClaim(claim);
-            }
-        }
     }
 }

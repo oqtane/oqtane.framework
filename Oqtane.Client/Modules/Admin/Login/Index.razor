@@ -95,7 +95,7 @@
 	{
 		try
 		{
-			_togglepassword = Localizer["ShowPassword"];
+			_togglepassword = SharedLocalizer["ShowPassword"];
 
 			if (PageState.Site.Settings.ContainsKey("LoginOptions:AllowSiteLogin") && !string.IsNullOrEmpty(PageState.Site.Settings["LoginOptions:AllowSiteLogin"]))
 			{
@@ -188,8 +188,7 @@
 
 				if (!twofactor)
 				{
-					bool setCookie = (PageState.Runtime == Oqtane.Shared.Runtime.WebAssembly);
-					user = await UserService.LoginUserAsync(user, setCookie, false);
+					user = await UserService.LoginUserAsync(user);
 				}
 				else
 				{
@@ -200,23 +199,14 @@
 				{
 					await logger.LogInformation(LogFunction.Security, "Login Successful For Username {Username}", _username);
 
-					if (PageState.Runtime == Oqtane.Shared.Runtime.Server)
-					{
-						// server-side Blazor needs to post to the Login page so that the cookies are set correctly
-						var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, username = _username, password = _password, remember = _remember, returnurl = _returnUrl };
-						string url = Utilities.TenantUrl(PageState.Alias, "/pages/login/");
-						await interop.SubmitForm(url, fields);
-					}
-					else
-					{
-						var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
-						authstateprovider.NotifyAuthenticationChanged();
-						NavigationManager.NavigateTo(NavigateUrl(_returnUrl, true));
-					}
+					// post back to the Login page so that the cookies are set correctly
+					var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, username = _username, password = _password, remember = _remember, returnurl = _returnUrl };
+					string url = Utilities.TenantUrl(PageState.Alias, "/pages/login/");
+					await interop.SubmitForm(url, fields);
 				}
 				else
 				{
-					if (user.TwoFactorRequired)
+					if (PageState.Site.Settings["LoginOptions:TwoFactor"] == "required" || user.TwoFactorRequired)
 					{
 						twofactor = true;
 						validated = false;
@@ -308,12 +298,12 @@
 		if (_passwordtype == "password")
 		{
 			_passwordtype = "text";
-			_togglepassword = Localizer["HidePassword"];
+			_togglepassword = SharedLocalizer["HidePassword"];
 		}
 		else
 		{
 			_passwordtype = "password";
-			_togglepassword = Localizer["ShowPassword"];
+			_togglepassword = SharedLocalizer["ShowPassword"];
 		}
 	}
 
