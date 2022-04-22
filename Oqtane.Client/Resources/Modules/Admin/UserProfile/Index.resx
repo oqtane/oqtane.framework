@@ -219,10 +219,4 @@
   <data name="DeleteAllNotifications.Text" xml:space="preserve">
     <value>Delete ALL Notifications</value>
   </data>
-  <data name="HidePassword" xml:space="preserve">
-    <value>Hide</value>
-  </data>
-  <data name="ShowPassword" xml:space="preserve">
-    <value>Show</value>
-  </data>
 </root>

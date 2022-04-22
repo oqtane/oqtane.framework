@@ -18,9 +18,9 @@ namespace Oqtane.Pages
             _identitySignInManager = identitySignInManager;
         }
 
-        public async Task<IActionResult> OnPostAsync(string username, string password, bool remember, string returnurl)
+         public async Task<IActionResult> OnPostAsync(string username, string password, bool remember, string returnurl)
         {
-            if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
+            if (!User.Identity.IsAuthenticated && !string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
             {
                 bool validuser = false;
                 IdentityUser identityuser = await _identityUserManager.FindByNameAsync(username);

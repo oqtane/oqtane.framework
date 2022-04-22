@@ -156,7 +156,7 @@ else
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="hostPassword" HelpText="Enter the password of an existing host user" ResourceKey="HostPassword">Host Password:</Label>
                     <div class="col-sm-9">
-                        <input id="hostPassword" type="password" class="form-control" @bind="@_hostpassword" required />
+                        <input id="hostPassword" type="password" class="form-control" @bind="@_hostpassword" autocomplete="new-password" required />
                     </div>
                 </div>
             }
@@ -307,7 +307,7 @@ else
                             user.SiteId = PageState.Site.SiteId;
                             user.Username = _hostusername;
                             user.Password = _hostpassword;
-                            user = await UserService.LoginUserAsync(user, false, false);
+                            user = await UserService.LoginUserAsync(user);
                             if (user.IsAuthenticated)
                             {
                                 var connectionString = String.Empty;

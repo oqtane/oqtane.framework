@@ -54,10 +54,8 @@ namespace Oqtane.Services
         /// Note that this will probably not be a real User, but a user object where the `Username` and `Password` have been filled.
         /// </summary>
         /// <param name="user">A <see cref="User"/> object which should have at least the <see cref="User.Username"/> and <see cref="User.Password"/> set.</param>
-        /// <param name="setCookie">Determines if the login should be stored in the cookie.</param>
-        /// <param name="isPersistent">Determines if the login should be persisted in the cookie for a long time.</param>
         /// <returns></returns>
-        Task<User> LoginUserAsync(User user, bool setCookie, bool isPersistent);
+        Task<User> LoginUserAsync(User user);
 
         /// <summary>
         /// Logout a <see cref="User"/>

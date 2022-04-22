@@ -189,12 +189,6 @@
   <data name="Username.Text" xml:space="preserve">
     <value>Username:</value>
   </data>
-  <data name="HidePassword" xml:space="preserve">
-    <value>Hide</value>
-  </data>
-  <data name="ShowPassword" xml:space="preserve">
-    <value>Show</value>
-  </data>
   <data name="Use" xml:space="preserve">
     <value>Use</value>
   </data>
@@ -224,5 +218,11 @@
   </data>
   <data name="ExternalLoginStatus.VerificationRequired" xml:space="preserve">
     <value>In Order To Link Your External Login With Your User Account You Must Verify Your Identity. Please Check Your Email For Further Instructions.</value>
+  </data>
+  <data name="ExternalLoginStatus.AccessDenied" xml:space="preserve">
+    <value>Your External Login Was Denied Access. Please Contact Your Administrator For Further Instructions.</value>
+  </data>
+  <data name="ExternalLoginStatus.RemoteFailure" xml:space="preserve">
+    <value>Your External Login Failed. Please Contact Your Administrator For Further Instructions.</value>
   </data>
 </root>
