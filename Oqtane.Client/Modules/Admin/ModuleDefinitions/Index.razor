@@ -50,9 +50,9 @@ else
                 @((MarkupString)PurchaseLink(context.PackageName))
             </td>
             <td>
-                @if (UpgradeAvailable(context.PackageName, context.Version))
+                @if (UpgradeAvailable(context.PackageName, context.Version, out var upgradeToVersion))
                 {
-                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadModule(context.PackageName, context.Version))>@SharedLocalizer["Upgrade"]</button>
+                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadModule(context.PackageName, upgradeToVersion))>@SharedLocalizer["Upgrade"]</button>
                 }
             </td>
         </Row>
@@ -103,15 +103,17 @@ else
         return link;
     }
 
-    private bool UpgradeAvailable(string packagename, string version)
+    private bool UpgradeAvailable(string packagename, string version, out string upgradeToVersion)
     {
         var upgradeavailable = false;
+        upgradeToVersion = "";
         if (!string.IsNullOrEmpty(packagename) && _packages != null)
         {
             var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
             if (package != null)
             {
-                upgradeavailable = (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0);
+                upgradeToVersion = package.Version;
+                upgradeavailable = (Version.Parse(upgradeToVersion).CompareTo(Version.Parse(version)) > 0);
             }
 
         }
