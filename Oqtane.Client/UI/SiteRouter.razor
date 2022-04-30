@@ -80,7 +80,7 @@
 		var runtime = (Shared.Runtime)Enum.Parse(typeof(Shared.Runtime), Runtime);
 
 		Route route = new Route(_absoluteUri, SiteState.Alias.Path);
-		var moduleid = (int.TryParse(route.ModuleId, out int mid)) ? mid : -1;
+		int moduleid = (int.TryParse(route.ModuleId, out moduleid)) ? moduleid : -1;
 		var action = (!string.IsNullOrEmpty(route.Action)) ? route.Action : Constants.DefaultAction; 
 		var querystring = ParseQueryString(route.Query);
 

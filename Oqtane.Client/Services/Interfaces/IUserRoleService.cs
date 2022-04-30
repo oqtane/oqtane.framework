@@ -17,6 +17,31 @@ namespace Oqtane.Services
         Task<List<UserRole>> GetUserRolesAsync(int siteId);
 
         /// <summary>
+        /// Get all <see cref="UserRole"/>s on a <see cref="Site"/>
+        /// </summary>
+        /// <param name="siteId">ID-reference to a <see cref="Site"/></param>
+        /// <param name="userId">ID-reference to a <see cref="User"/></param>
+        /// <returns></returns>
+        Task<List<UserRole>> GetUserRolesAsync(int siteId, int userId);
+
+        /// <summary>
+        /// Get all <see cref="UserRole"/>s on a <see cref="Site"/>
+        /// </summary>
+        /// <param name="siteId">ID-reference to a <see cref="Site"/></param>
+        /// <param name="roleName">Name reference a <see cref="Role"/></param>
+        /// <returns></returns>
+        Task<List<UserRole>> GetUserRolesAsync(int siteId, string roleName);
+
+        /// <summary>
+        /// Get all <see cref="UserRole"/>s on a <see cref="Site"/>
+        /// </summary>
+        /// <param name="siteId">ID-reference to a <see cref="Site"/></param>
+        /// <param name="userId">ID-reference to a <see cref="User"/></param>
+        /// <param name="roleName">Name reference a <see cref="Role"/></param>
+        /// <returns></returns>
+        Task<List<UserRole>> GetUserRolesAsync(int siteId, int userId, string roleName);
+
+        /// <summary>
         /// Get one specific <see cref="UserRole"/>
         /// </summary>
         /// <param name="userRoleId">ID-reference to a <see cref="UserRole"/></param>

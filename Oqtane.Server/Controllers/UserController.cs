@@ -109,7 +109,6 @@ namespace Oqtane.Controllers
 
                 if (!User.IsInRole(RoleNames.Admin) && User.Identity.Name?.ToLower() != user.Username.ToLower())
                 {
-                    user.DisplayName = "";
                     user.Email = "";
                     user.PhotoFileId = null;
                     user.LastLoginOn = DateTime.MinValue;

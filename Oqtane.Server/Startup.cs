@@ -164,7 +164,7 @@ namespace Oqtane
             // execute any IServerStartup logic
             app.ConfigureOqtaneAssemblies(env);
 
-            // Allow oqtane localization middleware
+            // allow oqtane localization middleware
             app.UseOqtaneLocalization();
 
             app.UseHttpsRedirection();
