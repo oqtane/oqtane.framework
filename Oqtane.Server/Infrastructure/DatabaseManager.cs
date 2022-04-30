@@ -267,13 +267,13 @@ namespace Oqtane.Infrastructure
 
                     var databaseType = install.DatabaseType;
 
-                    //Get database Type
+                    // get database type
                     var type = Type.GetType(databaseType);
 
-                    //Create database object from Type
+                    // create database object from type
                     var database = Activator.CreateInstance(type) as IDatabase;
 
-                    //create data directory if does not exist
+                    // create data directory if does not exist
                     var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
                     if (!Directory.Exists(dataDirectory)) Directory.CreateDirectory(dataDirectory ?? String.Empty);
 
@@ -287,7 +287,7 @@ namespace Oqtane.Infrastructure
                 }
                 catch (Exception ex)
                 {
-                    result.Message = ex.Message;
+                    result.Message = "An Error Occurred Creating The Database. This Is Usually Related To Your User Not Having Sufficient Rights To Perform This Operation. Please Note That You Can Also Create The Database Manually Prior To Initiating The Install Wizard. " + ex.Message;
                     _filelogger.LogError(Utilities.LogMessage(this, result.Message));
                 }
             }
@@ -321,14 +321,14 @@ namespace Oqtane.Infrastructure
                             {
                                 UpgradeSqlServer(sql, install.ConnectionString, install.DatabaseType, true);
                             }
-                            // Push latest model into database
+                            // push latest model into database
                             masterDbContext.Database.Migrate();
                             result.Success = true;
                         }
                     }
                     catch (Exception ex)
                     {
-                        result.Message = ex.Message;
+                        result.Message = "An Error Occurred Provisioning The Master Database. This Is Usually Related To The Master Database Not Being In A Supported State. " + ex.Message;
                         _filelogger.LogError(Utilities.LogMessage(this, result.Message));
                     }
                 }
@@ -429,14 +429,14 @@ namespace Oqtane.Infrastructure
                                     UpgradeSqlServer(sql, tenant.DBConnectionString, tenant.DBType, false);
                                 }
 
-                                // Push latest model into database
+                                // push latest model into database
                                 tenantDbContext.Database.Migrate();
                                 result.Success = true;
                             }
                         }
                         catch (Exception ex)
                         {
-                            result.Message = ex.Message;
+                            result.Message = "An Error Occurred Migrating A Tenant Database. This Is Usually Related To A Tenant Database Not Being In A Supported State. " + ex.Message;
                             _filelogger.LogError(Utilities.LogMessage(this, result.Message));
                         }
 
@@ -445,13 +445,21 @@ namespace Oqtane.Infrastructure
                         var index = Array.FindIndex(versions, item => item == version);
                         if (index != (versions.Length - 1))
                         {
-                            for (var i = (index + 1); i < versions.Length; i++)
+                            try
                             {
-                                upgrades.Upgrade(tenant, versions[i]);
+                                for (var i = (index + 1); i < versions.Length; i++)
+                                {
+                                    upgrades.Upgrade(tenant, versions[i]);
+                                }
+                                tenant.Version = versions[versions.Length - 1];
+                                db.Entry(tenant).State = EntityState.Modified;
+                                db.SaveChanges();
                             }
-                            tenant.Version = versions[versions.Length - 1];
-                            db.Entry(tenant).State = EntityState.Modified;
-                            db.SaveChanges();
+                            catch (Exception ex)
+                            {
+                                result.Message = "An Error Occurred Executing Upgrade Logic. " + ex.Message;
+                                _filelogger.LogError(Utilities.LogMessage(this, result.Message));
+                            }
                         }
                     }
                 }
@@ -653,7 +661,7 @@ namespace Oqtane.Infrastructure
                 }
                 catch (Exception ex)
                 {
-                    result.Message = "An Error Occurred Creating Site - " + ex.Message;
+                    result.Message = "An Error Occurred Creating Site. " + ex.Message;
                 }
             }
 

@@ -110,8 +110,7 @@ else
     {
         try
         {
-            userroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
-            userroles = userroles.Where(item => item.UserId == userid).ToList();
+            userroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, userid);
         }
         catch (Exception ex)
         {
