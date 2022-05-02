@@ -274,7 +274,7 @@
     <value>Full Name:</value>
   </data>
   <data name="LocalVersion" xml:space="preserve">
-    <value>Local Version</value>
+    <value>Installed Version</value>
   </data>
   <data name="Search.Source" xml:space="preserve">
     <value>source</value>
