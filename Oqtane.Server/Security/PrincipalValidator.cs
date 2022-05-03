@@ -50,15 +50,15 @@ namespace Oqtane.Security
                                 else
                                 {
                                     // user has no roles - remove principal
-                                    context.RejectPrincipal();
                                     Log(_logger, alias, "Permissions Removed For User {Username} Accessing {Url}", context.Principal.Identity.Name, path);
+                                    context.RejectPrincipal();
                                 }
                             }
                             else
                             {
                                 // user does not exist - remove principal
-                                context.RejectPrincipal();
                                 Log(_logger, alias, "Permissions Removed For User {Username} Accessing {Url}", context.Principal.Identity.Name, path);
+                                context.RejectPrincipal();
                             }
                         }
                     }

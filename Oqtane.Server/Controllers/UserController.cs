@@ -109,7 +109,6 @@ namespace Oqtane.Controllers
 
                 if (!User.IsInRole(RoleNames.Admin) && User.Identity.Name?.ToLower() != user.Username.ToLower())
                 {
-                    user.DisplayName = "";
                     user.Email = "";
                     user.PhotoFileId = null;
                     user.LastLoginOn = DateTime.MinValue;
@@ -203,7 +202,7 @@ namespace Oqtane.Controllers
                     else
                     {
                         string url = HttpContext.Request.Scheme + "://" + _tenantManager.GetAlias().Name;
-                        string body = "Dear " + user.DisplayName + ",\n\nA User Account Has Been Succesfully Created For You. Please Use The Following Link To Access The Site:\n\n" + url + "\n\nThank You!";
+                        string body = "Dear " + user.DisplayName + ",\n\nA User Account Has Been Successfully Created For You. Please Use The Following Link To Access The Site:\n\n" + url + "\n\nThank You!";
                         var notification = new Notification(user.SiteId, newUser, "User Account Notification", body);
                         _notifications.AddNotification(notification);
                     }
@@ -316,7 +315,7 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>/login
         [HttpPost("login")]
-        public async Task<User> Login([FromBody] User user, bool setCookie, bool isPersistent)
+        public async Task<User> Login([FromBody] User user)
         {
             User loginUser = new User { SiteId = user.SiteId, Username = user.Username, IsAuthenticated = false };
 
@@ -357,10 +356,6 @@ namespace Oqtane.Controllers
                                     loginUser.LastIPAddress = HttpContext.Connection.RemoteIpAddress.ToString();
                                     _users.UpdateUser(loginUser);
                                     _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful {Username}", user.Username);
-                                    if (setCookie)
-                                    {
-                                        await _identitySignInManager.SignInAsync(identityuser, isPersistent);
-                                    }
                                 }
                                 else
                                 {
@@ -419,7 +414,7 @@ namespace Oqtane.Controllers
                     }
                     else
                     {
-                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "Email Verification Failed For {Username} - Error {Error}", user.Username, result.Errors.ToString());
+                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "Email Verification Failed For {Username} - Error {Error}", user.Username, string.Join(" ", result.Errors.ToList().Select(e => e.Description)));
                         user = null;
                     }
                 }
@@ -477,7 +472,7 @@ namespace Oqtane.Controllers
                     }
                     else
                     {
-                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "Password Reset Failed For {Username} - Error {Error}", user.Username, result.Errors.ToString());
+                        _logger.Log(LogLevel.Information, this, LogFunction.Security, "Password Reset Failed For {Username} - Error {Error}", user.Username, string.Join(" ", result.Errors.ToList().Select(e => e.Description)));
                         user = null;
                     }
                 }
@@ -511,6 +506,38 @@ namespace Oqtane.Controllers
             return loginUser;
         }
 
+        // POST api/<controller>/link
+        [HttpPost("link")]
+        public async Task<User> Link([FromBody] User user, string token, string type, string key, string name)
+        {
+            if (ModelState.IsValid)
+            {
+                IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+                if (identityuser != null && !string.IsNullOrEmpty(token))
+                {
+                    var result = await _identityUserManager.ConfirmEmailAsync(identityuser, token);
+                    if (result.Succeeded)
+                    {
+                        // make LoginProvider multi-tenant aware
+                        type += ":" + user.SiteId.ToString();
+                        await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(type, key, name));
+                        _logger.Log(LogLevel.Information, this, LogFunction.Security, "External Login Linkage Successful For {Username} And Provider {Provider}", user.Username, type);
+                    }
+                    else
+                    {
+                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "External Login Linkage Failed For {Username} - Error {Error}", user.Username, string.Join(" ", result.Errors.ToList().Select(e => e.Description)));
+                        user = null;
+                    }
+                }
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "External Login Linkage Failed For {Username} And Token {Token}", user.Username, token);
+                user = null;
+            }
+            return user;
+        }
+
         // GET api/<controller>/validate/x
         [HttpGet("validate/{password}")]
         public async Task<bool> Validate(string password)
@@ -522,8 +549,23 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/token
         [HttpGet("token")]
-        [Authorize(Roles = RoleNames.Admin)]
+        [Authorize(Roles = RoleNames.Registered)]
         public string Token()
+        {
+            var token = "";
+            var sitesettings = HttpContext.GetSiteSettings();
+            var secret = sitesettings.GetValue("JwtOptions:Secret", "");
+            if (!string.IsNullOrEmpty(secret))
+            {
+                token = _jwtManager.GenerateToken(_tenantManager.GetAlias(), (ClaimsIdentity)User.Identity, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""), int.Parse(sitesettings.GetValue("JwtOptions:Audience", "20")));
+            }
+            return token;
+        }
+
+        // GET api/<controller>/personalaccesstoken
+        [HttpGet("personalaccesstoken")]
+        [Authorize(Roles = RoleNames.Admin)]
+        public string PersonalAccessToken()
         {
             var token = "";
             var sitesettings = HttpContext.GetSiteSettings();

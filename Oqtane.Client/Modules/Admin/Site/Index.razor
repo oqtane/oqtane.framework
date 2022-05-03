@@ -341,7 +341,7 @@
 				_smtpssl = SettingService.GetSetting(settings, "SMTPSSL", "False");
 				_smtpusername = SettingService.GetSetting(settings, "SMTPUsername", string.Empty);
 				_smtppassword = SettingService.GetSetting(settings, "SMTPPassword", string.Empty);
-				_togglesmtppassword = Localizer["Show"];
+				_togglesmtppassword = SharedLocalizer["ShowPassword"];
 				_smtpsender = SettingService.GetSetting(settings, "SMTPSender", string.Empty);
 				_retention = SettingService.GetSetting(settings, "NotificationRetention", "30");
 
@@ -407,7 +407,7 @@
 		{
 			try
 			{
-				if (_name != string.Empty && _urls != string.Empty && _themetype != "-" && _containertype != "-")
+				if (_name != string.Empty && _themetype != "-" && _containertype != "-")
 				{
 					var unique = true;
 					if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
@@ -656,12 +656,12 @@
 		if (_smtppasswordtype == "password")
 		{
 			_smtppasswordtype = "text";
-			_togglesmtppassword = Localizer["Hide"];
+			_togglesmtppassword = SharedLocalizer["HidePassword"];
 		}
 		else
 		{
 			_smtppasswordtype = "password";
-			_togglesmtppassword = Localizer["Show"];
+			_togglesmtppassword = SharedLocalizer["ShowPassword"];
 		}
 	}
 }

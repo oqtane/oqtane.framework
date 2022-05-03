@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -123,8 +123,14 @@
   <data name="Success.Account.Verified" xml:space="preserve">
     <value>User Account Verified Successfully. You Can Now Login With Your Username And Password Below.</value>
   </data>
-  <data name="Message.Account.NotVerfied" xml:space="preserve">
+  <data name="Message.Account.NotVerified" xml:space="preserve">
     <value>User Account Could Not Be Verified. Please Contact Your Administrator For Further Instructions.</value>
+  </data>
+  <data name="Success.Account.Linked" xml:space="preserve">
+    <value>User Account Linked Successfully. You Can Now Login With Your External Login Below.</value>
+  </data>
+  <data name="Message.Account.NotLinked" xml:space="preserve">
+    <value>External Login Could Not Be Linked. Please Contact Your Administrator For Further Instructions.</value>
   </data>
   <data name="Error.Login.Fail" xml:space="preserve">
     <value>Login Failed. Please Remember That Passwords Are Case Sensitive. If You Have Attempted To Sign In Multiple Times Unsuccessfully, Your Account Will Be Locked Out For A Period Of Time. Note That User Accounts Require Verification When They Are Initially Created So You May Wish To Check Your Email If You Are A New User.</value>
@@ -183,12 +189,6 @@
   <data name="Username.Text" xml:space="preserve">
     <value>Username:</value>
   </data>
-  <data name="HidePassword" xml:space="preserve">
-    <value>Hide</value>
-  </data>
-  <data name="ShowPassword" xml:space="preserve">
-    <value>Show</value>
-  </data>
   <data name="Use" xml:space="preserve">
     <value>Use</value>
   </data>
@@ -200,5 +200,29 @@
   </data>
   <data name="Error.ResetPassword" xml:space="preserve">
     <value>Error Resetting Password</value>
+  </data>
+  <data name="ExternalLoginStatus.DuplicateEmail" xml:space="preserve">
+    <value>Multiple User Accounts Already Exist With The Email Address Of Your External Login. Please Contact Your Administrator For Further Instructions.</value>
+  </data>
+  <data name="ExternalLoginStatus.InvalidEmail" xml:space="preserve">
+    <value>The External Login Provider Did Not Provide A Valid Email Address For Your Account. Please Contact Your Administrator For Further Instructions.</value>
+  </data>
+  <data name="ExternalLoginStatus.ProviderKeyMismatch" xml:space="preserve">
+    <value>An Error Occurred Verifying Your External Login. Please Contact Your Administrator For Further Instructions.</value>
+  </data>
+  <data name="ExternalLoginStatus.UserDoesNotExist" xml:space="preserve">
+    <value>A User Account Matching The Email Address Of Your External Login Does Not Exist. Please Contact Your Administrator For Further Instructions.</value>
+  </data>
+  <data name="ExternalLoginStatus.UserNotCreated" xml:space="preserve">
+    <value>A User Account Could Not Be Created For Your External Login. Please Contact Your Administrator For Further Instructions.</value>
+  </data>
+  <data name="ExternalLoginStatus.VerificationRequired" xml:space="preserve">
+    <value>In Order To Link Your External Login With Your User Account You Must Verify Your Identity. Please Check Your Email For Further Instructions.</value>
+  </data>
+  <data name="ExternalLoginStatus.AccessDenied" xml:space="preserve">
+    <value>Your External Login Was Denied Access. Please Contact Your Administrator For Further Instructions.</value>
+  </data>
+  <data name="ExternalLoginStatus.RemoteFailure" xml:space="preserve">
+    <value>Your External Login Failed. Please Contact Your Administrator For Further Instructions.</value>
   </data>
 </root>

@@ -1,11 +1,8 @@
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Oqtane.Extensions;
 using Oqtane.Shared;
 
 namespace Oqtane.Pages
@@ -13,7 +10,7 @@ namespace Oqtane.Pages
     [Authorize]
     public class LogoutModel : PageModel
     {
-        public async Task<IActionResult> OnGetAsync(string returnurl)
+        public async Task<IActionResult> OnPostAsync(string returnurl)
         {
             await HttpContext.SignOutAsync(Constants.AuthenticationScheme);
 

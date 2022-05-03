@@ -12,13 +12,9 @@ namespace Oqtane.Services
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class PackageService : ServiceBase, IPackageService
     {
-        private readonly SiteState _siteState;
+        public PackageService(HttpClient http, SiteState siteState) : base(http, siteState) { }
 
-        public PackageService(HttpClient http, SiteState siteState) : base(http)
-        {
-            _siteState = siteState;
-        }
-        private string Apiurl => CreateApiUrl("Package", _siteState.Alias);
+        private string Apiurl => CreateApiUrl("Package");
 
         public async Task<List<Package>> GetPackagesAsync(string type)
         {

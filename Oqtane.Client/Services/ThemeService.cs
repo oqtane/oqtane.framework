@@ -11,14 +11,9 @@ namespace Oqtane.Services
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class ThemeService : ServiceBase, IThemeService
     {
-        private readonly SiteState _siteState;
+        public ThemeService(HttpClient http, SiteState siteState) : base(http, siteState) { }
 
-        public ThemeService(HttpClient http, SiteState siteState) : base(http)
-        {
-            _siteState = siteState;
-        }
-
-        private string ApiUrl => CreateApiUrl("Theme", _siteState.Alias);
+        private string ApiUrl => CreateApiUrl("Theme");
 
         public async Task<List<Theme>> GetThemesAsync()
         {

@@ -11,18 +11,9 @@ namespace Oqtane.Services
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class SyncService : ServiceBase, ISyncService
     {
+        public SyncService(HttpClient http, SiteState siteState) : base(http, siteState) { }
 
-        private readonly SiteState _siteState;
-
-        /// <summary>
-        /// Constructor - should only be used by Dependency Injection
-        /// </summary>
-        public SyncService(HttpClient http, SiteState siteState) : base(http)
-        {
-            _siteState = siteState;
-        }
-
-        private string ApiUrl => CreateApiUrl("Sync", _siteState.Alias);
+        private string ApiUrl => CreateApiUrl("Sync");
 
         /// <inheritdoc />
         public async Task<Sync> GetSyncAsync(DateTime lastSyncDate)

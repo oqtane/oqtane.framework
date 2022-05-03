@@ -72,6 +72,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IDatabaseManager, DatabaseManager>();
             services.AddSingleton<IConfigManager, ConfigManager>();
             services.AddSingleton<ILoggerProvider, FileLoggerProvider>();
+            services.AddSingleton<AutoValidateAntiforgeryTokenFilter>();
             return services;
         }
 

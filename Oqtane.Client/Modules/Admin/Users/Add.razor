@@ -20,14 +20,20 @@
                 </div>
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="password" HelpText="The user's password. Please choose a password which is sufficiently secure." ResourceKey="Password"></Label>
-                    <div class="col-sm-9">
-                        <input id="password" type="password" class="form-control" @bind="@password" />
+					<div class="col-sm-9">
+                        <div class="input-group">
+						    <input id="password" type="@_passwordtype" class="form-control" @bind="@_password" autocomplete="new-password" required />
+						    <button type="button" class="btn btn-secondary" @onclick="@TogglePassword">@_togglepassword</button>
+					    </div>
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="confirm" HelpText="Please enter the password again to confirm it matches with the value above" ResourceKey="Confirm"></Label>
                     <div class="col-sm-9">
-                        <input id="confirm" type="password" class="form-control" @bind="@confirm" />
+                        <div class="input-group">
+							<input id="confirm" type="@_passwordtype" class="form-control" @bind="@confirm" autocomplete="new-password" required />
+						    <button type="button" class="btn btn-secondary" @onclick="@TogglePassword">@_togglepassword</button>
+					    </div>
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
@@ -88,7 +94,9 @@
 
 @code {
     private string username = string.Empty;
-    private string password = string.Empty;
+    private string _password = string.Empty;
+	private string _passwordtype = "password";
+	private string _togglepassword = string.Empty;
     private string confirm = string.Empty;
     private string email = string.Empty;
     private string displayname = string.Empty;
@@ -102,6 +110,7 @@
     {
         try
         {
+            _togglepassword = SharedLocalizer["ShowPassword"];
             profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
             settings = new Dictionary<string, string>();
         }
@@ -119,9 +128,9 @@
     {
         try
         {
-            if (username != string.Empty && password != string.Empty && confirm != string.Empty && email != string.Empty && ValidateProfiles())
+            if (username != string.Empty && _password != string.Empty && confirm != string.Empty && email != string.Empty && ValidateProfiles())
             {
-                if (password == confirm)
+                if (_password == confirm)
                 {
                     var user = await UserService.GetUserAsync(username, PageState.Site.SiteId);
                     if (user == null)
@@ -129,7 +138,7 @@
                         user = new User();
                         user.SiteId = PageState.Site.SiteId;
                         user.Username = username;
-                        user.Password = password;
+                        user.Password = _password;
                         user.Email = email;
                         user.DisplayName = string.IsNullOrWhiteSpace(displayname) ? username : displayname;
                         user.PhotoFileId = null;
@@ -193,4 +202,17 @@
         settings = SettingService.SetSetting(settings, SettingName, value);
     }
 
+    private void TogglePassword()
+	{
+		if (_passwordtype == "password")
+		{
+			_passwordtype = "text";
+			_togglepassword = SharedLocalizer["HidePassword"];
+		}
+		else
+		{
+			_passwordtype = "password";
+			_togglepassword = SharedLocalizer["ShowPassword"];
+		}
+	}
 }

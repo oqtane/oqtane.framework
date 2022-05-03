@@ -99,7 +99,6 @@ namespace Oqtane
                 options.Cookie.Name = Constants.AntiForgeryTokenCookieName;
                 options.Cookie.SameSite = SameSiteMode.Strict;
                 options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-                //options.Cookie.HttpOnly = false;
             });
 
             services.AddIdentityCore<IdentityUser>(options => { })
@@ -114,6 +113,7 @@ namespace Oqtane
                 {
                     options.DefaultAuthenticateScheme = Constants.AuthenticationScheme;
                     options.DefaultChallengeScheme = Constants.AuthenticationScheme;
+                    options.DefaultSignOutScheme = Constants.AuthenticationScheme;
                 })
                 .AddCookie(Constants.AuthenticationScheme)
                 .AddOpenIdConnect(AuthenticationProviderTypes.OpenIDConnect, options => { })
@@ -128,10 +128,13 @@ namespace Oqtane
 
             services.AddOqtaneAuthorizationPolicies();
 
-            services.AddMvc()
-                .AddNewtonsoftJson()
-                .AddOqtaneApplicationParts() // register any Controllers from custom modules
-                .ConfigureOqtaneMvc(); // any additional configuration from IStartup classes
+            services.AddMvc(options =>
+            {
+                options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+            })
+            .AddNewtonsoftJson()
+            .AddOqtaneApplicationParts() // register any Controllers from custom modules
+            .ConfigureOqtaneMvc(); // any additional configuration from IStartup classes
 
             services.AddSwaggerGen(options =>
             {
@@ -161,7 +164,7 @@ namespace Oqtane
             // execute any IServerStartup logic
             app.ConfigureOqtaneAssemblies(env);
 
-            // Allow oqtane localization middleware
+            // allow oqtane localization middleware
             app.UseOqtaneLocalization();
 
             app.UseHttpsRedirection();

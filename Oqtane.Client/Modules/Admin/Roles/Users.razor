@@ -95,11 +95,7 @@ else
             roleid = Int32.Parse(PageState.QueryString["id"]);
             Role role = await RoleService.GetRoleAsync(roleid);
             name = role.Name;
-            users = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
-            users = users
-                .Where(u => u.Role.Name == RoleNames.Registered)
-                .OrderBy(u => u.User.DisplayName)
-                .ToList();
+            users = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Registered);
             await GetUserRoles();
         }
         catch (Exception ex)
@@ -113,8 +109,7 @@ else
     {
         try
         {
-            userroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
-            userroles = userroles.Where(item => item.RoleId == roleid).ToList();
+            userroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, name);
         }
         catch (Exception ex)
         {

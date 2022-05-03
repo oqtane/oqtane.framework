@@ -10,16 +10,10 @@ namespace Oqtane.Services
 {
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class LanguageService : ServiceBase, ILanguageService
-    {
-        
-        private readonly SiteState _siteState;
+    {        
+        public LanguageService(HttpClient http, SiteState siteState) : base(http, siteState) { }
 
-        public LanguageService(HttpClient http, SiteState siteState) : base(http)
-        {
-            _siteState = siteState;
-        }
-
-        private string Apiurl => CreateApiUrl("Language", _siteState.Alias);
+        private string Apiurl => CreateApiUrl("Language");
 
         public async Task<List<Language>> GetLanguagesAsync(int siteId)
         {

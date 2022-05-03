@@ -14,14 +14,9 @@ namespace Oqtane.Services
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class FolderService : ServiceBase, IFolderService
     {
-        private readonly SiteState _siteState;
+        public FolderService(HttpClient http, SiteState siteState) : base(http, siteState) { }
 
-        public FolderService(HttpClient http, SiteState siteState) : base(http)
-        {
-            _siteState = siteState;
-        }
-
-        private string ApiUrl => CreateApiUrl("Folder", _siteState.Alias);
+        private string ApiUrl => CreateApiUrl("Folder");
 
         public async Task<List<Folder>> GetFoldersAsync(int siteId)
         {

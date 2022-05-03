@@ -152,29 +152,5 @@ namespace Oqtane.Security
             }
             return identity;
         }
-
-        public static void ResetClaimsIdentity(ClaimsIdentity identity)
-        {
-            var claim = identity.Claims.FirstOrDefault(item => item.Type == ClaimTypes.Name);
-            if (claim != null)
-            {
-                identity.RemoveClaim(claim);
-            }
-            claim = identity.Claims.FirstOrDefault(item => item.Type == ClaimTypes.NameIdentifier);
-            if (claim != null)
-            {
-                identity.RemoveClaim(claim);
-            }
-            claim = identity.Claims.FirstOrDefault(item => item.Type == "sitekey");
-            if (claim != null)
-            {
-                identity.RemoveClaim(claim);
-            }
-            var roles = identity.Claims.Where(item => item.Type == ClaimTypes.Role);
-            foreach (var role in roles)
-            {
-                identity.RemoveClaim(role);
-            }
-        }
     }
 }

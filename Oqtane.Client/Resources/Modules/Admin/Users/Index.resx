@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -247,10 +247,10 @@
     <value>Domain Filter:</value>
   </data>
   <data name="EmailClaimType.HelpText" xml:space="preserve">
-    <value>The type name for the email address claim provided by the provider</value>
+    <value>The name of the email address claim provided by the provider</value>
   </data>
   <data name="EmailClaimType.Text" xml:space="preserve">
-    <value>Email Claim Type:</value>
+    <value>Email Claim:</value>
   </data>
   <data name="ExternalLoginSettings.Heading" xml:space="preserve">
     <value>External Login Settings</value>
@@ -318,11 +318,11 @@
   <data name="UserSettings.Heading" xml:space="preserve">
     <value>User Settings</value>
   </data>
-  <data name="CookieType.HelpText" xml:space="preserve">
-    <value>Cookies are usually managed per domain. However you can also choose to have distinct cookies for each site (this option is only applicable to micro-sites).</value>
+  <data name="CookieName.HelpText" xml:space="preserve">
+    <value>You can choose to use a custom authentication cookie name for each site. However please be aware that if you want to share an authentication cookie between sites on the same domain they need to use a consistent cookie name. Also be aware that changing the authentication cookie name will logout all current users.</value>
   </data>
-  <data name="CookieType.Text" xml:space="preserve">
-    <value>Login Cookie Type:</value>
+  <data name="CookieName.Text" xml:space="preserve">
+    <value>Cookie Name:</value>
   </data>
   <data name="CreateToken" xml:space="preserve">
     <value>Create Token</value>
@@ -355,15 +355,33 @@
     <value>Token Settings</value>
   </data>
   <data name="TwoFactor.HelpText" xml:space="preserve">
-    <value>Do you want to allow users to use two factor authentication? Note that the Notification Job in Scheduled Jobs needs to be enabled and your SMTP options need to be configured in Site Settings for this option to work properly.</value>
+    <value>Do you want users to use two factor authentication? Note that you should use the Disabled option until you have successfully verified that the Notification Job in Scheduled Jobs is enabled and your SMTP options in Site Settings are configured or else you will lock yourself out.</value>
   </data>
   <data name="TwoFactor.Text" xml:space="preserve">
-    <value>Allow Two Factor?</value>
+    <value>Two Factor?</value>
   </data>
-  <data name="Hide" xml:space="preserve">
-    <value>Hide</value>
+  <data name="Disabled" xml:space="preserve">
+    <value>Disabled</value>
   </data>
-  <data name="Show" xml:space="preserve">
-    <value>Show</value>
+  <data name="Optional" xml:space="preserve">
+    <value>Optional</value>
+  </data>
+  <data name="Required" xml:space="preserve">
+    <value>Required</value>
+  </data>
+  <data name="CreatedOn" xml:space="preserve">
+    <value>Created On</value>
+  </data>
+  <data name="LastIPAddress" xml:space="preserve">
+    <value>Last IP Address</value>
+  </data>
+  <data name="LastLoginOn" xml:space="preserve">
+    <value>Last Login</value>
+  </data>
+  <data name="IdentifierClaimType.HelpText" xml:space="preserve">
+    <value>The name of the unique user identifier claim provided by the provider</value>
+  </data>
+  <data name="IdentifierClaimType.Text" xml:space="preserve">
+    <value>Identifier Claim:</value>
   </data>
 </root>

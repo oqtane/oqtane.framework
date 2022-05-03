@@ -50,9 +50,12 @@ else
                 @((MarkupString)PurchaseLink(context.PackageName))
             </td>
             <td>
-                @if (UpgradeAvailable(context.PackageName, context.Version))
+				@{ 
+					var version = UpgradeAvailable(context.PackageName, context.Version);
+				} 
+                @if (version != context.Version)
                 {
-                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadModule(context.PackageName, context.Version))>@SharedLocalizer["Upgrade"]</button>
+                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadModule(context.PackageName, version))>@SharedLocalizer["Upgrade"]</button>
                 }
             </td>
         </Row>
@@ -60,62 +63,60 @@ else
 }
 
 @code {
-    private List<ModuleDefinition> _moduleDefinitions;
-    private List<Package> _packages;
+	private List<ModuleDefinition> _moduleDefinitions;
+	private List<Package> _packages;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-    protected override async Task OnParametersSetAsync()
-    {
-        try
-        {
-            _moduleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
-            _packages = await PackageService.GetPackagesAsync("module");
+	protected override async Task OnParametersSetAsync()
+	{
+		try
+		{
+			_moduleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
+			_packages = await PackageService.GetPackagesAsync("module");
+		}
+		catch (Exception ex)
+		{
+			if (_moduleDefinitions == null)
+			{
+				await logger.LogError(ex, "Error Loading Modules {Error}", ex.Message);
+				AddModuleMessage(Localizer["Error.Module.Load"], MessageType.Error);
+			}
+		}
+	}
+
+	private string PurchaseLink(string packagename)
+	{
+		string link = "";
+		if (!string.IsNullOrEmpty(packagename) && _packages != null)
+		{
+			var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
+			if (package != null)
+			{
+				if (package.ExpiryDate != null && package.ExpiryDate.Value.Date != DateTime.MaxValue.Date)
+				{
+					link += "<span>" + package.ExpiryDate.Value.Date.ToString("MMM dd, yyyy") + "</span>";
+					if (!string.IsNullOrEmpty(package.PaymentUrl))
+					{
+						link += "&nbsp;&nbsp;<a class=\"btn btn-primary\" style=\"text-decoration: none !important\" href=\"" + package.PaymentUrl + "\" target=\"_new\">" + SharedLocalizer["Extend"] + "</a>";
+					}
+				}
+			}
+		}
+		return link;
+	}
+
+	private string UpgradeAvailable(string packagename, string version)
+	{
+		if (!string.IsNullOrEmpty(packagename) && _packages != null)
+		{
+			var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
+			if (package != null && Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0)
+			{
+				return package.Version;
+			}
         }
-        catch (Exception ex)
-        {
-            if (_moduleDefinitions == null)
-            {
-                await logger.LogError(ex, "Error Loading Modules {Error}", ex.Message);
-                AddModuleMessage(Localizer["Error.Module.Load"], MessageType.Error);
-            }
-        }
-    }
-
-    private string PurchaseLink(string packagename)
-    {
-        string link = "";
-        if (!string.IsNullOrEmpty(packagename) && _packages != null)
-        {
-            var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
-            if (package != null)
-            {
-                if (package.ExpiryDate != null && package.ExpiryDate.Value.Date != DateTime.MaxValue.Date)
-                {
-                    link += "<span>" + package.ExpiryDate.Value.Date.ToString("MMM dd, yyyy") + "</span>";
-                    if (!string.IsNullOrEmpty(package.PaymentUrl))
-                    {
-                        link += "&nbsp;&nbsp;<a class=\"btn btn-primary\" style=\"text-decoration: none !important\" href=\"" + package.PaymentUrl + "\" target=\"_new\">" + SharedLocalizer["Extend"] + "</a>";
-                    }
-                }
-            }
-        }
-        return link;
-    }
-
-    private bool UpgradeAvailable(string packagename, string version)
-    {
-        var upgradeavailable = false;
-        if (!string.IsNullOrEmpty(packagename) && _packages != null)
-        {
-            var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
-            if (package != null)
-            {
-                upgradeavailable = (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0);
-            }
-
-        }
-        return upgradeavailable;
+        return version;
     }
 
     private async Task DownloadModule(string packagename, string version)

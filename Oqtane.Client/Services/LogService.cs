@@ -14,18 +14,16 @@ namespace Oqtane.Services
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class LogService : ServiceBase, ILogService
     {
-        
         private readonly SiteState _siteState;
         private readonly NavigationManager _navigationManager;
 
-        public LogService(HttpClient http, SiteState siteState, NavigationManager navigationManager) : base(http)
+        public LogService(HttpClient http, SiteState siteState, NavigationManager navigationManager) : base(http, siteState)
         {
-            
             _siteState = siteState;
             _navigationManager = navigationManager;
         }
 
-        private string Apiurl => CreateApiUrl("Log", _siteState.Alias);
+        private string Apiurl => CreateApiUrl("Log");
 
         public async Task<List<Log>> GetLogsAsync(int siteId, string level, string function, int rows)
         {

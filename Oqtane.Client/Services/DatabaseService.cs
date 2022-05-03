@@ -11,15 +11,9 @@ namespace Oqtane.Services
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class DatabaseService : ServiceBase, IDatabaseService
     {
+        public DatabaseService(HttpClient http, SiteState siteState) : base(http, siteState) { }
 
-        private readonly SiteState _siteState;
-
-        public DatabaseService(HttpClient http, SiteState siteState) : base(http)
-        {
-            _siteState = siteState;
-        }
-
-        private string Apiurl => CreateApiUrl("Database", _siteState.Alias);
+        private string Apiurl => CreateApiUrl("Database");
 
         public async Task<List<Database>> GetDatabasesAsync()
         {

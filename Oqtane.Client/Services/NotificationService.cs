@@ -11,14 +11,9 @@ namespace Oqtane.Services
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class NotificationService : ServiceBase, INotificationService
     {
-        private readonly SiteState _siteState;
+        public NotificationService(HttpClient http, SiteState siteState) : base(http, siteState) { }
 
-        public NotificationService(HttpClient http, SiteState siteState) : base(http)
-        {
-            _siteState = siteState;
-        }
-
-        private string Apiurl => CreateApiUrl("Notification", _siteState.Alias);
+        private string Apiurl => CreateApiUrl("Notification");
 
         public async Task<List<Notification>> GetNotificationsAsync(int siteId, string direction, int userId)
         {

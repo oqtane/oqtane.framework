@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -167,5 +167,8 @@
   </data>
   <data name="Username.Text" xml:space="preserve">
     <value>Username:</value>
+  </data>
+  <data name="Password.Placeholder" xml:space="preserve">
+    <value>Password</value>
   </data>
 </root>

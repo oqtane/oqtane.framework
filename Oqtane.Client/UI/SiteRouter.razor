@@ -80,23 +80,33 @@
 		var runtime = (Shared.Runtime)Enum.Parse(typeof(Shared.Runtime), Runtime);
 
 		Route route = new Route(_absoluteUri, SiteState.Alias.Path);
-		var moduleid = (int.TryParse(route.ModuleId, out int mid)) ? mid : -1;
+		int moduleid = (int.TryParse(route.ModuleId, out moduleid)) ? moduleid : -1;
 		var action = (!string.IsNullOrEmpty(route.Action)) ? route.Action : Constants.DefaultAction; 
 		var querystring = ParseQueryString(route.Query);
 
-		// reload the client application if there is a forced reload or the user navigated to a site with a different alias 
-		if (querystring.ContainsKey("reload") || (!route.AbsolutePath.Substring(1).ToLower().StartsWith(SiteState.Alias.Path.ToLower()) && !string.IsNullOrEmpty(SiteState.Alias.Path)))
+		// reload the client application from the server if there is a forced reload or the user navigated to a site with a different alias 
+		if (querystring.ContainsKey("reload") || (!NavigationManager.ToBaseRelativePath(_absoluteUri).ToLower().StartsWith(SiteState.Alias.Path.ToLower()) && !string.IsNullOrEmpty(SiteState.Alias.Path)))
 		{
-			NavigationManager.NavigateTo(_absoluteUri.Replace("?reload", ""), true);
-			return;
-		}
-		else
-		{
-			// the refresh parameter is used to refresh the PageState
-			if (querystring.ContainsKey("refresh"))
+			if (querystring["reload"] == "post")
 			{
-				refresh = UI.Refresh.Site;
+				// post back so that the cookies are set correctly - required on any change to the principal 
+				var interop = new Interop(JSRuntime);
+				var fields = new { returnurl = "/" + NavigationManager.ToBaseRelativePath(_absoluteUri) };
+				string url = Utilities.TenantUrl(SiteState.Alias, "/pages/external/");
+				await interop.SubmitForm(url, fields);
+				return;
 			}
+			else
+			{
+				NavigationManager.NavigateTo(_absoluteUri.Replace("?reload", ""), true);
+				return;				
+			}
+		}
+		
+		// the refresh parameter is used to refresh the client-side PageState
+		if (querystring.ContainsKey("refresh"))
+		{
+			refresh = UI.Refresh.Site;
 		}
 
 		if (PageState != null)
@@ -260,7 +270,6 @@
 					{
 						if (route.PagePath != "404")
 						{
-							await LogService.Log(null, null, user.UserId, "SiteRouter", "SiteRouter", LogFunction.Other, LogLevel.Information, null, "Page Path /{Path} Does Not Exist Or User Is Not Authorized To View", route.PagePath);
 							// redirect to 404 page
 							NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "404", ""));
 						}
