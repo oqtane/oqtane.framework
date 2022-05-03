@@ -60,6 +60,9 @@ This project is open source, and therefore is a work in progress...
 Backlog (Not Yet Assigned)
 - [ ] Allow language specification in Url (#1731)
 
+V.3.1.1 ( May 3, 2022 )
+- [x] Stabilization improvements 
+
 V.3.1.0 ( April 5, 2022 )
 - [x] User account lockout support
 - [x] Two factor authentication support
