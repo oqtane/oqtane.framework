@@ -294,7 +294,7 @@ Oqtane.Interop = {
         }
         return files;
     },
-    uploadFiles: function (posturl, folder, id) {
+    uploadFiles: function (posturl, folder, id, antiforgerytoken) {
         var fileinput = document.getElementById(id + 'FileInput');
         var files = fileinput.files;
         var progressinfo = document.getElementById(id + 'ProgressInfo');
@@ -326,6 +326,7 @@ Oqtane.Interop = {
                 var FileName = file.name + ".part_" + PartCount.toString().padStart(3, '0') + "_" + TotalParts.toString().padStart(3, '0');
 
                 var data = new FormData();
+                data.append('__RequestVerificationToken', antiforgerytoken);
                 data.append('folder', folder);
                 data.append('formfile', Chunk, FileName);
                 var request = new XMLHttpRequest();

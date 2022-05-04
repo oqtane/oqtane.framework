@@ -14,10 +14,12 @@ namespace Oqtane.Services
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class FileService : ServiceBase, IFileService
     {
+        private readonly SiteState _siteState;
         private readonly IJSRuntime _jsRuntime;
 
         public FileService(HttpClient http, SiteState siteState, IJSRuntime jsRuntime) : base(http, siteState)
         {
+            _siteState = siteState;
             _jsRuntime = jsRuntime;
         }
 
@@ -80,7 +82,7 @@ namespace Oqtane.Services
             string result = "";
 
             var interop = new Interop(_jsRuntime);
-            await interop.UploadFiles($"{Apiurl}/upload", folder, id);
+            await interop.UploadFiles($"{Apiurl}/upload", folder, id, _siteState.AntiForgeryToken);
 
             // uploading files is asynchronous so we need to wait for the upload to complete
             bool success = false;

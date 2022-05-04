@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
@@ -38,6 +39,7 @@ namespace Oqtane.Security
                 catch
                 {
                     context.Result = new AntiforgeryValidationFailedResult();
+                    Debug.WriteLine($"Oqtane Error: AutoValidateAntiforgeryTokenFilter Failure on {context.HttpContext.Request.Path}");
                 }
             }
         }
