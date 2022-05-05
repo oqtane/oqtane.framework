@@ -36,7 +36,6 @@ else
 				<th style="width: 1px;">&nbsp;</th>
 				<th style="width: 1px;">&nbsp;</th>
 				<th style="width: 1px;">&nbsp;</th>
-				<th>@SharedLocalizer["Name"]</th>
 				<th>@SharedLocalizer["Username"]</th>
 				<th>@SharedLocalizer["Email"]</th>
 				<th>@Localizer["LastLoginOn"]</th>
@@ -53,12 +52,11 @@ else
 					<td>
 						<ActionLink Action="Roles" Parameters="@($"id=" + context.UserId.ToString())" ResourceKey="Roles" />
 					</td>
-					<td>@context.User.DisplayName</td>
 					<td>@context.User.Username</td>
-					<td>@((MarkupString)string.Format("<a href=\"mailto:{0}\">{0}</a>", @context.User.Email))</td>
-					<td>@string.Format("{0:dd-MMM-yyyy HH:mm:ss}",context.User.LastLoginOn)</td>
+					<td>@((MarkupString)string.Format("<a href=\"mailto:{0}\">{1}</a>", @context.User.DisplayName, @context.User.Email))</td>
+					<td>@string.Format("{0:dd-MMM-yyyy HH:mm}",context.User.LastLoginOn)</td>
                     <td>@context.User.LastIPAddress</td>
-                    <td>@string.Format("{0:dd-MMM-yyyy HH:mm:ss}",context.User.CreatedOn)</td>
+                    <td>@string.Format("{0:dd-MMM-yyyy HH:mm}",context.User.CreatedOn)</td>
 
 				</Row>
 			</Pager>
