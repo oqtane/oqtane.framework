@@ -327,6 +327,8 @@ namespace Oqtane.Controllers
                     var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, true);
                     if (result.Succeeded)
                     {
+                        var LastIPAddress = user.LastIPAddress;
+
                         user = _users.GetUser(user.Username);
                         if (user.TwoFactorRequired)
                         {
@@ -353,7 +355,7 @@ namespace Oqtane.Controllers
                                 {
                                     loginUser.IsAuthenticated = true;
                                     loginUser.LastLoginOn = DateTime.UtcNow;
-                                    loginUser.LastIPAddress = HttpContext.Connection.RemoteIpAddress.ToString();
+                                    loginUser.LastIPAddress = LastIPAddress;
                                     _users.UpdateUser(loginUser);
                                     _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful {Username}", user.Username);
                                 }

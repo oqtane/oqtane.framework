@@ -184,7 +184,7 @@
 			var interop = new Interop(JSRuntime);
 			if (await interop.FormValid(login))
 			{
-				var user = new User { SiteId = PageState.Site.SiteId, Username = _username, Password = _password};
+				var user = new User { SiteId = PageState.Site.SiteId, Username = _username, Password = _password, LastIPAddress = SiteState.RemoteIPAddress};
 
 				if (!twofactor)
 				{
