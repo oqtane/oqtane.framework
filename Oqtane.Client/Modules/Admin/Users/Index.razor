@@ -53,7 +53,7 @@ else
 						<ActionLink Action="Roles" Parameters="@($"id=" + context.UserId.ToString())" ResourceKey="Roles" />
 					</td>
 					<td>@context.User.Username</td>
-					<td>@((MarkupString)string.Format("<a href=\"mailto:{0}\">{1}</a>", @context.User.DisplayName, @context.User.Email))</td>
+					<td>@((MarkupString)string.Format("<a href=\"mailto:{0}\">{1}</a>", @context.User.Email, @context.User.DisplayName))</td>
 					<td>@string.Format("{0:dd-MMM-yyyy HH:mm}",context.User.LastLoginOn)</td>
                     <td>@context.User.LastIPAddress</td>
                     <td>@string.Format("{0:dd-MMM-yyyy HH:mm}",context.User.CreatedOn)</td>
