@@ -62,7 +62,7 @@ namespace Oqtane.Infrastructure
 
         public Tenant GetTenant()
         {
-            var alias = _siteState?.Alias;
+            var alias = _siteState?.Alias ?? GetAlias();
             if (alias != null)
             {
                 // return tenant details
