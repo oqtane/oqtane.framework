@@ -76,64 +76,71 @@ else
 }
 
 @code {
-    private ElementReference form;
-    private bool validated = false;
-    private string _moduledefinitionname = string.Empty;
-    private string _owner = string.Empty;
-    private string _module = string.Empty;
-    private string _description = string.Empty;
-    private List<Template> _templates;
-    private string _template = "-";
-    private string[] _versions;
-    private string _reference = Constants.Version;
-    private string _minversion = "2.0.0";
-    private string _location = string.Empty;
+	private ElementReference form;
+	private bool validated = false;
+	private string _moduledefinitionname = string.Empty;
+	private string _owner = string.Empty;
+	private string _module = string.Empty;
+	private string _description = string.Empty;
+	private List<Template> _templates;
+	private string _template = "-";
+	private string[] _versions;
+	private string _reference = Constants.Version;
+	private string _minversion = "2.0.0";
+	private string _location = string.Empty;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-    protected override void OnInitialized()
-    {
-        _moduledefinitionname = SettingService.GetSetting(ModuleState.Settings, "ModuleDefinitionName", "");
-        if (string.IsNullOrEmpty(_moduledefinitionname))
-        {
-            AddModuleMessage(Localizer["Info.Module.Creator"], MessageType.Info);
-        }
-        else
-        {
-            AddModuleMessage(Localizer["Info.Module.Activate"], MessageType.Info);
-        }
-    }
+	protected override void OnInitialized()
+	{
+		_moduledefinitionname = SettingService.GetSetting(ModuleState.Settings, "ModuleDefinitionName", "");
+		if (string.IsNullOrEmpty(_moduledefinitionname))
+		{
+			AddModuleMessage(Localizer["Info.Module.Creator"], MessageType.Info);
+		}
+		else
+		{
+			AddModuleMessage(Localizer["Info.Module.Activate"], MessageType.Info);
+		}
+	}
 
-    protected override async Task OnParametersSetAsync()
-    {
-        try
-        {
-            _templates = await ModuleDefinitionService.GetModuleDefinitionTemplatesAsync();
-            _versions = Constants.ReleaseVersions.Split(',').Where(item => Version.Parse(item).CompareTo(Version.Parse("2.0.0")) >= 0).ToArray();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Loading Module Creator");
-        }
-    }
+	protected override async Task OnParametersSetAsync()
+	{
+		try
+		{
+			_templates = await ModuleDefinitionService.GetModuleDefinitionTemplatesAsync();
+			_versions = Constants.ReleaseVersions.Split(',').Where(item => Version.Parse(item).CompareTo(Version.Parse("2.0.0")) >= 0).ToArray();
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Loading Module Creator");
+		}
+	}
 
-    private async Task CreateModule()
-    {
-        validated = true;
-        var interop = new Interop(JSRuntime);
-        if (await interop.FormValid(form))
-        {
-            try
-            {
-                var moduleDefinition = new ModuleDefinition { Owner = _owner, Name = _module, Description = _description, Template = _template, Version = _reference };
-                moduleDefinition = await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition);
+	private async Task CreateModule()
+	{
+		validated = true;
+		var interop = new Interop(JSRuntime);
+		if (await interop.FormValid(form))
+		{
+			try
+			{
+				if (IsValid(_owner) && IsValid(_module) && _owner != _module && _template != "-")
+				{
+					var moduleDefinition = new ModuleDefinition { Owner = _owner, Name = _module, Description = _description, Template = _template, Version = _reference };
+					moduleDefinition = await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition);
 
-				var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
-                SettingService.SetSetting(settings, "ModuleDefinitionName", moduleDefinition.ModuleDefinitionName);
-                await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+					var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+					SettingService.SetSetting(settings, "ModuleDefinitionName", moduleDefinition.ModuleDefinitionName);
+					await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
 
-                GetLocation();
-                AddModuleMessage(string.Format(Localizer["Success.Module.Create"], NavigateUrl("admin/system")), MessageType.Success);
+					GetLocation();
+					AddModuleMessage(string.Format(Localizer["Success.Module.Create"], NavigateUrl("admin/system")), MessageType.Success);
+				}
+                else
+                {
+                    AddModuleMessage(Localizer["Message.Require.ValidName"], MessageType.Warning);
+                }
             }
             catch (Exception ex)
             {
