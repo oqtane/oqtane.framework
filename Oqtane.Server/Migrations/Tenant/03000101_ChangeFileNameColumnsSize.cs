@@ -17,19 +17,13 @@ namespace Oqtane.Migrations.Tenant
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             var fileEntityBuilder = new FileEntityBuilder(migrationBuilder, ActiveDatabase);
-            // Drop the index is needed because the Name is already associated with IX_File
-            fileEntityBuilder.DropIndex("IX_File");
-            fileEntityBuilder.AlterStringColumn("Name", 256);
-            fileEntityBuilder.AddIndex("IX_File", new[] { "FolderId", "Name" }, true);
+            fileEntityBuilder.AlterStringColumn("Name", 256, false, true, "IX_File:FolderId,Name:true");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             var fileEntityBuilder = new FileEntityBuilder(migrationBuilder, ActiveDatabase);
-            // Drop the index is needed because the Name is already associated with IX_File
-            fileEntityBuilder.DropIndex("IX_File");
-            fileEntityBuilder.AlterStringColumn("Name", 50);
-            fileEntityBuilder.AddIndex("IX_File", new[] { "FolderId", "Name" }, true);
+            fileEntityBuilder.AlterStringColumn("Name", 50, false, true, "IX_File:FolderId,Name:true");
         }
     }
 }

@@ -62,6 +62,7 @@ namespace Oqtane.Repository
 
         public UrlMapping GetUrlMapping(int siteId, string url)
         {
+            url = (url.Length > 750) ? url.Substring(0, 750) : url;
             var urlMapping = _db.UrlMapping.Where(item => item.SiteId == siteId && item.Url == url).FirstOrDefault();
             if (urlMapping == null)
             {

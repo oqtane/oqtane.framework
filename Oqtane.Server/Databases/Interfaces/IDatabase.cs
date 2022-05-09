@@ -34,7 +34,7 @@ namespace Oqtane.Databases.Interfaces
 
         public void DropColumn(MigrationBuilder builder, string name, string table);
 
-        public void AlterStringColumn(MigrationBuilder builder, string name, string table, int length, bool nullable, bool unicode);
+        public void AlterStringColumn(MigrationBuilder builder, string name, string table, int length, bool nullable, bool unicode, string index);
 
         public DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString);
     }
