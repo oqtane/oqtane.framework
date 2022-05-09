@@ -32,6 +32,21 @@ namespace Oqtane.Database.SqlServer
             return table.Column<int>(name: name, nullable: false).Annotation("SqlServer:Identity", "1, 1");
         }
 
+        public override void AlterStringColumn(MigrationBuilder builder, string name, string table, int length, bool nullable, bool unicode, string index)
+        {
+            var elements = index.Split(':', StringSplitOptions.RemoveEmptyEntries);
+            if (elements.Length != 0)
+            {
+                builder.DropIndex(elements[0], table);
+            }
+            builder.AlterColumn<string>(name, table, maxLength: length, nullable: nullable, unicode: unicode);
+            if (elements.Length != 0)
+            {
+                var columns = elements[1].Split(',');
+                builder.CreateIndex(elements[0], table, columns, null, bool.Parse(elements[2]), null);
+            }
+        }
+
         public override int ExecuteNonQuery(string connectionString, string query)
         {
             var conn = new SqlConnection(FormatConnectionString(connectionString));

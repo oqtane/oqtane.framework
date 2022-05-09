@@ -35,7 +35,7 @@ namespace Oqtane.Database.Sqlite
             // not implemented as SQLite does not support dropping columns
         }
 
-        public override void AlterStringColumn(MigrationBuilder builder, string name, string table, int length, bool nullable, bool unicode)
+        public override void AlterStringColumn(MigrationBuilder builder, string name, string table, int length, bool nullable, bool unicode, string index)
         {
             // not implemented as SQLite does not support altering columns
         }

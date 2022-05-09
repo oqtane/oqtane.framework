@@ -187,9 +187,20 @@ namespace Oqtane.Migrations.EntityBuilders
             return table.Column<decimal>(name: RewriteName(name), nullable: nullable, precision: precision, scale: scale, defaultValue: defaultValue);
         }
 
-        public void AlterStringColumn(string name, int length, bool nullable = false, bool unicode = true)
+        public void AlterStringColumn(string name, int length, bool nullable = false, bool unicode = true, string index = "")
         {
-            ActiveDatabase.AlterStringColumn(_migrationBuilder, RewriteName(name), RewriteName(EntityTableName), length, nullable, unicode);
+            if (index != "")
+            {
+                // indexes are in the form IndexName:Column1,Column2:Unique
+                var elements = index.Split(':');
+                index = RewriteName(elements[0]) + ":";
+                foreach (var column in elements[1].Split(','))
+                {
+                    index += RewriteName(column) + ",";
+                }
+                index = index.Substring(0, index.Length - 1) + ":" + elements[2];
+            }
+            ActiveDatabase.AlterStringColumn(_migrationBuilder, RewriteName(name), RewriteName(EntityTableName), length, nullable, unicode, index);
         }
 
         public void DropColumn(string name)

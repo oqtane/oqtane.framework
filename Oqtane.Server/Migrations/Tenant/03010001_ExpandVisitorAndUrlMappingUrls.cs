@@ -20,11 +20,9 @@ namespace Oqtane.Migrations.Tenant
             visitorEntityBuilder.AlterStringColumn("Url", 2048);
 
             var urlMappingEntityBuilder = new UrlMappingEntityBuilder(migrationBuilder, ActiveDatabase);
-            // Drop the index is needed because the Url is already associated with IX_UrlMapping
-            urlMappingEntityBuilder.DropIndex("IX_UrlMapping");
-            urlMappingEntityBuilder.AlterStringColumn("Url", 2048);
             urlMappingEntityBuilder.AlterStringColumn("MappedUrl", 2048);
-            urlMappingEntityBuilder.AddIndex("IX_UrlMapping", new[] { "SiteId", "Url" }, true);
+            // Url is an index column and MySQL only supports indexes of 3072 bytes (this index will be 750X4+4=3004 bytes)
+            urlMappingEntityBuilder.AlterStringColumn("Url", 750, false, true, "IX_UrlMapping:SiteId,Url:true");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -33,11 +31,8 @@ namespace Oqtane.Migrations.Tenant
             visitorEntityBuilder.AlterStringColumn("Url", 500);
 
             var urlMappingEntityBuilder = new UrlMappingEntityBuilder(migrationBuilder, ActiveDatabase);
-            // Drop the index is needed because the Url is already associated with IX_UrlMapping
-            urlMappingEntityBuilder.DropIndex("IX_UrlMapping");
-            urlMappingEntityBuilder.AlterStringColumn("Url", 500);
             urlMappingEntityBuilder.AlterStringColumn("MappedUrl", 500);
-            urlMappingEntityBuilder.AddIndex("IX_UrlMapping", new[] { "SiteId", "Url" }, true);
+            urlMappingEntityBuilder.AlterStringColumn("Url", 500, false, true, "IX_UrlMapping:SiteId,Url:true");
         }
     }
 }

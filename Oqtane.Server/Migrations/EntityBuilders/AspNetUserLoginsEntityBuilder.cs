@@ -23,8 +23,8 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override AspNetUserLoginsEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            LoginProvider = AddStringColumn(table, "LoginProvider", 450);
-            ProviderKey = AddStringColumn(table, "ProviderKey", 450);
+            LoginProvider = AddStringColumn(table, "LoginProvider", 128);
+            ProviderKey = AddStringColumn(table, "ProviderKey", 128);
             ProviderDisplayName = AddMaxStringColumn(table, "ProviderDisplayName", true);
             UserId = AddStringColumn(table, "UserId", 450);
             return this;
