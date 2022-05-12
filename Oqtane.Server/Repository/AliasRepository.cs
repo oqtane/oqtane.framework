@@ -96,7 +96,7 @@ namespace Oqtane.Repository
                 alias = new Alias();
                 alias.TenantId = aliases.First().TenantId;
                 alias.SiteId = aliases.First().SiteId;
-                alias.Name = string.Join("/", segments.ToArray(), 0, start);
+                alias.Name = segments[0]; // root domain
                 alias.IsDefault = false;
                 alias = AddAlias(alias);
             }

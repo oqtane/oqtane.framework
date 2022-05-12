@@ -260,6 +260,12 @@ else
 								</div>
 							</div>
 							<div class="row mb-1 align-items-center">
+								<Label Class="col-sm-3" For="parameters" HelpText="Optionally specify any additional parameters as name/value pairs to send to the provider (separated by commas if there are multiple). For example you could specify p=B2C_1_Signin if you are using a specific Azure B2C User Flow policy." ResourceKey="Parameters">Parameters:</Label>
+								<div class="col-sm-9">
+									<input id="parameters" class="form-control" @bind="@_parameters" />
+								</div>
+							</div>
+							<div class="row mb-1 align-items-center">
 								<Label Class="col-sm-3" For="pkce" HelpText="Indicate if the provider supports Proof Key for Code Exchange (PKCE)" ResourceKey="PKCE">Use PKCE?</Label>
 								<div class="col-sm-9">
 									<select id="pkce" class="form-select" @bind="@_pkce" required>
@@ -380,6 +386,7 @@ else
 	private string _clientsecrettype = "password";
 	private string _toggleclientsecret = string.Empty;
 	private string _scopes;
+	private string _parameters;
 	private string _pkce;
 	private string _redirecturl;
 	private string _identifierclaimtype;
@@ -432,6 +439,7 @@ else
 			_clientsecret = SettingService.GetSetting(settings, "ExternalLogin:ClientSecret", "");
 			_toggleclientsecret = SharedLocalizer["ShowPassword"];
 			_scopes = SettingService.GetSetting(settings, "ExternalLogin:Scopes", "");
+			_parameters = SettingService.GetSetting(settings, "ExternalLogin:Parameters", "");
 			_pkce = SettingService.GetSetting(settings, "ExternalLogin:PKCE", "false");
 			_redirecturl = PageState.Uri.Scheme + "://" + PageState.Alias.Name + "/signin-" + _providertype;
 			_identifierclaimtype = SettingService.GetSetting(settings, "ExternalLogin:IdentifierClaimType", "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
@@ -549,6 +557,7 @@ else
 				settings = SettingService.SetSetting(settings, "ExternalLogin:ClientId", _clientid, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:ClientSecret", _clientsecret, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:Scopes", _scopes, true);
+				settings = SettingService.SetSetting(settings, "ExternalLogin:Parameters", _parameters, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:PKCE", _pkce, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:IdentifierClaimType", _identifierclaimtype, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:EmailClaimType", _emailclaimtype, true);
