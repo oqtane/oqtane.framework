@@ -384,4 +384,10 @@
   <data name="IdentifierClaimType.Text" xml:space="preserve">
     <value>Identifier Claim:</value>
   </data>
+  <data name="Parameters.HelpText" xml:space="preserve">
+    <value>Optionally specify any additional parameters as name/value pairs to send to the provider (separated by commas if there are multiple). For example you could specify p=B2C_1_Signin if you are using a specific Azure B2C User Flow policy.</value>
+  </data>
+  <data name="Parameters.Text" xml:space="preserve">
+    <value>Parameters:</value>
+  </data>
 </root>

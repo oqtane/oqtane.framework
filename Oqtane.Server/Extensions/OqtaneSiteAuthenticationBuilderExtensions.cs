@@ -66,6 +66,20 @@ namespace Oqtane.Extensions
                     options.Events.OnTokenValidated = OnTokenValidated;
                     options.Events.OnAccessDenied = OnAccessDenied;
                     options.Events.OnRemoteFailure = OnRemoteFailure;
+                    if (sitesettings.GetValue("ExternalLogin:Parameters", "") != "")
+                    {
+                        options.Events = new OpenIdConnectEvents
+                        {
+                            OnRedirectToIdentityProvider = context =>
+                            {
+                                foreach(var parameter in sitesettings.GetValue("ExternalLogin:Parameters", "").Split(","))
+                                {
+                                    context.ProtocolMessage.SetParameter(parameter.Split("=")[0], parameter.Split("=")[1]);
+                                }
+                                return Task.FromResult(0);
+                            }
+                        };
+                    }
                 }
             });
 
@@ -100,6 +114,22 @@ namespace Oqtane.Extensions
                     options.Events.OnTicketReceived = OnTicketReceived;
                     options.Events.OnAccessDenied = OnAccessDenied;
                     options.Events.OnRemoteFailure = OnRemoteFailure;
+                    if (sitesettings.GetValue("ExternalLogin:Parameters", "") != "")
+                    {
+                        options.Events = new OAuthEvents
+                        {
+                            OnRedirectToAuthorizationEndpoint = context =>
+                            {
+                                var url = context.RedirectUri;
+                                foreach (var parameter in sitesettings.GetValue("ExternalLogin:Parameters", "").Split(","))
+                                {
+                                    url += (!url.Contains("?")) ? "?" + parameter : "&" + parameter;
+                                }
+                                context.Response.Redirect(url);
+                                return Task.FromResult(0);
+                            }
+                        };
+                    }
                 }
             });
 
@@ -111,6 +141,7 @@ namespace Oqtane.Extensions
             // OAuth 2.0
             var email = "";
             var id = "";
+            var claims = "";
 
             if (context.Options.UserInformationEndpoint != "")
             {
@@ -123,16 +154,16 @@ namespace Oqtane.Extensions
                     request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
                     var response = await context.Backchannel.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
                     response.EnsureSuccessStatusCode();
-                    var output = await response.Content.ReadAsStringAsync();
+                    claims = await response.Content.ReadAsStringAsync();
 
                     // parse json output
                     var idClaimType = context.HttpContext.GetSiteSettings().GetValue("ExternalLogin:IdentifierClaimType", "");
                     var emailClaimType = context.HttpContext.GetSiteSettings().GetValue("ExternalLogin:EmailClaimType", "");
-                    if (!output.StartsWith("[") && !output.EndsWith("]"))
+                    if (!claims.StartsWith("[") && !claims.EndsWith("]"))
                     {
-                        output = "[" + output + "]"; // convert to json array
+                        claims = "[" + claims + "]"; // convert to json array
                     }
-                    JsonNode items = JsonNode.Parse(output)!;
+                    JsonNode items = JsonNode.Parse(claims)!;
                     foreach (var item in items.AsArray())
                     {
                         if (item[emailClaimType] != null)
@@ -161,7 +192,7 @@ namespace Oqtane.Extensions
             }
 
             // validate user
-            var identity = await ValidateUser(email, id, context.HttpContext);
+            var identity = await ValidateUser(email, id, claims, context.HttpContext);
             if (identity.Label == ExternalLoginStatus.Success)
             {
                 identity.AddClaim(new Claim("access_token", context.AccessToken));
@@ -193,9 +224,10 @@ namespace Oqtane.Extensions
             var id = context.Principal.FindFirstValue(idClaimType);
             var emailClaimType = context.HttpContext.GetSiteSettings().GetValue("ExternalLogin:EmailClaimType", "");
             var email = context.Principal.FindFirstValue(emailClaimType);
+            var claims = string.Join(", ", context.Principal.Claims.Select(item => item.Type).ToArray());
 
             // validate user
-            var identity = await ValidateUser(email, id, context.HttpContext);
+            var identity = await ValidateUser(email, id, claims, context.HttpContext);
             if (identity.Label == ExternalLoginStatus.Success)
             {
                 identity.AddClaim(new Claim("access_token", context.SecurityToken.RawData));
@@ -229,7 +261,7 @@ namespace Oqtane.Extensions
             return Task.CompletedTask;
         }
 
-        private static async Task<ClaimsIdentity> ValidateUser(string email, string id, HttpContext httpContext)
+        private static async Task<ClaimsIdentity> ValidateUser(string email, string id, string claims, HttpContext httpContext)
         {
             var _logger = httpContext.RequestServices.GetRequiredService<ILogManager>();
             ClaimsIdentity identity = new ClaimsIdentity(Constants.AuthenticationScheme);
@@ -241,142 +273,149 @@ namespace Oqtane.Extensions
             var _users = httpContext.RequestServices.GetRequiredService<IUserRepository>();
             User user = null;
 
-            // verify if external user is already registerd for this site
-            var _identityUserManager = httpContext.RequestServices.GetRequiredService<UserManager<IdentityUser>>();
-            var identityuser = await _identityUserManager.FindByLoginAsync(providerType + ":" + alias.SiteId.ToString(), id);
-            if (identityuser != null)
+            if (!string.IsNullOrEmpty(id))
             {
-                user = _users.GetUser(identityuser.UserName);
-            }
-            else
-            {
-                if (EmailValid(email, httpContext.GetSiteSettings().GetValue("ExternalLogin:DomainFilter", "")))
+                // verify if external user is already registered for this site
+                var _identityUserManager = httpContext.RequestServices.GetRequiredService<UserManager<IdentityUser>>();
+                var identityuser = await _identityUserManager.FindByLoginAsync(providerType + ":" + alias.SiteId.ToString(), id);
+                if (identityuser != null)
                 {
-                    bool duplicates = false;
-                    try
+                    user = _users.GetUser(identityuser.UserName);
+                }
+                else
+                {
+                    if (EmailValid(email, httpContext.GetSiteSettings().GetValue("ExternalLogin:DomainFilter", "")))
                     {
-                        identityuser = await _identityUserManager.FindByEmailAsync(email);
-                    }
-                    catch
-                    {
-                        // FindByEmailAsync will throw an error if the email matches multiple user accounts
-                        duplicates = true;
-                    }
-                    if (identityuser == null)
-                    {
-                        if (duplicates)
+                        bool duplicates = false;
+                        try
                         {
-                            identity.Label = ExternalLoginStatus.DuplicateEmail;
-                            _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "Multiple Users Exist With Email Address {Email}. Login Denied.", email);
+                            identityuser = await _identityUserManager.FindByEmailAsync(email);
                         }
-                        else
+                        catch
                         {
-                            if (bool.Parse(httpContext.GetSiteSettings().GetValue("ExternalLogin:CreateUsers", "true")))
+                            // FindByEmailAsync will throw an error if the email matches multiple user accounts
+                            duplicates = true;
+                        }
+                        if (identityuser == null)
+                        {
+                            if (duplicates)
                             {
-                                identityuser = new IdentityUser();
-                                identityuser.UserName = email;
-                                identityuser.Email = email;
-                                identityuser.EmailConfirmed = true;
-                                var result = await _identityUserManager.CreateAsync(identityuser, DateTime.UtcNow.ToString("yyyy-MMM-dd-HH-mm-ss"));
-                                if (result.Succeeded)
+                                identity.Label = ExternalLoginStatus.DuplicateEmail;
+                                _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "Multiple Users Exist With Email Address {Email}. Login Denied.", email);
+                            }
+                            else
+                            {
+                                if (bool.Parse(httpContext.GetSiteSettings().GetValue("ExternalLogin:CreateUsers", "true")))
                                 {
-                                    user = new User
+                                    identityuser = new IdentityUser();
+                                    identityuser.UserName = email;
+                                    identityuser.Email = email;
+                                    identityuser.EmailConfirmed = true;
+                                    var result = await _identityUserManager.CreateAsync(identityuser, DateTime.UtcNow.ToString("yyyy-MMM-dd-HH-mm-ss"));
+                                    if (result.Succeeded)
                                     {
-                                        SiteId = alias.SiteId,
-                                        Username = email,
-                                        DisplayName = email,
-                                        Email = email,
-                                        LastLoginOn = null,
-                                        LastIPAddress = ""
-                                    };
-                                    user = _users.AddUser(user);
+                                        user = new User
+                                        {
+                                            SiteId = alias.SiteId,
+                                            Username = email,
+                                            DisplayName = email,
+                                            Email = email,
+                                            LastLoginOn = null,
+                                            LastIPAddress = ""
+                                        };
+                                        user = _users.AddUser(user);
 
-                                    if (user != null)
-                                    {
-                                        var _notifications = httpContext.RequestServices.GetRequiredService<INotificationRepository>();
-                                        string url = httpContext.Request.Scheme + "://" + alias.Name;
-                                        string body = "You Recently Used An External Account To Sign In To Our Site.\n\n" + url + "\n\nThank You!";
-                                        var notification = new Notification(user.SiteId, user, "User Account Notification", body);
-                                        _notifications.AddNotification(notification);
+                                        if (user != null)
+                                        {
+                                            var _notifications = httpContext.RequestServices.GetRequiredService<INotificationRepository>();
+                                            string url = httpContext.Request.Scheme + "://" + alias.Name;
+                                            string body = "You Recently Used An External Account To Sign In To Our Site.\n\n" + url + "\n\nThank You!";
+                                            var notification = new Notification(user.SiteId, user, "User Account Notification", body);
+                                            _notifications.AddNotification(notification);
 
-                                        // add user login
-                                        await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(providerType + ":" + alias.SiteId.ToString(), id, providerName));
+                                            // add user login
+                                            await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(providerType + ":" + alias.SiteId.ToString(), id, providerName));
 
-                                        _logger.Log(user.SiteId, LogLevel.Information, "ExternalLogin", Enums.LogFunction.Create, "User Added {User}", user);
+                                            _logger.Log(user.SiteId, LogLevel.Information, "ExternalLogin", Enums.LogFunction.Create, "User Added {User}", user);
+                                        }
+                                        else
+                                        {
+                                            identity.Label = ExternalLoginStatus.UserNotCreated;
+                                            _logger.Log(user.SiteId, LogLevel.Error, "ExternalLogin", Enums.LogFunction.Create, "Unable To Add User {Email}", email);
+                                        }
                                     }
                                     else
                                     {
                                         identity.Label = ExternalLoginStatus.UserNotCreated;
-                                        _logger.Log(user.SiteId, LogLevel.Error, "ExternalLogin", Enums.LogFunction.Create, "Unable To Add User {Email}", email);
+                                        _logger.Log(user.SiteId, LogLevel.Error, "ExternalLogin", Enums.LogFunction.Create, "Unable To Add Identity User {Email} {Error}", email, result.Errors.ToString());
                                     }
                                 }
                                 else
                                 {
-                                    identity.Label = ExternalLoginStatus.UserNotCreated;
-                                    _logger.Log(user.SiteId, LogLevel.Error, "ExternalLogin", Enums.LogFunction.Create, "Unable To Add Identity User {Email} {Error}", email, result.Errors.ToString());
+                                    identity.Label = ExternalLoginStatus.UserDoesNotExist;
+                                    _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "Creation Of New Users Is Disabled For This Site. User With Email Address {Email} Will First Need To Be Registered On The Site.", email);
                                 }
                             }
-                            else
-                            {
-                                identity.Label = ExternalLoginStatus.UserDoesNotExist;
-                                _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "Creation Of New Users Is Disabled For This Site. User With Email Address {Email} Will First Need To Be Registered On The Site.", email);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        var logins = await _identityUserManager.GetLoginsAsync(identityuser);
-                        var login = logins.FirstOrDefault(item => item.LoginProvider == (providerType + ":" + alias.SiteId.ToString()));
-                        if (login == null)
-                        {
-                            // new external login using existing user account - verification required
-                            var _notifications = httpContext.RequestServices.GetRequiredService<INotificationRepository>();
-                            string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
-                            string url = httpContext.Request.Scheme + "://" + alias.Name;
-                            url += $"/login?name={identityuser.UserName}&token={WebUtility.UrlEncode(token)}&key={WebUtility.UrlEncode(id)}";
-                            string body = $"You Recently Signed In To Our Site With {providerName} Using The Email Address {email}. ";
-                            body += "In Order To Complete The Linkage Of Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
-                            var notification = new Notification(alias.SiteId, email, email, "External Login Linkage", body);
-                            _notifications.AddNotification(notification);
-
-                            identity.Label = ExternalLoginStatus.VerificationRequired;
-                            _logger.Log(alias.SiteId, LogLevel.Information, "ExternalLogin", Enums.LogFunction.Create, "External Login Linkage Verification For Provider {Provider} Sent To {Email}", providerName, email);
                         }
                         else
                         {
-                            // provider keys do not match
-                            identity.Label = ExternalLoginStatus.ProviderKeyMismatch;
-                            _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "Provider Key Does Not Match For User {Username}. Login Denied.", identityuser.UserName);
+                            var logins = await _identityUserManager.GetLoginsAsync(identityuser);
+                            var login = logins.FirstOrDefault(item => item.LoginProvider == (providerType + ":" + alias.SiteId.ToString()));
+                            if (login == null)
+                            {
+                                // new external login using existing user account - verification required
+                                var _notifications = httpContext.RequestServices.GetRequiredService<INotificationRepository>();
+                                string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
+                                string url = httpContext.Request.Scheme + "://" + alias.Name;
+                                url += $"/login?name={identityuser.UserName}&token={WebUtility.UrlEncode(token)}&key={WebUtility.UrlEncode(id)}";
+                                string body = $"You Recently Signed In To Our Site With {providerName} Using The Email Address {email}. ";
+                                body += "In Order To Complete The Linkage Of Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
+                                var notification = new Notification(alias.SiteId, email, email, "External Login Linkage", body);
+                                _notifications.AddNotification(notification);
+
+                                identity.Label = ExternalLoginStatus.VerificationRequired;
+                                _logger.Log(alias.SiteId, LogLevel.Information, "ExternalLogin", Enums.LogFunction.Create, "External Login Linkage Verification For Provider {Provider} Sent To {Email}", providerName, email);
+                            }
+                            else
+                            {
+                                // provider keys do not match
+                                identity.Label = ExternalLoginStatus.ProviderKeyMismatch;
+                                _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "Provider Key Does Not Match For User {Username}. Login Denied.", identityuser.UserName);
+                            }
+                        }
+                    }
+                    else // email invalid
+                    {
+                        identity.Label = ExternalLoginStatus.InvalidEmail;
+                        if (!string.IsNullOrEmpty(email))
+                        {
+                            _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "The Email Address {Email} Is Invalid Or Does Not Match The Domain Filter Criteria. Login Denied.", email);
+                        }
+                        else
+                        {
+                            _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "Provider Did Not Return An Email Address To Uniquely Identify The User. The Email Claim Specified Was {EmailCLaimType} And Actual Claim Types Are {Claims}. Login Denied.", httpContext.GetSiteSettings().GetValue("ExternalLogin:EmailClaimType", ""), claims);
                         }
                     }
                 }
-                else // email invalid
+
+                // manage user
+                if (user != null)
                 {
-                    identity.Label = ExternalLoginStatus.InvalidEmail;
-                    if (!string.IsNullOrEmpty(email))
-                    {
-                        _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "The Email Address {Email} Is Invalid Or Does Not Match The Domain Filter Criteria. Login Denied.", email);
-                    }
-                    else
-                    {
-                        _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "Provider Did Not Return An Email To Uniquely Identify The User.");
-                    }
+                    // create claims identity
+                    var _userRoles = httpContext.RequestServices.GetRequiredService<IUserRoleRepository>();
+                    identity = UserSecurity.CreateClaimsIdentity(alias, user, _userRoles.GetUserRoles(user.UserId, user.SiteId).ToList());
+                    identity.Label = ExternalLoginStatus.Success;
+
+                    // update user
+                    user.LastLoginOn = DateTime.UtcNow;
+                    user.LastIPAddress = httpContext.Connection.RemoteIpAddress.ToString();
+                    _users.UpdateUser(user);
+                    _logger.Log(LogLevel.Information, "ExternalLogin", Enums.LogFunction.Security, "External User Login Successful For {Username} Using Provider {Provider}", user.Username, providerName);
                 }
             }
-
-            // manage user
-            if (user != null)
+            else // id invalid
             {
-                // create claims identity
-                var _userRoles = httpContext.RequestServices.GetRequiredService<IUserRoleRepository>();
-                identity = UserSecurity.CreateClaimsIdentity(alias, user, _userRoles.GetUserRoles(user.UserId, user.SiteId).ToList());
-                identity.Label = ExternalLoginStatus.Success;
-
-                // update user
-                user.LastLoginOn = DateTime.UtcNow;
-                user.LastIPAddress = httpContext.Connection.RemoteIpAddress.ToString();
-                _users.UpdateUser(user);
-                _logger.Log(LogLevel.Information, "ExternalLogin", Enums.LogFunction.Security, "External User Login Successful For {Username} Using Provider {Provider}", user.Username, providerName);
+                _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "Provider Did Not Return An Identifier To Uniquely Identify The User. The Identifier Claim Specified Was {IdentifierCLaimType} And Actual Claim Types Are {Claims}. Login Denied.", httpContext.GetSiteSettings().GetValue("ExternalLogin:IdentifierClaimType", ""), claims);
             }
             
             return identity;
