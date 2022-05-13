@@ -206,7 +206,7 @@
 				}
 				else
 				{
-					if (PageState.Site.Settings["LoginOptions:TwoFactor"] == "required" || user.TwoFactorRequired)
+					if ((PageState.Site.Settings.ContainsKey("LoginOptions:TwoFactor") && PageState.Site.Settings["LoginOptions:TwoFactor"] == "required") || user.TwoFactorRequired)
 					{
 						twofactor = true;
 						validated = false;

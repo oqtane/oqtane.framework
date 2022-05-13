@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -32,7 +33,8 @@ namespace Oqtane.Services
 
         public async Task<List<File>> GetFilesAsync(string folder)
         {
-            return await GetJsonAsync<List<File>>($"{Apiurl}?folder={folder}");
+            List<File> files = await GetJsonAsync<List<File>>($"{Apiurl}?folder={folder}");
+            return files.OrderBy(item => item.Name).ToList();
         }
 
         public async Task<List<File>> GetFilesAsync(int siteId, string folderPath)
@@ -44,7 +46,8 @@ namespace Oqtane.Services
 
             var path = WebUtility.UrlEncode(folderPath);
 
-            return await GetJsonAsync<List<File>>($"{Apiurl}/{siteId}/{path}");
+            List<File> files = await GetJsonAsync<List<File>>($"{Apiurl}/{siteId}/{path}");
+            return files.OrderBy(item => item.Name).ToList();
         }
 
         public async Task<File> GetFileAsync(int fileId)
