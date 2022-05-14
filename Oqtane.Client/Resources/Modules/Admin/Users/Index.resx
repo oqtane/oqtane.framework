@@ -369,12 +369,6 @@
   <data name="Required" xml:space="preserve">
     <value>Required</value>
   </data>
-  <data name="CreatedOn" xml:space="preserve">
-    <value>Created On</value>
-  </data>
-  <data name="LastIPAddress" xml:space="preserve">
-    <value>Last IP Address</value>
-  </data>
   <data name="LastLoginOn" xml:space="preserve">
     <value>Last Login</value>
   </data>
@@ -383,5 +377,11 @@
   </data>
   <data name="IdentifierClaimType.Text" xml:space="preserve">
     <value>Identifier Claim:</value>
+  </data>
+  <data name="Parameters.HelpText" xml:space="preserve">
+    <value>Optionally specify any additional parameters as name/value pairs to send to the provider (separated by commas if there are multiple).</value>
+  </data>
+  <data name="Parameters.Text" xml:space="preserve">
+    <value>Parameters:</value>
   </data>
 </root>

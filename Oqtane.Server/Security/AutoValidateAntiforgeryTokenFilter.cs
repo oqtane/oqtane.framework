@@ -2,19 +2,24 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.Logging;
+using Oqtane.Shared;
 
 namespace Oqtane.Security
 {
     public class AutoValidateAntiforgeryTokenFilter : IAsyncAuthorizationFilter, IAntiforgeryPolicy
     {
         private readonly IAntiforgery _antiforgery;
+        private readonly ILogger<AutoValidateAntiforgeryTokenFilter> _filelogger;
 
-        public AutoValidateAntiforgeryTokenFilter(IAntiforgery antiforgery)
+        public AutoValidateAntiforgeryTokenFilter(IAntiforgery antiforgery, ILogger<AutoValidateAntiforgeryTokenFilter> filelogger)
         {
             _antiforgery = antiforgery;
+            _filelogger = filelogger;
         }
 
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
@@ -38,6 +43,7 @@ namespace Oqtane.Security
                 catch
                 {
                     context.Result = new AntiforgeryValidationFailedResult();
+                    _filelogger.LogError(Utilities.LogMessage(this, $"AutoValidateAntiforgeryTokenFilter Failure For {context.HttpContext.Request.GetEncodedUrl()}"));
                 }
             }
         }

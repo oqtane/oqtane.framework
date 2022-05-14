@@ -17,21 +17,15 @@ namespace Oqtane.Migrations.Tenant
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             var folderEntityBuilder = new FolderEntityBuilder(migrationBuilder, ActiveDatabase);
-            // Drop the index is needed because the Path is already associated with IX_Folder
-            folderEntityBuilder.DropIndex("IX_Folder");
             folderEntityBuilder.AlterStringColumn("Name", 256);
-            folderEntityBuilder.AlterStringColumn("Path", 512);
-            folderEntityBuilder.AddIndex("IX_Folder", new[] { "SiteId", "Path" }, true);
+            folderEntityBuilder.AlterStringColumn("Path", 512, false, true, "IX_Folder:SiteId,Path:true");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             var folderEntityBuilder = new FolderEntityBuilder(migrationBuilder, ActiveDatabase);
-            // Drop the index is needed because the Path is already associated with IX_Folder
-            folderEntityBuilder.DropIndex("IX_Folder");
-            folderEntityBuilder.AlterStringColumn("Path", 50);
             folderEntityBuilder.AlterStringColumn("Name", 50);
-            folderEntityBuilder.AddIndex("IX_Folder", new[] { "SiteId", "Path" }, true);
+            folderEntityBuilder.AlterStringColumn("Path", 50, false, true, "IX_Folder:SiteId,Path:true");
         }
     }
 }

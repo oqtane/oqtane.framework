@@ -81,7 +81,7 @@ namespace Oqtane.Databases
             builder.DropColumn(name, table);
         }
 
-        public virtual void AlterStringColumn(MigrationBuilder builder, string name, string table, int length, bool nullable, bool unicode)
+        public virtual void AlterStringColumn(MigrationBuilder builder, string name, string table, int length, bool nullable, bool unicode, string index)
         {
             builder.AlterColumn<string>(RewriteName(name), RewriteName(table), maxLength: length, nullable: nullable, unicode: unicode);
         }
