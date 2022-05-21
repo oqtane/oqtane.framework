@@ -150,4 +150,7 @@
   <data name="EditModule.Text" xml:space="preserve">
     <value>Edit</value>
   </data>
+  <data name="Modules" xml:space="preserve">
+    <value>Modules</value>
+  </data>
 </root>

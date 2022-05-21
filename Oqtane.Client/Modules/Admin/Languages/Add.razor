@@ -20,6 +20,7 @@ else
             @if (_availableCultures.Count() == 0)
             {
                 <ModuleMessage Type="MessageType.Info" Message="@_message"></ModuleMessage>
+				<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
             }
             else
             {
@@ -47,9 +48,9 @@ else
                         </div>
                     </div>
                     <button type="button" class="btn btn-success" @onclick="SaveLanguage">@SharedLocalizer["Save"]</button>
+					<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
                 </form>
             }
-            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
         </TabPanel>
         <TabPanel Name="Download" ResourceKey="Download" Security="SecurityAccessLevel.Host">
             <div class="row justify-content-center mb-3">
