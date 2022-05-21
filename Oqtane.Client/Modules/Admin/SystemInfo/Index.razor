@@ -142,6 +142,7 @@
         <ActionDialog Header="Restart Application" Message="Are You Sure You Wish To Restart The Application?" Action="Restart Application" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await RestartApplication())" ResourceKey="RestartApplication" />
     </TabPanel>
 </TabStrip>
+<br /><br />
 
 @code {
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;

@@ -12,11 +12,32 @@
 }
 else
 {
-    <ActionLink Action="Add" Text="Install Module" ResourceKey="InstallModule" />
-    @((MarkupString)"&nbsp;")
-    <ActionLink Action="Create" Text="Create Module" ResourceKey="CreateModule" Class="btn btn-secondary" />
-
-    <Pager Items="@_moduleDefinitions">
+	<div class="container">
+		<div class="row mb-3 align-items-center">
+			<div class="col-sm-6">
+				<ActionLink Action="Add" Text="Install Module" ResourceKey="InstallModule" />
+				@((MarkupString)"&nbsp;")
+				<ActionLink Action="Create" Text="Create Module" ResourceKey="CreateModule" Class="btn btn-secondary" />
+			</div>
+			<div class="col-sm-6">
+				<select class="form-select" @onchange="(e => CategoryChanged(e))">
+					@foreach (var category in _categories)
+					{
+						if (category == _category)
+						{
+							<option value="@category" selected>@category @Localizer["Modules"]</option>
+						}
+						else
+						{
+							<option value="@category">@category @Localizer["Modules"]</option>
+						}
+					}
+				</select>
+			</div>
+		</div>
+	</div>
+			
+	<Pager Items="@_moduleDefinitions.Where(item => item.Categories.Contains(_category))">
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
@@ -30,9 +51,9 @@ else
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ModuleDefinitionId.ToString())" ResourceKey="EditModule" /></td>
             <td>
                 @if (context.AssemblyName != "Oqtane.Client")
-                    {
+                {
                     <ActionDialog Header="Delete Module" Message="@string.Format(Localizer["Confirm.Module.Delete", context.Name])" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" />
-                    }
+                }
             </td>
             <td>@context.Name</td>
             <td>@context.Version</td>
@@ -65,6 +86,8 @@ else
 @code {
 	private List<ModuleDefinition> _moduleDefinitions;
 	private List<Package> _packages;
+	private List<string> _categories = new List<string>();
+	private string _category = "Common";
 
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
@@ -74,6 +97,7 @@ else
 		{
 			_moduleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
 			_packages = await PackageService.GetPackagesAsync("module");
+			_categories = _moduleDefinitions.SelectMany(m => m.Categories.Split(',')).Distinct().ToList();
 		}
 		catch (Exception ex)
 		{
@@ -115,38 +139,44 @@ else
 			{
 				return package.Version;
 			}
-        }
-        return version;
-    }
+		}
+		return version;
+	}
 
-    private async Task DownloadModule(string packagename, string version)
-    {
-        try
-        {
-            await PackageService.DownloadPackageAsync(packagename, version, Constants.PackagesFolder);
-            await logger.LogInformation("Module Downloaded {ModuleDefinitionName} {Version}", packagename, version);
-            await ModuleDefinitionService.InstallModuleDefinitionsAsync();
-            AddModuleMessage(string.Format(Localizer["Success.Module.Install"], NavigateUrl("admin/system")), MessageType.Success);
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Downloading Module {ModuleDefinitionName} {Version} {Error}", packagename, version, ex.Message);
-            AddModuleMessage(Localizer["Error.Module.Download"], MessageType.Error);
-        }
-    }
+	private async Task DownloadModule(string packagename, string version)
+	{
+		try
+		{
+			await PackageService.DownloadPackageAsync(packagename, version, Constants.PackagesFolder);
+			await logger.LogInformation("Module Downloaded {ModuleDefinitionName} {Version}", packagename, version);
+			await ModuleDefinitionService.InstallModuleDefinitionsAsync();
+			AddModuleMessage(string.Format(Localizer["Success.Module.Install"], NavigateUrl("admin/system")), MessageType.Success);
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Downloading Module {ModuleDefinitionName} {Version} {Error}", packagename, version, ex.Message);
+			AddModuleMessage(Localizer["Error.Module.Download"], MessageType.Error);
+		}
+	}
 
-    private async Task DeleteModule(ModuleDefinition moduleDefinition)
-    {
-        try
-        {
-            await ModuleDefinitionService.DeleteModuleDefinitionAsync(moduleDefinition.ModuleDefinitionId, moduleDefinition.SiteId);
-            AddModuleMessage(Localizer["Success.Module.Delete"], MessageType.Success);
-            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, true));
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Deleting Module {ModuleDefinition} {Error}", moduleDefinition, ex.Message);
-            AddModuleMessage(Localizer["Error.Module.Delete"], MessageType.Error);
-        }
-    }
+	private async Task DeleteModule(ModuleDefinition moduleDefinition)
+	{
+		try
+		{
+			await ModuleDefinitionService.DeleteModuleDefinitionAsync(moduleDefinition.ModuleDefinitionId, moduleDefinition.SiteId);
+			AddModuleMessage(Localizer["Success.Module.Delete"], MessageType.Success);
+			NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, true));
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Deleting Module {ModuleDefinition} {Error}", moduleDefinition, ex.Message);
+			AddModuleMessage(Localizer["Error.Module.Delete"], MessageType.Error);
+		}
+	}
+
+	private void CategoryChanged(ChangeEventArgs e)
+	{
+		_category = (string)e.Value;
+		StateHasChanged();
+	}
 }
