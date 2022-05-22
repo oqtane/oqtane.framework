@@ -327,4 +327,7 @@
   <data name="ShowPassword" xml:space="preserve">
     <value>Show</value>
   </data>
+  <data name="PageOfPages" xml:space="preserve">
+    <value>Page {0} of {1}</value>
+  </data>
 </root>
