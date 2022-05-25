@@ -1,5 +1,6 @@
 @namespace Oqtane.Modules.Controls
 @inherits ModuleControlBase
+@inject IStringLocalizer<SharedResources> Localizer
 @typeparam TableItem
 
 @if (ItemList != null)
@@ -48,7 +49,7 @@
                 <a class="page-link" @onclick=@(async () => UpdateList(_pages))><span class="oi oi-media-step-forward" title="end" aria-hidden="true"></span></a>
             </li>
             <li class="page-item disabled">
-                <a class="page-link" style="white-space: nowrap;">Page @_page of @_pages</a>
+                <a class="page-link" style="white-space: nowrap;">@Localizer["PageOfPages", @_page, @_pages]</a>
             </li>
         </ul>
     }
@@ -156,7 +157,7 @@
                 <a class="page-link" @onclick=@(async () => UpdateList(_pages))><span class="oi oi-media-step-forward" title="end" aria-hidden="true"></span></a>
             </li>
             <li class="page-item disabled">
-               <a class="page-link" style="white-space: nowrap;">Page @_page of @_pages</a>
+               <a class="page-link" style="white-space: nowrap;">@Localizer["PageOfPages", @_page, @_pages]</a>
             </li>
         </ul>
     }
