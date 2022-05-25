@@ -9,15 +9,19 @@
             if (childPage.PageId == PageState.Page.PageId)
             {
                 <a class="nav-link active px-3" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
+                    <span class="w-100" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
                         <span class="@childPage.Icon" aria-hidden="true" />
                         @childPage.Name <span class="visually-hidden-focusable">(current)</span>
+                    </span>
                 </a>
             }
             else
             {
                 <a class="nav-link px-3" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
-                    <span class="@childPage.Icon" aria-hidden="true" />
-                    @childPage.Name
+                    <span class="w-100" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
+                        <span class="@childPage.Icon" aria-hidden="true" />
+                        @childPage.Name
+                    </span>
                 </a>
             }
         }
@@ -34,8 +38,10 @@ else
                 {
                     <li class="nav-item">
                         <a class="nav-link active" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
-                            <span class="@childPage.Icon" aria-hidden="true" />
-                            @childPage.Name <span class="visually-hidden-focusable">(current)</span>
+                            <span class="w-100" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
+                                <span class="@childPage.Icon" aria-hidden="true" />
+                                @childPage.Name <span class="visually-hidden-focusable">(current)</span>
+                            </span>
                         </a>
                     </li>
                 }
@@ -43,8 +49,10 @@ else
                 {
                     <li class="nav-item">
                         <a class="nav-link" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
-                            <span class="@childPage.Icon" aria-hidden="true" />
-                            @childPage.Name
+                            <span class="w-100" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
+                                <span class="@childPage.Icon" aria-hidden="true" />
+                                @childPage.Name
+                            </span>
                         </a>
                     </li>
                 }
