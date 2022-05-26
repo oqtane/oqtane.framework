@@ -90,116 +90,117 @@
 </form>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
-    public override string Title => "Module Settings";
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
+	public override string Title => "Module Settings";
 
-    private ElementReference form;
-    private bool validated = false;
-    private List<Theme> _themes;
-    private List<ThemeControl> _containers = new List<ThemeControl>();
-    private string _title;
-    private string _containerType;
-    private string _allPages = "false";
-    private string _permissionNames = "";
-    private string _permissions = null;
-    private string _pageId;
-    private PermissionGrid _permissionGrid;
-    private Type _moduleSettingsType;
-    private object _moduleSettings;
-    private string _moduleSettingsTitle = "Module Settings";
-    private RenderFragment ModuleSettingsComponent { get; set; }
-    private Type _containerSettingsType;
-    private object _containerSettings;
-    private RenderFragment ContainerSettingsComponent { get; set; }
-    private string createdby;
-    private DateTime createdon;
-    private string modifiedby;
-    private DateTime modifiedon;
+	private ElementReference form;
+	private bool validated = false;
+	private List<Theme> _themes;
+	private List<ThemeControl> _containers = new List<ThemeControl>();
+	private string _title;
+	private string _containerType;
+	private string _allPages = "false";
+	private string _permissionNames = "";
+	private string _permissions = null;
+	private string _pageId;
+	private PermissionGrid _permissionGrid;
+	private Type _moduleSettingsType;
+	private object _moduleSettings;
+	private string _moduleSettingsTitle = "Module Settings";
+	private RenderFragment ModuleSettingsComponent { get; set; }
+	private Type _containerSettingsType;
+	private object _containerSettings;
+	private RenderFragment ContainerSettingsComponent { get; set; }
+	private string createdby;
+	private DateTime createdon;
+	private string modifiedby;
+	private DateTime modifiedon;
 
-    protected override async Task OnInitializedAsync()
-    {
-        _title = ModuleState.Title;
-        _themes = await ThemeService.GetThemesAsync();
-        _containers = ThemeService.GetContainerControls(_themes, PageState.Page.ThemeType);
-        _containerType = ModuleState.ContainerType;
-        _allPages = ModuleState.AllPages.ToString();
-        _permissions = ModuleState.Permissions;
-        _permissionNames = ModuleState.ModuleDefinition.PermissionNames;
-        _pageId = ModuleState.PageId.ToString();
-        createdby = ModuleState.CreatedBy;
-        createdon = ModuleState.CreatedOn;
-        modifiedby = ModuleState.ModifiedBy;
-        modifiedon = ModuleState.ModifiedOn;
+	protected override async Task OnInitializedAsync()
+	{
+		_title = ModuleState.Title;
+		_themes = await ThemeService.GetThemesAsync();
+		_containers = ThemeService.GetContainerControls(_themes, PageState.Page.ThemeType);
+		_containerType = ModuleState.ContainerType;
+		_allPages = ModuleState.AllPages.ToString();
+		_permissions = ModuleState.Permissions;
+		_permissionNames = ModuleState.ModuleDefinition.PermissionNames;
+		_pageId = ModuleState.PageId.ToString();
+		createdby = ModuleState.CreatedBy;
+		createdon = ModuleState.CreatedOn;
+		modifiedby = ModuleState.ModifiedBy;
+		modifiedon = ModuleState.ModifiedOn;
 
-        if (!string.IsNullOrEmpty(ModuleState.ModuleDefinition.SettingsType))
-        {
-            // module settings type explicitly declared in IModule interface
-            _moduleSettingsType = Type.GetType(ModuleState.ModuleDefinition.SettingsType);
-        }
-        else
-        {
-            // legacy support - module settings type determined by convention ( ie. existence of a "Settings.razor" component in module )
-            _moduleSettingsType = Type.GetType(ModuleState.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, PageState.Action), false, true);
-        }
-        if (_moduleSettingsType != null)
-        {
-            var moduleobject = Activator.CreateInstance(_moduleSettingsType) as IModuleControl;
-            if (!string.IsNullOrEmpty(moduleobject.Title))
-            {
-                _moduleSettingsTitle = moduleobject.Title;
-            }
+		if (!string.IsNullOrEmpty(ModuleState.ModuleDefinition.SettingsType))
+		{
+		// module settings type explicitly declared in IModule interface
+			_moduleSettingsType = Type.GetType(ModuleState.ModuleDefinition.SettingsType);
+		}
+		else
+		{
+		// legacy support - module settings type determined by convention ( ie. existence of a "Settings.razor" component in module )
+			_moduleSettingsType = Type.GetType(ModuleState.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, PageState.Action), false, true);
+		}
+		if (_moduleSettingsType != null)
+		{
+			var moduleobject = Activator.CreateInstance(_moduleSettingsType) as IModuleControl;
+			if (!string.IsNullOrEmpty(moduleobject.Title))
+			{
+				_moduleSettingsTitle = moduleobject.Title;
+			}
 
-            ModuleSettingsComponent = builder =>
-            {
-                builder.OpenComponent(0, _moduleSettingsType);
-                builder.AddComponentReferenceCapture(1, inst => { _moduleSettings = Convert.ChangeType(inst, _moduleSettingsType); });
-                builder.CloseComponent();
-            };
-        }
+			ModuleSettingsComponent = builder =>
+			{
+				builder.OpenComponent(0, _moduleSettingsType);
+				builder.AddComponentReferenceCapture(1, inst => { _moduleSettings = Convert.ChangeType(inst, _moduleSettingsType); });
+				builder.CloseComponent();
+			};
+		}
 
-        var theme = _themes.FirstOrDefault(item => item.Containers.Any(themecontrol => themecontrol.TypeName.Equals(_containerType)));
-        if (theme != null && !string.IsNullOrEmpty(theme.ContainerSettingsType))
-        {
-            _containerSettingsType = Type.GetType(theme.ContainerSettingsType);
-            if (_containerSettingsType != null)
-            {
-                ContainerSettingsComponent = builder =>
-                {
-                    builder.OpenComponent(0, _containerSettingsType);
-                    builder.AddComponentReferenceCapture(1, inst => { _containerSettings = Convert.ChangeType(inst, _containerSettingsType); });
-                    builder.CloseComponent();
-                };
-            }
-        }
-    }
+		var theme = _themes.FirstOrDefault(item => item.Containers.Any(themecontrol => themecontrol.TypeName.Equals(_containerType)));
+		if (theme != null && !string.IsNullOrEmpty(theme.ContainerSettingsType))
+		{
+			_containerSettingsType = Type.GetType(theme.ContainerSettingsType);
+			if (_containerSettingsType != null)
+			{
+				ContainerSettingsComponent = builder =>
+				{
+					builder.OpenComponent(0, _containerSettingsType);
+					builder.AddComponentReferenceCapture(1, inst => { _containerSettings = Convert.ChangeType(inst, _containerSettingsType); });
+					builder.CloseComponent();
+				};
+			}
+		}
+	}
 
-    private async Task SaveModule()
-    {
-        validated = true;
-        var interop = new Interop(JSRuntime);
-        if (await interop.FormValid(form))
-        {
-            if (!string.IsNullOrEmpty(_title))
-            {
-                var pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
-                pagemodule.PageId = int.Parse(_pageId);
-                pagemodule.Title = _title;
-                pagemodule.ContainerType = (_containerType != "-") ? _containerType : string.Empty;
-                if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Page.DefaultContainerType)
-                {
-                    pagemodule.ContainerType = string.Empty;
-                }
-                if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Site.DefaultContainerType)
-                {
-                    pagemodule.ContainerType = string.Empty;
-                }
-                await PageModuleService.UpdatePageModuleAsync(pagemodule);
-                await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
+	private async Task SaveModule()
+	{
+		validated = true;
+		var interop = new Interop(JSRuntime);
+		if (await interop.FormValid(form))
+		{
+			if (!string.IsNullOrEmpty(_title))
+			{
+				var pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
+				pagemodule.PageId = int.Parse(_pageId);
+				pagemodule.Title = _title;
+				pagemodule.ContainerType = (_containerType != "-") ? _containerType : string.Empty;
+				if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Page.DefaultContainerType)
+				{
+					pagemodule.ContainerType = string.Empty;
+				}
+				if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Site.DefaultContainerType)
+				{
+					pagemodule.ContainerType = string.Empty;
+				}
+				await PageModuleService.UpdatePageModuleAsync(pagemodule);
+				await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
 
-                var module = ModuleState;
-                module.AllPages = bool.Parse(_allPages);
-                module.Permissions = _permissionGrid.GetPermissions();
-                await ModuleService.UpdateModuleAsync(module);
+				var module = ModuleState;
+				module.AllPages = bool.Parse(_allPages);
+				module.PageModuleId = ModuleState.PageModuleId;
+				module.Permissions = _permissionGrid.GetPermissions();
+				await ModuleService.UpdateModuleAsync(module);
 
                 if (_moduleSettingsType != null)
                 {
