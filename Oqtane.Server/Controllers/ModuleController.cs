@@ -139,24 +139,41 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public Module Put(int id, [FromBody] Module module)
         {
-            if (ModelState.IsValid && module.SiteId == _alias.SiteId && _modules.GetModule(module.ModuleId, false) != null && _userPermissions.IsAuthorized(User, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
+            var _module = _modules.GetModule(module.ModuleId, false);
+
+            if (ModelState.IsValid && module.SiteId == _alias.SiteId && _module != null && _userPermissions.IsAuthorized(User, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
             {
                 module = _modules.UpdateModule(module);
-                if (module.AllPages)
-                {
-                    var pageModule = _pageModules.GetPageModules(module.SiteId).FirstOrDefault(item => item.ModuleId == module.ModuleId);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Updated {Module}", module);
 
-                    var pages = _pages.GetPages(module.SiteId).ToList();
-                    foreach (Page page in pages)
+                if (_module.AllPages != module.AllPages)
+                {
+                    var pageModules = _pageModules.GetPageModules(module.SiteId).ToList();
+                    if (module.AllPages)
                     {
-                        if (page.PageId != pageModule.PageId && !page.Path.StartsWith("admin/"))
+                        var pageModule = _pageModules.GetPageModule(module.PageModuleId);
+                        var pages = _pages.GetPages(module.SiteId).ToList();
+                        foreach (Page page in pages)
                         {
-                            _pageModules.AddPageModule(new PageModule { PageId = page.PageId, ModuleId = pageModule.ModuleId, Title = pageModule.Title, Pane = pageModule.Pane, Order = pageModule.Order, ContainerType = pageModule.ContainerType });
+                            if (!pageModules.Exists(item => item.ModuleId == module.ModuleId && item.PageId == page.PageId) && !page.Path.StartsWith("admin/"))
+                            {
+                                _pageModules.AddPageModule(new PageModule { PageId = page.PageId, ModuleId = pageModule.ModuleId, Title = pageModule.Title, Pane = pageModule.Pane, Order = pageModule.Order, ContainerType = pageModule.ContainerType });
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach (var pageModule in pageModules)
+                        {
+                            if (pageModule.ModuleId == module.ModuleId && pageModule.PageModuleId != module.PageModuleId)
+                            {
+                                _pageModules.DeletePageModule(pageModule.PageModuleId);
+                            }
                         }
                     }
                 }
+
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Updated {Module}", module);
             }
             else
             {

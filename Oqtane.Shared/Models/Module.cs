@@ -60,6 +60,7 @@ namespace Oqtane.Models
         public Dictionary<string, string> Settings { get; set; }
 
         #region PageModule properties
+
         [NotMapped]
         public int PageModuleId { get; set; }
 
@@ -68,6 +69,7 @@ namespace Oqtane.Models
         /// </summary>
         [NotMapped]
         public int PageId { get; set; }
+
         [NotMapped]
         public string Title { get; set; }
 
@@ -76,8 +78,10 @@ namespace Oqtane.Models
         /// </summary>
         [NotMapped]
         public string Pane { get; set; }
+
         [NotMapped]
         public int Order { get; set; }
+
         [NotMapped]
         public string ContainerType { get; set; }
 
