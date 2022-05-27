@@ -38,11 +38,11 @@ else
 
         if (string.IsNullOrEmpty(Heading))
         {
-            Heading = Localize(nameof(Name), Name);
+            Heading = LocalizeResource(nameof(Name), Name);
         }
         else
         {
-            Heading = Localize(nameof(Heading), Heading);
+            Heading = LocalizeResource(nameof(Heading), Heading);
         }
     }
 

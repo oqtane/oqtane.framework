@@ -1,6 +1,6 @@
 @namespace Oqtane.Modules.Controls
-@inherits ModuleControlBase
-@inject IStringLocalizer<SharedResources> Localizer
+@inherits LocalizableComponent
+
 @typeparam TableItem
 
 @if (ItemList != null)
@@ -49,7 +49,7 @@
                 <a class="page-link" @onclick=@(async () => UpdateList(_pages))><span class="oi oi-media-step-forward" title="end" aria-hidden="true"></span></a>
             </li>
             <li class="page-item disabled">
-                <a class="page-link" style="white-space: nowrap;">@Localizer["PageOfPages", @_page, @_pages]</a>
+                <a class="page-link" style="white-space: nowrap;">@Localize("PageOfPages", _page, _pages)</a>
             </li>
         </ul>
     }
@@ -157,7 +157,7 @@
                 <a class="page-link" @onclick=@(async () => UpdateList(_pages))><span class="oi oi-media-step-forward" title="end" aria-hidden="true"></span></a>
             </li>
             <li class="page-item disabled">
-               <a class="page-link" style="white-space: nowrap;">@Localizer["PageOfPages", @_page, @_pages]</a>
+               <a class="page-link" style="white-space: nowrap;">@Localize("PageOfPages", _page, _pages)</a>
             </li>
         </ul>
     }
@@ -208,7 +208,7 @@
     [Parameter]
     public string RowClass { get; set; } // class for row element - ie. <tr> for Table or <div> for Grid
 
-	[Parameter]
+    [Parameter]
     public string ColumnClass { get; set; } // class for column element - only applicable to Grid format
 
     [Parameter]

@@ -116,7 +116,7 @@
 		}
 
 		_permissions = (string.IsNullOrEmpty(Permissions)) ? ModuleState.Permissions : Permissions;
-		_text = Localize(nameof(Text), _text);		
+		_text = LocalizeResource(nameof(Text), _text);		
         _url = (ModuleId == -1) ? EditUrl(Action, _parameters) : EditUrl(ModuleId, Action, _parameters);
         _authorized = IsAuthorized();
     }

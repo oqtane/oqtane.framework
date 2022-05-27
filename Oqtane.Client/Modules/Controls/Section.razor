@@ -49,7 +49,7 @@
         base.OnParametersSet();
 
         _heading = !string.IsNullOrEmpty(Heading)
-            ? Localize(nameof(Heading), Heading)
-            : Localize(nameof(Name), Name);
+            ? LocalizeResource(nameof(Heading), Heading)
+            : LocalizeResource(nameof(Name), Name);
     }
 }

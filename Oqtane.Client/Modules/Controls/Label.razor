@@ -35,7 +35,7 @@ else
 
         if (!string.IsNullOrEmpty(HelpText))
         {
-            _helptext = Localize(nameof(HelpText), HelpText);
+            _helptext = LocalizeResource(nameof(HelpText), HelpText);
             _labelclass = "form-label";
 
             var spanclass = (!string.IsNullOrEmpty(Class)) ? " " + Class : "";
@@ -47,7 +47,7 @@ else
             _labelclass = "form-label" + labelclass;
         }
 
-        var text = Localize("Text", String.Empty);
+        var text = LocalizeResource("Text", String.Empty);
         if (!string.IsNullOrEmpty(text))
         {
             ChildContent =@<text>@text</text>;
