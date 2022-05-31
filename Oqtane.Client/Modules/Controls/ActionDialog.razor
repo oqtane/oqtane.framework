@@ -105,9 +105,9 @@
             _iconSpan = $"<span class=\"{IconName}\"></span>&nbsp;";
         }
 
-        Text = LocalizeResource(nameof(Text), Text);
-        Header = LocalizeResource(nameof(Header), Header);
-        Message = LocalizeResource(nameof(Message), Message);
+        Text = Localize(nameof(Text), Text);
+        Header = Localize(nameof(Header), Header);
+        Message = Localize(nameof(Message), Message);
 
 		_permissions = (string.IsNullOrEmpty(Permissions)) ? ModuleState.Permissions : Permissions;
         _authorized = IsAuthorized();

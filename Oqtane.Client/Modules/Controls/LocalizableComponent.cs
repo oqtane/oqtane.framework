@@ -19,27 +19,37 @@ namespace Oqtane.Modules.Controls
 
         protected bool IsLocalizable { get; private set; }
 
-        protected string Localize(string name)
+        protected IStringLocalizer T
         {
-            if (_localizer == null)
+            get
             {
-                _localizer = CreateLocalizer();
-            }
+                if (_resourceLocalizer == null)
+                {
+                    using (var scope = ServiceActivator.GetScope())
+                    {
+                        var controlType = GetType();
+                        var controlTypeName = controlType.Name;
 
-            return _localizer[name];
+                        // Remove `1 if the control is generic type
+                        if (controlTypeName.EndsWith("`1"))
+                        {
+                            controlTypeName = controlTypeName.TrimEnd('`', '1');
+                        }
+
+                        var baseName = controlType.FullName[0..controlType.FullName.IndexOf(controlTypeName)].Substring("Oqtane.".Length);
+                        var localizerFactory = scope.ServiceProvider.GetService<IStringLocalizerFactory>();
+
+                        _resourceLocalizer = localizerFactory.Create(baseName + controlTypeName, controlType.Assembly.GetName().Name);
+                    }
+                }
+
+                return _resourceLocalizer;
+            }
         }
 
-        protected string Localize(string name, params object[] arguments)
-        {
-            if (_localizer == null)
-            {
-                _localizer = CreateLocalizer();
-            }
+        protected string Localize(string name) => _localizer?[name] ?? name;
 
-            return _localizer[name, arguments];
-        }
-
-        protected string LocalizeResource(string propertyName, string propertyValue)
+        protected string Localize(string propertyName, string propertyValue)
         {
             if (!IsLocalizable)
             {
@@ -47,7 +57,7 @@ namespace Oqtane.Modules.Controls
             }
 
             var key = $"{ResourceKey}.{propertyName}";
-            var value = _resourceLocalizer?[key] ?? key;
+            var value = Localize(key);
 
             if (value == key)
             {
@@ -85,34 +95,12 @@ namespace Oqtane.Modules.Controls
                     using (var scope = ServiceActivator.GetScope())
                     {
                         var localizerFactory = scope.ServiceProvider.GetService<IStringLocalizerFactory>();
-                        _resourceLocalizer = localizerFactory.Create(moduleType);
+                        _localizer = localizerFactory.Create(moduleType);
 
                         IsLocalizable = true;
                     }
                 }
             }
-        }
-
-        private IStringLocalizer CreateLocalizer()
-        {
-            using (var scope = ServiceActivator.GetScope())
-            {
-                var controlType = GetType();
-                var controlTypeName = controlType.Name;
-
-                // Remove `1 if the control is generic type
-                if (controlTypeName.EndsWith("`1"))
-                {
-                    controlTypeName = controlTypeName.TrimEnd('`', '1');
-                }
-
-                var baseName = controlType.FullName[0..controlType.FullName.IndexOf(controlTypeName)].Substring("Oqtane.".Length);
-                var localizerFactory = scope.ServiceProvider.GetService<IStringLocalizerFactory>();
-
-                _localizer = localizerFactory.Create(baseName + controlTypeName, controlType.Assembly.GetName().Name);
-            }
-
-            return _localizer;
         }
     }
 }
