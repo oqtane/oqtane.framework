@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
@@ -29,17 +30,20 @@ namespace Oqtane.Modules.Controls
                     {
                         var controlType = GetType();
                         var controlTypeName = controlType.Name;
+                        var assemblyName = controlType.Assembly.GetName().Name;
 
-                        // Remove `1 if the control is generic type
+                        // Trim "`1" suffix (for generic type) to make it consistent like normal control types
                         if (controlTypeName.EndsWith("`1"))
                         {
                             controlTypeName = controlTypeName.TrimEnd('`', '1');
                         }
 
-                        var baseName = controlType.FullName[0..controlType.FullName.IndexOf(controlTypeName)].Substring("Oqtane.".Length);
+                        controlTypeName = controlType.FullName[..(controlType.FullName.IndexOf(controlTypeName) + controlTypeName.Length)];
+
+                        var baseName = GetBaseName(controlTypeName, assemblyName);
                         var localizerFactory = scope.ServiceProvider.GetService<IStringLocalizerFactory>();
 
-                        _resourceLocalizer = localizerFactory.Create(baseName + controlTypeName, controlType.Assembly.GetName().Name);
+                        _resourceLocalizer = localizerFactory.Create(baseName, assemblyName);
                     }
                 }
 
@@ -101,6 +105,27 @@ namespace Oqtane.Modules.Controls
                     }
                 }
             }
+        }
+
+        private static string GetBaseName(string typeName, string assemblyName)
+        {
+            var baseName = new StringBuilder(typeName);
+
+            var tokens = assemblyName.Split(".");
+
+            foreach (var token in tokens)
+            {
+                var index = baseName.ToString().IndexOf(token);
+
+                if (index == -1)
+                {
+                    continue;
+                }
+
+                baseName.Remove(index, token.Length + 1);
+            }
+
+            return baseName.ToString();
         }
     }
 }
