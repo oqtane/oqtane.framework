@@ -194,7 +194,7 @@ namespace Oqtane.Pages
                             {
                                 if (route.PagePath != "404")
                                 {
-                                    return RedirectPermanent(route.SiteUrl + "/404");
+                                    return RedirectPermanent(route.SiteUrl + $"/404?url={route.AbsolutePath}");
                                 }
                             }
                         }
@@ -372,7 +372,7 @@ namespace Oqtane.Pages
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Other, "Error Tracking Visitor {Error}", ex.Message);
+                _logger.Log(LogLevel.Error, this, LogFunction.Other, ex, "Error Tracking Visitor {Error}", ex.Message);
             }
         }
 

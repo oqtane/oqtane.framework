@@ -9,18 +9,18 @@ namespace Oqtane.Infrastructure
     [ProviderAlias("FileLogger")]
     public class FileLoggerProvider : ILoggerProvider
     {
-        private readonly IWebHostEnvironment _environment;
+        private readonly IContentManager _contentManager;
         private readonly IConfigManager _configManager;
 
-        public FileLoggerProvider(IWebHostEnvironment environment, IConfigManager configManager)
+        public FileLoggerProvider(IContentManager contentManager, IConfigManager configManager)
         {
-            _environment = environment;
+            _contentManager = contentManager;
             _configManager = configManager;
         }
 
         public ILogger CreateLogger(string categoryName)
         {
-            return new FileLogger(this, _environment, _configManager);
+            return new FileLogger(this, _contentManager, _configManager);
         }
 
         public void Dispose()

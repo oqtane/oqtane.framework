@@ -42,31 +42,39 @@ namespace Oqtane.Services
 
         public async Task Log(Alias alias, int? pageId, int? moduleId, int? userId, string category, string feature, LogFunction function, LogLevel level, Exception exception, string message, params object[] args)
         {
-            Log log = new Log();
-            if (alias == null)
+            try
             {
-                log.SiteId = _siteState.Alias.SiteId;
+                Log log = new Log();
+                if (alias == null)
+                {
+                    log.SiteId = _siteState.Alias.SiteId;
+                }
+                else
+                {
+                    log.SiteId = alias.SiteId;
+                }
+                log.PageId = pageId;
+                log.ModuleId = moduleId;
+                log.UserId = userId;
+                log.Url = _navigationManager.Uri;
+                log.Category = category;
+                log.Feature = feature;
+                log.Function = Enum.GetName(typeof(LogFunction), function);
+                log.Level = Enum.GetName(typeof(LogLevel), level);
+                if (exception != null)
+                {
+                    log.Exception = exception.ToString();
+                }
+                log.Message = message;
+                log.MessageTemplate = "";
+                log.Properties = JsonSerializer.Serialize(args);
+                await PostJsonAsync(Apiurl, log);
             }
-            else
+            catch (Exception e)
             {
-                log.SiteId = alias.SiteId;
+                Console.WriteLine(e);
+                throw;
             }
-            log.PageId = pageId;
-            log.ModuleId = moduleId;
-            log.UserId = userId;
-            log.Url = _navigationManager.Uri;
-            log.Category = category;
-            log.Feature = feature;
-            log.Function = Enum.GetName(typeof(LogFunction), function);
-            log.Level = Enum.GetName(typeof(LogLevel), level);
-            if (exception != null)
-            {
-                log.Exception = exception.ToString();
-            }
-            log.Message = message;
-            log.MessageTemplate = "";
-            log.Properties = JsonSerializer.Serialize(args);
-            await PostJsonAsync(Apiurl, log);
         }
     }
 }

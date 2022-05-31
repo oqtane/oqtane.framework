@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -203,15 +205,15 @@ namespace Oqtane.Infrastructure
             }
             if (Enum.Parse<LogLevel>(log.Level) >= notifylevel)
             {
-                var alias = _tenantManager.GetAlias();
                 foreach (var userrole in _userRoles.GetUserRoles(log.SiteId.Value))
                 {
                     if (userrole.Role.Name == RoleNames.Host)
                     {
-                        var subject = $"{alias.Name} Site {log.Level} Notification";
+                        var alias = _tenantManager.GetAlias();
+                        var level = log.Exception.IsNullOrEmpty() ? log.Level : "Exception";
                         var url = $"{_accessor.HttpContext.Request.Scheme}://{alias.Name}/admin/log?id={log.LogId}";
-                        string body = $"Log Message: {log.Message}\n\nPlease visit {url} for more information";
-                        var notification = new Notification(log.SiteId.Value, userrole.User, subject, body);
+                        var json = JsonSerializer.Serialize(log, new JsonSerializerOptions() { WriteIndented = true });
+                        var notification = new Notification(log.SiteId.Value, userrole.User, $"Site {alias.Name} {level} Notification", $"Please visit {url} for more information \n\n{json}");
                         _notifications.AddNotification(notification);
                     }
                 }

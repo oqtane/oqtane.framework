@@ -58,6 +58,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<ISyncManager, SyncManager>();
             services.AddSingleton<IDatabaseManager, DatabaseManager>();
             services.AddSingleton<IConfigManager, ConfigManager>();
+            services.AddSingleton<IContentManager, ContentManager>();
             services.AddSingleton<ILoggerProvider, FileLoggerProvider>();
             services.AddSingleton<AutoValidateAntiforgeryTokenFilter>();
             services.AddSingleton<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
@@ -160,11 +161,11 @@ namespace Microsoft.Extensions.DependencyInjection
             services.Configure<IdentityOptions>(options =>
             {
                 // Password settings
-                options.Password.RequireDigit = true;
+                options.Password.RequireDigit = false;
                 options.Password.RequiredLength = 6;
-                options.Password.RequireNonAlphanumeric = true;
-                options.Password.RequireUppercase = true;
-                options.Password.RequireLowercase = true;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireLowercase = false;
                 options.Password.RequiredUniqueChars = 1;
 
                 // Lockout settings
@@ -173,7 +174,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.Lockout.AllowedForNewUsers = false;
 
                 // SignIn settings
-                options.SignIn.RequireConfirmedEmail = true;
+                options.SignIn.RequireConfirmedEmail = false;
                 options.SignIn.RequireConfirmedPhoneNumber = false;
 
                 // User settings

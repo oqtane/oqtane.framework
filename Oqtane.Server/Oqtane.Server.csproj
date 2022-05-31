@@ -32,18 +32,18 @@
     <EmbeddedResource Include="Scripts\MigrateTenant.sql" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.14" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.14" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.14" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.2.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />
-    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="6.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.3">
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="6.0.14" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.14" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.14">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Localization" Version="6.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="6.0.14" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.0" />
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.0.7" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
@@ -55,6 +55,8 @@
   <ItemGroup>
     <ModuleTemplateFiles Include="$(ProjectDir)wwwroot\Modules\Templates\**\*.*" />
     <ThemeTemplateFiles Include="$(ProjectDir)wwwroot\Themes\Templates\**\*.*" />
+    <ModuleTemplateFiles Remove="wwwroot\Modules\Templates\**" />
+    <ThemeTemplateFiles Remove="wwwroot\Themes\Templates\**" />
   </ItemGroup>
   <Target Name="AddPayloadsFolder" AfterTargets="Publish">
     <Copy SourceFiles="@(ModuleTemplateFiles)" DestinationFiles="@(ModuleTemplateFiles->'$(PublishDir)wwwroot\Modules\Templates\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
@@ -62,6 +64,51 @@
   </Target>
   <ItemGroup>
     <!-- extends watching group to include *.dll files and exclude the ones cause an infinite loop -->
-    <Watch Include="**\*.dll" Exclude="**\Microsoft.EntityFrameworkCore.*.dll;**\Oqtane.Database.*.dll;"/>
+    <Watch Include="**\*.dll" Exclude="**\Microsoft.EntityFrameworkCore.*.dll;**\Oqtane.Database.*.dll;" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="wwwroot\Modules\Templates\**" />
+    <None Remove="wwwroot\Themes\Templates\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Client\AssemblyInfo.cs" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Client\Interop.cs" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Client\Modules\[Owner].[Module]\Edit.razor" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Client\Modules\[Owner].[Module]\Index.razor" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Client\Modules\[Owner].[Module]\ModuleInfo.cs" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Client\Modules\[Owner].[Module]\Settings.razor" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Client\Resources\[Owner].[Module]\Edit.resx" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Client\Resources\[Owner].[Module]\Index.resx" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Client\Resources\[Owner].[Module]\Settings.resx" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Client\Services\I[Module]Service.cs" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Client\Services\[Module]Service.cs" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Client\_Imports.razor" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Package\debug.cmd" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Package\icon.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Package\release.cmd" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Package\[Owner].[Module].nuspec" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Server\Controllers\[Module]Controller.cs" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Server\Manager\[Module]Manager.cs" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Server\Migrations\01000000_InitializeModule.cs" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Server\Migrations\EntityBuilders\[Module]EntityBuilder.cs" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Server\Repository\I[Module]Repository.cs" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Server\Repository\[Module]Context.cs" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Server\Repository\[Module]Repository.cs" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Server\wwwroot\Modules\[Owner].[Module]\Module.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Server\wwwroot\Modules\[Owner].[Module]\Module.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Server\wwwroot\_content\Placeholder.txt" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\Shared\Models\[Module].cs" />
+    <_ContentIncludedByDefault Remove="wwwroot\Modules\Templates\External\template.json" />
+    <_ContentIncludedByDefault Remove="wwwroot\Themes\Templates\External\Client\AssemblyInfo.cs" />
+    <_ContentIncludedByDefault Remove="wwwroot\Themes\Templates\External\Client\Containers\Container1.razor" />
+    <_ContentIncludedByDefault Remove="wwwroot\Themes\Templates\External\Client\ThemeInfo.cs" />
+    <_ContentIncludedByDefault Remove="wwwroot\Themes\Templates\External\Client\Themes\Theme1.razor" />
+    <_ContentIncludedByDefault Remove="wwwroot\Themes\Templates\External\Client\wwwroot\Themes\[Owner].[Theme]\Theme.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\Themes\Templates\External\Client\_Imports.razor" />
+    <_ContentIncludedByDefault Remove="wwwroot\Themes\Templates\External\Package\debug.cmd" />
+    <_ContentIncludedByDefault Remove="wwwroot\Themes\Templates\External\Package\icon.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\Themes\Templates\External\Package\release.cmd" />
+    <_ContentIncludedByDefault Remove="wwwroot\Themes\Templates\External\Package\[Owner].[Theme].nuspec" />
+    <_ContentIncludedByDefault Remove="wwwroot\Themes\Templates\External\template.json" />
   </ItemGroup>
 </Project>

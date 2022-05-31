@@ -15,11 +15,13 @@ namespace Oqtane.Controllers
     {
         private readonly IWebHostEnvironment _environment;
         private readonly IConfigManager _configManager;
+        private readonly IContentManager _contentManager;
 
-        public SystemController(IWebHostEnvironment environment, IConfigManager configManager)
+        public SystemController(IWebHostEnvironment environment, IConfigManager configManager, IContentManager contentManager)
         {
             _environment = environment;
             _configManager = configManager;
+            _contentManager = contentManager;
         }
 
         // GET: api/<controller>?type=x
@@ -37,7 +39,7 @@ namespace Oqtane.Controllers
                     systeminfo.Add("MachineName", Environment.MachineName);
                     systeminfo.Add("WorkingSet", Environment.WorkingSet.ToString());
                     systeminfo.Add("TickCount", Environment.TickCount64.ToString());
-                    systeminfo.Add("ContentRootPath", _environment.ContentRootPath);
+                    systeminfo.Add("ContentRootPath", _contentManager.ContentRootPath);
                     systeminfo.Add("WebRootPath", _environment.WebRootPath);
                     systeminfo.Add("Environment", _environment.EnvironmentName);
                     systeminfo.Add("ServerTime", DateTime.UtcNow.ToString());
