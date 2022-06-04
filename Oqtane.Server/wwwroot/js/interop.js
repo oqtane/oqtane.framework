@@ -344,10 +344,17 @@ Oqtane.Interop = {
                     progressinfo.innerHTML = file.name + ' 100%';
                     progressbar.value = 1;
                 };
+                request.upload.onerror = function () {
+                    progressinfo.innerHTML = file.name + ' Error: ' + xhr.status;
+                    progressbar.value = 0;
+                };
                 request.send(data);
             }
+
+            if (i === files.length - 1) {
+                fileinput.value = '';
+            }
         }
-        fileinput.value = '';
     },
     refreshBrowser: function (reload, wait) {
         setInterval(function () {

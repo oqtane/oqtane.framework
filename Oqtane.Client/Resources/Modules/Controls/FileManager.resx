@@ -141,4 +141,7 @@
   <data name="Success.File.Upload" xml:space="preserve">
     <value>File Upload Succeeded</value>
   </data>
+  <data name="Message.File.Restricted" xml:space="preserve">
+    <value>Files With Extension Of {0} Are Restricted From Upload. Please Contact Your Administrator For More Information.</value>
+  </data>
 </root>
