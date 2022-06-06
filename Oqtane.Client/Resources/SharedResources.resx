@@ -330,4 +330,10 @@
   <data name="PageOfPages" xml:space="preserve">
     <value>Page {0} of {1}</value>
   </data>
+  <data name="Url Mappings" xml:space="preserve">
+    <value>Url Mappings</value>
+  </data>
+  <data name="Visitor Management" xml:space="preserve">
+    <value>Visitor Management</value>
+  </data>
 </root>
