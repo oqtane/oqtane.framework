@@ -88,15 +88,17 @@ else
             userid = Int32.Parse(PageState.QueryString["id"]);
             User user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
             name = user.DisplayName;
+
             if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
             {
                 roles = await RoleService.GetRolesAsync(PageState.Site.SiteId, true);
-                roles = roles.Where(item => item.Name != RoleNames.Everyone).ToList();
+				roles.RemoveAll(item => item.Name == RoleNames.Everyone || item.Name == RoleNames.Unauthenticated);
             }
             else
             {
                 roles = await RoleService.GetRolesAsync(PageState.Site.SiteId);
             }
+
             await GetUserRoles();
         }
         catch (Exception ex)

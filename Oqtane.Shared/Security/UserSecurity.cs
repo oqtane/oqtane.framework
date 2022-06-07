@@ -104,11 +104,14 @@ namespace Oqtane.Security
 
         private static bool IsAllowed(int userId, string roles, string permission)
         {
+            if (permission == RoleNames.Unauthenticated)
+            {
+                return userId == -1;
+            }
             if ("[" + userId + "]" == permission)
             {
                 return true;
             }
-
             if (roles != null)
             {
                 return roles.IndexOf(";" + permission + ";") != -1;

@@ -94,16 +94,18 @@ namespace Oqtane.Repository
             List<Role> roles = _roleRepository.GetRoles(site.SiteId, true).ToList();
             if (!roles.Where(item => item.Name == RoleNames.Everyone).Any())
             {
-                _roleRepository.AddRole(new Role {SiteId = null, Name = RoleNames.Everyone, Description = "All Users", IsAutoAssigned = false, IsSystem = true});
+                _roleRepository.AddRole(new Role {SiteId = null, Name = RoleNames.Everyone, Description = RoleNames.Everyone, IsAutoAssigned = false, IsSystem = true});
             }
-
+            if (!roles.Where(item => item.Name == RoleNames.Unauthenticated).Any())
+            {
+                _roleRepository.AddRole(new Role { SiteId = null, Name = RoleNames.Unauthenticated, Description = RoleNames.Unauthenticated, IsAutoAssigned = false, IsSystem = true });
+            }
             if (!roles.Where(item => item.Name == RoleNames.Host).Any())
             {
-                _roleRepository.AddRole(new Role {SiteId = null, Name = RoleNames.Host, Description = "Application Administrators", IsAutoAssigned = false, IsSystem = true});
+                _roleRepository.AddRole(new Role {SiteId = null, Name = RoleNames.Host, Description = RoleNames.Host, IsAutoAssigned = false, IsSystem = true});
             }
-
-            _roleRepository.AddRole(new Role {SiteId = site.SiteId, Name = RoleNames.Registered, Description = "Registered Users", IsAutoAssigned = true, IsSystem = true});
-            _roleRepository.AddRole(new Role {SiteId = site.SiteId, Name = RoleNames.Admin, Description = "Site Administrators", IsAutoAssigned = false, IsSystem = true});
+            _roleRepository.AddRole(new Role {SiteId = site.SiteId, Name = RoleNames.Registered, Description = RoleNames.Registered, IsAutoAssigned = true, IsSystem = true});
+            _roleRepository.AddRole(new Role {SiteId = site.SiteId, Name = RoleNames.Admin, Description = RoleNames.Admin, IsAutoAssigned = false, IsSystem = true});
 
             _profileRepository.AddProfile(new Profile
                 {SiteId = site.SiteId, Name = "FirstName", Title = "First Name", Description = "Your First Or Given Name", Category = "Name", ViewOrder = 1, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = ""});

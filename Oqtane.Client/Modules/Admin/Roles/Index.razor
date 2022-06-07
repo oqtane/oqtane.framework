@@ -59,7 +59,7 @@ else
         if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
         {
             _roles = await RoleService.GetRolesAsync(PageState.Site.SiteId, true);
-            _roles = _roles.Where(item => item.Name != RoleNames.Everyone).ToList();
+			_roles.RemoveAll(item => item.Name == RoleNames.Everyone || item.Name == RoleNames.Unauthenticated);
         }
         else
         {
