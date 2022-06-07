@@ -32,10 +32,10 @@ namespace Oqtane.Modules.Controls
                         var controlTypeName = controlType.Name;
                         var assemblyName = controlType.Assembly.GetName().Name;
 
-                        // Trim "`1" suffix (for generic type) to make it consistent like normal control types
-                        if (controlTypeName.EndsWith("`1"))
+                        if (controlType.IsGenericType)
                         {
-                            controlTypeName = controlTypeName.TrimEnd('`', '1');
+                            // Trim generic type suffix
+                            controlTypeName = controlTypeName[..controlTypeName.IndexOf('`')];
                         }
 
                         controlTypeName = controlType.FullName[..(controlType.FullName.IndexOf(controlTypeName) + controlTypeName.Length)];
