@@ -127,11 +127,10 @@
 			_permissionnames = PermissionNames;
 		}
 
-		_roles = await RoleService.GetRolesAsync(ModuleState.SiteId);
-		_roles.Insert(0, new Role { Name = RoleNames.Everyone });
-		if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+		_roles = await RoleService.GetRolesAsync(ModuleState.SiteId, true);
+		if (!UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
 		{
-			_roles.Add(new Role { Name = RoleNames.Host });
+			_roles.RemoveAll(item => item.Name == RoleNames.Host);
 		}
 
 		_permissions = new List<PermissionString>();
@@ -254,6 +253,7 @@
 			permission = _permissions[i];
 			List<string> ids = permission.Permissions.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
 			ids.Remove("!" + RoleNames.Everyone); // remove deny all users
+			ids.Remove("!" + RoleNames.Unauthenticated); // remove deny unauthenticated
 			ids.Remove("!" + RoleNames.Registered); // remove deny registered users
 			if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
 			{

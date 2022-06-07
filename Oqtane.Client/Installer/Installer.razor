@@ -63,8 +63,8 @@
                     <Label Class="col-sm-3" For="password" HelpText="Provide a password for the primary user account" ResourceKey="Password">Password:</Label>
                     <div class="col-sm-9">
 						<div class="input-group">
-							<input id="password" type="@_passwordtype" class="form-control" @bind="@_hostPassword" autocomplete="new-password" />
-							<button type="button" class="btn btn-secondary" @onclick="@TogglePassword">@_togglepassword</button>
+							<input id="password" type="@_passwordType" class="form-control" @bind="@_hostPassword" autocomplete="new-password" />
+							<button type="button" class="btn btn-secondary" @onclick="@TogglePassword">@_togglePassword</button>
 						</div>
                     </div>
                 </div>
@@ -72,8 +72,8 @@
                     <Label Class="col-sm-3" For="confirm" HelpText="Please confirm the password entered above by entering it again" ResourceKey="Confirm">Confirm:</Label>
                     <div class="col-sm-9">
 						<div class="input-group">
-							<input id="confirm" type="@_passwordtype" class="form-control" @bind="@_confirmPassword" autocomplete="new-password" />
-							<button type="button" class="btn btn-secondary" @onclick="@TogglePassword">@_togglepassword</button>
+							<input id="confirm" type="@_confirmPasswordType" class="form-control" @bind="@_confirmPassword" autocomplete="new-password" />
+							<button type="button" class="btn btn-secondary" @onclick="@ToggleConfirmPassword">@_toggleConfirmPassword</button>
 						</div>
                     </div>
                 </div>
@@ -110,8 +110,10 @@
 
 	private string _hostUsername = string.Empty;
 	private string _hostPassword = string.Empty;
-	private string _passwordtype = "password";
-	private string _togglepassword = string.Empty;
+	private string _passwordType = "password";
+    private string _confirmPasswordType = "password";
+	private string _togglePassword = string.Empty;
+    private string _toggleConfirmPassword = string.Empty;
 	private string _confirmPassword = string.Empty;
 	private string _hostEmail = string.Empty;
 	private bool _register = true;
@@ -120,8 +122,11 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		_togglepassword = SharedLocalizer["ShowPassword"];
+		_togglePassword = SharedLocalizer["ShowPassword"];
+        _toggleConfirmPassword = SharedLocalizer["ShowPassword"];
+
 		_databases = await DatabaseService.GetDatabasesAsync();
+
 		if (_databases.Exists(item => item.IsDefault))
 		{
 			_databaseName = _databases.Find(item => item.IsDefault).Name;
@@ -230,15 +235,29 @@
 
 	private void TogglePassword()
 	{
-		if (_passwordtype == "password")
+		if (_passwordType == "password")
 		{
-			_passwordtype = "text";
-			_togglepassword = SharedLocalizer["HidePassword"];
+			_passwordType = "text";
+			_togglePassword = SharedLocalizer["HidePassword"];
 		}
 		else
 		{
-			_passwordtype = "password";
-			_togglepassword = SharedLocalizer["ShowPassword"];
+			_passwordType = "password";
+			_togglePassword = SharedLocalizer["ShowPassword"];
+		}
+	}
+
+    private void ToggleConfirmPassword()
+	{
+		if (_confirmPasswordType == "password")
+		{
+			_confirmPasswordType = "text";
+			_toggleConfirmPassword = SharedLocalizer["HidePassword"];
+		}
+		else
+		{
+			_confirmPasswordType = "password";
+			_toggleConfirmPassword = SharedLocalizer["ShowPassword"];
 		}
 	}
 }
