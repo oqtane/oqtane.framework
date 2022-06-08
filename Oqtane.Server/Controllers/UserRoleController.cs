@@ -39,32 +39,24 @@ namespace Oqtane.Controllers
         public IEnumerable<UserRole> Get(string siteid, string userid = null, string rolename = null)
         {
             int SiteId;
-            if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
+            if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId && (userid != null || rolename != null))
             {
-                int UserId = (int.TryParse(userid, out UserId)) ? UserId : -1;
-                if (User.IsInRole(RoleNames.Admin) || ((userid == null || _userPermissions.GetUser().UserId == UserId) && (rolename == null || (User.IsInRole(rolename) && rolename != RoleNames.Registered))))
+                var userroles = _userRoles.GetUserRoles(SiteId).ToList();
+                if (userid != null)
                 {
-                    var userroles = _userRoles.GetUserRoles(SiteId).ToList();
-                    if (userid != null)
-                    {
-                        userroles = userroles.Where(item => item.UserId == UserId).ToList();
-                    }
-                    if (rolename != null)
-                    {
-                        userroles = userroles.Where(item => item.Role.Name == rolename).ToList();
-                    }
-                    for (int i = 0; i < userroles.Count(); i++)
-                    {
-                        userroles[i] = Filter(userroles[i]);
-                    }
-                    return userroles.OrderBy(u => u.User.DisplayName);
+                    int UserId = int.TryParse(userid, out UserId) ? UserId : -1;
+                    userroles = userroles.Where(item => item.UserId == UserId).ToList();
                 }
-                else
+                if (rolename != null)
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized UserRole Get Attempt For Site {SiteId} User {UserId} Role {RoleName}", siteid, userid, rolename);
-                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                    return null;
+                    userroles = userroles.Where(item => item.Role.Name == rolename).ToList();
                 }
+                var user = _userPermissions.GetUser();
+                for (int i = 0; i < userroles.Count(); i++)
+                {
+                    userroles[i] = Filter(userroles[i], user.UserId);
+                }
+                return userroles.OrderBy(u => u.User.DisplayName);
             }
             else
             {
@@ -82,16 +74,7 @@ namespace Oqtane.Controllers
             var userrole = _userRoles.GetUserRole(id);
             if (userrole != null && SiteValid(userrole.Role.SiteId))
             {
-                if (User.IsInRole(RoleNames.Admin) || User.Identity.Name?.ToLower() != userrole.User.Username.ToLower() || User.IsInRole(userrole.Role.Name))
-                {
-                    return Filter(userrole);
-                }
-                else
-                {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Role Get Attempt {UserRoleId}", id);
-                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                    return null;
-                }
+                return Filter(userrole, _userPermissions.GetUser().UserId);
             }
             else
             {
@@ -101,7 +84,7 @@ namespace Oqtane.Controllers
             }
         }
 
-        private UserRole Filter(UserRole userrole)
+        private UserRole Filter(UserRole userrole, int userid)
         {
             if (userrole != null)
             {
@@ -110,7 +93,7 @@ namespace Oqtane.Controllers
                 userrole.User.TwoFactorCode = "";
                 userrole.User.TwoFactorExpiry = null;
 
-                if (!User.IsInRole(RoleNames.Admin) && User.Identity.Name?.ToLower() != userrole.User.Username.ToLower())
+                if (!User.IsInRole(RoleNames.Admin) && userid != userrole.User.UserId)
                 {
                     userrole.User.Email = "";
                     userrole.User.PhotoFileId = null;
