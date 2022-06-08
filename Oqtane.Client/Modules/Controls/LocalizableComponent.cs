@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
@@ -9,6 +10,7 @@ namespace Oqtane.Modules.Controls
     public class LocalizableComponent : ModuleControlBase
     {
         private IStringLocalizer _localizer;
+        private IStringLocalizer _resourceLocalizer;
 
         [Parameter]
         public string ResourceKey { get; set; }
@@ -17,6 +19,37 @@ namespace Oqtane.Modules.Controls
         public string ResourceType { get; set; }
 
         protected bool IsLocalizable { get; private set; }
+
+        protected IStringLocalizer T
+        {
+            get
+            {
+                if (_resourceLocalizer == null)
+                {
+                    using (var scope = ServiceActivator.GetScope())
+                    {
+                        var controlType = GetType();
+                        var controlTypeName = controlType.Name;
+                        var assemblyName = controlType.Assembly.GetName().Name;
+
+                        if (controlType.IsGenericType)
+                        {
+                            // Trim generic type suffix
+                            controlTypeName = controlTypeName[..controlTypeName.IndexOf('`')];
+                        }
+
+                        controlTypeName = controlType.FullName[..(controlType.FullName.IndexOf(controlTypeName) + controlTypeName.Length)];
+
+                        var baseName = GetBaseName(controlTypeName, assemblyName);
+                        var localizerFactory = scope.ServiceProvider.GetService<IStringLocalizerFactory>();
+
+                        _resourceLocalizer = localizerFactory.Create(baseName, assemblyName);
+                    }
+                }
+
+                return _resourceLocalizer;
+            }
+        }
 
         protected string Localize(string name) => _localizer?[name] ?? name;
 
@@ -53,12 +86,12 @@ namespace Oqtane.Modules.Controls
         {
             IsLocalizable = false;
 
-            if (string.IsNullOrEmpty(ResourceType))
+            if (String.IsNullOrEmpty(ResourceType))
             {
                 ResourceType = ModuleState?.ModuleType;
             }
 
-            if (!String.IsNullOrEmpty(ResourceKey) && !string.IsNullOrEmpty(ResourceType))
+            if (!String.IsNullOrEmpty(ResourceKey) && !String.IsNullOrEmpty(ResourceType))
             {
                 var moduleType = Type.GetType(ResourceType);
                 if (moduleType != null)
@@ -72,6 +105,27 @@ namespace Oqtane.Modules.Controls
                     }
                 }
             }
+        }
+
+        private static string GetBaseName(string typeName, string assemblyName)
+        {
+            var baseName = new StringBuilder(typeName);
+
+            var tokens = assemblyName.Split(".");
+
+            foreach (var token in tokens)
+            {
+                var index = baseName.ToString().IndexOf(token);
+
+                if (index == -1)
+                {
+                    continue;
+                }
+
+                baseName.Remove(index, token.Length + 1);
+            }
+
+            return baseName.ToString();
         }
     }
 }
