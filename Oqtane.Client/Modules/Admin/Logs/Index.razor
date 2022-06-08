@@ -5,7 +5,11 @@
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-@if (_logs == null)
+@if (_id > 0)
+{
+    <Detail/>
+}
+else if (_logs == null)
 {
     <p><em>@SharedLocalizer["Loading"]</em></p>
 }
@@ -91,6 +95,7 @@ else
 }
 
 @code {
+    private int _id = 0;
     private string _level = "-";
     private string _function = "-";
     private string _rows = "10";
@@ -104,6 +109,10 @@ else
     {
         try
         {
+            if (PageState.QueryString.ContainsKey("id") && int.TryParse(PageState.QueryString["id"], out int id))
+            {
+                _id = id;
+            }
 			if (PageState.QueryString.ContainsKey("level"))
 			{
 				_level = PageState.QueryString["level"];
