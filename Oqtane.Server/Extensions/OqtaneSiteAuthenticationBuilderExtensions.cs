@@ -187,7 +187,7 @@ namespace Oqtane.Extensions
                 catch (Exception ex)
                 {
                     var _logger = context.HttpContext.RequestServices.GetRequiredService<ILogManager>();
-                    _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "An Error Occurred Accessing The User Info Endpoint - {Error}", ex.Message);
+                    _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, ex, "An Error Occurred Accessing The User Info Endpoint - {Error}", ex.Message);
                 }
             }
 
@@ -417,7 +417,7 @@ namespace Oqtane.Extensions
             {
                 _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "Provider Did Not Return An Identifier To Uniquely Identify The User. The Identifier Claim Specified Was {IdentifierCLaimType} And Actual Claim Types Are {Claims}. Login Denied.", httpContext.GetSiteSettings().GetValue("ExternalLogin:IdentifierClaimType", ""), claims);
             }
-            
+
             return identity;
         }
 
