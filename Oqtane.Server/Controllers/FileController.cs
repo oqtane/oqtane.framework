@@ -255,7 +255,7 @@ namespace Oqtane.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Create, "File Could Not Be Downloaded From Url {Url} {Error}", url, ex.Message);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Create, ex, "File Could Not Be Downloaded From Url {Url} {Error}", url, ex.Message);
                 }
             }
             else
@@ -600,9 +600,9 @@ namespace Oqtane.Controllers
                     }
                 }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Error Creating Image For File {FilePath} {Width} {Height} {Mode} {Rotate} {Error}", filepath, width, height, mode, rotate, ex.Message);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, ex, "Error Creating Image For File {FilePath} {Width} {Height} {Mode} {Rotate} {Error}", filepath, width, height, mode, rotate, ex.Message);
                 imagepath = "";
             }
 
