@@ -1,3 +1,5 @@
+using System;
+
 namespace Microsoft.Extensions.Localization
 {
     public static class OqtaneLocalizationExtensions
@@ -18,5 +20,42 @@ namespace Microsoft.Extensions.Localization
             }
             return localizedValue;
         }
+
+        /// <summary>
+        /// Creates an IStringLocalizer based on a type name. This extension method is useful in scenarios where the default IStringLocalizer is unable to locate the resources.
+        /// </summary>
+        /// <param name="localizerFactory"></param>
+        /// <param name="fullTypeName">the full type name ie. GetType().FullName</param>
+        /// <returns></returns>
+        public static IStringLocalizer Create(this IStringLocalizerFactory localizerFactory, string fullTypeName)
+        {
+            var typename = fullTypeName;
+
+            // handle generic types
+            var type = Type.GetType(fullTypeName);
+            if (type.IsGenericType)
+            {
+                typename = type.GetGenericTypeDefinition().FullName;
+                typename = typename.Substring(0, typename.IndexOf("`")); // remove generic type info
+            }
+
+            // format typename
+            if (typename.Contains(","))
+            {
+                typename = typename.Substring(0, typename.IndexOf(",")); // remove assembly info
+            }
+
+            // remove rootnamespace
+            var rootnamespace = "";
+            var attributes = type.Assembly.GetCustomAttributes(typeof(RootNamespaceAttribute), false);
+            if (attributes.Length > 0)
+            {
+                rootnamespace = ((RootNamespaceAttribute)attributes[0]).RootNamespace;
+            }
+            typename = typename.Replace(rootnamespace + ".", "");
+
+            // create IStringLocalizer using factory
+            return localizerFactory.Create(typename, type.Assembly.GetName().Name);
+        }    
     }
 }

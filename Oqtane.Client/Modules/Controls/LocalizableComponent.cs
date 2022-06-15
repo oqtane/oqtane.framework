@@ -1,16 +1,14 @@
 using System;
-using System.Text;
 using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
-using Oqtane.Shared;
 
 namespace Oqtane.Modules.Controls
 {
     public class LocalizableComponent : ModuleControlBase
     {
+        [Inject] public IStringLocalizerFactory LocalizerFactory { get; set; }
+
         private IStringLocalizer _localizer;
-        private IStringLocalizer _resourceLocalizer;
 
         [Parameter]
         public string ResourceKey { get; set; }
@@ -19,37 +17,6 @@ namespace Oqtane.Modules.Controls
         public string ResourceType { get; set; }
 
         protected bool IsLocalizable { get; private set; }
-
-        protected IStringLocalizer T
-        {
-            get
-            {
-                if (_resourceLocalizer == null)
-                {
-                    using (var scope = ServiceActivator.GetScope())
-                    {
-                        var controlType = GetType();
-                        var controlTypeName = controlType.Name;
-                        var assemblyName = controlType.Assembly.GetName().Name;
-
-                        if (controlType.IsGenericType)
-                        {
-                            // Trim generic type suffix
-                            controlTypeName = controlTypeName[..controlTypeName.IndexOf('`')];
-                        }
-
-                        controlTypeName = controlType.FullName[..(controlType.FullName.IndexOf(controlTypeName) + controlTypeName.Length)];
-
-                        var baseName = GetBaseName(controlTypeName, assemblyName);
-                        var localizerFactory = scope.ServiceProvider.GetService<IStringLocalizerFactory>();
-
-                        _resourceLocalizer = localizerFactory.Create(baseName, assemblyName);
-                    }
-                }
-
-                return _resourceLocalizer;
-            }
-        }
 
         protected string Localize(string name) => _localizer?[name] ?? name;
 
@@ -63,22 +30,15 @@ namespace Oqtane.Modules.Controls
             var key = $"{ResourceKey}.{propertyName}";
             var value = Localize(key);
 
-            if (value == key)
+            if (value == key || value == String.Empty)
             {
-                // Returns default property value (English version) instead of ResourceKey.PropertyName
+                // return default property value if key does not exist in resource file or value is empty
                 return propertyValue;
             }
             else
             {
-                if (value == String.Empty)
-                {
-                    // Returns default property value (English version)
-                    return propertyValue;
-                }
-                else
-                {
-                    return value;
-                }
+                // return localized value
+                return value;
             }
         }
 
@@ -93,39 +53,9 @@ namespace Oqtane.Modules.Controls
 
             if (!String.IsNullOrEmpty(ResourceKey) && !String.IsNullOrEmpty(ResourceType))
             {
-                var moduleType = Type.GetType(ResourceType);
-                if (moduleType != null)
-                {
-                    using (var scope = ServiceActivator.GetScope())
-                    {
-                        var localizerFactory = scope.ServiceProvider.GetService<IStringLocalizerFactory>();
-                        _localizer = localizerFactory.Create(moduleType);
-
-                        IsLocalizable = true;
-                    }
-                }
+                _localizer = LocalizerFactory.Create(ResourceType);
+                IsLocalizable = true;
             }
-        }
-
-        private static string GetBaseName(string typeName, string assemblyName)
-        {
-            var baseName = new StringBuilder(typeName);
-
-            var tokens = assemblyName.Split(".");
-
-            foreach (var token in tokens)
-            {
-                var index = baseName.ToString().IndexOf(token);
-
-                if (index == -1)
-                {
-                    continue;
-                }
-
-                baseName.Remove(index, token.Length + 1);
-            }
-
-            return baseName.ToString();
         }
     }
 }
