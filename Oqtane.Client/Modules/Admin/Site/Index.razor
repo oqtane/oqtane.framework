@@ -170,24 +170,54 @@
         @if (_aliases != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
         {
 			<Section Name="Aliases" Heading="Aliases" ResourceKey="Aliases">
-                <div class="container">
-					<div class="row mb-1 align-items-center">
-						<Label Class="col-sm-3" For="alias" HelpText="The aliases for the site. An alias can be a domain name (www.site.com) or a virtual folder (ie. www.site.com/folder). If a site has multiple aliases they should be separated by commas." ResourceKey="Aliases">Aliases: </Label>
-						<div class="col-sm-9">
-							<textarea id="alias" class="form-control" @bind="@_urls" rows="3" required></textarea>
+	            <div class="container">
+						<div class="row mb-1 align-items-center">
+							<Label Class="col-sm-3" For="aliases" HelpText="The list of aliases for this site" ResourceKey="Aliases">Aliases: </Label>
+							<div class="col-sm-9">
+								<button type="button" class="btn btn-primary" @onclick="AddAlias">@SharedLocalizer["Add"]</button>
+								<Pager Items="@_aliases">
+									<Header>
+										<th style="width: 1px;">&nbsp;</th>
+										<th style="width: 1px;">&nbsp;</th>
+										<th>@Localizer["AliasName"]</th>
+										<th>@Localizer["AliasDefault"]</th>
+									</Header>
+									<Row>
+										@if (context.AliasId != _aliasid)
+										{
+											<td>
+												@if (_aliasid == -1)
+												{
+													<button type="button" class="btn btn-primary" @onclick="@(() => EditAlias(context))">@SharedLocalizer["Edit"]</button>
+												}
+											</td>
+											<td>
+												@if (_aliasid == -1)
+												{
+													<ActionDialog Action="Delete" OnClick="@(async () => await DeleteAlias(context))" ResourceKey="DeleteModule" Class="btn btn-danger" Header="Delete Alias" Message="@string.Format(Localizer["Confirm.Alias.Delete", context.Name])" />
+												}
+											</td>
+											<td>@context.Name</td>
+											<td>@context.IsDefault</td>
+										}
+										else
+										{
+											<td><button type="button" class="btn btn-success" @onclick="@(async () => await SaveAlias())">@SharedLocalizer["Save"]</button></td>
+											<td><button type="button" class="btn btn-secondary" @onclick="@(async () => await CancelAlias())">@SharedLocalizer["Cancel"]</button></td>
+											<td>
+												<input id="aliasname" class="form-control" @bind="@_aliasname" />
+											</td>
+											<td>
+												<select id="defaultaias" class="form-select" @bind="@_defaultalias" required>
+													<option value="True">@SharedLocalizer["Yes"]</option>
+													<option value="False">@SharedLocalizer["No"]</option>
+												</select>
+											</td>
+										}
+									</Row>
+								</Pager>
+							</div>
 						</div>
-					</div>
-					<div class="row mb-1 align-items-center">
-						<Label Class="col-sm-3" For="defaultalias" HelpText="The default alias for the site. Requests for non-default aliases will be redirected to the default alias." ResourceKey="DefaultAlias">Default Alias: </Label>
-						<div class="col-sm-9">
-                            <select id="defaultalias" class="form-select" @bind="@_defaultalias" required>
-								@foreach (string name in _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray())
-								{
-									<option value="@name">@name</option>
-								}
-                            </select>
-						</div>
-					</div>
 				</div>
 			</Section>
             <Section Name="Hosting" Heading="Hosting Model" ResourceKey="Hosting">
@@ -253,8 +283,9 @@
 	private List<ThemeControl> _containers = new List<ThemeControl>();
 	private string _name = string.Empty;
 	private List<Alias> _aliases;
-	private string _defaultalias = string.Empty;
-	private string _urls = string.Empty;
+	private int _aliasid = -1;
+	private string _aliasname;
+	private string _defaultalias;
 	private string _runtime = "";
 	private string _prerender = "";
 	private int _logofileid = -1;
@@ -304,10 +335,7 @@
 				_prerender = site.RenderMode.Replace(_runtime, "");
 				_isdeleted = site.IsDeleted.ToString();
 
-				if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-				{
-					await GetAliases();
-				}
+				await GetAliases();
 
 				if (site.LogoFileId != null)
 				{
@@ -409,152 +437,92 @@
 			{
 				if (_name != string.Empty && _themetype != "-" && _containertype != "-")
 				{
-					var unique = true;
-					if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+					var site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
+					if (site != null)
 					{
-						_urls = Regex.Replace(_urls, @"\r\n?|\n", ","); // convert line breaks to commas
-						var aliases = await AliasService.GetAliasesAsync();
-						foreach (string name in _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray())
+						bool refresh = false;
+						bool reload = false;
+
+						site.Name = _name;
+						if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
 						{
-							var alias = aliases.Where(item => item.Name == name).FirstOrDefault();
-							if (alias != null && unique)
+							if (site.Runtime != _runtime || site.RenderMode != _runtime + _prerender)
 							{
-								unique = (alias.TenantId == PageState.Site.TenantId && alias.SiteId == PageState.Site.SiteId);
+								site.Runtime = _runtime;
+								site.RenderMode = _runtime + _prerender;
+								reload = true; // needs to be reloaded on server
 							}
 						}
-						if (unique && string.IsNullOrEmpty(_defaultalias)) unique = false;
-					}
+						site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
 
-					if (unique)
-					{
-						var site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
-						if (site != null)
+						site.LogoFileId = null;
+						var logofileid = _logofilemanager.GetFileId();
+						if (logofileid != -1)
 						{
-							bool refresh = false;
-							bool reload = false;
-
-							site.Name = _name;
-							if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-							{
-								if (site.Runtime != _runtime || site.RenderMode != _runtime + _prerender)
-								{
-									site.Runtime = _runtime;
-									site.RenderMode = _runtime + _prerender;
-									reload = true; // needs to be reloaded on server
-								}
-							}
-							site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
-
-							site.LogoFileId = null;
-							var logofileid = _logofilemanager.GetFileId();
-							if (logofileid != -1)
-							{
-								site.LogoFileId = logofileid;
-							}
-							int? faviconFieldId = _faviconfilemanager.GetFileId();
-							if (faviconFieldId == -1) faviconFieldId = null;
-							if (site.FaviconFileId != faviconFieldId)
-							{
-								site.FaviconFileId = faviconFieldId;
-								reload = true; // needs to be reloaded on server
-							}
-							if (site.DefaultThemeType != _themetype)
-							{
-								site.DefaultThemeType = _themetype;
-								refresh = true; // needs to be refreshed on client
-							}
-							if (site.DefaultContainerType != _containertype)
-							{
-								site.DefaultContainerType = _containertype;
-								refresh = true; // needs to be refreshed on client
-							}
-							site.AdminContainerType = _admincontainertype;
-
-							if (site.PwaIsEnabled.ToString() != _pwaisenabled)
-							{
-								site.PwaIsEnabled = Boolean.Parse(_pwaisenabled);
-								reload = true; // needs to be reloaded on server
-							}
-							int? pwaappiconfileid = _pwaappiconfilemanager.GetFileId();
-							if (pwaappiconfileid == -1) pwaappiconfileid = null;
-							if (site.PwaAppIconFileId != pwaappiconfileid)
-							{
-								site.PwaAppIconFileId = pwaappiconfileid;
-								reload = true; // needs to be reloaded on server
-							}
-							int? pwasplashiconfileid = _pwasplashiconfilemanager.GetFileId();
-							if (pwasplashiconfileid == -1) pwasplashiconfileid = null;
-							if (site.PwaSplashIconFileId != pwasplashiconfileid)
-							{
-								site.PwaSplashIconFileId = pwasplashiconfileid;
-								reload = true; // needs to be reloaded on server
-							}
-
-							site = await SiteService.UpdateSiteAsync(site);
-
-							var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
-							settings = SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
-							settings = SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
-							settings = SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
-							settings = SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
-							settings = SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
-							settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
-							settings = SettingService.SetSetting(settings, "NotificationRetention", _retention, true);
-							await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
-
-							if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-							{
-								var names = _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-									.Select(sValue => sValue.Trim()).ToArray();
-								foreach (Alias alias in _aliases)
-								{
-									if (!names.Contains(alias.Name.Trim()))
-									{
-										await AliasService.DeleteAliasAsync(alias.AliasId);
-									}
-								}
-
-								foreach (string name in names)
-								{
-									var alias = _aliases.Find(item => item.Name.Trim() == name);
-									if (alias == null)
-									{
-										alias = new Alias();
-										alias.Name = name;
-										alias.TenantId = site.TenantId;
-										alias.SiteId = site.SiteId;
-										alias.IsDefault = (name == _defaultalias);
-										await AliasService.AddAliasAsync(alias);
-									}
-									else
-									{
-										if (alias.Name != name || alias.IsDefault != (alias.Name.Trim() == _defaultalias))
-										{
-											alias.Name = name;
-											alias.IsDefault = (name == _defaultalias);
-											await AliasService.UpdateAliasAsync(alias);
-										}
-									}
-								}
-								await GetAliases();
-							}
-
-							await logger.LogInformation("Site Settings Saved {Site}", site);
-
-							if (refresh || reload)
-							{
-								NavigationManager.NavigateTo(NavigateUrl(true), reload); // refresh/reload
-							}
-							else
-							{
-								AddModuleMessage(Localizer["Success.Settings.SaveSite"], MessageType.Success);
-								await interop.ScrollTo(0, 0, "smooth");
-							}
+							site.LogoFileId = logofileid;
 						}
-					}
-					else // deuplicate alias or default alias not specified
-					{
-						AddModuleMessage(Localizer["Message.Aliases.Taken"], MessageType.Warning);
+						int? faviconFieldId = _faviconfilemanager.GetFileId();
+						if (faviconFieldId == -1) faviconFieldId = null;
+						if (site.FaviconFileId != faviconFieldId)
+						{
+							site.FaviconFileId = faviconFieldId;
+							reload = true; // needs to be reloaded on server
+						}
+						if (site.DefaultThemeType != _themetype)
+						{
+							site.DefaultThemeType = _themetype;
+							refresh = true; // needs to be refreshed on client
+						}
+						if (site.DefaultContainerType != _containertype)
+						{
+							site.DefaultContainerType = _containertype;
+							refresh = true; // needs to be refreshed on client
+						}
+						site.AdminContainerType = _admincontainertype;
+
+						if (site.PwaIsEnabled.ToString() != _pwaisenabled)
+						{
+							site.PwaIsEnabled = Boolean.Parse(_pwaisenabled);
+							reload = true; // needs to be reloaded on server
+						}
+						int? pwaappiconfileid = _pwaappiconfilemanager.GetFileId();
+						if (pwaappiconfileid == -1) pwaappiconfileid = null;
+						if (site.PwaAppIconFileId != pwaappiconfileid)
+						{
+							site.PwaAppIconFileId = pwaappiconfileid;
+							reload = true; // needs to be reloaded on server
+						}
+						int? pwasplashiconfileid = _pwasplashiconfilemanager.GetFileId();
+						if (pwasplashiconfileid == -1) pwasplashiconfileid = null;
+						if (site.PwaSplashIconFileId != pwasplashiconfileid)
+						{
+							site.PwaSplashIconFileId = pwasplashiconfileid;
+							reload = true; // needs to be reloaded on server
+						}
+
+						site = await SiteService.UpdateSiteAsync(site);
+
+						var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
+						settings = SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
+						settings = SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
+						settings = SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
+						settings = SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
+						settings = SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
+						settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
+						settings = SettingService.SetSetting(settings, "NotificationRetention", _retention, true);
+						await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
+
+						await logger.LogInformation("Site Settings Saved {Site}", site);
+
+						if (refresh || reload)
+						{
+							NavigationManager.NavigateTo(NavigateUrl(true), reload); // refresh/reload
+						}
+						else
+						{
+							AddModuleMessage(Localizer["Success.Settings.SaveSite"], MessageType.Success);
+							await interop.ScrollTo(0, 0, "smooth");
+						}
 					}
 				}
 				else
@@ -637,20 +605,6 @@
 		}
 	}
 
-	private async Task GetAliases()
-	{
-		_urls = string.Empty;
-		_defaultalias = string.Empty;
-		_aliases = await AliasService.GetAliasesAsync();
-		_aliases = _aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Site.TenantId).OrderBy(item => item.AliasId).ToList();
-		foreach (Alias alias in _aliases)
-		{
-			_urls += (_urls == string.Empty) ? alias.Name.Trim() : ", " + alias.Name.Trim();
-			if (alias.IsDefault && string.IsNullOrEmpty(_defaultalias)) _defaultalias = alias.Name.Trim();
-		}
-		if (string.IsNullOrEmpty(_defaultalias)) _defaultalias = _aliases.First().Name.Trim();
-	}
-
 	private void ToggleSMTPPassword()
 	{
 		if (_smtppasswordtype == "password")
@@ -663,5 +617,85 @@
 			_smtppasswordtype = "password";
 			_togglesmtppassword = SharedLocalizer["ShowPassword"];
 		}
+	}
+
+	private async Task GetAliases()
+	{
+		if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+		{
+			_aliases = await AliasService.GetAliasesAsync();
+			_aliases = _aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Site.TenantId).OrderBy(item => item.AliasId).ToList();
+		}
+	}
+
+	private void AddAlias()
+	{
+		_aliases.Add(new Alias { AliasId = 0, Name = "", IsDefault = false });
+		_aliasid = 0;
+		_aliasname = "";
+		_defaultalias = "False";
+		StateHasChanged();
+	}
+
+	private void EditAlias(Alias alias)
+	{
+		_aliasid = alias.AliasId;
+		_aliasname = alias.Name;
+		_defaultalias = alias.IsDefault.ToString();
+		StateHasChanged();
+	}
+
+	private async Task DeleteAlias(Alias alias)
+	{
+		if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+		{
+			await AliasService.DeleteAliasAsync(alias.AliasId);
+			await GetAliases();
+			StateHasChanged();
+		}
+	}
+
+	private async Task SaveAlias()
+	{
+		if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+		{
+			if (!string.IsNullOrEmpty(_aliasname))
+			{
+				var aliases = await AliasService.GetAliasesAsync();
+				var alias = aliases.Where(item => item.Name == _aliasname).FirstOrDefault();
+				bool unique = (alias == null || alias.AliasId == _aliasid);
+				if (unique)
+				{
+					if (_aliasid == 0)
+					{
+						alias = new Alias { SiteId = PageState.Site.SiteId, TenantId = PageState.Site.TenantId, Name = _aliasname, IsDefault = bool.Parse(_defaultalias) };
+						await AliasService.AddAliasAsync(alias);
+					}
+					else
+					{
+						alias = _aliases.Single(item => item.AliasId == _aliasid);
+						alias.Name = _aliasname;
+						alias.IsDefault = bool.Parse(_defaultalias);
+						await AliasService.UpdateAliasAsync(alias);
+					}
+				}
+				else // duplicate alias
+				{
+					AddModuleMessage(Localizer["Message.Aliases.Taken"], MessageType.Warning);
+				}
+			}
+			await GetAliases();
+			_aliasid = -1;
+			_aliasname = "";
+			StateHasChanged();
+		}
+	}
+
+	private async Task CancelAlias()
+	{
+		await GetAliases();
+		_aliasid = -1;
+		_aliasname = "";
+		StateHasChanged();
 	}
 }
