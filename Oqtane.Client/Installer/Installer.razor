@@ -29,14 +29,7 @@
 							<select id="databasetype" class="form-select custom-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))">
                                 @foreach (var database in _databases)
                                 {
-                                    if (database.IsDefault)
-                                    {
-                                        <option value="@database.Name" selected>@Localizer[@database.Name]</option>
-                                    }
-                                    else
-                                    {
-                                        <option value="@database.Name">@Localizer[@database.Name]</option>
-                                    }
+                                    <option value="@database.Name">@Localizer[@database.Name]</option>
                                 }
 							</select>
                         }
@@ -126,7 +119,6 @@
         _toggleConfirmPassword = SharedLocalizer["ShowPassword"];
 
 		_databases = await DatabaseService.GetDatabasesAsync();
-
 		if (_databases.Exists(item => item.IsDefault))
 		{
 			_databaseName = _databases.Find(item => item.IsDefault).Name;

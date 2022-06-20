@@ -131,14 +131,7 @@ else
                         <select id="databaseType" class="form-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))" required>
                             @foreach (var database in _databases)
                             {
-                                if (database.IsDefault)
-                                {
-                                    <option value="@database.Name" selected>@Localizer[@database.Name]</option>
-                                }
-                                else
-                                {
-                                    <option value="@database.Name">@Localizer[@database.Name]</option>
-                                }
+                                <option value="@database.Name">@Localizer[@database.Name]</option>
                             }
                         </select>
                     </div>
@@ -172,11 +165,10 @@ else
 	private List<Database> _databases;
 	private ElementReference form;
 	private bool validated = false;
-	private string _databaseName = "LocalDB";
+	private string _databaseName;
 	private Type _databaseConfigType;
 	private object _databaseConfig;
 	private RenderFragment DatabaseConfigComponent { get; set; }
-
 
 	private List<Theme> _themeList;
 	private List<ThemeControl> _themes = new List<ThemeControl>();
@@ -208,7 +200,16 @@ else
 		_themeList = await ThemeService.GetThemesAsync();
 		_themes = ThemeService.GetThemeControls(_themeList);
 		_siteTemplates = await SiteTemplateService.GetSiteTemplatesAsync();
+
 		_databases = await DatabaseService.GetDatabasesAsync();
+		if (_databases.Exists(item => item.IsDefault))
+		{
+			_databaseName = _databases.Find(item => item.IsDefault).Name;
+		}
+		else
+		{
+			_databaseName = "LocalDB";
+		}
 		LoadDatabaseConfigComponent();
 	}
 
