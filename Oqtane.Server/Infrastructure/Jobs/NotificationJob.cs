@@ -120,6 +120,10 @@ namespace Oqtane.Infrastructure
                             mailMessage.Body += "Subject: " + notification.Subject + "\n\n";
                             mailMessage.Body += notification.Body;
 
+                            // set encoding
+                            mailMessage.SubjectEncoding = System.Text.Encoding.UTF8;
+                            mailMessage.BodyEncoding = System.Text.Encoding.UTF8;
+
                             // send mail
                             try
                             {
