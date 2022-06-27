@@ -546,19 +546,19 @@
 	{
 		try
 		{
-			var sites = await SiteService.GetSitesAsync();
-			if (sites.Count > 1)
+			var aliases = await AliasService.GetAliasesAsync();
+			if (aliases.Any(item => item.SiteId != PageState.Site.SiteId || item.TenantId != PageState.Site.TenantId))
 			{
 				await SiteService.DeleteSiteAsync(PageState.Site.SiteId);
 				await logger.LogInformation("Site Deleted {SiteId}", PageState.Site.SiteId);
 
-				var aliases = await AliasService.GetAliasesAsync();
-				foreach (Alias a in aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Site.TenantId))
+				foreach (Alias alias in aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Site.TenantId))
 				{
-					await AliasService.DeleteAliasAsync(a.AliasId);
+					await AliasService.DeleteAliasAsync(alias.AliasId);
 				}
 
-				NavigationManager.NavigateTo(NavigateUrl("admin/sites"));
+				aliases = await AliasService.GetAliasesAsync();
+				NavigationManager.NavigateTo(PageState.Uri.Scheme + "://" + aliases.First().Name, true);
 			}
 			else
 			{
