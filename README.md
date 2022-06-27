@@ -60,8 +60,8 @@ This project is open source, and therefore is a work in progress...
 V.4.0.0 ( Q4 2022 )
 - [ ] MAUI / Blazor Hybrid support 
 
-V.3.1.3 ( June 2022 )
-- [ ] Stabilization improvements 
+V.3.1.3 ( June 27, 2022 )
+- [x] Stabilization improvements 
 
 V.3.1.2 ( May 14, 2022 )
 - [x] Stabilization improvements 
