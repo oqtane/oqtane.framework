@@ -18,6 +18,7 @@ namespace Oqtane.Migrations.EntityBuilders
             _migrationBuilder = migrationBuilder;
             ActiveDatabase = database;
             ForeignKeys = new List<ForeignKey<TEntityBuilder>>();
+            Schema = null;
         }
 
         protected IDatabase ActiveDatabase { get; }
@@ -29,6 +30,8 @@ namespace Oqtane.Migrations.EntityBuilders
         protected PrimaryKey<TEntityBuilder> PrimaryKey { get; init; }
 
         protected List<ForeignKey<TEntityBuilder>> ForeignKeys { get; }
+
+        protected string Schema { get; init; }
 
         private string RewriteName(string name)
         {
@@ -319,7 +322,7 @@ namespace Oqtane.Migrations.EntityBuilders
         /// </summary>
         public void Create()
         {
-            _migrationBuilder.CreateTable(RewriteName(EntityTableName), BuildTable, null, AddKeys);
+            _migrationBuilder.CreateTable(RewriteName(EntityTableName), BuildTable, Schema, AddKeys);
         }
 
         /// <summary>
