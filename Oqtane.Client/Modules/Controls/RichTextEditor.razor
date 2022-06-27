@@ -150,10 +150,6 @@
 			// preserve a copy of the rich text content (Quill sanitizes content so we need to retrieve it from the editor)
 			_originalrichhtml = await interop.GetHtml(_editorElement);
 		}
-		else
-		{
-			await interop.LoadEditorContent(_editorElement, _richhtml);	
-		}
 	}
 
 	public void CloseFileManager()
