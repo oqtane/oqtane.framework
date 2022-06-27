@@ -203,12 +203,15 @@ namespace Oqtane.Infrastructure
             }
             if (Enum.Parse<LogLevel>(log.Level) >= notifylevel)
             {
+                var alias = _tenantManager.GetAlias();
                 foreach (var userrole in _userRoles.GetUserRoles(log.SiteId.Value))
                 {
                     if (userrole.Role.Name == RoleNames.Host)
                     {
-                        var url = _accessor.HttpContext.Request.Scheme + "://" + _tenantManager.GetAlias().Name + "/admin/log";
-                        var notification = new Notification(log.SiteId.Value, userrole.User, "Site " + log.Level + " Notification", "Please visit " + url + " for more information");
+                        var subject = $"{alias.Name} Site {log.Level} Notification";
+                        var url = $"{_accessor.HttpContext.Request.Scheme}://{alias.Name}/admin/log?id={log.LogId}";
+                        string body = $"Log Message: {log.Message}\n\nPlease visit {url} for more information";
+                        var notification = new Notification(log.SiteId.Value, userrole.User, subject, body);
                         _notifications.AddNotification(notification);
                     }
                 }

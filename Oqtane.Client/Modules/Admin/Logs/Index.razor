@@ -1,5 +1,6 @@
 @namespace Oqtane.Modules.Admin.Logs
 @inherits ModuleBase
+@inject NavigationManager NavigationManager
 @inject ILogService LogService
 @inject ISettingService SettingService
 @inject IStringLocalizer<Index> Localizer
@@ -91,19 +92,23 @@ else
 }
 
 @code {
-    private string _level = "-";
-    private string _function = "-";
-    private string _rows = "10";
+	private string _level = "-";
+	private string _function = "-";
+	private string _rows = "10";
 	private int _page = 1;
-    private List<Log> _logs;
-    private string _retention = "";
+	private List<Log> _logs;
+	private string _retention = "";
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			if (PageState.QueryString.ContainsKey("id") && int.TryParse(PageState.QueryString["id"], out int id))
+			{
+				NavigationManager.NavigateTo(EditUrl(PageState.Page.Path, ModuleState.ModuleId, "Detail", $"id={id}"));
+			}
 			if (PageState.QueryString.ContainsKey("level"))
 			{
 				_level = PageState.QueryString["level"];

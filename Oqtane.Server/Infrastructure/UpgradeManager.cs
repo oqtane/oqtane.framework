@@ -50,6 +50,9 @@ namespace Oqtane.Infrastructure
                     case "3.0.1":
                         Upgrade_3_0_1(tenant, scope);
                         break;
+                    case "3.1.3":
+                        Upgrade_3_1_3(tenant, scope);
+                        break;
                 }
             }
         }
@@ -182,5 +185,15 @@ namespace Oqtane.Infrastructure
                 sites.CreatePages(site, pageTemplates);
             }
         }
+
+        private void Upgrade_3_1_3(Tenant tenant, IServiceScope scope)
+        {
+            var roles = scope.ServiceProvider.GetRequiredService<IRoleRepository>();
+            if (!roles.GetRoles(-1, true).ToList().Where(item => item.Name == RoleNames.Unauthenticated).Any())
+            {
+                roles.AddRole(new Role { SiteId = null, Name = RoleNames.Unauthenticated, Description = RoleNames.Unauthenticated, IsAutoAssigned = false, IsSystem = true });
+            }
+        }
+
     }
 }

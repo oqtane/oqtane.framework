@@ -1,5 +1,6 @@
 @namespace Oqtane.Modules.Controls
 @inherits ModuleControlBase
+@inject IStringLocalizerFactory LocalizerFactory
 @typeparam TableItem
 
 @if (ItemList != null)
@@ -48,7 +49,7 @@
                 <a class="page-link" @onclick=@(async () => UpdateList(_pages))><span class="oi oi-media-step-forward" title="end" aria-hidden="true"></span></a>
             </li>
             <li class="page-item disabled">
-                <a class="page-link" style="white-space: nowrap;">Page @_page of @_pages</a>
+                <a class="page-link" style="white-space: nowrap;">@Localizer["PageOfPages", _page, _pages]</a>
             </li>
         </ul>
     }
@@ -156,67 +157,73 @@
                 <a class="page-link" @onclick=@(async () => UpdateList(_pages))><span class="oi oi-media-step-forward" title="end" aria-hidden="true"></span></a>
             </li>
             <li class="page-item disabled">
-               <a class="page-link" style="white-space: nowrap;">Page @_page of @_pages</a>
+               <a class="page-link" style="white-space: nowrap;">@Localizer["PageOfPages", _page, _pages]</a>
             </li>
         </ul>
     }
 }
 
 @code {
-    private int _pages = 0;
-    private int _page = 1;
-    private int _maxItems = 10;
-    private int _displayPages = 5;
-    private int _startPage = 0;
-    private int _endPage = 0;
-    private int _columns = 0;
-
-    [Parameter]
-    public string Format { get; set; } // Table or Grid
-
-    [Parameter]
-    public string Toolbar { get; set; } // Top, Bottom or Both
-
-    [Parameter]
-    public RenderFragment Header { get; set; } = null; // only applicable to Table layouts
-
-    [Parameter]
-    public RenderFragment<TableItem> Row { get; set; } = null; // required
-
-    [Parameter]
-    public RenderFragment<TableItem> Detail { get; set; } = null; // only applicable to Table layouts
-
-    [Parameter]
-    public IEnumerable<TableItem> Items { get; set; } // the IEnumerable data source
-
-    [Parameter]
-    public string PageSize { get; set; } // number of items to display on a page
-
-    [Parameter]
-    public string Columns { get; set; } // only applicable to Grid layouts - default is zero indicating use responsive behavior
-
-    [Parameter]
-    public string CurrentPage { get; set; } // sets the initial page to display
-
-    [Parameter]
-    public string DisplayPages { get; set; } // maximum number of page numbers to display for user selection
-
-    [Parameter]
-    public string Class { get; set; } // class for the containing element - ie. <table> for Table or <div> for Grid
-
-    [Parameter]
-    public string RowClass { get; set; } // class for row element - ie. <tr> for Table or <div> for Grid
+	private IStringLocalizer Localizer;
+	private int _pages = 0;
+	private int _page = 1;
+	private int _maxItems = 10;
+	private int _displayPages = 5;
+	private int _startPage = 0;
+	private int _endPage = 0;
+	private int _columns = 0;
 
 	[Parameter]
-    public string ColumnClass { get; set; } // class for column element - only applicable to Grid format
+	public string Format { get; set; } // Table or Grid
 
-    [Parameter]
-    public Action<int> OnPageChange { get; set; } // a method to be executed in the calling component when the page changes
+	[Parameter]
+	public string Toolbar { get; set; } // Top, Bottom or Both
 
-    private IEnumerable<TableItem> ItemList { get; set; }
+	[Parameter]
+	public RenderFragment Header { get; set; } = null; // only applicable to Table layouts
 
-    protected override void OnParametersSet()
-    {
+	[Parameter]
+	public RenderFragment<TableItem> Row { get; set; } = null; // required
+
+	[Parameter]
+	public RenderFragment<TableItem> Detail { get; set; } = null; // only applicable to Table layouts
+
+	[Parameter]
+	public IEnumerable<TableItem> Items { get; set; } // the IEnumerable data source
+
+	[Parameter]
+	public string PageSize { get; set; } // number of items to display on a page
+
+	[Parameter]
+	public string Columns { get; set; } // only applicable to Grid layouts - default is zero indicating use responsive behavior
+
+	[Parameter]
+	public string CurrentPage { get; set; } // sets the initial page to display
+
+	[Parameter]
+	public string DisplayPages { get; set; } // maximum number of page numbers to display for user selection
+
+	[Parameter]
+	public string Class { get; set; } // class for the containing element - ie. <table> for Table or <div> for Grid
+
+	[Parameter]
+	public string RowClass { get; set; } // class for row element - ie. <tr> for Table or <div> for Grid
+
+	[Parameter]
+	public string ColumnClass { get; set; } // class for column element - only applicable to Grid format
+
+	[Parameter]
+	public Action<int> OnPageChange { get; set; } // a method to be executed in the calling component when the page changes
+
+	private IEnumerable<TableItem> ItemList { get; set; }
+
+	protected override void OnInitialized()
+	{
+		Localizer = LocalizerFactory.Create(GetType().FullName);
+	}
+
+	protected override void OnParametersSet()
+	{
         if (string.IsNullOrEmpty(Format))
         {
             Format = "Table";
