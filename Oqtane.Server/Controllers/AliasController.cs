@@ -16,12 +16,14 @@ namespace Oqtane.Controllers
     public class AliasController : Controller
     {
         private readonly IAliasRepository _aliases;
+        private readonly ITenantRepository _tenants;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public AliasController(IAliasRepository aliases, ILogManager logger, ITenantManager tenantManager)
+        public AliasController(IAliasRepository aliases, ITenantRepository tenants, ILogManager logger, ITenantManager tenantManager)
         {
             _aliases = aliases;
+            _tenants = tenants;
             _logger = logger;
             _alias = tenantManager.GetAlias();
         }
@@ -95,6 +97,13 @@ namespace Oqtane.Controllers
             {
                 _aliases.DeleteAlias(id);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Alias Deleted {AliasId}", id);
+
+                var aliases = _aliases.GetAliases();
+                if (!aliases.Any(item => item.TenantId == alias.TenantId))
+                {
+                    _tenants.DeleteTenant(alias.TenantId);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Tenant Deleted {TenantId}", alias.TenantId);
+                }
             }
             else
             {

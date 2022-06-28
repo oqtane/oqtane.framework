@@ -166,7 +166,7 @@
     <value>Enter the tenant for the site</value>
   </data>
   <data name="Aliases.HelpText" xml:space="preserve">
-    <value>The aliases for the site. An alias can be a domain name (www.site.com) or a virtual folder (ie. www.site.com/folder). If a site has multiple aliases they should be separated by commas.</value>
+    <value>The aliases for the site. An alias can be a domain name (www.site.com) or a virtual folder (ie. www.site.com/folder).</value>
   </data>
   <data name="IsDeleted.HelpText" xml:space="preserve">
     <value>Is this site deleted?</value>
