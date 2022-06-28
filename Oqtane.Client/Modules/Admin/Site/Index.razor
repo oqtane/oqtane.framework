@@ -557,8 +557,8 @@
 					await AliasService.DeleteAliasAsync(alias.AliasId);
 				}
 
-				aliases = await AliasService.GetAliasesAsync();
-				NavigationManager.NavigateTo(PageState.Uri.Scheme + "://" + aliases.First().Name, true);
+				var redirect = aliases.First(item => item.SiteId != PageState.Site.SiteId || item.TenantId != PageState.Site.TenantId);
+				NavigationManager.NavigateTo(PageState.Uri.Scheme + "://" + redirect.Name, true);
 			}
 			else
 			{
