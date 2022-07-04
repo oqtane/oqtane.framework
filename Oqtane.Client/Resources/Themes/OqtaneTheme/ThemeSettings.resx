@@ -138,6 +138,12 @@
   <data name="Register.Text" xml:space="preserve">
     <value>Show Register?</value>
   </data>
+  <data name="Scope.HelpText" xml:space="preserve">
+    <value>Specify if the settings are applicable to this page or the entire site.</value>
+  </data>
+  <data name="Scope.Text" xml:space="preserve">
+    <value>Setting Scope:</value>
+  </data>
   <data name="Site" xml:space="preserve">
     <value>Site</value>
   </data>
