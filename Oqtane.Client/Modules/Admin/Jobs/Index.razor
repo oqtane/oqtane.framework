@@ -56,6 +56,10 @@ else
 	protected override async Task OnParametersSetAsync()
 	{
 		_jobs = await JobService.GetJobsAsync();
+		if (_jobs.Count == 0)
+		{
+			AddModuleMessage(string.Format(Localizer["Message.NoJobs"], NavigateUrl("admin/system")), MessageType.Warning);
+		}
 	}
 
 	private string DisplayStatus(bool isEnabled, bool isExecuting)

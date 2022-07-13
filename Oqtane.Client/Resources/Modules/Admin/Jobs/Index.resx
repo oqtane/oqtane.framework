@@ -192,4 +192,7 @@
   <data name="Once" xml:space="preserve">
     <value>Execute Once</value>
   </data>
+  <data name="Message.NoJobs" xml:space="preserve">
+    <value>Please Note That After An Initial Installation You Must &amp;lt;a href={0}&amp;gt;Restart&amp;lt;/a&amp;gt; The Application In Order To Activate The Default Scheduled Jobs.</value>
+  </data>
 </root>
