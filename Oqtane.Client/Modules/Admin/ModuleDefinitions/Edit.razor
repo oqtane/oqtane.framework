@@ -43,7 +43,13 @@
                         <input id="version" class="form-control" @bind="@_version" disabled />
                     </div>
                 </div>
-                <div class="row mb-1 align-items-center">
+				<div class="row mb-1 align-items-center">
+					<Label Class="col-sm-3" For="packagename" HelpText="The unique name of the package from which this module was installed" ResourceKey="PackageName">Package Name: </Label>
+					<div class="col-sm-9">
+						<input id="packagename" class="form-control" @bind="@_packagename" disabled />
+					</div>
+				</div>
+				<div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="owner" HelpText="The owner or creator of the module" ResourceKey="Owner">Owner: </Label>
                     <div class="col-sm-9">
                         <input id="owner" class="form-control" @bind="@_owner" disabled />
@@ -95,11 +101,12 @@
     private bool validated = false;
     private int _moduleDefinitionId;
     private string _name;
-    private string _version;
-    private string _categories;
+	private string _description = "";
+	private string _categories;
     private string _moduledefinitionname = "";
-    private string _description = "";
-    private string _owner = "";
+	private string _version;
+	private string _packagename = "";
+	private string _owner = "";
     private string _url = "";
     private string _contact = "";
     private string _license = "";
@@ -125,11 +132,12 @@
             if (moduleDefinition != null)
             {
                 _name = moduleDefinition.Name;
-                _version = moduleDefinition.Version;
+				_description = moduleDefinition.Description;
                 _categories = moduleDefinition.Categories;
                 _moduledefinitionname = moduleDefinition.ModuleDefinitionName;
-                _description = moduleDefinition.Description;
-                _owner = moduleDefinition.Owner;
+				_version = moduleDefinition.Version;
+				_packagename = moduleDefinition.PackageName;
+				_owner = moduleDefinition.Owner;
                 _url = moduleDefinition.Url;
                 _contact = moduleDefinition.Contact;
                 _license = moduleDefinition.License;
