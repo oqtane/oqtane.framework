@@ -62,7 +62,7 @@ namespace Oqtane.SiteTemplates
                         "<p><a href=\"https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor\" target=\"_new\">Blazor</a> is an open source and cross-platform web UI framework for building single-page apps using .NET and C# instead of JavaScript. Blazor WebAssembly relies on Wasm, an open web standard that does not require plugins or code transpilation in order to run natively in a web browser. Blazor Server uses SignalR to host your application on a web server and provide a responsive and robust development experience. Blazor applications work in all modern web browsers, including mobile browsers.</p>" +
                         "<p>Blazor is a feature of <a href=\"https://dotnet.microsoft.com/apps/aspnet\" target=\"_new\">.NET Core</a>, the popular cross platform web development framework from Microsoft that extends the <a href=\"https://dotnet.microsoft.com/learn/dotnet/what-is-dotnet\" target=\"_new\" >.NET developer platform</a> with tools and libraries for building web apps.</p>"
                     },
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "MIT License", Pane = "Content",
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "MIT License", Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission> {
                             new Permission(PermissionNames.View, RoleNames.Everyone, true),
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
