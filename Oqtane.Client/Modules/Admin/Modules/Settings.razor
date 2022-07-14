@@ -124,37 +124,45 @@
 		_containerType = ModuleState.ContainerType;
 		_allPages = ModuleState.AllPages.ToString();
 		_permissions = ModuleState.Permissions;
-		_permissionNames = ModuleState.ModuleDefinition.PermissionNames;
 		_pageId = ModuleState.PageId.ToString();
 		createdby = ModuleState.CreatedBy;
 		createdon = ModuleState.CreatedOn;
 		modifiedby = ModuleState.ModifiedBy;
 		modifiedon = ModuleState.ModifiedOn;
 
-		if (!string.IsNullOrEmpty(ModuleState.ModuleDefinition.SettingsType))
+		if (ModuleState.ModuleDefinition != null)
 		{
-		// module settings type explicitly declared in IModule interface
-			_moduleSettingsType = Type.GetType(ModuleState.ModuleDefinition.SettingsType);
+			_permissionNames = ModuleState.ModuleDefinition?.PermissionNames;
+
+			if (!string.IsNullOrEmpty(ModuleState.ModuleDefinition.SettingsType))
+			{
+				// module settings type explicitly declared in IModule interface
+				_moduleSettingsType = Type.GetType(ModuleState.ModuleDefinition.SettingsType);
+			}
+			else
+			{
+				// legacy support - module settings type determined by convention ( ie. existence of a "Settings.razor" component in module )
+				_moduleSettingsType = Type.GetType(ModuleState.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, PageState.Action), false, true);
+			}
+			if (_moduleSettingsType != null)
+			{
+				var moduleobject = Activator.CreateInstance(_moduleSettingsType) as IModuleControl;
+				if (!string.IsNullOrEmpty(moduleobject.Title))
+				{
+					_moduleSettingsTitle = moduleobject.Title;
+				}
+
+				ModuleSettingsComponent = builder =>
+				{
+					builder.OpenComponent(0, _moduleSettingsType);
+					builder.AddComponentReferenceCapture(1, inst => { _moduleSettings = Convert.ChangeType(inst, _moduleSettingsType); });
+					builder.CloseComponent();
+				};
+			}
 		}
 		else
 		{
-		// legacy support - module settings type determined by convention ( ie. existence of a "Settings.razor" component in module )
-			_moduleSettingsType = Type.GetType(ModuleState.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, PageState.Action), false, true);
-		}
-		if (_moduleSettingsType != null)
-		{
-			var moduleobject = Activator.CreateInstance(_moduleSettingsType) as IModuleControl;
-			if (!string.IsNullOrEmpty(moduleobject.Title))
-			{
-				_moduleSettingsTitle = moduleobject.Title;
-			}
-
-			ModuleSettingsComponent = builder =>
-			{
-				builder.OpenComponent(0, _moduleSettingsType);
-				builder.AddComponentReferenceCapture(1, inst => { _moduleSettings = Convert.ChangeType(inst, _moduleSettingsType); });
-				builder.CloseComponent();
-			};
+			AddModuleMessage(string.Format(Localizer["Error.Module.Load"], ModuleState.ModuleDefinitionName), MessageType.Error);
 		}
 
 		var theme = _themes.FirstOrDefault(item => item.Containers.Any(themecontrol => themecontrol.TypeName.Equals(_containerType)));
