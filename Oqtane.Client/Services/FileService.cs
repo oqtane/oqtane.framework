@@ -47,7 +47,7 @@ namespace Oqtane.Services
             var path = WebUtility.UrlEncode(folderPath);
 
             List<File> files = await GetJsonAsync<List<File>>($"{Apiurl}/{siteId}/{path}");
-            return files.OrderBy(item => item.Name).ToList();
+            return files?.OrderBy(item => item.Name).ToList();
         }
 
         public async Task<File> GetFileAsync(int fileId)
