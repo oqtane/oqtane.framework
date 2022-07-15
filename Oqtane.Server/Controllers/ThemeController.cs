@@ -188,8 +188,8 @@ namespace Oqtane.Controllers
                     if (theme.Version == "local")
                     {
                         text = text.Replace("[FrameworkVersion]", Constants.Version);
-                        text = text.Replace("[ClientReference]", "<Reference Include=\"Oqtane.Client\"><HintPath>..\\..\\oqtane.framework\\Oqtane.Server\\bin\\Debug\\net6.0\\Oqtane.Client.dll</HintPath></Reference>");
-                        text = text.Replace("[SharedReference]", "<Reference Include=\"Oqtane.Shared\"><HintPath>..\\..\\oqtane.framework\\Oqtane.Server\\bin\\Debug\\net6.0\\Oqtane.Shared.dll</HintPath></Reference>");
+                        text = text.Replace("[ClientReference]", $"<Reference Include=\"Oqtane.Client\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net6.0\\Oqtane.Client.dll</HintPath></Reference>");
+                        text = text.Replace("[SharedReference]", $"<Reference Include=\"Oqtane.Shared\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net6.0\\Oqtane.Shared.dll</HintPath></Reference>");
                     }
                     else
                     {
