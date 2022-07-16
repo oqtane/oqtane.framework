@@ -13,13 +13,16 @@ namespace Oqtane.Repository
             _db = context;
         }
             
-        public IEnumerable<Language> GetLanguages(int siteId) => _db.Language.Where(l => l.SiteId == siteId);
+        public IEnumerable<Language> GetLanguages(int siteId)
+        {
+            return _db.Language.Where(l => l.SiteId == siteId);
+        }
 
         public Language AddLanguage(Language language)
         {
             if (language.IsDefault)
             {
-                // Ensure all other languages are not set to current
+                // Ensure all other languages are not set to default
                 _db.Language
                     .Where(l => l.SiteId == language.SiteId)
                     .ToList()
@@ -32,7 +35,10 @@ namespace Oqtane.Repository
             return language;
         }
 
-        public Language GetLanguage(int languageId) => _db.Language.Find(languageId);
+        public Language GetLanguage(int languageId)
+        {
+            return _db.Language.Find(languageId);
+        }
 
         public void DeleteLanguage(int languageId)
         {

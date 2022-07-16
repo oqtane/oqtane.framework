@@ -19,15 +19,17 @@ else
             <th style="width: 1px;">&nbsp;</th>
             <th>@SharedLocalizer["Name"]</th>
             <th>@Localizer["Code"]</th>
+			<th>@Localizer["Translation"]</th>
             <th>@Localizer["Default"]</th>
-            <th style="width: 1px;">&nbsp;</th>
+			<th style="width: 1px;">&nbsp;</th>
         </Header>
         <Row>
             <td><ActionDialog Header="Delete Language" Message="@string.Format(Localizer["Confirm.Language.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteLanguage(context))" Disabled="@((context.IsDefault && _languages.Count > 2) || context.Code == Constants.DefaultCulture)" ResourceKey="DeleteLanguage" /></td>
             <td>@context.Name</td>
             <td>@context.Code</td>
-            <td><TriStateCheckBox Value="@(context.IsDefault)" Disabled="true"></TriStateCheckBox></td>
-            <td>
+			<td>@context.Version</td>
+			<td><TriStateCheckBox Value="@(context.IsDefault)" Disabled="true"></TriStateCheckBox></td>
+			<td>
                 @if (UpgradeAvailable(context.Code))
                 {
                     <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadLanguage(context.Code))>@SharedLocalizer["Upgrade"]</button>
@@ -49,9 +51,6 @@ else
 
         var cultures = await LocalizationService.GetCulturesAsync();
         var culture = cultures.First(c => c.Name.Equals(Constants.DefaultCulture));
-
-        // Adds English as default language
-        _languages.Insert(0, new Language { Name = culture.DisplayName, Code = culture.Name, IsDefault = !_languages.Any(l => l.IsDefault) });
 
         if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
         {
@@ -81,7 +80,7 @@ else
         var upgradeavailable = false;
         if (_packages != null)
         {
-            var package = _packages.Where(item => item.PackageId == (Constants.PackageId + ".Client." + code)).FirstOrDefault();
+			var package = _packages.Where(item => item.PackageId == (Constants.ClientAssemblyName + "." + code)).FirstOrDefault();
             if (package != null)
             {
                 upgradeavailable = (Version.Parse(package.Version).CompareTo(Version.Parse(Constants.Version)) == 0);

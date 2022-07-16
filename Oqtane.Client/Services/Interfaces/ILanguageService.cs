@@ -18,6 +18,14 @@ namespace Oqtane.Services
         Task<List<Language>> GetLanguagesAsync(int siteId);
 
         /// <summary>
+        /// Returns a list of all available languages for the given <see cref="Site" /> and client assembly
+        /// </summary>
+        /// <param name="siteId"></param>
+        /// <param name="clientAssemblyName"></param>
+        /// <returns></returns>
+        Task<List<Language>> GetLanguagesAsync(int siteId, string clientAssemblyName);
+
+        /// <summary>
         /// Returns the given language
         /// </summary>
         /// <param name="languageId"></param>

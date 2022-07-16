@@ -24,13 +24,9 @@
 @code{
     private IEnumerable<Culture> _supportedCultures;
 
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
-        var languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId);
-        var defaultCulture = CultureInfo.GetCultureInfo(Constants.DefaultCulture);
-
-        languages.Add(new Language { Code = defaultCulture.Name, Name = defaultCulture.DisplayName });
-        
+		var languages = PageState.Languages;
         _supportedCultures = languages.Select(l => new Culture { Name = l.Code, DisplayName = l.Name });
     }
 
