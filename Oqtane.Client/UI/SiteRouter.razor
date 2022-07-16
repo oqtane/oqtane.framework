@@ -6,6 +6,7 @@
 @inject INavigationInterception NavigationInterception
 @inject ISyncService SyncService
 @inject ISiteService SiteService
+@inject ILanguageService LanguageService
 @inject IPageService PageService
 @inject IUserService UserService
 @inject IModuleService ModuleService
@@ -70,6 +71,7 @@
 	private async Task Refresh()
 	{
 		Site site;
+		List<Language> languages;
 		List<Page> pages;
 		Page page;
 		User user = null;
@@ -102,7 +104,7 @@
 				return;				
 			}
 		}
-		
+
 		// the refresh parameter is used to refresh the client-side PageState
 		if (querystring.ContainsKey("refresh"))
 		{
@@ -173,11 +175,13 @@
 
 			if (PageState == null || refresh == UI.Refresh.Site)
 			{
+				languages = await LanguageService.GetLanguagesAsync(site.SiteId);
 				pages = await PageService.GetPagesAsync(site.SiteId);
 				pages = pages.Where(item => !item.IsDeleted).ToList();
 			}
 			else
 			{
+				languages = PageState.Languages; 
 				pages = PageState.Pages;
 			}
 
@@ -230,6 +234,7 @@
                     {
                         Alias = SiteState.Alias,
                         Site = site,
+						Languages = languages,
                         Pages = pages,
                         Page = page,
                         User = user,

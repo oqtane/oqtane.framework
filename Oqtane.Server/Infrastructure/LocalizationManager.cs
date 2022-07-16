@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -21,19 +22,20 @@ namespace Oqtane.Infrastructure
         }
 
         public string GetDefaultCulture()
-            => String.IsNullOrEmpty(_localizationOptions.DefaultCulture)
-                ? DefaultCulture
-                : _localizationOptions.DefaultCulture;
+        {
+            if (string.IsNullOrEmpty(_localizationOptions.DefaultCulture))
+            {
+                return DefaultCulture;
+            }
+            else
+            {
+                return _localizationOptions.DefaultCulture;
+            }
+        }
 
         public string[] GetSupportedCultures()
         { 
-            var cultures = new List<string>(DefaultSupportedCultures);
-            foreach(var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Oqtane.Client.resources.dll", SearchOption.AllDirectories))
-            {
-                cultures.Add(Path.GetFileName(Path.GetDirectoryName(file)));
-            }
-
-            return cultures.OrderBy(c => c).ToArray();
+            return CultureInfo.GetCultures(CultureTypes.AllCultures).Select(item => item.Name).OrderBy(c => c).ToArray();
         }
     }
 }
