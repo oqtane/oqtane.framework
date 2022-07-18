@@ -20,9 +20,9 @@ namespace Oqtane.Services
             return await GetLanguagesAsync(siteId, "");
         }
 
-        public async Task<List<Language>> GetLanguagesAsync(int siteId, string clientAssemblyName)
+        public async Task<List<Language>> GetLanguagesAsync(int siteId, string packageName)
         {
-            return await GetJsonAsync<List<Language>>($"{Apiurl}?siteid={siteId}&clientassemblyname={clientAssemblyName}");
+            return await GetJsonAsync<List<Language>>($"{Apiurl}?siteid={siteId}&packagename={packageName}");
         }
 
         public async Task<Language> GetLanguageAsync(int languageId)

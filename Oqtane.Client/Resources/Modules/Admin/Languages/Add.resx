@@ -154,13 +154,13 @@
     <value>No Translations Match The Criteria Provided Or Package Service Is Disabled</value>
   </data>
   <data name="Download.Heading" xml:space="preserve">
-    <value>Download</value>
+    <value>Translations</value>
   </data>
   <data name="LanguageUpload.HelpText" xml:space="preserve">
-    <value>Upload one or more translations. Once they are uploaded click Install to complete the installation.</value>
+    <value>Upload one or more translation packages. Once they are uploaded click Install to complete the installation.</value>
   </data>
   <data name="LanguageUpload.Text" xml:space="preserve">
-    <value>Upload Language</value>
+    <value>Translation</value>
   </data>
   <data name="Manage.Heading" xml:space="preserve">
     <value>Manage</value>

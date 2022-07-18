@@ -32,17 +32,17 @@ namespace Oqtane.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Language> Get(string siteid, string clientassemblyname)
+        public IEnumerable<Language> Get(string siteid, string packagename)
         {
             int SiteId;
             if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
             {
-                if (string.IsNullOrEmpty(clientassemblyname))
+                if (string.IsNullOrEmpty(packagename))
                 {
-                    clientassemblyname = Constants.ClientAssemblyName;
+                    packagename = "Oqtane";
                 }
                 var languages = _languages.GetLanguages(SiteId).ToList();
-                foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), clientassemblyname + ".resources.dll", SearchOption.AllDirectories))
+                foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), packagename + ".Client.resources.dll", SearchOption.AllDirectories))
                 {
                     var code = Path.GetFileName(Path.GetDirectoryName(file));
                     if (languages.Any(item => item.Code == code))
