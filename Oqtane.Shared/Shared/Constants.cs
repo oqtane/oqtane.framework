@@ -9,7 +9,6 @@ namespace Oqtane.Shared
         public const string PackageId = "Oqtane.Framework";
         public const string UpdaterPackageId = "Oqtane.Updater";
         public const string PackageRegistryUrl = "https://www.oqtane.net";
-        public const string ClientAssemblyName = "Oqtane.Client";
 
         public const string DefaultDBType = "Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer";
 
