@@ -38,7 +38,13 @@
                     <input id="ipaddress" class="form-control" @bind="@_ipaddress" readonly />
                 </div>
             </div>
-            <div class="row mb-1 align-items-center">
+			<div class="row mb-1 align-items-center">
+				<Label Class="col-sm-3" For="environment" HelpText="Environment name" ResourceKey="Environment">Environment: </Label>
+				<div class="col-sm-9">
+					<input id="environment" class="form-control" @bind="@_environment" readonly />
+				</div>
+			</div>
+			<div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="contentrootpath" HelpText="Root Path" ResourceKey="ContentRootPath">Root Path: </Label>
                 <div class="col-sm-9">
                     <input id="contentrootpath" class="form-control" @bind="@_contentrootpath" readonly />
@@ -152,6 +158,7 @@
 	private string _osversion = string.Empty;
 	private string _machinename = string.Empty;
 	private string _ipaddress = string.Empty;
+	private string _environment = string.Empty;
 	private string _contentrootpath = string.Empty;
 	private string _webrootpath = string.Empty;
 	private string _servertime = string.Empty;
@@ -176,6 +183,7 @@
 			_osversion = systeminfo["OSVersion"].ToString();
 			_machinename = systeminfo["MachineName"].ToString();
 			_ipaddress = systeminfo["IPAddress"].ToString();
+			_environment = systeminfo["Environment"].ToString();
 			_contentrootpath = systeminfo["ContentRootPath"].ToString();
 			_webrootpath = systeminfo["WebRootPath"].ToString();
 			_servertime = systeminfo["ServerTime"].ToString() + " UTC";
