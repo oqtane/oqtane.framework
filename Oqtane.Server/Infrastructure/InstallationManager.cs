@@ -48,25 +48,34 @@ namespace Oqtane.Infrastructure
             }
 
             // move packages to secure /Packages folder
-            foreach (var folder in "Modules,Themes,Packages".Split(","))
+            foreach (var folderName in "Modules,Themes,Packages".Split(","))
             {
-                foreach(var file in Directory.GetFiles(Path.Combine(webRootPath, folder), "*.nupkg*"))
+                string folder = Path.Combine(webRootPath, folderName);
+                if (Directory.Exists(folder))
                 {
-                    var destinationFile = Path.Combine(sourceFolder, Path.GetFileName(file));
-                    if (File.Exists(destinationFile))
+                    foreach (var file in Directory.GetFiles(folder, "*.nupkg*"))
                     {
-                        File.Delete(destinationFile);
+                        var destinationFile = Path.Combine(sourceFolder, Path.GetFileName(file));
+                        if (File.Exists(destinationFile))
+                        {
+                            File.Delete(destinationFile);
+                        }
+
+                        if (destinationFile.ToLower().EndsWith(".nupkg.bak"))
+                        {
+                            // leave a copy in the current folder as it is distributed with the core framework
+                            File.Copy(file, destinationFile);
+                        }
+                        else
+                        {
+                            // move to destination
+                            File.Move(file, destinationFile);
+                        }
                     }
-                    if (destinationFile.ToLower().EndsWith(".nupkg.bak"))
-                    {
-                        // leave a copy in the current folder as it is distributed with the core framework
-                        File.Copy(file, destinationFile);
-                    }
-                    else
-                    {
-                        // move to destination
-                        File.Move(file, destinationFile);
-                    }
+                }
+                else
+                {
+                    Directory.CreateDirectory(folder);
                 }
             }
 
@@ -200,7 +209,7 @@ namespace Oqtane.Infrastructure
                 string[] packages = Directory.GetFiles(Path.Combine(_environment.ContentRootPath, Constants.PackagesFolder), PackageName + "*.log");
                 if (packages.Length > 0)
                 {
-                    packagename = packages[packages.Length - 1]; // use highest version 
+                    packagename = packages[packages.Length - 1]; // use highest version
                 }
 
                 if (!string.IsNullOrEmpty(packagename))
@@ -245,7 +254,7 @@ namespace Oqtane.Infrastructure
                 string[] packages = Directory.GetFiles(folder, Constants.PackageId + ".*.nupkg");
                 if (packages.Length > 0)
                 {
-                    packagename = packages[packages.Length - 1]; // use highest version 
+                    packagename = packages[packages.Length - 1]; // use highest version
                 }
 
                 if (packagename != "")
