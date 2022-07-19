@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Extensions;
 using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
@@ -24,7 +25,7 @@ namespace Oqtane.Repository
                 .Where(item => item.Module.SiteId == siteId);
             if (pagemodules.Any())
             {
-                IEnumerable<Permission> permissions = _permissions.GetPermissions(pagemodules.FirstOrDefault().Module.SiteId, "Module").ToList();
+                IEnumerable<Permission> permissions = _permissions.GetPermissions(siteId, EntityNames.Module).ToList();
                 foreach (PageModule pagemodule in pagemodules)
                 {
                     pagemodule.Module.Permissions = permissions.Where(item => item.EntityId == pagemodule.ModuleId).EncodePermissions();
@@ -44,7 +45,8 @@ namespace Oqtane.Repository
             }
             if (pagemodules.Any())
             {
-                IEnumerable<Permission> permissions = _permissions.GetPermissions(pagemodules.FirstOrDefault().Module.SiteId, "Module").ToList();
+                var siteId = pagemodules.FirstOrDefault().Module.SiteId;
+                IEnumerable<Permission> permissions = _permissions.GetPermissions(siteId, EntityNames.Module).ToList();
                 foreach (PageModule pagemodule in pagemodules)
                 {
                     pagemodule.Module.Permissions = permissions.Where(item => item.EntityId == pagemodule.ModuleId).EncodePermissions();
@@ -87,7 +89,7 @@ namespace Oqtane.Repository
             }
             if (pagemodule != null)
             {
-                pagemodule.Module.Permissions = _permissions.GetPermissionString("Module", pagemodule.ModuleId);
+                pagemodule.Module.Permissions = _permissions.GetPermissionString(EntityNames.Module, pagemodule.ModuleId);
             }
             return pagemodule;
         }
@@ -98,7 +100,7 @@ namespace Oqtane.Repository
                 .SingleOrDefault(item => item.PageId == pageId && item.ModuleId == moduleId);
             if (pagemodule != null)
             {
-                pagemodule.Module.Permissions = _permissions.GetPermissionString("Module", pagemodule.ModuleId);
+                pagemodule.Module.Permissions = _permissions.GetPermissionString(EntityNames.Module, pagemodule.ModuleId);
             }
             return pagemodule;
         }
