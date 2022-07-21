@@ -32,7 +32,7 @@ else
                                 <select id="_code" class="form-select" @bind="@_code" required>
                                     @foreach (var culture in _availableCultures)
                                     {
-                                        <option value="@culture.Name">@culture.DisplayName</option>
+                                        <option value="@culture.Name">@(culture.DisplayName + " (" + culture.Name + ")")</option>
                                     }
                                 </select>
                             </div>
@@ -161,33 +161,32 @@ else
 }
 
 @code {
-    private ElementReference form;
-    private bool validated = false;
+	private ElementReference form;
+	private bool validated = false;
 
-    private string _code = string.Empty;
-    private string _isDefault = "False";
-    private string _message;
-    private IEnumerable<Culture> _supportedCultures;
-    private IEnumerable<Culture> _availableCultures;
-    private List<Package> _packages;
-    private string _price = "free";
-    private string _search = "";
-    private string _productname = "";
-    private string _license = "";
-    private string _packageid = "";
-    private string _version = "";
+	private string _code = string.Empty;
+	private string _isDefault = "False";
+	private string _message;
+	private IEnumerable<Culture> _supportedCultures;
+	private IEnumerable<Culture> _availableCultures;
+	private List<Package> _packages;
+	private string _price = "free";
+	private string _search = "";
+	private string _productname = "";
+	private string _license = "";
+	private string _packageid = "";
+	private string _version = "";
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-    protected override async Task OnParametersSetAsync()
-    {
-        var languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId);
-        var languagesCodes = languages.Select(l => l.Code).ToList();
+	protected override async Task OnParametersSetAsync()
+	{
+		var languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId);
+		var languagesCodes = languages.Select(l => l.Code).ToList();
 
-        _supportedCultures = await LocalizationService.GetCulturesAsync();
-        _availableCultures = _supportedCultures
-            .Where(c => !c.Name.Equals(Constants.DefaultCulture) && !languagesCodes.Contains(c.Name));
-        await LoadTranslations();
+		_supportedCultures = await LocalizationService.GetCulturesAsync();
+		_availableCultures = _supportedCultures.Where(c => !c.Name.Equals(Constants.DefaultCulture) && !languagesCodes.Contains(c.Name));
+		await LoadTranslations();
 
         if (_supportedCultures.Count() == 1)
         {

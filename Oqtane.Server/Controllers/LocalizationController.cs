@@ -22,11 +22,15 @@ namespace Oqtane.Controllers
         // GET: api/localization
         [HttpGet()]
         public IEnumerable<Culture> Get()
-            => _localizationManager.GetSupportedCultures().Select(c => new Culture {
-                Name = CultureInfo.GetCultureInfo(c).Name,
-                DisplayName = CultureInfo.GetCultureInfo(c).DisplayName,
-                IsDefault = _localizationManager.GetDefaultCulture()
+        {
+            var cultures = _localizationManager.GetSupportedCultures().Select(c => new Culture
+               {
+                   Name = CultureInfo.GetCultureInfo(c).Name,
+                   DisplayName = CultureInfo.GetCultureInfo(c).DisplayName,
+                   IsDefault = _localizationManager.GetDefaultCulture()
                     .Equals(CultureInfo.GetCultureInfo(c).Name, StringComparison.OrdinalIgnoreCase)
-            });
+               });
+            return cultures.OrderBy(item => item.DisplayName);
+        }
     }
 }
