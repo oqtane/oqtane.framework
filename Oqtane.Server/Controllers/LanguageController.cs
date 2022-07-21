@@ -12,6 +12,7 @@ using Oqtane.Shared;
 using System.Linq;
 using System.Diagnostics;
 using System.Globalization;
+using System;
 
 namespace Oqtane.Controllers
 {
@@ -42,7 +43,7 @@ namespace Oqtane.Controllers
                     packagename = "Oqtane";
                 }
                 var languages = _languages.GetLanguages(SiteId).ToList();
-                foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), packagename + ".Client.resources.dll", SearchOption.AllDirectories))
+                foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), $"{packagename}.*{Constants.SatelliteAssemblyExtension}", SearchOption.AllDirectories))
                 {
                     var code = Path.GetFileName(Path.GetDirectoryName(file));
                     if (languages.Any(item => item.Code == code))

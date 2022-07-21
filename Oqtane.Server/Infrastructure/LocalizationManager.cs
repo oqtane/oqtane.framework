@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using Microsoft.Extensions.Options;
 using Oqtane.Shared;
 
@@ -12,7 +8,6 @@ namespace Oqtane.Infrastructure
     public class LocalizationManager : ILocalizationManager
     {
         private static readonly string DefaultCulture = Constants.DefaultCulture;
-        private static readonly string[] DefaultSupportedCultures = new[] { DefaultCulture };
 
         private readonly LocalizationOptions _localizationOptions;
 
