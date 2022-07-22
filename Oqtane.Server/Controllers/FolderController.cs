@@ -18,15 +18,15 @@ namespace Oqtane.Controllers
     [Route(ControllerRoutes.ApiRoute)]
     public class FolderController : Controller
     {
-        private readonly IWebHostEnvironment _environment;
+        private readonly IContentManager _contentManager;
         private readonly IFolderRepository _folders;
         private readonly IUserPermissions _userPermissions;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public FolderController(IWebHostEnvironment environment, IFolderRepository folders, IUserPermissions userPermissions, ILogManager logger, ITenantManager tenantManager)
+        public FolderController(IContentManager contentManager, IFolderRepository folders, IUserPermissions userPermissions, ILogManager logger, ITenantManager tenantManager)
         {
-            _environment = environment;
+            _contentManager = contentManager;
             _folders = folders;
             _userPermissions = userPermissions;
             _logger = logger;
@@ -242,7 +242,7 @@ namespace Oqtane.Controllers
 
         private string GetFolderPath(Folder folder)
         {
-            return Utilities.PathCombine(_environment.ContentRootPath, "Content", "Tenants", _alias.TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
+            return _contentManager.GetContentPath("Content", "Tenants", _alias.TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
         }
     }
 }

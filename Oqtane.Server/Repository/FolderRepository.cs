@@ -15,13 +15,16 @@ namespace Oqtane.Repository
         private readonly IPermissionRepository _permissions;
         private readonly IWebHostEnvironment _environment;
         private readonly ITenantManager _tenants;
+        private readonly IContentManager _contentManager;
 
-        public FolderRepository(TenantDBContext context, IPermissionRepository permissions,IWebHostEnvironment environment, ITenantManager tenants)
+
+        public FolderRepository(TenantDBContext context, IPermissionRepository permissions,IWebHostEnvironment environment, ITenantManager tenants, IContentManager contentManager)
         {
             _db = context;
             _permissions = permissions;
             _environment = environment;
             _tenants = tenants;
+            _contentManager = contentManager;
         }
 
         public IEnumerable<Folder> GetFolders(int siteId)
@@ -104,7 +107,7 @@ namespace Oqtane.Repository
             switch (folder.Type)
             {
                 case FolderTypes.Private:
-                    path = Utilities.PathCombine(_environment.ContentRootPath, "Content", "Tenants", _tenants.GetTenant().TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
+                    path = _contentManager.GetContentPath("Content", "Tenants", _tenants.GetTenant().TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
                     break;
                 case FolderTypes.Public:
                     path = Utilities.PathCombine(_environment.WebRootPath, "Content", "Tenants", _tenants.GetTenant().TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);

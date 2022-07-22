@@ -28,16 +28,16 @@ namespace Oqtane.Controllers
     [Route(ControllerRoutes.ApiRoute)]
     public class FileController : Controller
     {
-        private readonly IWebHostEnvironment _environment;
+        private readonly IContentManager _contentManager;
         private readonly IFileRepository _files;
         private readonly IFolderRepository _folders;
         private readonly IUserPermissions _userPermissions;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public FileController(IWebHostEnvironment environment, IFileRepository files, IFolderRepository folders, IUserPermissions userPermissions, ILogManager logger, ITenantManager tenantManager)
+        public FileController(IContentManager contentManager, IFileRepository files, IFolderRepository folders, IUserPermissions userPermissions, ILogManager logger, ITenantManager tenantManager)
         {
-            _environment = environment;
+            _contentManager = contentManager;
             _files = files;
             _folders = folders;
             _userPermissions = userPermissions;
@@ -611,7 +611,7 @@ namespace Oqtane.Controllers
 
         private string GetFolderPath(string folder)
         {
-            return Utilities.PathCombine(_environment.ContentRootPath, folder);
+            return _contentManager.GetContentPath(folder);
         }
 
         private void CreateDirectory(string folderpath)

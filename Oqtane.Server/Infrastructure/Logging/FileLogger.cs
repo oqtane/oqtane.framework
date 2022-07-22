@@ -8,13 +8,13 @@ namespace Oqtane.Infrastructure
     public class FileLogger : ILogger
     {
         protected readonly FileLoggerProvider _FileLoggerProvider;
-        private readonly IWebHostEnvironment _environment;
+        private readonly IContentManager _contentManager;
         private readonly IConfigManager _configManager;
 
-        public FileLogger(FileLoggerProvider FileLoggerProvider, IWebHostEnvironment environment,IConfigManager configManager)
+        public FileLogger(FileLoggerProvider FileLoggerProvider, IContentManager contentManager,IConfigManager configManager)
         {
             _FileLoggerProvider = FileLoggerProvider;
-            _environment = environment;
+            _contentManager = contentManager;
             _configManager = configManager;
         }
 
@@ -44,7 +44,7 @@ namespace Oqtane.Infrastructure
                 return;
             }
 
-            string folder = Path.Combine(_environment.ContentRootPath, "Content", "Log");
+            string folder = _contentManager.GetContentPath("Content", "Log");
             var filepath = Path.Combine(folder, "error.log");
             long size = 0;
 

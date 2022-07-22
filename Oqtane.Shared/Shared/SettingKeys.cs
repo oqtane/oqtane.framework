@@ -19,5 +19,7 @@ namespace Oqtane.Shared
         public const string DefaultContainerKey = "DefaultContainer";
 
         public const string AvailableDatabasesSection = "AvailableDatabases";
+
+        public const string ContentRootKey = "ContentRoot";
     }
 }
