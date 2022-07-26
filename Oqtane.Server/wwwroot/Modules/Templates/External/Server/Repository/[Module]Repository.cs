@@ -6,7 +6,7 @@ using [Owner].[Module].Models;
 
 namespace [Owner].[Module].Repository
 {
-    public class [Module]Repository : I[Module]Repository, IService
+    public class [Module]Repository : I[Module]Repository, ITransientService
     {
         private readonly [Module]Context _db;
 

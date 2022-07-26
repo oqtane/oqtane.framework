@@ -250,8 +250,19 @@ namespace Microsoft.Extensions.DependencyInjection
             var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
             foreach (var assembly in assemblies)
             {
-                // dynamically register module services, contexts, and repository classes
+                // dynamically register module scoped services (ie. client service classes)
                 var implementationTypes = assembly.GetInterfaces<IService>();
+                foreach (var implementationType in implementationTypes)
+                {
+                    if (implementationType.AssemblyQualifiedName != null)
+                    {
+                        var serviceType = Type.GetType(implementationType.AssemblyQualifiedName.Replace(implementationType.Name, $"I{implementationType.Name}"));
+                        services.AddScoped(serviceType ?? implementationType, implementationType);
+                    }
+                }
+
+                // dynamically register module transient services (ie. server DBContext, repository classes)
+                implementationTypes = assembly.GetInterfaces<ITransientService>();
                 foreach (var implementationType in implementationTypes)
                 {
                     if (implementationType.AssemblyQualifiedName != null)
