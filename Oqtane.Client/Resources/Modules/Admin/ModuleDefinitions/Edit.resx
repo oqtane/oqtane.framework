@@ -201,4 +201,19 @@
   <data name="PackageName.Text" xml:space="preserve">
     <value>Package Name:</value>
   </data>
+  <data name="Error.Translation.Download" xml:space="preserve">
+    <value>Error Downloading Translation</value>
+  </data>
+  <data name="Search.NoResults" xml:space="preserve">
+    <value>No Translations Exist For This Module Or Package Service Is Disabled</value>
+  </data>
+  <data name="Success.Translation.Download" xml:space="preserve">
+    <value>Translation Downloaded Successfully. Click Install To Complete Installation.</value>
+  </data>
+  <data name="Success.Translation.Install" xml:space="preserve">
+    <value>Translation Installed Successfully. You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Apply These Changes.</value>
+  </data>
+  <data name="Translations.Heading" xml:space="preserve">
+    <value>Translations</value>
+  </data>
 </root>
