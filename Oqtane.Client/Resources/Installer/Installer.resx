@@ -135,10 +135,10 @@
   <data name="Message.Require.DbInfo" xml:space="preserve">
     <value>Please Enter All Required Fields. Ensure Passwords Match And Email Address Provided Is Valid.</value>
   </data>
-    <data name="Message.Password.Invalid" xml:space="preserve">
+  <data name="Message.Password.Invalid" xml:space="preserve">
     <value>The Password Provided Does Not Meet The Password Policy. Please Verify The Minimum Password Length And Complexity Requirements.</value>
   </data>
-    <data name="Register" xml:space="preserve">
+  <data name="Register" xml:space="preserve">
     <value>Please Register Me For Major Product Updates And Security Bulletins</value>
   </data>
   <data name="Confirm.HelpText" xml:space="preserve">
@@ -167,5 +167,17 @@
   </data>
   <data name="Username.Text" xml:space="preserve">
     <value>Username:</value>
+  </data>
+  <data name="ConnectionString.HelpText" xml:space="preserve">
+    <value>Enter a complete connection string including all parameters and delimiters</value>
+  </data>
+  <data name="ConnectionString.Text" xml:space="preserve">
+    <value>String:</value>
+  </data>
+  <data name="EnterConnectionParameters" xml:space="preserve">
+    <value>Enter Connection Parameters</value>
+  </data>
+  <data name="EnterConnectionString" xml:space="preserve">
+    <value>Enter Connection String</value>
   </data>
 </root>
