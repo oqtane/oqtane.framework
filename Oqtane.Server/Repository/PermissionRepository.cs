@@ -143,8 +143,8 @@ namespace Oqtane.Repository
 
         private void ClearCache(string entityName)
         {
-            var alias = _accessor.HttpContext.GetAlias();
-            if (alias != null)
+            var alias = _siteState?.Alias;
+            if (alias != null && alias.SiteId != -1)
             {
                 _cache.Remove($"permissions:{alias.SiteKey}:{entityName}");
             }

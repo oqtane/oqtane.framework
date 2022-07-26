@@ -4,7 +4,7 @@
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <div class="row mb-1 align-items-center">
-    <Label Class="col-sm-3" For="server" HelpText="Enter the database server" ResourceKey="Server">Server:</Label>
+	<Label Class="col-sm-3" For="server" HelpText="Enter the database server name. This might include a port number as well if you are using a cloud service (ie. servername.database.windows.net,1433) " ResourceKey="Server">Server:</Label>
     <div class="col-sm-9">
         <input id="server" type="text" class="form-control" @bind="@_server" />
     </div>
@@ -51,7 +51,7 @@
 @if (_encryption == "true")
 {
 	<div class="row mb-1 align-items-center">
-		<Label Class="col-sm-3" For="trustservercertificate" HelpText="Specify the type of certificate you are using for encryption" ResourceKey="TrustServerCertificate">Certificate:</Label>
+		<Label Class="col-sm-3" For="trustservercertificate" HelpText="Specify the type of certificate you are using for encryption. Verifiable is equivalent to False. Self Signed is equivalent to True." ResourceKey="TrustServerCertificate">Certificate:</Label>
 		<div class="col-sm-9">
 			<select id="encryption" class="form-select custom-select" @bind="@_trustservercertificate">
 				<option value="true">@Localizer["Self Signed"]</option>
