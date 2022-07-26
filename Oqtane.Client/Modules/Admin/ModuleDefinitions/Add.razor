@@ -91,9 +91,9 @@
                     <div class="modal-body">
                         <p style="height: 200px; overflow-y: scroll;">
                             <h3>@_productname</h3>
-                            @if (!string.IsNullOrEmpty(_license))
+                            @if (!string.IsNullOrEmpty(_packagelicense))
                             {
-                                @((MarkupString)_license)
+								@((MarkupString)_packagelicense)
                             }
                             else
                             {
@@ -119,9 +119,9 @@
 	private string _price = "free";
 	private string _search = "";
 	private string _productname = "";
-	private string _license = "";
 	private string _packageid = "";
-	private string _version = "";
+	private string _packagelicense = "";
+	private string _packageversion = "";
 
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
@@ -198,7 +198,7 @@
 	private void HideModal()
 	{
 		_productname = "";
-		_license = "";
+		_packagelicense = "";
 		StateHasChanged();
 	}
 
@@ -210,12 +210,12 @@
 			if (package != null)
 			{
 				_productname = package.Name;
+				_packageid = package.PackageId;
 				if (!string.IsNullOrEmpty(package.License))
 				{
-					_license = package.License.Replace("\n", "<br />");
+					_packagelicense = package.License.Replace("\n", "<br />");
 				}
-				_packageid = package.PackageId;
-				_version = package.Version;
+				_packageversion = package.Version;
 			}
 			StateHasChanged();
 		}
@@ -230,16 +230,16 @@
 	{
 		try
 		{
-			await PackageService.DownloadPackageAsync(_packageid, _version, Constants.PackagesFolder);
-			await logger.LogInformation("Package {PackageId} {Version} Downloaded Successfully", _packageid, _version);
+			await PackageService.DownloadPackageAsync(_packageid, _packageversion, Constants.PackagesFolder);
+			await logger.LogInformation("Package {PackageId} {Version} Downloaded Successfully", _packageid, _packageversion);
 			AddModuleMessage(Localizer["Success.Module.Download"], MessageType.Success);
 			_productname = "";
-			_license = "";
+			_packagelicense = "";
 			StateHasChanged();
 		}
 		catch (Exception ex)
 		{
-			await logger.LogError(ex, "Error Downloading Package {PackageId} {Version}", _packageid, _version);
+			await logger.LogError(ex, "Error Downloading Package {PackageId} {Version}", _packageid, _packageversion);
 			AddModuleMessage(Localizer["Error.Module.Download"], MessageType.Error);
 		}
 	}
@@ -253,7 +253,7 @@
 		}
 		catch (Exception ex)
 		{
-			await logger.LogError(ex, "Error Installing Module");
+			await logger.LogError(ex, "Error Installing Modules");
 		}
 	}
 }

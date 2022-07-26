@@ -268,7 +268,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     if (implementationType.AssemblyQualifiedName != null)
                     {
                         var serviceType = Type.GetType(implementationType.AssemblyQualifiedName.Replace(implementationType.Name, $"I{implementationType.Name}"));
-                        services.AddScoped(serviceType ?? implementationType, implementationType);
+                        services.AddTransient(serviceType ?? implementationType, implementationType);
                     }
                 }
 
