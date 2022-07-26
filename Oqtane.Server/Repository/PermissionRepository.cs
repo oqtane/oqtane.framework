@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Oqtane.Extensions;
 using Oqtane.Models;
 using Microsoft.Extensions.Caching.Memory;
+using Oqtane.Infrastructure;
 
 namespace Oqtane.Repository
 {
@@ -16,20 +17,20 @@ namespace Oqtane.Repository
         private TenantDBContext _db;
         private readonly IRoleRepository _roles;
         private readonly IMemoryCache _cache;
-        private readonly IHttpContextAccessor _accessor;
+        private readonly SiteState _siteState;
 
-        public PermissionRepository(TenantDBContext context, IRoleRepository roles, IMemoryCache cache, IHttpContextAccessor accessor)
+        public PermissionRepository(TenantDBContext context, IRoleRepository roles, IMemoryCache cache, SiteState siteState)
         {
             _db = context;
             _roles = roles;
             _cache = cache;
-            _accessor = accessor;
-        }
+            _siteState = siteState;
+         }
 
         public IEnumerable<Permission> GetPermissions(int siteId, string entityName)
         {
-            var alias = _accessor.HttpContext.GetAlias();
-            if (alias != null)
+            var alias = _siteState?.Alias;
+            if (alias != null && alias.SiteId != -1)
             {
                 return _cache.GetOrCreate($"permissions:{alias.SiteKey}:{entityName}", entry =>
                 {
