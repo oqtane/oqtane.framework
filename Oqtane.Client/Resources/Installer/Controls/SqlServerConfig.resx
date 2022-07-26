@@ -121,7 +121,7 @@
     <value>Server:</value>
   </data>
   <data name="Server.HelpText" xml:space="preserve">
-    <value>Enter the database server</value>
+    <value>Enter the database server name. This might include a port number as well if you are using a cloud service (ie. servername.database.windows.net,1433) </value>
   </data>
   <data name="Database.Text" xml:space="preserve">
     <value>Database:</value>
@@ -133,7 +133,7 @@
     <value>Integrated Security:</value>
   </data>
   <data name="IntegratedSecurity.HelpText" xml:space="preserve">
-    <value>Select if you want integrated security or not</value>
+    <value>Select if you are using integrated security</value>
   </data>
   <data name="Uid.Text" xml:space="preserve">
     <value>User Id:</value>
@@ -163,7 +163,7 @@
     <value>Self Signed</value>
   </data>
   <data name="TrustServerCertificate.HelpText" xml:space="preserve">
-    <value>Specify the type of certificate you are using for encryption</value>
+    <value>Specify the type of certificate you are using for encryption. Verifiable is equivalent to False. Self Signed is equivalent to True.</value>
   </data>
   <data name="TrustServerCertificate.Text" xml:space="preserve">
     <value>Trust Server Certificate:</value>
