@@ -270,4 +270,16 @@
   <data name="Runtime.Text" xml:space="preserve">
     <value>Runtime: </value>
   </data>
+  <data name="ConnectionString.HelpText" xml:space="preserve">
+    <value>Enter a complete connection string including all parameters and delimiters</value>
+  </data>
+  <data name="ConnectionString.Text" xml:space="preserve">
+    <value>String:</value>
+  </data>
+  <data name="EnterConnectionParameters" xml:space="preserve">
+    <value>Enter Connection Parameters</value>
+  </data>
+  <data name="EnterConnectionString" xml:space="preserve">
+    <value>Enter Connection String</value>
+  </data>
 </root>

@@ -26,12 +26,22 @@
                     <div class="col-sm-9">
                         @if (_databases != null)
                         {
-							<select id="databasetype" class="form-select custom-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))">
-                                @foreach (var database in _databases)
-                                {
-                                    <option value="@database.Name">@Localizer[@database.Name]</option>
-                                }
-							</select>
+							<div class="input-group">
+								<select id="databaseType" class="form-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))" required>
+									@foreach (var database in _databases)
+									{
+										<option value="@database.Name">@Localizer[@database.Name]</option>
+									}
+								</select>
+								@if (!_showConnectionString)
+								{
+									<button type="button" class="btn btn-secondary" @onclick="ToggleConnectionString">@Localizer["EnterConnectionString"]</button>
+								}
+								else
+								{
+									<button type="button" class="btn btn-secondary" @onclick="ToggleConnectionString">@Localizer["EnterConnectionParameters"]</button>
+								}
+							</div>
                         }
                     </div>
                 </div>
@@ -41,8 +51,6 @@
 					{
 						@DatabaseConfigComponent
 					}
-					<br />
-					<button type="button" class="btn btn-secondary" @onclick="ToggleConnectionString">@Localizer["EnterConnectionString"]</button>
 				}
 				else
 				{
@@ -52,8 +60,6 @@
 							<textarea id="connectionstring" class="form-control" @bind="@_connectionString" rows="3"></textarea>
 						</div>
 					</div>
-					<br />
-					<button type="button" class="btn btn-secondary" @onclick="ToggleConnectionString">@Localizer["EnterConnectionParameters"]</button>
 				}
 			</div>
         </div>
@@ -151,7 +157,7 @@
 		try
 		{
 			_databaseName = (string)eventArgs.Value;
-
+			_showConnectionString = false;
 			LoadDatabaseConfigComponent();
 		}
 		catch
