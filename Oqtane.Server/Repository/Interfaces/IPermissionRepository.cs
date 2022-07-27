@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+using System.Security.Policy;
 using Oqtane.Models;
 
 // ReSharper disable once CheckNamespace
 namespace Oqtane.Repository
 {
     public interface IPermissionRepository
-    {
+{
         IEnumerable<Permission> GetPermissions(int siteId, string entityName);
         IEnumerable<Permission> GetPermissions(string entityName, int entityId);
         IEnumerable<Permission> GetPermissions(string entityName, int entityId, string permissionName);

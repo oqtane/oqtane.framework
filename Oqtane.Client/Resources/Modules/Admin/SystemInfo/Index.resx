@@ -270,4 +270,10 @@
   <data name="WorkingSet.Text" xml:space="preserve">
     <value>Memory Allocation:</value>
   </data>
+  <data name="Environment.HelpText" xml:space="preserve">
+    <value>Environment Name</value>
+  </data>
+  <data name="Environment.Text" xml:space="preserve">
+    <value>Environment:</value>
+  </data>
 </root>

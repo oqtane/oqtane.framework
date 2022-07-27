@@ -7,7 +7,7 @@ using Oqtane.Repository.Databases.Interfaces;
 
 namespace [Owner].[Module].Repository
 {
-    public class [Module]Context : DBContextBase, IService, IMultiDatabase
+    public class [Module]Context : DBContextBase, ITransientService, IMultiDatabase
     {
         public virtual DbSet<Models.[Module]> [Module] { get; set; }
 

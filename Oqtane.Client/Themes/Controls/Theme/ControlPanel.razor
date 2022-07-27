@@ -17,7 +17,7 @@
     <LanguageSwitcher />
 }
 
-@if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions) || (PageState.Page.IsPersonalizable && PageState.User != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Registered)))
+@if (_showEditMode || (PageState.Page.IsPersonalizable && PageState.User != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Registered)))
 {
     if (PageState.EditMode)
     {
@@ -218,6 +218,7 @@
 }
 
 @code{
+	private bool _showEditMode = false;
 	private bool _deleteConfirmation = false;
 	private List<string> _categories = new List<string>();
 	private List<ModuleDefinition> _allModuleDefinitions;
@@ -285,8 +286,10 @@
 
 	protected override async Task OnParametersSetAsync()
 	{
+		_showEditMode = false;
 		if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
 		{
+			_showEditMode = true;
 			_pages?.Clear();
 
 			foreach (Page p in PageState.Pages)
@@ -304,6 +307,17 @@
 			_allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
 			_moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(Category)).ToList();
 			_categories = _allModuleDefinitions.SelectMany(m => m.Categories.Split(',')).Distinct().ToList();
+		}
+		else
+		{
+			foreach (var module in PageState.Modules.Where(item => item.PageId == PageState.Page.PageId))
+			{
+				if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, module.Permissions))
+				{
+					_showEditMode = true;
+					break;
+				}
+			}			
 		}
 	}
 
@@ -405,21 +419,21 @@
 				Message = $"<div class=\"alert alert-success mt-2 text-center\" role=\"alert\">{Localizer["Success.Page.ModuleAdd"]}</div>";
 				Title = "";
 				NavigationManager.NavigateTo(NavigateUrl());
-            }
-            else
-            {
-                Message = $"<div class=\"alert alert-warning mt-2 text-center\" role=\"alert\">{Localizer["Message.Require.ModuleSelect"]}</div>";
-            }
-        }
-        else
-        {
-            Message = $"<div class=\"alert alert-error mt-2 text-center\" role=\"alert\">{Localizer["Error.Authorize.No"]}</div>";
-        }
-    }
+			}
+			else
+			{
+				Message = $"<div class=\"alert alert-warning mt-2 text-center\" role=\"alert\">{Localizer["Message.Require.ModuleSelect"]}</div>";
+			}
+		}
+		else
+		{
+			Message = $"<div class=\"alert alert-error mt-2 text-center\" role=\"alert\">{Localizer["Error.Authorize.No"]}</div>";
+		}
+	}
 
     private async Task ToggleEditMode(bool EditMode)
     {
-        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
+        if (_showEditMode)
         {
             if (EditMode)
             {
@@ -445,7 +459,6 @@
 
     private void Navigate(string location)
     {
-        //HideControlPanel();
         Module module;
         switch (location)
         {

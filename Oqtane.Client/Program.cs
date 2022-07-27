@@ -114,6 +114,7 @@ namespace Oqtane.Client
 
         private static void RegisterModuleServices(Assembly assembly, IServiceCollection services)
         {
+            // dynamically register module scoped services
             var implementationTypes = assembly.GetInterfaces<IService>();
             foreach (var implementationType in implementationTypes)
             {

@@ -38,6 +38,7 @@ namespace Oqtane.Controllers
                     systeminfo.Add("TickCount", Environment.TickCount64.ToString());
                     systeminfo.Add("ContentRootPath", _environment.ContentRootPath);
                     systeminfo.Add("WebRootPath", _environment.WebRootPath);
+                    systeminfo.Add("Environment", _environment.EnvironmentName);
                     systeminfo.Add("ServerTime", DateTime.UtcNow.ToString());
                     var feature = HttpContext.Features.Get<IHttpConnectionFeature>();
                     systeminfo.Add("IPAddress", feature?.LocalIpAddress?.ToString());

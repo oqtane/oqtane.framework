@@ -11,8 +11,7 @@
         Module module = await ModuleService.GetModuleAsync(ModuleState.ModuleId);
         if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
         {
-            string message = string.Format(Localizer["Error.Module.Load"], module.ModuleDefinitionName);
-            AddModuleMessage(message, MessageType.Error);
+			AddModuleMessage(string.Format(Localizer["Error.Module.Load"], module.ModuleDefinitionName), MessageType.Error);
         }
 
         await logger.LogCritical("Error Loading Module {Module}", module);

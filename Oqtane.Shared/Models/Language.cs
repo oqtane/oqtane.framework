@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
 {
@@ -33,6 +34,12 @@ namespace Oqtane.Models
         /// Is this the default language on a <see cref="Site"/>
         /// </summary>
         public bool IsDefault { get; set; }
+
+        [NotMapped]
+        /// <summary>
+        /// Version of the satellite assembly
+        /// </summary>
+        public string Version { get; set; }
 
         #region IAuditable Properties
 

@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Repository;
@@ -52,6 +50,9 @@ namespace Oqtane.Infrastructure
                         break;
                     case "3.1.3":
                         Upgrade_3_1_3(tenant, scope);
+                        break;
+                    case "3.1.4":
+                        Upgrade_3_1_4(tenant, scope);
                         break;
                 }
             }
@@ -195,5 +196,47 @@ namespace Oqtane.Infrastructure
             }
         }
 
+        private void Upgrade_3_1_4(Tenant tenant, IServiceScope scope)
+        {
+            var pageTemplates = new List<PageTemplate>();
+
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Not Found",
+                Parent = "",
+                Path = "404",
+                Icon = Icons.X,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                    new Permission(PermissionNames.View, RoleNames.Admin, true),
+                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Not Found", Pane = PaneNames.Admin,
+                        ModulePermissions = new List<Permission> {
+                            new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                            new Permission(PermissionNames.View, RoleNames.Admin, true),
+                            new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                        }.EncodePermissions(),
+                        Content = "<p>The page you requested does not exist.</p>"
+                    }
+                }
+            });
+
+            var pages = scope.ServiceProvider.GetRequiredService<IPageRepository>();
+
+            var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
+            foreach (Site site in sites.GetSites().ToList())
+            {
+                if (!pages.GetPages(site.SiteId).ToList().Where(item => item.Path == "404").Any())
+                {
+                    sites.CreatePages(site, pageTemplates);
+                }
+            }
+        }
     }
 }

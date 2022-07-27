@@ -26,22 +26,42 @@
                     <div class="col-sm-9">
                         @if (_databases != null)
                         {
-							<select id="databasetype" class="form-select custom-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))">
-                                @foreach (var database in _databases)
-                                {
-                                    <option value="@database.Name">@Localizer[@database.Name]</option>
-                                }
-							</select>
+							<div class="input-group">
+								<select id="databaseType" class="form-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))" required>
+									@foreach (var database in _databases)
+									{
+										<option value="@database.Name">@Localizer[@database.Name]</option>
+									}
+								</select>
+								@if (!_showConnectionString)
+								{
+									<button type="button" class="btn btn-secondary" @onclick="ToggleConnectionString">@Localizer["EnterConnectionString"]</button>
+								}
+								else
+								{
+									<button type="button" class="btn btn-secondary" @onclick="ToggleConnectionString">@Localizer["EnterConnectionParameters"]</button>
+								}
+							</div>
                         }
                     </div>
                 </div>
-                @{
-                    if (_databaseConfigType != null)
-                    {
-                        @DatabaseConfigComponent;
-                    }
-                }
-            </div>
+				@if (!_showConnectionString)
+				{
+					if (_databaseConfigType != null)
+					{
+						@DatabaseConfigComponent
+					}
+				}
+				else
+				{
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="connectionstring" HelpText="Enter a complete connection string including all parameters and delimiters" ResourceKey="ConnectionString">String:</Label>
+						<div class="col-sm-9">
+							<textarea id="connectionstring" class="form-control" @bind="@_connectionString" rows="3"></textarea>
+						</div>
+					</div>
+				}
+			</div>
         </div>
         <div class="col text-center">
             <h2>@Localizer["ApplicationAdmin"]</h2><br />
@@ -100,13 +120,15 @@
 	private Type _databaseConfigType;
 	private object _databaseConfig;
 	private RenderFragment DatabaseConfigComponent { get; set; }
+	private bool _showConnectionString = false;
+	private string _connectionString = string.Empty;
 
 	private string _hostUsername = string.Empty;
 	private string _hostPassword = string.Empty;
 	private string _passwordType = "password";
-    private string _confirmPasswordType = "password";
+	private string _confirmPasswordType = "password";
 	private string _togglePassword = string.Empty;
-    private string _toggleConfirmPassword = string.Empty;
+	private string _toggleConfirmPassword = string.Empty;
 	private string _confirmPassword = string.Empty;
 	private string _hostEmail = string.Empty;
 	private bool _register = true;
@@ -116,7 +138,7 @@
 	protected override async Task OnInitializedAsync()
 	{
 		_togglePassword = SharedLocalizer["ShowPassword"];
-        _toggleConfirmPassword = SharedLocalizer["ShowPassword"];
+		_toggleConfirmPassword = SharedLocalizer["ShowPassword"];
 
 		_databases = await DatabaseService.GetDatabasesAsync();
 		if (_databases.Exists(item => item.IsDefault))
@@ -135,7 +157,7 @@
 		try
 		{
 			_databaseName = (string)eventArgs.Value;
-
+			_showConnectionString = false;
 			LoadDatabaseConfigComponent();
 		}
 		catch
@@ -172,9 +194,16 @@
 	private async Task Install()
 	{
 		var connectionString = String.Empty;
-		if (_databaseConfig is IDatabaseConfigControl databaseConfigControl)
+		if (_showConnectionString)
 		{
-			connectionString = databaseConfigControl.GetConnectionString();
+			connectionString = _connectionString;
+		}
+		else
+		{
+			if (_databaseConfig is IDatabaseConfigControl databaseConfigControl)
+			{
+				connectionString = databaseConfigControl.GetConnectionString();
+			}
 		}
 
 		if (connectionString != "" && !string.IsNullOrEmpty(_hostUsername) && !string.IsNullOrEmpty(_hostPassword) && _hostPassword == _confirmPassword && !string.IsNullOrEmpty(_hostEmail) && _hostEmail.Contains("@"))
@@ -218,12 +247,12 @@
 			{
 				_message = Localizer["Message.Password.Invalid"];				
 			}
-        }
-        else
-        {
-            _message = Localizer["Message.Require.DbInfo"];
-        }
-    }
+		}
+		else
+		{
+			_message = Localizer["Message.Require.DbInfo"];
+		}
+	}
 
 	private void TogglePassword()
 	{
@@ -239,7 +268,7 @@
 		}
 	}
 
-    private void ToggleConfirmPassword()
+	private void ToggleConfirmPassword()
 	{
 		if (_confirmPasswordType == "password")
 		{
@@ -252,4 +281,14 @@
 			_toggleConfirmPassword = SharedLocalizer["ShowPassword"];
 		}
 	}
+
+	private void ToggleConnectionString()
+	{
+		if (_databaseConfig is IDatabaseConfigControl databaseConfigControl)
+		{
+			_connectionString = databaseConfigControl.GetConnectionString();
+		}
+		_showConnectionString = !_showConnectionString;
+	}
+
 }

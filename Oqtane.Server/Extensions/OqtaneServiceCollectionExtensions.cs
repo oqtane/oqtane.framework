@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.OAuth;
@@ -17,6 +18,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Oqtane.Infrastructure;
+using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Repository;
 using Oqtane.Security;
@@ -248,7 +250,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
             foreach (var assembly in assemblies)
             {
-                // dynamically register module services, contexts, and repository classes
+                // dynamically register module scoped services (ie. client service classes)
                 var implementationTypes = assembly.GetInterfaces<IService>();
                 foreach (var implementationType in implementationTypes)
                 {
@@ -256,6 +258,17 @@ namespace Microsoft.Extensions.DependencyInjection
                     {
                         var serviceType = Type.GetType(implementationType.AssemblyQualifiedName.Replace(implementationType.Name, $"I{implementationType.Name}"));
                         services.AddScoped(serviceType ?? implementationType, implementationType);
+                    }
+                }
+
+                // dynamically register module transient services (ie. server DBContext, repository classes)
+                implementationTypes = assembly.GetInterfaces<ITransientService>();
+                foreach (var implementationType in implementationTypes)
+                {
+                    if (implementationType.AssemblyQualifiedName != null)
+                    {
+                        var serviceType = Type.GetType(implementationType.AssemblyQualifiedName.Replace(implementationType.Name, $"I{implementationType.Name}"));
+                        services.AddTransient(serviceType ?? implementationType, implementationType);
                     }
                 }
 
@@ -315,52 +328,26 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static void LoadSatelliteAssemblies(string[] supportedCultures)
         {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
-            if (assemblyPath == null)
-            {
-                return;
-            }
-
             AssemblyLoadContext.Default.Resolving += ResolveDependencies;
 
-            foreach (var culture in supportedCultures)
+            foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), $"*{Constants.SatelliteAssemblyExtension}", SearchOption.AllDirectories))
             {
-                if (culture == Constants.DefaultCulture)
+                var code = Path.GetFileName(Path.GetDirectoryName(file));
+                if (supportedCultures.Contains(code))
                 {
-                    continue;
-                }
-
-                var assembliesFolder = new DirectoryInfo(Path.Combine(assemblyPath, culture));
-                if (assembliesFolder.Exists)
-                {
-                    foreach (var assemblyFile in assembliesFolder.EnumerateFiles($"*{Constants.SatelliteAssemblyExtension}"))
+                    try
                     {
-                        AssemblyName assemblyName;
-                        try
-                        {
-                            assemblyName = AssemblyName.GetAssemblyName(assemblyFile.FullName);
-                        }
-                        catch
-                        {
-                            Debug.WriteLine($"Oqtane Error: Cannot Get Satellite Assembly Name For {assemblyFile.Name}");
-                            continue;
-                        }
-
-                        try
-                        {
-                            Assembly assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(System.IO.File.ReadAllBytes(assemblyFile.FullName)));
-                            Debug.WriteLine($"Oqtane Info: Loaded Assembly {assemblyName}");
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine($"Oqtane Error: Unable To Load Assembly {assemblyName} - {ex}");
-                        }
+                        Assembly assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(System.IO.File.ReadAllBytes(file)));
+                        Debug.WriteLine($"Oqtane Info: Loaded Satellite Assembly {file}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Oqtane Error: Unable To Load Satellite Assembly {file} - {ex}");
                     }
                 }
                 else
                 {
-                    Debug.WriteLine($"Oqtane Error: The Satellite Assembly Folder For {culture} Does Not Exist");
+                    Debug.WriteLine($"Oqtane Error: Culture Not Supported For Satellite Assembly {file}");
                 }
             }
         }

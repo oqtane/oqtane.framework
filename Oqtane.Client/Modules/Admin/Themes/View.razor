@@ -25,7 +25,13 @@
             <input id="version" class="form-control" @bind="@_version" disabled />
         </div>
     </div>
-    <div class="row mb-1 align-items-center">
+	<div class="row mb-1 align-items-center">
+		<Label Class="col-sm-3" For="packagename" HelpText="The unique name of the package from which this module was installed" ResourceKey="PackageName">Package Name: </Label>
+		<div class="col-sm-9">
+			<input id="packagename" class="form-control" @bind="@_packagename" disabled />
+		</div>
+	</div>
+	<div class="row mb-1 align-items-center">
         <Label Class="col-sm-3" For="owner" HelpText="The owner or creator of the theme" ResourceKey="Owner">Owner: </Label>
         <div class="col-sm-9">
             <input id="owner" class="form-control" @bind="@_owner" disabled />
@@ -53,28 +59,30 @@
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 
 @code {
-    private string _themeName = "";
-    private string _name;
-    private string _version;
-    private string _owner = "";
-    private string _url = "";
-    private string _contact = "";
-    private string _license = "";
+	private string _themeName = "";
+	private string _name;
+	private string _version;
+	private string _packagename;
+	private string _owner = "";
+	private string _url = "";
+	private string _contact = "";
+	private string _license = "";
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            _themeName = WebUtility.UrlDecode(PageState.QueryString["name"]);
-            var themes = await ThemeService.GetThemesAsync();
-            var theme = themes.FirstOrDefault(item => item.ThemeName == _themeName);
-            if (theme != null)
-            {
-                _name = theme.Name;
-                _version = theme.Version;
-                _owner = theme.Owner;
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			_themeName = WebUtility.UrlDecode(PageState.QueryString["name"]);
+			var themes = await ThemeService.GetThemesAsync();
+			var theme = themes.FirstOrDefault(item => item.ThemeName == _themeName);
+			if (theme != null)
+			{
+				_name = theme.Name;
+				_version = theme.Version;
+				_packagename = theme.PackageName;
+				_owner = theme.Owner;
                 _url = theme.Url;
                 _contact = theme.Contact;
                 _license = theme.License;
