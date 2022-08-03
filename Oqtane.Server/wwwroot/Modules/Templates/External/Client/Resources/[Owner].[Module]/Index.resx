@@ -120,11 +120,20 @@
   <data name="Name" xml:space="preserve">
     <value>Name</value>
   </data>
-  <data name="Edit" xml:space="preserve">
+  <data name="Add.Text" xml:space="preserve">
+    <value>Add [Module]</value>
+  </data>
+  <data name="Edit.Text" xml:space="preserve">
     <value>Edit</value>
   </data>
-  <data name="Delete" xml:space="preserve">
+  <data name="Delete.Text" xml:space="preserve">
     <value>Delete</value>
+  </data>
+  <data name="Delete.Header" xml:space="preserve">
+    <value>Delete [Module]</value>
+  </data>
+  <data name="Delete.Message" xml:space="preserve">
+    <value>Are You Sure You Wish To Delete This [Module]?</value>
   </data>
   <data name="Message.DisplayNone" xml:space="preserve">
     <value>No [Module]s To Display</value>
