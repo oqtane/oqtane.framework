@@ -26,7 +26,7 @@ else
             </Header>
             <Row>
                 <td><ActionLink Action="Edit" Parameters="@($"id=" + context.[Module]Id.ToString())" ResourceKey="Edit"  /></td>
-                <td><ActionDialog Header="Delete [Module]" Message="@("Are You Sure You Wish To Delete The " + context.Name + " [Module]?")" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" ResourceKey="Delete"  /></td>
+                <td><ActionDialog Header="Delete [Module]" Message="Are You Sure You Wish To Delete This [Module]?" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" ResourceKey="Delete"  /></td>
                 <td>@context.Name</td>
             </Row>
         </Pager>
