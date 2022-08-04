@@ -87,7 +87,7 @@ namespace Oqtane.Pages
                 RenderMode = (RenderMode)Enum.Parse(typeof(RenderMode), _configuration.GetSection("RenderMode").Value, true);
             }
 
-            // if framework is installed 
+            // if framework is installed
             if (_configuration.IsInstalled())
             {
                 var alias = _tenantManager.GetAlias();
@@ -216,7 +216,7 @@ namespace Oqtane.Pages
                             SetLocalizationCookie(culture);
                         }
 
-                        // set language for page 
+                        // set language for page
                         if (!string.IsNullOrEmpty(culture))
                         {
                             // localization cookie value in form of c=en|uic=en
@@ -242,7 +242,7 @@ namespace Oqtane.Pages
             try
             {
                 // get request attributes
-                string useragent = (Request.Headers[HeaderNames.UserAgent] != StringValues.Empty) ? Request.Headers[HeaderNames.UserAgent] : "(none)";
+                string useragent = (Request.Headers[HeaderNames.UserAgent] != StringValues.Empty) ? Request.Headers[HeaderNames.UserAgent].ToString().Substring(0,256) : "(none)";
                 string language = (Request.Headers[HeaderNames.AcceptLanguage] != StringValues.Empty) ? Request.Headers[HeaderNames.AcceptLanguage] : "";
                 language = (language.Contains(",")) ? language.Substring(0, language.IndexOf(",")) : language;
                 language = (language.Contains(";")) ? language.Substring(0, language.IndexOf(";")) : language;
@@ -431,7 +431,7 @@ namespace Oqtane.Pages
                 {
                     int count = 1;
                     foreach (var resource in obj.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
-                    {                        
+                    {
                         resource.Level = ResourceLevel.Page;
                         ProcessResource(resource, count++);
                     }
