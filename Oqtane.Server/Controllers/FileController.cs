@@ -503,7 +503,7 @@ namespace Oqtane.Controllers
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
 
-            string errorPath = Path.Combine(GetFolderPath("images"), "error.png");
+            string errorPath = Path.Combine(GetFolderPath("wwwroot\\images"), "error.png");
             return System.IO.File.Exists(errorPath) ? PhysicalFile(errorPath, MimeUtilities.GetMimeType(errorPath)) : null;
         }
 
@@ -568,7 +568,7 @@ namespace Oqtane.Controllers
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
 
-            string errorPath = Path.Combine(GetFolderPath("images"), "error.png");
+            string errorPath = Path.Combine(GetFolderPath("wwwroot\\images"), "error.png");
             return System.IO.File.Exists(errorPath) ? PhysicalFile(errorPath, MimeUtilities.GetMimeType(errorPath)) : null;
         }
 
