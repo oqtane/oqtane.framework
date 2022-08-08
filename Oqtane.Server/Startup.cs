@@ -23,7 +23,7 @@ namespace Oqtane
     {
         private readonly bool _useSwagger;
         private readonly IWebHostEnvironment _env;
-        private readonly string[] _supportedCultures;
+        private readonly string[] _installedCultures;
 
         public IConfigurationRoot Configuration { get; }
 
@@ -35,7 +35,7 @@ namespace Oqtane
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, true);
             Configuration = builder.Build();
 
-            _supportedCultures = localizationManager.GetSupportedCultures();
+            _installedCultures = localizationManager.GetInstalledCultures();
 
             //add possibility to switch off swagger on production.
             _useSwagger = Configuration.GetSection("UseSwagger").Value != "false";
@@ -91,7 +91,7 @@ namespace Oqtane
             services.AddOqtaneTransientServices();
 
             // load the external assemblies into the app domain, install services
-            services.AddOqtane(_supportedCultures);
+            services.AddOqtane(_installedCultures);
             services.AddOqtaneDbContext();
 
             services.AddAntiforgery(options =>
