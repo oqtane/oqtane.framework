@@ -115,7 +115,7 @@ namespace Oqtane.Controllers
                 var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
                 // insert satellite assemblies at beginning of list
-                foreach (var culture in _localizationManager.GetSupportedCultures())
+                foreach (var culture in _localizationManager.GetInstalledCultures())
                 {
                     var assembliesFolderPath = Path.Combine(binFolder, culture);
                     if (culture == Constants.DefaultCulture)
