@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Oqtane.Enums;
+using Oqtane.Providers;
 using Oqtane.Security;
 using Oqtane.Services;
 using Oqtane.Shared;
@@ -38,12 +39,23 @@ namespace Oqtane.Themes.Controls
             if (!UserSecurity.IsAuthorized(null, PermissionNames.View, PageState.Page.Permissions))
             {
                 url = PageState.Alias.Path;
-            }            
+            }
 
-            // post to the Logout page to complete the logout process
-            var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, returnurl = url };
-            var interop = new Interop(jsRuntime);
-            await interop.SubmitForm(Utilities.TenantUrl(PageState.Alias, "/pages/logout/"), fields);
+            if (PageState.Runtime == Shared.Runtime.Hybrid)
+            {
+                // hybrid apps utilize an interactive logout
+                await UserService.LogoutUserAsync(PageState.User);
+                var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
+                authstateprovider.NotifyAuthenticationChanged();
+                NavigationManager.NavigateTo(url, true);
+            }
+            else
+            {
+                // post to the Logout page to complete the logout process
+                var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, returnurl = url };
+                var interop = new Interop(jsRuntime);
+                await interop.SubmitForm(Utilities.TenantUrl(PageState.Alias, "/pages/logout/"), fields);
+            }
         }
     }
 }

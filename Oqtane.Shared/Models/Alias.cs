@@ -82,9 +82,15 @@ namespace Oqtane.Models
         }
 
         /// <summary>
-        /// Site-specific settings (only available on the server via HttpContext for security reasons)
+        /// Protocol for the request from which the alias was resolved (ie. http or https )
         /// </summary>
-        //[NotMapped]
-        //public Dictionary<string, string> SiteSettings { get; set; }
+        [NotMapped]
+        public string Protocol { get; set; }
+
+        /// <summary>
+        /// Base Url for static resources (note that this will only be set for remote clients)
+        /// </summary>
+        [NotMapped]
+        public string BaseUrl { get; set; }
     }
 }

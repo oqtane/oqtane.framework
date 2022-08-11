@@ -108,7 +108,7 @@ namespace Oqtane.Shared
             var aliasUrl = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path : "";
             var method = asAttachment ? "/attach" : "";
 
-            return $"{aliasUrl}{Constants.ContentUrl}{fileId}{method}";
+            return $"{alias.BaseUrl}{aliasUrl}{Constants.ContentUrl}{fileId}{method}";
         }
 
         public static string ImageUrl(Alias alias, int fileId, int width, int height, string mode)
@@ -118,17 +118,18 @@ namespace Oqtane.Shared
 
         public static string ImageUrl(Alias alias, int fileId, int width, int height, string mode, string position, string background, int rotate, bool recreate)
         {
-            var aliasUrl = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path : "";
+            var url = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path : "";
             mode = string.IsNullOrEmpty(mode) ? "crop" : mode;
             position = string.IsNullOrEmpty(position) ? "center" : position;
             background = string.IsNullOrEmpty(background) ? "000000" : background;
-            return $"{aliasUrl}{Constants.ImageUrl}{fileId}/{width}/{height}/{mode}/{position}/{background}/{rotate}/{recreate}";
+            return $"{alias.BaseUrl}{url}{Constants.ImageUrl}{fileId}/{width}/{height}/{mode}/{position}/{background}/{rotate}/{recreate}";
         }
 
         public static string TenantUrl(Alias alias, string url)
         {
             url = (!url.StartsWith("/")) ? "/" + url : url;
-            return (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path + url : url;
+            url = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path + url : url;
+            return $"{alias.BaseUrl}{url}";
         }
 
         public static string FormatContent(string content, Alias alias, string operation)

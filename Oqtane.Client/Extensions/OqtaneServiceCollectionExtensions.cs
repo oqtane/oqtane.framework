@@ -16,7 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        internal static IServiceCollection AddOqtaneScopedServices(this IServiceCollection services)
+        public static IServiceCollection AddOqtaneScopedServices(this IServiceCollection services)
         {
             services.AddScoped<SiteState>();
             services.AddScoped<IInstallationService, InstallationService>();

@@ -336,7 +336,7 @@ else
 							user.Username = _hostusername;
 							user.Password = _hostpassword;
 							user.LastIPAddress = PageState.RemoteIPAddress;
-							user = await UserService.LoginUserAsync(user);
+							user = await UserService.LoginUserAsync(user, false, false);
                             if (user.IsAuthenticated)
                             {
 								var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
