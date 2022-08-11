@@ -112,7 +112,7 @@ namespace Oqtane.Repository
                     url = Utilities.ContentUrl(alias, file.FileId);
                     break;
                 case FolderTypes.Public:
-                    url = "/" + Utilities.UrlCombine("Content", "Tenants", alias.TenantId.ToString(), "Sites", file.Folder.SiteId.ToString(), file.Folder.Path) + file.Name;
+                    url = alias.BaseUrl + Utilities.UrlCombine("Content", "Tenants", alias.TenantId.ToString(), "Sites", file.Folder.SiteId.ToString(), file.Folder.Path) + file.Name;
                     break;
             }
             return url;

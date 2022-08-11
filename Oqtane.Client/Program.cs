@@ -33,7 +33,7 @@ namespace Oqtane.Client
 
             builder.Services.AddOptions();
 
-            // Register localization services
+            // register localization services
             builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
             // register auth services

@@ -89,5 +89,8 @@ namespace Oqtane.Shared
 
         public static readonly string HttpContextAliasKey = "Alias";
         public static readonly string HttpContextSiteSettingsKey = "SiteSettings";
+
+        public static readonly string MauiUserAgent = "MAUI";
+
     }
 }

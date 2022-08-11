@@ -315,7 +315,7 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>/login
         [HttpPost("login")]
-        public async Task<User> Login([FromBody] User user)
+        public async Task<User> Login([FromBody] User user, bool setCookie, bool isPersistent)
         {
             User loginUser = new User { SiteId = user.SiteId, Username = user.Username, IsAuthenticated = false };
 
@@ -358,6 +358,11 @@ namespace Oqtane.Controllers
                                     loginUser.LastIPAddress = LastIPAddress;
                                     _users.UpdateUser(loginUser);
                                     _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful {Username}", user.Username);
+
+                                    if (setCookie)
+                                    {
+                                        await _identitySignInManager.SignInAsync(identityuser, isPersistent);
+                                    }
                                 }
                                 else
                                 {
