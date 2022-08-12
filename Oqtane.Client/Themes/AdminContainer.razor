@@ -19,9 +19,9 @@
 </div>
 
 @code {
-    private void CloseModal()
-    {
-        NavigationManager.NavigateTo(NavigateUrl());
+	private void CloseModal()
+	{
+		NavigationManager.NavigateTo((!string.IsNullOrEmpty(PageState.ReturnUrl)) ? PageState.ReturnUrl : NavigateUrl());
     }
 }
 

@@ -43,7 +43,7 @@ else
 					<th>@Localizer["Created"]</th>
 				</Header>
 				<Row>
-					<td><ActionLink Action="Detail" Parameters="@($"id=" + context.VisitorId.ToString() + "&type=" + _type.ToString() + "&days=" + _days.ToString() + "&page=" + _page.ToString())" ResourceKey="Details" /></td>
+					<td><ActionLink Action="Detail" Parameters="@($"id={context.VisitorId}")" ReturnUrl="@(NavigateUrl(PageState.Page.Path, $"type={_type}&days={_days}&page={_page}"))" ResourceKey="Details" /></td>
 					<td>@context.IPAddress</td>
 					<td>
 						@if (context.UserId != null)

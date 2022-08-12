@@ -1,4 +1,5 @@
 @using System.Diagnostics.CodeAnalysis
+@using System.Net
 @namespace Oqtane.UI
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject SiteState SiteState
@@ -85,6 +86,11 @@
 		int moduleid = (int.TryParse(route.ModuleId, out moduleid)) ? moduleid : -1;
 		var action = (!string.IsNullOrEmpty(route.Action)) ? route.Action : Constants.DefaultAction; 
 		var querystring = ParseQueryString(route.Query);
+		var returnurl = "";
+		if (querystring.ContainsKey("returnurl"))
+		{
+			returnurl = WebUtility.UrlDecode(querystring["returnurl"]);
+		}
 
 		// reload the client application from the server if there is a forced reload or the user navigated to a site with a different alias 
 		if (querystring.ContainsKey("reload") || (!NavigationManager.ToBaseRelativePath(_absoluteUri).ToLower().StartsWith(SiteState.Alias.Path.ToLower()) && !string.IsNullOrEmpty(SiteState.Alias.Path)))
@@ -248,7 +254,8 @@
                         LastSyncDate = lastsyncdate,
                         Runtime = runtime,
 						VisitorId = VisitorId,
-						RemoteIPAddress = SiteState.RemoteIPAddress
+						RemoteIPAddress = SiteState.RemoteIPAddress,
+						ReturnUrl = returnurl
                     };
 
 					OnStateChange?.Invoke(_pagestate);
