@@ -24,6 +24,9 @@ namespace Oqtane.Modules
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
 
+        [Inject]
+        protected SiteState SiteState { get; set; }
+
         [CascadingParameter]
         protected PageState PageState { get; set; }
 
@@ -198,7 +201,7 @@ namespace Oqtane.Modules
             return urlParameters;
         }
 
-        // user feedback methods
+        // UI methods
         public void AddModuleMessage(string message, MessageType type)
         {
             ModuleInstance.AddModuleMessage(message, type);
@@ -217,6 +220,18 @@ namespace Oqtane.Modules
         public void HideProgressIndicator()
         {
             ModuleInstance.HideProgressIndicator();
+        }
+
+        public void SetModuleTitle(string title)
+        {
+            var obj = new { PageModuleId = ModuleState.PageModuleId, Title = title };
+            SiteState.Properties.ModuleTitle = obj;
+        }
+
+        public void SetModuleVisibility(bool visible)
+        {
+            var obj = new { PageModuleId = ModuleState.PageModuleId, Visible = visible };
+            SiteState.Properties.ModuleVisibility = obj;
         }
 
         // logging methods
