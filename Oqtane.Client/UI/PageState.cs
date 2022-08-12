@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
 using Oqtane.Models;
 
@@ -25,11 +26,11 @@ namespace Oqtane.UI
 
         public List<Page> Pages
         {
-            get { return Site.Pages; }
+            get { return Site.Pages.Where(item => !item.IsDeleted).ToList(); }
         }
         public List<Module> Modules
         {
-            get { return Site.Modules; }
+            get { return Site.Modules.Where(item => !item.IsDeleted).ToList(); }
         }
         public List<Language> Languages
         {

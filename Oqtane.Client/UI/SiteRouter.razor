@@ -70,11 +70,8 @@
 	private async Task Refresh()
 	{
 		Site site;
-		List<Language> languages;
-		List<Page> pages;
 		Page page;
 		User user = null;
-		List<Module> modules;		
 		var editmode = false;
 		var refresh = UI.Refresh.None;
 		var lastsyncdate = DateTime.UtcNow.AddHours(-1);
@@ -173,24 +170,14 @@
 			{
 				if (sync.SyncEvents.Exists(item => item.EntityName == EntityNames.User && item.EntityId == user.UserId))
 				{
+					site = await SiteService.GetSiteAsync(SiteState.Alias.SiteId);
 					refresh = UI.Refresh.Site;
 				}
 			}
 
 			if (PageState == null || refresh == UI.Refresh.Site)
 			{
-				pages = site.Pages.Where(item => !item.IsDeleted).ToList();
-				languages = site.Languages;
-			}
-			else
-			{
-				pages = PageState.Pages;
-				languages = PageState.Languages;
-			}
-
-			if (PageState == null || refresh == UI.Refresh.Site)
-			{
-				page = pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
+				page = site.Pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
 			}
 			else
 			{
@@ -200,11 +187,11 @@
 			// get the page if the path has changed
 			if (page == null || page.Path != route.PagePath)
 			{
-				page = pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
+				page = site.Pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
 				// if the home page path does not exist then use the first page in the collection (a future enhancement would allow the admin to specify the home page)
 				if (page == null && route.PagePath == "")
 				{
-					page = pages.FirstOrDefault();
+					page = site.Pages.FirstOrDefault();
 				}
 				editmode = false;
 			}
@@ -221,16 +208,7 @@
 				{
 					page = await ProcessPage(page, site, user);
 
-					if (PageState == null || refresh == UI.Refresh.Site)
-					{
-						modules = site.Modules.Where(item => !item.IsDeleted).ToList();
-					}
-					else
-					{
-						modules = PageState.Modules;
-					}
-
-					(page, modules) = ProcessModules(page, modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType);
+					(page, site.Modules) = ProcessModules(page, site.Modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType);
 
 					_pagestate = new PageState
                     {
