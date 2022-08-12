@@ -1,6 +1,8 @@
+@using System.ComponentModel
 @namespace Oqtane.Themes.Controls
 @inherits ContainerBase      
 @attribute [OqtaneIgnore]
+@inject SiteState SiteState
 
 <span class="app-moduletitle">
 	<a id="@ModuleState.PageModuleId.ToString()">
@@ -9,17 +11,39 @@
 </span>
 
 @code {
-    private string title = "";
+	private string title = "";
 
-    protected override void OnParametersSet()
-    {
-        if (!string.IsNullOrEmpty(ModuleState.ControlTitle))
-        {
-            title = ModuleState.ControlTitle;
-        }
-        else
-        {
-            title = ModuleState.Title;
-        }
-    }
+	protected override void OnInitialized()
+	{
+		((INotifyPropertyChanged)SiteState.Properties).PropertyChanged += PropertyChanged;
+	}
+
+	protected override void OnParametersSet()
+	{
+		if (!string.IsNullOrEmpty(ModuleState.ControlTitle))
+		{
+			title = ModuleState.ControlTitle;
+		}
+		else
+		{
+			title = ModuleState.Title;
+		}
+	}
+
+	private void PropertyChanged(object sender, PropertyChangedEventArgs e)
+	{
+		if (e.PropertyName == "ModuleTitle")
+		{
+			if (SiteState.Properties.ModuleTitle.PageModuleId == ModuleState.PageModuleId)
+			{
+				title = SiteState.Properties.ModuleTitle.Title;
+				StateHasChanged();
+			}
+		}
+	}
+
+	public void Dispose()
+	{
+		((INotifyPropertyChanged)SiteState.Properties).PropertyChanged -= PropertyChanged;
+	}
 }
