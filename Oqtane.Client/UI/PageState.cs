@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Xml.Linq;
 using Oqtane.Models;
 
 namespace Oqtane.UI
@@ -8,11 +9,8 @@ namespace Oqtane.UI
     {
         public Alias Alias { get; set; }
         public Site Site { get; set; }
-        public List<Language> Languages { get; set; }
-        public List<Page> Pages { get; set; }
         public Page Page { get; set; }
         public User User { get; set; }
-        public List<Module> Modules { get; set; }
         public Uri Uri { get; set; }
         public Dictionary<string, string> QueryString { get; set; }
         public string UrlParameters { get; set; }
@@ -24,5 +22,18 @@ namespace Oqtane.UI
         public int VisitorId { get; set; }
         public string RemoteIPAddress { get; set; }
         public string ReturnUrl { get; set; }
+
+        public List<Page> Pages
+        {
+            get { return Site.Pages; }
+        }
+        public List<Module> Modules
+        {
+            get { return Site.Modules; }
+        }
+        public List<Language> Languages
+        {
+            get { return Site.Languages; }
+        }
     }
 }

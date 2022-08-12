@@ -109,7 +109,6 @@ namespace Oqtane.Models
         #endregion
 
         #region IModuleControl properties
-        // TODO: unclear why these are IModuleControl properties - there is no such interface
         [NotMapped]
         public SecurityAccessLevel SecurityAccessLevel { get; set; }
         [NotMapped]

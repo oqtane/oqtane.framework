@@ -7,10 +7,8 @@
 @inject INavigationInterception NavigationInterception
 @inject ISyncService SyncService
 @inject ISiteService SiteService
-@inject ILanguageService LanguageService
 @inject IPageService PageService
 @inject IUserService UserService
-@inject IModuleService ModuleService
 @inject IUrlMappingService UrlMappingService
 @inject ILogService LogService
 @inject IJSRuntime JSRuntime
@@ -181,14 +179,13 @@
 
 			if (PageState == null || refresh == UI.Refresh.Site)
 			{
-				languages = await LanguageService.GetLanguagesAsync(site.SiteId);
-				pages = await PageService.GetPagesAsync(site.SiteId);
-				pages = pages.Where(item => !item.IsDeleted).ToList();
+				pages = site.Pages.Where(item => !item.IsDeleted).ToList();
+				languages = site.Languages;
 			}
 			else
 			{
-				languages = PageState.Languages; 
 				pages = PageState.Pages;
+				languages = PageState.Languages;
 			}
 
 			if (PageState == null || refresh == UI.Refresh.Site)
@@ -226,8 +223,7 @@
 
 					if (PageState == null || refresh == UI.Refresh.Site)
 					{
-						modules = await ModuleService.GetModulesAsync(site.SiteId);
-						modules = modules.Where(item => !item.IsDeleted).ToList();
+						modules = site.Modules.Where(item => !item.IsDeleted).ToList();
 					}
 					else
 					{
@@ -240,11 +236,8 @@
                     {
                         Alias = SiteState.Alias,
                         Site = site,
-						Languages = languages,
-                        Pages = pages,
                         Page = page,
                         User = user,
-                        Modules = modules,
                         Uri = new Uri(_absoluteUri, UriKind.Absolute),
                         QueryString = querystring,
                         UrlParameters = route.UrlParameters,
