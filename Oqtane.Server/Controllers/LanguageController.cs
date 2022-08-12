@@ -24,9 +24,9 @@ namespace Oqtane.Controllers
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public LanguageController(ILanguageRepository language, ISyncManager syncManager, ILogManager logger, ITenantManager tenantManager)
+        public LanguageController(ILanguageRepository languages, ISyncManager syncManager, ILogManager logger, ITenantManager tenantManager)
         {
-            _languages = language;
+            _languages = languages;
             _syncManager = syncManager;
             _logger = logger;
             _alias = tenantManager.GetAlias();
