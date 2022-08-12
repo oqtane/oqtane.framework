@@ -45,7 +45,8 @@ V.4.0.0 ( Q4 2022 )
 - [ ] Migration to .NET 7  
 
 V.3.2.0 ( Q3 2022 )
-- [ ] MAUI / Blazor Hybrid support 
+- [x] MAUI / Blazor Hybrid support 
+- [x] Upgrade to Bootstrap 5.2
 
 [3.1.3](https://github.com/oqtane/oqtane.framework/releases/tag/v3.1.3) ( June 27, 2022 )
 - [x] Stabilization improvements 
