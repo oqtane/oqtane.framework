@@ -191,13 +191,6 @@
 
 	private string CloseUrl()
 	{
-		if (!PageState.QueryString.ContainsKey("level"))
-		{
-			return NavigateUrl();
-		}
-		else
-		{
-			return NavigateUrl(PageState.Page.Path, "level=" + PageState.QueryString["level"] + "&function=" + PageState.QueryString["function"] + "&rows=" + PageState.QueryString["rows"] + "&page=" + PageState.QueryString["page"]);
-		}
+		return (!string.IsNullOrEmpty(PageState.ReturnUrl)) ? PageState.ReturnUrl : NavigateUrl();
 	}
 }

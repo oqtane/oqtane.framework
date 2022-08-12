@@ -63,7 +63,7 @@ else
 						<th>@Localizer["Function"]</th>
 					</Header>
 					<Row>
-						<td class="@GetClass(context.Function)"><ActionLink Action="Detail" Parameters="@($"id=" + context.LogId.ToString() + "&level=" + _level + "&function=" + _function + "&rows=" + _rows + "&page=" + _page.ToString())" ResourceKey="LogDetails" /></td>
+						<td class="@GetClass(context.Function)"><ActionLink Action="Detail" Parameters="@($"id={context.LogId}")" ReturnUrl="@(NavigateUrl(PageState.Page.Path, $"level={_level}&function={_function}&rows={_rows}&page={_page}"))" ResourceKey="LogDetails" /></td>
 						<td class="@GetClass(context.Function)">@context.LogDate</td>
 						<td class="@GetClass(context.Function)">@context.Level</td>
 						<td class="@GetClass(context.Function)">@context.Feature</td>
