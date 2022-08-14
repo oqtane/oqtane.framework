@@ -118,6 +118,24 @@
 			lastsyncdate = PageState.LastSyncDate;
 		}
 
+		// get user
+		if (PageState == null || refresh == UI.Refresh.Site || PageState.Alias.SiteId != SiteState.Alias.SiteId)
+		{
+			var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+			if (authState.User.Identity.IsAuthenticated)
+			{
+				user = await UserService.GetUserAsync(authState.User.Identity.Name, SiteState.Alias.SiteId);
+				if (user != null)
+				{
+					user.IsAuthenticated = authState.User.Identity.IsAuthenticated;
+				}
+			}
+		}
+		else
+		{
+			user = PageState.User;
+		}       
+		
 		// process any sync events
 		var sync = await SyncService.GetSyncAsync(lastsyncdate);
 		lastsyncdate = sync.SyncDate;
@@ -129,13 +147,19 @@
 				NavigationManager.NavigateTo(_absoluteUri, true);
 				return;
 			}
+			// when a site has changed the state needs to be refreshed
 			if (sync.SyncEvents.Exists(item => item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId))
+			{
+				refresh = UI.Refresh.Site;
+			}
+			// when a user changed the site needs to be refreshed as the list of pages/modules may have changed
+			if (user != null && sync.SyncEvents.Exists(item => item.EntityName == EntityNames.User && item.EntityId == user.UserId))
 			{
 				refresh = UI.Refresh.Site;
 			}
 		}
 
-		if (refresh == UI.Refresh.Site || PageState == null || PageState.Alias.SiteId != SiteState.Alias.SiteId)
+		if (PageState == null || refresh == UI.Refresh.Site || PageState.Alias.SiteId != SiteState.Alias.SiteId)
 		{
 			site = await SiteService.GetSiteAsync(SiteState.Alias.SiteId);
 			refresh = UI.Refresh.Site;
@@ -149,34 +173,6 @@
 		{
 			if (PageState == null || refresh == UI.Refresh.Site)
 			{
-				// get user
-				var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-				if (authState.User.Identity.IsAuthenticated)
-				{
-					user = await UserService.GetUserAsync(authState.User.Identity.Name, site.SiteId);
-					if (user != null)
-					{
-						user.IsAuthenticated = authState.User.Identity.IsAuthenticated;
-					}
-				}
-			}
-			else
-			{
-				user = PageState.User;
-			}
-
-			// process any sync events for user
-			if (refresh != UI.Refresh.Site && user != null && sync.SyncEvents.Any())
-			{
-				if (sync.SyncEvents.Exists(item => item.EntityName == EntityNames.User && item.EntityId == user.UserId))
-				{
-					site = await SiteService.GetSiteAsync(SiteState.Alias.SiteId);
-					refresh = UI.Refresh.Site;
-				}
-			}
-
-			if (PageState == null || refresh == UI.Refresh.Site)
-			{
 				page = site.Pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
 			}
 			else
@@ -184,13 +180,13 @@
 				page = PageState.Page;
 			}
 
-			// get the page if the path has changed
+			// get the new page if the path has changed
 			if (page == null || page.Path != route.PagePath)
 			{
 				page = site.Pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
-				// if the home page path does not exist then use the first page in the collection (a future enhancement would allow the admin to specify the home page)
 				if (page == null && route.PagePath == "")
 				{
+					// if the home page path does not exist then use the first page in the collection
 					page = site.Pages.FirstOrDefault();
 				}
 				editmode = false;
@@ -198,18 +194,16 @@
 
 			if (page != null)
 			{
-				if (PageState == null)
-				{
-					editmode = false;
-				}
-
 				// check if user is authorized to view page
 				if (UserSecurity.IsAuthorized(user, PermissionNames.View, page.Permissions))
 				{
+					// load additional metadata for current page
 					page = await ProcessPage(page, site, user);
 
+					// load additional metadata for modules
 					(page, site.Modules) = ProcessModules(page, site.Modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType);
 
+					// populate page state (which acts as a client-side cache for subsequent requests)
 					_pagestate = new PageState
                     {
                         Alias = SiteState.Alias,
