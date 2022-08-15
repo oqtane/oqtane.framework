@@ -152,6 +152,10 @@ namespace Oqtane.Pages
                         }
 
                         var page = _pages.GetPage(route.PagePath, site.SiteId);
+                        if (page == null && route.PagePath == "" && site.HomePageId != null)
+                        {
+                            page = _pages.GetPage(site.HomePageId.Value);
+                        }
                         if (page != null && !page.IsDeleted)
                         {
                             // set page title

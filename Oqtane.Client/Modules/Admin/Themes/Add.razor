@@ -114,6 +114,10 @@
 <button type="button" class="btn btn-success" @onclick="InstallThemes">@SharedLocalizer["Install"]</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 
+<br />
+<br />
+<ModuleMessage Type="MessageType.Info" Message="@SharedLocalizer["Oqtane.Marketplace"]" />
+
 @code {
     private List<Package> _packages;
     private string _price = "free";
