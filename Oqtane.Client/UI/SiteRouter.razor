@@ -135,7 +135,7 @@
 		{
 			user = PageState.User;
 		}       
-		
+
 		// process any sync events
 		var sync = await SyncService.GetSyncAsync(lastsyncdate);
 		lastsyncdate = sync.SyncDate;
@@ -171,25 +171,27 @@
 
 		if (site != null)
 		{
-			if (PageState == null || refresh == UI.Refresh.Site)
+			if (PageState == null || refresh == UI.Refresh.Site || PageState.Page.Path != route.PagePath)
 			{
 				page = site.Pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
+				editmode = false;
 			}
 			else
 			{
 				page = PageState.Page;
 			}
 
-			// get the new page if the path has changed
-			if (page == null || page.Path != route.PagePath)
+			if (page == null && route.PagePath == "") // naked path refers to site home page
 			{
-				page = site.Pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
-				if (page == null && route.PagePath == "")
+				if (site.HomePageId != null)
 				{
-					// if the home page path does not exist then use the first page in the collection
+					page = site.Pages.FirstOrDefault(item => item.PageId == site.HomePageId);
+				}
+				if (page == null)
+				{
+					// fallback to use the first page in the collection
 					page = site.Pages.FirstOrDefault();
 				}
-				editmode = false;
 			}
 
 			if (page != null)

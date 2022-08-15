@@ -110,6 +110,10 @@ else
                 }
                 <button type="button" class="btn btn-success" @onclick="InstallLanguages">@SharedLocalizer["Install"]</button>
                 <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+
+				<br />
+				<br />
+				<ModuleMessage Type="MessageType.Info" Message="@SharedLocalizer["Oqtane.Marketplace"]" />
             }
         </TabPanel>
         <TabPanel Name="Upload" ResourceKey="Upload" Security="SecurityAccessLevel.Host">

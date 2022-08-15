@@ -83,6 +83,11 @@ namespace Oqtane.Models
         /// </summary>
         public string Version { get; set; }
 
+        /// <summary>
+        /// The home page of the site which will be used as a fallback if no page has a path of "/" 
+        /// </summary>
+        public int? HomePageId { get; set; }
+
         [NotMapped]
         public Dictionary<string, string> Settings { get; set; }
 
