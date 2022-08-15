@@ -46,7 +46,7 @@
 		{
 			<script src="_framework/blazor.webassembly.js"></script>
 		}
-		else
+		@if (Model.Runtime == "Server")
 		{
 			<script src="_framework/blazor.server.js"></script>
 		}
