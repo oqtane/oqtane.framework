@@ -112,7 +112,7 @@ namespace Oqtane.Pages
                     }
 
                     var site = _sites.GetSite(alias.SiteId);
-                    if (site != null && !site.IsDeleted)
+                    if (site != null && !site.IsDeleted && site.Runtime != "Hybrid")
                     {
                         Route route = new Route(url, alias.Path);
 
@@ -225,7 +225,7 @@ namespace Oqtane.Pages
                     }
                     else
                     {
-                        Message = "Site Is Either Disabled Or Not Configured Correctly";
+                        Message = "Site Is Disabled";
                     }
                 }
                 else
