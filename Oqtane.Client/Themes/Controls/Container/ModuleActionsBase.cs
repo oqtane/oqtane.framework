@@ -33,7 +33,7 @@ namespace Oqtane.Themes.Controls
             {
                 actionList.Add(new ActionViewModel {Icon = Icons.Cog, Name = "Manage Settings", Action = async (u, m) => await Settings(u, m)});
                 
-                if (UserSecurity.GetPermissionStrings(ModuleState.Permissions).FirstOrDefault(item => item.PermissionName == PermissionNames.View).Permissions.Split(';').Contains(RoleNames.Everyone))
+                if (UserSecurity.ContainsRole(ModuleState.Permissions, PermissionNames.View, RoleNames.Everyone))
                 {
                     actionList.Add(new ActionViewModel {Icon=Icons.CircleX, Name = "Unpublish Module", Action = async (s, m) => await Unpublish(s, m) });
                 }
