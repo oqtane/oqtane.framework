@@ -78,7 +78,10 @@
 						<option value="-">&lt;@Localizer["Not Specified"]&gt;</option>
                         @foreach (Page page in PageState.Pages)
                         {
-                            <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
+							if (UserSecurity.ContainsRole(page.Permissions, PermissionNames.View, RoleNames.Everyone))
+							{
+								<option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
+							}
                         }
                     </select>
                 </div>

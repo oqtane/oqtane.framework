@@ -70,7 +70,7 @@
 					</div>
 					<div class="row d-flex">
 						<div class="col">
-							@if (UserSecurity.GetPermissionStrings(PageState.Page.Permissions).FirstOrDefault(item => item.PermissionName == PermissionNames.View).Permissions.Split(';').Contains(RoleNames.Everyone))
+							@if (UserSecurity.ContainsRole(PageState.Page.Permissions, PermissionNames.View, RoleNames.Everyone))
 							{
 								<button type="button" class="btn btn-secondary col-12" @onclick=@(async () => Publish("unpublish"))>@Localizer["Page.Unpublish"]</button>
 							}
