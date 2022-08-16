@@ -63,13 +63,16 @@ public static class MauiProgram
     private static void LoadAppSettings()
     {
         string file = Path.Combine(FileSystem.Current.AppDataDirectory, "appsettings.json");
-        using FileStream stream = File.OpenRead(file);
-        using StreamReader reader = new StreamReader(stream);
-        var content = reader.ReadToEnd();
-        var obj = JsonSerializer.Deserialize<JsonObject>(content)!;
-        if (!string.IsNullOrEmpty((string)obj["Url"]))
+        if (File.Exists(file))
         {
-            url = (string)obj["Url"];
+            using FileStream stream = File.OpenRead(file);
+            using StreamReader reader = new StreamReader(stream);
+            var content = reader.ReadToEnd();
+            var obj = JsonSerializer.Deserialize<JsonObject>(content)!;
+            if (!string.IsNullOrEmpty((string)obj["Url"]))
+            {
+                url = (string)obj["Url"];
+            }
         }
     }
 
