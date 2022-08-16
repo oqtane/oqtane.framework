@@ -153,6 +153,22 @@ namespace Oqtane.Modules
             return Utilities.ImageUrl(PageState.Alias, fileid, width, height, mode, position, background, rotate, recreate);
         }
 
+        public string AddUrlParameters(params string[] parameters)
+        {
+            return AddUrlParameters(PageState.Page.Path, parameters);
+        }
+
+        public string AddUrlParameters(string path, params string[] parameters)
+        {
+            var url = path + "/" + Constants.UrlParametersDelimiter;
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                url += "/" + parameters[i];
+            }
+            return url;
+        }
+
+        // parameters template is in the form of a standard route template ie. "{id}/{name}"
         public virtual Dictionary<string, string> GetUrlParameters(string parametersTemplate = "")
         {
             var urlParameters = new Dictionary<string, string>();

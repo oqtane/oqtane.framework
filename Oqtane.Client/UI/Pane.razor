@@ -17,46 +17,46 @@ else
 }
 
 @code {
-    private bool _useadminborder = false;
-    private string _panetitle = "";
+	private bool _useadminborder = false;
+	private string _panetitle = "";
 
-    [CascadingParameter]
-    protected PageState PageState { get; set; }
+	[CascadingParameter]
+	protected PageState PageState { get; set; }
 
-    [Parameter]
-    public string Name { get; set; }
+	[Parameter]
+	public string Name { get; set; }
 
-    RenderFragment DynamicComponent { get; set; }
+	RenderFragment DynamicComponent { get; set; }
 
-    protected override void OnParametersSet()
-    {
-        if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions) && PageState.Action == Constants.DefaultAction)
-        {
-            _useadminborder = true;
-            _panetitle = "<div class=\"app-pane-admin-title\">" + Name + " Pane</div>";
-        }
-        else
-        {
-            _useadminborder = false;
-            _panetitle = "";
-        }
+	protected override void OnParametersSet()
+	{
+		if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions) && PageState.Action == Constants.DefaultAction)
+		{
+			_useadminborder = true;
+			_panetitle = "<div class=\"app-pane-admin-title\">" + Name + " Pane</div>";
+		}
+		else
+		{
+			_useadminborder = false;
+			_panetitle = "";
+		}
 
-        DynamicComponent = builder =>
-        {
-            if (PageState.ModuleId != -1 && PageState.Action != Constants.DefaultAction)
-            {
-                if (Name.ToLower() == PaneNames.Admin.ToLower())
-                {
-                    Module module = PageState.Modules.FirstOrDefault(item => item.ModuleId == PageState.ModuleId);
-                    if (module != null)
-                    {
-                        var moduleType = Type.GetType(module.ModuleType);
-                        if (moduleType != null)
-                        {
-                            bool authorized = false;
-                            if (Constants.DefaultModuleActions.Contains(PageState.Action))
-                            {
-                                authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions);
+		DynamicComponent = builder =>
+		{
+			if (PageState.ModuleId != -1 && PageState.Action != Constants.DefaultAction)
+			{
+				if (Name.ToLower() == PaneNames.Admin.ToLower())
+				{
+					Module module = PageState.Modules.FirstOrDefault(item => item.ModuleId == PageState.ModuleId);
+					if (module != null)
+					{
+						var moduleType = Type.GetType(module.ModuleType);
+						if (moduleType != null)
+						{
+							bool authorized = false;
+							if (Constants.DefaultModuleActions.Contains(PageState.Action))
+							{
+								authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions);
                             }
                             else
                             {

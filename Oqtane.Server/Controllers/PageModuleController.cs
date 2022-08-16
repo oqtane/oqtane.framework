@@ -54,7 +54,7 @@ namespace Oqtane.Controllers
         public PageModule Get(int pageid, int moduleid)
         {
             PageModule pagemodule = _pageModules.GetPageModule(pageid, moduleid);
-            if (pagemodule != null && pagemodule.Module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User,PermissionNames.View, pagemodule.Module.Permissions))
+            if (pagemodule != null && pagemodule.Module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, pagemodule.Module.Permissions))
             {
                 return pagemodule;
             }
@@ -93,7 +93,7 @@ namespace Oqtane.Controllers
         public PageModule Put(int id, [FromBody] PageModule pageModule)
         {
             var page = _pages.GetPage(pageModule.PageId);
-            if (ModelState.IsValid && page != null && page.SiteId == _alias.SiteId && _pageModules.GetPageModule(pageModule.PageModuleId, false) != null && _userPermissions.IsAuthorized(User, EntityNames.Module, pageModule.ModuleId, PermissionNames.Edit))
+            if (ModelState.IsValid && page != null && page.SiteId == _alias.SiteId && _pageModules.GetPageModule(pageModule.PageModuleId, false) != null && _userPermissions.IsAuthorized(User, EntityNames.Page, pageModule.PageId, PermissionNames.Edit))
             {
                 pageModule = _pageModules.UpdatePageModule(pageModule);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
