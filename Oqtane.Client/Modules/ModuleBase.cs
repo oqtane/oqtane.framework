@@ -15,6 +15,7 @@ namespace Oqtane.Modules
     public abstract class ModuleBase : ComponentBase, IModuleControl
     {
         private Logger _logger;
+        private Dictionary<string, string> _urlparameters;
 
         protected Logger logger => _logger ?? (_logger = new Logger(this));
 
@@ -46,6 +47,20 @@ namespace Oqtane.Modules
         public virtual bool UseAdminContainer { get { return true; } }
 
         public virtual List<Resource> Resources { get; set; }
+
+        // url parameters
+        public virtual string RouteTemplate { get; set; }
+
+        public Dictionary<string, string> UrlParameters {
+            get
+            {
+                if (_urlparameters == null)
+                {
+                    _urlparameters = GetUrlParameters(RouteTemplate);
+                }
+                return _urlparameters;
+            }
+        }
 
         // base lifecycle method for handling JSInterop script registration
 
@@ -153,31 +168,26 @@ namespace Oqtane.Modules
             return Utilities.ImageUrl(PageState.Alias, fileid, width, height, mode, position, background, rotate, recreate);
         }
 
-        public string AddUrlParameters(params string[] parameters)
+        public string AddUrlParameters(params object[] parameters)
         {
-            return AddUrlParameters(PageState.Page.Path, parameters);
-        }
-
-        public string AddUrlParameters(string path, params string[] parameters)
-        {
-            var url = path + "/" + Constants.UrlParametersDelimiter;
+            var url = "";
             for (var i = 0; i < parameters.Length; i++)
             {
-                url += "/" + parameters[i];
+                url += "/" + parameters[i].ToString();
             }
             return url;
         }
 
-        // parameters template is in the form of a standard route template ie. "{id}/{name}"
-        public virtual Dictionary<string, string> GetUrlParameters(string parametersTemplate = "")
+        // template is in the form of a standard route template ie. "/{id}/{name}" and produces dictionary of key/value pairs
+        // if url parameters belong to a specific module you should embed a unique key into the route (ie. /!/blog/1) and validate the url parameter key in the module
+        public virtual Dictionary<string, string> GetUrlParameters(string template = "")
         {
             var urlParameters = new Dictionary<string, string>();
-            string[] templateSegments;
             var parameters = PageState.UrlParameters.Split('/', StringSplitOptions.RemoveEmptyEntries);
-            var parameterId = 0;
 
-            if (string.IsNullOrEmpty(parametersTemplate))
+            if (string.IsNullOrEmpty(template))
             {
+                // no template will populate dictionary with generic "parameter#" keys
                 for (int i = 0; i < parameters.Length; i++)
                 {
                     urlParameters.TryAdd("parameter" + i, parameters[i]);
@@ -185,32 +195,30 @@ namespace Oqtane.Modules
             }
             else
             {
-                templateSegments = parametersTemplate.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                var segments = template.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                string key;
 
-                if (parameters.Length == templateSegments.Length)
+                for (int i = 0; i < parameters.Length; i++)
                 {
-                    for (int i = 0; i < parameters.Length; i++)
+                    if (i < segments.Length)
                     {
-                        if (parameters.Length > i)
+                        key = segments[i];
+                        if (key.StartsWith("{") && key.EndsWith("}"))
                         {
-                            if (templateSegments[i] == parameters[i])
-                            {
-                                urlParameters.TryAdd("parameter" + parameterId, parameters[i]);
-                                parameterId++;
-                            }
-                            else if (templateSegments[i].StartsWith("{") && templateSegments[i].EndsWith("}"))
-                            {
-                                var key = templateSegments[i].Replace("{", "");
-                                key = key.Replace("}", "");
-                                urlParameters.TryAdd(key, parameters[i]);
-                            }
-                            else
-                            {
-                                i = parameters.Length;
-                                urlParameters.Clear();
-                            }
+                            // dynamic segment
+                            key = key.Substring(1, key.Length - 2);
+                        }
+                        else
+                        {
+                            // static segments use generic "parameter#" keys
+                            key = "parameter" + i.ToString();
                         }
                     }
+                    else // unspecified segments use generic "parameter#" keys
+                    {
+                        key = "parameter" + i.ToString();
+                    }
+                    urlParameters.TryAdd(key, parameters[i]);
                 }
             }
 

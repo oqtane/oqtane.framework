@@ -130,13 +130,14 @@
     private string _properties = string.Empty;
     private string _server = string.Empty;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+	public override string RouteTemplate => "/{id}";
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            _logId = Int32.Parse(PageState.QueryString["id"]);
+            _logId = Int32.Parse(UrlParameters["id"]);
             var log = await LogService.GetLogAsync(_logId);
             if (log != null)
             {

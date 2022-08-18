@@ -121,12 +121,12 @@
 
 		_permissions = (string.IsNullOrEmpty(Permissions)) ? ModuleState.Permissions : Permissions;
 		_text = Localize(nameof(Text), _text);
+		_url = (ModuleId == -1) ? EditUrl(Action, _parameters) : EditUrl(ModuleId, Action, _parameters);
 		if (!string.IsNullOrEmpty(ReturnUrl))
 		{
-			_parameters += ((!string.IsNullOrEmpty(_parameters)) ? "&" : "") + $"returnurl={WebUtility.UrlEncode(ReturnUrl)}";
+			_url += ((_url.Contains("?")) ? "&" : "?") + $"returnurl={WebUtility.UrlEncode(ReturnUrl)}";
 		}
-		_url = (ModuleId == -1) ? EditUrl(Action, _parameters) : EditUrl(ModuleId, Action, _parameters);
-        _authorized = IsAuthorized();
+		_authorized = IsAuthorized();
     }
 
     private bool IsAuthorized()

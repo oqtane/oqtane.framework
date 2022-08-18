@@ -38,13 +38,13 @@ namespace Oqtane.Models
             if (pos != -1)
             {
                 UrlParameters = PagePath.Substring(pos + 3);
-                PagePath = PagePath.Substring(1, pos);
+                PagePath = PagePath.Substring(0, pos);
             }
             pos = PagePath.IndexOf("/" + Constants.ModuleDelimiter + "/");
             if (pos != -1)
             {
                 ModuleId = PagePath.Substring(pos + 3);
-                PagePath = PagePath.Substring(1, pos);
+                PagePath = PagePath.Substring(0, pos);
             }
             if (ModuleId.Length != 0)
             {
