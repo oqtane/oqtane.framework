@@ -43,6 +43,7 @@ This project is open source, and therefore is a work in progress...
 
 V.4.0.0 ( Q4 2022 )
 - [ ] Migration to .NET 7  
+- [ ] Folder Providers
 
 V.3.2.0 ( Q3 2022 )
 - [x] MAUI / Blazor Hybrid support 
