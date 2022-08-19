@@ -123,4 +123,10 @@
   <data name="AllowFileManagement.Text" xml:space="preserve">
     <value>Allow File Management: </value>
   </data>
+  <data name="AllowRawHtml.HelpText" xml:space="preserve">
+    <value>Specify If Editors Can Enter Raw HTML</value>
+  </data>
+  <data name="AllowRawHtml.Text" xml:space="preserve">
+    <value>Allow Raw HTML:</value>
+  </data>
 </root>

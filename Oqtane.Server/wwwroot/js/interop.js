@@ -389,6 +389,11 @@ Oqtane.Interop = {
                 behavior: "smooth",
                 block: "start",
                 inline: "nearest"
-        });
+            });
+        }
+    },
+    getCaretPosition: function (id) {
+        var element = document.getElementById(id);
+        return element.selectionStart;
     }
-}};
+};
