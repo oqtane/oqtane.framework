@@ -293,5 +293,19 @@ namespace Oqtane.UI
                 return Task.CompletedTask;
             }
         }
+
+        public ValueTask<int> GetCaretPosition(string id)
+        {
+            try
+            {
+                return _jsRuntime.InvokeAsync<int>(
+                    "Oqtane.Interop.getCaretPosition",
+                    id);
+            }
+            catch
+            {
+                return new ValueTask<int>(-1);
+            }
+        }
     }
 }
