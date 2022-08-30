@@ -73,7 +73,7 @@ namespace Oqtane.Repository
             int start = segments.Length;
             for (int i = 0; i < segments.Length; i++)
             {
-                if (segments[i] == "api" || segments[i] == "pages" || segments[i] == Constants.ModuleDelimiter)
+                if (Constants.ReservedRoutes.Contains(segments[i]) || segments[i] == Constants.ModuleDelimiter)
                 {
                     start = i;
                     break;

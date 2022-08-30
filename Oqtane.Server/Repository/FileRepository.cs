@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -82,6 +83,24 @@ namespace Oqtane.Repository
             return file;
         }
 
+        public File GetFile(int siteId, string folderPath, string fileName)
+        {
+            var file = _db.File.AsNoTracking()
+                .Include(item => item.Folder)
+                .FirstOrDefault(item => item.Folder.SiteId == siteId &&
+                    item.Folder.Path.ToLower() == folderPath &&
+                    item.Name.ToLower() == fileName);
+
+            if (file != null)
+            {
+                IEnumerable<Permission> permissions = _permissions.GetPermissions(EntityNames.Folder, file.FolderId).ToList();
+                file.Folder.Permissions = permissions.EncodePermissions();
+                file.Url = GetFileUrl(file, _tenants.GetAlias());
+            }
+
+            return file;
+        }
+
         public void DeleteFile(int fileId)
         {
             File file = _db.File.Find(fileId);
@@ -105,17 +124,7 @@ namespace Oqtane.Repository
 
         private string GetFileUrl(File file, Alias alias)
         {
-            string url = "";
-            switch (file.Folder.Type)
-            {
-                case FolderTypes.Private:
-                    url = Utilities.ContentUrl(alias, file.FileId);
-                    break;
-                case FolderTypes.Public:
-                    url = alias.BaseUrl + Utilities.UrlCombine("Content", "Tenants", alias.TenantId.ToString(), "Sites", file.Folder.SiteId.ToString(), file.Folder.Path) + file.Name;
-                    break;
-            }
-            return url;
+            return Utilities.FileUrl(alias, file.Folder.Path, file.Name);
         }
     }
 }

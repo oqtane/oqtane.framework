@@ -463,6 +463,12 @@
 						return;
 					}
 
+					if (page.ParentId == null && Constants.ReservedRoutes.Contains(page.Name.ToLower()))
+					{
+						AddModuleMessage(string.Format(Localizer["Message.Page.Reserved"], page.Name), MessageType.Warning);
+						return;
+					}
+
 					if (_insert != "=")
 					{
 						Page child;

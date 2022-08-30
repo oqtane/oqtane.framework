@@ -111,6 +111,12 @@ namespace Oqtane.Shared
             return $"{alias.BaseUrl}{aliasUrl}{Constants.ContentUrl}{fileId}{method}";
         }
 
+        public static string FileUrl(Alias alias, string folderpath, string filename)
+        {
+            var aliasUrl = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path : "";
+            return $"{alias.BaseUrl}{aliasUrl}/files/{folderpath.Replace("\\", "/")}{filename}";
+        }
+
         public static string ImageUrl(Alias alias, int fileId, int width, int height, string mode)
         {
             return ImageUrl(alias, fileId, width, height, mode, "", "", 0, false);
@@ -361,7 +367,8 @@ namespace Oqtane.Shared
         }
 
         public static string UrlCombine(params string[] segments)
-        {
+{
+            segments = segments.Where(item => !string.IsNullOrEmpty(item) && item != "/" && item != "\\").ToArray();
             for (int i = 1; i < segments.Length; i++)
             {
                 segments[i] = segments[i].Replace("\\", "/");

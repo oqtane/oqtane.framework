@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Extensions;
@@ -41,7 +40,7 @@ namespace Oqtane.Repository
             }
 
             // add folder for user
-            Folder folder = _folders.GetFolder(user.SiteId, Utilities.PathCombine("Users", Path.DirectorySeparatorChar.ToString()));
+            Folder folder = _folders.GetFolder(user.SiteId, "Users/");
             if (folder != null)
             {
                 _folders.AddFolder(new Folder
@@ -50,7 +49,7 @@ namespace Oqtane.Repository
                     ParentId = folder.FolderId,
                     Name = "My Folder",
                     Type = FolderTypes.Private,
-                    Path = Utilities.PathCombine(folder.Path, user.UserId.ToString(), Path.DirectorySeparatorChar.ToString()),
+                    Path = $"Users/{user.UserId}/",
                     Order = 1,
                     ImageSizes = "",
                     Capacity = Constants.UserFolderCapacity,

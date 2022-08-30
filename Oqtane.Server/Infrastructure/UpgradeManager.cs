@@ -54,6 +54,9 @@ namespace Oqtane.Infrastructure
                     case "3.1.4":
                         Upgrade_3_1_4(tenant, scope);
                         break;
+                    case "3.2.0":
+                        Upgrade_3_2_0(tenant, scope);
+                        break;
                 }
             }
         }
@@ -238,5 +241,29 @@ namespace Oqtane.Infrastructure
                 }
             }
         }
+
+        private void Upgrade_3_2_0(Tenant tenant, IServiceScope scope)
+        {
+            try
+            {
+                // convert folder paths cross platform format
+                var siteRepository = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
+                var folderRepository = scope.ServiceProvider.GetRequiredService<IFolderRepository>();
+                foreach (Site site in siteRepository.GetSites().ToList())
+                {
+                    var folders = folderRepository.GetFolders(site.SiteId);
+                    foreach (Folder folder in folders)
+                    {
+                        folder.Path = folder.Path.Replace("\\", "/");
+                        folderRepository.UpdateFolder(folder);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Oqtane Error: Error In 3.2.0 Upgrade Logic - {ex}");
+            }
+        }
+
     }
 }

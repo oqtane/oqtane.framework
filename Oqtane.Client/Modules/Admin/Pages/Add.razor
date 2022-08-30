@@ -329,7 +329,7 @@
 						}
 					}
 
-					if(PagePathIsDeleted(page.Path, page.SiteId, _pageList))
+					if (PagePathIsDeleted(page.Path, page.SiteId, _pageList))
 					{
 						AddModuleMessage(string.Format(Localizer["Message.Page.Deleted"], _path), MessageType.Warning);
 						return;
@@ -338,6 +338,12 @@
 					if (!PagePathIsUnique(page.Path, page.SiteId, _pageList))
 					{
 						AddModuleMessage(string.Format(Localizer["Message.Page.Exists"], _path), MessageType.Warning);
+						return;
+					}
+
+					if (page.ParentId == null && Constants.ReservedRoutes.Contains(page.Name.ToLower()))
+					{
+						AddModuleMessage(string.Format(Localizer["Message.Page.Reserved"], page.Name), MessageType.Warning);
 						return;
 					}
 
