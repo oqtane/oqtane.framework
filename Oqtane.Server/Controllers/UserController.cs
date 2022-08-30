@@ -273,7 +273,7 @@ namespace Oqtane.Controllers
                 }
 
                 // remove user folder for site
-                var folder = _folders.GetFolder(SiteId, Utilities.PathCombine("Users", user.UserId.ToString(), Path.DirectorySeparatorChar.ToString()));
+                var folder = _folders.GetFolder(SiteId, $"Users{user.UserId}/");
                 if (folder != null)
                 {
                     if (Directory.Exists(_folders.GetFolderPath(folder)))

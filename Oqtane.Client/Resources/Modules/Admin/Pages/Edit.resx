@@ -270,4 +270,7 @@
   <data name="Meta.Text" xml:space="preserve">
     <value>Meta:</value>
   </data>
+  <data name="Message.Page.Reserved" xml:space="preserve">
+    <value>The page name {0} is reserved. Please enter a different name for your page.</value>
+  </data>
 </root>

@@ -26,6 +26,8 @@ namespace Oqtane.Shared
 
         [Obsolete("Use PaneNames.Admin")]
         public const string AdminPane = PaneNames.Admin;
+
+        public static readonly string[] ReservedRoutes = { "api", "pages", "files" };
         public const string ModuleDelimiter = "*";
         public const string UrlParametersDelimiter = "!";
 
@@ -91,6 +93,5 @@ namespace Oqtane.Shared
         public static readonly string HttpContextSiteSettingsKey = "SiteSettings";
 
         public static readonly string MauiUserAgent = "MAUI";
-
     }
 }
