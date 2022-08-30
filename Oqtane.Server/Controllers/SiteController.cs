@@ -97,6 +97,7 @@ namespace Oqtane.Controllers
                         site.Pages.Add(page);
                     }
                 }
+                site.Pages = GetPagesHierarchy(site.Pages);
 
                 // modules
                 List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(site.SiteId).ToList();
@@ -212,6 +213,46 @@ namespace Oqtane.Controllers
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Site Delete Attempt {SiteId}", id);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
+        }
+
+        private static List<Page> GetPagesHierarchy(List<Page> pages)
+        {
+            List<Page> hierarchy = new List<Page>();
+            Action<List<Page>, Page> getPath = null;
+            getPath = (pageList, page) =>
+            {
+                IEnumerable<Page> children;
+                int level;
+                if (page == null)
+                {
+                    level = -1;
+                    children = pages.Where(item => item.ParentId == null);
+                }
+                else
+                {
+                    level = page.Level;
+                    children = pages.Where(item => item.ParentId == page.PageId);
+                }
+                foreach (Page child in children)
+                {
+                    child.Level = level + 1;
+                    child.HasChildren = pages.Any(item => item.ParentId == child.PageId);
+                    hierarchy.Add(child);
+                    getPath(pageList, child);
+                }
+            };
+            pages = pages.OrderBy(item => item.Order).ToList();
+            getPath(pages, null);
+
+            // add any non-hierarchical items to the end of the list
+            foreach (Page page in pages)
+            {
+                if (hierarchy.Find(item => item.PageId == page.PageId) == null)
+                {
+                    hierarchy.Add(page);
+                }
+            }
+            return hierarchy;
         }
     }
 }
