@@ -1,10 +1,8 @@
 using Oqtane.Models;
 using System.Threading.Tasks;
-using System.Linq;
 using System.Net.Http;
 using System.Collections.Generic;
 using Oqtane.Shared;
-using System;
 using System.Net;
 using Oqtane.Documentation;
 
@@ -19,9 +17,7 @@ namespace Oqtane.Services
 
         public async Task<List<Page>> GetPagesAsync(int siteId)
         {
-            List<Page> pages = await GetJsonAsync<List<Page>>($"{Apiurl}?siteid={siteId}");
-            pages = GetPagesHierarchy(pages);
-            return pages;
+            return await GetJsonAsync<List<Page>>($"{Apiurl}?siteid={siteId}");
         }
 
         public async Task<Page> GetPageAsync(int pageId)
@@ -72,46 +68,6 @@ namespace Oqtane.Services
         public async Task DeletePageAsync(int pageId)
         {
             await DeleteAsync($"{Apiurl}/{pageId}");
-        }
-
-        private static List<Page> GetPagesHierarchy(List<Page> pages)
-        {
-            List<Page> hierarchy = new List<Page>();
-            Action<List<Page>, Page> getPath = null;
-            getPath = (pageList, page) =>
-            {
-                IEnumerable<Page> children;
-                int level;
-                if (page == null)
-                {
-                    level = -1;
-                    children = pages.Where(item => item.ParentId == null);
-                }
-                else
-                {
-                    level = page.Level;
-                    children = pages.Where(item => item.ParentId == page.PageId);
-                }
-                foreach (Page child in children)
-                {
-                    child.Level = level + 1;
-                    child.HasChildren = pages.Any(item => item.ParentId == child.PageId);
-                    hierarchy.Add(child);
-                    getPath(pageList, child);
-                }
-            };
-            pages = pages.OrderBy(item => item.Order).ToList();
-            getPath(pages, null);
-
-            // add any non-hierarchical items to the end of the list
-            foreach (Page page in pages)
-            {
-                if (hierarchy.Find(item => item.PageId == page.PageId) == null)
-                {
-                    hierarchy.Add(page);
-                }
-            }
-            return hierarchy;
         }
     }
 }
