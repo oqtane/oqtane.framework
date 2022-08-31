@@ -11,7 +11,8 @@ namespace Oqtane.Maui;
 
 public static class MauiProgram
 {
-    static string url = "http://localhost:44357"; // can be overridden in an appsettings.json in AppDataDirectory
+    // can be overridden in an appsettings.json in AppDataDirectory
+    static string url = (DeviceInfo.Platform == DevicePlatform.Android) ? "http://10.0.2.2:44357" : "http://localhost:44357";
 
     public static MauiApp CreateMauiApp()
 	{
@@ -26,7 +27,7 @@ public static class MauiProgram
 		builder.Services.AddMauiBlazorWebView();
 		#if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();
-#endif
+        #endif
 
         LoadAppSettings();
 
@@ -84,7 +85,7 @@ public static class MauiProgram
             var assemblies = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetName().Name).ToList();
 
             // get assemblies from server and load into client app domain
-            var zip = http.GetByteArrayAsync($"/api/Installation/load").Result;
+            var zip = http.GetByteArrayAsync("/api/Installation/load").Result;
 
             // asemblies and debug symbols are packaged in a zip file
             using (ZipArchive archive = new ZipArchive(new MemoryStream(zip)))
