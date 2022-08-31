@@ -35,13 +35,8 @@
     <ProjectReference Include="..\Oqtane.Shared\Oqtane.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <TrimmerRootAssembly Include="System.Runtime" />
-    <TrimmerRootAssembly Include="System.Linq.Parallel" />
-    <TrimmerRootAssembly Include="System.Runtime.CompilerServices.VisualC" />
-  </ItemGroup>
-
   <PropertyGroup>
+    <PublishTrimmed>false</PublishTrimmed>
     <BlazorEnableCompression>false</BlazorEnableCompression>
   </PropertyGroup>
 
