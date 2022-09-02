@@ -115,7 +115,7 @@ namespace Oqtane.Repository
                         TypeName = themeControlType.FullName + ", " + themeControlType.Assembly.GetName().Name,
                         Name = theme.Name + " - " + ((string.IsNullOrEmpty(themecontrolobject.Name)) ? Utilities.GetTypeNameLastSegment(themeControlType.FullName, 0) : themecontrolobject.Name),
                         Thumbnail = themecontrolobject.Thumbnail,
-                        Panes = (!string.IsNullOrEmpty(themecontrolobject.Panes)) ? themecontrolobject.Panes : PaneNames.Admin
+                        Panes = themecontrolobject.Panes
                     }
                 );
 

@@ -143,7 +143,7 @@ namespace Oqtane.Infrastructure
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.UrlMappings.Index).ToModuleDefinitionName(), Title = "Url Mappings", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.UrlMappings.Index).ToModuleDefinitionName(), Title = "Url Mappings", Pane = PaneNames.Default,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -172,7 +172,7 @@ namespace Oqtane.Infrastructure
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Visitors.Index).ToModuleDefinitionName(), Title = "Visitor Management", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Visitors.Index).ToModuleDefinitionName(), Title = "Visitor Management", Pane = PaneNames.Default,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -219,7 +219,7 @@ namespace Oqtane.Infrastructure
                 }.EncodePermissions(),
                 PageTemplateModules = new List<PageTemplateModule>
                 {
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Not Found", Pane = PaneNames.Admin,
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Not Found", Pane = PaneNames.Default,
                         ModulePermissions = new List<Permission> {
                             new Permission(PermissionNames.View, RoleNames.Everyone, true),
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
