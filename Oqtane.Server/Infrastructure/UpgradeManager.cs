@@ -246,7 +246,7 @@ namespace Oqtane.Infrastructure
         {
             try
             {
-                // convert folder paths cross platform format
+                // convert folder paths to cross platform format
                 var siteRepository = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
                 var folderRepository = scope.ServiceProvider.GetRequiredService<IFolderRepository>();
                 foreach (Site site in siteRepository.GetSites().ToList())
