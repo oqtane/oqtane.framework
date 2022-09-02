@@ -14,12 +14,18 @@
 @inject IJSRuntime JSRuntime
 @implements IHandleAfterRender
 
+@if (!string.IsNullOrEmpty(_error))
+{
+	<ModuleMessage Message="@_error" Type="@MessageType.Error" />
+}
+
 @DynamicComponent
 
 @code {
 	private string _absoluteUri;
 	private bool _navigationInterceptionEnabled;
 	private PageState _pagestate;
+	private string _error = "";
 
 	[Parameter]
 	public string Runtime { get; set; }
@@ -76,6 +82,7 @@
 		var refresh = UI.Refresh.None;
 		var lastsyncdate = DateTime.UtcNow.AddHours(-1);
 		var runtime = (Shared.Runtime)Enum.Parse(typeof(Shared.Runtime), Runtime);
+		_error = "";
 
 		Route route = new Route(_absoluteUri, SiteState.Alias.Path);
 		int moduleid = (int.TryParse(route.ModuleId, out moduleid)) ? moduleid : -1;
@@ -329,7 +336,7 @@
 			page.Panes = new List<string>();
 			page.Resources = new List<Resource>();
 
-			string panes = PaneNames.Admin;
+			string panes = "";
 			Type themetype = Type.GetType(page.ThemeType);
 			if (themetype == null)
 			{
@@ -349,7 +356,19 @@
 					page.Resources = ManagePageResources(page.Resources, themeobject.Resources, ResourceLevel.Page);
 				}
 			}
-			page.Panes = panes.Replace(";", ",").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+			if (!string.IsNullOrEmpty(panes))
+			{
+				page.Panes = panes.Replace(";", ",").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+				if (!page.Panes.Contains(PaneNames.Admin))
+				{
+					_error = "The Current Theme Does Not Contain An Admin Pane";
+				}
+			}
+			else
+			{
+				page.Panes.Add(PaneNames.Admin);
+				_error = "The Current Theme Does Not Contain Any Panes";
+			}
 		}
 		catch
 		{
@@ -441,8 +460,8 @@
 					}
 				}
 
-				// ensure module's pane exists in current page and if not, assign it to the Admin pane
-				if (page.Panes == null || page.Panes.FindIndex(item => item.Equals(module.Pane, StringComparison.OrdinalIgnoreCase)) == -1)
+				// ensure module's pane exists in current page and if not, fallback to the admin pane
+				if (page.Panes.FindIndex(item => item.Equals(module.Pane, StringComparison.OrdinalIgnoreCase)) == -1)
 				{
 					module.Pane = PaneNames.Admin;
 				}

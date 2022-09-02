@@ -576,7 +576,21 @@
         Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
         _category = SettingService.GetSetting(settings, settingCategory, "Common");
         var pane = SettingService.GetSetting(settings, settingPane, "");
-        _pane = PageState.Page.Panes.Contains(pane) ? pane : PaneNames.Admin;
+		if (PageState.Page.Panes.Contains(pane))
+		{
+			_pane = pane;
+		}
+		else
+		{
+			if (PageState.Page.Panes.Count != 0)
+			{
+				_pane = PageState.Page.Panes[0];
+			}
+			else
+			{
+				_pane = PaneNames.Admin;
+			}
+		}
     }
 
     private async Task UpdateSettingsAsync()
