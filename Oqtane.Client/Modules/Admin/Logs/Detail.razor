@@ -130,7 +130,7 @@
     private string _properties = string.Empty;
     private string _server = string.Empty;
 
-	public override string RouteTemplate => "/{id}";
+	public override string UrlParameterTemplate => "/{id}";
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnInitializedAsync()
