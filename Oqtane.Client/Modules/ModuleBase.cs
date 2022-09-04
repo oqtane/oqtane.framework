@@ -50,7 +50,7 @@ namespace Oqtane.Modules
         public virtual List<Resource> Resources { get; set; }
 
         // url parameters
-        public virtual string UrlParameterTemplate { get; set; }
+        public virtual string UrlParametersTemplate { get; set; }
 
         public Dictionary<string, string> UrlParameters {
             get
@@ -58,7 +58,7 @@ namespace Oqtane.Modules
                 if (_urlparametersstate == null || _urlparametersstate != PageState.UrlParameters)
                 {
                     _urlparametersstate = PageState.UrlParameters;
-                    _urlparameters = GetUrlParameters(UrlParameterTemplate);
+                    _urlparameters = GetUrlParameters(UrlParametersTemplate);
                 }
                 return _urlparameters;
             }
