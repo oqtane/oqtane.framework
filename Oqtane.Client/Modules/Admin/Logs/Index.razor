@@ -99,10 +99,10 @@ else
 	private List<Log> _logs;
 	private string _retention = "";
 
-	public override string RouteTemplate => "/{level}/{function}/{rows}/{page}";
+	public override string UrlParameterTemplate => "/{level}/{function}/{rows}/{page}";
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-	protected override async Task OnInitializedAsync()
+	protected override async Task OnParametersSetAsync()
 	{
 		try
 		{

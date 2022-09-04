@@ -15,6 +15,7 @@ namespace Oqtane.Modules
     public abstract class ModuleBase : ComponentBase, IModuleControl
     {
         private Logger _logger;
+        private string _urlparametersstate;
         private Dictionary<string, string> _urlparameters;
 
         protected Logger logger => _logger ?? (_logger = new Logger(this));
@@ -49,14 +50,15 @@ namespace Oqtane.Modules
         public virtual List<Resource> Resources { get; set; }
 
         // url parameters
-        public virtual string RouteTemplate { get; set; }
+        public virtual string UrlParameterTemplate { get; set; }
 
         public Dictionary<string, string> UrlParameters {
             get
             {
-                if (_urlparameters == null)
+                if (_urlparametersstate == null || _urlparametersstate != PageState.UrlParameters)
                 {
-                    _urlparameters = GetUrlParameters(RouteTemplate);
+                    _urlparametersstate = PageState.UrlParameters;
+                    _urlparameters = GetUrlParameters(UrlParameterTemplate);
                 }
                 return _urlparameters;
             }
@@ -183,7 +185,7 @@ namespace Oqtane.Modules
         public virtual Dictionary<string, string> GetUrlParameters(string template = "")
         {
             var urlParameters = new Dictionary<string, string>();
-            var parameters = PageState.UrlParameters.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            var parameters = _urlparametersstate.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
             if (string.IsNullOrEmpty(template))
             {
