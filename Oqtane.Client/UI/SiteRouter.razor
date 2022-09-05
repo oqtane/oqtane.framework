@@ -16,7 +16,7 @@
 
 @if (!string.IsNullOrEmpty(_error))
 {
-	<ModuleMessage Message="@_error" Type="@MessageType.Error" />
+	<ModuleMessage Message="@_error" Type="@MessageType.Warning" />
 }
 
 @DynamicComponent
@@ -359,9 +359,9 @@
 			if (!string.IsNullOrEmpty(panes))
 			{
 				page.Panes = panes.Replace(";", ",").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-				if (!page.Panes.Contains(PaneNames.Admin))
+				if (!page.Panes.Contains(PaneNames.Default) && !page.Panes.Contains(PaneNames.Admin))
 				{
-					_error = "The Current Theme Does Not Contain An Admin Pane";
+					_error = "The Current Theme Does Not Contain A Default Or Admin Pane";
 				}
 			}
 			else
@@ -460,10 +460,18 @@
 					}
 				}
 
-				// ensure module's pane exists in current page and if not, fallback to the admin pane
+				// validate that module's pane exists in current page
 				if (page.Panes.FindIndex(item => item.Equals(module.Pane, StringComparison.OrdinalIgnoreCase)) == -1)
 				{
-					module.Pane = PaneNames.Admin;
+					// fallback to default pane if it exists
+					if (page.Panes.FindIndex(item => item.Equals(PaneNames.Default, StringComparison.OrdinalIgnoreCase)) != -1)
+					{
+						module.Pane = PaneNames.Default;
+					}
+					else // otherwise admin pane (legacy)
+					{
+						module.Pane = PaneNames.Admin;						
+					}
 				}
 
 				// calculate module position within pane

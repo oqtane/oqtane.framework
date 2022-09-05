@@ -45,8 +45,18 @@ else
 		{
 			if (PageState.ModuleId != -1 && PageState.Action != Constants.DefaultAction)
 			{
-				// an admin pane is required in every theme so that module controls can be rendered in a specific location
-				if (Name.ToLower() == PaneNames.Admin.ToLower())
+				// action route needs to inject module control into specific pane
+				string pane = "";
+				if (PageState.Page.Panes.FindIndex(item => item.Equals(PaneNames.Default, StringComparison.OrdinalIgnoreCase)) != -1)
+				{
+					pane = PaneNames.Default;
+				}
+				else
+				{
+					pane = PaneNames.Admin;
+
+				}
+				if (Name.ToLower() == pane.ToLower())
 				{
 					Module module = PageState.Modules.FirstOrDefault(item => item.ModuleId == PageState.ModuleId);
 					if (module != null)

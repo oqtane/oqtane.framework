@@ -17,13 +17,6 @@
                 </div>
             </div>
         </div>
-		<div class="container">
-			<div class="row">
-				<div class="col-md-12">
-					<Pane Name="@PaneNames.Admin" />
-				</div>
-			</div>
-		</div>
 		<Pane Name="Top Full Width" />
         <div class="container">
             <div class="row">
@@ -115,7 +108,7 @@
 @code {
     public override string Name => "Default Theme";
 
-	public override string Panes => PaneNames.Default + ",Top Full Width,Top 100%,Left 50%,Right 50%,Left 33%,Center 33%,Right 33%,Left Outer 25%,Left Inner 25%,Right Inner 25%,Right Outer 25%,Left 25%,Center 50%,Right 25%,Left Sidebar 66%,Right Sidebar 33%,Left Sidebar 33%,Right Sidebar 66%,Bottom 100%,Bottom Full Width,Footer," + PaneNames.Admin;
+	public override string Panes => PaneNames.Default + ",Top Full Width,Top 100%,Left 50%,Right 50%,Left 33%,Center 33%,Right 33%,Left Outer 25%,Left Inner 25%,Right Inner 25%,Right Outer 25%,Left 25%,Center 50%,Right 25%,Left Sidebar 66%,Right Sidebar 33%,Left Sidebar 33%,Right Sidebar 66%,Bottom 100%,Bottom Full Width,Footer";
 
     public override List<Resource> Resources => new List<Resource>()
     {
