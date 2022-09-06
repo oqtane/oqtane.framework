@@ -58,7 +58,7 @@
                 <Row>
                     <td><button type="button" @onclick="@(() => RestoreModule(context))" class="btn btn-success" title="Restore">@Localizer["Restore"]</button></td>
                     <td><ActionDialog Header="Delete Module" Message="@string.Format(Localizer["Confirm.Module.Delete"], context.Title)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" /></td>
-                    <td>@PageState.Pages.Find(item => item.PageId == context.PageId).Name</td>
+                    <td>@_pages.Find(item => item.PageId == context.PageId).Name</td>
                     <td>@context.Title</td>
                     <td>@context.DeletedBy</td>
                     <td>@context.DeletedOn</td>

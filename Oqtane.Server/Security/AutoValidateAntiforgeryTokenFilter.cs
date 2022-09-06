@@ -51,7 +51,13 @@ namespace Oqtane.Security
         protected virtual bool ShouldValidate(AuthorizationFilterContext context)
         {
             // ignore antiforgery validation if a bearer token was provided
-            if (context.HttpContext.Request.Headers.ContainsKey("Authorization") || context.HttpContext.Request.Headers["User-Agent"] == Constants.MauiUserAgent)
+            if (context.HttpContext.Request.Headers.ContainsKey("Authorization"))
+            {
+                return false;
+            }
+
+            // ignore antiforgery validation if client is a MAUI app
+            if (context.HttpContext.Request.Headers["User-Agent"] == Constants.MauiUserAgent)
             {
                 return false;
             }
