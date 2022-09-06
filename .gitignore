@@ -10,6 +10,8 @@ msbuild.binlog
 *.zip
 
 *.idea
+_ReSharper.Caches
+.DS_Store
 
 Oqtane.Server/appsettings.json
 Oqtane.Server/Data
