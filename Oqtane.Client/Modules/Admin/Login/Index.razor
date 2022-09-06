@@ -202,7 +202,8 @@
 					if (hybrid)
 					{
 						// hybrid apps utilize an interactive login
-						var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
+						var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider
+							.GetService(typeof(IdentityAuthenticationStateProvider));
 						authstateprovider.NotifyAuthenticationChanged();
 						NavigationManager.NavigateTo(NavigateUrl(_returnUrl, true));
 					}

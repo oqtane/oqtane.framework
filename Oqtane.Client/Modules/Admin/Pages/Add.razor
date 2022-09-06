@@ -24,7 +24,7 @@
                         <div class="col-sm-9">
                             <select id="parent" class="form-select" @onchange="(e => ParentChanged(e))" required>
                                 <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
-                                @foreach (Page page in _pageList)
+                                @foreach (Page page in PageState.Pages)
                                 {
                                     <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
                                 }
@@ -167,7 +167,6 @@
 	private List<Theme> _themeList;
 	private List<ThemeControl> _themes = new List<ThemeControl>();
 	private List<ThemeControl> _containers = new List<ThemeControl>();
-	private List<Page> _pageList;
 	private string _name;
 	private string _title;
 	private string _meta;
@@ -201,7 +200,6 @@
 			_themetype = PageState.Site.DefaultThemeType;
 			_containers = ThemeService.GetContainerControls(_themeList, _themetype);
 			_containertype = PageState.Site.DefaultContainerType;
-			_pageList = PageState.Pages;
 			_children = PageState.Pages.Where(item => item.ParentId == null).ToList();
 			_permissions = string.Empty;
 			ThemeSettings();
@@ -307,6 +305,10 @@
 					}
 					if (_path.Contains("/"))
 					{
+						if (_path.EndsWith("/") && _path != "/")
+						{
+							_path = _path.Substring(0, _path.Length - 1);
+						}
 						_path = _path.Substring(_path.LastIndexOf("/") + 1);
 					}
 
@@ -329,13 +331,8 @@
 						}
 					}
 
-					if (PagePathIsDeleted(page.Path, page.SiteId, _pageList))
-					{
-						AddModuleMessage(string.Format(Localizer["Message.Page.Deleted"], _path), MessageType.Warning);
-						return;
-					}
-
-					if (!PagePathIsUnique(page.Path, page.SiteId, _pageList))
+					var _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
+					if (_pages.Any(item => item.Path == page.Path))
 					{
 						AddModuleMessage(string.Format(Localizer["Message.Page.Exists"], _path), MessageType.Warning);
 						return;
@@ -426,15 +423,5 @@
         {
             NavigationManager.NavigateTo(NavigateUrl());
         }
-    }
-
-    private static bool PagePathIsUnique(string pagePath, int siteId, List<Page> existingPages)
-    {
-        return !existingPages.Any(page => page.SiteId == siteId && page.Path == pagePath);
-    }
-
-    private static bool PagePathIsDeleted(string pagePath, int siteId, List<Page> existingPages)
-    {
-        return existingPages.Any(page => page.SiteId == siteId && page.Path == pagePath && page.IsDeleted == true);
     }
 }

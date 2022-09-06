@@ -12,7 +12,9 @@ namespace Oqtane.Maui;
 public static class MauiProgram
 {
     // can be overridden in an appsettings.json in AppDataDirectory
-    static string url = (DeviceInfo.Platform == DevicePlatform.Android) ? "http://10.0.2.2:44357" : "http://localhost:44357";
+    static string url = (DeviceInfo.Platform == DevicePlatform.Android)
+        ? "http://10.0.2.2:44357"
+        : "http://localhost:44357";
 
     public static MauiApp CreateMauiApp()
 	{
