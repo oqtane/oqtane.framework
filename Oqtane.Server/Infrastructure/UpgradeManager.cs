@@ -251,8 +251,7 @@ namespace Oqtane.Infrastructure
                 var folderRepository = scope.ServiceProvider.GetRequiredService<IFolderRepository>();
                 foreach (Site site in siteRepository.GetSites().ToList())
                 {
-                    var folders = folderRepository.GetFolders(site.SiteId);
-                    foreach (Folder folder in folders)
+                    foreach (Folder folder in folderRepository.GetFolders(site.SiteId).ToList())
                     {
                         folder.Path = folder.Path.Replace("\\", "/");
                         folderRepository.UpdateFolder(folder);
