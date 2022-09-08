@@ -33,7 +33,7 @@ else
             <td>@context.Name</td>
             <td>@DisplayStatus(context.IsEnabled, context.IsExecuting)</td>
             <td>@DisplayFrequency(context.Interval, context.Frequency)</td>
-            <td>@context.NextExecution</td>
+            <td>@context.NextExecution?.ToLocalTime()</td>
             <td>
                 @if (context.IsStarted)
                 {

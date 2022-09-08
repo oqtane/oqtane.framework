@@ -446,5 +446,50 @@ namespace Oqtane.Shared
         {
             return $"[{@class.GetType()}] {message}";
         }
+
+        public static DateTime? LocalDateAndTimeAsUtc(DateTime? date, string time, TimeZoneInfo localTimeZone = null)
+        {
+            localTimeZone ??= TimeZoneInfo.Local;
+            if (date != null)
+            {
+                if (!string.IsNullOrEmpty(time))
+                {
+                    return TimeZoneInfo.ConvertTime(DateTime.Parse(date.Value.Date.ToShortDateString() + " " + time), localTimeZone, TimeZoneInfo.Utc);
+                }
+                return TimeZoneInfo.ConvertTime(date.Value.Date, localTimeZone, TimeZoneInfo.Utc);
+            }
+            return null;
+        }
+
+        public static (DateTime? date, string time) UtcAsLocalDateAndTime(DateTime? dateTime, TimeZoneInfo timeZone = null)
+        {
+            timeZone ??= TimeZoneInfo.Local;
+            DateTime? localDateTime = null;
+            string localTime = string.Empty;
+
+            if (dateTime.HasValue && dateTime?.Kind != DateTimeKind.Local)
+            {
+                if (dateTime?.Kind == DateTimeKind.Unspecified)
+                {
+                    // Treat Unspecified as Utc not Local. This is due to EF Core, on some databases, after retrieval will have DateTimeKind as Unspecified.
+                    // All values in database should be UTC.
+                    // Normal .net conversion treats Unspecified as local.
+                    // https://docs.microsoft.com/en-us/dotnet/api/system.timezoneinfo.converttime?view=net-6.0
+                    localDateTime = TimeZoneInfo.ConvertTime(new DateTime(dateTime.Value.Ticks, DateTimeKind.Utc), timeZone);
+                }
+                else
+                {
+                    localDateTime = TimeZoneInfo.ConvertTime(dateTime.Value, timeZone);
+                }
+            }
+
+            if (localDateTime != null && localDateTime.Value.TimeOfDay.TotalSeconds != 0)
+            {
+                localTime = localDateTime.Value.ToString("HH:mm");
+            }
+
+            return (localDateTime?.Date, localTime);
+        }
+
     }
 }
