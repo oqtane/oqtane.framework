@@ -4,17 +4,13 @@ using System.Runtime.Loader;
 using System.Diagnostics;
 using Oqtane.Modules;
 using Oqtane.Services;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 
 namespace Oqtane.Maui;
 
 public static class MauiProgram
 {
-    // can be overridden in an appsettings.json in AppDataDirectory
-    static string url = (DeviceInfo.Platform == DevicePlatform.Android)
-        ? "http://10.0.2.2:44357"
-        : "http://localhost:44357";
+    // the API service url
+    static string apiurl = "http://localhost:44357";
 
     public static MauiApp CreateMauiApp()
 	{
@@ -31,9 +27,7 @@ public static class MauiProgram
 		builder.Services.AddBlazorWebViewDeveloperTools();
         #endif
 
-        LoadAppSettings();
-
-        var httpClient = new HttpClient { BaseAddress = new Uri(url) };
+        var httpClient = new HttpClient { BaseAddress = new Uri(apiurl) };
         httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(Shared.Constants.MauiUserAgent);
         builder.Services.AddSingleton(httpClient);
         builder.Services.AddHttpClient(); // IHttpClientFactory for calling remote services via RemoteServiceBase
@@ -63,22 +57,6 @@ public static class MauiProgram
         return builder.Build();
 	}
 
-    private static void LoadAppSettings()
-    {
-        string file = Path.Combine(FileSystem.Current.AppDataDirectory, "appsettings.json");
-        if (File.Exists(file))
-        {
-            using FileStream stream = File.OpenRead(file);
-            using StreamReader reader = new StreamReader(stream);
-            var content = reader.ReadToEnd();
-            var obj = JsonSerializer.Deserialize<JsonObject>(content)!;
-            if (!string.IsNullOrEmpty((string)obj["Url"]))
-            {
-                url = (string)obj["Url"];
-            }
-        }
-    }
-
     private static void LoadClientAssemblies(HttpClient http)
     {
         try
@@ -87,7 +65,7 @@ public static class MauiProgram
             var assemblies = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetName().Name).ToList();
 
             // get assemblies from server and load into client app domain
-            var zip = http.GetByteArrayAsync("/api/Installation/load").Result;
+            var zip = Task.Run(() => http.GetByteArrayAsync("/api/Installation/load")).GetAwaiter().GetResult();
 
             // asemblies and debug symbols are packaged in a zip file
             using (ZipArchive archive = new ZipArchive(new MemoryStream(zip)))
