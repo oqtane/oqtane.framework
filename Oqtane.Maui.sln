@@ -4,8 +4,6 @@ VisualStudioVersion = 17.0.31611.283
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oqtane.Maui", "Oqtane.Maui\Oqtane.Maui.csproj", "{5EE64148-2152-4908-A3E7-658EB1D87754}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oqtane.Server", "Oqtane.Server\Oqtane.Server.csproj", "{62D43CB1-6CFB-4C4D-B6F7-DB610CE23188}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,10 +16,6 @@ Global
 		{5EE64148-2152-4908-A3E7-658EB1D87754}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5EE64148-2152-4908-A3E7-658EB1D87754}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5EE64148-2152-4908-A3E7-658EB1D87754}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{62D43CB1-6CFB-4C4D-B6F7-DB610CE23188}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{62D43CB1-6CFB-4C4D-B6F7-DB610CE23188}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{62D43CB1-6CFB-4C4D-B6F7-DB610CE23188}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{62D43CB1-6CFB-4C4D-B6F7-DB610CE23188}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
