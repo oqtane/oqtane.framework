@@ -4,6 +4,8 @@ using System.Runtime.Loader;
 using System.Diagnostics;
 using Oqtane.Modules;
 using Oqtane.Services;
+using System.Globalization;
+using System.Text.Json;
 
 namespace Oqtane.Maui;
 
@@ -61,49 +63,116 @@ public static class MauiProgram
     {
         try
         {
-            // get list of loaded assemblies on the client
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetName().Name).ToList();
-
-            // get assemblies from server and load into client app domain
-            var zip = Task.Run(() => http.GetByteArrayAsync("/api/Installation/load")).GetAwaiter().GetResult();
-
-            // asemblies and debug symbols are packaged in a zip file
-            using (ZipArchive archive = new ZipArchive(new MemoryStream(zip)))
+            // ensure local assembly folder exists
+            string folder = Path.Combine(FileSystem.Current.AppDataDirectory, "oqtane");
+            if (!Directory.Exists(folder))
             {
-                var dlls = new Dictionary<string, byte[]>();
-                var pdbs = new Dictionary<string, byte[]>();
+                Directory.CreateDirectory(folder);
+            }
 
-                foreach (ZipArchiveEntry entry in archive.Entries)
+            var dlls = new Dictionary<string, byte[]>();
+            var pdbs = new Dictionary<string, byte[]>();
+
+            var filter = new List<string>();
+            var files = new List<string>();
+            foreach (var file in Directory.EnumerateFiles(folder, "*.dll", SearchOption.AllDirectories))
+            {
+                files.Add(file.Substring(folder.Length + 1).Replace("\\", "/"));
+            }
+            if (files.Count() != 0)
+            {
+                // get list of assemblies from server
+                var json = Task.Run(() => http.GetStringAsync("/api/Installation/list")).GetAwaiter().GetResult();
+                var assemblies = JsonSerializer.Deserialize<List<string>>(json);
+
+                // determine which assemblies need to be downloaded
+                foreach (var assembly in assemblies)
                 {
-                    if (!assemblies.Contains(Path.GetFileNameWithoutExtension(entry.FullName)))
+                    var file = files.FirstOrDefault(item => item.Contains(assembly));
+                    if (file == null)
+                    {
+                        filter.Add(assembly);
+                    }
+                    else
+                    {
+                        // check if newer version available
+                        if (GetFileDate(assembly) > GetFileDate(file))
+                        {
+                            filter.Add(assembly);
+                        }
+                    }
+                }
+
+                // get assemblies already downloaded
+                foreach (var file in files)
+                {
+                    if (assemblies.Contains(file) && !filter.Contains(file))
+                    {
+                        dlls.Add(file, File.ReadAllBytes(Path.Combine(folder, file)));
+                        var pdb = file.Replace(".dll", ".pdb");
+                        if (File.Exists(Path.Combine(folder, pdb)))
+                        {
+                            pdbs.Add(pdb, File.ReadAllBytes(Path.Combine(folder, pdb)));
+                        }
+                    }
+                    else // file is deprecated
+                    {
+                        File.Delete(Path.Combine(folder, file));
+                    }
+                }
+            }
+            else
+            {
+                filter.Add("*");
+            }
+
+            if (filter.Count != 0)
+            {
+                // get assemblies from server
+                var zip = Task.Run(() => http.GetByteArrayAsync("/api/Installation/load?list=" + string.Join(",", filter))).GetAwaiter().GetResult();
+
+                // asemblies and debug symbols are packaged in a zip file
+                using (ZipArchive archive = new ZipArchive(new MemoryStream(zip)))
+                {
+                    foreach (ZipArchiveEntry entry in archive.Entries)
                     {
                         using (var memoryStream = new MemoryStream())
                         {
                             entry.Open().CopyTo(memoryStream);
                             byte[] file = memoryStream.ToArray();
-                            switch (Path.GetExtension(entry.FullName))
+
+                            // save assembly to local folder
+                            int subfolder = entry.FullName.IndexOf('/');
+                            if (subfolder != -1 && !Directory.Exists(Path.Combine(folder, entry.FullName.Substring(0, subfolder))))
                             {
-                                case ".dll":
-                                    dlls.Add(entry.FullName, file);
-                                    break;
-                                case ".pdb":
-                                    pdbs.Add(entry.FullName, file);
-                                    break;
+                                Directory.CreateDirectory(Path.Combine(folder, entry.FullName.Substring(0, subfolder)));
+                            }
+                            using var stream = File.Create(Path.Combine(folder, entry.FullName));
+                            stream.Write(file, 0, file.Length);
+
+                            if (Path.GetExtension(entry.FullName) == ".dll")
+                            {
+                                dlls.Add(entry.FullName, file);
+                            }
+                            else
+                            {
+                                pdbs.Add(entry.FullName, file);
                             }
                         }
                     }
                 }
+            }
 
-                foreach (var item in dlls)
+            // load assemblies into app domain
+            foreach (var item in dlls)
+            {
+                if (pdbs.ContainsKey(item.Key.Replace(".dll", ".pdb")))
                 {
-                    if (pdbs.ContainsKey(item.Key))
-                    {
-                        AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(item.Value), new MemoryStream(pdbs[item.Key]));
-                    }
-                    else
-                    {
-                        AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(item.Value));
-                    }
+                    AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(item.Value), new MemoryStream(pdbs[item.Key.Replace(".dll", ".pdb")]));
+                }
+                else
+                {
+                    AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(item.Value));
                 }
             }
         }
@@ -111,6 +180,12 @@ public static class MauiProgram
         {
             Debug.WriteLine($"Oqtane Error: Loading Client Assemblies {ex}");
         }
+    }
+
+    private static DateTime GetFileDate(string filepath)
+    {
+        var segments = filepath.Split('.');
+        return DateTime.ParseExact(segments[segments.Length - 2], "yyyyMMddHHmmss", CultureInfo.InvariantCulture);
     }
 
     private static void RegisterModuleServices(Assembly assembly, IServiceCollection services)
