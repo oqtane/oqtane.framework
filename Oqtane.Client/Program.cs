@@ -71,43 +71,41 @@ namespace Oqtane.Client
             // get assemblies from server and load into client app domain
             var zip = await http.GetByteArrayAsync($"/api/Installation/load");
 
+            var dlls = new Dictionary<string, byte[]>();
+            var pdbs = new Dictionary<string, byte[]>();
+
             // asemblies and debug symbols are packaged in a zip file
             using (ZipArchive archive = new ZipArchive(new MemoryStream(zip)))
             {
-                var dlls = new Dictionary<string, byte[]>();
-                var pdbs = new Dictionary<string, byte[]>();
-
                 foreach (ZipArchiveEntry entry in archive.Entries)
                 {
-                    if (!assemblies.Contains(Path.GetFileNameWithoutExtension(entry.FullName)))
+                    using (var memoryStream = new MemoryStream())
                     {
-                        using (var memoryStream = new MemoryStream())
+                        entry.Open().CopyTo(memoryStream);
+                        byte[] file = memoryStream.ToArray();
+                        switch (Path.GetExtension(entry.FullName))
                         {
-                            entry.Open().CopyTo(memoryStream);
-                            byte[] file = memoryStream.ToArray();
-                            switch (Path.GetExtension(entry.FullName))
-                            {
-                                case ".dll":
-                                    dlls.Add(entry.FullName, file);
-                                    break;
-                                case ".pdb":
-                                    pdbs.Add(entry.FullName, file);
-                                    break;
-                            }
+                            case ".dll":
+                                dlls.Add(entry.FullName, file);
+                                break;
+                            case ".pdb":
+                                pdbs.Add(entry.FullName, file);
+                                break;
                         }
                     }
                 }
+            }
 
-                foreach (var item in dlls)
+            // load assemblies into app domain
+            foreach (var item in dlls)
+            {
+                if (pdbs.ContainsKey(item.Key.Replace(".dll", ".pdb")))
                 {
-                    if (pdbs.ContainsKey(item.Key))
-                    {
-                        AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(item.Value), new MemoryStream(pdbs[item.Key]));
-                    }
-                    else
-                    {
-                        AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(item.Value));
-                    }
+                    AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(item.Value), new MemoryStream(pdbs[item.Key.Replace(".dll", ".pdb")]));
+                }
+                else
+                {
+                    AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(item.Value));
                 }
             }
         }
