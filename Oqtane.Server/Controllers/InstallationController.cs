@@ -19,8 +19,6 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
-using System.Diagnostics;
-using static System.Net.WebRequestMethods;
 
 namespace Oqtane.Controllers
 {
@@ -105,7 +103,10 @@ namespace Oqtane.Controllers
         [HttpGet("list")]
         public List<string> List()
         {
-            return GetAssemblyList();
+            return _cache.GetOrCreate("assemblieslist", entry =>
+            {
+                return GetAssemblyList();
+            });
         }
 
         // GET api/<controller>/load?list=x,y
