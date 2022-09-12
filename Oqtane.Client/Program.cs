@@ -7,16 +7,19 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 using Oqtane.Documentation;
+using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Services;
 using Oqtane.Shared;
 using Oqtane.UI;
+using static System.Net.WebRequestMethods;
 
 namespace Oqtane.Client
 {
@@ -42,7 +45,9 @@ namespace Oqtane.Client
             // register scoped core services
             builder.Services.AddOqtaneScopedServices();
 
-            await LoadClientAssemblies(httpClient);
+            var serviceProvider = builder.Services.BuildServiceProvider();
+
+            await LoadClientAssemblies(httpClient, serviceProvider);
 
             var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
             foreach (var assembly in assemblies)
@@ -54,43 +59,114 @@ namespace Oqtane.Client
                 RegisterClientStartups(assembly, builder.Services);
             }
 
-            var host = builder.Build();
-
-            await SetCultureFromLocalizationCookie(host.Services);
-
-            ServiceActivator.Configure(host.Services);
-
-            await host.RunAsync();
+            await builder.Build().RunAsync();
         }
 
-        private static async Task LoadClientAssemblies(HttpClient http)
+        private static async Task LoadClientAssemblies(HttpClient http, IServiceProvider serviceProvider)
         {
-            // get list of loaded assemblies on the client
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetName().Name).ToList();
-
-            // get assemblies from server and load into client app domain
-            var zip = await http.GetByteArrayAsync($"/api/Installation/load");
-
             var dlls = new Dictionary<string, byte[]>();
             var pdbs = new Dictionary<string, byte[]>();
+            var filter = new List<string>();
 
-            // asemblies and debug symbols are packaged in a zip file
-            using (ZipArchive archive = new ZipArchive(new MemoryStream(zip)))
+            var jsRuntime = serviceProvider.GetRequiredService<IJSRuntime>();
+            var interop = new Interop(jsRuntime);
+            var files = await interop.GetIndexedDBKeys(".dll");
+
+            if (files.Count() != 0)
             {
-                foreach (ZipArchiveEntry entry in archive.Entries)
+                // get list of assemblies from server
+                var json = await http.GetStringAsync("/api/Installation/list");
+                var assemblies = JsonSerializer.Deserialize<List<string>>(json);
+
+                // determine which assemblies need to be downloaded
+                foreach (var assembly in assemblies)
                 {
-                    using (var memoryStream = new MemoryStream())
+                    var file = files.FirstOrDefault(item => item.Contains(assembly));
+                    if (file == null)
                     {
-                        entry.Open().CopyTo(memoryStream);
-                        byte[] file = memoryStream.ToArray();
-                        switch (Path.GetExtension(entry.FullName))
+                        filter.Add(assembly);
+                    }
+                    else
+                    {
+                        // check if newer version available
+                        if (GetFileDate(assembly) > GetFileDate(file))
                         {
-                            case ".dll":
-                                dlls.Add(entry.FullName, file);
-                                break;
-                            case ".pdb":
-                                pdbs.Add(entry.FullName, file);
-                                break;
+                            filter.Add(assembly);
+                        }
+                    }
+                }
+
+                // get assemblies already downloaded
+                foreach (var file in files)
+                {
+                    if (assemblies.Contains(file) && !filter.Contains(file))
+                    {
+                        try
+                        {
+                            dlls.Add(file, await interop.GetIndexedDBItem<byte[]>(file));
+                            var pdb = file.Replace(".dll", ".pdb");
+                            if (files.Contains(pdb))
+                            {
+                                pdbs.Add(pdb, await interop.GetIndexedDBItem<byte[]>(pdb));
+                            }
+                        }
+                        catch
+                        {
+                            // ignore
+                        }
+                    }
+                    else // file is deprecated
+                    {
+                        try
+                        {
+                            await interop.RemoveIndexedDBItem(file);
+                        }
+                        catch
+                        {
+                            // ignore
+                        }
+                    }
+                }
+            }
+            else
+            {
+                filter.Add("*");
+            }
+
+            if (filter.Count != 0)
+            {
+                // get assemblies from server and load into client app domain
+                var zip = await http.GetByteArrayAsync($"/api/Installation/load?list=" + string.Join(",", filter));
+
+                // asemblies and debug symbols are packaged in a zip file
+                using (ZipArchive archive = new ZipArchive(new MemoryStream(zip)))
+                {
+                    foreach (ZipArchiveEntry entry in archive.Entries)
+                    {
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            entry.Open().CopyTo(memoryStream);
+                            byte[] file = memoryStream.ToArray();
+
+                            // save assembly to indexeddb
+                            try
+                            {
+                                await interop.SetIndexedDBItem(entry.FullName, file);
+                            }
+                            catch
+                            {
+                                // ignore
+                            }
+
+                            switch (Path.GetExtension(entry.FullName))
+                            {
+                                case ".dll":
+                                    dlls.Add(entry.FullName, file);
+                                    break;
+                                case ".pdb":
+                                    pdbs.Add(entry.FullName, file);
+                                    break;
+                            }
                         }
                     }
                 }
@@ -108,6 +184,12 @@ namespace Oqtane.Client
                     AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(item.Value));
                 }
             }
+        }
+
+        private static DateTime GetFileDate(string filepath)
+        {
+            var segments = filepath.Split('.');
+            return DateTime.ParseExact(segments[segments.Length - 2], "yyyyMMddHHmmss", CultureInfo.InvariantCulture);
         }
 
         private static void RegisterModuleServices(Assembly assembly, IServiceCollection services)
