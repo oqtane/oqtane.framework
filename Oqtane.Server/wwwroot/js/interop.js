@@ -395,5 +395,81 @@ Oqtane.Interop = {
     getCaretPosition: function (id) {
         var element = document.getElementById(id);
         return element.selectionStart;
+    },
+    setIndexedDBItem: function (key, value) {
+        let idb = indexedDB.open("oqtane", 1);
+
+        idb.onupgradeneeded = function () {
+            let db = idb.result;
+            db.createObjectStore("items");
+        }
+
+        idb.onsuccess = function () {
+            let transaction = idb.result.transaction("items", "readwrite");
+            let collection = transaction.objectStore("items")
+            collection.put(value, key);
+        }
+    },
+    getIndexedDBItem: async function (key) {
+        let request = new Promise((resolve) => {
+            let idb = indexedDB.open("oqtane", 1);
+
+            idb.onupgradeneeded = function () {
+                let db = idb.result;
+                db.createObjectStore("items");
+            }
+
+            idb.onsuccess = function () {
+                let transaction = idb.result.transaction("items", "readonly");
+                let collection = transaction.objectStore("items");
+                let result = collection.get(key);
+
+                result.onsuccess = function (e) {
+                    resolve(result.result);
+                }
+            }
+        });
+
+        let result = await request;
+
+        return result;
+    },
+    getIndexedDBKeys: async function () {
+        let request = new Promise((resolve) => {
+            let idb = indexedDB.open("oqtane", 1);
+
+            idb.onupgradeneeded = function () {
+                let db = idb.result;
+                db.createObjectStore("items");
+            }
+
+            idb.onsuccess = function () {
+                let transaction = idb.result.transaction("items", "readonly");
+                let collection = transaction.objectStore("items");
+                let result = collection.getAllKeys();
+
+                result.onsuccess = function (e) {
+                    resolve(result.result);
+                }
+            }
+        });
+
+        let result = await request;
+
+        return result;
+    },
+    removeIndexedDBItem: function (key) {
+        let idb = indexedDB.open("oqtane", 1);
+
+        idb.onupgradeneeded = function () {
+            let db = idb.result;
+            db.createObjectStore("items");
+        }
+
+        idb.onsuccess = function () {
+            let transaction = idb.result.transaction("items", "readwrite");
+            let collection = transaction.objectStore("items");
+            collection.delete(key);
+        }
     }
 };

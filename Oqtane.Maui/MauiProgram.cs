@@ -72,13 +72,14 @@ public static class MauiProgram
 
             var dlls = new Dictionary<string, byte[]>();
             var pdbs = new Dictionary<string, byte[]>();
-
             var filter = new List<string>();
+
             var files = new List<string>();
             foreach (var file in Directory.EnumerateFiles(folder, "*.dll", SearchOption.AllDirectories))
             {
                 files.Add(file.Substring(folder.Length + 1).Replace("\\", "/"));
             }
+
             if (files.Count() != 0)
             {
                 // get list of assemblies from server
@@ -108,16 +109,30 @@ public static class MauiProgram
                 {
                     if (assemblies.Contains(file) && !filter.Contains(file))
                     {
-                        dlls.Add(file, File.ReadAllBytes(Path.Combine(folder, file)));
-                        var pdb = file.Replace(".dll", ".pdb");
-                        if (File.Exists(Path.Combine(folder, pdb)))
+                        try
                         {
-                            pdbs.Add(pdb, File.ReadAllBytes(Path.Combine(folder, pdb)));
+                            dlls.Add(file, File.ReadAllBytes(Path.Combine(folder, file)));
+                            var pdb = file.Replace(".dll", ".pdb");
+                            if (File.Exists(Path.Combine(folder, pdb)))
+                            {
+                                pdbs.Add(pdb, File.ReadAllBytes(Path.Combine(folder, pdb)));
+                            }
+                        }
+                        catch
+                        {
+                            // ignore
                         }
                     }
                     else // file is deprecated
                     {
-                        File.Delete(Path.Combine(folder, file));
+                        try
+                        {
+                            File.Delete(Path.Combine(folder, file));
+                        }
+                        catch
+                        {
+                            // ignore
+                        }
                     }
                 }
             }
@@ -142,13 +157,20 @@ public static class MauiProgram
                             byte[] file = memoryStream.ToArray();
 
                             // save assembly to local folder
-                            int subfolder = entry.FullName.IndexOf('/');
-                            if (subfolder != -1 && !Directory.Exists(Path.Combine(folder, entry.FullName.Substring(0, subfolder))))
+                            try
                             {
-                                Directory.CreateDirectory(Path.Combine(folder, entry.FullName.Substring(0, subfolder)));
+                                int subfolder = entry.FullName.IndexOf('/');
+                                if (subfolder != -1 && !Directory.Exists(Path.Combine(folder, entry.FullName.Substring(0, subfolder))))
+                                {
+                                    Directory.CreateDirectory(Path.Combine(folder, entry.FullName.Substring(0, subfolder)));
+                                }
+                                using var stream = File.Create(Path.Combine(folder, entry.FullName));
+                                stream.Write(file, 0, file.Length);
                             }
-                            using var stream = File.Create(Path.Combine(folder, entry.FullName));
-                            stream.Write(file, 0, file.Length);
+                            catch
+                            {
+                                // ignore
+                            }
 
                             if (Path.GetExtension(entry.FullName) == ".dll")
                             {
