@@ -14,12 +14,9 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 using Oqtane.Documentation;
-using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Services;
-using Oqtane.Shared;
 using Oqtane.UI;
-using static System.Net.WebRequestMethods;
 
 namespace Oqtane.Client
 {
