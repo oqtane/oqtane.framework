@@ -316,8 +316,8 @@ namespace Oqtane.UI
             try
             {
                 _jsRuntime.InvokeVoidAsync(
-                    "Oqtane.Interop.setIndexedDBItem",
-                    key, value);
+                    "Oqtane.Interop.manageIndexedDBItems",
+                    "put", key, value);
                 return Task.CompletedTask;
             }
             catch
@@ -331,8 +331,8 @@ namespace Oqtane.UI
             try
             {
                 return await _jsRuntime.InvokeAsync<T>(
-                    "Oqtane.Interop.getIndexedDBItem",
-                    key);
+                    "Oqtane.Interop.manageIndexedDBItems",
+                    "get", key, null);
             }
             catch
             {
@@ -350,7 +350,8 @@ namespace Oqtane.UI
             try
             {
                 var items = await _jsRuntime.InvokeAsync<JsonDocument>(
-                    "Oqtane.Interop.getIndexedDBKeys");
+                    "Oqtane.Interop.manageIndexedDBItems",
+                    "getallkeys", null, null);
                 if (!string.IsNullOrEmpty(contains))
                 {
                     return items.Deserialize<List<string>>()
@@ -372,8 +373,8 @@ namespace Oqtane.UI
             try
             {
                 _jsRuntime.InvokeVoidAsync(
-                    "Oqtane.Interop.removeIndexedDBItem",
-                    key);
+                    "Oqtane.Interop.manageIndexedDBItems",
+                    "delete", key, null);
                 return Task.CompletedTask;
             }
             catch

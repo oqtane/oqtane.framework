@@ -396,80 +396,48 @@ Oqtane.Interop = {
         var element = document.getElementById(id);
         return element.selectionStart;
     },
-    setIndexedDBItem: function (key, value) {
-        let idb = indexedDB.open("oqtane", 1);
+    manageIndexedDBItems: async function (action, key, value) {
+        var idb = indexedDB.open("oqtane", 1);
 
         idb.onupgradeneeded = function () {
             let db = idb.result;
             db.createObjectStore("items");
         }
 
-        idb.onsuccess = function () {
-            let transaction = idb.result.transaction("items", "readwrite");
-            let collection = transaction.objectStore("items")
-            collection.put(value, key);
+        if (action.startsWith("get")) {
+            let request = new Promise((resolve) => {
+                idb.onsuccess = function () {
+                    let transaction = idb.result.transaction("items", "readonly");
+                    let collection = transaction.objectStore("items");
+                    let result;
+                    if (action === "get") {
+                        result = collection.get(key);
+                    }
+                    if (action === "getallkeys") {
+                        result = collection.getAllKeys();
+                    }
+
+                    result.onsuccess = function (e) {
+                        resolve(result.result);
+                    }
+                }
+            });
+
+            let result = await request;
+
+            return result;
         }
-    },
-    getIndexedDBItem: async function (key) {
-        let request = new Promise((resolve) => {
-            let idb = indexedDB.open("oqtane", 1);
-
-            idb.onupgradeneeded = function () {
-                let db = idb.result;
-                db.createObjectStore("items");
-            }
-
+        else {
             idb.onsuccess = function () {
-                let transaction = idb.result.transaction("items", "readonly");
+                let transaction = idb.result.transaction("items", "readwrite");
                 let collection = transaction.objectStore("items");
-                let result = collection.get(key);
-
-                result.onsuccess = function (e) {
-                    resolve(result.result);
+                if (action === "put") {
+                    collection.put(value, key);
+                }
+                if (action === "delete") {
+                    collection.delete(key);
                 }
             }
-        });
-
-        let result = await request;
-
-        return result;
-    },
-    getIndexedDBKeys: async function () {
-        let request = new Promise((resolve) => {
-            let idb = indexedDB.open("oqtane", 1);
-
-            idb.onupgradeneeded = function () {
-                let db = idb.result;
-                db.createObjectStore("items");
-            }
-
-            idb.onsuccess = function () {
-                let transaction = idb.result.transaction("items", "readonly");
-                let collection = transaction.objectStore("items");
-                let result = collection.getAllKeys();
-
-                result.onsuccess = function (e) {
-                    resolve(result.result);
-                }
-            }
-        });
-
-        let result = await request;
-
-        return result;
-    },
-    removeIndexedDBItem: function (key) {
-        let idb = indexedDB.open("oqtane", 1);
-
-        idb.onupgradeneeded = function () {
-            let db = idb.result;
-            db.createObjectStore("items");
-        }
-
-        idb.onsuccess = function () {
-            let transaction = idb.result.transaction("items", "readwrite");
-            let collection = transaction.objectStore("items");
-            collection.delete(key);
         }
     }
 };
