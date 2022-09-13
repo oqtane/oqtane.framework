@@ -389,6 +389,55 @@ Oqtane.Interop = {
                 behavior: "smooth",
                 block: "start",
                 inline: "nearest"
-        });
+            });
+        }
+    },
+    getCaretPosition: function (id) {
+        var element = document.getElementById(id);
+        return element.selectionStart;
+    },
+    manageIndexedDBItems: async function (action, key, value) {
+        var idb = indexedDB.open("oqtane", 1);
+
+        idb.onupgradeneeded = function () {
+            let db = idb.result;
+            db.createObjectStore("items");
+        }
+
+        if (action.startsWith("get")) {
+            let request = new Promise((resolve) => {
+                idb.onsuccess = function () {
+                    let transaction = idb.result.transaction("items", "readonly");
+                    let collection = transaction.objectStore("items");
+                    let result;
+                    if (action === "get") {
+                        result = collection.get(key);
+                    }
+                    if (action === "getallkeys") {
+                        result = collection.getAllKeys();
+                    }
+
+                    result.onsuccess = function (e) {
+                        resolve(result.result);
+                    }
+                }
+            });
+
+            let result = await request;
+
+            return result;
+        }
+        else {
+            idb.onsuccess = function () {
+                let transaction = idb.result.transaction("items", "readwrite");
+                let collection = transaction.objectStore("items");
+                if (action === "put") {
+                    collection.put(value, key);
+                }
+                if (action === "delete") {
+                    collection.delete(key);
+                }
+            }
+        }
     }
-}};
+};
