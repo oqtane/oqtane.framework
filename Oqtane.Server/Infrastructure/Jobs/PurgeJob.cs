@@ -17,7 +17,7 @@ namespace Oqtane.Infrastructure
             Name = "Purge Job";
             Frequency = "d"; // daily
             Interval = 1;
-            StartDate = DateTime.ParseExact("03:00", "H:mm", null, System.Globalization.DateTimeStyles.None); // 3 AM
+            StartDate = DateTime.ParseExact("03:00", "H:mm", null, System.Globalization.DateTimeStyles.AssumeLocal).ToUniversalTime(); // 3 AM
             IsEnabled = true;
         }
 

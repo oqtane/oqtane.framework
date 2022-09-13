@@ -25,7 +25,7 @@
     private ElementReference form;
     private bool validated = false;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
     public override string Title => "Import Content";
 
     private async Task ImportModule()
@@ -38,7 +38,7 @@
             {
                 try
                 {
-                    bool success = await ModuleService.ImportModuleAsync(ModuleState.ModuleId, _content);
+					bool success = await ModuleService.ImportModuleAsync(ModuleState.ModuleId, PageState.Page.PageId, _content);
                     if (success)
                     {
                         AddModuleMessage(Localizer["Success.Content.Import"], MessageType.Success);

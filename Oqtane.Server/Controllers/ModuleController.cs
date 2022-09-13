@@ -205,14 +205,14 @@ namespace Oqtane.Controllers
             }
         }
 
-        // GET api/<controller>/export?moduleid=x
+        // GET api/<controller>/export?moduleid=x&pageid=y
         [HttpGet("export")]
         [Authorize(Roles = RoleNames.Registered)]
-        public string Export(int moduleid)
+        public string Export(int moduleid, int pageid)
         {
             string content = "";
             var module = _modules.GetModule(moduleid);
-            if (module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
+            if (module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Page, pageid, PermissionNames.Edit))
             {
                 content = _modules.ExportModule(moduleid);
                 if (!string.IsNullOrEmpty(content))
@@ -232,14 +232,14 @@ namespace Oqtane.Controllers
             return content;
         }
 
-        // POST api/<controller>/import?moduleid=x
+        // POST api/<controller>/import?moduleid=x&pageid=y
         [HttpPost("import")]
         [Authorize(Roles = RoleNames.Registered)]
-        public bool Import(int moduleid, [FromBody] string content)
+        public bool Import(int moduleid, int pageid, [FromBody] string content)
         {
             bool success = false;
             var module = _modules.GetModule(moduleid);
-            if (ModelState.IsValid && module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
+            if (ModelState.IsValid && module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Page, pageid, PermissionNames.Edit))
             {
                 success = _modules.ImportModule(moduleid, content);
                 if (success)

@@ -13,7 +13,7 @@
     <TabPanel Name="Edit" Heading="Edit" ResourceKey="Edit">
 		@if (_content != null)
 		{
-			<RichTextEditor Content="@_content" AllowFileManagement="@_allowfilemanagement" @ref="@RichTextEditorHtml"></RichTextEditor>
+			<RichTextEditor Content="@_content" AllowFileManagement="@_allowfilemanagement" AllowRawHtml="@_allowrawhtml" @ref="@RichTextEditorHtml"></RichTextEditor>
 			<br />
 			<button type="button" class="btn btn-success" @onclick="SaveContent">@SharedLocalizer["Save"]</button>
 			<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
@@ -60,6 +60,7 @@
 
 	private RichTextEditor RichTextEditorHtml;
 	private bool _allowfilemanagement;
+	private bool _allowrawhtml;
 	private string _content = null;
 	private string _createdby;
 	private DateTime _createdon;
@@ -73,6 +74,7 @@
 		try
 		{
 			_allowfilemanagement = bool.Parse(SettingService.GetSetting(ModuleState.Settings, "AllowFileManagement", "true"));
+			_allowrawhtml = bool.Parse(SettingService.GetSetting(ModuleState.Settings, "AllowRawHtml", "true"));
 			await LoadContent();
 		}
 		catch (Exception ex)

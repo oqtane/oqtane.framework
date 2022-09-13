@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Oqtane.Documentation;
 using Oqtane.Shared;
+using Oqtane.Modules.Controls;
 
 namespace Oqtane.Services
 {
@@ -44,14 +45,14 @@ namespace Oqtane.Services
             await DeleteAsync($"{Apiurl}/{moduleId.ToString()}");
         }
 
-        public async Task<bool> ImportModuleAsync(int moduleId, string content)
+        public async Task<bool> ImportModuleAsync(int moduleId, int pageId, string content)
         {
-            return await PostJsonAsync<string,bool>($"{Apiurl}/import?moduleid={moduleId}", content);
+            return await PostJsonAsync<string,bool>($"{Apiurl}/import?moduleid={moduleId}&pageid={pageId}", content);
         }
 
-        public async Task<string> ExportModuleAsync(int moduleId)
-        {
-            return await GetStringAsync($"{Apiurl}/export?moduleid={moduleId}");
+        public async Task<string> ExportModuleAsync(int moduleId, int pageId)
+{
+            return await GetStringAsync($"{Apiurl}/export?moduleid={moduleId}&pageid={pageId}");
         }
     }
 }

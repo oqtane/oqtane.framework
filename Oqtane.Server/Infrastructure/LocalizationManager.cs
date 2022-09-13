@@ -1,6 +1,10 @@
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Extensions.Options;
+using Oqtane.Models;
 using Oqtane.Shared;
 
 namespace Oqtane.Infrastructure
@@ -29,8 +33,18 @@ namespace Oqtane.Infrastructure
         }
 
         public string[] GetSupportedCultures()
-        { 
+        {
             return CultureInfo.GetCultures(CultureTypes.AllCultures).Select(item => item.Name).OrderBy(c => c).ToArray();
+        }
+
+        public string[] GetInstalledCultures()
+        {
+            var cultures = new List<string>();
+            foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), $"Oqtane.Client{Constants.SatelliteAssemblyExtension}", SearchOption.AllDirectories))
+            {
+                cultures.Add(Path.GetFileName(Path.GetDirectoryName(file)));
+            }
+            return cultures.OrderBy(c => c).ToArray();
         }
     }
 }

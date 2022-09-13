@@ -70,7 +70,7 @@
 					</div>
 					<div class="row d-flex">
 						<div class="col">
-							@if (UserSecurity.GetPermissionStrings(PageState.Page.Permissions).FirstOrDefault(item => item.PermissionName == PermissionNames.View).Permissions.Split(';').Contains(RoleNames.Everyone))
+							@if (UserSecurity.ContainsRole(PageState.Page.Permissions, PermissionNames.View, RoleNames.Everyone))
 							{
 								<button type="button" class="btn btn-secondary col-12" @onclick=@(async () => Publish("unpublish"))>@Localizer["Page.Unpublish"]</button>
 							}
@@ -431,152 +431,166 @@
 		}
 	}
 
-    private async Task ToggleEditMode(bool EditMode)
-    {
-        if (_showEditMode)
-        {
-            if (EditMode)
-            {
-                PageState.EditMode = false;
-            }
-            else
-            {
-                PageState.EditMode = true;
-            }
+	private async Task ToggleEditMode(bool EditMode)
+	{
+		if (_showEditMode)
+		{
+			if (EditMode)
+			{
+				PageState.EditMode = false;
+			}
+			else
+			{
+				PageState.EditMode = true;
+			}
 
-            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + ((PageState.EditMode) ? "1" : "0")));
-        }
-        else
-        {
-            if (PageState.Page.IsPersonalizable && PageState.User != null)
-            {
-                await PageService.AddPageAsync(PageState.Page.PageId, PageState.User.UserId);
-                PageState.EditMode = true;
-                NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + ((PageState.EditMode) ? "1" : "0")));
-            }
-        }
-    }
+			NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + ((PageState.EditMode) ? "1" : "0")));
+		}
+		else
+		{
+			if (PageState.Page.IsPersonalizable && PageState.User != null)
+			{
+				await PageService.AddPageAsync(PageState.Page.PageId, PageState.User.UserId);
+				PageState.EditMode = true;
+				NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + ((PageState.EditMode) ? "1" : "0")));
+			}
+		}
+	}
 
-    private void Navigate(string location)
-    {
-        Module module;
-        switch (location)
-        {
-            case "Admin":
-                // get admin dashboard moduleid
-                module = PageState.Modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.AdminDashboardModule);
+	private void Navigate(string location)
+	{
+		Module module;
+		switch (location)
+		{
+			case "Admin":
+			// get admin dashboard moduleid
+				module = PageState.Modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.AdminDashboardModule);
 
-                if (module != null)
-                {
-                    NavigationManager.NavigateTo(EditUrl(PageState.Page.Path, module.ModuleId, "Index", ""));
-                }
+				if (module != null)
+				{
+					NavigationManager.NavigateTo(EditUrl(PageState.Page.Path, module.ModuleId, "Index", ""));
+				}
 
-                break;
-            case "Add":
-            case "Edit":
-                string url = "";
-                // get page management moduleid
-                module = PageState.Modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.PageManagementModule);
+				break;
+			case "Add":
+			case "Edit":
+				string url = "";
+				// get page management moduleid
+				module = PageState.Modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.PageManagementModule);
 
-                if (module != null)
-                {
-                    switch (location)
-                    {
-                        case "Add":
-                            url = EditUrl(PageState.Page.Path, module.ModuleId, location, "cp=" + PageState.Page.PageId);
-                            break;
-                        case "Edit":
-                            url = EditUrl(PageState.Page.Path, module.ModuleId, location, "id=" + PageState.Page.PageId.ToString() + "&cp=" + PageState.Page.PageId);
-                            break;
-                    }
-                }
+				if (module != null)
+				{
+					switch (location)
+					{
+						case "Add":
+							url = EditUrl(PageState.Page.Path, module.ModuleId, location, "cp=" + PageState.Page.PageId);
+							break;
+						case "Edit":
+							url = EditUrl(PageState.Page.Path, module.ModuleId, location, "id=" + PageState.Page.PageId.ToString() + "&cp=" + PageState.Page.PageId);
+							break;
+					}
+				}
 
-                if (url != "")
-                {
-                    NavigationManager.NavigateTo(url);
-                }
+				if (url != "")
+				{
+					NavigationManager.NavigateTo(url);
+				}
 
-                break;
-        }
-    }
+				break;
+		}
+	}
 
-    private async void Publish(string action)
-    {
-        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
-        {
-            List<PermissionString> permissions;
+	private async void Publish(string action)
+	{
+		if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
+		{
+			List<PermissionString> permissions;
 
-            // publish/unpublish page
-            var page = PageState.Page;
-            permissions = UserSecurity.GetPermissionStrings(page.Permissions);
-            foreach (var permissionstring in permissions)
-            {
-                if (permissionstring.PermissionName == PermissionNames.View)
-                {
-                    List<string> ids = permissionstring.Permissions.Split(';').ToList();
-                    switch (action)
-                    {
-                        case "publish":
-                            if (!ids.Contains(RoleNames.Everyone)) ids.Add(RoleNames.Everyone);
-                            if (!ids.Contains(RoleNames.Registered)) ids.Add(RoleNames.Registered);
-                            break;
-                        case "unpublish":
-                            ids.Remove(RoleNames.Everyone);
-                            ids.Remove(RoleNames.Registered);
-                            break;
-                    }
-                    permissionstring.Permissions = string.Join(";", ids.ToArray());
-                }
-            }
-            page.Permissions = UserSecurity.SetPermissionStrings(permissions);
-            await PageService.UpdatePageAsync(page);
-            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, true));
-        }
-    }
+			// publish/unpublish page
+			var page = PageState.Page;
+			permissions = UserSecurity.GetPermissionStrings(page.Permissions);
+			foreach (var permissionstring in permissions)
+			{
+				if (permissionstring.PermissionName == PermissionNames.View)
+				{
+					List<string> ids = permissionstring.Permissions.Split(';').ToList();
+					switch (action)
+					{
+						case "publish":
+							if (!ids.Contains(RoleNames.Everyone)) ids.Add(RoleNames.Everyone);
+							if (!ids.Contains(RoleNames.Registered)) ids.Add(RoleNames.Registered);
+							break;
+						case "unpublish":
+							ids.Remove(RoleNames.Everyone);
+							ids.Remove(RoleNames.Registered);
+							break;
+					}
+					permissionstring.Permissions = string.Join(";", ids.ToArray());
+				}
+			}
+			page.Permissions = UserSecurity.SetPermissionStrings(permissions);
+			await PageService.UpdatePageAsync(page);
+			NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, true));
+		}
+	}
 
-    private void ConfirmDelete()
-    {
-        _deleteConfirmation = !_deleteConfirmation;
-        StateHasChanged();
-    }
+	private void ConfirmDelete()
+	{
+		_deleteConfirmation = !_deleteConfirmation;
+		StateHasChanged();
+	}
 
-    private async Task DeletePage()
-    {
-        ConfirmDelete();
+	private async Task DeletePage()
+	{
+		ConfirmDelete();
 
-        var page = PageState.Page;
-        try
-        {
-            if (page.UserId == null)
-            {
-                page.IsDeleted = true;
-                await PageService.UpdatePageAsync(page);
-                await logger.Log(page.PageId, null, PageState.User.UserId, GetType().AssemblyQualifiedName, "ControlPanel", LogFunction.Delete, LogLevel.Information, null, "Page Deleted {Page}", page);
-                NavigationManager.NavigateTo(NavigateUrl(""));
-            }
-            else // personalized page
-            {
-                await PageService.DeletePageAsync(page.PageId);
-                await logger.Log(page.PageId, null, PageState.User.UserId, GetType().AssemblyQualifiedName, "ControlPanel", LogFunction.Delete, LogLevel.Information, null, "Page Deleted {Page}", page);
-                NavigationManager.NavigateTo(NavigateUrl());
-            }
-        }
-        catch (Exception ex)
-        {
-            await logger.Log(page.PageId, null, PageState.User.UserId, GetType().AssemblyQualifiedName, "ControlPanel", LogFunction.Delete, LogLevel.Information, ex, "Page Deleted {Page} {Error}", page, ex.Message);
-        }
-    }
+		var page = PageState.Page;
+		try
+		{
+			if (page.UserId == null)
+			{
+				page.IsDeleted = true;
+				await PageService.UpdatePageAsync(page);
+				await logger.Log(page.PageId, null, PageState.User.UserId, GetType().AssemblyQualifiedName, "ControlPanel", LogFunction.Delete, LogLevel.Information, null, "Page Deleted {Page}", page);
+				NavigationManager.NavigateTo(NavigateUrl(""));
+			}
+			else // personalized page
+			{
+				await PageService.DeletePageAsync(page.PageId);
+				await logger.Log(page.PageId, null, PageState.User.UserId, GetType().AssemblyQualifiedName, "ControlPanel", LogFunction.Delete, LogLevel.Information, null, "Page Deleted {Page}", page);
+				NavigationManager.NavigateTo(NavigateUrl());
+			}
+		}
+		catch (Exception ex)
+		{
+			await logger.Log(page.PageId, null, PageState.User.UserId, GetType().AssemblyQualifiedName, "ControlPanel", LogFunction.Delete, LogLevel.Information, ex, "Page Deleted {Page} {Error}", page, ex.Message);
+		}
+	}
 
-    private string settingCategory = "CP-category";
-    private string settingPane = "CP-pane";
-    private string _pane = "";
+	private string settingCategory = "CP-category";
+	private string settingPane = "CP-pane";
+	private string _pane = "";
 
-    private async Task LoadSettingsAsync()
-    {
-        Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-        _category = SettingService.GetSetting(settings, settingCategory, "Common");
-        var pane = SettingService.GetSetting(settings, settingPane, "");
-        _pane = PageState.Page.Panes.Contains(pane) ? pane : PaneNames.Admin;
+	private async Task LoadSettingsAsync()
+	{
+		Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
+		_category = SettingService.GetSetting(settings, settingCategory, "Common");
+		var pane = SettingService.GetSetting(settings, settingPane, "");
+		if (PageState.Page.Panes.Contains(pane))
+		{
+			_pane = pane;
+		}
+		else
+		{
+			if (PageState.Page.Panes.FindIndex(item => item.Equals(PaneNames.Default, StringComparison.OrdinalIgnoreCase)) != -1)
+			{
+				_pane = PaneNames.Default;
+			}
+			else
+			{
+				_pane = PaneNames.Admin;
+			}
+		}
     }
 
     private async Task UpdateSettingsAsync()

@@ -54,6 +54,9 @@ namespace Oqtane.Infrastructure
                     case "3.1.4":
                         Upgrade_3_1_4(tenant, scope);
                         break;
+                    case "3.2.0":
+                        Upgrade_3_2_0(tenant, scope);
+                        break;
                 }
             }
         }
@@ -140,7 +143,7 @@ namespace Oqtane.Infrastructure
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.UrlMappings.Index).ToModuleDefinitionName(), Title = "Url Mappings", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.UrlMappings.Index).ToModuleDefinitionName(), Title = "Url Mappings", Pane = PaneNames.Default,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -169,7 +172,7 @@ namespace Oqtane.Infrastructure
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Visitors.Index).ToModuleDefinitionName(), Title = "Visitor Management", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Visitors.Index).ToModuleDefinitionName(), Title = "Visitor Management", Pane = PaneNames.Default,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -216,7 +219,7 @@ namespace Oqtane.Infrastructure
                 }.EncodePermissions(),
                 PageTemplateModules = new List<PageTemplateModule>
                 {
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Not Found", Pane = PaneNames.Admin,
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Not Found", Pane = PaneNames.Default,
                         ModulePermissions = new List<Permission> {
                             new Permission(PermissionNames.View, RoleNames.Everyone, true),
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -238,5 +241,28 @@ namespace Oqtane.Infrastructure
                 }
             }
         }
+
+        private void Upgrade_3_2_0(Tenant tenant, IServiceScope scope)
+        {
+            try
+            {
+                // convert folder paths to cross platform format
+                var siteRepository = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
+                var folderRepository = scope.ServiceProvider.GetRequiredService<IFolderRepository>();
+                foreach (Site site in siteRepository.GetSites().ToList())
+                {
+                    foreach (Folder folder in folderRepository.GetFolders(site.SiteId).ToList())
+                    {
+                        folder.Path = folder.Path.Replace("\\", "/");
+                        folderRepository.UpdateFolder(folder);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Oqtane Error: Error In 3.2.0 Upgrade Logic - {ex}");
+            }
+        }
+
     }
 }

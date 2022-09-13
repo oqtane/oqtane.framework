@@ -42,7 +42,12 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 This project is open source, and therefore is a work in progress...
 
 V.4.0.0 ( Q4 2022 )
-- [ ] MAUI / Blazor Hybrid support 
+- [ ] Migration to .NET 7  
+- [ ] Folder Providers
+
+V.3.2.0 ( Q3 2022 )
+- [x] MAUI / Blazor Hybrid support 
+- [x] Upgrade to Bootstrap 5.2
 
 [3.1.3](https://github.com/oqtane/oqtane.framework/releases/tag/v3.1.3) ( June 27, 2022 )
 - [x] Stabilization improvements 

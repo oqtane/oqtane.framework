@@ -15,6 +15,8 @@ namespace Oqtane.Modules
     public abstract class ModuleBase : ComponentBase, IModuleControl
     {
         private Logger _logger;
+        private string _urlparametersstate;
+        private Dictionary<string, string> _urlparameters;
 
         protected Logger logger => _logger ?? (_logger = new Logger(this));
 
@@ -23,6 +25,9 @@ namespace Oqtane.Modules
 
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
+
+        [Inject]
+        protected SiteState SiteState { get; set; }
 
         [CascadingParameter]
         protected PageState PageState { get; set; }
@@ -44,6 +49,21 @@ namespace Oqtane.Modules
 
         public virtual List<Resource> Resources { get; set; }
 
+        // url parameters
+        public virtual string UrlParametersTemplate { get; set; }
+
+        public Dictionary<string, string> UrlParameters {
+            get
+            {
+                if (_urlparametersstate == null || _urlparametersstate != PageState.UrlParameters)
+                {
+                    _urlparametersstate = PageState.UrlParameters;
+                    _urlparameters = GetUrlParameters(UrlParametersTemplate);
+                }
+                return _urlparameters;
+            }
+        }
+
         // base lifecycle method for handling JSInterop script registration
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -55,7 +75,8 @@ namespace Oqtane.Modules
                     var scripts = new List<object>();
                     foreach (Resource resource in Resources.Where(item => item.ResourceType == ResourceType.Script))
                     {
-                        scripts.Add(new { href = resource.Url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", es6module = resource.ES6Module });
+                        var url = (resource.Url.Contains("://")) ? resource.Url : PageState.Alias.BaseUrl + "/" + resource.Url;
+                        scripts.Add(new { href = url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", es6module = resource.ES6Module });
                     }
                     if (scripts.Any())
                     {
@@ -149,15 +170,26 @@ namespace Oqtane.Modules
             return Utilities.ImageUrl(PageState.Alias, fileid, width, height, mode, position, background, rotate, recreate);
         }
 
-        public virtual Dictionary<string, string> GetUrlParameters(string parametersTemplate = "")
+        public string AddUrlParameters(params object[] parameters)
+        {
+            var url = "";
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                url += "/" + parameters[i].ToString();
+            }
+            return url;
+        }
+
+        // template is in the form of a standard route template ie. "/{id}/{name}" and produces dictionary of key/value pairs
+        // if url parameters belong to a specific module you should embed a unique key into the route (ie. /!/blog/1) and validate the url parameter key in the module
+        public virtual Dictionary<string, string> GetUrlParameters(string template = "")
         {
             var urlParameters = new Dictionary<string, string>();
-            string[] templateSegments;
-            var parameters = PageState.UrlParameters.Split('/', StringSplitOptions.RemoveEmptyEntries);
-            var parameterId = 0;
+            var parameters = _urlparametersstate.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
-            if (string.IsNullOrEmpty(parametersTemplate))
+            if (string.IsNullOrEmpty(template))
             {
+                // no template will populate dictionary with generic "parameter#" keys
                 for (int i = 0; i < parameters.Length; i++)
                 {
                     urlParameters.TryAdd("parameter" + i, parameters[i]);
@@ -165,39 +197,37 @@ namespace Oqtane.Modules
             }
             else
             {
-                templateSegments = parametersTemplate.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                var segments = template.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                string key;
 
-                if (parameters.Length == templateSegments.Length)
+                for (int i = 0; i < parameters.Length; i++)
                 {
-                    for (int i = 0; i < parameters.Length; i++)
+                    if (i < segments.Length)
                     {
-                        if (parameters.Length > i)
+                        key = segments[i];
+                        if (key.StartsWith("{") && key.EndsWith("}"))
                         {
-                            if (templateSegments[i] == parameters[i])
-                            {
-                                urlParameters.TryAdd("parameter" + parameterId, parameters[i]);
-                                parameterId++;
-                            }
-                            else if (templateSegments[i].StartsWith("{") && templateSegments[i].EndsWith("}"))
-                            {
-                                var key = templateSegments[i].Replace("{", "");
-                                key = key.Replace("}", "");
-                                urlParameters.TryAdd(key, parameters[i]);
-                            }
-                            else
-                            {
-                                i = parameters.Length;
-                                urlParameters.Clear();
-                            }
+                            // dynamic segment
+                            key = key.Substring(1, key.Length - 2);
+                        }
+                        else
+                        {
+                            // static segments use generic "parameter#" keys
+                            key = "parameter" + i.ToString();
                         }
                     }
+                    else // unspecified segments use generic "parameter#" keys
+                    {
+                        key = "parameter" + i.ToString();
+                    }
+                    urlParameters.TryAdd(key, parameters[i]);
                 }
             }
 
             return urlParameters;
         }
 
-        // user feedback methods
+        // UI methods
         public void AddModuleMessage(string message, MessageType type)
         {
             ModuleInstance.AddModuleMessage(message, type);
@@ -216,6 +246,18 @@ namespace Oqtane.Modules
         public void HideProgressIndicator()
         {
             ModuleInstance.HideProgressIndicator();
+        }
+
+        public void SetModuleTitle(string title)
+        {
+            var obj = new { PageModuleId = ModuleState.PageModuleId, Title = title };
+            SiteState.Properties.ModuleTitle = obj;
+        }
+
+        public void SetModuleVisibility(bool visible)
+        {
+            var obj = new { PageModuleId = ModuleState.PageModuleId, Visible = visible };
+            SiteState.Properties.ModuleVisibility = obj;
         }
 
         // logging methods

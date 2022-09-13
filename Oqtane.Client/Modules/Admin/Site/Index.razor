@@ -71,6 +71,21 @@
                     </select>
                 </div>
             </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="homepage" HelpText="Select the home page for the site (to be used if there is no page with a path of '/')" ResourceKey="HomePage">Home Page: </Label>
+                <div class="col-sm-9">
+                    <select id="homepage" class="form-select" @bind="@_homepageid" required>
+						<option value="-">&lt;@Localizer["Not Specified"]&gt;</option>
+                        @foreach (Page page in PageState.Pages)
+                        {
+							if (UserSecurity.ContainsRole(page.Permissions, PermissionNames.View, RoleNames.Everyone))
+							{
+								<option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
+							}
+                        }
+                    </select>
+                </div>
+            </div>
 			<div class="row mb-1 align-items-center">
 				<Label Class="col-sm-3" For="isDeleted" HelpText="Is this site deleted?" ResourceKey="IsDeleted">Deleted? </Label>
 				<div class="col-sm-9">
@@ -228,6 +243,7 @@
                             <select id="runtime" class="form-select" @bind="@_runtime" required>
                                 <option value="Server">@SharedLocalizer["BlazorServer"]</option>
                                 <option value="WebAssembly">@SharedLocalizer["BlazorWebAssembly"]</option>
+                                <option value="Hybrid">@SharedLocalizer["BlazorHybrid"]</option>
                             </select>
                         </div>
                     </div>
@@ -295,6 +311,7 @@
 	private string _themetype = "-";
 	private string _containertype = "-";
 	private string _admincontainertype = "-";
+	private string _homepageid = "-";
 	private string _smtphost = string.Empty;
 	private string _smtpport = string.Empty;
 	private string _smtpssl = "False";
@@ -352,6 +369,11 @@
 				_containers = ThemeService.GetContainerControls(_themeList, _themetype);
 				_containertype = (!string.IsNullOrEmpty(site.DefaultContainerType)) ? site.DefaultContainerType : Constants.DefaultContainer;
 				_admincontainertype = (!string.IsNullOrEmpty(site.AdminContainerType)) ? site.AdminContainerType : Constants.DefaultAdminContainer;
+
+				if (site.HomePageId != null)
+				{
+					_homepageid = site.HomePageId.Value.ToString();
+				}
 
 				_pwaisenabled = site.PwaIsEnabled.ToString();
 				if (site.PwaAppIconFileId != null)
@@ -479,6 +501,7 @@
 							refresh = true; // needs to be refreshed on client
 						}
 						site.AdminContainerType = _admincontainertype;
+						site.HomePageId = (_homepageid != "-" ? int.Parse(_homepageid) : null);
 
 						if (site.PwaIsEnabled.ToString() != _pwaisenabled)
 						{

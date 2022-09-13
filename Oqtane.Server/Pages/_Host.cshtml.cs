@@ -8,7 +8,6 @@ using System.Reflection;
 using Oqtane.Repository;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -61,7 +60,7 @@ namespace Oqtane.Pages
         public string AntiForgeryToken = "";
         public string AuthorizationToken = "";
         public string Runtime = "Server";
-        public RenderMode RenderMode = RenderMode.Server;
+        public string RenderMode = "ServerPrerendered";
         public int VisitorId = -1;
         public string RemoteIPAddress = "";
         public string HeadResources = "";
@@ -84,10 +83,10 @@ namespace Oqtane.Pages
 
             if (_configuration.GetSection("RenderMode").Exists())
             {
-                RenderMode = (RenderMode)Enum.Parse(typeof(RenderMode), _configuration.GetSection("RenderMode").Value, true);
+                RenderMode = _configuration.GetSection("RenderMode").Value;
             }
 
-            // if framework is installed 
+            // if framework is installed
             if (_configuration.IsInstalled())
             {
                 var alias = _tenantManager.GetAlias();
@@ -113,7 +112,7 @@ namespace Oqtane.Pages
                     }
 
                     var site = _sites.GetSite(alias.SiteId);
-                    if (site != null && !site.IsDeleted)
+                    if (site != null && !site.IsDeleted && site.Runtime != "Hybrid")
                     {
                         Route route = new Route(url, alias.Path);
 
@@ -123,7 +122,7 @@ namespace Oqtane.Pages
                         }
                         if (!string.IsNullOrEmpty(site.RenderMode))
                         {
-                            RenderMode = (RenderMode)Enum.Parse(typeof(RenderMode), site.RenderMode, true);
+                            RenderMode = site.RenderMode;
                         }
                         if (site.FaviconFileId != null)
                         {
@@ -153,6 +152,10 @@ namespace Oqtane.Pages
                         }
 
                         var page = _pages.GetPage(route.PagePath, site.SiteId);
+                        if (page == null && route.PagePath == "" && site.HomePageId != null)
+                        {
+                            page = _pages.GetPage(site.HomePageId.Value);
+                        }
                         if (page != null && !page.IsDeleted)
                         {
                             // set page title
@@ -216,7 +219,7 @@ namespace Oqtane.Pages
                             SetLocalizationCookie(culture);
                         }
 
-                        // set language for page 
+                        // set language for page
                         if (!string.IsNullOrEmpty(culture))
                         {
                             // localization cookie value in form of c=en|uic=en
@@ -226,7 +229,7 @@ namespace Oqtane.Pages
                     }
                     else
                     {
-                        Message = "Site Is Either Disabled Or Not Configured Correctly";
+                        Message = "Site Is Disabled";
                     }
                 }
                 else
@@ -243,6 +246,7 @@ namespace Oqtane.Pages
             {
                 // get request attributes
                 string useragent = (Request.Headers[HeaderNames.UserAgent] != StringValues.Empty) ? Request.Headers[HeaderNames.UserAgent] : "(none)";
+                useragent = (useragent.Length > 256) ? useragent.Substring(0, 256) : useragent;
                 string language = (Request.Headers[HeaderNames.AcceptLanguage] != StringValues.Empty) ? Request.Headers[HeaderNames.AcceptLanguage] : "";
                 language = (language.Contains(",")) ? language.Substring(0, language.IndexOf(",")) : language;
                 language = (language.Contains(";")) ? language.Substring(0, language.IndexOf(";")) : language;
@@ -431,7 +435,7 @@ namespace Oqtane.Pages
                 {
                     int count = 1;
                     foreach (var resource in obj.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
-                    {                        
+                    {
                         resource.Level = ResourceLevel.Page;
                         ProcessResource(resource, count++);
                     }

@@ -12,7 +12,6 @@ using Oqtane.Shared;
 using System.Linq;
 using System.Diagnostics;
 using System.Globalization;
-using System;
 
 namespace Oqtane.Controllers
 {
@@ -24,9 +23,9 @@ namespace Oqtane.Controllers
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public LanguageController(ILanguageRepository language, ISyncManager syncManager, ILogManager logger, ITenantManager tenantManager)
+        public LanguageController(ILanguageRepository languages, ISyncManager syncManager, ILogManager logger, ITenantManager tenantManager)
         {
-            _languages = language;
+            _languages = languages;
             _syncManager = syncManager;
             _logger = logger;
             _alias = tenantManager.GetAlias();
@@ -36,23 +35,37 @@ namespace Oqtane.Controllers
         public IEnumerable<Language> Get(string siteid, string packagename)
         {
             int SiteId;
-            if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
+            if (int.TryParse(siteid, out SiteId) && (SiteId == _alias.SiteId || SiteId == -1))
             {
-                if (string.IsNullOrEmpty(packagename))
+                List<Language> languages = new List<Language>();
+                if (SiteId == -1)
                 {
-                    packagename = "Oqtane";
-                }
-                var languages = _languages.GetLanguages(SiteId).ToList();
-                foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), $"{packagename}.*{Constants.SatelliteAssemblyExtension}", SearchOption.AllDirectories))
-                {
-                    var code = Path.GetFileName(Path.GetDirectoryName(file));
-                    if (languages.Any(item => item.Code == code))
+                    if (!string.IsNullOrEmpty(packagename))
                     {
-                        languages.Single(item => item.Code == code).Version = FileVersionInfo.GetVersionInfo(file).FileVersion;
+                        foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), $"{packagename}.*{Constants.SatelliteAssemblyExtension}", SearchOption.AllDirectories))
+                        {
+                            var code = Path.GetFileName(Path.GetDirectoryName(file));
+                            languages.Add(new Language { Code = code, Name = CultureInfo.GetCultureInfo(code).DisplayName, Version = FileVersionInfo.GetVersionInfo(file).FileVersion, IsDefault = false });
+                        }
                     }
                 }
-                var defaultCulture = CultureInfo.GetCultureInfo(Constants.DefaultCulture);
-                languages.Add(new Language { Code = defaultCulture.Name, Name = defaultCulture.DisplayName, Version = Constants.Version, IsDefault = !languages.Any(l => l.IsDefault) });
+                else
+                {
+                    languages = _languages.GetLanguages(SiteId).ToList();
+                    if (!string.IsNullOrEmpty(packagename))
+                    {
+                        foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), $"{packagename}.*{Constants.SatelliteAssemblyExtension}", SearchOption.AllDirectories))
+                        {
+                            var code = Path.GetFileName(Path.GetDirectoryName(file));
+                            if (languages.Any(item => item.Code == code))
+                            {
+                                languages.Single(item => item.Code == code).Version = FileVersionInfo.GetVersionInfo(file).FileVersion;
+                            }
+                        }
+                    }
+                    var defaultCulture = CultureInfo.GetCultureInfo(Constants.DefaultCulture);
+                    languages.Add(new Language { Code = defaultCulture.Name, Name = defaultCulture.DisplayName, Version = Constants.Version, IsDefault = !languages.Any(l => l.IsDefault) });
+                }
                 return languages.OrderBy(item => item.Name);
             }
             else

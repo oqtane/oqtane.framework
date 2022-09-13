@@ -4,8 +4,8 @@ namespace Oqtane.Shared
 {
     public class Constants
     {
-        public static readonly string Version = "3.1.4";
-        public const string ReleaseVersions = "1.0.0,1.0.1,1.0.2,1.0.3,1.0.4,2.0.0,2.0.1,2.0.2,2.1.0,2.2.0,2.3.0,2.3.1,3.0.0,3.0.1,3.0.2,3.0.3,3.1.0,3.1.1,3.1.2,3.1.3,3.1.4";
+        public static readonly string Version = "3.2.0";
+        public const string ReleaseVersions = "1.0.0,1.0.1,1.0.2,1.0.3,1.0.4,2.0.0,2.0.1,2.0.2,2.1.0,2.2.0,2.3.0,2.3.1,3.0.0,3.0.1,3.0.2,3.0.3,3.1.0,3.1.1,3.1.2,3.1.3,3.1.4,3.2.0";
         public const string PackageId = "Oqtane.Framework";
         public const string UpdaterPackageId = "Oqtane.Updater";
         public const string PackageRegistryUrl = "https://www.oqtane.net";
@@ -26,6 +26,8 @@ namespace Oqtane.Shared
 
         [Obsolete("Use PaneNames.Admin")]
         public const string AdminPane = PaneNames.Admin;
+
+        public static readonly string[] ReservedRoutes = { "api", "pages", "files" };
         public const string ModuleDelimiter = "*";
         public const string UrlParametersDelimiter = "!";
 
@@ -89,5 +91,7 @@ namespace Oqtane.Shared
 
         public static readonly string HttpContextAliasKey = "Alias";
         public static readonly string HttpContextSiteSettingsKey = "SiteSettings";
+
+        public static readonly string MauiUserAgent = "MAUI";
     }
 }

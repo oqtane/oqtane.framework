@@ -151,7 +151,7 @@
     <value>Error Loading Pane Layouts For Theme</value>
   </data>
   <data name="Mesage.Page.PathExists" xml:space="preserve">
-    <value>A page with path {0} already exists for the selected parent page. The page path needs to be unique for the selected parent.</value>
+    <value>A page with path '{0}' already exists for this site. Page paths must be unique. You may need to check if a page with this path exists in the Recycle Bin.</value>
   </data>
   <data name="Message.Required.PageInfo" xml:space="preserve">
     <value>You Must Provide Page Name, Theme, and Container</value>
@@ -269,5 +269,8 @@
   </data>
   <data name="Meta.Text" xml:space="preserve">
     <value>Meta:</value>
+  </data>
+  <data name="Message.Page.Reserved" xml:space="preserve">
+    <value>The page name {0} is reserved. Please enter a different name for your page.</value>
   </data>
 </root>

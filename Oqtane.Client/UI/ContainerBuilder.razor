@@ -1,20 +1,26 @@
+@using System.ComponentModel
 @namespace Oqtane.UI
+@inject SiteState SiteState
 
-<CascadingValue Value="@ModuleState">
-    @if (_useadminborder)
-    {
-        <div class="app-pane-admin-border">
-            @DynamicComponent
-        </div>
-    }
-    else
-    {
-        @DynamicComponent
-    }
-</CascadingValue>
+@if (_visible)
+{
+	<CascadingValue Value="@ModuleState">
+		@if (_useadminborder)
+		{
+			<div class="app-pane-admin-border">
+				@DynamicComponent
+			</div>
+		}
+		else
+		{
+			@DynamicComponent
+		}
+	</CascadingValue>
+}
 
 @code {
-    private bool _useadminborder = false;
+	private bool _visible = true;
+	private bool _useadminborder = false;
 
     [CascadingParameter]
     protected PageState PageState { get; set; }
@@ -24,7 +30,12 @@
 
     RenderFragment DynamicComponent { get; set; }
 
-    protected override void OnParametersSet()
+	protected override void OnInitialized()
+	{
+		((INotifyPropertyChanged)SiteState.Properties).PropertyChanged += PropertyChanged;
+	}
+	
+	protected override void OnParametersSet()
     {
         string container = ModuleState.ContainerType;
         if (PageState.ModuleId != -1 && ModuleState.UseAdminContainer)
@@ -53,4 +64,21 @@
             builder.CloseComponent();
         };
     }
+
+	private void PropertyChanged(object sender, PropertyChangedEventArgs e)
+	{
+		if (e.PropertyName == "ModuleVisibility")
+		{
+			if (SiteState.Properties.ModuleVisibility.PageModuleId == ModuleState.PageModuleId)
+			{
+				_visible = SiteState.Properties.ModuleVisibility.Visible;
+				StateHasChanged();
+			}
+		}
+	}
+
+	public void Dispose()
+	{
+		((INotifyPropertyChanged)SiteState.Properties).PropertyChanged -= PropertyChanged;
+	}
 }

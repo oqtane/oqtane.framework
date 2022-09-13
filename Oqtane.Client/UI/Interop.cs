@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System.Threading.Tasks;
+using System.Text.Json;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Oqtane.UI
 {
@@ -286,6 +289,92 @@ namespace Oqtane.UI
                 _jsRuntime.InvokeVoidAsync(
                     "Oqtane.Interop.scrollToId",
                     id);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
+
+        public ValueTask<int> GetCaretPosition(string id)
+        {
+            try
+            {
+                return _jsRuntime.InvokeAsync<int>(
+                    "Oqtane.Interop.getCaretPosition",
+                    id);
+            }
+            catch
+            {
+                return new ValueTask<int>(-1);
+            }
+        }
+
+        public Task SetIndexedDBItem(string key, object value)
+        {
+            try
+            {
+                _jsRuntime.InvokeVoidAsync(
+                    "Oqtane.Interop.manageIndexedDBItems",
+                    "put", key, value);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
+
+        public async Task<T> GetIndexedDBItem<T>(string key)
+        {
+            try
+            {
+                return await _jsRuntime.InvokeAsync<T>(
+                    "Oqtane.Interop.manageIndexedDBItems",
+                    "get", key, null);
+            }
+            catch
+            {
+                return default(T);
+            }
+        }
+
+        public async Task<List<string>> GetIndexedDBKeys()
+        {
+            return await GetIndexedDBKeys("");
+        }
+
+        public async Task<List<string>> GetIndexedDBKeys(string contains)
+        {
+            try
+            {
+                var items = await _jsRuntime.InvokeAsync<JsonDocument>(
+                    "Oqtane.Interop.manageIndexedDBItems",
+                    "getallkeys", null, null);
+                if (!string.IsNullOrEmpty(contains))
+                {
+                    return items.Deserialize<List<string>>()
+                        .Where(item => item.Contains(contains)).ToList();
+                }
+                else
+                {
+                    return items.Deserialize<List<string>>();
+                }
+            }
+            catch
+            {
+                return new List<string>();
+            }
+        }
+
+        public Task RemoveIndexedDBItem(string key)
+        {
+            try
+            {
+                _jsRuntime.InvokeVoidAsync(
+                    "Oqtane.Interop.manageIndexedDBItems",
+                    "delete", key, null);
                 return Task.CompletedTask;
             }
             catch

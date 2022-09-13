@@ -1,4 +1,5 @@
 @using System.Diagnostics.CodeAnalysis
+@using System.Net
 @namespace Oqtane.UI
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject SiteState SiteState
@@ -6,14 +7,17 @@
 @inject INavigationInterception NavigationInterception
 @inject ISyncService SyncService
 @inject ISiteService SiteService
-@inject ILanguageService LanguageService
 @inject IPageService PageService
 @inject IUserService UserService
-@inject IModuleService ModuleService
 @inject IUrlMappingService UrlMappingService
 @inject ILogService LogService
 @inject IJSRuntime JSRuntime
 @implements IHandleAfterRender
+
+@if (!string.IsNullOrEmpty(_error))
+{
+	<ModuleMessage Message="@_error" Type="@MessageType.Warning" />
+}
 
 @DynamicComponent
 
@@ -21,6 +25,7 @@
 	private string _absoluteUri;
 	private bool _navigationInterceptionEnabled;
 	private PageState _pagestate;
+	private string _error = "";
 
 	[Parameter]
 	public string Runtime { get; set; }
@@ -71,20 +76,23 @@
 	private async Task Refresh()
 	{
 		Site site;
-		List<Language> languages;
-		List<Page> pages;
 		Page page;
 		User user = null;
-		List<Module> modules;		
 		var editmode = false;
 		var refresh = UI.Refresh.None;
 		var lastsyncdate = DateTime.UtcNow.AddHours(-1);
 		var runtime = (Shared.Runtime)Enum.Parse(typeof(Shared.Runtime), Runtime);
+		_error = "";
 
 		Route route = new Route(_absoluteUri, SiteState.Alias.Path);
 		int moduleid = (int.TryParse(route.ModuleId, out moduleid)) ? moduleid : -1;
 		var action = (!string.IsNullOrEmpty(route.Action)) ? route.Action : Constants.DefaultAction; 
 		var querystring = ParseQueryString(route.Query);
+		var returnurl = "";
+		if (querystring.ContainsKey("returnurl"))
+		{
+			returnurl = WebUtility.UrlDecode(querystring["returnurl"]);
+		}
 
 		// reload the client application from the server if there is a forced reload or the user navigated to a site with a different alias 
 		if (querystring.ContainsKey("reload") || (!NavigationManager.ToBaseRelativePath(_absoluteUri).ToLower().StartsWith(SiteState.Alias.Path.ToLower()) && !string.IsNullOrEmpty(SiteState.Alias.Path)))
@@ -117,6 +125,24 @@
 			lastsyncdate = PageState.LastSyncDate;
 		}
 
+		// get user
+		if (PageState == null || refresh == UI.Refresh.Site || PageState.Alias.SiteId != SiteState.Alias.SiteId)
+		{
+			var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+			if (authState.User.Identity.IsAuthenticated)
+			{
+				user = await UserService.GetUserAsync(authState.User.Identity.Name, SiteState.Alias.SiteId);
+				if (user != null)
+				{
+					user.IsAuthenticated = authState.User.Identity.IsAuthenticated;
+				}
+			}
+		}
+		else
+		{
+			user = PageState.User;
+		}       
+
 		// process any sync events
 		var sync = await SyncService.GetSyncAsync(lastsyncdate);
 		lastsyncdate = sync.SyncDate;
@@ -128,13 +154,19 @@
 				NavigationManager.NavigateTo(_absoluteUri, true);
 				return;
 			}
+			// when a site has changed the state needs to be refreshed
 			if (sync.SyncEvents.Exists(item => item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId))
+			{
+				refresh = UI.Refresh.Site;
+			}
+			// when a user changed the site needs to be refreshed as the list of pages/modules may have changed
+			if (user != null && sync.SyncEvents.Exists(item => item.EntityName == EntityNames.User && item.EntityId == user.UserId))
 			{
 				refresh = UI.Refresh.Site;
 			}
 		}
 
-		if (refresh == UI.Refresh.Site || PageState == null || PageState.Alias.SiteId != SiteState.Alias.SiteId)
+		if (PageState == null || refresh == UI.Refresh.Site || PageState.Alias.SiteId != SiteState.Alias.SiteId)
 		{
 			site = await SiteService.GetSiteAsync(SiteState.Alias.SiteId);
 			refresh = UI.Refresh.Site;
@@ -146,99 +178,47 @@
 
 		if (site != null)
 		{
-			if (PageState == null || refresh == UI.Refresh.Site)
+			if (PageState == null || refresh == UI.Refresh.Site || PageState.Page.Path != route.PagePath)
 			{
-				// get user
-				var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-				if (authState.User.Identity.IsAuthenticated)
-				{
-					user = await UserService.GetUserAsync(authState.User.Identity.Name, site.SiteId);
-					if (user != null)
-					{
-						user.IsAuthenticated = authState.User.Identity.IsAuthenticated;
-					}
-				}
-			}
-			else
-			{
-				user = PageState.User;
-			}
-
-			// process any sync events for user
-			if (refresh != UI.Refresh.Site && user != null && sync.SyncEvents.Any())
-			{
-				if (sync.SyncEvents.Exists(item => item.EntityName == EntityNames.User && item.EntityId == user.UserId))
-				{
-					refresh = UI.Refresh.Site;
-				}
-			}
-
-			if (PageState == null || refresh == UI.Refresh.Site)
-			{
-				languages = await LanguageService.GetLanguagesAsync(site.SiteId);
-				pages = await PageService.GetPagesAsync(site.SiteId);
-				pages = pages.Where(item => !item.IsDeleted).ToList();
-			}
-			else
-			{
-				languages = PageState.Languages; 
-				pages = PageState.Pages;
-			}
-
-			if (PageState == null || refresh == UI.Refresh.Site)
-			{
-				page = pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
+				page = site.Pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
+				editmode = false;
 			}
 			else
 			{
 				page = PageState.Page;
 			}
 
-			// get the page if the path has changed
-			if (page == null || page.Path != route.PagePath)
+			if (page == null && route.PagePath == "") // naked path refers to site home page
 			{
-				page = pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
-				// if the home page path does not exist then use the first page in the collection (a future enhancement would allow the admin to specify the home page)
-				if (page == null && route.PagePath == "")
+				if (site.HomePageId != null)
 				{
-					page = pages.FirstOrDefault();
+					page = site.Pages.FirstOrDefault(item => item.PageId == site.HomePageId);
 				}
-				editmode = false;
+				if (page == null)
+				{
+					// fallback to use the first page in the collection
+					page = site.Pages.FirstOrDefault();
+				}
 			}
 
 			if (page != null)
 			{
-				if (PageState == null)
-				{
-					editmode = false;
-				}
-
 				// check if user is authorized to view page
 				if (UserSecurity.IsAuthorized(user, PermissionNames.View, page.Permissions))
 				{
+					// load additional metadata for current page
 					page = await ProcessPage(page, site, user);
 
-					if (PageState == null || refresh == UI.Refresh.Site)
-					{
-						modules = await ModuleService.GetModulesAsync(site.SiteId);
-						modules = modules.Where(item => !item.IsDeleted).ToList();
-					}
-					else
-					{
-						modules = PageState.Modules;
-					}
+					// load additional metadata for modules
+					(page, site.Modules) = ProcessModules(page, site.Modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType);
 
-					(page, modules) = ProcessModules(page, modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType);
-
+					// populate page state (which acts as a client-side cache for subsequent requests)
 					_pagestate = new PageState
                     {
                         Alias = SiteState.Alias,
                         Site = site,
-						Languages = languages,
-                        Pages = pages,
                         Page = page,
                         User = user,
-                        Modules = modules,
                         Uri = new Uri(_absoluteUri, UriKind.Absolute),
                         QueryString = querystring,
                         UrlParameters = route.UrlParameters,
@@ -248,7 +228,8 @@
                         LastSyncDate = lastsyncdate,
                         Runtime = runtime,
 						VisitorId = VisitorId,
-						RemoteIPAddress = SiteState.RemoteIPAddress
+						RemoteIPAddress = SiteState.RemoteIPAddress,
+						ReturnUrl = returnurl
                     };
 
 					OnStateChange?.Invoke(_pagestate);
@@ -355,7 +336,7 @@
 			page.Panes = new List<string>();
 			page.Resources = new List<Resource>();
 
-			string panes = PaneNames.Admin;
+			string panes = "";
 			Type themetype = Type.GetType(page.ThemeType);
 			if (themetype == null)
 			{
@@ -375,7 +356,19 @@
 					page.Resources = ManagePageResources(page.Resources, themeobject.Resources, ResourceLevel.Page);
 				}
 			}
-			page.Panes = panes.Replace(";", ",").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+			if (!string.IsNullOrEmpty(panes))
+			{
+				page.Panes = panes.Replace(";", ",").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+				if (!page.Panes.Contains(PaneNames.Default) && !page.Panes.Contains(PaneNames.Admin))
+				{
+					_error = "The Current Theme Does Not Contain A Default Or Admin Pane";
+				}
+			}
+			else
+			{
+				page.Panes.Add(PaneNames.Admin);
+				_error = "The Current Theme Does Not Contain Any Panes";
+			}
 		}
 		catch
 		{
@@ -467,10 +460,18 @@
 					}
 				}
 
-				// ensure module's pane exists in current page and if not, assign it to the Admin pane
-				if (page.Panes == null || page.Panes.FindIndex(item => item.Equals(module.Pane, StringComparison.OrdinalIgnoreCase)) == -1)
+				// validate that module's pane exists in current page
+				if (page.Panes.FindIndex(item => item.Equals(module.Pane, StringComparison.OrdinalIgnoreCase)) == -1)
 				{
-					module.Pane = PaneNames.Admin;
+					// fallback to default pane if it exists
+					if (page.Panes.FindIndex(item => item.Equals(PaneNames.Default, StringComparison.OrdinalIgnoreCase)) != -1)
+					{
+						module.Pane = PaneNames.Default;
+					}
+					else // otherwise admin pane (legacy)
+					{
+						module.Pane = PaneNames.Admin;						
+					}
 				}
 
 				// calculate module position within pane

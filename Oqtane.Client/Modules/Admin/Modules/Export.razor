@@ -19,7 +19,7 @@
 
 @code {
     private string _content = string.Empty;
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
     public override string Title => "Export Content";
 
 
@@ -27,7 +27,7 @@
     {
         try
         {
-            _content = await ModuleService.ExportModuleAsync(ModuleState.ModuleId);
+            _content = await ModuleService.ExportModuleAsync(ModuleState.ModuleId, PageState.Page.PageId);
             AddModuleMessage(Localizer["Success.Content.Export"], MessageType.Success);
         }
         catch (Exception ex)

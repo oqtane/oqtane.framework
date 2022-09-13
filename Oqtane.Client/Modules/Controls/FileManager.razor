@@ -376,42 +376,62 @@
 				_messagetype = MessageType.Warning;
 			}
 		}
-        else
-        {
-            _message = Localizer["Message.File.NotSelected"];
-            _messagetype = MessageType.Warning;
-        }
-    }
+		else
+		{
+			_message = Localizer["Message.File.NotSelected"];
+			_messagetype = MessageType.Warning;
+		}
+	}
 
-    private async Task DeleteFile()
-    {
-        _message = string.Empty;
-        try
-        {
-            await FileService.DeleteFileAsync(FileId);
-            await logger.LogInformation("File Deleted {File}", FileId);
-            await OnDelete.InvokeAsync(FileId);
+	private async Task DeleteFile()
+	{
+		_message = string.Empty;
+		try
+		{
+			await FileService.DeleteFileAsync(FileId);
+			await logger.LogInformation("File Deleted {File}", FileId);
+			await OnDelete.InvokeAsync(FileId);
 
-            _message = Localizer["Success.File.Delete"];
-            _messagetype = MessageType.Success;
+			_message = Localizer["Success.File.Delete"];
+			_messagetype = MessageType.Success;
 
-            await GetFiles();
-            FileId = -1;
-            await SetImage();
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Deleting File {File} {Error}", FileId, ex.Message);
+			await GetFiles();
+			FileId = -1;
+			await SetImage();
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Deleting File {File} {Error}", FileId, ex.Message);
 
-            _message = Localizer["Error.File.Delete"];
-            _messagetype = MessageType.Error;
-        }
-    }
+			_message = Localizer["Error.File.Delete"];
+			_messagetype = MessageType.Error;
+		}
+	}
 
-    public int GetFileId() => FileId;
+	public int GetFileId() => FileId;
 
-    public int GetFolderId() => FolderId;
+	public int GetFolderId() => FolderId;
 
-    public File GetFile() => _file;
+	public File GetFile() => _file;
+
+	public async Task Refresh()
+	{
+		await Refresh(-1);
+	}
+
+	public async Task Refresh(int fileId)
+	{
+		await GetFiles();
+		if (fileId != -1)
+		{
+			var file = _files.Where(item => item.FileId == fileId).FirstOrDefault();
+			if (file != null)
+			{
+				FileId = file.FileId;
+				await SetImage();
+			}
+		}
+		StateHasChanged();
+	}
 }

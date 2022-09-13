@@ -3,7 +3,6 @@
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IServiceProvider ServiceProvider
-@inject SiteState SiteState
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -184,11 +183,12 @@
 			var interop = new Interop(JSRuntime);
 			if (await interop.FormValid(login))
 			{
+				var hybrid = (PageState.Runtime == Shared.Runtime.Hybrid);
 				var user = new User { SiteId = PageState.Site.SiteId, Username = _username, Password = _password, LastIPAddress = SiteState.RemoteIPAddress};
-
+			
 				if (!twofactor)
 				{
-					user = await UserService.LoginUserAsync(user);
+					user = await UserService.LoginUserAsync(user, hybrid, _remember);
 				}
 				else
 				{
@@ -199,10 +199,21 @@
 				{
 					await logger.LogInformation(LogFunction.Security, "Login Successful For Username {Username}", _username);
 
-					// post back to the Login page so that the cookies are set correctly
-					var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, username = _username, password = _password, remember = _remember, returnurl = _returnUrl };
-					string url = Utilities.TenantUrl(PageState.Alias, "/pages/login/");
-					await interop.SubmitForm(url, fields);
+					if (hybrid)
+					{
+						// hybrid apps utilize an interactive login
+						var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider
+							.GetService(typeof(IdentityAuthenticationStateProvider));
+						authstateprovider.NotifyAuthenticationChanged();
+						NavigationManager.NavigateTo(NavigateUrl(_returnUrl, true));
+					}
+					else
+					{
+						// post back to the Login page so that the cookies are set correctly
+						var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, username = _username, password = _password, remember = _remember, returnurl = _returnUrl };
+						string url = Utilities.TenantUrl(PageState.Alias, "/pages/login/");
+						await interop.SubmitForm(url, fields);
+					}
 				}
 				else
 				{

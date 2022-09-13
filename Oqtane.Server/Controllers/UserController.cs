@@ -273,7 +273,7 @@ namespace Oqtane.Controllers
                 }
 
                 // remove user folder for site
-                var folder = _folders.GetFolder(SiteId, Utilities.PathCombine("Users", user.UserId.ToString(), Path.DirectorySeparatorChar.ToString()));
+                var folder = _folders.GetFolder(SiteId, $"Users{user.UserId}/");
                 if (folder != null)
                 {
                     if (Directory.Exists(_folders.GetFolderPath(folder)))
@@ -315,7 +315,7 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>/login
         [HttpPost("login")]
-        public async Task<User> Login([FromBody] User user)
+        public async Task<User> Login([FromBody] User user, bool setCookie, bool isPersistent)
         {
             User loginUser = new User { SiteId = user.SiteId, Username = user.Username, IsAuthenticated = false };
 
@@ -358,6 +358,11 @@ namespace Oqtane.Controllers
                                     loginUser.LastIPAddress = LastIPAddress;
                                     _users.UpdateUser(loginUser);
                                     _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful {Username}", user.Username);
+
+                                    if (setCookie)
+                                    {
+                                        await _identitySignInManager.SignInAsync(identityuser, isPersistent);
+                                    }
                                 }
                                 else
                                 {
@@ -559,7 +564,7 @@ namespace Oqtane.Controllers
             var secret = sitesettings.GetValue("JwtOptions:Secret", "");
             if (!string.IsNullOrEmpty(secret))
             {
-                token = _jwtManager.GenerateToken(_tenantManager.GetAlias(), (ClaimsIdentity)User.Identity, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""), int.Parse(sitesettings.GetValue("JwtOptions:Audience", "20")));
+                token = _jwtManager.GenerateToken(_tenantManager.GetAlias(), (ClaimsIdentity)User.Identity, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""), int.Parse(sitesettings.GetValue("JwtOptions:Lifetime", "20")));
             }
             return token;
         }

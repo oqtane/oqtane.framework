@@ -5,15 +5,15 @@
     <OutputType>Exe</OutputType>
     <RazorLangVersion>3.0</RazorLangVersion>
     <Configurations>Debug;Release</Configurations>
-    <Version>3.1.4</Version>
+    <Version>3.2.0</Version>
     <Product>Oqtane</Product>
     <Authors>Shaun Walker</Authors>
     <Company>.NET Foundation</Company>
-    <Description>Modular Application Framework for Blazor</Description>
+    <Description>Modular Application Framework for Blazor and MAUI</Description>
     <Copyright>.NET Foundation</Copyright>
     <PackageProjectUrl>https://www.oqtane.org</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/oqtane/oqtane.framework/blob/dev/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v3.1.4</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v3.2.0</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/oqtane/oqtane.framework</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <RootNamespace>Oqtane</RootNamespace>
@@ -35,13 +35,8 @@
     <ProjectReference Include="..\Oqtane.Shared\Oqtane.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <TrimmerRootAssembly Include="System.Runtime" />
-    <TrimmerRootAssembly Include="System.Linq.Parallel" />
-    <TrimmerRootAssembly Include="System.Runtime.CompilerServices.VisualC" />
-  </ItemGroup>
-
   <PropertyGroup>
+    <PublishTrimmed>false</PublishTrimmed>
     <BlazorEnableCompression>false</BlazorEnableCompression>
   </PropertyGroup>
 

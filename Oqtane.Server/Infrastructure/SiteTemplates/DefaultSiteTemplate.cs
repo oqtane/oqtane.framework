@@ -51,18 +51,18 @@ namespace Oqtane.SiteTemplates
                     new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                 }.EncodePermissions() ,
                 PageTemplateModules = new List<PageTemplateModule> {
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Welcome To Oqtane...", Pane = PaneNames.Admin, 
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Welcome To Oqtane...", Pane = PaneNames.Default, 
                         ModulePermissions = new List<Permission> {
                             new Permission(PermissionNames.View, RoleNames.Everyone, true),
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
                             new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                         }.EncodePermissions(),
-                        Content = "<p><a href=\"https://www.oqtane.org\" target=\"_new\">Oqtane</a> is an open source <b>modular application framework</b> that provides advanced functionality for developing web and mobile applications on .NET Core. It leverages the Blazor component model to compose a <b>fully dynamic</b> web development experience which can be hosted either client-side or server-side. Whether you are looking for a platform to <b>accelerate your web development</b> efforts, or simply interested in exploring the anatomy of a large-scale Blazor application, Oqtane provides a solid foundation based on proven enterprise architectural principles.</p>" +
+                        Content = "<p><a href=\"https://www.oqtane.org\" target=\"_new\">Oqtane</a> is an open source <b>modular application framework</b> that provides advanced functionality for developing web, mobile, and desktop applications on .NET Core. It leverages the Blazor component model to compose a <b>fully dynamic</b> web development experience which can be hosted either client-side or server-side. Whether you are looking for a platform to <b>accelerate your web development</b> efforts, or simply interested in exploring the anatomy of a large-scale Blazor application, Oqtane provides a solid foundation based on proven enterprise architectural principles.</p>" +
                         "<p align=\"center\"><a href=\"https://www.oqtane.org\" target=\"_new\"><img class=\"img-fluid\" src=\"oqtane-glow.png\"></a></p><p align=\"center\"><a class=\"btn btn-primary\" href=\"https://www.oqtane.org/Community\" target=\"_new\">Join Our Community</a>&nbsp;&nbsp;<a class=\"btn btn-primary\" href=\"https://github.com/oqtane/oqtane.framework\" target=\"_new\">Clone Our Repo</a></p>" +
-                        "<p><a href=\"https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor\" target=\"_new\">Blazor</a> is an open source and cross-platform web UI framework for building single-page apps using .NET and C# instead of JavaScript. Blazor WebAssembly relies on Wasm, an open web standard that does not require plugins or code transpilation in order to run natively in a web browser. Blazor Server uses SignalR to host your application on a web server and provide a responsive and robust development experience. Blazor applications work in all modern web browsers, including mobile browsers.</p>" +
+                        "<p><a href=\"https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor\" target=\"_new\">Blazor</a> is an open source and cross-platform web UI framework for building single-page applications using .NET and C#. Blazor applications can be hosted in a variety of ways. Blazor Server uses SignalR (WebSockets) to host your application on a web server and provide a responsive and robust development experience. Blazor WebAssembly relies on Wasm, an open web standard that does not require plugins in order for applications to run natively in a web browser. Blazor Hybrid is part of .NET MAUI and uses a Web View to render components natively on mobile and desktop devices. Razor components can be used with all of the hosting models without any modification.</p>" +
                         "<p>Blazor is a feature of <a href=\"https://dotnet.microsoft.com/apps/aspnet\" target=\"_new\">.NET Core</a>, the popular cross platform web development framework from Microsoft that extends the <a href=\"https://dotnet.microsoft.com/learn/dotnet/what-is-dotnet\" target=\"_new\" >.NET developer platform</a> with tools and libraries for building web apps.</p>"
                     },
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "MIT License", Pane = PaneNames.Admin,
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "MIT License", Pane = PaneNames.Default,
                         ModulePermissions = new List<Permission> {
                             new Permission(PermissionNames.View, RoleNames.Everyone, true),
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -73,7 +73,7 @@ namespace Oqtane.SiteTemplates
                         "<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>" +
                         "<p>THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>"
                     },
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Secure Content", Pane = PaneNames.Admin,
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Secure Content", Pane = PaneNames.Default,
                         ModulePermissions = new List<Permission> {
                             new Permission(PermissionNames.View, RoleNames.Registered, true),
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -98,7 +98,7 @@ namespace Oqtane.SiteTemplates
                     new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                 }.EncodePermissions(),
                 PageTemplateModules = new List<PageTemplateModule> {
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Secure Content", Pane = PaneNames.Admin,
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Secure Content", Pane = PaneNames.Default,
                         ModulePermissions = new List<Permission> {
                             new Permission(PermissionNames.View, RoleNames.Registered, true),
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -123,7 +123,7 @@ namespace Oqtane.SiteTemplates
                     new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                 }.EncodePermissions(),
                 PageTemplateModules = new List<PageTemplateModule> {
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "My Page", Pane = PaneNames.Admin,
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "My Page", Pane = PaneNames.Default,
                         ModulePermissions = new List<Permission> {
                             new Permission(PermissionNames.View, RoleNames.Everyone, true),
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -147,14 +147,14 @@ namespace Oqtane.SiteTemplates
                     new Permission(PermissionNames.Edit, RoleNames.Host, true)
                 }.EncodePermissions(),
                 PageTemplateModules = new List<PageTemplateModule> {
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Software Development", Pane = PaneNames.Admin,
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Software Development", Pane = PaneNames.Default,
                         ModulePermissions = new List<Permission> {
                             new Permission(PermissionNames.View, RoleNames.Host, true),
                             new Permission(PermissionNames.Edit, RoleNames.Host, true)
                         }.EncodePermissions(),
                         Content = "<p>Oqtane offers a Module Creator which allows you to create new modules to extend the framework with additional capabilities. Simply provide some basic information and the system will scaffold a completely functional module which includes all of the necessary code files and assets to get you up and running as quickly as possible.</p>"
                     },
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.ModuleCreator, Oqtane.Client", Title = "Module Creator", Pane = PaneNames.Admin,
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.ModuleCreator, Oqtane.Client", Title = "Module Creator", Pane = PaneNames.Default,
                         ModulePermissions = new List<Permission> {
                             new Permission(PermissionNames.View, RoleNames.Host, true),
                             new Permission(PermissionNames.Edit, RoleNames.Host, true)

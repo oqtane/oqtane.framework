@@ -56,6 +56,12 @@ namespace Oqtane.Security
                 return false;
             }
 
+            // ignore antiforgery validation if client is a MAUI app
+            if (context.HttpContext.Request.Headers["User-Agent"] == Constants.MauiUserAgent)
+            {
+                return false;
+            }
+
             // ignore antiforgery validation for GET, HEAD, TRACE, OPTIONS
             var method = context.HttpContext.Request.Method;
             if (HttpMethods.IsGet(method) || HttpMethods.IsHead(method) || HttpMethods.IsTrace(method) || HttpMethods.IsOptions(method))

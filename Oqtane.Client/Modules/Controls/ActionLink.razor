@@ -1,4 +1,5 @@
 @namespace Oqtane.Modules.Controls
+@using System.Net
 @inherits LocalizableComponent
 @inject IUserService UserService
 
@@ -71,6 +72,9 @@
 	[Parameter]
 	public bool IconOnly { get; set; } // optional - specifies only icon in link
 
+	[Parameter]
+	public string ReturnUrl { get; set; } // optional - used to set a url to redirect to
+
 	protected override void OnParametersSet()
 	{
 		base.OnParametersSet();
@@ -116,9 +120,13 @@
 		}
 
 		_permissions = (string.IsNullOrEmpty(Permissions)) ? ModuleState.Permissions : Permissions;
-		_text = Localize(nameof(Text), _text);		
-        _url = (ModuleId == -1) ? EditUrl(Action, _parameters) : EditUrl(ModuleId, Action, _parameters);
-        _authorized = IsAuthorized();
+		_text = Localize(nameof(Text), _text);
+		_url = (ModuleId == -1) ? EditUrl(Action, _parameters) : EditUrl(ModuleId, Action, _parameters);
+		if (!string.IsNullOrEmpty(ReturnUrl))
+		{
+			_url += ((_url.Contains("?")) ? "&" : "?") + $"returnurl={WebUtility.UrlEncode(ReturnUrl)}";
+		}
+		_authorized = IsAuthorized();
     }
 
     private bool IsAuthorized()

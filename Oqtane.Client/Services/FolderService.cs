@@ -1,10 +1,8 @@
 using Oqtane.Models;
 using System.Threading.Tasks;
-using System.Linq;
 using System.Net.Http;
 using System.Collections.Generic;
 using Oqtane.Shared;
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using Oqtane.Documentation;
@@ -20,9 +18,7 @@ namespace Oqtane.Services
 
         public async Task<List<Folder>> GetFoldersAsync(int siteId)
         {
-            List<Folder> folders = await GetJsonAsync<List<Folder>>($"{ApiUrl}?siteid={siteId}");
-            folders = GetFoldersHierarchy(folders);
-            return folders;
+            return await GetJsonAsync<List<Folder>>($"{ApiUrl}?siteid={siteId}");
         }
 
         public async Task<Folder> GetFolderAsync(int folderId)
@@ -57,49 +53,6 @@ namespace Oqtane.Services
         public async Task DeleteFolderAsync(int folderId)
         {
             await DeleteAsync($"{ApiUrl}/{folderId}");
-        }
-
-        private static List<Folder> GetFoldersHierarchy(List<Folder> folders)
-        {
-            List<Folder> hierarchy = new List<Folder>();
-            Action<List<Folder>, Folder> getPath = null;
-            var folders1 = folders;
-            getPath = (folderList, folder) =>
-            {
-                IEnumerable<Folder> children;
-                int level;
-                if (folder == null)
-                {
-                    level = -1;
-                    children = folders1.Where(item => item.ParentId == null);
-                }
-                else
-                {
-                    level = folder.Level;
-                    children = folders1.Where(item => item.ParentId == folder.FolderId);
-                }
-
-                foreach (Folder child in children)
-                {
-                    child.Level = level + 1;
-                    child.HasChildren = folders1.Any(item => item.ParentId == child.FolderId);
-                    hierarchy.Add(child);
-                    if (getPath != null) getPath(folderList, child);
-                }
-            };
-            folders = folders.OrderBy(item => item.Order).ToList();
-            getPath(folders, null);
-
-            // add any non-hierarchical items to the end of the list
-            foreach (Folder folder in folders)
-            {
-                if (hierarchy.Find(item => item.FolderId == folder.FolderId) == null)
-                {
-                    hierarchy.Add(folder);
-                }
-            }
-
-            return hierarchy;
         }
     }
 }

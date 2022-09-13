@@ -63,7 +63,7 @@ else
 						<th>@Localizer["Function"]</th>
 					</Header>
 					<Row>
-						<td class="@GetClass(context.Function)"><ActionLink Action="Detail" Parameters="@($"id=" + context.LogId.ToString() + "&level=" + _level + "&function=" + _function + "&rows=" + _rows + "&page=" + _page.ToString())" ResourceKey="LogDetails" /></td>
+						<td class="@GetClass(context.Function)"><ActionLink Action="Detail" Parameters="@($"/{context.LogId}")" ReturnUrl="@(NavigateUrl(PageState.Page.Path, AddUrlParameters(_level, _function, _rows, _page)))" ResourceKey="LogDetails" /></td>
 						<td class="@GetClass(context.Function)">@context.LogDate</td>
 						<td class="@GetClass(context.Function)">@context.Level</td>
 						<td class="@GetClass(context.Function)">@context.Feature</td>
@@ -99,29 +99,32 @@ else
 	private List<Log> _logs;
 	private string _retention = "";
 
+	public override string UrlParametersTemplate => "/{level}/{function}/{rows}/{page}";
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-	protected override async Task OnInitializedAsync()
+	protected override async Task OnParametersSetAsync()
 	{
 		try
 		{
+			// external link to log item will display Details component
 			if (PageState.QueryString.ContainsKey("id") && int.TryParse(PageState.QueryString["id"], out int id))
 			{
 				NavigationManager.NavigateTo(EditUrl(PageState.Page.Path, ModuleState.ModuleId, "Detail", $"id={id}"));
 			}
-			if (PageState.QueryString.ContainsKey("level"))
+
+			if (UrlParameters.ContainsKey("level"))
 			{
-				_level = PageState.QueryString["level"];
+				_level = UrlParameters["level"];
 			}
-			if (PageState.QueryString.ContainsKey("function"))
+			if (UrlParameters.ContainsKey("function"))
 			{
-				_function = PageState.QueryString["function"];
+				_function = UrlParameters["function"];
 			}
-			if (PageState.QueryString.ContainsKey("rows"))
+			if (UrlParameters.ContainsKey("rows"))
 			{
-				_rows = PageState.QueryString["rows"];
+				_rows = UrlParameters["rows"];
 			}
-			if (PageState.QueryString.ContainsKey("page") && int.TryParse(PageState.QueryString["page"], out int page))
+			if (UrlParameters.ContainsKey("page") && int.TryParse(UrlParameters["page"], out int page))
 			{
 				_page = page;
 			}

@@ -15,18 +15,29 @@
             </select>
         </div>
     </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="files" ResourceKey="AllowRawHtml" ResourceType="@resourceType" HelpText="Specify If Editors Can Enter Raw HTML">Allow Raw HTML: </Label>
+        <div class="col-sm-9">
+            <select id="files" class="form-select" @bind="@_allowrawhtml">
+                <option value="true">@SharedLocalizer["Yes"]</option>
+                <option value="false">@SharedLocalizer["No"]</option>
+            </select>
+        </div>
+    </div>
 </div>
 
 @code {		
 	private string resourceType = "Oqtane.Modules.HtmlText.Settings, Oqtane.Client"; // for localization
     private string _allowfilemanagement;
+	private string _allowrawhtml;
 
     protected override void OnInitialized()
     {
         try
         {
-            _allowfilemanagement = SettingService.GetSetting(ModuleState.Settings, "AllowFileManagement", "true");
-        }
+			_allowfilemanagement = SettingService.GetSetting(ModuleState.Settings, "AllowFileManagement", "true");
+			_allowrawhtml = SettingService.GetSetting(ModuleState.Settings, "AllowRawHtml", "true");
+		}
         catch (Exception ex)
         {
             ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
@@ -39,7 +50,8 @@
         {
 			var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
             settings = SettingService.SetSetting(settings, "AllowFileManagement", _allowfilemanagement);
-            await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+			settings = SettingService.SetSetting(settings, "AllowRawHtml", _allowrawhtml);
+			await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
         }
         catch (Exception ex)
         {

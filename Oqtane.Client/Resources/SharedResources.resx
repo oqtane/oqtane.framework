@@ -318,6 +318,9 @@
   <data name="BlazorWebAssembly" xml:space="preserve">
     <value>Blazor WebAssembly</value>
   </data>
+  <data name="BlazorHybrid" xml:space="preserve">
+    <value>Blazor Hybrid</value>
+  </data>
   <data name="Settings" xml:space="preserve">
     <value>Settings</value>
   </data>
@@ -335,5 +338,8 @@
   </data>
   <data name="Visitor Management" xml:space="preserve">
     <value>Visitor Management</value>
+  </data>
+  <data name="Oqtane.Marketplace" xml:space="preserve">
+    <value>Please note that the third party extensions displayed above have been registered in the &lt;a href="https://www.oqtane.net" target="_new"&gt;Oqtane Marketplace&lt;/a&gt; which enables them to be seamlessly downloaded and installed into the framework.</value>
   </data>
 </root>

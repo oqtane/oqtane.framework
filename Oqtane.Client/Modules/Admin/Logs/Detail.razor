@@ -130,13 +130,14 @@
     private string _properties = string.Empty;
     private string _server = string.Empty;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+	public override string UrlParametersTemplate => "/{id}";
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            _logId = Int32.Parse(PageState.QueryString["id"]);
+            _logId = Int32.Parse(UrlParameters["id"]);
             var log = await LogService.GetLogAsync(_logId);
             if (log != null)
             {
@@ -191,13 +192,6 @@
 
 	private string CloseUrl()
 	{
-		if (!PageState.QueryString.ContainsKey("level"))
-		{
-			return NavigateUrl();
-		}
-		else
-		{
-			return NavigateUrl(PageState.Page.Path, "level=" + PageState.QueryString["level"] + "&function=" + PageState.QueryString["function"] + "&rows=" + PageState.QueryString["rows"] + "&page=" + PageState.QueryString["page"]);
-		}
+		return (!string.IsNullOrEmpty(PageState.ReturnUrl)) ? PageState.ReturnUrl : NavigateUrl();
 	}
 }

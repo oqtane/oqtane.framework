@@ -25,7 +25,7 @@
                         <div class="col-sm-9">
                             <select id="parent" class="form-select" value="@_parentid" @onchange="(e => ParentChanged(e))" required>
                                 <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
-                                @foreach (Page page in _pageList)
+                                @foreach (Page page in PageState.Pages)
                                 {
                                     if (page.PageId != _pageId)
                                     {
@@ -201,7 +201,6 @@
 	private List<Theme> _themeList;
 	private List<ThemeControl> _themes = new List<ThemeControl>();
 	private List<ThemeControl> _containers = new List<ThemeControl>();
-	private List<Page> _pageList;
 	private List<Module> _pageModules;
 	private int _pageId;
 	private string _name;
@@ -238,7 +237,6 @@
 	{
 		try
 		{
-			_pageList = PageState.Pages;
 			_children = PageState.Pages.Where(item => item.ParentId == null).ToList();
 			_themeList = await ThemeService.GetThemesAsync();
 			_themes = ThemeService.GetThemeControls(_themeList);
@@ -435,6 +433,10 @@
 					}
 					if (_path.Contains("/"))
 					{
+						if (_path.EndsWith("/") && _path != "/")
+						{
+							_path = _path.Substring(0, _path.Length - 1);
+						}
 						_path = _path.Substring(_path.LastIndexOf("/") + 1);
 					}
 
@@ -457,9 +459,16 @@
 						}
 					}
 
-					if (!PagePathIsUnique(page.Path, page.SiteId, page.PageId, _pageList))
+					var _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
+					if (_pages.Any(item => item.Path == page.Path && item.PageId != page.PageId))
 					{
 						AddModuleMessage(string.Format(Localizer["Mesage.Page.PathExists"], _path), MessageType.Warning);
+						return;
+					}
+
+					if (page.ParentId == null && Constants.ReservedRoutes.Contains(page.Name.ToLower()))
+					{
+						AddModuleMessage(string.Format(Localizer["Message.Page.Reserved"], page.Name), MessageType.Warning);
 						return;
 					}
 
@@ -566,10 +575,5 @@
         {
             NavigationManager.NavigateTo(NavigateUrl());
         }
-    }
-
-    private static bool PagePathIsUnique(string pagePath, int siteId, int pageId, List<Page> existingPages)
-    {
-        return !existingPages.Any(page => page.SiteId == siteId && page.Path == pagePath && page.PageId != pageId);
     }
 }

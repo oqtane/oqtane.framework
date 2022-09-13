@@ -132,22 +132,10 @@
 				_isEnabled = job.IsEnabled.ToString();
 				_interval = job.Interval.ToString();
 				_frequency = job.Frequency;
-				_startDate = job.StartDate;
-				if (job.StartDate != null && job.StartDate.Value.TimeOfDay.TotalSeconds != 0)
-				{
-					_startTime = job.StartDate.Value.ToString("HH:mm");
-				}
-				_endDate = job.EndDate;
-				if (job.EndDate != null && job.EndDate.Value.TimeOfDay.TotalSeconds != 0)
-				{
-					_endTime = job.EndDate.Value.ToString("HH:mm");
-				}
+				(_startDate, _startTime) = Utilities.UtcAsLocalDateAndTime(job.StartDate);
+				(_endDate, _endTime) = Utilities.UtcAsLocalDateAndTime(job.EndDate);
 				_retentionHistory = job.RetentionHistory.ToString();
-				_nextDate = job.NextExecution;
-				if (job.NextExecution != null && job.NextExecution.Value.TimeOfDay.TotalSeconds != 0)
-				{
-					_nextTime = job.NextExecution.Value.ToString("HH:mm");
-				}
+				(_nextDate, _nextTime) = Utilities.UtcAsLocalDateAndTime(job.NextExecution);
 				createdby = job.CreatedBy;
 				createdon = job.CreatedOn;
 				modifiedby = job.ModifiedBy;
@@ -180,50 +168,27 @@
 			{
 				job.Interval = int.Parse(_interval);
 			}
-            job.StartDate = _startDate;
-            if (job.StartDate != null)
-            {
-                job.StartDate = job.StartDate.Value.Date;
-                if (!string.IsNullOrEmpty(_startTime))
-                {
-                    job.StartDate = DateTime.Parse(job.StartDate.Value.ToShortDateString() + " " + _startTime);
-                }
-            }
-            job.EndDate = _endDate;
-            if (job.EndDate != null)
-            {
-                job.EndDate = job.EndDate.Value.Date;
-                if (!string.IsNullOrEmpty(_endTime))
-                {
-                    job.EndDate = DateTime.Parse(job.EndDate.Value.ToShortDateString() + " " + _endTime);
-                }
-            }
-            job.RetentionHistory = int.Parse(_retentionHistory);
-            job.NextExecution = _nextDate;
-            if (job.NextExecution != null)
-            {
-                job.NextExecution = job.NextExecution.Value.Date;
-                if (!string.IsNullOrEmpty(_nextTime))
-                {
-                    job.NextExecution = DateTime.Parse(job.NextExecution.Value.ToShortDateString() + " " + _nextTime);
-                }
-            }
+			job.StartDate = Utilities.LocalDateAndTimeAsUtc(_startDate, _startTime);
+			job.EndDate = Utilities.LocalDateAndTimeAsUtc(_endDate, _endTime);
+			job.RetentionHistory = int.Parse(_retentionHistory);
+			job.NextExecution = Utilities.LocalDateAndTimeAsUtc(_nextDate, _nextTime);
 
-            try
-            {
-                job = await JobService.UpdateJobAsync(job);
-                await logger.LogInformation("Job Updated {Job}", job);
-                NavigationManager.NavigateTo(NavigateUrl());
-            }
-            catch (Exception ex)
-            {
-                await logger.LogError(ex, "Error Udate Job {Job} {Error}", job, ex.Message);
-                AddModuleMessage(Localizer["Error.Job.Update"], MessageType.Error);
-            }
-        }
-        else
-        {
-            AddModuleMessage(Localizer["Message.Required.JobInfo"], MessageType.Warning);
-        }
-    }
+			try
+			{
+				job = await JobService.UpdateJobAsync(job);
+				await logger.LogInformation("Job Updated {Job}", job);
+				NavigationManager.NavigateTo(NavigateUrl());
+			}
+			catch (Exception ex)
+			{
+				await logger.LogError(ex, "Error Udate Job {Job} {Error}", job, ex.Message);
+				AddModuleMessage(Localizer["Error.Job.Update"], MessageType.Error);
+			}
+		}
+		else
+		{
+			AddModuleMessage(Localizer["Message.Required.JobInfo"], MessageType.Warning);
+		}
+	}
+
 }

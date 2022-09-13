@@ -226,8 +226,8 @@ else
 @code {
     private string username = string.Empty;
     private string _password = string.Empty;
-	private string _passwordtype = "password";
-	private string _togglepassword = string.Empty;
+    private string _passwordtype = "password";
+    private string _togglepassword = string.Empty;
     private string confirm = string.Empty;
     private bool allowtwofactor = false;
     private string twofactor = "False";
@@ -429,6 +429,7 @@ else
     {
         try
         {
+            ModuleInstance.ShowProgressIndicator();
             foreach(var Notification in notifications)
             {
                 if (!Notification.IsDeleted)
@@ -444,12 +445,15 @@ else
             } 
             await logger.LogInformation("Notifications Permanently Deleted");
             await LoadNotificationsAsync();
+            ModuleInstance.HideProgressIndicator();
+
             StateHasChanged();            
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Notifications {Error}", ex.Message);
             AddModuleMessage(ex.Message, MessageType.Error);
+            ModuleInstance.HideProgressIndicator();
         }
     
     }

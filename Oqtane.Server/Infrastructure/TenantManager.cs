@@ -32,12 +32,13 @@ namespace Oqtane.Infrastructure
             else
             {
                 // if there is http context
-                if (_httpContextAccessor.HttpContext != null)
+                var httpcontext = _httpContextAccessor.HttpContext;
+                if (httpcontext != null)
                 {
                     // legacy support for client api requests which would include the alias as a path prefix ( ie. {alias}/api/[controller] )
                     int aliasId;
-                    string[] segments = _httpContextAccessor.HttpContext.Request.Path.Value.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-                    if (segments.Length > 1 && (segments[1] == "api" || segments[1] == "pages") && int.TryParse(segments[0], out aliasId))
+                    string[] segments = httpcontext.Request.Path.Value.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (segments.Length > 1 && Shared.Constants.ReservedRoutes.Contains(segments[1]) && int.TryParse(segments[0], out aliasId))
                     {
                         alias = _aliasRepository.GetAliases().ToList().FirstOrDefault(item => item.AliasId == aliasId);
                     }
@@ -45,13 +46,19 @@ namespace Oqtane.Infrastructure
                     // resolve alias based on host name and path
                     if (alias == null)
                     {
-                        string name = _httpContextAccessor.HttpContext.Request.Host.Value + _httpContextAccessor.HttpContext.Request.Path;
+                        string name = httpcontext.Request.Host.Value + httpcontext.Request.Path;
                         alias = _aliasRepository.GetAlias(name);
                     }
 
                     // if there is a match save it
                     if (alias != null)
                     {
+                        alias.Protocol = (httpcontext.Request.IsHttps) ? "https://" : "http://";
+                        alias.BaseUrl = "";
+                        if (httpcontext.Request.Headers.ContainsKey("User-Agent") && httpcontext.Request.Headers["User-Agent"] == Shared.Constants.MauiUserAgent)
+                        {
+                            alias.BaseUrl = alias.Protocol + alias.Name;
+                        }
                         _siteState.Alias = alias;
                     }
                 }

@@ -485,63 +485,67 @@ namespace Oqtane.Infrastructure
 
                 foreach (var moduleDefinition in moduleDefinitions.GetModuleDefinitions())
                 {
-                    if (!string.IsNullOrEmpty(moduleDefinition.ReleaseVersions) && !string.IsNullOrEmpty(moduleDefinition.ServerManagerType))
+                    if (!string.IsNullOrEmpty(moduleDefinition.ReleaseVersions))
                     {
-                        var moduleType = Type.GetType(moduleDefinition.ServerManagerType);
-                        if (moduleType != null)
+                        var versions = moduleDefinition.ReleaseVersions.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        using (var db = GetInstallationContext())
                         {
-                            var versions = moduleDefinition.ReleaseVersions.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                            using (var db = GetInstallationContext())
+                            if (!string.IsNullOrEmpty(moduleDefinition.ServerManagerType))
                             {
-                                foreach (var tenant in db.Tenant.ToList())
+                                var moduleType = Type.GetType(moduleDefinition.ServerManagerType);
+                                if (moduleType != null)
                                 {
-                                    var index = Array.FindIndex(versions, item => item == moduleDefinition.Version);
-                                    if (tenant.Name == install.TenantName && install.TenantName != TenantNames.Master)
+                                    foreach (var tenant in db.Tenant.ToList())
                                     {
-                                        index = -1;
-                                    }
-                                    if (index != (versions.Length - 1))
-                                    {
-                                        for (var i = (index + 1); i < versions.Length; i++)
+                                        var index = Array.FindIndex(versions, item => item == moduleDefinition.Version);
+                                        if (tenant.Name == install.TenantName && install.TenantName != TenantNames.Master)
                                         {
-                                            try
+                                            index = -1;
+                                        }
+                                        if (index != (versions.Length - 1))
+                                        {
+                                            for (var i = (index + 1); i < versions.Length; i++)
                                             {
-                                                if (moduleType.GetInterface("IInstallable") != null)
+                                                try
                                                 {
-                                                    tenantManager.SetTenant(tenant.TenantId);
-                                                    var moduleObject = ActivatorUtilities.CreateInstance(scope.ServiceProvider, moduleType) as IInstallable;
-                                                    if (moduleObject == null || !moduleObject.Install(tenant, versions[i]))
+                                                    if (moduleType.GetInterface("IInstallable") != null)
                                                     {
-                                                        result.Message = "An Error Occurred Executing IInstallable Interface For " + moduleDefinition.ServerManagerType;
+                                                        tenantManager.SetTenant(tenant.TenantId);
+                                                        var moduleObject = ActivatorUtilities.CreateInstance(scope.ServiceProvider, moduleType) as IInstallable;
+                                                        if (moduleObject == null || !moduleObject.Install(tenant, versions[i]))
+                                                        {
+                                                            result.Message = "An Error Occurred Executing IInstallable Interface For " + moduleDefinition.ServerManagerType;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        if (!sql.ExecuteScript(tenant, moduleType.Assembly, Utilities.GetTypeName(moduleDefinition.ModuleDefinitionName) + "." + versions[i] + ".sql"))
+                                                        {
+                                                            result.Message = "An Error Occurred Executing Database Script " + Utilities.GetTypeName(moduleDefinition.ModuleDefinitionName) + "." + versions[i] + ".sql";
+                                                        }
                                                     }
                                                 }
-                                                else
+                                                catch (Exception ex)
                                                 {
-                                                    if (!sql.ExecuteScript(tenant, moduleType.Assembly, Utilities.GetTypeName(moduleDefinition.ModuleDefinitionName) + "." + versions[i] + ".sql"))
-                                                    {
-                                                        result.Message = "An Error Occurred Executing Database Script " + Utilities.GetTypeName(moduleDefinition.ModuleDefinitionName) + "." + versions[i] + ".sql";
-                                                    }
+                                                    result.Message = "An Error Occurred Installing " + moduleDefinition.Name + " Version " + versions[i] + " - " + ex.Message;
                                                 }
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                result.Message = "An Error Occurred Installing " + moduleDefinition.Name + " Version " + versions[i] + " - " + ex.Message;
                                             }
                                         }
                                     }
                                 }
-                                if (string.IsNullOrEmpty(result.Message) && moduleDefinition.Version != versions[versions.Length - 1])
-                                {
-                                    // get module definition from database to retain user customizable property values
-                                    var moduledef = db.ModuleDefinition.AsNoTracking().FirstOrDefault(item => item.ModuleDefinitionId == moduleDefinition.ModuleDefinitionId);
-                                    moduleDefinition.Name = moduledef.Name;
-                                    moduleDefinition.Description = moduledef.Description;
-                                    moduleDefinition.Categories = moduledef.Categories;
-                                    // update version
-                                    moduleDefinition.Version = versions[versions.Length - 1];
-                                    db.Entry(moduleDefinition).State = EntityState.Modified;
-                                    db.SaveChanges();
-                                }
+                            }
+
+                            if (string.IsNullOrEmpty(result.Message) && moduleDefinition.Version != versions[versions.Length - 1])
+                            {
+                                // get module definition from database to retain user customizable property values
+                                var moduledef = db.ModuleDefinition.AsNoTracking().FirstOrDefault(item => item.ModuleDefinitionId == moduleDefinition.ModuleDefinitionId);
+                                moduleDefinition.Name = moduledef.Name;
+                                moduleDefinition.Description = moduledef.Description;
+                                moduleDefinition.Categories = moduledef.Categories;
+                                // update version
+                                moduleDefinition.Version = versions[versions.Length - 1];
+                                db.Entry(moduleDefinition).State = EntityState.Modified;
+                                db.SaveChanges();
                             }
                         }
                     }

@@ -89,7 +89,8 @@ else
                     <select id="runtime" class="form-select" @bind="@_runtime" required>
                         <option value="Server">@SharedLocalizer["BlazorServer"]</option>
                         <option value="WebAssembly">@SharedLocalizer["BlazorWebAssembly"]</option>
-                    </select>
+						<option value="Hybrid">@SharedLocalizer["BlazorHybrid"]</option>
+					</select>
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
@@ -336,7 +337,7 @@ else
 							user.Username = _hostusername;
 							user.Password = _hostpassword;
 							user.LastIPAddress = PageState.RemoteIPAddress;
-							user = await UserService.LoginUserAsync(user);
+							user = await UserService.LoginUserAsync(user, false, false);
                             if (user.IsAuthenticated)
                             {
 								var database = _databases.SingleOrDefault(d => d.Name == _databaseName);

@@ -1,0 +1,18 @@
+<DynamicComponent Type="@ComponentType" Parameters="@Parameters"></DynamicComponent>
+
+@code {
+	Type ComponentType = Type.GetType("Oqtane.App, Oqtane.Client");
+	private IDictionary<string, object> Parameters { get; set; }
+
+	protected override void OnInitialized()
+	{
+		Parameters = new Dictionary<string, object>();
+		Parameters.Add(new KeyValuePair<string, object>("AntiForgeryToken", ""));
+		Parameters.Add(new KeyValuePair<string, object>("Runtime", "Hybrid"));
+		Parameters.Add(new KeyValuePair<string, object>("RenderMode", "Hybrid"));
+		Parameters.Add(new KeyValuePair<string, object>("VisitorId", -1));
+		Parameters.Add(new KeyValuePair<string, object>("RemoteIPAddress", ""));
+		Parameters.Add(new KeyValuePair<string, object>("AuthorizationToken", ""));
+	}
+}
+

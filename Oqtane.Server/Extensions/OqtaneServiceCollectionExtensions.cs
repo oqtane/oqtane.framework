@@ -29,10 +29,10 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class OqtaneServiceCollectionExtensions
     {
-        public static IServiceCollection AddOqtane(this IServiceCollection services, string[] supportedCultures)
+        public static IServiceCollection AddOqtane(this IServiceCollection services, string[] installedCultures)
         {
             LoadAssemblies();
-            LoadSatelliteAssemblies(supportedCultures);
+            LoadSatelliteAssemblies(installedCultures);
             services.AddOqtaneServices();
 
             return services;
@@ -326,14 +326,14 @@ namespace Microsoft.Extensions.DependencyInjection
             }
         }
 
-        private static void LoadSatelliteAssemblies(string[] supportedCultures)
+        private static void LoadSatelliteAssemblies(string[] installedCultures)
         {
             AssemblyLoadContext.Default.Resolving += ResolveDependencies;
 
             foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), $"*{Constants.SatelliteAssemblyExtension}", SearchOption.AllDirectories))
             {
                 var code = Path.GetFileName(Path.GetDirectoryName(file));
-                if (supportedCultures.Contains(code))
+                if (installedCultures.Contains(code))
                 {
                     try
                     {
