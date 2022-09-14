@@ -117,6 +117,7 @@ namespace Oqtane.Client
                         try
                         {
                             await interop.RemoveIndexedDBItem(file);
+                            await interop.RemoveIndexedDBItem(file.Replace(".dll", ".pdb"));
                         }
                         catch
                         {
