@@ -127,7 +127,10 @@ public static class MauiProgram
                     {
                         try
                         {
-                            File.Delete(Path.Combine(folder, file));
+                            foreach (var path in Directory.EnumerateFiles(folder, Path.GetFileNameWithoutExtension(file) + ".*"))
+                            {
+                                File.Delete(path);
+                            }
                         }
                         catch
                         {
@@ -159,11 +162,6 @@ public static class MauiProgram
                             // save assembly to local folder
                             try
                             {
-                                int subfolder = entry.FullName.IndexOf('/');
-                                if (subfolder != -1 && !Directory.Exists(Path.Combine(folder, entry.FullName.Substring(0, subfolder))))
-                                {
-                                    Directory.CreateDirectory(Path.Combine(folder, entry.FullName.Substring(0, subfolder)));
-                                }
                                 using var stream = File.Create(Path.Combine(folder, entry.FullName));
                                 stream.Write(file, 0, file.Length);
                             }
