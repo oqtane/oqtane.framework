@@ -72,7 +72,7 @@ public static class MauiProgram
 
             var dlls = new Dictionary<string, byte[]>();
             var pdbs = new Dictionary<string, byte[]>();
-            var filter = new List<string>();
+            var list = new List<string>();
 
             var files = new List<string>();
             foreach (var file in Directory.EnumerateFiles(folder, "*.dll", SearchOption.AllDirectories))
@@ -92,14 +92,14 @@ public static class MauiProgram
                     var file = files.FirstOrDefault(item => item.Contains(assembly));
                     if (file == null)
                     {
-                        filter.Add(assembly);
+                        list.Add(assembly);
                     }
                     else
                     {
                         // check if newer version available
                         if (GetFileDate(assembly) > GetFileDate(file))
                         {
-                            filter.Add(assembly);
+                            list.Add(assembly);
                         }
                     }
                 }
@@ -107,7 +107,7 @@ public static class MauiProgram
                 // get assemblies already downloaded
                 foreach (var file in files)
                 {
-                    if (assemblies.Contains(file) && !filter.Contains(file))
+                    if (assemblies.Contains(file) && !list.Contains(file))
                     {
                         try
                         {
@@ -141,13 +141,13 @@ public static class MauiProgram
             }
             else
             {
-                filter.Add("*");
+                list.Add("*");
             }
 
-            if (filter.Count != 0)
+            if (list.Count != 0)
             {
                 // get assemblies from server
-                var zip = Task.Run(() => http.GetByteArrayAsync("/api/Installation/load?list=" + string.Join(",", filter))).GetAwaiter().GetResult();
+                var zip = Task.Run(() => http.GetByteArrayAsync("/api/Installation/load?list=" + string.Join(",", list))).GetAwaiter().GetResult();
 
                 // asemblies and debug symbols are packaged in a zip file
                 using (ZipArchive archive = new ZipArchive(new MemoryStream(zip)))
