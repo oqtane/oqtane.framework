@@ -63,7 +63,7 @@ namespace Oqtane.Client
         {
             var dlls = new Dictionary<string, byte[]>();
             var pdbs = new Dictionary<string, byte[]>();
-            var filter = new List<string>();
+            var list = new List<string>();
 
             var jsRuntime = serviceProvider.GetRequiredService<IJSRuntime>();
             var interop = new Interop(jsRuntime);
@@ -81,14 +81,14 @@ namespace Oqtane.Client
                     var file = files.FirstOrDefault(item => item.Contains(assembly));
                     if (file == null)
                     {
-                        filter.Add(assembly);
+                        list.Add(assembly);
                     }
                     else
                     {
                         // check if newer version available
                         if (GetFileDate(assembly) > GetFileDate(file))
                         {
-                            filter.Add(assembly);
+                            list.Add(assembly);
                         }
                     }
                 }
@@ -96,7 +96,7 @@ namespace Oqtane.Client
                 // get assemblies already downloaded
                 foreach (var file in files)
                 {
-                    if (assemblies.Contains(file) && !filter.Contains(file))
+                    if (assemblies.Contains(file) && !list.Contains(file))
                     {
                         try
                         {
@@ -128,13 +128,13 @@ namespace Oqtane.Client
             }
             else
             {
-                filter.Add("*");
+                list.Add("*");
             }
 
-            if (filter.Count != 0)
+            if (list.Count != 0)
             {
                 // get assemblies from server and load into client app domain
-                var zip = await http.GetByteArrayAsync($"/api/Installation/load?list=" + string.Join(",", filter));
+                var zip = await http.GetByteArrayAsync($"/api/Installation/load?list=" + string.Join(",", list));
 
                 // asemblies and debug symbols are packaged in a zip file
                 using (ZipArchive archive = new ZipArchive(new MemoryStream(zip)))
