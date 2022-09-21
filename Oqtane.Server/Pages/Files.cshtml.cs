@@ -60,7 +60,7 @@ namespace Oqtane.Pages
             }
 
             Models.File file; 
-            if (folderpath == "id" && int.TryParse(filename, out int fileid))
+            if (folderpath == "id/" && int.TryParse(filename, out int fileid))
             {
                 file = _files.GetFile(fileid, false);
             }
