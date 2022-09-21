@@ -126,7 +126,7 @@ namespace Oqtane.Pages
                         }
                         if (site.FaviconFileId != null)
                         {
-                            FavIcon = Utilities.ContentUrl(alias, site.FaviconFileId.Value);
+                            FavIcon = Utilities.FileUrl(alias, site.FaviconFileId.Value);
                         }
                         if (site.PwaIsEnabled && site.PwaAppIconFileId != null && site.PwaSplashIconFileId != null)
                         {
@@ -384,11 +384,11 @@ namespace Oqtane.Pages
                         "\"background_color\": \"#fff\", " +
                         "\"description\": \"" + site.Name + "\", " +
                         "\"icons\": [{ " +
-                            "\"src\": \"" + route.RootUrl + Utilities.ContentUrl(alias, site.PwaAppIconFileId.Value) + "\", " +
+                            "\"src\": \"" + route.RootUrl + Utilities.FileUrl(alias, site.PwaAppIconFileId.Value) + "\", " +
                             "\"sizes\": \"192x192\", " +
                             "\"type\": \"image/png\" " +
                             "}, { " +
-                            "\"src\": \"" + route.RootUrl + Utilities.ContentUrl(alias, site.PwaSplashIconFileId.Value) + "\", " +
+                            "\"src\": \"" + route.RootUrl + Utilities.FileUrl(alias, site.PwaSplashIconFileId.Value) + "\", " +
                             "\"sizes\": \"512x512\", " +
                             "\"type\": \"image/png\" " +
                         "}] " +
