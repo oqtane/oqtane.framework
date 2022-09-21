@@ -42,6 +42,13 @@ namespace Oqtane.Pages
             var folderpath = "";
             var filename = "";
 
+            bool download = false;
+            if (path.Contains("?download"))
+            {
+                download = true;
+                path = path.Substring(0, path.IndexOf("?download"));
+            }
+
             var segments = path.Split('/');
             if (segments.Length > 0)
             {
@@ -52,15 +59,31 @@ namespace Oqtane.Pages
                 }
             }
 
-            var file = _files.GetFile(_alias.SiteId, folderpath, filename);
+            Models.File file; 
+            if (folderpath == "id" && int.TryParse(filename, out int fileid))
+            {
+                file = _files.GetFile(fileid, false);
+            }
+            else
+            {
+                file = _files.GetFile(_alias.SiteId, folderpath, filename);
+            }
+
             if (file != null)
             {
-                if (_userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
+                if (file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
                 {
                     var filepath = _files.GetFilePath(file);
                     if (System.IO.File.Exists(filepath))
                     {
-                        return PhysicalFile(filepath, file.GetMimeType());
+                        if (download)
+                        {
+                            return PhysicalFile(filepath, file.GetMimeType(), file.Name);
+                        }
+                        else
+                        {
+                            return PhysicalFile(filepath, file.GetMimeType());
+                        }
                     }
                     else
                     {
@@ -91,7 +114,7 @@ namespace Oqtane.Pages
             }
 
             // broken link
-            string errorPath = Path.Combine(Utilities.PathCombine(_environment.ContentRootPath, "wwwroot\\images"), "error.png");
+            string errorPath = Path.Combine(Utilities.PathCombine(_environment.ContentRootPath, "wwwroot/images"), "error.png");
             return PhysicalFile(errorPath, MimeUtilities.GetMimeType(errorPath));
         }
     }

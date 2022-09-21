@@ -262,7 +262,7 @@
 			{
 				var interop = new Interop(JSRuntime);
 				int pos = await interop.GetCaretPosition("rawhtmleditor");
-				var image = "<img src=\"" + file.Url + "\" alt=\"" + ((!string.IsNullOrEmpty(file.Description)) ? file.Description : file.Name) + "\">";
+				var image = "<img src=\"" + file.Url + "\" alt=\"" + ((!string.IsNullOrEmpty(file.Description)) ? file.Description : file.Name) + "\" class=\"img-fluid\">";
 				_rawhtml = _rawhtml.Substring(0, pos) + image + _rawhtml.Substring(pos);
 				_rawfilemanager = false;
 			}
