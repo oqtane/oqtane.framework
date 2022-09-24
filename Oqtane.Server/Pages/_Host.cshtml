@@ -49,6 +49,7 @@
 		@if (Model.Runtime == "Server")
 		{
 			<script src="_framework/blazor.server.js"></script>
+			@Html.Raw(Model.ReconnectScript)
 		}
 		@if (!string.IsNullOrEmpty(Model.PWAScript))
 		{

@@ -69,6 +69,7 @@ namespace Oqtane.Pages
         public string Meta = "";
         public string FavIcon = "favicon.ico";
         public string PWAScript = "";
+        public string ReconnectScript = "";
         public string Message = "";
 
         public IActionResult OnGet()
@@ -127,6 +128,10 @@ namespace Oqtane.Pages
                         if (site.FaviconFileId != null)
                         {
                             FavIcon = Utilities.FileUrl(alias, site.FaviconFileId.Value);
+                        }
+                        if (Runtime == "Server")
+                        {
+                            ReconnectScript = CreateReconnectScript();
                         }
                         if (site.PwaIsEnabled && site.PwaAppIconFileId != null && site.PwaSplashIconFileId != null)
                         {
@@ -374,40 +379,60 @@ namespace Oqtane.Pages
         private string CreatePWAScript(Alias alias, Site site, Route route)
         {
             return
-            "<script id=\"app-pwa\">" +
-                "setTimeout(() => { " +
-                    "var manifest = { " +
-                        "\"name\": \"" + site.Name + "\", " +
-                        "\"short_name\": \"" + site.Name + "\", " +
-                        "\"start_url\": \"" + route.SiteUrl + "/\", " +
-                        "\"display\": \"standalone\", " +
-                        "\"background_color\": \"#fff\", " +
-                        "\"description\": \"" + site.Name + "\", " +
-                        "\"icons\": [{ " +
-                            "\"src\": \"" + route.RootUrl + Utilities.FileUrl(alias, site.PwaAppIconFileId.Value) + "\", " +
-                            "\"sizes\": \"192x192\", " +
-                            "\"type\": \"image/png\" " +
-                            "}, { " +
-                            "\"src\": \"" + route.RootUrl + Utilities.FileUrl(alias, site.PwaSplashIconFileId.Value) + "\", " +
-                            "\"sizes\": \"512x512\", " +
-                            "\"type\": \"image/png\" " +
-                        "}] " +
-                    "}; " +
-                    "const serialized = JSON.stringify(manifest); " +
-                    "const blob = new Blob([serialized], {type: 'application/javascript'}); " +
-                    "const url = URL.createObjectURL(blob); " +
-                    "document.getElementById('app-manifest').setAttribute('href', url); " +
-                "} " +
-                ", 1000);" +
+            "<script>" + Environment.NewLine +
+            "    // PWA Manifest" + Environment.NewLine +
+            "    setTimeout(() => {" + Environment.NewLine +
+            "        var manifest = {" + Environment.NewLine +
+            "            \"name\": \"" + site.Name + "\"," + Environment.NewLine +
+            "            \"short_name\": \"" + site.Name + "\"," + Environment.NewLine +
+            "            \"start_url\": \"" + route.SiteUrl + "/\"," + Environment.NewLine +
+            "            \"display\": \"standalone\"," + Environment.NewLine +
+            "            \"background_color\": \"#fff\"," + Environment.NewLine +
+            "            \"description\": \"" + site.Name + "\"," + Environment.NewLine +
+            "            \"icons\": [{" + Environment.NewLine +
+            "                \"src\": \"" + route.RootUrl + Utilities.FileUrl(alias, site.PwaAppIconFileId.Value) + "\"," + Environment.NewLine +
+            "                \"sizes\": \"192x192\"," + Environment.NewLine +
+            "                \"type\": \"image/png\"" + Environment.NewLine +
+            "                }, {" + Environment.NewLine +
+            "                \"src\": \"" + route.RootUrl + Utilities.FileUrl(alias, site.PwaSplashIconFileId.Value) + "\"," + Environment.NewLine +
+            "                \"sizes\": \"512x512\"," + Environment.NewLine +
+            "                \"type\": \"image/png\"" + Environment.NewLine +
+            "            }]" + Environment.NewLine +
+            "       };" + Environment.NewLine +
+            "       const serialized = JSON.stringify(manifest);" + Environment.NewLine +
+            "       const blob = new Blob([serialized], {type: 'application/javascript'});" + Environment.NewLine +
+            "       const url = URL.createObjectURL(blob);" + Environment.NewLine +
+            "       document.getElementById('app-manifest').setAttribute('href', url);" + Environment.NewLine +
+            "    }, 1000);" + Environment.NewLine +
             "</script>" + Environment.NewLine +
-            "<script id=\"app-serviceworker\">" +
-                "if ('serviceWorker' in navigator) { " +
-                    "navigator.serviceWorker.register('/service-worker.js').then(function(registration) { " +
-                        "console.log('ServiceWorker Registration Successful'); " +
-                    "}).catch (function(err) { " +
-                        "console.log('ServiceWorker Registration Failed ', err); " +
-                    "}); " +
-                "};" +
+            "<script>" + Environment.NewLine +
+            "    // PWA Service Worker" + Environment.NewLine +
+            "    if ('serviceWorker' in navigator) {" + Environment.NewLine +
+            "        navigator.serviceWorker.register('/service-worker.js').then(function(registration) {" + Environment.NewLine +
+            "            console.log('ServiceWorker Registration Successful');" + Environment.NewLine +
+            "        }).catch (function(err) {" + Environment.NewLine +
+            "            console.log('ServiceWorker Registration Failed ', err);" + Environment.NewLine +
+            "        });" + Environment.NewLine +
+            "    };" + Environment.NewLine +
+            "</script>";
+        }
+
+        private string CreateReconnectScript()
+        {
+            return
+            "<script>" + Environment.NewLine +
+            "    // Blazor Server Reconnect" + Environment.NewLine +
+            "    new MutationObserver((mutations, observer) => {" + Environment.NewLine +
+            "        if (document.querySelector('#components-reconnect-modal h5 a')) {" + Environment.NewLine +
+            "            async function attemptReload() {" + Environment.NewLine +
+            "                await fetch('');" + Environment.NewLine +
+            "                location.reload();" + Environment.NewLine +
+            "            }" + Environment.NewLine +
+            "            observer.disconnect();" + Environment.NewLine +
+            "            attemptReload();" + Environment.NewLine +
+            "            setInterval(attemptReload, 5000);" + Environment.NewLine +
+            "        }" + Environment.NewLine +
+            "    }).observe(document.body, { childList: true, subtree: true });" + Environment.NewLine +
             "</script>";
         }
 

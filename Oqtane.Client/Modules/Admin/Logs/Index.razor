@@ -109,7 +109,7 @@ else
 			// external link to log item will display Details component
 			if (PageState.QueryString.ContainsKey("id") && int.TryParse(PageState.QueryString["id"], out int id))
 			{
-				NavigationManager.NavigateTo(EditUrl(PageState.Page.Path, ModuleState.ModuleId, "Detail", $"id={id}"));
+				NavigationManager.NavigateTo(EditUrl(PageState.Page.Path, ModuleState.ModuleId, "Detail", $"/{id}"));
 			}
 
 			if (UrlParameters.ContainsKey("level"))
