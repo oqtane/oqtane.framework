@@ -356,10 +356,15 @@ Oqtane.Interop = {
             }
         }
     },
-    refreshBrowser: function (reload, wait) {
-        setInterval(function () {
-            window.location.reload(reload);
-        }, wait * 1000);
+    refreshBrowser: function (verify, wait) {
+        async function attemptReload (verify) {
+            if (verify) {
+                await fetch('');
+            }
+            window.location.reload();
+        }
+        attemptReload(verify);
+        setInterval(attemptReload, wait * 1000);
     },
     redirectBrowser: function (url, wait) {
         setInterval(function () {
