@@ -56,7 +56,7 @@ namespace Oqtane.Controllers
         {
             List<Theme> themes = _themes.GetThemes().ToList();
             Theme theme = themes.Where(item => item.ThemeName == themename).FirstOrDefault();
-            if (theme != null && Utilities.GetAssemblyName(theme.ThemeName) != "Oqtane.Client")
+            if (theme != null && Utilities.GetAssemblyName(theme.ThemeName) != Constants.ClientId)
             {
                 // remove theme assets
                 if (_installationManager.UninstallPackage(theme.PackageName))

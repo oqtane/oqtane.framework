@@ -47,7 +47,7 @@ else
 
 	protected override async Task OnParametersSetAsync()
 	{
-		_languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId, Constants.PackageId);
+		_languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId, Constants.ClientId);
 
 		var cultures = await LocalizationService.GetCulturesAsync();
         var culture = cultures.First(c => c.Name.Equals(Constants.DefaultCulture));
@@ -78,7 +78,7 @@ else
     private bool UpgradeAvailable(string code, string version)
     {
         var upgradeavailable = false;
-        if (_packages != null)
+        if (_packages != null && version != null)
         {
 			var package = _packages.Where(item => item.PackageId == (Constants.PackageId + "." + code)).FirstOrDefault();
 			if (package != null)

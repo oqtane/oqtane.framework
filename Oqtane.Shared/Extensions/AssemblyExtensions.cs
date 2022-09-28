@@ -79,7 +79,7 @@ namespace System.Reflection
         {
             return appDomain.GetOqtaneAssemblies()
                 .Where(a => a.GetTypes<IModuleControl>().Any() || a.GetTypes<IThemeControl>().Any() || a.GetTypes<IClientStartup>().Any())
-                .Where(a => Utilities.GetFullTypeName(a.GetName().Name) != "Oqtane.Client");
+                .Where(a => Utilities.GetFullTypeName(a.GetName().Name) != Constants.ClientId);
         }
 
         /// <summary>
