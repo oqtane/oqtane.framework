@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -166,16 +166,22 @@
     <value>Error Permanently Deleting Modules</value>
   </data>
   <data name="DeleteAllPages.Header" xml:space="preserve">
-    <value>Delete All Pages</value>
+    <value>Remove All Deleted Pages</value>
   </data>
   <data name="DeleteAllPages.Message" xml:space="preserve">
-    <value>Are You Sure You Wish To Permanently Delete All Pages?</value>
+    <value>Are You Sure You Wish To Permanently Remove All Deleted Pages?</value>
+  </data>
+  <data name="DeleteAllPages.Text" xml:space="preserve">
+    <value>Remove All Deleted Pages</value>
   </data>
   <data name="DeleteAllModules.Header" xml:space="preserve">
-    <value>Delete All Modules</value>
+    <value>Remove All Deleted Modules</value>
   </data>
   <data name="DeleteAllModules.Message" xml:space="preserve">
-    <value>Are You Sure You Wish To Permanently Delete All Modules?</value>
+    <value>Are You Sure You Wish To Permanently Remove All Deleted Modules?</value>
+  </data>
+  <data name="DeleteAllModules.Text" xml:space="preserve">
+    <value>Remove All Deleted Modules</value>
   </data>
   <data name="Pages.Heading" xml:space="preserve">
     <value>Pages</value>
