@@ -42,10 +42,13 @@ namespace Oqtane.Controllers
                 {
                     if (!string.IsNullOrEmpty(packagename))
                     {
-                        foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), $"{packagename}.*{Constants.SatelliteAssemblyExtension}", SearchOption.AllDirectories))
+                        foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), $"{packagename}*{Constants.SatelliteAssemblyExtension}", SearchOption.AllDirectories))
                         {
                             var code = Path.GetFileName(Path.GetDirectoryName(file));
-                            languages.Add(new Language { Code = code, Name = CultureInfo.GetCultureInfo(code).DisplayName, Version = FileVersionInfo.GetVersionInfo(file).FileVersion, IsDefault = false });
+                            if (!languages.Any(item => item.Code == code))
+                            {
+                                languages.Add(new Language { Code = code, Name = CultureInfo.GetCultureInfo(code).DisplayName, Version = FileVersionInfo.GetVersionInfo(file).FileVersion, IsDefault = false });
+                            }
                         }
                     }
                 }
@@ -54,7 +57,7 @@ namespace Oqtane.Controllers
                     languages = _languages.GetLanguages(SiteId).ToList();
                     if (!string.IsNullOrEmpty(packagename))
                     {
-                        foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), $"{packagename}.*{Constants.SatelliteAssemblyExtension}", SearchOption.AllDirectories))
+                        foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), $"{packagename}*{Constants.SatelliteAssemblyExtension}", SearchOption.AllDirectories))
                         {
                             var code = Path.GetFileName(Path.GetDirectoryName(file));
                             if (languages.Any(item => item.Code == code))
