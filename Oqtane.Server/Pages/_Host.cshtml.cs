@@ -20,6 +20,7 @@ using Oqtane.Enums;
 using Oqtane.Security;
 using Oqtane.Extensions;
 using Oqtane.Themes;
+using Oqtane.UI;
 
 namespace Oqtane.Pages
 {
@@ -179,7 +180,7 @@ namespace Oqtane.Pages
                             {
                                 ThemeType = page.ThemeType;
                             }
-                            ProcessThemeResources(ThemeType);
+                            ProcessThemeResources(ThemeType, alias);
                         }
                         else // page not found
                         {
@@ -203,7 +204,7 @@ namespace Oqtane.Pages
                         var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
                         foreach (Assembly assembly in assemblies)
                         {
-                            ProcessHostResources(assembly);
+                            ProcessHostResources(assembly, alias);
                         }
 
                         // set culture if not specified
@@ -436,7 +437,7 @@ namespace Oqtane.Pages
             "</script>";
         }
 
-        private void ProcessHostResources(Assembly assembly)
+        private void ProcessHostResources(Assembly assembly, Alias alias)
         {
             var types = assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(IHostResources)));
             foreach (var type in types)
@@ -445,12 +446,12 @@ namespace Oqtane.Pages
                 foreach (var resource in obj.Resources)
                 {
                     resource.Level = ResourceLevel.App;
-                    ProcessResource(resource, 0);
+                    ProcessResource(resource, 0, alias);
                 }
             }
         }
 
-        private void ProcessThemeResources(string ThemeType)
+        private void ProcessThemeResources(string ThemeType, Alias alias)
         {
             var type = Type.GetType(ThemeType);
             if (type != null)
@@ -462,40 +463,41 @@ namespace Oqtane.Pages
                     foreach (var resource in obj.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
                     {
                         resource.Level = ResourceLevel.Page;
-                        ProcessResource(resource, count++);
+                        ProcessResource(resource, count++, alias);
                     }
                 }
             }
         }
 
-        private void ProcessResource(Resource resource, int count)
+        private void ProcessResource(Resource resource, int count, Alias alias)
         {
+            var url = (resource.Url.Contains("://")) ? resource.Url : alias.BaseUrl + resource.Url;
             switch (resource.ResourceType)
             {
                 case ResourceType.Stylesheet:
-                    if (!HeadResources.Contains(resource.Url, StringComparison.OrdinalIgnoreCase))
+                    if (!HeadResources.Contains(url, StringComparison.OrdinalIgnoreCase))
                     {
                         string id = "";
                         if (resource.Level == ResourceLevel.Page)
                         {
                             id = "id=\"app-stylesheet-" + resource.Level.ToString().ToLower() + "-" + DateTime.UtcNow.ToString("yyyyMMddHHmmssfff") + "-" + count.ToString("00") + "\" ";
                         }
-                        HeadResources += "<link " + id + "rel=\"stylesheet\" href=\"" + resource.Url + "\"" + CrossOrigin(resource.CrossOrigin) + Integrity(resource.Integrity) + " />" + Environment.NewLine;
+                        HeadResources += "<link " + id + "rel=\"stylesheet\" href=\"" + url + "\"" + CrossOrigin(resource.CrossOrigin) + Integrity(resource.Integrity) + " type=\"text/css\"/>" + Environment.NewLine;
                     }
                     break;
                 case ResourceType.Script:
                     if (resource.Location == Shared.ResourceLocation.Body)
                     {
-                        if (!BodyResources.Contains(resource.Url, StringComparison.OrdinalIgnoreCase))
+                        if (!BodyResources.Contains(url, StringComparison.OrdinalIgnoreCase))
                         {
-                            BodyResources += "<script src=\"" + resource.Url + "\"" + CrossOrigin(resource.CrossOrigin) + Integrity(resource.Integrity) + "></script>" + Environment.NewLine;
+                            BodyResources += "<script src=\"" + url + "\"" + CrossOrigin(resource.CrossOrigin) + Integrity(resource.Integrity) + "></script>" + Environment.NewLine;
                         }
                     }
                     else
                     {
                         if (!HeadResources.Contains(resource.Url, StringComparison.OrdinalIgnoreCase))
                         {
-                            HeadResources += "<script src=\"" + resource.Url + "\"" + CrossOrigin(resource.CrossOrigin) + Integrity(resource.Integrity) + "></script>" + Environment.NewLine;
+                            HeadResources += "<script src=\"" + url + "\"" + CrossOrigin(resource.CrossOrigin) + Integrity(resource.Integrity) + "></script>" + Environment.NewLine;
                         }
                     }
                     break;

@@ -35,7 +35,8 @@ namespace Oqtane.Themes
                     var scripts = new List<object>();
                     foreach (Resource resource in Resources.Where(item => item.ResourceType == ResourceType.Script))
                     {
-                        scripts.Add(new { href = resource.Url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", es6module = resource.ES6Module });
+                        var url = (resource.Url.Contains("://")) ? resource.Url : PageState.Alias.BaseUrl + resource.Url;
+                        scripts.Add(new { href = url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", es6module = resource.ES6Module });
                     }
                     if (scripts.Any())
                     {

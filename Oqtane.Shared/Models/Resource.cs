@@ -8,6 +8,8 @@ namespace Oqtane.Models
     /// </summary>
     public class Resource
     {
+        private string _url;
+
         /// <summary>
         /// A <see cref="ResourceType"/> so the Interop can properly create `script` or `link` tags
         /// </summary>
@@ -16,7 +18,14 @@ namespace Oqtane.Models
         /// <summary>
         /// Path to the resources. 
         /// </summary>
-        public string Url { get; set; }
+        public string Url
+        {
+            get => _url;
+            set
+            {
+                _url = (value.Contains("://")) ? value : (!value.StartsWith("/") ? "/" : "") + value;
+            }
+        }
 
         /// <summary>
         /// Integrity checks to increase the security of resources accessed. Especially common in CDN resources. 
