@@ -70,6 +70,9 @@
 						}
 					}
 				</tbody>
+                <tfoot>
+                    <tr class="@RowClass">@Footer</tr>
+                </tfoot>
 			</table>
 		</div>
     }
@@ -184,6 +187,9 @@
 
 	[Parameter]
 	public RenderFragment<TableItem> Row { get; set; } = null; // required
+
+    [Parameter]
+    public RenderFragment Footer { get; set; } = null; // only applicable to Table layouts
 
 	[Parameter]
 	public RenderFragment<TableItem> Detail { get; set; } = null; // only applicable to Table layouts
