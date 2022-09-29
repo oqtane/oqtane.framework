@@ -56,6 +56,10 @@ namespace Oqtane.Extensions
                     options.ClientId = sitesettings.GetValue("ExternalLogin:ClientId", "");
                     options.ClientSecret = sitesettings.GetValue("ExternalLogin:ClientSecret", "");
                     options.UsePkce = bool.Parse(sitesettings.GetValue("ExternalLogin:PKCE", "false"));
+                    if (!string.IsNullOrEmpty(sitesettings.GetValue("ExternalLogin:RoleClaimType", "")))
+                    {
+                        options.TokenValidationParameters.RoleClaimType = sitesettings.GetValue("ExternalLogin:RoleClaimType", "");
+                    }
                     options.Scope.Clear();
                     foreach (var scope in sitesettings.GetValue("ExternalLogin:Scopes", "openid,profile,email").Split(',', StringSplitOptions.RemoveEmptyEntries))
                     {
@@ -230,6 +234,18 @@ namespace Oqtane.Extensions
             var identity = await ValidateUser(email, id, claims, context.HttpContext);
             if (identity.Label == ExternalLoginStatus.Success)
             {
+                // external roles
+                if (!string.IsNullOrEmpty(context.HttpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimType", "")))
+                {
+                    foreach (var claim in context.Principal.Claims.Where(item => item.Type == ClaimTypes.Role))
+                    {
+                        if (!identity.Claims.Any(item => item.Type == ClaimTypes.Role && item.Value == claim.Value))
+                        {
+                            identity.AddClaim(new Claim(ClaimTypes.Role, claim.Value));
+                        }
+                    }
+                }
+
                 identity.AddClaim(new Claim("access_token", context.SecurityToken.RawData));
                 context.Principal = new ClaimsPrincipal(identity);
             }

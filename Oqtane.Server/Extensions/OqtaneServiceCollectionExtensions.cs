@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -157,6 +158,9 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IServiceCollection ConfigureOqtaneAuthenticationOptions(this IServiceCollection services, IConfigurationRoot Configuration)
         {
+            // prevent remapping of claims
+            JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+
             // settings defined in appsettings
             services.Configure<OAuthOptions>(Configuration);
             services.Configure<OpenIdConnectOptions>(Configuration);

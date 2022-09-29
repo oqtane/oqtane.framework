@@ -211,25 +211,25 @@
     <value>Allow Login?</value>
   </data>
   <data name="Authority.HelpText" xml:space="preserve">
-    <value>The Authority Url or Issuer Url associated with the OpenID Connect provider</value>
+    <value>The authority url or issuer url associated with the identity provider</value>
   </data>
   <data name="Authority.Text" xml:space="preserve">
     <value>Authority:</value>
   </data>
   <data name="AuthorizationUrl.HelpText" xml:space="preserve">
-    <value>The endpoint for obtaining an Authorization Code</value>
+    <value>The endpoint for obtaining an authorization code</value>
   </data>
   <data name="AuthorizationUrl.Text" xml:space="preserve">
     <value>Authorization Url:</value>
   </data>
   <data name="ClientID.HelpText" xml:space="preserve">
-    <value>The Client ID from the provider</value>
+    <value>The client id for the identity provider</value>
   </data>
   <data name="ClientID.Text" xml:space="preserve">
     <value>Client ID:</value>
   </data>
   <data name="ClientSecret.HelpText" xml:space="preserve">
-    <value>The Client Secret from the provider</value>
+    <value>The client secret for the identity provider</value>
   </data>
   <data name="ClientSecret.Text" xml:space="preserve">
     <value>Client Secret:</value>
@@ -247,7 +247,7 @@
     <value>Domain Filter:</value>
   </data>
   <data name="EmailClaimType.HelpText" xml:space="preserve">
-    <value>The name of the email address claim provided by the provider</value>
+    <value>The name of the email address claim provided by the identity provider</value>
   </data>
   <data name="EmailClaimType.Text" xml:space="preserve">
     <value>Email Claim:</value>
@@ -259,7 +259,7 @@
     <value>Lockout Settings</value>
   </data>
   <data name="MetadataUrl.HelpText" xml:space="preserve">
-    <value>The discovery endpoint for obtaining metadata for this provider. Only specify if the OpenID Connect provider does not use the standard approach (ie. /.well-known/openid-configuration)</value>
+    <value>The discovery endpoint for obtaining metadata for this identity provider. Only specify if the identity provider does not use the standard approach (ie. /.well-known/openid-configuration)</value>
   </data>
   <data name="MetadataUrl.Text" xml:space="preserve">
     <value>Metadata Url:</value>
@@ -268,7 +268,7 @@
     <value>Password Settings</value>
   </data>
   <data name="PKCE.HelpText" xml:space="preserve">
-    <value>Indicate if the provider supports Proof Key for Code Exchange (PKCE)</value>
+    <value>Indicate if the identity provider supports proof key for code exchange (PKCE)</value>
   </data>
   <data name="PKCE.Text" xml:space="preserve">
     <value>Use PKCE?</value>
@@ -286,25 +286,25 @@
     <value>Provider Type:</value>
   </data>
   <data name="RedirectUrl.HelpText" xml:space="preserve">
-    <value>The Redirect Url (or Callback Url) which usually needs to be registered with the provider</value>
+    <value>The redirect url (or callback url) which usually needs to be registered with the identity provider</value>
   </data>
   <data name="RedirectUrl.Text" xml:space="preserve">
     <value>Redirect Url:</value>
   </data>
   <data name="Scopes.HelpText" xml:space="preserve">
-    <value>A list of Scopes to request from the provider (separated by commas). If none are specified, standard Scopes will be used by default.</value>
+    <value>A list of scopes to request from the identity provider (separated by commas). If none are specified, standard Scopes will be used by default.</value>
   </data>
   <data name="Scopes.Text" xml:space="preserve">
     <value>Scopes:</value>
   </data>
   <data name="TokenUrl.HelpText" xml:space="preserve">
-    <value>The endpoint for obtaining an Auth Token</value>
+    <value>The endpoint for obtaining an auth token</value>
   </data>
   <data name="TokenUrl.Text" xml:space="preserve">
     <value>Token Url:</value>
   </data>
   <data name="UserInfoUrl.HelpText" xml:space="preserve">
-    <value>The endpoint for obtaining user information. This should be an API or Page Url which contains the users email address.</value>
+    <value>The endpoint for obtaining user information. This should be an API endpoint or page url which contains the users email address.</value>
   </data>
   <data name="UserInfoUrl.Text" xml:space="preserve">
     <value>User Info Url:</value>
@@ -373,15 +373,21 @@
     <value>Last Login</value>
   </data>
   <data name="IdentifierClaimType.HelpText" xml:space="preserve">
-    <value>The name of the unique user identifier claim provided by the provider</value>
+    <value>The name of the unique user identifier claim provided by the identity provider</value>
   </data>
   <data name="IdentifierClaimType.Text" xml:space="preserve">
     <value>Identifier Claim:</value>
   </data>
   <data name="Parameters.HelpText" xml:space="preserve">
-    <value>Optionally specify any additional parameters as name/value pairs to send to the provider (separated by commas if there are multiple).</value>
+    <value>Optionally specify any additional parameters as name/value pairs to send to the identity provider (separated by commas if there are multiple).</value>
   </data>
   <data name="Parameters.Text" xml:space="preserve">
     <value>Parameters:</value>
+  </data>
+  <data name="RoleClaimType.HelpText" xml:space="preserve">
+    <value>Optionally provide the name of the role claim provided by the identity provider. These roles will be used in addition to any internal user roles assigned within the site.</value>
+  </data>
+    <data name="RoleClaimType.Text" xml:space="preserve">
+    <value>Role Claim Type:</value>
   </data>
 </root>
