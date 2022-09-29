@@ -165,6 +165,7 @@ namespace Oqtane.Controllers
             if (allowregistration)
             {
                 bool succeeded;
+                string errors = "";
                 IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
                 if (identityuser == null)
                 {
@@ -174,12 +175,20 @@ namespace Oqtane.Controllers
                     identityuser.EmailConfirmed = verified;
                     var result = await _identityUserManager.CreateAsync(identityuser, user.Password);
                     succeeded = result.Succeeded;
+                    if (!succeeded)
+                    {
+                        errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    }
                 }
                 else
                 {
                     var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, false);
                     succeeded = result.Succeeded;
-                    verified = true;
+                    if (!succeeded)
+                    {
+                        errors = "Password Not Valid For User";
+                    }
+                    verified = succeeded;
                 }
 
                 if (succeeded)
@@ -187,6 +196,10 @@ namespace Oqtane.Controllers
                     user.LastLoginOn = null;
                     user.LastIPAddress = "";
                     newUser = _users.AddUser(user);
+                }
+                else
+                {
+                    _logger.Log(user.SiteId, LogLevel.Error, this, LogFunction.Create, "Unable To Add User {Username} - {Errors}", user.Username, errors);
                 }
 
                 if (newUser != null)
