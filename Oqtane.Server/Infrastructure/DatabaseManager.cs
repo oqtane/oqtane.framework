@@ -51,7 +51,6 @@ namespace Oqtane.Infrastructure
 
             if (!string.IsNullOrEmpty(_config.GetConnectionString(SettingKeys.ConnectionStringKey)))
             {
-                result.Success = true;
                 using (var db = GetInstallationContext())
                 {
                     if (db.Database.CanConnect())
@@ -60,6 +59,7 @@ namespace Oqtane.Infrastructure
                         {
                             // verify master database contains a Tenant table ( ie. validate schema is properly provisioned )
                             var provisioned = db.Tenant.Any();
+                            result.Success = true;
                         }
                         catch (Exception ex)
                         {
@@ -715,7 +715,7 @@ namespace Oqtane.Infrastructure
                         foreach (var upgrade in siteupgrades)
                         {
                             var aliasname = upgrade.Key.Split(' ').First();
-                            // in the future this equality condition could use RegEx to allow for more flexible matching 
+                            // in the future this equality condition could use RegEx to allow for more flexible matching
                             if (string.Equals(alias.Name, aliasname, StringComparison.OrdinalIgnoreCase))
                             {
                                 tenantManager.SetTenant(alias.TenantId);
