@@ -41,15 +41,15 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 # Roadmap
 This project is open source, and therefore is a work in progress...
 
-V.4.0.0 ( Q4 2022 )
+4.0.0 ( Q4 2022 )
 - [ ] Migration to .NET 7  
 - [ ] Folder Providers
 
-V.3.2.0 ( Q3 2022 )
+[3.2.0](https://github.com/oqtane/oqtane.framework/releases/tag/v3.2.0) ( Sep 13, 2022 )
 - [x] MAUI / Blazor Hybrid support 
 - [x] Upgrade to Bootstrap 5.2
 
-[3.1.3](https://github.com/oqtane/oqtane.framework/releases/tag/v3.1.3) ( June 27, 2022 )
+[3.1.3](https://github.com/oqtane/oqtane.framework/releases/tag/v3.1.3) ( Jun 27, 2022 )
 - [x] Stabilization improvements 
 
 [3.1.2](https://github.com/oqtane/oqtane.framework/releases/tag/v3.1.2) ( May 14, 2022 )
@@ -58,7 +58,7 @@ V.3.2.0 ( Q3 2022 )
 [3.1.1](https://github.com/oqtane/oqtane.framework/releases/tag/v3.1.1) ( May 3, 2022 )
 - [x] Stabilization improvements 
 
-[3.1.0](https://github.com/oqtane/oqtane.framework/releases/tag/v3.1.0) ( April 5, 2022 )
+[3.1.0](https://github.com/oqtane/oqtane.framework/releases/tag/v3.1.0) ( Apr 5, 2022 )
 - [x] User account lockout support
 - [x] Two factor authentication support
 - [x] Per-site configuration of password complexity, lockout criteria
