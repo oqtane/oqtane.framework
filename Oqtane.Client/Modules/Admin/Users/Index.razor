@@ -602,14 +602,10 @@ else
 			if (_providertype == AuthenticationProviderTypes.OpenIDConnect)
 			{
 				_scopes = "openid,profile,email";
-				_identifierclaimtype = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
-				_emailclaimtype = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
 			}
 			else
 			{
 				_scopes = "";
-				_identifierclaimtype = "sub";
-				_emailclaimtype = "email";
 			}			
 		}
 		_redirecturl = PageState.Uri.Scheme + "://" + PageState.Alias.Name + "/signin-" + _providertype;
