@@ -280,7 +280,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 var serviceTypes = assembly.GetTypes(hostedServiceType);
                 foreach (var serviceType in serviceTypes)
                 {
-                    if (serviceType.IsSubclassOf(typeof(HostedServiceBase)))
+                    if (!services.Any(item => item.ServiceType == serviceType))
                     {
                         services.AddSingleton(hostedServiceType, serviceType);
                     }

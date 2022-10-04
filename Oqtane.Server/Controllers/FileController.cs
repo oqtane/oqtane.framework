@@ -32,15 +32,17 @@ namespace Oqtane.Controllers
         private readonly IFileRepository _files;
         private readonly IFolderRepository _folders;
         private readonly IUserPermissions _userPermissions;
+        private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public FileController(IWebHostEnvironment environment, IFileRepository files, IFolderRepository folders, IUserPermissions userPermissions, ILogManager logger, ITenantManager tenantManager)
+        public FileController(IWebHostEnvironment environment, IFileRepository files, IFolderRepository folders, IUserPermissions userPermissions, ISyncManager syncManager, ILogManager logger, ITenantManager tenantManager)
         {
             _environment = environment;
             _files = files;
             _folders = folders;
             _userPermissions = userPermissions;
+            _syncManager = syncManager;
             _logger = logger;
             _alias = tenantManager.GetAlias();
         }
@@ -148,6 +150,7 @@ namespace Oqtane.Controllers
 
                 file.Extension = Path.GetExtension(file.Name).ToLower().Replace(".", "");
                 file = _files.UpdateFile(file);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.File, file.FileId, SyncEventActions.Update);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "File Updated {File}", file);
             }
             else
@@ -168,8 +171,6 @@ namespace Oqtane.Controllers
             Models.File file = _files.GetFile(id);
             if (file != null && file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Folder, file.Folder.FolderId, PermissionNames.Edit))
             {
-                _files.DeleteFile(id);
-
                 string filepath = _files.GetFilePath(file);
                 if (System.IO.File.Exists(filepath))
                 {
@@ -180,6 +181,8 @@ namespace Oqtane.Controllers
                     }
                 }
 
+                _files.DeleteFile(id);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.File, file.FileId, SyncEventActions.Delete);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "File Deleted {File}", file);
             }
             else
@@ -251,6 +254,7 @@ namespace Oqtane.Controllers
                     if (file != null)
                     {
                         file = _files.AddFile(file);
+                        _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.File, file.FileId, SyncEventActions.Create);
                     }
                 }
                 catch (Exception ex)
@@ -324,7 +328,8 @@ namespace Oqtane.Controllers
                     var file = CreateFile(upload, FolderId, Path.Combine(folderPath, upload));
                     if (file != null)
                     {
-                        _files.AddFile(file);
+                        file = _files.AddFile(file);
+                        _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.File, file.FileId, SyncEventActions.Create);
                     }
                 }
             }

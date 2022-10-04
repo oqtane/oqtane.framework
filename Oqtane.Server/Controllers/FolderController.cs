@@ -20,13 +20,15 @@ namespace Oqtane.Controllers
     {
         private readonly IFolderRepository _folders;
         private readonly IUserPermissions _userPermissions;
+        private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public FolderController(IFolderRepository folders, IUserPermissions userPermissions, ILogManager logger, ITenantManager tenantManager)
+        public FolderController(IFolderRepository folders, IUserPermissions userPermissions, ISyncManager syncManager, ILogManager logger, ITenantManager tenantManager)
         {
             _folders = folders;
             _userPermissions = userPermissions;
+            _syncManager = syncManager;
             _logger = logger;
             _alias = tenantManager.GetAlias();
         }
@@ -124,6 +126,7 @@ namespace Oqtane.Controllers
                         }
                         folder.Path = folder.Path + "/";
                         folder = _folders.AddFolder(folder);
+                        _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Folder, folder.FolderId, SyncEventActions.Create);
                         _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Added {Folder}", folder);
                     }
                     else
@@ -172,6 +175,7 @@ namespace Oqtane.Controllers
                     }
 
                     folder = _folders.UpdateFolder(folder);
+                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Folder, folder.FolderId, SyncEventActions.Update);
                     _logger.Log(LogLevel.Information, this, LogFunction.Update, "Folder Updated {Folder}", folder);
                 }
                 else
@@ -205,6 +209,7 @@ namespace Oqtane.Controllers
                     {
                         folder.Order = order;
                         _folders.UpdateFolder(folder);
+                        _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Folder, folder.FolderId, SyncEventActions.Update);
                     }
                     order += 2;
                 }
@@ -230,6 +235,7 @@ namespace Oqtane.Controllers
                     Directory.Delete(_folders.GetFolderPath(folder));
                 }
                 _folders.DeleteFolder(id);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Folder, folder.FolderId, SyncEventActions.Delete);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Folder Deleted {FolderId}", id);
             }
             else

@@ -17,13 +17,15 @@ namespace Oqtane.Controllers
     {
         private readonly IAliasRepository _aliases;
         private readonly ITenantRepository _tenants;
+        private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public AliasController(IAliasRepository aliases, ITenantRepository tenants, ILogManager logger, ITenantManager tenantManager)
+        public AliasController(IAliasRepository aliases, ITenantRepository tenants, ISyncManager syncManager, ILogManager logger, ITenantManager tenantManager)
         {
             _aliases = aliases;
             _tenants = tenants;
+            _syncManager = syncManager;
             _logger = logger;
             _alias = tenantManager.GetAlias();
         }
@@ -57,6 +59,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 alias = _aliases.AddAlias(alias);
+                _syncManager.AddSyncEvent(alias.TenantId, EntityNames.Alias, alias.AliasId, SyncEventActions.Create);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Alias Added {Alias}", alias);
             }
             else
@@ -76,6 +79,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && _aliases.GetAlias(alias.AliasId, false) != null)
             {
                 alias = _aliases.UpdateAlias(alias);
+                _syncManager.AddSyncEvent(alias.TenantId, EntityNames.Alias, alias.AliasId, SyncEventActions.Update);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Alias Updated {Alias}", alias);
             }
             else
@@ -96,6 +100,7 @@ namespace Oqtane.Controllers
             if (alias != null)
             {
                 _aliases.DeleteAlias(id);
+                _syncManager.AddSyncEvent(alias.TenantId, EntityNames.Alias, alias.AliasId, SyncEventActions.Delete);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Alias Deleted {AliasId}", id);
 
                 var aliases = _aliases.GetAliases();

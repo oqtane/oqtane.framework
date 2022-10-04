@@ -79,7 +79,7 @@
 		Page page;
 		User user = null;
 		var editmode = false;
-		var refresh = UI.Refresh.None;
+		var refresh = false;
 		var lastsyncdate = DateTime.UtcNow.AddHours(-1);
 		var runtime = (Shared.Runtime)Enum.Parse(typeof(Shared.Runtime), Runtime);
 		_error = "";
@@ -116,7 +116,7 @@
 		// the refresh parameter is used to refresh the client-side PageState
 		if (querystring.ContainsKey("refresh"))
 		{
-			refresh = UI.Refresh.Site;
+			refresh = true;
 		}
 
 		if (PageState != null)
@@ -126,7 +126,7 @@
 		}
 
 		// get user
-		if (PageState == null || refresh == UI.Refresh.Site || PageState.Alias.SiteId != SiteState.Alias.SiteId)
+		if (PageState == null || refresh || PageState.Alias.SiteId != SiteState.Alias.SiteId)
 		{
 			var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
 			if (authState.User.Identity.IsAuthenticated)
@@ -149,27 +149,27 @@
 		if (sync.SyncEvents.Any())
 		{
 			// reload client application if server was restarted or site runtime/rendermode was modified
-			if (PageState != null && sync.SyncEvents.Exists(item => (item.TenantId == -1 || item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId) && item.Reload))
+			if (PageState != null && sync.SyncEvents.Exists(item => (item.Action == SyncEventActions.Reload)))
 			{
 				NavigationManager.NavigateTo(_absoluteUri, true);
 				return;
 			}
-			// when a site has changed the state needs to be refreshed
+			// when site information has changed the PageState needs to be refreshed
 			if (sync.SyncEvents.Exists(item => item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId))
 			{
-				refresh = UI.Refresh.Site;
+				refresh = true;
 			}
-			// when a user changed the site needs to be refreshed as the list of pages/modules may have changed
+			// when user information has changed the PageState needs to be refreshed as the list of pages/modules may have changed
 			if (user != null && sync.SyncEvents.Exists(item => item.EntityName == EntityNames.User && item.EntityId == user.UserId))
 			{
-				refresh = UI.Refresh.Site;
+				refresh = true;
 			}
 		}
 
-		if (PageState == null || refresh == UI.Refresh.Site || PageState.Alias.SiteId != SiteState.Alias.SiteId)
+		if (PageState == null || refresh || PageState.Alias.SiteId != SiteState.Alias.SiteId)
 		{
 			site = await SiteService.GetSiteAsync(SiteState.Alias.SiteId);
-			refresh = UI.Refresh.Site;
+			refresh = true;
 		}
 		else
 		{
@@ -178,7 +178,7 @@
 
 		if (site != null)
 		{
-			if (PageState == null || refresh == UI.Refresh.Site || PageState.Page.Path != route.PagePath)
+			if (PageState == null || refresh || PageState.Page.Path != route.PagePath)
 			{
 				page = site.Pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
 				editmode = false;

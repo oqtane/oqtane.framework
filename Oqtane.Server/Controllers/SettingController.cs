@@ -98,7 +98,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
                 setting = _settings.AddSetting(setting);
-                AddSyncEvent(setting.EntityName);
+                AddSyncEvent(setting.EntityName, setting.SettingId, SyncEventActions.Create);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Setting Added {Setting}", setting);
             }
             else
@@ -117,7 +117,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
                 setting = _settings.UpdateSetting(setting);
-                AddSyncEvent(setting.EntityName);
+                AddSyncEvent(setting.EntityName, setting.SettingId, SyncEventActions.Update);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Updated {Setting}", setting);
             }
             else
@@ -137,7 +137,7 @@ namespace Oqtane.Controllers
             if (IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
                 _settings.DeleteSetting(setting.EntityName, id);
-                AddSyncEvent(setting.EntityName);
+                AddSyncEvent(setting.EntityName, setting.SettingId, SyncEventActions.Delete);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Setting Deleted {Setting}", setting);
             }
             else
@@ -277,14 +277,16 @@ namespace Oqtane.Controllers
             return filter;
         }
 
-        private void AddSyncEvent(string EntityName)
+        private void AddSyncEvent(string EntityName, int SettingId, string Action)
         {
+            _syncManager.AddSyncEvent(_alias.TenantId, EntityName + "Setting", SettingId, Action);
+
             switch (EntityName)
             {
                 case EntityNames.Module:
                 case EntityNames.Page:
                 case EntityNames.Site:
-                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
+                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
                     break;
             }
         }
