@@ -14,12 +14,14 @@ namespace Oqtane.Controllers
     public class UrlMappingController : Controller
     {
         private readonly IUrlMappingRepository _urlMappings;
+        private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public UrlMappingController(IUrlMappingRepository urlMappings, ILogManager logger, ITenantManager tenantManager)
+        public UrlMappingController(IUrlMappingRepository urlMappings, ISyncManager syncManager, ILogManager logger, ITenantManager tenantManager)
         {
             _urlMappings = urlMappings;
+            _syncManager = syncManager;
             _logger = logger;
             _alias = tenantManager.GetAlias();
         }
@@ -85,6 +87,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && urlMapping.SiteId == _alias.SiteId)
             {
                 urlMapping = _urlMappings.AddUrlMapping(urlMapping);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.UrlMapping, urlMapping.UrlMappingId, SyncEventActions.Create);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "UrlMapping Added {UrlMapping}", urlMapping);
             }
             else
@@ -104,6 +107,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && urlMapping.SiteId == _alias.SiteId && _urlMappings.GetUrlMapping(urlMapping.UrlMappingId, false) != null)
             {
                 urlMapping = _urlMappings.UpdateUrlMapping(urlMapping);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.UrlMapping, urlMapping.UrlMappingId, SyncEventActions.Update);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "UrlMapping Updated {UrlMapping}", urlMapping);
             }
             else
@@ -124,6 +128,7 @@ namespace Oqtane.Controllers
             if (urlMapping != null && urlMapping.SiteId == _alias.SiteId)
             {
                 _urlMappings.DeleteUrlMapping(id);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.UrlMapping, urlMapping.UrlMappingId, SyncEventActions.Delete);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "UrlMapping Deleted {UrlMappingId}", id);
             }
             else

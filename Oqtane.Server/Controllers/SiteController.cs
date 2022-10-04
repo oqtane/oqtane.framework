@@ -160,6 +160,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 site = _sites.AddSite(site);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, site.SiteId, SyncEventActions.Create);
                 _logger.Log(site.SiteId, LogLevel.Information, this, LogFunction.Create, "Site Added {Site}", site);
             }
             else
@@ -180,12 +181,13 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && site.SiteId == _alias.SiteId && site.TenantId == _alias.TenantId && current != null)
             {
                 site = _sites.UpdateSite(site);
-                bool reload = false;
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, site.SiteId, SyncEventActions.Update);
+                string action = SyncEventActions.Refresh;
                 if (current.Runtime != site.Runtime || current.RenderMode != site.RenderMode)
                 {
-                    reload = true;
+                    action = SyncEventActions.Reload;
                 }
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, site.SiteId, reload);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, site.SiteId, action);
                 _logger.Log(site.SiteId, LogLevel.Information, this, LogFunction.Update, "Site Updated {Site}", site);
             }
             else
@@ -206,6 +208,7 @@ namespace Oqtane.Controllers
             if (site != null && site.SiteId == _alias.SiteId)
             {
                 _sites.DeleteSite(id);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, site.SiteId, SyncEventActions.Delete);
                 _logger.Log(id, LogLevel.Information, this, LogFunction.Delete, "Site Deleted {SiteId}", id);
             }
             else

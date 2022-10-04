@@ -8,6 +8,7 @@ using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Security;
 using System.Net;
+using System.Reflection.Metadata;
 
 namespace Oqtane.Controllers
 {
@@ -16,13 +17,15 @@ namespace Oqtane.Controllers
     {
         private readonly INotificationRepository _notifications;
         private readonly IUserPermissions _userPermissions;
+        private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public NotificationController(INotificationRepository notifications, IUserPermissions userPermissions, ILogManager logger, ITenantManager tenantManager)
+        public NotificationController(INotificationRepository notifications, IUserPermissions userPermissions, ISyncManager syncManager, ILogManager logger, ITenantManager tenantManager)
         {
             _notifications = notifications;
             _userPermissions = userPermissions;
+            _syncManager = syncManager;
             _logger = logger;
             _alias = tenantManager.GetAlias();
         }
@@ -83,6 +86,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && notification.SiteId == _alias.SiteId && IsAuthorized(notification.FromUserId))
             {
                 notification = _notifications.AddNotification(notification);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Notification, notification.NotificationId, SyncEventActions.Create);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Notification Added {NotificationId}", notification.NotificationId);
             }
             else
@@ -102,6 +106,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && notification.SiteId == _alias.SiteId && _notifications.GetNotification(notification.NotificationId, false) != null && IsAuthorized(notification.FromUserId))
             {
                 notification = _notifications.UpdateNotification(notification);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Notification, notification.NotificationId, SyncEventActions.Update);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Notification Updated {NotificationId}", notification.NotificationId);
             }
             else
@@ -122,6 +127,7 @@ namespace Oqtane.Controllers
             if (notification != null && notification.SiteId == _alias.SiteId && (IsAuthorized(notification.FromUserId) || IsAuthorized(notification.ToUserId)))
             {
                 _notifications.DeleteNotification(id);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Notification, notification.NotificationId, SyncEventActions.Delete);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Notification Deleted {NotificationId}", id);
             }
             else

@@ -191,7 +191,7 @@ namespace Oqtane
             });
 
             // create a global sync event to identify server application startup
-            sync.AddSyncEvent(-1, "Application", -1, true);
+            sync.AddSyncEvent(-1, EntityNames.Host, -1, SyncEventActions.Reload);
         }
     }
 }

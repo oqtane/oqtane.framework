@@ -9,12 +9,12 @@ namespace Oqtane.Models
         public List<SyncEvent> SyncEvents { get; set; }
     }
 
-    public class SyncEvent
+    public class SyncEvent : EventArgs
     {
         public int TenantId { get; set; }
         public string EntityName { get; set; }
         public int EntityId { get; set; }
-        public bool Reload { get; set; }
+        public string Action { get; set; }
         public DateTime ModifiedOn { get; set; }
     }
 }

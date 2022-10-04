@@ -6,8 +6,8 @@ namespace Oqtane.Infrastructure
 {
     public interface ISyncManager
     {
+        event EventHandler<SyncEvent> EntityChanged;
         List<SyncEvent> GetSyncEvents(int tenantId, DateTime lastSyncDate);
-        void AddSyncEvent(int tenantId, string entityName, int entityId);
-        void AddSyncEvent(int tenantId, string entityName, int entityId, bool reload);
+        void AddSyncEvent(int tenantId, string entityName, int entityId, string action);
     }
 }

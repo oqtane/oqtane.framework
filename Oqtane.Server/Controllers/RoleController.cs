@@ -14,12 +14,14 @@ namespace Oqtane.Controllers
     public class RoleController : Controller
     {
         private readonly IRoleRepository _roles;
+        private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public RoleController(IRoleRepository roles, ILogManager logger, ITenantManager tenantManager)
+        public RoleController(IRoleRepository roles, ISyncManager syncManager, ILogManager logger, ITenantManager tenantManager)
         {
             _roles = roles;
+            _syncManager = syncManager;
             _logger = logger;
             _alias = tenantManager.GetAlias();
         }
@@ -72,6 +74,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && role.SiteId == _alias.SiteId)
             {
                 role = _roles.AddRole(role);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Role, role.RoleId, SyncEventActions.Create);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Role Added {Role}", role);
             }
             else
@@ -91,6 +94,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && role.SiteId == _alias.SiteId && _roles.GetRole(role.RoleId, false) != null)
             {
                 role = _roles.UpdateRole(role);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Role, role.RoleId, SyncEventActions.Update);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Role Updated {Role}", role);
             }
             else
@@ -111,6 +115,7 @@ namespace Oqtane.Controllers
             if (role != null && !role.IsSystem && role.SiteId == _alias.SiteId)
             {
                 _roles.DeleteRole(id);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Role, role.RoleId, SyncEventActions.Delete);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Role Deleted {RoleId}", id);
             }
             else

@@ -14,12 +14,14 @@ namespace Oqtane.Controllers
     public class ProfileController : Controller
     {
         private readonly IProfileRepository _profiles;
+        private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public ProfileController(IProfileRepository profiles, ILogManager logger, ITenantManager tenantManager)
+        public ProfileController(IProfileRepository profiles, ISyncManager syncManager, ILogManager logger, ITenantManager tenantManager)
         {
             _profiles = profiles;
+            _syncManager = syncManager;
             _logger = logger;
             _alias = tenantManager.GetAlias();
     }
@@ -66,6 +68,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && profile.SiteId == _alias.SiteId)
             {
                 profile = _profiles.AddProfile(profile);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Profile, profile.ProfileId, SyncEventActions.Create);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Profile Added {Profile}", profile);
             }
             else
@@ -85,6 +88,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && profile.SiteId == _alias.SiteId && _profiles.GetProfile(profile.ProfileId, false) != null)
             {
                 profile = _profiles.UpdateProfile(profile);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Profile, profile.ProfileId, SyncEventActions.Update);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Profile Updated {Profile}", profile);
             }
             else
@@ -105,6 +109,7 @@ namespace Oqtane.Controllers
             if (profile != null && profile.SiteId == _alias.SiteId)
             {
                 _profiles.DeleteProfile(id);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Profile, profile.ProfileId, SyncEventActions.Delete);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Profile Deleted {ProfileId}", id);
             }
             else

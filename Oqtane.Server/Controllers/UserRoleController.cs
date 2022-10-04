@@ -122,9 +122,10 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && role != null && SiteValid(role.SiteId) && RoleValid(role.Name))
             {
                 userRole = _userRoles.AddUserRole(userRole);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.UserRole, userRole.UserRoleId, SyncEventActions.Create);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "User Role Added {UserRole}", userRole);
 
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.User, userRole.UserId);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.User, userRole.UserId, SyncEventActions.Refresh);
             }
             else
             {
@@ -144,7 +145,8 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && role != null && SiteValid(role.SiteId) && RoleValid(role.Name) && _userRoles.GetUserRole(userRole.UserRoleId, false) != null)
             {
                 userRole = _userRoles.UpdateUserRole(userRole);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.User, userRole.UserId);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.UserRole, userRole.UserRoleId, SyncEventActions.Update);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.User, userRole.UserId, SyncEventActions.Refresh);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Role Updated {UserRole}", userRole);
             }
             else
@@ -165,6 +167,7 @@ namespace Oqtane.Controllers
             if (userrole != null && SiteValid(userrole.Role.SiteId) && RoleValid(userrole.Role.Name))
             {
                 _userRoles.DeleteUserRole(id);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.UserRole, userrole.UserRoleId, SyncEventActions.Delete);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Role Deleted {UserRole}", userrole);
 
                 if (userrole.Role.Name == RoleNames.Host)
@@ -178,7 +181,7 @@ namespace Oqtane.Controllers
                     _logger.Log(LogLevel.Information, this, LogFunction.Create, "User Role Added {UserRole}", userrole);
                 }
 
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.User, userrole.UserId);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.User, userrole.UserId, SyncEventActions.Refresh);
             }
             else
             {
