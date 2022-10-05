@@ -23,15 +23,17 @@ namespace Oqtane.Pages
         private readonly IFileRepository _files;
         private readonly IUserPermissions _userPermissions;
         private readonly IUrlMappingRepository _urlMappings;
+        private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public FilesModel(IWebHostEnvironment environment, IFileRepository files, IUserPermissions userPermissions, IUrlMappingRepository urlMappings, ILogManager logger, ITenantManager tenantManager)
+        public FilesModel(IWebHostEnvironment environment, IFileRepository files, IUserPermissions userPermissions, IUrlMappingRepository urlMappings, ISyncManager syncManager, ILogManager logger, ITenantManager tenantManager)
         {
             _environment = environment;
             _files = files;
             _userPermissions = userPermissions;
             _urlMappings = urlMappings;
+            _syncManager = syncManager;
             _logger = logger;
             _alias = tenantManager.GetAlias();
         }
@@ -43,10 +45,9 @@ namespace Oqtane.Pages
             var filename = "";
 
             bool download = false;
-            if (path.Contains("?download"))
+            if (Request.Query.ContainsKey("download"))
             {
                 download = true;
-                path = path.Substring(0, path.IndexOf("?download"));
             }
 
             var segments = path.Split('/');
@@ -78,6 +79,7 @@ namespace Oqtane.Pages
                     {
                         if (download)
                         {
+                            _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.File, file.FileId, "Download");
                             return PhysicalFile(filepath, file.GetMimeType(), file.Name);
                         }
                         else

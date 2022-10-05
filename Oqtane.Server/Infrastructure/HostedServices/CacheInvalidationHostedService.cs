@@ -7,12 +7,12 @@ using Oqtane.Shared;
 
 namespace Oqtane.Infrastructure
 {
-    public class EventJob : IHostedService
+    public class CacheInvalidationHostedService : IHostedService
     {
         private readonly ISyncManager _syncManager;
         private readonly IMemoryCache _cache;
 
-        public EventJob(ISyncManager syncManager, IMemoryCache cache)
+        public CacheInvalidationHostedService(ISyncManager syncManager, IMemoryCache cache)
         {
             _syncManager = syncManager;
             _cache = cache;
