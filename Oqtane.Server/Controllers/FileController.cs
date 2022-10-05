@@ -491,10 +491,15 @@ namespace Oqtane.Controllers
                 var filepath = _files.GetFilePath(file);
                 if (System.IO.File.Exists(filepath))
                 {
-                    var result = asAttachment
-                        ? PhysicalFile(filepath, file.GetMimeType(), file.Name)
-                        : PhysicalFile(filepath, file.GetMimeType());
-                    return result;
+                    if (asAttachment)
+                    {
+                        _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.File, file.FileId, "Download");
+                        return PhysicalFile(filepath, file.GetMimeType(), file.Name);
+                    }
+                    else
+                    {
+                        return PhysicalFile(filepath, file.GetMimeType());
+                    }
                 }
                 else
                 {
