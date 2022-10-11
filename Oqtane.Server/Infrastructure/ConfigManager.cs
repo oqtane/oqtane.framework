@@ -1,9 +1,9 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Oqtane.Shared;
 
 namespace Oqtane.Infrastructure
@@ -52,9 +52,9 @@ namespace Oqtane.Infrastructure
             try
             {
                 var path = Path.Combine(Directory.GetCurrentDirectory(), file);
-                dynamic jsonObj = JsonConvert.DeserializeObject(File.ReadAllText(path));
-                SetValueRecursively(key, jsonObj, value, "set");
-                File.WriteAllText(path, JsonConvert.SerializeObject(jsonObj, Formatting.Indented));
+                JsonNode node = JsonNode.Parse(File.ReadAllText(path));
+                SetValueRecursively(node, key, value);
+                File.WriteAllText(path, JsonSerializer.Serialize(node, new JsonSerializerOptions() { WriteIndented = true }));
                 if (reload) Reload();
             }
             catch (Exception ex)
@@ -73,9 +73,9 @@ namespace Oqtane.Infrastructure
             try
             {
                 var path = Path.Combine(Directory.GetCurrentDirectory(), file);
-                dynamic jsonObj = JsonConvert.DeserializeObject(File.ReadAllText(path));
-                SetValueRecursively(key, jsonObj, "", "remove");
-                File.WriteAllText(path, JsonConvert.SerializeObject(jsonObj, Formatting.Indented));
+                JsonNode node = JsonNode.Parse(File.ReadAllText(path));
+                RemovePropertyRecursively(node, key);
+                File.WriteAllText(path, JsonSerializer.Serialize(node, new JsonSerializerOptions() { WriteIndented = true }));
                 if (reload) Reload();
             }
             catch (Exception ex)
@@ -84,30 +84,53 @@ namespace Oqtane.Infrastructure
             }
         }
 
-        private void SetValueRecursively<T>(string key, dynamic jsonObj, T value, string action)
+        private void SetValueRecursively<T>(JsonNode json, string key, T value)
         {
-            var remainingSections = key.Split(":", 2);
+            if (json != null && key != null && value != null)
+            {
+                var remainingSections = key.Split(":", 2);
 
-            var currentSection = remainingSections[0];
-            if (remainingSections.Length > 1)
-            {
-                var nextSection = remainingSections[1];
-                jsonObj[currentSection] ??= new JObject();
-                SetValueRecursively(nextSection, jsonObj[currentSection], value, action);
-            }
-            else
-            {
-                switch (action)
+                var currentSection = remainingSections[0];
+                if (remainingSections.Length > 1)
                 {
-                    case "set":
-                        jsonObj[currentSection] = JToken.FromObject(value);
-                        break;
-                    case "remove":
-                        if (jsonObj.Property(currentSection) != null)
-                        {
-                            jsonObj.Property(currentSection).Remove();
-                        }
-                        break;
+                    var nextSection = remainingSections[1];
+                    SetValueRecursively(json[currentSection] ??= new JsonObject(), nextSection, value);
+                }
+                else
+                {
+                    if (value.GetType() == typeof(string) && (value.ToString()!.StartsWith("[") || value.ToString()!.StartsWith("{")))
+                    {
+                        json[currentSection] = JsonNode.Parse(value.ToString()!);
+                    }
+                    else
+                    {
+                        json[currentSection] = JsonValue.Create(value);
+                    }
+                }
+            }
+        }
+
+        private void RemovePropertyRecursively(JsonNode json, string key)
+        {
+            if (json != null && key != null)
+            {
+                var remainingSections = key.Split(":", 2);
+
+                var currentSection = remainingSections[0];
+                if (remainingSections.Length > 1)
+                {
+                    var nextSection = remainingSections[1];
+                    if (json[currentSection] != null)
+                    {
+                        RemovePropertyRecursively(json[currentSection], nextSection);
+                    }
+                }
+                else
+                {
+                    if (json.AsObject().ContainsKey(currentSection))
+                    {
+                        json.AsObject().Remove(currentSection);
+                    }
                 }
             }
         }

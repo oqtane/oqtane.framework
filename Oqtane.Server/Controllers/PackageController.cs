@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Oqtane.Models;
-using Newtonsoft.Json;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -12,6 +11,7 @@ using Oqtane.Shared;
 using Oqtane.Infrastructure;
 using Oqtane.Enums;
 using System.Net.Http.Headers;
+using System.Text.Json;
 // ReSharper disable PartialTypeWithSinglePart
 
 namespace Oqtane.Controllers
@@ -106,11 +106,7 @@ namespace Oqtane.Controllers
                 var stream = await response.Content.ReadAsStreamAsync();
                 using (var streamReader = new StreamReader(stream))
                 {
-                    using (var jsonTextReader = new JsonTextReader(streamReader))
-                    {
-                        var serializer = new JsonSerializer();
-                        return serializer.Deserialize<T>(jsonTextReader);
-                    }
+                    return await JsonSerializer.DeserializeAsync<T>(stream);
                 }
             }
             return default(T);
