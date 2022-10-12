@@ -106,7 +106,7 @@ namespace Oqtane.Controllers
                 var stream = await response.Content.ReadAsStreamAsync();
                 using (var streamReader = new StreamReader(stream))
                 {
-                    return await JsonSerializer.DeserializeAsync<T>(stream);
+                    return await JsonSerializer.DeserializeAsync<T>(stream, new JsonSerializerOptions(JsonSerializerDefaults.Web));
                 }
             }
             return default(T);
