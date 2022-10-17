@@ -16,7 +16,6 @@ using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
 using Oqtane.Enums;
-using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -51,7 +50,6 @@ namespace Oqtane.Infrastructure
 
             if (!string.IsNullOrEmpty(_config.GetConnectionString(SettingKeys.ConnectionStringKey)))
             {
-                result.Success = true;
                 using (var db = GetInstallationContext())
                 {
                     if (db.Database.CanConnect())
@@ -60,6 +58,7 @@ namespace Oqtane.Infrastructure
                         {
                             // verify master database contains a Tenant table ( ie. validate schema is properly provisioned )
                             var provisioned = db.Tenant.Any();
+                            result.Success = true;
                         }
                         catch (Exception ex)
                         {
@@ -715,7 +714,7 @@ namespace Oqtane.Infrastructure
                         foreach (var upgrade in siteupgrades)
                         {
                             var aliasname = upgrade.Key.Split(' ').First();
-                            // in the future this equality condition could use RegEx to allow for more flexible matching 
+                            // in the future this equality condition could use RegEx to allow for more flexible matching
                             if (string.Equals(alias.Name, aliasname, StringComparison.OrdinalIgnoreCase))
                             {
                                 tenantManager.SetTenant(alias.TenantId);
@@ -825,7 +824,7 @@ namespace Oqtane.Infrastructure
                 databases += "{ \"Name\": \"MySQL\", \"ControlType\": \"Oqtane.Installer.Controls.MySQLConfig, Oqtane.Client\", \"DBTYpe\": \"Oqtane.Database.MySQL.SqlServerDatabase, Oqtane.Database.MySQL\" },";
                 databases += "{ \"Name\": \"PostgreSQL\", \"ControlType\": \"Oqtane.Installer.Controls.PostgreSQLConfig, Oqtane.Client\", \"DBTYpe\": \"Oqtane.Database.PostgreSQL.PostgreSQLDatabase, Oqtane.Database.PostgreSQL\" }";
                 databases += "]";
-                _configManager.AddOrUpdateSetting(SettingKeys.AvailableDatabasesSection, JsonConvert.DeserializeObject<dynamic>(databases), true);
+                _configManager.AddOrUpdateSetting(SettingKeys.AvailableDatabasesSection, databases, true);
             }
         }
     }

@@ -57,6 +57,9 @@ namespace Oqtane.Infrastructure
                     case "3.2.0":
                         Upgrade_3_2_0(tenant, scope);
                         break;
+                    case "3.2.1":
+                        Upgrade_3_2_1(tenant, scope);
+                        break;
                 }
             }
         }
@@ -261,6 +264,42 @@ namespace Oqtane.Infrastructure
             catch (Exception ex)
             {
                 Debug.WriteLine($"Oqtane Error: Error In 3.2.0 Upgrade Logic - {ex}");
+            }
+        }
+
+        private void Upgrade_3_2_1(Tenant tenant, IServiceScope scope)
+        {
+            try
+            {
+                // convert Identifier Claim Type and Email Claim Type
+                var settingRepository = scope.ServiceProvider.GetRequiredService<ISettingRepository>();
+                var siteRepository = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
+                foreach (Site site in siteRepository.GetSites().ToList())
+                {
+                    var settings = settingRepository.GetSettings(EntityNames.Site, site.SiteId).ToList();
+                    var setting = settings.FirstOrDefault(item => item.SettingName == "ExternalLogin:IdentifierClaimType");
+                    if (setting != null)
+                    {
+                        if (setting.SettingValue == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")
+                        {
+                            setting.SettingValue = "sub";
+                            settingRepository.UpdateSetting(setting);
+                        }
+                    }
+                    setting = settings.FirstOrDefault(item => item.SettingName == "ExternalLogin:EmailClaimType");
+                    if (setting != null)
+                    {
+                        if (setting.SettingValue == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")
+                        {
+                            setting.SettingValue = "email";
+                            settingRepository.UpdateSetting(setting);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Oqtane Error: Error In 3.2.1 Upgrade Logic - {ex}");
             }
         }
 

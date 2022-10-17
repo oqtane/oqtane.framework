@@ -98,23 +98,28 @@ namespace Oqtane.Shared
             return NavigateUrl(alias, path, parameters);
         }
 
-        public static string ContentUrl(Alias alias, int fileId)
-        {
-            return ContentUrl(alias, fileId, false);
-        }
-
-        public static string ContentUrl(Alias alias, int fileId, bool asAttachment)
-        {
-            var aliasUrl = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path : "";
-            var method = asAttachment ? "/attach" : "";
-
-            return $"{alias.BaseUrl}{aliasUrl}{Constants.ContentUrl}{fileId}{method}";
-        }
-
         public static string FileUrl(Alias alias, string folderpath, string filename)
         {
+            return FileUrl(alias, folderpath, filename, false);
+        }
+
+        public static string FileUrl(Alias alias, string folderpath, string filename, bool download)
+        {
             var aliasUrl = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path : "";
-            return $"{alias.BaseUrl}{aliasUrl}/files/{folderpath.Replace("\\", "/")}{filename}";
+            var querystring = (download) ? "?download" : "";
+            return $"{alias?.BaseUrl}{aliasUrl}{Constants.FileUrl}{folderpath.Replace("\\", "/")}{filename}{querystring}";
+        }
+
+        public static string FileUrl(Alias alias, int fileid)
+        {
+            return FileUrl(alias, fileid, false);
+        }
+
+        public static string FileUrl(Alias alias, int fileid, bool download)
+        {
+            var aliasUrl = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path : "";
+            var querystring = (download) ? "?download" : "";
+            return $"{alias?.BaseUrl}{aliasUrl}{Constants.FileUrl}id/{fileid}{querystring}";
         }
 
         public static string ImageUrl(Alias alias, int fileId, int width, int height, string mode)
@@ -128,25 +133,30 @@ namespace Oqtane.Shared
             mode = string.IsNullOrEmpty(mode) ? "crop" : mode;
             position = string.IsNullOrEmpty(position) ? "center" : position;
             background = string.IsNullOrEmpty(background) ? "000000" : background;
-            return $"{alias.BaseUrl}{url}{Constants.ImageUrl}{fileId}/{width}/{height}/{mode}/{position}/{background}/{rotate}/{recreate}";
+            return $"{alias?.BaseUrl}{url}{Constants.ImageUrl}{fileId}/{width}/{height}/{mode}/{position}/{background}/{rotate}/{recreate}";
         }
 
         public static string TenantUrl(Alias alias, string url)
         {
             url = (!url.StartsWith("/")) ? "/" + url : url;
             url = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path + url : url;
-            return $"{alias.BaseUrl}{url}";
+            return $"{alias?.BaseUrl}{url}";
         }
 
         public static string FormatContent(string content, Alias alias, string operation)
         {
+            var aliasUrl = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path : "";
             switch (operation)
             {
                 case "save":
+                    content = content.Replace(alias?.BaseUrl + aliasUrl + Constants.FileUrl, Constants.FileUrl);
+                    // legacy
                     content = content.Replace(UrlCombine("Content", "Tenants", alias.TenantId.ToString(), "Sites", alias.SiteId.ToString()), "[siteroot]");
                     content = content.Replace(alias.Path + Constants.ContentUrl, Constants.ContentUrl);
                     break;
                 case "render":
+                    content = content.Replace(Constants.FileUrl, alias?.BaseUrl + aliasUrl + Constants.FileUrl);
+                    // legacy
                     content = content.Replace("[siteroot]", UrlCombine("Content", "Tenants", alias.TenantId.ToString(), "Sites", alias.SiteId.ToString()));
                     content = content.Replace(Constants.ContentUrl, alias.Path + Constants.ContentUrl);
                     break;
@@ -491,5 +501,19 @@ namespace Oqtane.Shared
             return (localDateTime?.Date, localTime);
         }
 
+        [Obsolete("ContentUrl(Alias alias, int fileId) is deprecated. Use FileUrl(Alias alias, int fileId) instead.", false)]
+        public static string ContentUrl(Alias alias, int fileId)
+        {
+            return ContentUrl(alias, fileId, false);
+        }
+
+        [Obsolete("ContentUrl(Alias alias, int fileId, bool asAttachment) is deprecated. Use FileUrl(Alias alias, int fileId, bool download) instead.", false)]
+        public static string ContentUrl(Alias alias, int fileId, bool asAttachment)
+        {
+            var aliasUrl = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path : "";
+            var method = asAttachment ? "/attach" : "";
+
+            return $"{alias?.BaseUrl}{aliasUrl}{Constants.ContentUrl}{fileId}{method}";
+        }
     }
 }

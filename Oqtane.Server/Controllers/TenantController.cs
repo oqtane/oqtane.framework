@@ -2,9 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Models;
 using System.Collections.Generic;
-using Oqtane.Enums;
 using Oqtane.Shared;
-using Oqtane.Infrastructure;
 using Oqtane.Repository;
 
 namespace Oqtane.Controllers
@@ -13,12 +11,10 @@ namespace Oqtane.Controllers
     public class TenantController : Controller
     {
         private readonly ITenantRepository _tenants;
-        private readonly ILogManager _logger;
 
-        public TenantController(ITenantRepository tenants, ILogManager logger)
+        public TenantController(ITenantRepository tenants)
         {
             _tenants = tenants;
-            _logger = logger;
         }
 
         // GET: api/<controller>

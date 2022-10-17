@@ -50,7 +50,7 @@ else
         <Row>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ModuleDefinitionId.ToString())" ResourceKey="EditModule" /></td>
             <td>
-                @if (context.AssemblyName != "Oqtane.Client")
+                @if (context.AssemblyName != Constants.ClientId)
                 {
                     <ActionDialog Header="Delete Module" Message="@string.Format(Localizer["Confirm.Module.Delete", context.Name])" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" />
                 }
@@ -58,7 +58,7 @@ else
             <td>@context.Name</td>
             <td>@context.Version</td>
             <td>
-                @if(context.AssemblyName == "Oqtane.Client" || PageState.Modules.Where(m => m.ModuleDefinition?.ModuleDefinitionId == context.ModuleDefinitionId).FirstOrDefault() != null)
+				@if (context.AssemblyName == Constants.ClientId || PageState.Modules.Where(m => m.ModuleDefinition?.ModuleDefinitionId == context.ModuleDefinitionId).FirstOrDefault() != null)
                 {
                     <span>@SharedLocalizer["Yes"]</span>
                 }

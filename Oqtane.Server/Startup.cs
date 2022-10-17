@@ -133,7 +133,6 @@ namespace Oqtane
             {
                 options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             })
-            .AddNewtonsoftJson()
             .AddOqtaneApplicationParts() // register any Controllers from custom modules
             .ConfigureOqtaneMvc(); // any additional configuration from IStartup classes
 
@@ -191,7 +190,7 @@ namespace Oqtane
             });
 
             // create a global sync event to identify server application startup
-            sync.AddSyncEvent(-1, "Application", -1, true);
+            sync.AddSyncEvent(-1, EntityNames.Host, -1, SyncEventActions.Reload);
         }
     }
 }

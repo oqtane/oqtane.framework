@@ -1,21 +1,19 @@
-using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Models;
 using Oqtane.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace Oqtane.Infrastructure
 {
     public class SyncManager : ISyncManager
     {
-        private readonly IMemoryCache _cache;
         private List<SyncEvent> SyncEvents { get; set; }
 
-        public SyncManager(IMemoryCache cache)
+        public event EventHandler<SyncEvent> EntityChanged;
+
+        public SyncManager()
         {
-            _cache = cache;
             SyncEvents = new List<SyncEvent>();
         }
 
@@ -24,20 +22,22 @@ namespace Oqtane.Infrastructure
             return SyncEvents.Where(item => (item.TenantId == tenantId || item.TenantId == -1) && item.ModifiedOn >= lastSyncDate).ToList();
         }
 
-        public void AddSyncEvent(int tenantId, string entityName, int entityId)
+        public void AddSyncEvent(int tenantId, string entityName, int entityId, string action)
         {
-            AddSyncEvent(tenantId, entityName, entityId, false);
-        }
+            var syncevent = new SyncEvent { TenantId = tenantId, EntityName = entityName, EntityId = entityId, Action = action, ModifiedOn = DateTime.UtcNow };
 
-        public void AddSyncEvent(int tenantId, string entityName, int entityId, bool reload)
-        {
-            SyncEvents.Add(new SyncEvent { TenantId = tenantId, EntityName = entityName, EntityId = entityId, Reload = reload, ModifiedOn = DateTime.UtcNow });
-            if (entityName == EntityNames.Site)
-{
-                _cache.Remove($"site:{tenantId}:{entityId}");
+            // client actions for PageState management
+            if (action == SyncEventActions.Refresh || action == SyncEventActions.Reload)
+            {
+                // trim sync events 
+                SyncEvents.RemoveAll(item => item.ModifiedOn < DateTime.UtcNow.AddHours(-1));
+
+                // add sync event
+                SyncEvents.Add(syncevent);
             }
-            // trim sync events 
-            SyncEvents.RemoveAll(item => item.ModifiedOn < DateTime.UtcNow.AddHours(-1));
+
+            // raise event
+            EntityChanged?.Invoke(this, syncevent);
         }
     }
 }

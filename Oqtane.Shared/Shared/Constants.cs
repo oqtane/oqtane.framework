@@ -4,9 +4,10 @@ namespace Oqtane.Shared
 {
     public class Constants
     {
-        public static readonly string Version = "3.2.0";
-        public const string ReleaseVersions = "1.0.0,1.0.1,1.0.2,1.0.3,1.0.4,2.0.0,2.0.1,2.0.2,2.1.0,2.2.0,2.3.0,2.3.1,3.0.0,3.0.1,3.0.2,3.0.3,3.1.0,3.1.1,3.1.2,3.1.3,3.1.4,3.2.0";
+        public static readonly string Version = "3.2.1";
+        public const string ReleaseVersions = "1.0.0,1.0.1,1.0.2,1.0.3,1.0.4,2.0.0,2.0.1,2.0.2,2.1.0,2.2.0,2.3.0,2.3.1,3.0.0,3.0.1,3.0.2,3.0.3,3.1.0,3.1.1,3.1.2,3.1.3,3.1.4,3.2.0,3.2.1";
         public const string PackageId = "Oqtane.Framework";
+        public const string ClientId = "Oqtane.Client";
         public const string UpdaterPackageId = "Oqtane.Updater";
         public const string PackageRegistryUrl = "https://www.oqtane.net";
 
@@ -16,16 +17,11 @@ namespace Oqtane.Shared
         public const string ContainerComponent = "Oqtane.UI.ContainerBuilder, Oqtane.Client";
 
         public const string DefaultTheme = "Oqtane.Themes.OqtaneTheme.Default, Oqtane.Client";
-        [Obsolete("DefaultLayout is deprecated")]
-        public const string DefaultLayout = "";
         public const string DefaultContainer = "Oqtane.Themes.OqtaneTheme.Container, Oqtane.Client";
         public const string DefaultAdminContainer = "Oqtane.Themes.AdminContainer, Oqtane.Client";
 
         public const string ActionToken = "{Action}";
         public const string DefaultAction = "Index";
-
-        [Obsolete("Use PaneNames.Admin")]
-        public const string AdminPane = PaneNames.Admin;
 
         public static readonly string[] ReservedRoutes = { "api", "pages", "files" };
         public const string ModuleDelimiter = "*";
@@ -42,28 +38,12 @@ namespace Oqtane.Shared
 
         public const string DefaultSiteTemplate = "Oqtane.SiteTemplates.DefaultSiteTemplate, Oqtane.Server";
 
-        public const string ContentUrl = "/api/file/download/";
+        public const string FileUrl = "/files/";
         public const string ImageUrl = "/api/file/image/";
         public const int UserFolderCapacity = 20; // megabytes
         public const string PackagesFolder = "Packages";
 
-        [Obsolete("Use UserNames.Host instead.")]
-        public const string HostUser = UserNames.Host;
-
-        [Obsolete("Use TenantNames.Master instead")]
-        public const string MasterTenant = TenantNames.Master;
         public const string DefaultSite = "Default Site";
-
-        const string RoleObsoleteMessage = "Use the corresponding member from Oqtane.Shared.RoleNames";
-
-        [Obsolete(RoleObsoleteMessage)]
-        public const string AllUsersRole = RoleNames.Everyone;
-        [Obsolete(RoleObsoleteMessage)]
-        public const string HostRole = RoleNames.Host;
-        [Obsolete(RoleObsoleteMessage)]
-        public const string AdminRole = RoleNames.Admin;
-        [Obsolete(RoleObsoleteMessage)]
-        public const string RegisteredRole = RoleNames.Registered;
 
         public const string ImageFiles = "jpg,jpeg,jpe,gif,bmp,png,ico,webp";
         public const string UploadableFiles = ImageFiles + ",mov,wmv,avi,mp4,mp3,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,zip,nupkg,csv,json,xml,xslt,rss,html,htm,css";
@@ -93,5 +73,33 @@ namespace Oqtane.Shared
         public static readonly string HttpContextSiteSettingsKey = "SiteSettings";
 
         public static readonly string MauiUserAgent = "MAUI";
+
+        // Obsolete constants
+
+        const string RoleObsoleteMessage = "Use the corresponding member from Oqtane.Shared.RoleNames";
+
+        [Obsolete(RoleObsoleteMessage)]
+        public const string AllUsersRole = RoleNames.Everyone;
+        [Obsolete(RoleObsoleteMessage)]
+        public const string HostRole = RoleNames.Host;
+        [Obsolete(RoleObsoleteMessage)]
+        public const string AdminRole = RoleNames.Admin;
+        [Obsolete(RoleObsoleteMessage)]
+        public const string RegisteredRole = RoleNames.Registered;
+
+        [Obsolete("DefaultLayout is deprecated")]
+        public const string DefaultLayout = "";
+
+        [Obsolete("Use PaneNames.Admin")]
+        public const string AdminPane = PaneNames.Admin;
+
+        [Obsolete("Use UserNames.Host instead.")]
+        public const string HostUser = UserNames.Host;
+
+        [Obsolete("Use TenantNames.Master instead")]
+        public const string MasterTenant = TenantNames.Master;
+
+        // [Obsolete("Use FileUrl instead")]
+        public const string ContentUrl = "/api/file/download/";
     }
 }

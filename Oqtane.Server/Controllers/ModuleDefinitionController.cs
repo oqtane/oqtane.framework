@@ -29,10 +29,11 @@ namespace Oqtane.Controllers
         private readonly IWebHostEnvironment _environment;
         private readonly IServiceProvider _serviceProvider;
         private readonly ITenantManager _tenantManager;
+        private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, ITenantRepository tenants, ISqlRepository sql, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, IServiceProvider serviceProvider, ITenantManager tenantManager, ILogManager logger)
+        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, ITenantRepository tenants, ISqlRepository sql, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, IServiceProvider serviceProvider, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
         {
             _moduleDefinitions = moduleDefinitions;
             _tenants = tenants;
@@ -42,6 +43,7 @@ namespace Oqtane.Controllers
             _environment = environment;
             _serviceProvider = serviceProvider;
             _tenantManager = tenantManager;
+            _syncManager = syncManager;
             _logger = logger;
             _alias = tenantManager.GetAlias();
         }
@@ -145,6 +147,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && moduleDefinition.SiteId == _alias.SiteId && _moduleDefinitions.GetModuleDefinition(moduleDefinition.ModuleDefinitionId, moduleDefinition.SiteId) != null)
             {
                 _moduleDefinitions.UpdateModuleDefinition(moduleDefinition);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.ModuleDefinition, moduleDefinition.ModuleDefinitionId, SyncEventActions.Update);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Definition Updated {ModuleDefinition}", moduleDefinition);
             }
             else
@@ -227,6 +230,7 @@ namespace Oqtane.Controllers
 
                 // remove module definition
                 _moduleDefinitions.DeleteModuleDefinition(id);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, SyncEventActions.Delete);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Definition {ModuleDefinitionName} Deleted", moduledefinition.Name);
             }
             else

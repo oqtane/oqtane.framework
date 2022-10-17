@@ -3,6 +3,7 @@ using Microsoft.JSInterop;
 using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.UI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -34,7 +35,8 @@ namespace Oqtane.Themes
                     var scripts = new List<object>();
                     foreach (Resource resource in Resources.Where(item => item.ResourceType == ResourceType.Script))
                     {
-                        scripts.Add(new { href = resource.Url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", es6module = resource.ES6Module });
+                        var url = (resource.Url.Contains("://")) ? resource.Url : PageState.Alias.BaseUrl + resource.Url;
+                        scripts.Add(new { href = url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", es6module = resource.ES6Module });
                     }
                     if (scripts.Any())
                     {
@@ -49,7 +51,7 @@ namespace Oqtane.Themes
 
         public string ThemePath()
         {
-            return "Themes/" + GetType().Namespace + "/";
+            return PageState?.Alias.BaseUrl + "/Themes/" + GetType().Namespace + "/";
         }
 
         // url methods
@@ -94,14 +96,23 @@ namespace Oqtane.Themes
             return Utilities.EditUrl(PageState.Alias.Path, path, moduleid, action, parameters);
         }
 
-        public string ContentUrl(int fileid)
+        public string FileUrl(string folderpath, string filename)
         {
-            return Utilities.ContentUrl(PageState.Alias, fileid);
+            return FileUrl(folderpath, filename, false);
         }
 
-        public string ContentUrl(int fileid, bool asAttachment)
+        public string FileUrl(string folderpath, string filename, bool download)
         {
-            return Utilities.ContentUrl(PageState.Alias, fileid, asAttachment);
+            return Utilities.FileUrl(PageState.Alias, folderpath, filename, download);
+        }
+        public string FileUrl(int fileid)
+        {
+            return FileUrl(fileid, false);
+        }
+
+        public string FileUrl(int fileid, bool download)
+        {
+            return Utilities.FileUrl(PageState.Alias, fileid, download);
         }
 
         public string ImageUrl(int fileid, int width, int height)
@@ -117,6 +128,18 @@ namespace Oqtane.Themes
         public string ImageUrl(int fileid, int width, int height, string mode, string position, string background, int rotate, bool recreate)
         {
             return Utilities.ImageUrl(PageState.Alias, fileid, width, height, mode, position, background, rotate, recreate);
+        }
+
+        [Obsolete("ContentUrl(int fileId) is deprecated. Use FileUrl(int fileId) instead.", false)]
+        public string ContentUrl(int fileid)
+        {
+            return ContentUrl(fileid, false);
+        }
+
+        [Obsolete("ContentUrl(int fileId, bool asAttachment) is deprecated. Use FileUrl(int fileId, bool download) instead.", false)]
+        public string ContentUrl(int fileid, bool asAttachment)
+        {
+            return Utilities.FileUrl(PageState.Alias, fileid, asAttachment);
         }
     }
 }

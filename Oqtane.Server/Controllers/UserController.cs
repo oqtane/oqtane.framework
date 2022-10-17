@@ -23,7 +23,6 @@ namespace Oqtane.Controllers
     public class UserController : Controller
     {
         private readonly IUserRepository _users;
-        private readonly IRoleRepository _roles;
         private readonly IUserRoleRepository _userRoles;
         private readonly UserManager<IdentityUser> _identityUserManager;
         private readonly SignInManager<IdentityUser> _identitySignInManager;
@@ -35,10 +34,9 @@ namespace Oqtane.Controllers
         private readonly IJwtManager _jwtManager;
         private readonly ILogManager _logger;
 
-        public UserController(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, ISyncManager syncManager, ISiteRepository sites, IJwtManager jwtManager, ILogManager logger)
+        public UserController(IUserRepository users, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, ISyncManager syncManager, ISiteRepository sites, IJwtManager jwtManager, ILogManager logger)
         {
             _users = users;
-            _roles = roles;
             _userRoles = userRoles;
             _identityUserManager = identityUserManager;
             _identitySignInManager = identitySignInManager;
@@ -165,6 +163,7 @@ namespace Oqtane.Controllers
             if (allowregistration)
             {
                 bool succeeded;
+                string errors = "";
                 IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
                 if (identityuser == null)
                 {
@@ -174,12 +173,20 @@ namespace Oqtane.Controllers
                     identityuser.EmailConfirmed = verified;
                     var result = await _identityUserManager.CreateAsync(identityuser, user.Password);
                     succeeded = result.Succeeded;
+                    if (!succeeded)
+                    {
+                        errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    }
                 }
                 else
                 {
                     var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, false);
                     succeeded = result.Succeeded;
-                    verified = true;
+                    if (!succeeded)
+                    {
+                        errors = "Password Not Valid For User";
+                    }
+                    verified = succeeded;
                 }
 
                 if (succeeded)
@@ -187,6 +194,11 @@ namespace Oqtane.Controllers
                     user.LastLoginOn = null;
                     user.LastIPAddress = "";
                     newUser = _users.AddUser(user);
+                    _syncManager.AddSyncEvent(_tenantManager.GetAlias().TenantId, EntityNames.User, newUser.UserId, SyncEventActions.Create);
+                }
+                else
+                {
+                    _logger.Log(user.SiteId, LogLevel.Error, this, LogFunction.Create, "Unable To Add User {Username} - {Errors}", user.Username, errors);
                 }
 
                 if (newUser != null)
@@ -242,7 +254,8 @@ namespace Oqtane.Controllers
                     await _identityUserManager.UpdateAsync(identityuser);
                 }
                 user = _users.UpdateUser(user);
-                _syncManager.AddSyncEvent(_tenantManager.GetAlias().TenantId, EntityNames.User, user.UserId);
+                _syncManager.AddSyncEvent(_tenantManager.GetAlias().TenantId, EntityNames.User, user.UserId, SyncEventActions.Update);
+                _syncManager.AddSyncEvent(_tenantManager.GetAlias().TenantId, EntityNames.User, user.UserId, SyncEventActions.Refresh);
                 user.Password = ""; // remove sensitive information
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", user);
             }
@@ -297,6 +310,7 @@ namespace Oqtane.Controllers
                         {
                             // delete user
                             _users.DeleteUser(user.UserId);
+                            _syncManager.AddSyncEvent(_tenantManager.GetAlias().TenantId, EntityNames.User, user.UserId, SyncEventActions.Delete);
                             _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Deleted {UserId}", user.UserId);
                         }
                         else

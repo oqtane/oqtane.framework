@@ -42,10 +42,13 @@ namespace Oqtane.Controllers
                 {
                     if (!string.IsNullOrEmpty(packagename))
                     {
-                        foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), $"{packagename}.*{Constants.SatelliteAssemblyExtension}", SearchOption.AllDirectories))
+                        foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), $"{packagename}*{Constants.SatelliteAssemblyExtension}", SearchOption.AllDirectories))
                         {
                             var code = Path.GetFileName(Path.GetDirectoryName(file));
-                            languages.Add(new Language { Code = code, Name = CultureInfo.GetCultureInfo(code).DisplayName, Version = FileVersionInfo.GetVersionInfo(file).FileVersion, IsDefault = false });
+                            if (!languages.Any(item => item.Code == code))
+                            {
+                                languages.Add(new Language { Code = code, Name = CultureInfo.GetCultureInfo(code).DisplayName, Version = FileVersionInfo.GetVersionInfo(file).FileVersion, IsDefault = false });
+                            }
                         }
                     }
                 }
@@ -54,7 +57,7 @@ namespace Oqtane.Controllers
                     languages = _languages.GetLanguages(SiteId).ToList();
                     if (!string.IsNullOrEmpty(packagename))
                     {
-                        foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), $"{packagename}.*{Constants.SatelliteAssemblyExtension}", SearchOption.AllDirectories))
+                        foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), $"{packagename}*{Constants.SatelliteAssemblyExtension}", SearchOption.AllDirectories))
                         {
                             var code = Path.GetFileName(Path.GetDirectoryName(file));
                             if (languages.Any(item => item.Code == code))
@@ -99,7 +102,8 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && language.SiteId == _alias.SiteId)
             {
                 language = _languages.AddLanguage(language);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Language, language.LanguageId, SyncEventActions.Create);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Language Added {Language}", language);
             }
             else
@@ -119,7 +123,8 @@ namespace Oqtane.Controllers
             if (language != null && language.SiteId == _alias.SiteId)
             {
                 _languages.DeleteLanguage(id);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Language, language.LanguageId, SyncEventActions.Delete);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Language Deleted {LanguageId}", id);
             }
             else

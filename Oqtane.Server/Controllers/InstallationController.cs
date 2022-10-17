@@ -103,10 +103,7 @@ namespace Oqtane.Controllers
         [HttpGet("list")]
         public List<string> List()
         {
-            return _cache.GetOrCreate("assemblieslist", entry =>
-            {
-                return GetAssemblyList();
-            });
+            return GetAssemblyList().Select(item => item.HashedName).ToList();
         }
 
         // GET api/<controller>/load?list=x,y
@@ -116,81 +113,90 @@ namespace Oqtane.Controllers
             return File(GetAssemblies(list), System.Net.Mime.MediaTypeNames.Application.Octet, "oqtane.dll");
         }
 
-        private List<string> GetAssemblyList()
+        private List<ClientAssembly> GetAssemblyList()
         {
-            // get list of assemblies which should be downloaded to client
-            var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            var assemblies = AppDomain.CurrentDomain.GetOqtaneClientAssemblies();
-            var list = assemblies.Select(a => a.GetName().Name).ToList();
-
-            // include version numbers
-            for (int i = 0; i < list.Count; i++)
+            return _cache.GetOrCreate("assemblieslist", entry =>
             {
-                 list[i] = Path.GetFileName(AddFileDate(Path.Combine(binFolder, list[i] + ".dll")));
-            }
+                var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                var assemblyList = new List<ClientAssembly>();
 
-            // insert satellite assemblies at beginning of list
-            foreach (var culture in _localizationManager.GetInstalledCultures())
-            {
-                var assembliesFolderPath = Path.Combine(binFolder, culture);
-                if (culture == Constants.DefaultCulture)
+                // get list of assemblies which should be downloaded to client
+                var assemblies = AppDomain.CurrentDomain.GetOqtaneClientAssemblies();
+                var list = assemblies.Select(a => a.GetName().Name).ToList();            
+
+                // populate assemblies
+                for (int i = 0; i < list.Count; i++)
                 {
-                    continue;
+                    assemblyList.Add(new ClientAssembly(Path.Combine(binFolder, list[i] + ".dll")));
                 }
 
-                if (Directory.Exists(assembliesFolderPath))
+                // insert satellite assemblies at beginning of list
+                foreach (var culture in _localizationManager.GetInstalledCultures())
                 {
-                    foreach (var resourceFile in Directory.EnumerateFiles(assembliesFolderPath))
+                    var assembliesFolderPath = Path.Combine(binFolder, culture);
+                    if (culture == Constants.DefaultCulture)
                     {
-                        list.Insert(0, culture + "/" + Path.GetFileName(AddFileDate(resourceFile)));
+                        continue;
                     }
-                }
-                else
-                {
-                    _filelogger.LogError(Utilities.LogMessage(this, $"The Satellite Assembly Folder For {culture} Does Not Exist"));
-                }
-            }
 
-            // insert module and theme dependencies at beginning of list
-            foreach (var assembly in assemblies)
-            {
-                foreach (var type in assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(IModule))))
-                {
-                    var instance = Activator.CreateInstance(type) as IModule;
-                    foreach (string name in instance.ModuleDefinition.Dependencies.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    if (Directory.Exists(assembliesFolderPath))
                     {
-                        var path = Path.Combine(binFolder, name + ".dll");
-                        if (System.IO.File.Exists(path))
+                        foreach (var resourceFile in Directory.EnumerateFiles(assembliesFolderPath))
                         {
-                            path = Path.GetFileName(AddFileDate(path));
-                            if (!list.Contains(path)) list.Insert(0, path);
-                        }
-                        else
-                        {
-                            _filelogger.LogError(Utilities.LogMessage(this, $"Module {instance.ModuleDefinition.ModuleDefinitionName} Dependency {name}.dll Does Not Exist"));
+                            assemblyList.Insert(0, new ClientAssembly(resourceFile));
                         }
                     }
-                }
-                foreach (var type in assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(ITheme))))
-                {
-                    var instance = Activator.CreateInstance(type) as ITheme;
-                    foreach (string name in instance.Theme.Dependencies.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    else
                     {
-                        var path = Path.Combine(binFolder, name + ".dll");
-                        if (System.IO.File.Exists(path))
+                        _filelogger.LogError(Utilities.LogMessage(this, $"The Satellite Assembly Folder For {culture} Does Not Exist"));
+                    }
+                }
+
+                // insert module and theme dependencies at beginning of list
+                foreach (var assembly in assemblies)
+                {
+                    foreach (var type in assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(IModule))))
+                    {
+                        var instance = Activator.CreateInstance(type) as IModule;
+                        foreach (string name in instance.ModuleDefinition.Dependencies.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Reverse())
                         {
-                            path = Path.GetFileName(AddFileDate(path));
-                            if (!list.Contains(path)) list.Insert(0, path);
+                            var filepath = Path.Combine(binFolder, name + ".dll");
+                            if (System.IO.File.Exists(filepath))
+                            {
+                                if (!assemblyList.Exists(item => item.FilePath == filepath))
+                                {
+                                    assemblyList.Insert(0, new ClientAssembly(filepath));
+                                }
+                            }
+                            else
+                            {
+                                _filelogger.LogError(Utilities.LogMessage(this, $"Module {instance.ModuleDefinition.ModuleDefinitionName} Dependency {name}.dll Does Not Exist"));
+                            }
                         }
-                        else
+                    }
+                    foreach (var type in assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(ITheme))))
+                    {
+                        var instance = Activator.CreateInstance(type) as ITheme;
+                        foreach (string name in instance.Theme.Dependencies.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Reverse())
                         {
-                            _filelogger.LogError(Utilities.LogMessage(this, $"Theme {instance.Theme.ThemeName} Dependency {name}.dll Does Not Exist"));
+                            var filepath = Path.Combine(binFolder, name + ".dll");
+                            if (System.IO.File.Exists(filepath))
+                            {
+                                if (!assemblyList.Exists(item => item.FilePath == filepath))
+                                {
+                                    assemblyList.Insert(0, new ClientAssembly(filepath));
+                                }
+                            }
+                            else
+                            {
+                                _filelogger.LogError(Utilities.LogMessage(this, $"Theme {instance.Theme.ThemeName} Dependency {name}.dll Does Not Exist"));
+                            }
                         }
                     }
                 }
-            }
 
-            return list;
+                return assemblyList;
+            });
         }
 
         private byte[] GetAssemblies(string list)
@@ -213,14 +219,11 @@ namespace Oqtane.Controllers
             var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
             // get list of assemblies which should be downloaded to client
-            List<string> assemblies;
-            if (list == "*")
+            List<ClientAssembly> assemblies = GetAssemblyList();
+            if (list != "*")
             {
-                assemblies = GetAssemblyList();
-            }
-            else
-            {
-                assemblies = list.Split(',').ToList();
+                var filter = list.Split(',').ToList();
+                assemblies.RemoveAll(item => !filter.Contains(item.HashedName));
             }
 
             // create zip file containing assemblies and debug symbols
@@ -228,22 +231,21 @@ namespace Oqtane.Controllers
             {
                 using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
                 {
-                    foreach (string file in assemblies)
+                    foreach (var assembly in assemblies)
                     {
-                        var filename = RemoveFileDate(file);
-                        if (System.IO.File.Exists(Path.Combine(binFolder, filename)))
+                        if (System.IO.File.Exists(assembly.FilePath))
                         {
-                            using (var filestream = new FileStream(Path.Combine(binFolder, filename), FileMode.Open, FileAccess.Read))
-                            using (var entrystream = archive.CreateEntry(file).Open())
+                            using (var filestream = new FileStream(assembly.FilePath, FileMode.Open, FileAccess.Read))
+                            using (var entrystream = archive.CreateEntry(assembly.HashedName).Open())
                             {
                                 filestream.CopyTo(entrystream);
                             }
                         }
-                        filename = filename.Replace(".dll", ".pdb");
-                        if (System.IO.File.Exists(Path.Combine(binFolder, filename)))
+                        var pdb = assembly.FilePath.Replace(".dll", ".pdb");
+                        if (System.IO.File.Exists(pdb))
                         {
-                            using (var filestream = new FileStream(Path.Combine(binFolder, filename), FileMode.Open, FileAccess.Read))
-                            using (var entrystream = archive.CreateEntry(file.Replace(".dll", ".pdb")).Open())
+                            using (var filestream = new FileStream(pdb, FileMode.Open, FileAccess.Read))
+                            using (var entrystream = archive.CreateEntry(assembly.HashedName.Replace(".dll", ".pdb")).Open())
                             {
                                 filestream.CopyTo(entrystream);
                             }
@@ -253,18 +255,6 @@ namespace Oqtane.Controllers
 
                 return memoryStream.ToArray();
             }
-        }
-
-        private string AddFileDate(string filepath)
-        {
-            DateTime lastwritetime = System.IO.File.GetLastWriteTime(filepath);
-            return Path.GetFileNameWithoutExtension(filepath) + "." + lastwritetime.ToString("yyyyMMddHHmmss") + Path.GetExtension(filepath);            
-        }
-
-        private string RemoveFileDate(string filepath)
-        {
-            var segments = filepath.Split(".");
-            return string.Join(".", segments, 0, segments.Length - 2) + Path.GetExtension(filepath);
         }
 
         private async Task RegisterContact(string email)
@@ -292,5 +282,38 @@ namespace Oqtane.Controllers
         {
             await RegisterContact(email);
         }
+
+        public struct ClientAssembly
+        {
+            public ClientAssembly(string filepath)
+            {
+                FilePath = filepath;
+                DateTime lastwritetime = System.IO.File.GetLastWriteTime(filepath);
+                HashedName = GetDeterministicHashCode(filepath).ToString("X8") + "." + lastwritetime.ToString("yyyyMMddHHmmss") + Path.GetExtension(filepath);
+            }
+
+            public string FilePath { get; private set; }
+            public string HashedName { get; private set; }
+        }
+
+        private static int GetDeterministicHashCode(string value)
+        {
+            unchecked
+            {
+                int hash1 = (5381 << 16) + 5381;
+                int hash2 = hash1;
+
+                for (int i = 0; i < value.Length; i += 2)
+                {
+                    hash1 = ((hash1 << 5) + hash1) ^ value[i];
+                    if (i == value.Length - 1)
+                        break;
+                    hash2 = ((hash2 << 5) + hash2) ^ value[i + 1];
+                }
+
+                return hash1 + (hash2 * 1566083941);
+            }
+        }
+
     }
 }

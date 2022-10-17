@@ -20,6 +20,7 @@ using Oqtane.Enums;
 using Oqtane.Security;
 using Oqtane.Extensions;
 using Oqtane.Themes;
+using Oqtane.UI;
 
 namespace Oqtane.Pages
 {
@@ -69,6 +70,7 @@ namespace Oqtane.Pages
         public string Meta = "";
         public string FavIcon = "favicon.ico";
         public string PWAScript = "";
+        public string ReconnectScript = "";
         public string Message = "";
 
         public IActionResult OnGet()
@@ -126,7 +128,11 @@ namespace Oqtane.Pages
                         }
                         if (site.FaviconFileId != null)
                         {
-                            FavIcon = Utilities.ContentUrl(alias, site.FaviconFileId.Value);
+                            FavIcon = Utilities.FileUrl(alias, site.FaviconFileId.Value);
+                        }
+                        if (Runtime == "Server")
+                        {
+                            ReconnectScript = CreateReconnectScript();
                         }
                         if (site.PwaIsEnabled && site.PwaAppIconFileId != null && site.PwaSplashIconFileId != null)
                         {
@@ -174,7 +180,7 @@ namespace Oqtane.Pages
                             {
                                 ThemeType = page.ThemeType;
                             }
-                            ProcessThemeResources(ThemeType);
+                            ProcessThemeResources(ThemeType, alias);
                         }
                         else // page not found
                         {
@@ -198,7 +204,7 @@ namespace Oqtane.Pages
                         var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
                         foreach (Assembly assembly in assemblies)
                         {
-                            ProcessHostResources(assembly);
+                            ProcessHostResources(assembly, alias);
                         }
 
                         // set culture if not specified
@@ -374,44 +380,64 @@ namespace Oqtane.Pages
         private string CreatePWAScript(Alias alias, Site site, Route route)
         {
             return
-            "<script id=\"app-pwa\">" +
-                "setTimeout(() => { " +
-                    "var manifest = { " +
-                        "\"name\": \"" + site.Name + "\", " +
-                        "\"short_name\": \"" + site.Name + "\", " +
-                        "\"start_url\": \"" + route.SiteUrl + "/\", " +
-                        "\"display\": \"standalone\", " +
-                        "\"background_color\": \"#fff\", " +
-                        "\"description\": \"" + site.Name + "\", " +
-                        "\"icons\": [{ " +
-                            "\"src\": \"" + route.RootUrl + Utilities.ContentUrl(alias, site.PwaAppIconFileId.Value) + "\", " +
-                            "\"sizes\": \"192x192\", " +
-                            "\"type\": \"image/png\" " +
-                            "}, { " +
-                            "\"src\": \"" + route.RootUrl + Utilities.ContentUrl(alias, site.PwaSplashIconFileId.Value) + "\", " +
-                            "\"sizes\": \"512x512\", " +
-                            "\"type\": \"image/png\" " +
-                        "}] " +
-                    "}; " +
-                    "const serialized = JSON.stringify(manifest); " +
-                    "const blob = new Blob([serialized], {type: 'application/javascript'}); " +
-                    "const url = URL.createObjectURL(blob); " +
-                    "document.getElementById('app-manifest').setAttribute('href', url); " +
-                "} " +
-                ", 1000);" +
+            "<script>" + Environment.NewLine +
+            "    // PWA Manifest" + Environment.NewLine +
+            "    setTimeout(() => {" + Environment.NewLine +
+            "        var manifest = {" + Environment.NewLine +
+            "            \"name\": \"" + site.Name + "\"," + Environment.NewLine +
+            "            \"short_name\": \"" + site.Name + "\"," + Environment.NewLine +
+            "            \"start_url\": \"" + route.SiteUrl + "/\"," + Environment.NewLine +
+            "            \"display\": \"standalone\"," + Environment.NewLine +
+            "            \"background_color\": \"#fff\"," + Environment.NewLine +
+            "            \"description\": \"" + site.Name + "\"," + Environment.NewLine +
+            "            \"icons\": [{" + Environment.NewLine +
+            "                \"src\": \"" + route.RootUrl + Utilities.FileUrl(alias, site.PwaAppIconFileId.Value) + "\"," + Environment.NewLine +
+            "                \"sizes\": \"192x192\"," + Environment.NewLine +
+            "                \"type\": \"image/png\"" + Environment.NewLine +
+            "                }, {" + Environment.NewLine +
+            "                \"src\": \"" + route.RootUrl + Utilities.FileUrl(alias, site.PwaSplashIconFileId.Value) + "\"," + Environment.NewLine +
+            "                \"sizes\": \"512x512\"," + Environment.NewLine +
+            "                \"type\": \"image/png\"" + Environment.NewLine +
+            "            }]" + Environment.NewLine +
+            "       };" + Environment.NewLine +
+            "       const serialized = JSON.stringify(manifest);" + Environment.NewLine +
+            "       const blob = new Blob([serialized], {type: 'application/javascript'});" + Environment.NewLine +
+            "       const url = URL.createObjectURL(blob);" + Environment.NewLine +
+            "       document.getElementById('app-manifest').setAttribute('href', url);" + Environment.NewLine +
+            "    }, 1000);" + Environment.NewLine +
             "</script>" + Environment.NewLine +
-            "<script id=\"app-serviceworker\">" +
-                "if ('serviceWorker' in navigator) { " +
-                    "navigator.serviceWorker.register('/service-worker.js').then(function(registration) { " +
-                        "console.log('ServiceWorker Registration Successful'); " +
-                    "}).catch (function(err) { " +
-                        "console.log('ServiceWorker Registration Failed ', err); " +
-                    "}); " +
-                "};" +
+            "<script>" + Environment.NewLine +
+            "    // PWA Service Worker" + Environment.NewLine +
+            "    if ('serviceWorker' in navigator) {" + Environment.NewLine +
+            "        navigator.serviceWorker.register('/service-worker.js').then(function(registration) {" + Environment.NewLine +
+            "            console.log('ServiceWorker Registration Successful');" + Environment.NewLine +
+            "        }).catch (function(err) {" + Environment.NewLine +
+            "            console.log('ServiceWorker Registration Failed ', err);" + Environment.NewLine +
+            "        });" + Environment.NewLine +
+            "    };" + Environment.NewLine +
             "</script>";
         }
 
-        private void ProcessHostResources(Assembly assembly)
+        private string CreateReconnectScript()
+        {
+            return
+            "<script>" + Environment.NewLine +
+            "    // Blazor Server Reconnect" + Environment.NewLine +
+            "    new MutationObserver((mutations, observer) => {" + Environment.NewLine +
+            "        if (document.querySelector('#components-reconnect-modal h5 a')) {" + Environment.NewLine +
+            "            async function attemptReload() {" + Environment.NewLine +
+            "                await fetch('');" + Environment.NewLine +
+            "                location.reload();" + Environment.NewLine +
+            "            }" + Environment.NewLine +
+            "            observer.disconnect();" + Environment.NewLine +
+            "            attemptReload();" + Environment.NewLine +
+            "            setInterval(attemptReload, 5000);" + Environment.NewLine +
+            "        }" + Environment.NewLine +
+            "    }).observe(document.body, { childList: true, subtree: true });" + Environment.NewLine +
+            "</script>";
+        }
+
+        private void ProcessHostResources(Assembly assembly, Alias alias)
         {
             var types = assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(IHostResources)));
             foreach (var type in types)
@@ -420,12 +446,12 @@ namespace Oqtane.Pages
                 foreach (var resource in obj.Resources)
                 {
                     resource.Level = ResourceLevel.App;
-                    ProcessResource(resource, 0);
+                    ProcessResource(resource, 0, alias);
                 }
             }
         }
 
-        private void ProcessThemeResources(string ThemeType)
+        private void ProcessThemeResources(string ThemeType, Alias alias)
         {
             var type = Type.GetType(ThemeType);
             if (type != null)
@@ -437,40 +463,41 @@ namespace Oqtane.Pages
                     foreach (var resource in obj.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
                     {
                         resource.Level = ResourceLevel.Page;
-                        ProcessResource(resource, count++);
+                        ProcessResource(resource, count++, alias);
                     }
                 }
             }
         }
 
-        private void ProcessResource(Resource resource, int count)
+        private void ProcessResource(Resource resource, int count, Alias alias)
         {
+            var url = (resource.Url.Contains("://")) ? resource.Url : alias.BaseUrl + resource.Url;
             switch (resource.ResourceType)
             {
                 case ResourceType.Stylesheet:
-                    if (!HeadResources.Contains(resource.Url, StringComparison.OrdinalIgnoreCase))
+                    if (!HeadResources.Contains(url, StringComparison.OrdinalIgnoreCase))
                     {
                         string id = "";
                         if (resource.Level == ResourceLevel.Page)
                         {
                             id = "id=\"app-stylesheet-" + resource.Level.ToString().ToLower() + "-" + DateTime.UtcNow.ToString("yyyyMMddHHmmssfff") + "-" + count.ToString("00") + "\" ";
                         }
-                        HeadResources += "<link " + id + "rel=\"stylesheet\" href=\"" + resource.Url + "\"" + CrossOrigin(resource.CrossOrigin) + Integrity(resource.Integrity) + " />" + Environment.NewLine;
+                        HeadResources += "<link " + id + "rel=\"stylesheet\" href=\"" + url + "\"" + CrossOrigin(resource.CrossOrigin) + Integrity(resource.Integrity) + " type=\"text/css\"/>" + Environment.NewLine;
                     }
                     break;
                 case ResourceType.Script:
                     if (resource.Location == Shared.ResourceLocation.Body)
                     {
-                        if (!BodyResources.Contains(resource.Url, StringComparison.OrdinalIgnoreCase))
+                        if (!BodyResources.Contains(url, StringComparison.OrdinalIgnoreCase))
                         {
-                            BodyResources += "<script src=\"" + resource.Url + "\"" + CrossOrigin(resource.CrossOrigin) + Integrity(resource.Integrity) + "></script>" + Environment.NewLine;
+                            BodyResources += "<script src=\"" + url + "\"" + CrossOrigin(resource.CrossOrigin) + Integrity(resource.Integrity) + "></script>" + Environment.NewLine;
                         }
                     }
                     else
                     {
                         if (!HeadResources.Contains(resource.Url, StringComparison.OrdinalIgnoreCase))
                         {
-                            HeadResources += "<script src=\"" + resource.Url + "\"" + CrossOrigin(resource.CrossOrigin) + Integrity(resource.Integrity) + "></script>" + Environment.NewLine;
+                            HeadResources += "<script src=\"" + url + "\"" + CrossOrigin(resource.CrossOrigin) + Integrity(resource.Integrity) + "></script>" + Environment.NewLine;
                         }
                     }
                     break;

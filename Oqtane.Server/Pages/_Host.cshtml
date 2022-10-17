@@ -50,6 +50,10 @@
 		{
 			<script src="_framework/blazor.server.js"></script>
 		}
+		@if (!string.IsNullOrEmpty(Model.ReconnectScript))
+		{
+			@Html.Raw(Model.ReconnectScript)
+		}
 		@if (!string.IsNullOrEmpty(Model.PWAScript))
 		{
 			@Html.Raw(Model.PWAScript)

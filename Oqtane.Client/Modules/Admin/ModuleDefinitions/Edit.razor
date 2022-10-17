@@ -102,46 +102,43 @@
 		<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
     </TabPanel>
 	<TabPanel Name="Translations" ResourceKey="Translations">
-		@if (_languages != null)
+		@if (_languages != null && _languages.Count > 0)
 		{
-			@if (_languages.Count > 0)
-			{
-				<Pager Items="@_languages">
-					<Header>
-						<th>@SharedLocalizer["Name"]</th>
-						<th>@Localizer["Code"]</th>
-						<th>@Localizer["Version"]</th>
-						<th style="width: 1px;">&nbsp;</th>
-					</Header>
-					<Row>
-						<td>@context.Name</td>
-						<td>@context.Code</td>
-						<td>@context.Version</td>
-						<td>
-							@if (context.IsDefault)
+			<Pager Items="@_languages">
+				<Header>
+					<th>@SharedLocalizer["Name"]</th>
+					<th>@Localizer["Code"]</th>
+					<th>@Localizer["Version"]</th>
+					<th style="width: 1px;">&nbsp;</th>
+				</Header>
+				<Row>
+					<td>@context.Name</td>
+					<td>@context.Code</td>
+					<td>@context.Version</td>
+					<td>
+						@if (context.IsDefault)
+						{
+							<button type="button" class="btn btn-primary" @onclick=@(async () => await GetPackage(_packagename + "." + context.Code))>@SharedLocalizer["Download"]</button>
+						}
+						else
+						{
+							if (UpgradeAvailable(_packagename + "." + context.Code, context.Version))
 							{
-								<button type="button" class="btn btn-primary" @onclick=@(async () => await GetPackage(_packagename + "." + context.Code))>@SharedLocalizer["Download"]</button>
+								<button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadPackage(_packagename + "." + context.Code))>@SharedLocalizer["Upgrade"]</button>
 							}
-							else
-							{
-								if (UpgradeAvailable(_packagename + "." + context.Code, context.Version))
-								{
-									<button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadPackage(_packagename + "." + context.Code))>@SharedLocalizer["Upgrade"]</button>
-								}
-							}
-						</td>
-					</Row>
-				</Pager>
-				<button type="button" class="btn btn-success" @onclick="InstallTranslations">@SharedLocalizer["Install"]</button>
-			}
-			else
-			{
-				<br />
-				<div class="mx-auto text-center">
-					@Localizer["Search.NoResults"]
-				</div>
-				<br />
-			}
+						}
+					</td>
+				</Row>
+			</Pager>
+			<button type="button" class="btn btn-success" @onclick="InstallTranslations">@SharedLocalizer["Install"]</button>
+		}
+		else
+		{
+			<br />
+			<div class="mx-auto text-center">
+				@Localizer["Search.NoResults"]
+			</div>
+			<br />
 		}
 	</TabPanel>
 </TabStrip>
@@ -237,17 +234,20 @@
 				_modifiedby = moduleDefinition.ModifiedBy;
 				_modifiedon = moduleDefinition.ModifiedOn;
 
-				_packages = await PackageService.GetPackagesAsync("translation", "", "", _packagename);
-				_languages = await LanguageService.GetLanguagesAsync(-1, _packagename);
-				foreach (var package in _packages)
+				if (!string.IsNullOrEmpty(_packagename))
 				{
-					var code = package.PackageId.Split('.').Last();
-					if (!_languages.Any(item => item.Code == code))
+					_packages = await PackageService.GetPackagesAsync("translation", "", "", _packagename);
+					_languages = await LanguageService.GetLanguagesAsync(-1, _packagename);
+					foreach (var package in _packages)
 					{
-						_languages.Add(new Language { Code = code, Name = CultureInfo.GetCultureInfo(code).DisplayName, Version = package.Version, IsDefault = true });
+						var code = package.PackageId.Split('.').Last();
+						if (!_languages.Any(item => item.Code == code))
+						{
+							_languages.Add(new Language { Code = code, Name = CultureInfo.GetCultureInfo(code).DisplayName, Version = package.Version, IsDefault = true });
+						}
 					}
+					_languages = _languages.OrderBy(item => item.Name).ToList();
 				}
-				_languages = _languages.OrderBy(item => item.Name).ToList();
 			}
 		}
 		catch (Exception ex)
