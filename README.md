@@ -45,6 +45,10 @@ This project is open source, and therefore is a work in progress...
 - [ ] Migration to .NET 7  
 - [ ] Folder Providers
 
+[3.2.1](https://github.com/oqtane/oqtane.framework/releases/tag/v3.2.1) ( Oct 17, 2022 )
+- [x] Stabilization improvements  
+- [x] Server Event System
+
 [3.2.0](https://github.com/oqtane/oqtane.framework/releases/tag/v3.2.0) ( Sep 13, 2022 )
 - [x] MAUI / Blazor Hybrid support 
 - [x] Upgrade to Bootstrap 5.2
