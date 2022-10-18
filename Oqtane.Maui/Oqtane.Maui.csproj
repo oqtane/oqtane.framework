@@ -71,16 +71,8 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Localization" Version="6.0.3" />
     <PackageReference Include="System.Net.Http.Json" Version="6.0.0" />
+    <PackageReference Include="Oqtane.Client" Version="3.2.1" />
+    <PackageReference Include="Oqtane.Shared" Version="3.2.1" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Oqtane.Client">
-      <HintPath>..\Oqtane.Server\bin\Debug\net6.0\Oqtane.Client.dll</HintPath>
-    </Reference>
-    <Reference Include="Oqtane.Shared">
-      <HintPath>..\Oqtane.Server\bin\Debug\net6.0\Oqtane.Shared.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
 
 </Project>
