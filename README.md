@@ -1,3 +1,7 @@
+# Latest Release
+
+3.2.1 was released on Oct 17 and is primarily focused on stabilization. This includes performance improvements to the client startup logic for Blazor Hybrid and Blazor WebAssembly, improvements to base url handling and static resources for component resusability in .NET MAUI, support for Roles in OpenID Connect integrations, as well as a new capability to capture server-side events in your custom code. This release includes 21 pull requests by 4 different contributors, pushing the total number of project commits all-time to 3093. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
+
 # Oqtane Framework
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Foqtane%2Foqtane.framework%2Fmaster%2Fazuredeploy.json)
