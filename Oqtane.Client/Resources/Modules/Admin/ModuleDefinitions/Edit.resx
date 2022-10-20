@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -203,6 +203,9 @@
   </data>
   <data name="Error.Translation.Download" xml:space="preserve">
     <value>Error Downloading Translation</value>
+  </data>
+  <data name="Search.PackageNameMissing" xml:space="preserve">
+    <value>A Package Name Was Not Provided For The Module</value>
   </data>
   <data name="Search.NoResults" xml:space="preserve">
     <value>No Translations Exist For This Module Or Package Service Is Disabled</value>
