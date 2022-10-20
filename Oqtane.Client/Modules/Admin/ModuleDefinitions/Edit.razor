@@ -137,7 +137,14 @@
 		{
 			<br />
 			<div class="mx-auto text-center">
-				@Localizer["Search.NoResults"]
+				@if (string.IsNullOrEmpty(_packagename))
+				{
+					@Localizer["Search.PackageNameMissing"]
+				}
+				else
+				{
+					@Localizer["Search.NoResults"]					
+				}
 			</div>
 			<br />
 		}
