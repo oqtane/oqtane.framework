@@ -104,15 +104,17 @@ else
 
 	protected override async Task OnParametersSetAsync()
 	{
-		_languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId, Constants.ClientId);
-
-		var cultures = await LocalizationService.GetCulturesAsync(false);
-		var culture = cultures.First(c => c.Name.Equals(Constants.DefaultCulture));
+		await GetLanguages();
 
 		if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
 		{
 			_packages = await PackageService.GetPackagesAsync("translation");			
 		}
+	}
+
+	private async Task GetLanguages()
+	{
+		_languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId, Constants.ClientId);
 	}
 
 	private async Task DeleteLanguage(Language language)
@@ -121,7 +123,7 @@ else
 		{
 			await LanguageService.DeleteLanguageAsync(language.LanguageId);
 			await logger.LogInformation("Language Deleted {Language}", language);
-
+			await GetLanguages();
 			StateHasChanged();
 		}
 		catch (Exception ex)
