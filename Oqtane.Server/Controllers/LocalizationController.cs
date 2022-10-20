@@ -21,9 +21,18 @@ namespace Oqtane.Controllers
 
         // GET: api/localization
         [HttpGet()]
-        public IEnumerable<Culture> Get()
+        public IEnumerable<Culture> Get(bool installed)
         {
-            var cultures = _localizationManager.GetSupportedCultures().Select(c => new Culture
+            string[] culturecodes;
+            if (installed)
+            {
+                culturecodes = _localizationManager.GetInstalledCultures();
+            }
+            else
+            {
+                culturecodes = _localizationManager.GetSupportedCultures();
+            }
+            var cultures = culturecodes.Select(c => new Culture
                {
                    Name = CultureInfo.GetCultureInfo(c).Name,
                    DisplayName = CultureInfo.GetCultureInfo(c).DisplayName,

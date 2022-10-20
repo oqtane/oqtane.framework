@@ -108,29 +108,30 @@
 				<Header>
 					<th>@SharedLocalizer["Name"]</th>
 					<th>@Localizer["Code"]</th>
-					<th>@Localizer["Version"]</th>
+					<th style="width: 1px;">@Localizer["Version"]</th>
 					<th style="width: 1px;">&nbsp;</th>
 				</Header>
 				<Row>
 					<td>@context.Name</td>
 					<td>@context.Code</td>
-					<td>@context.Version</td>
+					<td>@((string.IsNullOrEmpty(context.Version)) ? "---" : context.Version)</td>
 					<td>
-						@if (context.IsDefault)
+						@switch (TranslationAvailable(_packagename + "." + context.Code, context.Version))
 						{
-							<button type="button" class="btn btn-primary" @onclick=@(async () => await GetPackage(_packagename + "." + context.Code))>@SharedLocalizer["Download"]</button>
-						}
-						else
-						{
-							if (UpgradeAvailable(_packagename + "." + context.Code, context.Version))
-							{
-								<button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadPackage(_packagename + "." + context.Code))>@SharedLocalizer["Upgrade"]</button>
-							}
+							case "install":
+								<button type="button" class="btn btn-success" @onclick=@(async () => await GetPackage(_packagename + "." + context.Code))>@SharedLocalizer["Download"]</button>
+								break;
+							case "upgrade":
+								<button type="button" class="btn btn-success" @onclick=@(async () => await GetPackage(_packagename + "." + context.Code))>@SharedLocalizer["Upgrade"]</button>
+								break;
 						}
 					</td>
 				</Row>
 			</Pager>
-			<button type="button" class="btn btn-success" @onclick="InstallTranslations">@SharedLocalizer["Install"]</button>
+			@if (_install)
+			{
+				<button type="button" class="btn btn-success" @onclick="InstallTranslations">@SharedLocalizer["Install"]</button>
+			}
 		}
 		else
 		{
@@ -143,7 +144,7 @@
 	</TabPanel>
 </TabStrip>
 
-@if (_productname != "")
+@if (_package != null)
 {
 	<div class="app-actiondialog">
 		<div class="modal" tabindex="-1" role="dialog">
@@ -155,10 +156,17 @@
 					</div>
 					<div class="modal-body">
 						<p style="height: 200px; overflow-y: scroll;">
-							<h3>@_productname</h3>
-							@if (!string.IsNullOrEmpty(_packagelicense))
+							<h4 style="display: inline;"><a href="@_package.ProductUrl" target="_new">@_package.Name</a></h4><br />
+							@SharedLocalizer["Search.By"]:&nbsp;&nbsp;<strong><a href="@_package.OwnerUrl" target="new">@_package.Owner</a></strong><br />
+							@(_package.Description.Length > 400 ? (_package.Description.Substring(0, 400) + "...") : _package.Description)<br />
+							<strong>@(String.Format("{0:n0}", _package.Downloads))</strong> @SharedLocalizer["Search.Downloads"]&nbsp;&nbsp;|&nbsp;&nbsp;
+							@SharedLocalizer["Search.Released"]: <strong>@_package.ReleaseDate.ToString("MMM dd, yyyy")</strong>&nbsp;&nbsp;|&nbsp;&nbsp;
+							@SharedLocalizer["Search.Version"]: <strong>@_package.Version</strong>
+							@((MarkupString)(!string.IsNullOrEmpty(_package.PackageUrl) ? "&nbsp;&nbsp;|&nbsp;&nbsp;" + SharedLocalizer["Search.Source"] + ": <strong>" + new Uri(_package.PackageUrl).Host + "</strong>" : ""))
+							<br /><br />
+							@if (!string.IsNullOrEmpty(_package.License))
 							{
-								@((MarkupString)_packagelicense)
+								@((MarkupString)_package.License.Replace("\n", "<br />"))
 							}
 							else
 							{
@@ -167,7 +175,7 @@
 						</p>
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-success" @onclick=@(async () => await DownloadPackage(_packageid))>@SharedLocalizer["Accept"]</button>
+						<button type="button" class="btn btn-success" @onclick="DownloadPackage">@SharedLocalizer["Accept"]</button>
 						<button type="button" class="btn btn-secondary" @onclick="HideModal">@SharedLocalizer["Cancel"]</button>
 					</div>
 				</div>
@@ -203,9 +211,8 @@
 
 	private List<Package> _packages;
 	private List<Language> _languages;
-	private string _productname = "";
-	private string _packagelicense = "";
-	private string _packageid = "";
+	private Package _package;
+	private bool _install = false;
 
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -297,24 +304,31 @@
 
 	private void HideModal()
 	{
-		_productname = "";
-		_packagelicense = "";
+		_package = null;
 		StateHasChanged();
 	}
 
-	private bool UpgradeAvailable(string packagename, string version)
+	private string TranslationAvailable(string packagename, string version)
 	{
-		var upgradeavailable = false;
 		if (_packages != null)
 		{
 			var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
 			if (package != null)
 			{
-				upgradeavailable = (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0);
+				if (string.IsNullOrEmpty(version))
+				{
+					return "install";
+				}
+				else
+				{
+					if (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0)
+					{
+						return "upgrade";
+					}
+				}
 			}
-
 		}
-		return upgradeavailable;
+		return "";
 	}
 
 	private async Task GetPackage(string packagename)
@@ -322,16 +336,7 @@
 		var version = _packages.Where(item => item.PackageId == packagename).FirstOrDefault().Version;
 		try
 		{
-			var package = await PackageService.GetPackageAsync(packagename, version);
-			if (package != null)
-			{
-				_productname = package.Name;
-				if (!string.IsNullOrEmpty(package.License))
-				{
-					_packagelicense = package.License.Replace("\n", "<br />");
-				}
-				_packageid = package.PackageId;
-			}
+			_package = await PackageService.GetPackageAsync(packagename, version);
 			StateHasChanged();
 		}
 		catch (Exception ex)
@@ -341,16 +346,15 @@
 		}
 	}
 
-	private async Task DownloadPackage(string packagename)
+	private async Task DownloadPackage()
 	{
 		try
 		{
-			var version = _packages.Where(item => item.PackageId == packagename).FirstOrDefault().Version;
-			await PackageService.DownloadPackageAsync(packagename, version, Constants.PackagesFolder);
-			await logger.LogInformation("Package {PackageId} {Version} Downloaded Successfully", packagename, version);
+			await PackageService.DownloadPackageAsync(_package.PackageId, _package.Version, Constants.PackagesFolder);
+			await logger.LogInformation("Package {PackageId} {Version} Downloaded Successfully", _package.PackageId, _package.Version);
 			AddModuleMessage(Localizer["Success.Translation.Download"], MessageType.Success);
-			_productname = "";
-			_packagelicense = "";
+			_package = null;
+			_install = true;
 			StateHasChanged();
 		}
 		catch (Exception ex)
@@ -366,6 +370,8 @@
 		{
 			await PackageService.InstallPackagesAsync();
 			AddModuleMessage(string.Format(Localizer["Success.Translation.Install"], NavigateUrl("admin/system")), MessageType.Success);
+			_install = false;
+			StateHasChanged();
 		}
 		catch (Exception ex)
 		{

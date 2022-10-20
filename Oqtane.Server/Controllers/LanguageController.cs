@@ -47,7 +47,7 @@ namespace Oqtane.Controllers
                             var code = Path.GetFileName(Path.GetDirectoryName(file));
                             if (!languages.Any(item => item.Code == code))
                             {
-                                languages.Add(new Language { Code = code, Name = CultureInfo.GetCultureInfo(code).DisplayName, Version = FileVersionInfo.GetVersionInfo(file).FileVersion, IsDefault = false });
+                                languages.Add(new Language { Code = code, Name = CultureInfo.GetCultureInfo(code).DisplayName, Version = FileVersionInfo.GetVersionInfo(file).ProductVersion, IsDefault = false });
                             }
                         }
                     }
@@ -62,7 +62,7 @@ namespace Oqtane.Controllers
                             var code = Path.GetFileName(Path.GetDirectoryName(file));
                             if (languages.Any(item => item.Code == code))
                             {
-                                languages.Single(item => item.Code == code).Version = FileVersionInfo.GetVersionInfo(file).FileVersion;
+                                languages.Single(item => item.Code == code).Version = FileVersionInfo.GetVersionInfo(file).ProductVersion;
                             }
                         }
                     }

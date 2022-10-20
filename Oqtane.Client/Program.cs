@@ -16,6 +16,7 @@ using Microsoft.JSInterop;
 using Oqtane.Documentation;
 using Oqtane.Modules;
 using Oqtane.Services;
+using Oqtane.Shared;
 using Oqtane.UI;
 
 namespace Oqtane.Client
@@ -56,7 +57,11 @@ namespace Oqtane.Client
                 RegisterClientStartups(assembly, builder.Services);
             }
 
-            await builder.Build().RunAsync();
+            var host = builder.Build();
+
+            await SetCultureFromLocalizationCookie(host.Services);
+
+            await host.RunAsync();
         }
 
         private static async Task LoadClientAssemblies(HttpClient http, IServiceProvider serviceProvider)
@@ -220,7 +225,7 @@ namespace Oqtane.Client
             var localizationCookie = await interop.GetCookie(CookieRequestCultureProvider.DefaultCookieName);
             var culture = CookieRequestCultureProvider.ParseCookieValue(localizationCookie)?.UICultures?[0].Value;
             var localizationService = serviceProvider.GetRequiredService<ILocalizationService>();
-            var cultures = await localizationService.GetCulturesAsync();
+            var cultures = await localizationService.GetCulturesAsync(false);
 
             if (culture == null || !cultures.Any(c => c.Name.Equals(culture, StringComparison.OrdinalIgnoreCase)))
             {
