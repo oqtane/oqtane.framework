@@ -444,7 +444,7 @@
 		}
 		catch (Exception ex)
 		{
-			await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", _themetype, ex.Message);
+			await logger.LogError(ex, "Error Loading Containers For Theme {ThemeType} {Error}", _themetype, ex.Message);
 			AddModuleMessage(Localizer["Error.Theme.LoadPane"], MessageType.Error);
 		}
 	}
