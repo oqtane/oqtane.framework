@@ -7,7 +7,7 @@ namespace Oqtane.Models
     /// Language Information for <see cref="Site"/>s
     /// TODO: todoc - unclear how this is different from <see cref="Culture"/>
     /// </summary>
-    public class Language : IAuditable
+    public class Language : ModelBase
     {
         /// <summary>
         /// Internal ID
@@ -40,21 +40,5 @@ namespace Oqtane.Models
         /// Version of the satellite assembly
         /// </summary>
         public string Version { get; set; }
-
-        #region IAuditable Properties
-
-        /// <inheritdoc/>
-        public string CreatedBy { get; set; }
-
-        /// <inheritdoc/>
-        public DateTime CreatedOn { get; set; }
-
-        /// <inheritdoc/>
-        public string ModifiedBy { get; set; }
-
-        /// <inheritdoc/>
-        public DateTime ModifiedOn { get; set; }
-        
-        #endregion
     }
 }

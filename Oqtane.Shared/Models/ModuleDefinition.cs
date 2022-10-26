@@ -8,7 +8,7 @@ namespace Oqtane.Models
     /// Describes a Module type (Definition) in Oqtane.
     /// The available Modules are determined at StartUp.
     /// </summary>
-    public class ModuleDefinition : IAuditable
+    public class ModuleDefinition : ModelBase
     {
         [PrivateApi("The constructor is probably just for internal use and shouldn't appear in the docs")]
         public ModuleDefinition()
@@ -62,19 +62,6 @@ namespace Oqtane.Models
         /// Version information of this Module based on the DLL / NuGet package.
         /// </summary>
         public string Version { get; set; }
-
-        #region IAuditable Properties
-
-        /// <inheritdoc/>
-        public string CreatedBy { get; set; }
-        /// <inheritdoc/>
-        public DateTime CreatedOn { get; set; }
-        /// <inheritdoc/>
-        public string ModifiedBy { get; set; }
-        /// <inheritdoc/>
-        public DateTime ModifiedOn { get; set; }
-
-        #endregion
 
         // additional IModule properties 
         [NotMapped]

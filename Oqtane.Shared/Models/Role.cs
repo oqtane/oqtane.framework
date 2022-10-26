@@ -5,7 +5,7 @@ namespace Oqtane.Models
     /// <summary>
     /// Describes a Security Role in Oqtane.
     /// </summary>
-    public class Role : IAuditable
+    public class Role : ModelBase
     {
         /// <summary>
         /// Primary ID
@@ -32,18 +32,5 @@ namespace Oqtane.Models
         /// </summary>
         public bool IsAutoAssigned { get; set; }
         public bool IsSystem { get; set; }
-
-        #region IAuditable Properties
-
-        /// <inheritdoc/>
-        public string CreatedBy { get; set; }
-        /// <inheritdoc/>
-        public DateTime CreatedOn { get; set; }
-        /// <inheritdoc/>
-        public string ModifiedBy { get; set; }
-        /// <inheritdoc/>
-        public DateTime ModifiedOn { get; set; }
-
-        #endregion
     }
 }
