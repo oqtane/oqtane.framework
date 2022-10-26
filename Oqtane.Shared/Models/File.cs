@@ -55,14 +55,6 @@ namespace Oqtane.Models
         /// </summary>
         public string Description { get; set; }
 
-        #region IDeletable Properties
-
-        public string DeletedBy { get; set; }
-        public DateTime? DeletedOn { get; set; }
-        public bool IsDeleted { get; set; }
-
-        #endregion
-
         /// <summary>
         /// Object reference to the <see cref="Folder"/> object.
         /// Use this if you need to determine what <see cref="Site"/> the file belongs to. 
