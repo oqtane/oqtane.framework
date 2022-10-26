@@ -100,7 +100,7 @@ namespace Oqtane.Models
         [NotMapped]
         public List<Language> Languages { get; set; }
 
-        #region Extended IAuditable Properties, may be moved to an Interface some day so not documented yet
+        #region IDeletable Properties
 
         public string DeletedBy { get; set; }
         public DateTime? DeletedOn { get; set; }
