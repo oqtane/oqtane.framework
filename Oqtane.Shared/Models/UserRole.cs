@@ -5,7 +5,7 @@ namespace Oqtane.Models
     /// <summary>
     /// Assigns a <see cref="Role"/> to a <see cref="User"/>
     /// </summary>
-    public class UserRole : IAuditable
+    public class UserRole : ModelBase
     {
         /// <summary>
         /// Id of this assignment
@@ -30,19 +30,6 @@ namespace Oqtane.Models
         /// End of when this assignment is valid. See also <see cref="EffectiveDate"/>
         /// </summary>
         public DateTime? ExpiryDate { get; set; }
-
-        #region IAuditable Properties
-
-        /// <inheritdoc/>
-        public string CreatedBy { get; set; }
-        /// <inheritdoc/>
-        public DateTime CreatedOn { get; set; }
-        /// <inheritdoc/>
-        public string ModifiedBy { get; set; }
-        /// <inheritdoc/>
-        public DateTime ModifiedOn { get; set; }
-
-        #endregion
 
         /// <summary>
         /// Direct reference to the <see cref="Role"/> object.

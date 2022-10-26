@@ -7,7 +7,7 @@ namespace Oqtane.Models
     /// <summary>
     /// Describes a Page in Oqtane
     /// </summary>
-    public class Page : IAuditable, IDeletable
+    public class Page : ModelBase, IDeletable
     {
         /// <summary>
         /// Id of the Page
@@ -76,19 +76,6 @@ namespace Oqtane.Models
         public bool IsClickable { get; set; }
         public int? UserId { get; set; }
         public bool IsPersonalizable { get; set; }
-
-        #region IAuditable Properties
-
-        /// <inheritdoc/>
-        public string CreatedBy { get; set; }
-        /// <inheritdoc/>
-        public DateTime CreatedOn { get; set; }
-        /// <inheritdoc/>
-        public string ModifiedBy { get; set; }
-        /// <inheritdoc/>
-        public DateTime ModifiedOn { get; set; }
-
-        #endregion
 
         #region Extended IAuditable Properties, may be moved to an Interface some day so not documented yet
 

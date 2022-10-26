@@ -6,7 +6,7 @@ namespace Oqtane.Models
     /// Permission information for anything in Oqtane.
     /// Things in Oqtane are identified as Entities, so anything that can be identified can be described here. 
     /// </summary>
-    public class Permission : IAuditable
+    public class Permission : ModelBase
     {
         /// <summary>
         /// Internal ID storing this information.
@@ -51,22 +51,6 @@ namespace Oqtane.Models
         /// Determines if Authorization is sufficient to receive this permission.
         /// </summary>
         public bool IsAuthorized { get; set; }
-
-        #region IAuditable Properties
-
-        /// <inheritdoc/>
-        public string CreatedBy { get; set; }
-
-        /// <inheritdoc/>
-        public DateTime CreatedOn { get; set; }
-
-        /// <inheritdoc/>
-        public string ModifiedBy { get; set; }
-
-        /// <inheritdoc/>
-        public DateTime ModifiedOn { get; set; }
-
-        #endregion
 
         /// <summary>
         /// Reference to the <see cref="Role"/> based on the <see cref="RoleId"/> - can be nullable.

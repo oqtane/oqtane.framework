@@ -5,7 +5,7 @@ namespace Oqtane.Models
     /// <summary>
     /// A setting for any kind of object like <see cref="Tenant"/>, <see cref="Site"/>, <see cref="Page"/>, <see cref="Module"/> etc.
     /// </summary>
-    public class Setting : IAuditable
+    public class Setting : ModelBase
     {
         /// <summary>
         /// ID in the Database - mainly used to later update an existing setting. 
@@ -36,18 +36,5 @@ namespace Oqtane.Models
         /// Indicates if this setting is private - indicating it should be maintained on the server and not sent to the client
         /// </summary>
         public bool IsPrivate { get; set; }
-
-        #region IAuditable Properties
-
-        /// <inheritdoc/>
-        public string CreatedBy { get; set; }
-        /// <inheritdoc/>
-        public DateTime CreatedOn { get; set; }
-        /// <inheritdoc/>
-        public string ModifiedBy { get; set; }
-        /// <inheritdoc/>
-        public DateTime ModifiedOn { get; set; }
-
-        #endregion
     }
 }

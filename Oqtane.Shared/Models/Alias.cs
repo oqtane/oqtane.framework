@@ -7,7 +7,7 @@ namespace Oqtane.Models
     /// <summary>
     /// An Alias maps a url like `oqtane.my` or `oqtane.my/products` to a <see cref="Oqtane.Models.Site"/> and <see cref="Oqtane.Models.Tenant"/>
     /// </summary>
-    public class Alias : IAuditable
+    public class Alias : ModelBase
     {
         /// <summary>
         /// The primary ID for internal use. It's also used in API calls to identify the site. 
@@ -35,18 +35,6 @@ namespace Oqtane.Models
         /// Specifies if the alias is the default for the tenant/site. Requests for non-default aliases are redirected to the default alias.
         /// </summary>
         public bool IsDefault { get; set; }
-
-        /// <inheritdoc />
-        public string CreatedBy { get; set; }
-
-        /// <inheritdoc />
-        public DateTime CreatedOn { get; set; }
-        
-        /// <inheritdoc />
-        public string ModifiedBy { get; set; }
-        
-        /// <inheritdoc />
-        public DateTime ModifiedOn { get; set; }
 
         /// <summary>
         /// The path contains the url-part after the first slash.

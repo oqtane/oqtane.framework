@@ -6,7 +6,7 @@ namespace Oqtane.Models
     /// <summary>
     /// Describes a User in Oqtane.
     /// </summary>
-    public class User : IAuditable, IDeletable
+    public class User : ModelBase, IDeletable
     {
         /// <summary>
         /// ID of this User.
@@ -70,19 +70,6 @@ namespace Oqtane.Models
         /// </summary>
         [NotMapped]
         public string Roles { get; set; }
-
-        #region IAuditable Properties
-
-        /// <inheritdoc/>
-        public string CreatedBy { get; set; }
-        /// <inheritdoc/>
-        public DateTime CreatedOn { get; set; }
-        /// <inheritdoc/>
-        public string ModifiedBy { get; set; }
-        /// <inheritdoc/>
-        public DateTime ModifiedOn { get; set; }
-
-        #endregion
         
         #region Extended IAuditable Properties, may be moved to an Interface some day so not documented yet
 
