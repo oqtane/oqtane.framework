@@ -59,14 +59,6 @@ namespace Oqtane.Models
         /// </summary>
         public bool IsSystem { get; set; }
 
-        #region IDeletable Properties
-
-        public string DeletedBy { get; set; }
-        public DateTime? DeletedOn { get; set; }
-        public bool IsDeleted { get; set; }
-        
-        #endregion
-
         /// <summary>
         /// TODO: todoc what would this contain?
         /// </summary>
