@@ -16,7 +16,7 @@ namespace Oqtane.Models
         public ResourceType ResourceType { get; set; }
 
         /// <summary>
-        /// Path to the resources. 
+        /// Path to the resource (note that querytring parameters can be included for cache busting ie. ?v=#)
         /// </summary>
         public string Url
         {

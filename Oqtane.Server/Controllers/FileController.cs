@@ -20,6 +20,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Formats.Png;
 using System.Net.Http;
+using Oqtane.Migrations.Tenant;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
@@ -135,7 +136,9 @@ namespace Oqtane.Controllers
         public Models.File Put(int id, [FromBody] Models.File file)
         {
             var File = _files.GetFile(file.FileId, false);
-            if (ModelState.IsValid && File != null && File.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Folder, file.FolderId, PermissionNames.Edit))
+            if (ModelState.IsValid && file.Folder.SiteId == _alias.SiteId && File != null // ensure file exists
+                && _userPermissions.IsAuthorized(User, EntityNames.Folder, File.FolderId, PermissionNames.Edit) // ensure user had edit rights to original folder
+                && _userPermissions.IsAuthorized(User, EntityNames.Folder, file.FolderId, PermissionNames.Edit)) // ensure user has edit rights to new folder
             {
                 if (File.Name != file.Name || File.FolderId != file.FolderId)
                 {
@@ -148,7 +151,15 @@ namespace Oqtane.Controllers
                     System.IO.File.Move(_files.GetFilePath(File), Path.Combine(folderpath, file.Name));
                 }
 
-                file.Extension = Path.GetExtension(file.Name).ToLower().Replace(".", "");
+                var newfile = CreateFile(file.Name, file.Folder.FolderId, _files.GetFilePath(file));
+                if (newfile != null)
+                {
+                    file.Extension = newfile.Extension;
+                    file.Size = newfile.Size;
+                    file.ImageWidth = newfile.ImageWidth;
+                    file.ImageHeight = newfile.ImageHeight;
+                }
+
                 file = _files.UpdateFile(file);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.File, file.FileId, SyncEventActions.Update);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "File Updated {File}", file);
