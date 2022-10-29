@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Net.Http.Headers;
 using Oqtane.Enums;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
@@ -74,23 +75,41 @@ namespace Oqtane.Pages
             {
                 if (file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
                 {
-                    var filepath = _files.GetFilePath(file);
-                    if (System.IO.File.Exists(filepath))
+                    // calculate ETag using last modified date and file size
+                    var etag = Convert.ToString(file.ModifiedOn.Ticks ^ file.Size, 16);
+
+                    var header = "";
+                    if (HttpContext.Request.Headers.ContainsKey(HeaderNames.IfNoneMatch))
                     {
-                        if (download)
+                        header = HttpContext.Request.Headers[HeaderNames.IfNoneMatch].ToString();
+                    }
+
+                    if (!header.Equals(etag))
+                    {
+                        var filepath = _files.GetFilePath(file);
+                        if (System.IO.File.Exists(filepath))
                         {
-                            _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.File, file.FileId, "Download");
-                            return PhysicalFile(filepath, file.GetMimeType(), file.Name);
+                            if (download)
+                            {
+                                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.File, file.FileId, "Download");
+                                return PhysicalFile(filepath, file.GetMimeType(), file.Name);
+                            }
+                            else
+                            {
+                                HttpContext.Response.Headers.Add(HeaderNames.ETag, etag);
+                                return PhysicalFile(filepath, file.GetMimeType());
+                            }
                         }
                         else
                         {
-                            return PhysicalFile(filepath, file.GetMimeType());
+                            _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {FilePath}", filepath);
+                            HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
                         }
                     }
                     else
                     {
-                        _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {FilePath}", filepath);
-                        HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                        HttpContext.Response.StatusCode = (int)HttpStatusCode.NotModified;
+                        return Content(String.Empty);
                     }
                 }
                 else
