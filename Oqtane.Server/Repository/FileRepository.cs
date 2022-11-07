@@ -28,9 +28,9 @@ namespace Oqtane.Repository
 
         public IEnumerable<File> GetFiles(int folderId)
         {
-            IEnumerable<Permission> permissions = _permissions.GetPermissions(EntityNames.Folder, folderId).ToList();
-            IEnumerable<File> files = _db.File.Where(item => item.FolderId == folderId).Include(item => item.Folder);
             var alias = _tenants.GetAlias();
+            IEnumerable<Permission> permissions = _permissions.GetPermissions(alias.SiteId, EntityNames.Folder, folderId).ToList();
+            IEnumerable<File> files = _db.File.Where(item => item.FolderId == folderId).Include(item => item.Folder);
             foreach (File file in files)
             {
                 file.Folder.Permissions = permissions.EncodePermissions();
@@ -76,7 +76,7 @@ namespace Oqtane.Repository
             }
             if (file != null)
             {
-                IEnumerable<Permission> permissions = _permissions.GetPermissions(EntityNames.Folder, file.FolderId).ToList();
+                IEnumerable<Permission> permissions = _permissions.GetPermissions(file.Folder.SiteId, EntityNames.Folder, file.FolderId).ToList();
                 file.Folder.Permissions = permissions.EncodePermissions();
                 file.Url = GetFileUrl(file, _tenants.GetAlias());
             }
@@ -93,7 +93,7 @@ namespace Oqtane.Repository
 
             if (file != null)
             {
-                IEnumerable<Permission> permissions = _permissions.GetPermissions(EntityNames.Folder, file.FolderId).ToList();
+                IEnumerable<Permission> permissions = _permissions.GetPermissions(file.Folder.SiteId, EntityNames.Folder, file.FolderId).ToList();
                 file.Folder.Permissions = permissions.EncodePermissions();
                 file.Url = GetFileUrl(file, _tenants.GetAlias());
             }

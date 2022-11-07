@@ -137,8 +137,8 @@ namespace Oqtane.Controllers
         {
             var File = _files.GetFile(file.FileId, false);
             if (ModelState.IsValid && file.Folder.SiteId == _alias.SiteId && File != null // ensure file exists
-                && _userPermissions.IsAuthorized(User, EntityNames.Folder, File.FolderId, PermissionNames.Edit) // ensure user had edit rights to original folder
-                && _userPermissions.IsAuthorized(User, EntityNames.Folder, file.FolderId, PermissionNames.Edit)) // ensure user has edit rights to new folder
+                && _userPermissions.IsAuthorized(User, file.Folder.SiteId, EntityNames.Folder, File.FolderId, PermissionNames.Edit) // ensure user had edit rights to original folder
+                && _userPermissions.IsAuthorized(User, file.Folder.SiteId, EntityNames.Folder, file.FolderId, PermissionNames.Edit)) // ensure user has edit rights to new folder
             {
                 if (File.Name != file.Name || File.FolderId != file.FolderId)
                 {
@@ -180,7 +180,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Models.File file = _files.GetFile(id);
-            if (file != null && file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Folder, file.Folder.FolderId, PermissionNames.Edit))
+            if (file != null && file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, file.Folder.SiteId, EntityNames.Folder, file.Folder.FolderId, PermissionNames.Edit))
             {
                 string filepath = _files.GetFilePath(file);
                 if (System.IO.File.Exists(filepath))

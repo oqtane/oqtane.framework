@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -53,7 +53,7 @@ namespace Oqtane.Repository
 
         public Tenant GetTenant(int tenantId)
         {
-            return _db.Tenant.Find(tenantId);
+            return GetTenants().FirstOrDefault(item => item.TenantId == tenantId);
         }
 
         public void DeleteTenant(int tenantId)
