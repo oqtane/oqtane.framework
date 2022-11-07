@@ -42,24 +42,6 @@ namespace Oqtane.Repository
             return moduledefinitions.Find(item => item.ModuleDefinitionId == moduleDefinitionId);
         }
 
-        public ModuleDefinition GetModuleDefinition(int moduleDefinitionId, bool tracking)
-        {
-            ModuleDefinition moduledefinition;
-            if (tracking)
-            {
-                moduledefinition = _db.ModuleDefinition.Find(moduleDefinitionId);
-            }
-            else
-            {
-                moduledefinition = _db.ModuleDefinition.AsNoTracking().FirstOrDefault(item => item.ModuleDefinitionId == moduleDefinitionId);
-            }
-            if (moduledefinition != null)
-            {
-                moduledefinition.Permissions = _permissions.GetPermissionString(EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId);
-            }
-            return moduledefinition;
-        }
-
         public void UpdateModuleDefinition(ModuleDefinition moduleDefinition)
         {
             _db.Entry(moduleDefinition).State = EntityState.Modified;

@@ -72,8 +72,7 @@ namespace Oqtane.Infrastructure
             var alias = _siteState?.Alias;
             if (alias != null)
             {
-                // return tenant details
-                return _tenantRepository.GetTenants().ToList().FirstOrDefault(item => item.TenantId == alias.TenantId);
+                return _tenantRepository.GetTenant(alias.TenantId);
             }
             return null;
         }

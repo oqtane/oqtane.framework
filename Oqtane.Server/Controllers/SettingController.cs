@@ -206,7 +206,7 @@ namespace Oqtane.Controllers
                 case EntityNames.Page:
                 case EntityNames.Module:
                 case EntityNames.Folder:
-                    authorized = _userPermissions.IsAuthorized(User, entityName, entityId, permissionName);
+                    authorized = _userPermissions.IsAuthorized(User, _alias.SiteId, entityName, entityId, permissionName);
                     break;
                 case EntityNames.User:
                     authorized = true;
@@ -228,7 +228,7 @@ namespace Oqtane.Controllers
                 default: // custom entity
                     if (permissionName == PermissionNames.Edit)
                     {
-                        authorized = User.IsInRole(RoleNames.Admin) || _userPermissions.IsAuthorized(User, entityName, entityId, permissionName);
+                        authorized = User.IsInRole(RoleNames.Admin) || _userPermissions.IsAuthorized(User, _alias.SiteId, entityName, entityId, permissionName);
                     }
                     else
                     {
@@ -255,7 +255,7 @@ namespace Oqtane.Controllers
                 case EntityNames.Page:
                 case EntityNames.Module:
                 case EntityNames.Folder:
-                    filter = !_userPermissions.IsAuthorized(User, entityName, entityId, PermissionNames.Edit);
+                    filter = !_userPermissions.IsAuthorized(User, _alias.SiteId, entityName, entityId, PermissionNames.Edit);
                     break;
                 case EntityNames.User:
                     filter = !User.IsInRole(RoleNames.Admin) && _userPermissions.GetUser(User).UserId != entityId;
@@ -271,7 +271,7 @@ namespace Oqtane.Controllers
                     }
                     break;
                 default: // custom entity
-                    filter = !User.IsInRole(RoleNames.Admin) && !_userPermissions.IsAuthorized(User, entityName, entityId, PermissionNames.Edit);
+                    filter = !User.IsInRole(RoleNames.Admin) && !_userPermissions.IsAuthorized(User, _alias.SiteId, entityName, entityId, PermissionNames.Edit);
                     break;
             }
             return filter;

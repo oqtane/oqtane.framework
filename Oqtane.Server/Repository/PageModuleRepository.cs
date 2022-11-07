@@ -89,7 +89,7 @@ namespace Oqtane.Repository
             }
             if (pagemodule != null)
             {
-                pagemodule.Module.Permissions = _permissions.GetPermissionString(EntityNames.Module, pagemodule.ModuleId);
+                pagemodule.Module.Permissions = _permissions.GetPermissions(pagemodule.Module.SiteId, EntityNames.Module, pagemodule.ModuleId)?.EncodePermissions();
             }
             return pagemodule;
         }
@@ -100,7 +100,7 @@ namespace Oqtane.Repository
                 .SingleOrDefault(item => item.PageId == pageId && item.ModuleId == moduleId);
             if (pagemodule != null)
             {
-                pagemodule.Module.Permissions = _permissions.GetPermissionString(EntityNames.Module, pagemodule.ModuleId);
+                pagemodule.Module.Permissions = _permissions.GetPermissions(pagemodule.Module.SiteId, EntityNames.Module, pagemodule.ModuleId)?.EncodePermissions();
             }
             return pagemodule;
         }

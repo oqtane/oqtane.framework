@@ -3,15 +3,20 @@ using Oqtane.Models;
 using System.Linq;
 using System.Security.Claims;
 using Oqtane.Repository;
+using Oqtane.Extensions;
+using System;
 
 namespace Oqtane.Security
 {
     public interface IUserPermissions
     {
-        bool IsAuthorized(ClaimsPrincipal user, string entityName, int entityId, string permissionName);
+        bool IsAuthorized(ClaimsPrincipal user, int siteId, string entityName, int entityId, string permissionName);
         bool IsAuthorized(ClaimsPrincipal user, string permissionName, string permissions);
         User GetUser(ClaimsPrincipal user);
         User GetUser();
+
+        [Obsolete("IsAuthorized(ClaimsPrincipal principal, string entityName, int entityId, string permissionName) is deprecated. Use IsAuthorized(ClaimsPrincipal principal, int siteId, string entityName, int entityId, string permissionName) instead.", false)]
+        bool IsAuthorized(ClaimsPrincipal user, string entityName, int entityId, string permissionName);
     }
 
     public class UserPermissions : IUserPermissions
@@ -25,9 +30,9 @@ namespace Oqtane.Security
             _accessor = accessor;
         }
 
-        public bool IsAuthorized(ClaimsPrincipal principal, string entityName, int entityId, string permissionName)
+        public bool IsAuthorized(ClaimsPrincipal principal, int siteId, string entityName, int entityId, string permissionName)
         {
-            return IsAuthorized(principal, permissionName, _permissions.GetPermissionString(entityName, entityId, permissionName));
+            return IsAuthorized(principal, permissionName, _permissions.GetPermissions(siteId, entityName, entityId, permissionName)?.EncodePermissions());
         }
 
         public bool IsAuthorized(ClaimsPrincipal principal, string permissionName, string permissions)
@@ -72,6 +77,12 @@ namespace Oqtane.Security
             {
                 return null;
             }
+        }
+
+        // deprecated
+        public bool IsAuthorized(ClaimsPrincipal principal, string entityName, int entityId, string permissionName)
+        {
+            return IsAuthorized(principal, permissionName, _permissions.GetPermissions(_accessor.HttpContext.GetAlias().SiteId, entityName, entityId, permissionName)?.EncodePermissions());
         }
     }
 }
