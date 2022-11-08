@@ -45,8 +45,10 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 # Roadmap
 This project is open source, and therefore is a work in progress...
 
-4.0.0 ( Q4 2022 )
-- [ ] Migration to .NET 7  
+4.0.0 ( ??? )
+- [ ] Migration to .NET 7 (TBD)
+
+[3.3.0]
 - [ ] Folder Providers
 
 [3.2.1](https://github.com/oqtane/oqtane.framework/releases/tag/v3.2.1) ( Oct 17, 2022 )
