@@ -127,7 +127,7 @@
     <value>Error Loading Files</value>
   </data>
   <data name="Error.File.Upload" xml:space="preserve">
-    <value>File Upload Failed</value>
+    <value>File Upload Failed Or Is Still In Progress</value>
   </data>
   <data name="Message.File.NotSelected" xml:space="preserve">
     <value>You Have Not Selected A File To Upload</value>
