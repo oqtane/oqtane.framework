@@ -83,6 +83,23 @@ namespace Oqtane.Repository
             return file;
         }
 
+        public File GetFile(int folderId, string fileName)
+        {
+            var file = _db.File.AsNoTracking()
+                .Include(item => item.Folder)
+                .FirstOrDefault(item => item.FolderId == folderId &&
+                    item.Name.ToLower() == fileName);
+
+            if (file != null)
+            {
+                IEnumerable<Permission> permissions = _permissions.GetPermissions(file.Folder.SiteId, EntityNames.Folder, file.FolderId).ToList();
+                file.Folder.Permissions = permissions.EncodePermissions();
+                file.Url = GetFileUrl(file, _tenants.GetAlias());
+            }
+
+            return file;
+        }
+
         public File GetFile(int siteId, string folderPath, string fileName)
         {
             var file = _db.File.AsNoTracking()
