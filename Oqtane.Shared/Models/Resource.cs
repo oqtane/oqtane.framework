@@ -38,7 +38,7 @@ namespace Oqtane.Models
         public string CrossOrigin { get; set; }
 
         /// <summary>
-        /// Bundle ID in case this Resource belongs to a set of Resources, which may have already been loaded using LoadJS
+        /// For Scripts a Bundle can be used to identify dependencies and ordering in the script loading process
         /// </summary>
         public string Bundle { get; set; }
 
@@ -56,6 +56,11 @@ namespace Oqtane.Models
         /// For Scripts this allows type="module" registrations - not applicable to Stylesheets
         /// </summary>
         public bool ES6Module { get; set; }
+
+        /// <summary>
+        /// Allows specification of inline script - not applicable to Stylesheets
+        /// </summary>
+        public string Content { get; set; }
 
 
         [Obsolete("ResourceDeclaration is deprecated", false)]
