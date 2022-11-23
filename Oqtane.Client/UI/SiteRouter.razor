@@ -97,7 +97,7 @@
 		// reload the client application from the server if there is a forced reload or the user navigated to a site with a different alias 
 		if (querystring.ContainsKey("reload") || (!NavigationManager.ToBaseRelativePath(_absoluteUri).ToLower().StartsWith(SiteState.Alias.Path.ToLower()) && !string.IsNullOrEmpty(SiteState.Alias.Path)))
 		{
-			if (querystring["reload"] == "post")
+			if (querystring.ContainsKey("reload") && querystring["reload"] == "post")
 			{
 				// post back so that the cookies are set correctly - required on any change to the principal 
 				var interop = new Interop(JSRuntime);
