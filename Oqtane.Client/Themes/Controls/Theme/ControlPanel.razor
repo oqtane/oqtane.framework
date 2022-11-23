@@ -205,8 +205,8 @@
 					<div class="col text-center">
 						<label for="visibility" class="control-label">@Localizer["Visibility"]</label>
 						<select class="form-select" @bind="@Visibility">
-							<option value="edit" selected>@Localizer["VisibilityEdit"]</option>
 							<option value="view">@Localizer["VisibilityView"]</option>
+							<option value="edit">@Localizer["VisibilityEdit"]</option>
 						</select>
 					</div>
 				</div>
@@ -265,7 +265,7 @@
 
 	protected string Title { get; private set; } = "";
 	protected string ContainerType { get; private set; } = "";
-	protected string Visibility { get; private set; } = "edit";
+	protected string Visibility { get; private set; } = "view";
 	protected string Message { get; private set; } = "";
 
 	[Parameter]
