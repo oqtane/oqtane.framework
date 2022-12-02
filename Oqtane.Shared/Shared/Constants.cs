@@ -74,6 +74,8 @@ namespace Oqtane.Shared
 
         public static readonly string MauiUserAgent = "MAUI";
 
+        public static readonly string RequireEntityId = "RequireEntityId";
+
         // Obsolete constants
 
         const string RoleObsoleteMessage = "Use the corresponding member from Oqtane.Shared.RoleNames";

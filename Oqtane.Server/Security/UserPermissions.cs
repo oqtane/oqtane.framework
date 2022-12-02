@@ -10,6 +10,7 @@ namespace Oqtane.Security
 {
     public interface IUserPermissions
     {
+        bool IsAuthorized(ClaimsPrincipal user, int siteId, string entityName, int entityId, string permissionName, string roles);
         bool IsAuthorized(ClaimsPrincipal user, int siteId, string entityName, int entityId, string permissionName);
         bool IsAuthorized(ClaimsPrincipal user, string permissionName, string permissions);
         User GetUser(ClaimsPrincipal user);
@@ -28,6 +29,19 @@ namespace Oqtane.Security
         {
             _permissions = permissions;
             _accessor = accessor;
+        }
+
+        public bool IsAuthorized(ClaimsPrincipal principal, int siteId, string entityName, int entityId, string permissionName, string roles)
+        {
+            var permissions = _permissions.GetPermissions(siteId, entityName, entityId, permissionName).ToList();
+            if (permissions != null && permissions.Count != 0)
+            {
+                return IsAuthorized(principal, permissionName, permissions.EncodePermissions());
+            }
+            else
+            {
+                return UserSecurity.IsAuthorized(GetUser(principal), roles.Replace(",",";"));
+            }
         }
 
         public bool IsAuthorized(ClaimsPrincipal principal, int siteId, string entityName, int entityId, string permissionName)

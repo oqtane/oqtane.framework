@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Oqtane.Security
 {
@@ -8,10 +8,16 @@ namespace Oqtane.Security
 
         public string PermissionName { get; }
 
-        public PermissionRequirement(string entityName, string permissionName)
+        public string Roles { get; }
+
+        public bool RequireEntityId { get; }
+
+        public PermissionRequirement(string entityName, string permissionName, string roles, bool requireEntityId)
         {
             EntityName = entityName;
             PermissionName = permissionName;
+            Roles = roles;
+            RequireEntityId = requireEntityId;
         }
     }
 }
