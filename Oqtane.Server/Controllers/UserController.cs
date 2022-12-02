@@ -247,17 +247,33 @@ namespace Oqtane.Controllers
                 if (identityuser != null)
                 {
                     identityuser.Email = user.Email;
+                    var valid = true;
                     if (user.Password != "")
                     {
-                        identityuser.PasswordHash = _identityUserManager.PasswordHasher.HashPassword(identityuser, user.Password);
+                        var validator = new PasswordValidator<IdentityUser>();
+                        var result = await validator.ValidateAsync(_identityUserManager, null, user.Password);
+                        valid = result.Succeeded;
+                        if (valid)
+                        {
+                            identityuser.PasswordHash = _identityUserManager.PasswordHasher.HashPassword(identityuser, user.Password);
+                        }
                     }
-                    await _identityUserManager.UpdateAsync(identityuser);
+                    if (valid)
+                    {
+                        await _identityUserManager.UpdateAsync(identityuser);
+
+                        user = _users.UpdateUser(user);
+                        _syncManager.AddSyncEvent(_tenantManager.GetAlias().TenantId, EntityNames.User, user.UserId, SyncEventActions.Update);
+                        _syncManager.AddSyncEvent(_tenantManager.GetAlias().TenantId, EntityNames.User, user.UserId, SyncEventActions.Refresh);
+                        user.Password = ""; // remove sensitive information
+                        _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", user);
+                    }
+                    else
+                    {
+                        _logger.Log(user.SiteId, LogLevel.Error, this, LogFunction.Update, "Unable To Update User {Username}. Password Does Not Meet Complexity Requirements.", user.Username);
+                        user = null;
+                    }
                 }
-                user = _users.UpdateUser(user);
-                _syncManager.AddSyncEvent(_tenantManager.GetAlias().TenantId, EntityNames.User, user.UserId, SyncEventActions.Update);
-                _syncManager.AddSyncEvent(_tenantManager.GetAlias().TenantId, EntityNames.User, user.UserId, SyncEventActions.Refresh);
-                user.Password = ""; // remove sensitive information
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", user);
             }
             else
             {

@@ -136,7 +136,7 @@
     <value>Please Enter All Required Fields. Ensure Passwords Match And Email Address Provided Is Valid.</value>
   </data>
   <data name="Message.Password.Invalid" xml:space="preserve">
-    <value>The Password Provided Does Not Meet The Password Policy. Please Verify The Minimum Password Length And Complexity Requirements.</value>
+    <value>The Password Provided Does Not Meet The Complexity Policy. Passwords Must Be At Least 6 Characters In Length And Contain Uppercase, Lowercase, Numeric, And Punctuation Characters.</value>
   </data>
   <data name="Register" xml:space="preserve">
     <value>Please Register Me For Major Product Updates And Security Bulletins</value>
