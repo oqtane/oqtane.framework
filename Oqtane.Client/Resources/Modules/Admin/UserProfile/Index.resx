@@ -120,6 +120,9 @@
   <data name="Message.Password.Invalid" xml:space="preserve">
     <value>Passwords Entered Do Not Match</value>
   </data>
+  <data name="Message.Password.Complexity" xml:space="preserve">
+    <value>Password Provided Does Not Meet The Complexity Policy</value>
+  </data>
   <data name="From" xml:space="preserve">
     <value>From</value>
   </data>
