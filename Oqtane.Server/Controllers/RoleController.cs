@@ -28,7 +28,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>?siteid=x&global=true/false
         [HttpGet]
-        [Authorize(Roles = RoleNames.Registered)]
+        [Authorize(Policy = $"{EntityNames.Role}:{PermissionNames.Read}:{RoleNames.Registered}")]
         public IEnumerable<Role> Get(string siteid, string global)
         {
             int SiteId;
@@ -50,7 +50,7 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        [Authorize(Roles = RoleNames.Registered)]
+        [Authorize(Policy = $"{EntityNames.Role}:{PermissionNames.Read}:{RoleNames.Registered}")]
         public Role Get(int id)
         {
             var role = _roles.GetRole(id);
@@ -68,7 +68,7 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        [Authorize(Roles = RoleNames.Admin)]
+        [Authorize(Policy = $"{EntityNames.Role}:{PermissionNames.Write}:{RoleNames.Admin}")]
         public Role Post([FromBody] Role role)
         {
             if (ModelState.IsValid && role.SiteId == _alias.SiteId)
@@ -88,7 +88,7 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize(Roles = RoleNames.Admin)]
+        [Authorize(Policy = $"{EntityNames.Role}:{PermissionNames.Write}:{RoleNames.Admin}")]
         public Role Put(int id, [FromBody] Role role)
         {
             if (ModelState.IsValid && role.SiteId == _alias.SiteId && _roles.GetRole(role.RoleId, false) != null)
@@ -108,7 +108,7 @@ namespace Oqtane.Controllers
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = RoleNames.Admin)]
+        [Authorize(Policy = $"{EntityNames.Role}:{PermissionNames.Write}:{RoleNames.Admin}")]
         public void Delete(int id)
         {
             var role = _roles.GetRole(id);
