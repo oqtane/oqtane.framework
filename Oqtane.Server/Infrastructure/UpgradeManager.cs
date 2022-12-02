@@ -60,6 +60,9 @@ namespace Oqtane.Infrastructure
                     case "3.2.1":
                         Upgrade_3_2_1(tenant, scope);
                         break;
+                    case "3.3.0":
+                        Upgrade_3_3_0(tenant, scope);
+                        break;
                 }
             }
         }
@@ -303,5 +306,46 @@ namespace Oqtane.Infrastructure
             }
         }
 
+        private void Upgrade_3_3_0(Tenant tenant, IServiceScope scope)
+        {
+            var pageTemplates = new List<PageTemplate>();
+
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "API Management",
+                Parent = "Admin",
+                Order = 35,
+                Path = "admin/apis",
+                Icon = Icons.CloudDownload, 
+                IsNavigation = true,
+                IsPersonalizable = false,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, RoleNames.Admin, true),
+                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Visitors.Index).ToModuleDefinitionName(), Title = "Visitor Management", Pane = PaneNames.Default,
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, RoleNames.Admin, true),
+                            new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+
+            var pages = scope.ServiceProvider.GetRequiredService<IPageRepository>();
+
+            var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
+            foreach (Site site in sites.GetSites().ToList())
+            {
+                sites.CreatePages(site, pageTemplates);
+            }
+        }
     }
 }

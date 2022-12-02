@@ -24,10 +24,11 @@ namespace Oqtane.Controllers
             _syncManager = syncManager;
             _logger = logger;
             _alias = tenantManager.GetAlias();
-    }
+        }
 
-    // GET: api/<controller>?siteid=x
-    [HttpGet]
+        // GET: api/<controller>?siteid=x
+        [HttpGet]
+        [Authorize(Policy = $"{EntityNames.Profile}:{PermissionNames.Read}:{RoleNames.Registered}")]
         public IEnumerable<Profile> Get(string siteid)
         {
             int SiteId;
@@ -45,6 +46,7 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
+        [Authorize(Policy = $"{EntityNames.Profile}:{PermissionNames.Read}:{RoleNames.Registered}")]
         public Profile Get(int id)
         {
             var profile = _profiles.GetProfile(id);
@@ -62,7 +64,7 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        [Authorize(Roles = RoleNames.Admin)]
+        [Authorize(Policy = $"{EntityNames.Profile}:{PermissionNames.Write}:{RoleNames.Admin}")]
         public Profile Post([FromBody] Profile profile)
         {
             if (ModelState.IsValid && profile.SiteId == _alias.SiteId)
@@ -82,7 +84,7 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize(Roles = RoleNames.Admin)]
+        [Authorize(Policy = $"{EntityNames.Profile}:{PermissionNames.Write}:{RoleNames.Admin}")]
         public Profile Put(int id, [FromBody] Profile profile)
         {
             if (ModelState.IsValid && profile.SiteId == _alias.SiteId && _profiles.GetProfile(profile.ProfileId, false) != null)
@@ -102,7 +104,7 @@ namespace Oqtane.Controllers
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = RoleNames.Admin)]
+        [Authorize(Policy = $"{EntityNames.Profile}:{PermissionNames.Write}:{RoleNames.Admin}")]
         public void Delete(int id)
         {
             var profile = _profiles.GetProfile(id);
