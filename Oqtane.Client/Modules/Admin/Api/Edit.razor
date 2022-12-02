@@ -1,0 +1,75 @@
+@namespace Oqtane.Modules.Admin.Apis
+@inherits ModuleBase
+@inject IApiService ApiService
+@inject NavigationManager NavigationManager
+@inject IStringLocalizer<Edit> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+<div class="container">
+	<div class="row mb-1 align-items-center">
+		<Label Class="col-sm-3" For="entityname" HelpText="The name of the entity" ResourceKey="EntityName">Entity: </Label>
+		<div class="col-sm-9">
+			<input id="entityname" class="form-control" @bind="@_entityname" readonly />
+		</div>
+	</div>
+	<br />
+	<div class="row mb-1 align-items-center">
+		@if (_permissions != null)
+		{
+			<PermissionGrid EntityName="@_entityname" PermissionNames="@_permissionnames" Permissions="@_permissions" @ref="_permissionGrid" />
+		}
+    </div>
+</div>
+<button type="button" class="btn btn-success" @onclick="SaveModuleDefinition">@SharedLocalizer["Save"]</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+
+@code {
+	private string _entityname;
+	private string _permissionnames;
+	private string _permissions;
+
+#pragma warning disable 649
+	private PermissionGrid _permissionGrid;
+#pragma warning restore 649
+
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			_entityname = PageState.QueryString["entity"];
+			var api = await ApiService.GetApiAsync(PageState.Site.SiteId, _entityname);
+			if (api != null)
+			{
+				var apis = await ApiService.GetApisAsync(PageState.Site.SiteId);
+				_permissionnames = apis.SingleOrDefault(item => item.EntityName == _entityname).Permissions;
+				_permissions = api.Permissions;
+			}
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Loading API {EntityName} {Error}", _entityname, ex.Message);
+			AddModuleMessage(Localizer["Error.Module.Load"], MessageType.Error);
+		}
+	}
+
+	private async Task SaveModuleDefinition()
+	{
+		try
+		{
+			var api = new Api();
+			api.SiteId = PageState.Site.SiteId;
+			api.EntityName = _entityname;
+			api.Permissions = _permissionGrid.GetPermissions();
+			await ApiService.UpdateApiAsync(api);
+			await logger.LogInformation("API Saved {Api}", api);
+			NavigationManager.NavigateTo(NavigateUrl());
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Saving Api {EntityName} {Error}", _entityname, ex.Message);
+			AddModuleMessage(Localizer["Error.Module.Save"], MessageType.Error);
+		}
+	}
+}
