@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Oqtane.Infrastructure;
 using System.Collections.Generic;
 using System;
+using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
@@ -48,5 +49,9 @@ namespace Oqtane.Controllers
             }
         }
 
+        protected bool IsAuthorizedEntityId(string entityname, int entityid)
+        {
+            return (entityid == AuthEntityId(entityname)) || User.IsInRole(RoleNames.Host);
+        }
     }
 }
