@@ -18,12 +18,14 @@ namespace Oqtane.Controllers
     public class ApiController : Controller
     {
         private readonly IPermissionRepository _permissions;
+        private readonly IRoleRepository _roles;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public ApiController(IPermissionRepository permissions, ILogManager logger, ITenantManager tenantManager)
+        public ApiController(IPermissionRepository permissions, IRoleRepository roles, ILogManager logger, ITenantManager tenantManager)
         {
             _permissions = permissions;
+            _roles = roles;
             _logger = logger;
             _alias = tenantManager.GetAlias();
         }
@@ -90,7 +92,12 @@ namespace Oqtane.Controllers
         {
             if (siteid == _alias.SiteId)
             {
-                return new Api { SiteId = siteid, EntityName = entityname, Permissions = _permissions.GetPermissions(siteid, entityname).EncodePermissions() };
+                var permissions = _permissions.GetPermissions(siteid, entityname);
+                if (permissions == null || permissions.ToList().Count == 0)
+                {
+                    permissions = GetPermissions(siteid, entityname);
+                }
+                return new Api { SiteId = siteid, EntityName = entityname, Permissions = permissions.EncodePermissions() };
             }
             else
             {
@@ -115,6 +122,51 @@ namespace Oqtane.Controllers
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Api Post Attempt {Api}", api);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
+        }
+
+        private List<Permission> GetPermissions(int siteid, string entityname)
+        {
+            var permissions = new List<Permission>();
+
+            var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
+            foreach (var assembly in assemblies)
+            {
+                // iterate controllers
+                foreach (var type in assembly.GetTypes().Where(type => typeof(Controller).IsAssignableFrom(type)))
+                {
+                    // iterate controller methods with authorize attribute
+                    var actions = type.GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                        .Where(m => m.GetCustomAttributes<AuthorizeAttribute>().Any());
+                    foreach (var action in actions)
+                    {
+                        // get policy
+                        var policy = action.GetCustomAttribute<AuthorizeAttribute>().Policy;
+                        if (!string.IsNullOrEmpty(policy) && policy.Contains(":") && !policy.Contains(Constants.RequireEntityId))
+                        {
+                            // parse policy
+                            var segments = policy.Split(':');
+                            // entity match
+                            if (segments[0] == entityname && segments.Length > 2)
+                            {
+                                var roles = _roles.GetRoles(siteid);
+                                foreach (var rolename in (segments[2]).Split(','))
+                                {
+                                    var role = roles.FirstOrDefault(item => item.Name == rolename);
+                                    if (role != null)
+                                    {
+                                        if (!permissions.Any(item => item.EntityName == entityname && item.PermissionName == segments[1] && item.RoleId == role.RoleId))
+                                        {
+                                            permissions.Add(new Permission { SiteId = siteid, EntityName = entityname, EntityId = -1, PermissionName = segments[1], RoleId = role.RoleId, Role = role, UserId = null, IsAuthorized = true });
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return permissions;
         }
     }
 }
