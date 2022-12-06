@@ -42,7 +42,7 @@ namespace Oqtane.Modules.HtmlText.Controllers
         }
 
         // GET api/<controller>/5
-        [HttpGet("{moduleid}")]
+        [HttpGet("{moduleId}")]
         [Authorize(Policy = PolicyNames.ViewModule)]
         public Models.HtmlText Get(int moduleId)
         {
@@ -67,7 +67,7 @@ namespace Oqtane.Modules.HtmlText.Controllers
         }
 
         // GET api/<controller>/5/6
-        [HttpGet("{id}/{moduleid}")]
+        [HttpGet("{id}/{moduleId}")]
         [Authorize(Policy = PolicyNames.ViewModule)]
         public Models.HtmlText Get(int id, int moduleId)
         {
@@ -103,7 +103,7 @@ namespace Oqtane.Modules.HtmlText.Controllers
         }
 
         // DELETE api/<controller>/5
-        [HttpDelete("{id}/{moduleid}")]
+        [HttpDelete("{id}/{moduleId}")]
         [Authorize(Policy = PolicyNames.EditModule)]
         public void Delete(int id, int moduleId)
         {
