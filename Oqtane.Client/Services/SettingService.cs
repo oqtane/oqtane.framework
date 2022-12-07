@@ -174,7 +174,10 @@ namespace Oqtane.Services
         {
             var settings = await GetJsonAsync<List<Setting>>($"{Apiurl}?entityname={entityName}&entityid={entityId}");
             var setting = settings.FirstOrDefault(item => item.SettingName == settingName);
-            await DeleteAsync($"{Apiurl}/{setting.SettingId}/{entityName}");
+            if (setting != null)
+            {
+                await DeleteAsync($"{Apiurl}/{setting.SettingId}/{entityName}");
+            }
         }
 
         public async Task<List<Setting>> GetSettingsAsync(string entityName, int entityId, string settingName)
