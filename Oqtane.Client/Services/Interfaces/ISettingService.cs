@@ -167,6 +167,24 @@ namespace Oqtane.Services
         /// <summary>
         /// Returns a specific setting
         /// </summary>
+        /// <param name="entityName"></param>
+        /// <param name="entityId"></param>
+        /// <param name="settingName"></param>
+        /// <returns></returns>
+        Task DeleteSettingAsync(string entityName, int entityId, string settingName);
+
+        /// <summary>
+        /// Returns a specific setting
+        /// </summary>
+        /// <param name="entityName"></param>
+        /// <param name="entityId"></param>
+        /// <param name="settingName"></param>
+        /// <returns></returns>
+        Task<List<Setting>> GetSettingsAsync(string entityName, int entityId, string settingName);
+
+        /// <summary>
+        /// Returns a specific setting
+        /// </summary>
         /// <param name="settingId"></param>
         /// <returns></returns>
         Task<Setting> GetSettingAsync(string entityName, int settingId);
