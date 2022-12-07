@@ -170,6 +170,23 @@ namespace Oqtane.Services
             }
         }
 
+        public async Task DeleteSettingAsync(string entityName, int entityId, string settingName)
+        {
+            var settings = await GetJsonAsync<List<Setting>>($"{Apiurl}?entityname={entityName}&entityid={entityId}");
+            var setting = settings.FirstOrDefault(item => item.SettingName == settingName);
+            await DeleteAsync($"{Apiurl}/{setting.SettingId}/{entityName}");
+        }
+
+        public async Task<List<Setting>> GetSettingsAsync(string entityName, int entityId, string settingName)
+        {
+            var settings = await GetJsonAsync<List<Setting>>($"{Apiurl}?entityname={entityName}&entityid={entityId}");
+            if (!string.IsNullOrEmpty(settingName))
+            {
+                settings = settings.Where(item => item.SettingName == settingName).ToList();
+            }
+            return settings;
+        }
+
         public async Task<Setting> GetSettingAsync(string entityName, int settingId)
         {
             return await GetJsonAsync<Setting>($"{Apiurl}/{settingId}/{entityName}");
