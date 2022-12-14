@@ -45,8 +45,8 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 # Roadmap
 This project is open source, and therefore is a work in progress...
 
-4.0.0 ( ??? )
-- [ ] Migration to .NET 7 (TBD)
+4.0.0 ( Q1 2023 )
+- [ ] Migration to .NET 7
 
 3.3.0 ( Q4 2022 )
 - [x] Dynamic authorization policies
