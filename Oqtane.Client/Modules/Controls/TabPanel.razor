@@ -3,13 +3,13 @@
 
 @if (Name == Parent.ActiveTab)
 {
-    <div id="@Name" class="tab-pane fade show active" role="tabpanel">
+    <div id="@(Parent.Id + Name)" class="tab-pane fade show active" role="tabpanel">
         @ChildContent
     </div>
 }
 else
 {
-    <div id="@Name" class="tab-pane fade" role="tabpanel">
+	<div id="@(Parent.Id + Name)" class="tab-pane fade" role="tabpanel">
         @ChildContent
     </div>
 }
