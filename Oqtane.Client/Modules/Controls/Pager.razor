@@ -311,7 +311,6 @@
             {
                 _page = _pages;
             }
-            ItemList = Items.Skip((_page - 1) * _maxItems).Take(_maxItems);
             SetPagerSize();
         }
     }
@@ -324,13 +323,13 @@
         {
             _endPage = _pages;
         }
-        OnPageChange?.Invoke(_page);
-        StateHasChanged();
-    }
+		ItemList = Items.Skip((_page - 1) * _maxItems).Take(_maxItems);
+		StateHasChanged();
+		OnPageChange?.Invoke(_page);
+	}
 
     public void UpdateList(int page)
     {
-        ItemList = Items.Skip((page - 1) * _maxItems).Take(_maxItems);
         _page = page;
         SetPagerSize();
     }
