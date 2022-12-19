@@ -10,13 +10,13 @@
                     <li class="nav-item" @key="tabPanel.Name">
                         @if (tabPanel.Name == ActiveTab)
                         {
-                            <a class="nav-link active" data-bs-toggle="tab" href="#@tabPanel.Name" role="tab" @onclick:preventDefault="true">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#@(Id + tabPanel.Name)" role="tab" @onclick:preventDefault="true">
                                 @tabPanel.DisplayHeading()
                             </a>
                         }
                         else
                         {
-                            <a class="nav-link" data-bs-toggle="tab" href="#@tabPanel.Name" role="tab" @onclick:preventDefault="true">
+							<a class="nav-link" data-bs-toggle="tab" href="#@(Id + tabPanel.Name)" role="tab" @onclick:preventDefault="true">
                                 @tabPanel.DisplayHeading()
                             </a>
                         }
@@ -32,18 +32,31 @@
 </CascadingValue>
 
 @code {
-    private List<TabPanel> _tabPanels;
+	private List<TabPanel> _tabPanels;
+	private string _tabpanelid = string.Empty;
 
-    [Parameter]
-    public RenderFragment ChildContent { get; set; } // contains the TabPanels
+	[Parameter]
+	public RenderFragment ChildContent { get; set; } // contains the TabPanels
 
-    [Parameter]
-    public string ActiveTab { get; set; } // optional - defaults to first TabPanel if not specified. Can also be set using a "tab=" querystring parameter.
+	[Parameter]
+	public string ActiveTab { get; set; } // optional - defaults to first TabPanel if not specified. Can also be set using a "tab=" querystring parameter.
 
-    [Parameter]
-    public bool Refresh { get; set; } // optional - used in scenarios where TabPanels are added/removed dynamically within a parent form. ActiveTab may need to be reset as well when this property is used.
+	[Parameter]
+	public bool Refresh { get; set; } // optional - used in scenarios where TabPanels are added/removed dynamically within a parent form. ActiveTab may need to be reset as well when this property is used.
 
-    protected override void OnParametersSet()
+	[Parameter]
+	public string Id { get; set; } // optional - used to uniquely identify an instance of a tab strip component (will be set automatically if no value provided)
+
+	protected override void OnInitialized()
+	{
+		if (string.IsNullOrEmpty(Id))
+		{
+			// create unique id for component
+			Id = "TabStrip_" + Guid.NewGuid().ToString("N") + "_" ;
+		}
+	}
+	
+	protected override void OnParametersSet()
     {
         if (PageState.QueryString.ContainsKey("tab"))
         {

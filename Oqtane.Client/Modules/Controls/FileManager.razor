@@ -87,7 +87,6 @@
 }
 
 @code {
-	private string _id;
 	private List<Folder> _folders;
 	private List<File> _files = new List<File>();
 	private string _fileinputid = string.Empty;
@@ -145,11 +144,6 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		if (!string.IsNullOrEmpty(Id))
-		{
-			_id = Id;
-		}
-
 		// packages folder is a framework folder for uploading installable nuget packages
 		if (Folder == Constants.PackagesFolder)
 		{
@@ -208,9 +202,9 @@
 
 		// create unique id for component
 		_guid = Guid.NewGuid().ToString("N");
-		_fileinputid = _guid + "FileInput";
-		_progressinfoid = _guid + "ProgressInfo";
-		_progressbarid = _guid + "ProgressBar";
+		_fileinputid = "FileInput_" + _guid;
+		_progressinfoid = "ProgressInfo_" + _guid;
+		_progressbarid = "ProgressBar_" + _guid;
 	}
 
 	private async Task GetFiles()

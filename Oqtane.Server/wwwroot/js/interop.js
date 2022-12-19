@@ -295,10 +295,10 @@ Oqtane.Interop = {
         return files;
     },
     uploadFiles: function (posturl, folder, id, antiforgerytoken) {
-        var fileinput = document.getElementById(id + 'FileInput');
+        var fileinput = document.getElementById('FileInput_' + id);
         var files = fileinput.files;
-        var progressinfo = document.getElementById(id + 'ProgressInfo');
-        var progressbar = document.getElementById(id + 'ProgressBar');
+        var progressinfo = document.getElementById('ProgressInfo_' + id);
+        var progressbar = document.getElementById('ProgressBar_' + id);
 
         progressinfo.setAttribute("style", "display: inline;");
         progressbar.setAttribute("style", "width: 200px; display: inline;");
