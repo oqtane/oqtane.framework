@@ -1,0 +1,153 @@
+@namespace Oqtane.Modules.Controls
+@inherits LocalizableComponent
+
+<div class="app-autocomplete">
+	<input class="form-control" value="@Value" @oninput="OnInput" @onkeyup="OnKeyUp" placeholder="@Placeholder" autocomplete="off" />
+	@if (_results != null)
+	{
+		<select class="form-select" style="position: relative;" value="@Value" size="@Rows" @onkeyup="OnKeyUp" @onchange="(e => OnChange(e))">
+			@if (_results.Any())
+			{
+				@foreach (var result in _results)
+				{
+					if (result.Value == Value)
+					{
+						<option selected>@result.Value</option>
+					}
+					else
+					{
+						<option>@result.Value</option>
+					}
+				}
+			}
+			else
+			{
+				<option disabled>No Results</option>
+			}
+		</select>
+	}
+</div>
+
+@code {
+	Dictionary<string, string> _results;
+
+	[Parameter]
+	public Func<string, Task<Dictionary<string, string>>> OnSearch { get; set; } // required - an async delegate method which accepts a filter string parameter and returns a dictionary
+
+	[Parameter]
+	public int Characters { get; set; } = 3; // optional - number of characters before search is initiated
+
+	[Parameter]
+	public int Rows { get; set; } = 3; // optional - number of result rows to display
+
+	[Parameter]
+	public string Placeholder { get; set; } // optional - placeholder input text
+
+	[Parameter]
+	public string Value { get; set; } // value of item selected
+
+	[Parameter]
+	public string Key { get; set; } // key of item selected
+
+	private async Task OnInput(ChangeEventArgs e)
+	{
+		Value = e.Value?.ToString();
+		if (Value?.Length >= Characters)
+		{
+			_results = await OnSearch?.Invoke(Value);
+		}
+		else
+		{
+			_results = null;
+		}
+		SetKey();
+	}
+
+	private async Task OnKeyUp(KeyboardEventArgs e)
+	{
+		var index = -1;
+		switch (e.Key)
+		{
+			case "ArrowDown":
+				if (_results == null)
+				{
+					if (Value?.Length >= Characters)
+					{
+						_results = await OnSearch?.Invoke(Value);
+					}
+				}
+				else
+				{
+					index = GetIndex();
+					if (index < _results.Count - 1)
+					{
+						Value = _results.ElementAt(index + 1).Value;
+						Key = _results.ElementAt(index + 1).Key;
+					}
+				}
+				break;
+			case "ArrowUp":
+				index = GetIndex();
+				if (index > 0)
+				{
+					Value = _results.ElementAt(index - 1).Value;
+					Key = _results.ElementAt(index - 1).Key;
+				}
+				break;
+			case "ArrowRight":
+			case "Tab":
+				_results = null;
+				break;
+			case "Enter": // note within a form the enter key submits the entire form
+			case "NumpadEnter":
+				_results = null;
+				break;
+			case "Escape":
+				Value = "";
+				_results = null;
+				break;
+		}
+	}
+
+	private void OnChange(ChangeEventArgs e)
+	{
+		Value = (string)e.Value;
+		SetKey();
+		_results = null;
+	}
+
+	private int GetIndex()
+	{
+		if (_results != null)
+		{
+			for (int index = 0; index < _results.Count; index++)
+			{
+				if (_results.ElementAt(index).Value == Value)
+				{
+					return index;
+				}
+			}
+		}
+		return -1;
+	}
+
+	private void SetKey()
+	{
+		var index = GetIndex();
+		if (index != -1)
+		{
+			Key = _results.ElementAt(index).Key;
+		}
+		else
+		{
+			Key = "";
+		}
+	}
+
+	public void Clear()
+	{
+		Value = "";
+		Key = "";
+		_results = null;
+	}
+}

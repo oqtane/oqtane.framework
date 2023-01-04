@@ -2,6 +2,7 @@
 @inherits ModuleControlBase
 @inject IRoleService RoleService
 @inject IUserService UserService
+@inject IUserRoleService UserRoleService
 @inject IStringLocalizer<PermissionGrid> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -77,23 +78,16 @@
         </div>
     </div>
     <div class="row">
-        <div class="col">
-            <table class="table table-borderless">
-                <tbody>
-                    <tr>
-                        <td class="input-group">
-                            <input type="text" name="Username" class="form-control" placeholder="@Localizer["Username.Enter"]" @bind="@_username" />
-                            <button type="button" class="btn btn-primary" @onclick="AddUser">@SharedLocalizer["Add"]</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <br />
+        <div class="col-11">
+			<AutoComplete OnSearch="GetUsers" Placeholder="@Localizer["Username.Enter"]" @ref="_user" />
+		</div>
+		<div class="col-1">
+			<button type="button" class="btn btn-primary" @onclick="AddUser">@SharedLocalizer["Add"]</button>
         </div>
     </div>
     <div class="row">
         <div class="col">
-            <ModuleMessage Type="MessageType.Error" Message="@_message" />
+            <ModuleMessage Type="MessageType.Warning" Message="@_message" />
         </div>
     </div>
 </div>
@@ -104,7 +98,7 @@
 	private List<Role> _roles;
 	private List<PermissionString> _permissions;
 	private List<User> _users = new List<User>();
-	private string _username = string.Empty;
+	private AutoComplete _user;
 	private string _message = string.Empty;
 
 	[Parameter]
@@ -191,25 +185,28 @@
 	private bool GetPermissionDisabled(string roleName)
 		=> (roleName == RoleNames.Admin && !UserSecurity.IsAuthorized(PageState.User, RoleNames.Host)) ? true : false;
 
+	private async Task<Dictionary<string, string>> GetUsers(string filter)
+	{
+		var users = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Registered);
+		return users.Where(item => item.User.DisplayName.Contains(filter, StringComparison.OrdinalIgnoreCase))
+			.ToDictionary(item => item.UserId.ToString(), item => item.User.DisplayName);
+	}
+
 	private async Task AddUser()
 	{
-		if (_users.Where(item => item.Username == _username).FirstOrDefault() == null)
+		if (!string.IsNullOrEmpty(_user.Key))
 		{
-			try
+			var user = await UserService.GetUserAsync(int.Parse(_user.Key), ModuleState.SiteId);
+			if (user != null && !_users.Any(item => item.UserId == user.UserId))
 			{
-				var user = await UserService.GetUserAsync(_username, ModuleState.SiteId);
-				if (user != null)
-				{
-					_users.Add(user);
-				}
-			}
-			catch
-			{
-				_message = Localizer["Message.Username.DontExist"];
+				_users.Add(user);
 			}
 		}
-
-		_username = string.Empty;
+		else
+		{
+			_message = Localizer["Message.Username.DontExist"];
+		}
+		_user.Clear();
 	}
 
 	private void PermissionChanged(bool? value, string permissionName, string securityId)
