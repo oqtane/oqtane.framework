@@ -217,6 +217,6 @@ app {
 /* Oqtane Conrol Styles */
 
 /* Pager */
-.page-pointer {
+.app-pager-pointer {
     cursor: pointer;
 }
