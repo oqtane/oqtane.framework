@@ -6,6 +6,7 @@ using System;
 using Microsoft.AspNetCore.Hosting;
 using Oqtane.Infrastructure;
 using Microsoft.AspNetCore.Http.Features;
+using System.IO;
 
 namespace Oqtane.Controllers
 {
@@ -52,6 +53,15 @@ namespace Oqtane.Controllers
                     systeminfo.Add("Logging:LogLevel:Notify", _configManager.GetSetting("Logging:LogLevel:Notify", "Error"));
                     systeminfo.Add("UseSwagger", _configManager.GetSetting("UseSwagger", "true"));
                     systeminfo.Add("PackageService", _configManager.GetSetting("PackageService", "true"));
+                    break;
+                case "log":
+                    string log = "";
+                    string path = Path.Combine(_environment.ContentRootPath, "Content", "Log", "error.log");
+                    if (System.IO.File.Exists(path))
+                    {
+                        log = System.IO.File.ReadAllText(path);
+                    }
+                    systeminfo.Add("Log", log);
                     break;
             }
 
