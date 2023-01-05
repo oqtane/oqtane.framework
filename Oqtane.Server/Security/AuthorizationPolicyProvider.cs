@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Oqtane.Shared;
 using System.Threading.Tasks;
@@ -17,15 +16,15 @@ namespace Oqtane.Security
 
         public override async Task<AuthorizationPolicy> GetPolicyAsync(string policyName)
         {
-            // check static policies first
+            // get policy
             policyName = GetPolicyName(policyName);
             var policy = await base.GetPolicyAsync(policyName);
 
             if (policy == null)
             {
+                // policy names must be in the form of "EntityName:PermissionName:Roles" ie. "Module:Edit:Administrators" (roles are comma delimited)
                 if (policyName.Contains(':'))
                 {
-                    // policy names must be in the form of "EntityName:PermissionName:Roles" ie. "Module:Edit:Administrators" (roles are comma delimited)
                     var policySegments = policyName.Split(':');
                     if (policySegments.Length >= 3)
                     {
@@ -35,12 +34,21 @@ namespace Oqtane.Security
                         {
                             requireEntityId = true;
                         }
-                        policy = new AuthorizationPolicyBuilder()
-                            .AddRequirements(new PermissionRequirement(policySegments[0], policySegments[1], policySegments[2], requireEntityId))
-                            .Build();
+
+                        // create policy
+                        var builder = new AuthorizationPolicyBuilder();
+                        builder.AddRequirements(new PermissionRequirement(policySegments[0], policySegments[1], policySegments[2], requireEntityId));
+                        policy = builder.Build();
 
                         // add policy to the AuthorizationOptions
-                        _options.AddPolicy(policyName, policy);
+                        try
+                        {
+                            _options.AddPolicy(policyName, policy);
+                        }
+                        catch
+                        {
+                            // race condition - policy already added by another thread
+                        }
                     }
                 }
             }
