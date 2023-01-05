@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -133,10 +133,10 @@
     <value>No Results Returned</value>
   </data>
   <data name="Tenant.HelpText" xml:space="preserve">
-    <value>Select the tenant for the SQL server</value>
+    <value>Select the tenant associated with the database server</value>
   </data>
   <data name="SqlQuery.HelpText" xml:space="preserve">
-    <value>Enter the query for the SQL server</value>
+    <value>Enter the SQL query for the database server</value>
   </data>
   <data name="SqlQuery.Text" xml:space="preserve">
     <value>SQL Query: </value>
