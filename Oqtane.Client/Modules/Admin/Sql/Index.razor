@@ -16,7 +16,7 @@ else
     <div class="container">
 
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="tenant" HelpText="Select the tenant for the SQL server" ResourceKey="Tenant">Tenant: </Label>
+			<Label Class="col-sm-3" For="tenant" HelpText="Select the tenant associated with the database server" ResourceKey="Tenant">Tenant: </Label>
             <div class="col-sm-9">
                 <select id="tenant" class="form-select" value="@_tenantid" @onchange="(e => TenantChanged(e))">
                     <option value="-1">&lt;@Localizer["Tenant.Select"]&gt;</option>
@@ -45,9 +45,9 @@ else
 				</div>
 			</div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="sqlQeury" HelpText="Enter the query for the SQL server" ResourceKey="SqlQuery">SQL Query: </Label>
+                <Label Class="col-sm-3" For="sqlQuery" HelpText="Enter the SQL query for the database server" ResourceKey="SqlQuery">SQL Query: </Label>
                 <div class="col-sm-9">
-                    <textarea id="sqlQeury" class="form-control" @bind="@_sql" rows="3"></textarea>
+                    <textarea id="sqlQuery" class="form-control" @bind="@_sql" rows="3"></textarea>
                 </div>
             </div>
         }
