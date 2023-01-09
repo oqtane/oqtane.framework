@@ -13,7 +13,8 @@ namespace Oqtane.Modules.Admin.Profiles
             Description = "Manage Profiles",
             Categories = "Admin",
             Version = Constants.Version,
-            PermissionNames = $"{PermissionNames.View},{PermissionNames.Edit},{EntityNames.Profile}:{PermissionNames.Write}:{RoleNames.Admin}"
+            PermissionNames = $"{PermissionNames.View},{PermissionNames.Edit}," +
+                $"{EntityNames.Profile}:{PermissionNames.Write}:{RoleNames.Admin}"
         };
     }
 }
