@@ -13,7 +13,9 @@ namespace Oqtane.Modules.Admin.Users
             Description = "Manage Users",
             Categories = "Admin",
             Version = Constants.Version,
-            PermissionNames = $"{PermissionNames.View},{PermissionNames.Edit},{EntityNames.User}:{PermissionNames.Write}:{RoleNames.Admin},{EntityNames.UserRole}:{PermissionNames.Write}:{RoleNames.Admin}"
+            PermissionNames = $"{PermissionNames.View},{PermissionNames.Edit}," +
+                $"{EntityNames.User}:{PermissionNames.Write}:{RoleNames.Admin}," +
+                $"{EntityNames.UserRole}:{PermissionNames.Write}:{RoleNames.Admin}"
         };
     }
 }
