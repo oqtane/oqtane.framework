@@ -104,7 +104,7 @@
     private Dictionary<string, string> settings;
     private string category = string.Empty;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
 
     protected override async Task OnInitializedAsync()
     {
@@ -121,8 +121,15 @@
         }
     }
 
-    private string GetProfileValue(string SettingName, string DefaultValue)
-        => SettingService.GetSetting(settings, SettingName, DefaultValue);
+	private string GetProfileValue(string SettingName, string DefaultValue)
+	{
+		string value = SettingService.GetSetting(settings, SettingName, DefaultValue);
+		if (value.Contains("]"))
+		{
+			value = value.Substring(value.IndexOf("]") + 1);
+		}
+		return value;
+	}
 
     private async Task SaveUser()
     {

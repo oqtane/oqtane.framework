@@ -28,7 +28,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>?siteid=x&global=true/false
         [HttpGet]
-        [Authorize(Policy = $"{EntityNames.Role}:{PermissionNames.Read}:{RoleNames.Registered}")]
+        [Authorize(Roles = RoleNames.Registered)]
         public IEnumerable<Role> Get(string siteid, string global)
         {
             int SiteId;
@@ -50,7 +50,7 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        [Authorize(Policy = $"{EntityNames.Role}:{PermissionNames.Read}:{RoleNames.Registered}")]
+        [Authorize(Roles = RoleNames.Registered)]
         public Role Get(int id)
         {
             var role = _roles.GetRole(id);

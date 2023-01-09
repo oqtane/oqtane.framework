@@ -34,26 +34,24 @@ namespace Oqtane.Security
                 }
 
                 int entityId = -1;
-                if (requirement.RequireEntityId)
+
+                // get entityid from querystring based on a parameter format of auth{entityname}id (ie. authmoduleid ) 
+                if (ctx.Request.Query.ContainsKey("auth" + requirement.EntityName.ToLower() + "id"))
                 {
-                    // get entityid from querystring based on a parameter format of auth{entityname}id (ie. authmoduleid ) 
-                    if (ctx.Request.Query.ContainsKey("auth" + requirement.EntityName.ToLower() + "id"))
+                    if (!int.TryParse(ctx.Request.Query["auth" + requirement.EntityName.ToLower() + "id"], out entityId))
                     {
-                        if (!int.TryParse(ctx.Request.Query["auth" + requirement.EntityName.ToLower() + "id"], out entityId))
+                        entityId = -1;
+                    }
+                }
+
+                // legacy support for deprecated CreateAuthorizationPolicyUrl(string url, int entityId)
+                if (entityId == -1)
+                {
+                    if (ctx.Request.Query.ContainsKey("entityid"))
+                    {
+                        if (!int.TryParse(ctx.Request.Query["entityid"], out entityId))
                         {
                             entityId = -1;
-                        }
-                    }
-
-                    // legacy support for deprecated CreateAuthorizationPolicyUrl(string url, int entityId)
-                    if (entityId == -1)
-                    {
-                        if (ctx.Request.Query.ContainsKey("entityid"))
-                        {
-                            if (!int.TryParse(ctx.Request.Query["entityid"], out entityId))
-                            {
-                                entityId = -1;
-                            }
                         }
                     }
                 }

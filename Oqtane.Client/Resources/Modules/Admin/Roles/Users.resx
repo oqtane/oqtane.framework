@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -121,16 +121,13 @@
     <value>User: </value>
   </data>
   <data name="User.Select" xml:space="preserve">
-    <value>Select User</value>
+    <value>Enter User's Name</value>
   </data>
   <data name="Users" xml:space="preserve">
     <value>Users</value>
   </data>
   <data name="Error.User.Load" xml:space="preserve">
     <value>Error Loading Users</value>
-  </data>
-  <data name="Error.User.LoadRole" xml:space="preserve">
-    <value>Error Loading User Roles</value>
   </data>
   <data name="Success.User.AssignedRole" xml:space="preserve">
     <value>User Assigned To Role</value>
@@ -151,7 +148,7 @@
     <value>The role you are assigning users to</value>
   </data>
   <data name="User.HelpText" xml:space="preserve">
-    <value>Select a user</value>
+    <value>Enter the name of a user</value>
   </data>
   <data name="EffectiveDate.HelpText" xml:space="preserve">
     <value>The date that this role assignment is active</value>

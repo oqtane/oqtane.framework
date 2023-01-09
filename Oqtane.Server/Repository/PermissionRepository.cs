@@ -79,23 +79,52 @@ namespace Oqtane.Repository
 
         public void UpdatePermissions(int siteId, string entityName, int entityId, string permissionStrings)
         {
-            // get current permissions and delete
-            IEnumerable<Permission> permissions = _db.Permission
-                .Where(item => item.EntityName == entityName)
-                .Where(item => item.EntityId == entityId)
-                .Where(item => item.SiteId == siteId);
-            foreach (Permission permission in permissions)
+            bool modified = false;
+            var existing = new List<Permission>();
+            var permissions = DecodePermissions(permissionStrings, siteId, entityName, entityId);
+            foreach (var permission in permissions)
             {
-                _db.Permission.Remove(permission);
+                if (!existing.Any(item => item.EntityName == permission.EntityName && item.PermissionName == permission.PermissionName))
+                {
+                    existing.AddRange(GetPermissions(siteId, permission.EntityName, permission.PermissionName)
+                        .Where(item => item.EntityId == entityId || item.EntityId == -1));
+                }
+
+                var current = existing.FirstOrDefault(item => item.EntityName == permission.EntityName && item.EntityId == permission.EntityId
+                    && item.PermissionName == permission.PermissionName && item.RoleId == permission.RoleId && item.UserId == permission.UserId);
+                if (current != null)
+                {
+                    if (current.IsAuthorized != permission.IsAuthorized)
+                    {
+                        current.IsAuthorized = permission.IsAuthorized;
+                        _db.Entry(current).State = EntityState.Modified;
+                        modified = true;
+                    }
+                }
+                else
+                {
+                    _db.Permission.Add(permission);
+                    modified = true;
+                }
             }
-            // add permissions
-            permissions = DecodePermissions(permissionStrings, siteId, entityName, entityId);
-            foreach (Permission permission in permissions)
+            foreach (var permission in existing)
             {
-                _db.Permission.Add(permission);
+                if (!permissions.Any(item => item.EntityName == permission.EntityName && item.PermissionName == permission.PermissionName
+                    && item.EntityId == permission.EntityId && item.RoleId == permission.RoleId && item.UserId == permission.UserId))
+                {
+                    permission.Role = null; // remove linked reference to Role which can cause errors in EF Core change tracking
+                    _db.Permission.Remove(permission);
+                    modified = true;
+                }
             }
-            _db.SaveChanges();
-            ClearCache(siteId, entityName);
+            if (modified)
+            {
+                _db.SaveChanges();
+                foreach (var entityname in permissions.Select(item => item.EntityName).Distinct())
+                {
+                    ClearCache(siteId, entityname);
+                }
+            }
         }
 
         public Permission GetPermission(int permissionId)
@@ -200,8 +229,22 @@ namespace Oqtane.Repository
                     securityid = id;
                     Permission permission = new Permission();
                     permission.SiteId = siteId;
-                    permission.EntityName = entityName;
-                    permission.EntityId = entityId;
+                    if (!string.IsNullOrEmpty(permissionstring.EntityName))
+                    {
+                        permission.EntityName = permissionstring.EntityName;
+                    }
+                    else
+                    {
+                        permission.EntityName = entityName;
+                    }
+                    if (permission.EntityName == entityName)
+                    {
+                        permission.EntityId = entityId;
+                    }
+                    else
+                    {
+                        permission.EntityId = -1;
+                    }
                     permission.PermissionName = permissionstring.PermissionName;
                     permission.RoleId = null;
                     permission.UserId = null;

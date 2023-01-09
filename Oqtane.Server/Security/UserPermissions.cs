@@ -40,7 +40,7 @@ namespace Oqtane.Security
             }
             else
             {
-                return UserSecurity.IsAuthorized(GetUser(principal), roles.Replace(",",";"));
+                return UserSecurity.IsAuthorized(GetUser(principal), roles);
             }
         }
 

@@ -148,7 +148,8 @@
                         </div>
                     </div>
                 </Section>
-                <br /><br />
+                <br />
+				<br />
                 <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
             }
         </TabPanel>
@@ -189,7 +190,8 @@
             <br />
         }
     </TabStrip>
-    <button type="button" class="btn btn-success" @onclick="SavePage">@SharedLocalizer["Save"]</button>
+	<br />
+	<button type="button" class="btn btn-success" @onclick="SavePage">@SharedLocalizer["Save"]</button>
     <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
 </form>
 

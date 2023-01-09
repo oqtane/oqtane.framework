@@ -32,7 +32,7 @@ namespace Oqtane.Themes.Controls
 
         protected async Task LogoutUser()
         {
-            await LoggingService.Log(PageState.Alias, PageState.Page.PageId, null, PageState.User.UserId, GetType().AssemblyQualifiedName, "Logout", LogFunction.Security, LogLevel.Information, null, "User Logout For Username {Username}", PageState.User.Username);
+            await LoggingService.Log(PageState.Alias, PageState.Page.PageId, null, PageState.User?.UserId, GetType().AssemblyQualifiedName, "Logout", LogFunction.Security, LogLevel.Information, null, "User Logout For Username {Username}", PageState.User?.Username);
 
             // check if anonymous user can access page
             var url = PageState.Alias.Path + "/" + PageState.Page.Path;

@@ -47,7 +47,6 @@ namespace Oqtane.Controllers
             int SiteId;
             if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
             {
-                List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(SiteId).ToList();
                 List<Setting> settings = _settings.GetSettings(EntityNames.Module).ToList();
 
                 foreach (PageModule pagemodule in _pageModules.GetPageModules(SiteId))
@@ -75,7 +74,6 @@ namespace Oqtane.Controllers
                         module.Order = pagemodule.Order;
                         module.ContainerType = pagemodule.ContainerType;
 
-                        module.ModuleDefinition = moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName);
                         module.Settings = settings.Where(item => item.EntityId == pagemodule.ModuleId)
                             .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, pagemodule.Module.Permissions))
                             .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);

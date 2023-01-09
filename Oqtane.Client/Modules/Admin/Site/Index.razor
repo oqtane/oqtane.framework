@@ -602,12 +602,12 @@
 			try
 			{
 				var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-				SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
-				SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
-				SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
-				SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
-				SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
-				SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
+				settings = SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
+				settings = SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
+				settings = SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
+				settings = SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
+				settings = SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
+				settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
 				await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
 				await logger.LogInformation("Site SMTP Settings Saved");
 
