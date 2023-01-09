@@ -195,13 +195,13 @@
   <data name="UseSsl.HelpText" xml:space="preserve">
     <value>Specify if SSL is required for your SMTP server</value>
   </data>
-  <data name="SmptUsername.HelpText" xml:space="preserve">
+  <data name="SmtpUsername.HelpText" xml:space="preserve">
     <value>Enter the username for your SMTP account</value>
   </data>
   <data name="SmtpPassword.HelpText" xml:space="preserve">
     <value>Enter the password for your SMTP account</value>
   </data>
-  <data name="SmptSender.HelpText" xml:space="preserve">
+  <data name="SmtpSender.HelpText" xml:space="preserve">
     <value>Enter the email which emails will be sent from. Please note that this email address may need to be authorized with the SMTP server.</value>
   </data>
   <data name="EnablePWA.HelpText" xml:space="preserve">
@@ -243,13 +243,13 @@
   <data name="UseSsl.Text" xml:space="preserve">
     <value>SSL Enabled: </value>
   </data>
-  <data name="SmptUsername.Text" xml:space="preserve">
+  <data name="SmtpUsername.Text" xml:space="preserve">
     <value>Username: </value>
   </data>
   <data name="SmtpPassword.Text" xml:space="preserve">
     <value>Password: </value>
   </data>
-  <data name="SmptSender.Text" xml:space="preserve">
+  <data name="SmtpSender.Text" xml:space="preserve">
     <value>Email Sender: </value>
   </data>
   <data name="EnablePWA.Text" xml:space="preserve">
@@ -338,5 +338,11 @@
   </data>
   <data name="HomePage.Text" xml:space="preserve">
     <value>Home Page:</value>
+  </data>
+  <data name="SmtpRelay.HelpText" xml:space="preserve">
+    <value>Only specify this option if you have properly configured an SMTP Relay Service to route your outgoing mail. This option will send notifications from the user's email rather than from the Email Sender specified above.</value>
+  </data>
+  <data name="SmtpRelay.Text" xml:space="preserve">
+    <value>Relay Configured?</value>
   </data>
 </root>
