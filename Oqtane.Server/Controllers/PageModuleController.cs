@@ -120,7 +120,8 @@ namespace Oqtane.Controllers
             if (page != null && page.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, page.SiteId, EntityNames.Page, pageid, PermissionNames.Edit))
             {
                 int order = 1;
-                List<PageModule> pagemodules = _pageModules.GetPageModules(pageid, pane).OrderBy(item => item.Order).ToList();
+                List<PageModule> pagemodules = _pageModules.GetPageModules(page.SiteId)
+                    .Where(item => item.PageId == pageid && item.Pane == pane).OrderBy(item => item.Order).ToList();
                 foreach (PageModule pagemodule in pagemodules)
                 {
                     if (pagemodule.Order != order)

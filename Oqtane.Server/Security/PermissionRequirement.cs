@@ -8,16 +8,13 @@ namespace Oqtane.Security
 
         public string PermissionName { get; }
 
-        public string Roles { get; }
+        public string Roles { get; } // semi-colon delimited
 
-        public bool RequireEntityId { get; }
-
-        public PermissionRequirement(string entityName, string permissionName, string roles, bool requireEntityId)
+        public PermissionRequirement(string entityName, string permissionName, string roles)
         {
             EntityName = entityName;
             PermissionName = permissionName;
             Roles = roles;
-            RequireEntityId = requireEntityId;
         }
     }
 }

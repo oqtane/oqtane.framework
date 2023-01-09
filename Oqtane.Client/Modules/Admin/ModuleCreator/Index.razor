@@ -131,7 +131,7 @@ else
 					moduleDefinition = await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition);
 
 					var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
-					SettingService.SetSetting(settings, "ModuleDefinitionName", moduleDefinition.ModuleDefinitionName);
+					settings = SettingService.SetSetting(settings, "ModuleDefinitionName", moduleDefinition.ModuleDefinitionName);
 					await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
 
 					GetLocation();

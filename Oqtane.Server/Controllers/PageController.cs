@@ -281,7 +281,7 @@ namespace Oqtane.Controllers
                 // synchronize module permissions
                 if (added.Count > 0 || removed.Count > 0)
                 {
-                    foreach (PageModule pageModule in _pageModules.GetPageModules(page.PageId, "").ToList())
+                    foreach (PageModule pageModule in _pageModules.GetPageModules(page.SiteId).Where(item => item.PageId == page.PageId).ToList())
                     {
                         var modulePermissions = _permissionRepository.GetPermissions(pageModule.Module.SiteId, EntityNames.Module, pageModule.Module.ModuleId).ToList();
                         // permissions added

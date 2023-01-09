@@ -20,13 +20,16 @@
 </div>
 
 @code {
-    private List<Page> _pages;
+	private List<Page> _pages;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
-    protected override void OnInitialized()
-    {
-        var admin = PageState.Pages.FirstOrDefault(item => item.Path == "admin");
-        _pages = PageState.Pages.Where(item => item.ParentId == admin?.PageId).ToList();
+	protected override void OnInitialized()
+	{
+		var admin = PageState.Pages.FirstOrDefault(item => item.Path == "admin");
+		if (admin != null)
+		{
+			_pages = PageState.Pages.Where(item => item.ParentId == admin?.PageId).ToList();
+		}
     }
 }

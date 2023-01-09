@@ -212,7 +212,7 @@ namespace Oqtane.Controllers
                     authorized = true;
                     if (permissionName == PermissionNames.Edit)
                     {
-                        authorized = User.IsInRole(RoleNames.Admin) || (_userPermissions.GetUser(User).UserId == entityId);
+                        authorized = _userPermissions.IsAuthorized(User, _alias.SiteId, entityName, -1, PermissionNames.Write, RoleNames.Admin) || (_userPermissions.GetUser(User).UserId == entityId);
                     }
                     break;
                 case EntityNames.Visitor:
@@ -226,13 +226,10 @@ namespace Oqtane.Controllers
                     }
                     break;
                 default: // custom entity
+                    authorized = true;
                     if (permissionName == PermissionNames.Edit)
                     {
                         authorized = User.IsInRole(RoleNames.Admin) || _userPermissions.IsAuthorized(User, _alias.SiteId, entityName, entityId, permissionName);
-                    }
-                    else
-                    {
-                        authorized = true;
                     }
                     break;
             }

@@ -49,7 +49,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IUrlMappingService, UrlMappingService>();
             services.AddScoped<IVisitorService, VisitorService>();
             services.AddScoped<ISyncService, SyncService>();
-            services.AddScoped<IApiService, ApiService>();
 
             return services;
         }

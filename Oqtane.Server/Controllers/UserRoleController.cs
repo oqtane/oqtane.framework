@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using Oqtane.Security;
 using System;
+using Oqtane.Modules.Admin.Roles;
 
 namespace Oqtane.Controllers
 {
@@ -93,7 +94,7 @@ namespace Oqtane.Controllers
                 userrole.User.TwoFactorCode = "";
                 userrole.User.TwoFactorExpiry = null;
 
-                if (!User.IsInRole(RoleNames.Admin) && userid != userrole.User.UserId)
+                if (!_userPermissions.IsAuthorized(User, userrole.User.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) && userid != userrole.User.UserId)
                 {
                     userrole.User.Email = "";
                     userrole.User.PhotoFileId = null;
@@ -115,7 +116,7 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        [Authorize(Roles = RoleNames.Admin)]
+        [Authorize(Policy = $"{EntityNames.UserRole}:{PermissionNames.Write}:{RoleNames.Admin}")]
         public UserRole Post([FromBody] UserRole userRole)
         {
             var role = _roles.GetRole(userRole.RoleId);
@@ -138,7 +139,7 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize(Roles = RoleNames.Admin)]
+        [Authorize(Policy = $"{EntityNames.UserRole}:{PermissionNames.Write}:{RoleNames.Admin}")]
         public UserRole Put(int id, [FromBody] UserRole userRole)
         {
             var role = _roles.GetRole(userRole.RoleId);
@@ -160,7 +161,7 @@ namespace Oqtane.Controllers
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = RoleNames.Admin)]
+        [Authorize(Policy = $"{EntityNames.UserRole}:{PermissionNames.Write}:{RoleNames.Admin}")]
         public void Delete(int id)
         {
             UserRole userrole = _userRoles.GetUserRole(id);

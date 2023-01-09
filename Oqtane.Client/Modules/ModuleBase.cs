@@ -315,15 +315,10 @@ namespace Oqtane.Modules
         {
             int pageId = ModuleState.PageId;
             int moduleId = ModuleState.ModuleId;
-            int? userId = null;
-            if (PageState.User != null)
-            {
-                userId = PageState.User.UserId;
-            }
             string category = GetType().AssemblyQualifiedName;
             string feature = Utilities.GetTypeNameLastSegment(category, 1);
 
-            await LoggingService.Log(alias, pageId, moduleId, userId, category, feature, function, level, exception, message, args);
+            await LoggingService.Log(alias, pageId, moduleId, PageState.User?.UserId, category, feature, function, level, exception, message, args);
         }
 
         public class Logger

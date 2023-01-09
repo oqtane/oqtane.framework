@@ -10,46 +10,28 @@ namespace Oqtane.Repository
     public class PageModuleRepository : IPageModuleRepository
     {
         private TenantDBContext _db;
+        private readonly IModuleDefinitionRepository _moduleDefinitions;
         private readonly IPermissionRepository _permissions;
 
-        public PageModuleRepository(TenantDBContext context, IPermissionRepository permissions)
+        public PageModuleRepository(TenantDBContext context, IModuleDefinitionRepository moduleDefinitions, IPermissionRepository permissions)
         {
             _db = context;
+            _moduleDefinitions = moduleDefinitions;
             _permissions = permissions;
         }
 
         public IEnumerable<PageModule> GetPageModules(int siteId)
         {
-            IEnumerable<PageModule> pagemodules = _db.PageModule
+            var pagemodules = _db.PageModule
                 .Include(item => item.Module) // eager load modules
-                .Where(item => item.Module.SiteId == siteId);
+                .Where(item => item.Module.SiteId == siteId).ToList();
             if (pagemodules.Any())
             {
-                IEnumerable<Permission> permissions = _permissions.GetPermissions(siteId, EntityNames.Module).ToList();
-                foreach (PageModule pagemodule in pagemodules)
+                var moduledefinitions = _moduleDefinitions.GetModuleDefinitions(siteId).ToList();
+                var permissions = _permissions.GetPermissions(siteId, EntityNames.Module).ToList();
+                for (int index = 0; index < pagemodules.Count; index++)
                 {
-                    pagemodule.Module.Permissions = permissions.Where(item => item.EntityId == pagemodule.ModuleId).EncodePermissions();
-                }
-            }
-            return pagemodules;
-        }
-
-        public IEnumerable<PageModule> GetPageModules(int pageId, string pane)
-        {
-            IEnumerable<PageModule> pagemodules = _db.PageModule
-                .Include(item => item.Module) // eager load modules
-                .Where(item => item.PageId == pageId);
-            if (pane != "" && pagemodules.Any())
-            {
-                pagemodules = pagemodules.Where(item => item.Pane == pane);
-            }
-            if (pagemodules.Any())
-            {
-                var siteId = pagemodules.FirstOrDefault().Module.SiteId;
-                IEnumerable<Permission> permissions = _permissions.GetPermissions(siteId, EntityNames.Module).ToList();
-                foreach (PageModule pagemodule in pagemodules)
-                {
-                    pagemodule.Module.Permissions = permissions.Where(item => item.EntityId == pagemodule.ModuleId).EncodePermissions();
+                    pagemodules[index] = GetPageModule(pagemodules[index], moduledefinitions, permissions);
                 }
             }
             return pagemodules;
@@ -89,7 +71,9 @@ namespace Oqtane.Repository
             }
             if (pagemodule != null)
             {
-                pagemodule.Module.Permissions = _permissions.GetPermissions(pagemodule.Module.SiteId, EntityNames.Module, pagemodule.ModuleId)?.EncodePermissions();
+                var moduledefinitions = _moduleDefinitions.GetModuleDefinitions(pagemodule.Module.SiteId).ToList();
+                var permissions = _permissions.GetPermissions(pagemodule.Module.SiteId, EntityNames.Module).ToList();
+                pagemodule = GetPageModule(pagemodule, moduledefinitions, permissions);
             }
             return pagemodule;
         }
@@ -100,7 +84,9 @@ namespace Oqtane.Repository
                 .SingleOrDefault(item => item.PageId == pageId && item.ModuleId == moduleId);
             if (pagemodule != null)
             {
-                pagemodule.Module.Permissions = _permissions.GetPermissions(pagemodule.Module.SiteId, EntityNames.Module, pagemodule.ModuleId)?.EncodePermissions();
+                var moduledefinitions = _moduleDefinitions.GetModuleDefinitions(pagemodule.Module.SiteId).ToList();
+                var permissions = _permissions.GetPermissions(pagemodule.Module.SiteId, EntityNames.Module).ToList();
+                pagemodule = GetPageModule(pagemodule, moduledefinitions, permissions);
             }
             return pagemodule;
         }
@@ -110,6 +96,31 @@ namespace Oqtane.Repository
             PageModule pageModule = _db.PageModule.Find(pageModuleId);
             _db.PageModule.Remove(pageModule);
             _db.SaveChanges();
+        }
+
+        private PageModule GetPageModule(PageModule pageModule, List<ModuleDefinition> moduleDefinitions, List<Permission> modulePermissions)
+        {
+            var permissions = modulePermissions.Where(item => item.EntityId == pageModule.ModuleId).ToList();
+
+            // moduledefinition permissionnames can specify permissions for other entities (ie. API permissions)
+            pageModule.Module.ModuleDefinition = moduleDefinitions.Find(item => item.ModuleDefinitionName == pageModule.Module.ModuleDefinitionName);
+            if (!string.IsNullOrEmpty(pageModule.Module.ModuleDefinition.PermissionNames) && pageModule.Module.ModuleDefinition.PermissionNames.Contains(":"))
+            {
+                foreach (var permissionname in pageModule.Module.ModuleDefinition.PermissionNames.Split(",", System.StringSplitOptions.RemoveEmptyEntries))
+                {
+                    if (permissionname.Contains(":"))
+                    {
+                        // moduledefinition permissionnames can be in the form of "EntityName:PermissionName:Roles"
+                        var segments = permissionname.Split(':');
+                        if (segments.Length == 3 && segments[0] != EntityNames.Module)
+                        {
+                            permissions.AddRange(_permissions.GetPermissions(pageModule.Module.SiteId, segments[0], segments[1]).Where(item => item.EntityId == -1));
+                        }
+                    }
+                }
+            }
+            pageModule.Module.Permissions = permissions?.EncodePermissions();
+            return pageModule;
         }
     }
 }

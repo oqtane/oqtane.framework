@@ -10,7 +10,7 @@
 }
 else
 {
-    <ActionLink Action="Add" Text="Add Role" ResourceKey="AddRole" />
+	<ActionLink Action="Add" Text="Add Role" Security="SecurityAccessLevel.Edit" ResourceKey="AddRole" />
 
     <Pager Items="@_roles">
         <Header>
@@ -20,9 +20,9 @@ else
             <th>@SharedLocalizer["Name"]</th>
         </Header>
         <Row>
-            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.RoleId.ToString())" Disabled="@(context.IsSystem)" ResourceKey="Edit" /></td>
-            <td><ActionDialog Header="Delete Role" Message="@string.Format(Localizer["Confirm.DeleteUser"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteRole(context))" Disabled="@(context.IsSystem)" ResourceKey="DeleteRole" /></td>
-            <td><ActionLink Action="Users" Parameters="@($"id=" + context.RoleId.ToString())" ResourceKey="Users" /></td>
+			<td><ActionLink Action="Edit" Parameters="@($"id=" + context.RoleId.ToString())" Security="SecurityAccessLevel.Edit" Disabled="@(context.IsSystem)" ResourceKey="Edit" /></td>
+            <td><ActionDialog Header="Delete Role" Message="@string.Format(Localizer["Confirm.DeleteUser"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteRole(context))" Disabled="@(context.IsSystem)" ResourceKey="DeleteRole" /></td>
+			<td><ActionLink Action="Users" Parameters="@($"id=" + context.RoleId.ToString())" Security="SecurityAccessLevel.Edit" ResourceKey="Users" /></td>
             <td>@context.Name</td>
         </Row>
     </Pager>
@@ -31,7 +31,7 @@ else
 @code {
     private List<Role> _roles;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
 
     protected override async Task OnParametersSetAsync()
     {
