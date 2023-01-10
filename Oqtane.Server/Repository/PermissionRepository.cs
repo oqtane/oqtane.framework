@@ -97,6 +97,7 @@ namespace Oqtane.Repository
                     if (current.IsAuthorized != permission.IsAuthorized)
                     {
                         current.IsAuthorized = permission.IsAuthorized;
+                        current.Role = null; // remove linked reference to Role which can cause errors in EF Core change tracking
                         _db.Entry(current).State = EntityState.Modified;
                         modified = true;
                     }

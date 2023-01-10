@@ -229,7 +229,8 @@ namespace Oqtane.Controllers
                     authorized = true;
                     if (permissionName == PermissionNames.Edit)
                     {
-                        authorized = User.IsInRole(RoleNames.Admin) || _userPermissions.IsAuthorized(User, _alias.SiteId, entityName, entityId, permissionName);
+                        authorized = _userPermissions.IsAuthorized(User, _alias.SiteId, entityName, entityId, permissionName) ||
+                            _userPermissions.IsAuthorized(User, _alias.SiteId, entityName, -1, PermissionNames.Write, RoleNames.Admin);
                     }
                     break;
             }
