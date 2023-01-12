@@ -128,29 +128,7 @@ namespace Oqtane.Infrastructure
                             mailMessage.Subject = notification.Subject;
 
                             //body
-                            mailMessage.Body = "";
-
-                            // check if email is being sent from SMTP Sender rather than notification sender
-                            if (!string.IsNullOrEmpty(notification.FromEmail) && mailMessage.From.Address != notification.FromEmail)
-                            {
-                                // include information of who sent the notification in the body
-                                mailMessage.Body += "From: ";
-                                if (!string.IsNullOrEmpty(notification.FromDisplayName))
-                                {
-                                    mailMessage.Body += notification.FromDisplayName + " <" + notification.FromEmail + ">\n";
-                                }
-                                else
-                                {
-                                    mailMessage.Body += notification.FromEmail + "\n";
-                                }
-
-                            }
-                            // check if notification was created in the past
-                            if (notification.CreatedOn.Date != DateTime.UtcNow.Date)
-                            {
-                                mailMessage.Body += "Sent: " + notification.CreatedOn + "\n";
-                            }
-                            mailMessage.Body += "\n" + notification.Body;
+                            mailMessage.Body = notification.Body;
 
                             // encoding
                             mailMessage.SubjectEncoding = System.Text.Encoding.UTF8;
