@@ -19,6 +19,7 @@ using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Net;
 using System.Text.Json.Nodes;
+using System.Globalization;
 
 namespace Oqtane.Extensions
 {
@@ -327,7 +328,7 @@ namespace Oqtane.Extensions
                                     identityuser.UserName = email;
                                     identityuser.Email = email;
                                     identityuser.EmailConfirmed = true;
-                                    var result = await _identityUserManager.CreateAsync(identityuser, DateTime.UtcNow.ToString("yyyy-MMM-dd-HH-mm-ss"));
+                                    var result = await _identityUserManager.CreateAsync(identityuser, DateTime.UtcNow.ToString("yyyy-MMM-dd-HH-mm-ss", CultureInfo.InvariantCulture));
                                     if (result.Succeeded)
                                     {
                                         user = new User

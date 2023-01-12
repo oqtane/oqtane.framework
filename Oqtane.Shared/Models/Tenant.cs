@@ -6,7 +6,7 @@ namespace Oqtane.Models
     /// Describes a Tenant in Oqtane.
     /// Tenants can contain multiple <see cref="Site"/>s and have all their data in a separate Database.
     /// </summary>
-    public class Tenant : IAuditable
+    public class Tenant : ModelBase
     {
         /// <summary>
         /// ID of the Tenant.
@@ -30,19 +30,6 @@ namespace Oqtane.Models
         /// New in v2.1.0
         /// </remarks>
         public string DBType { get; set; }
-        public string Version { get; set; }
-        
-        #region IAuditable Properties
-
-        /// <inheritdoc/>
-        public string CreatedBy { get; set; }
-        /// <inheritdoc/>
-        public DateTime CreatedOn { get; set; }
-        /// <inheritdoc/>
-        public string ModifiedBy { get; set; }
-        /// <inheritdoc/>
-        public DateTime ModifiedOn { get; set; }
-
-        #endregion
+        public string Version { get; set; }       
     }
 }

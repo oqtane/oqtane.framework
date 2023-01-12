@@ -13,6 +13,6 @@ namespace Oqtane.Services
         /// Returns a collection of supported cultures
         /// </summary>
         /// <returns></returns>
-        Task<IEnumerable<Culture>> GetCulturesAsync();
+        Task<IEnumerable<Culture>> GetCulturesAsync(bool installed);
     }
 }

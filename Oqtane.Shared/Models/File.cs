@@ -7,7 +7,7 @@ namespace Oqtane.Models
     /// <summary>
     /// Describes a File in Oqtane
     /// </summary>
-    public class File : IAuditable
+    public class File : ModelBase
     {
         /// <summary>
         /// ID to identify the file
@@ -54,30 +54,6 @@ namespace Oqtane.Models
         /// Description of a file
         /// </summary>
         public string Description { get; set; }
-
-        #region IAuditable Properties
-
-        /// <inheritdoc />
-        public string CreatedBy { get; set; }
-
-        /// <inheritdoc />
-        public DateTime CreatedOn { get; set; }
-
-        /// <inheritdoc />
-        public string ModifiedBy { get; set; }
-
-        /// <inheritdoc />
-        public DateTime ModifiedOn { get; set; }
-
-        #endregion
-
-        #region Extended IAuditable Properties, may be moved to an Interface some day so not documented yet
-
-        public string DeletedBy { get; set; }
-        public DateTime? DeletedOn { get; set; }
-        public bool IsDeleted { get; set; }
-
-        #endregion
 
         /// <summary>
         /// Object reference to the <see cref="Folder"/> object.

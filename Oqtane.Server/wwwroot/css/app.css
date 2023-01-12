@@ -213,3 +213,10 @@ app {
     right: 0.75rem;
     top: 0.5rem;
 }
+
+/* Oqtane Conrol Styles */
+
+/* Pager */
+.app-pager-pointer {
+    cursor: pointer;
+}

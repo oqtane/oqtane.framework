@@ -5,7 +5,7 @@ namespace Oqtane.Models
     /// <summary>
     /// Information about a <see cref="Module"/> instance on a <see cref="Page"/>
     /// </summary>
-    public class PageModule : IAuditable, IDeletable
+    public class PageModule : ModelBase, IDeletable
     {
         /// <summary>
         /// Internal ID to identify this instance.
@@ -42,20 +42,7 @@ namespace Oqtane.Models
         /// </summary>
         public string ContainerType { get; set; }
 
-        #region IAuditable Properties
-
-        /// <inheritdoc/>
-        public string CreatedBy { get; set; }
-        /// <inheritdoc/>
-        public DateTime CreatedOn { get; set; }
-        /// <inheritdoc/>
-        public string ModifiedBy { get; set; }
-        /// <inheritdoc/>
-        public DateTime ModifiedOn { get; set; }
-
-        #endregion
-
-        #region Extended IAuditable Properties, may be moved to an Interface some day so not documented yet
+        #region IDeletable Properties
 
         public string DeletedBy { get; set; }
         public DateTime? DeletedOn { get; set; }

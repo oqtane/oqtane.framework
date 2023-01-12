@@ -27,14 +27,8 @@ Oqtane.Interop = {
             document.title = title;
         }
     },
-    includeMeta: function (id, attribute, name, content, key) {
-        var meta;
-        if (id !== "" && key === "id") {
-            meta = document.getElementById(id);
-        }
-        else {
-            meta = document.querySelector("meta[" + attribute + "=\"" + CSS.escape(name) + "\"]");
-        }
+    includeMeta: function (id, attribute, name, content) {
+        var meta = document.querySelector("meta[" + attribute + "=\"" + CSS.escape(name) + "\"]");
         if (meta === null) {
             meta = document.createElement("meta");
             meta.setAttribute(attribute, name);
@@ -120,7 +114,13 @@ Oqtane.Interop = {
         }
     },
     includeScript: function (id, src, integrity, crossorigin, content, location) {
-        var script = document.querySelector("script[src=\"" + CSS.escape(src) + "\"]");
+        var script;
+        if (src !== "") {
+            script = document.querySelector("script[src=\"" + CSS.escape(src) + "\"]");
+        }
+        else {
+            script = document.getElementById(id);
+        }
         if (script === null) {
             script = document.createElement("script");
             if (id !== "") {
@@ -295,10 +295,10 @@ Oqtane.Interop = {
         return files;
     },
     uploadFiles: function (posturl, folder, id, antiforgerytoken) {
-        var fileinput = document.getElementById(id + 'FileInput');
+        var fileinput = document.getElementById('FileInput_' + id);
         var files = fileinput.files;
-        var progressinfo = document.getElementById(id + 'ProgressInfo');
-        var progressbar = document.getElementById(id + 'ProgressBar');
+        var progressinfo = document.getElementById('ProgressInfo_' + id);
+        var progressbar = document.getElementById('ProgressBar_' + id);
 
         progressinfo.setAttribute("style", "display: inline;");
         progressbar.setAttribute("style", "width: 200px; display: inline;");

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -124,9 +124,9 @@
     <value>User</value>
   </data>
   <data name="Username.Enter" xml:space="preserve">
-    <value>Enter Username</value>
+    <value>Enter User's Name</value>
   </data>
   <data name="Message.Username.DontExist" xml:space="preserve">
-    <value>Username Does Not Exist</value>
+    <value>User Does Not Exist With Name Specified</value>
   </data>
 </root>

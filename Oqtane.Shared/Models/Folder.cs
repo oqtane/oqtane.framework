@@ -6,7 +6,7 @@ namespace Oqtane.Models
     /// <summary>
     /// Describes a Folder in Oqtane
     /// </summary>
-    public class Folder : IAuditable
+    public class Folder : ModelBase
     {
         /// <summary>
         /// ID to identify the folder
@@ -58,30 +58,6 @@ namespace Oqtane.Models
         /// Folder is a dependency of the framework and cannot be modified or removed
         /// </summary>
         public bool IsSystem { get; set; }
-
-        #region IAuditable Properties
-
-        /// <inheritdoc />
-        public string CreatedBy { get; set; }
-
-        /// <inheritdoc />
-        public DateTime CreatedOn { get; set; }
-
-        /// <inheritdoc />
-        public string ModifiedBy { get; set; }
-
-        /// <inheritdoc />
-        public DateTime ModifiedOn { get; set; }
-
-        #endregion
-
-        #region Extended IAuditable Properties, may be moved to an Interface some day so not documented yet
-
-        public string DeletedBy { get; set; }
-        public DateTime? DeletedOn { get; set; }
-        public bool IsDeleted { get; set; }
-        
-        #endregion
 
         /// <summary>
         /// TODO: todoc what would this contain?

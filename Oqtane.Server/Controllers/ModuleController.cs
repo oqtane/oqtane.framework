@@ -47,7 +47,6 @@ namespace Oqtane.Controllers
             int SiteId;
             if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
             {
-                List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(SiteId).ToList();
                 List<Setting> settings = _settings.GetSettings(EntityNames.Module).ToList();
 
                 foreach (PageModule pagemodule in _pageModules.GetPageModules(SiteId))
@@ -75,7 +74,6 @@ namespace Oqtane.Controllers
                         module.Order = pagemodule.Order;
                         module.ContainerType = pagemodule.ContainerType;
 
-                        module.ModuleDefinition = moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName);
                         module.Settings = settings.Where(item => item.EntityId == pagemodule.ModuleId)
                             .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, pagemodule.Module.Permissions))
                             .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
@@ -121,7 +119,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public Module Post([FromBody] Module module)
         {
-            if (ModelState.IsValid && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Page, module.PageId, PermissionNames.Edit))
+            if (ModelState.IsValid && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, module.SiteId, EntityNames.Page, module.PageId, PermissionNames.Edit))
             {
                 module = _modules.AddModule(module);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Module, module.ModuleId, SyncEventActions.Create);
@@ -144,7 +142,7 @@ namespace Oqtane.Controllers
         {
             var _module = _modules.GetModule(module.ModuleId, false);
 
-            if (ModelState.IsValid && module.SiteId == _alias.SiteId && _module != null && _userPermissions.IsAuthorized(User, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
+            if (ModelState.IsValid && module.SiteId == _alias.SiteId && _module != null && _userPermissions.IsAuthorized(User, module.SiteId, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
             {
                 module = _modules.UpdateModule(module);
 
@@ -194,7 +192,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             var module = _modules.GetModule(id);
-            if (module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
+            if (module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, module.SiteId, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
             {
                 _modules.DeleteModule(id);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Module, module.ModuleId, SyncEventActions.Delete);
@@ -215,7 +213,7 @@ namespace Oqtane.Controllers
         {
             string content = "";
             var module = _modules.GetModule(moduleid);
-            if (module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Page, pageid, PermissionNames.Edit))
+            if (module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, module.SiteId, EntityNames.Page, pageid, PermissionNames.Edit))
             {
                 content = _modules.ExportModule(moduleid);
                 if (!string.IsNullOrEmpty(content))
@@ -242,7 +240,7 @@ namespace Oqtane.Controllers
         {
             bool success = false;
             var module = _modules.GetModule(moduleid);
-            if (ModelState.IsValid && module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Page, pageid, PermissionNames.Edit))
+            if (ModelState.IsValid && module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, module.SiteId, EntityNames.Page, pageid, PermissionNames.Edit))
             {
                 success = _modules.ImportModule(moduleid, content);
                 if (success)

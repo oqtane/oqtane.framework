@@ -8,7 +8,7 @@ using [Owner].[Module].Repository;
 namespace [Owner].[Module].Migrations
 {
     [DbContext(typeof([Module]Context))]
-    [Migration("[Module].01.00.00.00")]
+    [Migration("[Owner].[Module].01.00.00.00")]
     public class InitializeModule : MultiDatabaseMigration
     {
         public InitializeModule(IDatabase database) : base(database)

@@ -8,7 +8,7 @@ namespace Oqtane.Models
     /// <summary>
     /// Describes a Module _Instance_ which will be shown on a page. This is different from a <see cref="ModuleDefinition"/> which describes a Module.
     /// </summary>
-    public class Module : IAuditable
+    public class Module : ModelBase
     {
         /// <summary>
         /// The ID of this instance
@@ -30,19 +30,7 @@ namespace Oqtane.Models
         /// </summary>
         public bool AllPages { get; set; }
 
-        #region IAuditable Properties
-
-        /// <inheritdoc/>
-        public string CreatedBy { get; set; }
-        /// <inheritdoc/>
-        public DateTime CreatedOn { get; set; }
-        /// <inheritdoc/>
-        public string ModifiedBy { get; set; }
-        /// <inheritdoc/>
-        public DateTime ModifiedOn { get; set; }
-
-        #endregion
-        #region Extended IAuditable Properties, may be moved to an Interface some day so not documented yet
+        #region IDeletable Properties (note that these are NotMapped and are only used for storing PageModule properties)
 
         [NotMapped]
         public string DeletedBy { get; set; }

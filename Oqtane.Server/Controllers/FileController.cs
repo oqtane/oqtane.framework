@@ -20,6 +20,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Formats.Png;
 using System.Net.Http;
+using Oqtane.Migrations.Tenant;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
@@ -135,7 +136,9 @@ namespace Oqtane.Controllers
         public Models.File Put(int id, [FromBody] Models.File file)
         {
             var File = _files.GetFile(file.FileId, false);
-            if (ModelState.IsValid && File != null && File.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Folder, file.FolderId, PermissionNames.Edit))
+            if (ModelState.IsValid && file.Folder.SiteId == _alias.SiteId && File != null // ensure file exists
+                && _userPermissions.IsAuthorized(User, file.Folder.SiteId, EntityNames.Folder, File.FolderId, PermissionNames.Edit) // ensure user had edit rights to original folder
+                && _userPermissions.IsAuthorized(User, file.Folder.SiteId, EntityNames.Folder, file.FolderId, PermissionNames.Edit)) // ensure user has edit rights to new folder
             {
                 if (File.Name != file.Name || File.FolderId != file.FolderId)
                 {
@@ -148,7 +151,15 @@ namespace Oqtane.Controllers
                     System.IO.File.Move(_files.GetFilePath(File), Path.Combine(folderpath, file.Name));
                 }
 
-                file.Extension = Path.GetExtension(file.Name).ToLower().Replace(".", "");
+                var newfile = CreateFile(file.Name, file.Folder.FolderId, _files.GetFilePath(file));
+                if (newfile != null)
+                {
+                    file.Extension = newfile.Extension;
+                    file.Size = newfile.Size;
+                    file.ImageWidth = newfile.ImageWidth;
+                    file.ImageHeight = newfile.ImageHeight;
+                }
+
                 file = _files.UpdateFile(file);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.File, file.FileId, SyncEventActions.Update);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "File Updated {File}", file);
@@ -169,7 +180,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Models.File file = _files.GetFile(id);
-            if (file != null && file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Folder, file.Folder.FolderId, PermissionNames.Edit))
+            if (file != null && file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, file.Folder.SiteId, EntityNames.Folder, file.Folder.FolderId, PermissionNames.Edit))
             {
                 string filepath = _files.GetFilePath(file);
                 if (System.IO.File.Exists(filepath))
@@ -328,7 +339,15 @@ namespace Oqtane.Controllers
                     var file = CreateFile(upload, FolderId, Path.Combine(folderPath, upload));
                     if (file != null)
                     {
-                        file = _files.AddFile(file);
+                        if (file.FileId == 0)
+                        {
+                            file = _files.AddFile(file);
+                        }
+                        else
+                        {
+                            file = _files.UpdateFile(file);
+                        }
+                        _logger.Log(LogLevel.Information, this, LogFunction.Create, "File Upload Succeeded {File}", Path.Combine(folderPath, upload));
                         _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.File, file.FileId, SyncEventActions.Create);
                     }
                 }
@@ -350,16 +369,16 @@ namespace Oqtane.Controllers
             int totalparts = int.Parse(parts?.Substring(parts.IndexOf("_") + 1));
 
             filename = Path.GetFileNameWithoutExtension(filename); // base filename
-            string[] fileParts = Directory.GetFiles(folder, filename + token + "*"); // list of all file parts
+            string[] fileparts = Directory.GetFiles(folder, filename + token + "*"); // list of all file parts
 
             // if all of the file parts exist ( note that file parts can arrive out of order )
-            if (fileParts.Length == totalparts && CanAccessFiles(fileParts))
+            if (fileparts.Length == totalparts && CanAccessFiles(fileparts))
             {
-                // merge file parts
+                // merge file parts into temp file ( in case another user is trying to get the file )
                 bool success = true;
                 using (var stream = new FileStream(Path.Combine(folder, filename + ".tmp"), FileMode.Create))
                 {
-                    foreach (string filepart in fileParts)
+                    foreach (string filepart in fileparts)
                     {
                         try
                         {
@@ -375,37 +394,33 @@ namespace Oqtane.Controllers
                     }
                 }
 
-                // delete file parts and rename file
+                // clean up file parts
+                foreach (var file in Directory.GetFiles(folder, "*" + token + "*"))
+                {
+                    // file name matches part or is more than 2 hours old (ie. a prior file upload failed)
+                    if (fileparts.Contains(file) || System.IO.File.GetCreationTime(file).ToUniversalTime() < DateTime.UtcNow.AddHours(-2))
+                    {
+                        System.IO.File.Delete(file);
+                    }
+                }
+
+                // rename temp file
                 if (success)
                 {
-                    foreach (string filepart in fileParts)
+                    // remove file if it already exists (as well as any thumbnails)
+                    foreach (var file in Directory.GetFiles(folder, Path.GetFileNameWithoutExtension(filename) + ".*"))
                     {
-                        System.IO.File.Delete(filepart);
+                        if (Path.GetExtension(file) != ".tmp")
+                        {
+                            System.IO.File.Delete(file);
+                        }
                     }
 
-                    // remove file if it already exists
-                    if (System.IO.File.Exists(Path.Combine(folder, filename)))
-                    {
-                        System.IO.File.Delete(Path.Combine(folder, filename));
-                    }
-
-                    // rename file now that the entire process is completed
+                    // rename temp file now that the entire process is completed
                     System.IO.File.Move(Path.Combine(folder, filename + ".tmp"), Path.Combine(folder, filename));
-                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "File Uploaded {File}", Path.Combine(folder, filename));
 
+                    // return filename
                     merged = filename;
-                }
-            }
-
-            // clean up file parts which are more than 2 hours old ( which can happen if a prior file upload failed )
-            var cleanupFiles = Directory.EnumerateFiles(folder, "*" + token + "*")
-                .Where(f => Path.GetExtension(f).StartsWith(token) && !Path.GetFileName(f).StartsWith(filename));
-            foreach (var file in cleanupFiles)
-            {
-                var createdDate = System.IO.File.GetCreationTime(file).ToUniversalTime();
-                if (createdDate < DateTime.UtcNow.AddHours(-2))
-                {
-                    System.IO.File.Delete(file);
                 }
             }
 
@@ -414,13 +429,14 @@ namespace Oqtane.Controllers
 
         private bool CanAccessFiles(string[] files)
         {
-            // ensure files are not locked by another process ( ie. still being written to )
-            bool canaccess = true;
+            // ensure files are not locked by another process
             FileStream stream = null;
+            bool locked = false;
             foreach (string file in files)
             {
+                locked = true;
                 int attempts = 0;
-                bool locked = true;
+                // note that this will wait a maximum of 15 seconds for a file to become unlocked
                 while (attempts < 5 && locked)
                 {
                     try
@@ -430,7 +446,8 @@ namespace Oqtane.Controllers
                     }
                     catch // file is locked by another process
                     {
-                        Thread.Sleep(1000); // wait 1 second
+                        attempts += 1;
+                        Thread.Sleep(1000 * attempts); // progressive retry
                     }
                     finally
                     {
@@ -439,19 +456,14 @@ namespace Oqtane.Controllers
                             stream.Close();
                         }
                     }
-
-                    attempts += 1;
                 }
-
-                if (locked && canaccess)
+                if (locked)
                 {
-                    canaccess = false;
+                    break; // file still locked after retrying
                 }
             }
-
-            return canaccess;
+            return !locked;
         }
-
 
         /// <summary>
         /// Get file with header
@@ -644,7 +656,7 @@ namespace Oqtane.Controllers
 
         private Models.File CreateFile(string filename, int folderid, string filepath)
         {
-            Models.File file = null;
+            var file = _files.GetFile(folderid, filename);
 
             int size = 0;
             var folder = _folders.GetFolder(folderid);
@@ -659,7 +671,10 @@ namespace Oqtane.Controllers
             FileInfo fileinfo = new FileInfo(filepath);
             if (folder.Capacity == 0 || ((size + fileinfo.Length) / 1000000) < folder.Capacity)
             {
-                file = new Models.File();
+                if (file == null)
+                {
+                    file = new Models.File();
+                }
                 file.Name = filename;
                 file.FolderId = folderid;
 
@@ -689,7 +704,11 @@ namespace Oqtane.Controllers
             else
             {
                 System.IO.File.Delete(filepath);
-                _logger.Log(LogLevel.Warning, this, LogFunction.Create, "File Exceeds Folder Capacity {Folder} {File}", folder, filepath);
+                if (file != null)
+                {
+                    _files.DeleteFile(file.FileId);
+                }
+                _logger.Log(LogLevel.Warning, this, LogFunction.Create, "File Exceeds Folder Capacity And Has Been Removed {Folder} {File}", folder, filepath);
             }
 
             return file;

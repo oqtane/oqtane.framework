@@ -20,7 +20,7 @@ else
 			<div class="container">
 				<div class="row mb-1 align-items-center">
 					<div class="col-sm-4">
-						<ActionLink Action="Add" Text="Add User" ResourceKey="AddUser" />
+						<ActionLink Action="Add" Text="Add User" Security="SecurityAccessLevel.Edit" ResourceKey="AddUser" />
 					</div>
 					<div class="col-sm-4">
 						<input class="form-control" @bind="@_search" />
@@ -41,21 +41,21 @@ else
 				</Header>
 				<Row>
 					<td>
-						<ActionLink Action="Edit" Parameters="@($"id=" + context.UserId.ToString())" ResourceKey="EditUser" />
+						<ActionLink Action="Edit" Parameters="@($"id=" + context.UserId.ToString())" Security="SecurityAccessLevel.Edit" ResourceKey="EditUser" />
 					</td>
 					<td>
-						<ActionDialog Header="Delete User" Message="@string.Format(Localizer["Confirm.User.Delete"], context.User.DisplayName)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUser(context))" Disabled="@(context.UserId == PageState.User.UserId)" ResourceKey="DeleteUser" />
+						<ActionDialog Header="Delete User" Message="@string.Format(Localizer["Confirm.User.Delete"], context.User.DisplayName)" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteUser(context))" Disabled="@(context.UserId == PageState.User.UserId)" ResourceKey="DeleteUser" />
 					</td>
 					<td>
-						<ActionLink Action="Roles" Parameters="@($"id=" + context.UserId.ToString())" ResourceKey="Roles" />
+						<ActionLink Action="Roles" Parameters="@($"id=" + context.UserId.ToString())" Security="SecurityAccessLevel.Edit" ResourceKey="Roles" />
 					</td>
 					<td>@context.User.Username</td>
 					<td>@((MarkupString)string.Format("<a href=\"mailto:{0}\">{1}</a>", @context.User.Email, @context.User.DisplayName))</td>
-					<td>@string.Format("{0:dd-MMM-yyyy HH:mm:ss}", context.User.LastLoginOn)</td>
+					<td>@((context.User.LastLoginOn != DateTime.MinValue) ? string.Format("{0:dd-MMM-yyyy HH:mm:ss}", context.User.LastLoginOn) : "")</td>
 				</Row>
 			</Pager>
-	</TabPanel>
-        <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings">
+		</TabPanel>
+        <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings" Security="SecurityAccessLevel.Admin">
 			<div class="container">
 				<Section Name="User" Heading="User Settings" ResourceKey="UserSettings">
 					<div class="row mb-1 align-items-center">
@@ -406,7 +406,7 @@ else
 	private string _lifetime;
 	private string _token;
 
-	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -456,7 +456,8 @@ else
 			_togglesecret = SharedLocalizer["ShowPassword"];
 			_issuer = SettingService.GetSetting(settings, "JwtOptions:Issuer", PageState.Uri.Scheme + "://" + PageState.Alias.Name);
 			_audience = SettingService.GetSetting(settings, "JwtOptions:Audience", "");
-			_lifetime = SettingService.GetSetting(settings, "JwtOptions:Lifetime", "20");		}
+			_lifetime = SettingService.GetSetting(settings, "JwtOptions:Lifetime", "20");
+		}
 	}
 
 	private async Task LoadUsersAsync(bool load)
@@ -522,7 +523,7 @@ else
 	private async Task UpdateUserSettingsAsync()
 	{
 		Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-		SettingService.SetSetting(settings, settingSearch, _search);
+		settings = SettingService.SetSetting(settings, settingSearch, _search);
 		await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
 	}
 

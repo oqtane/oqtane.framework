@@ -224,126 +224,140 @@ else
 <br /><br />
 
 @code {
-    private string username = string.Empty;
-    private string _password = string.Empty;
-    private string _passwordtype = "password";
-    private string _togglepassword = string.Empty;
-    private string confirm = string.Empty;
-    private bool allowtwofactor = false;
-    private string twofactor = "False";
-    private string email = string.Empty;
-    private string displayname = string.Empty;
-    private FileManager filemanager;
-    private int folderid = -1;
-    private int photofileid = -1;
-    private File photo = null;
-    private List<Profile> profiles;
-    private Dictionary<string, string> settings;
-    private string category = string.Empty;
-    private string filter = "to";
-    private List<Notification> notifications;
+	private string username = string.Empty;
+	private string _password = string.Empty;
+	private string _passwordtype = "password";
+	private string _togglepassword = string.Empty;
+	private string confirm = string.Empty;
+	private bool allowtwofactor = false;
+	private string twofactor = "False";
+	private string email = string.Empty;
+	private string displayname = string.Empty;
+	private FileManager filemanager;
+	private int folderid = -1;
+	private int photofileid = -1;
+	private File photo = null;
+	private List<Profile> profiles;
+	private Dictionary<string, string> settings;
+	private string category = string.Empty;
+	private string filter = "to";
+	private List<Notification> notifications;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
 
-    protected override async Task OnParametersSetAsync()
-    {
-        try
-        {
-            _togglepassword = SharedLocalizer["ShowPassword"];
+	protected override async Task OnParametersSetAsync()
+	{
+		try
+		{
+			_togglepassword = SharedLocalizer["ShowPassword"];
 
-            if (PageState.Site.Settings.ContainsKey("LoginOptions:TwoFactor") && !string.IsNullOrEmpty(PageState.Site.Settings["LoginOptions:TwoFactor"]))
-            {
-                allowtwofactor = (PageState.Site.Settings["LoginOptions:TwoFactor"] == "true");
-            }
+			if (PageState.Site.Settings.ContainsKey("LoginOptions:TwoFactor") && !string.IsNullOrEmpty(PageState.Site.Settings["LoginOptions:TwoFactor"]))
+			{
+				allowtwofactor = (PageState.Site.Settings["LoginOptions:TwoFactor"] == "true");
+			}
 
-            if (PageState.User != null)
-            {
-                username = PageState.User.Username;
-                twofactor = PageState.User.TwoFactorRequired.ToString();
-                email = PageState.User.Email;
-                displayname = PageState.User.DisplayName;
+			if (PageState.User != null)
+			{
+				username = PageState.User.Username;
+				twofactor = PageState.User.TwoFactorRequired.ToString();
+				email = PageState.User.Email;
+				displayname = PageState.User.DisplayName;
 
-                // get user folder
-                var folder = await FolderService.GetFolderAsync(ModuleState.SiteId, PageState.User.FolderPath);
-                if (folder != null)
-                {
-                    folderid = folder.FolderId;
-                }
+				// get user folder
+				var folder = await FolderService.GetFolderAsync(ModuleState.SiteId, PageState.User.FolderPath);
+				if (folder != null)
+				{
+					folderid = folder.FolderId;
+				}
 
-                if (PageState.User.PhotoFileId != null)
-                {
-                    photofileid = PageState.User.PhotoFileId.Value;
-                    photo = await FileService.GetFileAsync(photofileid);
-                }
-                else
-                {
-                    photofileid = -1;
-                    photo = null;
-                }
+				if (PageState.User.PhotoFileId != null)
+				{
+					photofileid = PageState.User.PhotoFileId.Value;
+					photo = await FileService.GetFileAsync(photofileid);
+				}
+				else
+				{
+					photofileid = -1;
+					photo = null;
+				}
 
-                profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
-                settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
+				profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
+				settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
 
-                await LoadNotificationsAsync();
-            }
-            else
-            {
-                AddModuleMessage(Localizer["Message.User.NoLogIn"], MessageType.Warning);
-            }
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Loading User Profile {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error.Profile.Load"], MessageType.Error);
-        }
-    }
+				await LoadNotificationsAsync();
+			}
+			else
+			{
+				AddModuleMessage(Localizer["Message.User.NoLogIn"], MessageType.Warning);
+			}
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Loading User Profile {Error}", ex.Message);
+			AddModuleMessage(Localizer["Error.Profile.Load"], MessageType.Error);
+		}
+	}
 
-    private async Task LoadNotificationsAsync()
-    {
-        notifications = await NotificationService.GetNotificationsAsync(PageState.Site.SiteId, filter, PageState.User.UserId);
-        notifications = notifications.Where(item => item.DeletedBy != PageState.User.Username).ToList();
-    }
+	private async Task LoadNotificationsAsync()
+	{
+		notifications = await NotificationService.GetNotificationsAsync(PageState.Site.SiteId, filter, PageState.User.UserId);
+		notifications = notifications.Where(item => item.DeletedBy != PageState.User.Username).ToList();
+	}
 
-    private string GetProfileValue(string SettingName, string DefaultValue)
-        => SettingService.GetSetting(settings, SettingName, DefaultValue);
+	private string GetProfileValue(string SettingName, string DefaultValue)
+	{
+		string value = SettingService.GetSetting(settings, SettingName, DefaultValue);
+		if (value.Contains("]"))
+		{
+			value = value.Substring(value.IndexOf("]") + 1);
+		}
+		return value;
+	}
 
-    private async Task Save()
-    {
-        try
-        {
-            if (username != string.Empty && email != string.Empty && ValidateProfiles())
-            {
-                if (_password == confirm)
-                {
-                    var user = PageState.User;
-                    user.Username = username;
-                    user.Password = _password;
-                    user.TwoFactorRequired = bool.Parse(twofactor);
-                    user.Email = email;
-                    user.DisplayName = (displayname == string.Empty ? username : displayname);
-                    user.PhotoFileId = filemanager.GetFileId();
-                    if (user.PhotoFileId == -1)
-                    {
-                        user.PhotoFileId = null;
-                    }
-                    if (user.PhotoFileId != null)
-                    {
-                        photofileid = user.PhotoFileId.Value;
-                        photo = await FileService.GetFileAsync(photofileid);
-                    }
-                    else
-                    {
-                        photofileid = -1;
-                        photo = null;
-                    }
+	private async Task Save()
+	{
+		try
+		{
+			if (username != string.Empty && email != string.Empty && ValidateProfiles())
+			{
+				if (_password == confirm)
+				{
+					var user = PageState.User;
+					user.Username = username;
+					user.Password = _password;
+					user.TwoFactorRequired = bool.Parse(twofactor);
+					user.Email = email;
+					user.DisplayName = (displayname == string.Empty ? username : displayname);
+					user.PhotoFileId = filemanager.GetFileId();
+					if (user.PhotoFileId == -1)
+					{
+						user.PhotoFileId = null;
+					}
+					if (user.PhotoFileId != null)
+					{
+						photofileid = user.PhotoFileId.Value;
+						photo = await FileService.GetFileAsync(photofileid);
+					}
+					else
+					{
+						photofileid = -1;
+						photo = null;
+					}
 
-                    await UserService.UpdateUserAsync(user);
-                    await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
-                    await logger.LogInformation("User Profile Saved");
+					user = await UserService.UpdateUserAsync(user);
+					if (user != null)
+					{
+						await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
+						await logger.LogInformation("User Profile Saved");
 
-                    AddModuleMessage(Localizer["Success.Profile.Update"], MessageType.Success);
-                    StateHasChanged();
-                }
+						AddModuleMessage(Localizer["Success.Profile.Update"], MessageType.Success);
+						StateHasChanged();
+					}
+					else
+					{
+						AddModuleMessage(Localizer["Message.Password.Complexity"], MessageType.Error);						
+					}
+				}
                 else
                 {
                     AddModuleMessage(Localizer["Message.Password.Invalid"], MessageType.Warning);

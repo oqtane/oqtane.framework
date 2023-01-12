@@ -87,10 +87,9 @@ else
 		// retrieve friendly localized error
 		_error =  Localizer["Error.Module.Exception"];
 		// log error
-		int? userId = (PageState.User != null) ? PageState.User.UserId : null;
 		string category = GetType().AssemblyQualifiedName;
 		string feature = Utilities.GetTypeNameLastSegment(category, 1);
-		await LoggingService.Log(null, ModuleState.PageId, ModuleState.ModuleId, userId, category, feature, LogFunction.Other, LogLevel.Error, exception, "An Unexpected Error Has Occurred In {ModuleDefinitionName}: {Error}", ModuleState.ModuleDefinitionName, exception.Message);
+		await LoggingService.Log(null, ModuleState.PageId, ModuleState.ModuleId, PageState.User?.UserId, category, feature, LogFunction.Other, LogLevel.Error, exception, "An Unexpected Error Has Occurred In {ModuleDefinitionName}: {Error}", ModuleState.ModuleDefinitionName, exception.Message);
 		await base.OnErrorAsync(exception);
 		return;
 	}

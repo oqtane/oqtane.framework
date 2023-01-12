@@ -127,8 +127,6 @@ namespace Oqtane
                 .WithSiteIdentity()
                 .WithSiteAuthentication();
 
-            services.AddOqtaneAuthorizationPolicies();
-
             services.AddMvc(options =>
             {
                 options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());

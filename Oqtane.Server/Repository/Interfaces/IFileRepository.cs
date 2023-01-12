@@ -10,6 +10,7 @@ namespace Oqtane.Repository
         File UpdateFile(File file);
         File GetFile(int fileId);
         File GetFile(int fileId, bool tracking);
+        File GetFile(int folderId, string fileName);
         File GetFile(int siteId, string folderPath, string fileName);
         void DeleteFile(int fileId);
         string GetFilePath(int fileId);

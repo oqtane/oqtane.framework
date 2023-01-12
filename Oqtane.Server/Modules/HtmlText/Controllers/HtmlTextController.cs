@@ -29,7 +29,7 @@ namespace Oqtane.Modules.HtmlText.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public IEnumerable<Models.HtmlText> Get(string moduleId)
         {
-            if (int.TryParse(moduleId, out int ModuleId) && AuthEntityId(EntityNames.Module) == ModuleId)
+            if (int.TryParse(moduleId, out int ModuleId) && IsAuthorizedEntityId(EntityNames.Module, ModuleId))
             {
                 return _htmlText.GetHtmlTexts(ModuleId);
             }
@@ -42,11 +42,11 @@ namespace Oqtane.Modules.HtmlText.Controllers
         }
 
         // GET api/<controller>/5
-        [HttpGet("{moduleid}")]
+        [HttpGet("{moduleId}")]
         [Authorize(Policy = PolicyNames.ViewModule)]
         public Models.HtmlText Get(int moduleId)
         {
-            if (AuthEntityId(EntityNames.Module) == moduleId)
+            if (IsAuthorizedEntityId(EntityNames.Module, moduleId))
             {
                 var htmltexts = _htmlText.GetHtmlTexts(moduleId);
                 if (htmltexts != null && htmltexts.Any())
@@ -67,11 +67,11 @@ namespace Oqtane.Modules.HtmlText.Controllers
         }
 
         // GET api/<controller>/5/6
-        [HttpGet("{id}/{moduleid}")]
+        [HttpGet("{id}/{moduleId}")]
         [Authorize(Policy = PolicyNames.ViewModule)]
         public Models.HtmlText Get(int id, int moduleId)
         {
-            if (AuthEntityId(EntityNames.Module) == moduleId)
+            if (IsAuthorizedEntityId(EntityNames.Module, moduleId))
             {
                 return _htmlText.GetHtmlText(id);
             }
@@ -88,7 +88,7 @@ namespace Oqtane.Modules.HtmlText.Controllers
         [Authorize(Policy = PolicyNames.EditModule)]
         public Models.HtmlText Post([FromBody] Models.HtmlText htmlText)
         {
-            if (ModelState.IsValid && AuthEntityId(EntityNames.Module) == htmlText.ModuleId)
+            if (ModelState.IsValid && IsAuthorizedEntityId(EntityNames.Module, htmlText.ModuleId))
             {
                 htmlText = _htmlText.AddHtmlText(htmlText);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Html/Text Added {HtmlText}", htmlText);
@@ -103,11 +103,11 @@ namespace Oqtane.Modules.HtmlText.Controllers
         }
 
         // DELETE api/<controller>/5
-        [HttpDelete("{id}/{moduleid}")]
+        [HttpDelete("{id}/{moduleId}")]
         [Authorize(Policy = PolicyNames.EditModule)]
         public void Delete(int id, int moduleId)
         {
-            if (AuthEntityId(EntityNames.Module) == moduleId)
+            if (IsAuthorizedEntityId(EntityNames.Module, moduleId))
             {
                 _htmlText.DeleteHtmlText(id);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Html/Text Deleted {HtmlTextId}", id);

@@ -8,7 +8,7 @@ namespace Oqtane.Models
     /// Describes a Site in a <see cref="Tenant"/> in an Oqtane installation.
     /// Sites can have multiple <see cref="Alias"/>es.
     /// </summary>
-    public class Site : IAuditable, IDeletable
+    public class Site : ModelBase, IDeletable
     {
         /// <summary>
         /// Internal ID, not to be confused with the <see cref="Alias.AliasId"/>
@@ -100,20 +100,7 @@ namespace Oqtane.Models
         [NotMapped]
         public List<Language> Languages { get; set; }
 
-        #region IAuditable Properties
-
-        /// <inheritdoc/>
-        public string CreatedBy { get; set; }
-        /// <inheritdoc/>
-        public DateTime CreatedOn { get; set; }
-        /// <inheritdoc/>
-        public string ModifiedBy { get; set; }
-        /// <inheritdoc/>
-        public DateTime ModifiedOn { get; set; }
-
-        #endregion
-
-        #region Extended IAuditable Properties, may be moved to an Interface some day so not documented yet
+        #region IDeletable Properties
 
         public string DeletedBy { get; set; }
         public DateTime? DeletedOn { get; set; }

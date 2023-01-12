@@ -8,16 +8,16 @@
     @if ((Toolbar == "Top" || Toolbar == "Both") && _pages > 0 && Items.Count() > _maxItems)
     {
         <ul class="pagination justify-content-center my-2">
-            <li class="page-item@((_page > 1) ? "" : " disabled")">
+            <li class="page-item@((_page > 1) ? " app-pager-pointer" : " disabled")">
                 <a class="page-link" @onclick=@(async () => UpdateList(1))><span class="oi oi-media-step-backward" title="start" aria-hidden="true"></span></a>
             </li>
             @if (_pages > _displayPages && _displayPages > 1)
             {
-                <li class="page-item@((_page > _displayPages) ? "" : " disabled")">
+                <li class="page-item@((_page > _displayPages) ? " app-pager-pointer" : " disabled")">
                     <a class="page-link" @onclick=@(async () => SkipPages("back"))><span class="oi oi-media-skip-backward" title="skip back" aria-hidden="true"></span></a>
                 </li>
             }
-            <li class="page-item@((_page > 1) ? "" : " disabled")">
+            <li class="page-item@((_page > 1) ? " app-pager-pointer" : " disabled")">
                 <a class="page-link" @onclick=@(async () => NavigateToPage("previous"))><span class="oi oi-chevron-left" title="previous" aria-hidden="true"></span></a>
             </li>
             @for (int i = _startPage; i <= _endPage; i++)
@@ -25,27 +25,27 @@
                 var pager = i;
                 if (pager == _page)
                 {
-                    <li class="page-item active">
+                    <li class="page-item app-pager-pointer active">
                         <a class="page-link" @onclick=@(async () => UpdateList(pager))>@pager</a>
                     </li>
                 }
                 else
                 {
-                    <li class="page-item">
+                    <li class="page-item app-pager-pointer">
                         <a class="page-link" @onclick=@(async () => UpdateList(pager))>@pager</a>
                     </li>
                 }
             }
-            <li class="page-item@((_page < _pages) ? "" : " disabled")">
+            <li class="page-item@((_page < _pages) ? " app-pager-pointer" : " disabled")">
                 <a class="page-link" @onclick=@(async () => NavigateToPage("next"))><span class="oi oi-chevron-right" title="next" aria-hidden="true"></span></a>
             </li>
             @if (_pages > _displayPages && _displayPages > 1)
             {
-                <li class="page-item@((_endPage < _pages) ? "" : " disabled")">
+                <li class="page-item@((_endPage < _pages) ? " app-pager-pointer" : " disabled")">
                     <a class="page-link" @onclick=@(async () => SkipPages("forward"))><span class="oi oi-media-skip-forward" title="skip forward" aria-hidden="true"></span></a>
                 </li>
             }
-            <li class="page-item@((_page < _pages) ? "" : " disabled")">
+            <li class="page-item@((_page < _pages) ? " app-pager-pointer" : " disabled")">
                 <a class="page-link" @onclick=@(async () => UpdateList(_pages))><span class="oi oi-media-step-forward" title="end" aria-hidden="true"></span></a>
             </li>
             <li class="page-item disabled">
@@ -55,46 +55,46 @@
     }
     @if (Format == "Table" && Row != null)
     {
-		<div class="table-responsive">
-			<table class="@Class">
-				<thead>
-					<tr class="@RowClass">@Header</tr>
-				</thead>
-				<tbody>
-					@foreach (var item in ItemList)
-					{
-						<tr class="@RowClass">@Row(item)</tr>
-						@if (Detail != null)
-						{
-							<tr>@Detail(item)</tr>
-						}
-					}
-				</tbody>
+        <div class="table-responsive">
+            <table class="@Class">
+                <thead>
+                    <tr class="@RowClass">@Header</tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in ItemList)
+                    {
+                        <tr class="@RowClass">@Row(item)</tr>
+                        @if (Detail != null)
+                        {
+                            <tr>@Detail(item)</tr>
+                        }
+                    }
+                </tbody>
                 <tfoot>
                     <tr class="@RowClass">@Footer</tr>
                 </tfoot>
-			</table>
-		</div>
+            </table>
+        </div>
     }
     @if (Format == "Grid" && Row != null)
     {
         int count = 0;
-		int rows = 0;
-		int cols = 0;
-		if (ItemList != null)
+        int rows = 0;
+        int cols = 0;
+        if (ItemList != null)
         {
-			if (_columns == 0)
-			{
-				count = ItemList.Count();
-				rows = 1;
-				cols = count;
-			}
-			else
-			{
-				count = (int)Math.Ceiling(ItemList.Count() / (decimal)_columns) * _columns;
-				rows = count / _columns;
-				cols = _columns;
-			}
+            if (_columns == 0)
+            {
+                count = ItemList.Count();
+                rows = 1;
+                cols = count;
+            }
+            else
+            {
+                count = (int)Math.Ceiling(ItemList.Count() / (decimal)_columns) * _columns;
+                rows = count / _columns;
+                cols = _columns;
+            }
         }
         <div class="@Class">
             @for (int row = 0; row < rows; row++)
@@ -116,19 +116,19 @@
             }
         </div>
     }
-    @if ((Toolbar == "Bottom"  || Toolbar == "Both") && _pages > 0 && Items.Count() > _maxItems)
+    @if ((Toolbar == "Bottom" || Toolbar == "Both") && _pages > 0 && Items.Count() > _maxItems)
     {
         <ul class="pagination justify-content-center my-2">
-            <li class="page-item@((_page > 1) ? "" : " disabled")">
+            <li class="page-item@((_page > 1) ? " app-pager-pointer" : " disabled")">
                 <a class="page-link" @onclick=@(async () => UpdateList(1))><span class="oi oi-media-step-backward" title="start" aria-hidden="true"></span></a>
             </li>
             @if (_pages > _displayPages && _displayPages > 1)
-             {
-                <li class="page-item@((_page > _displayPages) ? "" : " disabled")">
+            {
+                <li class="page-item@((_page > _displayPages) ? " app-pager-pointer" : " disabled")">
                     <a class="page-link" @onclick=@(async () => SkipPages("back"))><span class="oi oi-media-skip-backward" title="skip back" aria-hidden="true"></span></a>
                 </li>
             }
-            <li class="page-item@((_page > 1) ? "" : " disabled")">
+            <li class="page-item@((_page > 1) ? " app-pager-pointer" : " disabled")">
                 <a class="page-link" @onclick=@(async () => NavigateToPage("previous"))><span class="oi oi-chevron-left" title="previous" aria-hidden="true"></span></a>
             </li>
             @for (int i = _startPage; i <= _endPage; i++)
@@ -136,100 +136,100 @@
                 var pager = i;
                 if (pager == _page)
                 {
-                    <li class="page-item active">
+                    <li class="page-item app-pager-pointer active">
                         <a class="page-link" @onclick=@(async () => UpdateList(pager))>@pager</a>
                     </li>
                 }
                 else
                 {
-                    <li class="page-item">
+                    <li class="page-item app-pager-pointer">
                         <a class="page-link" @onclick=@(async () => UpdateList(pager))>@pager</a>
                     </li>
                 }
             }
-            <li class="page-item@((_page < _pages) ? "" : " disabled")">
+            <li class="page-item@((_page < _pages) ? " app-pager-pointer" : " disabled")">
                 <a class="page-link" @onclick=@(async () => NavigateToPage("next"))><span class="oi oi-chevron-right" title="next" aria-hidden="true"></span></a>
             </li>
             @if (_pages > _displayPages && _displayPages > 1)
             {
-                <li class="page-item@((_endPage < _pages) ? "" : " disabled")">
+                <li class="page-item@((_endPage < _pages) ? " app-pager-pointer" : " disabled")">
                     <a class="page-link" @onclick=@(async () => SkipPages("forward"))><span class="oi oi-media-skip-forward" title="skip forward" aria-hidden="true"></span></a>
                 </li>
             }
-            <li class="page-item@((_page < _pages) ? "" : " disabled")">
+            <li class="page-item@((_page < _pages) ? " app-pager-pointer" : " disabled")">
                 <a class="page-link" @onclick=@(async () => UpdateList(_pages))><span class="oi oi-media-step-forward" title="end" aria-hidden="true"></span></a>
             </li>
             <li class="page-item disabled">
-               <a class="page-link" style="white-space: nowrap;">@Localizer["PageOfPages", _page, _pages]</a>
+                <a class="page-link" style="white-space: nowrap;">@Localizer["PageOfPages", _page, _pages]</a>
             </li>
         </ul>
     }
 }
 
 @code {
-	private IStringLocalizer Localizer;
-	private int _pages = 0;
-	private int _page = 1;
-	private int _maxItems = 10;
-	private int _displayPages = 5;
-	private int _startPage = 0;
-	private int _endPage = 0;
-	private int _columns = 0;
+    private IStringLocalizer Localizer;
+    private int _pages = 0;
+    private int _page = 1;
+    private int _maxItems = 10;
+    private int _displayPages = 5;
+    private int _startPage = 0;
+    private int _endPage = 0;
+    private int _columns = 0;
 
-	[Parameter]
-	public string Format { get; set; } // Table or Grid
+    [Parameter]
+    public string Format { get; set; } // Table or Grid
 
-	[Parameter]
-	public string Toolbar { get; set; } // Top, Bottom or Both
+    [Parameter]
+    public string Toolbar { get; set; } // Top, Bottom or Both
 
-	[Parameter]
-	public RenderFragment Header { get; set; } = null; // only applicable to Table layouts
+    [Parameter]
+    public RenderFragment Header { get; set; } = null; // only applicable to Table layouts
 
-	[Parameter]
-	public RenderFragment<TableItem> Row { get; set; } = null; // required
+    [Parameter]
+    public RenderFragment<TableItem> Row { get; set; } = null; // required
 
     [Parameter]
     public RenderFragment Footer { get; set; } = null; // only applicable to Table layouts
 
-	[Parameter]
-	public RenderFragment<TableItem> Detail { get; set; } = null; // only applicable to Table layouts
+    [Parameter]
+    public RenderFragment<TableItem> Detail { get; set; } = null; // only applicable to Table layouts
 
-	[Parameter]
-	public IEnumerable<TableItem> Items { get; set; } // the IEnumerable data source
+    [Parameter]
+    public IEnumerable<TableItem> Items { get; set; } // the IEnumerable data source
 
-	[Parameter]
-	public string PageSize { get; set; } // number of items to display on a page
+    [Parameter]
+    public string PageSize { get; set; } // number of items to display on a page
 
-	[Parameter]
-	public string Columns { get; set; } // only applicable to Grid layouts - default is zero indicating use responsive behavior
+    [Parameter]
+    public string Columns { get; set; } // only applicable to Grid layouts - default is zero indicating use responsive behavior
 
-	[Parameter]
-	public string CurrentPage { get; set; } // sets the initial page to display
+    [Parameter]
+    public string CurrentPage { get; set; } // sets the initial page to display
 
-	[Parameter]
-	public string DisplayPages { get; set; } // maximum number of page numbers to display for user selection
+    [Parameter]
+    public string DisplayPages { get; set; } // maximum number of page numbers to display for user selection
 
-	[Parameter]
-	public string Class { get; set; } // class for the containing element - ie. <table> for Table or <div> for Grid
+    [Parameter]
+    public string Class { get; set; } // class for the containing element - ie. <table> for Table or <div> for Grid
 
-	[Parameter]
-	public string RowClass { get; set; } // class for row element - ie. <tr> for Table or <div> for Grid
+    [Parameter]
+    public string RowClass { get; set; } // class for row element - ie. <tr> for Table or <div> for Grid
 
-	[Parameter]
-	public string ColumnClass { get; set; } // class for column element - only applicable to Grid format
+    [Parameter]
+    public string ColumnClass { get; set; } // class for column element - only applicable to Grid format
 
-	[Parameter]
-	public Action<int> OnPageChange { get; set; } // a method to be executed in the calling component when the page changes
+    [Parameter]
+    public Action<int> OnPageChange { get; set; } // a method to be executed in the calling component when the page changes
 
-	private IEnumerable<TableItem> ItemList { get; set; }
+    private IEnumerable<TableItem> ItemList { get; set; }
 
-	protected override void OnInitialized()
-	{
-		Localizer = LocalizerFactory.Create(GetType().FullName);
-	}
+    protected override void OnInitialized()
+    {
+        Localizer = LocalizerFactory.Create(GetType().FullName);
+    }
 
-	protected override void OnParametersSet()
-	{
+    protected override void OnParametersSet()
+    {
         if (string.IsNullOrEmpty(Format))
         {
             Format = "Table";
@@ -262,8 +262,8 @@
             {
                 RowClass = "row";
             }
-        }	
-		
+        }
+
         if (string.IsNullOrEmpty(ColumnClass))
         {
             if (Format == "Table")
@@ -274,9 +274,9 @@
             {
                 ColumnClass = "col";
             }
-        }	
-		
-		if (!string.IsNullOrEmpty(PageSize))
+        }
+
+        if (!string.IsNullOrEmpty(PageSize))
         {
             _maxItems = int.Parse(PageSize);
         }
@@ -299,7 +299,7 @@
         {
             _page = 1;
         }
-		if (_page < 1) _page = 1;
+        if (_page < 1) _page = 1;
 
         _startPage = 0;
         _endPage = 0;
@@ -311,7 +311,6 @@
             {
                 _page = _pages;
             }
-            ItemList = Items.Skip((_page - 1) * _maxItems).Take(_maxItems);
             SetPagerSize();
         }
     }
@@ -324,13 +323,13 @@
         {
             _endPage = _pages;
         }
-        OnPageChange?.Invoke(_page);
-        StateHasChanged();
-    }
+		ItemList = Items.Skip((_page - 1) * _maxItems).Take(_maxItems);
+		StateHasChanged();
+		OnPageChange?.Invoke(_page);
+	}
 
     public void UpdateList(int page)
     {
-        ItemList = Items.Skip((page - 1) * _maxItems).Take(_maxItems);
         _page = page;
         SetPagerSize();
     }

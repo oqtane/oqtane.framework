@@ -67,27 +67,6 @@ namespace Oqtane.Services
         Task<File> UploadFileAsync(string url, int folderId, string name);
 
         /// <summary>
-        /// Upload one or more files.
-        /// </summary>
-        /// <param name="folderId">Target <see cref="Folder"/></param>
-        /// <param name="files">The files to upload, serialized as a string.</param>
-        /// <param name="fileUploadName">A task-identifier, to ensure communication about this upload.</param>
-        /// <returns></returns>
-        Task<string> UploadFilesAsync(int folderId, string[] files, string fileUploadName);
-
-
-        /// <summary>
-        /// Upload one or more files.
-        /// </summary>
-        /// <param name="folder">Target <see cref="Folder"/>
-        /// TODO: todoc verify exactly from where the folder path must start
-        /// </param>
-        /// <param name="files">The files to upload, serialized as a string.</param>
-        /// <param name="fileUploadName">A task-identifier, to ensure communication about this upload.</param>
-        /// <returns></returns>
-        Task<string> UploadFilesAsync(string folder, string[] files, string fileUploadName);
-
-        /// <summary>
         /// Get / download a file (the body).
         /// </summary>
         /// <param name="fileId">Reference to a <see cref="File"/></param>

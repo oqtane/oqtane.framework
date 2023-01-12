@@ -14,6 +14,6 @@ namespace Oqtane.Services
 
         private string Apiurl => CreateApiUrl("Localization");
 
-        public async Task<IEnumerable<Culture>> GetCulturesAsync() => await GetJsonAsync<IEnumerable<Culture>>(Apiurl);
+        public async Task<IEnumerable<Culture>> GetCulturesAsync(bool installed) => await GetJsonAsync<IEnumerable<Culture>>($"{Apiurl}?installed={installed}");
     }
 }

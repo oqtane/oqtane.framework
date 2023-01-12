@@ -72,15 +72,24 @@ namespace Oqtane.Modules
             {
                 if (Resources != null && Resources.Exists(item => item.ResourceType == ResourceType.Script))
                 {
+                    var interop = new Interop(JSRuntime);
                     var scripts = new List<object>();
+                    var inline = 0;
                     foreach (Resource resource in Resources.Where(item => item.ResourceType == ResourceType.Script))
                     {
-                        var url = (resource.Url.Contains("://")) ? resource.Url : PageState.Alias.BaseUrl + resource.Url;
-                        scripts.Add(new { href = url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", es6module = resource.ES6Module });
+                        if (!string.IsNullOrEmpty(resource.Url))
+                        {
+                            var url = (resource.Url.Contains("://")) ? resource.Url : PageState.Alias.BaseUrl + resource.Url;
+                            scripts.Add(new { href = url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", es6module = resource.ES6Module });
+                        }
+                        else
+                        {
+                            inline += 1;
+                            await interop.IncludeScript(GetType().Namespace.ToLower() + inline.ToString(), "", "", "", resource.Content, resource.Location.ToString().ToLower());
+                        }
                     }
                     if (scripts.Any())
                     {
-                        var interop = new Interop(JSRuntime);
                         await interop.IncludeScripts(scripts.ToArray());
                     }
                 }
@@ -306,15 +315,10 @@ namespace Oqtane.Modules
         {
             int pageId = ModuleState.PageId;
             int moduleId = ModuleState.ModuleId;
-            int? userId = null;
-            if (PageState.User != null)
-            {
-                userId = PageState.User.UserId;
-            }
             string category = GetType().AssemblyQualifiedName;
             string feature = Utilities.GetTypeNameLastSegment(category, 1);
 
-            await LoggingService.Log(alias, pageId, moduleId, userId, category, feature, function, level, exception, message, args);
+            await LoggingService.Log(alias, pageId, moduleId, PageState.User?.UserId, category, feature, function, level, exception, message, args);
         }
 
         public class Logger

@@ -10,7 +10,7 @@
 }
 else
 {
-    <ActionLink Action="Add" Security="SecurityAccessLevel.Admin" Text="Add Profile" ResourceKey="AddProfile" />
+	<ActionLink Action="Add" Text="Add Profile" Security="SecurityAccessLevel.Edit" ResourceKey="AddProfile" />
 
     <Pager Items="@_profiles">
         <Header>
@@ -19,8 +19,8 @@ else
             <th>@SharedLocalizer["Name"]</th>
         </Header>
         <Row>
-            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ProfileId.ToString())" ResourceKey="EditProfile" /></td>
-            <td><ActionDialog Header="Delete Profile" Message="@string.Format(Localizer["Confirm.Profile.Delete"], context.Name)" Action="Delete" Class="btn btn-danger" OnClick="@(async () => await DeleteProfile(context.ProfileId))" ResourceKey="DeleteProfile" /></td>
+			<td><ActionLink Action="Edit" Parameters="@($"id=" + context.ProfileId.ToString())" Security="SecurityAccessLevel.Edit" ResourceKey="EditProfile" /></td>
+			<td><ActionDialog Header="Delete Profile" Message="@string.Format(Localizer["Confirm.Profile.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteProfile(context.ProfileId))" ResourceKey="DeleteProfile" /></td>
             <td>@context.Name</td>
         </Row>
     </Pager>
@@ -29,7 +29,7 @@ else
 @code {
     private List<Profile> _profiles;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
 
     protected override async Task OnParametersSetAsync()
     {

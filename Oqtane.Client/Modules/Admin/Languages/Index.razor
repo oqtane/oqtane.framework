@@ -19,94 +19,198 @@ else
             <th style="width: 1px;">&nbsp;</th>
             <th>@SharedLocalizer["Name"]</th>
             <th>@Localizer["Code"]</th>
-			<th>@Localizer["Translation"]</th>
             <th>@Localizer["Default"]</th>
-			<th style="width: 1px;">&nbsp;</th>
+			@if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+			{
+				<th style="width: 1px;">@Localizer["Translation"]</th>
+				<th style="width: 1px;">&nbsp;</th>
+			}
         </Header>
         <Row>
             <td><ActionDialog Header="Delete Language" Message="@string.Format(Localizer["Confirm.Language.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteLanguage(context))" Disabled="@((context.IsDefault && _languages.Count > 2) || context.Code == Constants.DefaultCulture)" ResourceKey="DeleteLanguage" /></td>
             <td>@context.Name</td>
             <td>@context.Code</td>
-			<td>@context.Version</td>
 			<td><TriStateCheckBox Value="@(context.IsDefault)" Disabled="true"></TriStateCheckBox></td>
-			<td>
-                @if (UpgradeAvailable(context.Code, context.Version))
-                {
-                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadLanguage(context.Code))>@SharedLocalizer["Upgrade"]</button>
-                }
-            </td>
+			@if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+			{
+				<td>@((string.IsNullOrEmpty(context.Version)) ? "---" : context.Version)</td>
+				<td>
+					@switch (TranslationAvailable(context.Code, context.Version))
+					{
+						case "install":
+							<button type="button" class="btn btn-success" @onclick=@(async () => await GetPackage(context.Code))>@SharedLocalizer["Download"]</button>
+							break;
+						case "upgrade":
+							<button type="button" class="btn btn-success" @onclick=@(async () => await GetPackage(context.Code))>@SharedLocalizer["Upgrade"]</button>
+							break;
+					}
+				</td>
+			}
         </Row>
     </Pager>
+	@if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host) && _install)
+	{
+		<button type="button" class="btn btn-success" @onclick="InstallTranslations">@SharedLocalizer["Install"]</button>
+	}
+}
+
+@if (_package != null)
+{
+	<div class="app-actiondialog">
+		<div class="modal" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">@SharedLocalizer["Review License Terms"]</h5>
+						<button type="button" class="btn-close" aria-label="Close" @onclick="HideModal"></button>
+					</div>
+					<div class="modal-body">
+						<p style="height: 200px; overflow-y: scroll;">
+							<h4 style="display: inline;"><a href="@_package.ProductUrl" target="_new">@_package.Name</a></h4><br />
+							@SharedLocalizer["Search.By"]:&nbsp;&nbsp;<strong><a href="@_package.OwnerUrl" target="new">@_package.Owner</a></strong><br />
+							@(_package.Description.Length > 400 ? (_package.Description.Substring(0, 400) + "...") : _package.Description)<br />
+							<strong>@(String.Format("{0:n0}", _package.Downloads))</strong> @SharedLocalizer["Search.Downloads"]&nbsp;&nbsp;|&nbsp;&nbsp;
+							@SharedLocalizer["Search.Released"]: <strong>@_package.ReleaseDate.ToString("MMM dd, yyyy")</strong>&nbsp;&nbsp;|&nbsp;&nbsp;
+							@SharedLocalizer["Search.Version"]: <strong>@_package.Version</strong>
+							@((MarkupString)(!string.IsNullOrEmpty(_package.PackageUrl) ? "&nbsp;&nbsp;|&nbsp;&nbsp;" + SharedLocalizer["Search.Source"] + ": <strong>" + new Uri(_package.PackageUrl).Host + "</strong>" : ""))
+							<br /><br />
+							@if (!string.IsNullOrEmpty(_package.License))
+							{
+								@((MarkupString)_package.License.Replace("\n", "<br />"))
+							}
+							else
+							{
+								@SharedLocalizer["License Not Specified"]
+							}
+						</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-success" @onclick="DownloadPackage">@SharedLocalizer["Accept"]</button>
+						<button type="button" class="btn btn-secondary" @onclick="HideModal">@SharedLocalizer["Cancel"]</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 }
 
 @code {
 	private List<Language> _languages;
 	private List<Package> _packages;
+	private Package _package;
+	private bool _install = false;
 
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
 	protected override async Task OnParametersSetAsync()
 	{
+		await GetLanguages();
+
+		if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+		{
+			_packages = await PackageService.GetPackagesAsync("translation");			
+		}
+	}
+
+	private async Task GetLanguages()
+	{
 		_languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId, Constants.ClientId);
+	}
 
-		var cultures = await LocalizationService.GetCulturesAsync();
-        var culture = cultures.First(c => c.Name.Equals(Constants.DefaultCulture));
+	private async Task DeleteLanguage(Language language)
+	{
+		try
+		{
+			await LanguageService.DeleteLanguageAsync(language.LanguageId);
+			await logger.LogInformation("Language Deleted {Language}", language);
+			await GetLanguages();
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Deleting Language {Language} {Error}", language, ex.Message);
 
-        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-        {
-            _packages = await PackageService.GetPackagesAsync("translation");			
-        }
-    }
+			AddModuleMessage(Localizer["Error.Language.Delete"], MessageType.Error);
+		}
+	}
 
-    private async Task DeleteLanguage(Language language)
-    {
-        try
-        {
-            await LanguageService.DeleteLanguageAsync(language.LanguageId);
-            await logger.LogInformation("Language Deleted {Language}", language);
-
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Deleting Language {Language} {Error}", language, ex.Message);
-
-            AddModuleMessage(Localizer["Error.Language.Delete"], MessageType.Error);
-        }
-    }
-
-    private bool UpgradeAvailable(string code, string version)
-    {
-        var upgradeavailable = false;
-        if (_packages != null && version != null)
-        {
+	private string TranslationAvailable(string code, string version)
+	{
+		if (_packages != null)
+		{
 			var package = _packages.Where(item => item.PackageId == (Constants.PackageId + "." + code)).FirstOrDefault();
 			if (package != null)
-            {
-				upgradeavailable = (Version.Parse(package.Version).CompareTo(Version.Parse(Constants.Version)) == 0) &&
-					(Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0);
-            }
+			{
+				// package version needs to match current framework version
+				if (Version.Parse(package.Version).CompareTo(Version.Parse(Constants.Version)) == 0)
+				{
+					if (string.IsNullOrEmpty(version))
+					{
+						return "install";
+					}
+					else
+					{
+						if (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0)
+						{
+							return "upgrade";
+						}
+					}
+				}					
+			}
+		}
+		return "";
+	}
 
-        }
-        return upgradeavailable;
-    }
+	private async Task GetPackage(string code)
+	{
+		try
+		{
+			_package = await PackageService.GetPackageAsync(Constants.PackageId + "." + code, Constants.Version);
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Getting Package {PackageId} {Version}", Constants.PackageId + "." + code, Constants.Version);
+			AddModuleMessage(Localizer["Error.Translation.Download"], MessageType.Error);
+		}
+	}
 
-    private async Task DownloadLanguage(string code)
-    {
-        try
-        {
-            if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-            {
-                await PackageService.DownloadPackageAsync(Constants.PackageId + "." + code, Constants.Version, Constants.PackagesFolder);
-                await logger.LogInformation("Translation Downloaded {Code} {Version}", code, Constants.Version);
-                await PackageService.InstallPackagesAsync();
-                AddModuleMessage(string.Format(Localizer["Success.Language.Install"], NavigateUrl("admin/system")), MessageType.Success);
-            }
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Downloading Translation {Code} {Version} {Error}", code, Constants.Version, ex.Message);
-            AddModuleMessage(Localizer["Error.Language.Download"], MessageType.Error);
-        }
-    }
+	private async Task DownloadPackage()
+	{
+		try
+		{
+			await PackageService.DownloadPackageAsync(_package.PackageId, _package.Version, Constants.PackagesFolder);
+			await logger.LogInformation("Language Package {Name} {Version} Downloaded Successfully", _package.PackageId, _package.Version);
+			AddModuleMessage(Localizer["Success.Language.Download"], MessageType.Success);
+			_package = null;
+			_install = true;
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Downloading Translation {Name} {Version}", _package.PackageId, _package.Version);
+			AddModuleMessage(Localizer["Error.Language.Download"], MessageType.Error);
+		}
+	}
+
+	private void HideModal()
+	{
+		_package = null;
+		StateHasChanged();
+	}
+
+	private async Task InstallTranslations()
+	{
+		try
+		{
+			await PackageService.InstallPackagesAsync();
+			AddModuleMessage(string.Format(Localizer["Success.Translation.Install"], NavigateUrl("admin/system")), MessageType.Success);
+			_install = false;
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Installing Translations");
+		}
+	}
 }

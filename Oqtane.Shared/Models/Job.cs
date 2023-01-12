@@ -6,7 +6,7 @@ namespace Oqtane.Models
     /// Definition of a Job / Task which is run on the server.
     /// When Jobs run, they create a <see cref="JobLog"/>
     /// </summary>
-    public class Job : IAuditable
+    public class Job : ModelBase
     {
         /// <summary>
         /// Internal ID
@@ -68,21 +68,5 @@ namespace Oqtane.Models
         /// Todo: todoc - unsure what this does
         /// </summary>
         public int RetentionHistory { get; set; }
-
-        #region IAuditable Properties
-
-        /// <inheritdoc/>
-        public string CreatedBy { get; set; }
-
-        /// <inheritdoc/>
-        public DateTime CreatedOn { get; set; }
-
-        /// <inheritdoc/>
-        public string ModifiedBy { get; set; }
-
-        /// <inheritdoc/>
-        public DateTime ModifiedOn { get; set; }
-
-        #endregion
     }
 }

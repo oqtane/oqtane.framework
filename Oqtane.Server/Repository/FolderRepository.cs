@@ -69,7 +69,7 @@ namespace Oqtane.Repository
             }
             if (folder != null)
             {
-                folder.Permissions = _permissions.GetPermissionString(EntityNames.Folder, folder.FolderId);
+                folder.Permissions = _permissions.GetPermissions(folder.SiteId, EntityNames.Folder, folder.FolderId)?.EncodePermissions();
             }
             return folder;
         }
@@ -79,7 +79,7 @@ namespace Oqtane.Repository
             Folder folder = _db.Folder.Where(item => item.SiteId == siteId && item.Path == path).FirstOrDefault();
             if (folder != null)
             {
-                folder.Permissions = _permissions.GetPermissionString(EntityNames.Folder, folder.FolderId);
+                folder.Permissions = _permissions.GetPermissions(folder.SiteId, EntityNames.Folder, folder.FolderId)?.EncodePermissions();
             }
             return folder;
         }
