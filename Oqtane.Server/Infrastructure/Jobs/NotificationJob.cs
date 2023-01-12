@@ -96,7 +96,6 @@ namespace Oqtane.Infrastructure
                         else
                         {
                             MailMessage mailMessage = new MailMessage();
-                            bool includeheader = true;
 
                             // sender
                             if (settings.ContainsKey("SMTPRelay") && settings["SMTPRelay"] == "True" && !string.IsNullOrEmpty(notification.FromEmail))
@@ -109,7 +108,6 @@ namespace Oqtane.Infrastructure
                                 {
                                     mailMessage.From = new MailAddress(notification.FromEmail);
                                 }
-                                includeheader = false;
                             }
                             else
                             {
@@ -130,27 +128,29 @@ namespace Oqtane.Infrastructure
                             mailMessage.Subject = notification.Subject;
 
                             //body
-                            if (includeheader)
+                            mailMessage.Body = "";
+
+                            // check if email is being sent from SMTP Sender rather than notification sender
+                            if (!string.IsNullOrEmpty(notification.FromEmail) && mailMessage.From.Address != notification.FromEmail)
                             {
-                                if (!string.IsNullOrEmpty(notification.FromEmail) && !string.IsNullOrEmpty(notification.FromDisplayName))
+                                // include information of who sent the notification in the body
+                                mailMessage.Body += "From: ";
+                                if (!string.IsNullOrEmpty(notification.FromDisplayName))
                                 {
-                                    mailMessage.Body = "From: " + notification.FromDisplayName + "<" + notification.FromEmail + ">" + "\n";
+                                    mailMessage.Body += notification.FromDisplayName + " <" + notification.FromEmail + ">\n";
                                 }
                                 else
                                 {
-                                    mailMessage.Body = "From: " + site.Name + "\n";
+                                    mailMessage.Body += notification.FromEmail + "\n";
                                 }
-                                mailMessage.Body += "Sent: " + notification.CreatedOn + "\n";
-                                if (!string.IsNullOrEmpty(notification.ToDisplayName))
-                                {
-                                    mailMessage.Body += "To: " + notification.ToDisplayName + "<" + notification.ToEmail + ">" + "\n";
-                                }
-                                else
-                                {
-                                    mailMessage.Body += "To: " + notification.ToEmail + "\n";
-                                }
+
                             }
-                            mailMessage.Body += notification.Body;
+                            // check if notification was created in the past
+                            if (notification.CreatedOn.Date != DateTime.UtcNow.Date)
+                            {
+                                mailMessage.Body += "Sent: " + notification.CreatedOn + "\n";
+                            }
+                            mailMessage.Body += "\n" + notification.Body;
 
                             // encoding
                             mailMessage.SubjectEncoding = System.Text.Encoding.UTF8;
