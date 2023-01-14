@@ -1,6 +1,6 @@
 # Latest Release
 
-[3.3.1](https://github.com/oqtane/oqtane.framework/releases/tag/v3.3.1) was released on Jan 14, 2023 and is primarily focused on flexibility, as the permissions system has been enhanced to support a new type of API permissions that provide developers with additional opportunities to create sophisticated modern web applications. This release also includes performance optimizations, enhancements to file management, and numerous user experience improvements including the addition of a new AutoComplete component. This release includes 51 pull requests by 3 different contributors, pushing the total number of project commits all-time over 3200. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
+[3.3.1](https://github.com/oqtane/oqtane.framework/releases/tag/v3.3.1) was released on Jan 14, 2023 and is a patch for the 3.3.0 release which was primarily focused on flexibility, as the permissions system has been enhanced to support a new type of API permissions that provide developers with additional opportunities to create sophisticated modern web applications. This release also includes performance optimizations, enhancements to file management, and numerous user experience improvements including the addition of a new AutoComplete component. This release includes 51 pull requests by 3 different contributors, pushing the total number of project commits all-time over 3200. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
 # Oqtane Framework
 
