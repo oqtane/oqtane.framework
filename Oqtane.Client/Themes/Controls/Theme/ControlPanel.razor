@@ -403,6 +403,8 @@
 						// set module view permissions to page edit permissions
 						permissions.Find(p => p.PermissionName == PermissionNames.View).Permissions = permissions.Find(p => p.PermissionName == PermissionNames.Edit).Permissions;
 					}
+					// set entityname
+					permissions.ForEach(item => item.EntityName = EntityNames.Module);
 					module.Permissions = UserSecurity.SetPermissionStrings(permissions);
 
 					module = await ModuleService.AddModuleAsync(module);
