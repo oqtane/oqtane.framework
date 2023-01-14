@@ -50,7 +50,7 @@ This project is open source, and therefore is a work in progress...
 - [ ] Permission serialization optimization
 - [ ] Folder Providers
 
-[3.3.1](https://github.com/oqtane/oqtane.framework/releases/tag/v3.3.1) ( Jan 14, 2023 )
+[3.3.0](https://github.com/oqtane/oqtane.framework/releases/tag/v3.3.0) ( Jan 12, 2023 )
 - [x] Dynamic Authorization Policies
 - [x] Entity-Level Permissions
 - [x] Extended Module Permissions
