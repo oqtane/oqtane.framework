@@ -8,7 +8,7 @@ namespace Oqtane.Shared
         public Alias Alias { get; set; }
         public string AntiForgeryToken { get; set; } // passed from server for use in service calls on client
         public string AuthorizationToken { get; set; } // passed from server for use in service calls on client
-        public string RemoteIPAddress { get; set; } // passed from server as cannot be reliable retrieved on client
+        public string RemoteIPAddress { get; set; } // passed from server as cannot be reliably retrieved on client
 
 
         private dynamic _properties;
