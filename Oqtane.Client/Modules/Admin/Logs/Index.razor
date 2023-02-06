@@ -106,12 +106,6 @@ else
 	{
 		try
 		{
-			// external link to log item will display Details component
-			if (PageState.QueryString.ContainsKey("id") && int.TryParse(PageState.QueryString["id"], out int id))
-			{
-				NavigationManager.NavigateTo(EditUrl(PageState.Page.Path, ModuleState.ModuleId, "Detail", $"/{id}"));
-			}
-
 			if (UrlParameters.ContainsKey("level"))
 			{
 				_level = UrlParameters["level"];
@@ -241,4 +235,15 @@ else
 		_page = page;	
 	}
 
+	protected override void OnAfterRender(bool firstRender)
+	{
+		if (!firstRender)
+		{
+			// external link to log item will display Details component
+			if (PageState.QueryString.ContainsKey("id") && int.TryParse(PageState.QueryString["id"], out int id))
+			{
+				NavigationManager.NavigateTo(EditUrl(PageState.Page.Path, ModuleState.ModuleId, "Detail", $"/{id}"));
+			}
+		}
+	}
 }
