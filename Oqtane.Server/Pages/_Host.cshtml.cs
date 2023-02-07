@@ -284,7 +284,7 @@ namespace Oqtane.Pages
                 // check if cookie already exists
                 Visitor visitor = null;
                 bool addcookie = false;
-                var VisitorCookie = "APP_VISITOR_" + SiteId.ToString();
+                var VisitorCookie = Constants.VisitorCookiePrefix + SiteId.ToString();
                 if (!int.TryParse(Request.Cookies[VisitorCookie], out VisitorId))
                 {
                     // if enabled use IP Address correlation

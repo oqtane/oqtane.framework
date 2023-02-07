@@ -237,7 +237,7 @@ else
 
 	protected override void OnAfterRender(bool firstRender)
 	{
-		if (!firstRender)
+		if (firstRender)
 		{
 			// external link to log item will display Details component
 			if (PageState.QueryString.ContainsKey("id") && int.TryParse(PageState.QueryString["id"], out int id))

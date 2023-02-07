@@ -46,7 +46,7 @@ namespace Oqtane.Controllers
             _identityCache = identityCache;
             _logger = logger;
             _alias = tenantManager.GetAlias();
-            _visitorCookie = "APP_VISITOR_" + _alias.SiteId.ToString();
+            _visitorCookie = Constants.VisitorCookiePrefix + _alias.SiteId.ToString();
         }
 
         // GET: api/<controller>
