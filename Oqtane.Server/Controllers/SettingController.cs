@@ -240,7 +240,6 @@ namespace Oqtane.Controllers
                         {
                             authorized = (visitorId == entityId);
                         }
-                        authorized = false;
                     }
                     break;
                 default: // custom entity
