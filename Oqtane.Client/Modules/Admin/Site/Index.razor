@@ -284,7 +284,10 @@
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="connectionstring" HelpText="The connection information for the database" ResourceKey="ConnectionString">Connection: </Label>
                         <div class="col-sm-9">
-                            <textarea id="connectionstring" class="form-control" @bind="@_connectionstring" rows="2" readonly></textarea>
+							<div class="input-group">
+								<input id="connectionstring" type="@_connectionstringtype" class="form-control" @bind="@_connectionstring" readonly />
+								<button type="button" class="btn btn-secondary" @onclick="@ToggleConnectionString">@_connectionstringtoggle</button>
+							</div>
                         </div>
                     </div>
                 </div>
@@ -339,6 +342,8 @@
 	private string _tenant = string.Empty;
 	private string _database = string.Empty;
 	private string _connectionstring = string.Empty;
+	private string _connectionstringtype = "password";
+	private string _connectionstringtoggle = string.Empty;
 	private string _createdby;
 	private DateTime _createdon;
 	private string _modifiedby;
@@ -353,6 +358,7 @@
 	{
 		try
 		{
+			_connectionstringtoggle = SharedLocalizer["ShowPassword"];
 			_themeList = await ThemeService.GetThemesAsync();
 			Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
 			if (site != null)
@@ -457,6 +463,20 @@
 		{
 			await logger.LogError(ex, "Error Loading Containers For Theme {ThemeType} {Error}", _themetype, ex.Message);
 			AddModuleMessage(Localizer["Error.Theme.LoadPane"], MessageType.Error);
+		}
+	}
+
+	private void ToggleConnectionString()
+	{
+		if (_connectionstringtype == "password")
+		{
+			_connectionstringtype = "text";
+			_connectionstringtoggle = SharedLocalizer["HidePassword"];
+		}
+		else
+		{
+			_connectionstringtype = "password";
+			_connectionstringtoggle = SharedLocalizer["ShowPassword"];
 		}
 	}
 
