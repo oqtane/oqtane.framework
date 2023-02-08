@@ -37,7 +37,7 @@ namespace Oqtane.Infrastructure
                 {
                     // legacy support for client api requests which would include the alias as a path prefix ( ie. {alias}/api/[controller] )
                     int aliasId;
-                    string[] segments = httpcontext.Request.Path.Value.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] segments = httpcontext.Request.Path.Value.Split('/', StringSplitOptions.RemoveEmptyEntries);
                     if (segments.Length > 1 && Shared.Constants.ReservedRoutes.Contains(segments[1]) && int.TryParse(segments[0], out aliasId))
                     {
                         alias = _aliasRepository.GetAliases().ToList().FirstOrDefault(item => item.AliasId == aliasId);

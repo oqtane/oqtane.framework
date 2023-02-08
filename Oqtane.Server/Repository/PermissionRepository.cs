@@ -225,7 +225,7 @@ namespace Oqtane.Repository
             string securityid = "";
             foreach (PermissionString permissionstring in JsonSerializer.Deserialize<List<PermissionString>>(permissionStrings))
             {
-                foreach (string id in permissionstring.Permissions.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (string id in permissionstring.Permissions.Split(';', StringSplitOptions.RemoveEmptyEntries))
                 {
                     securityid = id;
                     Permission permission = new Permission();

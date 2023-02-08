@@ -299,7 +299,7 @@
 			{
 				query = query.Substring(1); // ignore "?"
 			}
-			foreach (string kvp in query.Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries))
+			foreach (string kvp in query.Split('&', StringSplitOptions.RemoveEmptyEntries))
 			{
 				if (kvp != "")
 				{
@@ -358,7 +358,7 @@
 			}
 			if (!string.IsNullOrEmpty(panes))
 			{
-				page.Panes = panes.Replace(";", ",").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+				page.Panes = panes.Replace(";", ",").Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
 				if (!page.Panes.Contains(PaneNames.Default) && !page.Panes.Contains(PaneNames.Admin))
 				{
 					_error = "The Current Theme Does Not Contain A Default Or Admin Pane";
@@ -407,7 +407,7 @@
 					// check if the module defines custom action routes
 					if (module.ModuleDefinition.ControlTypeRoutes != "")
 					{
-						foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+						foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(';', StringSplitOptions.RemoveEmptyEntries))
 						{
 							if (route.StartsWith(action + "="))
 							{

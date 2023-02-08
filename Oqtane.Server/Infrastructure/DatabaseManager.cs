@@ -370,7 +370,7 @@ namespace Oqtane.Infrastructure
                             tenant = db.Tenant.FirstOrDefault(item => item.Name == install.TenantName);
                         }
 
-                        var aliasNames = install.Aliases.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray();
+                        var aliasNames = install.Aliases.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray();
                         var firstAlias = aliasNames[0];
                         foreach (var aliasName in aliasNames)
                         {
@@ -406,7 +406,7 @@ namespace Oqtane.Infrastructure
         {
             var result = new Installation { Success = false, Message = string.Empty };
 
-            var versions = Constants.ReleaseVersions.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            var versions = Constants.ReleaseVersions.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
             using (var scope = _serviceScopeFactory.CreateScope())
             {
@@ -486,7 +486,7 @@ namespace Oqtane.Infrastructure
                 {
                     if (!string.IsNullOrEmpty(moduleDefinition.ReleaseVersions))
                     {
-                        var versions = moduleDefinition.ReleaseVersions.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        var versions = moduleDefinition.ReleaseVersions.Split(',', StringSplitOptions.RemoveEmptyEntries);
                         using (var db = GetInstallationContext())
                         {
                             if (!string.IsNullOrEmpty(moduleDefinition.ServerManagerType))
@@ -575,7 +575,7 @@ namespace Oqtane.Infrastructure
                     {
                         // set the alias explicitly so the tenant can be resolved
                         var aliases = scope.ServiceProvider.GetRequiredService<IAliasRepository>();
-                        var aliasNames = install.Aliases.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray();
+                        var aliasNames = install.Aliases.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray();
                         var firstAlias = aliasNames[0];
                         var alias = aliases.GetAliases().FirstOrDefault(item => item.Name == firstAlias);
                         var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
