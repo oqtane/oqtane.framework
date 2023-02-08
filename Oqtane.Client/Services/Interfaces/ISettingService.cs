@@ -62,7 +62,7 @@ namespace Oqtane.Services
         /// <summary>
         /// Returns a key-value dictionary of all page module settings for the given page module
         /// </summary>
-        /// <param name="pageId"></param>
+        /// <param name="pageModuleId"></param>
         /// <returns></returns>
         Task<Dictionary<string, string>> GetPageModuleSettingsAsync(int pageModuleId);
 
@@ -107,7 +107,7 @@ namespace Oqtane.Services
         /// <summary>
         /// Returns a key-value dictionary of all user settings for the given user
         /// </summary>
-        /// <param name="pageId"></param>
+        /// <param name="userId"></param>
         /// <returns></returns>
         Task<Dictionary<string, string>> GetUserSettingsAsync(int userId);
 
@@ -122,7 +122,7 @@ namespace Oqtane.Services
         /// <summary>
         /// Returns a key-value dictionary of all folder settings for the given folder
         /// </summary>
-        /// <param name="pageId"></param>
+        /// <param name="folderId"></param>
         /// <returns></returns>
         Task<Dictionary<string, string>> GetFolderSettingsAsync(int folderId);
 
@@ -147,6 +147,21 @@ namespace Oqtane.Services
         /// <param name="hostSettings"></param>
         /// <returns></returns>
         Task UpdateHostSettingsAsync(Dictionary<string, string> hostSettings);
+
+        /// <summary>
+        /// Returns a key-value dictionary of all settings for the given visitor
+        /// </summary>
+        /// <param name="visitorId"></param>
+        /// <returns></returns>
+        Task<Dictionary<string, string>> GetVisitorSettingsAsync(int visitorId);
+
+        /// <summary>
+        /// Updates a visitor setting
+        /// </summary>
+        /// <param name="visitorSettings"></param>
+        /// <param name="visitorId"></param>
+        /// <returns></returns>
+        Task UpdateVisitorSettingsAsync(Dictionary<string, string> visitorSettings, int visitorId);
 
         /// <summary>
         /// Returns a key-value dictionary of all settings for the given entityName
