@@ -62,7 +62,7 @@ namespace Oqtane.Infrastructure
                         }
                         catch (Exception ex)
                         {
-                            result.Message = "Master Database Not Installed Correctly. " + ex.Message;
+                            result.Message = "Master Database Not Installed Correctly. " + ex.ToString();
                         }
                     }
                     else // cannot connect
@@ -74,7 +74,7 @@ namespace Oqtane.Infrastructure
                         }
                         catch (Exception ex)
                         {
-                            result.Message = "Cannot Connect To Master Database. " + ex.Message;
+                            result.Message = "Cannot Connect To Master Database. " + ex.ToString();
                         }
                     }
                 }
@@ -247,7 +247,7 @@ namespace Oqtane.Infrastructure
             }
             catch (Exception ex)
             {
-                result.Message = ex.Message;
+                result.Message = ex.ToString();
                 _filelogger.LogError(Utilities.LogMessage(this, result.Message));
             }
 
@@ -286,7 +286,7 @@ namespace Oqtane.Infrastructure
                 }
                 catch (Exception ex)
                 {
-                    result.Message = "An Error Occurred Creating The Database. This Is Usually Related To Your User Not Having Sufficient Rights To Perform This Operation. Please Note That You Can Also Create The Database Manually Prior To Initiating The Install Wizard. " + ex.Message;
+                    result.Message = "An Error Occurred Creating The Database. This Is Usually Related To Your User Not Having Sufficient Rights To Perform This Operation. Please Note That You Can Also Create The Database Manually Prior To Initiating The Install Wizard. " + ex.ToString();
                     _filelogger.LogError(Utilities.LogMessage(this, result.Message));
                 }
             }
@@ -327,7 +327,7 @@ namespace Oqtane.Infrastructure
                     }
                     catch (Exception ex)
                     {
-                        result.Message = "An Error Occurred Provisioning The Master Database. This Is Usually Related To The Master Database Not Being In A Supported State. " + ex.Message;
+                        result.Message = "An Error Occurred Provisioning The Master Database. This Is Usually Related To The Master Database Not Being In A Supported State. " + ex.ToString();
                         _filelogger.LogError(Utilities.LogMessage(this, result.Message));
                     }
                 }
@@ -435,7 +435,7 @@ namespace Oqtane.Infrastructure
                         }
                         catch (Exception ex)
                         {
-                            result.Message = "An Error Occurred Migrating A Tenant Database. This Is Usually Related To A Tenant Database Not Being In A Supported State. " + ex.Message;
+                            result.Message = "An Error Occurred Migrating A Tenant Database. This Is Usually Related To A Tenant Database Not Being In A Supported State. " + ex.ToString();
                             _filelogger.LogError(Utilities.LogMessage(this, result.Message));
                         }
 
@@ -456,7 +456,7 @@ namespace Oqtane.Infrastructure
                             }
                             catch (Exception ex)
                             {
-                                result.Message = "An Error Occurred Executing Upgrade Logic. " + ex.Message;
+                                result.Message = "An Error Occurred Executing Upgrade Logic. " + ex.ToString();
                                 _filelogger.LogError(Utilities.LogMessage(this, result.Message));
                             }
                         }
@@ -526,7 +526,7 @@ namespace Oqtane.Infrastructure
                                                 }
                                                 catch (Exception ex)
                                                 {
-                                                    result.Message = "An Error Occurred Installing " + moduleDefinition.Name + " Version " + versions[i] + " - " + ex.Message;
+                                                    result.Message = "An Error Occurred Installing " + moduleDefinition.Name + " Version " + versions[i] + " - " + ex.ToString();
                                                 }
                                             }
                                         }
@@ -664,7 +664,7 @@ namespace Oqtane.Infrastructure
                 }
                 catch (Exception ex)
                 {
-                    result.Message = "An Error Occurred Creating Site. " + ex.Message;
+                    result.Message = "An Error Occurred Creating Site. " + ex.ToString();
                 }
             }
 
@@ -737,7 +737,7 @@ namespace Oqtane.Infrastructure
                                         }
                                         catch (Exception ex)
                                         {
-                                            logger.Log(alias.SiteId, Shared.LogLevel.Error, "Site Migration", LogFunction.Other, "An Error Occurred Executing Site Migration {Type} For {Alias} And Version {Version} {Error}", upgrade.Value, alias.Name, version, ex.Message);
+                                            logger.Log(alias.SiteId, Shared.LogLevel.Error, "Site Migration", LogFunction.Other, ex, "An Error Occurred Executing Site Migration {Type} For {Alias} And Version {Version}", upgrade.Value, alias.Name, version);
                                         }
                                     }
                                 }
