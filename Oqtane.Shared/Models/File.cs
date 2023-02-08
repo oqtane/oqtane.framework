@@ -58,7 +58,7 @@ namespace Oqtane.Models
         /// <summary>
         /// Deprecated - not used
         /// </summary>
-        public bool IsDeleted { get; set; }
+        public bool? IsDeleted { get; set; }
 
         /// <summary>
         /// Object reference to the <see cref="Folder"/> object.

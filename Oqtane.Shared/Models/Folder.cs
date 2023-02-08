@@ -62,7 +62,7 @@ namespace Oqtane.Models
         /// <summary>
         /// Deprecated - not used
         /// </summary>
-        public bool IsDeleted { get; set; }
+        public bool? IsDeleted { get; set; }
 
         /// <summary>
         /// TODO: todoc what would this contain?

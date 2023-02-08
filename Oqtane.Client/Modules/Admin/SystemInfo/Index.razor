@@ -156,6 +156,8 @@
                 </div>
             </div>
 		</div>
+		<br /><br />
+		<button type="button" class="btn btn-danger" @onclick="ClearLog">@Localizer["Clear"]</button>
 	</TabPanel>
 </TabStrip>
 <br /><br />
@@ -222,24 +224,39 @@
 	}
 
 	private async Task SaveConfig()
-    {
-        try
-        {
-            var settings = new Dictionary<string, object>();
-            settings.Add("DetailedErrors", _detailederrors);
-            settings.Add("Logging:LogLevel:Default", _logginglevel);
-            settings.Add("Logging:LogLevel:Notify", _notificationlevel);
-            settings.Add("UseSwagger", _swagger);
-            settings.Add("PackageService", _packageservice);
-            await SystemService.UpdateSystemInfoAsync(settings);
-            AddModuleMessage(Localizer["Success.UpdateConfig.Restart"], MessageType.Success);
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Saving Configuration");
-            AddModuleMessage(Localizer["Error.UpdateConfig"], MessageType.Error);
-        }
-    }
+	{
+		try
+		{
+			var settings = new Dictionary<string, object>();
+			settings.Add("DetailedErrors", _detailederrors);
+			settings.Add("Logging:LogLevel:Default", _logginglevel);
+			settings.Add("Logging:LogLevel:Notify", _notificationlevel);
+			settings.Add("UseSwagger", _swagger);
+			settings.Add("PackageService", _packageservice);
+			await SystemService.UpdateSystemInfoAsync(settings);
+			AddModuleMessage(Localizer["Success.UpdateConfig.Restart"], MessageType.Success);
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Saving Configuration");
+			AddModuleMessage(Localizer["Error.UpdateConfig"], MessageType.Error);
+		}
+	}
+
+	private async Task ClearLog()
+	{
+		try
+		{
+			await SystemService.UpdateSystemInfoAsync("Log", "Clear");
+			_log = string.Empty;
+			AddModuleMessage(Localizer["Success.ClearLog"], MessageType.Success);
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Clearing Log");
+			AddModuleMessage(Localizer["Error.ClearLog"], MessageType.Error);
+		}
+	}
 
     private async Task RestartApplication()
     {
