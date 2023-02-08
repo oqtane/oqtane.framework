@@ -84,7 +84,7 @@ namespace Oqtane.Controllers
         {
             foreach(KeyValuePair<string, object> kvp in settings)
             {
-                _configManager.AddOrUpdateSetting(kvp.Key, kvp.Value, false);
+                UpdateSetting(kvp.Key, kvp.Value);
             }
         }
 
@@ -93,7 +93,24 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Host)]
         public void Put(string key, object value)
         {
-            _configManager.AddOrUpdateSetting(key, value, false);
+            UpdateSetting(key, value);
+        }
+
+        private void UpdateSetting(string key, object value)
+        {
+            switch (key)
+            {
+                case "Log":
+                    string path = Path.Combine(_environment.ContentRootPath, "Content", "Log", "error.log");
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                    }
+                    break;
+                default:
+                    _configManager.AddOrUpdateSetting(key, value, false);
+                    break;
+            }
         }
     }
 }

@@ -20,10 +20,10 @@ namespace Oqtane.Migrations.Tenant
             if (ActiveDatabase.Name != "Sqlite")
             {
                 var folderEntityBuilder = new FolderEntityBuilder(migrationBuilder, ActiveDatabase);
-                folderEntityBuilder.AddBooleanColumn("IsDeleted");
+                folderEntityBuilder.AddBooleanColumn("IsDeleted", true);
 
                 var fileEntityBuilder = new FileEntityBuilder(migrationBuilder, ActiveDatabase);
-                fileEntityBuilder.AddBooleanColumn("IsDeleted");
+                fileEntityBuilder.AddBooleanColumn("IsDeleted", true);
             }
         }
 
