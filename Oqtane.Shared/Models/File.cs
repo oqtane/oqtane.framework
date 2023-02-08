@@ -56,6 +56,11 @@ namespace Oqtane.Models
         public string Description { get; set; }
 
         /// <summary>
+        /// Deprecated - not used
+        /// </summary>
+        public bool IsDeleted { get; set; }
+
+        /// <summary>
         /// Object reference to the <see cref="Folder"/> object.
         /// Use this if you need to determine what <see cref="Site"/> the file belongs to. 
         /// TODO: not sure if this is always populated, must verify and document

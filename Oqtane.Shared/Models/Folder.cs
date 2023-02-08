@@ -60,6 +60,11 @@ namespace Oqtane.Models
         public bool IsSystem { get; set; }
 
         /// <summary>
+        /// Deprecated - not used
+        /// </summary>
+        public bool IsDeleted { get; set; }
+
+        /// <summary>
         /// TODO: todoc what would this contain?
         /// </summary>
         [NotMapped]
