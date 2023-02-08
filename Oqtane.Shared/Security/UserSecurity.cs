@@ -62,7 +62,7 @@ namespace Oqtane.Security
 
             if (permissions != null)
             {
-                foreach (string permission in permissions.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (string permission in permissions.Split(';', StringSplitOptions.RemoveEmptyEntries))
                 {
                     bool? allowed = VerifyPermission(userId, roles, permission);
                     if (allowed.HasValue)
@@ -155,7 +155,7 @@ namespace Oqtane.Security
                     identity.AddClaim(new Claim(ClaimTypes.Role, RoleNames.Admin));
                     identity.AddClaim(new Claim(ClaimTypes.Role, RoleNames.Registered));
                 }
-                foreach (string role in user.Roles.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (string role in user.Roles.Split(';', StringSplitOptions.RemoveEmptyEntries))
                 {
                     if (!identity.Claims.Any(item => item.Type == ClaimTypes.Role && item.Value == role))
                     {
