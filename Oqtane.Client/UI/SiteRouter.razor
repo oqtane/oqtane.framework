@@ -306,11 +306,17 @@
 					if (kvp.Contains("="))
 					{
 						string[] pair = kvp.Split('=');
-						querystring.Add(pair[0], pair[1]);
+						if (!querystring.ContainsKey(pair[0]))
+						{
+							querystring.Add(pair[0], pair[1]);
+						}
 					}
 					else
 					{
-						querystring.Add(kvp, "true"); // default parameter when no value is provided
+						if (!querystring.ContainsKey(kvp))
+						{
+							querystring.Add(kvp, "true"); // default parameter when no value is provided
+						}
 					}
 				}
 			}
