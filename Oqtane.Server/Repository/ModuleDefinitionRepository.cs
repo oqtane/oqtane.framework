@@ -18,12 +18,14 @@ namespace Oqtane.Repository
         private MasterDBContext _db;
         private readonly IMemoryCache _cache;
         private readonly IPermissionRepository _permissions;
+        private readonly ISettingRepository _settings;
 
-        public ModuleDefinitionRepository(MasterDBContext context, IMemoryCache cache, IPermissionRepository permissions)
+        public ModuleDefinitionRepository(MasterDBContext context, IMemoryCache cache, IPermissionRepository permissions, ISettingRepository settings)
         {
             _db = context;
             _cache = cache;
             _permissions = permissions;
+            _settings = settings;
         }
 
         public IEnumerable<ModuleDefinition> GetModuleDefinitions()
@@ -52,6 +54,7 @@ namespace Oqtane.Repository
         public void DeleteModuleDefinition(int moduleDefinitionId)
         {
             ModuleDefinition moduleDefinition = _db.ModuleDefinition.Find(moduleDefinitionId);
+            _settings.DeleteSettings(EntityNames.ModuleDefinition, moduleDefinitionId);
             _db.ModuleDefinition.Remove(moduleDefinition);
             _db.SaveChanges();
             _cache.Remove("moduledefinitions");
