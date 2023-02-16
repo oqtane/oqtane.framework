@@ -1,8 +1,10 @@
 using System;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Oqtane.Enums;
+using Oqtane.Models;
 using Oqtane.Providers;
 using Oqtane.Security;
 using Oqtane.Services;
@@ -22,20 +24,18 @@ namespace Oqtane.Themes.Controls
 
         protected void LoginUser()
         {
-            var returnurl = PageState.Alias.Path;
-            if (PageState.Page.Path != "/")
-            {
-                returnurl += "/" + PageState.Page.Path;
-            }
-            NavigationManager.NavigateTo(NavigateUrl("login", "?returnurl=" + returnurl));
+            Route route = new Route(PageState.Uri.AbsoluteUri, PageState.Alias.Path);
+            NavigationManager.NavigateTo(NavigateUrl("login", "?returnurl=" + WebUtility.UrlEncode(route.PathAndQuery)));
         }
 
         protected async Task LogoutUser()
         {
-            await LoggingService.Log(PageState.Alias, PageState.Page.PageId, null, PageState.User.UserId, GetType().AssemblyQualifiedName, "Logout", LogFunction.Security, LogLevel.Information, null, "User Logout For Username {Username}", PageState.User.Username);
+            await LoggingService.Log(PageState.Alias, PageState.Page.PageId, null, PageState.User?.UserId, GetType().AssemblyQualifiedName, "Logout", LogFunction.Security, LogLevel.Information, null, "User Logout For Username {Username}", PageState.User?.Username);
 
-            // check if anonymous user can access page
-            var url = PageState.Alias.Path + "/" + PageState.Page.Path;
+            Route route = new Route(PageState.Uri.AbsoluteUri, PageState.Alias.Path);
+            var url = route.PathAndQuery;
+
+            // verify if anonymous users can access page
             if (!UserSecurity.IsAuthorized(null, PermissionNames.View, PageState.Page.Permissions))
             {
                 url = PageState.Alias.Path;

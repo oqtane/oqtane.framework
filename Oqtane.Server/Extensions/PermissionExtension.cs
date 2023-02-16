@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -11,20 +11,22 @@ namespace Oqtane.Extensions
         public static string EncodePermissions(this IEnumerable<Permission> permissionList)
         {
             List<PermissionString> permissionstrings = new List<PermissionString>();
+            string entityname = "";
             string permissionname = "";
             string permissions = "";
             StringBuilder permissionsbuilder = new StringBuilder();
             string securityid = "";
-            foreach (Permission permission in permissionList.OrderBy(item => item.PermissionName))
+            foreach (Permission permission in permissionList.OrderBy(item => item.EntityName).ThenBy(item => item.PermissionName))
             {
-                // permission collections are grouped by permissionname
-                if (permissionname != permission.PermissionName)
+                // permission collections are grouped by entityname and permissionname
+                if (entityname != permission.EntityName || permissionname != permission.PermissionName)
                 {
                     permissions = permissionsbuilder.ToString();
                     if (permissions != "")
                     {
-                        permissionstrings.Add(new PermissionString { PermissionName = permissionname, Permissions = permissions.Substring(0, permissions.Length - 1) });
+                        permissionstrings.Add(new PermissionString { EntityName = entityname, PermissionName = permissionname, Permissions = permissions.Substring(0, permissions.Length - 1) });
                     }
+                    entityname = permission.EntityName;
                     permissionname = permission.PermissionName;
                     permissionsbuilder = new StringBuilder();
                 }
@@ -56,7 +58,7 @@ namespace Oqtane.Extensions
             permissions = permissionsbuilder.ToString();
             if (permissions != "")
             {
-                permissionstrings.Add(new PermissionString { PermissionName = permissionname, Permissions = permissions.Substring(0, permissions.Length - 1) });
+                permissionstrings.Add(new PermissionString { EntityName = entityname, PermissionName = permissionname, Permissions = permissions.Substring(0, permissions.Length - 1) });
             }
             return JsonSerializer.Serialize(permissionstrings);
         }

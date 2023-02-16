@@ -6,12 +6,17 @@ namespace Oqtane.Models
     public class PermissionString
     {
         /// <summary>
+        /// A term describing the entity
+        /// </summary>
+        public string EntityName { get; set; }
+
+        /// <summary>
         /// A term describing a set of permissions
         /// </summary>
         public string PermissionName { get; set; }
 
         /// <summary>
-        /// The permissions addressed with this name
+        /// The permissions
         /// </summary>
         public string Permissions { get; set; }
     }

@@ -1,6 +1,6 @@
 # Latest Release
 
-[3.2.1](https://github.com/oqtane/oqtane.framework/releases/tag/v3.2.1) was released on Oct 17 and is primarily focused on stabilization. This includes performance improvements to the client startup logic for Blazor Hybrid and Blazor WebAssembly, improvements to base url handling and static resources for component resusability in .NET MAUI, support for Roles in OpenID Connect integrations, as well as a new capability to capture server-side events in your custom code. This release includes 21 pull requests by 4 different contributors, pushing the total number of project commits all-time to 3093. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
+[3.3.1](https://github.com/oqtane/oqtane.framework/releases/tag/v3.3.1) was released on Jan 14, 2023 and is primarily focused on flexibility, as the permissions system has been enhanced to support a new type of API permissions that provide developers with additional opportunities to create sophisticated modern web applications. This release also includes performance optimizations, enhancements to file management, and numerous user experience improvements including the addition of a new AutoComplete component. This release includes 51 pull requests by 3 different contributors, pushing the total number of project commits all-time over 3200. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
 # Oqtane Framework
 
@@ -47,17 +47,23 @@ This project is open source, and therefore is a work in progress...
 
 4.0.0 ( Q1 2023 )
 - [ ] Migration to .NET 7
-
-3.3.0 ( Q4 2022 )
-- [x] Dynamic authorization policies
+- [ ] Permission serialization optimization
 - [ ] Folder Providers
+
+[3.3.1](https://github.com/oqtane/oqtane.framework/releases/tag/v3.3.1) ( Jan 14, 2023 )
+- [x] Stabilization improvements 
+
+[3.3.0](https://github.com/oqtane/oqtane.framework/releases/tag/v3.3.0) ( Jan 12, 2023 )
+- [x] Dynamic Authorization Policies
+- [x] Entity-Level Permissions
+- [x] Extended Module Permissions
 
 [3.2.1](https://github.com/oqtane/oqtane.framework/releases/tag/v3.2.1) ( Oct 17, 2022 )
 - [x] Stabilization improvements  
 - [x] Server Event System
 
 [3.2.0](https://github.com/oqtane/oqtane.framework/releases/tag/v3.2.0) ( Sep 13, 2022 )
-- [x] MAUI / Blazor Hybrid support 
+- [x] .NET MAUI / Blazor Hybrid support 
 - [x] Upgrade to Bootstrap 5.2
 
 [3.1.3](https://github.com/oqtane/oqtane.framework/releases/tag/v3.1.3) ( Jun 27, 2022 )
@@ -166,6 +172,8 @@ This project is open source, and therefore is a work in progress...
 Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology and a Single Page Application (SPA) architecture. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly themes, and extensibility via third party modules.
 
 # Release Announcements
+
+[Oqtane 3.3](https://www.oqtane.org/blog/!/54/oqtane-3-3-0-released)
 
 [Oqtane 3.2](https://www.oqtane.org/blog/!/50/oqtane-3-2-for-net-maui-blazor-hybrid)
 

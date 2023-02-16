@@ -210,7 +210,10 @@
   <data name="Options.Heading" xml:space="preserve">
     <value>Options</value>
   </data>
-  <data name="Register" xml:space="preserve">
+  <data name="Log.Heading" xml:space="preserve">
+    <value>Log</value>
+  </data>
+    <data name="Register" xml:space="preserve">
     <value>Please Register Me For Major Product Updates And Security Bulletins</value>
   </data>
   <data name="Success.Register" xml:space="preserve">
@@ -275,5 +278,20 @@
   </data>
   <data name="Environment.Text" xml:space="preserve">
     <value>Environment:</value>
+  </data>
+  <data name="Log.Text" xml:space="preserve">
+    <value>Log:</value>
+  </data>
+  <data name="Log.HelpText" xml:space="preserve">
+    <value>System log information for current day</value>
+  </data>
+  <data name="Clear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="Success.ClearLog" xml:space="preserve">
+    <value>System Log Has Been Successfully Cleared</value>
+  </data>
+  <data name="Error.ClearLog" xml:space="preserve">
+    <value>Ann Error Occurred Clearing The System Log</value>
   </data>
 </root>

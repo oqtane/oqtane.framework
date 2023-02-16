@@ -67,7 +67,7 @@ namespace Oqtane.Repository
             Alias alias = null;
 
             List<Alias> aliases = GetAliases().ToList();
-            var segments = url.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            var segments = url.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
             // iterate segments to find keywords
             int start = segments.Length;

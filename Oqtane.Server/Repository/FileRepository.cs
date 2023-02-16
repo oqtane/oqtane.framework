@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -28,9 +27,22 @@ namespace Oqtane.Repository
 
         public IEnumerable<File> GetFiles(int folderId)
         {
+            return GetFiles(folderId, true);
+        }
+
+        public IEnumerable<File> GetFiles(int folderId, bool tracking)
+        {
             var alias = _tenants.GetAlias();
             IEnumerable<Permission> permissions = _permissions.GetPermissions(alias.SiteId, EntityNames.Folder, folderId).ToList();
-            IEnumerable<File> files = _db.File.Where(item => item.FolderId == folderId).Include(item => item.Folder);
+            IEnumerable<File> files;
+            if (tracking)
+            {
+                files = _db.File.Where(item => item.FolderId == folderId).Include(item => item.Folder);
+            }
+            else
+            {
+                files = _db.File.AsNoTracking().Where(item => item.FolderId == folderId).Include(item => item.Folder);
+            }
             foreach (File file in files)
             {
                 file.Folder.Permissions = permissions.EncodePermissions();
@@ -41,6 +53,7 @@ namespace Oqtane.Repository
 
         public File AddFile(File file)
         {
+            file.IsDeleted = false;
             _db.File.Add(file);
             _db.SaveChanges();
             file.Folder = _folderRepository.GetFolder(file.FolderId);
@@ -134,7 +147,7 @@ namespace Oqtane.Repository
         public string GetFilePath(File file)
         {
             if (file == null) return null;
-            var folder = file.Folder ?? _db.Folder.Find(file.FolderId);
+            var folder = file.Folder ?? _db.Folder.AsNoTracking().FirstOrDefault(item => item.FolderId == file.FolderId);
             var filepath = Path.Combine(_folderRepository.GetFolderPath(folder), file.Name);
             return filepath;
         }

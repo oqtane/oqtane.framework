@@ -66,7 +66,7 @@ namespace Oqtane.Infrastructure
                     List<Notification> notifications = notificationRepository.GetNotifications(site.SiteId, -1, -1).ToList();
                     foreach (Notification notification in notifications)
                     {
-                        // get sender and receiver information if not provided
+                        // get sender and receiver information from user object if not provided
                         if ((string.IsNullOrEmpty(notification.FromEmail) || string.IsNullOrEmpty(notification.FromDisplayName)) && notification.FromUserId != null)
                         {
                             var user = userRepository.GetUser(notification.FromUserId.Value);
@@ -96,31 +96,41 @@ namespace Oqtane.Infrastructure
                         else
                         {
                             MailMessage mailMessage = new MailMessage();
-                            mailMessage.From = new MailAddress(settings["SMTPSender"], site.Name);
-                            mailMessage.Subject = notification.Subject;
-                            if (!string.IsNullOrEmpty(notification.FromEmail) && !string.IsNullOrEmpty(notification.FromDisplayName))
+
+                            // sender
+                            if (settings.ContainsKey("SMTPRelay") && settings["SMTPRelay"] == "True" && !string.IsNullOrEmpty(notification.FromEmail))
                             {
-                                mailMessage.Body = "From: " + notification.FromDisplayName + "<" + notification.FromEmail + ">" + "\n";
+                                if (!string.IsNullOrEmpty(notification.FromDisplayName))
+                                {
+                                    mailMessage.From = new MailAddress(notification.FromEmail, notification.FromDisplayName);
+                                }
+                                else
+                                {
+                                    mailMessage.From = new MailAddress(notification.FromEmail);
+                                }
                             }
                             else
                             {
-                                mailMessage.Body = "From: " + site.Name + "\n";
+                                mailMessage.From = new MailAddress(settings["SMTPSender"], (!string.IsNullOrEmpty(notification.FromDisplayName)) ? notification.FromDisplayName : site.Name);
                             }
-                            mailMessage.Body += "Sent: " + notification.CreatedOn + "\n";
-                            if (!string.IsNullOrEmpty(notification.ToEmail) && !string.IsNullOrEmpty(notification.ToDisplayName))
+
+                            // recipient
+                            if (!string.IsNullOrEmpty(notification.ToDisplayName))
                             {
                                 mailMessage.To.Add(new MailAddress(notification.ToEmail, notification.ToDisplayName));
-                                mailMessage.Body += "To: " + notification.ToDisplayName + "<" + notification.ToEmail + ">" + "\n";
                             }
                             else
                             {
                                 mailMessage.To.Add(new MailAddress(notification.ToEmail));
-                                mailMessage.Body += "To: " + notification.ToEmail + "\n";
                             }
-                            mailMessage.Body += "Subject: " + notification.Subject + "\n\n";
-                            mailMessage.Body += notification.Body;
 
-                            // set encoding
+                            // subject
+                            mailMessage.Subject = notification.Subject;
+
+                            //body
+                            mailMessage.Body = notification.Body;
+
+                            // encoding
                             mailMessage.SubjectEncoding = System.Text.Encoding.UTF8;
                             mailMessage.BodyEncoding = System.Text.Encoding.UTF8;
 

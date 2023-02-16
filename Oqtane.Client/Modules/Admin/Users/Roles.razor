@@ -63,7 +63,7 @@ else
                 <td>@context.EffectiveDate</td>
                 <td>@context.ExpiryDate</td>
                 <td>
-                    <ActionDialog Header="Remove Role" Message="@string.Format(Localizer["Confirm.User.RemoveRole"], context.Role.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUserRole(context.UserRoleId))" Disabled="@(context.Role.IsAutoAssigned || (context.Role.Name == RoleNames.Host && userid == PageState.User.UserId))" ResourceKey="DeleteUserRole" />
+                    <ActionDialog Header="Remove Role" Message="@string.Format(Localizer["Confirm.User.RemoveRole"], context.Role.Name)" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteUserRole(context.UserRoleId))" Disabled="@(context.Role.IsAutoAssigned || (context.Role.Name == RoleNames.Host && userid == PageState.User.UserId))" ResourceKey="DeleteUserRole" />
                 </td>
             </Row>
         </Pager>
@@ -79,7 +79,7 @@ else
     private string expirydate = string.Empty;
     private List<UserRole> userroles;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
 
     protected override async Task OnInitializedAsync()
     {

@@ -147,6 +147,18 @@
         <a class="btn btn-primary" href="swagger/index.html" target="_new">@Localizer["Access.ApiFramework"]</a>&nbsp;
         <ActionDialog Header="Restart Application" Message="Are You Sure You Wish To Restart The Application?" Action="Restart Application" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await RestartApplication())" ResourceKey="RestartApplication" />
     </TabPanel>
+    <TabPanel Name="Log" Heading="Log" ResourceKey="Log">
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="log" HelpText="System log information for current day" ResourceKey="Log">Log: </Label>
+                <div class="col-sm-9">
+                    <textarea id="log" class="form-control" rows="10" @bind="@_log" readonly />
+                </div>
+            </div>
+		</div>
+		<br /><br />
+		<button type="button" class="btn btn-danger" @onclick="ClearLog">@Localizer["Clear"]</button>
+	</TabPanel>
 </TabStrip>
 <br /><br />
 
@@ -172,6 +184,8 @@
 	private string _swagger = string.Empty;
 	private string _packageservice = string.Empty;
 
+	private string _log = string.Empty;
+
 	protected override async Task OnInitializedAsync()
 	{
 		_version = Constants.Version;
@@ -191,37 +205,58 @@
 			_workingset = (Convert.ToInt64(systeminfo["WorkingSet"].ToString()) / 1000000).ToString() + " MB";
 		}
 
-		systeminfo = await SystemService.GetSystemInfoAsync();
+		systeminfo = await SystemService.GetSystemInfoAsync("configuration");
 		if (systeminfo != null)
 		{
 			_installationid = systeminfo["InstallationId"].ToString();
-            _detailederrors = systeminfo["DetailedErrors"].ToString();
-            _logginglevel = systeminfo["Logging:LogLevel:Default"].ToString();
-            _notificationlevel = systeminfo["Logging:LogLevel:Notify"].ToString();
-            _swagger = systeminfo["UseSwagger"].ToString();
-            _packageservice = systeminfo["PackageService"].ToString();
+			_detailederrors = systeminfo["DetailedErrors"].ToString();
+			_logginglevel = systeminfo["Logging:LogLevel:Default"].ToString();
+			_notificationlevel = systeminfo["Logging:LogLevel:Notify"].ToString();
+			_swagger = systeminfo["UseSwagger"].ToString();
+			_packageservice = systeminfo["PackageService"].ToString();
+		}
+
+		systeminfo = await SystemService.GetSystemInfoAsync("log");
+		if (systeminfo != null)
+		{
+			_log = systeminfo["Log"].ToString();
 		}
 	}
 
-    private async Task SaveConfig()
-    {
-        try
-        {
-            var settings = new Dictionary<string, object>();
-            settings.Add("DetailedErrors", _detailederrors);
-            settings.Add("Logging:LogLevel:Default", _logginglevel);
-            settings.Add("Logging:LogLevel:Notify", _notificationlevel);
-            settings.Add("UseSwagger", _swagger);
-            settings.Add("PackageService", _packageservice);
-            await SystemService.UpdateSystemInfoAsync(settings);
-            AddModuleMessage(Localizer["Success.UpdateConfig.Restart"], MessageType.Success);
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Saving Configuration");
-            AddModuleMessage(Localizer["Error.UpdateConfig"], MessageType.Error);
-        }
-    }
+	private async Task SaveConfig()
+	{
+		try
+		{
+			var settings = new Dictionary<string, object>();
+			settings.Add("DetailedErrors", _detailederrors);
+			settings.Add("Logging:LogLevel:Default", _logginglevel);
+			settings.Add("Logging:LogLevel:Notify", _notificationlevel);
+			settings.Add("UseSwagger", _swagger);
+			settings.Add("PackageService", _packageservice);
+			await SystemService.UpdateSystemInfoAsync(settings);
+			AddModuleMessage(Localizer["Success.UpdateConfig.Restart"], MessageType.Success);
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Saving Configuration");
+			AddModuleMessage(Localizer["Error.UpdateConfig"], MessageType.Error);
+		}
+	}
+
+	private async Task ClearLog()
+	{
+		try
+		{
+			await SystemService.UpdateSystemInfoAsync("Log", "Clear");
+			_log = string.Empty;
+			AddModuleMessage(Localizer["Success.ClearLog"], MessageType.Success);
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Clearing Log");
+			AddModuleMessage(Localizer["Error.ClearLog"], MessageType.Error);
+		}
+	}
 
     private async Task RestartApplication()
     {

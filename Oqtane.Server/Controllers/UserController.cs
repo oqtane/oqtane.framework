@@ -29,23 +29,25 @@ namespace Oqtane.Controllers
         private readonly ITenantManager _tenantManager;
         private readonly INotificationRepository _notifications;
         private readonly IFolderRepository _folders;
-        private readonly ISyncManager _syncManager;
         private readonly ISiteRepository _sites;
+        private readonly IUserPermissions _userPermissions;
         private readonly IJwtManager _jwtManager;
+        private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
 
-        public UserController(IUserRepository users, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, ISyncManager syncManager, ISiteRepository sites, IJwtManager jwtManager, ILogManager logger)
+        public UserController(IUserRepository users, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, ISiteRepository sites, IUserPermissions userPermissions, IJwtManager jwtManager, ISyncManager syncManager, ILogManager logger)
         {
             _users = users;
             _userRoles = userRoles;
             _identityUserManager = identityUserManager;
             _identitySignInManager = identitySignInManager;
             _tenantManager = tenantManager;
-            _folders = folders;
             _notifications = notifications;
-            _syncManager = syncManager;
+            _folders = folders;
             _sites = sites;
+            _userPermissions = userPermissions;
             _jwtManager = jwtManager;
+            _syncManager = syncManager;
             _logger = logger;
         }
 
@@ -105,7 +107,7 @@ namespace Oqtane.Controllers
                 user.TwoFactorCode = "";
                 user.TwoFactorExpiry = null;
 
-                if (!User.IsInRole(RoleNames.Admin) && User.Identity.Name?.ToLower() != user.Username.ToLower())
+                if (!_userPermissions.IsAuthorized(User, user.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) && User.Identity.Name?.ToLower() != user.Username.ToLower())
                 {
                     user.Email = "";
                     user.PhotoFileId = null;
@@ -148,8 +150,8 @@ namespace Oqtane.Controllers
             User newUser = null;
 
             bool verified;
-            bool allowregistration;
-            if (User.IsInRole(RoleNames.Admin))
+            bool allowregistration;            
+            if (_userPermissions.IsAuthorized(User, user.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin))
             {
                 verified = true;
                 allowregistration = true;
@@ -241,7 +243,8 @@ namespace Oqtane.Controllers
         [Authorize]
         public async Task<User> Put(int id, [FromBody] User user)
         {
-            if (ModelState.IsValid && user.SiteId == _tenantManager.GetAlias().SiteId && _users.GetUser(user.UserId, false) != null && (User.IsInRole(RoleNames.Admin) || User.Identity.Name == user.Username))
+            if (ModelState.IsValid && user.SiteId == _tenantManager.GetAlias().SiteId && _users.GetUser(user.UserId, false) != null
+                && (_userPermissions.IsAuthorized(User, user.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) || User.Identity.Name == user.Username))
             {
                 IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
                 if (identityuser != null)
@@ -287,7 +290,7 @@ namespace Oqtane.Controllers
 
         // DELETE api/<controller>/5?siteid=x
         [HttpDelete("{id}")]
-        [Authorize(Roles = RoleNames.Admin)]
+        [Authorize(Policy = $"{EntityNames.User}:{PermissionNames.Write}:{RoleNames.Admin}")]
         public async Task Delete(int id, string siteid)
         {
             int SiteId;

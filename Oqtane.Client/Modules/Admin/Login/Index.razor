@@ -1,3 +1,4 @@
+@using System.Net
 @namespace Oqtane.Modules.Admin.Login
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
@@ -205,7 +206,7 @@
 						var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider
 							.GetService(typeof(IdentityAuthenticationStateProvider));
 						authstateprovider.NotifyAuthenticationChanged();
-						NavigationManager.NavigateTo(NavigateUrl(_returnUrl, true));
+						NavigationManager.NavigateTo(NavigateUrl(WebUtility.UrlDecode(_returnUrl), true));
 					}
 					else
 					{

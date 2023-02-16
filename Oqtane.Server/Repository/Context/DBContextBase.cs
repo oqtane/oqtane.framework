@@ -31,7 +31,7 @@ namespace Oqtane.Repository
             _accessor = httpContextAccessor;
         }
 
-        public IDatabase ActiveDatabase { get; private set; }
+        public IDatabase ActiveDatabase { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

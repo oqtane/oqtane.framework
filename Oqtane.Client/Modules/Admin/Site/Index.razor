@@ -127,7 +127,7 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="username" HelpText="Enter the username for your SMTP account" ResourceKey="SmptUsername">Username: </Label>
+                    <Label Class="col-sm-3" For="username" HelpText="Enter the username for your SMTP account" ResourceKey="SmtpUsername">Username: </Label>
                     <div class="col-sm-9">
                         <input id="username" class="form-control" @bind="@_smtpusername" />
                     </div>
@@ -142,12 +142,21 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="sender" HelpText="Enter the email which emails will be sent from. Please note that this email address may need to be authorized with the SMTP server." ResourceKey="SmptSender">Email Sender: </Label>
+                    <Label Class="col-sm-3" For="sender" HelpText="Enter the email which emails will be sent from. Please note that this email address may need to be authorized with the SMTP server." ResourceKey="SmtpSender">Email Sender: </Label>
                     <div class="col-sm-9">
                         <input id="sender" class="form-control" @bind="@_smtpsender" />
                     </div>
                 </div>
-                <div class="row mb-1 align-items-center">
+				<div class="row mb-1 align-items-center">
+					<Label Class="col-sm-3" For="relay" HelpText="Only specify this option if you have properly configured an SMTP Relay Service to route your outgoing mail. This option will send notifications from the user's email rather than from the Email Sender specified above." ResourceKey="SmtpRelay">Relay Configured? </Label>
+					<div class="col-sm-9">
+						<select id="relay" class="form-select" @bind="@_smtprelay" required>
+							<option value="True">@SharedLocalizer["Yes"]</option>
+							<option value="False">@SharedLocalizer["No"]</option>
+						</select>
+					</div>
+				</div>
+				<div class="row mb-1 align-items-center">
 					<Label Class="col-sm-3" For="retention" HelpText="Number of days of notifications to retain" ResourceKey="Retention">Retention (Days): </Label>
 					<div class="col-sm-9">
 						<input id="retention" class="form-control" @bind="@_retention" />
@@ -275,7 +284,10 @@
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="connectionstring" HelpText="The connection information for the database" ResourceKey="ConnectionString">Connection: </Label>
                         <div class="col-sm-9">
-                            <textarea id="connectionstring" class="form-control" @bind="@_connectionstring" rows="2" readonly></textarea>
+							<div class="input-group">
+								<input id="connectionstring" type="@_connectionstringtype" class="form-control" @bind="@_connectionstring" readonly />
+								<button type="button" class="btn btn-secondary" @onclick="@ToggleConnectionString">@_connectionstringtoggle</button>
+							</div>
                         </div>
                     </div>
                 </div>
@@ -320,6 +332,7 @@
 	private string _smtppasswordtype = "password";
 	private string _togglesmtppassword = string.Empty;
 	private string _smtpsender = string.Empty;
+	private string _smtprelay = "False";
 	private string _retention = string.Empty;
 	private string _pwaisenabled;
 	private int _pwaappiconfileid = -1;
@@ -329,6 +342,8 @@
 	private string _tenant = string.Empty;
 	private string _database = string.Empty;
 	private string _connectionstring = string.Empty;
+	private string _connectionstringtype = "password";
+	private string _connectionstringtoggle = string.Empty;
 	private string _createdby;
 	private DateTime _createdon;
 	private string _modifiedby;
@@ -343,6 +358,7 @@
 	{
 		try
 		{
+			_connectionstringtoggle = SharedLocalizer["ShowPassword"];
 			_themeList = await ThemeService.GetThemesAsync();
 			Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
 			if (site != null)
@@ -393,6 +409,7 @@
 				_smtppassword = SettingService.GetSetting(settings, "SMTPPassword", string.Empty);
 				_togglesmtppassword = SharedLocalizer["ShowPassword"];
 				_smtpsender = SettingService.GetSetting(settings, "SMTPSender", string.Empty);
+				_smtprelay = SettingService.GetSetting(settings, "SMTPRelay", "False");
 				_retention = SettingService.GetSetting(settings, "NotificationRetention", "30");
 
 				if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
@@ -446,6 +463,20 @@
 		{
 			await logger.LogError(ex, "Error Loading Containers For Theme {ThemeType} {Error}", _themetype, ex.Message);
 			AddModuleMessage(Localizer["Error.Theme.LoadPane"], MessageType.Error);
+		}
+	}
+
+	private void ToggleConnectionString()
+	{
+		if (_connectionstringtype == "password")
+		{
+			_connectionstringtype = "text";
+			_connectionstringtoggle = SharedLocalizer["HidePassword"];
+		}
+		else
+		{
+			_connectionstringtype = "password";
+			_connectionstringtoggle = SharedLocalizer["ShowPassword"];
 		}
 	}
 
@@ -532,6 +563,7 @@
 						settings = SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
 						settings = SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
 						settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
+						settings = SettingService.SetSetting(settings, "SMTPRelay", _smtprelay, true);
 						settings = SettingService.SetSetting(settings, "NotificationRetention", _retention, true);
 						await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 
@@ -602,12 +634,12 @@
 			try
 			{
 				var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-				SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
-				SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
-				SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
-				SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
-				SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
-				SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
+				settings = SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
+				settings = SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
+				settings = SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
+				settings = SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
+				settings = SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
+				settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
 				await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
 				await logger.LogInformation("Site SMTP Settings Saved");
 

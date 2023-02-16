@@ -50,7 +50,7 @@ namespace Oqtane.Controllers
             bool authorized = User.IsInRole(RoleNames.Admin);
             if (!authorized)
             {
-                var visitorCookie = "APP_VISITOR_" + _alias.SiteId.ToString();
+                var visitorCookie = Constants.VisitorCookiePrefix + _alias.SiteId.ToString();
                 if (int.TryParse(Request.Cookies[visitorCookie], out int visitorId))
                 {
                     authorized = (visitorId == id);
