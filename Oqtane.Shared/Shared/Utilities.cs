@@ -143,6 +143,16 @@ namespace Oqtane.Shared
             return $"{alias?.BaseUrl}{url}";
         }
 
+        public static string AddUrlParameters(params object[] parameters)
+        {
+            var url = "";
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                url += "/" + parameters[i].ToString();
+            }
+            return url;
+        }
+
         public static string FormatContent(string content, Alias alias, string operation)
         {
             var aliasUrl = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path : "";

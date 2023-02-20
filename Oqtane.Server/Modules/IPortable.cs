@@ -1,10 +1,10 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 
 namespace Oqtane.Modules
 {
     public interface IPortable
     {
-        // You Must Set The "ServerAssemblyName" In Your IModule Interface
+        // You Must Set The "ServerManagerType" In Your IModule Interface
 
         string ExportModule(Module module);
 
