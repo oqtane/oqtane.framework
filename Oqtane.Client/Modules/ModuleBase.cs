@@ -190,12 +190,7 @@ namespace Oqtane.Modules
 
         public string AddUrlParameters(params object[] parameters)
         {
-            var url = "";
-            for (var i = 0; i < parameters.Length; i++)
-            {
-                url += "/" + parameters[i].ToString();
-            }
-            return url;
+            return Utilities.AddUrlParameters(parameters);
         }
 
         // template is in the form of a standard route template ie. "/{id}/{name}" and produces dictionary of key/value pairs
