@@ -122,6 +122,26 @@ namespace Oqtane.Migrations.EntityBuilders
             return table.Column<DateTimeOffset>(name: RewriteName(name), nullable: nullable, defaultValue: defaultValue);
         }
 
+        public void AddByteColumn(string name, bool nullable = false)
+        {
+            _migrationBuilder.AddColumn<byte>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable, schema: Schema);
+        }
+
+        public void AddByteColumn(string name, bool nullable, int defaultValue)
+        {
+            _migrationBuilder.AddColumn<byte>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable, defaultValue: defaultValue, schema: Schema);
+        }
+
+        protected OperationBuilder<AddColumnOperation> AddByteColumn(ColumnsBuilder table, string name, bool nullable = false)
+        {
+            return table.Column<byte>(name: RewriteName(name), nullable: nullable);
+        }
+
+        protected OperationBuilder<AddColumnOperation> AddByteColumn(ColumnsBuilder table, string name, bool nullable, int defaultValue)
+        {
+            return table.Column<byte>(name: RewriteName(name), nullable: nullable, defaultValue: defaultValue);
+        }
+
         public void AddIntegerColumn(string name, bool nullable = false)
         {
             _migrationBuilder.AddColumn<int>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable, schema: Schema);
