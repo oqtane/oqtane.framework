@@ -163,7 +163,7 @@
     <value>Enter the site name</value>
   </data>
   <data name="Tenant.HelpText" xml:space="preserve">
-    <value>Enter the tenant for the site</value>
+    <value>The name of the database used for the site</value>
   </data>
   <data name="Aliases.HelpText" xml:space="preserve">
     <value>The aliases for the site. An alias can be a domain name (www.site.com) or a virtual folder (ie. www.site.com/folder).</value>
@@ -214,7 +214,7 @@
     <value>Include a splash icon for your PWA. It should be a PNG which is 512 X 512 pixels in dimension.</value>
   </data>
   <data name="Tenant.Text" xml:space="preserve">
-    <value>Tenant: </value>
+    <value>Database: </value>
   </data>
   <data name="Aliases.Text" xml:space="preserve">
     <value>Aliases: </value>
@@ -292,7 +292,7 @@
     <value>Browse</value>
   </data>
   <data name="TenantInformation.Heading" xml:space="preserve">
-    <value>Tenant Information</value>
+    <value>Database</value>
   </data>
   <data name="PWASettings.Heading" xml:space="preserve">
     <value>PWA Settings</value>
@@ -304,13 +304,13 @@
     <value>Connection:</value>
   </data>
   <data name="Database.Text" xml:space="preserve">
-    <value>Database:</value>
+    <value>Type:</value>
   </data>
   <data name="ConnectionString.HelpText" xml:space="preserve">
     <value>The connection information for the database</value>
   </data>
   <data name="Database.HelpText" xml:space="preserve">
-    <value>The database for the tenant</value>
+    <value>The type of database</value>
   </data>
   <data name="DeleteSite.Text" xml:space="preserve">
     <value>Delete Site</value>

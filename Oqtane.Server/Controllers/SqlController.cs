@@ -32,13 +32,23 @@ namespace Oqtane.Controllers
         {
             var results = new List<Dictionary<string, string>>();
             Dictionary<string, string> row;
-            Tenant tenant = _tenants.GetTenant(sqlquery.TenantId);
+
+            if (string.IsNullOrEmpty(sqlquery.DBType) || string.IsNullOrEmpty(sqlquery.DBConnectionString))
+            {
+                Tenant tenant = _tenants.GetTenant(sqlquery.TenantId);
+                if (tenant != null)
+                {
+                    sqlquery.DBType = tenant.DBType;
+                    sqlquery.DBConnectionString = tenant.DBConnectionString;
+                }
+            }
+
             try
             {
                 foreach (string query in sqlquery.Query.Split("GO", StringSplitOptions.RemoveEmptyEntries))
                 {
-                    IDataReader dr = _sql.ExecuteReader(tenant, query);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Other, "Sql Query {Query} Executed on Tenant {TenantId}", query, sqlquery.TenantId);
+                    IDataReader dr = _sql.ExecuteReader(sqlquery.DBType, sqlquery.DBConnectionString, query);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Other, "Sql Query {Query} Executed on Database {DBType} and Connection {DBConnectionString}", query, sqlquery.DBType, sqlquery.DBConnectionString);
                     while (dr.Read())
                     {
                         row = new Dictionary<string, string>();
@@ -53,7 +63,7 @@ namespace Oqtane.Controllers
             catch (Exception ex)
             {
                 results.Add(new Dictionary<string, string>() { { "Error", ex.Message } });
-                _logger.Log(LogLevel.Warning, this, LogFunction.Other, "Sql Query {Query} Executed on Tenant {TenantId} Resulted In An Error {Error}", sqlquery.Query, sqlquery.TenantId, ex.Message);
+                _logger.Log(LogLevel.Warning, this, LogFunction.Other, "Sql Query {Query} Executed on Database {DBType} and Connection {DBConnectionString} Resulted In An Error {Error}", sqlquery.Query, sqlquery.DBType, sqlquery.DBConnectionString, ex.Message);
             }
             sqlquery.Results = results;
             return sqlquery;

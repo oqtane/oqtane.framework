@@ -190,7 +190,7 @@
 	{
 		_version = Constants.Version;
 
-		Dictionary<string, object> systeminfo = await SystemService.GetSystemInfoAsync("environment");
+		var systeminfo = await SystemService.GetSystemInfoAsync("environment");
 		if (systeminfo != null)
 		{
 			_clrversion = systeminfo["CLRVersion"].ToString();
@@ -247,7 +247,9 @@
 	{
 		try
 		{
-			await SystemService.UpdateSystemInfoAsync("Log", "Clear");
+			var settings = new Dictionary<string, object>();
+			settings.Add("clearlog", "true");
+			await SystemService.UpdateSystemInfoAsync(settings);
 			_log = string.Empty;
 			AddModuleMessage(Localizer["Success.ClearLog"], MessageType.Success);
 		}

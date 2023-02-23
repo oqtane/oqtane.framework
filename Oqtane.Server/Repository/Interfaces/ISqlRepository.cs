@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Reflection;
 using Oqtane.Models;
 
@@ -17,6 +17,8 @@ namespace Oqtane.Repository
         int ExecuteNonQuery(string connectionString, string databaseType, string query);
 
         IDataReader ExecuteReader(Tenant tenant, string query);
+
+        IDataReader ExecuteReader(string DBType, string DBConnectionString, string query);
 
         string GetScriptFromAssembly(Assembly assembly, string fileName);
     }

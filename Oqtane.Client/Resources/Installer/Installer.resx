@@ -172,7 +172,7 @@
     <value>Enter a complete connection string including all parameters and delimiters</value>
   </data>
   <data name="ConnectionString.Text" xml:space="preserve">
-    <value>String:</value>
+    <value>Settings:</value>
   </data>
   <data name="EnterConnectionParameters" xml:space="preserve">
     <value>Enter Connection Parameters</value>

@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Extensions.Configuration;
 using Oqtane.Databases.Interfaces;
-using Oqtane.Interfaces;
 using Oqtane.Models;
 // ReSharper disable ConvertToUsingDeclaration
 // ReSharper disable InvertIf
@@ -15,6 +14,13 @@ namespace Oqtane.Repository
 {
     public class SqlRepository : ISqlRepository
     {
+        private IConfigurationRoot _config;
+
+        public SqlRepository(IConfigurationRoot config)
+        {
+            _config = config;
+        }
+
         public void ExecuteScript(Tenant tenant, string script)
         {
             // execute script in current tenant
@@ -75,13 +81,19 @@ namespace Oqtane.Repository
         public IDataReader ExecuteReader(Tenant tenant, string query)
         {
             var db = GetActiveDatabase(tenant.DBType);
-            return db.ExecuteReader(tenant.DBConnectionString, query);
+            return db.ExecuteReader(GetConnectionString(tenant.DBConnectionString), query);
+        }
+
+        public IDataReader ExecuteReader(string DBType, string DBConnectionString, string query)
+        {
+            var db = GetActiveDatabase(DBType);
+            return db.ExecuteReader(GetConnectionString(DBConnectionString), query);
         }
 
         public int ExecuteNonQuery(string connectionString, string databaseType, string query)
         {
             var db = GetActiveDatabase(databaseType);
-            return db.ExecuteNonQuery(connectionString, query);
+            return db.ExecuteNonQuery(GetConnectionString(connectionString), query);
         }
 
         public string GetScriptFromAssembly(Assembly assembly, string fileName)
@@ -118,6 +130,15 @@ namespace Oqtane.Repository
             }
 
             return activeDatabase;
+        }
+
+        private string GetConnectionString(string connectionString)
+        {
+            if (!connectionString.Contains("="))
+            {
+                connectionString = _config.GetConnectionString(connectionString);
+            }
+            return connectionString;
         }
     }
 }

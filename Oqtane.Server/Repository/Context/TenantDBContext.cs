@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Repository.Databases.Interfaces;
 
@@ -12,7 +10,7 @@ namespace Oqtane.Repository
 {
     public class TenantDBContext : DBContextBase, IMultiDatabase
     {
-        public TenantDBContext(ITenantManager tenantManager, IHttpContextAccessor httpContextAccessor) : base(tenantManager, httpContextAccessor) { }
+        public TenantDBContext(IDBContextDependencies DBContextDependencies) : base(DBContextDependencies) { }
 
         public virtual DbSet<Site> Site { get; set; }
         public virtual DbSet<Page> Page { get; set; }

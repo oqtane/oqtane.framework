@@ -32,11 +32,5 @@ namespace Oqtane.Services
         /// <param name="settings"></param>
         /// <returns></returns>
         Task UpdateSystemInfoAsync(Dictionary<string, object> settings);
-
-        /// <summary>
-        /// updates a config value
-        /// </summary>
-        /// <returns></returns>
-        Task UpdateSystemInfoAsync(string settingKey, object settingValue);
     }
 }
