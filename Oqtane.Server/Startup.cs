@@ -40,7 +40,7 @@ namespace Oqtane
             //add possibility to switch off swagger on production.
             _useSwagger = Configuration.GetSection("UseSwagger").Value != "false";
 
-            AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(env.ContentRootPath, "Data"));
+            AppDomain.CurrentDomain.SetData(Constants.DataDirectory, Path.Combine(env.ContentRootPath, "Data"));
 
             _env = env;
         }

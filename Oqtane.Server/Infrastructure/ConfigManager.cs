@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Configuration;
@@ -40,6 +42,16 @@ namespace Oqtane.Infrastructure
             }
             if (value == null) value = defaultValue;
             return value;
+        }
+
+        public Dictionary<string, string> GetSettings(string sectionKey)
+        {
+            var settings = new Dictionary<string, string>();
+            foreach (var kvp in _config.GetSection(sectionKey).GetChildren().AsEnumerable())
+            {
+                settings.Add(kvp.Key, kvp.Value);
+            }
+            return settings;
         }
 
         public void AddOrUpdateSetting<T>(string key, T value, bool reload)

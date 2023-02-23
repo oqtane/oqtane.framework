@@ -103,7 +103,7 @@ else
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="tenant" HelpText="Select the tenant for the site" ResourceKey="Tenant">Tenant: </Label>
+                <Label Class="col-sm-3" For="tenant" HelpText="Select the database for the site" ResourceKey="Tenant">Database: </Label>
                 <div class="col-sm-9">
                     <select id="tenant" class="form-select" @onchange="(e => TenantChanged(e))" required>
                         <option value="-">&lt;@Localizer["Tenant.Select"]&gt;</option>
@@ -121,13 +121,13 @@ else
                     <hr class="app-rule" />
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="name" HelpText="Enter the name for the tenant" ResourceKey="TenantName">Tenant Name: </Label>
+                    <Label Class="col-sm-3" For="name" HelpText="Enter the name for the database" ResourceKey="TenantName">Name: </Label>
                     <div class="col-sm-9">
                         <input id="name" class="form-control" @bind="@_tenantName" maxlength="100" required />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="databaseType" HelpText="Select the database type for the tenant" ResourceKey="DatabaseType">Database Type: </Label>
+                    <Label Class="col-sm-3" For="databaseType" HelpText="Select the database type" ResourceKey="DatabaseType">Type: </Label>
                     <div class="col-sm-9">
                         @if (_databases != null)
 						{
@@ -160,7 +160,7 @@ else
 				else
 				{
 					<div class="row mb-1 align-items-center">
-						<Label Class="col-sm-3" For="connectionstring" HelpText="Enter a complete connection string including all parameters and delimiters" ResourceKey="ConnectionString">String:</Label>
+						<Label Class="col-sm-3" For="connectionstring" HelpText="Enter a complete connection string including all parameters and delimiters" ResourceKey="ConnectionString">Settings:</Label>
 						<div class="col-sm-9">
 							<textarea id="connectionstring" class="form-control" @bind="@_connectionString" rows="3"></textarea>
 						</div>
@@ -329,7 +329,7 @@ else
 
 					if (_tenantid == "+")
 					{
-						if (!string.IsNullOrEmpty(_tenantName) && _tenants.FirstOrDefault(item => item.Name == _tenantName) == null)
+						if (!string.IsNullOrEmpty(_tenantName) && !_tenants.Exists(item => item.Name == _tenantName))
 						{
 							// validate host credentials
 							var user = new User();

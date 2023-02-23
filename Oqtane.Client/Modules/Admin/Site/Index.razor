@@ -267,16 +267,16 @@
                     </div>
                 </div>
             </Section>
-            <Section Name="TenantInformation" Heading="Tenant Information" ResourceKey="TenantInformation">
+            <Section Name="TenantInformation" Heading="Database" ResourceKey="TenantInformation">
                 <div class="container">
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="tenant" HelpText="The tenant for the site" ResourceKey="Tenant">Tenant: </Label>
+						<Label Class="col-sm-3" For="tenant" HelpText="The name of the database used for the site" ResourceKey="Tenant">Database: </Label>
                         <div class="col-sm-9">
                             <input id="tenant" class="form-control" @bind="@_tenant" readonly />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="database" HelpText="The database for the tenant" ResourceKey="Database">Database: </Label>
+                        <Label Class="col-sm-3" For="database" HelpText="The type of database" ResourceKey="Database">Type: </Label>
                         <div class="col-sm-9">
                             <input id="database" class="form-control" @bind="@_database" readonly />
                         </div>
@@ -284,10 +284,7 @@
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="connectionstring" HelpText="The connection information for the database" ResourceKey="ConnectionString">Connection: </Label>
                         <div class="col-sm-9">
-							<div class="input-group">
-								<input id="connectionstring" type="@_connectionstringtype" class="form-control" @bind="@_connectionstring" readonly />
-								<button type="button" class="btn btn-secondary" @onclick="@ToggleConnectionString">@_connectionstringtoggle</button>
-							</div>
+							<input id="connectionstring" class="form-control" @bind="@_connectionstring" readonly />
                         </div>
                     </div>
                 </div>
@@ -342,8 +339,6 @@
 	private string _tenant = string.Empty;
 	private string _database = string.Empty;
 	private string _connectionstring = string.Empty;
-	private string _connectionstringtype = "password";
-	private string _connectionstringtoggle = string.Empty;
 	private string _createdby;
 	private DateTime _createdon;
 	private string _modifiedby;
@@ -358,7 +353,6 @@
 	{
 		try
 		{
-			_connectionstringtoggle = SharedLocalizer["ShowPassword"];
 			_themeList = await ThemeService.GetThemesAsync();
 			Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
 			if (site != null)
@@ -463,20 +457,6 @@
 		{
 			await logger.LogError(ex, "Error Loading Containers For Theme {ThemeType} {Error}", _themetype, ex.Message);
 			AddModuleMessage(Localizer["Error.Theme.LoadPane"], MessageType.Error);
-		}
-	}
-
-	private void ToggleConnectionString()
-	{
-		if (_connectionstringtype == "password")
-		{
-			_connectionstringtype = "text";
-			_connectionstringtoggle = SharedLocalizer["HidePassword"];
-		}
-		else
-		{
-			_connectionstringtype = "password";
-			_connectionstringtoggle = SharedLocalizer["ShowPassword"];
 		}
 	}
 

@@ -13,7 +13,7 @@ namespace Oqtane.Modules.HtmlText.Repository
     [PrivateApi("Mark HtmlText classes as private, since it's not very useful in the public docs")]
     public class HtmlTextContext : DBContextBase, ITransientService, IMultiDatabase
     {
-        public HtmlTextContext(ITenantManager tenantManager, IHttpContextAccessor httpContextAccessor) : base(tenantManager, httpContextAccessor) { }
+        public HtmlTextContext(IDBContextDependencies DBContextDependencies) : base(DBContextDependencies) { }
 
         public virtual DbSet<Models.HtmlText> HtmlText { get; set; }
     }
