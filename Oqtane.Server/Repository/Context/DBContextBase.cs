@@ -95,7 +95,7 @@ namespace Oqtane.Repository
             // anti-pattern used to reference config service in base class without causing breaking change
             _config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json")
+                .AddJsonFile("appsettings.json", false, false)
                 .Build();
         }
     }
