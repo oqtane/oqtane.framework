@@ -1,6 +1,7 @@
 @namespace Oqtane.Modules.Admin.Sql
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
+@inject ISystemService SystemService
 @inject ITenantService TenantService
 @inject IDatabaseService DatabaseService
 @inject ISqlService SqlService
@@ -14,123 +15,284 @@
 else
 {
     <div class="container">
-
-        <div class="row mb-1 align-items-center">
-			<Label Class="col-sm-3" For="tenant" HelpText="Select the tenant associated with the database server" ResourceKey="Tenant">Tenant: </Label>
-            <div class="col-sm-9">
-                <select id="tenant" class="form-select" value="@_tenantid" @onchange="(e => TenantChanged(e))">
-                    <option value="-1">&lt;@Localizer["Tenant.Select"]&gt;</option>
-                    @foreach (Tenant tenant in _tenants)
-                    {
-                        <option value="@tenant.TenantId">@tenant.Name</option>
-                    }
-                </select>
-            </div>
-        </div>
-        @if (_tenantid != "-1")
-        {
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="database" HelpText="The database for the tenant" ResourceKey="Database">Database: </Label>
-                <div class="col-sm-9">
-                    <input id="database" class="form-control" @bind="@_database" readonly />
-                </div>
-            </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="connectionstring" HelpText="The connection information for the database" ResourceKey="ConnectionString">Connection: </Label>
-                <div class="col-sm-9">
-					<div class="input-group">
-						<input id="connectionstring" type="@_connectionstringtype" class="form-control" @bind="@_connectionstring" readonly />
-						<button type="button" class="btn btn-secondary" @onclick="@ToggleConnectionString">@_connectionstringtoggle</button>
-					</div>
+		<div class="row mb-1 align-items-center">
+			<Label Class="col-sm-3" For="connection" HelpText="Select a database connection (from appsettings.json)" ResourceKey="Connection">Connection: </Label>
+			<div class="col-sm-9">
+				<select id="tenant" class="form-select" value="@_connection" @onchange="(e => ConnectionChanged(e))">
+					<option value="-">&lt;@Localizer["Connection.Select"]&gt;</option>
+					<option value="+">&lt;@Localizer["Connection.Add"]&gt;</option>
+					@foreach (var connection in _connections)
+					{
+						<option value="@connection.Key">@connection.Key</option>
+					}
+				</select>
+			</div>
+		</div>
+		@if (_connection == "+")
+		{
+			<div class="row mb-1 align-items-center">
+				<Label Class="col-sm-3" For="name" HelpText="Enter the name of the connection" ResourceKey="Name">Name: </Label>
+				<div class="col-sm-9">
+					<input id="name" class="form-control" @bind="@_name" maxlength="100" required />
 				</div>
 			</div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="sqlQuery" HelpText="Enter the SQL query for the database server" ResourceKey="SqlQuery">SQL Query: </Label>
-                <div class="col-sm-9">
-                    <textarea id="sqlQuery" class="form-control" @bind="@_sql" rows="3"></textarea>
-                </div>
-            </div>
-        }
-    </div>
-    <br />
-    <button type="button" class="btn btn-success" @onclick="Execute">@Localizer["Execute"]</button>
-    <br />
-    <br />
-    @if (_results != null)
-    {
-        @if (_results.Count > 0)
-        {
-            <Pager Class="table table-bordered" Items="@_results">
-                <Header>
-                    @foreach (KeyValuePair<string, string> kvp in _results.First())
-                    {
-                        <th>@kvp.Key</th>
-                    }
-                </Header>
-                <Row>
-                    @foreach (KeyValuePair<string, string> kvp in context)
-                    {
-                        <td>@kvp.Value</td>
-                    }
-                </Row>
-            </Pager>
-        }
-        else
-        {
-            @Localizer["Return.NoResult"]
-        }
-        <br />
-        <br />
-    }
+			<div class="row mb-1 align-items-center">
+				<Label Class="col-sm-3" For="databasetype" HelpText="Select the database type" ResourceKey="DatabaseType">Type: </Label>
+				<div class="col-sm-9">
+					@if (_databases != null)
+					{
+						<div class="input-group">
+							<select id="databasetype" class="form-select" value="@_databasetype" @onchange="(e => DatabaseTypeChanged(e))" required>
+								@foreach (var database in _databases)
+								{
+									<option value="@database.Name">@Localizer[@database.Name]</option>
+								}
+							</select>
+							@if (!_showConnectionString)
+							{
+								<button type="button" class="btn btn-secondary" @onclick="ShowConnectionString">@Localizer["EnterConnectionString"]</button>
+							}
+							else
+							{
+								<button type="button" class="btn btn-secondary" @onclick="ShowConnectionString">@Localizer["EnterConnectionParameters"]</button>
+							}
+						</div>
+					}
+				</div>
+			</div>
+			@if (!_showConnectionString)
+			{
+				if (_databaseConfigType != null)
+				{
+					@DatabaseConfigComponent
+				}
+			}
+			else
+			{
+				<div class="row mb-1 align-items-center">
+					<Label Class="col-sm-3" For="connectionstring" HelpText="Enter a complete connection string including all parameters and delimiters" ResourceKey="ConnectionString">Settings:</Label>
+					<div class="col-sm-9">
+						<textarea id="connectionstring" class="form-control" @bind="@_connectionstring" rows="3"></textarea>
+					</div>
+				</div>
+			}
+			<br />
+			<button type="button" class="btn btn-success" @onclick="Add">@Localizer["Add"]</button>
+		}
+		else
+		{
+			@if (_connection != "-")
+			{
+				<div class="row mb-1 align-items-center">
+					<Label Class="col-sm-3" For="databasetype" HelpText="The database type" ResourceKey="DatabaseType">Type: </Label>
+					<div class="col-sm-9">
+						@if (_databases != null)
+						{
+							<select id="databasetype" class="form-select" @bind="@_databasetype" required>
+								<option value="-">&lt;@Localizer["Type.Select"]&gt;</option>
+								@foreach (var database in _databases)
+								{
+									<option value="@database.Name">@Localizer[@database.Name]</option>
+								}
+							</select>
+						}
+					</div>
+				</div>
+				@if (!string.IsNullOrEmpty(_tenant))
+				{
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="tenant" HelpText="The database using this connection" ResourceKey="Tenant">Database: </Label>
+						<div class="col-sm-9">
+							<input id="tenant" class="form-control" @bind="@_tenant" readonly />
+						</div>
+					</div>
+				}
+				<div class="row mb-1 align-items-center">
+					<Label Class="col-sm-3" For="connectionstring" HelpText="The connection string" ResourceKey="ConnectionString">Settings: </Label>
+					<div class="col-sm-9">
+						<div class="input-group">
+							<input id="connectionstring" type="@_connectionstringtype" class="form-control" @bind="@_connectionstring" readonly />
+							<button type="button" class="btn btn-secondary" @onclick="@ToggleConnectionString">@_connectionstringtoggle</button>
+						</div>
+					</div>
+				</div>
+				<div class="row mb-1 align-items-center">
+					<Label Class="col-sm-3" For="sqlQuery" HelpText="Enter a valid SQL query for the database" ResourceKey="SqlQuery">SQL Query: </Label>
+					<div class="col-sm-9">
+						<textarea id="sqlQuery" class="form-control" @bind="@_sql" rows="3"></textarea>
+					</div>
+				</div>
+				<br />
+				<button type="button" class="btn btn-success" @onclick="Execute">@Localizer["Execute"]</button>
+				<br />
+				<br />
+				@if (_results != null)
+				{
+					@if (_results.Count > 0)
+					{
+						<Pager Class="table table-bordered" Items="@_results">
+							<Header>
+								@foreach (KeyValuePair<string, string> kvp in _results.First())
+								{
+								<th>@kvp.Key</th>
+								}
+							</Header>
+							<Row>
+								@foreach (KeyValuePair<string, string> kvp in context)
+								{
+									<td>@kvp.Value</td>
+								}
+							</Row>
+						</Pager>
+					}
+					else
+					{
+						@Localizer["Return.NoResult"]
+					}
+					<br />
+
+					<br />
+				}
+			}
+		}
+	</div>
 }
 
 @code {
-    private List<Tenant> _tenants;
-    private string _tenantid = "-1";
-    private string _database = string.Empty;
+	private string _connection = "-";
+	private Dictionary<string, object> _connections;
+	private List<Tenant> _tenants;
+	private List<Database> _databases;
+
+	private string _name = string.Empty;
+	private string _databasetype = string.Empty;
+	private Type _databaseConfigType;
+	private object _databaseConfig;
+	private RenderFragment DatabaseConfigComponent { get; set; }
+	private bool _showConnectionString = false;
+	private string _tenant = string.Empty;
 	private string _connectionstring = string.Empty;
 	private string _connectionstringtype = "password";
 	private string _connectionstringtoggle = string.Empty;
 	private string _sql = string.Empty;
-    private List<Dictionary<string, string>> _results;
+	private List<Dictionary<string, string>> _results;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            _tenants = await TenantService.GetTenantsAsync();
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			_connections = await SystemService.GetSystemInfoAsync("connectionstrings");
+			_tenants = await TenantService.GetTenantsAsync();
+			_databases = await DatabaseService.GetDatabasesAsync();
 			_connectionstringtoggle = SharedLocalizer["ShowPassword"];
 		}
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Loading Tenants {Error}", ex.Message);
-            AddModuleMessage(ex.Message, MessageType.Error);
-        }
-    }
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Loading Tenants {Error}", ex.Message);
+			AddModuleMessage(ex.Message, MessageType.Error);
+		}
+	}
 
-    private async void TenantChanged(ChangeEventArgs e)
-    {
-        try
-        {
-            _tenantid = (string)e.Value;
-            var tenants = await TenantService.GetTenantsAsync();
-            var _databases = await DatabaseService.GetDatabasesAsync();
-            var tenant = tenants.Find(item => item.TenantId == int.Parse(_tenantid));
-            if (tenant != null)
-            {
-                _database = _databases.Find(item => item.DBType == tenant.DBType)?.Name;
-                _connectionstring = tenant.DBConnectionString;
-            }
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Loading Tenant {TenantId} {Error}", _tenantid, ex.Message);
-            AddModuleMessage(ex.Message, MessageType.Error);
-        }
-    }
+	private async void ConnectionChanged(ChangeEventArgs e)
+	{
+		try
+		{
+			_connection = (string)e.Value;
+			if (_connection != "-" && _connection != "+")
+			{
+				_connectionstring = _connections[_connection].ToString();
+				_tenant = "";
+				_databasetype = "-";
+				var tenant = _tenants.FirstOrDefault(item => item.DBConnectionString == _connection);
+				if (tenant != null)
+				{
+					_tenant = tenant.Name;
+					_databasetype = _databases.FirstOrDefault(item => item.DBType == tenant.DBType).Name;
+				}
+			}
+			else
+			{
+				if (_databases.Exists(item => item.IsDefault))
+				{
+					_databasetype = _databases.Find(item => item.IsDefault).Name;
+				}
+				else
+				{
+					_databasetype = "LocalDB";
+				}
+				_showConnectionString = false;
+				LoadDatabaseConfigComponent();
+			}
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Loading Connection {Connection} {Error}", _connection, ex.Message);
+			AddModuleMessage(ex.Message, MessageType.Error);
+		}
+	}
+
+	private void DatabaseTypeChanged(ChangeEventArgs eventArgs)
+	{
+		try
+		{
+			_databasetype = (string)eventArgs.Value;
+			_showConnectionString = false;
+			LoadDatabaseConfigComponent();
+		}
+		catch
+		{
+			AddModuleMessage(Localizer["Error.Database.LoadConfig"], MessageType.Error);
+		}
+	}
+
+	private void LoadDatabaseConfigComponent()
+	{
+		var database = _databases.SingleOrDefault(d => d.Name == _databasetype);
+		if (database != null)
+		{
+			_databaseConfigType = Type.GetType(database.ControlType);
+			DatabaseConfigComponent = builder =>
+			{
+				builder.OpenComponent(0, _databaseConfigType);
+				builder.AddComponentReferenceCapture(1, inst => { _databaseConfig = Convert.ChangeType(inst, _databaseConfigType); });
+				builder.CloseComponent();
+			};
+		}
+	}
+
+	private void ShowConnectionString()
+	{
+		if (_databaseConfig is IDatabaseConfigControl databaseConfigControl)
+		{
+			_connectionstring = databaseConfigControl.GetConnectionString();
+		}
+		_showConnectionString = !_showConnectionString;
+	}
+
+	private async Task Add()
+	{
+		var connectionstring = _connectionstring;
+		if (!_showConnectionString && _databaseConfig is IDatabaseConfigControl databaseConfigControl)
+		{
+			connectionstring = databaseConfigControl.GetConnectionString();
+		}
+		if (!string.IsNullOrEmpty(_name) && !string.IsNullOrEmpty(connectionstring))
+		{
+			var settings = new Dictionary<string, object>();
+			settings.Add($"{SettingKeys.ConnectionStringsSection}:{_name}", connectionstring);
+			await SystemService.UpdateSystemInfoAsync(settings);
+			_connections = await SystemService.GetSystemInfoAsync("connectionstrings");
+			_connection = "-";
+			AddModuleMessage(Localizer["Message.Connection.Added"], MessageType.Success);
+		}
+		else
+		{
+			AddModuleMessage(Localizer["Message.Required.Connection"], MessageType.Warning);
+		}
+	}
 
 	private void ToggleConnectionString()
 	{
@@ -145,14 +307,15 @@ else
 			_connectionstringtoggle = SharedLocalizer["ShowPassword"];
 		}
 	}
-	
+
 	private async Task Execute()
-    {
-        try
-        {
-            if (_tenantid != "-1" && !string.IsNullOrEmpty(_sql))
-            {
-                var sqlquery = new SqlQuery { TenantId = int.Parse(_tenantid), Query = _sql };
+	{
+		try
+		{
+			if (_databasetype != "-" && !string.IsNullOrEmpty(_sql))
+			{
+				var dbtype = _databases.FirstOrDefault(item => item.Name == _databasetype).DBType;
+				var sqlquery = new SqlQuery { DBConnectionString = _connection, DBType = dbtype, Query = _sql };
                 sqlquery = await SqlService.ExecuteQueryAsync(sqlquery);
                 _results = sqlquery.Results;
                 AddModuleMessage(Localizer["Success.QueryExecuted"], MessageType.Success);

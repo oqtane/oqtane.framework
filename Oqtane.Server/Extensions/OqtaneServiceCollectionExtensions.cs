@@ -72,6 +72,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         internal static IServiceCollection AddOqtaneTransientServices(this IServiceCollection services)
         {
+            services.AddTransient<IDBContextDependencies, DBContextDependencies>();
             services.AddTransient<ITenantManager, TenantManager>();
             services.AddTransient<IAliasAccessor, AliasAccessor>();
             services.AddTransient<IUserPermissions, UserPermissions>();

@@ -2,7 +2,6 @@ using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Modules.HtmlText.Repository;
 using System.Net;
-using Microsoft.AspNetCore.Http;
 using Oqtane.Enums;
 using Oqtane.Repository;
 using Oqtane.Shared;
@@ -17,15 +16,13 @@ namespace Oqtane.Modules.HtmlText.Manager
     public class HtmlTextManager : MigratableModuleBase, IInstallable, IPortable
     {
         private readonly IHtmlTextRepository _htmlText;
-        private readonly ITenantManager _tenantManager;
-        private readonly IHttpContextAccessor _accessor;
+        private readonly IDBContextDependencies _DBContextDependencies;
         private readonly ISqlRepository _sqlRepository;
 
-        public HtmlTextManager(IHtmlTextRepository htmlText, ITenantManager tenantManager, IHttpContextAccessor httpContextAccessor, ISqlRepository sqlRepository)
+        public HtmlTextManager(IHtmlTextRepository htmlText, IDBContextDependencies DBContextDependencies, ISqlRepository sqlRepository)
         {
             _htmlText = htmlText;
-            _tenantManager = tenantManager;
-            _accessor = httpContextAccessor;
+            _DBContextDependencies = DBContextDependencies;
             _sqlRepository = sqlRepository;
         }
 
@@ -56,12 +53,12 @@ namespace Oqtane.Modules.HtmlText.Manager
                 // version 1.0.0 used SQL scripts rather than migrations, so we need to seed the migration history table
                 _sqlRepository.ExecuteNonQuery(tenant, MigrationUtils.BuildInsertScript("HtmlText.01.00.00.00"));
             }
-            return Migrate(new HtmlTextContext(_tenantManager, _accessor), tenant, MigrationType.Up);
+            return Migrate(new HtmlTextContext(_DBContextDependencies), tenant, MigrationType.Up);
         }
 
         public bool Uninstall(Tenant tenant)
         {
-            return Migrate(new HtmlTextContext(_tenantManager, _accessor), tenant, MigrationType.Down);
+            return Migrate(new HtmlTextContext(_DBContextDependencies), tenant, MigrationType.Down);
         }
     }
 }

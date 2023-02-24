@@ -162,6 +162,16 @@ namespace Oqtane.Infrastructure
                     {
                         install.DefaultContainer = GetInstallationConfig(SettingKeys.DefaultContainerKey, Constants.DefaultContainer);
                     }
+
+                    // add new site
+                    if (install.TenantName != TenantNames.Master && install.ConnectionString.Contains("="))
+                    {
+                        _configManager.AddOrUpdateSetting($"{SettingKeys.ConnectionStringsSection}:{install.TenantName}", install.ConnectionString, false);
+                    }
+                    if (install.TenantName == TenantNames.Master && !install.ConnectionString.Contains("="))
+                    {
+                        install.ConnectionString = _config.GetConnectionString(install.ConnectionString);
+                    }
                 }
                 else
                 {
@@ -273,7 +283,7 @@ namespace Oqtane.Infrastructure
                     var database = Activator.CreateInstance(type) as IDatabase;
 
                     // create data directory if does not exist
-                    var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
+                    var dataDirectory = AppDomain.CurrentDomain.GetData(Constants.DataDirectory)?.ToString();
                     if (!Directory.Exists(dataDirectory)) Directory.CreateDirectory(dataDirectory ?? String.Empty);
 
                     var dbOptions = new DbContextOptionsBuilder().UseOqtaneDatabase(database, NormalizeConnectionString(install.ConnectionString)).Options;
@@ -316,10 +326,7 @@ namespace Oqtane.Infrastructure
 
                         using (var masterDbContext = new MasterDBContext(new DbContextOptions<MasterDBContext>(), null, _config))
                         {
-                            if (installation.Success && (install.DatabaseType == Constants.DefaultDBType))
-                            {
-                                UpgradeSqlServer(sql, install.ConnectionString, install.DatabaseType, true);
-                            }
+                            AddEFMigrationsHistory(sql, install.ConnectionString, install.DatabaseType, "", true);
                             // push latest model into database
                             masterDbContext.Database.Migrate();
                             result.Success = true;
@@ -354,7 +361,7 @@ namespace Oqtane.Infrastructure
                             tenant = new Tenant
                             {
                                 Name = install.TenantName,
-                                DBConnectionString = DenormalizeConnectionString(install.ConnectionString),
+                                DBConnectionString = (install.TenantName == TenantNames.Master) ? SettingKeys.ConnectionStringKey : install.TenantName,
                                 DBType = install.DatabaseType,
                                 CreatedBy = "",
                                 CreatedOn = DateTime.UtcNow,
@@ -413,21 +420,19 @@ namespace Oqtane.Infrastructure
                 var upgrades = scope.ServiceProvider.GetRequiredService<IUpgradeManager>();
                 var sql = scope.ServiceProvider.GetRequiredService<ISqlRepository>();
                 var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
+                var DBContextDependencies = scope.ServiceProvider.GetRequiredService<IDBContextDependencies>();
 
                 using (var db = GetInstallationContext())
                 {
                     foreach (var tenant in db.Tenant.ToList())
                     {
                         tenantManager.SetTenant(tenant.TenantId);
+                        tenant.DBConnectionString = MigrateConnectionString(db, tenant);
                         try
                         {
-                            using (var tenantDbContext = new TenantDBContext(tenantManager, null))
+                            using (var tenantDbContext = new TenantDBContext(DBContextDependencies))
                             {
-                                if (install.DatabaseType == Constants.DefaultDBType)
-                                {
-                                    UpgradeSqlServer(sql, tenant.DBConnectionString, tenant.DBType, false);
-                                }
-
+                                AddEFMigrationsHistory(sql, _configManager.GetSetting($"{SettingKeys.ConnectionStringsSection}:{tenant.DBConnectionString}", ""), tenant.DBType, tenant.Version, false);
                                 // push latest model into database
                                 tenantDbContext.Database.Migrate();
                                 result.Success = true;
@@ -753,8 +758,8 @@ namespace Oqtane.Infrastructure
 
         private string DenormalizeConnectionString(string connectionString)
         {
-            var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
-            connectionString = connectionString.Replace(dataDirectory ?? String.Empty, "|DataDirectory|");
+            var dataDirectory = AppDomain.CurrentDomain.GetData(Constants.DataDirectory)?.ToString();
+            connectionString = connectionString.Replace(dataDirectory ?? String.Empty, $"|{Constants.DataDirectory}|");
             return connectionString;
         }
 
@@ -780,8 +785,8 @@ namespace Oqtane.Infrastructure
 
         private string NormalizeConnectionString(string connectionString)
         {
-            var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
-            connectionString = connectionString.Replace("|DataDirectory|", dataDirectory);
+            var dataDirectory = AppDomain.CurrentDomain.GetData(Constants.DataDirectory)?.ToString();
+            connectionString = connectionString.Replace($"|{Constants.DataDirectory}|", dataDirectory);
             return connectionString;
         }
 
@@ -799,14 +804,39 @@ namespace Oqtane.Infrastructure
             _configManager.AddOrUpdateSetting($"{SettingKeys.DatabaseSection}:{SettingKeys.DatabaseTypeKey}", databaseType, true);
         }
 
-        public void UpgradeSqlServer(ISqlRepository sql, string connectionString, string databaseType, bool isMaster)
+        public void AddEFMigrationsHistory(ISqlRepository sql, string connectionString, string databaseType, string version, bool isMaster)
         {
-            var script = (isMaster) ? "MigrateMaster.sql" : "MigrateTenant.sql";
+            // in version 2.1.0 the __EFMigrationsHistory tables were introduced and must be added to existing SQL Server installations
+            if ((isMaster || (version != null && Version.Parse(version).CompareTo(Version.Parse("2.1.0")) < 0)) && databaseType == Constants.DefaultDBType)
+            {
+                var script = (isMaster) ? "MigrateMaster.sql" : "MigrateTenant.sql";
 
-            var query = sql.GetScriptFromAssembly(Assembly.GetExecutingAssembly(), script);
-            query = query.Replace("{{Version}}", Constants.Version);
+                var query = sql.GetScriptFromAssembly(Assembly.GetExecutingAssembly(), script);
+                query = query.Replace("{{Version}}", Constants.Version);
 
-            sql.ExecuteNonQuery(connectionString, databaseType, query);
+                sql.ExecuteNonQuery(connectionString, databaseType, query);
+            }
+        }
+
+        public string MigrateConnectionString(InstallationContext db, Tenant tenant)
+        {
+            // migrate connection strings from the Tenant table to appsettings
+            if (tenant.DBConnectionString.Contains("="))
+            {
+                var defaultConnection = _configManager.GetConnectionString(SettingKeys.ConnectionStringKey);
+                if (tenant.DBConnectionString == defaultConnection)
+                {
+                    tenant.DBConnectionString = SettingKeys.ConnectionStringKey;
+                }
+                else
+                {
+                    _configManager.AddOrUpdateSetting($"{SettingKeys.ConnectionStringsSection}:{tenant.Name}", tenant.DBConnectionString, false);
+                    tenant.DBConnectionString = tenant.Name;
+                }
+                db.Entry(tenant).State = EntityState.Modified;
+                db.SaveChanges();
+            }
+            return tenant.DBConnectionString;
         }
 
         private void ValidateConfiguration()
