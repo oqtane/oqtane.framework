@@ -5,6 +5,7 @@ using System.Security.Claims;
 using Oqtane.Repository;
 using Oqtane.Extensions;
 using System;
+using System.Collections.Generic;
 
 namespace Oqtane.Security
 {
@@ -12,7 +13,7 @@ namespace Oqtane.Security
     {
         bool IsAuthorized(ClaimsPrincipal user, int siteId, string entityName, int entityId, string permissionName, string roles);
         bool IsAuthorized(ClaimsPrincipal user, int siteId, string entityName, int entityId, string permissionName);
-        bool IsAuthorized(ClaimsPrincipal user, string permissionName, string permissions);
+        bool IsAuthorized(ClaimsPrincipal user, string permissionName, List<Permission> permissions);
         User GetUser(ClaimsPrincipal user);
         User GetUser();
 
@@ -36,7 +37,7 @@ namespace Oqtane.Security
             var permissions = _permissions.GetPermissions(siteId, entityName, entityId, permissionName).ToList();
             if (permissions != null && permissions.Count != 0)
             {
-                return IsAuthorized(principal, permissionName, permissions.EncodePermissions());
+                return IsAuthorized(principal, permissionName, permissions.ToList());
             }
             else
             {
@@ -46,10 +47,10 @@ namespace Oqtane.Security
 
         public bool IsAuthorized(ClaimsPrincipal principal, int siteId, string entityName, int entityId, string permissionName)
         {
-            return IsAuthorized(principal, permissionName, _permissions.GetPermissions(siteId, entityName, entityId, permissionName)?.EncodePermissions());
+            return IsAuthorized(principal, permissionName, _permissions.GetPermissions(siteId, entityName, entityId, permissionName).ToList());
         }
 
-        public bool IsAuthorized(ClaimsPrincipal principal, string permissionName, string permissions)
+        public bool IsAuthorized(ClaimsPrincipal principal, string permissionName, List<Permission> permissions)
         {
             return UserSecurity.IsAuthorized(GetUser(principal), permissionName, permissions);
         }
@@ -96,7 +97,7 @@ namespace Oqtane.Security
         // deprecated
         public bool IsAuthorized(ClaimsPrincipal principal, string entityName, int entityId, string permissionName)
         {
-            return IsAuthorized(principal, permissionName, _permissions.GetPermissions(_accessor.HttpContext.GetAlias().SiteId, entityName, entityId, permissionName)?.EncodePermissions());
+            return IsAuthorized(principal, permissionName, _permissions.GetPermissions(_accessor.HttpContext.GetAlias().SiteId, entityName, entityId, permissionName).ToList());
         }
     }
 }

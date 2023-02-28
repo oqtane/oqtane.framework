@@ -392,20 +392,21 @@
 					module.ModuleDefinitionName = ModuleDefinitionName;
 					module.AllPages = false;
 
-					List<PermissionString> permissions = UserSecurity.GetPermissionStrings(PageState.Page.Permissions);
+					var permissions = new List<Permission>();
 					if (Visibility == "view")
 					{
 						// set module view permissions to page view permissions
-						permissions.Find(p => p.PermissionName == PermissionNames.View).Permissions = permissions.Find(p => p.PermissionName == PermissionNames.View).Permissions;
+						permissions = PageState.Page.Permissions.Where(item => item.PermissionName == PermissionNames.View).ToList();
 					}
 					else
 					{
 						// set module view permissions to page edit permissions
-						permissions.Find(p => p.PermissionName == PermissionNames.View).Permissions = permissions.Find(p => p.PermissionName == PermissionNames.Edit).Permissions;
+						permissions = PageState.Page.Permissions.Where(item => item.PermissionName == PermissionNames.Edit).ToList();
 					}
-					// set entityname
+					// set entity name and permission name
 					permissions.ForEach(item => item.EntityName = EntityNames.Module);
-					module.Permissions = UserSecurity.SetPermissionStrings(permissions);
+					permissions.ForEach(item => item.PermissionName = PermissionNames.View);
+					module.Permissions = permissions;
 
 					module = await ModuleService.AddModuleAsync(module);
 					ModuleId = module.ModuleId.ToString();
@@ -527,32 +528,17 @@
 	{
 		if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
 		{
-			List<PermissionString> permissions;
-
-			// publish/unpublish page
-			var page = PageState.Page;
-			permissions = UserSecurity.GetPermissionStrings(page.Permissions);
-			foreach (var permissionstring in permissions)
-			{
-				if (permissionstring.PermissionName == PermissionNames.View)
-				{
-					List<string> ids = permissionstring.Permissions.Split(';').ToList();
-					switch (action)
-					{
-						case "publish":
-							if (!ids.Contains(RoleNames.Everyone)) ids.Add(RoleNames.Everyone);
-							if (!ids.Contains(RoleNames.Registered)) ids.Add(RoleNames.Registered);
-							break;
-						case "unpublish":
-							ids.Remove(RoleNames.Everyone);
-							ids.Remove(RoleNames.Registered);
-							break;
-					}
-					permissionstring.Permissions = string.Join(";", ids.ToArray());
-				}
-			}
-			page.Permissions = UserSecurity.SetPermissionStrings(permissions);
-			await PageService.UpdatePageAsync(page);
+			var permissions = PageState.Page.Permissions;
+            if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Everyone))
+            {
+				permissions.Add(new Permission(EntityNames.Page, PageState.Page.PageId, PermissionNames.View, RoleNames.Everyone, null, true));
+            }
+            if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Registered))
+            {
+				permissions.Add(new Permission(EntityNames.Page, PageState.Page.PageId, PermissionNames.View, RoleNames.Registered, null, true));
+            }
+			PageState.Page.Permissions = permissions;
+			await PageService.UpdatePageAsync(PageState.Page);
 			NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, true));
 		}
 	}
