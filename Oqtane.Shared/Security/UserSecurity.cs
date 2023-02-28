@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Text.Json;
 using Oqtane.Models;
 using Oqtane.Shared;
 
@@ -10,38 +9,25 @@ namespace Oqtane.Security
 {
     public class UserSecurity
     {
-        public static List<PermissionString> GetPermissionStrings(string permissionStrings)
+        public static bool IsAuthorized(User user, string roles)
         {
-            return JsonSerializer.Deserialize<List<PermissionString>>(permissionStrings);
-        }
-
-        public static string SetPermissionStrings(List<PermissionString> permissionStrings)
-        {
-            return JsonSerializer.Serialize(permissionStrings);
-        }
-
-        public static string GetPermissions(string permissionName, string permissionStrings)
-        {
-            string permissions = "";
-            List<PermissionString> permissionstrings = JsonSerializer.Deserialize<List<PermissionString>>(permissionStrings);
-            PermissionString permissionstring = permissionstrings.FirstOrDefault(item => item.PermissionName == permissionName);
-            if (permissionstring != null)
+            var permissions = new List<Permission>();
+            foreach (var role in roles.Split(';', StringSplitOptions.RemoveEmptyEntries))
             {
-                permissions = permissionstring.Permissions;
+                permissions.Add(new Permission("", role, true));
             }
-            return permissions;
+            return IsAuthorized(user, permissions);
         }
 
-        public static bool IsAuthorized(User user, string permissionName, string permissionStrings)
+        public static bool IsAuthorized(User user, string permissionName, List<Permission> permissions)
         {
-            return IsAuthorized(user, GetPermissions(permissionName, permissionStrings));
+            return IsAuthorized(user, permissions.Where(item => item.PermissionName == permissionName).ToList());
         }
 
-        // permissions are stored in the format "!rolename1;![userid1];rolename2;rolename3;[userid2];[userid3]" where "!" designates Deny permissions
-        public static bool IsAuthorized(User user, string permissions)
+        public static bool IsAuthorized(User user, List<Permission> permissions)
         {
             bool authorized = false;
-            if (permissions != "")
+            if (permissions != null && permissions.Any())
             {
                 if (user == null)
                 {
@@ -56,77 +42,43 @@ namespace Oqtane.Security
             return authorized;
         }
 
-        private static bool IsAuthorized(int userId, string roles, string permissions)
+        private static bool IsAuthorized(int userId, string roles, List<Permission> permissions)
         {
             bool isAuthorized = false;
 
-            if (permissions != null)
+            if (permissions != null && permissions.Any())
             {
-                foreach (string permission in permissions.Split(';', StringSplitOptions.RemoveEmptyEntries))
+                // check if denied first
+                isAuthorized = !permissions.Where(item => !item.IsAuthorized && (
+                    (item.Role != null && (
+                        (item.Role.Name == RoleNames.Everyone) ||
+                        (item.Role.Name == RoleNames.Unauthenticated && userId == -1) ||
+                        roles.Split(';', StringSplitOptions.RemoveEmptyEntries).Contains(item.Role.Name))) ||
+                    (item.UserId != null && item.UserId.Value == userId))).Any();
+
+                if (isAuthorized)
                 {
-                    bool? allowed = VerifyPermission(userId, roles, permission);
-                    if (allowed.HasValue)
-                    {
-                        isAuthorized = allowed.Value;
-                        break;
-                    }
+                    // then check if authorized
+                    isAuthorized = permissions.Where(item => item.IsAuthorized && (
+                        (item.Role != null && (
+                            (item.Role.Name == RoleNames.Everyone) ||
+                            (item.Role.Name == RoleNames.Unauthenticated && userId == -1) ||
+                            roles.Split(';', StringSplitOptions.RemoveEmptyEntries).Contains(item.Role.Name))) ||
+                        (item.UserId != null && item.UserId.Value == userId))).Any();
                 }
             }
 
             return isAuthorized;
         }
 
-        private static bool? VerifyPermission(int userId, string roles, string permission)
+        public static bool ContainsRole(List<Permission> permissions, string permissionName, string roleName)
         {
-            bool? allowed = null;
-            //permissions strings are encoded with deny permissions at the beginning and grant permissions at the end for optimal performance
-            if (!String.IsNullOrEmpty(permission))
-            {
-                // deny permission
-                if (permission.StartsWith("!"))
-                {
-                    string denyRole = permission.Replace("!", "");
-                    if (denyRole == RoleNames.Everyone || IsAllowed(userId, roles, denyRole))
-                    {
-                        allowed = false;
-                    }
-                }
-                else // grant permission
-                {
-                    if (permission == RoleNames.Everyone || IsAllowed(userId, roles, permission))
-                    {
-                        allowed = true;
-                    }
-                }
-            }
-            return allowed;
+            return permissions.Any(item => item.PermissionName == permissionName && item.Role.Name == roleName);
         }
 
-        private static bool IsAllowed(int userId, string roles, string permission)
+        public static bool ContainsUser(List<Permission> permissions, string permissionName, int userId)
         {
-            if (permission == RoleNames.Unauthenticated)
-            {
-                return userId == -1;
-            }
-            if ("[" + userId + "]" == permission)
-            {
-                return true;
-            }
-            if (roles != null)
-            {
-                return roles.IndexOf(";" + permission + ";") != -1;
-            }
-            return false;
-        }
-
-        public static bool ContainsRole(string permissionStrings, string permissionName, string roleName)
-        {
-            return GetPermissionStrings(permissionStrings).FirstOrDefault(item => item.PermissionName == permissionName).Permissions.Split(';').Contains(roleName);
-        }
-
-        public static bool ContainsUser(string permissionStrings, string permissionName, int userId)
-        {
-            return GetPermissionStrings(permissionStrings).FirstOrDefault(item => item.PermissionName == permissionName).Permissions.Split(';').Contains($"[{userId}]");
+            return permissions.Any(item => item.PermissionName == permissionName && item.UserId == userId);
         }
 
         public static ClaimsIdentity CreateClaimsIdentity(Alias alias, User user, List<UserRole> userroles)

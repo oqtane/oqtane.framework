@@ -1,4 +1,5 @@
 using System;
+using Oqtane.Shared;
 
 namespace Oqtane.Models
 {
@@ -66,15 +67,41 @@ namespace Oqtane.Models
 
         public Permission(string permissionName, string roleName, bool isAuthorized)
         {
-            PermissionName = permissionName;
-            Role = new Role { Name = roleName };
-            IsAuthorized = isAuthorized;
+            Initialize("", -1, permissionName, roleName, null, isAuthorized);
         }
 
         public Permission(string permissionName, int userId, bool isAuthorized)
         {
+            Initialize("", -1, permissionName, "", userId, isAuthorized);
+        }
+
+        public Permission(string entityName, string permissionName, string roleName, int? userId, bool isAuthorized)
+        {
+            Initialize(entityName, -1, permissionName, roleName, userId, isAuthorized);
+        }
+
+        public Permission(string entityName, int entityId, string permissionName, string roleName, int? userId, bool isAuthorized)
+        {
+            Initialize(entityName, entityId, permissionName, roleName, userId, isAuthorized);
+        }
+
+        private void Initialize(string entityName, int entityId, string permissionName, string roleName, int? userId, bool isAuthorized)
+        {
+            EntityName = entityName;
+            EntityId = entityId;
             PermissionName = permissionName;
-            UserId = userId;
+            if (!string.IsNullOrEmpty(roleName))
+            {
+                Role = new Role { Name = roleName };
+                RoleId = null;
+                UserId = null;
+            }
+            else
+            {
+                Role = null;
+                RoleId = null;
+                UserId = userId;
+            }
             IsAuthorized = isAuthorized;
         }
     }

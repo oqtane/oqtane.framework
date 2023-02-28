@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
@@ -68,7 +69,7 @@ namespace Oqtane.Models
         /// TODO: todoc what would this contain?
         /// </summary>
         [NotMapped]
-        public string Permissions { get; set; }
+        public List<Permission> Permissions { get; set; }
 
         /// <summary>
         /// Folder Depth

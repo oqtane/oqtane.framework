@@ -128,7 +128,7 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && page.SiteId == _alias.SiteId)
             {
-                string permissions;
+                List<Permission> permissions;
                 if (page.ParentId != null)
                 {
                     permissions = _pages.GetPage(page.ParentId.Value).Permissions;
@@ -274,9 +274,8 @@ namespace Oqtane.Controllers
                 }
 
                 // get differences between current and new page permissions
-                var newPermissions = _permissionRepository.DecodePermissions(page.Permissions, page.SiteId, EntityNames.Page, page.PageId).ToList();
-                var added = GetPermissionsDifferences(newPermissions, currentPermissions);
-                var removed = GetPermissionsDifferences(currentPermissions, newPermissions);
+                var added = GetPermissionsDifferences(page.Permissions, currentPermissions);
+                var removed = GetPermissionsDifferences(currentPermissions, page.Permissions);
 
                 // synchronize module permissions
                 if (added.Count > 0 || removed.Count > 0)

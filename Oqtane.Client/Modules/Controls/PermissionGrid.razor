@@ -15,20 +15,19 @@
                 <tbody>
                     <tr>
                         <th scope="col">@Localizer["Role"]</th>
-                        @foreach (PermissionString permission in _permissions)
+                        @foreach (var permissionname in _permissionnames)
                         {
-							<th style="text-align: center; width: 1px;">@((MarkupString)GetPermissionName(permission).Replace(" ", "<br />"))</th>
+							<th style="text-align: center; width: 1px;">@((MarkupString)DisplayPermissionName(permissionname).Replace(" ", "<br />"))</th>
 						}
                     </tr>
                     @foreach (Role role in _roles)
                     {
                         <tr>
                             <td>@role.Name</td>
-                            @foreach (PermissionString permission in _permissions)
+                            @foreach (var permissionname in _permissionnames)
                             {
-                                var p = permission;
                                 <td style="text-align: center;">
-									<TriStateCheckBox Value=@GetPermissionValue(p.Permissions, role.Name) Disabled="@GetPermissionDisabled(p.EntityName, p.PermissionName, role.Name)" OnChange="@(e => PermissionChanged(e, p.EntityName, p.PermissionName, role.Name))" />
+									<TriStateCheckBox Value=@GetPermissionValue(permissionname, role.Name, -1) Disabled="@GetPermissionDisabled(permissionname, role.Name)" OnChange="@(e => PermissionChanged(e, permissionname, role.Name, -1))" />
                                 </td>
                             }
                         </tr>
@@ -50,23 +49,21 @@
                     <thead>
                         <tr>
                             <th scope="col">@Localizer["User"]</th>
-                            @foreach (PermissionString permission in _permissions)
-                            {
-                                <th style="text-align: center; width: 1px;">@Localizer[permission.PermissionName]</th>
-                            }
-                        </tr>
+								@foreach (var permissionname in _permissionnames)
+								{
+									<th style="text-align: center; width: 1px;">@((MarkupString)DisplayPermissionName(permissionname).Replace(" ", "<br />"))</th>
+								}
+							</tr>
                     </thead>
                     <tbody>
                         @foreach (User user in _users)
                         {
-                            string userid = "[" + user.UserId.ToString() + "]";
                             <tr>
                                 <td>@user.DisplayName</td>
-                                @foreach (PermissionString permission in _permissions)
+                                @foreach (var permissionname in _permissionnames)
                                 {
-                                    var p = permission;
                                     <td style="text-align: center; width: 1px;">
-										<TriStateCheckBox Value=@GetPermissionValue(p.Permissions, userid) Disabled="@GetPermissionDisabled(p.EntityName, p.PermissionName, "")" OnChange="@(e => PermissionChanged(e, p.EntityName, p.PermissionName, userid))" />
+										<TriStateCheckBox Value=@GetPermissionValue(permissionname, "", user.UserId) Disabled="@GetPermissionDisabled(permissionname, "")" OnChange="@(e => PermissionChanged(e, permissionname, "", user.UserId))" />
                                     </td>
                                 }
                             </tr>
@@ -94,9 +91,9 @@
 }
 
 @code {
-	private string _permissionnames = string.Empty;
+	private List<string> _permissionnames;
+	private List<Permission> _permissions;
 	private List<Role> _roles;
-	private List<PermissionString> _permissions;
 	private List<User> _users = new List<User>();
 	private AutoComplete _user;
 	private string _message = string.Empty;
@@ -108,28 +105,31 @@
 	public string PermissionNames { get; set; }
 
 	[Parameter]
-	public string Permissions { get; set; }
+	public List<Permission> Permissions { get; set; }
 
 	protected override async Task OnInitializedAsync()
 	{
-		if (string.IsNullOrEmpty(PermissionNames))
-		{
-			_permissionnames = Shared.PermissionNames.View + "," + Shared.PermissionNames.Edit;
-		}
-		else
-		{
-			_permissionnames = PermissionNames;
-		}
-
 		_roles = await RoleService.GetRolesAsync(ModuleState.SiteId, true);
 		if (!UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
 		{
 			_roles.RemoveAll(item => item.Name == RoleNames.Host);
 		}
 
-		_permissions = new List<PermissionString>();
+		// get permission names
+		if (string.IsNullOrEmpty(PermissionNames))
+		{
+			_permissionnames = new List<string>();
+			_permissionnames.Add(Shared.PermissionNames.View);
+			_permissionnames.Add(Shared.PermissionNames.Edit);
+		}
+		else
+		{
+			_permissionnames = PermissionNames.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+		}
 
-		foreach (string permissionname in _permissionnames.Split(',', StringSplitOptions.RemoveEmptyEntries))
+		// initialize permissions
+		_permissions = new List<Permission>();
+		foreach (string permissionname in _permissionnames)
 		{
 			// permission names can be in the form of "EntityName:PermissionName:Roles"
 			if (permissionname.Contains(":"))
@@ -137,78 +137,83 @@
 				var segments = permissionname.Split(':');
 				if (segments.Length == 3)
 				{
-					if (!segments[2].Contains(RoleNames.Admin))
+					foreach (var role in segments[2].Split(';'))
 					{
-						segments[2] = RoleNames.Admin + ";" + segments[2]; // ensure admin access
+						_permissions.Add(new Permission(segments[0], segments[1], role, null, true));
 					}
-					_permissions.Add(new PermissionString { EntityName = segments[0], PermissionName = segments[1], Permissions = segments[2] });
+					// ensure admin access
+					if (!_permissions.Any(item => item.EntityName == segments[0] && item.PermissionName == segments[1] && item.Role.Name == RoleNames.Admin))
+					{
+						_permissions.Add(new Permission(segments[0], segments[1], RoleNames.Admin, null, true));
+					}
 				}
 			}
 			else
 			{
-				_permissions.Add(new PermissionString { EntityName = EntityName, PermissionName = permissionname, Permissions = RoleNames.Admin });
+				_permissions.Add(new Permission(EntityName, permissionname, RoleNames.Admin, null, true));
 			}
 		}
 
-		if (!string.IsNullOrEmpty(Permissions))
+		// populate permissions and users
+		if (Permissions.Any())
 		{
-			// populate permissions
-			foreach (PermissionString permissionstring in UserSecurity.GetPermissionStrings(Permissions))
+			foreach (var permission in Permissions)
 			{
-				int index = _permissions.FindIndex(item => item.EntityName == permissionstring.EntityName && item.PermissionName == permissionstring.PermissionName);
-				if (index != -1)
+				if (!_permissions.Any(item => item.EntityName == permission.EntityName && item.PermissionName == permission.PermissionName && item.Role.Name == permission.Role.Name))
 				{
-					_permissions[index].Permissions = permissionstring.Permissions;
+					_permissions.Add(permission);
 				}
-
-				if (permissionstring.Permissions.Contains("["))
+				if (permission.UserId != null)
 				{
-					foreach (string user in permissionstring.Permissions.Split('[', StringSplitOptions.RemoveEmptyEntries))
+					if (!_users.Any(item => item.UserId == permission.UserId.Value))
 					{
-						if (user.Contains("]"))
-						{
-							var userid = int.Parse(user.Substring(0, user.IndexOf("]")));
-							if (_users.Where(item => item.UserId == userid).FirstOrDefault() == null)
-							{
-								_users.Add(await UserService.GetUserAsync(userid, ModuleState.SiteId));
-							}
-						}
+						_users.Add(await UserService.GetUserAsync(permission.UserId.Value, ModuleState.SiteId));
 					}
 				}
 			}
 		}
 	}
 
-	private string GetPermissionName(PermissionString permission)
+	private string GetPermissionName(string permissionName)
 	{
-		var permissionname = Localizer[permission.PermissionName].ToString();
-		if (!string.IsNullOrEmpty(EntityName))
-		{
-			permissionname += " " + Localizer[permission.EntityName].ToString();
-		}
-		return permissionname;
+		return (permissionName.Contains(":")) ? permissionName.Split(':')[1] : permissionName;
 	}
 
-	private bool? GetPermissionValue(string permissions, string securityKey)
+	private string GetEntityName(string permissionName)
 	{
-		if ((";" + permissions + ";").Contains(";" + "!" + securityKey + ";"))
+		return (permissionName.Contains(":")) ? permissionName.Split(':')[0] : EntityName;
+	}
+
+	private string DisplayPermissionName(string permissionName)
+	{
+		var name = Localizer[GetPermissionName(permissionName)].ToString();
+		name += " " + Localizer[GetEntityName(permissionName)].ToString();
+		return name;
+	}
+
+	private bool? GetPermissionValue(string permissionName, string roleName, int userId)
+	{
+		bool? isauthorized = null;
+		if (roleName != "")
 		{
-			return false; // deny permission
+			var permission = _permissions.FirstOrDefault(item => item.EntityName == GetEntityName(permissionName) && item.PermissionName == GetPermissionName(permissionName) && item.Role.Name == roleName);
+			if (permission != null)
+			{
+				isauthorized = permission.IsAuthorized;
+			}
 		}
 		else
 		{
-			if ((";" + permissions + ";").Contains(";" + securityKey + ";"))
+			var permission = _permissions.FirstOrDefault(item => item.EntityName == GetEntityName(permissionName) && item.PermissionName == GetPermissionName(permissionName) && item.UserId == userId);
+			if (permission != null)
 			{
-				return true; // grant permission
-			}
-			else
-			{
-				return null; // not specified
-			}
+				isauthorized = permission.IsAuthorized;
+			}			
 		}
+		return isauthorized;
 	}
 
-	private bool GetPermissionDisabled(string entityName, string permissionName, string roleName)
+	private bool GetPermissionDisabled(string permissionName, string roleName)
 	{
 		if (roleName == RoleNames.Admin && !UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
 		{
@@ -216,13 +221,41 @@
 		}
 		else
 		{
-			if (entityName != EntityName && !UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
+			if (GetEntityName(permissionName) != EntityName && !UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
 			{
 				return true;
 			}
 			else
 			{
 				return false;
+			}
+		}
+	}
+
+	private void PermissionChanged(bool? value, string permissionName, string roleName, int userId)
+	{
+		if (roleName != "")
+		{
+			var permission = _permissions.FirstOrDefault(item => item.EntityName == GetEntityName(permissionName) && item.PermissionName == GetPermissionName(permissionName) && item.Role.Name == roleName);
+			if (permission == null)
+			{
+				_permissions.Remove(permission);
+			}
+			if (value != null)
+			{
+				_permissions.Add(new Permission(GetEntityName(permissionName), GetPermissionName(permissionName), roleName, null, value.Value));
+			}
+		}
+		else
+		{
+			var permission = _permissions.FirstOrDefault(item => item.EntityName == GetEntityName(permissionName) && item.PermissionName == GetPermissionName(permissionName) && item.UserId == userId);
+			if (permission == null)
+			{
+				_permissions.Remove(permission);
+			}
+			if (value != null)
+			{
+				_permissions.Add(new Permission(GetEntityName(permissionName), GetPermissionName(permissionName), null, userId, value.Value));
 			}
 		}
 	}
@@ -251,62 +284,39 @@
 		_user.Clear();
 	}
 
-	private void PermissionChanged(bool? value, string entityName, string permissionName, string securityId)
-	{
-		var selected = value;
-		int index = _permissions.FindIndex(item => item.EntityName == entityName && item.PermissionName == permissionName);
-		if (index != -1)
-		{
-			var permission = _permissions[index];
-
-			var ids = permission.Permissions.Split(';').ToList();
-			ids.Remove(securityId); // remove grant permission
-			ids.Remove("!" + securityId); // remove deny permission
-
-			switch (selected)
-			{
-				case true:
-					ids.Add(securityId); // add grant permission
-					break;
-				case false:
-					ids.Add("!" + securityId); // add deny permission
-					break;
-				case null:
-					break; // permission not specified
-			}
-
-			_permissions[index].Permissions = string.Join(";", ids.ToArray());
-		}
-	}
-
-	public string GetPermissions()
+	public List<Permission> GetPermissions()
 	{
 		ValidatePermissions();
-		return UserSecurity.SetPermissionStrings(_permissions);
+		return _permissions;
 	}
 
 	private void ValidatePermissions()
 	{
-		PermissionString permission;
-		for (int index = 0; index < _permissions.Count; index++)
+		// remove deny all users, unauthenticated, and registered users
+		var permissions = _permissions.Where(item => !item.IsAuthorized && 
+			(item.Role.Name == RoleNames.Everyone || item.Role.Name == RoleNames.Unauthenticated || item.Role.Name == RoleNames.Registered));
+		foreach (var permission in permissions)
 		{
-			permission = _permissions[index];
-			List<string> ids = permission.Permissions.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
-			ids.Remove("!" + RoleNames.Everyone); // remove deny all users
-			ids.Remove("!" + RoleNames.Unauthenticated); // remove deny unauthenticated
-			ids.Remove("!" + RoleNames.Registered); // remove deny registered users
-			if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+			_permissions.Remove(permission);
+		}
+		if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+		{
+			// remove deny administrators and host users
+			permissions = _permissions.Where(item => !item.IsAuthorized &&
+				(item.Role.Name == RoleNames.Admin || item.Role.Name == RoleNames.Host));
+			foreach (var permission in permissions)
 			{
-				ids.Remove("!" + RoleNames.Admin); // remove deny administrators
-				ids.Remove("!" + RoleNames.Host); // remove deny host users
-				if (!ids.Contains(RoleNames.Host) && !ids.Contains(RoleNames.Admin))
+				_permissions.Remove(permission);
+			}
+			foreach (var permissionname in _permissionnames)
+			{
+				// add administrators role if neither host or administrator is assigned
+				if (!_permissions.Any(item => item.EntityName == GetEntityName(permissionname) && item.PermissionName == GetPermissionName(permissionname) &&
+					(item.Role.Name == RoleNames.Admin || item.Role.Name == RoleNames.Host)))
 				{
-					// add administrators role if host user role is not assigned
-					ids.Add(RoleNames.Admin);				
+					_permissions.Add(new Permission(GetEntityName(permissionname), GetPermissionName(permissionname), RoleNames.Admin, null, true));
 				}
 			}
-			permission.Permissions = string.Join(";", ids.ToArray());
-            _permissions[index] = permission;
-        }
+		}
     }
 }

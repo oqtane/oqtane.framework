@@ -104,7 +104,7 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && folder.SiteId == _alias.SiteId)
             {
-                string permissions;
+                List<Permission> permissions;
                 if (folder.ParentId != null)
                 {
                     permissions = _folders.GetFolder(folder.ParentId.Value).Permissions;
