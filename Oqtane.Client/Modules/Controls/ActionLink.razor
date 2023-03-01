@@ -26,7 +26,7 @@
 	private string _text = string.Empty;
 	private string _parameters = string.Empty;
 	private string _url = string.Empty;
-	private string _permissions = string.Empty;
+	private List<Permission> _permissions;
 	private bool _editmode = false;
 	private bool _authorized = false;
 	private string _classname = "btn btn-primary";
@@ -52,7 +52,7 @@
 	public SecurityAccessLevel? Security { get; set; } // optional - can be used to explicitly specify SecurityAccessLevel
 
 	[Parameter]
-	public string Permissions { get; set; } // optional - can be used to specify a permission string
+	public List<Permission> Permissions { get; set; } // optional - can be used to specify permissions
 
 	[Parameter]
 	public bool Disabled { get; set; } // optional
@@ -119,7 +119,7 @@
 			_iconSpan = $"<span class=\"{IconName}\"></span>{(IconOnly ? "" : "&nbsp")}";
 		}
 
-		_permissions = (string.IsNullOrEmpty(Permissions)) ? ModuleState.Permissions : Permissions;
+		_permissions = (Permissions == null) ? ModuleState.Permissions : Permissions;
 		_text = Localize(nameof(Text), _text);
 		_url = (ModuleId == -1) ? EditUrl(Action, _parameters) : EditUrl(ModuleId, Action, _parameters);
 		if (!string.IsNullOrEmpty(ReturnUrl))

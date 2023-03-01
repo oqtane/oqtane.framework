@@ -136,36 +136,32 @@ namespace Oqtane.Themes.Controls
 
         private async Task<string> Publish(string url, PageModule pagemodule)
         {
-            var permissions = UserSecurity.GetPermissionStrings(pagemodule.Module.Permissions);
-            foreach (var permissionstring in permissions)
+            var permissions = pagemodule.Module.Permissions;
+            if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Everyone))
             {
-                if (permissionstring.PermissionName == PermissionNames.View)
-                {
-                    List<string> ids = permissionstring.Permissions.Split(';').ToList();
-                    if (!ids.Contains(RoleNames.Everyone)) ids.Add(RoleNames.Everyone);
-                    if (!ids.Contains(RoleNames.Registered)) ids.Add(RoleNames.Registered);
-                    permissionstring.Permissions = string.Join(";", ids.ToArray());
-                }
+                permissions.Add(new Permission(EntityNames.Page, pagemodule.PageId, PermissionNames.View, RoleNames.Everyone, null, true));
             }
-            pagemodule.Module.Permissions = UserSecurity.SetPermissionStrings(permissions);
+            if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Registered))
+            {
+                permissions.Add(new Permission(EntityNames.Page, pagemodule.PageId, PermissionNames.View, RoleNames.Registered, null, true));
+            }
+            pagemodule.Module.Permissions = permissions;
             await ModuleService.UpdateModuleAsync(pagemodule.Module);
             return url;
         }
 
         private async Task<string> Unpublish(string url, PageModule pagemodule)
         {
-            var permissions = UserSecurity.GetPermissionStrings(pagemodule.Module.Permissions);
-            foreach (var permissionstring in permissions)
+            var permissions = pagemodule.Module.Permissions;
+            if (permissions.Any(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Everyone))
             {
-                if (permissionstring.PermissionName == PermissionNames.View)
-                {
-                    List<string> ids = permissionstring.Permissions.Split(';').ToList();
-                    ids.Remove(RoleNames.Everyone);
-                    ids.Remove(RoleNames.Registered);
-                    permissionstring.Permissions = string.Join(";", ids.ToArray());
-                }
+                permissions.Remove(permissions.First(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Everyone));
             }
-            pagemodule.Module.Permissions = UserSecurity.SetPermissionStrings(permissions);
+            if (permissions.Any(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Registered))
+            {
+                permissions.Remove(permissions.First(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Registered));
+            }
+            pagemodule.Module.Permissions = permissions;
             await ModuleService.UpdateModuleAsync(pagemodule.Module);
             return url;
         }

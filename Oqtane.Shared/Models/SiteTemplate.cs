@@ -18,7 +18,7 @@ namespace Oqtane.Models
         public string Icon { get; set; }
         public bool IsNavigation { get; set; }
         public bool IsPersonalizable { get; set; }
-        public string PagePermissions { get; set; }
+        public List<Permission> PagePermissions { get; set; }
         public List<PageTemplateModule> PageTemplateModules { get; set; }
 
         [Obsolete("This property is obsolete", false)]
@@ -30,7 +30,7 @@ namespace Oqtane.Models
         public string ModuleDefinitionName { get; set; }
         public string Title { get; set; }
         public string Pane { get; set; }
-        public string ModulePermissions { get; set; }
+        public List<Permission> ModulePermissions { get; set; }
         public string Content { get; set; }
     }
 }

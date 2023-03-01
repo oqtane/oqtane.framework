@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using Oqtane.Documentation;
 
@@ -99,7 +100,7 @@ namespace Oqtane.Models
         [NotMapped]
         public string AssemblyName { get; set; }
         [NotMapped]
-        public string Permissions { get; set; }
+        public List<Permission> Permissions { get; set; }
         [NotMapped]
         public string Template { get; set; }
     }

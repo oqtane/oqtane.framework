@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Infrastructure;
+using Oqtane.Modules.Admin.Users;
 
 namespace Oqtane.Repository
 {
@@ -77,11 +78,28 @@ namespace Oqtane.Repository
             return permission;
         }
 
-        public void UpdatePermissions(int siteId, string entityName, int entityId, string permissionStrings)
+        public void UpdatePermissions(int siteId, string entityName, int entityId, List<Permission> permissions)
         {
+            // ensure permissions are fully populated
+            List<Role> roles = _roles.GetRoles(siteId, true).ToList();
+            foreach (var permission in permissions)
+            {
+                permission.SiteId = siteId;
+                permission.EntityName = (string.IsNullOrEmpty(permission.EntityName)) ? entityName : permission.EntityName;
+                permission.EntityId = (permission.EntityName == entityName) ? entityId : -1;
+                if (permission.RoleId == null && permission.Role != null && !string.IsNullOrEmpty(permission.Role.Name))
+                {
+                    var role = roles.FirstOrDefault(item => item.Name == permission.Role.Name);
+                    if (role != null)
+                    {
+                        permission.RoleId = role.RoleId;
+                    }
+                }
+                permission.Role = null;
+            }
+            // add or update permissions
             bool modified = false;
             var existing = new List<Permission>();
-            var permissions = DecodePermissions(permissionStrings, siteId, entityName, entityId);
             foreach (var permission in permissions)
             {
                 if (!existing.Any(item => item.EntityName == permission.EntityName && item.PermissionName == permission.PermissionName))
@@ -108,6 +126,7 @@ namespace Oqtane.Repository
                     modified = true;
                 }
             }
+            // delete permissions
             foreach (var permission in existing)
             {
                 if (!permissions.Any(item => item.EntityName == permission.EntityName && item.PermissionName == permission.PermissionName
@@ -163,122 +182,5 @@ namespace Oqtane.Repository
                 _cache.Remove($"permissions:{alias.TenantId}:{siteId}:{entityName}");
             }
         }
-
-        // permissions are stored in the format "{permissionname:!rolename1;![userid1];rolename2;rolename3;[userid2];[userid3]}" where "!" designates Deny permissions
-        public string EncodePermissions(IEnumerable<Permission> permissionList)
-        {
-            List<PermissionString> permissionstrings = new List<PermissionString>();
-            string permissionname = "";
-            string permissions = "";
-            StringBuilder permissionsbuilder = new StringBuilder();
-            string securityid = "";
-            foreach (Permission permission in permissionList.OrderBy(item => item.PermissionName))
-            {
-                // permission collections are grouped by permissionname
-                if (permissionname != permission.PermissionName)
-                {
-                    permissions = permissionsbuilder.ToString();
-                    if (permissions != "")
-                    {
-                        permissionstrings.Add(new PermissionString { PermissionName = permissionname, Permissions = permissions.Substring(0, permissions.Length - 1) });
-                    }
-                    permissionname = permission.PermissionName;
-                    permissionsbuilder = new StringBuilder();
-                }
-
-                // deny permissions are prefixed with a "!"
-                string prefix = !permission.IsAuthorized ? "!" : "";
-
-                // encode permission
-                if (permission.UserId == null)
-                {
-                    securityid = prefix + permission.Role.Name + ";";
-                }
-                else
-                {
-                    securityid = prefix + "[" + permission.UserId + "];";
-                }
-
-                // insert deny permissions at the beginning and append grant permissions at the end
-                if (prefix == "!")
-                {
-                    permissionsbuilder.Insert(0, securityid);
-                }
-                else
-                {
-                    permissionsbuilder.Append(securityid);
-                }
-            }
-
-            permissions = permissionsbuilder.ToString();
-            if (permissions != "")
-            {
-                permissionstrings.Add(new PermissionString { PermissionName = permissionname, Permissions = permissions.Substring(0, permissions.Length - 1) });
-            }
-            return JsonSerializer.Serialize(permissionstrings);
-        }
-
-        public IEnumerable<Permission> DecodePermissions(string permissionStrings, int siteId, string entityName, int entityId)
-        {
-            List<Permission> permissions = new List<Permission>();
-            List<Role> roles = _roles.GetRoles(siteId, true).ToList();
-            string securityid = "";
-            foreach (PermissionString permissionstring in JsonSerializer.Deserialize<List<PermissionString>>(permissionStrings))
-            {
-                foreach (string id in permissionstring.Permissions.Split(';', StringSplitOptions.RemoveEmptyEntries))
-                {
-                    securityid = id;
-                    Permission permission = new Permission();
-                    permission.SiteId = siteId;
-                    if (!string.IsNullOrEmpty(permissionstring.EntityName))
-                    {
-                        permission.EntityName = permissionstring.EntityName;
-                    }
-                    else
-                    {
-                        permission.EntityName = entityName;
-                    }
-                    if (permission.EntityName == entityName)
-                    {
-                        permission.EntityId = entityId;
-                    }
-                    else
-                    {
-                        permission.EntityId = -1;
-                    }
-                    permission.PermissionName = permissionstring.PermissionName;
-                    permission.RoleId = null;
-                    permission.UserId = null;
-                    permission.IsAuthorized = true;
-
-                    if (securityid.StartsWith("!"))
-                    {
-                        // deny permission
-                        securityid = securityid.Replace("!", "");
-                        permission.IsAuthorized = false;
-                    }
-                    if (securityid.StartsWith("[") && securityid.EndsWith("]"))
-                    {
-                        // user id
-                        securityid = securityid.Replace("[", "").Replace("]", "");
-                        permission.UserId = int.Parse(securityid);
-                    }
-                    else
-                    {
-                        // role name
-                        Role role = roles.SingleOrDefault(item => item.Name == securityid);
-                        if (role != null)
-                        {
-                            permission.RoleId = role.RoleId;
-                        }
-                    }
-                    if (permission.UserId != null || permission.RoleId != null)
-                    {
-                        permissions.Add(permission);
-                    }
-                }
-            }
-            return permissions;
-        }
-    }
+     }
 }

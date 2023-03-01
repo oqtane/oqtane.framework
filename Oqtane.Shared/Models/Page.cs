@@ -98,7 +98,7 @@ namespace Oqtane.Models
         public List<Resource> Resources { get; set; }
 
         [NotMapped]
-        public string Permissions { get; set; }
+        public List<Permission> Permissions { get; set; }
 
         [NotMapped]
         public Dictionary<string, string> Settings { get; set; }

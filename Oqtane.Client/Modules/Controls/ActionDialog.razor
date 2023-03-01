@@ -40,7 +40,7 @@
 
 @code {
     private bool _visible = false;
-	private string _permissions = string.Empty;
+	private List<Permission> _permissions;
     private bool _editmode = false;
     private bool _authorized = false;
     private string _iconSpan = string.Empty;
@@ -61,7 +61,7 @@
     public SecurityAccessLevel? Security { get; set; } // optional - can be used to explicitly specify SecurityAccessLevel
 
 	[Parameter]
-	public string Permissions { get; set; } // optional - can be used to specify a permission string
+	public List<Permission> Permissions { get; set; } // optional - can be used to specify permissions
 
     [Parameter]
     public string Class { get; set; } // optional
@@ -109,7 +109,7 @@
         Header = Localize(nameof(Header), Header);
         Message = Localize(nameof(Message), Message);
 
-		_permissions = (string.IsNullOrEmpty(Permissions)) ? ModuleState.Permissions : Permissions;
+		_permissions = (Permissions == null) ? ModuleState.Permissions : Permissions;
         _authorized = IsAuthorized();
     }
 

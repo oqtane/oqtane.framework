@@ -183,7 +183,7 @@
 	private string _themetype = string.Empty;
 	private string _containertype = string.Empty;
 	private string _icon = string.Empty;
-	private string _permissions = string.Empty;
+	private List<Permission> _permissions = null;
 	private PermissionGrid _permissionGrid;
 	private Type _themeSettingsType;
 	private object _themeSettings;
@@ -202,7 +202,6 @@
 			_containers = ThemeService.GetContainerControls(_themeList, _themetype);
 			_containertype = PageState.Site.DefaultContainerType;
 			_children = PageState.Pages.Where(item => item.ParentId == null).ToList();
-			_permissions = string.Empty;
 			ThemeSettings();
 		}
 		catch (Exception ex)
