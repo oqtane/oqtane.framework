@@ -396,16 +396,15 @@
 					if (Visibility == "view")
 					{
 						// set module view permissions to page view permissions
-						permissions = PageState.Page.Permissions.Where(item => item.PermissionName == PermissionNames.View).ToList();
+						permissions = SetPermissions(permissions, module.SiteId, PermissionNames.View, PermissionNames.View);
 					}
 					else
 					{
 						// set module view permissions to page edit permissions
-						permissions = PageState.Page.Permissions.Where(item => item.PermissionName == PermissionNames.Edit).ToList();
+						permissions = SetPermissions(permissions, module.SiteId, PermissionNames.View, PermissionNames.Edit);
 					}
-					// set entity name and permission name
-					permissions.ForEach(item => item.EntityName = EntityNames.Module);
-					permissions.ForEach(item => item.PermissionName = PermissionNames.View);
+					// set module edit permissions to page edit permissions
+					permissions = SetPermissions(permissions, module.SiteId, PermissionNames.Edit, PermissionNames.Edit);
 					module.Permissions = permissions;
 
 					module = await ModuleService.AddModuleAsync(module);
@@ -455,6 +454,15 @@
 		{
 			Message = $"<div class=\"alert alert-error mt-2 text-center\" role=\"alert\">{Localizer["Error.Authorize.No"]}</div>";
 		}
+	}
+
+	private List<Permission> SetPermissions(List<Permission> permissions, int siteId, string modulePermission, string pagePermission)
+	{
+		foreach (var permission in PageState.Page.Permissions.Where(item => item.PermissionName == pagePermission))
+		{
+			permissions.Add(new Permission { SiteId = siteId, EntityName = EntityNames.Module, PermissionName = modulePermission, RoleId = permission.RoleId, UserId = permission.UserId, IsAuthorized = permission.IsAuthorized });
+		}
+		return permissions;
 	}
 
 	private async Task ToggleEditMode(bool EditMode)
