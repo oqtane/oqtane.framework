@@ -204,7 +204,7 @@
 			if (page != null)
 			{
 				// check if user is authorized to view page
-				if (UserSecurity.IsAuthorized(user, PermissionNames.View, page.Permissions))
+				if (UserSecurity.IsAuthorized(user, PermissionNames.View, page.PermissionList))
 				{
 					// load additional metadata for current page
 					page = await ProcessPage(page, site, user);

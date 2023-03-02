@@ -63,7 +63,7 @@ namespace Oqtane.Controllers
                 List<ModuleDefinition> moduledefinitions = new List<ModuleDefinition>();
                 foreach (ModuleDefinition moduledefinition in _moduleDefinitions.GetModuleDefinitions(SiteId))
                 {
-                    if (_userPermissions.IsAuthorized(User, PermissionNames.Utilize, moduledefinition.Permissions))
+                    if (_userPermissions.IsAuthorized(User, PermissionNames.Utilize, moduledefinition.PermissionList))
                     {
                         if (string.IsNullOrEmpty(moduledefinition.Version)) moduledefinition.Version = new Version(1, 0, 0).ToString();
                         moduledefinitions.Add(moduledefinition);
@@ -87,7 +87,7 @@ namespace Oqtane.Controllers
             if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
             {
                 ModuleDefinition moduledefinition = _moduleDefinitions.GetModuleDefinition(id, SiteId);
-                if (_userPermissions.IsAuthorized(User, PermissionNames.Utilize, moduledefinition.Permissions))
+                if (_userPermissions.IsAuthorized(User, PermissionNames.Utilize, moduledefinition.PermissionList))
                 {
                     if (string.IsNullOrEmpty(moduledefinition.Version)) moduledefinition.Version = new Version(1, 0, 0).ToString();
                     return moduledefinition;

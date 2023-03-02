@@ -119,7 +119,7 @@ namespace Oqtane.Repository
                     }
                 }
             }
-            pageModule.Module.Permissions = permissions?.EncodePermissions();
+            pageModule.Module.PermissionList = permissions?.ToList();
             return pageModule;
         }
     }

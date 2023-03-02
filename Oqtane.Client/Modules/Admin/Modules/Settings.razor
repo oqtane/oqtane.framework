@@ -46,7 +46,7 @@
                             <select id="page" class="form-select" @bind="@_pageId" required>
                                 @foreach (Page p in PageState.Pages)
                                 {
-                                    if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
+                                    if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
                                     {
                                         <option value="@p.PageId">@(new string('-', p.Level * 2))@(p.Name)</option>
                                     }
@@ -62,7 +62,7 @@
             {
                 <div class="container">
                     <div class="row mb-1 align-items-center">
-                        <PermissionGrid EntityName="@EntityNames.Module" PermissionNames="@_permissionNames" Permissions="@_permissions" @ref="_permissionGrid" />
+                        <PermissionGrid EntityName="@EntityNames.Module" PermissionNames="@_permissionNames" PermissionList="@_permissions" @ref="_permissionGrid" />
                     </div>
                 </div>
 
@@ -101,7 +101,7 @@
 	private string _containerType;
 	private string _allPages = "false";
 	private string _permissionNames = "";
-	private List<Permission> _permissions;
+	private List<Permission> _permissions = null;
 	private string _pageId;
 	private PermissionGrid _permissionGrid;
 	private Type _moduleSettingsType;
@@ -123,7 +123,7 @@
 		_containers = ThemeService.GetContainerControls(_themes, PageState.Page.ThemeType);
 		_containerType = ModuleState.ContainerType;
 		_allPages = ModuleState.AllPages.ToString();
-		_permissions = ModuleState.Permissions;
+		_permissions = ModuleState.PermissionList;
 		_pageId = ModuleState.PageId.ToString();
 		createdby = ModuleState.CreatedBy;
 		createdon = ModuleState.CreatedOn;
@@ -207,7 +207,7 @@
 				var module = ModuleState;
 				module.AllPages = bool.Parse(_allPages);
 				module.PageModuleId = ModuleState.PageModuleId;
-				module.Permissions = _permissionGrid.GetPermissions();
+				module.PermissionList = _permissionGrid.GetPermissionList();
 				await ModuleService.UpdateModuleAsync(module);
 
                 if (_moduleSettingsType != null)

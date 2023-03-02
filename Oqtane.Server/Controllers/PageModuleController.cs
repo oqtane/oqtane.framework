@@ -38,7 +38,7 @@ namespace Oqtane.Controllers
         public PageModule Get(int id)
         {
             PageModule pagemodule = _pageModules.GetPageModule(id);
-            if (pagemodule != null && pagemodule.Module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, pagemodule.Module.Permissions))
+            if (pagemodule != null && pagemodule.Module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, pagemodule.Module.PermissionList))
             {
                 return pagemodule;
             }
@@ -55,7 +55,7 @@ namespace Oqtane.Controllers
         public PageModule Get(int pageid, int moduleid)
         {
             PageModule pagemodule = _pageModules.GetPageModule(pageid, moduleid);
-            if (pagemodule != null && pagemodule.Module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, pagemodule.Module.Permissions))
+            if (pagemodule != null && pagemodule.Module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, pagemodule.Module.PermissionList))
             {
                 return pagemodule;
             }

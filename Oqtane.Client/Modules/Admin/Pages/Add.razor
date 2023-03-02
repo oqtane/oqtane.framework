@@ -183,7 +183,7 @@
 	private string _themetype = string.Empty;
 	private string _containertype = string.Empty;
 	private string _icon = string.Empty;
-	private List<Permission> _permissions = null;
+	private string _permissions = null;
 	private PermissionGrid _permissionGrid;
 	private Type _themeSettingsType;
 	private object _themeSettings;
@@ -221,7 +221,7 @@
 			{
 				foreach (Page p in PageState.Pages.Where(item => item.ParentId == null))
 				{
-					if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
+					if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
 					{
 						_children.Add(p);
 					}
@@ -231,7 +231,7 @@
 			{
 				foreach (Page p in PageState.Pages.Where(item => item.ParentId == int.Parse(_parentid)))
 				{
-					if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
+					if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
 					{
 						_children.Add(p);
 					}
@@ -377,7 +377,7 @@
 						page.DefaultContainerType = string.Empty;
 					}
 					page.Icon = (_icon == null ? string.Empty : _icon);
-					page.Permissions = _permissionGrid.GetPermissions();
+					page.PermissionList = _permissionGrid.GetPermissionList();
 					page.IsPersonalizable = (_ispersonalizable == null ? false : Boolean.Parse(_ispersonalizable));
 					page.UserId = null;
 					page.Meta = _meta;

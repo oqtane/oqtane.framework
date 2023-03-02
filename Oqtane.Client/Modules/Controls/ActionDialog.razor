@@ -1,4 +1,5 @@
 @namespace Oqtane.Modules.Controls
+@using System.Text.Json
 @inherits LocalizableComponent
 
 @if (_visible)
@@ -61,7 +62,10 @@
     public SecurityAccessLevel? Security { get; set; } // optional - can be used to explicitly specify SecurityAccessLevel
 
 	[Parameter]
-	public List<Permission> Permissions { get; set; } // optional - can be used to specify permissions
+	public string Permissions { get; set; } // optional - can be used to specify permissions (deprecated - use PermissionList)
+
+	[Parameter]
+	public List<Permission> PermissionList { get; set; } // optional - can be used to specify permissions
 
     [Parameter]
     public string Class { get; set; } // optional
@@ -78,7 +82,15 @@
     [Parameter]
     public string IconName { get; set; } // optional - specifies an icon for the link - default is no icon
 
-    protected override void OnParametersSet()
+	protected override void OnInitialized()
+	{
+		if (!string.IsNullOrEmpty(Permissions))
+		{
+			PermissionList = JsonSerializer.Deserialize<List<Permission>>(Permissions);
+		}
+	}
+	
+	protected override void OnParametersSet()
     {
         base.OnParametersSet();
 
@@ -109,7 +121,7 @@
         Header = Localize(nameof(Header), Header);
         Message = Localize(nameof(Message), Message);
 
-		_permissions = (Permissions == null) ? ModuleState.Permissions : Permissions;
+		_permissions = (PermissionList == null) ? ModuleState.PermissionList : PermissionList;
         _authorized = IsAuthorized();
     }
 

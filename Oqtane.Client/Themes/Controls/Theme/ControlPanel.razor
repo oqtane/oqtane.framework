@@ -33,7 +33,7 @@
     }
 }
 
-@if (_canViewAdminDashboard || UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
+@if (_canViewAdminDashboard || UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
 {
     <button type="button" class="btn @ButtonClass" data-bs-toggle="offcanvas" data-bs-target="#offcanvasControlPanel" aria-controls="offcanvasControlPanel">
         <span class="oi oi-cog"></span>
@@ -71,7 +71,7 @@
 					</div>
 					<div class="row d-flex">
 						<div class="col">
-							@if (UserSecurity.ContainsRole(PageState.Page.Permissions, PermissionNames.View, RoleNames.Everyone))
+							@if (UserSecurity.ContainsRole(PageState.Page.PermissionList, PermissionNames.View, RoleNames.Everyone))
 							{
 								<button type="button" class="btn btn-secondary col-12" @onclick=@(async () => Publish("unpublish"))>@Localizer["Page.Unpublish"]</button>
 							}
@@ -107,7 +107,7 @@
 					}
 				}
 
-				@if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
+				@if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
 				{
 					<div class="row">
 						<div class="col text-center">
@@ -144,7 +144,7 @@
 										}
 										@foreach (var moduledefinition in _moduleDefinitions)
 										{
-											if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Utilize, moduledefinition.Permissions))
+											if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Utilize, moduledefinition.PermissionList))
 											{
 												if (moduledefinition.Runtimes == "" || moduledefinition.Runtimes.Contains(PageState.Runtime.ToString()))
 												{
@@ -294,14 +294,14 @@
 	{
 		_canViewAdminDashboard = CanViewAdminDashboard();
 		_showEditMode = false;
-		if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
+		if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
 		{
 			_showEditMode = true;
 			_pages?.Clear();
 
 			foreach (Page p in PageState.Pages)
 			{
-				if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
+				if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
 				{
 					_pages.Add(p);
 				}
@@ -319,7 +319,7 @@
 		{
 			foreach (var module in PageState.Modules.Where(item => item.PageId == PageState.Page.PageId))
 			{
-				if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, module.Permissions))
+				if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, module.PermissionList))
 				{
 					_showEditMode = true;
 					break;
@@ -335,7 +335,7 @@
 		{
 			foreach (var page in PageState.Pages.Where(item => item.ParentId == admin?.PageId))
 			{
-				if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, page.Permissions))
+				if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, page.PermissionList))
 				{
 					return true;
 				}
@@ -371,7 +371,7 @@
 		{
 			_modules = PageState.Modules
 				.Where(module => module.PageId == int.Parse(PageId) &&
-				UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.Permissions))
+				UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.PermissionList))
 				.ToList();
 		}
 		ModuleId = "-";
@@ -380,7 +380,7 @@
 
 	private async Task AddModule()
 	{
-		if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
+		if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
 		{
 			if ((ModuleType == "new" && ModuleDefinitionName != "-") || (ModuleType != "new" && ModuleId != "-"))
 			{
@@ -405,7 +405,7 @@
 					}
 					// set module edit permissions to page edit permissions
 					permissions = SetPermissions(permissions, module.SiteId, PermissionNames.Edit, PermissionNames.Edit);
-					module.Permissions = permissions;
+					module.PermissionList = permissions;
 
 					module = await ModuleService.AddModuleAsync(module);
 					ModuleId = module.ModuleId.ToString();
@@ -458,7 +458,7 @@
 
 	private List<Permission> SetPermissions(List<Permission> permissions, int siteId, string modulePermission, string pagePermission)
 	{
-		foreach (var permission in PageState.Page.Permissions.Where(item => item.PermissionName == pagePermission))
+		foreach (var permission in PageState.Page.PermissionList.Where(item => item.PermissionName == pagePermission))
 		{
 			permissions.Add(new Permission { SiteId = siteId, EntityName = EntityNames.Module, PermissionName = modulePermission, RoleId = permission.RoleId, UserId = permission.UserId, IsAuthorized = permission.IsAuthorized });
 		}
@@ -534,9 +534,9 @@
 
 	private async void Publish(string action)
 	{
-		if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
+		if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
 		{
-			var permissions = PageState.Page.Permissions;
+			var permissions = PageState.Page.PermissionList;
             if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Everyone))
             {
 				permissions.Add(new Permission(EntityNames.Page, PageState.Page.PageId, PermissionNames.View, RoleNames.Everyone, null, true));
@@ -545,7 +545,7 @@
             {
 				permissions.Add(new Permission(EntityNames.Page, PageState.Page.PageId, PermissionNames.View, RoleNames.Registered, null, true));
             }
-			PageState.Page.Permissions = permissions;
+			PageState.Page.PermissionList = permissions;
 			await PageService.UpdatePageAsync(PageState.Page);
 			NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, true));
 		}

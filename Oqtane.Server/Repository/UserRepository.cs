@@ -54,12 +54,12 @@ namespace Oqtane.Repository
                     ImageSizes = "",
                     Capacity = Constants.UserFolderCapacity,
                     IsSystem = true,
-                    Permissions = new List<Permission>
+                    PermissionList = new List<Permission>
                     {
                         new Permission(PermissionNames.Browse, user.UserId, true),
                         new Permission(PermissionNames.View, RoleNames.Everyone, true),
                         new Permission(PermissionNames.Edit, user.UserId, true)
-                    }.EncodePermissions()
+                    }
                 });
             }
 

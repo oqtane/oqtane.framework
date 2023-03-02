@@ -36,7 +36,7 @@ namespace Oqtane.Themes.Controls
             var url = route.PathAndQuery;
 
             // verify if anonymous users can access page
-            if (!UserSecurity.IsAuthorized(null, PermissionNames.View, PageState.Page.Permissions))
+            if (!UserSecurity.IsAuthorized(null, PermissionNames.View, PageState.Page.PermissionList))
             {
                 url = PageState.Alias.Path;
             }

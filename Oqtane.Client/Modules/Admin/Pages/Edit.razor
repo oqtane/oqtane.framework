@@ -158,7 +158,7 @@
             {
                 <div class="container">
                     <div class="row mb-1 align-items-center">
-                        <PermissionGrid EntityName="@EntityNames.Page" Permissions="@_permissions" @ref="_permissionGrid" />
+                        <PermissionGrid EntityName="@EntityNames.Page" PermissionList="@_permissions" @ref="_permissionGrid" />
                     </div>
                 </div>
             }
@@ -174,8 +174,8 @@
                         <th>@Localizer["ModuleDefinition"]</th>
                     </Header>
                     <Row>
-                        <td><ActionLink Action="Settings" Text="Edit" ModuleId="@context.ModuleId" Security="SecurityAccessLevel.Edit" Permissions="@context.Permissions" ResourceKey="ModuleSettings" /></td>
-                        <td><ActionDialog Header="Delete Module" Message="Are You Sure You Wish To Delete This Module?" Action="Delete" Security="SecurityAccessLevel.Edit" Permissions="@context.Permissions" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" /></td>
+                        <td><ActionLink Action="Settings" Text="Edit" ModuleId="@context.ModuleId" Security="SecurityAccessLevel.Edit" PermissionList="@context.PermissionList" ResourceKey="ModuleSettings" /></td>
+                        <td><ActionDialog Header="Delete Module" Message="Are You Sure You Wish To Delete This Module?" Action="Delete" Security="SecurityAccessLevel.Edit" PermissionList="@context.PermissionList" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" /></td>
                         <td>@context.Title</td>
                         <td>@context.ModuleDefinition?.Name</td>
                     </Row>
@@ -292,7 +292,7 @@
 					_containertype = PageState.Site.DefaultContainerType;
 				}
 				_icon = page.Icon;
-				_permissions = page.Permissions;
+				_permissions = page.PermissionList;
 				_createdby = page.CreatedBy;
 				_createdon = page.CreatedOn;
 				_modifiedby = page.ModifiedBy;
@@ -339,7 +339,7 @@
 			{
 				foreach (Page p in PageState.Pages.Where(item => item.ParentId == null))
 				{
-					if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
+					if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
 					{
 						_children.Add(p);
 					}
@@ -349,7 +349,7 @@
 			{
 				foreach (Page p in PageState.Pages.Where(item => item.ParentId == int.Parse(_parentid)))
 				{
-					if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
+					if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
 					{
 						_children.Add(p);
 					}
@@ -509,7 +509,7 @@
 						page.DefaultContainerType = string.Empty;
 					}
 					page.Icon = _icon ?? string.Empty;
-					page.Permissions = _permissionGrid.GetPermissions();
+					page.PermissionList = _permissionGrid.GetPermissionList();
 					page.IsPersonalizable = (_ispersonalizable != null && Boolean.Parse(_ispersonalizable));
 					page.UserId = null;
 					page.Meta = _meta;

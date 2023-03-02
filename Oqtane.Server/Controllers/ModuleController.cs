@@ -51,13 +51,13 @@ namespace Oqtane.Controllers
 
                 foreach (PageModule pagemodule in _pageModules.GetPageModules(SiteId))
                 {
-                    if (_userPermissions.IsAuthorized(User, PermissionNames.View, pagemodule.Module.Permissions))
+                    if (_userPermissions.IsAuthorized(User, PermissionNames.View, pagemodule.Module.PermissionList))
                     {
                         Module module = new Module();
                         module.SiteId = pagemodule.Module.SiteId;
                         module.ModuleDefinitionName = pagemodule.Module.ModuleDefinitionName;
                         module.AllPages = pagemodule.Module.AllPages;
-                        module.Permissions = pagemodule.Module.Permissions;
+                        module.PermissionList = pagemodule.Module.PermissionList;
                         module.CreatedBy = pagemodule.Module.CreatedBy;
                         module.CreatedOn = pagemodule.Module.CreatedOn;
                         module.ModifiedBy = pagemodule.Module.ModifiedBy;
@@ -75,7 +75,7 @@ namespace Oqtane.Controllers
                         module.ContainerType = pagemodule.ContainerType;
 
                         module.Settings = settings.Where(item => item.EntityId == pagemodule.ModuleId)
-                            .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, pagemodule.Module.Permissions))
+                            .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, pagemodule.Module.PermissionList))
                             .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
 
                         modules.Add(module);
@@ -97,12 +97,12 @@ namespace Oqtane.Controllers
         public Module Get(int id)
         {
             Module module = _modules.GetModule(id);
-            if (module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User,PermissionNames.View, module.Permissions))
+            if (module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User,PermissionNames.View, module.PermissionList))
             {
                 List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(module.SiteId).ToList();
                 module.ModuleDefinition = moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName);
                 module.Settings = _settings.GetSettings(EntityNames.Module, id)
-                    .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, module.Permissions))
+                    .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, module.PermissionList))
                     .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                 return module;
             }

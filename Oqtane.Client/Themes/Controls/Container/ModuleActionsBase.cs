@@ -30,11 +30,11 @@ namespace Oqtane.Themes.Controls
         {
             var actionList = new List<ActionViewModel>();
 
-            if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
+            if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
             {
                 actionList.Add(new ActionViewModel { Icon = Icons.Cog, Name = "Manage Settings", Action = async (u, m) => await Settings(u, m) });
 
-                if (UserSecurity.ContainsRole(ModuleState.Permissions, PermissionNames.View, RoleNames.Everyone))
+                if (UserSecurity.ContainsRole(ModuleState.PermissionList, PermissionNames.View, RoleNames.Everyone))
                 {
                     actionList.Add(new ActionViewModel { Icon = Icons.CircleX, Name = "Unpublish Module", Action = async (s, m) => await Unpublish(s, m) });
                 }
@@ -93,7 +93,7 @@ namespace Oqtane.Themes.Controls
 
         protected async Task ModuleAction(ActionViewModel action)
         {
-            if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.Permissions))
+            if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList))
             {
                 PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
 
@@ -136,7 +136,7 @@ namespace Oqtane.Themes.Controls
 
         private async Task<string> Publish(string url, PageModule pagemodule)
         {
-            var permissions = pagemodule.Module.Permissions;
+            var permissions = pagemodule.Module.PermissionList;
             if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Everyone))
             {
                 permissions.Add(new Permission(EntityNames.Page, pagemodule.PageId, PermissionNames.View, RoleNames.Everyone, null, true));
@@ -145,14 +145,14 @@ namespace Oqtane.Themes.Controls
             {
                 permissions.Add(new Permission(EntityNames.Page, pagemodule.PageId, PermissionNames.View, RoleNames.Registered, null, true));
             }
-            pagemodule.Module.Permissions = permissions;
+            pagemodule.Module.PermissionList = permissions;
             await ModuleService.UpdateModuleAsync(pagemodule.Module);
             return url;
         }
 
         private async Task<string> Unpublish(string url, PageModule pagemodule)
         {
-            var permissions = pagemodule.Module.Permissions;
+            var permissions = pagemodule.Module.PermissionList;
             if (permissions.Any(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Everyone))
             {
                 permissions.Remove(permissions.First(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Everyone));
@@ -161,7 +161,7 @@ namespace Oqtane.Themes.Controls
             {
                 permissions.Remove(permissions.First(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Registered));
             }
-            pagemodule.Module.Permissions = permissions;
+            pagemodule.Module.PermissionList = permissions;
             await ModuleService.UpdateModuleAsync(pagemodule.Module);
             return url;
         }
