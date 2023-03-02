@@ -95,7 +95,7 @@
     <TabPanel Name="Permissions" ResourceKey="Permissions">
         <div class="container">
             <div class="row mb-1 align-items-center">
-                <PermissionGrid EntityName="@EntityNames.ModuleDefinition" PermissionNames="@PermissionNames.Utilize" Permissions="@_permissions" @ref="_permissionGrid" />
+                <PermissionGrid EntityName="@EntityNames.ModuleDefinition" PermissionNames="@PermissionNames.Utilize" PermissionList="@_permissions" @ref="_permissionGrid" />
             </div>
         </div>
 		<button type="button" class="btn btn-success" @onclick="SaveModuleDefinition">@SharedLocalizer["Save"]</button>
@@ -206,7 +206,7 @@
 	private string _contact = "";
 	private string _license = "";
 	private string _runtimes = "";
-	private List<Permission> _permissions;
+	private List<Permission> _permissions = null;
 	private string _createdby;
 	private DateTime _createdon;
 	private string _modifiedby;
@@ -242,7 +242,7 @@
 				_contact = moduleDefinition.Contact;
 				_license = moduleDefinition.License;
 				_runtimes = moduleDefinition.Runtimes;
-				_permissions = moduleDefinition.Permissions;
+				_permissions = moduleDefinition.PermissionList;
 				_createdby = moduleDefinition.CreatedBy;
 				_createdon = moduleDefinition.CreatedOn;
 				_modifiedby = moduleDefinition.ModifiedBy;
@@ -292,7 +292,7 @@
 				{
 					moduledefinition.Categories = _categories;
 				}
-				moduledefinition.Permissions = _permissionGrid.GetPermissions();
+				moduledefinition.PermissionList = _permissionGrid.GetPermissionList();
 				await ModuleDefinitionService.UpdateModuleDefinitionAsync(moduledefinition);
 				await logger.LogInformation("ModuleDefinition Saved {ModuleDefinition}", moduledefinition);
 				NavigationManager.NavigateTo(NavigateUrl());

@@ -223,7 +223,7 @@
 			Folder folder = _folders.FirstOrDefault(item => item.FolderId == FolderId);
 			if (folder != null)
 			{
-				_haseditpermission = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, folder.Permissions);
+				_haseditpermission = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, folder.PermissionList);
 				_files = await FileService.GetFilesAsync(FolderId);
 			}
 			else

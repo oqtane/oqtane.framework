@@ -48,7 +48,7 @@ namespace Oqtane.Repository
         {
             _db.Entry(moduleDefinition).State = EntityState.Modified;
             _db.SaveChanges();
-            _permissions.UpdatePermissions(moduleDefinition.SiteId, EntityNames.ModuleDefinition, moduleDefinition.ModuleDefinitionId, moduleDefinition.Permissions);
+            _permissions.UpdatePermissions(moduleDefinition.SiteId, EntityNames.ModuleDefinition, moduleDefinition.ModuleDefinitionId, moduleDefinition.PermissionList);
         }
 
         public void DeleteModuleDefinition(int moduleDefinitionId)
@@ -81,17 +81,17 @@ namespace Oqtane.Repository
                     moduledefinition.SiteId = siteId;
                     if (permissions.Count == 0)
                     {
-                        _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, moduledefinition.Permissions);
+                        _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, moduledefinition.PermissionList);
                     }
                     else
                     {
                         if (permissions.Where(item => item.EntityId == moduledefinition.ModuleDefinitionId).Any())
                         {
-                            moduledefinition.Permissions = permissions.Where(item => item.EntityId == moduledefinition.ModuleDefinitionId).EncodePermissions();
+                            moduledefinition.PermissionList = permissions.Where(item => item.EntityId == moduledefinition.ModuleDefinitionId).ToList();
                         }
                         else
                         {
-                            _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, moduledefinition.Permissions);
+                            _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, moduledefinition.PermissionList);
                         }
                     }
                 }
@@ -239,18 +239,18 @@ namespace Oqtane.Repository
 
                     if (moduledefinition.Categories == "Admin")
                     {
-                        moduledefinition.Permissions = new List<Permission>
+                        moduledefinition.PermissionList = new List<Permission>
                         {
                             new Permission(PermissionNames.Utilize, RoleNames.Admin, true)
-                        }.EncodePermissions();
+                        };
                     }
                     else
                     {
-                        moduledefinition.Permissions = new List<Permission>
+                        moduledefinition.PermissionList = new List<Permission>
                         {
                             new Permission(PermissionNames.Utilize, RoleNames.Admin, true),
                             new Permission(PermissionNames.Utilize, RoleNames.Registered, true)
-                        }.EncodePermissions();
+                        };
                     }
 
                     Debug.WriteLine($"Oqtane Info: Registering Module {moduledefinition.ModuleDefinitionName}");

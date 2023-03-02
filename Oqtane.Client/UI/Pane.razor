@@ -30,7 +30,7 @@ else
 
 	protected override void OnParametersSet()
 	{
-		if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions) && PageState.Action == Constants.DefaultAction)
+		if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList) && PageState.Action == Constants.DefaultAction)
 		{
 			_useadminborder = true;
 			_panetitle = "<div class=\"app-pane-admin-title\">" + Name + " Pane</div>";
@@ -67,7 +67,7 @@ else
 							bool authorized = false;
 							if (Constants.DefaultModuleActions.Contains(PageState.Action))
 							{
-								authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions);
+								authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList);
                             }
                             else
                             {
@@ -77,10 +77,10 @@ else
                                         authorized = true;
                                         break;
                                     case SecurityAccessLevel.View:
-                                        authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.Permissions);
+                                        authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.PermissionList);
                                         break;
                                     case SecurityAccessLevel.Edit:
-                                        authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, module.Permissions);
+                                        authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, module.PermissionList);
                                         break;
                                     case SecurityAccessLevel.Admin:
                                         authorized = UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin);
@@ -111,7 +111,7 @@ else
                     if (module != null && module.Pane.ToLower() == Name.ToLower())
                     {
                         // check if user is authorized to view module
-                        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.Permissions))
+                        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.PermissionList))
                         {
                             CreateComponent(builder, module);
                         }
@@ -122,7 +122,7 @@ else
                     foreach (Module module in PageState.Modules.Where(item => item.PageId == PageState.Page.PageId && item.Pane.ToLower() == Name.ToLower()).OrderBy(x => x.Order).ToArray())
                     {
                         // check if user is authorized to view module
-                        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.Permissions))
+                        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.PermissionList))
                         {
                             CreateComponent(builder, module);
                         }

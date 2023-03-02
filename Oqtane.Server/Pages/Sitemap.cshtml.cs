@@ -48,13 +48,13 @@ namespace Oqtane.Pages
             var pageModules = _pageModules.GetPageModules(_alias.SiteId);
             foreach (var page in _pages.GetPages(_alias.SiteId))
             {
-                if (_userPermissions.IsAuthorized(null, PermissionNames.View, page.Permissions))
+                if (_userPermissions.IsAuthorized(null, PermissionNames.View, page.PermissionList))
                 {
                     sitemap.Add(new Sitemap { Url = _alias.Protocol + _alias.Name + Utilities.NavigateUrl(_alias.Path, page.Path, ""), ModifiedOn = page.ModifiedOn });
 
                     foreach (var pageModule in pageModules.Where(item => item.PageId == page.PageId))
                     {
-                        if (_userPermissions.IsAuthorized(null, PermissionNames.View, pageModule.Module.Permissions))
+                        if (_userPermissions.IsAuthorized(null, PermissionNames.View, pageModule.Module.PermissionList))
                         {
                             var moduleDefinition = moduleDefinitions.Where(item => item.ModuleDefinitionName == pageModule.Module.ModuleDefinitionName).FirstOrDefault();
                             if (moduleDefinition != null && moduleDefinition.ServerManagerType != "")

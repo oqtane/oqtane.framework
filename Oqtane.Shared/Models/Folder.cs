@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 
 namespace Oqtane.Models
 {
@@ -69,7 +70,7 @@ namespace Oqtane.Models
         /// TODO: todoc what would this contain?
         /// </summary>
         [NotMapped]
-        public List<Permission> Permissions { get; set; }
+        public List<Permission> PermissionList { get; set; }
 
         /// <summary>
         /// Folder Depth
@@ -83,5 +84,19 @@ namespace Oqtane.Models
         /// </summary>
         [NotMapped]
         public bool HasChildren { get; set; }
+
+        [Obsolete("The Permissions property is deprecated. Use PermissionList instead", false)]
+        [NotMapped]
+        public string Permissions
+        {
+            get
+            {
+                return JsonSerializer.Serialize(PermissionList);
+            }
+            set
+            {
+                PermissionList = JsonSerializer.Deserialize<List<Permission>>(Permissions);
+            }
+        }
     }
 }

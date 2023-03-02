@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Text.Json;
 using Oqtane.Models;
 using Oqtane.Shared;
 
@@ -22,6 +23,11 @@ namespace Oqtane.Security
         public static bool IsAuthorized(User user, string permissionName, List<Permission> permissions)
         {
             return IsAuthorized(user, permissions.Where(item => item.PermissionName == permissionName).ToList());
+        }
+
+        public static bool IsAuthorized(User user, string permissionName, string permissions)
+        {
+            return IsAuthorized(user, JsonSerializer.Deserialize<List<Permission>>(permissions).Where(item => item.PermissionName == permissionName).ToList());
         }
 
         public static bool IsAuthorized(User user, List<Permission> permissions)

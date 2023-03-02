@@ -1,4 +1,5 @@
 @namespace Oqtane.Modules.Controls
+@using System.Text.Json
 @inherits ModuleControlBase
 @inject IRoleService RoleService
 @inject IUserService UserService
@@ -105,10 +106,18 @@
 	public string PermissionNames { get; set; }
 
 	[Parameter]
-	public List<Permission> Permissions { get; set; }
+	public string Permissions { get; set; }
+
+	[Parameter]
+	public List<Permission> PermissionList { get; set; }
 
 	protected override async Task OnInitializedAsync()
 	{
+		if (!string.IsNullOrEmpty(Permissions))
+		{
+			PermissionList = JsonSerializer.Deserialize<List<Permission>>(Permissions);			
+		}
+
 		_roles = await RoleService.GetRolesAsync(ModuleState.SiteId, true);
 		if (!UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
 		{
@@ -155,9 +164,9 @@
 		}
 
 		// populate permissions and users
-		if (Permissions.Any())
+		if (PermissionList.Any())
 		{
-			foreach (var permission in Permissions)
+			foreach (var permission in PermissionList)
 			{
 				if (!_permissions.Any(item => item.EntityName == permission.EntityName && item.PermissionName == permission.PermissionName && item.Role.Name == permission.Role.Name))
 				{
@@ -284,7 +293,13 @@
 		_user.Clear();
 	}
 
-	public List<Permission> GetPermissions()
+	public string GetPermissions()
+	{
+		ValidatePermissions();
+		return JsonSerializer.Serialize(_permissions);
+	}
+
+	public List<Permission> GetPermissionList()
 	{
 		ValidatePermissions();
 		return _permissions;

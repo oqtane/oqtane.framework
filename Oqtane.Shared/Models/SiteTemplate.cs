@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 
 namespace Oqtane.Models
 {
@@ -18,11 +20,24 @@ namespace Oqtane.Models
         public string Icon { get; set; }
         public bool IsNavigation { get; set; }
         public bool IsPersonalizable { get; set; }
-        public List<Permission> PagePermissions { get; set; }
+        public List<Permission> PermissionList { get; set; }
         public List<PageTemplateModule> PageTemplateModules { get; set; }
 
         [Obsolete("This property is obsolete", false)]
         public bool EditMode { get; set; }
+
+        [Obsolete("The PagePermissions property is deprecated. Use PermissionList instead", false)]
+        public string PagePermissions
+        {
+            get
+            {
+                return JsonSerializer.Serialize(PermissionList);
+            }
+            set
+            {
+                PermissionList = JsonSerializer.Deserialize<List<Permission>>(PagePermissions);
+            }
+        }
     }
 
     public class PageTemplateModule
@@ -30,7 +45,20 @@ namespace Oqtane.Models
         public string ModuleDefinitionName { get; set; }
         public string Title { get; set; }
         public string Pane { get; set; }
-        public List<Permission> ModulePermissions { get; set; }
+        public List<Permission> PermissionList { get; set; }
         public string Content { get; set; }
+
+        [Obsolete("The ModulePermissions property is deprecated. Use PermissionList instead", false)]
+        public string ModulePermissions
+        {
+            get
+            {
+                return JsonSerializer.Serialize(PermissionList);
+            }
+            set
+            {
+                PermissionList = JsonSerializer.Deserialize<List<Permission>>(ModulePermissions);
+            }
+        }
     }
 }

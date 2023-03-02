@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 using Oqtane.Documentation;
 
 namespace Oqtane.Models
@@ -100,8 +101,22 @@ namespace Oqtane.Models
         [NotMapped]
         public string AssemblyName { get; set; }
         [NotMapped]
-        public List<Permission> Permissions { get; set; }
+        public List<Permission> PermissionList { get; set; }
         [NotMapped]
         public string Template { get; set; }
+
+        [Obsolete("The Permissions property is deprecated. Use PermissionList instead", false)]
+        [NotMapped]
+        public string Permissions
+        {
+            get
+            {
+                return JsonSerializer.Serialize(PermissionList);
+            }
+            set
+            {
+                PermissionList = JsonSerializer.Deserialize<List<Permission>>(Permissions);
+            }
+        }
     }
 }

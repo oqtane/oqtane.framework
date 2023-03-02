@@ -45,7 +45,7 @@ namespace Oqtane.Repository
             }
             foreach (File file in files)
             {
-                file.Folder.Permissions = permissions.EncodePermissions();
+                file.Folder.PermissionList = permissions.ToList();
                 file.Url = GetFileUrl(file, alias);
             }
             return files;
@@ -89,8 +89,7 @@ namespace Oqtane.Repository
             }
             if (file != null)
             {
-                IEnumerable<Permission> permissions = _permissions.GetPermissions(file.Folder.SiteId, EntityNames.Folder, file.FolderId).ToList();
-                file.Folder.Permissions = permissions.EncodePermissions();
+                file.Folder.PermissionList = _permissions.GetPermissions(file.Folder.SiteId, EntityNames.Folder, file.FolderId).ToList();
                 file.Url = GetFileUrl(file, _tenants.GetAlias());
             }
             return file;
@@ -105,8 +104,7 @@ namespace Oqtane.Repository
 
             if (file != null)
             {
-                IEnumerable<Permission> permissions = _permissions.GetPermissions(file.Folder.SiteId, EntityNames.Folder, file.FolderId).ToList();
-                file.Folder.Permissions = permissions.EncodePermissions();
+                file.Folder.PermissionList = _permissions.GetPermissions(file.Folder.SiteId, EntityNames.Folder, file.FolderId).ToList();
                 file.Url = GetFileUrl(file, _tenants.GetAlias());
             }
 
@@ -124,7 +122,7 @@ namespace Oqtane.Repository
             if (file != null)
             {
                 IEnumerable<Permission> permissions = _permissions.GetPermissions(file.Folder.SiteId, EntityNames.Folder, file.FolderId).ToList();
-                file.Folder.Permissions = permissions.EncodePermissions();
+                file.Folder.PermissionList = permissions.ToList();
                 file.Url = GetFileUrl(file, _tenants.GetAlias());
             }
 

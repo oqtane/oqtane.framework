@@ -38,7 +38,7 @@ namespace Oqtane.Repository
         {
             _db.Module.Add(module);
             _db.SaveChanges();
-            _permissions.UpdatePermissions(module.SiteId, EntityNames.Module, module.ModuleId, module.Permissions);
+            _permissions.UpdatePermissions(module.SiteId, EntityNames.Module, module.ModuleId, module.PermissionList);
             return module;
         }
 
@@ -46,7 +46,7 @@ namespace Oqtane.Repository
         {
             _db.Entry(module).State = EntityState.Modified;
             _db.SaveChanges();
-            _permissions.UpdatePermissions(module.SiteId, EntityNames.Module, module.ModuleId, module.Permissions);
+            _permissions.UpdatePermissions(module.SiteId, EntityNames.Module, module.ModuleId, module.PermissionList);
             return module;
         }
 
@@ -68,7 +68,7 @@ namespace Oqtane.Repository
             }
             if (module != null)
             {
-                module.Permissions = _permissions.GetPermissions(module.SiteId, EntityNames.Module, module.ModuleId)?.EncodePermissions();
+                module.PermissionList = _permissions.GetPermissions(module.SiteId, EntityNames.Module, module.ModuleId)?.ToList();
             }
             return module;
         }

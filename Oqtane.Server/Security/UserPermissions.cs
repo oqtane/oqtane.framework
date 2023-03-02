@@ -6,6 +6,7 @@ using Oqtane.Repository;
 using Oqtane.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace Oqtane.Security
 {
@@ -14,6 +15,7 @@ namespace Oqtane.Security
         bool IsAuthorized(ClaimsPrincipal user, int siteId, string entityName, int entityId, string permissionName, string roles);
         bool IsAuthorized(ClaimsPrincipal user, int siteId, string entityName, int entityId, string permissionName);
         bool IsAuthorized(ClaimsPrincipal user, string permissionName, List<Permission> permissions);
+        bool IsAuthorized(ClaimsPrincipal user, string permissionName, string permissions);
         User GetUser(ClaimsPrincipal user);
         User GetUser();
 
@@ -53,6 +55,11 @@ namespace Oqtane.Security
         public bool IsAuthorized(ClaimsPrincipal principal, string permissionName, List<Permission> permissions)
         {
             return UserSecurity.IsAuthorized(GetUser(principal), permissionName, permissions);
+        }
+
+        public bool IsAuthorized(ClaimsPrincipal principal, string permissionName, string permissions)
+        {
+            return UserSecurity.IsAuthorized(GetUser(principal), permissionName, JsonSerializer.Deserialize<List<Permission>>(permissions));
         }
 
         public User GetUser(ClaimsPrincipal principal)
