@@ -25,6 +25,7 @@ namespace Oqtane.Controllers
         private readonly IModuleDefinitionRepository _moduleDefinitions;
         private readonly IModuleRepository _modules;
         private readonly IPageModuleRepository _pagemodules;
+        private readonly IPermissionRepository _permissions;
         private readonly ITenantRepository _tenants;
         private readonly ISqlRepository _sql;
         private readonly IUserPermissions _userPermissions;
@@ -36,11 +37,12 @@ namespace Oqtane.Controllers
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, IModuleRepository module,IPageModuleRepository pageModule, ITenantRepository tenants, ISqlRepository sql, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, IServiceProvider serviceProvider, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
+        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, IModuleRepository module, IPageModuleRepository pageModule, IPermissionRepository permission, ITenantRepository tenants, ISqlRepository sql, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, IServiceProvider serviceProvider, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
         {
             _moduleDefinitions = moduleDefinitions;
             _modules = module;
             _pagemodules = pageModule;
+            _permissions = permission;
             _tenants = tenants;
             _sql = sql;
             _userPermissions = userPermissions;
@@ -245,6 +247,9 @@ namespace Oqtane.Controllers
                         // Remove the PageModule item
                         _pagemodules.DeletePageModule(pageModule.PageModuleId);
                     }
+
+                    // Remove Permissions
+                    _permissions.DeletePermissions(moduledefinition.SiteId, EntityNames.Module, moduleToRemove.ModuleId);
 
                     // Remove the Module item
                     _modules.DeleteModule(moduleToRemove.ModuleId);
