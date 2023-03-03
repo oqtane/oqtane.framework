@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Oqtane.Database.MySQL</id>
-        <version>3.3.1</version>
+        <version>3.4.0</version>
         <authors>Shaun Walker</authors>
         <owners>.NET Foundation</owners>
         <title>Oqtane MySQL Provider</title>
@@ -12,7 +12,7 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <license type="expression">MIT</license>
         <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
-        <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v3.3.1</releaseNotes>
+        <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v3.4.0</releaseNotes>
         <icon>icon.png</icon>
         <tags>oqtane</tags>
     </metadata>
