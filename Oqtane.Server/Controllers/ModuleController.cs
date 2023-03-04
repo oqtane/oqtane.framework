@@ -20,18 +20,20 @@ namespace Oqtane.Controllers
         private readonly IPageRepository _pages;
         private readonly IModuleDefinitionRepository _moduleDefinitions;
         private readonly ISettingRepository _settings;
+        private readonly IPermissionRepository _permissions;
         private readonly IUserPermissions _userPermissions;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public ModuleController(IModuleRepository modules, IPageModuleRepository pageModules, IPageRepository pages, IModuleDefinitionRepository moduleDefinitions, ISettingRepository settings, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
+        public ModuleController(IModuleRepository modules, IPageModuleRepository pageModules, IPageRepository pages, IModuleDefinitionRepository moduleDefinitions, ISettingRepository settings, IPermissionRepository Permissions, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
         {
             _modules = modules; 
             _pageModules = pageModules;
             _pages = pages;
             _moduleDefinitions = moduleDefinitions;
             _settings = settings;
+            _permissions = Permissions;
             _userPermissions = userPermissions;
             _syncManager = syncManager;
             _logger = logger;
@@ -194,6 +196,17 @@ namespace Oqtane.Controllers
             var module = _modules.GetModule(id);
             if (module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, module.SiteId, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
             {
+
+                // Delete the Related Module Records; PageModule, Permissions, Settings
+                // Get the PageModule because the ModuleControll does not populate the PageModuleId
+                var _pageModule = _pageModules.GetPageModules(module.SiteId).First(pm => pm.ModuleId == module.ModuleId);
+                // Delete the PageModule item
+                _pageModules.DeletePageModule(_pageModule.PageModuleId);
+                // Delete the Permission Items
+                _permissions.DeletePermissions(module.SiteId, EntityNames.Module, module.ModuleId);
+                // Delete the Settings Items
+                _settings.DeleteSettings(EntityNames.Module, module.ModuleId);
+                // Delete the Module
                 _modules.DeleteModule(id);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Module, module.ModuleId, SyncEventActions.Delete);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
