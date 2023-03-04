@@ -6,6 +6,7 @@ using Oqtane.Modules;
 using Oqtane.Models;
 using Oqtane.Infrastructure;
 using Oqtane.Enums;
+using Oqtane.Repository
 using [Owner].[Module].Repository;
 
 namespace [Owner].[Module].Manager
