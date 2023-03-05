@@ -4,6 +4,12 @@ body {
     padding-top: 7rem;
 }
 
+.div main {
+    color: black;
+    filter: invert(1);
+    mix-blend-mode: difference;
+}
+
 .table > :not(caption) > * > * {
     box-shadow: none;
 }
