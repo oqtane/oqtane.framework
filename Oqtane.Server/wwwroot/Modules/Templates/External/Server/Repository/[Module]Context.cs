@@ -11,7 +11,7 @@ namespace [Owner].[Module].Repository
     {
         public virtual DbSet<Models.[Module]> [Module] { get; set; }
 
-        public [Module]Context(IDBContextDependencies DBContextDependencies) : base(DBContextDependencies) { }
+        public [Module]Context(IDBContextDependencies DBContextDependencies) : base(DBContextDependencies)
         {
             // ContextBase handles multi-tenant database connections
         }

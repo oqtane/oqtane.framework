@@ -4,6 +4,12 @@ body {
     padding-top: 7rem;
 }
 
+.div main {
+    color: black;
+    filter: invert(1);
+    mix-blend-mode: difference;
+}
+
 .table > :not(caption) > * > * {
     box-shadow: none;
 }
@@ -76,7 +82,7 @@ body {
 }
 
 div.app-moduleactions a.dropdown-toggle, div.app-moduleactions div.dropdown-menu {
-    color:#000000;
+
 }
 
 @media (max-width: 767px) {
