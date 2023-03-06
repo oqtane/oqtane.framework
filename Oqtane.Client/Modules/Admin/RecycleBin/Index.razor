@@ -185,7 +185,7 @@ else
             await PageModuleService.DeletePageModuleAsync(module.PageModuleId);
 
             // check if there are any remaining module instances in the site
-            if (!_modules.Exists(item => item.ModuleId == module.ModuleId))
+            if (_modules.Exists(item => item.ModuleId == module.ModuleId))
             {
                 await ModuleService.DeleteModuleAsync(module.ModuleId);
             }
@@ -211,7 +211,7 @@ else
                 await PageModuleService.DeletePageModuleAsync(module.PageModuleId);
 
                 // check if there are any remaining module instances in the site
-                if (!_modules.Exists(item => item.ModuleId == module.ModuleId))
+                if (_modules.Exists(item => item.ModuleId == module.ModuleId))
                 {
                     await ModuleService.DeleteModuleAsync(module.ModuleId);
                 }
