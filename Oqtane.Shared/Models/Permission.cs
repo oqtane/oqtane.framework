@@ -1,6 +1,3 @@
-using System;
-using Oqtane.Shared;
-
 namespace Oqtane.Models
 {
     /// <summary>
@@ -67,26 +64,27 @@ namespace Oqtane.Models
 
         public Permission(string permissionName, string roleName, bool isAuthorized)
         {
-            Initialize("", -1, permissionName, roleName, null, isAuthorized);
+            Initialize(-1, "", -1, permissionName, roleName, null, isAuthorized);
         }
 
         public Permission(string permissionName, int userId, bool isAuthorized)
         {
-            Initialize("", -1, permissionName, "", userId, isAuthorized);
+            Initialize(-1, "", -1, permissionName, "", userId, isAuthorized);
         }
 
-        public Permission(string entityName, string permissionName, string roleName, int? userId, bool isAuthorized)
+        public Permission(int siteId, string entityName, string permissionName, string roleName, int? userId, bool isAuthorized)
         {
-            Initialize(entityName, -1, permissionName, roleName, userId, isAuthorized);
+            Initialize(siteId, entityName, -1, permissionName, roleName, userId, isAuthorized);
         }
 
-        public Permission(string entityName, int entityId, string permissionName, string roleName, int? userId, bool isAuthorized)
+        public Permission(int siteId, string entityName, int entityId, string permissionName, string roleName, int? userId, bool isAuthorized)
         {
-            Initialize(entityName, entityId, permissionName, roleName, userId, isAuthorized);
+            Initialize(siteId, entityName, entityId, permissionName, roleName, userId, isAuthorized);
         }
 
-        private void Initialize(string entityName, int entityId, string permissionName, string roleName, int? userId, bool isAuthorized)
+        private void Initialize(int siteId, string entityName, int entityId, string permissionName, string roleName, int? userId, bool isAuthorized)
         {
+            SiteId = siteId;
             EntityName = entityName;
             EntityId = entityId;
             PermissionName = permissionName;

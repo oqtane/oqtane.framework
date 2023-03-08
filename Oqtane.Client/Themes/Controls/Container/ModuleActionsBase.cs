@@ -139,11 +139,11 @@ namespace Oqtane.Themes.Controls
             var permissions = pagemodule.Module.PermissionList;
             if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Everyone))
             {
-                permissions.Add(new Permission(EntityNames.Page, pagemodule.PageId, PermissionNames.View, RoleNames.Everyone, null, true));
+                permissions.Add(new Permission(ModuleState.SiteId, EntityNames.Page, pagemodule.PageId, PermissionNames.View, RoleNames.Everyone, null, true));
             }
             if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Registered))
             {
-                permissions.Add(new Permission(EntityNames.Page, pagemodule.PageId, PermissionNames.View, RoleNames.Registered, null, true));
+                permissions.Add(new Permission(ModuleState.SiteId, EntityNames.Page, pagemodule.PageId, PermissionNames.View, RoleNames.Registered, null, true));
             }
             pagemodule.Module.PermissionList = permissions;
             await ModuleService.UpdateModuleAsync(pagemodule.Module);
