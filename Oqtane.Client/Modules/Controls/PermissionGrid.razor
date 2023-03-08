@@ -164,18 +164,18 @@
 					{
 						foreach (var role in segments[2].Split(';'))
 						{
-							_permissions.Add(new Permission(segments[0], segments[1], role, null, true));
+							_permissions.Add(new Permission(ModuleState.SiteId, segments[0], segments[1], role, null, true));
 						}
 						// ensure admin access
 						if (!_permissions.Any(item => item.EntityName == segments[0] && item.PermissionName == segments[1] && item.Role.Name == RoleNames.Admin))
 						{
-							_permissions.Add(new Permission(segments[0], segments[1], RoleNames.Admin, null, true));
+							_permissions.Add(new Permission(ModuleState.SiteId, segments[0], segments[1], RoleNames.Admin, null, true));
 						}
 					}
 				}
 				else
 				{
-					_permissions.Add(new Permission(EntityName, permissionname, RoleNames.Admin, null, true));
+					_permissions.Add(new Permission(ModuleState.SiteId, EntityName, permissionname, RoleNames.Admin, null, true));
 				}
 			}
 		}
@@ -250,7 +250,7 @@
 			}
 			if (value != null)
 			{
-				_permissions.Add(new Permission(GetEntityName(permissionName), GetPermissionName(permissionName), roleName, null, value.Value));
+				_permissions.Add(new Permission(ModuleState.SiteId, GetEntityName(permissionName), GetPermissionName(permissionName), roleName, null, value.Value));
 			}
 		}
 		else
@@ -262,7 +262,7 @@
 			}
 			if (value != null)
 			{
-				_permissions.Add(new Permission(GetEntityName(permissionName), GetPermissionName(permissionName), null, userId, value.Value));
+				_permissions.Add(new Permission(ModuleState.SiteId, GetEntityName(permissionName), GetPermissionName(permissionName), null, userId, value.Value));
 			}
 		}
 	}
@@ -327,7 +327,7 @@
 				if (!_permissions.Any(item => item.EntityName == GetEntityName(permissionname) && item.PermissionName == GetPermissionName(permissionname) &&
 					(item.Role.Name == RoleNames.Admin || item.Role.Name == RoleNames.Host)))
 				{
-					_permissions.Add(new Permission(GetEntityName(permissionname), GetPermissionName(permissionname), RoleNames.Admin, null, true));
+					_permissions.Add(new Permission(ModuleState.SiteId, GetEntityName(permissionname), GetPermissionName(permissionname), RoleNames.Admin, null, true));
 				}
 			}
 		}

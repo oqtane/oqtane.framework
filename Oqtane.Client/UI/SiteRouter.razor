@@ -124,6 +124,10 @@
 			editmode = PageState.EditMode;
 			lastsyncdate = PageState.LastSyncDate;
 		}
+		if (PageState?.Page.Path != route.PagePath)
+		{
+			editmode = false; // reset edit mode when navigating to different page
+		}
 
 		// get user
 		if (PageState == null || refresh || PageState.Alias.SiteId != SiteState.Alias.SiteId)
@@ -181,7 +185,6 @@
 			if (PageState == null || refresh || PageState.Page.Path != route.PagePath)
 			{
 				page = site.Pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
-				editmode = false;
 			}
 			else
 			{
