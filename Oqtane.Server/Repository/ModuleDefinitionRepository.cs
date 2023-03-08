@@ -4,11 +4,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Policy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Modules;
+using Oqtane.Modules.Admin.Roles;
+using Oqtane.Modules.Admin.Users;
 using Oqtane.Shared;
 
 namespace Oqtane.Repository
@@ -81,16 +84,20 @@ namespace Oqtane.Repository
                     moduledefinition.SiteId = siteId;
                     if (permissions.Count == 0)
                     {
+                        // no module definition permissions exist for this site
+                        moduledefinition.PermissionList = ClonePermissions(moduledefinition.PermissionList);
                         _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, moduledefinition.PermissionList);
                     }
                     else
                     {
-                        if (permissions.Where(item => item.EntityId == moduledefinition.ModuleDefinitionId).Any())
+                        if (permissions.Any(item => item.EntityId == moduledefinition.ModuleDefinitionId))
                         {
                             moduledefinition.PermissionList = permissions.Where(item => item.EntityId == moduledefinition.ModuleDefinitionId).ToList();
                         }
                         else
                         {
+                            // permissions for module definition do not exist for this site
+                            moduledefinition.PermissionList = ClonePermissions(moduledefinition.PermissionList);
                             _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, moduledefinition.PermissionList);
                         }
                     }
@@ -274,6 +281,24 @@ namespace Oqtane.Repository
             }
 
             return moduledefinitions;
+        }
+
+        private List<Permission> ClonePermissions(List<Permission> permissionList)
+        {
+            var permissions = new List<Permission>();
+            foreach (var p in permissionList)
+            {
+                var permission = new Permission();
+                permission.SiteId = p.SiteId;
+                permission.EntityName = p.EntityName;
+                permission.EntityId = p.EntityId;
+                permission.PermissionName = p.PermissionName;
+                permission.RoleId = p.RoleId;
+                permission.UserId = p.UserId;
+                permission.IsAuthorized = p.IsAuthorized; 
+                permissions.Add(permission);
+            }
+            return permissions;
         }
     }
 }
