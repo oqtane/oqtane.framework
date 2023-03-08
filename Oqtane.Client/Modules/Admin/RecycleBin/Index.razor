@@ -22,7 +22,7 @@ else
 			}
 			else
 			{
-				<Pager Items="@_pages.Where(item => item.IsDeleted)">
+                <Pager Items="@_pages.Where(item => item.IsDeleted)" CurrentPage="@_pagePage.ToString()" OnPageChange="OnPageChangePage">
 					<Header>
 						<th style="width: 1px;">&nbsp;</th>
 						<th style="width: 1px;">&nbsp;</th>
@@ -50,7 +50,7 @@ else
 			}
 			else
 			{
-				<Pager Items="@_modules.Where(item => item.IsDeleted)">
+                <Pager Items="@_modules.Where(item => item.IsDeleted)" CurrentPage="@_pageModule.ToString()" OnPageChange="OnPageChangeModule">
 					<Header>
 						<th style="width: 1px;">&nbsp;</th>
 						<th style="width: 1px;">&nbsp;</th>
@@ -78,7 +78,8 @@ else
 @code {
 	private List<Page> _pages;
 	private List<Module> _modules;
-
+    private int _pagePage = 1;
+    private int _pageModule = 1;
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnInitializedAsync()
@@ -228,5 +229,13 @@ else
             AddModuleMessage(Localizer["Error.Modules.Delete"], MessageType.Error);
             ModuleInstance.HideProgressIndicator();
         }
+    }
+    private void OnPageChangePage(int page)
+    {
+        _pagePage = page;
+    }
+    private void OnPageChangeModule(int page)
+    {
+        _pageModule = page;
     }
 }
