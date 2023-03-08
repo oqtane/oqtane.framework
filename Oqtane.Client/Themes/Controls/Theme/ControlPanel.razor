@@ -539,11 +539,11 @@
 			var permissions = PageState.Page.PermissionList;
             if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Everyone))
             {
-				permissions.Add(new Permission(EntityNames.Page, PageState.Page.PageId, PermissionNames.View, RoleNames.Everyone, null, true));
+				permissions.Add(new Permission(PageState.Site.SiteId, EntityNames.Page, PageState.Page.PageId, PermissionNames.View, RoleNames.Everyone, null, true));
             }
             if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Registered))
             {
-				permissions.Add(new Permission(EntityNames.Page, PageState.Page.PageId, PermissionNames.View, RoleNames.Registered, null, true));
+				permissions.Add(new Permission(PageState.Site.SiteId, EntityNames.Page, PageState.Page.PageId, PermissionNames.View, RoleNames.Registered, null, true));
             }
 			PageState.Page.PermissionList = permissions;
 			await PageService.UpdatePageAsync(PageState.Page);
