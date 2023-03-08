@@ -181,11 +181,15 @@
 			if (PageState == null || refresh || PageState.Page.Path != route.PagePath)
 			{
 				page = site.Pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
-				editmode = false;
 			}
 			else
 			{
 				page = PageState.Page;
+			}
+
+			if (PageState?.Page.Path != route.PagePath)
+			{
+				editmode = false;
 			}
 
 			if (page == null && route.PagePath == "") // naked path refers to site home page
