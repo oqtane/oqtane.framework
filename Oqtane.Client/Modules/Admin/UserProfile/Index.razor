@@ -211,8 +211,11 @@ else
                     </Detail>
                 </Pager>
             }
-            <br />
-            <ActionDialog Header="Clear Notifications" Message="Are You Sure You Wish To Permanently Delete All Notifications ?" Action="Delete All Notifications" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteAllNotifications())" ResourceKey="DeleteAllNotifications" />
+            @if (notifications.Any())
+            {
+                <br />
+                <ActionDialog Header="Clear Notifications" Message="Are You Sure You Wish To Permanently Delete All Notifications ?" Action="Delete All Notifications" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteAllNotifications())" ResourceKey="DeleteAllNotifications" />
+            }
             <br /><hr />
             <select class="form-select" @onchange="(e => FilterChanged(e))">
                 <option value="to">@Localizer["Inbox"]</option>
