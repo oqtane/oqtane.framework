@@ -138,7 +138,7 @@
 
 		// initialize permissions
 		_permissions = new List<Permission>();
-		if (PermissionList.Any())
+		if (PermissionList != null && PermissionList.Any())
 		{
 			foreach (var permission in PermissionList)
 			{

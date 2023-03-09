@@ -52,14 +52,9 @@ namespace Oqtane.Security
             return IsAuthorized(principal, permissionName, _permissions.GetPermissions(siteId, entityName, entityId, permissionName).ToList());
         }
 
-        public bool IsAuthorized(ClaimsPrincipal principal, string permissionName, List<Permission> permissions)
+        public bool IsAuthorized(ClaimsPrincipal principal, string permissionName, List<Permission> permissionList)
         {
-            return UserSecurity.IsAuthorized(GetUser(principal), permissionName, permissions);
-        }
-
-        public bool IsAuthorized(ClaimsPrincipal principal, string permissionName, string permissions)
-        {
-            return UserSecurity.IsAuthorized(GetUser(principal), permissionName, JsonSerializer.Deserialize<List<Permission>>(permissions));
+            return UserSecurity.IsAuthorized(GetUser(principal), permissionName, permissionList);
         }
 
         public User GetUser(ClaimsPrincipal principal)
@@ -105,6 +100,12 @@ namespace Oqtane.Security
         public bool IsAuthorized(ClaimsPrincipal principal, string entityName, int entityId, string permissionName)
         {
             return IsAuthorized(principal, permissionName, _permissions.GetPermissions(_accessor.HttpContext.GetAlias().SiteId, entityName, entityId, permissionName).ToList());
+        }
+
+        [Obsolete("IsAuthorized(ClaimsPrincipal principal, string permissionName, string permissions) is deprecated. Use IsAuthorized(ClaimsPrincipal principal, string permissionName, List<Permission> permissionList) instead", false)]
+        public bool IsAuthorized(ClaimsPrincipal principal, string permissionName, string permissions)
+        {
+            return UserSecurity.IsAuthorized(GetUser(principal), permissionName, JsonSerializer.Deserialize<List<Permission>>(permissions));
         }
     }
 }

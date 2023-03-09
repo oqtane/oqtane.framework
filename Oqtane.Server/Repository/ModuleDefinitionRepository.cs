@@ -4,14 +4,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Policy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Modules;
-using Oqtane.Modules.Admin.Roles;
-using Oqtane.Modules.Admin.Users;
 using Oqtane.Shared;
 
 namespace Oqtane.Repository
@@ -238,6 +234,16 @@ namespace Oqtane.Repository
                     moduledefinition.ModuleDefinitionName = qualifiedModuleType;
                     moduledefinition.ControlTypeTemplate = modulecontroltype.Namespace + "." + Constants.ActionToken + ", " + modulecontroltype.Assembly.GetName().Name;
                     moduledefinition.AssemblyName = assembly.GetName().Name;
+
+                    moduledefinition.IsPortable = false;
+                    if (!string.IsNullOrEmpty(moduledefinition.ServerManagerType))
+                    {
+                        Type servertype = Type.GetType(moduledefinition.ServerManagerType);
+                        if (servertype != null && servertype.GetInterface("IPortable") != null)
+                        {
+                            moduledefinition.IsPortable = true;
+                        }
+                    }
 
                     if (string.IsNullOrEmpty(moduledefinition.Categories))
                     {
