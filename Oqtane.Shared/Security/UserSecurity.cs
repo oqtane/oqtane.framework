@@ -20,42 +20,37 @@ namespace Oqtane.Security
             return IsAuthorized(user, permissions);
         }
 
-        public static bool IsAuthorized(User user, string permissionName, List<Permission> permissions)
+        public static bool IsAuthorized(User user, string permissionName, List<Permission> permissionList)
         {
-            return IsAuthorized(user, permissions.Where(item => item.PermissionName == permissionName).ToList());
+            return IsAuthorized(user, permissionList.Where(item => item.PermissionName == permissionName).ToList());
         }
 
-        public static bool IsAuthorized(User user, string permissionName, string permissions)
-        {
-            return IsAuthorized(user, JsonSerializer.Deserialize<List<Permission>>(permissions).Where(item => item.PermissionName == permissionName).ToList());
-        }
-
-        public static bool IsAuthorized(User user, List<Permission> permissions)
+        public static bool IsAuthorized(User user, List<Permission> permissionList)
         {
             bool authorized = false;
-            if (permissions != null && permissions.Any())
+            if (permissionList != null && permissionList.Any())
             {
                 if (user == null)
                 {
-                    authorized = IsAuthorized(-1, "", permissions); // user is not authenticated but may have access to resource
+                    authorized = IsAuthorized(-1, "", permissionList); // user is not authenticated but may have access to resource
                 }
                 else
                 {
-                    authorized = IsAuthorized(user.UserId, user.Roles, permissions);
+                    authorized = IsAuthorized(user.UserId, user.Roles, permissionList);
                 }
 
             }
             return authorized;
         }
 
-        private static bool IsAuthorized(int userId, string roles, List<Permission> permissions)
+        private static bool IsAuthorized(int userId, string roles, List<Permission> permissionList)
         {
             bool isAuthorized = false;
 
-            if (permissions != null && permissions.Any())
+            if (permissionList != null && permissionList.Any())
             {
                 // check if denied first
-                isAuthorized = !permissions.Where(item => !item.IsAuthorized && (
+                isAuthorized = !permissionList.Where(item => !item.IsAuthorized && (
                     (item.Role != null && (
                         (item.Role.Name == RoleNames.Everyone) ||
                         (item.Role.Name == RoleNames.Unauthenticated && userId == -1) ||
@@ -65,7 +60,7 @@ namespace Oqtane.Security
                 if (isAuthorized)
                 {
                     // then check if authorized
-                    isAuthorized = permissions.Where(item => item.IsAuthorized && (
+                    isAuthorized = permissionList.Where(item => item.IsAuthorized && (
                         (item.Role != null && (
                             (item.Role.Name == RoleNames.Everyone) ||
                             (item.Role.Name == RoleNames.Unauthenticated && userId == -1) ||
@@ -122,6 +117,12 @@ namespace Oqtane.Security
                 }
             }
             return identity;
+        }
+
+        [Obsolete("IsAuthorized(User user, string permissionName, string permissions) is deprecated. Use IsAuthorized(User user, string permissionName, List<Permission> permissionList) instead", false)]
+        public static bool IsAuthorized(User user, string permissionName, string permissions)
+        {
+            return IsAuthorized(user, JsonSerializer.Deserialize<List<Permission>>(permissions).Where(item => item.PermissionName == permissionName).ToList());
         }
     }
 }

@@ -13,6 +13,7 @@ using System.Globalization;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Extensions;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Controllers
 {
@@ -128,7 +129,8 @@ namespace Oqtane.Controllers
                         module.Order = pagemodule.Order;
                         module.ContainerType = pagemodule.ContainerType;
 
-                        module.ModuleDefinition = moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName);
+                        module.ModuleDefinition = FilterModuleDefinition(moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName));
+
                         module.Settings = settings.Where(item => item.EntityId == pagemodule.ModuleId)
                             .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, pagemodule.Module.PermissionList))
                             .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
@@ -150,6 +152,29 @@ namespace Oqtane.Controllers
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
+        }
+
+        private ModuleDefinition FilterModuleDefinition(ModuleDefinition moduleDefinition)
+        {
+            if (moduleDefinition != null)
+            {
+                moduleDefinition.Description = "";
+                moduleDefinition.Categories = "";
+                moduleDefinition.Version = "";
+                moduleDefinition.Owner = "";
+                moduleDefinition.Url = "";
+                moduleDefinition.Contact = "";
+                moduleDefinition.License = "";
+                moduleDefinition.Dependencies = "";
+                moduleDefinition.PermissionNames = "";
+                moduleDefinition.ServerManagerType = "";
+                moduleDefinition.ReleaseVersions = "";
+                moduleDefinition.PackageName = "";
+                moduleDefinition.AssemblyName = "";
+                moduleDefinition.PermissionList = null;
+                moduleDefinition.Template = "";
+            }
+            return moduleDefinition;
         }
 
         // POST api/<controller>

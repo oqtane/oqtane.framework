@@ -44,7 +44,7 @@ namespace Oqtane.Themes.Controls
                 }
                 actionList.Add(new ActionViewModel { Icon = Icons.Trash, Name = "Delete Module", Action = async (u, m) => await DeleteModule(u, m) });
 
-                if (ModuleState.ModuleDefinition != null && ModuleState.ModuleDefinition.ServerManagerType != "")
+                if (ModuleState.ModuleDefinition != null && ModuleState.ModuleDefinition.IsPortable)
                 {
                     actionList.Add(new ActionViewModel { Name = "" });
                     actionList.Add(new ActionViewModel { Icon = Icons.CloudUpload, Name = "Import Content", Action = async (u, m) => await EditUrlAsync(u, m.ModuleId, "Import") });
