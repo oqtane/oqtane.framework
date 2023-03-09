@@ -15,7 +15,7 @@ else
     <br />
     <br />
 
-    <Pager Items="@_jobs">
+    <Pager Items="@_jobs" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange">
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
@@ -50,7 +50,7 @@ else
 
 @code {
 	private List<Job> _jobs;
-
+    private int _page = 1;
 	public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
 	protected override async Task OnParametersSetAsync()
@@ -166,5 +166,9 @@ else
     {
         _jobs = await JobService.GetJobsAsync();
         StateHasChanged();
+    }
+    private void OnPageChange(int page)
+    {
+        _page = page;
     }
 }

@@ -130,7 +130,7 @@ else
 				{
 					@if (_results.Count > 0)
 					{
-						<Pager Class="table table-bordered" Items="@_results">
+                        <Pager Class="table table-bordered" Items="@_results" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange">
 							<Header>
 								@foreach (KeyValuePair<string, string> kvp in _results.First())
 								{
@@ -176,6 +176,7 @@ else
 	private string _connectionstringtoggle = string.Empty;
 	private string _sql = string.Empty;
 	private List<Dictionary<string, string>> _results;
+    private int _page = 1;
 
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
@@ -330,5 +331,10 @@ else
             await logger.LogError(ex, "Error Executing SQL Query {SQL} {Error}", _sql, ex.Message);
             AddModuleMessage(ex.Message, MessageType.Error);
         }
+    }
+
+    private void OnPageChange(int page)
+    {
+        _page = page;
     }
 }

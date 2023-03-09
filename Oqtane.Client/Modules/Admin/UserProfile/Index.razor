@@ -147,7 +147,7 @@ else
             <br /><br />
             @if (filter == "to")
             {
-                <Pager Items="@notifications">
+                <Pager Items="@notifications" CurrentPage="@_pageSend.ToString()" OnPageChange="OnPageChangeSend">
                     <Header>
                         <th style="width: 1px;">&nbsp;</th>
                         <th style="width: 1px;">&nbsp;</th>
@@ -180,7 +180,7 @@ else
             }
             else
             {
-                <Pager Items="@notifications">
+                <Pager Items="@notifications" CurrentPage="@_pageSent.ToString()" OnPageChange="OnPageChangeSent">
                     <Header>
                         <th>&nbsp;</th>
                         <th>&nbsp;</th>
@@ -245,7 +245,8 @@ else
 	private string category = string.Empty;
 	private string filter = "to";
 	private List<Notification> notifications;
-
+    private int _pageSend = 1;
+    private int _pageSent = 1;
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
 
 	protected override async Task OnParametersSetAsync()
@@ -488,5 +489,13 @@ else
 			_togglepassword = SharedLocalizer["ShowPassword"];
 		}
 	}
-
+    private void OnPageChangeSend(int page)
+    {
+        _pageSend = page;
+    }
+    
+    private void OnPageChangeSent(int page)
+    {
+        _pageSent = page;
+    }
 }

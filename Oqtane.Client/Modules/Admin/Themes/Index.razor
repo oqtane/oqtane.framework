@@ -17,7 +17,7 @@ else
     @((MarkupString)"&nbsp;")
     <ActionLink Action="Create" Text="Create Theme" ResourceKey="CreateTheme" Class="btn btn-secondary" />
 
-    <Pager Items="@_themes">
+    <Pager Items="@_themes" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange">
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
@@ -56,7 +56,7 @@ else
 @code {
     private List<Theme> _themes;
     private List<Package> _packages;
-
+    private int _page = 1;
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnParametersSetAsync()
@@ -139,5 +139,9 @@ else
             await logger.LogError(ex, "Error Deleting Theme {Theme} {Error}", Theme, ex.Message);
             AddModuleMessage(Localizer["Error.Theme.Delete"], MessageType.Error);
         }
+    }
+    private void OnPageChange(int page)
+    {
+        _page = page;
     }
 }

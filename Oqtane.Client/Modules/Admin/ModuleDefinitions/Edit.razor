@@ -104,7 +104,7 @@
 	<TabPanel Name="Translations" ResourceKey="Translations">
 		@if (_languages != null && _languages.Count > 0)
 		{
-			<Pager Items="@_languages">
+            <Pager Items="@_languages" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange">
 				<Header>
 					<th>@SharedLocalizer["Name"]</th>
 					<th>@Localizer["Code"]</th>
@@ -220,6 +220,7 @@
 	private List<Language> _languages;
 	private Package _package;
 	private bool _install = false;
+    private int _page = 1;
 
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -385,4 +386,8 @@
 			await logger.LogError(ex, "Error Installing Translations");
 		}
 	}
+    private void OnPageChange(int page)
+    {
+        _page = page;
+    }
 }

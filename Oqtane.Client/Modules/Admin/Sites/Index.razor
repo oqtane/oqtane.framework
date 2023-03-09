@@ -14,7 +14,7 @@ else
 {
     <ActionLink Action="Add" Text="Add Site" ResourceKey="AddSite" />
 
-    <Pager Items="@_sites">
+    <Pager Items="@_sites" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange">
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
@@ -32,7 +32,7 @@ else
     private List<Alias> _sites;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
-
+    private int _page = 1;
     protected override async Task OnParametersSetAsync()
     {
         var aliases = await AliasService.GetAliasesAsync();
@@ -54,5 +54,9 @@ else
     private void Browse(string name)
     {
         NavigationManager.NavigateTo(PageState.Uri.Scheme + "://" + name, true);
+    }
+    private void OnPageChange(int page)
+    {
+        _page = page;
     }
 }

@@ -9,7 +9,7 @@
 {
     <ActionLink Action="Add" Text="Add Page" ResourceKey="AddPage" />
 
-    <Pager Items="@PageState.Pages.Where(item => !item.IsDeleted)">
+    <Pager Items="@PageState.Pages.Where(item => !item.IsDeleted)" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange">
         <Header>
         <th style="width: 1px;">&nbsp;</th>
         <th style="width: 1px;">&nbsp;</th>
@@ -27,6 +27,7 @@
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    private int _page = 1;
 
     private async Task DeletePage(Page page)
     {
@@ -47,5 +48,10 @@
     protected string Browse(Page page)
     {
         return string.IsNullOrEmpty(page.Url) ? NavigateUrl(page.Path) : page.Url;
+    }
+
+    private void OnPageChange(int page)
+    {
+        _page = page;
     }
 }

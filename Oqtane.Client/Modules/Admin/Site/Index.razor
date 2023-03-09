@@ -199,7 +199,7 @@
 							<Label Class="col-sm-3" For="aliases" HelpText="The list of aliases for this site" ResourceKey="Aliases">Aliases: </Label>
 							<div class="col-sm-9">
 								<button type="button" class="btn btn-primary" @onclick="AddAlias">@SharedLocalizer["Add"]</button>
-								<Pager Items="@_aliases">
+                                <Pager Items="@_aliases" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange">
 									<Header>
 										<th style="width: 1px;">&nbsp;</th>
 										<th style="width: 1px;">&nbsp;</th>
@@ -346,6 +346,7 @@
 	private string _deletedby;
 	private DateTime? _deletedon;
 	private string _isdeleted;
+    private int _page = 1;
 
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -724,6 +725,7 @@
 			_aliasname = "";
 			StateHasChanged();
 		}
+
 	}
 
 	private async Task CancelAlias()
@@ -733,4 +735,9 @@
 		_aliasname = "";
 		StateHasChanged();
 	}
+    
+    private void OnPageChange(int page)
+    {
+        _page = page;
+    }
 }

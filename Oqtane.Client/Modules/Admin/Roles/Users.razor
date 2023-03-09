@@ -44,7 +44,7 @@ else
             <hr class="app-rule" />
             <div class="row mb-1 align-items-center">
                 <p align="center">
-                    <Pager Items="@userroles">
+                    <Pager Items="@userroles" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange">
                         <Header>
                             <th>@Localizer["Users"]</th>
                             <th>@SharedLocalizer["Username"]</th>
@@ -78,6 +78,7 @@ else
 	private DateTime? effectivedate = null;
 	private DateTime? expirydate = null;
 	private List<UserRole> userroles;
+    private int _page = 1;
 
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
 
@@ -202,5 +203,10 @@ else
         {
             AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
+    }
+
+    private void OnPageChange(int page)
+    {
+        _page = page;
     }
 }

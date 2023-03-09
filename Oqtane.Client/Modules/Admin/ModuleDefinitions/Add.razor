@@ -27,7 +27,7 @@
         {
             if (_packages.Count > 0)
             {
-                <Pager Items="@_packages">
+                <Pager Items="@_packages" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange">
                     <Row>
                         <td>
                             <h3 style="display: inline;"><a href="@context.ProductUrl" target="_new">@context.Name</a></h3>&nbsp;&nbsp;by:&nbsp;&nbsp;<strong><a href="@context.OwnerUrl" target="new">@context.Owner</a></strong><br />
@@ -126,6 +126,7 @@
 	private string _packageid = "";
 	private string _packagelicense = "";
 	private string _packageversion = "";
+    private int _page = 1;
 
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
@@ -260,4 +261,8 @@
 			await logger.LogError(ex, "Error Installing Modules");
 		}
 	}
+    private void OnPageChange(int page)
+    {
+        _page = page;
+    }
 }

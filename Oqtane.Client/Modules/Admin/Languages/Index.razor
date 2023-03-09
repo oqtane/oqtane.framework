@@ -14,7 +14,7 @@ else
 {
     <ActionLink Action="Add" Text="Add Language" ResourceKey="AddLanguage" />
 
-    <Pager Items="@_languages">
+    <Pager Items="@_languages" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange">
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th>@SharedLocalizer["Name"]</th>
@@ -99,6 +99,7 @@ else
 	private List<Package> _packages;
 	private Package _package;
 	private bool _install = false;
+    private int _page = 1;
 
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -213,4 +214,8 @@ else
 			await logger.LogError(ex, "Error Installing Translations");
 		}
 	}
+    private void OnPageChange(int page)
+    {
+        _page = page;
+    }
 }
