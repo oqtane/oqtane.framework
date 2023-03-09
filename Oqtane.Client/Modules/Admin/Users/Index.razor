@@ -30,7 +30,7 @@ else
 					</div>
 				</div>
 			</div>
-			<Pager Items="@users" RowClass="align-middle">
+            <Pager Items="@users" RowClass="align-middle" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange">
 				<Header>
 					<th style="width: 1px;">&nbsp;</th>
 					<th style="width: 1px;">&nbsp;</th>
@@ -406,6 +406,7 @@ else
 	private string _lifetime;
 	private string _token;
 
+    private int _page = 1;
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
 
 	protected override async Task OnInitializedAsync()
@@ -645,4 +646,8 @@ else
 			_togglesecret = SharedLocalizer["ShowPassword"];
 		}
 	}
+    private void OnPageChange(int page)
+    {
+        _page = page;
+    }
 }

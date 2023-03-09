@@ -166,7 +166,7 @@
         <TabPanel Name="PageModules" Heading="Modules" ResourceKey="PageModules">
             @if(_pageModules != null)
             {
-                <Pager Items="_pageModules">
+                <Pager Items="_pageModules" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange">
                     <Header>
                         <th style="width: 1px;">&nbsp;</th>
                         <th style="width: 1px;">&nbsp;</th>
@@ -233,6 +233,7 @@
 	private object _themeSettings;
 	private RenderFragment ThemeSettingsComponent { get; set; }
 	private bool _refresh = false;
+    private int _page = 1;
 	protected Page page;
 
 	protected override async Task OnInitializedAsync()
@@ -577,5 +578,10 @@
         {
             NavigationManager.NavigateTo(NavigateUrl());
         }
+    }
+
+    private void OnPageChange(int page)
+    {
+        _page = page;
     }
 }

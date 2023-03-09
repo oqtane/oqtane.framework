@@ -51,7 +51,7 @@ else
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
     <hr class="app-rule" />
     <p align="center">
-        <Pager Items="@userroles">
+        <Pager Items="@userroles" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange">
             <Header>
             <th>@Localizer["Roles"]</th>
             <th>@Localizer["Effective"]</th>
@@ -78,7 +78,7 @@ else
     private string effectivedate = string.Empty;
     private string expirydate = string.Empty;
     private List<UserRole> userroles;
-
+    private int _page = 1;
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
 
     protected override async Task OnInitializedAsync()
@@ -208,5 +208,9 @@ else
             await logger.LogError(ex, "Error Removing User From Role {UserRoleId} {Error}", UserRoleId, ex.Message);
             AddModuleMessage(Localizer["Error.User.RemoveRole"], MessageType.Error);
         }
+    }
+    private void OnPageChange(int page)
+    {
+        _page = page;
     }
 }

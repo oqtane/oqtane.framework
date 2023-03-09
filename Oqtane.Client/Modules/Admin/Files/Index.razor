@@ -28,7 +28,7 @@
             </div>
         </div>
     </div>
-    <Pager Items="@_files">
+    <Pager Items="@_files" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange">
         <Header>
         <th style="width: 1px;">&nbsp;</th>
         <th style="width: 1px;">&nbsp;</th>
@@ -56,7 +56,7 @@
     private List<Folder> _folders;
     private int _folderId = -1;
     private List<File> _files;
-
+    private int _page = 1;
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnParametersSetAsync()
@@ -113,5 +113,9 @@
             await logger.LogError(ex, "Error Deleting File {File} {Error}", file.Name, ex.Message);
             AddModuleMessage(string.Format(Localizer["Error.File.Delete"], file.Name), MessageType.Error);
         }
+    }
+    private void OnPageChange(int page)
+    {
+        _page = page;
     }
 }

@@ -12,7 +12,7 @@ else
 {
 	<ActionLink Action="Add" Text="Add Role" Security="SecurityAccessLevel.Edit" ResourceKey="AddRole" />
 
-    <Pager Items="@_roles">
+    <Pager Items="@_roles" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange">
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
@@ -32,7 +32,7 @@ else
     private List<Role> _roles;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
-
+    private int _page = 1;
     protected override async Task OnParametersSetAsync()
     {
         await GetRoles();
@@ -65,5 +65,9 @@ else
         {
             _roles = await RoleService.GetRolesAsync(PageState.Site.SiteId);
         }
+    }
+    private void OnPageChange(int page)
+    {
+        _page = page;
     }
 }

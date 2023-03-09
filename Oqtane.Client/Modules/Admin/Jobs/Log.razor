@@ -10,7 +10,7 @@
 }
 else
 {
-    <Pager Items="@_jobLogs">
+    <Pager Items="@_jobLogs" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange">
         <Header>
             <th>@SharedLocalizer["Name"]</th>
             <th>@SharedLocalizer["Status"]</th>
@@ -31,7 +31,7 @@ else
 
 @code {
     private List<JobLog> _jobLogs;
-
+    private int _page = 1;
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnParametersSetAsync()
@@ -66,5 +66,9 @@ else
         }
 
         return status;
+    }
+    private void OnPageChange(int page)
+    {
+        _page = page;
     }
 }

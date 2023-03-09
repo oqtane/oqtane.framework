@@ -28,7 +28,7 @@ else
 				</div>
 			</div>
 			<br/>
-			<Pager Items="@_urlMappings">
+            <Pager Items="@_urlMappings" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange">
 				<Header>
 					<th style="width: 1px;">&nbsp;</th>
 					<th style="width: 1px;">&nbsp;</th>
@@ -73,6 +73,7 @@ else
 	private bool _mapped = true;
 	private List<UrlMapping> _urlMappings;
 	private string _capturebrokenurls;
+    private int _page = 1;
 
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -132,4 +133,8 @@ else
 			AddModuleMessage(Localizer["Error.SaveSiteSettings"], MessageType.Error);
 		}
 	}
+    private void OnPageChange(int page)
+    {
+        _page = page;
+    }
 }
