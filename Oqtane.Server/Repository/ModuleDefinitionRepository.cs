@@ -81,7 +81,7 @@ namespace Oqtane.Repository
                     if (permissions.Count == 0)
                     {
                         // no module definition permissions exist for this site
-                        moduledefinition.PermissionList = ClonePermissions(moduledefinition.PermissionList);
+                        moduledefinition.PermissionList = ClonePermissions(siteId, moduledefinition.PermissionList);
                         _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, moduledefinition.PermissionList);
                     }
                     else
@@ -93,7 +93,7 @@ namespace Oqtane.Repository
                         else
                         {
                             // permissions for module definition do not exist for this site
-                            moduledefinition.PermissionList = ClonePermissions(moduledefinition.PermissionList);
+                            moduledefinition.PermissionList = ClonePermissions(siteId, moduledefinition.PermissionList);
                             _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, moduledefinition.PermissionList);
                         }
                     }
@@ -289,17 +289,18 @@ namespace Oqtane.Repository
             return moduledefinitions;
         }
 
-        private List<Permission> ClonePermissions(List<Permission> permissionList)
+        private List<Permission> ClonePermissions(int siteId, List<Permission> permissionList)
         {
             var permissions = new List<Permission>();
             foreach (var p in permissionList)
             {
                 var permission = new Permission();
-                permission.SiteId = p.SiteId;
+                permission.SiteId = siteId;
                 permission.EntityName = p.EntityName;
                 permission.EntityId = p.EntityId;
                 permission.PermissionName = p.PermissionName;
                 permission.RoleId = p.RoleId;
+                permission.Role = new Role { Name = p.Role.Name };
                 permission.UserId = p.UserId;
                 permission.IsAuthorized = p.IsAuthorized; 
                 permissions.Add(permission);
