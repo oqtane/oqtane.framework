@@ -33,10 +33,6 @@ namespace Oqtane.Models
             {
                 return JsonSerializer.Serialize(PermissionList);
             }
-            set
-            {
-                PermissionList = JsonSerializer.Deserialize<List<Permission>>(PagePermissions);
-            }
         }
     }
 
@@ -54,10 +50,6 @@ namespace Oqtane.Models
             get
             {
                 return JsonSerializer.Serialize(PermissionList);
-            }
-            set
-            {
-                PermissionList = JsonSerializer.Deserialize<List<Permission>>(ModulePermissions);
             }
         }
     }

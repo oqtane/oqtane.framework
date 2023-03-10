@@ -4,14 +4,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Policy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Modules;
-using Oqtane.Modules.Admin.Roles;
-using Oqtane.Modules.Admin.Users;
 using Oqtane.Shared;
 
 namespace Oqtane.Repository
@@ -85,7 +81,7 @@ namespace Oqtane.Repository
                     if (permissions.Count == 0)
                     {
                         // no module definition permissions exist for this site
-                        moduledefinition.PermissionList = ClonePermissions(moduledefinition.PermissionList);
+                        moduledefinition.PermissionList = ClonePermissions(siteId, moduledefinition.PermissionList);
                         _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, moduledefinition.PermissionList);
                     }
                     else
@@ -97,7 +93,7 @@ namespace Oqtane.Repository
                         else
                         {
                             // permissions for module definition do not exist for this site
-                            moduledefinition.PermissionList = ClonePermissions(moduledefinition.PermissionList);
+                            moduledefinition.PermissionList = ClonePermissions(siteId, moduledefinition.PermissionList);
                             _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, moduledefinition.PermissionList);
                         }
                     }
@@ -239,6 +235,16 @@ namespace Oqtane.Repository
                     moduledefinition.ControlTypeTemplate = modulecontroltype.Namespace + "." + Constants.ActionToken + ", " + modulecontroltype.Assembly.GetName().Name;
                     moduledefinition.AssemblyName = assembly.GetName().Name;
 
+                    moduledefinition.IsPortable = false;
+                    if (!string.IsNullOrEmpty(moduledefinition.ServerManagerType))
+                    {
+                        Type servertype = Type.GetType(moduledefinition.ServerManagerType);
+                        if (servertype != null && servertype.GetInterface("IPortable") != null)
+                        {
+                            moduledefinition.IsPortable = true;
+                        }
+                    }
+
                     if (string.IsNullOrEmpty(moduledefinition.Categories))
                     {
                         moduledefinition.Categories = "Common";
@@ -283,17 +289,18 @@ namespace Oqtane.Repository
             return moduledefinitions;
         }
 
-        private List<Permission> ClonePermissions(List<Permission> permissionList)
+        private List<Permission> ClonePermissions(int siteId, List<Permission> permissionList)
         {
             var permissions = new List<Permission>();
             foreach (var p in permissionList)
             {
                 var permission = new Permission();
-                permission.SiteId = p.SiteId;
+                permission.SiteId = siteId;
                 permission.EntityName = p.EntityName;
                 permission.EntityId = p.EntityId;
                 permission.PermissionName = p.PermissionName;
                 permission.RoleId = p.RoleId;
+                permission.RoleName = p.RoleName;
                 permission.UserId = p.UserId;
                 permission.IsAuthorized = p.IsAuthorized; 
                 permissions.Add(permission);

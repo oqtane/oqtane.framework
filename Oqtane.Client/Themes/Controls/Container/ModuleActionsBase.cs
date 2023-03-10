@@ -44,7 +44,7 @@ namespace Oqtane.Themes.Controls
                 }
                 actionList.Add(new ActionViewModel { Icon = Icons.Trash, Name = "Delete Module", Action = async (u, m) => await DeleteModule(u, m) });
 
-                if (ModuleState.ModuleDefinition != null && ModuleState.ModuleDefinition.ServerManagerType != "")
+                if (ModuleState.ModuleDefinition != null && ModuleState.ModuleDefinition.IsPortable)
                 {
                     actionList.Add(new ActionViewModel { Name = "" });
                     actionList.Add(new ActionViewModel { Icon = Icons.CloudUpload, Name = "Import Content", Action = async (u, m) => await EditUrlAsync(u, m.ModuleId, "Import") });
@@ -137,11 +137,11 @@ namespace Oqtane.Themes.Controls
         private async Task<string> Publish(string url, PageModule pagemodule)
         {
             var permissions = pagemodule.Module.PermissionList;
-            if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Everyone))
+            if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Everyone))
             {
                 permissions.Add(new Permission(ModuleState.SiteId, EntityNames.Page, pagemodule.PageId, PermissionNames.View, RoleNames.Everyone, null, true));
             }
-            if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Registered))
+            if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Registered))
             {
                 permissions.Add(new Permission(ModuleState.SiteId, EntityNames.Page, pagemodule.PageId, PermissionNames.View, RoleNames.Registered, null, true));
             }
@@ -153,13 +153,13 @@ namespace Oqtane.Themes.Controls
         private async Task<string> Unpublish(string url, PageModule pagemodule)
         {
             var permissions = pagemodule.Module.PermissionList;
-            if (permissions.Any(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Everyone))
+            if (permissions.Any(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Everyone))
             {
-                permissions.Remove(permissions.First(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Everyone));
+                permissions.Remove(permissions.First(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Everyone));
             }
-            if (permissions.Any(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Registered))
+            if (permissions.Any(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Registered))
             {
-                permissions.Remove(permissions.First(item => item.PermissionName == PermissionNames.View && item.Role.Name == RoleNames.Registered));
+                permissions.Remove(permissions.First(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Registered));
             }
             pagemodule.Module.PermissionList = permissions;
             await ModuleService.UpdateModuleAsync(pagemodule.Module);

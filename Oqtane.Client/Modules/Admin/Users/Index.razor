@@ -294,6 +294,12 @@ else
 										<input id="roleclaimtype" class="form-control" @bind="@_roleclaimtype" />
 									</div>
 								</div>
+								<div class="row mb-1 align-items-center">
+									<Label Class="col-sm-3" For="profileclaimtypes" HelpText="A comma delimited list of user profile claims provided by the provider, as well as mappings to your user profile definition. For example if the provider includes a 'given_name' claim and you have a 'FirstName' user profile definition you should specify 'given_name:FirstName'." ResourceKey="ProfileClaimTypes">User Profile Claims:</Label>
+									<div class="col-sm-9">
+										<input id="profileclaimtypes" class="form-control" @bind="@_profileclaimtypes" />
+									</div>
+								</div>
 							}
 							<div class="row mb-1 align-items-center">
 								<Label Class="col-sm-3" For="domainfilter" HelpText="Provide any email domain filter criteria (separated by commas). Domains to exclude should be prefixed with an exclamation point (!). For example 'microsoft.com,!hotmail.com' would include microsoft.com email addresses but not hotmail.com email addresses." ResourceKey="DomainFilter">Domain Filter:</Label>
@@ -395,6 +401,7 @@ else
 	private string _identifierclaimtype;
 	private string _emailclaimtype;
 	private string _roleclaimtype;
+	private string _profileclaimtypes;
 	private string _domainfilter;
 	private string _createusers;
 
@@ -449,6 +456,7 @@ else
 			_identifierclaimtype = SettingService.GetSetting(settings, "ExternalLogin:IdentifierClaimType", "sub");
 			_emailclaimtype = SettingService.GetSetting(settings, "ExternalLogin:EmailClaimType", "email");
 			_roleclaimtype = SettingService.GetSetting(settings, "ExternalLogin:RoleClaimType", "");
+			_profileclaimtypes = SettingService.GetSetting(settings, "ExternalLogin:ProfileClaimTypes", "");
 			_domainfilter = SettingService.GetSetting(settings, "ExternalLogin:DomainFilter", "");
 			_createusers = SettingService.GetSetting(settings, "ExternalLogin:CreateUsers", "true");
 
@@ -568,6 +576,7 @@ else
 				settings = SettingService.SetSetting(settings, "ExternalLogin:IdentifierClaimType", _identifierclaimtype, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:EmailClaimType", _emailclaimtype, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:RoleClaimType", _roleclaimtype, true);
+				settings = SettingService.SetSetting(settings, "ExternalLogin:ProfileClaimTypes", _profileclaimtypes, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:DomainFilter", _domainfilter, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:CreateUsers", _createusers, true);
 

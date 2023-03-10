@@ -9,189 +9,194 @@
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<TabStrip>
-    <TabPanel Name="Definition" ResourceKey="Definition">
-        <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
-            <div class="container">
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="name" HelpText="The name of the module" ResourceKey="Name">Name: </Label>
-                    <div class="col-sm-9">
-                        <input id="name" class="form-control" @bind="@_name" maxlength="200" required />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="description" HelpText="The description of the module" ResourceKey="Description">Description: </Label>
-                    <div class="col-sm-9">
-                        <textarea id="description" class="form-control" @bind="@_description" rows="2" maxlength="2000" required></textarea>
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="categories" HelpText="Comma delimited list of module categories" ResourceKey="Categories">Categories: </Label>
-                    <div class="col-sm-9">
-                        <input id="categories" class="form-control" @bind="@_categories" maxlength="200" required />
-                    </div>
-                </div>
-            </div>
-        </form>
-        <Section Name="Information" ResourceKey="Information">
-            <div class="container">
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="moduledefinitionname" HelpText="The internal name of the module" ResourceKey="InternalName">Internal Name: </Label>
-                    <div class="col-sm-9">
-                        <input id="moduledefinitionname" class="form-control" @bind="@_moduledefinitionname" disabled />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="version" HelpText="The version of the module" ResourceKey="Version">Version: </Label>
-                    <div class="col-sm-9">
-                        <input id="version" class="form-control" @bind="@_version" disabled />
-                    </div>
-                </div>
-				<div class="row mb-1 align-items-center">
-					<Label Class="col-sm-3" For="packagename" HelpText="The unique name of the package from which this module was installed" ResourceKey="PackageName">Package Name: </Label>
-					<div class="col-sm-9">
-						<input id="packagename" class="form-control" @bind="@_packagename" disabled />
+@if (_initialized)
+{
+	<TabStrip>
+		<TabPanel Name="Definition" ResourceKey="Definition">
+			<form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+				<div class="container">
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="name" HelpText="The name of the module" ResourceKey="Name">Name: </Label>
+						<div class="col-sm-9">
+							<input id="name" class="form-control" @bind="@_name" maxlength="200" required />
+						</div>
+					</div>
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="description" HelpText="The description of the module" ResourceKey="Description">Description: </Label>
+						<div class="col-sm-9">
+							<textarea id="description" class="form-control" @bind="@_description" rows="2" maxlength="2000" required></textarea>
+						</div>
+					</div>
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="categories" HelpText="Comma delimited list of module categories" ResourceKey="Categories">Categories: </Label>
+						<div class="col-sm-9">
+							<input id="categories" class="form-control" @bind="@_categories" maxlength="200" required />
+						</div>
 					</div>
 				</div>
+			</form>
+			<Section Name="Information" ResourceKey="Information">
+				<div class="container">
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="moduledefinitionname" HelpText="The internal name of the module" ResourceKey="InternalName">Internal Name: </Label>
+						<div class="col-sm-9">
+							<input id="moduledefinitionname" class="form-control" @bind="@_moduledefinitionname" disabled />
+						</div>
+					</div>
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="version" HelpText="The version of the module" ResourceKey="Version">Version: </Label>
+						<div class="col-sm-9">
+							<input id="version" class="form-control" @bind="@_version" disabled />
+						</div>
+					</div>
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="packagename" HelpText="The unique name of the package from which this module was installed" ResourceKey="PackageName">Package Name: </Label>
+						<div class="col-sm-9">
+							<input id="packagename" class="form-control" @bind="@_packagename" disabled />
+						</div>
+					</div>
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="owner" HelpText="The owner or creator of the module" ResourceKey="Owner">Owner: </Label>
+						<div class="col-sm-9">
+							<input id="owner" class="form-control" @bind="@_owner" disabled />
+						</div>
+					</div>
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="url" HelpText="The reference url of the module" ResourceKey="ReferenceUrl">Reference Url: </Label>
+						<div class="col-sm-9">
+							<input id="url" class="form-control" @bind="@_url" disabled />
+						</div>
+					</div>
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="contact" HelpText="The contact for the module" ResourceKey="Contact">Contact: </Label>
+						<div class="col-sm-9">
+							<input id="contact" class="form-control" @bind="@_contact" disabled />
+						</div>
+					</div>
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="license" HelpText="The module license terms" ResourceKey="License">License: </Label>
+						<div class="col-sm-9">
+							<textarea id="license" class="form-control" @bind="@_license" rows="5" disabled></textarea>
+						</div>
+					</div>
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="runtimes" HelpText="The Blazor runtimes which this module supports" ResourceKey="Runtimes">Runtimes: </Label>
+						<div class="col-sm-9">
+							<input id="runtimes" class="form-control" @bind="@_runtimes" disabled />
+						</div>
+					</div>
+				</div>
+			</Section>
+			<br />
+			<button type="button" class="btn btn-success" @onclick="SaveModuleDefinition">@SharedLocalizer["Save"]</button>
+			<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+			<br />
+			<br />
+			<AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
+		</TabPanel>
+		<TabPanel Name="Permissions" ResourceKey="Permissions">
+			<div class="container">
 				<div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="owner" HelpText="The owner or creator of the module" ResourceKey="Owner">Owner: </Label>
-                    <div class="col-sm-9">
-                        <input id="owner" class="form-control" @bind="@_owner" disabled />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="url" HelpText="The reference url of the module" ResourceKey="ReferenceUrl">Reference Url: </Label>
-                    <div class="col-sm-9">
-                        <input id="url" class="form-control" @bind="@_url" disabled />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="contact" HelpText="The contact for the module" ResourceKey="Contact">Contact: </Label>
-                    <div class="col-sm-9">
-                        <input id="contact" class="form-control" @bind="@_contact" disabled />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="license" HelpText="The module license terms" ResourceKey="License">License: </Label>
-                    <div class="col-sm-9">
-                        <textarea id="license" class="form-control" @bind="@_license" rows="5" disabled></textarea>
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="runtimes" HelpText="The Blazor runtimes which this module supports" ResourceKey="Runtimes">Runtimes: </Label>
-                    <div class="col-sm-9">
-                        <input id="runtimes" class="form-control" @bind="@_runtimes" disabled />
-                    </div>
-                </div>
-            </div>
-		</Section>
-		<br />
-		<button type="button" class="btn btn-success" @onclick="SaveModuleDefinition">@SharedLocalizer["Save"]</button>
-		<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-		<br />
-		<br />
-		<AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
-    </TabPanel>
-    <TabPanel Name="Permissions" ResourceKey="Permissions">
-        <div class="container">
-            <div class="row mb-1 align-items-center">
-                <PermissionGrid EntityName="@EntityNames.ModuleDefinition" PermissionNames="@PermissionNames.Utilize" PermissionList="@_permissions" @ref="_permissionGrid" />
-            </div>
-        </div>
-		<button type="button" class="btn btn-success" @onclick="SaveModuleDefinition">@SharedLocalizer["Save"]</button>
-		<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-    </TabPanel>
-	<TabPanel Name="Translations" ResourceKey="Translations">
-		@if (_languages != null && _languages.Count > 0)
-		{
-			<Pager Items="@_languages">
-				<Header>
+					<PermissionGrid EntityName="@EntityNames.ModuleDefinition" PermissionNames="@PermissionNames.Utilize" PermissionList="@_permissions" @ref="_permissionGrid" />
+				</div>
+			</div>
+			<br />
+			<button type="button" class="btn btn-success" @onclick="SaveModuleDefinition">@SharedLocalizer["Save"]</button>
+			<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+		</TabPanel>
+		<TabPanel Name="Translations" ResourceKey="Translations">
+			@if (_languages != null && _languages.Count > 0)
+			{
+				<Pager Items="@_languages">
+					<Header>
 					<th>@SharedLocalizer["Name"]</th>
 					<th>@Localizer["Code"]</th>
 					<th style="width: 1px;">@Localizer["Version"]</th>
 					<th style="width: 1px;">&nbsp;</th>
-				</Header>
-				<Row>
-					<td>@context.Name</td>
-					<td>@context.Code</td>
-					<td>@((string.IsNullOrEmpty(context.Version)) ? "---" : context.Version)</td>
-					<td>
-						@switch (TranslationAvailable(_packagename + "." + context.Code, context.Version))
-						{
-							case "install":
-								<button type="button" class="btn btn-success" @onclick=@(async () => await GetPackage(_packagename + "." + context.Code))>@SharedLocalizer["Download"]</button>
-								break;
-							case "upgrade":
-								<button type="button" class="btn btn-success" @onclick=@(async () => await GetPackage(_packagename + "." + context.Code))>@SharedLocalizer["Upgrade"]</button>
-								break;
-						}
-					</td>
-				</Row>
-			</Pager>
-			@if (_install)
-			{
-				<button type="button" class="btn btn-success" @onclick="InstallTranslations">@SharedLocalizer["Install"]</button>
+					</Header>
+					<Row>
+						<td>@context.Name</td>
+						<td>@context.Code</td>
+						<td>@((string.IsNullOrEmpty(context.Version)) ? "---" : context.Version)</td>
+						<td>
+							@switch (TranslationAvailable(_packagename + "." + context.Code, context.Version))
+							{
+								case "install":
+									<button type="button" class="btn btn-success" @onclick=@(async () => await GetPackage(_packagename + "." + context.Code))>@SharedLocalizer["Download"]</button>
+									break;
+								case "upgrade":
+									<button type="button" class="btn btn-success" @onclick=@(async () => await GetPackage(_packagename + "." + context.Code))>@SharedLocalizer["Upgrade"]</button>
+									break;
+							}
+						</td>
+					</Row>
+				</Pager>
+				@if (_install)
+				{
+					<button type="button" class="btn btn-success" @onclick="InstallTranslations">@SharedLocalizer["Install"]</button>
+				}
 			}
-		}
-		else
-		{
-			<br />
-			<div class="mx-auto text-center">
-				@if (string.IsNullOrEmpty(_packagename))
-				{
-					@Localizer["Search.PackageNameMissing"]
-				}
-				else
-				{
-					@Localizer["Search.NoResults"]					
-				}
-			</div>
-			<br />
-		}
-	</TabPanel>
-</TabStrip>
+			else
+			{
+				<br />
+				<div class="mx-auto text-center">
+					@if (string.IsNullOrEmpty(_packagename))
+					{
+						@Localizer["Search.PackageNameMissing"]
+					}
+					else
+					{
+						@Localizer["Search.NoResults"]
+					}
+				</div>
+				<br />
+			}
+		</TabPanel>
+	</TabStrip>
 
-@if (_package != null)
-{
-	<div class="app-actiondialog">
-		<div class="modal" tabindex="-1" role="dialog">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title">@SharedLocalizer["Review License Terms"]</h5>
-						<button type="button" class="btn-close" aria-label="Close" @onclick="HideModal"></button>
-					</div>
-					<div class="modal-body">
-						<p style="height: 200px; overflow-y: scroll;">
-							<h4 style="display: inline;"><a href="@_package.ProductUrl" target="_new">@_package.Name</a></h4><br />
-							@SharedLocalizer["Search.By"]:&nbsp;&nbsp;<strong><a href="@_package.OwnerUrl" target="new">@_package.Owner</a></strong><br />
-							@(_package.Description.Length > 400 ? (_package.Description.Substring(0, 400) + "...") : _package.Description)<br />
-							<strong>@(String.Format("{0:n0}", _package.Downloads))</strong> @SharedLocalizer["Search.Downloads"]&nbsp;&nbsp;|&nbsp;&nbsp;
-							@SharedLocalizer["Search.Released"]: <strong>@_package.ReleaseDate.ToString("MMM dd, yyyy")</strong>&nbsp;&nbsp;|&nbsp;&nbsp;
-							@SharedLocalizer["Search.Version"]: <strong>@_package.Version</strong>
-							@((MarkupString)(!string.IsNullOrEmpty(_package.PackageUrl) ? "&nbsp;&nbsp;|&nbsp;&nbsp;" + SharedLocalizer["Search.Source"] + ": <strong>" + new Uri(_package.PackageUrl).Host + "</strong>" : ""))
-							<br /><br />
-							@if (!string.IsNullOrEmpty(_package.License))
-							{
-								@((MarkupString)_package.License.Replace("\n", "<br />"))
-							}
-							else
-							{
-								@SharedLocalizer["License Not Specified"]
-							}
-						</p>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-success" @onclick="DownloadPackage">@SharedLocalizer["Accept"]</button>
-						<button type="button" class="btn btn-secondary" @onclick="HideModal">@SharedLocalizer["Cancel"]</button>
+	@if (_package != null)
+	{
+		<div class="app-actiondialog">
+			<div class="modal" tabindex="-1" role="dialog">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title">@SharedLocalizer["Review License Terms"]</h5>
+							<button type="button" class="btn-close" aria-label="Close" @onclick="HideModal"></button>
+						</div>
+						<div class="modal-body">
+							<p style="height: 200px; overflow-y: scroll;">
+								<h4 style="display: inline;"><a href="@_package.ProductUrl" target="_new">@_package.Name</a></h4><br />
+								@SharedLocalizer["Search.By"]:&nbsp;&nbsp;<strong><a href="@_package.OwnerUrl" target="new">@_package.Owner</a></strong><br />
+								@(_package.Description.Length > 400 ? (_package.Description.Substring(0, 400) + "...") : _package.Description)<br />
+								<strong>@(String.Format("{0:n0}", _package.Downloads))</strong> @SharedLocalizer["Search.Downloads"]&nbsp;&nbsp;|&nbsp;&nbsp;
+								@SharedLocalizer["Search.Released"]: <strong>@_package.ReleaseDate.ToString("MMM dd, yyyy")</strong>&nbsp;&nbsp;|&nbsp;&nbsp;
+								@SharedLocalizer["Search.Version"]: <strong>@_package.Version</strong>
+								@((MarkupString)(!string.IsNullOrEmpty(_package.PackageUrl) ? "&nbsp;&nbsp;|&nbsp;&nbsp;" + SharedLocalizer["Search.Source"] + ": <strong>" + new Uri(_package.PackageUrl).Host + "</strong>" : ""))
+								<br /><br />
+								@if (!string.IsNullOrEmpty(_package.License))
+								{
+									@((MarkupString)_package.License.Replace("\n", "<br />"))
+								}
+								else
+								{
+									@SharedLocalizer["License Not Specified"]
+								}
+							</p>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-success" @onclick="DownloadPackage">@SharedLocalizer["Accept"]</button>
+							<button type="button" class="btn btn-secondary" @onclick="HideModal">@SharedLocalizer["Cancel"]</button>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-	</div>
+	}
 }
 
 @code {
+	private bool _initialized = false;
 	private ElementReference form;
 	private bool validated = false;
 	private int _moduleDefinitionId;
@@ -262,6 +267,8 @@
 					}
 					_languages = _languages.OrderBy(item => item.Name).ToList();
 				}
+
+				_initialized = true;
 			}
 		}
 		catch (Exception ex)

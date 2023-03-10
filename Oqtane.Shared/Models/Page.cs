@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Oqtane.Models
 {
@@ -115,26 +116,24 @@ namespace Oqtane.Models
 
         #region Deprecated Properties
 
-        [Obsolete("This property is deprecated", false)]
+        [Obsolete("The EditMode property is deprecated", false)]
         [NotMapped]
         public bool EditMode { get; set; }
 
-        [Obsolete("This property is deprecated", false)]
+        [Obsolete("The LayoutType property is deprecated", false)]
         [NotMapped]
         public string LayoutType { get; set; }
 
         [Obsolete("The Permissions property is deprecated. Use PermissionList instead", false)]
         [NotMapped]
+        [JsonIgnore] // exclude from API payload
         public string Permissions {
             get
             {
                 return JsonSerializer.Serialize(PermissionList);
             }
-            set
-            {
-                PermissionList = JsonSerializer.Deserialize<List<Permission>>(Permissions);
-            }
         }
+
         #endregion
     }
 }

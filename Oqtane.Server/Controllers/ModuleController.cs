@@ -47,6 +47,7 @@ namespace Oqtane.Controllers
             int SiteId;
             if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
             {
+                List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(SiteId).ToList();
                 List<Setting> settings = _settings.GetSettings(EntityNames.Module).ToList();
 
                 foreach (PageModule pagemodule in _pageModules.GetPageModules(SiteId))
@@ -74,6 +75,8 @@ namespace Oqtane.Controllers
                         module.Order = pagemodule.Order;
                         module.ContainerType = pagemodule.ContainerType;
 
+                        module.ModuleDefinition = FilterModuleDefinition(moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName));
+
                         module.Settings = settings.Where(item => item.EntityId == pagemodule.ModuleId)
                             .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, pagemodule.Module.PermissionList))
                             .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
@@ -92,6 +95,29 @@ namespace Oqtane.Controllers
             return modules;
         }
 
+        private ModuleDefinition FilterModuleDefinition(ModuleDefinition moduleDefinition)
+        {
+            if (moduleDefinition != null)
+            {
+                moduleDefinition.Description = "";
+                moduleDefinition.Categories = "";
+                moduleDefinition.Version = "";
+                moduleDefinition.Owner = "";
+                moduleDefinition.Url = "";
+                moduleDefinition.Contact = "";
+                moduleDefinition.License = "";
+                moduleDefinition.Dependencies = "";
+                moduleDefinition.PermissionNames = "";
+                moduleDefinition.ServerManagerType = "";
+                moduleDefinition.ReleaseVersions = "";
+                moduleDefinition.PackageName = "";
+                moduleDefinition.AssemblyName = "";
+                moduleDefinition.PermissionList = null;
+                moduleDefinition.Template = "";
+            }
+            return moduleDefinition;
+        }
+
         // GET api/<controller>/5
         [HttpGet("{id}")]
         public Module Get(int id)
@@ -100,7 +126,7 @@ namespace Oqtane.Controllers
             if (module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User,PermissionNames.View, module.PermissionList))
             {
                 List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(module.SiteId).ToList();
-                module.ModuleDefinition = moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName);
+                module.ModuleDefinition = FilterModuleDefinition(moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName));
                 module.Settings = _settings.GetSettings(EntityNames.Module, id)
                     .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, module.PermissionList))
                     .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
