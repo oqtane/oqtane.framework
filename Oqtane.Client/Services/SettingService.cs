@@ -135,10 +135,12 @@ namespace Oqtane.Services
         {
             var dictionary = new Dictionary<string, string>();
             var settings = await GetJsonAsync<List<Setting>>($"{Apiurl}?entityname={entityName}&entityid={entityId}");
-            
-            foreach(Setting setting in settings.OrderBy(item => item.SettingName).ToList())
+            if (settings != null)
             {
-                dictionary.Add(setting.SettingName, setting.SettingValue);
+                foreach (Setting setting in settings.OrderBy(item => item.SettingName).ToList())
+                {
+                    dictionary.Add(setting.SettingName, setting.SettingValue);
+                }
             }
             return dictionary;
         }
