@@ -51,20 +51,20 @@ namespace Oqtane.Security
             {
                 // check if denied first
                 isAuthorized = !permissionList.Where(item => !item.IsAuthorized && (
-                    (item.Role != null && (
-                        (item.Role.Name == RoleNames.Everyone) ||
-                        (item.Role.Name == RoleNames.Unauthenticated && userId == -1) ||
-                        roles.Split(';', StringSplitOptions.RemoveEmptyEntries).Contains(item.Role.Name))) ||
+                    (item.UserId == null && (
+                        (item.RoleName == RoleNames.Everyone) ||
+                        (item.RoleName == RoleNames.Unauthenticated && userId == -1) ||
+                        roles.Split(';', StringSplitOptions.RemoveEmptyEntries).Contains(item.RoleName))) ||
                     (item.UserId != null && item.UserId.Value == userId))).Any();
 
                 if (isAuthorized)
                 {
                     // then check if authorized
                     isAuthorized = permissionList.Where(item => item.IsAuthorized && (
-                        (item.Role != null && (
-                            (item.Role.Name == RoleNames.Everyone) ||
-                            (item.Role.Name == RoleNames.Unauthenticated && userId == -1) ||
-                            roles.Split(';', StringSplitOptions.RemoveEmptyEntries).Contains(item.Role.Name))) ||
+                        (item.UserId == null && (
+                            (item.RoleName == RoleNames.Everyone) ||
+                            (item.RoleName == RoleNames.Unauthenticated && userId == -1) ||
+                            roles.Split(';', StringSplitOptions.RemoveEmptyEntries).Contains(item.RoleName))) ||
                         (item.UserId != null && item.UserId.Value == userId))).Any();
                 }
             }
@@ -74,7 +74,7 @@ namespace Oqtane.Security
 
         public static bool ContainsRole(List<Permission> permissions, string permissionName, string roleName)
         {
-            return permissions.Any(item => item.PermissionName == permissionName && item.Role.Name == roleName);
+            return permissions.Any(item => item.PermissionName == permissionName && item.RoleName == roleName);
         }
 
         public static bool ContainsUser(List<Permission> permissions, string permissionName, int userId)

@@ -300,7 +300,7 @@ namespace Oqtane.Repository
                 permission.EntityId = p.EntityId;
                 permission.PermissionName = p.PermissionName;
                 permission.RoleId = p.RoleId;
-                permission.Role = new Role { Name = p.Role.Name };
+                permission.RoleName = p.RoleName;
                 permission.UserId = p.UserId;
                 permission.IsAuthorized = p.IsAuthorized; 
                 permissions.Add(permission);

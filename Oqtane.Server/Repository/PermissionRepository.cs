@@ -30,10 +30,17 @@ namespace Oqtane.Repository
             {
                 return _cache.GetOrCreate($"permissions:{alias.TenantId}:{siteId}:{entityName}", entry =>
                 {
+                    var roles = _roles.GetRoles(siteId, true).ToList();
+                    var permissions = _db.Permission.Where(item => item.SiteId == siteId).Where(item => item.EntityName == entityName).ToList();
+                    foreach (var permission in permissions)
+                    {
+                        if (permission.RoleId != null)
+                        {
+                            permission.RoleName = roles.Find(item => item.RoleId == permission.RoleId).Name;
+                        }
+                    }
                     entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                    return _db.Permission.Where(item => item.SiteId == siteId)
-                        .Where(item => item.EntityName == entityName)
-                        .Include(item => item.Role).ToList(); // eager load roles
+                    return permissions;
                 });
             }
             return null;
@@ -84,15 +91,14 @@ namespace Oqtane.Repository
                 permission.SiteId = siteId;
                 permission.EntityName = (string.IsNullOrEmpty(permission.EntityName)) ? entityName : permission.EntityName;
                 permission.EntityId = (permission.EntityName == entityName) ? entityId : -1;
-                if (permission.RoleId == null && permission.Role != null && !string.IsNullOrEmpty(permission.Role.Name))
+                if (permission.UserId == null && permission.RoleId == null && !string.IsNullOrEmpty(permission.RoleName))
                 {
-                    var role = roles.FirstOrDefault(item => item.Name == permission.Role.Name);
+                    var role = roles.FirstOrDefault(item => item.Name == permission.RoleName);
                     if (role != null)
                     {
                         permission.RoleId = role.RoleId;
                     }
                 }
-                permission.Role = null;
             }
             // add or update permissions
             bool modified = false;
@@ -112,7 +118,6 @@ namespace Oqtane.Repository
                     if (current.IsAuthorized != permission.IsAuthorized)
                     {
                         current.IsAuthorized = permission.IsAuthorized;
-                        current.Role = null; // remove linked reference to Role which can cause errors in EF Core change tracking
                         _db.Entry(current).State = EntityState.Modified;
                         modified = true;
                     }
@@ -129,7 +134,6 @@ namespace Oqtane.Repository
                 if (!permissions.Any(item => item.EntityName == permission.EntityName && item.PermissionName == permission.PermissionName
                     && item.EntityId == permission.EntityId && item.RoleId == permission.RoleId && item.UserId == permission.UserId))
                 {
-                    permission.Role = null; // remove linked reference to Role which can cause errors in EF Core change tracking
                     _db.Permission.Remove(permission);
                     modified = true;
                 }
