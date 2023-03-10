@@ -167,7 +167,7 @@
 							_permissions.Add(new Permission(ModuleState.SiteId, segments[0], segments[1], role, null, true));
 						}
 						// ensure admin access
-						if (!_permissions.Any(item => item.EntityName == segments[0] && item.PermissionName == segments[1] && item.Role.Name == RoleNames.Admin))
+						if (!_permissions.Any(item => item.EntityName == segments[0] && item.PermissionName == segments[1] && item.RoleName == RoleNames.Admin))
 						{
 							_permissions.Add(new Permission(ModuleState.SiteId, segments[0], segments[1], RoleNames.Admin, null, true));
 						}
@@ -203,7 +203,7 @@
 		bool? isauthorized = null;
 		if (roleName != "")
 		{
-			var permission = _permissions.FirstOrDefault(item => item.EntityName == GetEntityName(permissionName) && item.PermissionName == GetPermissionName(permissionName) && item.Role.Name == roleName);
+			var permission = _permissions.FirstOrDefault(item => item.EntityName == GetEntityName(permissionName) && item.PermissionName == GetPermissionName(permissionName) && item.RoleName == roleName);
 			if (permission != null)
 			{
 				isauthorized = permission.IsAuthorized;
@@ -243,7 +243,7 @@
 	{
 		if (roleName != "")
 		{
-			var permission = _permissions.FirstOrDefault(item => item.EntityName == GetEntityName(permissionName) && item.PermissionName == GetPermissionName(permissionName) && item.Role.Name == roleName);
+			var permission = _permissions.FirstOrDefault(item => item.EntityName == GetEntityName(permissionName) && item.PermissionName == GetPermissionName(permissionName) && item.RoleName == roleName);
 			if (permission != null)
 			{
 				_permissions.Remove(permission);
@@ -307,7 +307,7 @@
 	{
 		// remove deny all users, unauthenticated, and registered users
 		var permissions = _permissions.Where(item => !item.IsAuthorized && 
-			(item.Role.Name == RoleNames.Everyone || item.Role.Name == RoleNames.Unauthenticated || item.Role.Name == RoleNames.Registered)).ToList();
+			(item.RoleName == RoleNames.Everyone || item.RoleName == RoleNames.Unauthenticated || item.RoleName == RoleNames.Registered)).ToList();
 		foreach (var permission in permissions)
 		{
 			_permissions.Remove(permission);
@@ -316,7 +316,7 @@
 		{
 			// remove deny administrators and host users
 			permissions = _permissions.Where(item => !item.IsAuthorized &&
-				(item.Role.Name == RoleNames.Admin || item.Role.Name == RoleNames.Host)).ToList();
+				(item.RoleName == RoleNames.Admin || item.RoleName == RoleNames.Host)).ToList();
 			foreach (var permission in permissions)
 			{
 				_permissions.Remove(permission);
@@ -325,7 +325,7 @@
 			{
 				// add administrators role if neither host or administrator is assigned
 				if (!_permissions.Any(item => item.EntityName == GetEntityName(permissionname) && item.PermissionName == GetPermissionName(permissionname) &&
-					(item.Role.Name == RoleNames.Admin || item.Role.Name == RoleNames.Host)))
+					(item.RoleName == RoleNames.Admin || item.RoleName == RoleNames.Host)))
 				{
 					_permissions.Add(new Permission(ModuleState.SiteId, GetEntityName(permissionname), GetPermissionName(permissionname), RoleNames.Admin, null, true));
 				}
