@@ -433,7 +433,7 @@ namespace Oqtane.Extensions
                     {
                         var _settings = httpContext.RequestServices.GetRequiredService<ISettingRepository>();
                         var _profiles = httpContext.RequestServices.GetRequiredService<IProfileRepository>();
-                        var profiles = _profiles.GetProfiles(user.SiteId);
+                        var profiles = _profiles.GetProfiles(alias.SiteId).ToList();
                         foreach (var mapping in httpContext.GetSiteSettings().GetValue("ExternalLogin:ProfileClaimTypes", "").Split(',', StringSplitOptions.RemoveEmptyEntries))
                         {
                             if (mapping.Contains(":"))
