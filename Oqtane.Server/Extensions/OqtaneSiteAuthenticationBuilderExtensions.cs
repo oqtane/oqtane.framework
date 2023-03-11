@@ -433,30 +433,45 @@ namespace Oqtane.Extensions
                     {
                         var _settings = httpContext.RequestServices.GetRequiredService<ISettingRepository>();
                         var _profiles = httpContext.RequestServices.GetRequiredService<IProfileRepository>();
-                        var profiles = _profiles.GetProfiles(user.SiteId);
+                        var profiles = _profiles.GetProfiles(alias.SiteId).ToList();
                         foreach (var mapping in httpContext.GetSiteSettings().GetValue("ExternalLogin:ProfileClaimTypes", "").Split(',', StringSplitOptions.RemoveEmptyEntries))
                         {
                             if (mapping.Contains(":"))
                             {
                                 var claim = claimsPrincipal.Claims.FirstOrDefault(item => item.Type == mapping.Split(":")[0]);
-                                if (claim != null && !string.IsNullOrEmpty(claim.Value))
+                                if (claim != null)
                                 {
                                     var profile = profiles.FirstOrDefault(item => item.Name == mapping.Split(":")[1]);
                                     if (profile != null)
                                     {
-                                        var setting = _settings.GetSetting(EntityNames.User, user.UserId, profile.Name);
-                                        if (setting != null)
+                                        if (!string.IsNullOrEmpty(claim.Value))
                                         {
-                                            setting.SettingValue = claim.Value;
-                                            _settings.UpdateSetting(setting);
-                                        }
-                                        else
-                                        {
-                                            setting = new Setting { EntityName = EntityNames.User, EntityId = user.UserId, SettingName = profile.Name, SettingValue = claim.Value, IsPrivate = profile.IsPrivate };
-                                            _settings.AddSetting(setting);
+                                            var setting = _settings.GetSetting(EntityNames.User, user.UserId, profile.Name);
+                                            if (setting != null)
+                                            {
+                                                setting.SettingValue = claim.Value;
+                                                _settings.UpdateSetting(setting);
+                                            }
+                                            else
+                                            {
+                                                setting = new Setting { EntityName = EntityNames.User, EntityId = user.UserId, SettingName = profile.Name, SettingValue = claim.Value, IsPrivate = profile.IsPrivate };
+                                                _settings.AddSetting(setting);
+                                            }
                                         }
                                     }
+                                    else
+                                    {
+                                        _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "The User Profile {ProfileName} Does Not Exist For The Site. Please Verify Your User Profile Definitions.", mapping.Split(":")[1]);
+                                    }
                                 }
+                                else
+                                {
+                                    _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "The User Profile Claim {ClaimType} Does Not Exist. The Valid Claims Are {Claims}.", mapping.Split(":")[0], claims);
+                                }
+                            }
+                            else
+                            {
+                                _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "The User Profile Claim Mapping {Mapping} Is Not Specified Correctly. It Should Be In The Format 'ClaimType:ProfileName'.", mapping);
                             }
                         }
                     }
