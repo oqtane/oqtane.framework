@@ -478,7 +478,7 @@
 				PageState.EditMode = true;
 			}
 
-			NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + ((PageState.EditMode) ? "1" : "0")));
+			NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + ((PageState.EditMode) ? "true" : "false")));
 		}
 		else
 		{
@@ -486,7 +486,7 @@
 			{
 				await PageService.AddPageAsync(PageState.Page.PageId, PageState.User.UserId);
 				PageState.EditMode = true;
-				NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + ((PageState.EditMode) ? "1" : "0")));
+				NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + ((PageState.EditMode) ? "true" : "false")));
 			}
 		}
 	}
