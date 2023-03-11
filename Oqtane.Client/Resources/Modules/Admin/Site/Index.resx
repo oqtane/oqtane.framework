@@ -345,4 +345,10 @@
   <data name="SmtpRelay.Text" xml:space="preserve">
     <value>Relay Configured?</value>
   </data>
+  <data name="SiteMap.HelpText" xml:space="preserve">
+    <value>The site map url for this site which can be submitted to search engines for indexing</value>
+  </data>
+  <data name="SiteMap.Text" xml:space="preserve">
+    <value>Site Map:</value>
+  </data>
 </root>
