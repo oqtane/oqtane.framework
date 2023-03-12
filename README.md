@@ -45,10 +45,15 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 # Roadmap
 This project is open source, and therefore is a work in progress...
 
-4.0.0 ( Q1 2023 )
+4.0.0 ( Q2 2023 )
 - [ ] Migration to .NET 7
-- [ ] Permission serialization optimization
 - [ ] Folder Providers
+
+[3.4.0](https://github.com/oqtane/oqtane.framework/releases/tag/v3.4.0) ( Mar 12, 2023 )
+- [x] Permissions performance optimization
+- [x] Connection string management improvements
+- [x] XML site map generator
+- [x] OIDC integration with User Profiles
 
 [3.3.1](https://github.com/oqtane/oqtane.framework/releases/tag/v3.3.1) ( Jan 14, 2023 )
 - [x] Stabilization improvements 
