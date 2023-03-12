@@ -47,6 +47,7 @@ This project is open source, and therefore is a work in progress...
 
 4.0.0 ( Q2 2023 )
 - [ ] Migration to .NET 7
+- [ ] File / New Project experience
 - [ ] Folder Providers
 
 [3.4.0](https://github.com/oqtane/oqtane.framework/releases/tag/v3.4.0) ( Mar 12, 2023 )
