@@ -62,8 +62,7 @@
             <div class="row mb-1 align-items-center">
                 <div class="col-sm-12">
                     <Label Class="col-sm-3" For="permissions" HelpText="Select the permissions you want for the folder" ResourceKey="Permissions">Permissions: </Label>
-                    <PermissionGrid EntityName="@EntityNames.Folder" PermissionNames="@(PermissionNames.Browse + "," + PermissionNames.View + "," + PermissionNames.Edit)" Permissions="@_permissions" @ref="_permissionGrid" />
-
+                    <PermissionGrid EntityName="@EntityNames.Folder" PermissionNames="@(PermissionNames.Browse + "," + PermissionNames.View + "," + PermissionNames.Edit)" PermissionList="@_permissions" @ref="_permissionGrid" />
                 </div>
             </div>
         </div>
@@ -99,7 +98,7 @@
     private string _imagesizes = string.Empty;
     private string _capacity = "0";
     private bool _isSystem;
-    private string _permissions = string.Empty;
+    private List<Permission> _permissions = null;
     private string _createdBy;
     private DateTime _createdOn;
     private string _modifiedBy;
@@ -131,7 +130,7 @@
                     _imagesizes = folder.ImageSizes;
                     _capacity = folder.Capacity.ToString();
                     _isSystem = folder.IsSystem;
-                    _permissions = folder.Permissions;
+                    _permissions = folder.PermissionList;
                     _createdBy = folder.CreatedBy;
                     _createdOn = folder.CreatedOn;
                     _modifiedBy = folder.ModifiedBy;
@@ -196,7 +195,7 @@
                 folder.ImageSizes = _imagesizes;
                 folder.Capacity = int.Parse(_capacity);
                 folder.IsSystem = _isSystem;
-                folder.Permissions = _permissionGrid.GetPermissions();
+                folder.PermissionList = _permissionGrid.GetPermissionList();
 
                 if (_folderId != -1)
                 {

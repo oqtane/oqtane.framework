@@ -93,10 +93,10 @@
                 authorized = true;
                 break;
             case SecurityAccessLevel.View:
-                authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, ModuleState.Permissions);
+                authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, ModuleState.PermissionList);
                 break;
             case SecurityAccessLevel.Edit:
-                authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.Permissions);
+                authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList);
                 break;
             case SecurityAccessLevel.Admin:
                 authorized = UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin);

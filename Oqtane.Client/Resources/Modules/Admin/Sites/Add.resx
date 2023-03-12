@@ -123,9 +123,6 @@
   <data name="SqlServer" xml:space="preserve">
     <value>SQL Server</value>
   </data>
-  <data name="Server.Text" xml:space="preserve">
-    <value>Server: </value>
-  </data>
   <data name="Container.Select" xml:space="preserve">
     <value>Select Container</value>
   </data>
@@ -145,7 +142,7 @@
     <value>Select the default container for the site</value>
   </data>
   <data name="Tenant.Text" xml:space="preserve">
-    <value>Tenant: </value>
+    <value>Database: </value>
   </data>
   <data name="Aliases.Text" xml:space="preserve">
     <value>Aliases: </value>
@@ -157,10 +154,10 @@
     <value>Select Site Template</value>
   </data>
   <data name="Tenant.Select" xml:space="preserve">
-    <value>Select Tenant</value>
+    <value>Select Database</value>
   </data>
   <data name="Tenant.Add" xml:space="preserve">
-    <value>Create New Tenant</value>
+    <value>Create Database</value>
   </data>
   <data name="Error.Theme.LoadContainers" xml:space="preserve">
     <value>Error Loading Containers For Theme</value>
@@ -172,19 +169,19 @@
     <value>Invalid Host Password</value>
   </data>
   <data name="Error.TenantName.Exists" xml:space="preserve">
-    <value>Tenant Name Is Missing Or Already Exists</value>
+    <value>Database Name Is Missing Or Already Exists</value>
   </data>
   <data name="Message.SiteName.InUse" xml:space="preserve">
     <value>{0} Already Used For Another Site</value>
   </data>
   <data name="Message.Required.Tenant" xml:space="preserve">
-    <value>You Must Provide A Tenant, Site Name, Alias, Default Theme/Container, And Site Template</value>
+    <value>You Must Provide A Database, Site Name, Alias, Default Theme/Container, And Site Template</value>
   </data>
   <data name="Name.HelpText" xml:space="preserve">
     <value>Enter the name of the site</value>
   </data>
   <data name="DefaultTheme.HelpText" xml:space="preserve">
-    <value>Select the default theme for the website</value>
+    <value>Select the default theme for the site</value>
   </data>
   <data name="AdminContainer.HelpText" xml:space="preserve">
     <value>Select the admin container for the site</value>
@@ -193,28 +190,13 @@
     <value>Select the site template</value>
   </data>
   <data name="Tenant.HelpText" xml:space="preserve">
-    <value>Select the tenant for the site</value>
+    <value>Select the database for the site</value>
   </data>
   <data name="TenantName.HelpText" xml:space="preserve">
-    <value>Enter the name for the tenant</value>
+    <value>Enter the name for the database</value>
   </data>
   <data name="DatabaseType.HelpText" xml:space="preserve">
-    <value>Select the database type for the tenant</value>
-  </data>
-  <data name="DatabaseServer.HelpText" xml:space="preserve">
-    <value>Enter the server for the tenant</value>
-  </data>
-  <data name="Database.HelpText" xml:space="preserve">
-    <value>Enter the database for the tenant</value>
-  </data>
-  <data name="IntegratedSecurity.HelpText" xml:space="preserve">
-    <value>Select if you want integrated security or not</value>
-  </data>
-  <data name="DatabaseUsername.HelpText" xml:space="preserve">
-    <value>Enter the username for the integrated security</value>
-  </data>
-  <data name="DatabasePassword.HelpText" xml:space="preserve">
-    <value>Enter the password for the integrated security</value>
+    <value>Select the database type</value>
   </data>
   <data name="HostUsername.HelpText" xml:space="preserve">
     <value>Enter the username of an existing host user</value>
@@ -232,22 +214,13 @@
     <value>Site Template: </value>
   </data>
   <data name="TenantName.Text" xml:space="preserve">
-    <value>Tenant Name: </value>
+    <value>Name: </value>
   </data>
   <data name="DatabaseType.Text" xml:space="preserve">
-    <value>Database Type: </value>
+    <value>Type: </value>
   </data>
   <data name="Database.Text" xml:space="preserve">
     <value>Database: </value>
-  </data>
-  <data name="IntegratedSecurity.Text" xml:space="preserve">
-    <value>Integrated Security: </value>
-  </data>
-  <data name="DatabaseUsername.Text" xml:space="preserve">
-    <value>Database Username: </value>
-  </data>
-  <data name="DatabasePassword.Text" xml:space="preserve">
-    <value>Database Password: </value>
   </data>
   <data name="HostUsername.Text" xml:space="preserve">
     <value>Host Username:</value>
@@ -274,7 +247,7 @@
     <value>Enter a complete connection string including all parameters and delimiters</value>
   </data>
   <data name="ConnectionString.Text" xml:space="preserve">
-    <value>String:</value>
+    <value>Settings:</value>
   </data>
   <data name="EnterConnectionParameters" xml:space="preserve">
     <value>Enter Connection Parameters</value>

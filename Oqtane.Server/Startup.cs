@@ -31,7 +31,7 @@ namespace Oqtane
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile("appsettings.json", false, true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, true);
             Configuration = builder.Build();
 
@@ -40,7 +40,7 @@ namespace Oqtane
             //add possibility to switch off swagger on production.
             _useSwagger = Configuration.GetSection("UseSwagger").Value != "false";
 
-            AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(env.ContentRootPath, "Data"));
+            AppDomain.CurrentDomain.SetData(Constants.DataDirectory, Path.Combine(env.ContentRootPath, "Data"));
 
             _env = env;
         }

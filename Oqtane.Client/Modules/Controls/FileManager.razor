@@ -6,7 +6,7 @@
 @inject IStringLocalizer<FileManager> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-@if (_folders != null)
+@if (_initialized)
 {
     <div id="@Id" class="container-fluid px-0">
         <div class="row">
@@ -87,6 +87,7 @@
 }
 
 @code {
+	private bool _initialized = false;
 	private List<Folder> _folders;
 	private List<File> _files = new List<File>();
 	private string _fileinputid = string.Empty;
@@ -205,6 +206,8 @@
 		_fileinputid = "FileInput_" + _guid;
 		_progressinfoid = "ProgressInfo_" + _guid;
 		_progressbarid = "ProgressBar_" + _guid;
+
+		_initialized = true;
 	}
 
 	private async Task GetFiles()
@@ -220,7 +223,7 @@
 			Folder folder = _folders.FirstOrDefault(item => item.FolderId == FolderId);
 			if (folder != null)
 			{
-				_haseditpermission = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, folder.Permissions);
+				_haseditpermission = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, folder.PermissionList);
 				_files = await FileService.GetFilesAsync(FolderId);
 			}
 			else

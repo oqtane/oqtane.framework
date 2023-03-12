@@ -32,7 +32,7 @@ namespace Oqtane.Themes.Controls
             var securityLevel = int.MaxValue;
             foreach (Page p in PageState.Pages.Where(item => item.IsNavigation))
             {
-                if (p.Level <= securityLevel && UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
+                if (p.Level <= securityLevel && UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
                 {
                     securityLevel = int.MaxValue;
                     yield return p;

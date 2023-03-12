@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Shared;
@@ -18,12 +17,14 @@ namespace Oqtane.Repository
         private MasterDBContext _db;
         private readonly IMemoryCache _cache;
         private readonly IPermissionRepository _permissions;
+        private readonly ISettingRepository _settings;
 
-        public ModuleDefinitionRepository(MasterDBContext context, IMemoryCache cache, IPermissionRepository permissions)
+        public ModuleDefinitionRepository(MasterDBContext context, IMemoryCache cache, IPermissionRepository permissions, ISettingRepository settings)
         {
             _db = context;
             _cache = cache;
             _permissions = permissions;
+            _settings = settings;
         }
 
         public IEnumerable<ModuleDefinition> GetModuleDefinitions()
@@ -46,12 +47,13 @@ namespace Oqtane.Repository
         {
             _db.Entry(moduleDefinition).State = EntityState.Modified;
             _db.SaveChanges();
-            _permissions.UpdatePermissions(moduleDefinition.SiteId, EntityNames.ModuleDefinition, moduleDefinition.ModuleDefinitionId, moduleDefinition.Permissions);
+            _permissions.UpdatePermissions(moduleDefinition.SiteId, EntityNames.ModuleDefinition, moduleDefinition.ModuleDefinitionId, moduleDefinition.PermissionList);
         }
 
         public void DeleteModuleDefinition(int moduleDefinitionId)
         {
             ModuleDefinition moduleDefinition = _db.ModuleDefinition.Find(moduleDefinitionId);
+            _settings.DeleteSettings(EntityNames.ModuleDefinition, moduleDefinitionId);
             _db.ModuleDefinition.Remove(moduleDefinition);
             _db.SaveChanges();
             _cache.Remove("moduledefinitions");
@@ -78,17 +80,21 @@ namespace Oqtane.Repository
                     moduledefinition.SiteId = siteId;
                     if (permissions.Count == 0)
                     {
-                        _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, moduledefinition.Permissions);
+                        // no module definition permissions exist for this site
+                        moduledefinition.PermissionList = ClonePermissions(siteId, moduledefinition.PermissionList);
+                        _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, moduledefinition.PermissionList);
                     }
                     else
                     {
-                        if (permissions.Where(item => item.EntityId == moduledefinition.ModuleDefinitionId).Any())
+                        if (permissions.Any(item => item.EntityId == moduledefinition.ModuleDefinitionId))
                         {
-                            moduledefinition.Permissions = permissions.Where(item => item.EntityId == moduledefinition.ModuleDefinitionId).EncodePermissions();
+                            moduledefinition.PermissionList = permissions.Where(item => item.EntityId == moduledefinition.ModuleDefinitionId).ToList();
                         }
                         else
                         {
-                            _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, moduledefinition.Permissions);
+                            // permissions for module definition do not exist for this site
+                            moduledefinition.PermissionList = ClonePermissions(siteId, moduledefinition.PermissionList);
+                            _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, moduledefinition.PermissionList);
                         }
                     }
                 }
@@ -229,6 +235,16 @@ namespace Oqtane.Repository
                     moduledefinition.ControlTypeTemplate = modulecontroltype.Namespace + "." + Constants.ActionToken + ", " + modulecontroltype.Assembly.GetName().Name;
                     moduledefinition.AssemblyName = assembly.GetName().Name;
 
+                    moduledefinition.IsPortable = false;
+                    if (!string.IsNullOrEmpty(moduledefinition.ServerManagerType))
+                    {
+                        Type servertype = Type.GetType(moduledefinition.ServerManagerType);
+                        if (servertype != null && servertype.GetInterface("IPortable") != null)
+                        {
+                            moduledefinition.IsPortable = true;
+                        }
+                    }
+
                     if (string.IsNullOrEmpty(moduledefinition.Categories))
                     {
                         moduledefinition.Categories = "Common";
@@ -236,18 +252,18 @@ namespace Oqtane.Repository
 
                     if (moduledefinition.Categories == "Admin")
                     {
-                        moduledefinition.Permissions = new List<Permission>
+                        moduledefinition.PermissionList = new List<Permission>
                         {
                             new Permission(PermissionNames.Utilize, RoleNames.Admin, true)
-                        }.EncodePermissions();
+                        };
                     }
                     else
                     {
-                        moduledefinition.Permissions = new List<Permission>
+                        moduledefinition.PermissionList = new List<Permission>
                         {
                             new Permission(PermissionNames.Utilize, RoleNames.Admin, true),
                             new Permission(PermissionNames.Utilize, RoleNames.Registered, true)
-                        }.EncodePermissions();
+                        };
                     }
 
                     Debug.WriteLine($"Oqtane Info: Registering Module {moduledefinition.ModuleDefinitionName}");
@@ -271,6 +287,25 @@ namespace Oqtane.Repository
             }
 
             return moduledefinitions;
+        }
+
+        private List<Permission> ClonePermissions(int siteId, List<Permission> permissionList)
+        {
+            var permissions = new List<Permission>();
+            foreach (var p in permissionList)
+            {
+                var permission = new Permission();
+                permission.SiteId = siteId;
+                permission.EntityName = p.EntityName;
+                permission.EntityId = p.EntityId;
+                permission.PermissionName = p.PermissionName;
+                permission.RoleId = p.RoleId;
+                permission.RoleName = p.RoleName;
+                permission.UserId = p.UserId;
+                permission.IsAuthorized = p.IsAuthorized; 
+                permissions.Add(permission);
+            }
+            return permissions;
         }
     }
 }

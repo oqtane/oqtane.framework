@@ -20,7 +20,6 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Formats.Png;
 using System.Net.Http;
-using Oqtane.Migrations.Tenant;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
@@ -57,7 +56,7 @@ namespace Oqtane.Controllers
             if (int.TryParse(folder, out folderid))
             {
                 Folder Folder = _folders.GetFolder(folderid);
-                if (Folder != null && Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Browse, Folder.Permissions))
+                if (Folder != null && Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Browse, Folder.PermissionList))
                 {
                     files = _files.GetFiles(folderid).ToList();
                 }
@@ -99,7 +98,7 @@ namespace Oqtane.Controllers
             List<Models.File> files;
 
             Folder folder = _folders.GetFolder(siteId, WebUtility.UrlDecode(path));
-            if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.Permissions))
+            if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.PermissionList))
             {
                 files = _files.GetFiles(folder.FolderId).ToList();
             }
@@ -118,7 +117,7 @@ namespace Oqtane.Controllers
         public Models.File Get(int id)
         {
             Models.File file = _files.GetFile(id);
-            if (file != null && file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
+            if (file != null && file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.PermissionList))
             {
                 return file;
             }
@@ -142,7 +141,7 @@ namespace Oqtane.Controllers
             {
                 if (File.Name != file.Name || File.FolderId != file.FolderId)
                 {
-                    file.Folder = _folders.GetFolder(file.FolderId);
+                    file.Folder = _folders.GetFolder(file.FolderId, false);
                     string folderpath = _folders.GetFolderPath(file.Folder);
                     if (!Directory.Exists(folderpath))
                     {
@@ -151,7 +150,7 @@ namespace Oqtane.Controllers
                     System.IO.File.Move(_files.GetFilePath(File), Path.Combine(folderpath, file.Name));
                 }
 
-                var newfile = CreateFile(file.Name, file.Folder.FolderId, _files.GetFilePath(file));
+                var newfile = CreateFile(File.Name, file.Folder.FolderId, _files.GetFilePath(file));
                 if (newfile != null)
                 {
                     file.Extension = newfile.Extension;
@@ -216,7 +215,7 @@ namespace Oqtane.Controllers
                 folder = _folders.GetFolder(FolderId);
             }
 
-            if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Edit, folder.Permissions))
+            if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Edit, folder.PermissionList))
             {
                 string folderPath = _folders.GetFolderPath(folder);
                 CreateDirectory(folderPath);
@@ -311,7 +310,7 @@ namespace Oqtane.Controllers
             if (int.TryParse(folder, out FolderId))
             {
                 Folder Folder = _folders.GetFolder(FolderId);
-                if (Folder != null && Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Edit, Folder.Permissions))
+                if (Folder != null && Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Edit, Folder.PermissionList))
                 {
                     folderPath = _folders.GetFolderPath(Folder);
                 }
@@ -498,7 +497,7 @@ namespace Oqtane.Controllers
         private IActionResult Download(int id, bool asAttachment)
         {
             var file = _files.GetFile(id);
-            if (file != null && file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
+            if (file != null && file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.PermissionList))
             {
                 var filepath = _files.GetFilePath(file);
                 if (System.IO.File.Exists(filepath))
@@ -533,7 +532,7 @@ namespace Oqtane.Controllers
         public IActionResult GetImage(int id, int width, int height, string mode, string position, string background, string rotate, string recreate)
         {
             var file = _files.GetFile(id);
-            if (file != null && file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
+            if (file != null && file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.PermissionList))
             {
                 if (Constants.ImageFiles.Split(',').Contains(file.Extension.ToLower()))
                 {
@@ -551,7 +550,7 @@ namespace Oqtane.Controllers
                         string imagepath = filepath.Replace(Path.GetExtension(filepath), "." + width.ToString() + "x" + height.ToString() + ".png");
                         if (!System.IO.File.Exists(imagepath) || bool.Parse(recreate))
                         {
-                            if ((_userPermissions.IsAuthorized(User, PermissionNames.Edit, file.Folder.Permissions) ||
+                            if ((_userPermissions.IsAuthorized(User, PermissionNames.Edit, file.Folder.PermissionList) ||
                               !string.IsNullOrEmpty(file.Folder.ImageSizes) && file.Folder.ImageSizes.ToLower().Split(",").Contains(width.ToString() + "x" + height.ToString())))
                             {
                                 imagepath = CreateImage(filepath, width, height, mode, position, background, rotate, imagepath);
@@ -659,10 +658,10 @@ namespace Oqtane.Controllers
             var file = _files.GetFile(folderid, filename);
 
             int size = 0;
-            var folder = _folders.GetFolder(folderid);
+            var folder = _folders.GetFolder(folderid, false);
             if (folder.Capacity != 0)
             {
-                foreach (var f in _files.GetFiles(folderid))
+                foreach (var f in _files.GetFiles(folderid, false))
                 {
                     size += f.Size;
                 }

@@ -6,31 +6,30 @@ using Oqtane.Modules;
 using Oqtane.Models;
 using Oqtane.Infrastructure;
 using Oqtane.Enums;
+using Oqtane.Repository;
 using [Owner].[Module].Repository;
 
 namespace [Owner].[Module].Manager
 {
     public class [Module]Manager : MigratableModuleBase, IInstallable, IPortable
     {
-        private I[Module]Repository _[Module]Repository;
-        private readonly ITenantManager _tenantManager;
-        private readonly IHttpContextAccessor _accessor;
+        private readonly I[Module]Repository _[Module]Repository;
+        private readonly IDBContextDependencies _DBContextDependencies;
 
-        public [Module]Manager(I[Module]Repository [Module]Repository, ITenantManager tenantManager, IHttpContextAccessor accessor)
+        public [Module]Manager(I[Module]Repository [Module]Repository, IDBContextDependencies DBContextDependencies)
         {
             _[Module]Repository = [Module]Repository;
-            _tenantManager = tenantManager;
-            _accessor = accessor;
+            _DBContextDependencies = DBContextDependencies;
         }
 
         public bool Install(Tenant tenant, string version)
         {
-            return Migrate(new [Module]Context(_tenantManager, _accessor), tenant, MigrationType.Up);
+            return Migrate(new [Module]Context(_DBContextDependencies), tenant, MigrationType.Up);
         }
 
         public bool Uninstall(Tenant tenant)
         {
-            return Migrate(new [Module]Context(_tenantManager, _accessor), tenant, MigrationType.Down);
+            return Migrate(new [Module]Context(_DBContextDependencies), tenant, MigrationType.Down);
         }
 
         public string ExportModule(Module module)

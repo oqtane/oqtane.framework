@@ -30,16 +30,17 @@ namespace Oqtane.Repository
             IEnumerable<Folder> folders = _db.Folder.Where(item => item.SiteId == siteId);
             foreach(Folder folder in folders)
             {
-                folder.Permissions = permissions.Where(item => item.EntityId == folder.FolderId).EncodePermissions();
+                folder.PermissionList = permissions.Where(item => item.EntityId == folder.FolderId).ToList();
             }
             return folders;
         }
 
         public Folder AddFolder(Folder folder)
         {
+            folder.IsDeleted = false;
             _db.Folder.Add(folder);
             _db.SaveChanges();
-            _permissions.UpdatePermissions(folder.SiteId, EntityNames.Folder, folder.FolderId, folder.Permissions);
+            _permissions.UpdatePermissions(folder.SiteId, EntityNames.Folder, folder.FolderId, folder.PermissionList);
             return folder;
         }
 
@@ -47,7 +48,7 @@ namespace Oqtane.Repository
         {
             _db.Entry(folder).State = EntityState.Modified;
             _db.SaveChanges();
-            _permissions.UpdatePermissions(folder.SiteId, EntityNames.Folder, folder.FolderId, folder.Permissions);
+            _permissions.UpdatePermissions(folder.SiteId, EntityNames.Folder, folder.FolderId, folder.PermissionList);
             return folder;
         }
 
@@ -69,7 +70,7 @@ namespace Oqtane.Repository
             }
             if (folder != null)
             {
-                folder.Permissions = _permissions.GetPermissions(folder.SiteId, EntityNames.Folder, folder.FolderId)?.EncodePermissions();
+                folder.PermissionList = _permissions.GetPermissions(folder.SiteId, EntityNames.Folder, folder.FolderId)?.ToList();
             }
             return folder;
         }
@@ -79,7 +80,7 @@ namespace Oqtane.Repository
             Folder folder = _db.Folder.Where(item => item.SiteId == siteId && item.Path == path).FirstOrDefault();
             if (folder != null)
             {
-                folder.Permissions = _permissions.GetPermissions(folder.SiteId, EntityNames.Folder, folder.FolderId)?.EncodePermissions();
+                folder.PermissionList = _permissions.GetPermissions(folder.SiteId, EntityNames.Folder, folder.FolderId)?.ToList();
             }
             return folder;
         }

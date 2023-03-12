@@ -43,10 +43,10 @@ namespace Oqtane.Infrastructure
                     });
                     context.Items.Add(Constants.HttpContextSiteSettingsKey, sitesettings);
 
-                    // rewrite path by removing alias path prefix from api and pages requests (for consistent routing)
+                    // rewrite path by removing alias path prefix from reserved route (api,pages,files) requests for consistent routes
                     if (!string.IsNullOrEmpty(alias.Path))
                     {
-                        if (path.StartsWith("/" + alias.Path) && (path.Contains("/api/") || path.Contains("/pages/")))
+                        if (path.StartsWith("/" + alias.Path) && (Constants.ReservedRoutes.Any(item => path.Contains("/" + item + "/"))))
                         {
                             context.Request.Path = path.Replace("/" + alias.Path, "");
                         }

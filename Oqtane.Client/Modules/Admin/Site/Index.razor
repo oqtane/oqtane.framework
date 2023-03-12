@@ -78,7 +78,7 @@
 						<option value="-">&lt;@Localizer["Not Specified"]&gt;</option>
                         @foreach (Page page in PageState.Pages)
                         {
-							if (UserSecurity.ContainsRole(page.Permissions, PermissionNames.View, RoleNames.Everyone))
+							if (UserSecurity.ContainsRole(page.PermissionList, PermissionNames.View, RoleNames.Everyone))
 							{
 								<option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
 							}
@@ -93,6 +93,12 @@
 						<option value="True">@SharedLocalizer["Yes"]</option>
 						<option value="False">@SharedLocalizer["No"]</option>
 					</select>
+				</div>
+			</div>
+			<div class="row mb-1 align-items-center">
+				<Label Class="col-sm-3" For="sitemap" HelpText="The site map url for this site which can be submitted to search engines for indexing" ResourceKey="SiteMap">Site Map: </Label>
+				<div class="col-sm-9">
+					<input id="sitemap" class="form-control" @bind="@_sitemap" required disabled />
 				</div>
 			</div>
 		</div>
@@ -267,16 +273,16 @@
                     </div>
                 </div>
             </Section>
-            <Section Name="TenantInformation" Heading="Tenant Information" ResourceKey="TenantInformation">
+            <Section Name="TenantInformation" Heading="Database" ResourceKey="TenantInformation">
                 <div class="container">
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="tenant" HelpText="The tenant for the site" ResourceKey="Tenant">Tenant: </Label>
+						<Label Class="col-sm-3" For="tenant" HelpText="The name of the database used for the site" ResourceKey="Tenant">Database: </Label>
                         <div class="col-sm-9">
                             <input id="tenant" class="form-control" @bind="@_tenant" readonly />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="database" HelpText="The database for the tenant" ResourceKey="Database">Database: </Label>
+                        <Label Class="col-sm-3" For="database" HelpText="The type of database" ResourceKey="Database">Type: </Label>
                         <div class="col-sm-9">
                             <input id="database" class="form-control" @bind="@_database" readonly />
                         </div>
@@ -284,7 +290,7 @@
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="connectionstring" HelpText="The connection information for the database" ResourceKey="ConnectionString">Connection: </Label>
                         <div class="col-sm-9">
-                            <textarea id="connectionstring" class="form-control" @bind="@_connectionstring" rows="2" readonly></textarea>
+							<input id="connectionstring" class="form-control" @bind="@_connectionstring" readonly />
                         </div>
                     </div>
                 </div>
@@ -321,6 +327,7 @@
 	private string _containertype = "-";
 	private string _admincontainertype = "-";
 	private string _homepageid = "-";
+	private string _sitemap = "";
 	private string _smtphost = string.Empty;
 	private string _smtpport = string.Empty;
 	private string _smtpssl = "False";
@@ -361,6 +368,7 @@
 				_runtime = site.Runtime;
 				_prerender = site.RenderMode.Replace(_runtime, "");
 				_isdeleted = site.IsDeleted.ToString();
+				_sitemap = PageState.Alias.Protocol + PageState.Alias.Name + "/pages/sitemap.xml";
 
 				await GetAliases();
 

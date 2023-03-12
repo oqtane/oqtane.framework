@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -6,11 +7,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Extensions.Configuration;
 using Oqtane.Databases.Interfaces;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Migrations.Framework;
 using Oqtane.Models;
+using Oqtane.Shared;
 
 // ReSharper disable BuiltInTypeReferenceStyleForMemberAccess
 
@@ -18,20 +21,20 @@ namespace Oqtane.Repository
 {
     public class DBContextBase :  IdentityUserContext<IdentityUser>
     {
-        private readonly ITenantResolver _tenantResolver;
         private readonly ITenantManager _tenantManager;
         private readonly IHttpContextAccessor _accessor;
-        private string _connectionString;
-        private string _databaseType;
+        private readonly IConfigurationRoot _config;
+        private string _connectionString = "";
+        private string _databaseType = "";
 
-        public DBContextBase(ITenantManager tenantManager, IHttpContextAccessor httpContextAccessor)
+        public DBContextBase(IDBContextDependencies DBContextDependencies)
         {
-            _connectionString = String.Empty;
-            _tenantManager = tenantManager;
-            _accessor = httpContextAccessor;
+            _tenantManager = DBContextDependencies.TenantManager;
+            _accessor = DBContextDependencies.Accessor;
+            _config = DBContextDependencies.Config;
         }
 
-        public IDatabase ActiveDatabase { get; private set; }
+        public IDatabase ActiveDatabase { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -39,21 +42,11 @@ namespace Oqtane.Repository
 
             if (string.IsNullOrEmpty(_connectionString))
             {
-
-                Tenant tenant;
-                if (_tenantResolver != null)
-                {
-                    tenant = _tenantResolver.GetTenant();
-                }
-                else
-                {
-                    tenant = _tenantManager.GetTenant();
-                }
-
+                Tenant tenant = _tenantManager.GetTenant();
                 if (tenant != null)
                 {
-                    _connectionString = tenant.DBConnectionString
-                        .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString());
+                    _connectionString = _config.GetConnectionString(tenant.DBConnectionString)
+                        .Replace($"|{Constants.DataDirectory}|", AppDomain.CurrentDomain.GetData(Constants.DataDirectory)?.ToString());
                     _databaseType = tenant.DBType;
                 }
             }
@@ -93,12 +86,17 @@ namespace Oqtane.Repository
             return base.SaveChangesAsync(cancellationToken);
         }
 
-        [Obsolete("This constructor is obsolete. Use DBContextBase(ITenantManager tenantManager, IHttpContextAccessor httpContextAccessor) instead.", false)]
-        public DBContextBase(ITenantResolver tenantResolver, IHttpContextAccessor httpContextAccessor)
+        [Obsolete("This constructor is obsolete. Use DBContextBase(IDBContextDependencies DBContextDependencies) instead.", false)]
+        public DBContextBase(ITenantManager tenantManager, IHttpContextAccessor httpContextAccessor)
         {
-            _connectionString = String.Empty;
-            _tenantResolver = tenantResolver;
+            _tenantManager = tenantManager;
             _accessor = httpContextAccessor;
+
+            // anti-pattern used to reference config service in base class without causing breaking change
+            _config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", false, false)
+                .Build();
         }
     }
 }

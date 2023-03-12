@@ -63,6 +63,12 @@ namespace Oqtane.Controllers
                     }
                     systeminfo.Add("Log", log);
                     break;
+                case "connectionstrings":
+                    foreach (var kvp in _configManager.GetSettings(SettingKeys.ConnectionStringsSection))
+                    {
+                        systeminfo.Add(kvp.Key, kvp.Value);
+                    }
+                    break;
             }
 
             return systeminfo;
@@ -84,16 +90,25 @@ namespace Oqtane.Controllers
         {
             foreach(KeyValuePair<string, object> kvp in settings)
             {
-                _configManager.AddOrUpdateSetting(kvp.Key, kvp.Value, false);
+                UpdateSetting(kvp.Key, kvp.Value);
             }
         }
 
-        // PUT: api/<controller>
-        [HttpPut("{key}/{value}")]
-        [Authorize(Roles = RoleNames.Host)]
-        public void Put(string key, object value)
+        private void UpdateSetting(string key, object value)
         {
-            _configManager.AddOrUpdateSetting(key, value, false);
+            switch (key.ToLower())
+            {
+                case "clearlog":
+                    string path = Path.Combine(_environment.ContentRootPath, "Content", "Log", "error.log");
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                    }
+                    break;
+                default:
+                    _configManager.AddOrUpdateSetting(key, value, false);
+                    break;
+            }
         }
     }
 }

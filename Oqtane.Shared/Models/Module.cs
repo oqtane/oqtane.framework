@@ -2,6 +2,8 @@ using Oqtane.Shared;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Oqtane.Models
 {
@@ -42,7 +44,7 @@ namespace Oqtane.Models
         #endregion
         
         [NotMapped]
-        public string Permissions { get; set; }
+        public List<Permission> PermissionList { get; set; }
 
         [NotMapped]
         public Dictionary<string, string> Settings { get; set; }
@@ -105,6 +107,21 @@ namespace Oqtane.Models
         public string Actions { get; set; }
         [NotMapped]
         public bool UseAdminContainer { get; set; }
+
+        #endregion
+
+        #region Deprecated Properties
+
+        [Obsolete("The Permissions property is deprecated. Use PermissionList instead", false)]
+        [NotMapped]
+        [JsonIgnore] // exclude from API payload
+        public string Permissions
+        {
+            get
+            {
+                return JsonSerializer.Serialize(PermissionList);
+            }
+        }
 
         #endregion
     }

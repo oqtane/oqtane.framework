@@ -76,7 +76,7 @@ body {
 }
 
 div.app-moduleactions a.dropdown-toggle, div.app-moduleactions div.dropdown-menu {
-    color:#000000;
+    color: #000000;
 }
 
 @media (max-width: 767px) {

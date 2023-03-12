@@ -7,7 +7,7 @@
 <div class="row">
     @foreach (var p in _pages)
     {
-        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
+        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
         {
             string url = NavigateUrl(p.Path);
             <div class="col-md-2 mx-auto text-center mb-3">

@@ -387,7 +387,13 @@
   <data name="RoleClaimType.HelpText" xml:space="preserve">
     <value>Optionally provide the name of the role claim provided by the identity provider. These roles will be used in addition to any internal user roles assigned within the site.</value>
   </data>
-    <data name="RoleClaimType.Text" xml:space="preserve">
-    <value>Role Claim Type:</value>
+  <data name="RoleClaimType.Text" xml:space="preserve">
+    <value>Role Claim:</value>
+  </data>
+    <data name="ProfileClaimTypes.HelpText" xml:space="preserve">
+    <value>Optionally provide a comma delimited list of user profile claims provided by the identity provider, as well as mappings to your user profile definition. For example if the identity provider includes a 'given_name' claim and you have a 'FirstName' user profile definition you should specify 'given_name:FirstName'.</value>
+  </data>
+  <data name="ProfileClaimTypes.Text" xml:space="preserve">
+    <value>User Profile Claims:</value>
   </data>
 </root>

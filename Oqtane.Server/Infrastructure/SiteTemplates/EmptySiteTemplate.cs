@@ -32,11 +32,11 @@ namespace Oqtane.SiteTemplates
                 Icon = "oi oi-home",
                 IsNavigation = true,
                 IsPersonalizable = false,
-                PagePermissions = new List<Permission> {
+                PermissionList = new List<Permission> {
                     new Permission(PermissionNames.View, RoleNames.Everyone, true),
                     new Permission(PermissionNames.View, RoleNames.Admin, true),
                     new Permission(PermissionNames.Edit, RoleNames.Admin, true)
-                }.EncodePermissions(),
+                },
                 PageTemplateModules = new List<PageTemplateModule>()
             });
 

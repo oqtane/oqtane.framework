@@ -117,29 +117,74 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Connection.Text" xml:space="preserve">
+    <value>Connection: </value>
+  </data>
+  <data name="Connection.HelpText" xml:space="preserve">
+    <value>Select a database connection (from appsettings.json)</value>
+  </data>
+  <data name="Connection.Select" xml:space="preserve">
+    <value>Select Connection</value>
+  </data>
+  <data name="Connection.Add" xml:space="preserve">
+    <value>Add Connection</value>
+  </data>
+  <data name="Name.Text" xml:space="preserve">
+    <value>Name: </value>
+  </data>
+  <data name="Name.HelpText" xml:space="preserve">
+    <value>Enter the name of the connection</value>
+  </data>
+  <data name="DatabaseType.Text" xml:space="preserve">
+    <value>Type: </value>
+  </data>
+  <data name="DatabaseType.HelpText" xml:space="preserve">
+    <value>Select the database type</value>
+  </data>
+  <data name="Type.Select" xml:space="preserve">
+    <value>Select Type</value>
+  </data>
+  <data name="EnterConnectionParameters" xml:space="preserve">
+    <value>Enter Connection Parameters</value>
+  </data>
+  <data name="EnterConnectionString" xml:space="preserve">
+    <value>Enter Connection String</value>
+  </data>
+  <data name="ConnectionString.Text" xml:space="preserve">
+    <value>Settings: </value>
+  </data>
+  <data name="ConnectionString.HelpText" xml:space="preserve">
+    <value>A complete connection string including all parameters and delimiters</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
   <data name="Tenant.Text" xml:space="preserve">
-    <value>Tenant: </value>
-  </data>
-  <data name="Tenant.Select" xml:space="preserve">
-    <value>Select Tenant</value>
-  </data>
-  <data name="Execute" xml:space="preserve">
-    <value>Execute</value>
-  </data>
-  <data name="Message.Required.Tenant" xml:space="preserve">
-    <value>You Must Select A Tenant And Provide A Valid SQL Query</value>
-  </data>
-  <data name="Return.NoResult" xml:space="preserve">
-    <value>No Results Returned</value>
+    <value>Database: </value>
   </data>
   <data name="Tenant.HelpText" xml:space="preserve">
-    <value>Select the tenant associated with the database server</value>
-  </data>
-  <data name="SqlQuery.HelpText" xml:space="preserve">
-    <value>Enter the SQL query for the database server</value>
+    <value>The database using this connection</value>
   </data>
   <data name="SqlQuery.Text" xml:space="preserve">
     <value>SQL Query: </value>
+  </data>
+  <data name="SqlQuery.HelpText" xml:space="preserve">
+    <value>Enter a valid SQL query for the database</value>
+  </data>
+    <data name="Execute" xml:space="preserve">
+    <value>Execute</value>
+  </data>
+  <data name="Message.Required.Tenant" xml:space="preserve">
+    <value>You Must Select A Database Type And Provide A Valid SQL Query</value>
+  </data>
+  <data name="Message.Required.Connection" xml:space="preserve">
+    <value>You Must Provide A Connection Name And Settings</value>
+  </data>
+  <data name="Message.Connection.Added" xml:space="preserve">
+    <value>Connection Added Successfully</value>
+  </data>
+  <data name="Return.NoResult" xml:space="preserve">
+    <value>No Results Returned</value>
   </data>
   <data name="Success.QueryExecuted" xml:space="preserve">
     <value>SQL Query Executed</value>

@@ -73,7 +73,7 @@ namespace Oqtane.Pages
 
             if (file != null)
             {
-                if (file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
+                if (file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.PermissionList))
                 {
                     // calculate ETag using last modified date and file size
                     var etag = Convert.ToString(file.ModifiedOn.Ticks ^ file.Size, 16);

@@ -1,5 +1,6 @@
 @namespace Oqtane.Modules.Controls
 @using System.Net
+@using System.Text.Json
 @inherits LocalizableComponent
 @inject IUserService UserService
 
@@ -26,7 +27,7 @@
 	private string _text = string.Empty;
 	private string _parameters = string.Empty;
 	private string _url = string.Empty;
-	private string _permissions = string.Empty;
+	private List<Permission> _permissions;
 	private bool _editmode = false;
 	private bool _authorized = false;
 	private string _classname = "btn btn-primary";
@@ -52,7 +53,10 @@
 	public SecurityAccessLevel? Security { get; set; } // optional - can be used to explicitly specify SecurityAccessLevel
 
 	[Parameter]
-	public string Permissions { get; set; } // optional - can be used to specify a permission string
+	public string Permissions { get; set; } // deprecated - use PermissionList instead
+
+	[Parameter]
+	public List<Permission> PermissionList { get; set; } // optional - can be used to specify permissions
 
 	[Parameter]
 	public bool Disabled { get; set; } // optional
@@ -74,6 +78,14 @@
 
 	[Parameter]
 	public string ReturnUrl { get; set; } // optional - used to set a url to redirect to
+
+	protected override void OnInitialized()
+	{
+		if (!string.IsNullOrEmpty(Permissions))
+		{
+			PermissionList = JsonSerializer.Deserialize<List<Permission>>(Permissions);
+		}
+	}
 
 	protected override void OnParametersSet()
 	{
@@ -119,7 +131,7 @@
 			_iconSpan = $"<span class=\"{IconName}\"></span>{(IconOnly ? "" : "&nbsp")}";
 		}
 
-		_permissions = (string.IsNullOrEmpty(Permissions)) ? ModuleState.Permissions : Permissions;
+		_permissions = (PermissionList == null) ? ModuleState.PermissionList : PermissionList;
 		_text = Localize(nameof(Text), _text);
 		_url = (ModuleId == -1) ? EditUrl(Action, _parameters) : EditUrl(ModuleId, Action, _parameters);
 		if (!string.IsNullOrEmpty(ReturnUrl))

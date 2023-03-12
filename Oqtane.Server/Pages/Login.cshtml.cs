@@ -1,3 +1,4 @@
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -42,6 +43,10 @@ namespace Oqtane.Pages
             if (returnurl == null)
             {
                 returnurl = "";
+            }
+            else
+            {
+                returnurl = WebUtility.UrlDecode(returnurl);
             }
             if (!returnurl.StartsWith("/"))
             {

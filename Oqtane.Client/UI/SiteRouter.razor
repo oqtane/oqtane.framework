@@ -124,6 +124,10 @@
 			editmode = PageState.EditMode;
 			lastsyncdate = PageState.LastSyncDate;
 		}
+		if (PageState?.Page.Path != route.PagePath)
+		{
+			editmode = false; // reset edit mode when navigating to different page
+		}
 
 		// get user
 		if (PageState == null || refresh || PageState.Alias.SiteId != SiteState.Alias.SiteId)
@@ -181,7 +185,6 @@
 			if (PageState == null || refresh || PageState.Page.Path != route.PagePath)
 			{
 				page = site.Pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
-				editmode = false;
 			}
 			else
 			{
@@ -204,7 +207,7 @@
 			if (page != null)
 			{
 				// check if user is authorized to view page
-				if (UserSecurity.IsAuthorized(user, PermissionNames.View, page.Permissions))
+				if (UserSecurity.IsAuthorized(user, PermissionNames.View, page.PermissionList))
 				{
 					// load additional metadata for current page
 					page = await ProcessPage(page, site, user);
@@ -250,7 +253,7 @@
 					if (user == null)
 					{
 						// redirect to login page if user not logged in as they may need to be authenticated
-						NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "login", "?returnurl=" + route.AbsolutePath));
+						NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "login", "?returnurl=" + WebUtility.UrlEncode(route.PathAndQuery)));
 					}
 					else
 					{
@@ -299,18 +302,24 @@
 			{
 				query = query.Substring(1); // ignore "?"
 			}
-			foreach (string kvp in query.Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries))
+			foreach (string kvp in query.Split('&', StringSplitOptions.RemoveEmptyEntries))
 			{
 				if (kvp != "")
 				{
 					if (kvp.Contains("="))
 					{
 						string[] pair = kvp.Split('=');
-						querystring.Add(pair[0], pair[1]);
+						if (!querystring.ContainsKey(pair[0]))
+						{
+							querystring.Add(pair[0], pair[1]);
+						}
 					}
 					else
 					{
-						querystring.Add(kvp, "true"); // default parameter when no value is provided
+						if (!querystring.ContainsKey(kvp))
+						{
+							querystring.Add(kvp, "true"); // default parameter when no value is provided
+						}
 					}
 				}
 			}
@@ -358,7 +367,7 @@
 			}
 			if (!string.IsNullOrEmpty(panes))
 			{
-				page.Panes = panes.Replace(";", ",").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+				page.Panes = panes.Replace(";", ",").Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
 				if (!page.Panes.Contains(PaneNames.Default) && !page.Panes.Contains(PaneNames.Admin))
 				{
 					_error = "The Current Theme Does Not Contain A Default Or Admin Pane";
@@ -407,7 +416,7 @@
 					// check if the module defines custom action routes
 					if (module.ModuleDefinition.ControlTypeRoutes != "")
 					{
-						foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+						foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(';', StringSplitOptions.RemoveEmptyEntries))
 						{
 							if (route.StartsWith(action + "="))
 							{

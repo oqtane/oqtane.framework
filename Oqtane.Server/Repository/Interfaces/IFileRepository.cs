@@ -6,6 +6,7 @@ namespace Oqtane.Repository
     public interface IFileRepository
     {
         IEnumerable<File> GetFiles(int folderId);
+        IEnumerable<File> GetFiles(int folderId, bool tracking);
         File AddFile(File file);
         File UpdateFile(File file);
         File GetFile(int fileId);

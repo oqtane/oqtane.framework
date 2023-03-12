@@ -30,11 +30,11 @@ namespace Oqtane.Themes.Controls
         {
             var actionList = new List<ActionViewModel>();
 
-            if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
+            if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
             {
                 actionList.Add(new ActionViewModel { Icon = Icons.Cog, Name = "Manage Settings", Action = async (u, m) => await Settings(u, m) });
 
-                if (UserSecurity.ContainsRole(ModuleState.Permissions, PermissionNames.View, RoleNames.Everyone))
+                if (UserSecurity.ContainsRole(ModuleState.PermissionList, PermissionNames.View, RoleNames.Everyone))
                 {
                     actionList.Add(new ActionViewModel { Icon = Icons.CircleX, Name = "Unpublish Module", Action = async (s, m) => await Unpublish(s, m) });
                 }
@@ -44,7 +44,7 @@ namespace Oqtane.Themes.Controls
                 }
                 actionList.Add(new ActionViewModel { Icon = Icons.Trash, Name = "Delete Module", Action = async (u, m) => await DeleteModule(u, m) });
 
-                if (ModuleState.ModuleDefinition != null && ModuleState.ModuleDefinition.ServerManagerType != "")
+                if (ModuleState.ModuleDefinition != null && ModuleState.ModuleDefinition.IsPortable)
                 {
                     actionList.Add(new ActionViewModel { Name = "" });
                     actionList.Add(new ActionViewModel { Icon = Icons.CloudUpload, Name = "Import Content", Action = async (u, m) => await EditUrlAsync(u, m.ModuleId, "Import") });
@@ -93,7 +93,7 @@ namespace Oqtane.Themes.Controls
 
         protected async Task ModuleAction(ActionViewModel action)
         {
-            if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.Permissions))
+            if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList))
             {
                 PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
 
@@ -136,36 +136,32 @@ namespace Oqtane.Themes.Controls
 
         private async Task<string> Publish(string url, PageModule pagemodule)
         {
-            var permissions = UserSecurity.GetPermissionStrings(pagemodule.Module.Permissions);
-            foreach (var permissionstring in permissions)
+            var permissions = pagemodule.Module.PermissionList;
+            if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Everyone))
             {
-                if (permissionstring.PermissionName == PermissionNames.View)
-                {
-                    List<string> ids = permissionstring.Permissions.Split(';').ToList();
-                    if (!ids.Contains(RoleNames.Everyone)) ids.Add(RoleNames.Everyone);
-                    if (!ids.Contains(RoleNames.Registered)) ids.Add(RoleNames.Registered);
-                    permissionstring.Permissions = string.Join(";", ids.ToArray());
-                }
+                permissions.Add(new Permission(ModuleState.SiteId, EntityNames.Page, pagemodule.PageId, PermissionNames.View, RoleNames.Everyone, null, true));
             }
-            pagemodule.Module.Permissions = UserSecurity.SetPermissionStrings(permissions);
+            if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Registered))
+            {
+                permissions.Add(new Permission(ModuleState.SiteId, EntityNames.Page, pagemodule.PageId, PermissionNames.View, RoleNames.Registered, null, true));
+            }
+            pagemodule.Module.PermissionList = permissions;
             await ModuleService.UpdateModuleAsync(pagemodule.Module);
             return url;
         }
 
         private async Task<string> Unpublish(string url, PageModule pagemodule)
         {
-            var permissions = UserSecurity.GetPermissionStrings(pagemodule.Module.Permissions);
-            foreach (var permissionstring in permissions)
+            var permissions = pagemodule.Module.PermissionList;
+            if (permissions.Any(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Everyone))
             {
-                if (permissionstring.PermissionName == PermissionNames.View)
-                {
-                    List<string> ids = permissionstring.Permissions.Split(';').ToList();
-                    ids.Remove(RoleNames.Everyone);
-                    ids.Remove(RoleNames.Registered);
-                    permissionstring.Permissions = string.Join(";", ids.ToArray());
-                }
+                permissions.Remove(permissions.First(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Everyone));
             }
-            pagemodule.Module.Permissions = UserSecurity.SetPermissionStrings(permissions);
+            if (permissions.Any(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Registered))
+            {
+                permissions.Remove(permissions.First(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Registered));
+            }
+            pagemodule.Module.PermissionList = permissions;
             await ModuleService.UpdateModuleAsync(pagemodule.Module);
             return url;
         }

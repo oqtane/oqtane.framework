@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -193,6 +193,6 @@
     <value>Execute Once</value>
   </data>
   <data name="Message.NoJobs" xml:space="preserve">
-    <value>Please Note That After An Initial Installation You Must &amp;lt;a href={0}&amp;gt;Restart&amp;lt;/a&amp;gt; The Application In Order To Activate The Default Scheduled Jobs.</value>
+    <value>Please Note That After An Initial Installation You Must &lt;a href={0}&gt;Restart&lt;/a&gt; The Application In Order To Activate The Default Scheduled Jobs.</value>
   </data>
 </root>

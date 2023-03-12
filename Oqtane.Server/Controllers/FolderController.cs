@@ -43,7 +43,7 @@ namespace Oqtane.Controllers
             {
                 foreach (Folder folder in _folders.GetFolders(SiteId))
                 {
-                    if (_userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.Permissions))
+                    if (_userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.PermissionList))
                     {
                         folders.Add(folder);
                     }
@@ -64,7 +64,7 @@ namespace Oqtane.Controllers
         public Folder Get(int id)
         {
             Folder folder = _folders.GetFolder(id);
-            if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.Permissions))
+            if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.PermissionList))
             {
                 return folder;
             }
@@ -85,7 +85,7 @@ namespace Oqtane.Controllers
                 folderPath += "/";
             }
             Folder folder = _folders.GetFolder(siteId, folderPath);
-            if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.Permissions))
+            if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.PermissionList))
             {
                 return folder;
             }
@@ -104,16 +104,16 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && folder.SiteId == _alias.SiteId)
             {
-                string permissions;
+                List<Permission> permissions;
                 if (folder.ParentId != null)
                 {
-                    permissions = _folders.GetFolder(folder.ParentId.Value).Permissions;
+                    permissions = _folders.GetFolder(folder.ParentId.Value).PermissionList;
                 }
                 else
                 {
                     permissions = new List<Permission> {
                         new Permission(PermissionNames.Edit, RoleNames.Admin, true),
-                    }.EncodePermissions();
+                    };
                 }
                 if (_userPermissions.IsAuthorized(User, PermissionNames.Edit, permissions))
                 {

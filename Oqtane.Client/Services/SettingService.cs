@@ -111,14 +111,36 @@ namespace Oqtane.Services
             await UpdateSettingsAsync(hostSettings, EntityNames.Host, -1);
         }
 
+        public async Task<Dictionary<string, string>> GetVisitorSettingsAsync(int visitorId)
+        {
+            if (visitorId != -1)
+            {
+                return await GetSettingsAsync(EntityNames.Visitor, visitorId);
+            }
+            else
+            {
+                return new Dictionary<string, string>();
+            }
+        }
+
+        public async Task UpdateVisitorSettingsAsync(Dictionary<string, string> visitorSettings, int visitorId)
+        {
+            if (visitorId != -1)
+            {
+                await UpdateSettingsAsync(visitorSettings, EntityNames.Visitor, visitorId);
+            }
+        }
+
         public async Task<Dictionary<string, string>> GetSettingsAsync(string entityName, int entityId)
         {
             var dictionary = new Dictionary<string, string>();
             var settings = await GetJsonAsync<List<Setting>>($"{Apiurl}?entityname={entityName}&entityid={entityId}");
-            
-            foreach(Setting setting in settings.OrderBy(item => item.SettingName).ToList())
+            if (settings != null)
             {
-                dictionary.Add(setting.SettingName, setting.SettingValue);
+                foreach (Setting setting in settings.OrderBy(item => item.SettingName).ToList())
+                {
+                    dictionary.Add(setting.SettingName, setting.SettingValue);
+                }
             }
             return dictionary;
         }
