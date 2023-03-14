@@ -34,7 +34,7 @@ namespace Oqtane.Repository
                     var permissions = _db.Permission.Where(item => item.SiteId == siteId).Where(item => item.EntityName == entityName).ToList();
                     foreach (var permission in permissions)
                     {
-                        if (permission.RoleId != null)
+                        if (permission.RoleId != null && string.IsNullOrEmpty(permission.RoleName))
                         {
                             permission.RoleName = roles.Find(item => item.RoleId == permission.RoleId).Name;
                         }
