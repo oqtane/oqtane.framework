@@ -13,7 +13,6 @@ using System.Globalization;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Extensions;
 using System;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Controllers
 {
@@ -156,25 +155,24 @@ namespace Oqtane.Controllers
 
         private ModuleDefinition FilterModuleDefinition(ModuleDefinition moduleDefinition)
         {
+            var ModuleDefinition = new ModuleDefinition();
+
             if (moduleDefinition != null)
             {
-                moduleDefinition.Description = "";
-                moduleDefinition.Categories = "";
-                moduleDefinition.Version = "";
-                moduleDefinition.Owner = "";
-                moduleDefinition.Url = "";
-                moduleDefinition.Contact = "";
-                moduleDefinition.License = "";
-                moduleDefinition.Dependencies = "";
-                moduleDefinition.PermissionNames = "";
-                moduleDefinition.ServerManagerType = "";
-                moduleDefinition.ReleaseVersions = "";
-                moduleDefinition.PackageName = "";
-                moduleDefinition.AssemblyName = "";
-                moduleDefinition.PermissionList = null;
-                moduleDefinition.Template = "";
+                // required client-side properties
+                ModuleDefinition.ModuleDefinitionId = moduleDefinition.ModuleDefinitionId;
+                ModuleDefinition.SiteId = moduleDefinition.SiteId;
+                ModuleDefinition.ModuleDefinitionName = moduleDefinition.ModuleDefinitionName;
+                ModuleDefinition.Name = moduleDefinition.Name;
+                ModuleDefinition.Runtimes = moduleDefinition.Runtimes;
+                ModuleDefinition.ControlTypeRoutes = moduleDefinition.ControlTypeRoutes;
+                ModuleDefinition.DefaultAction = moduleDefinition.DefaultAction;
+                ModuleDefinition.SettingsType = moduleDefinition.SettingsType;
+                ModuleDefinition.ControlTypeTemplate = moduleDefinition.ControlTypeTemplate;
+                ModuleDefinition.IsPortable = moduleDefinition.IsPortable;
             }
-            return moduleDefinition;
+
+            return ModuleDefinition;
         }
 
         // POST api/<controller>
