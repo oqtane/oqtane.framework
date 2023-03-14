@@ -10,5 +10,6 @@ namespace Oqtane.Repository
         ModuleDefinition GetModuleDefinition(int moduleDefinitionId, int siteId);
         void UpdateModuleDefinition(ModuleDefinition moduleDefinition);
         void DeleteModuleDefinition(int moduleDefinitionId);
+        ModuleDefinition FilterModuleDefinition(ModuleDefinition moduleDefinition);
     }
 }
