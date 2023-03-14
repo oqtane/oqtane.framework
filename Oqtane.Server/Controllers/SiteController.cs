@@ -128,7 +128,7 @@ namespace Oqtane.Controllers
                         module.Order = pagemodule.Order;
                         module.ContainerType = pagemodule.ContainerType;
 
-                        module.ModuleDefinition = FilterModuleDefinition(moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName));
+                        module.ModuleDefinition = _moduleDefinitions.FilterModuleDefinition(moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName));
 
                         module.Settings = settings.Where(item => item.EntityId == pagemodule.ModuleId)
                             .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, pagemodule.Module.PermissionList))
@@ -151,28 +151,6 @@ namespace Oqtane.Controllers
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
-        }
-
-        private ModuleDefinition FilterModuleDefinition(ModuleDefinition moduleDefinition)
-        {
-            var ModuleDefinition = new ModuleDefinition();
-
-            if (moduleDefinition != null)
-            {
-                // required client-side properties
-                ModuleDefinition.ModuleDefinitionId = moduleDefinition.ModuleDefinitionId;
-                ModuleDefinition.SiteId = moduleDefinition.SiteId;
-                ModuleDefinition.ModuleDefinitionName = moduleDefinition.ModuleDefinitionName;
-                ModuleDefinition.Name = moduleDefinition.Name;
-                ModuleDefinition.Runtimes = moduleDefinition.Runtimes;
-                ModuleDefinition.ControlTypeRoutes = moduleDefinition.ControlTypeRoutes;
-                ModuleDefinition.DefaultAction = moduleDefinition.DefaultAction;
-                ModuleDefinition.SettingsType = moduleDefinition.SettingsType;
-                ModuleDefinition.ControlTypeTemplate = moduleDefinition.ControlTypeTemplate;
-                ModuleDefinition.IsPortable = moduleDefinition.IsPortable;
-            }
-
-            return ModuleDefinition;
         }
 
         // POST api/<controller>
