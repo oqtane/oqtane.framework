@@ -161,12 +161,13 @@ namespace Oqtane.Controllers
             {
                 // required client-side properties
                 ModuleDefinition.ModuleDefinitionId = moduleDefinition.ModuleDefinitionId;
+                ModuleDefinition.SiteId = moduleDefinition.SiteId;
                 ModuleDefinition.ModuleDefinitionName = moduleDefinition.ModuleDefinitionName;
                 ModuleDefinition.Name = moduleDefinition.Name;
+                ModuleDefinition.Runtimes = moduleDefinition.Runtimes;
                 ModuleDefinition.ControlTypeRoutes = moduleDefinition.ControlTypeRoutes;
                 ModuleDefinition.DefaultAction = moduleDefinition.DefaultAction;
                 ModuleDefinition.SettingsType = moduleDefinition.SettingsType;
-                ModuleDefinition.SiteId = moduleDefinition.SiteId;
                 ModuleDefinition.ControlTypeTemplate = moduleDefinition.ControlTypeTemplate;
                 ModuleDefinition.IsPortable = moduleDefinition.IsPortable;
             }
