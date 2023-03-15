@@ -72,7 +72,7 @@
                             <div class="col-sm-9">
                                 @if (p.IsRequired)
                                 {
-                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)"  @onchange="@(e => ProfileChanged(e, p.Name))" required/>
                                 }
                                 else
                                 {
