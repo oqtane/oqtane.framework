@@ -136,6 +136,10 @@ namespace Oqtane.Models
             {
                 return JsonSerializer.Serialize(PermissionList);
             }
+            set
+            {
+                PermissionList = JsonSerializer.Deserialize<List<Permission>>(value);
+            }
         }
 
         #endregion
