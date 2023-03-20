@@ -150,7 +150,7 @@ namespace Oqtane.Controllers
             User newUser = null;
 
             bool verified;
-            bool allowregistration;            
+            bool allowregistration;
             if (_userPermissions.IsAuthorized(User, user.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin))
             {
                 verified = true;
@@ -330,11 +330,11 @@ namespace Oqtane.Controllers
                             // delete user
                             _users.DeleteUser(user.UserId);
                             _syncManager.AddSyncEvent(_tenantManager.GetAlias().TenantId, EntityNames.User, user.UserId, SyncEventActions.Delete);
-                            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Deleted {UserId}", user.UserId);
+                            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Deleted {UserId}", user.UserId, result.ToString());
                         }
                         else
                         {
-                            _logger.Log(LogLevel.Error, this, LogFunction.Delete, "Error Deleting User {UserId}", user.UserId, result.ToString());
+                            _logger.Log(LogLevel.Error, this, LogFunction.Delete, "Error Deleting User {UserId}", user.UserId);
                         }
                     }
                 }
@@ -466,7 +466,7 @@ namespace Oqtane.Controllers
             }
             return user;
         }
-        
+
         // POST api/<controller>/forgot
         [HttpPost("forgot")]
         public async Task Forgot([FromBody] User user)
@@ -483,7 +483,7 @@ namespace Oqtane.Controllers
                         "\n\nPlease note that the link is only valid for 24 hours so if you are unable to take action within that time period, you should initiate another password reset on the site." +
                         "\n\nIf you did not request to reset your password you can safely ignore this message." +
                         "\n\nThank You!";
-                 
+
                     var notification = new Notification(_tenantManager.GetAlias().SiteId, user, "User Password Reset", body);
                     _notifications.AddNotification(notification);
                     _logger.Log(LogLevel.Information, this, LogFunction.Security, "Password Reset Notification Sent For {Username}", user.Username);
@@ -622,7 +622,7 @@ namespace Oqtane.Controllers
         [HttpGet("authenticate")]
         public User Authenticate()
         {
-            User user = new User { IsAuthenticated = User.Identity.IsAuthenticated, Username = "", UserId = -1, Roles = "" };            
+            User user = new User { IsAuthenticated = User.Identity.IsAuthenticated, Username = "", UserId = -1, Roles = "" };
             if (user.IsAuthenticated)
             {
                 user.Username = User.Identity.Name;
