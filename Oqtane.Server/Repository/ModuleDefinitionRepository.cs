@@ -71,6 +71,7 @@ namespace Oqtane.Repository
                 ModuleDefinition.ModuleDefinitionName = moduleDefinition.ModuleDefinitionName;
                 ModuleDefinition.Name = moduleDefinition.Name;
                 ModuleDefinition.Runtimes = moduleDefinition.Runtimes;
+                ModuleDefinition.PermissionNames = moduleDefinition.PermissionNames;
                 ModuleDefinition.ControlTypeRoutes = moduleDefinition.ControlTypeRoutes;
                 ModuleDefinition.DefaultAction = moduleDefinition.DefaultAction;
                 ModuleDefinition.SettingsType = moduleDefinition.SettingsType;
