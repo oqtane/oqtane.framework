@@ -138,7 +138,7 @@ namespace Oqtane.Infrastructure
                             try
                             {
                                 client.Send(mailMessage);
-                                sent = sent++;
+                                sent++;
                                 notification.IsDelivered = true;
                                 notification.DeliveredOn = DateTime.UtcNow;
                                 notificationRepository.UpdateNotification(notification);
