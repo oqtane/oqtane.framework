@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -166,7 +166,7 @@
     <value>Email:</value>
   </data>
   <data name="Password.HelpText" xml:space="preserve">
-    <value>Please choose a sufficiently secure password and enter it here</value>
+    <value>Please enter a sufficiently secure password which meets the password complexity requirements</value>
   </data>
   <data name="Password.Text" xml:space="preserve">
     <value>Password:</value>
@@ -178,18 +178,18 @@
     <value>Username:</value>
   </data>
   <data name="Password.ValidationCriteria" xml:space="preserve">
-    <value>To ensure a strong and secure password, the password construction should meet the following criteria: it should have a minimum length of {0} characters, including at least {1} unique character(s), {2}{3}{4}{5} to meet the requirements.</value>
+    <value>Passwords Must Have A Minimum Length Of {0} Characters, Including At Least {1} Unique Character(s), {2}{3}{4}{5} To Satisfy Password Compexity Requirements For This Site.</value>
   </data>
   <data name="Password.DigitRequirement" xml:space="preserve">
-    <value>at least one digit</value>
+    <value>At Least One Digit</value>
   </data>
   <data name="Password.LowercaseRequirement" xml:space="preserve">
-    <value>at least one lowercase letter</value>
+    <value>At Least One Lowercase Letter</value>
   </data>
   <data name="Password.PunctuationRequirement" xml:space="preserve">
-    <value>at least one punctuation mark</value>
+    <value>At Least One Punctuation Mark</value>
   </data>
   <data name="Password.UppercaseRequirement" xml:space="preserve">
-    <value>at least one uppercase letter</value>
+    <value>At Least One Uppercase Letter</value>
   </data>
 </root>
