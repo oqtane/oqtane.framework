@@ -25,14 +25,6 @@
                             <input id="username" class="form-control" @bind="@_username" maxlength="256" required />
                         </div>
                     </div>
-@*                    <div class="row mb-1 align-items-center">
-                        <div class="col-sm-3"></div>
-                        <div class="col-sm-9">
-                            <div class="alert alert-info mb-0 mt-1" role="alert">
-                                <small>@_passwordconstruction</small>
-                            </div>
-                        </div>
-                    </div>*@
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="password" HelpText="Please choose a sufficiently secure password and enter it here" ResourceKey="Password"></Label>
                         <div class="col-sm-9">
@@ -101,8 +93,6 @@ else
     protected override async Task OnInitializedAsync()
     {
         var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-        var emailaddress = Localizer["Info.Registration.InvalidEmail"];
-        string passwordValidationCriteriaTemplate = Localizer["Password.ValidationCriteria"];
         
         _minimumlength = SettingService.GetSetting(settings, "IdentityOptions:Password:RequiredLength", "6");
         _uniquecharacters = SettingService.GetSetting(settings, "IdentityOptions:Password:RequiredUniqueChars", "1");
@@ -118,7 +108,8 @@ else
         string punctuationRequirement = _requirepunctuation ? Localizer["Password.PunctuationRequirement"] + ", " : "";
  
         // Replace the placeholders with the actual values of the variables
-        _passwordconstruction = emailaddress + "<br />" + string.Format(passwordValidationCriteriaTemplate,
+		string passwordValidationCriteriaTemplate = Localizer["Password.ValidationCriteria"];
+		_passwordconstruction = Localizer["Info.Registration.InvalidEmail"] + ". " + string.Format(passwordValidationCriteriaTemplate,
             _minimumlength, _uniquecharacters, digitRequirement, uppercaseRequirement, lowercaseRequirement, punctuationRequirement);
     }
 
