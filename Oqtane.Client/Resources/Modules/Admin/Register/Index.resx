@@ -177,4 +177,19 @@
   <data name="Username.Text" xml:space="preserve">
     <value>Username:</value>
   </data>
+  <data name="Password.ValidationCriteria" xml:space="preserve">
+    <value>To ensure a strong and secure password, the password construction should meet the following criteria: it should have a minimum length of {0} characters, including at least {1} unique character(s), {2}{3}{4}{5} to meet the requirements.</value>
+  </data>
+  <data name="Password.DigitRequirement" xml:space="preserve">
+    <value>at least one digit</value>
+  </data>
+  <data name="Password.LowercaseRequirement" xml:space="preserve">
+    <value>at least one lowercase letter</value>
+  </data>
+  <data name="Password.PunctuationRequirement" xml:space="preserve">
+    <value>at least one punctuation mark</value>
+  </data>
+  <data name="Password.UppercaseRequirement" xml:space="preserve">
+    <value>at least one uppercase letter</value>
+  </data>
 </root>

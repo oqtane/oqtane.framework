@@ -4,6 +4,7 @@
 @inject IUserService UserService
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject ISettingService SettingService
 
 @if (PageState.Site.AllowRegistration)
 {
@@ -15,7 +16,7 @@
             <ModuleMessage Message="@Localizer["Info.Registration.Exists"]" Type="MessageType.Info" />
         </Authorized>
         <NotAuthorized>
-            <ModuleMessage Message="@Localizer["Info.Registration.InvalidEmail"]" Type="MessageType.Info" />
+            <ModuleMessage Message="@_passwordconstruction" Type="MessageType.Info" />
             <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
                 <div class="container">
                     <div class="row mb-1 align-items-center">
@@ -24,6 +25,14 @@
                             <input id="username" class="form-control" @bind="@_username" maxlength="256" required />
                         </div>
                     </div>
+@*                    <div class="row mb-1 align-items-center">
+                        <div class="col-sm-3"></div>
+                        <div class="col-sm-9">
+                            <div class="alert alert-info mb-0 mt-1" role="alert">
+                                <small>@_passwordconstruction</small>
+                            </div>
+                        </div>
+                    </div>*@
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="password" HelpText="Please choose a sufficiently secure password and enter it here" ResourceKey="Password"></Label>
                         <div class="col-sm-9">
@@ -68,21 +77,55 @@ else
 }
 
 @code {
-	private string _username = string.Empty;
-	private ElementReference form;
-	private bool validated = false;
-	private string _password = string.Empty;
-	private string _passwordtype = "password";
-	private string _togglepassword = string.Empty;
-	private string _confirm = string.Empty;
-	private string _email = string.Empty;
-	private string _displayname = string.Empty;
+    private string _username = string.Empty;
+    private ElementReference form;
+    private bool validated = false;
+    private string _password = string.Empty;
+    private string _passwordtype = "password";
+    private string _togglepassword = string.Empty;
+    private string _confirm = string.Empty;
+    private string _email = string.Empty;
+    private string _displayname = string.Empty;
 
-	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
+    //Password construction
+    private string _minimumlength;
+    private string _uniquecharacters;
+    private bool _requiredigit;
+    private bool _requireupper;
+    private bool _requirelower;
+    private bool _requirepunctuation;
+    private string _passwordconstruction;
 
-	protected override void OnParametersSet()
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+        var emailaddress = Localizer["Info.Registration.InvalidEmail"];
+        string passwordValidationCriteriaTemplate = Localizer["Password.ValidationCriteria"];
+        
+        _minimumlength = SettingService.GetSetting(settings, "IdentityOptions:Password:RequiredLength", "6");
+        _uniquecharacters = SettingService.GetSetting(settings, "IdentityOptions:Password:RequiredUniqueChars", "1");
+        _requiredigit = bool.Parse(SettingService.GetSetting(settings, "IdentityOptions:Password:RequireDigit", "true"));
+        _requireupper = bool.Parse(SettingService.GetSetting(settings, "IdentityOptions:Password:RequireUppercase", "true"));
+        _requirelower = bool.Parse(SettingService.GetSetting(settings, "IdentityOptions:Password:RequireLowercase", "true"));
+        _requirepunctuation = bool.Parse(SettingService.GetSetting(settings, "IdentityOptions:Password:RequireNonAlphanumeric", "true"));
+        
+        // Replace the placeholders with the actual values of the variables
+        string digitRequirement = _requiredigit ? Localizer["Password.DigitRequirement"] + ", " : "";
+        string uppercaseRequirement = _requireupper ? Localizer["Password.UppercaseRequirement"] + ", " : "";
+        string lowercaseRequirement = _requirelower ? Localizer["Password.LowercaseRequirement"] + ", " : "";
+        string punctuationRequirement = _requirepunctuation ? Localizer["Password.PunctuationRequirement"] + ", " : "";
+ 
+        // Replace the placeholders with the actual values of the variables
+        _passwordconstruction = emailaddress + "<br />" + string.Format(passwordValidationCriteriaTemplate,
+            _minimumlength, _uniquecharacters, digitRequirement, uppercaseRequirement, lowercaseRequirement, punctuationRequirement);
+    }
+
+    protected override void OnParametersSet()
 	{
 		_togglepassword = SharedLocalizer["ShowPassword"];
+        
 	}
 
     private async Task Register()
