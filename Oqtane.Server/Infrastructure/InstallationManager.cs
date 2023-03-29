@@ -30,15 +30,12 @@ namespace Oqtane.Infrastructure
 
         public void InstallPackages()
         {
-            if (!InstallPackages(_environment.WebRootPath, _environment.ContentRootPath))
-            {
-                // error installing packages
-            }
+            InstallPackages(_environment.WebRootPath, _environment.ContentRootPath);
         }
 
         public static bool InstallPackages(string webRootPath, string contentRootPath)
         {
-            bool install = false;
+            bool install = true;
             string binPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
 
             string sourceFolder = Path.Combine(contentRootPath, "Packages");
@@ -82,98 +79,106 @@ namespace Oqtane.Infrastructure
             // iterate through Nuget packages in source folder
             foreach (string packagename in Directory.GetFiles(sourceFolder, "*.nupkg"))
             {
-                // iterate through files
-                using (ZipArchive archive = ZipFile.OpenRead(packagename))
+                try
                 {
-                    string frameworkversion = "";
-                    // locate nuspec
-                    foreach (ZipArchiveEntry entry in archive.Entries)
+                    // iterate through files
+                    using (ZipArchive archive = ZipFile.OpenRead(packagename))
                     {
-                        if (entry.FullName.ToLower().EndsWith(".nuspec"))
-                        {
-                            // open nuspec
-                            XmlTextReader reader = new XmlTextReader(entry.Open());
-                            reader.Namespaces = false; // remove namespace
-                            XmlDocument doc = new XmlDocument();
-                            doc.Load(reader);
-                            // get framework dependency
-                            XmlNode node = doc.SelectSingleNode("/package/metadata/dependencies/dependency[@id='Oqtane.Framework']");
-                            if (node != null)
-                            {
-                                frameworkversion = node.Attributes["version"].Value;
-                            }
-                            reader.Close();
-                            break;
-                        }
-                    }
-
-                    // if compatible with framework version
-                    if (frameworkversion == "" || Version.Parse(Constants.Version).CompareTo(Version.Parse(frameworkversion)) >= 0)
-                    {
-                        List<string> assets = new List<string>();
-                        bool manifest = false;
-                        string name = Path.GetFileNameWithoutExtension(packagename);
-
-                        // deploy to appropriate locations
+                        string frameworkversion = "";
+                        // locate nuspec
                         foreach (ZipArchiveEntry entry in archive.Entries)
                         {
-                            string filename = "";
-
-                            // evaluate entry root folder
-                            switch (entry.FullName.Split('/')[0])
+                            if (entry.FullName.ToLower().EndsWith(".nuspec"))
                             {
-                                case "lib": // lib/net*/...
-                                    filename = ExtractFile(entry, binPath, 2);
-                                    break;
-                                case "wwwroot": // wwwroot/...
-                                    filename = ExtractFile(entry, webRootPath, 1);
-                                    break;
-                                case "runtimes": // runtimes/name/...
-                                    filename = ExtractFile(entry, binPath, 0);
-                                    break;
-                                case "ref": // ref/net*/...
-                                    filename = ExtractFile(entry, Path.Combine(binPath, "ref"), 2);
-                                    break;
-                                case "refs": // refs/net*/...
-                                    filename = ExtractFile(entry, Path.Combine(binPath, "refs"), 2);
-                                    break;
-                                case "content": // content/...
-                                    filename = ExtractFile(entry, contentRootPath, 0);
-                                    break;
-                            }
-
-                            if (filename != "")
-                            {
-                                // ContentRootPath sometimes produces inconsistent path casing - so can't use string.Replace()
-                                filename = Regex.Replace(filename, Regex.Escape(contentRootPath), "", RegexOptions.IgnoreCase);
-                                assets.Add(filename);
-                                if (!manifest && Path.GetExtension(filename) == ".log")
+                                // open nuspec
+                                XmlTextReader reader = new XmlTextReader(entry.Open());
+                                reader.Namespaces = false; // remove namespace
+                                XmlDocument doc = new XmlDocument();
+                                doc.Load(reader);
+                                // get framework dependency
+                                XmlNode node = doc.SelectSingleNode("/package/metadata/dependencies/dependency[@id='Oqtane.Framework']");
+                                if (node != null)
                                 {
-                                    manifest = true;
+                                    frameworkversion = node.Attributes["version"].Value;
+                                }
+                                reader.Close();
+                                break;
+                            }
+                        }
+
+                        // if compatible with framework version
+                        if (frameworkversion == "" || Version.Parse(Constants.Version).CompareTo(Version.Parse(frameworkversion)) >= 0)
+                        {
+                            List<string> assets = new List<string>();
+                            bool manifest = false;
+                            string name = Path.GetFileNameWithoutExtension(packagename);
+
+                            // deploy to appropriate locations
+                            foreach (ZipArchiveEntry entry in archive.Entries)
+                            {
+                                string filename = "";
+
+                                // evaluate entry root folder
+                                switch (entry.FullName.Split('/')[0])
+                                {
+                                    case "lib": // lib/net*/...
+                                        filename = ExtractFile(entry, binPath, 2);
+                                        break;
+                                    case "wwwroot": // wwwroot/...
+                                        filename = ExtractFile(entry, webRootPath, 1);
+                                        break;
+                                    case "runtimes": // runtimes/name/...
+                                        filename = ExtractFile(entry, binPath, 0);
+                                        break;
+                                    case "ref": // ref/net*/...
+                                        filename = ExtractFile(entry, Path.Combine(binPath, "ref"), 2);
+                                        break;
+                                    case "refs": // refs/net*/...
+                                        filename = ExtractFile(entry, Path.Combine(binPath, "refs"), 2);
+                                        break;
+                                    case "content": // content/...
+                                        filename = ExtractFile(entry, contentRootPath, 0);
+                                        break;
+                                }
+
+                                if (filename != "")
+                                {
+                                    // ContentRootPath sometimes produces inconsistent path casing - so can't use string.Replace()
+                                    filename = Regex.Replace(filename, Regex.Escape(contentRootPath), "", RegexOptions.IgnoreCase);
+                                    assets.Add(filename);
+                                    if (!manifest && Path.GetExtension(filename) == ".log")
+                                    {
+                                        manifest = true;
+                                    }
                                 }
                             }
-                        }
 
-                        // save dynamic list of assets
-                        if (!manifest && assets.Count != 0)
-                        {
-                            string manifestpath = Path.Combine(sourceFolder, name + ".log");
-                            if (File.Exists(manifestpath))
+                            // save dynamic list of assets
+                            if (!manifest && assets.Count != 0)
                             {
-                                File.Delete(manifestpath);
+                                string manifestpath = Path.Combine(sourceFolder, name + ".log");
+                                if (File.Exists(manifestpath))
+                                {
+                                    File.Delete(manifestpath);
+                                }
+                                if (!Directory.Exists(Path.GetDirectoryName(manifestpath)))
+                                {
+                                    Directory.CreateDirectory(Path.GetDirectoryName(manifestpath));
+                                }
+                                File.WriteAllText(manifestpath, JsonSerializer.Serialize(assets, new JsonSerializerOptions { WriteIndented = true }));
                             }
-                            if (!Directory.Exists(Path.GetDirectoryName(manifestpath)))
-                            {
-                                Directory.CreateDirectory(Path.GetDirectoryName(manifestpath));
-                            }
-                            File.WriteAllText(manifestpath, JsonSerializer.Serialize(assets, new JsonSerializerOptions { WriteIndented = true }));
                         }
                     }
+                }
+                catch (Exception ex)
+                {
+                    // problem installing package - logging is not possible as this is a static method
+                    Debug.WriteLine($"Oqtane Error: Installing Package {packagename} - {ex}");
+                    install = false;
                 }
 
                 // remove package
                 File.Delete(packagename);
-                install = true;
             }
 
             return install;

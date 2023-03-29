@@ -190,7 +190,7 @@ else
 		try
 		{
 			await PackageService.InstallPackagesAsync();
-			AddModuleMessage(string.Format(Localizer["Success.Translation.Install"], NavigateUrl("admin/system")), MessageType.Success);
+			AddModuleMessage(string.Format(Localizer["Success.Language.Install"], NavigateUrl("admin/system")), MessageType.Success);
 			_install = false;
 			StateHasChanged();
 		}
