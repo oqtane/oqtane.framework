@@ -77,7 +77,7 @@ namespace Oqtane.Extensions
                         {
                             OnRedirectToIdentityProvider = context =>
                             {
-                                foreach(var parameter in sitesettings.GetValue("ExternalLogin:Parameters", "").Split(","))
+                                foreach (var parameter in sitesettings.GetValue("ExternalLogin:Parameters", "").Split(","))
                                 {
                                     context.ProtocolMessage.SetParameter(parameter.Split("=")[0], parameter.Split("=")[1]);
                                 }
@@ -358,13 +358,13 @@ namespace Oqtane.Extensions
                                         else
                                         {
                                             identity.Label = ExternalLoginStatus.UserNotCreated;
-                                            _logger.Log(user.SiteId, LogLevel.Error, "ExternalLogin", Enums.LogFunction.Create, "Unable To Add User {Email}", email);
+                                            _logger.Log(alias.SiteId, LogLevel.Error, "ExternalLogin", Enums.LogFunction.Create, "Unable To Add User {Email}", email);
                                         }
                                     }
                                     else
                                     {
                                         identity.Label = ExternalLoginStatus.UserNotCreated;
-                                        _logger.Log(user.SiteId, LogLevel.Error, "ExternalLogin", Enums.LogFunction.Create, "Unable To Add Identity User {Email} {Error}", email, result.Errors.ToString());
+                                        _logger.Log(alias.SiteId, LogLevel.Error, "ExternalLogin", Enums.LogFunction.Create, "Unable To Add Identity User {Email} {Error}", email, result.Errors.ToString());
                                     }
                                 }
                                 else

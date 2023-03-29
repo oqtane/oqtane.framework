@@ -1,6 +1,6 @@
 # Latest Release
 
-[3.4.0](https://github.com/oqtane/oqtane.framework/releases/tag/v3.4.0) was released on Mar 14, 2023 and is primarily focused on performance, as the permissions system has been overhauled to avoid unnecessary encoding and parsing of custom access control strings. This release also includes enhancements to connection string management, numerous stabilization and user experience improvements, and the ability to dynamically generate an XML sitemap for seach engine indexing. This release includes 62 pull requests by 6 different contributors, pushing the total number of project commits all-time over 3300. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
+[3.4.1](https://github.com/oqtane/oqtane.framework/releases/tag/v3.4.1) was released on Mar 13, 2023 and is primarily focused on performance, as the permissions system has been overhauled to avoid unnecessary encoding and parsing of custom access control strings. This release also includes enhancements to connection string management, numerous stabilization and user experience improvements, and the ability to dynamically generate an XML sitemap for seach engine indexing. This release includes 62 pull requests by 6 different contributors, pushing the total number of project commits all-time over 3300. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
 # Oqtane Framework
 
@@ -49,6 +49,9 @@ This project is open source, and therefore is a work in progress...
 - [ ] Migration to .NET 7
 - [ ] File / New Project experience
 - [ ] Folder Providers
+
+[3.4.1](https://github.com/oqtane/oqtane.framework/releases/tag/v3.4.1) ( Mar 13, 2023 )
+- [x] Stabilization improvements 
 
 [3.4.0](https://github.com/oqtane/oqtane.framework/releases/tag/v3.4.0) ( Mar 12, 2023 )
 - [x] Permissions performance optimization

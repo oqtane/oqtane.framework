@@ -35,14 +35,22 @@ else
 			{
 				<td>@((string.IsNullOrEmpty(context.Version)) ? "---" : context.Version)</td>
 				<td>
-					@switch (TranslationAvailable(context.Code, context.Version))
+					@{
+						var translation = TranslationAvailable(context.Code, context.Version);
+					}
+					@if (translation != null)
 					{
-						case "install":
-							<button type="button" class="btn btn-success" @onclick=@(async () => await GetPackage(context.Code))>@SharedLocalizer["Download"]</button>
-							break;
-						case "upgrade":
-							<button type="button" class="btn btn-success" @onclick=@(async () => await GetPackage(context.Code))>@SharedLocalizer["Upgrade"]</button>
-							break;
+						if (string.IsNullOrEmpty(context.Version))
+						{
+							<button type="button" class="btn btn-success" @onclick=@(async () => await GetPackage(context.Code, translation.Version))>@SharedLocalizer["Download"]</button>
+						}
+						else
+						{
+							if (Version.Parse(translation.Version).CompareTo(Version.Parse(context.Version)) > 0)
+							{
+								<button type="button" class="btn btn-success" @onclick=@(async () => await GetPackage(context.Code, translation.Version))>@SharedLocalizer["Upgrade"]</button>
+							}
+						}
 					}
 				</td>
 			}
@@ -134,38 +142,16 @@ else
 		}
 	}
 
-	private string TranslationAvailable(string code, string version)
+	private Package TranslationAvailable(string code, string version)
 	{
-		if (_packages != null)
-		{
-			var package = _packages.Where(item => item.PackageId == (Constants.PackageId + "." + code)).FirstOrDefault();
-			if (package != null)
-			{
-				// package version needs to match current framework version
-				if (Version.Parse(package.Version).CompareTo(Version.Parse(Constants.Version)) == 0)
-				{
-					if (string.IsNullOrEmpty(version))
-					{
-						return "install";
-					}
-					else
-					{
-						if (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0)
-						{
-							return "upgrade";
-						}
-					}
-				}					
-			}
-		}
-		return "";
+		return _packages?.FirstOrDefault(item => item.PackageId == (Constants.PackageId + "." + code));
 	}
 
-	private async Task GetPackage(string code)
+	private async Task GetPackage(string code, string version)
 	{
 		try
 		{
-			_package = await PackageService.GetPackageAsync(Constants.PackageId + "." + code, Constants.Version);
+			_package = await PackageService.GetPackageAsync(Constants.PackageId + "." + code, version);
 			StateHasChanged();
 		}
 		catch (Exception ex)
@@ -204,7 +190,7 @@ else
 		try
 		{
 			await PackageService.InstallPackagesAsync();
-			AddModuleMessage(string.Format(Localizer["Success.Translation.Install"], NavigateUrl("admin/system")), MessageType.Success);
+			AddModuleMessage(string.Format(Localizer["Success.Language.Install"], NavigateUrl("admin/system")), MessageType.Success);
 			_install = false;
 			StateHasChanged();
 		}

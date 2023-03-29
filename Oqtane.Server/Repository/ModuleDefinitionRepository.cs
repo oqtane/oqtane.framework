@@ -59,6 +59,29 @@ namespace Oqtane.Repository
             _cache.Remove("moduledefinitions");
         }
 
+        public ModuleDefinition FilterModuleDefinition(ModuleDefinition moduleDefinition)
+        {
+            var ModuleDefinition = new ModuleDefinition();
+
+            if (moduleDefinition != null)
+            {
+                // only include required client-side properties
+                ModuleDefinition.ModuleDefinitionId = moduleDefinition.ModuleDefinitionId;
+                ModuleDefinition.SiteId = moduleDefinition.SiteId;
+                ModuleDefinition.ModuleDefinitionName = moduleDefinition.ModuleDefinitionName;
+                ModuleDefinition.Name = moduleDefinition.Name;
+                ModuleDefinition.Runtimes = moduleDefinition.Runtimes;
+                ModuleDefinition.PermissionNames = moduleDefinition.PermissionNames;
+                ModuleDefinition.ControlTypeRoutes = moduleDefinition.ControlTypeRoutes;
+                ModuleDefinition.DefaultAction = moduleDefinition.DefaultAction;
+                ModuleDefinition.SettingsType = moduleDefinition.SettingsType;
+                ModuleDefinition.ControlTypeTemplate = moduleDefinition.ControlTypeTemplate;
+                ModuleDefinition.IsPortable = moduleDefinition.IsPortable;
+            }
+
+            return ModuleDefinition;
+        }
+
         public List<ModuleDefinition> LoadModuleDefinitions(int siteId)
         {
             // get module definitions

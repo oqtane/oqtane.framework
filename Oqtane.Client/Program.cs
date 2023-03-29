@@ -198,23 +198,37 @@ namespace Oqtane.Client
         private static void RegisterModuleServices(Assembly assembly, IServiceCollection services)
         {
             // dynamically register module scoped services
-            var implementationTypes = assembly.GetInterfaces<IService>();
-            foreach (var implementationType in implementationTypes)
+            try
             {
-                if (implementationType.AssemblyQualifiedName != null)
+                var implementationTypes = assembly.GetInterfaces<IService>();
+                foreach (var implementationType in implementationTypes)
                 {
-                    var serviceType = Type.GetType(implementationType.AssemblyQualifiedName.Replace(implementationType.Name, $"I{implementationType.Name}"));
-                    services.AddScoped(serviceType ?? implementationType, implementationType);
+                    if (implementationType.AssemblyQualifiedName != null)
+                    {
+                        var serviceType = Type.GetType(implementationType.AssemblyQualifiedName.Replace(implementationType.Name, $"I{implementationType.Name}"));
+                        services.AddScoped(serviceType ?? implementationType, implementationType);
+                    }
                 }
+            }
+            catch
+            {
+                // could not interrogate assembly - likely missing dependencies
             }
         }
 
         private static void RegisterClientStartups(Assembly assembly, IServiceCollection services)
         {
-            var startUps = assembly.GetInstances<IClientStartup>();
-            foreach (var startup in startUps)
+            try
             {
-                startup.ConfigureServices(services);
+                var startUps = assembly.GetInstances<IClientStartup>();
+                foreach (var startup in startUps)
+                {
+                    startup.ConfigureServices(services);
+                }
+            }
+            catch
+            {
+                // could not interrogate assembly - likely missing dependencies
             }
         }
 

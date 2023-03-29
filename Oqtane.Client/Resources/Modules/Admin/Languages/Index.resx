@@ -132,6 +132,9 @@
   <data name="DeleteLanguage.Header" xml:space="preserve">
     <value>Delete Language</value>
   </data>
+  <data name="Success.Language.Download" xml:space="preserve">
+    <value>Translation Downloaded Successfully. Click Install To Complete Installation.</value>
+  </data>
   <data name="Error.Language.Download" xml:space="preserve">
     <value>Error Downloading Translation</value>
   </data>
