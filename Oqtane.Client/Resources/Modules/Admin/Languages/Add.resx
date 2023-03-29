@@ -120,17 +120,11 @@
   <data name="Error.Language.Add" xml:space="preserve">
     <value>Error Adding Language</value>
   </data>
-  <data name="Translated.HelpText" xml:space="preserve">
-    <value>Specify If You Wish To Select Languages That Have Translations Installed</value>
-  </data>
   <data name="Name.HelpText" xml:space="preserve">
     <value>Name Of The Langauage</value>
   </data>
   <data name="IsDefault.HelpText" xml:space="preserve">
     <value>Indicates Whether Or Not This Language Is The Default For The Site</value>
-  </data>
-  <data name="Translated.Text" xml:space="preserve">
-    <value>Translated?</value>
   </data>
   <data name="Name.Text" xml:space="preserve">
     <value>Name:</value>
