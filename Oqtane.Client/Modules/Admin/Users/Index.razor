@@ -35,9 +35,9 @@ else
 					<th style="width: 1px;">&nbsp;</th>
 					<th style="width: 1px;">&nbsp;</th>
 					<th style="width: 1px;">&nbsp;</th>
-					<th>@SharedLocalizer["Username"]</th>
-					<th>@SharedLocalizer["Name"]</th>
-					<th>@Localizer["LastLoginOn"]</th>
+                    <th class="app-sort-th" @onclick="@(() => SortTable("Username"))">@Localizer["Username"]<i class="@(SetSortIcon("Username"))"></i></th>
+                    <th class="app-sort-th" @onclick="@(() => SortTable("DisplayName"))">@Localizer["Name"]<i class="@(SetSortIcon("DisplayName"))"></i></th>
+                    <th class="app-sort-th" @onclick="@(() => SortTable("LastLoginOn"))">@Localizer["LastLoginOn"]<i class="@(SetSortIcon("LastLoginOn"))"></i></th>
 				</Header>
 				<Row>
 					<td>
@@ -365,140 +365,181 @@ else
 }
 
 @code {
-	private List<UserRole> allusers;
-	private List<UserRole> users;
-	private string _search = "";
+    private List<UserRole> allusers;
+    private List<UserRole> users;
+    private string _search = "";
 
-	private string _allowregistration;
-	private string _allowsitelogin;
-	private string _twofactor;
-	private string _cookiename;
+    private string _allowregistration;
+    private string _allowsitelogin;
+    private string _twofactor;
+    private string _cookiename;
 
-	private string _minimumlength;
-	private string _uniquecharacters;
-	private string _requiredigit;
-	private string _requireupper;
-	private string _requirelower;
-	private string _requirepunctuation;
-	private string _maximumfailures;
-	private string _lockoutduration;
+    private string _minimumlength;
+    private string _uniquecharacters;
+    private string _requiredigit;
+    private string _requireupper;
+    private string _requirelower;
+    private string _requirepunctuation;
+    private string _maximumfailures;
+    private string _lockoutduration;
 
-	private string _providertype;
-	private string _providername;
-	private string _authority;
-	private string _metadataurl;
-	private string _authorizationurl;
-	private string _tokenurl;
-	private string _userinfourl;
-	private string _clientid;
-	private string _clientsecret;
-	private string _clientsecrettype = "password";
-	private string _toggleclientsecret = string.Empty;
-	private string _scopes;
-	private string _parameters;
-	private string _pkce;
-	private string _redirecturl;
-	private string _identifierclaimtype;
-	private string _emailclaimtype;
-	private string _roleclaimtype;
-	private string _profileclaimtypes;
-	private string _domainfilter;
-	private string _createusers;
+    private string _providertype;
+    private string _providername;
+    private string _authority;
+    private string _metadataurl;
+    private string _authorizationurl;
+    private string _tokenurl;
+    private string _userinfourl;
+    private string _clientid;
+    private string _clientsecret;
+    private string _clientsecrettype = "password";
+    private string _toggleclientsecret = string.Empty;
+    private string _scopes;
+    private string _parameters;
+    private string _pkce;
+    private string _redirecturl;
+    private string _identifierclaimtype;
+    private string _emailclaimtype;
+    private string _roleclaimtype;
+    private string _profileclaimtypes;
+    private string _domainfilter;
+    private string _createusers;
 
-	private string _secret;
-	private string _secrettype = "password";
-	private string _togglesecret = string.Empty;
-	private string _issuer;
-	private string _audience;
-	private string _lifetime;
-	private string _token;
+    private string _secret;
+    private string _secrettype = "password";
+    private string _togglesecret = string.Empty;
+    private string _issuer;
+    private string _audience;
+    private string _lifetime;
+    private string _token;
 
-	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
+    private bool isSortedAscending;
+    private string activeSortColumn;
+    private void SortTable(string columnName)
+    {
+        if (columnName != activeSortColumn)
+        {
+            users = users.OrderBy(x => x.User.GetType().GetProperty(columnName)?.GetValue(x.User)).ToList();
+            isSortedAscending = true;
+            activeSortColumn = columnName;
+        }
+        else
+        {
+            if (isSortedAscending)
+            {
+                users = users.OrderByDescending(x => x.User.GetType().GetProperty(columnName)?.GetValue(x.User)).ToList();
+            }
+            else
+            {
+                users = users.OrderBy(x => x.User.GetType().GetProperty(columnName)?.GetValue(x.User)).ToList();
+            }
 
-	protected override async Task OnInitializedAsync()
-	{
-		await LoadUserSettingsAsync();
-		await LoadUsersAsync(true);
+            isSortedAscending = !isSortedAscending;
+        }
+    }
 
-		var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-		_allowregistration = PageState.Site.AllowRegistration.ToString();
-		_allowsitelogin = SettingService.GetSetting(settings, "LoginOptions:AllowSiteLogin", "true");
+    private string SetSortIcon(string columnName)
+    {
+        if (activeSortColumn != columnName)
+        {
+            return "app-fas";
+        }
+        if (isSortedAscending)
+        {
+            return "app-fas oi oi-sort-ascending";
+        }
+        else
+        {
+            return "app-fas oi oi-sort-descending";
+        }
+    }
 
-		if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-		{
-			_twofactor = SettingService.GetSetting(settings, "LoginOptions:TwoFactor", "false");
-			_cookiename = SettingService.GetSetting(settings, "LoginOptions:CookieName", ".AspNetCore.Identity.Application");
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
 
-			_minimumlength = SettingService.GetSetting(settings, "IdentityOptions:Password:RequiredLength", "6");
-			_uniquecharacters = SettingService.GetSetting(settings, "IdentityOptions:Password:RequiredUniqueChars", "1");
-			_requiredigit = SettingService.GetSetting(settings, "IdentityOptions:Password:RequireDigit", "true");
-			_requireupper = SettingService.GetSetting(settings, "IdentityOptions:Password:RequireUppercase", "true");
-			_requirelower = SettingService.GetSetting(settings, "IdentityOptions:Password:RequireLowercase", "true");
-			_requirepunctuation = SettingService.GetSetting(settings, "IdentityOptions:Password:RequireNonAlphanumeric", "true");
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUserSettingsAsync();
+        await LoadUsersAsync(true);
 
-			_maximumfailures = SettingService.GetSetting(settings, "IdentityOptions:Lockout:MaxFailedAccessAttempts", "5");
-			_lockoutduration = TimeSpan.Parse(SettingService.GetSetting(settings, "IdentityOptions:Lockout:DefaultLockoutTimeSpan", "00:05:00")).TotalMinutes.ToString();
+        var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+        _allowregistration = PageState.Site.AllowRegistration.ToString();
+        _allowsitelogin = SettingService.GetSetting(settings, "LoginOptions:AllowSiteLogin", "true");
 
-			_providertype = SettingService.GetSetting(settings, "ExternalLogin:ProviderType", "");
-			_providername = SettingService.GetSetting(settings, "ExternalLogin:ProviderName", "");
-			_authority = SettingService.GetSetting(settings, "ExternalLogin:Authority", "");
-			_metadataurl = SettingService.GetSetting(settings, "ExternalLogin:MetadataUrl", "");
-			_authorizationurl = SettingService.GetSetting(settings, "ExternalLogin:AuthorizationUrl", "");
-			_tokenurl = SettingService.GetSetting(settings, "ExternalLogin:TokenUrl", "");
-			_userinfourl = SettingService.GetSetting(settings, "ExternalLogin:UserInfoUrl", "");
-			_clientid = SettingService.GetSetting(settings, "ExternalLogin:ClientId", "");
-			_clientsecret = SettingService.GetSetting(settings, "ExternalLogin:ClientSecret", "");
-			_toggleclientsecret = SharedLocalizer["ShowPassword"];
-			_scopes = SettingService.GetSetting(settings, "ExternalLogin:Scopes", "");
-			_parameters = SettingService.GetSetting(settings, "ExternalLogin:Parameters", "");
-			_pkce = SettingService.GetSetting(settings, "ExternalLogin:PKCE", "false");
-			_redirecturl = PageState.Uri.Scheme + "://" + PageState.Alias.Name + "/signin-" + _providertype;
-			_identifierclaimtype = SettingService.GetSetting(settings, "ExternalLogin:IdentifierClaimType", "sub");
-			_emailclaimtype = SettingService.GetSetting(settings, "ExternalLogin:EmailClaimType", "email");
-			_roleclaimtype = SettingService.GetSetting(settings, "ExternalLogin:RoleClaimType", "");
-			_profileclaimtypes = SettingService.GetSetting(settings, "ExternalLogin:ProfileClaimTypes", "");
-			_domainfilter = SettingService.GetSetting(settings, "ExternalLogin:DomainFilter", "");
-			_createusers = SettingService.GetSetting(settings, "ExternalLogin:CreateUsers", "true");
+        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+        {
+            _twofactor = SettingService.GetSetting(settings, "LoginOptions:TwoFactor", "false");
+            _cookiename = SettingService.GetSetting(settings, "LoginOptions:CookieName", ".AspNetCore.Identity.Application");
 
-			_secret = SettingService.GetSetting(settings, "JwtOptions:Secret", "");
-			_togglesecret = SharedLocalizer["ShowPassword"];
-			_issuer = SettingService.GetSetting(settings, "JwtOptions:Issuer", PageState.Uri.Scheme + "://" + PageState.Alias.Name);
-			_audience = SettingService.GetSetting(settings, "JwtOptions:Audience", "");
-			_lifetime = SettingService.GetSetting(settings, "JwtOptions:Lifetime", "20");
-		}
-	}
+            _minimumlength = SettingService.GetSetting(settings, "IdentityOptions:Password:RequiredLength", "6");
+            _uniquecharacters = SettingService.GetSetting(settings, "IdentityOptions:Password:RequiredUniqueChars", "1");
+            _requiredigit = SettingService.GetSetting(settings, "IdentityOptions:Password:RequireDigit", "true");
+            _requireupper = SettingService.GetSetting(settings, "IdentityOptions:Password:RequireUppercase", "true");
+            _requirelower = SettingService.GetSetting(settings, "IdentityOptions:Password:RequireLowercase", "true");
+            _requirepunctuation = SettingService.GetSetting(settings, "IdentityOptions:Password:RequireNonAlphanumeric", "true");
 
-	private async Task LoadUsersAsync(bool load)
-	{
-		if (load)
-		{
-			allusers = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Registered);
-			if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-			{
-				var hosts = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Host);
-				allusers.AddRange(hosts);
-				allusers = allusers.OrderBy(u => u.User.DisplayName).ToList();
-			}			
-		}
+            _maximumfailures = SettingService.GetSetting(settings, "IdentityOptions:Lockout:MaxFailedAccessAttempts", "5");
+            _lockoutduration = TimeSpan.Parse(SettingService.GetSetting(settings, "IdentityOptions:Lockout:DefaultLockoutTimeSpan", "00:05:00")).TotalMinutes.ToString();
 
-		users = allusers;
-		if (!string.IsNullOrEmpty(_search))
-		{
-			users = users.Where(item =>
-				(
-					item.User.Username.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
-					item.User.Email.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
-					item.User.DisplayName.Contains(_search, StringComparison.OrdinalIgnoreCase)
-				)
-			).ToList();
-		}
-	}
+            _providertype = SettingService.GetSetting(settings, "ExternalLogin:ProviderType", "");
+            _providername = SettingService.GetSetting(settings, "ExternalLogin:ProviderName", "");
+            _authority = SettingService.GetSetting(settings, "ExternalLogin:Authority", "");
+            _metadataurl = SettingService.GetSetting(settings, "ExternalLogin:MetadataUrl", "");
+            _authorizationurl = SettingService.GetSetting(settings, "ExternalLogin:AuthorizationUrl", "");
+            _tokenurl = SettingService.GetSetting(settings, "ExternalLogin:TokenUrl", "");
+            _userinfourl = SettingService.GetSetting(settings, "ExternalLogin:UserInfoUrl", "");
+            _clientid = SettingService.GetSetting(settings, "ExternalLogin:ClientId", "");
+            _clientsecret = SettingService.GetSetting(settings, "ExternalLogin:ClientSecret", "");
+            _toggleclientsecret = SharedLocalizer["ShowPassword"];
+            _scopes = SettingService.GetSetting(settings, "ExternalLogin:Scopes", "");
+            _parameters = SettingService.GetSetting(settings, "ExternalLogin:Parameters", "");
+            _pkce = SettingService.GetSetting(settings, "ExternalLogin:PKCE", "false");
+            _redirecturl = PageState.Uri.Scheme + "://" + PageState.Alias.Name + "/signin-" + _providertype;
+            _identifierclaimtype = SettingService.GetSetting(settings, "ExternalLogin:IdentifierClaimType", "sub");
+            _emailclaimtype = SettingService.GetSetting(settings, "ExternalLogin:EmailClaimType", "email");
+            _roleclaimtype = SettingService.GetSetting(settings, "ExternalLogin:RoleClaimType", "");
+            _profileclaimtypes = SettingService.GetSetting(settings, "ExternalLogin:ProfileClaimTypes", "");
+            _domainfilter = SettingService.GetSetting(settings, "ExternalLogin:DomainFilter", "");
+            _createusers = SettingService.GetSetting(settings, "ExternalLogin:CreateUsers", "true");
 
-	private async Task OnSearch()
-	{
-		await UpdateUserSettingsAsync();
-		await LoadUsersAsync(false);
-	}
+            _secret = SettingService.GetSetting(settings, "JwtOptions:Secret", "");
+            _togglesecret = SharedLocalizer["ShowPassword"];
+            _issuer = SettingService.GetSetting(settings, "JwtOptions:Issuer", PageState.Uri.Scheme + "://" + PageState.Alias.Name);
+            _audience = SettingService.GetSetting(settings, "JwtOptions:Audience", "");
+            _lifetime = SettingService.GetSetting(settings, "JwtOptions:Lifetime", "20");
+        }
+    }
+
+    private async Task LoadUsersAsync(bool load)
+    {
+        if (load)
+        {
+            allusers = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Registered);
+            if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+            {
+                var hosts = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Host);
+                allusers.AddRange(hosts);
+                allusers = allusers.OrderBy(u => u.User.DisplayName).ToList();
+            }			
+        }
+
+        users = allusers;
+        if (!string.IsNullOrEmpty(_search))
+        {
+            users = users.Where(item =>
+                (
+                    item.User.Username.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
+                    item.User.Email.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
+                    item.User.DisplayName.Contains(_search, StringComparison.OrdinalIgnoreCase)
+                )
+            ).ToList();
+        }
+    }
+
+    private async Task OnSearch()
+    {
+        await UpdateUserSettingsAsync();
+        await LoadUsersAsync(false);
+    }
 
 	private async Task DeleteUser(UserRole UserRole)
 	{
