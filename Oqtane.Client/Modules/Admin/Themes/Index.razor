@@ -116,7 +116,6 @@ else
         {
             await PackageService.DownloadPackageAsync(packagename, version, Constants.PackagesFolder);
             await logger.LogInformation("Theme Downloaded {ThemeName} {Version}", packagename, version);
-            await ThemeService.InstallThemesAsync();
             AddModuleMessage(string.Format(Localizer["Success.Theme.Install"], NavigateUrl("admin/system")), MessageType.Success);
         }
         catch (Exception ex)

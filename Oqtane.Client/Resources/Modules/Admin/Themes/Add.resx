@@ -123,11 +123,8 @@
   <data name="Theme.Text" xml:space="preserve">
     <value>Theme: </value>
   </data>
-  <data name="Success.Theme.Install" xml:space="preserve">
-    <value>Theme Installed Successfully. You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Apply These Changes.</value>
-  </data>
   <data name="Success.Theme.Download" xml:space="preserve">
-    <value>Theme Downloaded Successfully. Click Install To Complete Installation.</value>
+    <value>Theme Downloaded Successfully. You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Complete The Installation.</value>
   </data>
   <data name="Error.Theme.Download" xml:space="preserve">
     <value>Error Downloading Theme</value>

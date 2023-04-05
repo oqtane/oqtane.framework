@@ -16,6 +16,7 @@ using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Shared;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Logging;
 
 namespace Oqtane
 {
@@ -24,6 +25,7 @@ namespace Oqtane
         private readonly bool _useSwagger;
         private readonly IWebHostEnvironment _env;
         private readonly string[] _installedCultures;
+        private string _configureServicesErrors;
 
         public IConfigurationRoot Configuration { get; }
 
@@ -85,7 +87,7 @@ namespace Oqtane
                 .AddOqtaneSingletonServices();
 
             // install any modules or themes ( this needs to occur BEFORE the assemblies are loaded into the app domain )
-            InstallationManager.InstallPackages(_env.WebRootPath, _env.ContentRootPath);
+            _configureServicesErrors += InstallationManager.InstallPackages(_env.WebRootPath, _env.ContentRootPath);
 
             // register transient scoped core services
             services.AddOqtaneTransientServices();
@@ -142,8 +144,13 @@ namespace Oqtane
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISyncManager sync)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISyncManager sync, ILogger<Startup> logger)
         {
+            if (!string.IsNullOrEmpty(_configureServicesErrors))
+            {
+                logger.LogError(_configureServicesErrors);
+            }
+
             ServiceActivator.Configure(app.ApplicationServices);
 
             if (env.IsDevelopment())

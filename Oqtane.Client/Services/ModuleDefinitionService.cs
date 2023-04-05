@@ -34,11 +34,6 @@ namespace Oqtane.Services
             await PutJsonAsync($"{Apiurl}/{moduleDefinition.ModuleDefinitionId}", moduleDefinition);
         }
 
-        public async Task InstallModuleDefinitionsAsync()
-        {
-            await GetJsonAsync<List<string>>($"{Apiurl}/install");
-        }
-
         public async Task DeleteModuleDefinitionAsync(int moduleDefinitionId, int siteId)
         {
             await DeleteAsync($"{Apiurl}/{moduleDefinitionId}?siteid={siteId}");

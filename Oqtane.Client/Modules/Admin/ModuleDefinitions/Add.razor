@@ -111,9 +111,7 @@
     </div>
 }
 
-<button type="button" class="btn btn-success" @onclick="InstallModules">@SharedLocalizer["Install"]</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-
 <br />
 <br />
 <ModuleMessage Type="MessageType.Info" Message="@SharedLocalizer["Oqtane.Marketplace"]" />
@@ -236,7 +234,7 @@
 		{
 			await PackageService.DownloadPackageAsync(_packageid, _packageversion, Constants.PackagesFolder);
 			await logger.LogInformation("Package {PackageId} {Version} Downloaded Successfully", _packageid, _packageversion);
-			AddModuleMessage(Localizer["Success.Module.Download"], MessageType.Success);
+			AddModuleMessage(string.Format(Localizer["Success.Module.Download"], NavigateUrl("admin/system")), MessageType.Success);
 			_productname = "";
 			_packagelicense = "";
 			StateHasChanged();
@@ -245,19 +243,6 @@
 		{
 			await logger.LogError(ex, "Error Downloading Package {PackageId} {Version}", _packageid, _packageversion);
 			AddModuleMessage(Localizer["Error.Module.Download"], MessageType.Error);
-		}
-	}
-
-	private async Task InstallModules()
-	{
-		try
-		{
-			await ModuleDefinitionService.InstallModuleDefinitionsAsync();
-			AddModuleMessage(string.Format(Localizer["Success.Module.Install"], NavigateUrl("admin/system")), MessageType.Success);
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Installing Modules");
 		}
 	}
 }

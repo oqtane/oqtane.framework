@@ -111,9 +111,7 @@
     </div>
 }
 
-<button type="button" class="btn btn-success" @onclick="InstallThemes">@SharedLocalizer["Install"]</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-
 <br />
 <br />
 <ModuleMessage Type="MessageType.Info" Message="@SharedLocalizer["Oqtane.Marketplace"]" />
@@ -236,7 +234,7 @@
         {
             await PackageService.DownloadPackageAsync(_packageid, _version, Constants.PackagesFolder);
             await logger.LogInformation("Package {PackageId} {Version} Downloaded Successfully", _packageid, _version);
-            AddModuleMessage(Localizer["Success.Theme.Download"], MessageType.Success);
+			AddModuleMessage(string.Format(Localizer["Success.Theme.Download"], NavigateUrl("admin/system")), MessageType.Success);
             _productname = "";
             _license = "";
             StateHasChanged();
@@ -245,19 +243,6 @@
         {
             await logger.LogError(ex, "Error Downloading Package {PackageId} {Version}", _packageid, _version);
             AddModuleMessage(Localizer["Error.Theme.Download"], MessageType.Error);
-        }
-    }
-
-    private async Task InstallThemes()
-    {
-        try
-        {
-            await ThemeService.InstallThemesAsync();
-            AddModuleMessage(string.Format(Localizer["Success.Theme.Install"], NavigateUrl("admin/system")), MessageType.Success);
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Installing Theme");
         }
     }
 }
