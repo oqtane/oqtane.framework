@@ -322,10 +322,10 @@ namespace Oqtane.Repository
                 permission.EntityName = p.EntityName;
                 permission.EntityId = p.EntityId;
                 permission.PermissionName = p.PermissionName;
-                permission.RoleId = p.RoleId;
+                permission.RoleId = null;
                 permission.RoleName = p.RoleName;
                 permission.UserId = p.UserId;
-                permission.IsAuthorized = p.IsAuthorized; 
+                permission.IsAuthorized = p.IsAuthorized;
                 permissions.Add(permission);
             }
             return permissions;

@@ -33,13 +33,6 @@ namespace Oqtane.Services
         /// <returns></returns>
         Task UpdateModuleDefinitionAsync(ModuleDefinition moduleDefinition);
 
-
-        /// <summary>
-        /// Installs all module definitions located in //TODO: 2dm where?
-        /// </summary>
-        /// <returns></returns>
-        Task InstallModuleDefinitionsAsync();
-
         /// <summary>
         /// Deletes a module definition
         /// </summary>

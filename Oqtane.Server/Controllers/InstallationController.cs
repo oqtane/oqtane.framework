@@ -103,6 +103,7 @@ namespace Oqtane.Controllers
         [HttpGet("list")]
         public List<string> List()
         {
+            // could check environment.EnvironmentName to return actual file names instead
             return GetAssemblyList().Select(item => item.HashedName).ToList();
         }
 

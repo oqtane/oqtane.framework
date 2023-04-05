@@ -24,16 +24,18 @@ namespace Oqtane.Pages
         private readonly IPageRepository _pages;
         private readonly IPageModuleRepository _pageModules;
         private readonly IModuleDefinitionRepository _moduleDefinitions;
+        private readonly ISettingRepository _settings;
         private readonly IUserPermissions _userPermissions;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public SitemapModel(IServiceProvider serviceProvider, IPageRepository pages, IPageModuleRepository pageModules, IModuleDefinitionRepository moduleDefinitions, IUserPermissions userPermissions, IUrlMappingRepository urlMappings, ISyncManager syncManager, ILogManager logger, ITenantManager tenantManager)
+        public SitemapModel(IServiceProvider serviceProvider, IPageRepository pages, IPageModuleRepository pageModules, IModuleDefinitionRepository moduleDefinitions, ISettingRepository settings, IUserPermissions userPermissions, IUrlMappingRepository urlMappings, ISyncManager syncManager, ILogManager logger, ITenantManager tenantManager)
         {
             _serviceProvider = serviceProvider;
             _pages = pages;
             _pageModules = pageModules;
             _moduleDefinitions = moduleDefinitions;
+            _settings = settings;
             _userPermissions = userPermissions;
             _logger = logger;
             _alias = tenantManager.GetAlias();
@@ -64,6 +66,7 @@ namespace Oqtane.Pages
                                 {
                                     try
                                     {
+                                        pageModule.Module.Settings = _settings.GetSettings(EntityNames.Module, pageModule.ModuleId).ToDictionary(x => x.SettingName, x => x.SettingValue);
                                         var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
                                         var urls = ((ISitemap)moduleobject).GetUrls(_alias.Path, page.Path, pageModule.Module);
                                         foreach (var url in urls)
