@@ -93,11 +93,7 @@ namespace Oqtane.Repository
                 permission.EntityId = (permission.EntityName == entityName) ? entityId : -1;
                 if (permission.UserId == null && permission.RoleId == null && !string.IsNullOrEmpty(permission.RoleName))
                 {
-                    var role = roles.FirstOrDefault(item => item.Name == permission.RoleName);
-                    if (role != null)
-                    {
-                        permission.RoleId = role.RoleId;
-                    }
+                    permission.RoleId = roles.FirstOrDefault(item => item.Name == permission.RoleName)?.RoleId;
                 }
             }
             // add or update permissions
