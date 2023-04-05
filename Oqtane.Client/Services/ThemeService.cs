@@ -38,11 +38,6 @@ namespace Oqtane.Services
                 .SelectMany(item => item.Containers).ToList();
         }
 
-        public async Task InstallThemesAsync()
-        {
-            await GetJsonAsync<List<string>>($"{ApiUrl}/install");
-        }
-
         public async Task DeleteThemeAsync(string themeName)
         {
             await DeleteAsync($"{ApiUrl}/{themeName}");

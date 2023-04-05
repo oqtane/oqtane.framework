@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Oqtane.Controllers;
 using Oqtane.Shared;
 // ReSharper disable AssignNullToNotNullAttribute
 
@@ -21,21 +23,27 @@ namespace Oqtane.Infrastructure
     {
         private readonly IHostApplicationLifetime _hostApplicationLifetime;
         private readonly IWebHostEnvironment _environment;
+        private readonly ILogger<InstallationManager> _filelogger;
 
-        public InstallationManager(IHostApplicationLifetime hostApplicationLifetime, IWebHostEnvironment environment)
+        public InstallationManager(IHostApplicationLifetime hostApplicationLifetime, IWebHostEnvironment environment, ILogger<InstallationManager> filelogger)
         {
             _hostApplicationLifetime = hostApplicationLifetime;
             _environment = environment;
+            _filelogger = filelogger;
         }
 
         public void InstallPackages()
         {
-            InstallPackages(_environment.WebRootPath, _environment.ContentRootPath);
+            var errors = InstallPackages(_environment.WebRootPath, _environment.ContentRootPath);
+            if (!string.IsNullOrEmpty(errors))
+            {
+                _filelogger.LogError(errors);
+            }
         }
 
-        public static bool InstallPackages(string webRootPath, string contentRootPath)
+        public static string InstallPackages(string webRootPath, string contentRootPath)
         {
-            bool install = true;
+            string errors = "";
             string binPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
 
             string sourceFolder = Path.Combine(contentRootPath, "Packages");
@@ -172,16 +180,14 @@ namespace Oqtane.Infrastructure
                 }
                 catch (Exception ex)
                 {
-                    // problem installing package - logging is not possible as this is a static method
-                    Debug.WriteLine($"Oqtane Error: Installing Package {packagename} - {ex}");
-                    install = false;
+                    errors += $"Error Installing Package {packagename} - {ex.Message}. ";
                 }
 
                 // remove package
                 File.Delete(packagename);
             }
 
-            return install;
+            return errors;
         }
 
         private static string ExtractFile(ZipArchiveEntry entry, string folder, int ignoreLeadingSegments)
@@ -300,7 +306,7 @@ namespace Oqtane.Infrastructure
                     if (packageversion != "" && Version.Parse(Constants.Version).CompareTo(Version.Parse(packageversion)) <= 0 && packageurl != "")
                     {
                         // install Oqtane.Framework and Oqtane.Updater nuget packages
-                        InstallPackages();
+                        InstallPackages(_environment.WebRootPath, _environment.ContentRootPath);
                         // download upgrade zip package
                         Uri uri = new Uri(packageurl);
                         string upgradepackage = Path.Combine(folder, uri.Segments[uri.Segments.Length - 1]);

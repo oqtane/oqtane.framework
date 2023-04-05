@@ -268,14 +268,6 @@ namespace Oqtane.Controllers
             }
         }
 
-        [HttpGet("install")]
-        [Authorize(Roles = RoleNames.Host)]
-        public void InstallModules()
-        {
-            _logger.Log(LogLevel.Information, this, LogFunction.Create, "Modules Installed");
-            _installationManager.InstallPackages();
-        }
-
         // GET: api/<controller>/templates
         [HttpGet("templates")]
         [Authorize(Roles = RoleNames.Host)]

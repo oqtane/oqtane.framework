@@ -56,10 +56,6 @@ else
 			}
         </Row>
     </Pager>
-	@if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host) && _install)
-	{
-		<button type="button" class="btn btn-success" @onclick="InstallTranslations">@SharedLocalizer["Install"]</button>
-	}
 }
 
 @if (_package != null)
@@ -106,7 +102,6 @@ else
 	private List<Language> _languages;
 	private List<Package> _packages;
 	private Package _package;
-	private bool _install = false;
 
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -167,9 +162,8 @@ else
 		{
 			await PackageService.DownloadPackageAsync(_package.PackageId, _package.Version, Constants.PackagesFolder);
 			await logger.LogInformation("Language Package {Name} {Version} Downloaded Successfully", _package.PackageId, _package.Version);
-			AddModuleMessage(Localizer["Success.Language.Download"], MessageType.Success);
+			AddModuleMessage(string.Format(Localizer["Success.Language.Download"], NavigateUrl("admin/system")), MessageType.Success);
 			_package = null;
-			_install = true;
 			StateHasChanged();
 		}
 		catch (Exception ex)
@@ -183,20 +177,5 @@ else
 	{
 		_package = null;
 		StateHasChanged();
-	}
-
-	private async Task InstallTranslations()
-	{
-		try
-		{
-			await PackageService.InstallPackagesAsync();
-			AddModuleMessage(string.Format(Localizer["Success.Language.Install"], NavigateUrl("admin/system")), MessageType.Success);
-			_install = false;
-			StateHasChanged();
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Installing Translations");
-		}
 	}
 }

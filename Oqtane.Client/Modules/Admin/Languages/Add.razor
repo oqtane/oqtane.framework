@@ -48,7 +48,7 @@ else
         <TabPanel Name="Upload" ResourceKey="Upload" Security="SecurityAccessLevel.Host">
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" HelpText="Upload one or more translations. Once they are uploaded click Install to complete the installation." ResourceKey="LanguageUpload">Translation: </Label>
+                    <Label Class="col-sm-3" HelpText="Upload one or more translations. Once they are uploaded click Install." ResourceKey="LanguageUpload">Translation: </Label>
                     <div class="col-sm-9">
                         <FileManager Folder="@Constants.PackagesFolder" UploadMultiple="true" />
                     </div>
@@ -119,18 +119,17 @@ else
 				AddModuleMessage(Localizer["Error.Language.Add"], MessageType.Error);
 			}
 		}
-        else
-        {
-            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
-        }
-    }
+		else
+		{
+			AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+		}
+	}
 
 	private async Task InstallTranslations()
-    {
-        try
-        {
-            await PackageService.InstallPackagesAsync();
-            AddModuleMessage(string.Format(Localizer["Success.Language.Install"], NavigateUrl("admin/system")), MessageType.Success);
+	{
+		try
+		{
+			AddModuleMessage(string.Format(Localizer["Success.Language.Install"], NavigateUrl("admin/system")), MessageType.Success);
         }
         catch (Exception ex)
         {
