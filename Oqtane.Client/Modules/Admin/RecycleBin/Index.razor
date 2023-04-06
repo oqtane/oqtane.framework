@@ -26,9 +26,9 @@ else
 					<Header>
 						<th style="width: 1px;">&nbsp;</th>
 						<th style="width: 1px;">&nbsp;</th>
-						<th>@SharedLocalizer["Name"]</th>
-						<th>@Localizer["DeletedBy"]</th>
-						<th>@Localizer["DeletedOn"]</th>
+                        <th class="app-sort-th" @onclick="@(() => SortTablePage("Name"))">@Localizer["Name"]<i class="@(SetSortIcon("Name"))"></i></th>
+                        <th class="app-sort-th" @onclick="@(() => SortTablePage("DeletedBy"))">@Localizer["DeletedBy"]<i class="@(SetSortIcon("DeletedBy"))"></i></th>
+                        <th class="app-sort-th" @onclick="@(() => SortTablePage("DeletedOn"))">@Localizer["DeletedOn"]<i class="@(SetSortIcon("DeletedOn"))"></i></th>
 					</Header>
 					<Row>
 						<td><button type="button" @onclick="@(() => RestorePage(context))" class="btn btn-success" title="Restore">Restore</button></td>
@@ -54,10 +54,10 @@ else
 					<Header>
 						<th style="width: 1px;">&nbsp;</th>
 						<th style="width: 1px;">&nbsp;</th>
-						<th>@Localizer["Page"]</th>
-						<th>@Localizer["Module"]</th>
-						<th>@Localizer["DeletedBy"]</th>
-						<th>@Localizer["DeletedOn"]</th>
+                    <th class="app-sort-th" @onclick="@(() => SortTableModule("PageId"))">@Localizer["Page"]<i class="@(SetSortIcon("PageId"))"></i></th>
+                        <th class="app-sort-th" @onclick="@(() => SortTableModule("Title"))">@Localizer["Module"]<i class="@(SetSortIcon("Title"))"></i></th>
+                        <th class="app-sort-th" @onclick="@(() => SortTableModule("DeletedBy"))">@Localizer["DeletedBy"]<i class="@(SetSortIcon("DeletedBy"))"></i></th>
+                        <th class="app-sort-th" @onclick="@(() => SortTableModule("DeletedOn"))">@Localizer["DeletedOn"]<i class="@(SetSortIcon("DeletedOn"))"></i></th>
 					</Header>
 					<Row>
 						<td><button type="button" @onclick="@(() => RestoreModule(context))" class="btn btn-success" title="Restore">@Localizer["Restore"]</button></td>
@@ -76,10 +76,74 @@ else
 }
 
 @code {
-	  private List<Page> _pages;
-	  private List<Module> _modules;
+	private List<Page> _pages;
+	private List<Module> _modules;
     private int _pagePage = 1;
     private int _pageModule = 1;
+
+    private bool isSortedAscending;
+    private string activeSortColumn;
+    private void SortTablePage(string columnName)
+    {
+        if (columnName != activeSortColumn)
+        {
+            _pages = _pages.OrderBy(x => x.GetType().GetProperty(columnName).GetValue(x, null)).ToList();
+            isSortedAscending = true;
+            activeSortColumn = columnName;
+        }
+        else
+        {
+            if (isSortedAscending)
+            {
+                _pages = _pages.OrderByDescending(x => x.GetType().GetProperty(columnName).GetValue(x, null)).ToList();
+            }
+            else
+            {
+                _pages = _pages.OrderBy(x => x.GetType().GetProperty(columnName).GetValue(x, null)).ToList();
+            }
+
+            isSortedAscending = !isSortedAscending;
+        }
+    }
+    private void SortTableModule(string columnName)
+    {
+        if (columnName != activeSortColumn)
+        {
+            _modules = _modules.OrderBy(x => x.GetType().GetProperty(columnName).GetValue(x, null)).ToList();
+            isSortedAscending = true;
+            activeSortColumn = columnName;
+        }
+        else
+        {
+            if (isSortedAscending)
+            {
+                _modules = _modules.OrderByDescending(x => x.GetType().GetProperty(columnName).GetValue(x, null)).ToList();
+            }
+            else
+            {
+                _modules = _modules.OrderBy(x => x.GetType().GetProperty(columnName).GetValue(x, null)).ToList();
+            }
+
+            isSortedAscending = !isSortedAscending;
+        }
+    }
+
+    private string SetSortIcon(string columnName)
+    {
+        if (activeSortColumn != columnName)
+        {
+            return "app-fas";
+        }
+        if (isSortedAscending)
+        {
+            return "app-fas oi oi-sort-ascending";
+        }
+        else
+        {
+            return "app-fas oi oi-sort-descending";
+        }
+    }
+
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnInitializedAsync()
