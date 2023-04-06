@@ -11,12 +11,13 @@ namespace Oqtane.Repository
     {
         private TenantDBContext _db;
         private readonly IModuleDefinitionRepository _moduleDefinitions;
+        private readonly IModuleRepository _moduleRepository;
         private readonly IPermissionRepository _permissions;
-
-        public PageModuleRepository(TenantDBContext context, IModuleDefinitionRepository moduleDefinitions, IPermissionRepository permissions)
+        public PageModuleRepository(TenantDBContext context, IModuleDefinitionRepository moduleDefinitions, IModuleRepository moduleRepository, IPermissionRepository permissions)
         {
             _db = context;
             _moduleDefinitions = moduleDefinitions;
+            _moduleRepository = moduleRepository;
             _permissions = permissions;
         }
 
@@ -96,6 +97,7 @@ namespace Oqtane.Repository
             PageModule pageModule = _db.PageModule.Find(pageModuleId);
             _db.PageModule.Remove(pageModule);
             _db.SaveChanges();
+            _moduleRepository.DeleteModule(pageModule.ModuleId);
         }
 
         private PageModule GetPageModule(PageModule pageModule, List<ModuleDefinition> moduleDefinitions, List<Permission> modulePermissions)
