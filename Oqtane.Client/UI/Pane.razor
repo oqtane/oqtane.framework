@@ -107,7 +107,7 @@ else
             {
                 if (PageState.ModuleId != -1)
                 {
-					Module module = PageState.Modules.FirstOrDefault(item => item.PageId == PageState.Page.PageId && item.ModuleId == PageState.ModuleId);
+					Module module = PageState.Modules.FirstOrDefault(item => item.ModuleId == PageState.ModuleId);
                     if (module != null && module.Pane.ToLower() == Name.ToLower())
                     {
                         // check if user is authorized to view module
