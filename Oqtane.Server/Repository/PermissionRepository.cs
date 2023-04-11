@@ -39,6 +39,7 @@ namespace Oqtane.Repository
                             permission.RoleName = roles.Find(item => item.RoleId == permission.RoleId)?.Name;
                         }
                     }
+                    permissions = permissions.Where(item => item.UserId != null || item.RoleName != null).ToList();
                     entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                     return permissions;
                 });
