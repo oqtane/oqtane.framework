@@ -1,18 +1,22 @@
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Extensions;
 using Oqtane.Models;
+using Oqtane.Services;
 using Oqtane.Shared;
+using Oqtane.UI;
 
 namespace Oqtane.Repository
 {
+
     public class PageRepository : IPageRepository
     {
         private TenantDBContext _db;
         private readonly IPermissionRepository _permissions;
         private readonly IPageModuleRepository _pageModules;
-
+        [Inject] private  IModuleService _moduleService { get ; set; }
         public PageRepository(TenantDBContext context, IPermissionRepository permissions, IPageModuleRepository pageModules)
         {
             _db = context;
@@ -100,10 +104,19 @@ namespace Oqtane.Repository
         {
             Page page = _db.Page.Find(pageId);
             _permissions.DeletePermissions(page.SiteId, EntityNames.Page, pageId);
+            List<Module> _modules = _moduleService.GetModulesAsync(pageId).Result;
             IEnumerable<PageModule> pageModules = _db.PageModule.Where(item => item.PageId == pageId).ToList();
             foreach (var pageModule in pageModules)
             {
                 _pageModules.DeletePageModule(pageModule.PageModuleId);
+                var module = _modules.Find(m => m.ModuleId == pageModule.ModuleId);
+                // check if there are any remaining module instances in the site
+                if (!_modules.Exists(item => item.ModuleId == module.ModuleId && item.PageModuleId != module.PageModuleId))
+                {
+                    // This will delete the module as well as permissions and settings.
+                    _moduleService.DeleteModuleAsync(module.ModuleId);
+                    
+                }
             }
             _db.Page.Remove(page);
             _db.SaveChanges();

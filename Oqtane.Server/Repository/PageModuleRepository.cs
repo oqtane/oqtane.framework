@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Shared;
+using Oqtane.UI;
 
 namespace Oqtane.Repository
 {
@@ -97,7 +98,6 @@ namespace Oqtane.Repository
             PageModule pageModule = _db.PageModule.Find(pageModuleId);
             _db.PageModule.Remove(pageModule);
             _db.SaveChanges();
-            _moduleRepository.DeleteModule(pageModule.ModuleId);
         }
 
         private PageModule GetPageModule(PageModule pageModule, List<ModuleDefinition> moduleDefinitions, List<Permission> modulePermissions)
