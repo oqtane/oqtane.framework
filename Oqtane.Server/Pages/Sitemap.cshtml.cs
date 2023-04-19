@@ -24,6 +24,7 @@ namespace Oqtane.Pages
         private readonly IPageRepository _pages;
         private readonly IPageModuleRepository _pageModules;
         private readonly IModuleDefinitionRepository _moduleDefinitions;
+        private readonly ISettingRepository _settings;
         private readonly IUserPermissions _userPermissions;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
