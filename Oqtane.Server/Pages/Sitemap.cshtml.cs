@@ -107,7 +107,6 @@ namespace Oqtane.Pages
                 }
                 writer.Close();
             }
-            // Cache the sitemap XML
             sitemapXml = builder.ToString();
 
             return Content(sitemapXml, "application/xml");
