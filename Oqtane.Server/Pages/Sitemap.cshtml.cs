@@ -43,71 +43,72 @@ namespace Oqtane.Pages
 
         public IActionResult OnGetAsync()
         {
-            var sitemap = new List<Sitemap>();
+                var sitemap = new List<Sitemap>();
 
-            // build site map
-            var moduleDefinitions = _moduleDefinitions.GetModuleDefinitions(_alias.SiteId).ToList();
-            var pageModules = _pageModules.GetPageModules(_alias.SiteId);
-            foreach (var page in _pages.GetPages(_alias.SiteId))
-            {
-                if (_userPermissions.IsAuthorized(null, PermissionNames.View, page.PermissionList) && page.IsNavigation)
+                // build site map
+                var moduleDefinitions = _moduleDefinitions.GetModuleDefinitions(_alias.SiteId).ToList();
+                var pageModules = _pageModules.GetPageModules(_alias.SiteId);
+                foreach (var page in _pages.GetPages(_alias.SiteId))
                 {
-                    sitemap.Add(new Sitemap { Url = _alias.Protocol + _alias.Name + Utilities.NavigateUrl(_alias.Path, page.Path, ""), ModifiedOn = page.ModifiedOn });
-
-                    foreach (var pageModule in pageModules.Where(item => item.PageId == page.PageId))
+                    if (_userPermissions.IsAuthorized(null, PermissionNames.View, page.PermissionList) && page.IsNavigation)
                     {
-                        if (_userPermissions.IsAuthorized(null, PermissionNames.View, pageModule.Module.PermissionList))
+                        sitemap.Add(new Sitemap { Url = _alias.Protocol + _alias.Name + Utilities.NavigateUrl(_alias.Path, page.Path, ""), ModifiedOn = page.ModifiedOn });
+
+                        foreach (var pageModule in pageModules.Where(item => item.PageId == page.PageId))
                         {
-                            var moduleDefinition = moduleDefinitions.Where(item => item.ModuleDefinitionName == pageModule.Module.ModuleDefinitionName).FirstOrDefault();
-                            if (moduleDefinition != null && moduleDefinition.ServerManagerType != "")
+                            if (_userPermissions.IsAuthorized(null, PermissionNames.View, pageModule.Module.PermissionList))
                             {
-                                Type moduletype = Type.GetType(moduleDefinition.ServerManagerType);
-                                if (moduletype != null && moduletype.GetInterface("ISitemap") != null)
+                                var moduleDefinition = moduleDefinitions.Where(item => item.ModuleDefinitionName == pageModule.Module.ModuleDefinitionName).FirstOrDefault();
+                                if (moduleDefinition != null && moduleDefinition.ServerManagerType != "")
                                 {
-                                    try
+                                    Type moduletype = Type.GetType(moduleDefinition.ServerManagerType);
+                                    if (moduletype != null && moduletype.GetInterface("ISitemap") != null)
                                     {
-                                        var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
-                                        var urls = ((ISitemap)moduleobject).GetUrls(_alias.Path, page.Path, pageModule.Module);
-                                        foreach (var url in urls)
+                                        try
                                         {
-                                            sitemap.Add(new Sitemap { Url = _alias.Protocol + _alias.Name + url.Url, ModifiedOn = url.ModifiedOn });
+                                            var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
+                                            var urls = ((ISitemap)moduleobject).GetUrls(_alias.Path, page.Path, pageModule.Module);
+                                            foreach (var url in urls)
+                                            {
+                                                sitemap.Add(new Sitemap { Url = _alias.Protocol + _alias.Name + url.Url, ModifiedOn = url.ModifiedOn });
+                                            }
                                         }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        _logger.Log(LogLevel.Error, this, LogFunction.Other, ex, "Error Retrieving SiteMap For {Name} Module", moduleDefinition.Name);
+                                        catch (Exception ex)
+                                        {
+                                            _logger.Log(LogLevel.Error, this, LogFunction.Other, ex, "Error Retrieving SiteMap For {Name} Module", moduleDefinition.Name);
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            // write XML
-            XmlWriterSettings settings = new XmlWriterSettings();
-            settings.Indent = true;
-            settings.IndentChars = ("  ");
-            settings.CloseOutput = true;
-            settings.OmitXmlDeclaration = true;
-            settings.WriteEndDocumentOnClose = true;
+                // write XML
+                XmlWriterSettings settings = new XmlWriterSettings();
+                settings.Indent = true;
+                settings.IndentChars = ("  ");
+                settings.CloseOutput = true;
+                settings.OmitXmlDeclaration = true;
+                settings.WriteEndDocumentOnClose = true;
 
-            StringBuilder builder = new StringBuilder();
-            using (XmlWriter writer = XmlWriter.Create(builder, settings))
-            {
-                writer.WriteStartDocument();
-                writer.WriteStartElement("urlset", "http://www.sitemaps.org/schemas/sitemap/0.9");
-
-                foreach (var url in sitemap)
+                StringBuilder builder = new StringBuilder();
+                using (XmlWriter writer = XmlWriter.Create(builder, settings))
                 {
-                    writer.WriteStartElement("url");
-                    writer.WriteElementString("loc", url.Url);
-                    writer.WriteElementString("lastmod", url.ModifiedOn.ToString("yyyy-MM-dd"));
-                    writer.WriteEndElement();
+                    writer.WriteStartDocument();
+                    writer.WriteStartElement("urlset", "http://www.sitemaps.org/schemas/sitemap/0.9");
+
+                    foreach (var url in sitemap)
+                    {
+                        writer.WriteStartElement("url");
+                        writer.WriteElementString("loc", url.Url);
+                        writer.WriteElementString("lastmod", url.ModifiedOn.ToString("yyyy-MM-dd"));
+                        writer.WriteEndElement();
+                    }
+                    writer.Close();
                 }
-                writer.Close();
-            }
-            sitemapXml = builder.ToString();
+                // Cache the sitemap XML
+                sitemapXml = builder.ToString();
 
             return Content(sitemapXml, "application/xml");
         }
