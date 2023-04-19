@@ -103,7 +103,6 @@ namespace Oqtane.Controllers
         [HttpGet("list")]
         public List<string> List()
         {
-            // could check environment.EnvironmentName to return actual file names instead
             return GetAssemblyList().Select(item => item.HashedName).ToList();
         }
 
@@ -121,6 +120,13 @@ namespace Oqtane.Controllers
                 var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
                 var assemblyList = new List<ClientAssembly>();
 
+                // testmode setting is used for validating that the API is downloading the appropriate assemblies to the client
+                bool hashfilename = true;
+                if (_configManager.GetSetting($"{SettingKeys.TestModeKey}", "false") == "true")
+                {
+                    hashfilename = false;
+                }
+                
                 // get list of assemblies which should be downloaded to client
                 var assemblies = AppDomain.CurrentDomain.GetOqtaneClientAssemblies();
                 var list = assemblies.Select(a => a.GetName().Name).ToList();            
@@ -128,7 +134,7 @@ namespace Oqtane.Controllers
                 // populate assemblies
                 for (int i = 0; i < list.Count; i++)
                 {
-                    assemblyList.Add(new ClientAssembly(Path.Combine(binFolder, list[i] + ".dll")));
+                    assemblyList.Add(new ClientAssembly(Path.Combine(binFolder, list[i] + ".dll"), hashfilename));
                 }
 
                 // insert satellite assemblies at beginning of list
@@ -144,7 +150,7 @@ namespace Oqtane.Controllers
                     {
                         foreach (var resourceFile in Directory.EnumerateFiles(assembliesFolderPath))
                         {
-                            assemblyList.Insert(0, new ClientAssembly(resourceFile));
+                            assemblyList.Insert(0, new ClientAssembly(resourceFile, hashfilename));
                         }
                     }
                     else
@@ -161,12 +167,12 @@ namespace Oqtane.Controllers
                         var instance = Activator.CreateInstance(type) as IModule;
                         foreach (string name in instance.ModuleDefinition.Dependencies.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Reverse())
                         {
-                            var filepath = Path.Combine(binFolder, name + ".dll");
+                            var filepath = Path.Combine(binFolder, name.ToLower().EndsWith(".dll") ? name : name + ".dll");
                             if (System.IO.File.Exists(filepath))
                             {
                                 if (!assemblyList.Exists(item => item.FilePath == filepath))
                                 {
-                                    assemblyList.Insert(0, new ClientAssembly(filepath));
+                                    assemblyList.Insert(0, new ClientAssembly(filepath, hashfilename));
                                 }
                             }
                             else
@@ -180,12 +186,12 @@ namespace Oqtane.Controllers
                         var instance = Activator.CreateInstance(type) as ITheme;
                         foreach (string name in instance.Theme.Dependencies.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Reverse())
                         {
-                            var filepath = Path.Combine(binFolder, name + ".dll");
+                            var filepath = Path.Combine(binFolder, name.ToLower().EndsWith(".dll") ? name : name + ".dll");
                             if (System.IO.File.Exists(filepath))
                             {
                                 if (!assemblyList.Exists(item => item.FilePath == filepath))
                                 {
-                                    assemblyList.Insert(0, new ClientAssembly(filepath));
+                                    assemblyList.Insert(0, new ClientAssembly(filepath, hashfilename));
                                 }
                             }
                             else
@@ -286,11 +292,18 @@ namespace Oqtane.Controllers
 
         public struct ClientAssembly
         {
-            public ClientAssembly(string filepath)
+            public ClientAssembly(string filepath, bool hashfilename)
             {
                 FilePath = filepath;
                 DateTime lastwritetime = System.IO.File.GetLastWriteTime(filepath);
-                HashedName = GetDeterministicHashCode(filepath).ToString("X8") + "." + lastwritetime.ToString("yyyyMMddHHmmss") + Path.GetExtension(filepath);
+                if (hashfilename)
+                {
+                    HashedName = GetDeterministicHashCode(filepath).ToString("X8") + "." + lastwritetime.ToString("yyyyMMddHHmmss") + Path.GetExtension(filepath);
+                }
+                else
+                {
+                    HashedName = Path.GetFileNameWithoutExtension(filepath) + "." + lastwritetime.ToString("yyyyMMddHHmmss") + Path.GetExtension(filepath);
+                }
             }
 
             public string FilePath { get; private set; }
