@@ -34,7 +34,8 @@ namespace Oqtane
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", false, true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, true);
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, true)
+                .AddEnvironmentVariables();
             Configuration = builder.Build();
 
             _installedCultures = localizationManager.GetInstalledCultures();
