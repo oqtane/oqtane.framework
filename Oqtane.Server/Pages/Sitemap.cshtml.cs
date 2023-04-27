@@ -28,7 +28,6 @@ namespace Oqtane.Pages
         private readonly IUserPermissions _userPermissions;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
-        private string sitemapXml;
 
         public SitemapModel(IServiceProvider serviceProvider, IPageRepository pages, IPageModuleRepository pageModules, IModuleDefinitionRepository moduleDefinitions, ISettingRepository settings, IUserPermissions userPermissions, IUrlMappingRepository urlMappings, ISyncManager syncManager, ILogManager logger, ITenantManager tenantManager)
         {
