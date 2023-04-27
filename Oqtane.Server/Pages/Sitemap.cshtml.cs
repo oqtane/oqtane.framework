@@ -86,7 +86,7 @@ namespace Oqtane.Pages
             }
 
             // write XML
-            var encoding = new UTF8Encoding(false); // Set to false to remove BOM
+            var encoding = new UTF8Encoding(false);
             var xmlDeclaration = new XDeclaration("1.0", encoding.WebName, null);
             var settings = new XmlWriterSettings
             {
@@ -103,7 +103,7 @@ namespace Oqtane.Pages
             using (var writer = XmlWriter.Create(builder, settings))
             {
                 writer.WriteStartDocument();
-                writer.WriteRaw(Environment.NewLine); // Add a newline here
+                writer.WriteRaw(Environment.NewLine);
                 writer.WriteStartElement("urlset", "http://www.sitemaps.org/schemas/sitemap/0.9");
 
                 foreach (var url in sitemap)
