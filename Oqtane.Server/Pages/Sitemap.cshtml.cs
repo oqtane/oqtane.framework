@@ -87,17 +87,24 @@ namespace Oqtane.Pages
             }
 
             // write XML
-            XmlWriterSettings settings = new XmlWriterSettings();
-            settings.Indent = true;
-            settings.IndentChars = ("  ");
-            settings.CloseOutput = true;
-            settings.OmitXmlDeclaration = true;
-            settings.WriteEndDocumentOnClose = true;
+            var encoding = new UTF8Encoding(false); // Set to false to remove BOM
+            var xmlDeclaration = new XDeclaration("1.0", encoding.WebName, null);
+            var settings = new XmlWriterSettings
+            {
+                Indent = true,
+                IndentChars = "  ",
+                CloseOutput = true,
+                Encoding = encoding,
+                OmitXmlDeclaration = true,
+                WriteEndDocumentOnClose = true,
+                NewLineChars = Environment.NewLine
+            };
 
-            StringBuilder builder = new StringBuilder();
-            using (XmlWriter writer = XmlWriter.Create(builder, settings))
+            var builder = new StringBuilder();
+            using (var writer = XmlWriter.Create(builder, settings))
             {
                 writer.WriteStartDocument();
+                writer.WriteRaw(Environment.NewLine); // Add a newline here
                 writer.WriteStartElement("urlset", "http://www.sitemaps.org/schemas/sitemap/0.9");
 
                 foreach (var url in sitemap)
@@ -107,12 +114,12 @@ namespace Oqtane.Pages
                     writer.WriteElementString("lastmod", url.ModifiedOn.ToString("yyyy-MM-dd"));
                     writer.WriteEndElement();
                 }
+                writer.WriteEndElement();
+                writer.WriteEndDocument();
                 writer.Close();
             }
 
-            sitemapXml = builder.ToString();
-
-            return Content(sitemapXml, "application/xml");
+            return Content(xmlDeclaration + builder.ToString(), "application/xml");
         }
     }
 }
