@@ -79,6 +79,9 @@ namespace Oqtane.Controllers
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.PageModule, pageModule.PageModuleId, SyncEventActions.Create);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Page Module Added {PageModule}", pageModule);
+                _pages.UpdatePage(page);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Page, page.PageId, SyncEventActions.Update);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page ModifiedOn Updated {Page}", page);
             }
             else
             {
@@ -101,6 +104,7 @@ namespace Oqtane.Controllers
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.PageModule, pageModule.PageModuleId, SyncEventActions.Update);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Module Updated {PageModule}", pageModule);
+                _pages.UpdatePage(page);
             }
             else
             {
@@ -134,6 +138,9 @@ namespace Oqtane.Controllers
                 }
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Module Order Updated {PageId} {Pane}", pageid, pane);
+                _pages.UpdatePage(page);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Page, page.PageId, SyncEventActions.Update);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page ModifiedOn Updated {Page}", page);
             }
             else
             {
@@ -154,6 +161,13 @@ namespace Oqtane.Controllers
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.PageModule, pagemodule.PageModuleId, SyncEventActions.Delete);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Page Module Deleted {PageModuleId}", id);
+
+                Page page = _pages.GetPage(pagemodule.PageId);
+                if (page != null)
+                {
+                    _pages.UpdatePage(page);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page ModifiedOn Updated {PageId}", page.PageId);
+                }
             }
             else
             {
