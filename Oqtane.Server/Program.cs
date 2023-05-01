@@ -34,6 +34,7 @@ namespace Oqtane.Server
             WebHost.CreateDefaultBuilder(args)
                 .UseConfiguration(new ConfigurationBuilder()
                     .AddCommandLine(args)
+                    .AddEnvironmentVariables()
                     .Build())
                 .UseStartup<Startup>()
                 .ConfigureLocalizationSettings()
