@@ -18,10 +18,14 @@ namespace Oqtane.Modules.HtmlText.Controllers
     public class HtmlTextController : ModuleControllerBase
     {
         private readonly IHtmlTextRepository _htmlText;
+        private readonly IPageRepository _page;
+        private readonly IPageModuleRepository _pageModule;
 
-        public HtmlTextController(IHtmlTextRepository htmlText, ILogManager logger, IHttpContextAccessor accessor) : base(logger, accessor)
+        public HtmlTextController(IHtmlTextRepository htmlText, ILogManager logger, IHttpContextAccessor accessor, IPageRepository page, IPageModuleRepository pageModule) : base(logger, accessor)
         {
             _htmlText = htmlText;
+            _page = page;
+            _pageModule = pageModule;
         }
 
         // GET: api/<controller>?moduleid=x
@@ -91,6 +95,14 @@ namespace Oqtane.Modules.HtmlText.Controllers
             if (ModelState.IsValid && IsAuthorizedEntityId(EntityNames.Module, htmlText.ModuleId))
             {
                 htmlText = _htmlText.AddHtmlText(htmlText);
+                var pageModule = _pageModule.GetPageModule(htmlText.ModuleId);
+                var page = _page.GetPage(pageModule.PageId);
+
+                if (page != null)
+                {
+                    _page.UpdatePage(page);
+                }                
+                _pageModule.UpdatePageModule(pageModule);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Html/Text Added {HtmlText}", htmlText);
                 return htmlText;
             }
@@ -109,6 +121,9 @@ namespace Oqtane.Modules.HtmlText.Controllers
         {
             if (IsAuthorizedEntityId(EntityNames.Module, moduleId))
             {
+                var pageModule = _pageModule.GetPageModule(moduleId);
+
+                _pageModule.UpdatePageModule(pageModule);
                 _htmlText.DeleteHtmlText(id);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Html/Text Deleted {HtmlTextId}", id);
             }
