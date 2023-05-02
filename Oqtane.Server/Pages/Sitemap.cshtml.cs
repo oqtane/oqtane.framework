@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -48,7 +49,7 @@ namespace Oqtane.Pages
             // build site map
             var moduleDefinitions = _moduleDefinitions.GetModuleDefinitions(_alias.SiteId).ToList();
             var pageModules = _pageModules.GetPageModules(_alias.SiteId);
-                        foreach (var page in _pages.GetPages(_alias.SiteId))
+            foreach (var page in _pages.GetPages(_alias.SiteId))
             {
                 if (_userPermissions.IsAuthorized(null, PermissionNames.View, page.PermissionList) && page.IsNavigation)
                 {
@@ -85,26 +86,21 @@ namespace Oqtane.Pages
             }
 
             // write XML
-            var encoding = new UTF8Encoding(false);
-            var xmlDeclaration = new XDeclaration("1.0", encoding.WebName, null);
+            var builder = new StringBuilder();
+            var stringWriter = new StringWriterWithEncoding(builder, Encoding.UTF8);
+
             var settings = new XmlWriterSettings
             {
                 Indent = true,
                 IndentChars = "  ",
+                NewLineChars = Environment.NewLine,
                 CloseOutput = true,
-                Encoding = encoding,
-                OmitXmlDeclaration = true,
-                WriteEndDocumentOnClose = true,
-                NewLineChars = Environment.NewLine
+                WriteEndDocumentOnClose = true
             };
 
-            var builder = new StringBuilder();
-            using (var writer = XmlWriter.Create(builder, settings))
+            using (var writer = XmlWriter.Create(stringWriter, settings))
             {
-                writer.WriteStartDocument();
-                writer.WriteRaw(Environment.NewLine);
                 writer.WriteStartElement("urlset", "http://www.sitemaps.org/schemas/sitemap/0.9");
-
                 foreach (var url in sitemap)
                 {
                     writer.WriteStartElement("url");
@@ -113,11 +109,28 @@ namespace Oqtane.Pages
                     writer.WriteEndElement();
                 }
                 writer.WriteEndElement();
-                writer.WriteEndDocument();
                 writer.Close();
             }
 
-            return Content(xmlDeclaration + builder.ToString(), "application/xml");
+            return Content(builder.ToString(), "application/xml");
+        }
+    }
+
+    public class StringWriterWithEncoding : StringWriter
+    {
+        private readonly Encoding _encoding;
+
+        public StringWriterWithEncoding(StringBuilder builder, Encoding encoding) : base(builder)
+        {
+            this._encoding = encoding;
+        }
+
+        public override Encoding Encoding
+        {
+            get
+            {
+                return this._encoding;
+            }
         }
     }
 }
