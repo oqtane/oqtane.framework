@@ -2,13 +2,40 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.1",
   "parameters": {
+    "sqlDatabaseEditionTierDtuCapacity": {
+      "type": "string",
+      "defaultValue": "Standard-S1-20-250",
+      "allowedValues": [
+        "Basic-Basic-5-2",
+        "Standard-S0-10-250",
+        "Standard-S1-20-250",
+        "Standard-S2-50-250",
+        "Standard-S3-100-250",
+        "Standard-S4-200-250",
+        "Standard-S6-400-250",
+        "Standard-S7-800-250",
+        "Standard-S9-1600-250",
+        "Standard-S12-3000-250",
+        "Premium-P1-125-500",
+        "Premium-P2-250-500",
+        "Premium-P4-500-500" ,
+        "Premium-P6-1000-500",
+        "Premium-P11-1750-500-1024",
+        "Premium-P15-4000-1024",
+        "GeneralPurpose-GP_Gen5_2-2-250",
+        "GeneralPurpose-GP_S_Gen5_2-2-250"
+      ],
+      "metadata": {
+        "description": "Describes the database Edition, Tier, Dtu, Gigabytes (Edition-Tier-Dtu-Gigabytes)"
+      }
+    },
     "sqlServerName": {
       "type": "string",
       "metadata": {
         "description": "The name of the sql server. It has to be unique."
       }
     },
-    "databaseName": {
+    "sqlDatabaseName": {
       "type": "string",
       "metadata": {
         "description": "The name of the sql databaseName. It has to be unique."
@@ -35,21 +62,29 @@
     "BlazorSKU": {
       "type": "string",
       "allowedValues": [
-        "Free",
-        "Shared",
-        "Basic",
-        "Standard"
+        "F1",
+        "D1",
+        "B1",
+        "B2",
+        "B3",
+        "S1",
+        "S2",
+        "S3",
+        "P1",
+        "P2",
+        "P3",
+        "P4"
       ],
-      "defaultValue": "Standard"
+      "defaultValue": "B1"
     },
-    "BlazorWorkerSize": {
-      "type": "string",
-      "allowedValues": [
-        "0",
-        "1",
-        "2"
-      ],
-      "defaultValue": "0"
+    "BlazorSKUCapacity": {
+      "type": "int",
+      "defaultValue": 1,
+      "maxValue": 3,
+      "minValue": 1,
+      "metadata": {
+        "description": "Describes plan's instance count"
+      }
     },
     "location": {
       "type": "string",
@@ -61,84 +96,83 @@
   },
   "variables": {
     "hostingPlanName": "[concat('Oqtane-hostingplan-', uniqueString(resourceGroup().id))]",
-    "databaseEdition": "Standard",
     "databaseCollation": "SQL_Latin1_General_CP1_CI_AS",
-    "databaseServiceObjectiveName": "Standard"
+    "databaseEditionTierDtuCapacity": "[split(parameters('sqlDatabaseEditionTierDtuCapacity'),'-')]",
+    "databaseEdition": "[variables('databaseEditionTierDtuCapacity')[0]]",
+    "databaseTier": "[variables('databaseEditionTierDtuCapacity')[1]]",
+    "databaseDtu": "[if(greater(length(variables('databaseEditionTierDtuCapacity')), 2), variables('databaseEditionTierDtuCapacity')[2], '')]",
+    "databaseMaxSizeGigaBytes":"[if(greater(length(variables('databaseEditionTierDtuCapacity')), 3), variables('databaseEditionTierDtuCapacity')[3], '')]",
+    "databaseServerlessTiers": [
+            "GP_S_Gen5_2"
+        ]
   },
   "resources": [
     {
-      "name": "[parameters('sqlServerName')]",
       "type": "Microsoft.Sql/servers",
-      "apiVersion": "2014-04-01",
-      "location": "[resourceGroup().location]",
+      "apiVersion": "2021-11-01",
+      "name": "[parameters('sqlServerName')]",
+      "location": "[parameters('location')]",
       "tags": {
-        "displayName": "SqlServer"
+        "displayName": "SQL Server"
       },
       "properties": {
         "administratorLogin": "[parameters('sqlAdministratorLogin')]",
         "administratorLoginPassword": "[parameters('sqlAdministratorLoginPassword')]",
         "version": "12.0"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases",
+      "apiVersion": "2021-11-01",
+      "name": "[format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabaseName'))]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "Database"
       },
-      "resources": [
-        {
-          "name": "[parameters('databaseName')]",
-          "type": "databases",
-          "apiVersion": "2015-01-01",
-          "location": "[resourceGroup().location]",
-          "tags": {
-            "displayName": "Database"
-          },
-          "properties": {
-            "edition": "[variables('databaseEdition')]",
-            "collation": "[variables('databaseCollation')]",
-            "requestedServiceObjectiveName": "[variables('databaseServiceObjectiveName')]"
-          },
-          "dependsOn": [
-            "[parameters('sqlServerName')]"
-          ],
-          "resources": [
-            {
-              "comments": "Transparent Data Encryption",
-              "name": "current",
-              "type": "transparentDataEncryption",
-              "apiVersion": "2014-04-01-preview",
-              "properties": {
-                "status": "Enabled"
-              },
-              "dependsOn": [
-                "[parameters('databaseName')]"
-              ]
-            }
-          ]
-        },
-        {
-          "name": "AllowAllMicrosoftAzureIps",
-          "type": "firewallrules",
-          "apiVersion": "2014-04-01",
-          "location": "[resourceGroup().location]",
-          "properties": {
-            "endIpAddress": "0.0.0.0",
-            "startIpAddress": "0.0.0.0"
-          },
-          "dependsOn": [
-            "[parameters('sqlServerName')]"
-          ]
-        }
+      "sku": {
+        "name": "[if(equals(variables('databaseEdition'), 'GeneralPurpose'), variables('databaseTier'), variables('databaseEdition'))]",
+        "tier": "[variables('databaseEdition')]",
+        "capacity": "[if(equals(variables('databaseDtu'), ''), json('null'), int(variables('databaseDtu')))]" 
+      },
+      "kind": "[concat('v12.0,user,vcore',if(contains(variables('databaseServerlessTiers'),variables('databaseTier')),',serverless',''))]",
+      "properties": {
+        "edition": "[variables('databaseEdition')]",
+        "collation": "[variables('databaseCollation')]",
+        "maxSizeBytes": "[if(equals(variables('databaseMaxSizeGigaBytes'), ''), json('null'), mul(mul(mul(int(variables('databaseMaxSizeGigaBytes')),1024),1024),1024))]",
+        "requestedServiceObjectiveName": "[variables('databaseTier')]"
+        
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('sqlserverName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Sql/servers/firewallRules",
+      "apiVersion": "2021-11-01",
+      "name": "[format('{0}/{1}', parameters('sqlServerName'), 'AllowAllWindowsAzureIps')]",
+      "properties": {
+        "endIpAddress": "0.0.0.0",
+        "startIpAddress": "0.0.0.0"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
       ]
     },
     {
       "name": "[variables('hostingPlanName')]",
       "type": "Microsoft.Web/serverfarms",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2014-06-01",
+      "apiVersion": "2022-09-01",
       "dependsOn": [],
       "tags": {
         "displayName": "Blazor"
       },
+      "sku": {
+        "name": "[parameters('BlazorSKU')]",
+        "capacity": "[parameters('BlazorSKUCapacity')]"
+      },
       "properties": {
         "name": "[variables('hostingPlanName')]",
-        "sku": "[parameters('BlazorSKU')]",
-        "workerSize": "[parameters('BlazorWorkerSize')]",
         "numberOfWorkers": 1
       }
     },
@@ -169,8 +203,8 @@
           "name": "web",
           "location": "[parameters('location')]",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/sites', parameters('BlazorWebsiteName'))]",
-            "[resourceId('Microsoft.Web/Sites/config', parameters('BlazorWebsiteName'), 'connectionstrings')]"
+            "[resourceId('Microsoft.Web/sites', parameters('BlazorWebsiteName'))]"
+            //"[resourceId('Microsoft.Web/Sites/config', parameters('BlazorWebsiteName'), 'connectionstrings')]"
           ],
           "properties": {
             "RepoUrl": "https://github.com/oqtane/oqtane.framework.git",
