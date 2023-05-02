@@ -2,9 +2,9 @@
 
 [3.4.2](https://github.com/oqtane/oqtane.framework/releases/tag/v3.4.2) was released on Mar 29, 2023 and is primarily focused on performance, as the permissions system has been overhauled to avoid unnecessary encoding and parsing of custom access control strings. This release also includes enhancements to connection string management, numerous stabilization and user experience improvements, and the ability to dynamically generate an XML sitemap for seach engine indexing. This release includes 62 pull requests by 6 different contributors, pushing the total number of project commits all-time over 3300. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
-# Oqtane Framework
-
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Foqtane%2Foqtane.framework%2Fmaster%2Fazuredeploy.json)
+
+# Oqtane Framework
 
 ![Oqtane](https://github.com/oqtane/framework/blob/master/oqtane.png?raw=true "Oqtane")
 
