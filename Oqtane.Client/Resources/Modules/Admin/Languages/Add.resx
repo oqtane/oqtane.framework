@@ -132,11 +132,11 @@
   <data name="IsDefault.Text" xml:space="preserve">
     <value>Default?</value>
   </data>
-  <data name="Success.Language.Install" xml:space="preserve">
-    <value>You Must &lt;a href={0}&gt;Restart&lt;/a&gt; To Complete The Installation.</value>
+  <data name="Success.Language.Download" xml:space="preserve">
+    <value>Translation Package Saved Successfully. You Must &lt;a href={0}&gt;Restart&lt;/a&gt; To Complete The Installation.</value>
   </data>
   <data name="LanguageUpload.HelpText" xml:space="preserve">
-    <value>Upload one or more translation packages. Once they are uploaded click Install.</value>
+    <value>Upload one or more translation packages.</value>
   </data>
   <data name="LanguageUpload.Text" xml:space="preserve">
     <value>Translation</value>

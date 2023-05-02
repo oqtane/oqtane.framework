@@ -50,11 +50,10 @@ else
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" HelpText="Upload one or more translations. Once they are uploaded click Install." ResourceKey="LanguageUpload">Translation: </Label>
                     <div class="col-sm-9">
-                        <FileManager Folder="@Constants.PackagesFolder" UploadMultiple="true" />
+                        <FileManager Folder="@Constants.PackagesFolder" UploadMultiple="true" OnUpload="OnUpload" />
                     </div>
                 </div>
             </div>
-            <button type="button" class="btn btn-success" @onclick="InstallTranslations">@SharedLocalizer["Install"]</button>
             <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
         </TabPanel>
     </TabStrip>
@@ -125,18 +124,6 @@ else
 		}
 	}
 
-	private async Task InstallTranslations()
-	{
-		try
-		{
-			AddModuleMessage(string.Format(Localizer["Success.Language.Install"], NavigateUrl("admin/system")), MessageType.Success);
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Installing Translations");
-        }
-    }
-
     private async Task SetCultureAsync(string culture)
     {
         if (culture != CultureInfo.CurrentUICulture.Name)
@@ -147,5 +134,10 @@ else
 
             NavigationManager.NavigateTo(NavigationManager.Uri, true);
         }
+    }
+
+    private void OnUpload()
+    {
+        AddModuleMessage(string.Format(Localizer["Success.Language.Download"], NavigateUrl("admin/system")), MessageType.Success);
     }
 }

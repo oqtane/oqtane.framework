@@ -133,7 +133,7 @@
     <value>Delete Language</value>
   </data>
   <data name="Success.Language.Download" xml:space="preserve">
-    <value>Translation Downloaded Successfully. You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Complete The Installation.</value>
+    <value>Translation Package Saved Successfully. You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Complete The Installation.</value>
   </data>
   <data name="Error.Language.Download" xml:space="preserve">
     <value>Error Downloading Translation</value>

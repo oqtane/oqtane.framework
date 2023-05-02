@@ -211,7 +211,7 @@
     <value>No Translations Exist For This Module Or Package Service Is Disabled</value>
   </data>
   <data name="Success.Translation.Download" xml:space="preserve">
-    <value>Translation Downloaded Successfully. You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Complete The Installation.</value>
+    <value>Translation Package Saved Successfully. You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Complete The Installation.</value>
   </data>
   <data name="Translations.Heading" xml:space="preserve">
     <value>Translations</value>
