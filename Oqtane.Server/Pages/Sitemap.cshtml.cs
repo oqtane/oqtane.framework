@@ -48,11 +48,11 @@ namespace Oqtane.Pages
             // build site map
             var moduleDefinitions = _moduleDefinitions.GetModuleDefinitions(_alias.SiteId).ToList();
             var pageModules = _pageModules.GetPageModules(_alias.SiteId);
-            foreach (var page in _pages.GetPages(_alias.SiteId))
+                        foreach (var page in _pages.GetPages(_alias.SiteId))
             {
                 if (_userPermissions.IsAuthorized(null, PermissionNames.View, page.PermissionList) && page.IsNavigation)
                 {
-                    sitemap.Add(new Sitemap { Url = _alias.Protocol + _alias.Name + Utilities.NavigateUrl(_alias.Path, page.Path, ""), ModifiedOn = page.ModifiedOn });
+                    sitemap.Add(new Sitemap { Url = _alias.Protocol + _alias.Name + Utilities.NavigateUrl(_alias.Path, page.Path, ""), ModifiedOn = DateTime.UtcNow });
 
                     foreach (var pageModule in pageModules.Where(item => item.PageId == page.PageId))
                     {
@@ -66,12 +66,11 @@ namespace Oqtane.Pages
                                 {
                                     try
                                     {
-                                        pageModule.Module.Settings = _settings.GetSettings(EntityNames.Module, pageModule.ModuleId).ToDictionary(x => x.SettingName, x => x.SettingValue);
                                         var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
                                         var urls = ((ISitemap)moduleobject).GetUrls(_alias.Path, page.Path, pageModule.Module);
                                         foreach (var url in urls)
                                         {
-                                            sitemap.Add(new Sitemap { Url = _alias.Protocol + _alias.Name + url.Url, ModifiedOn = url.ModifiedOn });
+                                            sitemap.Add(new Sitemap { Url = _alias.Protocol + _alias.Name + url.Url, ModifiedOn = DateTime.UtcNow });
                                         }
                                     }
                                     catch (Exception ex)
@@ -86,17 +85,24 @@ namespace Oqtane.Pages
             }
 
             // write XML
-            XmlWriterSettings settings = new XmlWriterSettings();
-            settings.Indent = true;
-            settings.IndentChars = ("  ");
-            settings.CloseOutput = true;
-            settings.OmitXmlDeclaration = true;
-            settings.WriteEndDocumentOnClose = true;
+            var encoding = new UTF8Encoding(false);
+            var xmlDeclaration = new XDeclaration("1.0", encoding.WebName, null);
+            var settings = new XmlWriterSettings
+            {
+                Indent = true,
+                IndentChars = "  ",
+                CloseOutput = true,
+                Encoding = encoding,
+                OmitXmlDeclaration = true,
+                WriteEndDocumentOnClose = true,
+                NewLineChars = Environment.NewLine
+            };
 
-            StringBuilder builder = new StringBuilder();
-            using (XmlWriter writer = XmlWriter.Create(builder, settings))
+            var builder = new StringBuilder();
+            using (var writer = XmlWriter.Create(builder, settings))
             {
                 writer.WriteStartDocument();
+                writer.WriteRaw(Environment.NewLine);
                 writer.WriteStartElement("urlset", "http://www.sitemaps.org/schemas/sitemap/0.9");
 
                 foreach (var url in sitemap)
@@ -106,10 +112,12 @@ namespace Oqtane.Pages
                     writer.WriteElementString("lastmod", url.ModifiedOn.ToString("yyyy-MM-dd"));
                     writer.WriteEndElement();
                 }
+                writer.WriteEndElement();
+                writer.WriteEndDocument();
                 writer.Close();
             }
 
-            return Content(builder.ToString());
+            return Content(xmlDeclaration + builder.ToString(), "application/xml");
         }
     }
 }
