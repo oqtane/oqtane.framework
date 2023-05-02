@@ -48,6 +48,7 @@ namespace Oqtane.Repository
             _db.Entry(moduleDefinition).State = EntityState.Modified;
             _db.SaveChanges();
             _permissions.UpdatePermissions(moduleDefinition.SiteId, EntityNames.ModuleDefinition, moduleDefinition.ModuleDefinitionId, moduleDefinition.PermissionList);
+            _cache.Remove("moduledefinitions");
         }
 
         public void DeleteModuleDefinition(int moduleDefinitionId)
