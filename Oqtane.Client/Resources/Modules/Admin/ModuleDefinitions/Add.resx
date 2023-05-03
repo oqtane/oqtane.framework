@@ -123,17 +123,14 @@
   <data name="Error.Package.Load" xml:space="preserve">
     <value>Error Loading Packages</value>
   </data>
-  <data name="Success.Module.Install" xml:space="preserve">
-    <value>Module Installed Successfully. You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Apply These Changes.</value>
-  </data>
   <data name="Success.Module.Download" xml:space="preserve">
-    <value>Module Downloaded Successfully. Click Install To Complete Installation.</value>
+    <value>Module Package Saved Successfully. You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Complete The Installation.</value>
   </data>
   <data name="Error.Module.Download" xml:space="preserve">
     <value>Error Downloading Module</value>
   </data>
   <data name="Module.HelpText" xml:space="preserve">
-    <value>Upload one or more module packages. Once they are uploaded click Install to complete the installation.</value>
+    <value>Upload one or more module packages.</value>
   </data>
   <data name="Search.NoResults" xml:space="preserve">
     <value>No Modules Match The Criteria Provided Or Package Service Is Disabled</value>

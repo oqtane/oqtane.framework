@@ -23,7 +23,7 @@
 					<div class="col-sm-9">
                         <div class="input-group">
 						    <input id="password" type="@_passwordtype" class="form-control" @bind="@_password" autocomplete="new-password" required />
-						    <button type="button" class="btn btn-secondary" @onclick="@TogglePassword">@_togglepassword</button>
+                            <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
 					    </div>
                     </div>
                 </div>
@@ -32,7 +32,7 @@
                     <div class="col-sm-9">
                         <div class="input-group">
 							<input id="confirm" type="@_passwordtype" class="form-control" @bind="@confirm" autocomplete="new-password" required />
-						    <button type="button" class="btn btn-secondary" @onclick="@TogglePassword">@_togglepassword</button>
+                            <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
 					    </div>
                     </div>
                 </div>

@@ -58,7 +58,11 @@ else
 				}
 				if (Name.ToLower() == pane.ToLower())
 				{
-					Module module = PageState.Modules.FirstOrDefault(item => item.ModuleId == PageState.ModuleId);
+					Module module = PageState.Modules.FirstOrDefault(item => item.PageId == PageState.Page.PageId && item.ModuleId == PageState.ModuleId);
+					if (module == null)
+					{
+						module = PageState.Modules.FirstOrDefault(item => item.ModuleId == PageState.ModuleId);
+					}
 					if (module != null)
 					{
 						var moduleType = Type.GetType(module.ModuleType);
@@ -107,8 +111,12 @@ else
             {
                 if (PageState.ModuleId != -1)
                 {
-                    Module module = PageState.Modules.FirstOrDefault(item => item.ModuleId == PageState.ModuleId);
-                    if (module != null && module.Pane.ToLower() == Name.ToLower())
+					Module module = PageState.Modules.FirstOrDefault(item => item.PageId == PageState.Page.PageId && item.ModuleId == PageState.ModuleId);
+					if (module == null)
+					{
+						module = PageState.Modules.FirstOrDefault(item => item.ModuleId == PageState.ModuleId);
+					}
+					if (module != null && module.Pane.ToLower() == Name.ToLower())
                     {
                         // check if user is authorized to view module
                         if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.PermissionList))
@@ -119,7 +127,7 @@ else
                 }
                 else
                 {
-                    foreach (Module module in PageState.Modules.Where(item => item.PageId == PageState.Page.PageId && item.Pane.ToLower() == Name.ToLower()).OrderBy(x => x.Order).ToArray())
+                    foreach (Module module in PageState.Modules.Where(item => item.PageId == PageState.Page.PageId && item.Pane.ToLower() == Name.ToLower()))
                     {
                         // check if user is authorized to view module
                         if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.PermissionList))

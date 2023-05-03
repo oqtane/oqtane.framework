@@ -65,13 +65,15 @@
                 </div>
             }
         }
+        <br />
+        <ModuleMessage Type="MessageType.Info" Message="@SharedLocalizer["Oqtane.Marketplace"]" />
     </TabPanel>
     <TabPanel Name="Upload" ResourceKey="Upload">
         <div class="container">
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" HelpText="Upload one or more module packages. Once they are uploaded click Install to complete the installation." ResourceKey="Module">Module: </Label>
                 <div class="col-sm-9">
-                    <FileManager Folder="@Constants.PackagesFolder" UploadMultiple="true" />
+                    <FileManager Folder="@Constants.PackagesFolder" UploadMultiple="true" OnUpload="OnUpload" />
                 </div>
             </div>
         </div>
@@ -111,153 +113,140 @@
     </div>
 }
 
-<button type="button" class="btn btn-success" @onclick="InstallModules">@SharedLocalizer["Install"]</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 
-<br />
-<br />
-<ModuleMessage Type="MessageType.Info" Message="@SharedLocalizer["Oqtane.Marketplace"]" />
-
 @code {
-	private List<Package> _packages;
-	private string _price = "free";
-	private string _search = "";
-	private string _productname = "";
-	private string _packageid = "";
-	private string _packagelicense = "";
-	private string _packageversion = "";
+    private List<Package> _packages;
+    private string _price = "free";
+    private string _search = "";
+    private string _productname = "";
+    private string _packageid = "";
+    private string _packagelicense = "";
+    private string _packageversion = "";
 
-	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-	protected override async Task OnInitializedAsync()
-	{
-		try
-		{
-			await LoadModuleDefinitions();
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Loading Packages {Error}", ex.Message);
-			AddModuleMessage(Localizer["Error.Package.Load"], MessageType.Error);
-		}
-	}
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await LoadModuleDefinitions();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Packages {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Package.Load"], MessageType.Error);
+        }
+    }
 
-	private async Task LoadModuleDefinitions()
-	{
-		var moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
-		_packages = await PackageService.GetPackagesAsync("module", _search, _price, "");
+    private async Task LoadModuleDefinitions()
+    {
+        var moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
+        _packages = await PackageService.GetPackagesAsync("module", _search, _price, "");
 
-		if (_packages != null)
-		{
-			foreach (Package package in _packages.ToArray())
-			{
-				if (moduledefinitions.Exists(item => item.PackageName == package.PackageId))
-				{
-					_packages.Remove(package);
-				}
-			}
-		}
-	}
+        if (_packages != null)
+        {
+            foreach (Package package in _packages.ToArray())
+            {
+                if (moduledefinitions.Exists(item => item.PackageName == package.PackageId))
+                {
+                    _packages.Remove(package);
+                }
+            }
+        }
+    }
 
-	private async void PriceChanged(ChangeEventArgs e)
-	{
-		try
-		{
-			_price = (string)e.Value;
-			_search = "";
-			await LoadModuleDefinitions();
-			StateHasChanged();
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error On PriceChanged");
-		}
-	}
+    private async void PriceChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            _price = (string)e.Value;
+            _search = "";
+            await LoadModuleDefinitions();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error On PriceChanged");
+        }
+    }
 
-	private async Task Search()
-	{
-		try
-		{
-			await LoadModuleDefinitions();
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error On Search");
-		}
-	}
+    private async Task Search()
+    {
+        try
+        {
+            await LoadModuleDefinitions();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error On Search");
+        }
+    }
 
-	private async Task Reset()
-	{
-		try
-		{
-			_search = "";
-			await LoadModuleDefinitions();
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error On Reset");
-		}
-	}
+    private async Task Reset()
+    {
+        try
+        {
+            _search = "";
+            await LoadModuleDefinitions();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error On Reset");
+        }
+    }
 
-	private void HideModal()
-	{
-		_productname = "";
-		_packagelicense = "";
-		StateHasChanged();
-	}
+    private void HideModal()
+    {
+        _productname = "";
+        _packagelicense = "";
+        StateHasChanged();
+    }
 
-	private async Task GetPackage(string packageid, string version)
-	{
-		try
-		{
-			var package = await PackageService.GetPackageAsync(packageid, version);
-			if (package != null)
-			{
-				_productname = package.Name;
-				_packageid = package.PackageId;
-				if (!string.IsNullOrEmpty(package.License))
-				{
-					_packagelicense = package.License.Replace("\n", "<br />");
-				}
-				_packageversion = package.Version;
-			}
-			StateHasChanged();
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Getting Package {PackageId} {Version}", packageid, version);
-			AddModuleMessage(Localizer["Error.Module.Download"], MessageType.Error);
-		}
-	}
+    private async Task GetPackage(string packageid, string version)
+    {
+        try
+        {
+            var package = await PackageService.GetPackageAsync(packageid, version);
+            if (package != null)
+            {
+                _productname = package.Name;
+                _packageid = package.PackageId;
+                if (!string.IsNullOrEmpty(package.License))
+                {
+                    _packagelicense = package.License.Replace("\n", "<br />");
+                }
+                _packageversion = package.Version;
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Getting Package {PackageId} {Version}", packageid, version);
+            AddModuleMessage(Localizer["Error.Module.Download"], MessageType.Error);
+        }
+    }
 
-	private async Task DownloadPackage()
-	{
-		try
-		{
-			await PackageService.DownloadPackageAsync(_packageid, _packageversion, Constants.PackagesFolder);
-			await logger.LogInformation("Package {PackageId} {Version} Downloaded Successfully", _packageid, _packageversion);
-			AddModuleMessage(Localizer["Success.Module.Download"], MessageType.Success);
-			_productname = "";
-			_packagelicense = "";
-			StateHasChanged();
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Downloading Package {PackageId} {Version}", _packageid, _packageversion);
-			AddModuleMessage(Localizer["Error.Module.Download"], MessageType.Error);
-		}
-	}
+    private async Task DownloadPackage()
+    {
+        try
+        {
+            await PackageService.DownloadPackageAsync(_packageid, _packageversion, Constants.PackagesFolder);
+            await logger.LogInformation("Package {PackageId} {Version} Downloaded Successfully", _packageid, _packageversion);
+            AddModuleMessage(string.Format(Localizer["Success.Module.Download"], NavigateUrl("admin/system")), MessageType.Success);
+            _productname = "";
+            _packagelicense = "";
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Downloading Package {PackageId} {Version}", _packageid, _packageversion);
+            AddModuleMessage(Localizer["Error.Module.Download"], MessageType.Error);
+        }
+    }
 
-	private async Task InstallModules()
-	{
-		try
-		{
-			await ModuleDefinitionService.InstallModuleDefinitionsAsync();
-			AddModuleMessage(string.Format(Localizer["Success.Module.Install"], NavigateUrl("admin/system")), MessageType.Success);
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Installing Modules");
-		}
-	}
+    private void OnUpload()
+    {
+        AddModuleMessage(string.Format(Localizer["Success.Module.Download"], NavigateUrl("admin/system")), MessageType.Success);
+    }
 }

@@ -131,10 +131,6 @@
 						</td>
 					</Row>
 				</Pager>
-				@if (_install)
-				{
-					<button type="button" class="btn btn-success" @onclick="InstallTranslations">@SharedLocalizer["Install"]</button>
-				}
 			}
 			else
 			{
@@ -196,114 +192,121 @@
 }
 
 @code {
-	private bool _initialized = false;
-	private ElementReference form;
-	private bool validated = false;
-	private int _moduleDefinitionId;
-	private string _name;
-	private string _description = "";
-	private string _categories;
-	private string _moduledefinitionname = "";
-	private string _version;
-	private string _packagename = "";
-	private string _owner = "";
-	private string _url = "";
-	private string _contact = "";
-	private string _license = "";
-	private string _runtimes = "";
-	private List<Permission> _permissions = null;
-	private string _createdby;
-	private DateTime _createdon;
-	private string _modifiedby;
-	private DateTime _modifiedon;
+    private bool _initialized = false;
+    private ElementReference form;
+    private bool validated = false;
+    private int _moduleDefinitionId;
+    private string _name;
+    private string _description = "";
+    private string _categories;
+    private string _moduledefinitionname = "";
+    private string _version;
+    private string _packagename = "";
+    private string _owner = "";
+    private string _url = "";
+    private string _contact = "";
+    private string _license = "";
+    private string _runtimes = "";
+    private List<Permission> _permissions = null;
+    private string _createdby;
+    private DateTime _createdon;
+    private string _modifiedby;
+    private DateTime _modifiedon;
 
 #pragma warning disable 649
-	private PermissionGrid _permissionGrid;
+    private PermissionGrid _permissionGrid;
 #pragma warning restore 649
 
-	private List<Package> _packages;
-	private List<Language> _languages;
-	private Package _package;
-	private bool _install = false;
+    private List<Package> _packages;
+    private List<Language> _languages;
+    private Package _package;
 
-	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-	protected override async Task OnInitializedAsync()
-	{
-		try
-		{
-			_moduleDefinitionId = Int32.Parse(PageState.QueryString["id"]);
-			var moduleDefinition = await ModuleDefinitionService.GetModuleDefinitionAsync(_moduleDefinitionId, ModuleState.SiteId);
-			if (moduleDefinition != null)
-			{
-				_name = moduleDefinition.Name;
-				_description = moduleDefinition.Description;
-				_categories = moduleDefinition.Categories;
-				_moduledefinitionname = moduleDefinition.ModuleDefinitionName;
-				_version = moduleDefinition.Version;
-				_packagename = moduleDefinition.PackageName;
-				_owner = moduleDefinition.Owner;
-				_url = moduleDefinition.Url;
-				_contact = moduleDefinition.Contact;
-				_license = moduleDefinition.License;
-				_runtimes = moduleDefinition.Runtimes;
-				_permissions = moduleDefinition.PermissionList;
-				_createdby = moduleDefinition.CreatedBy;
-				_createdon = moduleDefinition.CreatedOn;
-				_modifiedby = moduleDefinition.ModifiedBy;
-				_modifiedon = moduleDefinition.ModifiedOn;
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _moduleDefinitionId = Int32.Parse(PageState.QueryString["id"]);
+            var moduleDefinition = await ModuleDefinitionService.GetModuleDefinitionAsync(_moduleDefinitionId, ModuleState.SiteId);
+            if (moduleDefinition != null)
+            {
+                _name = moduleDefinition.Name;
+                _description = moduleDefinition.Description;
+                _categories = moduleDefinition.Categories;
+                _moduledefinitionname = moduleDefinition.ModuleDefinitionName;
+                _version = moduleDefinition.Version;
+                _packagename = moduleDefinition.PackageName;
+                _owner = moduleDefinition.Owner;
+                _url = moduleDefinition.Url;
+                _contact = moduleDefinition.Contact;
+                _license = moduleDefinition.License;
+                _runtimes = moduleDefinition.Runtimes;
+                _permissions = moduleDefinition.PermissionList;
+                _createdby = moduleDefinition.CreatedBy;
+                _createdon = moduleDefinition.CreatedOn;
+                _modifiedby = moduleDefinition.ModifiedBy;
+                _modifiedon = moduleDefinition.ModifiedOn;
 
-				if (!string.IsNullOrEmpty(_packagename))
-				{
-					_packages = await PackageService.GetPackagesAsync("translation", "", "", _packagename);
-					_languages = await LanguageService.GetLanguagesAsync(-1, _packagename);
-					foreach (var package in _packages)
-					{
-						var code = package.PackageId.Split('.').Last();
-						if (!_languages.Any(item => item.Code == code))
-						{
-							_languages.Add(new Language { Code = code, Name = CultureInfo.GetCultureInfo(code).DisplayName, Version = package.Version, IsDefault = true });
-						}
-					}
-					_languages = _languages.OrderBy(item => item.Name).ToList();
-				}
+                if (!string.IsNullOrEmpty(_packagename))
+                {
+                    _packages = await PackageService.GetPackagesAsync("translation", "", "", _packagename);
+                    _languages = await LanguageService.GetLanguagesAsync(-1, _packagename);
+                    foreach (var package in _packages)
+                    {
+                        var code = package.PackageId.Split('.').Last();
+                        if (!_languages.Any(item => item.Code == code))
+                        {
+                            _languages.Add(new Language { Code = code, Name = CultureInfo.GetCultureInfo(code).DisplayName, Version = package.Version, IsDefault = true });
+                        }
+                    }
+                    _languages = _languages.OrderBy(item => item.Name).ToList();
+                }
 
-				_initialized = true;
-			}
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Loading ModuleDefinition {ModuleDefinitionId} {Error}", _moduleDefinitionId, ex.Message);
-			AddModuleMessage(Localizer["Error.Module.Load"], MessageType.Error);
-		}
-	}
+                _initialized = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading ModuleDefinition {ModuleDefinitionId} {Error}", _moduleDefinitionId, ex.Message);
+            AddModuleMessage(Localizer["Error.Module.Load"], MessageType.Error);
+        }
+    }
 
-	private async Task SaveModuleDefinition()
-	{
-		validated = true;
-		var interop = new Interop(JSRuntime);
-		if (await interop.FormValid(form))
-		{
-			try
-			{
-				var moduledefinition = await ModuleDefinitionService.GetModuleDefinitionAsync(_moduleDefinitionId, ModuleState.SiteId);
-				if (moduledefinition.Name != _name)
-				{
-					moduledefinition.Name = _name;
-				}
-				if (moduledefinition.Description != _description)
-				{
-					moduledefinition.Description = _description;
-				}
-				if (moduledefinition.Categories != _categories)
-				{
-					moduledefinition.Categories = _categories;
-				}
-				moduledefinition.PermissionList = _permissionGrid.GetPermissionList();
-				await ModuleDefinitionService.UpdateModuleDefinitionAsync(moduledefinition);
-				await logger.LogInformation("ModuleDefinition Saved {ModuleDefinition}", moduledefinition);
-				NavigationManager.NavigateTo(NavigateUrl());
-			}
+    private async Task SaveModuleDefinition()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
+        {
+            try
+            {
+                var moduleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
+                if (!moduleDefinitions.Any(item => item.Name.ToLower() == _name.ToLower() && item.ModuleDefinitionId != _moduleDefinitionId))
+                {
+                    var moduledefinition = await ModuleDefinitionService.GetModuleDefinitionAsync(_moduleDefinitionId, ModuleState.SiteId);
+                    if (moduledefinition.Name != _name)
+                    {
+                        moduledefinition.Name = _name;
+                    }
+                    if (moduledefinition.Description != _description)
+                    {
+                        moduledefinition.Description = _description;
+                    }
+                    if (moduledefinition.Categories != _categories)
+                    {
+                        moduledefinition.Categories = _categories;
+                    }
+                    moduledefinition.PermissionList = _permissionGrid.GetPermissionList();
+                    await ModuleDefinitionService.UpdateModuleDefinitionAsync(moduledefinition);
+                    await logger.LogInformation("ModuleDefinition Saved {ModuleDefinition}", moduledefinition);
+                    NavigationManager.NavigateTo(NavigateUrl());
+                }
+                else
+                {
+                    AddModuleMessage(Localizer["Message.DuplicateName"], MessageType.Warning);
+                }
+            }
 			catch (Exception ex)
 			{
 				await logger.LogError(ex, "Error Saving ModuleDefinition {ModuleDefinitionId} {Error}", _moduleDefinitionId, ex.Message);
@@ -366,30 +369,14 @@
 		{
 			await PackageService.DownloadPackageAsync(_package.PackageId, _package.Version, Constants.PackagesFolder);
 			await logger.LogInformation("Package {PackageId} {Version} Downloaded Successfully", _package.PackageId, _package.Version);
-			AddModuleMessage(Localizer["Success.Translation.Download"], MessageType.Success);
+			AddModuleMessage(string.Format(Localizer["Success.Translation.Download"], NavigateUrl("admin/system")), MessageType.Success);
 			_package = null;
-			_install = true;
 			StateHasChanged();
 		}
 		catch (Exception ex)
 		{
 			await logger.LogError(ex, "Error Downloading Package {PackageId} {Version}", _packagename, _version);
 			AddModuleMessage(Localizer["Error.Translation.Download"], MessageType.Error);
-		}
-	}
-
-	private async Task InstallTranslations()
-	{
-		try
-		{
-			await PackageService.InstallPackagesAsync();
-			AddModuleMessage(string.Format(Localizer["Success.Translation.Install"], NavigateUrl("admin/system")), MessageType.Success);
-			_install = false;
-			StateHasChanged();
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Installing Translations");
 		}
 	}
 }

@@ -36,9 +36,10 @@ namespace Oqtane.Repository
                     {
                         if (permission.RoleId != null && string.IsNullOrEmpty(permission.RoleName))
                         {
-                            permission.RoleName = roles.Find(item => item.RoleId == permission.RoleId).Name;
+                            permission.RoleName = roles.Find(item => item.RoleId == permission.RoleId)?.Name;
                         }
                     }
+                    permissions = permissions.Where(item => item.UserId != null || item.RoleName != null).ToList();
                     entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                     return permissions;
                 });
@@ -93,11 +94,7 @@ namespace Oqtane.Repository
                 permission.EntityId = (permission.EntityName == entityName) ? entityId : -1;
                 if (permission.UserId == null && permission.RoleId == null && !string.IsNullOrEmpty(permission.RoleName))
                 {
-                    var role = roles.FirstOrDefault(item => item.Name == permission.RoleName);
-                    if (role != null)
-                    {
-                        permission.RoleId = role.RoleId;
-                    }
+                    permission.RoleId = roles.FirstOrDefault(item => item.Name == permission.RoleName)?.RoleId;
                 }
             }
             // add or update permissions

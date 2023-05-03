@@ -41,14 +41,6 @@ namespace Oqtane.Controllers
             return _themes.GetThemes();
         }
 
-        [HttpGet("install")]
-        [Authorize(Roles = RoleNames.Host)]
-        public void InstallThemes()
-        {
-            _logger.Log(LogLevel.Information, this, LogFunction.Create, "Themes Installed");
-            _installationManager.InstallPackages();
-        }
-
         // DELETE api/<controller>/xxx
         [HttpDelete("{themename}")]
         [Authorize(Roles = RoleNames.Host)]

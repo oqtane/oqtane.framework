@@ -19,5 +19,7 @@ namespace Oqtane.Shared
         public const string DefaultContainerKey = "DefaultContainer";
 
         public const string AvailableDatabasesSection = "AvailableDatabases";
+
+        public const string TestModeKey = "TestMode"; // optional - used for testing run-time characteristics
     }
 }

@@ -40,12 +40,6 @@ namespace Oqtane.Services
         List<ThemeControl> GetContainerControls(List<Theme> themes, string themeName);
 
         /// <summary>
-        /// Installs all themes located in //TODO: 2dm where?
-        /// </summary>
-        /// <returns></returns>
-        Task InstallThemesAsync();
-
-        /// <summary>
         /// Deletes a theme
         /// </summary>
         /// <param name="themeName"></param>
