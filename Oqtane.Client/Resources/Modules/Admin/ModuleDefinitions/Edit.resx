@@ -216,4 +216,7 @@
   <data name="Translations.Heading" xml:space="preserve">
     <value>Translations</value>
   </data>
+  <data name="Message.DuplicateName" xml:space="preserve">
+    <value>A Module With The Name Specified Already Exists</value>
+  </data>
 </root>
