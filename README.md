@@ -186,6 +186,8 @@ Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalke
 
 # Release Announcements
 
+[Oqtane 3.4](https://www.oqtane.org/blog/!/56/oqtane-3-4-0-released)
+
 [Oqtane 3.3](https://www.oqtane.org/blog/!/54/oqtane-3-3-0-released)
 
 [Oqtane 3.2](https://www.oqtane.org/blog/!/50/oqtane-3-2-for-net-maui-blazor-hybrid)
