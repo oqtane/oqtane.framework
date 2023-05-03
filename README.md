@@ -154,14 +154,15 @@ This project is open source, and therefore is a work in progress...
 [2.0.1](https://github.com/oqtane/oqtane.framework/releases/tag/v2.0.1) ( Feb 27, 2021 )
 - [x] Complete Static Localization of Admin UI
 
-[2.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v2.0.0) ( Nov 11, 2020 - released in conjunction with .NET 5 )
+[2.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v2.0.0) ( Nov 11, 2020 )
 - [x] Migration to .NET 5
 - [x] Static Localization ( ie. labels, help text, etc.. )
 - [x] Improved JavaScript Reference Support
 - [x] Performance Optimizations
 - [x] Developer Productivity Enhancements
 
-[1.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v1.0.0) ( May 19, 2020 - released in conjunction with .NET Core 3.2 )
+[1.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v1.0.0) ( May 19, 2020 )
+- [x] Migration to .NET Core 3.2
 - [x] Multi-Tenant ( Shared Database & Isolated Database ) 
 - [x] Modular Architecture
 - [x] Headless API with Swagger Support
@@ -180,6 +181,10 @@ This project is open source, and therefore is a work in progress...
 - [x] Progressive Web Application Support
 - [x] JavaScript Lazy Loading
 - [x] Dynamic CSS/Lazy Loading
+
+[POC](https://www.oqtane.org/blog/!/7/announcing-oqtane-a-modular-application-framework-for-blazor) ( May 9, 2019 )
+- [x] Initial public release on GitHub
+- [x] .NET Core 3.0
 
 # Background
 Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology and a Single Page Application (SPA) architecture. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly themes, and extensibility via third party modules.
