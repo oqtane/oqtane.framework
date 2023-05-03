@@ -137,6 +137,7 @@ namespace Oqtane.Controllers
                         site.Modules.Add(module);
                     }
                 }
+                site.Modules = site.Modules.OrderBy(item => item.PageId).ThenBy(item => item.Pane).ThenBy(item => item.Order).ToList();
 
                 // languages
                 site.Languages = _languages.GetLanguages(site.SiteId).ToList();
