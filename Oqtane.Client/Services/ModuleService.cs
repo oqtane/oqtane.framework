@@ -18,11 +18,7 @@ namespace Oqtane.Services
 
         public async Task<List<Module>> GetModulesAsync(int siteId)
         {
-            List<Module> modules = await GetJsonAsync<List<Module>>($"{Apiurl}?siteid={siteId}");
-            modules = modules
-                .OrderBy(item => item.Order)
-                .ToList();
-            return modules;
+            return await GetJsonAsync<List<Module>>($"{Apiurl}?siteid={siteId}");
         }
 
         public async Task<Module> GetModuleAsync(int moduleId)

@@ -124,13 +124,13 @@
     <value>Theme: </value>
   </data>
   <data name="Success.Theme.Download" xml:space="preserve">
-    <value>Theme Downloaded Successfully. You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Complete The Installation.</value>
+    <value>Theme Package Saved Successfully. You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Complete The Installation.</value>
   </data>
   <data name="Error.Theme.Download" xml:space="preserve">
     <value>Error Downloading Theme</value>
   </data>
   <data name="Theme.HelpText" xml:space="preserve">
-    <value>Upload one or more theme packages. Once they are uploaded click Install to complete the installation.</value>
+    <value>Upload one or more theme packages.</value>
   </data>
   <data name="Search.NoResults" xml:space="preserve">
     <value>No Themes Match The Criteria Provided Or Package Service Is Disabled</value>

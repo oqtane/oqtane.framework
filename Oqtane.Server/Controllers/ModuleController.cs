@@ -9,6 +9,7 @@ using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Security;
 using System.Net;
+using System.Security.Policy;
 
 namespace Oqtane.Controllers
 {
@@ -83,6 +84,7 @@ namespace Oqtane.Controllers
 
                         modules.Add(module);
                     }
+                    modules = modules.OrderBy(item => item.PageId).ThenBy(item => item.Pane).ThenBy(item => item.Order).ToList();
                 }
             }
             else

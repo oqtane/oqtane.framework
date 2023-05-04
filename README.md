@@ -1,10 +1,10 @@
 # Latest Release
 
-[3.4.2](https://github.com/oqtane/oqtane.framework/releases/tag/v3.4.2) was released on Mar 29, 2023 and is primarily focused on performance, as the permissions system has been overhauled to avoid unnecessary encoding and parsing of custom access control strings. This release also includes enhancements to connection string management, numerous stabilization and user experience improvements, and the ability to dynamically generate an XML sitemap for seach engine indexing. This release includes 62 pull requests by 6 different contributors, pushing the total number of project commits all-time over 3300. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
-
-# Oqtane Framework
+[3.4.3](https://github.com/oqtane/oqtane.framework/releases/tag/v3.4.3) was released on May 3, 2023 and is primarily focused on stablization. This release includes 27 pull requests by 6 different contributors, pushing the total number of project commits all-time over 3400. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Foqtane%2Foqtane.framework%2Fmaster%2Fazuredeploy.json)
+
+# Oqtane Framework
 
 ![Oqtane](https://github.com/oqtane/framework/blob/master/oqtane.png?raw=true "Oqtane")
 
@@ -47,8 +47,9 @@ This project is open source, and therefore is a work in progress...
 
 4.0.0 ( Q2 2023 )
 - [ ] Migration to .NET 7
-- [ ] File / New Project experience
-- [ ] Folder Providers
+
+[3.4.3](https://github.com/oqtane/oqtane.framework/releases/tag/v3.4.3) ( May 3, 2023 )
+- [x] Stabilization improvements 
 
 [3.4.2](https://github.com/oqtane/oqtane.framework/releases/tag/v3.4.2) ( Mar 29, 2023 )
 - [x] Stabilization improvements 
@@ -153,14 +154,15 @@ This project is open source, and therefore is a work in progress...
 [2.0.1](https://github.com/oqtane/oqtane.framework/releases/tag/v2.0.1) ( Feb 27, 2021 )
 - [x] Complete Static Localization of Admin UI
 
-[2.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v2.0.0) ( Nov 11, 2020 - released in conjunction with .NET 5 )
+[2.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v2.0.0) ( Nov 11, 2020 )
 - [x] Migration to .NET 5
 - [x] Static Localization ( ie. labels, help text, etc.. )
 - [x] Improved JavaScript Reference Support
 - [x] Performance Optimizations
 - [x] Developer Productivity Enhancements
 
-[1.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v1.0.0) ( May 19, 2020 - released in conjunction with .NET Core 3.2 )
+[1.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v1.0.0) ( May 19, 2020 )
+- [x] Migration to .NET Core 3.2
 - [x] Multi-Tenant ( Shared Database & Isolated Database ) 
 - [x] Modular Architecture
 - [x] Headless API with Swagger Support
@@ -180,10 +182,16 @@ This project is open source, and therefore is a work in progress...
 - [x] JavaScript Lazy Loading
 - [x] Dynamic CSS/Lazy Loading
 
+[POC](https://www.oqtane.org/blog/!/7/announcing-oqtane-a-modular-application-framework-for-blazor) ( May 9, 2019 )
+- [x] Initial public release on GitHub
+- [x] .NET Core 3.0
+
 # Background
 Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology and a Single Page Application (SPA) architecture. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly themes, and extensibility via third party modules.
 
 # Release Announcements
+
+[Oqtane 3.4](https://www.oqtane.org/blog/!/56/oqtane-3-4-0-released)
 
 [Oqtane 3.3](https://www.oqtane.org/blog/!/54/oqtane-3-3-0-released)
 

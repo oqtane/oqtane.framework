@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -52,7 +53,7 @@ namespace Oqtane.Pages
             {
                 if (_userPermissions.IsAuthorized(null, PermissionNames.View, page.PermissionList) && page.IsNavigation)
                 {
-                    sitemap.Add(new Sitemap { Url = _alias.Protocol + _alias.Name + Utilities.NavigateUrl(_alias.Path, page.Path, ""), ModifiedOn = page.ModifiedOn });
+                    sitemap.Add(new Sitemap { Url = _alias.Protocol + _alias.Name + Utilities.NavigateUrl(_alias.Path, page.Path, ""), ModifiedOn = DateTime.UtcNow });
 
                     foreach (var pageModule in pageModules.Where(item => item.PageId == page.PageId))
                     {
@@ -66,12 +67,11 @@ namespace Oqtane.Pages
                                 {
                                     try
                                     {
-                                        pageModule.Module.Settings = _settings.GetSettings(EntityNames.Module, pageModule.ModuleId).ToDictionary(x => x.SettingName, x => x.SettingValue);
                                         var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
                                         var urls = ((ISitemap)moduleobject).GetUrls(_alias.Path, page.Path, pageModule.Module);
                                         foreach (var url in urls)
                                         {
-                                            sitemap.Add(new Sitemap { Url = _alias.Protocol + _alias.Name + url.Url, ModifiedOn = url.ModifiedOn });
+                                            sitemap.Add(new Sitemap { Url = _alias.Protocol + _alias.Name + url.Url, ModifiedOn = DateTime.UtcNow });
                                         }
                                     }
                                     catch (Exception ex)
@@ -86,19 +86,21 @@ namespace Oqtane.Pages
             }
 
             // write XML
-            XmlWriterSettings settings = new XmlWriterSettings();
-            settings.Indent = true;
-            settings.IndentChars = ("  ");
-            settings.CloseOutput = true;
-            settings.OmitXmlDeclaration = true;
-            settings.WriteEndDocumentOnClose = true;
+            var builder = new StringBuilder();
+            var stringWriter = new StringWriterWithEncoding(builder, Encoding.UTF8);
 
-            StringBuilder builder = new StringBuilder();
-            using (XmlWriter writer = XmlWriter.Create(builder, settings))
+            var settings = new XmlWriterSettings
             {
-                writer.WriteStartDocument();
-                writer.WriteStartElement("urlset", "http://www.sitemaps.org/schemas/sitemap/0.9");
+                Indent = true,
+                IndentChars = "  ",
+                NewLineChars = Environment.NewLine,
+                CloseOutput = true,
+                WriteEndDocumentOnClose = true
+            };
 
+            using (var writer = XmlWriter.Create(stringWriter, settings))
+            {
+                writer.WriteStartElement("urlset", "http://www.sitemaps.org/schemas/sitemap/0.9");
                 foreach (var url in sitemap)
                 {
                     writer.WriteStartElement("url");
@@ -106,10 +108,29 @@ namespace Oqtane.Pages
                     writer.WriteElementString("lastmod", url.ModifiedOn.ToString("yyyy-MM-dd"));
                     writer.WriteEndElement();
                 }
+                writer.WriteEndElement();
                 writer.Close();
             }
 
-            return Content(builder.ToString());
+            return Content(builder.ToString(), "application/xml");
+        }
+    }
+
+    public class StringWriterWithEncoding : StringWriter
+    {
+        private readonly Encoding _encoding;
+
+        public StringWriterWithEncoding(StringBuilder builder, Encoding encoding) : base(builder)
+        {
+            this._encoding = encoding;
+        }
+
+        public override Encoding Encoding
+        {
+            get
+            {
+                return this._encoding;
+            }
         }
     }
 }
