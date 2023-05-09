@@ -403,7 +403,9 @@
 			if ((module.PageId == page.PageId || module.ModuleId == moduleid))
 			{
 				var typename = Constants.ErrorModule;
-				if (module.ModuleDefinition != null && (module.ModuleDefinition.Runtimes == "" || module.ModuleDefinition.Runtimes.Contains(Runtime)))
+			    //ModuleDefinition is always initialized in the controller with default values, so it is not null
+			    //but if the module is not present in the ModuleDefinitions table, ModuleDefinitionId is 0 
+				if (module.ModuleDefinition != null && module.ModuleDefinition.ModuleDefinitionId != 0 && (module.ModuleDefinition.Runtimes == "" || module.ModuleDefinition.Runtimes.Contains(Runtime)))
 				{
 					typename = module.ModuleDefinition.ControlTypeTemplate;
 
