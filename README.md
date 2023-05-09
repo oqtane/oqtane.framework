@@ -49,6 +49,7 @@ This project is open source, and therefore is a work in progress...
 - [ ] Azure Autoscale support (ie. web farm)
 - [ ] Routable Modules (ie. declarative configuration)
 - [ ] Folder Providers
+- [ ] Generative AI Integration
 
 4.0.0 (Q2 2023)
 - [ ] Migration to .NET 7
