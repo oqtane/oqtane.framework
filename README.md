@@ -45,7 +45,12 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 # Roadmap
 This project is open source, and therefore is a work in progress...
 
-4.0.0 ( Q2 2023 )
+4.x (TBD)
+- [ ] Azure Autoscale support (ie. web farm)
+- [ ] Routable Modules (ie. declarative configuration)
+- [ ] Folder Providers
+
+4.0.0 (Q2 2023)
 - [ ] Migration to .NET 7
 
 [3.4.3](https://github.com/oqtane/oqtane.framework/releases/tag/v3.4.3) ( May 3, 2023 )
