@@ -20,6 +20,8 @@ using Oqtane.Enums;
 using Oqtane.Security;
 using Oqtane.Extensions;
 using Oqtane.Themes;
+using Oqtane.Modules.Admin.Modules;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Oqtane.Pages
 {
@@ -71,6 +73,7 @@ namespace Oqtane.Pages
         public string PWAScript = "";
         public string ReconnectScript = "";
         public string Message = "";
+        public string GAScript = "";
 
         public IActionResult OnGet()
         {
@@ -137,6 +140,13 @@ namespace Oqtane.Pages
                         {
                             PWAScript = CreatePWAScript(alias, site, route);
                         }
+
+                        var gaSetting = _settings.GetSetting(EntityNames.Site, site.SiteId, "GoogleAnalyticsMeasurementID");
+                        if (gaSetting != null)
+                        {
+                            GAScript = CreateGAScript(gaSetting);
+                        }
+
                         Title = site.Name;
                         var ThemeType = site.DefaultThemeType;
 
@@ -374,6 +384,30 @@ namespace Oqtane.Pages
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Other, "Error Tracking Visitor {Error}", ex.Message);
             }
+        }
+
+        private string CreateGAScript(Setting gaSetting)
+        {
+            var gaMeasurementId = gaSetting.SettingValue;
+
+            if (!string.IsNullOrEmpty(gaMeasurementId))
+            {
+
+                return
+                 "<!--Google tag(gtag.js)-->" + Environment.NewLine +
+                 "<script async src=\"https://www.googletagmanager.com/gtag/js?id=" + gaMeasurementId + "\"></script>" + Environment.NewLine +
+                 "<script>" + Environment.NewLine +
+                 "  window.dataLayer = window.dataLayer || [];" + Environment.NewLine +
+                 "  function gtag() { dataLayer.push(arguments); }" + Environment.NewLine +
+                 "  gtag('js', new Date());" + Environment.NewLine +
+                 "  gtag('config', '" + gaMeasurementId + "');" + Environment.NewLine +
+                "</script>" + Environment.NewLine;
+
+            }
+
+            return "";
+ 
+
         }
 
         private string CreatePWAScript(Alias alias, Site site, Route route)

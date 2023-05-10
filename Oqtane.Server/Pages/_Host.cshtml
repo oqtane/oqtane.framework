@@ -22,6 +22,12 @@
 	<link id="app-stylesheet-page" rel="stylesheet" href="css/empty.css" disabled />
 	<link id="app-stylesheet-module" rel="stylesheet" href="css/empty.css" disabled />
 </head>
+
+@if (!string.IsNullOrEmpty(Model.GAScript))
+{
+    @Html.Raw(Model.GAScript)
+}
+
 <body>
 	@if (string.IsNullOrEmpty(Model.Message))
 	{

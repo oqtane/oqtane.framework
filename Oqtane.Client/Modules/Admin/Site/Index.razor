@@ -172,6 +172,16 @@
                 <br /><br />
             </div>
         </Section>
+        <Section Name="Google" Heading="Google Analytics" ResourceKey="GoogleAnalyticsSetting">
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="MeasurementID" HelpText="Enter the Measurement ID of your top level stream." ResourceKey="GoogleAnalyticsMeasurementID">Measurement ID: </Label>
+                    <div class="col-sm-9">
+                        <input id="measurementid" class="form-control" @bind="@_gameasurementid" />
+                    </div>
+                </div>
+            </div>
+        </Section>
         <Section Name="PWA" Heading="Progressive Web Application Settings" ResourceKey="PWASettings">
             <div class="container">
                 <div class="row mb-1 align-items-center">
@@ -306,254 +316,257 @@
 }
 
 @code {
-	private ElementReference form;
-	private bool validated = false;
-	private bool _initialized = false;
-	private List<Theme> _themeList;
-	private List<ThemeControl> _themes = new List<ThemeControl>();
-	private List<ThemeControl> _containers = new List<ThemeControl>();
-	private string _name = string.Empty;
-	private List<Alias> _aliases;
-	private int _aliasid = -1;
-	private string _aliasname;
-	private string _defaultalias;
-	private string _runtime = "";
-	private string _prerender = "";
-	private int _logofileid = -1;
-	private FileManager _logofilemanager;
-	private int _faviconfileid = -1;
-	private FileManager _faviconfilemanager;
-	private string _themetype = "-";
-	private string _containertype = "-";
-	private string _admincontainertype = "-";
-	private string _homepageid = "-";
-	private string _sitemap = "";
-	private string _smtphost = string.Empty;
-	private string _smtpport = string.Empty;
-	private string _smtpssl = "False";
-	private string _smtpusername = string.Empty;
-	private string _smtppassword = string.Empty;
-	private string _smtppasswordtype = "password";
-	private string _togglesmtppassword = string.Empty;
-	private string _smtpsender = string.Empty;
-	private string _smtprelay = "False";
-	private string _retention = string.Empty;
-	private string _pwaisenabled;
-	private int _pwaappiconfileid = -1;
-	private FileManager _pwaappiconfilemanager;
-	private int _pwasplashiconfileid = -1;
-	private FileManager _pwasplashiconfilemanager;
-	private string _tenant = string.Empty;
-	private string _database = string.Empty;
-	private string _connectionstring = string.Empty;
-	private string _createdby;
-	private DateTime _createdon;
-	private string _modifiedby;
-	private DateTime _modifiedon;
-	private string _deletedby;
-	private DateTime? _deletedon;
-	private string _isdeleted;
+    private ElementReference form;
+    private bool validated = false;
+    private bool _initialized = false;
+    private List<Theme> _themeList;
+    private List<ThemeControl> _themes = new List<ThemeControl>();
+    private List<ThemeControl> _containers = new List<ThemeControl>();
+    private string _name = string.Empty;
+    private List<Alias> _aliases;
+    private int _aliasid = -1;
+    private string _aliasname;
+    private string _defaultalias;
+    private string _runtime = "";
+    private string _prerender = "";
+    private int _logofileid = -1;
+    private FileManager _logofilemanager;
+    private int _faviconfileid = -1;
+    private FileManager _faviconfilemanager;
+    private string _themetype = "-";
+    private string _containertype = "-";
+    private string _admincontainertype = "-";
+    private string _homepageid = "-";
+    private string _sitemap = "";
+    private string _smtphost = string.Empty;
+    private string _smtpport = string.Empty;
+    private string _smtpssl = "False";
+    private string _smtpusername = string.Empty;
+    private string _smtppassword = string.Empty;
+    private string _smtppasswordtype = "password";
+    private string _togglesmtppassword = string.Empty;
+    private string _smtpsender = string.Empty;
+    private string _smtprelay = "False";
+    private string _retention = string.Empty;
+    private string _gameasurementid = string.Empty;
+    private string _pwaisenabled;
+    private int _pwaappiconfileid = -1;
+    private FileManager _pwaappiconfilemanager;
+    private int _pwasplashiconfileid = -1;
+    private FileManager _pwasplashiconfilemanager;
+    private string _tenant = string.Empty;
+    private string _database = string.Empty;
+    private string _connectionstring = string.Empty;
+    private string _createdby;
+    private DateTime _createdon;
+    private string _modifiedby;
+    private DateTime _modifiedon;
+    private string _deletedby;
+    private DateTime? _deletedon;
+    private string _isdeleted;
 
-	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-	protected override async Task OnInitializedAsync()
-	{
-		try
-		{
-			_themeList = await ThemeService.GetThemesAsync();
-			Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
-			if (site != null)
-			{
-				_name = site.Name;
-				_runtime = site.Runtime;
-				_prerender = site.RenderMode.Replace(_runtime, "");
-				_isdeleted = site.IsDeleted.ToString();
-				_sitemap = PageState.Alias.Protocol + PageState.Alias.Name + "/pages/sitemap.xml";
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _themeList = await ThemeService.GetThemesAsync();
+            Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
+            if (site != null)
+            {
+                _name = site.Name;
+                _runtime = site.Runtime;
+                _prerender = site.RenderMode.Replace(_runtime, "");
+                _isdeleted = site.IsDeleted.ToString();
+                _sitemap = PageState.Alias.Protocol + PageState.Alias.Name + "/pages/sitemap.xml";
 
-				await GetAliases();
+                await GetAliases();
 
-				if (site.LogoFileId != null)
-				{
-					_logofileid = site.LogoFileId.Value;
-				}
+                if (site.LogoFileId != null)
+                {
+                    _logofileid = site.LogoFileId.Value;
+                }
 
-				if (site.FaviconFileId != null)
-				{
-					_faviconfileid = site.FaviconFileId.Value;
-				}
+                if (site.FaviconFileId != null)
+                {
+                    _faviconfileid = site.FaviconFileId.Value;
+                }
 
-				_themes = ThemeService.GetThemeControls(_themeList);
-				_themetype = (!string.IsNullOrEmpty(site.DefaultThemeType)) ? site.DefaultThemeType : Constants.DefaultTheme;
-				_containers = ThemeService.GetContainerControls(_themeList, _themetype);
-				_containertype = (!string.IsNullOrEmpty(site.DefaultContainerType)) ? site.DefaultContainerType : Constants.DefaultContainer;
-				_admincontainertype = (!string.IsNullOrEmpty(site.AdminContainerType)) ? site.AdminContainerType : Constants.DefaultAdminContainer;
+                _themes = ThemeService.GetThemeControls(_themeList);
+                _themetype = (!string.IsNullOrEmpty(site.DefaultThemeType)) ? site.DefaultThemeType : Constants.DefaultTheme;
+                _containers = ThemeService.GetContainerControls(_themeList, _themetype);
+                _containertype = (!string.IsNullOrEmpty(site.DefaultContainerType)) ? site.DefaultContainerType : Constants.DefaultContainer;
+                _admincontainertype = (!string.IsNullOrEmpty(site.AdminContainerType)) ? site.AdminContainerType : Constants.DefaultAdminContainer;
 
-				if (site.HomePageId != null)
-				{
-					_homepageid = site.HomePageId.Value.ToString();
-				}
+                if (site.HomePageId != null)
+                {
+                    _homepageid = site.HomePageId.Value.ToString();
+                }
 
-				_pwaisenabled = site.PwaIsEnabled.ToString();
-				if (site.PwaAppIconFileId != null)
-				{
-					_pwaappiconfileid = site.PwaAppIconFileId.Value;
-				}
-				if (site.PwaSplashIconFileId != null)
-				{
-					_pwasplashiconfileid = site.PwaSplashIconFileId.Value;
-				}
+                _pwaisenabled = site.PwaIsEnabled.ToString();
+                if (site.PwaAppIconFileId != null)
+                {
+                    _pwaappiconfileid = site.PwaAppIconFileId.Value;
+                }
+                if (site.PwaSplashIconFileId != null)
+                {
+                    _pwasplashiconfileid = site.PwaSplashIconFileId.Value;
+                }
 
-				var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
-				_smtphost = SettingService.GetSetting(settings, "SMTPHost", string.Empty);
-				_smtpport = SettingService.GetSetting(settings, "SMTPPort", string.Empty);
-				_smtpssl = SettingService.GetSetting(settings, "SMTPSSL", "False");
-				_smtpusername = SettingService.GetSetting(settings, "SMTPUsername", string.Empty);
-				_smtppassword = SettingService.GetSetting(settings, "SMTPPassword", string.Empty);
-				_togglesmtppassword = SharedLocalizer["ShowPassword"];
-				_smtpsender = SettingService.GetSetting(settings, "SMTPSender", string.Empty);
-				_smtprelay = SettingService.GetSetting(settings, "SMTPRelay", "False");
-				_retention = SettingService.GetSetting(settings, "NotificationRetention", "30");
+                var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
+                _smtphost = SettingService.GetSetting(settings, "SMTPHost", string.Empty);
+                _smtpport = SettingService.GetSetting(settings, "SMTPPort", string.Empty);
+                _smtpssl = SettingService.GetSetting(settings, "SMTPSSL", "False");
+                _smtpusername = SettingService.GetSetting(settings, "SMTPUsername", string.Empty);
+                _smtppassword = SettingService.GetSetting(settings, "SMTPPassword", string.Empty);
+                _togglesmtppassword = SharedLocalizer["ShowPassword"];
+                _smtpsender = SettingService.GetSetting(settings, "SMTPSender", string.Empty);
+                _smtprelay = SettingService.GetSetting(settings, "SMTPRelay", "False");
+                _retention = SettingService.GetSetting(settings, "NotificationRetention", "30");
+                _gameasurementid = SettingService.GetSetting(settings, "GoogleAnalyticsMeasurementID", string.Empty);
 
-				if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-				{
-					var tenants = await TenantService.GetTenantsAsync();
-					var _databases = await DatabaseService.GetDatabasesAsync();
-					var tenant = tenants.Find(item => item.TenantId == site.TenantId);
-					if (tenant != null)
-					{
-						_tenant = tenant.Name;
-						_database = _databases.Find(item => item.DBType == tenant.DBType)?.Name;
-						_connectionstring = tenant.DBConnectionString;
-					}
-				}
+            if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                {
+                    var tenants = await TenantService.GetTenantsAsync();
+                    var _databases = await DatabaseService.GetDatabasesAsync();
+                    var tenant = tenants.Find(item => item.TenantId == site.TenantId);
+                    if (tenant != null)
+                    {
+                        _tenant = tenant.Name;
+                        _database = _databases.Find(item => item.DBType == tenant.DBType)?.Name;
+                        _connectionstring = tenant.DBConnectionString;
+                    }
+                }
 
-				_createdby = site.CreatedBy;
-				_createdon = site.CreatedOn;
-				_modifiedby = site.ModifiedBy;
-				_modifiedon = site.ModifiedOn;
-				_deletedby = site.DeletedBy;
-				_deletedon = site.DeletedOn;
+                _createdby = site.CreatedBy;
+                _createdon = site.CreatedOn;
+                _modifiedby = site.ModifiedBy;
+                _modifiedon = site.ModifiedOn;
+                _deletedby = site.DeletedBy;
+                _deletedon = site.DeletedOn;
 
-				_initialized = true;
-			}
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Loading Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
-			AddModuleMessage(ex.Message, MessageType.Error);
-		}
-	}
+                _initialized = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
 
-	private async void ThemeChanged(ChangeEventArgs e)
-	{
-		try
-		{
-			_themetype = (string)e.Value;
-			if (_themetype != "-")
-			{
-				_containers = ThemeService.GetContainerControls(_themeList, _themetype);
-			}
-			else
-			{
-				_containers = new List<ThemeControl>();
-			}
-			_containertype = "-";
-			_admincontainertype = Constants.DefaultAdminContainer;
-			StateHasChanged();
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Loading Containers For Theme {ThemeType} {Error}", _themetype, ex.Message);
-			AddModuleMessage(Localizer["Error.Theme.LoadPane"], MessageType.Error);
-		}
-	}
+    private async void ThemeChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            _themetype = (string)e.Value;
+            if (_themetype != "-")
+            {
+                _containers = ThemeService.GetContainerControls(_themeList, _themetype);
+            }
+            else
+            {
+                _containers = new List<ThemeControl>();
+            }
+            _containertype = "-";
+            _admincontainertype = Constants.DefaultAdminContainer;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Containers For Theme {ThemeType} {Error}", _themetype, ex.Message);
+            AddModuleMessage(Localizer["Error.Theme.LoadPane"], MessageType.Error);
+        }
+    }
 
-	private async Task SaveSite()
-	{
-		validated = true;
-		var interop = new Interop(JSRuntime);
-		if (await interop.FormValid(form))
-		{
-			try
-			{
-				if (_name != string.Empty && _themetype != "-" && _containertype != "-")
-				{
-					var site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
-					if (site != null)
-					{
-						bool refresh = false;
-						bool reload = false;
+    private async Task SaveSite()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
+        {
+            try
+            {
+                if (_name != string.Empty && _themetype != "-" && _containertype != "-")
+                {
+                    var site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
+                    if (site != null)
+                    {
+                        bool refresh = false;
+                        bool reload = false;
 
-						site.Name = _name;
-						if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-						{
-							if (site.Runtime != _runtime || site.RenderMode != _runtime + _prerender)
-							{
-								site.Runtime = _runtime;
-								site.RenderMode = _runtime + _prerender;
-								reload = true; // needs to be reloaded on server
-							}
-						}
-						site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
+                        site.Name = _name;
+                        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                        {
+                            if (site.Runtime != _runtime || site.RenderMode != _runtime + _prerender)
+                            {
+                                site.Runtime = _runtime;
+                                site.RenderMode = _runtime + _prerender;
+                                reload = true; // needs to be reloaded on server
+                            }
+                        }
+                        site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
 
-						site.LogoFileId = null;
-						var logofileid = _logofilemanager.GetFileId();
-						if (logofileid != -1)
-						{
-							site.LogoFileId = logofileid;
-						}
-						int? faviconFieldId = _faviconfilemanager.GetFileId();
-						if (faviconFieldId == -1) faviconFieldId = null;
-						if (site.FaviconFileId != faviconFieldId)
-						{
-							site.FaviconFileId = faviconFieldId;
-							reload = true; // needs to be reloaded on server
-						}
-						if (site.DefaultThemeType != _themetype)
-						{
-							site.DefaultThemeType = _themetype;
-							refresh = true; // needs to be refreshed on client
-						}
-						if (site.DefaultContainerType != _containertype)
-						{
-							site.DefaultContainerType = _containertype;
-							refresh = true; // needs to be refreshed on client
-						}
-						site.AdminContainerType = _admincontainertype;
-						site.HomePageId = (_homepageid != "-" ? int.Parse(_homepageid) : null);
+                        site.LogoFileId = null;
+                        var logofileid = _logofilemanager.GetFileId();
+                        if (logofileid != -1)
+                        {
+                            site.LogoFileId = logofileid;
+                        }
+                        int? faviconFieldId = _faviconfilemanager.GetFileId();
+                        if (faviconFieldId == -1) faviconFieldId = null;
+                        if (site.FaviconFileId != faviconFieldId)
+                        {
+                            site.FaviconFileId = faviconFieldId;
+                            reload = true; // needs to be reloaded on server
+                        }
+                        if (site.DefaultThemeType != _themetype)
+                        {
+                            site.DefaultThemeType = _themetype;
+                            refresh = true; // needs to be refreshed on client
+                        }
+                        if (site.DefaultContainerType != _containertype)
+                        {
+                            site.DefaultContainerType = _containertype;
+                            refresh = true; // needs to be refreshed on client
+                        }
+                        site.AdminContainerType = _admincontainertype;
+                        site.HomePageId = (_homepageid != "-" ? int.Parse(_homepageid) : null);
 
-						if (site.PwaIsEnabled.ToString() != _pwaisenabled)
-						{
-							site.PwaIsEnabled = Boolean.Parse(_pwaisenabled);
-							reload = true; // needs to be reloaded on server
-						}
-						int? pwaappiconfileid = _pwaappiconfilemanager.GetFileId();
-						if (pwaappiconfileid == -1) pwaappiconfileid = null;
-						if (site.PwaAppIconFileId != pwaappiconfileid)
-						{
-							site.PwaAppIconFileId = pwaappiconfileid;
-							reload = true; // needs to be reloaded on server
-						}
-						int? pwasplashiconfileid = _pwasplashiconfilemanager.GetFileId();
-						if (pwasplashiconfileid == -1) pwasplashiconfileid = null;
-						if (site.PwaSplashIconFileId != pwasplashiconfileid)
-						{
-							site.PwaSplashIconFileId = pwasplashiconfileid;
-							reload = true; // needs to be reloaded on server
-						}
+                        if (site.PwaIsEnabled.ToString() != _pwaisenabled)
+                        {
+                            site.PwaIsEnabled = Boolean.Parse(_pwaisenabled);
+                            reload = true; // needs to be reloaded on server
+                        }
+                        int? pwaappiconfileid = _pwaappiconfilemanager.GetFileId();
+                        if (pwaappiconfileid == -1) pwaappiconfileid = null;
+                        if (site.PwaAppIconFileId != pwaappiconfileid)
+                        {
+                            site.PwaAppIconFileId = pwaappiconfileid;
+                            reload = true; // needs to be reloaded on server
+                        }
+                        int? pwasplashiconfileid = _pwasplashiconfilemanager.GetFileId();
+                        if (pwasplashiconfileid == -1) pwasplashiconfileid = null;
+                        if (site.PwaSplashIconFileId != pwasplashiconfileid)
+                        {
+                            site.PwaSplashIconFileId = pwasplashiconfileid;
+                            reload = true; // needs to be reloaded on server
+                        }
 
-						site = await SiteService.UpdateSiteAsync(site);
+                        site = await SiteService.UpdateSiteAsync(site);
 
-						var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
-						settings = SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
-						settings = SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
-						settings = SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
-						settings = SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
-						settings = SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
-						settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
-						settings = SettingService.SetSetting(settings, "SMTPRelay", _smtprelay, true);
-						settings = SettingService.SetSetting(settings, "NotificationRetention", _retention, true);
-						await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
+                        var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
+                        settings = SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
+                        settings = SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
+                        settings = SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
+                        settings = SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
+                        settings = SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
+                        settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
+                        settings = SettingService.SetSetting(settings, "SMTPRelay", _smtprelay, true);
+                        settings = SettingService.SetSetting(settings, "NotificationRetention", _retention, true);
+                        settings = SettingService.SetSetting(settings, "GoogleAnalyticsMeasurementID", _gameasurementid, true);
+                        await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 
 						await logger.LogInformation("Site Settings Saved {Site}", site);
 
