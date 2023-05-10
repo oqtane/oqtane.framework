@@ -45,11 +45,14 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 # Roadmap
 This project is open source, and therefore is a work in progress...
 
-4.x (TBD)
+Backlog (TBD)
 - [ ] Azure Autoscale support (ie. web farm)
 - [ ] Routable Modules (ie. declarative configuration)
 - [ ] Folder Providers
 - [ ] Generative AI Integration
+
+5.0.0 (Q4 2023)
+- [ ] Migration to .NET 8
 
 4.0.0 (Q2 2023)
 - [ ] Migration to .NET 7
