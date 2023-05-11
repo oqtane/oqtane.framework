@@ -62,11 +62,12 @@ namespace Oqtane.Repository
 
         public ModuleDefinition FilterModuleDefinition(ModuleDefinition moduleDefinition)
         {
-            var ModuleDefinition = new ModuleDefinition();
+            ModuleDefinition ModuleDefinition = null;
 
             if (moduleDefinition != null)
             {
                 // only include required client-side properties
+                ModuleDefinition = new ModuleDefinition();
                 ModuleDefinition.ModuleDefinitionId = moduleDefinition.ModuleDefinitionId;
                 ModuleDefinition.SiteId = moduleDefinition.SiteId;
                 ModuleDefinition.ModuleDefinitionName = moduleDefinition.ModuleDefinitionName;
