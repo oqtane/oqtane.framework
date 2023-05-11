@@ -48,6 +48,7 @@ This project is open source, and therefore is a work in progress...
 Backlog (TBD)
 - [ ] Azure Autoscale support (ie. web farm)
 - [ ] Routable Modules (ie. declarative configuration)
+- [ ] Client Assembly Loading / Site
 - [ ] Folder Providers
 - [ ] Generative AI Integration
 
