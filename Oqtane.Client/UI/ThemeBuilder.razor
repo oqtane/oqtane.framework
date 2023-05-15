@@ -1,22 +1,36 @@
 @namespace Oqtane.UI
 @inject IJSRuntime JsRuntime
 @inject NavigationManager NavigationManager
+@inject SiteState SiteState
 
 @DynamicComponent
 
 @code {
-	[CascadingParameter] PageState PageState { get; set; }
+    [CascadingParameter] PageState PageState { get; set; }
 
-	RenderFragment DynamicComponent { get; set; }
+    RenderFragment DynamicComponent { get; set; }
 
-	protected override void OnParametersSet()
-	{
-		// handle page redirection
-		if (!string.IsNullOrEmpty(PageState.Page.Url))
-		{
-			NavigationManager.NavigateTo(PageState.Page.Url);
-			return;
-		}
+    protected override void OnParametersSet()
+    {
+        // handle page redirection
+        if (!string.IsNullOrEmpty(PageState.Page.Url))
+        {
+            NavigationManager.NavigateTo(PageState.Page.Url);
+            return;
+        }
+
+        // set page title
+        if (!string.IsNullOrEmpty(PageState.Page.Title))
+        {
+            SiteState.Properties.PageTitle = PageState.Page.Title;
+        }
+        else
+        {
+            SiteState.Properties.PageTitle = PageState.Site.Name + " - " + PageState.Page.Name;
+        }
+
+        // set page meta
+        SiteState.Properties.HeadContent = PageState.Page.Meta ?? "";
 
 		DynamicComponent = builder =>
 		{
@@ -45,15 +59,5 @@
         }
 		await interop.RemoveElementsById("app-stylesheet-page-", "", "app-stylesheet-page-" + batch + "-00");
 		await interop.RemoveElementsById("app-stylesheet-module-", "", "app-stylesheet-module-" + batch + "-00");
-
-		// set page title
-		if (!string.IsNullOrEmpty(PageState.Page.Title))
-		{
-			await interop.UpdateTitle(PageState.Page.Title);
-		}
-		else
-		{
-			await interop.UpdateTitle(PageState.Site.Name + " - " + PageState.Page.Name);
-		}
 	}
 }

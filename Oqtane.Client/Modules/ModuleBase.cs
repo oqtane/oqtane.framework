@@ -273,6 +273,35 @@ namespace Oqtane.Modules
             SiteState.Properties.ModuleVisibility = obj;
         }
 
+        public void SetPageTitle(string title)
+        {
+            SiteState.Properties.PageTitle = title;
+        }
+
+        public void AddHeadContent(string content)
+        {
+            if (string.IsNullOrEmpty(SiteState.Properties.HeadContent))
+            {
+                SiteState.Properties.HeadContent = content;
+            }
+            else if (!SiteState.Properties.HeadContent.Contains(content))
+            {
+                SiteState.Properties.HeadContent += content;
+            }
+        }
+
+        public void AddBodyContent(string content)
+        {
+            if (string.IsNullOrEmpty(SiteState.Properties.BodyContent))
+            {
+                SiteState.Properties.BodyContent = content;
+            }
+            else if (!SiteState.Properties.BodyContent.Contains(content))
+            {
+                SiteState.Properties.BodyContent += content;
+            }
+        }
+
         // logging methods
         public async Task Log(Alias alias, LogLevel level, string function, Exception exception, string message, params object[] args)
         {
