@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Oqtane.Database.PostgreSQL</id>
-        <version>3.4.3</version>
+        <version>4.0.0</version>
         <authors>Shaun Walker</authors>
         <owners>.NET Foundation</owners>
         <title>Oqtane PostgreSQL Provider</title>
@@ -12,16 +12,16 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <license type="expression">MIT</license>
         <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
-        <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v3.4.3</releaseNotes>
+        <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v4.0.0</releaseNotes>
         <icon>icon.png</icon>
         <tags>oqtane</tags>
     </metadata>
     <files>
-        <file src="bin\net6.0\Oqtane.Database.PostgreSQL.dll" target="lib\net6.0" />
-        <file src="bin\net6.0\Oqtane.Database.PostgreSQL.pdb" target="lib\net6.0" />
-        <file src="bin\net6.0\EFCore.NamingConventions.dll" target="lib\net6.0" />
-        <file src="bin\net6.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll" target="lib\net6.0" />
-        <file src="bin\net6.0\Npgsql.dll" target="lib\net6.0" />
+        <file src="bin\net7.0\Oqtane.Database.PostgreSQL.dll" target="lib\net7.0" />
+        <file src="bin\net7.0\Oqtane.Database.PostgreSQL.pdb" target="lib\net7.0" />
+        <file src="bin\net7.0\EFCore.NamingConventions.dll" target="lib\net7.0" />
+        <file src="bin\net7.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll" target="lib\net7.0" />
+        <file src="bin\net7.0\Npgsql.dll" target="lib\net7.0" />
         <file src="icon.png" target="" />
     </files>
 </package>
