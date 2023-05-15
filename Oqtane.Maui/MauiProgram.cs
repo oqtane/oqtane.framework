@@ -12,8 +12,8 @@ namespace Oqtane.Maui;
 public static class MauiProgram
 {
     // the API service url
-    static string apiurl = "https://www.dnfprojects.com"; // for testing
-    //static string apiurl = "http://localhost:44357"; // for local development (Oqtane.Server must be already running for MAUI client to connect)
+    //static string apiurl = "https://www.dnfprojects.com"; // for testing
+    static string apiurl = "http://localhost:44357"; // for local development (Oqtane.Server must be already running for MAUI client to connect)
 
     public static MauiApp CreateMauiApp()
 	{
