@@ -65,8 +65,6 @@ namespace Oqtane.Pages
         public string RemoteIPAddress = "";
         public string HeadResources = "";
         public string BodyResources = "";
-        public string Title = "";
-        public string Meta = "";
         public string FavIcon = "favicon.ico";
         public string PWAScript = "";
         public string ReconnectScript = "";
@@ -137,7 +135,6 @@ namespace Oqtane.Pages
                         {
                             PWAScript = CreatePWAScript(alias, site, route);
                         }
-                        Title = site.Name;
                         var ThemeType = site.DefaultThemeType;
 
                         // get jwt token for downstream APIs
@@ -163,17 +160,6 @@ namespace Oqtane.Pages
                         }
                         if (page != null && !page.IsDeleted)
                         {
-                            // set page title
-                            if (!string.IsNullOrEmpty(page.Title))
-                            {
-                                Title = page.Title;
-                            }
-                            else
-                            {
-                                Title = Title + " - " + page.Name;
-                            }
-                            Meta = page.Meta;
-
                             // include theme resources
                             if (!string.IsNullOrEmpty(page.ThemeType))
                             {

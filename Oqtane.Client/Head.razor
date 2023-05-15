@@ -1,0 +1,42 @@
+@using System.ComponentModel
+@using Oqtane.Shared
+@inject SiteState SiteState
+
+<title>@title</title>
+@((MarkupString)content)
+
+@code {
+    private string title = "";
+    private string content = "";
+
+    protected override void OnInitialized()
+    {
+        ((INotifyPropertyChanged)SiteState.Properties).PropertyChanged += PropertyChanged;
+    }
+
+    private void PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        switch (e.PropertyName)
+        {
+            case "PageTitle":
+                if (title != SiteState.Properties.PageTitle)
+                {
+                    title = SiteState.Properties.PageTitle;
+                    StateHasChanged();
+                }
+                break;
+            case "HeadContent":
+                if (content != SiteState.Properties.HeadContent)
+                {
+                    content = SiteState.Properties.HeadContent;
+                    StateHasChanged();
+                }
+                break;
+        }
+    }
+
+    public void Dispose()
+    {
+        ((INotifyPropertyChanged)SiteState.Properties).PropertyChanged -= PropertyChanged;
+    }
+}

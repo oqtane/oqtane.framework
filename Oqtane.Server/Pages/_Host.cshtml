@@ -7,8 +7,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@Model.Title</title>
-	@Html.Raw(@Model.Meta)
+    <component type="typeof(Oqtane.Head)" render-mode="@((RenderMode)Enum.Parse(typeof(RenderMode), Model.RenderMode, true))" />
     <base href="~/" />
     <link id="app-favicon" rel="shortcut icon" type="image/x-icon" href="@Model.FavIcon" />
 	@if (!string.IsNullOrEmpty(Model.PWAScript))
@@ -59,7 +58,8 @@
 			@Html.Raw(Model.PWAScript)
 		}
 		@Html.Raw(Model.BodyResources)
-	}
+        <component type="typeof(Oqtane.Body)" render-mode="@((RenderMode)Enum.Parse(typeof(RenderMode), Model.RenderMode, true))" />
+    }
 	else
 	{
 		<div class="app-alert">@Model.Message</div>
