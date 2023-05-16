@@ -7,9 +7,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <component type="typeof(Oqtane.Head)" render-mode="@((RenderMode)Enum.Parse(typeof(RenderMode), Model.RenderMode, true))" />
     <base href="~/" />
-    <link id="app-favicon" rel="shortcut icon" type="image/x-icon" href="@Model.FavIcon" />
 	@if (!string.IsNullOrEmpty(Model.PWAScript))
 	{
 		<link id="app-manifest" rel="manifest" />
@@ -20,6 +18,7 @@
     @Html.Raw(Model.HeadResources)
 	<link id="app-stylesheet-page" rel="stylesheet" href="css/empty.css" disabled />
 	<link id="app-stylesheet-module" rel="stylesheet" href="css/empty.css" disabled />
+    <component type="typeof(Oqtane.Head)" render-mode="@((RenderMode)Enum.Parse(typeof(RenderMode), Model.RenderMode, true))" />
 </head>
 <body>
 	@if (string.IsNullOrEmpty(Model.Message))

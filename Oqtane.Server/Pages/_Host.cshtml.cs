@@ -65,7 +65,6 @@ namespace Oqtane.Pages
         public string RemoteIPAddress = "";
         public string HeadResources = "";
         public string BodyResources = "";
-        public string FavIcon = "favicon.ico";
         public string PWAScript = "";
         public string ReconnectScript = "";
         public string Message = "";
@@ -122,10 +121,6 @@ namespace Oqtane.Pages
                         if (!string.IsNullOrEmpty(site.RenderMode))
                         {
                             RenderMode = site.RenderMode;
-                        }
-                        if (site.FaviconFileId != null)
-                        {
-                            FavIcon = Utilities.FileUrl(alias, site.FaviconFileId.Value);
                         }
                         if (Runtime == "Server")
                         {

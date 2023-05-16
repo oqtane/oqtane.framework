@@ -2,7 +2,7 @@
 @using Oqtane.Shared
 @inject SiteState SiteState
 
-<title>@title</title>
+@((MarkupString)title)
 @((MarkupString)content)
 
 @code {
@@ -21,14 +21,14 @@
             case "PageTitle":
                 if (title != SiteState.Properties.PageTitle)
                 {
-                    title = SiteState.Properties.PageTitle;
+                    title = "\n<title>" + SiteState.Properties.PageTitle + "</title>";
                     StateHasChanged();
                 }
                 break;
             case "HeadContent":
                 if (content != SiteState.Properties.HeadContent)
                 {
-                    content = SiteState.Properties.HeadContent;
+                    content = SiteState.Properties.HeadContent + "\n";
                     StateHasChanged();
                 }
                 break;
