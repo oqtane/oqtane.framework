@@ -351,4 +351,13 @@
   <data name="SiteMap.Text" xml:space="preserve">
     <value>Site Map:</value>
   </data>
+  <data name="Appearance.Heading" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="HeadContent.HelpText" xml:space="preserve">
+    <value>Optionally enter content to be included in the page head (ie. meta and link tags are valid, script tags are not).</value>
+  </data>
+  <data name="HeadContent.Text" xml:space="preserve">
+    <value>Head Content:</value>
+  </data>
 </root>

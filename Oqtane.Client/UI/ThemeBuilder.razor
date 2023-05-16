@@ -38,21 +38,25 @@
             favicon = Utilities.FileUrl(PageState.Alias, PageState.Site.FaviconFileId.Value);
         }
         headcontent += $"<link id=\"app-favicon\" rel=\"shortcut icon\" type=\"image/x-icon\" href=\"{favicon}\" />\n";
-        // PWA manifest
-        if (PageState.Site.PwaIsEnabled && PageState.Site.PwaAppIconFileId != null && PageState.Site.PwaSplashIconFileId != null)
+        // head content
+        if (!string.IsNullOrEmpty(PageState.Site.HeadContent))
         {
-            headcontent += "<link id=\"app-manifest\" rel=\"manifest\" />\n";
+            headcontent += PageState.Site.HeadContent + "\n";
         }
-        // meta
-        if (!string.IsNullOrEmpty(PageState.Page.Meta))
+        if (!string.IsNullOrEmpty(PageState.Page.HeadContent))
         {
-            headcontent += PageState.Page.Meta + "\n";
+            headcontent += PageState.Page.HeadContent + "\n";
         }
         // stylesheets
         foreach (Resource resource in PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
         {
             var url = (resource.Url.Contains("://")) ? resource.Url : PageState.Alias.BaseUrl + resource.Url;
             headcontent += CreateLink(url, resource.Integrity, resource.CrossOrigin) + "\n";
+        }
+        // PWA manifest
+        if (PageState.Site.PwaIsEnabled && PageState.Site.PwaAppIconFileId != null && PageState.Site.PwaSplashIconFileId != null)
+        {
+            headcontent += "<link id=\"app-manifest\" rel=\"manifest\" />\n";
         }
         SiteState.Properties.HeadContent = headcontent;
 
