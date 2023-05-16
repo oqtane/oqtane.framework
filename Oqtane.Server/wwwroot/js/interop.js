@@ -108,11 +108,6 @@ Oqtane.Interop = {
             }
         }
     },
-    includeLinks: function (links) {
-        for (let i = 0; i < links.length; i++) {
-            this.includeLink(links[i].id, links[i].rel, links[i].href, links[i].type, links[i].integrity, links[i].crossorigin, links[i].insertbefore);
-        }
-    },
     includeScript: function (id, src, integrity, crossorigin, content, location) {
         var script;
         if (src !== "") {
@@ -248,15 +243,6 @@ Oqtane.Interop = {
             return a.href;
         }
         return getAbsoluteUrl(url);
-    },
-    removeElementsById: function (prefix, first, last) {
-        var elements = document.querySelectorAll('[id^=' + prefix + ']');
-        for (var i = elements.length - 1; i >= 0; i--) {
-            var element = elements[i];
-            if (element.id.startsWith(prefix) && (first === '' || element.id >= first) && (last === '' || element.id <= last)) {
-                element.parentNode.removeChild(element);
-            }
-        }
     },
     getElementByName: function (name) {
         var elements = document.getElementsByName(name);

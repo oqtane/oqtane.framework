@@ -148,18 +148,9 @@ namespace Oqtane.Pages
                         {
                             page = _pages.GetPage(site.HomePageId.Value);
                         }
-                        if (page != null && !page.IsDeleted)
+                        if (page == null || page.IsDeleted)
                         {
-                            // include theme resources
-                            if (!string.IsNullOrEmpty(page.ThemeType))
-                            {
-                                ThemeType = page.ThemeType;
-                            }
-                            ProcessThemeResources(ThemeType, alias);
-                        }
-                        else // page not found
-                        {
-                            // look for url mapping
+                            // page not found - look for url mapping
                             var urlMapping = _urlMappings.GetUrlMapping(site.SiteId, route.PagePath);
                             if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
                             {
@@ -381,24 +372,6 @@ namespace Oqtane.Pages
                 {
                     resource.Level = ResourceLevel.App;
                     ProcessResource(resource, 0, alias);
-                }
-            }
-        }
-
-        private void ProcessThemeResources(string ThemeType, Alias alias)
-        {
-            var type = Type.GetType(ThemeType);
-            if (type != null)
-            {
-                var obj = Activator.CreateInstance(type) as IThemeControl;
-                if (obj.Resources != null)
-                {
-                    int count = 1;
-                    foreach (var resource in obj.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
-                    {
-                        resource.Level = ResourceLevel.Page;
-                        ProcessResource(resource, count++, alias);
-                    }
                 }
             }
         }

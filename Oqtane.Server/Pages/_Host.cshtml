@@ -12,8 +12,6 @@
     <script src="js/loadjs.min.js"></script>
     <link rel="stylesheet" href="css/app.css" />
     @Html.Raw(Model.HeadResources)
-	<link id="app-stylesheet-page" rel="stylesheet" href="css/empty.css" disabled />
-	<link id="app-stylesheet-module" rel="stylesheet" href="css/empty.css" disabled />
     <component type="typeof(Oqtane.Head)" render-mode="@((RenderMode)Enum.Parse(typeof(RenderMode), Model.RenderMode, true))" />
 </head>
 <body>

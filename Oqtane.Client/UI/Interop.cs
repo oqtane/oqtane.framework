@@ -90,21 +90,6 @@ namespace Oqtane.UI
             }
         }
 
-        public Task IncludeLinks(object[] links)
-        {
-            try
-            {
-                _jsRuntime.InvokeVoidAsync(
-                    "Oqtane.Interop.includeLinks", 
-                    (object) links);
-                return Task.CompletedTask;
-            }
-            catch
-            {
-                return Task.CompletedTask;
-            }
-        }
-
         // external scripts need to specify src, inline scripts need to specify id and content
         public Task IncludeScript(string id, string src, string integrity, string crossorigin, string content, string location)
         {
@@ -132,21 +117,6 @@ namespace Oqtane.UI
             catch
             {
                 // ignore exception
-            }
-        }
-
-        public Task RemoveElementsById(string prefix, string first, string last)
-        {
-            try
-            {
-                _jsRuntime.InvokeVoidAsync(
-                    "Oqtane.Interop.removeElementsById",
-                    prefix, first, last);
-                return Task.CompletedTask;
-            }
-            catch
-            {
-                return Task.CompletedTask;
             }
         }
 
