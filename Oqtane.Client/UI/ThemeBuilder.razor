@@ -29,8 +29,16 @@
             SiteState.Properties.PageTitle = PageState.Site.Name + " - " + PageState.Page.Name;
         }
 
-        // set page meta
-        SiteState.Properties.HeadContent = PageState.Page.Meta ?? "";
+        // set page head content
+        var content = "";
+        var favicon = "favicon.ico";
+        if (PageState.Site.FaviconFileId != null)
+        {
+            favicon = Utilities.FileUrl(PageState.Alias, PageState.Site.FaviconFileId.Value);
+        }
+        content += $"<link id=\"app-favicon\" rel=\"shortcut icon\" type=\"image/x-icon\" href=\"{favicon}\" />\n";
+        content += PageState.Page.Meta ?? "";
+        SiteState.Properties.HeadContent = content;
 
 		DynamicComponent = builder =>
 		{
