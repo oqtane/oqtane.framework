@@ -93,6 +93,15 @@
                             <input id="url" class="form-control" @bind="@_url" maxlength="500"/>
                         </div>
                     </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content" ResourceKey="Personalizable">Personalizable? </Label>
+                        <div class="col-sm-9">
+                            <select id="personalizable" class="form-select" @bind="@_ispersonalizable" required>
+                                <option value="True">@SharedLocalizer["Yes"]</option>
+                                <option value="False">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <Section Name="Appearance" ResourceKey="Appearance">
                     <div class="container">
@@ -103,9 +112,9 @@
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="meta" HelpText="Optionally enter meta tags (in exactly the form you want them to be included in the page output)." ResourceKey="Meta">Meta: </Label>
+                            <Label Class="col-sm-3" For="icon" HelpText="Optionally provide an icon class name for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Label>
                             <div class="col-sm-9">
-								<textarea id="meta" class="form-control" @bind="@_meta" rows="3"></textarea>
+                                <input id="icon" class="form-control" @bind="@_icon" maxlength="50" />
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
@@ -132,18 +141,9 @@
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="icon" HelpText="Optionally provide an icon class name for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Label>
+                            <Label Class="col-sm-3" For="headcontent" HelpText="Optionally enter content to be included in the page head (ie. meta and link tags are valid, script tags are not)." ResourceKey="HeadContent">Head Content: </Label>
                             <div class="col-sm-9">
-                                <input id="icon" class="form-control" @bind="@_icon" maxlength="50"/>
-                            </div>
-                        </div>
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content" ResourceKey="Personalizable">Personalizable? </Label>
-                            <div class="col-sm-9">
-                                <select id="personalizable" class="form-select" @bind="@_ispersonalizable" required>
-                                    <option value="True">@SharedLocalizer["Yes"]</option>
-                                    <option value="False">@SharedLocalizer["No"]</option>
-                                </select>
+                                <textarea id="headcontent" class="form-control" @bind="@_headcontent" rows="3"></textarea>
                             </div>
                         </div>
                     </div>
@@ -207,8 +207,7 @@
 	private int _pageId;
 	private string _name;
 	private string _title;
-	private string _meta;
-	private string _path;
+    private string _path;
 	private string _currentparentid;
 	private string _parentid = "-1";
 	private string _insert = "=";
@@ -220,7 +219,8 @@
 	private string _ispersonalizable;
 	private string _themetype;
 	private string _containertype = "-";
-	private string _icon;
+    private string _headcontent;
+    private string _icon;
 	private List<Permission> _permissions = null;
 	private string _createdby;
 	private DateTime _createdon;
@@ -250,7 +250,6 @@
 			{
 				_name = page.Name;
 				_title = page.Title;
-				_meta = page.Meta;
 				_path = page.Path;
 				_pageModules = PageState.Modules.Where(m => m.PageId == page.PageId).ToList();
 
@@ -291,7 +290,8 @@
 				{
 					_containertype = PageState.Site.DefaultContainerType;
 				}
-				_icon = page.Icon;
+                _headcontent = page.HeadContent;
+                _icon = page.Icon;
 				_permissions = page.PermissionList;
 				_createdby = page.CreatedBy;
 				_createdon = page.CreatedOn;
@@ -508,11 +508,11 @@
 					{
 						page.DefaultContainerType = string.Empty;
 					}
-					page.Icon = _icon ?? string.Empty;
+                    page.HeadContent = _headcontent;
+                    page.Icon = _icon ?? string.Empty;
 					page.PermissionList = _permissionGrid.GetPermissionList();
 					page.IsPersonalizable = (_ispersonalizable != null && Boolean.Parse(_ispersonalizable));
 					page.UserId = null;
-					page.Meta = _meta;
 
                     page = await PageService.UpdatePageAsync(page);
                     await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, page.ParentId);
