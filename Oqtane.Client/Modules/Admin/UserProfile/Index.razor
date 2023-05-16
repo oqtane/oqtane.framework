@@ -319,6 +319,8 @@ else
 
 	private async Task Save()
 	{
+
+        var interop = new Interop(JSRuntime);
 		try
 		{
 			if (username != string.Empty && email != string.Empty && ValidateProfiles())
@@ -355,6 +357,7 @@ else
 
 						AddModuleMessage(Localizer["Success.Profile.Update"], MessageType.Success);
 						StateHasChanged();
+                        await interop.ScrollTo(0, 0, "smooth");
 					}
 					else
 					{
