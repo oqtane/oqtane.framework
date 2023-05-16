@@ -30,15 +30,33 @@
         }
 
         // set page head content
-        var content = "";
+        var headcontent = "";
+        // favicon
         var favicon = "favicon.ico";
         if (PageState.Site.FaviconFileId != null)
         {
             favicon = Utilities.FileUrl(PageState.Alias, PageState.Site.FaviconFileId.Value);
         }
-        content += $"<link id=\"app-favicon\" rel=\"shortcut icon\" type=\"image/x-icon\" href=\"{favicon}\" />\n";
-        content += PageState.Page.Meta ?? "";
-        SiteState.Properties.HeadContent = content;
+        headcontent += $"<link id=\"app-favicon\" rel=\"shortcut icon\" type=\"image/x-icon\" href=\"{favicon}\" />\n";
+        // PWA manifest
+        if (PageState.Site.PwaIsEnabled && PageState.Site.PwaAppIconFileId != null && PageState.Site.PwaSplashIconFileId != null)
+        {
+            headcontent += "<link id=\"app-manifest\" rel=\"manifest\" />";
+        }
+        // meta
+        headcontent += PageState.Page.Meta ?? "";
+        SiteState.Properties.HeadContent = headcontent;
+
+        // set page body content
+        var bodycontent = "";
+        if (PageState.Site.PwaIsEnabled && PageState.Site.PwaAppIconFileId != null && PageState.Site.PwaSplashIconFileId != null)
+        {
+            bodycontent += CreatePWAScript(PageState.Alias, PageState.Site, PageState.Route);
+        }
+        if (bodycontent != "")
+        {
+            SiteState.Properties.BodyContent = bodycontent;
+        }
 
 		DynamicComponent = builder =>
 		{
@@ -68,4 +86,45 @@
 		await interop.RemoveElementsById("app-stylesheet-page-", "", "app-stylesheet-page-" + batch + "-00");
 		await interop.RemoveElementsById("app-stylesheet-module-", "", "app-stylesheet-module-" + batch + "-00");
 	}
+
+    private string CreatePWAScript(Alias alias, Site site, Route route)
+    {
+        return
+        "<script>" + Environment.NewLine +
+        "    // PWA Manifest" + Environment.NewLine +
+        "    setTimeout(() => {" + Environment.NewLine +
+        "        var manifest = {" + Environment.NewLine +
+        "            \"name\": \"" + site.Name + "\"," + Environment.NewLine +
+        "            \"short_name\": \"" + site.Name + "\"," + Environment.NewLine +
+        "            \"start_url\": \"" + route.SiteUrl + "/\"," + Environment.NewLine +
+        "            \"display\": \"standalone\"," + Environment.NewLine +
+        "            \"background_color\": \"#fff\"," + Environment.NewLine +
+        "            \"description\": \"" + site.Name + "\"," + Environment.NewLine +
+        "            \"icons\": [{" + Environment.NewLine +
+        "                \"src\": \"" + route.RootUrl + Utilities.FileUrl(alias, site.PwaAppIconFileId.Value) + "\"," + Environment.NewLine +
+        "                \"sizes\": \"192x192\"," + Environment.NewLine +
+        "                \"type\": \"image/png\"" + Environment.NewLine +
+        "                }, {" + Environment.NewLine +
+        "                \"src\": \"" + route.RootUrl + Utilities.FileUrl(alias, site.PwaSplashIconFileId.Value) + "\"," + Environment.NewLine +
+        "                \"sizes\": \"512x512\"," + Environment.NewLine +
+        "                \"type\": \"image/png\"" + Environment.NewLine +
+        "            }]" + Environment.NewLine +
+        "       };" + Environment.NewLine +
+        "       const serialized = JSON.stringify(manifest);" + Environment.NewLine +
+        "       const blob = new Blob([serialized], {type: 'application/javascript'});" + Environment.NewLine +
+        "       const url = URL.createObjectURL(blob);" + Environment.NewLine +
+        "       document.getElementById('app-manifest').setAttribute('href', url);" + Environment.NewLine +
+        "    }, 1000);" + Environment.NewLine +
+        "</script>" + Environment.NewLine +
+        "<script>" + Environment.NewLine +
+        "    // PWA Service Worker" + Environment.NewLine +
+        "    if ('serviceWorker' in navigator) {" + Environment.NewLine +
+        "        navigator.serviceWorker.register('/service-worker.js').then(function(registration) {" + Environment.NewLine +
+        "            console.log('ServiceWorker Registration Successful');" + Environment.NewLine +
+        "        }).catch (function(err) {" + Environment.NewLine +
+        "            console.log('ServiceWorker Registration Failed ', err);" + Environment.NewLine +
+        "        });" + Environment.NewLine +
+        "    };" + Environment.NewLine +
+        "</script>";
+    }
 }
