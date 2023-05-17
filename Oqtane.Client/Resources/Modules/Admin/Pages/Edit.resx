@@ -264,11 +264,11 @@
   <data name="Clickable.Text" xml:space="preserve">
     <value>Clickable?</value>
   </data>
-  <data name="Meta.HelpText" xml:space="preserve">
-    <value>Optionally enter meta tags (in exactly the form you want them to be included in the page output).</value>
+  <data name="HeadContent.HelpText" xml:space="preserve">
+    <value>Optionally enter content to be included in the page head (ie. meta and link tags are valid, script tags are not).</value>
   </data>
-  <data name="Meta.Text" xml:space="preserve">
-    <value>Meta:</value>
+  <data name="HeadContent.Text" xml:space="preserve">
+    <value>Head Content:</value>
   </data>
   <data name="Message.Page.Reserved" xml:space="preserve">
     <value>The page name {0} is reserved. Please enter a different name for your page.</value>

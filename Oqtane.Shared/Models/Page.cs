@@ -65,9 +65,9 @@ namespace Oqtane.Models
         public string DefaultContainerType { get; set; }
 
         /// <summary>
-        /// Meta tags to be included in the head of the page
+        /// Content to be included in the head of the page
         /// </summary>
-        public string Meta { get; set; }
+        public string HeadContent { get; set; }
 
         /// <summary>
         /// Icon file for this page.

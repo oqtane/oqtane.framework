@@ -65,8 +65,6 @@ namespace Oqtane.Pages
         public string RemoteIPAddress = "";
         public string HeadResources = "";
         public string BodyResources = "";
-        public string FavIcon = "favicon.ico";
-        public string PWAScript = "";
         public string ReconnectScript = "";
         public string Message = "";
 
@@ -123,17 +121,9 @@ namespace Oqtane.Pages
                         {
                             RenderMode = site.RenderMode;
                         }
-                        if (site.FaviconFileId != null)
-                        {
-                            FavIcon = Utilities.FileUrl(alias, site.FaviconFileId.Value);
-                        }
                         if (Runtime == "Server")
                         {
                             ReconnectScript = CreateReconnectScript();
-                        }
-                        if (site.PwaIsEnabled && site.PwaAppIconFileId != null && site.PwaSplashIconFileId != null)
-                        {
-                            PWAScript = CreatePWAScript(alias, site, route);
                         }
                         var ThemeType = site.DefaultThemeType;
 
@@ -158,18 +148,9 @@ namespace Oqtane.Pages
                         {
                             page = _pages.GetPage(site.HomePageId.Value);
                         }
-                        if (page != null && !page.IsDeleted)
+                        if (page == null || page.IsDeleted)
                         {
-                            // include theme resources
-                            if (!string.IsNullOrEmpty(page.ThemeType))
-                            {
-                                ThemeType = page.ThemeType;
-                            }
-                            ProcessThemeResources(ThemeType, alias);
-                        }
-                        else // page not found
-                        {
-                            // look for url mapping
+                            // page not found - look for url mapping
                             var urlMapping = _urlMappings.GetUrlMapping(site.SiteId, route.PagePath);
                             if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
                             {
@@ -362,47 +343,6 @@ namespace Oqtane.Pages
             }
         }
 
-        private string CreatePWAScript(Alias alias, Site site, Route route)
-        {
-            return
-            "<script>" + Environment.NewLine +
-            "    // PWA Manifest" + Environment.NewLine +
-            "    setTimeout(() => {" + Environment.NewLine +
-            "        var manifest = {" + Environment.NewLine +
-            "            \"name\": \"" + site.Name + "\"," + Environment.NewLine +
-            "            \"short_name\": \"" + site.Name + "\"," + Environment.NewLine +
-            "            \"start_url\": \"" + route.SiteUrl + "/\"," + Environment.NewLine +
-            "            \"display\": \"standalone\"," + Environment.NewLine +
-            "            \"background_color\": \"#fff\"," + Environment.NewLine +
-            "            \"description\": \"" + site.Name + "\"," + Environment.NewLine +
-            "            \"icons\": [{" + Environment.NewLine +
-            "                \"src\": \"" + route.RootUrl + Utilities.FileUrl(alias, site.PwaAppIconFileId.Value) + "\"," + Environment.NewLine +
-            "                \"sizes\": \"192x192\"," + Environment.NewLine +
-            "                \"type\": \"image/png\"" + Environment.NewLine +
-            "                }, {" + Environment.NewLine +
-            "                \"src\": \"" + route.RootUrl + Utilities.FileUrl(alias, site.PwaSplashIconFileId.Value) + "\"," + Environment.NewLine +
-            "                \"sizes\": \"512x512\"," + Environment.NewLine +
-            "                \"type\": \"image/png\"" + Environment.NewLine +
-            "            }]" + Environment.NewLine +
-            "       };" + Environment.NewLine +
-            "       const serialized = JSON.stringify(manifest);" + Environment.NewLine +
-            "       const blob = new Blob([serialized], {type: 'application/javascript'});" + Environment.NewLine +
-            "       const url = URL.createObjectURL(blob);" + Environment.NewLine +
-            "       document.getElementById('app-manifest').setAttribute('href', url);" + Environment.NewLine +
-            "    }, 1000);" + Environment.NewLine +
-            "</script>" + Environment.NewLine +
-            "<script>" + Environment.NewLine +
-            "    // PWA Service Worker" + Environment.NewLine +
-            "    if ('serviceWorker' in navigator) {" + Environment.NewLine +
-            "        navigator.serviceWorker.register('/service-worker.js').then(function(registration) {" + Environment.NewLine +
-            "            console.log('ServiceWorker Registration Successful');" + Environment.NewLine +
-            "        }).catch (function(err) {" + Environment.NewLine +
-            "            console.log('ServiceWorker Registration Failed ', err);" + Environment.NewLine +
-            "        });" + Environment.NewLine +
-            "    };" + Environment.NewLine +
-            "</script>";
-        }
-
         private string CreateReconnectScript()
         {
             return
@@ -432,24 +372,6 @@ namespace Oqtane.Pages
                 {
                     resource.Level = ResourceLevel.App;
                     ProcessResource(resource, 0, alias);
-                }
-            }
-        }
-
-        private void ProcessThemeResources(string ThemeType, Alias alias)
-        {
-            var type = Type.GetType(ThemeType);
-            if (type != null)
-            {
-                var obj = Activator.CreateInstance(type) as IThemeControl;
-                if (obj.Resources != null)
-                {
-                    int count = 1;
-                    foreach (var resource in obj.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
-                    {
-                        resource.Level = ResourceLevel.Page;
-                        ProcessResource(resource, count++, alias);
-                    }
                 }
             }
         }
