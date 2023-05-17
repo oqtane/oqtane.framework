@@ -125,6 +125,10 @@ namespace Oqtane.Pages
                         {
                             ReconnectScript = CreateReconnectScript();
                         }
+                        if (!string.IsNullOrEmpty(site.HeadContent))
+                        {
+                            ProcessHeadContent(site.HeadContent);
+                        }
                         var ThemeType = site.DefaultThemeType;
 
                         // get jwt token for downstream APIs
@@ -165,6 +169,8 @@ namespace Oqtane.Pages
                                 }
                             }
                         }
+
+                        ProcessHeadContent(page.HeadContent);
 
                         // include global resources
                         var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
@@ -372,6 +378,20 @@ namespace Oqtane.Pages
                 {
                     resource.Level = ResourceLevel.App;
                     ProcessResource(resource, 0, alias);
+                }
+            }
+        }
+
+        private void ProcessHeadContent(string headcontent)
+        {
+            // iterate scripts
+            if (headcontent != null)
+            {
+                var index = headcontent.IndexOf("<script");
+                while (index >= 0)
+                {
+                     HeadResources += headcontent.Substring(index, headcontent.IndexOf("</script>", index) + 9 - index) + Environment.NewLine;
+                    index = headcontent.IndexOf("<script", index + 1);
                 }
             }
         }
