@@ -229,7 +229,7 @@
     <value>Appearance</value>
   </data>
   <data name="HeadContent.HelpText" xml:space="preserve">
-    <value>Optionally enter content to be included in the page head (ie. meta and link tags are valid, script tags are not).</value>
+    <value>Optionally enter content to be included in the page head (ie. meta, link, or script tags). Please note that inline script must include an id attribute.</value>
   </data>
   <data name="HeadContent.Text" xml:space="preserve">
     <value>Head Content:</value>

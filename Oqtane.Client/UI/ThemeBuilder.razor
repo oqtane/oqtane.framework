@@ -1,5 +1,5 @@
 @namespace Oqtane.UI
-@inject IJSRuntime JsRuntime
+@inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 @inject SiteState SiteState
 
@@ -41,11 +41,11 @@
         // head content
         if (!string.IsNullOrEmpty(PageState.Site.HeadContent))
         {
-            headcontent += PageState.Site.HeadContent + "\n";
+            headcontent += RemoveScripts(PageState.Site.HeadContent) + "\n";
         }
         if (!string.IsNullOrEmpty(PageState.Page.HeadContent))
         {
-            headcontent += PageState.Page.HeadContent + "\n";
+            headcontent += RemoveScripts(PageState.Page.HeadContent) + "\n";
         }
         // stylesheets
         foreach (Resource resource in PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
@@ -77,6 +77,78 @@
             builder.OpenComponent(0, themeType);
             builder.CloseComponent();
         };
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            if (PageState.Page.HeadContent != null && PageState.Page.HeadContent.Contains("<script"))
+            {
+                var interop = new Interop(JSRuntime);
+                var index = PageState.Page.HeadContent.IndexOf("<script");
+                while (index >= 0)
+                {
+                    var script = PageState.Page.HeadContent.Substring(index, PageState.Page.HeadContent.IndexOf("</script>", index) + 9 - index);
+                    var attributes = script.Substring(0, script.IndexOf(">")).Replace("\"", "").Split(" ");
+                    string id = "";
+                    string url = "";
+                    string integrity = "";
+                    string crossorigin = "";
+                    bool es6module = false;
+                    foreach (var attribute in attributes)
+                    {
+                        if (attribute.Contains("="))
+                        {
+                            var value = attribute.Split("=");
+                            switch (value[0])
+                            {
+                                case "id":
+                                    id = value[1];
+                                    break;
+                                case "src":
+                                    url = value[1];
+                                    break;
+                                case "integrity":
+                                    integrity = value[1];
+                                    break;
+                                case "crossorigin":
+                                    crossorigin = value[1];
+                                    break;
+                                case "type":
+                                    es6module = (value[1] == "module");
+                                    break;
+                            }
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(url))
+                    {
+                        url = (url.Contains("://")) ? url : PageState.Alias.BaseUrl + url;
+                        await interop.IncludeScript(id, url, integrity, crossorigin, "", "head");
+                    }
+                    else
+                    {
+                        index = script.IndexOf(">") + 1;
+                        await interop.IncludeScript(id, "", "", "", script.Substring(index, script.IndexOf("</script>") - index), "head");
+                    }
+                    index = PageState.Page.HeadContent.IndexOf("<script", index + 1);
+                }
+            }
+        }
+    }
+
+    private string RemoveScripts(string headcontent)
+    {        
+        if (headcontent != null)
+        {
+            var index = headcontent.IndexOf("<script");
+            while (index >= 0)
+            {
+                headcontent = headcontent.Remove(index, headcontent.IndexOf("</script>") + 9 - index);
+                index = headcontent.IndexOf("<script");
+            }
+        }
+        return headcontent;
     }
 
     private string CreateLink(string url, string integrity, string crossorigin)
