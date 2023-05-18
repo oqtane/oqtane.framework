@@ -86,6 +86,7 @@
             if (PageState.Page.HeadContent != null && PageState.Page.HeadContent.Contains("<script"))
             {
                 var interop = new Interop(JSRuntime);
+                var count = 0;
                 var index = PageState.Page.HeadContent.IndexOf("<script");
                 while (index >= 0)
                 {
@@ -128,6 +129,11 @@
                     }
                     else
                     {
+                        if (id == "")
+                        {
+                            count += 1;
+                            id = $"page{PageState.Page.PageId}-script{count}";
+                        }
                         index = script.IndexOf(">") + 1;
                         await interop.IncludeScript(id, "", "", "", script.Substring(index, script.IndexOf("</script>") - index), "head");
                     }
