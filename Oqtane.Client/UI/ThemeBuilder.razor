@@ -41,11 +41,11 @@
         // head content
         if (!string.IsNullOrEmpty(PageState.Site.HeadContent))
         {
-            headcontent += RemoveScripts(PageState.Site.HeadContent) + "\n";
+            headcontent += ProcessHeadContent(PageState.Site.HeadContent, "site") + "\n";
         }
         if (!string.IsNullOrEmpty(PageState.Page.HeadContent))
         {
-            headcontent += RemoveScripts(PageState.Page.HeadContent) + "\n";
+            headcontent += ProcessHeadContent(PageState.Page.HeadContent, $"page{PageState.Page.PageId}") + "\n";
         }
         // stylesheets
         foreach (Resource resource in PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
@@ -54,13 +54,6 @@
             headcontent += CreateLink(url, resource.Integrity, resource.CrossOrigin) + "\n";
         }
         SiteState.Properties.HeadContent = headcontent;
-
-        // set page body content
-        var bodycontent = "";
-        if (bodycontent != "")
-        {
-            SiteState.Properties.BodyContent = bodycontent;
-        }
 
         DynamicComponent = builder =>
         {
@@ -72,77 +65,84 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender)
+        if (!string.IsNullOrEmpty(PageState.Page.HeadContent) && PageState.Page.HeadContent.Contains("<script"))
         {
-            if (PageState.Page.HeadContent != null && PageState.Page.HeadContent.Contains("<script"))
+            // inject scripts into page
+            var interop = new Interop(JSRuntime);
+            var count = 0;
+            var index = PageState.Page.HeadContent.IndexOf("<script");
+            while (index >= 0)
             {
-                var interop = new Interop(JSRuntime);
-                var count = 0;
-                var index = PageState.Page.HeadContent.IndexOf("<script");
-                while (index >= 0)
+                var script = PageState.Page.HeadContent.Substring(index, PageState.Page.HeadContent.IndexOf("</script>", index) + 9 - index);
+                var attributes = script.Substring(0, script.IndexOf(">")).Replace("\"", "").Split(" ");
+                string id = "";
+                string src = "";
+                string integrity = "";
+                string crossorigin = "";
+                string type = "";
+                foreach (var attribute in attributes)
                 {
-                    var script = PageState.Page.HeadContent.Substring(index, PageState.Page.HeadContent.IndexOf("</script>", index) + 9 - index);
-                    var attributes = script.Substring(0, script.IndexOf(">")).Replace("\"", "").Split(" ");
-                    string id = "";
-                    string src = "";
-                    string integrity = "";
-                    string crossorigin = "";
-                    string type = "";
-                    foreach (var attribute in attributes)
+                    if (attribute.Contains("="))
                     {
-                        if (attribute.Contains("="))
+                        var value = attribute.Split("=");
+                        switch (value[0])
                         {
-                            var value = attribute.Split("=");
-                            switch (value[0])
-                            {
-                                case "id":
-                                    id = value[1];
-                                    break;
-                                case "src":
-                                    src = value[1];
-                                    break;
-                                case "integrity":
-                                    integrity = value[1];
-                                    break;
-                                case "crossorigin":
-                                    crossorigin = value[1];
-                                    break;
-                                case "type":
-                                    type = value[1];
-                                    break;
-                            }
+                            case "id":
+                                id = value[1];
+                                break;
+                            case "src":
+                                src = value[1];
+                                break;
+                            case "integrity":
+                                integrity = value[1];
+                                break;
+                            case "crossorigin":
+                                crossorigin = value[1];
+                                break;
+                            case "type":
+                                type = value[1];
+                                break;
                         }
                     }
-                    if (!string.IsNullOrEmpty(src))
-                    {
-                        src = (src.Contains("://")) ? src : PageState.Alias.BaseUrl + src;
-                        await interop.IncludeScript(id, src, integrity, crossorigin, type, "", "head");
-                    }
-                    else
-                    {
-                        if (id == "")
-                        {
-                            count += 1;
-                            id = $"page{PageState.Page.PageId}-script{count}";
-                        }
-                        index = script.IndexOf(">") + 1;
-                        await interop.IncludeScript(id, "", "", "", script.Substring(index, script.IndexOf("</script>") - index), "head");
-                    }
-                    index = PageState.Page.HeadContent.IndexOf("<script", index + 1);
                 }
+                if (!string.IsNullOrEmpty(src))
+                {
+                    src = (src.Contains("://")) ? src : PageState.Alias.BaseUrl + src;
+                    await interop.IncludeScript(id, src, integrity, crossorigin, type, "", "head");
+                }
+                else
+                {
+                    if (id == "")
+                    {
+                        count += 1;
+                        id = $"page{PageState.Page.PageId}-script{count}";
+                    }
+                    index = script.IndexOf(">") + 1;
+                    await interop.IncludeScript(id, "", "", "", "", script.Substring(index, script.IndexOf("</script>") - index), "head");
+                }
+                index = PageState.Page.HeadContent.IndexOf("<script", index + 1);
             }
         }
     }
 
-    private string RemoveScripts(string headcontent)
-    {        
-        if (headcontent != null)
+    private string ProcessHeadContent(string headcontent, string id)
+    {
+        // iterate scripts
+        if (!string.IsNullOrEmpty(headcontent))
         {
+            var count = 0;
             var index = headcontent.IndexOf("<script");
             while (index >= 0)
             {
-                headcontent = headcontent.Remove(index, headcontent.IndexOf("</script>") + 9 - index);
-                index = headcontent.IndexOf("<script");
+                var script = headcontent.Substring(index, headcontent.IndexOf("</script>", index) + 9 - index);
+                if (!script.Contains("src=") && !script.Contains("id="))
+                {
+                    count += 1;
+                    id += $"-script{count}";
+                    headcontent = headcontent.Replace(script, script.Replace("<script", $"<script id=\"{id}\""));
+                    index += id.Length;
+                }
+                index = headcontent.IndexOf("<script", index + 1);
             }
         }
         return headcontent;

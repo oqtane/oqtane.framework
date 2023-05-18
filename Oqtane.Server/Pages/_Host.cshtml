@@ -55,7 +55,6 @@
             @Html.Raw(Model.PWAScript)
         }
         @Html.Raw(Model.BodyResources)
-        <component type="typeof(Oqtane.Body)" render-mode="@((RenderMode)Enum.Parse(typeof(RenderMode), Model.RenderMode, true))" />
     }
 	else
 	{
