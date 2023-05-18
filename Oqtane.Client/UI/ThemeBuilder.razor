@@ -53,19 +53,10 @@
             var url = (resource.Url.Contains("://")) ? resource.Url : PageState.Alias.BaseUrl + resource.Url;
             headcontent += CreateLink(url, resource.Integrity, resource.CrossOrigin) + "\n";
         }
-        // PWA manifest
-        if (PageState.Site.PwaIsEnabled && PageState.Site.PwaAppIconFileId != null && PageState.Site.PwaSplashIconFileId != null)
-        {
-            headcontent += "<link id=\"app-manifest\" rel=\"manifest\" />\n";
-        }
         SiteState.Properties.HeadContent = headcontent;
 
         // set page body content
         var bodycontent = "";
-        if (PageState.Site.PwaIsEnabled && PageState.Site.PwaAppIconFileId != null && PageState.Site.PwaSplashIconFileId != null)
-        {
-            bodycontent += CreatePWAScript(PageState.Alias, PageState.Site, PageState.Route);
-        }
         if (bodycontent != "")
         {
             SiteState.Properties.BodyContent = bodycontent;
@@ -160,46 +151,5 @@
     private string CreateLink(string url, string integrity, string crossorigin)
     {
         return "<link rel=\"stylesheet\" href=\"" + url + "\"" + (!string.IsNullOrEmpty(integrity) ? " integrity=\"" + integrity + "\"" : "") + (!string.IsNullOrEmpty(crossorigin) ? " crossorigin=\"" + crossorigin + "\"" : "") + " type=\"text/css\"/>";
-    }
-
-    private string CreatePWAScript(Alias alias, Site site, Route route)
-    {
-        return
-        "<script>" + Environment.NewLine +
-        "    // PWA Manifest" + Environment.NewLine +
-        "    setTimeout(() => {" + Environment.NewLine +
-        "        var manifest = {" + Environment.NewLine +
-        "            \"name\": \"" + site.Name + "\"," + Environment.NewLine +
-        "            \"short_name\": \"" + site.Name + "\"," + Environment.NewLine +
-        "            \"start_url\": \"" + route.SiteUrl + "/\"," + Environment.NewLine +
-        "            \"display\": \"standalone\"," + Environment.NewLine +
-        "            \"background_color\": \"#fff\"," + Environment.NewLine +
-        "            \"description\": \"" + site.Name + "\"," + Environment.NewLine +
-        "            \"icons\": [{" + Environment.NewLine +
-        "                \"src\": \"" + route.RootUrl + Utilities.FileUrl(alias, site.PwaAppIconFileId.Value) + "\"," + Environment.NewLine +
-        "                \"sizes\": \"192x192\"," + Environment.NewLine +
-        "                \"type\": \"image/png\"" + Environment.NewLine +
-        "                }, {" + Environment.NewLine +
-        "                \"src\": \"" + route.RootUrl + Utilities.FileUrl(alias, site.PwaSplashIconFileId.Value) + "\"," + Environment.NewLine +
-        "                \"sizes\": \"512x512\"," + Environment.NewLine +
-        "                \"type\": \"image/png\"" + Environment.NewLine +
-        "            }]" + Environment.NewLine +
-        "       };" + Environment.NewLine +
-        "       const serialized = JSON.stringify(manifest);" + Environment.NewLine +
-        "       const blob = new Blob([serialized], {type: 'application/javascript'});" + Environment.NewLine +
-        "       const url = URL.createObjectURL(blob);" + Environment.NewLine +
-        "       document.getElementById('app-manifest').setAttribute('href', url);" + Environment.NewLine +
-        "    }, 1000);" + Environment.NewLine +
-        "</script>" + Environment.NewLine +
-        "<script>" + Environment.NewLine +
-        "    // PWA Service Worker" + Environment.NewLine +
-        "    if ('serviceWorker' in navigator) {" + Environment.NewLine +
-        "        navigator.serviceWorker.register('/service-worker.js').then(function(registration) {" + Environment.NewLine +
-        "            console.log('ServiceWorker Registration Successful');" + Environment.NewLine +
-        "        }).catch (function(err) {" + Environment.NewLine +
-        "            console.log('ServiceWorker Registration Failed ', err);" + Environment.NewLine +
-        "        });" + Environment.NewLine +
-        "    };" + Environment.NewLine +
-        "</script>";
     }
 }
