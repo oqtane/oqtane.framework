@@ -127,7 +127,7 @@ namespace Oqtane.Pages
                         }
                         if (!string.IsNullOrEmpty(site.HeadContent))
                         {
-                            ProcessHeadContent(site.HeadContent);
+                            ProcessHeadContent(site.HeadContent, "site");
                         }
                         var ThemeType = site.DefaultThemeType;
 
@@ -170,7 +170,7 @@ namespace Oqtane.Pages
                             }
                         }
 
-                        ProcessHeadContent(page.HeadContent);
+                        ProcessHeadContent(page.HeadContent, $"page{page.PageId}");
 
                         // include global resources
                         var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
@@ -382,15 +382,24 @@ namespace Oqtane.Pages
             }
         }
 
-        private void ProcessHeadContent(string headcontent)
+        private void ProcessHeadContent(string headcontent, string id)
         {
             // iterate scripts
             if (headcontent != null)
             {
+                var count = 0;
                 var index = headcontent.IndexOf("<script");
                 while (index >= 0)
                 {
-                     HeadResources += headcontent.Substring(index, headcontent.IndexOf("</script>", index) + 9 - index) + Environment.NewLine;
+                    var script = headcontent.Substring(index, headcontent.IndexOf("</script>", index) + 9 - index);
+                    if (!script.Contains("src=") && !script.Contains("id="))
+                    {
+                        count += 1;
+                        id += $"-script{count}";
+                        script = script.Replace("<script", $"<script id=\"{id}\"");
+                        index += id.Length;
+                    }
+                    HeadResources += script + Environment.NewLine;
                     index = headcontent.IndexOf("<script", index + 1);
                 }
             }

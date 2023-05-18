@@ -265,7 +265,7 @@
     <value>Clickable?</value>
   </data>
   <data name="HeadContent.HelpText" xml:space="preserve">
-    <value>Optionally enter content to be included in the page head (ie. meta, link, or script tags). Please note that inline script must include an id attribute.</value>
+    <value>Optionally enter content to be included in the page head (ie. meta, link, or script tags)</value>
   </data>
   <data name="HeadContent.Text" xml:space="preserve">
     <value>Head Content:</value>
