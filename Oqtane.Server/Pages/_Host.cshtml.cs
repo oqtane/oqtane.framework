@@ -65,6 +65,7 @@ namespace Oqtane.Pages
         public string RemoteIPAddress = "";
         public string HeadResources = "";
         public string BodyResources = "";
+        public string PWAScript = "";
         public string ReconnectScript = "";
         public string Message = "";
 
@@ -124,6 +125,10 @@ namespace Oqtane.Pages
                         if (Runtime == "Server")
                         {
                             ReconnectScript = CreateReconnectScript();
+                        }
+                        if (site.PwaIsEnabled && site.PwaAppIconFileId != null && site.PwaSplashIconFileId != null)
+                        {
+                            PWAScript = CreatePWAScript(alias, site, route);
                         }
                         if (!string.IsNullOrEmpty(site.HeadContent))
                         {
@@ -347,6 +352,47 @@ namespace Oqtane.Pages
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Other, "Error Tracking Visitor {Error}", ex.Message);
             }
+        }
+
+        private string CreatePWAScript(Alias alias, Site site, Route route)
+        {
+            return
+            "<script>" + Environment.NewLine +
+            "    // PWA Manifest" + Environment.NewLine +
+            "    setTimeout(() => {" + Environment.NewLine +
+            "        var manifest = {" + Environment.NewLine +
+            "            \"name\": \"" + site.Name + "\"," + Environment.NewLine +
+            "            \"short_name\": \"" + site.Name + "\"," + Environment.NewLine +
+            "            \"start_url\": \"" + route.SiteUrl + "/\"," + Environment.NewLine +
+            "            \"display\": \"standalone\"," + Environment.NewLine +
+            "            \"background_color\": \"#fff\"," + Environment.NewLine +
+            "            \"description\": \"" + site.Name + "\"," + Environment.NewLine +
+            "            \"icons\": [{" + Environment.NewLine +
+            "                \"src\": \"" + route.RootUrl + Utilities.FileUrl(alias, site.PwaAppIconFileId.Value) + "\"," + Environment.NewLine +
+            "                \"sizes\": \"192x192\"," + Environment.NewLine +
+            "                \"type\": \"image/png\"" + Environment.NewLine +
+            "                }, {" + Environment.NewLine +
+            "                \"src\": \"" + route.RootUrl + Utilities.FileUrl(alias, site.PwaSplashIconFileId.Value) + "\"," + Environment.NewLine +
+            "                \"sizes\": \"512x512\"," + Environment.NewLine +
+            "                \"type\": \"image/png\"" + Environment.NewLine +
+            "            }]" + Environment.NewLine +
+            "       };" + Environment.NewLine +
+            "       const serialized = JSON.stringify(manifest);" + Environment.NewLine +
+            "       const blob = new Blob([serialized], {type: 'application/javascript'});" + Environment.NewLine +
+            "       const url = URL.createObjectURL(blob);" + Environment.NewLine +
+            "       document.getElementById('app-manifest').setAttribute('href', url);" + Environment.NewLine +
+            "    }, 1000);" + Environment.NewLine +
+            "</script>" + Environment.NewLine +
+            "<script>" + Environment.NewLine +
+            "    // PWA Service Worker" + Environment.NewLine +
+            "    if ('serviceWorker' in navigator) {" + Environment.NewLine +
+            "        navigator.serviceWorker.register('/service-worker.js').then(function(registration) {" + Environment.NewLine +
+            "            console.log('ServiceWorker Registration Successful');" + Environment.NewLine +
+            "        }).catch (function(err) {" + Environment.NewLine +
+            "            console.log('ServiceWorker Registration Failed ', err);" + Environment.NewLine +
+            "        });" + Environment.NewLine +
+            "    };" + Environment.NewLine +
+            "</script>";
         }
 
         private string CreateReconnectScript()

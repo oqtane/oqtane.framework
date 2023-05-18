@@ -11,6 +11,10 @@
     <script src="js/app.js"></script>
     <script src="js/loadjs.min.js"></script>
     <link rel="stylesheet" href="css/app.css" />
+    @if (!string.IsNullOrEmpty(Model.PWAScript))
+    {
+        <link id="app-manifest" rel="manifest" />
+    }
     @Html.Raw(Model.HeadResources)
     <component type="typeof(Oqtane.Head)" render-mode="@((RenderMode)Enum.Parse(typeof(RenderMode), Model.RenderMode, true))" />
 </head>
@@ -46,7 +50,11 @@
 		{
 			@Html.Raw(Model.ReconnectScript)
 		}
-		@Html.Raw(Model.BodyResources)
+        @if (!string.IsNullOrEmpty(Model.PWAScript))
+        {
+            @Html.Raw(Model.PWAScript)
+        }
+        @Html.Raw(Model.BodyResources)
         <component type="typeof(Oqtane.Body)" render-mode="@((RenderMode)Enum.Parse(typeof(RenderMode), Model.RenderMode, true))" />
     }
 	else
