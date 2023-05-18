@@ -93,11 +93,16 @@ namespace Oqtane.UI
         // external scripts need to specify src, inline scripts need to specify id and content
         public Task IncludeScript(string id, string src, string integrity, string crossorigin, string content, string location)
         {
+            return IncludeScript(id, src, integrity, crossorigin, "", content, location);
+        }
+
+        public Task IncludeScript(string id, string src, string integrity, string crossorigin, string type, string content, string location)
+        {
             try
             {
                 _jsRuntime.InvokeVoidAsync(
                     "Oqtane.Interop.includeScript",
-                    id, src, integrity, crossorigin, content, location);
+                    id, src, integrity, crossorigin, type, content, location);
                 return Task.CompletedTask;
             }
             catch
