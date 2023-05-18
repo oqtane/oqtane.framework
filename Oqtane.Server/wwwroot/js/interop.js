@@ -108,7 +108,7 @@ Oqtane.Interop = {
             }
         }
     },
-    includeScript: function (id, src, integrity, crossorigin, content, location) {
+    includeScript: function (id, src, integrity, crossorigin, type, content, location) {
         var script;
         if (src !== "") {
             script = document.querySelector("script[src=\"" + CSS.escape(src) + "\"]");
@@ -120,6 +120,9 @@ Oqtane.Interop = {
             script = document.createElement("script");
             if (id !== "") {
                 script.id = id;
+            }
+            if (type !== "") {
+                script.type = type;
             }
             if (src !== "") {
                 script.src = src;
@@ -145,6 +148,13 @@ Oqtane.Interop = {
         else {
             if (script.id !== id) {
                 script.setAttribute('id', id);
+            }
+            if (type !== "") {
+                if (script.type !== type) {
+                    script.setAttribute('type', type);
+                }
+            } else {
+                script.removeAttribute('type');
             }
             if (src !== "") {
                 if (script.src !== this.getAbsoluteUrl(src)) {

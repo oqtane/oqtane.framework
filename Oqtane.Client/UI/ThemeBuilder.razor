@@ -84,10 +84,10 @@
                     var script = PageState.Page.HeadContent.Substring(index, PageState.Page.HeadContent.IndexOf("</script>", index) + 9 - index);
                     var attributes = script.Substring(0, script.IndexOf(">")).Replace("\"", "").Split(" ");
                     string id = "";
-                    string url = "";
+                    string src = "";
                     string integrity = "";
                     string crossorigin = "";
-                    bool es6module = false;
+                    string type = "";
                     foreach (var attribute in attributes)
                     {
                         if (attribute.Contains("="))
@@ -99,7 +99,7 @@
                                     id = value[1];
                                     break;
                                 case "src":
-                                    url = value[1];
+                                    src = value[1];
                                     break;
                                 case "integrity":
                                     integrity = value[1];
@@ -108,15 +108,15 @@
                                     crossorigin = value[1];
                                     break;
                                 case "type":
-                                    es6module = (value[1] == "module");
+                                    type = value[1];
                                     break;
                             }
                         }
                     }
-                    if (!string.IsNullOrEmpty(url))
+                    if (!string.IsNullOrEmpty(src))
                     {
-                        url = (url.Contains("://")) ? url : PageState.Alias.BaseUrl + url;
-                        await interop.IncludeScript(id, url, integrity, crossorigin, "", "head");
+                        src = (src.Contains("://")) ? src : PageState.Alias.BaseUrl + src;
+                        await interop.IncludeScript(id, src, integrity, crossorigin, type, "", "head");
                     }
                     else
                     {
