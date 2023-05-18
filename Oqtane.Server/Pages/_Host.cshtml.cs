@@ -430,8 +430,8 @@ namespace Oqtane.Pages
 
         private void ProcessHeadContent(string headcontent, string id)
         {
-            // iterate scripts
-            if (headcontent != null)
+            // add scripts to page
+            if (!string.IsNullOrEmpty(headcontent))
             {
                 var count = 0;
                 var index = headcontent.IndexOf("<script");

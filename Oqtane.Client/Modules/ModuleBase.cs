@@ -290,18 +290,6 @@ namespace Oqtane.Modules
             }
         }
 
-        public void AddBodyContent(string content)
-        {
-            if (string.IsNullOrEmpty(SiteState.Properties.BodyContent))
-            {
-                SiteState.Properties.BodyContent = content;
-            }
-            else if (!SiteState.Properties.BodyContent.Contains(content))
-            {
-                SiteState.Properties.BodyContent += content;
-            }
-        }
-
         // logging methods
         public async Task Log(Alias alias, LogLevel level, string function, Exception exception, string message, params object[] args)
         {
