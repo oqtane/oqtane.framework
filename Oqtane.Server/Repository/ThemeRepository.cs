@@ -144,6 +144,24 @@ namespace Oqtane.Repository
             return themes;
         }
 
+        public List<Theme> FilterThemes(List<Theme> themes)
+        {
+            var Themes = new List<Theme>();
+
+            foreach (Theme theme in themes)
+            {
+                var Theme = new Theme();
+                Theme.ThemeName = theme.ThemeName;
+                Theme.Name = theme.Name;
+                Theme.Resources = theme.Resources;
+                Theme.Themes = theme.Themes;
+                Theme.Containers = theme.Containers;
+                Themes.Add(Theme);
+            }
+
+            return Themes;
+        }
+
         public void DeleteTheme(string ThemeName)
         {
             _cache.Remove("themes");

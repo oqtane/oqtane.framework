@@ -6,9 +6,9 @@
 @DynamicComponent
 
 @code {
-    [CascadingParameter] PageState PageState { get; set; }
+        [CascadingParameter] PageState PageState { get; set; }
 
-    RenderFragment DynamicComponent { get; set; }
+        RenderFragment DynamicComponent { get; set; }
 
     protected override void OnParametersSet()
     {

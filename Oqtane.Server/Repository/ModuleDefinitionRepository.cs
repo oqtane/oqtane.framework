@@ -79,6 +79,7 @@ namespace Oqtane.Repository
                 ModuleDefinition.SettingsType = moduleDefinition.SettingsType;
                 ModuleDefinition.ControlTypeTemplate = moduleDefinition.ControlTypeTemplate;
                 ModuleDefinition.IsPortable = moduleDefinition.IsPortable;
+                ModuleDefinition.Resources = moduleDefinition.Resources;
             }
 
             return ModuleDefinition;
