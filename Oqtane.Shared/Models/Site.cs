@@ -105,6 +105,9 @@ namespace Oqtane.Models
         [NotMapped]
         public List<Language> Languages { get; set; }
 
+        [NotMapped]
+        public List<Theme> Themes { get; set; }
+
         #region IDeletable Properties
 
         public string DeletedBy { get; set; }

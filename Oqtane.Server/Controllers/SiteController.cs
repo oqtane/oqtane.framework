@@ -21,6 +21,7 @@ namespace Oqtane.Controllers
     {
         private readonly ISiteRepository _sites;
         private readonly IPageRepository _pages;
+        private readonly IThemeRepository _themes;
         private readonly IModuleRepository _modules;
         private readonly IPageModuleRepository _pageModules;
         private readonly IModuleDefinitionRepository _moduleDefinitions;
@@ -32,10 +33,11 @@ namespace Oqtane.Controllers
         private readonly IMemoryCache _cache;
         private readonly Alias _alias;
 
-        public SiteController(ISiteRepository sites, IPageRepository pages, IModuleRepository modules, IPageModuleRepository pageModules, IModuleDefinitionRepository moduleDefinitions, ILanguageRepository languages, IUserPermissions userPermissions, ISettingRepository settings, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger, IMemoryCache cache)
+        public SiteController(ISiteRepository sites, IPageRepository pages, IThemeRepository themes, IModuleRepository modules, IPageModuleRepository pageModules, IModuleDefinitionRepository moduleDefinitions, ILanguageRepository languages, IUserPermissions userPermissions, ISettingRepository settings, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger, IMemoryCache cache)
         {
             _sites = sites;
             _pages = pages;
+            _themes = themes;
             _modules = modules;
             _pageModules = pageModules;
             _moduleDefinitions = moduleDefinitions;
@@ -143,6 +145,9 @@ namespace Oqtane.Controllers
                 site.Languages = _languages.GetLanguages(site.SiteId).ToList();
                 var defaultCulture = CultureInfo.GetCultureInfo(Constants.DefaultCulture);
                 site.Languages.Add(new Language { Code = defaultCulture.Name, Name = defaultCulture.DisplayName, Version = Constants.Version, IsDefault = !site.Languages.Any(l => l.IsDefault) });
+
+                // themes
+                site.Themes = _themes.FilterThemes(_themes.GetThemes().ToList());
 
                 return site;
             }

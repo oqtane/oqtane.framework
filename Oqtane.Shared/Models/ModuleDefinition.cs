@@ -34,6 +34,7 @@ namespace Oqtane.Models
             PackageName = "";
             Runtimes = "";
             Template = "";
+            Resources = null;
         }
 
         /// <summary>
@@ -105,6 +106,9 @@ namespace Oqtane.Models
 
         [NotMapped]
         public string PackageName { get; set; } // added in 2.1.0
+
+        [NotMapped]
+        public List<Resource> Resources { get; set; } // added in 4.0.0
 
         // internal properties
         [NotMapped]

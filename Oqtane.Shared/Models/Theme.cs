@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
 {
@@ -21,6 +22,7 @@ namespace Oqtane.Models
             ThemeSettingsType = "";
             ContainerSettingsType = "";
             PackageName = "";
+            Resources = null;
         }
 
         /// <summary>
@@ -67,6 +69,8 @@ namespace Oqtane.Models
         public string ThemeSettingsType { get; set; } // added in 2.0.2
         public string ContainerSettingsType { get; set; } // added in 2.0.2
         public string PackageName { get; set; } // added in 2.1.0
+        public List<Resource> Resources { get; set; } // added in 4.0.0
+
 
         // internal properties
         public string AssemblyName { get; set; }
