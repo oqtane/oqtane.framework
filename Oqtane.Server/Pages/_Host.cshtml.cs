@@ -134,7 +134,6 @@ namespace Oqtane.Pages
                         {
                             ProcessHeadContent(site.HeadContent, "site");
                         }
-                        var ThemeType = site.DefaultThemeType;
 
                         // get jwt token for downstream APIs
                         if (User.Identity.IsAuthenticated)
