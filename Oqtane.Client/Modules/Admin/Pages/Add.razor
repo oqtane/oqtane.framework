@@ -96,7 +96,7 @@
                     </div>
                 </div>
 
-                <Section Name="Appearance" ResourceKey="Appearance">
+                <Section Name="Appearance" Heading="Appearance" ResourceKey="Appearance">
                     <div class="container">
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used." ResourceKey="Title">Title: </Label>
@@ -133,13 +133,23 @@
                                 </select>
                             </div>
                         </div>
+                    </div>
+                </Section>
+                <Section Name="PageContent" Heading="Page Content" ResourceKey="PageContent">
+                    <div class="container">
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="headcontent" HelpText="Optionally enter content to be included in the page head (ie. meta, link, or script tags)" ResourceKey="HeadContent">Head Content: </Label>
                             <div class="col-sm-9">
                                 <textarea id="headcontent" class="form-control" @bind="@_headcontent" rows="3"></textarea>
                             </div>
                         </div>
-                     </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="bodycontent" HelpText="Optionally enter content to be included in the page body (ie. script tags)" ResourceKey="BodyContent">Body Content: </Label>
+                            <div class="col-sm-9">
+                                <textarea id="bodycontent" class="form-control" @bind="@_bodycontent" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
                 </Section>
             }
         </TabPanel>
@@ -169,20 +179,21 @@
 	private List<ThemeControl> _themes = new List<ThemeControl>();
 	private List<ThemeControl> _containers = new List<ThemeControl>();
 	private string _name;
-	private string _title;
-	private string _path = string.Empty;
 	private string _parentid = "-1";
 	private string _insert = ">>";
 	private List<Page> _children;
 	private int _childid = -1;
 	private string _isnavigation = "True";
 	private string _isclickable = "True";
-	private string _url;
+    private string _path = string.Empty;
+    private string _url;
 	private string _ispersonalizable = "False";
-	private string _themetype = string.Empty;
+    private string _title;
+    private string _icon = string.Empty;
+    private string _themetype = string.Empty;
 	private string _containertype = string.Empty;
     private string _headcontent;
-    private string _icon = string.Empty;
+    private string _bodycontent;
 	private string _permissions = null;
 	private PermissionGrid _permissionGrid;
 	private Type _themeSettingsType;
@@ -297,7 +308,6 @@
 					page = new Page();
 					page.SiteId = PageState.Page.SiteId;
 					page.Name = _name;
-					page.Title = _title;
 
 					if (string.IsNullOrEmpty(_path))
 					{
@@ -365,7 +375,13 @@
 
 					page.IsNavigation = (_isnavigation == null ? true : Boolean.Parse(_isnavigation));
 					page.IsClickable = (_isclickable == null ? true : Boolean.Parse(_isclickable));
-					page.Url = _url;
+                    page.Url = _url;
+                    page.IsPersonalizable = (_ispersonalizable == null ? false : Boolean.Parse(_ispersonalizable));
+                    page.UserId = null;
+
+                    // appearance
+                    page.Title = _title;
+                    page.Icon = (_icon == null ? string.Empty : _icon);
 					page.ThemeType = (_themetype != "-") ? _themetype : string.Empty;
 					if (!string.IsNullOrEmpty(page.ThemeType) && page.ThemeType == PageState.Site.DefaultThemeType)
 					{
@@ -376,11 +392,13 @@
 					{
 						page.DefaultContainerType = string.Empty;
 					}
+
+                    // page content
                     page.HeadContent = _headcontent;
-                    page.Icon = (_icon == null ? string.Empty : _icon);
+                    page.BodyContent = _bodycontent;
+
+                    // permissions
 					page.PermissionList = _permissionGrid.GetPermissionList();
-					page.IsPersonalizable = (_ispersonalizable == null ? false : Boolean.Parse(_ispersonalizable));
-					page.UserId = null;
 
                     page = await PageService.AddPageAsync(page);
                     await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, page.ParentId);

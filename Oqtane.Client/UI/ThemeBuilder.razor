@@ -63,81 +63,90 @@
         };
     }
 
+    private string CreateLink(string url, string integrity, string crossorigin)
+    {
+        return "<link rel=\"stylesheet\" href=\"" + url + "\"" + (!string.IsNullOrEmpty(integrity) ? " integrity=\"" + integrity + "\"" : "") + (!string.IsNullOrEmpty(crossorigin) ? " crossorigin=\"" + crossorigin + "\"" : "") + " type=\"text/css\"/>";
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender)
         {
             if (!string.IsNullOrEmpty(PageState.Page.HeadContent) && PageState.Page.HeadContent.Contains("<script"))
             {
-                // inject scripts into page dynamically
-                var interop = new Interop(JSRuntime);
-                var scripts = new List<object>();
-                var count = 0;
-                var index = PageState.Page.HeadContent.IndexOf("<script");
-                while (index >= 0)
-                {
-                    var script = PageState.Page.HeadContent.Substring(index, PageState.Page.HeadContent.IndexOf("</script>", index) + 9 - index);
-                    // get script attributes
-                    var attributes = script.Substring(0, script.IndexOf(">")).Replace("\"", "").Split(" ");
-                    string id = "";
-                    string src = "";
-                    string integrity = "";
-                    string crossorigin = "";
-                    string type = "";
-                    foreach (var attribute in attributes)
-                    {
-                        if (attribute.Contains("="))
-                        {
-                            var value = attribute.Split("=");
-                            switch (value[0])
-                            {
-                                case "id":
-                                    id = value[1];
-                                    break;
-                                case "src":
-                                    src = value[1];
-                                    break;
-                                case "integrity":
-                                    integrity = value[1];
-                                    break;
-                                case "crossorigin":
-                                    crossorigin = value[1];
-                                    break;
-                                case "type":
-                                    type = value[1];
-                                    break;
-                            }
-                        }
-                    }
-                    // inject script
-                    if (!string.IsNullOrEmpty(src))
-                    {
-                        src = (src.Contains("://")) ? src : PageState.Alias.BaseUrl + src;
-                        scripts.Add(new { href = src, bundle = "", integrity = integrity, crossorigin = crossorigin, es6module = (type == "module"), location = "head" });
-                    }
-                    else
-                    {
-                        // inline script must have an id attribute
-                        if (id == "")
-                        {
-                            count += 1;
-                            id = $"page{PageState.Page.PageId}-script{count}";
-                        }
-                        index = script.IndexOf(">") + 1;
-                        await interop.IncludeScript(id, "", "", "", "", script.Substring(index, script.IndexOf("</script>") - index), "head");
-                    }
-                    index = PageState.Page.HeadContent.IndexOf("<script", index + 1);
-                }
-                if (scripts.Any())
-                {
-                    await interop.IncludeScripts(scripts.ToArray());
-                }
+                await InjectScripts(PageState.Page.HeadContent, "head");
+            }
+            if (!string.IsNullOrEmpty(PageState.Page.BodyContent) && PageState.Page.BodyContent.Contains("<script"))
+            {
+                await InjectScripts(PageState.Page.BodyContent, "body");
             }
         }
     }
 
-    private string CreateLink(string url, string integrity, string crossorigin)
+    private async Task InjectScripts(string content, string location)
     {
-        return "<link rel=\"stylesheet\" href=\"" + url + "\"" + (!string.IsNullOrEmpty(integrity) ? " integrity=\"" + integrity + "\"" : "") + (!string.IsNullOrEmpty(crossorigin) ? " crossorigin=\"" + crossorigin + "\"" : "") + " type=\"text/css\"/>";
+        // inject scripts into page dynamically
+        var interop = new Interop(JSRuntime);
+        var scripts = new List<object>();
+        var count = 0;
+        var index = content.IndexOf("<script");
+        while (index >= 0)
+        {
+            var script = content.Substring(index, content.IndexOf("</script>", index) + 9 - index);
+            // get script attributes
+            var attributes = script.Substring(0, script.IndexOf(">")).Replace("\"", "").Split(" ");
+            string id = "";
+            string src = "";
+            string integrity = "";
+            string crossorigin = "";
+            string type = "";
+            foreach (var attribute in attributes)
+            {
+                if (attribute.Contains("="))
+                {
+                    var value = attribute.Split("=");
+                    switch (value[0])
+                    {
+                        case "id":
+                            id = value[1];
+                            break;
+                        case "src":
+                            src = value[1];
+                            break;
+                        case "integrity":
+                            integrity = value[1];
+                            break;
+                        case "crossorigin":
+                            crossorigin = value[1];
+                            break;
+                        case "type":
+                            type = value[1];
+                            break;
+                    }
+                }
+            }
+            // inject script
+            if (!string.IsNullOrEmpty(src))
+            {
+                src = (src.Contains("://")) ? src : PageState.Alias.BaseUrl + src;
+                scripts.Add(new { href = src, bundle = "", integrity = integrity, crossorigin = crossorigin, es6module = (type == "module"), location = location });
+            }
+            else
+            {
+                // inline script must have an id attribute
+                if (id == "")
+                {
+                    count += 1;
+                    id = $"page{PageState.Page.PageId}-script{count}";
+                }
+                index = script.IndexOf(">") + 1;
+                await interop.IncludeScript(id, "", "", "", "", script.Substring(index, script.IndexOf("</script>") - index), location);
+            }
+            index = content.IndexOf("<script", index + 1);
+        }
+        if (scripts.Any())
+        {
+            await interop.IncludeScripts(scripts.ToArray());
+        }
     }
 }

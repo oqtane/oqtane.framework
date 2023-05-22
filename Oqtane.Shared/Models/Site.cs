@@ -93,6 +93,11 @@ namespace Oqtane.Models
         /// </summary>
         public string HeadContent { get; set; }
 
+        /// <summary>
+        /// Content to be included in the body of the page
+        /// </summary>
+        public string BodyContent { get; set; }
+
         [NotMapped]
         public Dictionary<string, string> Settings { get; set; }
 
