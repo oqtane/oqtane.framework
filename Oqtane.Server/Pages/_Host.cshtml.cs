@@ -131,6 +131,7 @@ namespace Oqtane.Pages
                         }
                         // site level scripts
                         HeadResources += ParseScripts(site.HeadContent);
+                        BodyResources += ParseScripts(site.BodyContent);
 
                         // get jwt token for downstream APIs
                         if (User.Identity.IsAuthenticated)

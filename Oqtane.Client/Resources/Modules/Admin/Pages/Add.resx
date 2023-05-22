@@ -237,4 +237,13 @@
   <data name="Message.Page.Reserved" xml:space="preserve">
     <value>The page name {0} is reserved. Please enter a different name for your page.</value>
   </data>
+  <data name="BodyContent.HelpText" xml:space="preserve">
+    <value>Optionally enter content to be included in the page body (ie. script tags)</value>
+  </data>
+  <data name="BodyContent.Text" xml:space="preserve">
+    <value>Body Content:</value>
+  </data>
+  <data name="PageContent.Heading" xml:space="preserve">
+    <value>Page Content</value>
+  </data>
 </root>

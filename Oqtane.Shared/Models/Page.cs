@@ -70,6 +70,11 @@ namespace Oqtane.Models
         public string HeadContent { get; set; }
 
         /// <summary>
+        /// Content to be included in the body of the page
+        /// </summary>
+        public string BodyContent { get; set; }
+
+        /// <summary>
         /// Icon file for this page.
         /// TODO: unclear what this is for, and what icon library is used. Probably FontAwesome?
         /// </summary>

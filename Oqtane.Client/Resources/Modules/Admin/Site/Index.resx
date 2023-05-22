@@ -360,4 +360,13 @@
   <data name="HeadContent.Text" xml:space="preserve">
     <value>Head Content:</value>
   </data>
+  <data name="BodyContent.HelpText" xml:space="preserve">
+    <value>Optionally enter content to be included in the page body (ie. script tags)</value>
+  </data>
+  <data name="BodyContent.Text" xml:space="preserve">
+    <value>Body Content:</value>
+  </data>
+  <data name="PageContent.Heading" xml:space="preserve">
+    <value>Page Content</value>
+  </data>
 </root>
