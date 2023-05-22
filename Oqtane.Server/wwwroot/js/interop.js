@@ -116,6 +116,10 @@ Oqtane.Interop = {
         else {
             script = document.getElementById(id);
         }
+        if (script !== null) {
+            script.remove();
+            script = null;
+        }
         if (script === null) {
             script = document.createElement("script");
             if (id !== "") {
@@ -139,49 +143,21 @@ Oqtane.Interop = {
             script.async = false;
             this.addScript(script, location)
                 .then(() => {
-                    console.log(src + ' loaded');
+                    if (src !== "") {
+                        console.log(src + ' loaded');
+                    }
+                    else {
+                        console.log(id + ' loaded');
+                    }
                 })
                 .catch(() => {
-                    console.error(src + ' failed');
+                    if (src !== "") {
+                        console.error(src + ' failed');
+                    }
+                    else {
+                        console.error(id + ' failed');
+                    }
                 });
-        }
-        else {
-            if (script.id !== id) {
-                script.setAttribute('id', id);
-            }
-            if (type !== "") {
-                if (script.type !== type) {
-                    script.setAttribute('type', type);
-                }
-            } else {
-                script.removeAttribute('type');
-            }
-            if (src !== "") {
-                if (script.src !== this.getAbsoluteUrl(src)) {
-                    script.removeAttribute('integrity');
-                    script.removeAttribute('crossorigin');
-                    script.src = src;
-                }
-                if (integrity !== "") {
-                    if (script.integrity !== integrity) {
-                        script.setAttribute('integrity', integrity);
-                    }
-                } else {
-                    script.removeAttribute('integrity');
-                }
-                if (crossorigin !== "") {
-                    if (script.crossOrigin !== crossorigin) {
-                        script.setAttribute('crossorigin', crossorigin);
-                    }
-                } else {
-                    script.removeAttribute('crossorigin');
-                }
-            }
-            else {
-                if (script.innerHTML !== content) {
-                    script.innerHTML = content;
-                }
-            }
         }
     },
     addScript: function (script, location) {
@@ -233,6 +209,10 @@ Oqtane.Interop = {
                                 }
                                 if (path === scripts[s].href && scripts[s].es6module === true) {
                                     element.type = "module";
+                                }
+                                if (path === scripts[s].href && scripts[s].location === 'body') {
+                                    document.body.appendChild(element);
+                                    return false;  // return false to bypass default DOM insertion mechanism
                                 }
                             }
                         }
