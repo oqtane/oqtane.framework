@@ -15,8 +15,8 @@
     {
         <link id="app-manifest" rel="manifest" />
     }
-    @Html.Raw(Model.HeadResources)
     <component type="typeof(Oqtane.Head)" render-mode="@((RenderMode)Enum.Parse(typeof(RenderMode), Model.RenderMode, true))" />
+    @Html.Raw(Model.HeadResources)
 </head>
 <body>
 	@if (string.IsNullOrEmpty(Model.Message))

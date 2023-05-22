@@ -278,6 +278,7 @@ namespace Oqtane.Modules
             SiteState.Properties.PageTitle = title;
         }
 
+        // note - only supports links and meta tags - not scripts
         public void AddHeadContent(string content)
         {
             if (string.IsNullOrEmpty(SiteState.Properties.HeadContent))

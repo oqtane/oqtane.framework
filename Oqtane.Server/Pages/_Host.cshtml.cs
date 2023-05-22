@@ -19,7 +19,6 @@ using Microsoft.Extensions.Primitives;
 using Oqtane.Enums;
 using Oqtane.Security;
 using Oqtane.Extensions;
-using Oqtane.Themes;
 
 namespace Oqtane.Pages
 {
@@ -130,10 +129,8 @@ namespace Oqtane.Pages
                         {
                             PWAScript = CreatePWAScript(alias, site, route);
                         }
-                        if (!string.IsNullOrEmpty(site.HeadContent))
-                        {
-                            ProcessHeadContent(site.HeadContent, "site");
-                        }
+                        // site level scripts
+                        HeadResources += ParseScripts(site.HeadContent);
 
                         // get jwt token for downstream APIs
                         if (User.Identity.IsAuthenticated)
@@ -173,8 +170,6 @@ namespace Oqtane.Pages
                                 }
                             }
                         }
-
-                        ProcessHeadContent(page.HeadContent, $"page{page.PageId}");
 
                         // include global resources
                         var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
@@ -427,27 +422,20 @@ namespace Oqtane.Pages
             }
         }
 
-        private void ProcessHeadContent(string headcontent, string id)
+        private string ParseScripts(string headcontent)
         {
-            // add scripts to page
+            // iterate scripts
+            var scripts = "";
             if (!string.IsNullOrEmpty(headcontent))
             {
-                var count = 0;
                 var index = headcontent.IndexOf("<script");
                 while (index >= 0)
                 {
-                    var script = headcontent.Substring(index, headcontent.IndexOf("</script>", index) + 9 - index);
-                    if (!script.Contains("src=") && !script.Contains("id="))
-                    {
-                        count += 1;
-                        id += $"-script{count}";
-                        script = script.Replace("<script", $"<script id=\"{id}\"");
-                        index += id.Length;
-                    }
-                    HeadResources += script + Environment.NewLine;
+                    scripts += headcontent.Substring(index, headcontent.IndexOf("</script>", index) + 9 - index);
                     index = headcontent.IndexOf("<script", index + 1);
                 }
             }
+            return scripts;
         }
 
         private void ProcessResource(Resource resource, int count, Alias alias)
