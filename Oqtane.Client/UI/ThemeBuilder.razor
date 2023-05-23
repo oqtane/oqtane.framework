@@ -66,15 +66,18 @@
 
     private string AddHeadContent(string headcontent, string content)
     {
-        // format head content, remove scripts, and filter duplicate elements
-        var elements = (">" + content.Replace("\n", "") + "<").Split("><");
-        foreach (var element in elements)
+        if (!string.IsNullOrEmpty(content))
         {
-            if (!string.IsNullOrEmpty(element) && !element.Contains("script"))
+            // format head content, remove scripts, and filter duplicate elements
+            var elements = (">" + content.Replace("\n", "") + "<").Split("><");
+            foreach (var element in elements)
             {
-                if (!headcontent.Contains("<" + element + ">"))
+                if (!string.IsNullOrEmpty(element) && !element.Contains("script"))
                 {
-                    headcontent += "<" + element + ">" + "\n";
+                    if (!headcontent.Contains("<" + element + ">"))
+                    {
+                        headcontent += "<" + element + ">" + "\n";
+                    }
                 }
             }
         }
