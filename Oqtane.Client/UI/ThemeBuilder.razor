@@ -74,16 +74,16 @@
         {
             if (!string.IsNullOrEmpty(PageState.Page.HeadContent) && PageState.Page.HeadContent.Contains("<script"))
             {
-                await InjectScripts(PageState.Page.HeadContent, "head");
+                await InjectScripts(PageState.Page.HeadContent, ResourceLocation.Head);
             }
             if (!string.IsNullOrEmpty(PageState.Page.BodyContent) && PageState.Page.BodyContent.Contains("<script"))
             {
-                await InjectScripts(PageState.Page.BodyContent, "body");
+                await InjectScripts(PageState.Page.BodyContent, ResourceLocation.Body);
             }
         }
     }
 
-    private async Task InjectScripts(string content, string location)
+    private async Task InjectScripts(string content, ResourceLocation location)
     {
         // inject scripts into page dynamically
         var interop = new Interop(JSRuntime);
@@ -140,7 +140,7 @@
                     id = $"page{PageState.Page.PageId}-script{count}";
                 }
                 index = script.IndexOf(">") + 1;
-                await interop.IncludeScript(id, "", "", "", "", script.Substring(index, script.IndexOf("</script>") - index), location);
+                await interop.IncludeScript(id, "", "", "", "", script.Substring(index, script.IndexOf("</script>") - index), location.ToString().ToLower());
             }
             index = content.IndexOf("<script", index + 1);
         }
