@@ -80,7 +80,7 @@ namespace Oqtane.Modules
                         if (!string.IsNullOrEmpty(resource.Url))
                         {
                             var url = (resource.Url.Contains("://")) ? resource.Url : PageState.Alias.BaseUrl + resource.Url;
-                            scripts.Add(new { href = url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", es6module = resource.ES6Module });
+                            scripts.Add(new { href = url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", es6module = resource.ES6Module, location = resource.Location.ToString().ToLower() });
                         }
                         else
                         {
@@ -278,6 +278,7 @@ namespace Oqtane.Modules
             SiteState.Properties.PageTitle = title;
         }
 
+        // note - only supports links and meta tags - not scripts
         public void AddHeadContent(string content)
         {
             if (string.IsNullOrEmpty(SiteState.Properties.HeadContent))
@@ -287,18 +288,6 @@ namespace Oqtane.Modules
             else if (!SiteState.Properties.HeadContent.Contains(content))
             {
                 SiteState.Properties.HeadContent += content;
-            }
-        }
-
-        public void AddBodyContent(string content)
-        {
-            if (string.IsNullOrEmpty(SiteState.Properties.BodyContent))
-            {
-                SiteState.Properties.BodyContent = content;
-            }
-            else if (!SiteState.Properties.BodyContent.Contains(content))
-            {
-                SiteState.Properties.BodyContent += content;
             }
         }
 

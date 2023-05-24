@@ -44,12 +44,20 @@
                         <Label Class="col-sm-3" For="page" HelpText="The page that the module is located on" ResourceKey="Page">Page: </Label>
                         <div class="col-sm-9">
                             <select id="page" class="form-select" @bind="@_pageId" required>
-                                @foreach (Page p in PageState.Pages)
+                                @if (PageState.Page.UserId != null)
                                 {
-                                    if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
+                                    <option value="@PageState.Page.PageId">@(PageState.Page.Name)</option>
+                                }
+                                else
+                                {
+                                    foreach (Page p in PageState.Pages)
                                     {
-                                        <option value="@p.PageId">@(new string('-', p.Level * 2))@(p.Name)</option>
+                                        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, p.PermissionList))
+                                        {
+                                            <option value="@p.PageId">@(new string('-', p.Level * 2))@(p.Name)</option>
+                                        }
                                     }
+
                                 }
                             </select>
                         </div>

@@ -19,7 +19,6 @@ using Microsoft.Extensions.Primitives;
 using Oqtane.Enums;
 using Oqtane.Security;
 using Oqtane.Extensions;
-using Oqtane.Themes;
 
 namespace Oqtane.Pages
 {
@@ -65,6 +64,7 @@ namespace Oqtane.Pages
         public string RemoteIPAddress = "";
         public string HeadResources = "";
         public string BodyResources = "";
+        public string PWAScript = "";
         public string ReconnectScript = "";
         public string Message = "";
 
@@ -125,7 +125,13 @@ namespace Oqtane.Pages
                         {
                             ReconnectScript = CreateReconnectScript();
                         }
-                        var ThemeType = site.DefaultThemeType;
+                        if (site.PwaIsEnabled && site.PwaAppIconFileId != null && site.PwaSplashIconFileId != null)
+                        {
+                            PWAScript = CreatePWAScript(alias, site, route);
+                        }
+                        // site level scripts
+                        HeadResources += ParseScripts(site.HeadContent);
+                        BodyResources += ParseScripts(site.BodyContent);
 
                         // get jwt token for downstream APIs
                         if (User.Identity.IsAuthenticated)
@@ -343,6 +349,47 @@ namespace Oqtane.Pages
             }
         }
 
+        private string CreatePWAScript(Alias alias, Site site, Route route)
+        {
+            return
+            "<script>" + Environment.NewLine +
+            "    // PWA Manifest" + Environment.NewLine +
+            "    setTimeout(() => {" + Environment.NewLine +
+            "        var manifest = {" + Environment.NewLine +
+            "            \"name\": \"" + site.Name + "\"," + Environment.NewLine +
+            "            \"short_name\": \"" + site.Name + "\"," + Environment.NewLine +
+            "            \"start_url\": \"" + route.SiteUrl + "/\"," + Environment.NewLine +
+            "            \"display\": \"standalone\"," + Environment.NewLine +
+            "            \"background_color\": \"#fff\"," + Environment.NewLine +
+            "            \"description\": \"" + site.Name + "\"," + Environment.NewLine +
+            "            \"icons\": [{" + Environment.NewLine +
+            "                \"src\": \"" + route.RootUrl + Utilities.FileUrl(alias, site.PwaAppIconFileId.Value) + "\"," + Environment.NewLine +
+            "                \"sizes\": \"192x192\"," + Environment.NewLine +
+            "                \"type\": \"image/png\"" + Environment.NewLine +
+            "                }, {" + Environment.NewLine +
+            "                \"src\": \"" + route.RootUrl + Utilities.FileUrl(alias, site.PwaSplashIconFileId.Value) + "\"," + Environment.NewLine +
+            "                \"sizes\": \"512x512\"," + Environment.NewLine +
+            "                \"type\": \"image/png\"" + Environment.NewLine +
+            "            }]" + Environment.NewLine +
+            "       };" + Environment.NewLine +
+            "       const serialized = JSON.stringify(manifest);" + Environment.NewLine +
+            "       const blob = new Blob([serialized], {type: 'application/javascript'});" + Environment.NewLine +
+            "       const url = URL.createObjectURL(blob);" + Environment.NewLine +
+            "       document.getElementById('app-manifest').setAttribute('href', url);" + Environment.NewLine +
+            "    }, 1000);" + Environment.NewLine +
+            "</script>" + Environment.NewLine +
+            "<script>" + Environment.NewLine +
+            "    // PWA Service Worker" + Environment.NewLine +
+            "    if ('serviceWorker' in navigator) {" + Environment.NewLine +
+            "        navigator.serviceWorker.register('/service-worker.js').then(function(registration) {" + Environment.NewLine +
+            "            console.log('ServiceWorker Registration Successful');" + Environment.NewLine +
+            "        }).catch (function(err) {" + Environment.NewLine +
+            "            console.log('ServiceWorker Registration Failed ', err);" + Environment.NewLine +
+            "        });" + Environment.NewLine +
+            "    };" + Environment.NewLine +
+            "</script>";
+        }
+
         private string CreateReconnectScript()
         {
             return
@@ -374,6 +421,22 @@ namespace Oqtane.Pages
                     ProcessResource(resource, 0, alias);
                 }
             }
+        }
+
+        private string ParseScripts(string headcontent)
+        {
+            // iterate scripts
+            var scripts = "";
+            if (!string.IsNullOrEmpty(headcontent))
+            {
+                var index = headcontent.IndexOf("<script");
+                while (index >= 0)
+                {
+                    scripts += headcontent.Substring(index, headcontent.IndexOf("</script>", index) + 9 - index);
+                    index = headcontent.IndexOf("<script", index + 1);
+                }
+            }
+            return scripts;
         }
 
         private void ProcessResource(Resource resource, int count, Alias alias)

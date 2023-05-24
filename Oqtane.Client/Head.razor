@@ -19,20 +19,28 @@
         switch (e.PropertyName)
         {
             case "PageTitle":
-                if (title != SiteState.Properties.PageTitle)
-                {
-                    title = "\n<title>" + SiteState.Properties.PageTitle + "</title>";
-                    StateHasChanged();
-                }
+                title = "\n<title>" + SiteState.Properties.PageTitle + "</title>";
+                StateHasChanged();
                 break;
             case "HeadContent":
-                if (content != SiteState.Properties.HeadContent)
-                {
-                    content = SiteState.Properties.HeadContent + "\n";
-                    StateHasChanged();
-                }
+                content = RemoveScripts(SiteState.Properties.HeadContent) + "\n";
+                StateHasChanged();
                 break;
         }
+    }
+
+    private string RemoveScripts(string headcontent)
+    {
+        if (!string.IsNullOrEmpty(headcontent))
+        {
+            var index = headcontent.IndexOf("<script");
+            while (index >= 0)
+            {
+                headcontent = headcontent.Remove(index, headcontent.IndexOf("</script>") + 9 - index);
+                index = headcontent.IndexOf("<script");
+            }
+        }
+        return headcontent;
     }
 
     public void Dispose()

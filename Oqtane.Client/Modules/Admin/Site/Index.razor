@@ -55,59 +55,71 @@
 		</div>
         <br />
         <Section Name="Appearance" ResourceKey="Appearance">
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="logo" HelpText="Specify a logo for the site" ResourceKey="Logo">Logo: </Label>
-                <div class="col-sm-9">
-                    <FileManager FileId="@_logofileid" Filter="@Constants.ImageFiles" @ref="_logofilemanager" />
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="logo" HelpText="Specify a logo for the site" ResourceKey="Logo">Logo: </Label>
+                    <div class="col-sm-9">
+                        <FileManager FileId="@_logofileid" Filter="@Constants.ImageFiles" @ref="_logofilemanager" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="favicon" HelpText="Specify a Favicon" ResourceKey="FavoriteIcon">Favicon: </Label>
+                    <div class="col-sm-9">
+                        <FileManager FileId="@_faviconfileid" Filter="ico" @ref="_faviconfilemanager" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="defaultTheme" HelpText="Select the sites default theme" ResourceKey="DefaultTheme">Default Theme: </Label>
+                    <div class="col-sm-9">
+                        <select id="defaultTheme" class="form-select" value="@_themetype" @onchange="(e => ThemeChanged(e))" required>
+                            <option value="-">&lt;@Localizer["Theme.Select"]&gt;</option>
+                            @foreach (var theme in _themes)
+                            {
+                                <option value="@theme.TypeName">@theme.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="defaultContainer" HelpText="Select the default container for the site" ResourceKey="DefaultContainer">Default Container: </Label>
+                    <div class="col-sm-9">
+                        <select id="defaultContainer" class="form-select" @bind="@_containertype" required>
+                            <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
+                            @foreach (var container in _containers)
+                            {
+                                <option value="@container.TypeName">@container.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="defaultAdminContainer" HelpText="Select the default admin container for the site" ResourceKey="DefaultAdminContainer">Default Admin Container: </Label>
+                    <div class="col-sm-9">
+                        <select id="defaultAdminContainer" class="form-select" @bind="@_admincontainertype" required>
+                            <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
+                            <option value="@Constants.DefaultAdminContainer">&lt;@Localizer["DefaultAdminContainer"]&gt;</option>
+                            @foreach (var container in _containers)
+                            {
+                                <option value="@container.TypeName">@container.Name</option>
+                            }
+                        </select>
+                    </div>
                 </div>
             </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="favicon" HelpText="Specify a Favicon" ResourceKey="FavoriteIcon">Favicon: </Label>
-                <div class="col-sm-9">
-                    <FileManager FileId="@_faviconfileid" Filter="ico" @ref="_faviconfilemanager" />
+        </Section>
+        <Section Name="PageContent" Heading="Page Content" ResourceKey="PageContent">
+           <div class="container">
+               <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="headcontent" HelpText="Optionally enter content to be included in the page head (ie. meta, link, or script tags)" ResourceKey="HeadContent">Head Content: </Label>
+                    <div class="col-sm-9">
+                        <textarea id="headcontent" class="form-control" @bind="@_headcontent" rows="3"></textarea>
+                    </div>
                 </div>
-            </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="defaultTheme" HelpText="Select the sites default theme" ResourceKey="DefaultTheme">Default Theme: </Label>
-                <div class="col-sm-9">
-                    <select id="defaultTheme" class="form-select" value="@_themetype" @onchange="(e => ThemeChanged(e))" required>
-                        <option value="-">&lt;@Localizer["Theme.Select"]&gt;</option>
-                        @foreach (var theme in _themes)
-                        {
-                            <option value="@theme.TypeName">@theme.Name</option>
-                        }
-                    </select>
-                </div>
-            </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="defaultContainer" HelpText="Select the default container for the site" ResourceKey="DefaultContainer">Default Container: </Label>
-                <div class="col-sm-9">
-                    <select id="defaultContainer" class="form-select" @bind="@_containertype" required>
-                        <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
-                        @foreach (var container in _containers)
-                        {
-                            <option value="@container.TypeName">@container.Name</option>
-                        }
-                    </select>
-                </div>
-            </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="defaultAdminContainer" HelpText="Select the default admin container for the site" ResourceKey="DefaultAdminContainer">Default Admin Container: </Label>
-                <div class="col-sm-9">
-                    <select id="defaultAdminContainer" class="form-select" @bind="@_admincontainertype" required>
-                        <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
-                        <option value="@Constants.DefaultAdminContainer">&lt;@Localizer["DefaultAdminContainer"]&gt;</option>
-                        @foreach (var container in _containers)
-                        {
-                            <option value="@container.TypeName">@container.Name</option>
-                        }
-                    </select>
-                </div>
-            </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="headcontent" HelpText="Optionally enter content to be included in the page head (ie. meta and link tags are valid, script tags are not)." ResourceKey="HeadContent">Head Content: </Label>
-                <div class="col-sm-9">
-                    <textarea id="headcontent" class="form-control" @bind="@_headcontent" rows="3"></textarea>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="bodycontent" HelpText="Optionally enter content to be included in the page body (ie. script tags)" ResourceKey="BodyContent">Body Content: </Label>
+                    <div class="col-sm-9">
+                        <textarea id="bodycontent" class="form-control" @bind="@_bodycontent" rows="3"></textarea>
+                    </div>
                 </div>
             </div>
         </Section>
@@ -322,12 +334,9 @@
     private List<ThemeControl> _themes = new List<ThemeControl>();
     private List<ThemeControl> _containers = new List<ThemeControl>();
     private string _name = string.Empty;
-    private List<Alias> _aliases;
-    private int _aliasid = -1;
-    private string _aliasname;
-    private string _defaultalias;
-    private string _runtime = "";
-    private string _prerender = "";
+    private string _homepageid = "-";
+    private string _isdeleted;
+    private string _sitemap = "";
     private int _logofileid = -1;
     private FileManager _logofilemanager;
     private int _faviconfileid = -1;
@@ -336,8 +345,7 @@
     private string _containertype = "-";
     private string _admincontainertype = "-";
     private string _headcontent = string.Empty;
-    private string _homepageid = "-";
-    private string _sitemap = "";
+    private string _bodycontent = string.Empty;
     private string _smtphost = string.Empty;
     private string _smtpport = string.Empty;
     private string _smtpssl = "False";
@@ -353,6 +361,12 @@
     private FileManager _pwaappiconfilemanager;
     private int _pwasplashiconfileid = -1;
     private FileManager _pwasplashiconfilemanager;
+    private List<Alias> _aliases;
+    private int _aliasid = -1;
+    private string _aliasname;
+    private string _defaultalias;
+    private string _runtime = "";
+    private string _prerender = "";
     private string _tenant = string.Empty;
     private string _database = string.Empty;
     private string _connectionstring = string.Empty;
@@ -362,7 +376,6 @@
     private DateTime _modifiedon;
     private string _deletedby;
     private DateTime? _deletedon;
-    private string _isdeleted;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -375,13 +388,14 @@
             if (site != null)
             {
                 _name = site.Name;
-                _runtime = site.Runtime;
-                _prerender = site.RenderMode.Replace(_runtime, "");
+                if (site.HomePageId != null)
+                {
+                    _homepageid = site.HomePageId.Value.ToString();
+                }
                 _isdeleted = site.IsDeleted.ToString();
                 _sitemap = PageState.Alias.Protocol + PageState.Alias.Name + "/pages/sitemap.xml";
 
-                await GetAliases();
-
+                // appearance
                 if (site.LogoFileId != null)
                 {
                     _logofileid = site.LogoFileId.Value;
@@ -391,19 +405,17 @@
                 {
                     _faviconfileid = site.FaviconFileId.Value;
                 }
-
                 _themes = ThemeService.GetThemeControls(_themeList);
                 _themetype = (!string.IsNullOrEmpty(site.DefaultThemeType)) ? site.DefaultThemeType : Constants.DefaultTheme;
                 _containers = ThemeService.GetContainerControls(_themeList, _themetype);
                 _containertype = (!string.IsNullOrEmpty(site.DefaultContainerType)) ? site.DefaultContainerType : Constants.DefaultContainer;
                 _admincontainertype = (!string.IsNullOrEmpty(site.AdminContainerType)) ? site.AdminContainerType : Constants.DefaultAdminContainer;
+
+                // page content
                 _headcontent = site.HeadContent;
+                _bodycontent = site.BodyContent;
 
-                if (site.HomePageId != null)
-                {
-                    _homepageid = site.HomePageId.Value.ToString();
-                }
-
+                // PWA
                 _pwaisenabled = site.PwaIsEnabled.ToString();
                 if (site.PwaAppIconFileId != null)
                 {
@@ -414,6 +426,7 @@
                     _pwasplashiconfileid = site.PwaSplashIconFileId.Value;
                 }
 
+                // SMTP
                 var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
                 _smtphost = SettingService.GetSetting(settings, "SMTPHost", string.Empty);
                 _smtpport = SettingService.GetSetting(settings, "SMTPPort", string.Empty);
@@ -425,6 +438,14 @@
                 _smtprelay = SettingService.GetSetting(settings, "SMTPRelay", "False");
                 _retention = SettingService.GetSetting(settings, "NotificationRetention", "30");
 
+                // aliases
+                await GetAliases();
+
+                // hosting model
+                _runtime = site.Runtime;
+                _prerender = site.RenderMode.Replace(_runtime, "");
+
+                // database
                 if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
                 {
                     var tenants = await TenantService.GetTenantsAsync();
@@ -438,6 +459,7 @@
                     }
                 }
 
+                // audit
                 _createdby = site.CreatedBy;
                 _createdon = site.CreatedOn;
                 _modifiedby = site.ModifiedBy;
@@ -496,17 +518,10 @@
                         bool reload = false;
 
                         site.Name = _name;
-                        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-                        {
-                            if (site.Runtime != _runtime || site.RenderMode != _runtime + _prerender)
-                            {
-                                site.Runtime = _runtime;
-                                site.RenderMode = _runtime + _prerender;
-                                reload = true; // needs to be reloaded on server
-                            }
-                        }
+                        site.HomePageId = (_homepageid != "-" ? int.Parse(_homepageid) : null);
                         site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
 
+                        // appearance
                         site.LogoFileId = null;
                         var logofileid = _logofilemanager.GetFileId();
                         if (logofileid != -1)
@@ -531,9 +546,20 @@
                             refresh = true; // needs to be refreshed on client
                         }
                         site.AdminContainerType = _admincontainertype;
-                        site.HeadContent = _headcontent;
-                        site.HomePageId = (_homepageid != "-" ? int.Parse(_homepageid) : null);
 
+                        // page content
+                        if (site.HeadContent != _headcontent)
+                        {
+                            site.HeadContent = _headcontent;
+                            reload = true;
+                        }
+                        if (site.BodyContent != _bodycontent)
+                        {
+                            site.BodyContent = _bodycontent;
+                            reload = true;
+                        }
+
+                        // PWA
 						if (site.PwaIsEnabled.ToString() != _pwaisenabled)
 						{
 							site.PwaIsEnabled = Boolean.Parse(_pwaisenabled);
@@ -554,8 +580,20 @@
 							reload = true; // needs to be reloaded on server
 						}
 
+                        // hosting model
+                        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                        {
+                            if (site.Runtime != _runtime || site.RenderMode != _runtime + _prerender)
+                            {
+                                site.Runtime = _runtime;
+                                site.RenderMode = _runtime + _prerender;
+                                reload = true; // needs to be reloaded on server
+                            }
+                        }
+
 						site = await SiteService.UpdateSiteAsync(site);
 
+                        // SMTP
 						var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
 						settings = SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
 						settings = SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
