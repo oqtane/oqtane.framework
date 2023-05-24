@@ -9,7 +9,7 @@ namespace Oqtane.Repository
         IEnumerable<ModuleDefinition> GetModuleDefinitions(int siteId);
         ModuleDefinition GetModuleDefinition(int moduleDefinitionId, int siteId);
         void UpdateModuleDefinition(ModuleDefinition moduleDefinition);
-        void DeleteModuleDefinition(int moduleDefinitionId);
+        void DeleteModuleDefinition(int moduleDefinitionId, int siteId);
         ModuleDefinition FilterModuleDefinition(ModuleDefinition moduleDefinition);
     }
 }

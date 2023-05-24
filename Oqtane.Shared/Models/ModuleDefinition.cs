@@ -110,9 +110,15 @@ namespace Oqtane.Models
         [NotMapped]
         public List<Resource> Resources { get; set; } // added in 4.0.0
 
+        [NotMapped]
+        public bool IsAutoEnabled { get; set; } = true; // added in 4.0.0
+
         // internal properties
         [NotMapped]
         public int SiteId { get; set; }
+
+        [NotMapped]
+        public bool IsEnabled { get; set; }
 
         [NotMapped]
         public string ControlTypeTemplate { get; set; }
