@@ -4,37 +4,166 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+using System.Security;
 using Microsoft.Extensions.Caching.Memory;
+using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.Themes;
+using System.Reflection.Metadata;
 
 namespace Oqtane.Repository
 {
     public class ThemeRepository : IThemeRepository
     {
+        private MasterDBContext _db;
         private readonly IMemoryCache _cache;
+        private readonly ITenantManager _tenants;
+        private readonly ISettingRepository _settings;
+        private readonly string settingprefix = "SiteEnabled:";
 
-        public ThemeRepository(IMemoryCache cache)
+        public ThemeRepository(MasterDBContext context, IMemoryCache cache, ITenantManager tenants, ISettingRepository settings)
         {
+            _db = context;
             _cache = cache;
+            _tenants = tenants;
+            _settings = settings;
         }
 
         public IEnumerable<Theme> GetThemes()
         {
-            return LoadThemes();
+            // for consistency siteid should be passed in as parameter, but this would require breaking change
+            return LoadThemes(_tenants.GetAlias().SiteId);
         }
 
-        private List<Theme> LoadThemes()
+        public Theme GetTheme(int themeId, int siteId)
         {
-            // get module definitions
-            List<Theme> themes = _cache.GetOrCreate("themes", entry =>
+            List<Theme> themes = LoadThemes(siteId);
+            return themes.Find(item => item.ThemeId == themeId);
+        }
+
+        public void UpdateTheme(Theme theme)
+        {
+            _db.Entry(theme).State = EntityState.Modified;
+            _db.SaveChanges();
+
+            var settingname = $"{settingprefix}{_tenants.GetAlias().SiteKey}";
+            var setting = _settings.GetSetting(EntityNames.Theme, theme.ThemeId, settingname);
+            if (setting == null)
+            {
+                _settings.AddSetting(new Setting { EntityName = EntityNames.Theme, EntityId = theme.ThemeId, SettingName = settingname, SettingValue = theme.IsEnabled.ToString(), IsPrivate = true });
+            }
+            else
+            {
+                setting.SettingValue = theme.IsEnabled.ToString();
+                _settings.UpdateSetting(setting);
+            }
+
+            _cache.Remove($"themes:{_tenants.GetAlias().SiteKey}");
+        }
+
+        public void DeleteTheme(int themeId)
+        {
+            Theme theme = _db.Theme.Find(themeId);
+            _settings.DeleteSettings(EntityNames.Theme, themeId);
+            _db.Theme.Remove(theme);
+            _db.SaveChanges();
+            _cache.Remove($"themes:{_tenants.GetAlias().SiteKey}");
+        }
+
+        public List<Theme> FilterThemes(List<Theme> themes)
+        {
+            var Themes = new List<Theme>();
+
+            foreach (Theme theme in themes.Where(item => item.IsEnabled))
+            {
+                var Theme = new Theme();
+                Theme.ThemeName = theme.ThemeName;
+                Theme.Name = theme.Name;
+                Theme.Resources = theme.Resources;
+                Theme.Themes = theme.Themes;
+                Theme.Containers = theme.Containers;
+                Themes.Add(Theme);
+            }
+
+            return Themes;
+        }
+
+        private List<Theme> LoadThemes(int siteId)
+        {
+            // get themes
+            List<Theme> themes = _cache.GetOrCreate($"themes:{_tenants.GetAlias().SiteKey}", entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                return LoadThemesFromAssemblies();
+                return ProcessThemes(siteId);
             });
 
             return themes;
+        }
+
+        private List<Theme> ProcessThemes(int siteId)
+        {
+            // get themes
+            List<Theme> Themes = LoadThemesFromAssemblies();
+
+            // get themes in database
+            List<Theme> themes = _db.Theme.ToList();
+
+            // sync theme assemblies with database
+            foreach (Theme Theme in Themes)
+            {
+                Theme theme = themes.Where(item => item.ThemeName == Theme.ThemeName).FirstOrDefault();
+                if (theme == null)
+                {
+                    // new theme
+                    theme = new Theme { ThemeName = Theme.ThemeName };
+                    _db.Theme.Add(theme);
+                    _db.SaveChanges();
+                }
+                else
+                {
+                    // remove theme from list as it is already synced
+                    themes.Remove(theme);
+                }
+
+                Theme.ThemeId = theme.ThemeId;
+                Theme.CreatedBy = theme.CreatedBy;
+                Theme.CreatedOn = theme.CreatedOn;
+                Theme.ModifiedBy = theme.ModifiedBy;
+                Theme.ModifiedOn = theme.ModifiedOn;
+            }
+
+            // any remaining themes are orphans
+            foreach (Theme theme in themes)
+            {
+                _db.Theme.Remove(theme); // delete
+                _db.SaveChanges();
+            }
+
+            if (siteId != -1)
+            {
+                // get settings for site
+                var settings = _settings.GetSettings(EntityNames.Theme).ToList();
+
+                // populate theme site settings
+                foreach (Theme theme in Themes)
+                {
+                    theme.SiteId = siteId;
+
+                    var setting = settings.FirstOrDefault(item => item.EntityId == theme.ThemeId && item.SettingName == $"{settingprefix}{_tenants.GetAlias().SiteKey}");
+                    if (setting != null)
+                    {
+                        theme.IsEnabled = bool.Parse(setting.SettingValue);
+                    }
+                    else
+                    {
+                        theme.IsEnabled = theme.IsAutoEnabled;
+                    }
+                }
+            }
+
+            return Themes;
         }
 
         private List<Theme> LoadThemesFromAssemblies()
@@ -142,29 +271,6 @@ namespace Oqtane.Repository
                 themes[index] = theme;
             }
             return themes;
-        }
-
-        public List<Theme> FilterThemes(List<Theme> themes)
-        {
-            var Themes = new List<Theme>();
-
-            foreach (Theme theme in themes)
-            {
-                var Theme = new Theme();
-                Theme.ThemeName = theme.ThemeName;
-                Theme.Name = theme.Name;
-                Theme.Resources = theme.Resources;
-                Theme.Themes = theme.Themes;
-                Theme.Containers = theme.Containers;
-                Themes.Add(Theme);
-            }
-
-            return Themes;
-        }
-
-        public void DeleteTheme(string ThemeName)
-        {
-            _cache.Remove("themes");
         }
     }
 }

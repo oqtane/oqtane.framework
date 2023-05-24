@@ -1,0 +1,161 @@
+@namespace Oqtane.Modules.Admin.Themes
+@using System.Net
+@inherits ModuleBase
+@inject IThemeService ThemeService
+@inject NavigationManager NavigationManager
+@inject IStringLocalizer<Edit> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+@if (_initialized)
+{
+    <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="name" HelpText="The name of the module" ResourceKey="Name">Name: </Label>
+                <div class="col-sm-9">
+                    <input id="name" class="form-control" @bind="@_name" disabled />
+                </div>
+            </div>
+             <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="isenabled" HelpText="Is theme enabled for this site?" ResourceKey="IsEnabled">Enabled? </Label>
+                <div class="col-sm-9">
+                    <select id="isenabled" class="form-select" @bind="@_isenabled" required>
+                        <option value="True">@SharedLocalizer["Yes"]</option>
+                        <option value="False">@SharedLocalizer["No"]</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </form>
+    <Section Name="Information" ResourceKey="Information">
+        <div class="container">
+             <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="themename" HelpText="The internal name of the module" ResourceKey="InternalName">Internal Name: </Label>
+                <div class="col-sm-9">
+                    <input id="themename" class="form-control" @bind="@_themeName" disabled />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="version" HelpText="The version of the theme" ResourceKey="Version">Version: </Label>
+                <div class="col-sm-9">
+                    <input id="version" class="form-control" @bind="@_version" disabled />
+                </div>
+            </div>
+	        <div class="row mb-1 align-items-center">
+		        <Label Class="col-sm-3" For="packagename" HelpText="The unique name of the package from which this module was installed" ResourceKey="PackageName">Package Name: </Label>
+		        <div class="col-sm-9">
+			        <input id="packagename" class="form-control" @bind="@_packagename" disabled />
+		        </div>
+	        </div>
+	        <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="owner" HelpText="The owner or creator of the theme" ResourceKey="Owner">Owner: </Label>
+                <div class="col-sm-9">
+                    <input id="owner" class="form-control" @bind="@_owner" disabled />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="url" HelpText="The reference url of the theme" ResourceKey="ReferenceUrl">Reference Url: </Label>
+                <div class="col-sm-9">
+                    <input id="url" class="form-control" @bind="@_url" disabled />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="contact" HelpText="The contact for the theme" ResourceKey="Contact">Contact: </Label>
+                <div class="col-sm-9">
+                    <input id="contact" class="form-control" @bind="@_contact" disabled />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="license" HelpText="The license of the theme" ResourceKey="License">License: </Label>
+                <div class="col-sm-9">
+                    <textarea id="license" class="form-control" @bind="@_license" rows="5" disabled></textarea>
+                </div>
+            </div>
+        </div>
+    </Section>
+    <br />
+    <button type="button" class="btn btn-success" @onclick="SaveTheme">@SharedLocalizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+    <br />
+    <br />
+    <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
+}
+
+@code {
+    private bool _initialized = false;
+    private ElementReference form;
+    private bool validated = false;
+    private int _themeId;
+    private string _themeName = "";
+    private string _isenabled;
+    private string _name;
+	private string _version;
+	private string _packagename;
+	private string _owner = "";
+	private string _url = "";
+	private string _contact = "";
+	private string _license = "";
+    private string _createdby;
+    private DateTime _createdon;
+    private string _modifiedby;
+    private DateTime _modifiedon;
+
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+            _themeId = Int32.Parse(PageState.QueryString["id"]);
+            var theme = await ThemeService.GetThemeAsync(_themeId, ModuleState.SiteId);
+			if (theme != null)
+			{
+				_name = theme.Name;
+                _isenabled =theme.IsEnabled.ToString();
+                _version = theme.Version;
+				_packagename = theme.PackageName;
+				_owner = theme.Owner;
+                _url = theme.Url;
+                _contact = theme.Contact;
+                _license = theme.License;
+                _createdby = theme.CreatedBy;
+                _createdon = theme.CreatedOn;
+                _modifiedby = theme.ModifiedBy;
+                _modifiedon = theme.ModifiedOn;
+
+                _initialized = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Theme {ThemeName} {Error}", _themeName, ex.Message);
+            AddModuleMessage(Localizer["Error.Theme.Loading"], MessageType.Error);
+        }
+    }
+
+    private async Task SaveTheme()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
+        {
+            try
+            {
+                var theme = await ThemeService.GetThemeAsync(_themeId, ModuleState.SiteId);
+                theme.IsEnabled = (_isenabled == null ? true : bool.Parse(_isenabled));
+                await ThemeService.UpdateThemeAsync(theme);
+                await logger.LogInformation("Theme Saved {Theme}", theme);
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Saving Theme {ThemeId} {Error}", _themeId, ex.Message);
+                AddModuleMessage(Localizer["Error.Module.Save"], MessageType.Error);
+            }
+        }
+        else
+        {
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+        }
+    }
+}

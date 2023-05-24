@@ -20,6 +20,10 @@ namespace Oqtane.Services
             List<Theme> themes = await GetJsonAsync<List<Theme>>(ApiUrl);
             return themes.OrderBy(item => item.Name).ToList();
         }
+        public async Task<Theme> GetThemeAsync(int themeId, int siteId)
+        {
+            return await GetJsonAsync<Theme>($"{ApiUrl}/{themeId}?siteid={siteId}");
+        }
 
         public List<ThemeControl> GetThemeControls(List<Theme> themes)
         {
@@ -36,6 +40,11 @@ namespace Oqtane.Services
         {
             return themes.Where(item => Utilities.GetTypeName(themeName).StartsWith(Utilities.GetTypeName(item.ThemeName)))
                 .SelectMany(item => item.Containers).ToList();
+        }
+
+        public async Task UpdateThemeAsync(Theme theme)
+        {
+            await PutJsonAsync($"{ApiUrl}/{theme.ThemeId}", theme);
         }
 
         public async Task DeleteThemeAsync(string themeName)
