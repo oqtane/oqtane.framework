@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Shared;
@@ -17,13 +18,16 @@ namespace Oqtane.Repository
         private MasterDBContext _db;
         private readonly IMemoryCache _cache;
         private readonly IPermissionRepository _permissions;
+        private readonly ITenantManager _tenants;
         private readonly ISettingRepository _settings;
+        private readonly string settingprefix = "SiteEnabled:";
 
-        public ModuleDefinitionRepository(MasterDBContext context, IMemoryCache cache, IPermissionRepository permissions, ISettingRepository settings)
+        public ModuleDefinitionRepository(MasterDBContext context, IMemoryCache cache, IPermissionRepository permissions, ITenantManager tenants, ISettingRepository settings)
         {
             _db = context;
             _cache = cache;
             _permissions = permissions;
+            _tenants = tenants;
             _settings = settings;
         }
 
@@ -48,16 +52,29 @@ namespace Oqtane.Repository
             _db.Entry(moduleDefinition).State = EntityState.Modified;
             _db.SaveChanges();
             _permissions.UpdatePermissions(moduleDefinition.SiteId, EntityNames.ModuleDefinition, moduleDefinition.ModuleDefinitionId, moduleDefinition.PermissionList);
-            _cache.Remove("moduledefinitions");
+
+            var settingname = $"{settingprefix}{_tenants.GetAlias().SiteKey}";
+            var setting = _settings.GetSetting(EntityNames.ModuleDefinition, moduleDefinition.ModuleDefinitionId, settingname);
+            if (setting == null)
+            {
+                _settings.AddSetting(new Setting { EntityName = EntityNames.ModuleDefinition, EntityId = moduleDefinition.ModuleDefinitionId, SettingName = settingname, SettingValue = moduleDefinition.IsEnabled.ToString(), IsPrivate = true });
+            }
+            else
+            {
+                setting.SettingValue = moduleDefinition.IsEnabled.ToString();
+                _settings.UpdateSetting(setting);
+            }
+
+            _cache.Remove($"moduledefinitions:{moduleDefinition.SiteId}");
         }
 
-        public void DeleteModuleDefinition(int moduleDefinitionId)
+        public void DeleteModuleDefinition(int moduleDefinitionId,int siteId)
         {
             ModuleDefinition moduleDefinition = _db.ModuleDefinition.Find(moduleDefinitionId);
             _settings.DeleteSettings(EntityNames.ModuleDefinition, moduleDefinitionId);
             _db.ModuleDefinition.Remove(moduleDefinition);
             _db.SaveChanges();
-            _cache.Remove("moduledefinitions");
+            _cache.Remove($"moduledefinitions:{siteId}");
         }
 
         public ModuleDefinition FilterModuleDefinition(ModuleDefinition moduleDefinition)
@@ -80,6 +97,7 @@ namespace Oqtane.Repository
                 ModuleDefinition.ControlTypeTemplate = moduleDefinition.ControlTypeTemplate;
                 ModuleDefinition.IsPortable = moduleDefinition.IsPortable;
                 ModuleDefinition.Resources = moduleDefinition.Resources;
+                ModuleDefinition.IsEnabled = moduleDefinition.IsEnabled;
             }
 
             return ModuleDefinition;
@@ -91,63 +109,21 @@ namespace Oqtane.Repository
             List<ModuleDefinition> moduleDefinitions;
             if (siteId != -1)
             {
-                moduleDefinitions = _cache.GetOrCreate("moduledefinitions", entry =>
+                moduleDefinitions = _cache.GetOrCreate($"moduledefinitions:{siteId}", entry =>
                 {
                     entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                    return LoadModuleDefinitions();
+                    return ProcessModuleDefinitions(siteId);
                 });
-
-                // get all module definition permissions for site
-                List<Permission> permissions = _permissions.GetPermissions(siteId, EntityNames.ModuleDefinition).ToList();
-
-                // populate module definition permissions
-                foreach (ModuleDefinition moduledefinition in moduleDefinitions)
-                {
-                    moduledefinition.SiteId = siteId;
-                    if (permissions.Count == 0)
-                    {
-                        // no module definition permissions exist for this site
-                        moduledefinition.PermissionList = ClonePermissions(siteId, moduledefinition.PermissionList);
-                        _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, moduledefinition.PermissionList);
-                    }
-                    else
-                    {
-                        if (permissions.Any(item => item.EntityId == moduledefinition.ModuleDefinitionId))
-                        {
-                            moduledefinition.PermissionList = permissions.Where(item => item.EntityId == moduledefinition.ModuleDefinitionId).ToList();
-                        }
-                        else
-                        {
-                            // permissions for module definition do not exist for this site
-                            moduledefinition.PermissionList = ClonePermissions(siteId, moduledefinition.PermissionList);
-                            _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, moduledefinition.PermissionList);
-                        }
-                    }
-                }
-
-                // clean up any orphaned permissions
-                var ids = new HashSet<int>(moduleDefinitions.Select(item => item.ModuleDefinitionId));
-                foreach (var permission in permissions.Where(item => !ids.Contains(item.EntityId)))
-                {
-                    try
-                    {
-                        _permissions.DeletePermission(permission.PermissionId);
-                    }
-                    catch
-                    {
-                        // multi-threading can cause a race condition to occur
-                    }
-                }
             }
-            else
+            else // called during startup
             {
-                moduleDefinitions = LoadModuleDefinitions();
+                return ProcessModuleDefinitions(-1);
             }
 
             return moduleDefinitions;
         }
 
-        private List<ModuleDefinition> LoadModuleDefinitions()
+        private List<ModuleDefinition> ProcessModuleDefinitions(int siteId)
         {
             // get module assemblies 
             List<ModuleDefinition> moduleDefinitions = LoadModuleDefinitionsFromAssemblies();
@@ -195,6 +171,65 @@ namespace Oqtane.Repository
             {
                 _db.ModuleDefinition.Remove(moduledefinition); // delete
                 _db.SaveChanges();
+            }
+
+            if (siteId != -1)
+            {
+                // get all module definition permissions for site
+                List<Permission> permissions = _permissions.GetPermissions(siteId, EntityNames.ModuleDefinition).ToList();
+
+                // get settings for site
+                var settings = _settings.GetSettings(EntityNames.ModuleDefinition).ToList();
+
+                // populate module definition permissions
+                foreach (ModuleDefinition moduledefinition in moduleDefinitions)
+                {
+                    moduledefinition.SiteId = siteId;
+
+                    var setting = settings.FirstOrDefault(item => item.EntityId == moduledefinition.ModuleDefinitionId && item.SettingName == $"{settingprefix}{_tenants.GetAlias().SiteKey}");
+                    if (setting != null)
+                    {
+                       moduledefinition.IsEnabled = bool.Parse(setting.SettingValue);
+                    }
+                    else
+                    {
+                        moduledefinition.IsEnabled = moduledefinition.IsAutoEnabled;
+                    }
+
+                    if (permissions.Count == 0)
+                    {
+                        // no module definition permissions exist for this site
+                        moduledefinition.PermissionList = ClonePermissions(siteId, moduledefinition.PermissionList);
+                        _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, moduledefinition.PermissionList);
+                    }
+                    else
+                    {
+                        if (permissions.Any(item => item.EntityId == moduledefinition.ModuleDefinitionId))
+                        {
+                            moduledefinition.PermissionList = permissions.Where(item => item.EntityId == moduledefinition.ModuleDefinitionId).ToList();
+                        }
+                        else
+                        {
+                            // permissions for module definition do not exist for this site
+                            moduledefinition.PermissionList = ClonePermissions(siteId, moduledefinition.PermissionList);
+                            _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, moduledefinition.PermissionList);
+                        }
+                    }
+                }
+
+                // clean up any orphaned permissions
+                var ids = new HashSet<int>(moduleDefinitions.Select(item => item.ModuleDefinitionId));
+                foreach (var permission in permissions.Where(item => !ids.Contains(item.EntityId)))
+                {
+                    try
+                    {
+                        _permissions.DeletePermission(permission.PermissionId);
+                    }
+                    catch
+                    {
+                        // multi-threading can cause a race condition to occur
+                    }
+                }
             }
 
             return moduleDefinitions;

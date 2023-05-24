@@ -43,6 +43,7 @@ else
             <th style="width: 1px;">&nbsp;</th>
             <th>@SharedLocalizer["Name"]</th>
             <th>@SharedLocalizer["Version"]</th>
+            <th>@Localizer["Enabled"]</th>
             <th>@Localizer["InUse"]</th>
             <th>@SharedLocalizer["Expires"]</th>
             <th style="width: 1px;">&nbsp;</th>
@@ -57,6 +58,16 @@ else
             </td>
             <td>@context.Name</td>
             <td>@context.Version</td>
+            <td>
+               @if (context.IsEnabled)
+               {
+                   <span>@SharedLocalizer["Yes"]</span>
+               }
+               else
+               {
+                   <span>@SharedLocalizer["No"]</span>
+               }
+            </td>
             <td>
 				@if (context.AssemblyName == Constants.ClientId || PageState.Modules.Where(m => m.ModuleDefinition?.ModuleDefinitionId == context.ModuleDefinitionId).FirstOrDefault() != null)
                 {
