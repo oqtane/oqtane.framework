@@ -11,7 +11,7 @@
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <TabStrip Refresh="@_refresh">
         <TabPanel Name="Settings" ResourceKey="Settings" Heading=@Localizer["Settings.Heading"]>
-            @if (_themeList != null)
+            @if (PageState.Site.Themes != null)
             {
                 <div class="container">
                     <div class="row mb-1 align-items-center">
@@ -210,7 +210,6 @@
 
     private ElementReference form;
     private bool validated = false;
-    private List<Theme> _themeList;
     private List<ThemeControl> _themes = new List<ThemeControl>();
     private List<ThemeControl> _containers = new List<ThemeControl>();
     private int _pageId;
@@ -251,8 +250,7 @@
         try
         {
             _children = PageState.Pages.Where(item => item.ParentId == null).ToList();
-            _themeList = await ThemeService.GetThemesAsync();
-            _themes = ThemeService.GetThemeControls(_themeList);
+            _themes = ThemeService.GetThemeControls(PageState.Site.Themes);
 
             _pageId = Int32.Parse(PageState.QueryString["id"]);
             page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
@@ -294,7 +292,7 @@
                 {
                     _themetype = PageState.Site.DefaultThemeType;
                 }
-                _containers = ThemeService.GetContainerControls(_themeList, _themetype);
+                _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
                 _containertype = page.DefaultContainerType;
                 if (string.IsNullOrEmpty(_containertype))
                 {
@@ -396,7 +394,7 @@
         try
         {
             _themetype = (string)e.Value;
-            _containers = ThemeService.GetContainerControls(_themeList, _themetype);
+            _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
             _containertype = "-";
             ThemeSettings();
             StateHasChanged();
@@ -413,7 +411,7 @@
         _themeSettingsType = null;
         if (PageState.QueryString.ContainsKey("cp")) // can only be displayed if invoked from Control Panel
         {
-            var theme = _themeList.FirstOrDefault(item => item.Themes.Any(themecontrol => themecontrol.TypeName.Equals(_themetype)));
+            var theme = PageState.Site.Themes.FirstOrDefault(item => item.Themes.Any(themecontrol => themecontrol.TypeName.Equals(_themetype)));
             if (theme != null && !string.IsNullOrEmpty(theme.ThemeSettingsType))
             {
                 _themeSettingsType = Type.GetType(theme.ThemeSettingsType);

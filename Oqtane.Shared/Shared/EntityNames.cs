@@ -17,6 +17,7 @@ namespace Oqtane.Shared
         public const string Setting = "Setting";
         public const string Site = "Site";
         public const string Tenant = "Tenant";
+        public const string Theme = "Theme";
         public const string UrlMapping = "UrlMapping";
         public const string User = "User";
         public const string UserRole = "UserRole";

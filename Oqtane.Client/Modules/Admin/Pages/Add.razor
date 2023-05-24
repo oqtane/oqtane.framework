@@ -10,7 +10,7 @@
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <TabStrip Refresh="@_refresh">
         <TabPanel Name="Settings" ResourceKey="Settings">
-            @if (_themeList != null)
+            @if (PageState.Site.Themes != null)
             {
                 <div class="container">
                     <div class="row mb-1 align-items-center">
@@ -175,7 +175,6 @@
 @code {
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-	private List<Theme> _themeList;
 	private List<ThemeControl> _themes = new List<ThemeControl>();
 	private List<ThemeControl> _containers = new List<ThemeControl>();
 	private string _name;
@@ -207,10 +206,9 @@
 	{
 		try
 		{
-			_themeList = await ThemeService.GetThemesAsync();
-			_themes = ThemeService.GetThemeControls(_themeList);
+            _themes = ThemeService.GetThemeControls(PageState.Site.Themes);
 			_themetype = PageState.Site.DefaultThemeType;
-			_containers = ThemeService.GetContainerControls(_themeList, _themetype);
+            _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
 			_containertype = PageState.Site.DefaultContainerType;
 			_children = PageState.Pages.Where(item => item.ParentId == null).ToList();
 			ThemeSettings();
@@ -262,7 +260,7 @@
 		try
 		{
 			_themetype = (string)e.Value;
-			_containers = ThemeService.GetContainerControls(_themeList, _themetype);
+            _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
 			_containertype = "-";
 			ThemeSettings();
 			StateHasChanged();
@@ -277,7 +275,7 @@
 	private void ThemeSettings()
 	{
 		_themeSettingsType = null;
-		var theme = _themeList.FirstOrDefault(item => item.Themes.Any(themecontrol => themecontrol.TypeName.Equals(_themetype)));
+        var theme = PageState.Site.Themes.FirstOrDefault(item => item.Themes.Any(themecontrol => themecontrol.TypeName.Equals(_themetype)));
 		if (theme != null && !string.IsNullOrEmpty(theme.ThemeSettingsType))
 		{
 			_themeSettingsType = Type.GetType(theme.ThemeSettingsType);

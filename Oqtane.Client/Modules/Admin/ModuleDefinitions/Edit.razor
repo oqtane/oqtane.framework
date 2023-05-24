@@ -308,7 +308,7 @@
                     {
                         moduledefinition.Categories = _categories;
                     }
-                    moduledefinition.IsEnabled = (_isenabled == null ? true : Boolean.Parse(_isenabled));
+                    moduledefinition.IsEnabled = (_isenabled == null ? true : bool.Parse(_isenabled));
                     moduledefinition.PermissionList = _permissionGrid.GetPermissionList();
                     await ModuleDefinitionService.UpdateModuleDefinitionAsync(moduledefinition);
                     await logger.LogInformation("ModuleDefinition Saved {ModuleDefinition}", moduledefinition);
