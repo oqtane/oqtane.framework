@@ -65,7 +65,7 @@ namespace Oqtane.Repository
                 _settings.UpdateSetting(setting);
             }
 
-            _cache.Remove($"moduledefinitions:{moduleDefinition.SiteId}");
+            _cache.Remove($"moduledefinitions:{_tenants.GetAlias().SiteKey}");
         }
 
         public void DeleteModuleDefinition(int moduleDefinitionId,int siteId)
@@ -74,7 +74,7 @@ namespace Oqtane.Repository
             _settings.DeleteSettings(EntityNames.ModuleDefinition, moduleDefinitionId);
             _db.ModuleDefinition.Remove(moduleDefinition);
             _db.SaveChanges();
-            _cache.Remove($"moduledefinitions:{siteId}");
+            _cache.Remove($"moduledefinitions:{_tenants.GetAlias().SiteKey}");
         }
 
         public ModuleDefinition FilterModuleDefinition(ModuleDefinition moduleDefinition)
@@ -109,7 +109,7 @@ namespace Oqtane.Repository
             List<ModuleDefinition> moduleDefinitions;
             if (siteId != -1)
             {
-                moduleDefinitions = _cache.GetOrCreate($"moduledefinitions:{siteId}", entry =>
+                moduleDefinitions = _cache.GetOrCreate($"moduledefinitions:{_tenants.GetAlias().SiteKey}", entry =>
                 {
                     entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                     return ProcessModuleDefinitions(siteId);
