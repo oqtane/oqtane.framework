@@ -168,4 +168,13 @@
   <data name="PackageName.Text" xml:space="preserve">
     <value>Package Name:</value>
   </data>
+  <data name="Information.Heading" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="IsEnabled.HelpText" xml:space="preserve">
+    <value>Is theme enabled for this site?</value>
+  </data>
+  <data name="IsEnabled.Text" xml:space="preserve">
+    <value>Enabled?</value>
+  </data>
 </root>

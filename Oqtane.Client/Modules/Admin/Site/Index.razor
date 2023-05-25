@@ -330,7 +330,6 @@
     private ElementReference form;
     private bool validated = false;
     private bool _initialized = false;
-    private List<Theme> _themeList;
     private List<ThemeControl> _themes = new List<ThemeControl>();
     private List<ThemeControl> _containers = new List<ThemeControl>();
     private string _name = string.Empty;
@@ -383,7 +382,6 @@
     {
         try
         {
-            _themeList = await ThemeService.GetThemesAsync();
             Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
             if (site != null)
             {
@@ -405,9 +403,9 @@
                 {
                     _faviconfileid = site.FaviconFileId.Value;
                 }
-                _themes = ThemeService.GetThemeControls(_themeList);
+                _themes = ThemeService.GetThemeControls(PageState.Site.Themes);
                 _themetype = (!string.IsNullOrEmpty(site.DefaultThemeType)) ? site.DefaultThemeType : Constants.DefaultTheme;
-                _containers = ThemeService.GetContainerControls(_themeList, _themetype);
+                _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
                 _containertype = (!string.IsNullOrEmpty(site.DefaultContainerType)) ? site.DefaultContainerType : Constants.DefaultContainer;
                 _admincontainertype = (!string.IsNullOrEmpty(site.AdminContainerType)) ? site.AdminContainerType : Constants.DefaultAdminContainer;
 
@@ -484,7 +482,7 @@
             _themetype = (string)e.Value;
             if (_themetype != "-")
             {
-                _containers = ThemeService.GetContainerControls(_themeList, _themetype);
+                _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
             }
             else
             {

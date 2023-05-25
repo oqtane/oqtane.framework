@@ -219,4 +219,10 @@
   <data name="Message.DuplicateName" xml:space="preserve">
     <value>A Module With The Name Specified Already Exists</value>
   </data>
+  <data name="IsEnabled.HelpText" xml:space="preserve">
+    <value>Is module enabled for this site?</value>
+  </data>
+  <data name="IsEnabled.Text" xml:space="preserve">
+    <value>Enabled?</value>
+  </data>
 </root>
