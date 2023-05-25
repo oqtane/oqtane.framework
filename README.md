@@ -48,7 +48,6 @@ This project is open source, and therefore is a work in progress...
 Backlog (TBD)
 - [ ] Azure Autoscale support (ie. web farm)
 - [ ] Routable Modules (ie. declarative configuration)
-- [ ] Client Assembly Loading / Site
 - [ ] Folder Providers
 - [ ] Generative AI Integration
 
@@ -56,7 +55,9 @@ Backlog (TBD)
 - [ ] Migration to .NET 8
 
 4.0.0 (Q2 2023)
-- [ ] Migration to .NET 7
+- [x] Migration to .NET 7
+- [x] Improved JavaScript, CSS, and Meta support
+- [x] Optimized Client Assembly Loading 
 
 [3.4.3](https://github.com/oqtane/oqtane.framework/releases/tag/v3.4.3) ( May 3, 2023 )
 - [x] Stabilization improvements 
