@@ -33,7 +33,16 @@
 							<input id="categories" class="form-control" @bind="@_categories" maxlength="200" required />
 						</div>
 					</div>
-				</div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="isenabled" HelpText="Is module enabled for this site?" ResourceKey="IsEnabled">Enabled? </Label>
+                        <div class="col-sm-9">
+                            <select id="isenabled" class="form-select" @bind="@_isenabled" required>
+                                <option value="True">@SharedLocalizer["Yes"]</option>
+                                <option value="False">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
 			</form>
 			<Section Name="Information" ResourceKey="Information">
 				<div class="container">
@@ -199,6 +208,7 @@
     private string _name;
     private string _description = "";
     private string _categories;
+    private string _isenabled;
     private string _moduledefinitionname = "";
     private string _version;
     private string _packagename = "";
@@ -234,6 +244,7 @@
                 _name = moduleDefinition.Name;
                 _description = moduleDefinition.Description;
                 _categories = moduleDefinition.Categories;
+                _isenabled = moduleDefinition.IsEnabled.ToString();
                 _moduledefinitionname = moduleDefinition.ModuleDefinitionName;
                 _version = moduleDefinition.Version;
                 _packagename = moduleDefinition.PackageName;
@@ -297,6 +308,7 @@
                     {
                         moduledefinition.Categories = _categories;
                     }
+                    moduledefinition.IsEnabled = (_isenabled == null ? true : bool.Parse(_isenabled));
                     moduledefinition.PermissionList = _permissionGrid.GetPermissionList();
                     await ModuleDefinitionService.UpdateModuleDefinitionAsync(moduledefinition);
                     await logger.LogInformation("ModuleDefinition Saved {ModuleDefinition}", moduledefinition);

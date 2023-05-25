@@ -144,7 +144,7 @@
 										}
 										@foreach (var moduledefinition in _moduleDefinitions)
 										{
-											if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Utilize, moduledefinition.PermissionList))
+											if (moduledefinition.IsEnabled && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Utilize, moduledefinition.PermissionList))
 											{
 												if (moduledefinition.Runtimes == "" || moduledefinition.Runtimes.Contains(PageState.Runtime.ToString()))
 												{

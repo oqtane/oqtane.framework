@@ -17,6 +17,14 @@ namespace Oqtane.Services
         Task<List<Theme>> GetThemesAsync();
 
         /// <summary>
+        /// Returns a specific thenme
+        /// </summary>
+        /// <param name="themeId"></param>
+        /// <param name="siteId"></param>
+        /// <returns></returns>
+        Task<Theme> GetThemeAsync(int themeId, int siteId);
+
+        /// <summary>
         /// Returns a list of <see cref="ThemeControl"/>s from the given themes
         /// </summary>
         /// <param name="themes"></param>
@@ -38,6 +46,13 @@ namespace Oqtane.Services
         /// <param name="themeName"></param>
         /// <returns></returns>
         List<ThemeControl> GetContainerControls(List<Theme> themes, string themeName);
+
+        /// <summary>
+        /// Updates a existing theem
+        /// </summary>
+        /// <param name="theme"></param>
+        /// <returns></returns>
+        Task UpdateThemeAsync(Theme theme);
 
         /// <summary>
         /// Deletes a theme
