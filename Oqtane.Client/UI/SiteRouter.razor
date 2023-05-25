@@ -531,10 +531,13 @@
         {
             foreach (var resource in resources)
             {
-                if (!resource.Url.Contains("://") && resource.Url.StartsWith("~/"))
+                if (resource.Url.StartsWith("~"))
                 {
-                    // create local path
-                    resource.Url = resource.Url.Replace("~", alias.BaseUrl + "/" + type + "/" + name);
+                    resource.Url = resource.Url.Replace("~", "/" + type + "/" + name + "/").Replace("//", "/");
+                }
+                if (!resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
+                {
+                    resource.Url = alias.BaseUrl + resource.Url;
                 }
 
                 // ensure resource does not exist already

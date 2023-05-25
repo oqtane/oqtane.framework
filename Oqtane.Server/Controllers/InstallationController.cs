@@ -33,8 +33,10 @@ namespace Oqtane.Controllers
         private readonly IHttpContextAccessor _accessor;
         private readonly IAliasRepository _aliases;
         private readonly ILogger<InstallationController> _filelogger;
+        private readonly ITenantManager _tenantManager;
+        private readonly ServerStateManager _serverState;
 
-        public InstallationController(IConfigManager configManager, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager, IMemoryCache cache, IHttpContextAccessor accessor, IAliasRepository aliases, ILogger<InstallationController> filelogger)
+        public InstallationController(IConfigManager configManager, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager, IMemoryCache cache, IHttpContextAccessor accessor, IAliasRepository aliases, ILogger<InstallationController> filelogger, ITenantManager tenantManager, ServerStateManager serverState)
         {
             _configManager = configManager;
             _installationManager = installationManager;
@@ -44,6 +46,8 @@ namespace Oqtane.Controllers
             _accessor = accessor;
             _aliases = aliases;
             _filelogger = filelogger;
+            _tenantManager = tenantManager;
+            _serverState = serverState;
         }
 
         // POST api/<controller>
@@ -115,7 +119,9 @@ namespace Oqtane.Controllers
 
         private List<ClientAssembly> GetAssemblyList()
         {
-            return _cache.GetOrCreate("assemblieslist", entry =>
+            int siteId = _tenantManager.GetAlias().SiteId;
+
+            return _cache.GetOrCreate($"assemblieslist:{siteId}", entry =>
             {
                 var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
                 var assemblyList = new List<ClientAssembly>();
@@ -126,78 +132,43 @@ namespace Oqtane.Controllers
                 {
                     hashfilename = false;
                 }
-                
-                // get list of assemblies which should be downloaded to client
-                var assemblies = AppDomain.CurrentDomain.GetOqtaneClientAssemblies();
-                var list = assemblies.Select(a => a.GetName().Name).ToList();            
 
-                // populate assemblies
-                for (int i = 0; i < list.Count; i++)
+                // get site assemblies which should be downloaded to client
+                var assemblies = _serverState.GetServerState(siteId).Assemblies;
+
+                // populate assembly list
+                foreach (var assembly in assemblies)
                 {
-                    assemblyList.Add(new ClientAssembly(Path.Combine(binFolder, list[i] + ".dll"), hashfilename));
+                    if (assembly != Constants.ClientId)
+                    {
+                        var filepath = Path.Combine(binFolder, assembly) + ".dll";
+                        if (System.IO.File.Exists(filepath))
+                        {
+                            assemblyList.Add(new ClientAssembly(Path.Combine(binFolder, assembly + ".dll"), hashfilename));
+                        }
+                    }
                 }
 
                 // insert satellite assemblies at beginning of list
                 foreach (var culture in _localizationManager.GetInstalledCultures())
                 {
-                    var assembliesFolderPath = Path.Combine(binFolder, culture);
-                    if (culture == Constants.DefaultCulture)
+                    if (culture != Constants.DefaultCulture)
                     {
-                        continue;
-                    }
-
-                    if (Directory.Exists(assembliesFolderPath))
-                    {
-                        foreach (var resourceFile in Directory.EnumerateFiles(assembliesFolderPath))
+                        var assembliesFolderPath = Path.Combine(binFolder, culture);
+                        if (Directory.Exists(assembliesFolderPath))
                         {
-                            assemblyList.Insert(0, new ClientAssembly(resourceFile, hashfilename));
-                        }
-                    }
-                    else
-                    {
-                        _filelogger.LogError(Utilities.LogMessage(this, $"The Satellite Assembly Folder For {culture} Does Not Exist"));
-                    }
-                }
-
-                // insert module and theme dependencies at beginning of list
-                foreach (var assembly in assemblies)
-                {
-                    foreach (var type in assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(IModule))))
-                    {
-                        var instance = Activator.CreateInstance(type) as IModule;
-                        foreach (string name in instance.ModuleDefinition.Dependencies.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Reverse())
-                        {
-                            var filepath = Path.Combine(binFolder, name.ToLower().EndsWith(".dll") ? name : name + ".dll");
-                            if (System.IO.File.Exists(filepath))
+                            foreach (var assembly in assemblies)
                             {
-                                if (!assemblyList.Exists(item => item.FilePath == filepath))
+                                var filepath = Path.Combine(assembliesFolderPath, assembly) + ".resources.dll";
+                                if (System.IO.File.Exists(filepath))
                                 {
-                                    assemblyList.Insert(0, new ClientAssembly(filepath, hashfilename));
+                                    assemblyList.Insert(0, new ClientAssembly(Path.Combine(assembliesFolderPath, assembly + ".resources.dll"), hashfilename));
                                 }
                             }
-                            else
-                            {
-                                _filelogger.LogError(Utilities.LogMessage(this, $"Module {instance.ModuleDefinition.ModuleDefinitionName} Dependency {name}.dll Does Not Exist"));
-                            }
                         }
-                    }
-                    foreach (var type in assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(ITheme))))
-                    {
-                        var instance = Activator.CreateInstance(type) as ITheme;
-                        foreach (string name in instance.Theme.Dependencies.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Reverse())
+                        else
                         {
-                            var filepath = Path.Combine(binFolder, name.ToLower().EndsWith(".dll") ? name : name + ".dll");
-                            if (System.IO.File.Exists(filepath))
-                            {
-                                if (!assemblyList.Exists(item => item.FilePath == filepath))
-                                {
-                                    assemblyList.Insert(0, new ClientAssembly(filepath, hashfilename));
-                                }
-                            }
-                            else
-                            {
-                                _filelogger.LogError(Utilities.LogMessage(this, $"Theme {instance.Theme.ThemeName} Dependency {name}.dll Does Not Exist"));
-                            }
+                            _filelogger.LogError(Utilities.LogMessage(this, $"The Satellite Assembly Folder For {culture} Does Not Exist"));
                         }
                     }
                 }
@@ -240,21 +211,24 @@ namespace Oqtane.Controllers
                 {
                     foreach (var assembly in assemblies)
                     {
-                        if (System.IO.File.Exists(assembly.FilePath))
+                        if (Path.GetFileNameWithoutExtension(assembly.FilePath) != Constants.ClientId)
                         {
-                            using (var filestream = new FileStream(assembly.FilePath, FileMode.Open, FileAccess.Read))
-                            using (var entrystream = archive.CreateEntry(assembly.HashedName).Open())
+                            if (System.IO.File.Exists(assembly.FilePath))
                             {
-                                filestream.CopyTo(entrystream);
+                                using (var filestream = new FileStream(assembly.FilePath, FileMode.Open, FileAccess.Read))
+                                using (var entrystream = archive.CreateEntry(assembly.HashedName).Open())
+                                {
+                                    filestream.CopyTo(entrystream);
+                                }
                             }
-                        }
-                        var pdb = assembly.FilePath.Replace(".dll", ".pdb");
-                        if (System.IO.File.Exists(pdb))
-                        {
-                            using (var filestream = new FileStream(pdb, FileMode.Open, FileAccess.Read))
-                            using (var entrystream = archive.CreateEntry(assembly.HashedName.Replace(".dll", ".pdb")).Open())
+                            var pdb = assembly.FilePath.Replace(".dll", ".pdb");
+                            if (System.IO.File.Exists(pdb))
                             {
-                                filestream.CopyTo(entrystream);
+                                using (var filestream = new FileStream(pdb, FileMode.Open, FileAccess.Read))
+                                using (var entrystream = archive.CreateEntry(assembly.HashedName.Replace(".dll", ".pdb")).Open())
+                                {
+                                    filestream.CopyTo(entrystream);
+                                }
                             }
                         }
                     }

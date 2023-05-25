@@ -4,12 +4,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Xml;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Shared;
+using Oqtane.Themes;
 
 namespace Oqtane.Repository
 {
@@ -20,15 +22,17 @@ namespace Oqtane.Repository
         private readonly IPermissionRepository _permissions;
         private readonly ITenantManager _tenants;
         private readonly ISettingRepository _settings;
+        private readonly ServerStateManager _serverState;
         private readonly string settingprefix = "SiteEnabled:";
 
-        public ModuleDefinitionRepository(MasterDBContext context, IMemoryCache cache, IPermissionRepository permissions, ITenantManager tenants, ISettingRepository settings)
+        public ModuleDefinitionRepository(MasterDBContext context, IMemoryCache cache, IPermissionRepository permissions, ITenantManager tenants, ISettingRepository settings, ServerStateManager serverState)
         {
             _db = context;
             _cache = cache;
             _permissions = permissions;
             _tenants = tenants;
             _settings = settings;
+            _serverState = serverState;
         }
 
         public IEnumerable<ModuleDefinition> GetModuleDefinitions()
@@ -182,6 +186,7 @@ namespace Oqtane.Repository
                 var settings = _settings.GetSettings(EntityNames.ModuleDefinition).ToList();
 
                 // populate module definition site settings and permissions
+                var serverState = _serverState.GetServerState(siteId);
                 foreach (ModuleDefinition moduledefinition in ModuleDefinitions)
                 {
                     moduledefinition.SiteId = siteId;
@@ -194,6 +199,36 @@ namespace Oqtane.Repository
                     else
                     {
                         moduledefinition.IsEnabled = moduledefinition.IsAutoEnabled;
+                    }
+
+                    if (moduledefinition.IsEnabled)
+                    {
+                        // build list of assemblies for site
+                        if (!serverState.Assemblies.Contains(moduledefinition.AssemblyName))
+                        {
+                            serverState.Assemblies.Add(moduledefinition.AssemblyName);
+                        }
+                        if (!string.IsNullOrEmpty(moduledefinition.Dependencies))
+                        {
+                            foreach (var assembly in moduledefinition.Dependencies.Replace(".dll", "").Split(',', StringSplitOptions.RemoveEmptyEntries).Reverse())
+                            {
+                                if (!serverState.Assemblies.Contains(assembly))
+                                {
+                                    serverState.Assemblies.Insert(0, assembly);
+                                }
+                            }
+                        }
+                        // build list of scripts for site
+                        if (moduledefinition.Resources != null)
+                        {
+                            foreach (var resource in moduledefinition.Resources.Where(item => item.Level == ResourceLevel.Site))
+                            {
+                                if (!serverState.Scripts.Contains(resource))
+                                {
+                                    serverState.Scripts.Add(resource);
+                                }
+                            }
+                        }
                     }
 
                     if (permissions.Count == 0)
@@ -216,6 +251,7 @@ namespace Oqtane.Repository
                         }
                     }
                 }
+                _serverState.SetServerState(siteId, serverState);
 
                 // clean up any orphaned permissions
                 var ids = new HashSet<int>(ModuleDefinitions.Select(item => item.ModuleDefinitionId));
@@ -295,6 +331,16 @@ namespace Oqtane.Repository
                     moduledefinition.ModuleDefinitionName = qualifiedModuleType;
                     moduledefinition.ControlTypeTemplate = modulecontroltype.Namespace + "." + Constants.ActionToken + ", " + modulecontroltype.Assembly.GetName().Name;
                     moduledefinition.AssemblyName = assembly.GetName().Name;
+                    if (moduledefinition.Resources != null)
+                    {
+                        foreach (var resource in moduledefinition.Resources)
+                        {
+                            if (resource.Url.StartsWith("~"))
+                            {
+                                resource.Url = resource.Url.Replace("~", "/Modules/" + Utilities.GetTypeName(moduledefinition.ModuleDefinitionName) + "/").Replace("//", "/");
+                            }
+                        }
+                    }
 
                     moduledefinition.IsPortable = false;
                     if (!string.IsNullOrEmpty(moduledefinition.ServerManagerType))
