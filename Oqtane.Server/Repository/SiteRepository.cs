@@ -24,11 +24,12 @@ namespace Oqtane.Repository
         private readonly IModuleRepository _moduleRepository;
         private readonly IPageModuleRepository _pageModuleRepository;
         private readonly IModuleDefinitionRepository _moduleDefinitionRepository;
+        private readonly IThemeRepository _themeRepository;
         private readonly IServiceProvider _serviceProvider;
         private readonly IConfigurationRoot _config;
 
         public SiteRepository(TenantDBContext context, IRoleRepository roleRepository, IProfileRepository profileRepository, IFolderRepository folderRepository, IPageRepository pageRepository,
-            IModuleRepository moduleRepository, IPageModuleRepository pageModuleRepository, IModuleDefinitionRepository moduleDefinitionRepository, IServiceProvider serviceProvider,
+            IModuleRepository moduleRepository, IPageModuleRepository pageModuleRepository, IModuleDefinitionRepository moduleDefinitionRepository, IThemeRepository themeRepository, IServiceProvider serviceProvider,
             IConfigurationRoot config)
         {
             _db = context;
@@ -39,6 +40,7 @@ namespace Oqtane.Repository
             _moduleRepository = moduleRepository;
             _pageModuleRepository = pageModuleRepository;
             _moduleDefinitionRepository = moduleDefinitionRepository;
+            _themeRepository = themeRepository;
             _serviceProvider = serviceProvider;
             _config = config;
         }
@@ -86,6 +88,12 @@ namespace Oqtane.Repository
             var site = _db.Site.Find(siteId);
             _db.Site.Remove(site);
             _db.SaveChanges();
+        }
+
+        public void InitializeSite(int siteId)
+        {
+            _moduleDefinitionRepository.GetModuleDefinitions(siteId);
+            _themeRepository.GetThemes();
         }
 
         private void CreateSite(Site site)

@@ -11,6 +11,7 @@ namespace Oqtane.Repository
         Site GetSite(int siteId);
         Site GetSite(int siteId, bool tracking);
         void DeleteSite(int siteId);
+        void InitializeSite(int siteId);
         void CreatePages(Site site, List<PageTemplate> pageTemplates);
     }
 }
