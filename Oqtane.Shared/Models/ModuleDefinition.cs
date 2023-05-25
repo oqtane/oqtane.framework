@@ -48,7 +48,7 @@ namespace Oqtane.Models
         public string ModuleDefinitionName { get; set; }
 
         /// <summary>
-        /// Nice name to show in admin / edit dialogs.
+        /// Friendly name to show in UI
         /// </summary>
         public string Name { get; set; }
 
