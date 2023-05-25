@@ -183,4 +183,10 @@
   <data name="Private.Text" xml:space="preserve">
     <value>Private? </value>
   </data>
+  <data name="Validation.HelpText" xml:space="preserve">
+    <value>Optionally provide a regular expression (RegExp) for validating the value entered</value>
+  </data>
+  <data name="Validation.Text" xml:space="preserve">
+    <value>Validation:</value>
+  </data>
 </root>
