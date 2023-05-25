@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using Oqtane.Documentation;
 using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Modules.HtmlText
 {
@@ -13,7 +15,11 @@ namespace Oqtane.Modules.HtmlText
             Version = "1.0.1",
             ServerManagerType = "Oqtane.Modules.HtmlText.Manager.HtmlTextManager, Oqtane.Server",
             ReleaseVersions = "1.0.0,1.0.1",
-            SettingsType = "Oqtane.Modules.HtmlText.Settings, Oqtane.Client"
+            SettingsType = "Oqtane.Modules.HtmlText.Settings, Oqtane.Client",
+            Resources = new List<Resource>()
+            {
+                new Resource { ResourceType = ResourceType.Stylesheet, Url = "~/Module.css" }
+            }
         };
     }
 }

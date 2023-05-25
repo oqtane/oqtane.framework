@@ -15,11 +15,6 @@
 }
 
 @code {
-	public override List<Resource> Resources => new List<Resource>()
-    {
-        new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" }
-    };
-
 	private string content = "";
 
 	protected override async Task OnParametersSetAsync()
