@@ -359,10 +359,21 @@ namespace Oqtane.Repository
 
                     if (moduledefinition.Categories == "Admin")
                     {
-                        moduledefinition.PermissionList = new List<Permission>
+                        var shortName = moduledefinition.ModuleDefinitionName.Replace("Oqtane.Modules.Admin.", "").Replace(", Oqtane.Client", "");
+                        if (Constants.DefaultHostModuleTypes.Contains(shortName))
                         {
-                            new Permission(PermissionNames.Utilize, RoleNames.Admin, true)
-                        };
+                            moduledefinition.PermissionList = new List<Permission>
+                            {
+                                new Permission(PermissionNames.Utilize, RoleNames.Host, true)
+                            };
+                        }
+                        else
+                        {
+                            moduledefinition.PermissionList = new List<Permission>
+                            {
+                                new Permission(PermissionNames.Utilize, RoleNames.Admin, true)
+                            };
+                        }
                     }
                     else
                     {
