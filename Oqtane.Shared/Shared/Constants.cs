@@ -1,4 +1,7 @@
 using System;
+using Oqtane.Models;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace Oqtane.Shared
 {
@@ -38,6 +41,8 @@ namespace Oqtane.Shared
         public const string ModuleMessageComponent = "Oqtane.Modules.Controls.ModuleMessage, Oqtane.Client";
 
         public const string DefaultSiteTemplate = "Oqtane.SiteTemplates.DefaultSiteTemplate, Oqtane.Server";
+
+        public static readonly string[] DefaultHostModuleTypes = new[] { "Upgrade", "Themes", "SystemInfo", "Sql", "Sites", "ModuleDefinitions", "Logs", "Jobs", "ModuleCreator" };
 
         public const string FileUrl = "/files/";
         public const string ImageUrl = "/api/file/image/";
