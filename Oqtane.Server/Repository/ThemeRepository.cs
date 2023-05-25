@@ -12,6 +12,7 @@ using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.Themes;
 using System.Reflection.Metadata;
+using Oqtane.Migrations.Master;
 
 namespace Oqtane.Repository
 {
@@ -125,6 +126,12 @@ namespace Oqtane.Repository
                 }
                 else
                 {
+                    // override user customizable property values
+                    Theme.Name = (!string.IsNullOrEmpty(theme.Name)) ? theme.Name : Theme.Name;
+                    foreach (var themecontrol in Theme.Themes)
+                    {
+                        themecontrol.Name = Theme.Name + " - " + themecontrol.Name;
+                    }
                     // remove theme from list as it is already synced
                     themes.Remove(theme);
                 }
@@ -286,7 +293,7 @@ namespace Oqtane.Repository
                     new ThemeControl
                     {
                         TypeName = themeControlType.FullName + ", " + themeControlType.Assembly.GetName().Name,
-                        Name = theme.Name + " - " + ((string.IsNullOrEmpty(themecontrolobject.Name)) ? Utilities.GetTypeNameLastSegment(themeControlType.FullName, 0) : themecontrolobject.Name),
+                        Name = ((string.IsNullOrEmpty(themecontrolobject.Name)) ? Utilities.GetTypeNameLastSegment(themeControlType.FullName, 0) : themecontrolobject.Name),
                         Thumbnail = themecontrolobject.Thumbnail,
                         Panes = themecontrolobject.Panes
                     }

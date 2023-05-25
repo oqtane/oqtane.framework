@@ -13,7 +13,7 @@
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="name" HelpText="The name of the module" ResourceKey="Name">Name: </Label>
                 <div class="col-sm-9">
-                    <input id="name" class="form-control" @bind="@_name" disabled />
+                    <input id="name" class="form-control" @bind="@_name" />
                 </div>
             </div>
              <div class="row mb-1 align-items-center">
@@ -89,32 +89,32 @@
     private string _themeName = "";
     private string _isenabled;
     private string _name;
-	private string _version;
-	private string _packagename;
-	private string _owner = "";
-	private string _url = "";
-	private string _contact = "";
-	private string _license = "";
+    private string _version;
+    private string _packagename;
+    private string _owner = "";
+    private string _url = "";
+    private string _contact = "";
+    private string _license = "";
     private string _createdby;
     private DateTime _createdon;
     private string _modifiedby;
     private DateTime _modifiedon;
 
-	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-	protected override async Task OnInitializedAsync()
-	{
-		try
-		{
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
             _themeId = Int32.Parse(PageState.QueryString["id"]);
             var theme = await ThemeService.GetThemeAsync(_themeId, ModuleState.SiteId);
-			if (theme != null)
-			{
-				_name = theme.Name;
+            if (theme != null)
+            {
+                _name = theme.Name;
                 _isenabled =theme.IsEnabled.ToString();
                 _version = theme.Version;
-				_packagename = theme.PackageName;
-				_owner = theme.Owner;
+                _packagename = theme.PackageName;
+                _owner = theme.Owner;
                 _url = theme.Url;
                 _contact = theme.Contact;
                 _license = theme.License;
@@ -142,6 +142,7 @@
             try
             {
                 var theme = await ThemeService.GetThemeAsync(_themeId, ModuleState.SiteId);
+                theme.Name = _name;
                 theme.IsEnabled = (_isenabled == null ? true : bool.Parse(_isenabled));
                 await ThemeService.UpdateThemeAsync(theme);
                 await logger.LogInformation("Theme Saved {Theme}", theme);
