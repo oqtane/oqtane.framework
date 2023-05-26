@@ -372,8 +372,7 @@ else
                 AddModuleMessage(Localizer["Message.Required.ProfileInfo"], MessageType.Warning);
             }
 
-            // scroll to top of page so user can see messages
-            await ScrollToTop();
+            await ScrollToPageTop();
         }
         catch (Exception ex)
         {
