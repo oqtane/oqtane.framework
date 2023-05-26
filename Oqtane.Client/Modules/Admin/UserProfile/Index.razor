@@ -356,9 +356,6 @@ else
 
                         AddModuleMessage(Localizer["Success.Profile.Update"], MessageType.Success);
                         StateHasChanged();
-
-                        var interop = new Interop(JSRuntime);
-                        await interop.ScrollTo(0, 0, "smooth");
                     }
                     else
                     {
@@ -374,6 +371,9 @@ else
             {
                 AddModuleMessage(Localizer["Message.Required.ProfileInfo"], MessageType.Warning);
             }
+
+            // scroll to top of page so user can see messages
+            await ScrollToTop();
         }
         catch (Exception ex)
         {

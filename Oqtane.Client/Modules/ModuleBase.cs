@@ -291,6 +291,12 @@ namespace Oqtane.Modules
             }
         }
 
+        public async Task ScrollToTop()
+        {
+            var interop = new Interop(JSRuntime);
+            await interop.ScrollTo(0, 0, "smooth");
+        }
+
         // logging methods
         public async Task Log(Alias alias, LogLevel level, string function, Exception exception, string message, params object[] args)
         {
