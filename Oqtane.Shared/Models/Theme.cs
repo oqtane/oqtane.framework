@@ -35,10 +35,12 @@ namespace Oqtane.Models
         /// </summary>
         public string ThemeName { get; set; }
 
-        // additional ITheme properties 
-        [NotMapped]
+        /// <summary>
+        /// Friendly name to show in UI
+        /// </summary>
         public string Name { get; set; }
 
+        // additional ITheme properties 
         [NotMapped]
         public string Version { get; set; }
 

@@ -369,4 +369,10 @@
   <data name="PageContent.Heading" xml:space="preserve">
     <value>Page Content</value>
   </data>
+  <data name="SMTPEnabled.HelpText" xml:space="preserve">
+    <value>Specify if SMTP is enabled for this site</value>
+  </data>
+  <data name="SMTPEnabled.Text" xml:space="preserve">
+    <value>Enabled?</value>
+  </data>
 </root>

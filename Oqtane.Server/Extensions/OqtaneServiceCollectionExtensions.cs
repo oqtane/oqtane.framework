@@ -61,6 +61,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<ILoggerProvider, FileLoggerProvider>();
             services.AddSingleton<AutoValidateAntiforgeryTokenFilter>();
             services.AddSingleton<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
+            services.AddSingleton<ServerStateManager>();
             return services;
         }
 

@@ -145,9 +145,9 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="enabledSSl" HelpText="Specify if SSL is required for your SMTP server" ResourceKey="UseSsl">SSL Enabled: </Label>
+                    <Label Class="col-sm-3" For="smtpssl" HelpText="Specify if SSL is required for your SMTP server" ResourceKey="UseSsl">SSL Enabled: </Label>
                     <div class="col-sm-9">
-                        <select id="enabledSSl" class="form-select" @bind="@_smtpssl" >
+                        <select id="smtpssl" class="form-select" @bind="@_smtpssl" >
                             <option value="True">@SharedLocalizer["Yes"]</option>
                             <option value="False">@SharedLocalizer["No"]</option>
                         </select>
@@ -183,7 +183,16 @@
 						</select>
 					</div>
 				</div>
-				<div class="row mb-1 align-items-center">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="smtpenabled" HelpText="Specify if SMTP is enabled for this site" ResourceKey="SMTPEnabled">Enabled? </Label>
+                    <div class="col-sm-9">
+                        <select id="smtpenabled" class="form-select" @bind="@_smtpenabled">
+                            <option value="True">@SharedLocalizer["Yes"]</option>
+                            <option value="False">@SharedLocalizer["No"]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
 					<Label Class="col-sm-3" For="retention" HelpText="Number of days of notifications to retain" ResourceKey="Retention">Retention (Days): </Label>
 					<div class="col-sm-9">
 						<input id="retention" class="form-control" @bind="@_retention" />
@@ -354,6 +363,7 @@
     private string _togglesmtppassword = string.Empty;
     private string _smtpsender = string.Empty;
     private string _smtprelay = "False";
+    private string _smtpenabled = "True";
     private string _retention = string.Empty;
     private string _pwaisenabled;
     private int _pwaappiconfileid = -1;
@@ -434,6 +444,7 @@
                 _togglesmtppassword = SharedLocalizer["ShowPassword"];
                 _smtpsender = SettingService.GetSetting(settings, "SMTPSender", string.Empty);
                 _smtprelay = SettingService.GetSetting(settings, "SMTPRelay", "False");
+                _smtpenabled = SettingService.GetSetting(settings, "SMTPEnabled", "True");
                 _retention = SettingService.GetSetting(settings, "NotificationRetention", "30");
 
                 // aliases
@@ -600,7 +611,8 @@
 						settings = SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
 						settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
 						settings = SettingService.SetSetting(settings, "SMTPRelay", _smtprelay, true);
-						settings = SettingService.SetSetting(settings, "NotificationRetention", _retention, true);
+                        settings = SettingService.SetSetting(settings, "SMTPEnabled", _smtpenabled, true);
+                        settings = SettingService.SetSetting(settings, "NotificationRetention", _retention, true);
 						await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 
 						await logger.LogInformation("Site Settings Saved {Site}", site);
@@ -612,8 +624,8 @@
 						else
 						{
 							AddModuleMessage(Localizer["Success.Settings.SaveSite"], MessageType.Success);
-							await interop.ScrollTo(0, 0, "smooth");
-						}
+                            await ScrollToPageTop();
+                        }
 					}
 				}
 				else
@@ -681,9 +693,8 @@
 
 				await NotificationService.AddNotificationAsync(new Notification(PageState.Site.SiteId, PageState.User, PageState.Site.Name + " SMTP Configuration Test", "SMTP Server Is Configured Correctly."));
 				AddModuleMessage(Localizer["Info.Smtp.SaveSettings"], MessageType.Info);
-				var interop = new Interop(JSRuntime);
-				await interop.ScrollTo(0, 0, "smooth");
-			}
+                await ScrollToPageTop();
+            }
 			catch (Exception ex)
 			{
 				await logger.LogError(ex, "Error Testing SMTP Configuration");

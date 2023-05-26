@@ -200,6 +200,8 @@ namespace Oqtane.Controllers
                 case EntityNames.Tenant:
                 case EntityNames.ModuleDefinition:
                 case EntityNames.Host:
+                case EntityNames.Job:
+                case EntityNames.Theme:
                     if (permissionName == PermissionNames.Edit)
                     {
                         authorized = User.IsInRole(RoleNames.Host);
@@ -262,6 +264,8 @@ namespace Oqtane.Controllers
                 case EntityNames.Tenant:
                 case EntityNames.ModuleDefinition:
                 case EntityNames.Host:
+                case EntityNames.Job:
+                case EntityNames.Theme:
                     filter = !User.IsInRole(RoleNames.Host);
                     break;
                 case EntityNames.Site:

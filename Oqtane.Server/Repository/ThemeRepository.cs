@@ -12,6 +12,7 @@ using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.Themes;
 using System.Reflection.Metadata;
+using Oqtane.Migrations.Master;
 
 namespace Oqtane.Repository
 {
@@ -21,14 +22,16 @@ namespace Oqtane.Repository
         private readonly IMemoryCache _cache;
         private readonly ITenantManager _tenants;
         private readonly ISettingRepository _settings;
+        private readonly ServerStateManager _serverState;
         private readonly string settingprefix = "SiteEnabled:";
 
-        public ThemeRepository(MasterDBContext context, IMemoryCache cache, ITenantManager tenants, ISettingRepository settings)
+        public ThemeRepository(MasterDBContext context, IMemoryCache cache, ITenantManager tenants, ISettingRepository settings, ServerStateManager serverState)
         {
             _db = context;
             _cache = cache;
             _tenants = tenants;
             _settings = settings;
+            _serverState = serverState;
         }
 
         public IEnumerable<Theme> GetThemes()
@@ -123,6 +126,12 @@ namespace Oqtane.Repository
                 }
                 else
                 {
+                    // override user customizable property values
+                    Theme.Name = (!string.IsNullOrEmpty(theme.Name)) ? theme.Name : Theme.Name;
+                    foreach (var themecontrol in Theme.Themes)
+                    {
+                        themecontrol.Name = Theme.Name + " - " + themecontrol.Name;
+                    }
                     // remove theme from list as it is already synced
                     themes.Remove(theme);
                 }
@@ -147,6 +156,7 @@ namespace Oqtane.Repository
                 var settings = _settings.GetSettings(EntityNames.Theme).ToList();
 
                 // populate theme site settings
+                var serverState = _serverState.GetServerState(siteId);
                 foreach (Theme theme in Themes)
                 {
                     theme.SiteId = siteId;
@@ -160,7 +170,38 @@ namespace Oqtane.Repository
                     {
                         theme.IsEnabled = theme.IsAutoEnabled;
                     }
+
+                    if (theme.IsEnabled)
+                    {
+                        // build list of assemblies for site
+                        if (!serverState.Assemblies.Contains(theme.AssemblyName))
+                        {
+                            serverState.Assemblies.Add(theme.AssemblyName);
+                        }
+                        if (!string.IsNullOrEmpty(theme.Dependencies))
+                        {
+                            foreach (var assembly in theme.Dependencies.Replace(".dll", "").Split(',', StringSplitOptions.RemoveEmptyEntries).Reverse())
+                            {
+                                if (!serverState.Assemblies.Contains(assembly))
+                                {
+                                    serverState.Assemblies.Insert(0, assembly);
+                                }
+                            }
+                        }
+                        // build list of scripts for site
+                        if (theme.Resources != null)
+                        {
+                            foreach (var resource in theme.Resources.Where(item => item.Level == ResourceLevel.Site))
+                            {
+                                if (!serverState.Scripts.Contains(resource))
+                                {
+                                    serverState.Scripts.Add(resource);
+                                }
+                            }
+                        }
+                    }
                 }
+                _serverState.SetServerState(siteId, serverState);
             }
 
             return Themes;
@@ -225,12 +266,22 @@ namespace Oqtane.Repository
                             Version = new Version(1, 0, 0).ToString()
                         };
                     }
+
                     // set internal properties
                     theme.ThemeName = qualifiedThemeType;
                     theme.Themes = new List<ThemeControl>();
                     theme.Containers = new List<ThemeControl>();
                     theme.AssemblyName = assembly.FullName.Split(",")[0];
-
+                    if (theme.Resources != null)
+                    {
+                        foreach (var resource in theme.Resources)
+                        {
+                            if (resource.Url.StartsWith("~"))
+                            {
+                                resource.Url = resource.Url.Replace("~", "/Themes/" + Utilities.GetTypeName(theme.ThemeName) + "/").Replace("//", "/");
+                            }
+                        }
+                    }
                     Debug.WriteLine($"Oqtane Info: Registering Theme {theme.ThemeName}");
                     themes.Add(theme);
                     index = themes.FindIndex(item => item.ThemeName == qualifiedThemeType);
@@ -242,7 +293,7 @@ namespace Oqtane.Repository
                     new ThemeControl
                     {
                         TypeName = themeControlType.FullName + ", " + themeControlType.Assembly.GetName().Name,
-                        Name = theme.Name + " - " + ((string.IsNullOrEmpty(themecontrolobject.Name)) ? Utilities.GetTypeNameLastSegment(themeControlType.FullName, 0) : themecontrolobject.Name),
+                        Name = ((string.IsNullOrEmpty(themecontrolobject.Name)) ? Utilities.GetTypeNameLastSegment(themeControlType.FullName, 0) : themecontrolobject.Name),
                         Thumbnail = themecontrolobject.Thumbnail,
                         Panes = themecontrolobject.Panes
                     }
