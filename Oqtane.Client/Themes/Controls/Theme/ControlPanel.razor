@@ -1,3 +1,4 @@
+@using System.Net
 @namespace Oqtane.Themes.Controls
 @inherits ThemeControlBase
 @inject NavigationManager NavigationManager
@@ -501,7 +502,7 @@
 				module = PageState.Modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.AdminDashboardModule);
 				if (module != null)
 				{
-					NavigationManager.NavigateTo(EditUrl(PageState.Page.Path, module.ModuleId, "Index", ""));
+                    NavigationManager.NavigateTo(EditUrl("admin", module.ModuleId, "Index", "returnurl=" + WebUtility.UrlEncode(PageState.Route.PathAndQuery)));
 				}
 				break;
 			case "Add":
