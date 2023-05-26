@@ -624,8 +624,9 @@
 						else
 						{
 							AddModuleMessage(Localizer["Success.Settings.SaveSite"], MessageType.Success);
-							await interop.ScrollTo(0, 0, "smooth");
-						}
+                            // scroll to top of page so user can see messages
+                            await ScrollToTop();
+                        }
 					}
 				}
 				else
@@ -693,9 +694,10 @@
 
 				await NotificationService.AddNotificationAsync(new Notification(PageState.Site.SiteId, PageState.User, PageState.Site.Name + " SMTP Configuration Test", "SMTP Server Is Configured Correctly."));
 				AddModuleMessage(Localizer["Info.Smtp.SaveSettings"], MessageType.Info);
-				var interop = new Interop(JSRuntime);
-				await interop.ScrollTo(0, 0, "smooth");
-			}
+
+                // scroll to top of page so user can see messages
+                await ScrollToTop();
+            }
 			catch (Exception ex)
 			{
 				await logger.LogError(ex, "Error Testing SMTP Configuration");
