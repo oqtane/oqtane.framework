@@ -35,6 +35,8 @@ namespace Oqtane.Models
             Runtimes = "";
             Template = "";
             Resources = null;
+            IsAutoEnabled = true;
+            PageTemplates = null;
         }
 
         /// <summary>
@@ -111,7 +113,10 @@ namespace Oqtane.Models
         public List<Resource> Resources { get; set; } // added in 4.0.0
 
         [NotMapped]
-        public bool IsAutoEnabled { get; set; } = true; // added in 4.0.0
+        public bool IsAutoEnabled { get; set; } // added in 4.0.0
+
+        [NotMapped]
+        public List<PageTemplate> PageTemplates { get; set; } // added in 4.0.0
 
         // internal properties
         [NotMapped]
