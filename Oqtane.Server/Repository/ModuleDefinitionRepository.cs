@@ -11,7 +11,6 @@ using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Shared;
-using Oqtane.Themes;
 
 namespace Oqtane.Repository
 {
@@ -115,7 +114,7 @@ namespace Oqtane.Repository
             {
                 moduleDefinitions = _cache.GetOrCreate($"moduledefinitions:{_tenants.GetAlias().SiteKey}", entry =>
                 {
-                    entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                    entry.Priority = CacheItemPriority.NeverRemove;
                     return ProcessModuleDefinitions(siteId);
                 });
             }

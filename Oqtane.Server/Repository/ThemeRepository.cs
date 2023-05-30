@@ -98,7 +98,7 @@ namespace Oqtane.Repository
             // get themes
             List<Theme> themes = _cache.GetOrCreate($"themes:{_tenants.GetAlias().SiteKey}", entry =>
             {
-                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                entry.Priority = CacheItemPriority.NeverRemove;
                 return ProcessThemes(siteId);
             });
 

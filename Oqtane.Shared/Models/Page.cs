@@ -22,6 +22,12 @@ namespace Oqtane.Models
         public int SiteId { get; set; }
 
         /// <summary>
+        /// Path of the page.
+        /// TODO: todoc relative to what? site root, parent-page, domain?
+        /// </summary>
+        public string Path { get; set; }
+
+        /// <summary>
         /// Reference to the parent <see cref="Page"/> if it has one.
         /// </summary>
         public int? ParentId { get; set; }
@@ -36,13 +42,7 @@ namespace Oqtane.Models
         /// Page Title which is shown in the browser tab.
         /// </summary>
         public string Title { get; set; }
-        
-        /// <summary>
-        /// Path of the page.
-        /// TODO: todoc relative to what? site root, parent-page, domain?
-        /// </summary>
-        public string Path { get; set; }
-        
+                
         /// <summary>
         /// Sort order in the list of other sibling pages
         /// </summary>

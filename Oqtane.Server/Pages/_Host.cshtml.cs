@@ -110,7 +110,7 @@ namespace Oqtane.Pages
                         }
                     }
 
-                    var site = _sites.GetSite(alias.SiteId);
+                    var site = _sites.InitializeSite(alias);
                     if (site != null && !site.IsDeleted && site.Runtime != "Hybrid")
                     {
                         Route route = new Route(url, alias.Path);
@@ -174,7 +174,6 @@ namespace Oqtane.Pages
                         }
                         HeadResources += ParseScripts(site.HeadContent);
                         BodyResources += ParseScripts(site.BodyContent);
-                        _sites.InitializeSite(site.SiteId); // populates server state
                         var scripts = _serverState.GetServerState(site.SiteId).Scripts;
                         foreach (var script in scripts)
                         {
