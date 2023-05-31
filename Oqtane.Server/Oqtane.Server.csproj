@@ -61,6 +61,6 @@
   </Target>
   <ItemGroup>
     <!-- extends watching group to include *.dll files and exclude the ones cause an infinite loop -->
-    <Watch Include="**\*.dll" Exclude="**\Microsoft.EntityFrameworkCore.*.dll;**\Oqtane.Database.*.dll;"/>
+    <Watch Include="**\*.dll" Exclude="**\Microsoft.EntityFrameworkCore.*.dll;**\Oqtane.Database.*.dll;" />
   </ItemGroup>
 </Project>
