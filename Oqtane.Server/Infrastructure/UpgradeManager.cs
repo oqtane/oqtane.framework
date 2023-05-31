@@ -192,7 +192,7 @@ namespace Oqtane.Infrastructure
             var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
             foreach (Site site in sites.GetSites().ToList())
             {
-                sites.CreatePages(site, pageTemplates);
+                sites.CreatePages(site, pageTemplates, null);
             }
         }
 
@@ -243,7 +243,7 @@ namespace Oqtane.Infrastructure
             {
                 if (!pages.GetPages(site.SiteId).ToList().Where(item => item.Path == "404").Any())
                 {
-                    sites.CreatePages(site, pageTemplates);
+                    sites.CreatePages(site, pageTemplates, null);
                 }
             }
         }

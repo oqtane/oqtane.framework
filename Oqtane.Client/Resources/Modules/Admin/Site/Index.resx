@@ -375,4 +375,10 @@
   <data name="SMTPEnabled.Text" xml:space="preserve">
     <value>Enabled?</value>
   </data>
+  <data name="Version.HelpText" xml:space="preserve">
+    <value>The site version (for site content migrations)</value>
+  </data>
+  <data name="Version.Text" xml:space="preserve">
+    <value>Version:</value>
+  </data>
 </root>
