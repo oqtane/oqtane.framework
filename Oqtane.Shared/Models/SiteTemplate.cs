@@ -38,7 +38,7 @@ namespace Oqtane.Models
             PageTemplateModules = new List<PageTemplateModule>();
 
             // properties used by IModule
-            AliasName = "*";
+            AliasName = "";
             Version = "*";
             Update = false;
         }
