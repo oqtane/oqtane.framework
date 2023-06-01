@@ -417,18 +417,20 @@ namespace Oqtane.Repository
                                         _pageModuleRepository.UpdatePageModule(pageModule);
                                         if (alias != null)
                                         {
-                                            _logger.Log(LogLevel.Information, "Site Template", LogFunction.Update, "Page Mopdule Updated {PageModule}", pageModule);
+                                            _logger.Log(LogLevel.Information, "Site Template", LogFunction.Update, "Page Module Updated {PageModule}", pageModule);
                                         }
                                     }
                                     else
                                     {
-                                        pageModule.Module = _moduleRepository.AddModule(pageModule.Module);
-                                        pageModule.ModuleId = pageModule.Module.ModuleId;
+                                        var module = _moduleRepository.AddModule(pageModule.Module);
+                                        pageModule.ModuleId = module.ModuleId;
                                         pageModule.Module = null; // remove tracking
                                         _pageModuleRepository.AddPageModule(pageModule);
+                                        pageModule.Module = module;
+                                        pageModules.Add(pageModule);
                                         if (alias != null)
                                         {
-                                            _logger.Log(LogLevel.Information, "Site Template", LogFunction.Create, "Page Mopdule Added {PageModule}", pageModule);
+                                            _logger.Log(LogLevel.Information, "Site Template", LogFunction.Create, "Page Module Added {PageModule}", pageModule);
                                         }
                                     }
 
