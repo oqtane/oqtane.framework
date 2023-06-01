@@ -24,6 +24,7 @@ namespace Oqtane.UI
         public int VisitorId { get; set; }
         public string RemoteIPAddress { get; set; }
         public string ReturnUrl { get; set; }
+        public bool IsInternalNavigation { get; set; }
 
         public List<Page> Pages
         {

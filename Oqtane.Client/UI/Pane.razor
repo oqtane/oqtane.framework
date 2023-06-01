@@ -17,61 +17,59 @@ else
 }
 
 @code {
-	private bool _useadminborder = false;
-	private string _panetitle = "";
+    private bool _useadminborder = false;
+    private string _panetitle = "";
 
-	[CascadingParameter]
-	protected PageState PageState { get; set; }
+    [CascadingParameter]
+    protected PageState PageState { get; set; }
 
-	[Parameter]
-	public string Name { get; set; }
+    [Parameter]
+    public string Name { get; set; }
 
-	RenderFragment DynamicComponent { get; set; }
+    RenderFragment DynamicComponent { get; set; }
 
-	protected override void OnParametersSet()
-	{
-		if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList) && PageState.Action == Constants.DefaultAction)
-		{
-			_useadminborder = true;
-			_panetitle = "<div class=\"app-pane-admin-title\">" + Name + " Pane</div>";
-		}
-		else
-		{
-			_useadminborder = false;
-			_panetitle = "";
-		}
+    protected override void OnParametersSet()
+    {
+        if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList) && PageState.Action == Constants.DefaultAction)
+        {
+            _useadminborder = true;
+            _panetitle = "<div class=\"app-pane-admin-title\">" + Name + " Pane</div>";
+        }
+        else
+        {
+            _useadminborder = false;
+            _panetitle = "";
+        }
 
-		DynamicComponent = builder =>
-		{
-			if (PageState.ModuleId != -1 && PageState.Action != Constants.DefaultAction)
-			{
-				// action route needs to inject module control into specific pane
-				string pane = "";
-				if (PageState.Page.Panes.FindIndex(item => item.Equals(PaneNames.Default, StringComparison.OrdinalIgnoreCase)) != -1)
-				{
-					pane = PaneNames.Default;
-				}
-				else
-				{
-					pane = PaneNames.Admin;
+        DynamicComponent = builder =>
+        {
+            foreach (Module module in PageState.Modules.Where(item => item.PageId == PageState.Page.PageId))
+            {
+                var pane = module.Pane;
+                if (module.ModuleId == PageState.ModuleId && PageState.Action != Constants.DefaultAction)
+                {
+                    if (PageState.Page.Panes.FindIndex(item => item.Equals(PaneNames.Default, StringComparison.OrdinalIgnoreCase)) != -1)
+                    {
+                        pane = PaneNames.Default;
+                    }
+                    else
+                    {
+                        pane = PaneNames.Admin;
+                    }
+                }
 
-				}
-				if (Name.ToLower() == pane.ToLower())
-				{
-					Module module = PageState.Modules.FirstOrDefault(item => item.PageId == PageState.Page.PageId && item.ModuleId == PageState.ModuleId);
-					if (module == null)
-					{
-						module = PageState.Modules.FirstOrDefault(item => item.ModuleId == PageState.ModuleId);
-					}
-					if (module != null)
-					{
-						var moduleType = Type.GetType(module.ModuleType);
-						if (moduleType != null)
-						{
-							bool authorized = false;
-							if (Constants.DefaultModuleActions.Contains(PageState.Action))
-							{
-								authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList);
+                // pane matches current pane
+                if (Name.ToLower() == pane.ToLower())
+                {
+                    if (module.ModuleId == PageState.ModuleId && PageState.Action != Constants.DefaultAction)
+                    {
+                        var moduleType = Type.GetType(module.ModuleType);
+                        if (moduleType != null)
+                        {
+                            bool authorized = false;
+                            if (Constants.DefaultModuleActions.Contains(PageState.Action))
+                            {
+                                authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList);
                             }
                             else
                             {
@@ -100,43 +98,20 @@ else
                                 CreateComponent(builder, module);
                             }
                         }
-                        else
-                        {
-                            // module type does not exist
-                        }
                     }
-                }
-            }
-            else
-            {
-                if (PageState.ModuleId != -1)
-                {
-					Module module = PageState.Modules.FirstOrDefault(item => item.PageId == PageState.Page.PageId && item.ModuleId == PageState.ModuleId);
-					if (module == null)
-					{
-						module = PageState.Modules.FirstOrDefault(item => item.ModuleId == PageState.ModuleId);
-					}
-					if (module != null && module.Pane.ToLower() == Name.ToLower())
+                    else
                     {
-                        // check if user is authorized to view module
-                        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.PermissionList))
+                        if (PageState.ModuleId == -1 || PageState.ModuleId == module.ModuleId)
                         {
-                            CreateComponent(builder, module);
+                            // check if user is authorized to view module
+                            if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.PermissionList))
+                            {
+                                CreateComponent(builder, module);
+                            }
                         }
                     }
                 }
-                else
-                {
-                    foreach (Module module in PageState.Modules.Where(item => item.PageId == PageState.Page.PageId && item.Pane.ToLower() == Name.ToLower()))
-                    {
-                        // check if user is authorized to view module
-                        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.PermissionList))
-                        {
-                            CreateComponent(builder, module);
-                        }
-                    }
-                }
-            }
+            }            
         };
     }
 

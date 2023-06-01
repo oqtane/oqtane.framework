@@ -23,6 +23,7 @@
 
 @code {
     private string _absoluteUri;
+    private bool _isInternalNavigation = false;
     private bool _navigationInterceptionEnabled;
     private PageState _pagestate;
     private string _error = "";
@@ -72,6 +73,23 @@
         }
     }
 
+    private async void LocationChanged(object sender, LocationChangedEventArgs args)
+    {
+        _absoluteUri = args.Location;
+        _isInternalNavigation = true;
+        await Refresh();
+    }
+
+    Task IHandleAfterRender.OnAfterRenderAsync()
+    {
+        if (!_navigationInterceptionEnabled)
+        {
+            _navigationInterceptionEnabled = true;
+            return NavigationInterception.EnableNavigationInterceptionAsync();
+        }
+        return Task.CompletedTask;
+    }
+
     [SuppressMessage("ReSharper", "StringIndexOfIsCultureSpecific.1")]
     private async Task Refresh()
     {
@@ -87,7 +105,7 @@
         Route route = new Route(_absoluteUri, SiteState.Alias.Path);
         int moduleid = (int.TryParse(route.ModuleId, out moduleid)) ? moduleid : -1;
         var action = (!string.IsNullOrEmpty(route.Action)) ? route.Action : Constants.DefaultAction; 
-        var querystring = ParseQueryString(route.Query);
+        var querystring = Utilities.ParseQueryString(route.Query);
         var returnurl = "";
         if (querystring.ContainsKey("returnurl"))
         {
@@ -233,7 +251,8 @@
                         Runtime = runtime,
 						VisitorId = VisitorId,
 						RemoteIPAddress = SiteState.RemoteIPAddress,
-						ReturnUrl = returnurl
+						ReturnUrl = returnurl,
+                        IsInternalNavigation = _isInternalNavigation
                     };
 
                     OnStateChange?.Invoke(_pagestate);
@@ -276,56 +295,6 @@
         {
             // site does not exist
         }
-    }
-
-    private async void LocationChanged(object sender, LocationChangedEventArgs args)
-    {
-        _absoluteUri = args.Location;
-        await Refresh();
-    }
-
-    Task IHandleAfterRender.OnAfterRenderAsync()
-    {
-        if (!_navigationInterceptionEnabled)
-        {
-            _navigationInterceptionEnabled = true;
-            return NavigationInterception.EnableNavigationInterceptionAsync();
-        }
-        return Task.CompletedTask;
-    }
-
-    private Dictionary<string, string> ParseQueryString(string query)
-    {
-        Dictionary<string, string> querystring = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase); // case insensistive keys
-        if (!string.IsNullOrEmpty(query))
-        {
-            if (query.StartsWith("?"))
-            {
-                query = query.Substring(1); // ignore "?"
-            }
-            foreach (string kvp in query.Split('&', StringSplitOptions.RemoveEmptyEntries))
-            {
-                if (kvp != "")
-                {
-                    if (kvp.Contains("="))
-                    {
-                        string[] pair = kvp.Split('=');
-                        if (!querystring.ContainsKey(pair[0]))
-                        {
-                            querystring.Add(pair[0], pair[1]);
-                        }
-                    }
-                    else
-                    {
-                        if (!querystring.ContainsKey(kvp))
-                        {
-                            querystring.Add(kvp, "true"); // default parameter when no value is provided
-                        }
-                    }
-                }
-            }
-        }
-        return querystring;
     }
 
     private async Task<Page> ProcessPage(Page page, Site site, User user, Alias alias)
@@ -411,11 +380,16 @@
             if ((module.PageId == page.PageId || module.ModuleId == moduleid))
             {
                 var typename = Constants.ErrorModule;
+
                 if (module.ModuleDefinition != null && (module.ModuleDefinition.Runtimes == "" || module.ModuleDefinition.Runtimes.Contains(Runtime)))
                 {
                     typename = module.ModuleDefinition.ControlTypeTemplate;
 
                     // handle default action
+                    if (moduleid != module.ModuleId)
+                    {
+                        action = Constants.DefaultAction;
+                    }
                     if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
                     {
                         action = module.ModuleDefinition.DefaultAction;
