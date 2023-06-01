@@ -1,6 +1,7 @@
 using Oqtane.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -438,28 +439,50 @@ namespace Oqtane.Shared
 
         public static Dictionary<string, string> ParseQueryString(string query)
         {
-            Dictionary<string, string> dictionary = new Dictionary<string, string>();
+            Dictionary<string, string> querystring = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase); // case insensistive keys
             if (!string.IsNullOrEmpty(query))
             {
-                query = query.Substring(1);
-                string str = query;
-                char[] separator = new char[1] { '&' };
-                foreach (string key in str.Split(separator, StringSplitOptions.RemoveEmptyEntries))
+                if (query.StartsWith("?"))
                 {
-                    if (key != "")
+                    query = query.Substring(1); // ignore "?"
+                }
+                foreach (string kvp in query.Split('&', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    if (kvp != "")
                     {
-                        if (key.Contains("="))
+                        if (kvp.Contains("="))
                         {
-                            string[] strArray = key.Split('=', StringSplitOptions.None);
-                            dictionary.Add(strArray[0], strArray[1]);
+                            string[] pair = kvp.Split('=');
+                            if (!querystring.ContainsKey(pair[0]))
+                            {
+                                querystring.Add(pair[0], pair[1]);
+                            }
                         }
                         else
-                            dictionary.Add(key, "true");
+                        {
+                            if (!querystring.ContainsKey(kvp))
+                            {
+                                querystring.Add(kvp, "true"); // default parameter when no value is provided
+                            }
+                        }
                     }
                 }
             }
+            return querystring;
+        }
 
-            return dictionary;
+        public static string CreateQueryString(Dictionary<string, string> parameters)
+        {
+            var querystring = "";
+            if (parameters.Count > 0)
+            {
+                foreach (var kvp in parameters)
+                {
+                    querystring += (querystring == "") ? "?" : "&";
+                    querystring += kvp.Key + "=" + kvp.Value;
+                }
+            }
+            return querystring;
         }
 
         public static string LogMessage(object @class, string message)
