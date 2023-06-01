@@ -47,7 +47,6 @@ This project is open source, and therefore is a work in progress...
 
 Backlog (TBD)
 - [ ] Azure Autoscale support (ie. web farm)
-- [ ] Routable Modules (ie. declarative configuration)
 - [ ] Folder Providers
 - [ ] Generative AI Integration
 
@@ -58,6 +57,9 @@ Backlog (TBD)
 - [x] Migration to .NET 7
 - [x] Improved JavaScript, CSS, and Meta support
 - [x] Optimized Client Assembly Loading 
+- [x] Routable Modules (ie. declarative configuration)
+- [x] Site Template improvements
+- [x] IEventSubscriber interface
 
 [3.4.3](https://github.com/oqtane/oqtane.framework/releases/tag/v3.4.3) ( May 3, 2023 )
 - [x] Stabilization improvements 
