@@ -403,6 +403,7 @@ namespace Oqtane.Repository
                                 }
                                 pageModule.Title = pageTemplateModule.Title;
                                 pageModule.Pane = pageTemplateModule.Pane;
+                                pageModule.Order = pageTemplateModule.Order;
                                 pageModule.ContainerType = pageTemplateModule.ContainerType;
                                 pageModule.IsDeleted = pageTemplateModule.IsDeleted;
                                 pageModule.Module.PermissionList = pageTemplateModule.PermissionList;
