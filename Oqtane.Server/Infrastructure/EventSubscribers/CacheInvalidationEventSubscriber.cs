@@ -15,7 +15,7 @@ namespace Oqtane.Infrastructure.EventSubscribers
 
         public void EntityChanged(SyncEvent syncEvent)
         {
-            if (syncEvent.EntityName == "Site" && syncEvent.Action == SyncEventActions.Refresh)
+            if (syncEvent.EntityName == EntityNames.Site && syncEvent.Action == SyncEventActions.Refresh)
             {
                 _cache.Remove($"site:{syncEvent.TenantId}:{syncEvent.EntityId}");
             }

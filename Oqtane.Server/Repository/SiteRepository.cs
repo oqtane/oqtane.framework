@@ -319,14 +319,14 @@ namespace Oqtane.Repository
                         {
                             pages = _pageRepository.GetPages(site.SiteId).ToList();
                         }
-                        var page = pages.FirstOrDefault(item => item.Path == pageTemplate.Path);
+                        var page = pages.FirstOrDefault(item => item.Path.ToLower() == pageTemplate.Path.ToLower());
                         if (page == null)
                         {
                             page = new Page();
                             page.SiteId = site.SiteId;
                             page.Path = pageTemplate.Path.ToLower();
                         }
-                        page.Name = (string.IsNullOrEmpty(pageTemplate.Name)) ? page.Path : pageTemplate.Name;
+                        page.Name = (!string.IsNullOrEmpty(pageTemplate.Name)) ? pageTemplate.Name : page.Path;
                         page.Name = (page.Name.Contains("/")) ? page.Name.Substring(page.Name.LastIndexOf("/") + 1) : page.Name;
                         int? parentid = null;
                         if (!string.IsNullOrEmpty(pageTemplate.Parent))
@@ -392,7 +392,7 @@ namespace Oqtane.Repository
                             var moduleDefinition = moduleDefinitions.Where(item => item.ModuleDefinitionName == pageTemplateModule.ModuleDefinitionName).FirstOrDefault();
                             if (moduleDefinition != null)
                             {
-                                var pageModule = pageModules.FirstOrDefault(item => item.PageId == page.PageId && item.Module.ModuleDefinitionName == pageTemplateModule.ModuleDefinitionName && item.Title == pageTemplateModule.Title);
+                                var pageModule = pageModules.FirstOrDefault(item => item.PageId == page.PageId && item.Module.ModuleDefinitionName == pageTemplateModule.ModuleDefinitionName && item.Title.ToLower() == pageTemplateModule.Title.ToLower());
                                 if (pageModule == null)
                                 {
                                     pageModule = new PageModule();
@@ -403,6 +403,7 @@ namespace Oqtane.Repository
                                 }
                                 pageModule.Title = pageTemplateModule.Title;
                                 pageModule.Pane = pageTemplateModule.Pane;
+                                pageModule.Order = pageTemplateModule.Order;
                                 pageModule.ContainerType = pageTemplateModule.ContainerType;
                                 pageModule.IsDeleted = pageTemplateModule.IsDeleted;
                                 pageModule.Module.PermissionList = pageTemplateModule.PermissionList;
@@ -416,18 +417,20 @@ namespace Oqtane.Repository
                                         _pageModuleRepository.UpdatePageModule(pageModule);
                                         if (alias != null)
                                         {
-                                            _logger.Log(LogLevel.Information, "Site Template", LogFunction.Update, "Page Mopdule Updated {PageModule}", pageModule);
+                                            _logger.Log(LogLevel.Information, "Site Template", LogFunction.Update, "Page Module Updated {PageModule}", pageModule);
                                         }
                                     }
                                     else
                                     {
-                                        pageModule.Module = _moduleRepository.AddModule(pageModule.Module);
-                                        pageModule.ModuleId = pageModule.Module.ModuleId;
+                                        var module = _moduleRepository.AddModule(pageModule.Module);
+                                        pageModule.ModuleId = module.ModuleId;
                                         pageModule.Module = null; // remove tracking
                                         _pageModuleRepository.AddPageModule(pageModule);
+                                        pageModule.Module = module;
+                                        pageModules.Add(pageModule);
                                         if (alias != null)
                                         {
-                                            _logger.Log(LogLevel.Information, "Site Template", LogFunction.Create, "Page Mopdule Added {PageModule}", pageModule);
+                                            _logger.Log(LogLevel.Information, "Site Template", LogFunction.Create, "Page Module Added {PageModule}", pageModule);
                                         }
                                     }
 
