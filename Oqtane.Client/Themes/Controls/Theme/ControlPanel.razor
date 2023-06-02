@@ -520,10 +520,10 @@
 					switch (location)
 					{
 						case "Add":
-							url = EditUrl(PageState.Page.Path, module.ModuleId, location, "cp=" + PageState.Page.PageId);
+                            url = EditUrl("admin/pages", module.ModuleId, location, "cp=" + PageState.Page.PageId);
 							break;
 						case "Edit":
-							url = EditUrl(PageState.Page.Path, module.ModuleId, location, "id=" + PageState.Page.PageId.ToString() + "&cp=" + PageState.Page.PageId);
+                            url = EditUrl("admin/pages", module.ModuleId, location, "id=" + PageState.Page.PageId.ToString() + "&cp=" + PageState.Page.PageId);
 							break;
 					}
 				}
