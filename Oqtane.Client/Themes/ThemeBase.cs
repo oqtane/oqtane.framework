@@ -15,10 +15,13 @@ namespace Oqtane.Themes
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
 
-        // optional interface properties
+        [Inject]
+        protected SiteState SiteState { get; set; }
 
         [CascadingParameter]
         protected PageState PageState { get; set; }
+
+        // optional interface properties
         public virtual string Name { get; set; }
         public virtual string Thumbnail { get; set; }
         public virtual string Panes { get; set; }
@@ -137,6 +140,34 @@ namespace Oqtane.Themes
         public string ImageUrl(int fileid, int width, int height, string mode, string position, string background, int rotate, bool recreate)
         {
             return Utilities.ImageUrl(PageState.Alias, fileid, width, height, mode, position, background, rotate, recreate);
+        }
+
+        public void SetPageTitle(string title)
+        {
+            SiteState.Properties.PageTitle = title;
+        }
+
+        // note - only supports links and meta tags - not scripts
+        public void AddHeadContent(string content)
+        {
+            if (string.IsNullOrEmpty(SiteState.Properties.HeadContent))
+            {
+                SiteState.Properties.HeadContent = content;
+            }
+            else if (!SiteState.Properties.HeadContent.Contains(content))
+            {
+                SiteState.Properties.HeadContent += content;
+            }
+        }
+
+        public void AddScript(Resource resource)
+        {
+            resource.ResourceType = ResourceType.Script;
+            if (Resources == null) Resources = new List<Resource>();
+            if (!Resources.Any(item => (!string.IsNullOrEmpty(resource.Url) && item.Url == resource.Url) || (!string.IsNullOrEmpty(resource.Content) && item.Content == resource.Content)))
+            {
+                Resources.Add(resource);
+            }
         }
 
         [Obsolete("ContentUrl(int fileId) is deprecated. Use FileUrl(int fileId) instead.", false)]
