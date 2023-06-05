@@ -8,113 +8,242 @@
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
-    <TabStrip Refresh="@_refresh">
-        <TabPanel Name="Settings" ResourceKey="Settings" Heading=@Localizer["Settings.Heading"]>
-            @if (PageState.Site.Themes != null)
-            {
-                <div class="container">
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="name" HelpText="Enter the page name" ResourceKey="Name">Name: </Label>
-                        <div class="col-sm-9">
-                            <input id="name" class="form-control" @bind="@_name" maxlength="50" required />
-                        </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
-                        <div class="col-sm-9">
-                            <select id="parent" class="form-select" value="@_parentid" @onchange="(e => ParentChanged(e))" required>
-                                <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
-                                @foreach (Page page in PageState.Pages)
-                                {
-                                    if (page.PageId != _pageId)
-                                    {
-                                        <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
-                                    }
-                                }
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="move" HelpText="Select the location where you would like the page to be moved in relation to other pages" ResourceKey="Move">Move: </Label>
-                        <div class="col-sm-9">
-                            <select id="move" class="form-select" @bind="@_insert" required>
-                                @if (_parentid == _currentparentid)
-                                {
-                                    <option value="=">&lt;@Localizer["ThisLocation.Keep"]&gt;</option>
-                                }
-                                <option value="<<">@Localizer["ToBeginning"]</option>
-                                @if (_children != null && _children.Count > 0)
-                                {
-                                    <option value="<">@Localizer["Before"]</option>
-                                    <option value=">">@Localizer["After"]</option>
-                                }
-                                <option value=">>">@Localizer["ToEnd"]</option>
-                            </select>
-                            @if (_children != null && _children.Count > 0 && (_insert == "<" || _insert == ">"))
+@if (_initialized)
+{
+    <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+        @if (_page.UserId == null)
+        {
+            <TabStrip Refresh="@_refresh">
+                <TabPanel Name="Settings" ResourceKey="Settings" Heading=@Localizer["Settings.Heading"]>
+                    @if (PageState.Site.Themes != null)
+                    {
+                        <div class="container">
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="name" HelpText="Enter the page name" ResourceKey="Name">Name: </Label>
+                                <div class="col-sm-9">
+                                    <input id="name" class="form-control" @bind="@_name" maxlength="50" required />
+                                </div>
+                            </div>
+                            @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
                             {
-                                <select class="form-select" @bind="@_childid">
-                                    <option value="-1">&lt;@Localizer["Page.Select"]&gt;</option>
-                                    @foreach (Page page in _children)
-                                    {
-                                        <option value="@(page.PageId)">@(page.Name)</option>
-                                    }
-                                </select>
+                                <div class="row mb-1 align-items-center">
+                                    <Label Class="col-sm-3" For="parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
+                                    <div class="col-sm-9">
+                                            <select id="parent" class="form-select" value="@_parentid" @onchange="(e => ParentChanged(e))" required>
+                                                <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
+                                                @foreach (Page page in PageState.Pages)
+                                                {
+                                                    if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, page.PermissionList) && page.PageId != _pageId)
+                                                    {
+                                                        <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
+                                                    }
+                                                }
+                                            </select>
+                                    </div>
+                                </div>
+                                <div class="row mb-1 align-items-center">
+                                    <Label Class="col-sm-3" For="move" HelpText="Select the location where you would like the page to be moved in relation to other pages" ResourceKey="Move">Move: </Label>
+                                    <div class="col-sm-9">
+                                        <select id="move" class="form-select" @bind="@_insert" required>
+                                            @if (_parentid == _currentparentid)
+                                            {
+                                                <option value="=">&lt;@Localizer["ThisLocation.Keep"]&gt;</option>
+                                            }
+                                            <option value="<<">@Localizer["ToBeginning"]</option>
+                                            @if (_children != null && _children.Count > 0)
+                                            {
+                                                <option value="<">@Localizer["Before"]</option>
+                                                <option value=">">@Localizer["After"]</option>
+                                            }
+                                            <option value=">>">@Localizer["ToEnd"]</option>
+                                        </select>
+                                        @if (_children != null && _children.Count > 0 && (_insert == "<" || _insert == ">"))
+                                        {
+                                            <select class="form-select" @bind="@_childid">
+                                                <option value="-1">&lt;@Localizer["Page.Select"]&gt;</option>
+                                                @foreach (Page page in _children)
+                                                {
+                                                    <option value="@(page.PageId)">@(page.Name)</option>
+                                                }
+                                            </select>
+                                        }
+                                    </div>
+                                </div>
                             }
+                            else
+                            {
+                                <div class="row mb-1 align-items-center">
+                                    <Label Class="col-sm-3" For="parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
+                                    <div class="col-sm-9">
+                                        <select id="parent" class="form-select" value="@_parentid" @onchange="(e => ParentChanged(e))" disabled>
+                                            <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
+                                            @if (_parent != null)
+                                            {
+                                                <option value="@(_parent.PageId)">@(new string('-', _parent.Level * 2))@(_parent.Name)</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row mb-1 align-items-center">
+                                    <Label Class="col-sm-3" For="move" HelpText="Select the location where you would like the page to be moved in relation to other pages" ResourceKey="Move">Move: </Label>
+                                    <div class="col-sm-9">
+                                        <select id="move" class="form-select" @bind="@_insert" disabled>
+                                            <option value="=">&lt;@Localizer["ThisLocation.Keep"]&gt;</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            }
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="navigation" HelpText="Select whether the page is part of the site navigation or hidden" ResourceKey="Navigation">Navigation? </Label>
+                                <div class="col-sm-9">
+                                    <select id="navigation" class="form-select" @bind="@_isnavigation" required>
+                                        <option value="True">@SharedLocalizer["Yes"]</option>
+                                        <option value="False">@SharedLocalizer["No"]</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="clickable" HelpText="Select whether the link in the site navigation is enabled or disabled" ResourceKey="Clickable">Clickable? </Label>
+                                <div class="col-sm-9">
+                                    <select id="clickable" class="form-select" @bind="@_isclickable" required>
+                                        <option value="True">@SharedLocalizer["Yes"]</option>
+                                        <option value="False">@SharedLocalizer["No"]</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used. If the page is intended to be the root path specify '/'." ResourceKey="UrlPath">Url Path: </Label>
+                                <div class="col-sm-9">
+                                    <input id="path" class="form-control" @bind="@_path" maxlength="256" />
+                                </div>
+                            </div>
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="url" HelpText="Optionally enter a url which this page should redirect to when a user navigates to it" ResourceKey="Redirect">Redirect: </Label>
+                                <div class="col-sm-9">
+                                    <input id="url" class="form-control" @bind="@_url" maxlength="500" />
+                                </div>
+                            </div>
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="icon" HelpText="Optionally provide an icon class name for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Label>
+                                <div class="col-sm-9">
+                                    <input id="icon" class="form-control" @bind="@_icon" maxlength="50" />
+                                </div>
+                            </div>
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content" ResourceKey="Personalizable">Personalizable? </Label>
+                                <div class="col-sm-9">
+                                    <select id="personalizable" class="form-select" @bind="@_ispersonalizable" required>
+                                        <option value="True">@SharedLocalizer["Yes"]</option>
+                                        <option value="False">@SharedLocalizer["No"]</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="navigation" HelpText="Select whether the page is part of the site navigation or hidden" ResourceKey="Navigation">Navigation? </Label>
-                        <div class="col-sm-9">
-                            <select id="navigation" class="form-select" @bind="@_isnavigation" required>
-                                <option value="True">@SharedLocalizer["Yes"]</option>
-                                <option value="False">@SharedLocalizer["No"]</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="clickable" HelpText="Select whether the link in the site navigation is enabled or disabled" ResourceKey="Clickable">Clickable? </Label>
-                        <div class="col-sm-9">
-                            <select id="clickable" class="form-select" @bind="@_isclickable" required>
-                                <option value="True">@SharedLocalizer["Yes"]</option>
-                                <option value="False">@SharedLocalizer["No"]</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used. If the page is intended to be the root path specify '/'." ResourceKey="UrlPath">Url Path: </Label>
-                        <div class="col-sm-9">
-                            <input id="path" class="form-control" @bind="@_path" maxlength="256"/>
-                        </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="url" HelpText="Optionally enter a url which this page should redirect to when a user navigates to it" ResourceKey="Redirect">Redirect: </Label>
-                        <div class="col-sm-9">
-                            <input id="url" class="form-control" @bind="@_url" maxlength="500"/>
-                        </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content" ResourceKey="Personalizable">Personalizable? </Label>
-                        <div class="col-sm-9">
-                            <select id="personalizable" class="form-select" @bind="@_ispersonalizable" required>
-                                <option value="True">@SharedLocalizer["Yes"]</option>
-                                <option value="False">@SharedLocalizer["No"]</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <Section Name="Appearance" ResourceKey="Appearance">
+                        <Section Name="Appearance" ResourceKey="Appearance">
+                            <div class="container">
+                                <div class="row mb-1 align-items-center">
+                                    <Label Class="col-sm-3" For="title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used." ResourceKey="Title">Title: </Label>
+                                    <div class="col-sm-9">
+                                        <input id="title" class="form-control" @bind="@_title" maxlength="200" />
+                                    </div>
+                                </div>
+                                <div class="row mb-1 align-items-center">
+                                    <Label Class="col-sm-3" For="theme" HelpText="Select the theme for this page" ResourceKey="Theme">Theme: </Label>
+                                    <div class="col-sm-9">
+                                        <select id="theme" class="form-select" value="@_themetype" @onchange="(e => ThemeChanged(e))" required>
+                                            @foreach (var theme in _themes)
+                                            {
+                                                <option value="@theme.TypeName">@theme.Name</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row mb-1 align-items-center">
+                                    <Label Class="col-sm-3" For="container" HelpText="Select the default container for the page" ResourceKey="DefaultContainer">Default Container: </Label>
+                                    <div class="col-sm-9">
+                                        <select id="container" class="form-select" @bind="@_containertype" required>
+                                            <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
+                                            @foreach (var container in _containers)
+                                            {
+                                                <option value="@container.TypeName">@container.Name</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </Section>
+                        <Section Name="PageContent" Heading="Page Content" ResourceKey="PageContent">
+                            <div class="container">
+                                <div class="row mb-1 align-items-center">
+                                    <Label Class="col-sm-3" For="headcontent" HelpText="Optionally enter content to be included in the page head (ie. meta, link, or script tags)" ResourceKey="HeadContent">Head Content: </Label>
+                                    <div class="col-sm-9">
+                                        <textarea id="headcontent" class="form-control" @bind="@_headcontent" rows="3"></textarea>
+                                    </div>
+                                </div>
+                                <div class="row mb-1 align-items-center">
+                                    <Label Class="col-sm-3" For="bodycontent" HelpText="Optionally enter content to be included in the page body (ie. script tags)" ResourceKey="BodyContent">Body Content: </Label>
+                                    <div class="col-sm-9">
+                                        <textarea id="bodycontent" class="form-control" @bind="@_bodycontent" rows="3"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </Section>
+                        <br />
+                        <br />
+                        <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
+                    }
+                </TabPanel>
+                @if (_page.UserId == null)
+                {
+                    <TabPanel Name="Permissions" ResourceKey="Permissions">
+                        @if (_permissions != null)
+                        {
+                            <div class="container">
+                                <div class="row mb-1 align-items-center">
+                                    <PermissionGrid EntityName="@EntityNames.Page" PermissionList="@_permissions" @ref="_permissionGrid" />
+                                </div>
+                            </div>
+                        }
+                    </TabPanel>
+                    <TabPanel Name="PageModules" Heading="Modules" ResourceKey="PageModules">
+                        @if (_pageModules != null)
+                        {
+                            <Pager Items="_pageModules">
+                                <Header>
+                                <th style="width: 1px;">&nbsp;</th>
+                                <th style="width: 1px;">&nbsp;</th>
+                                <th>@Localizer["ModuleTitle"]</th>
+                                <th>@Localizer["ModuleDefinition"]</th>
+                                </Header>
+                                <Row>
+                                    <td><ActionLink Action="Settings" Text="Edit" ModuleId="@context.ModuleId" Security="SecurityAccessLevel.Edit" PermissionList="@context.PermissionList" ResourceKey="ModuleSettings" /></td>
+                                    <td><ActionDialog Header="Delete Module" Message="Are You Sure You Wish To Delete This Module?" Action="Delete" Security="SecurityAccessLevel.Edit" PermissionList="@context.PermissionList" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" /></td>
+                                    <td>@context.Title</td>
+                                    <td>@context.ModuleDefinition?.Name</td>
+                                </Row>
+                            </Pager>
+                        }
+                    </TabPanel>
+
+                }
+                @if (_themeSettingsType != null)
+                {
+                    <TabPanel Name="ThemeSettings" Heading="Theme Settings" ResourceKey="ThemeSettings">
+                        @ThemeSettingsComponent
+                    </TabPanel>
+                    <br />
+                }
+            </TabStrip>
+        }
+        else
+        {
+            <TabStrip Refresh="@_refresh">
+                <TabPanel Name="Settings" ResourceKey="Settings" Heading=@Localizer["Settings.Heading"]>
                     <div class="container">
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used." ResourceKey="Title">Title: </Label>
                             <div class="col-sm-9">
-                                <input id="title" class="form-control" @bind="@_title" maxlength="200"/>
-                            </div>
-                        </div>
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="icon" HelpText="Optionally provide an icon class name for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Label>
-                            <div class="col-sm-9">
-                                <input id="icon" class="form-control" @bind="@_icon" maxlength="50" />
+                                <input id="title" class="form-control" @bind="@_title" maxlength="200" />
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
@@ -141,73 +270,26 @@
                             </div>
                         </div>
                     </div>
-                </Section>
-                <Section Name="PageContent" Heading="Page Content" ResourceKey="PageContent">
-                    <div class="container">
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="headcontent" HelpText="Optionally enter content to be included in the page head (ie. meta, link, or script tags)" ResourceKey="HeadContent">Head Content: </Label>
-                            <div class="col-sm-9">
-                                <textarea id="headcontent" class="form-control" @bind="@_headcontent" rows="3"></textarea>
-                            </div>
-                        </div>
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="bodycontent" HelpText="Optionally enter content to be included in the page body (ie. script tags)" ResourceKey="BodyContent">Body Content: </Label>
-                            <div class="col-sm-9">
-                                <textarea id="bodycontent" class="form-control" @bind="@_bodycontent" rows="3"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </Section>
-                <br />
-				<br />
-                <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
-            }
-        </TabPanel>
-        <TabPanel Name="Permissions" ResourceKey="Permissions">
-            @if (_permissions != null)
-            {
-                <div class="container">
-                    <div class="row mb-1 align-items-center">
-                        <PermissionGrid EntityName="@EntityNames.Page" PermissionList="@_permissions" @ref="_permissionGrid" />
-                    </div>
-                </div>
-            }
-        </TabPanel>
-        <TabPanel Name="PageModules" Heading="Modules" ResourceKey="PageModules">
-            @if(_pageModules != null)
-            {
-                <Pager Items="_pageModules">
-                    <Header>
-                        <th style="width: 1px;">&nbsp;</th>
-                        <th style="width: 1px;">&nbsp;</th>
-                        <th>@Localizer["ModuleTitle"]</th>
-                        <th>@Localizer["ModuleDefinition"]</th>
-                    </Header>
-                    <Row>
-                        <td><ActionLink Action="Settings" Text="Edit" ModuleId="@context.ModuleId" Security="SecurityAccessLevel.Edit" PermissionList="@context.PermissionList" ResourceKey="ModuleSettings" /></td>
-                        <td><ActionDialog Header="Delete Module" Message="Are You Sure You Wish To Delete This Module?" Action="Delete" Security="SecurityAccessLevel.Edit" PermissionList="@context.PermissionList" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" /></td>
-                        <td>@context.Title</td>
-                        <td>@context.ModuleDefinition?.Name</td>
-                    </Row>
-                </Pager>
-            }
-        </TabPanel>
-        @if (_themeSettingsType != null)
-        {
-            <TabPanel Name="ThemeSettings" Heading="Theme Settings" ResourceKey="ThemeSettings">
-                @ThemeSettingsComponent
-            </TabPanel>
-            <br />
+                </TabPanel>
+                @if (_themeSettingsType != null)
+                {
+                    <TabPanel Name="ThemeSettings" Heading="Theme Settings" ResourceKey="ThemeSettings">
+                        @ThemeSettingsComponent
+                    </TabPanel>
+                    <br />
+                }
+            </TabStrip>
         }
-    </TabStrip>
-	<br />
-	<button type="button" class="btn btn-success" @onclick="SavePage">@SharedLocalizer["Save"]</button>
-    <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
-</form>
+        <br />
+        <button type="button" class="btn btn-success" @onclick="SavePage">@SharedLocalizer["Save"]</button>
+        <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
+    </form>
+}
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
 
+    private bool _initialized = false;
     private ElementReference form;
     private bool validated = false;
     private List<ThemeControl> _themes = new List<ThemeControl>();
@@ -243,7 +325,8 @@
     private string _deletedby;
     private DateTime? _deletedon;
     private bool _refresh = false;
-    protected Page page;
+    protected Page _page = null;
+    protected Page _parent = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -253,23 +336,24 @@
             _themes = ThemeService.GetThemeControls(PageState.Site.Themes);
 
             _pageId = Int32.Parse(PageState.QueryString["id"]);
-            page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
+            _page = await PageService.GetPageAsync(_pageId);
 
-            if (page != null)
+            if (_page != null && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, _page.PermissionList))
             {
-                _name = page.Name;
-                if (page.ParentId == null)
+                _name = _page.Name;
+                if (_page.ParentId == null)
                 {
                     _parentid = "-1";
                 }
                 else
                 {
-                    _parentid = page.ParentId.ToString();
+                    _parentid = _page.ParentId.ToString();
+                    _parent = PageState.Pages.FirstOrDefault(item => item.PageId == _page.ParentId);
                 }
                 _currentparentid = _parentid;
-                _isnavigation = page.IsNavigation.ToString();
-                _isclickable = page.IsClickable.ToString();
-                _path = page.Path;
+                _isnavigation = _page.IsNavigation.ToString();
+                _isclickable = _page.IsClickable.ToString();
+                _path = _page.Path;
                 if (string.IsNullOrEmpty(_path))
                 {
                     _path = "/";
@@ -281,43 +365,49 @@
                         _path = _path.Substring(_path.LastIndexOf("/") + 1);
                     }
                 }
-                _url = page.Url;
-                _ispersonalizable = page.IsPersonalizable.ToString();
+                _url = _page.Url;
+                _icon = _page.Icon;
+                _ispersonalizable = _page.IsPersonalizable.ToString();
 
                 // appearance
-                _title = page.Title;
-                _icon = page.Icon;
-                _themetype = page.ThemeType;
+                _title = _page.Title;
+                _themetype = _page.ThemeType;
                 if (string.IsNullOrEmpty(_themetype))
                 {
                     _themetype = PageState.Site.DefaultThemeType;
                 }
                 _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
-                _containertype = page.DefaultContainerType;
+                _containertype = _page.DefaultContainerType;
                 if (string.IsNullOrEmpty(_containertype))
                 {
                     _containertype = PageState.Site.DefaultContainerType;
                 }
 
                 // page content
-                _headcontent = page.HeadContent;
-                _bodycontent = page.BodyContent;
+                _headcontent = _page.HeadContent;
+                _bodycontent = _page.BodyContent;
 
                 // permissions
-                _permissions = page.PermissionList;
+                _permissions = _page.PermissionList;
 
                 // page modules
-                _pageModules = PageState.Modules.Where(m => m.PageId == page.PageId).ToList();
+                _pageModules = PageState.Modules.Where(m => m.PageId == _page.PageId).ToList();
 
                 // audit
-                _createdby = page.CreatedBy;
-                _createdon = page.CreatedOn;
-                _modifiedby = page.ModifiedBy;
-                _modifiedon = page.ModifiedOn;
-                _deletedby = page.DeletedBy;
-                _deletedon = page.DeletedOn;
+                _createdby = _page.CreatedBy;
+                _createdon = _page.CreatedOn;
+                _modifiedby = _page.ModifiedBy;
+                _modifiedon = _page.ModifiedOn;
+                _deletedby = _page.DeletedBy;
+                _deletedon = _page.DeletedOn;
 
                 ThemeSettings();
+                _initialized = true;
+            }
+            else
+            {
+                await logger.LogWarning("Error Loading Page {PageId}", _pageId);
+                AddModuleMessage(Localizer["Error.Page.Load"], MessageType.Error);
             }
         }
         catch (Exception ex)
@@ -331,7 +421,7 @@
     {
         try
         {
-            PageModule pagemodule = await PageModuleService.GetPageModuleAsync(page.PageId, module.ModuleId);
+            PageModule pagemodule = await PageModuleService.GetPageModuleAsync(_page.PageId, module.ModuleId);
             pagemodule.IsDeleted = true;
             await PageModuleService.UpdatePageModuleAsync(pagemodule);
             await logger.LogInformation(LogFunction.Update,"Module Deleted {Title}", module.Title);
@@ -435,15 +525,13 @@
         var interop = new Interop(JSRuntime);
         if (await interop.FormValid(form))
         {
-            Page page = null;
             try
             {
                 if (!string.IsNullOrEmpty(_themetype) && _containertype != "-")
                 {
-                    page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
-                    string currentPath = page.Path;
+                    string currentPath = _page.Path;
 
-                    page.Name = _name;
+                    _page.Name = _name;
 
                     if (string.IsNullOrEmpty(_path))
                     {
@@ -460,33 +548,33 @@
 
                     if (_parentid == "-1")
                     {
-                        page.ParentId = null;
-                        page.Path = Utilities.GetFriendlyUrl(_path);
+                        _page.ParentId = null;
+                        _page.Path = Utilities.GetFriendlyUrl(_path);
                     }
                     else
                     {
-                        page.ParentId = Int32.Parse(_parentid);
-                        Page parent = PageState.Pages.FirstOrDefault(item => item.PageId == page.ParentId);
+                        _page.ParentId = Int32.Parse(_parentid);
+                        Page parent = PageState.Pages.FirstOrDefault(item => item.PageId == _page.ParentId);
                         if (parent.Path == string.Empty)
                         {
-                            page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
+                            _page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
                         }
                         else
                         {
-                            page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(_path);
+                            _page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(_path);
                         }
                     }
 
                     var _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
-                    if (_pages.Any(item => item.Path == page.Path && item.PageId != page.PageId))
+                    if (_pages.Any(item => item.Path == _page.Path && item.PageId != _page.PageId))
                     {
                         AddModuleMessage(string.Format(Localizer["Mesage.Page.PathExists"], _path), MessageType.Warning);
                         return;
                     }
 
-                    if (page.ParentId == null && Constants.ReservedRoutes.Contains(page.Name.ToLower()))
+                    if (_page.ParentId == null && Constants.ReservedRoutes.Contains(_page.Name.ToLower()))
                     {
-                        AddModuleMessage(string.Format(Localizer["Message.Page.Reserved"], page.Name), MessageType.Warning);
+                        AddModuleMessage(string.Format(Localizer["Message.Page.Reserved"], _page.Name), MessageType.Warning);
                         return;
                     }
 
@@ -496,57 +584,59 @@
                         switch (_insert)
                         {
                             case "<<":
-                                page.Order = 0;
+                                _page.Order = 0;
                                 break;
                             case "<":
                                 child = PageState.Pages.FirstOrDefault(item => item.PageId == _childid);
-                                if (child != null) page.Order = child.Order - 1;
+                                if (child != null) _page.Order = child.Order - 1;
                                 break;
                             case ">":
                                 child = PageState.Pages.FirstOrDefault(item => item.PageId == _childid);
-                                if (child != null) page.Order = child.Order + 1;
+                                if (child != null) _page.Order = child.Order + 1;
                                 break;
                             case ">>":
-                                page.Order = int.MaxValue;
+                                _page.Order = int.MaxValue;
                                 break;
                         }
                     }
-                    page.IsNavigation = (_isnavigation == null || Boolean.Parse(_isnavigation));
-                    page.IsClickable = (_isclickable == null ? true : Boolean.Parse(_isclickable));
-                    page.Url = _url;
-                    page.IsPersonalizable = (_ispersonalizable != null && Boolean.Parse(_ispersonalizable));
-                    page.UserId = null;
+                    _page.IsNavigation = (_isnavigation == null || Boolean.Parse(_isnavigation));
+                    _page.IsClickable = (_isclickable == null ? true : Boolean.Parse(_isclickable));
+                    _page.Url = _url;
+                    _page.IsPersonalizable = (_ispersonalizable != null && Boolean.Parse(_ispersonalizable));
 
                     // appearance
-                    page.Title = _title;
-                    page.Icon = _icon ?? string.Empty;
-                    page.ThemeType = (_themetype != "-") ? _themetype : string.Empty;
-                    if (!string.IsNullOrEmpty(page.ThemeType) && page.ThemeType == PageState.Site.DefaultThemeType)
+                    _page.Title = _title;
+                    _page.Icon = _icon ?? string.Empty;
+                    _page.ThemeType = (_themetype != "-") ? _themetype : string.Empty;
+                    if (!string.IsNullOrEmpty(_page.ThemeType) && _page.ThemeType == PageState.Site.DefaultThemeType)
                     {
-                        page.ThemeType = string.Empty;
+                        _page.ThemeType = string.Empty;
                     }
-                    page.DefaultContainerType = (_containertype != "-") ? _containertype : string.Empty;
-                    if (!string.IsNullOrEmpty(page.DefaultContainerType) && page.DefaultContainerType == PageState.Site.DefaultContainerType)
+                    _page.DefaultContainerType = (_containertype != "-") ? _containertype : string.Empty;
+                    if (!string.IsNullOrEmpty(_page.DefaultContainerType) && _page.DefaultContainerType == PageState.Site.DefaultContainerType)
                     {
-                        page.DefaultContainerType = string.Empty;
+                        _page.DefaultContainerType = string.Empty;
                     }
 
                     // page content
-                    page.HeadContent = _headcontent;
-                    page.BodyContent = _bodycontent;
+                    _page.HeadContent = _headcontent;
+                    _page.BodyContent = _bodycontent;
 
                     // permissions
-					page.PermissionList = _permissionGrid.GetPermissionList();
+                    if (_page.UserId == null)
+                    {
+                        _page.PermissionList = _permissionGrid.GetPermissionList();
+                    }
 
-                    page = await PageService.UpdatePageAsync(page);
-                    await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, page.ParentId);
+                    _page = await PageService.UpdatePageAsync(_page);
+                    await PageService.UpdatePageOrderAsync(_page.SiteId, _page.PageId, _page.ParentId);
                     if (_currentparentid == string.Empty)
                     {
-                        await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, null);
+                        await PageService.UpdatePageOrderAsync(_page.SiteId, _page.PageId, null);
                     }
                     else
                     {
-                        await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, int.Parse(_currentparentid));
+                        await PageService.UpdatePageOrderAsync(_page.SiteId, _page.PageId, int.Parse(_currentparentid));
                     }
 
                     // update child paths
@@ -554,7 +644,7 @@
                     {
                         foreach (Page p in PageState.Pages.Where(item => item.Path.StartsWith(currentPath)))
                         {
-                            p.Path = p.Path.Replace(currentPath, page.Path);
+                            p.Path = p.Path.Replace(currentPath, _page.Path);
                             await PageService.UpdatePageAsync(p);
                         }
                     }
@@ -564,14 +654,14 @@
                         await themeSettingsControl.UpdateSettings();
                     }
 
-                    await logger.LogInformation("Page Saved {Page}", page);
+                    await logger.LogInformation("Page Saved {Page}", _page);
                     if (!string.IsNullOrEmpty(PageState.ReturnUrl))
                     {
                         NavigationManager.NavigateTo(PageState.ReturnUrl);
                     }
                     else
                     {
-                        NavigationManager.NavigateTo(NavigateUrl(page.Path));
+                        NavigationManager.NavigateTo(NavigateUrl(_page.Path));
                     }
                 }
                 else
@@ -581,7 +671,7 @@
             }
             catch (Exception ex)
             {
-                await logger.LogError(ex, "Error Saving Page {Page} {Error}", page, ex.Message);
+                await logger.LogError(ex, "Error Saving Page {Page} {Error}", _page, ex.Message);
                 AddModuleMessage(Localizer["Error.Page.Save"], MessageType.Error);
             }
         }

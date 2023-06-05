@@ -10,6 +10,8 @@ using Oqtane.Enums;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
+using Oqtane.Modules.Admin.Users;
+using System.IO;
 
 namespace Oqtane.Controllers
 {
@@ -71,6 +73,26 @@ namespace Oqtane.Controllers
             }
 
             return pages;
+        }
+
+        // GET api/<controller>/5
+        [HttpGet("{id}")]
+        public Page Get(int id)
+        {
+            var page = _pages.GetPage(id);
+            if (page != null && page.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, page.PermissionList))
+            {
+                page.Settings = _settings.GetSettings(EntityNames.Page, page.PageId)
+                    .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, page.PermissionList))
+                    .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
+                return page;
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Page Get Attempt {PageId}", id);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return null;
+            }
         }
 
         // GET api/<controller>/path/x?path=y

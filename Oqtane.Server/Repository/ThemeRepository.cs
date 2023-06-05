@@ -87,6 +87,8 @@ namespace Oqtane.Repository
                 Theme.Resources = theme.Resources;
                 Theme.Themes = theme.Themes;
                 Theme.Containers = theme.Containers;
+                Theme.ThemeSettingsType = theme.ThemeSettingsType;
+                Theme.ContainerSettingsType = theme.ContainerSettingsType;
                 Themes.Add(Theme);
             }
 

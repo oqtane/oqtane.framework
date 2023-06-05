@@ -141,7 +141,7 @@ namespace Oqtane.SiteTemplates
                 Path = "develop",
                 Icon = "oi oi-wrench",
                 IsNavigation = true,
-                IsPersonalizable = true,
+                IsPersonalizable = false,
                 PermissionList = new List<Permission> {
                     new Permission(PermissionNames.View, RoleNames.Host, true),
                     new Permission(PermissionNames.Edit, RoleNames.Host, true)
