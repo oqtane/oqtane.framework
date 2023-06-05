@@ -409,7 +409,7 @@
     private void ThemeSettings()
     {
         _themeSettingsType = null;
-        if (PageState.QueryString.ContainsKey("cp")) // can only be displayed if invoked from Control Panel
+        if (!string.IsNullOrEmpty(PageState.ReturnUrl)) // can only be displayed if invoked from Control Panel
         {
             var theme = PageState.Site.Themes.FirstOrDefault(item => item.Themes.Any(themecontrol => themecontrol.TypeName.Equals(_themetype)));
             if (theme != null && !string.IsNullOrEmpty(theme.ThemeSettingsType))
@@ -565,9 +565,9 @@
                     }
 
                     await logger.LogInformation("Page Saved {Page}", page);
-                    if (PageState.QueryString.ContainsKey("cp"))
+                    if (!string.IsNullOrEmpty(PageState.ReturnUrl))
                     {
-                        NavigationManager.NavigateTo(NavigateUrl(PageState.Pages.First(item => item.PageId == int.Parse(PageState.QueryString["cp"])).Path));
+                        NavigationManager.NavigateTo(PageState.ReturnUrl);
                     }
                     else
                     {
@@ -593,9 +593,9 @@
 
     private void Cancel()
     {
-        if (PageState.QueryString.ContainsKey("cp"))
+        if (!string.IsNullOrEmpty(PageState.ReturnUrl))
         {
-            NavigationManager.NavigateTo(NavigateUrl(PageState.Pages.First(item => item.PageId == int.Parse(PageState.QueryString["cp"])).Path));
+            NavigationManager.NavigateTo(PageState.ReturnUrl);
         }
         else
         {
