@@ -402,9 +402,9 @@
                     await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, page.ParentId);
 
                     await logger.LogInformation("Page Added {Page}", page);
-                    if (PageState.QueryString.ContainsKey("cp"))
+                    if (!string.IsNullOrEmpty(PageState.ReturnUrl))
                     {
-                        NavigationManager.NavigateTo(NavigateUrl(PageState.Pages.First(item => item.PageId == int.Parse(PageState.QueryString["cp"])).Path));
+                        NavigationManager.NavigateTo(PageState.ReturnUrl);
                     }
                     else
                     {
@@ -431,9 +431,9 @@
 
     private void Cancel()
     {
-        if (PageState.QueryString.ContainsKey("cp"))
+        if (!string.IsNullOrEmpty(PageState.ReturnUrl))
         {
-            NavigationManager.NavigateTo(NavigateUrl(PageState.Pages.First(item => item.PageId == int.Parse(PageState.QueryString["cp"])).Path));
+            NavigationManager.NavigateTo(PageState.ReturnUrl);
         }
         else
         {
