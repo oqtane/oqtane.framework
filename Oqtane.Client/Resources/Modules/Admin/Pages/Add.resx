@@ -150,8 +150,8 @@
   <data name="Container.Select" xml:space="preserve">
     <value>Select Container</value>
   </data>
-  <data name="Error.Page.Initialize" xml:space="preserve">
-    <value>Error Initializing Page</value>
+  <data name="Error.Page.Load" xml:space="preserve">
+    <value>Error Loading Page</value>
   </data>
   <data name="Error.ChildPage.Load" xml:space="preserve">
     <value>Error Loading Child Pages For Parent</value>
