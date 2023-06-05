@@ -71,21 +71,6 @@ namespace Oqtane.Repository
             return page;
         }
 
-        public Page GetPage(int pageId, int userId)
-        {
-            Page page = _db.Page.Find(pageId);
-            if (page != null)
-            {
-                Page personalized = _db.Page.FirstOrDefault(item => item.SiteId == page.SiteId && item.Path == page.Path && item.UserId == userId);
-                if (personalized != null)
-                {
-                    page = personalized;
-                }
-                page.PermissionList = _permissions.GetPermissions(page.SiteId, EntityNames.Page, page.PageId)?.ToList();
-            }
-            return page;
-        }
-
         public Page GetPage(string path, int siteId)
         {
             Page page = _db.Page.FirstOrDefault(item => item.Path == path && item.SiteId == siteId);

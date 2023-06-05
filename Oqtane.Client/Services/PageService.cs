@@ -25,11 +25,6 @@ namespace Oqtane.Services
             return await GetJsonAsync<Page>($"{Apiurl}/{pageId}");
         }
 
-        public async Task<Page> GetPageAsync(int pageId, int userId)
-        {
-            return await GetJsonAsync<Page>($"{Apiurl}/{pageId}?userid={userId}");
-        }
-
         public async Task<Page> GetPageAsync(string path, int siteId)
         {
             try
