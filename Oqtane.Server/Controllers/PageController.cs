@@ -73,34 +73,6 @@ namespace Oqtane.Controllers
             return pages;
         }
 
-        // GET api/<controller>/5?userid=x
-        [HttpGet("{id}")]
-        public Page Get(int id, string userid)
-        {
-            Page page = null;
-            if (string.IsNullOrEmpty(userid))
-            {
-                page = _pages.GetPage(id);
-            }
-            else
-            {
-                page = _pages.GetPage(id, int.Parse(userid));
-            }
-            if (page != null && page.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, page.PermissionList))
-            {
-                page.Settings = _settings.GetSettings(EntityNames.Page, page.PageId)
-                    .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, page.PermissionList))
-                    .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
-                return page;
-            }
-            else
-            {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Page Get Attempt {PageId} {UserId}", id, userid);
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                return null;
-            }
-        }
-
         // GET api/<controller>/path/x?path=y
         [HttpGet("path/{siteid}")]
         public Page Get(string path, int siteid)
@@ -180,29 +152,30 @@ namespace Oqtane.Controllers
         {
             Page page = null;
             Page parent = _pages.GetPage(id);
-            if (parent != null && parent.SiteId == _alias.SiteId && parent.IsPersonalizable && _userPermissions.GetUser(User).UserId == int.Parse(userid))
+            User user = _userPermissions.GetUser(User);
+            if (parent != null && parent.SiteId == _alias.SiteId && parent.IsPersonalizable && user.UserId == int.Parse(userid))
             {
                 page = new Page();
                 page.SiteId = parent.SiteId;
-                page.Name = parent.Name;
-                page.Title = parent.Title;
-                page.Path = parent.Path;
                 page.ParentId = parent.PageId;
+                page.Name = user.Username;
+                page.Path = parent.Path + "/" + page.Name;
+                page.Title = parent.Name + " - " + page.Name;
                 page.Order = 0;
                 page.IsNavigation = false;
                 page.Url = "";
                 page.ThemeType = parent.ThemeType;
                 page.DefaultContainerType = parent.DefaultContainerType;
                 page.Icon = parent.Icon;
-                page.PermissionList = new List<Permission> {
+                page.PermissionList = new List<Permission>()
+                {
                     new Permission(PermissionNames.View, int.Parse(userid), true),
+                    new Permission(PermissionNames.View, RoleNames.Everyone, true),
                     new Permission(PermissionNames.Edit, int.Parse(userid), true)
                 };
                 page.IsPersonalizable = false;
                 page.UserId = int.Parse(userid);
                 page = _pages.AddPage(page);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Page, page.PageId, SyncEventActions.Create);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, page.SiteId, SyncEventActions.Refresh);
 
                 // copy modules
                 List<PageModule> pagemodules = _pageModules.GetPageModules(page.SiteId).ToList();
@@ -213,8 +186,10 @@ namespace Oqtane.Controllers
                     module.PageId = page.PageId;
                     module.ModuleDefinitionName = pm.Module.ModuleDefinitionName;
                     module.AllPages = false;
-                    module.PermissionList = new List<Permission> {
+                    module.PermissionList = new List<Permission>()
+                    {
                         new Permission(PermissionNames.View, int.Parse(userid), true),
+                        new Permission(PermissionNames.View, RoleNames.Everyone, true),
                         new Permission(PermissionNames.Edit, int.Parse(userid), true)
                     };
                     module = _modules.AddModule(module);
@@ -235,6 +210,9 @@ namespace Oqtane.Controllers
 
                     _pageModules.AddPageModule(pagemodule);
                 }
+
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Page, page.PageId, SyncEventActions.Create);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, page.SiteId, SyncEventActions.Refresh);
             }
             else
             {

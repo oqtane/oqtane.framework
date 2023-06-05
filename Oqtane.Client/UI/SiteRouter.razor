@@ -221,6 +221,23 @@
                     page = site.Pages.FirstOrDefault();
                 }
             }
+            if (page == null)
+            {
+                // look for personalized page
+                page = await PageService.GetPageAsync(route.PagePath, site.SiteId);
+            }
+            else
+            {
+                if (user != null && page.IsPersonalizable)
+                {
+                    page = await PageService.GetPageAsync(route.PagePath + "/" + user.Username, site.SiteId);
+                    if (page != null)
+                    {
+                        // redirect to the personalized page
+                        NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, route.PagePath + "/" + user.Username, ""), false);
+                    }
+                }
+            }
 
             if (page != null)
             {
@@ -228,7 +245,7 @@
                 if (UserSecurity.IsAuthorized(user, PermissionNames.View, page.PermissionList))
                 {
                     // load additional metadata for current page
-                    page = await ProcessPage(page, site, user, SiteState.Alias);
+                    page = ProcessPage(page, site, user, SiteState.Alias);
 
                     // load additional metadata for modules
                     (page, site.Modules) = ProcessModules(page, site.Modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType, SiteState.Alias);
@@ -297,16 +314,10 @@
         }
     }
 
-    private async Task<Page> ProcessPage(Page page, Site site, User user, Alias alias)
+    private Page ProcessPage(Page page, Site site, User user, Alias alias)
     {
         try
         {
-            if (page.IsPersonalizable && user != null)
-            {
-                // load the personalized page
-                page = await PageService.GetPageAsync(page.PageId, user.UserId);
-            }
-
             if (string.IsNullOrEmpty(page.ThemeType))
             {
                 page.ThemeType = site.DefaultThemeType;

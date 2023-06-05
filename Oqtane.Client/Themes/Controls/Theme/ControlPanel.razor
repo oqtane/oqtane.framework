@@ -489,9 +489,9 @@
 		{
 			if (PageState.Page.IsPersonalizable && PageState.User != null)
 			{
-				await PageService.AddPageAsync(PageState.Page.PageId, PageState.User.UserId);
+				var page = await PageService.AddPageAsync(PageState.Page.PageId, PageState.User.UserId);
 				PageState.EditMode = true;
-				NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + ((PageState.EditMode) ? "true" : "false")));
+				NavigationManager.NavigateTo(NavigateUrl(page.Path, "edit=" + ((PageState.EditMode) ? "true" : "false")));
 			}
 		}
 	}
