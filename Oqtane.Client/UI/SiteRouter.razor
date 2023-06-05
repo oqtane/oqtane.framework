@@ -230,11 +230,11 @@
             {
                 if (user != null && page.IsPersonalizable)
                 {
-                    page = await PageService.GetPageAsync(route.PagePath + "/" + user.Username, site.SiteId);
-                    if (page != null)
+                    var personalized = await PageService.GetPageAsync(route.PagePath + "/" + user.Username, site.SiteId);
+                    if (personalized != null)
                     {
                         // redirect to the personalized page
-                        NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, route.PagePath + "/" + user.Username, ""), false);
+                        NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, personalized.Path, ""), false);
                     }
                 }
             }
