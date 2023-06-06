@@ -8,7 +8,7 @@ namespace [Owner].[Module]
         public ModuleDefinition ModuleDefinition => new ModuleDefinition
         {
             Name = "[Module]",
-            Description = "[Module]",
+            Description = "[Description]",
             Version = "1.0.0",
             ServerManagerType = "[ServerManagerType]",
             ReleaseVersions = "1.0.0",
