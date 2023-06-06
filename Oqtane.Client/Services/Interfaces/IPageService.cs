@@ -24,14 +24,6 @@ namespace Oqtane.Services
         Task<Page> GetPageAsync(int pageId);
 
         /// <summary>
-        /// Returns a specific page personalized for the given user
-        /// </summary>
-        /// <param name="pageId"></param>
-        /// <param name="userId"></param>
-        /// <returns></returns>
-        Task<Page> GetPageAsync(int pageId, int userId);
-
-        /// <summary>
         /// Returns a specific page by its defined path
         /// </summary>
         /// <param name="path"></param>
