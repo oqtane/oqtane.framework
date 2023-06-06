@@ -76,8 +76,8 @@ else
 }
 
 @code {
-	  private List<Page> _pages;
-	  private List<Module> _modules;
+	private List<Page> _pages;
+	private List<Module> _modules;
     private int _pagePage = 1;
     private int _pageModule = 1;
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
@@ -184,13 +184,6 @@ else
         try
         {
             await PageModuleService.DeletePageModuleAsync(module.PageModuleId);
-
-            // check if there are any remaining module instances in the site
-            if (!_modules.Exists (item => item.ModuleId == module.ModuleId && item.PageModuleId != module.PageModuleId))
-            {
-                await ModuleService.DeleteModuleAsync(module.ModuleId);
-            }
-
             await logger.LogInformation("Module Permanently Deleted {Module}", module);
             await Load();
             StateHasChanged();
@@ -210,16 +203,7 @@ else
             foreach (Module module in _modules.Where(item => item.IsDeleted).ToList())
             {
                 await PageModuleService.DeletePageModuleAsync(module.PageModuleId);
-
-                // DeletePageModuleAsync does not update _modules so remove it.
-                _modules.Remove(module);
-                // check if there are any remaining module instances in the site
-                if (!_modules.Exists(item => item.ModuleId == module.ModuleId && item.PageModuleId != module.PageModuleId))
-                {
-                    await ModuleService.DeleteModuleAsync(module.ModuleId);
-                }
             }
-
             await logger.LogInformation("Modules Permanently Deleted");
             await Load();
             ModuleInstance.HideProgressIndicator();
