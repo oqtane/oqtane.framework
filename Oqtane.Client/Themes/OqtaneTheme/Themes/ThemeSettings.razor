@@ -52,17 +52,23 @@
 </div>
 
 @code {
-	private string resourceType = "Oqtane.Themes.OqtaneTheme.ThemeSettings, Oqtane.Client"; // for localization
-	private string _scope = "page";
-	private string _login = "-";
-	private string _register = "-";
-	private string _footer = "-";
+    private int pageId = -1;
+    private string resourceType = "Oqtane.Themes.OqtaneTheme.ThemeSettings, Oqtane.Client"; // for localization
+    private string _scope = "page";
+    private string _login = "-";
+    private string _register = "-";
+    private string _footer = "-";
 
-	protected override async Task OnInitializedAsync()
-	{
-		try
-		{
-			await LoadSettings();
+    protected override async Task OnInitializedAsync()
+    {
+        if (PageState.QueryString.ContainsKey("id"))
+        {
+            pageId = int.Parse(PageState.QueryString["id"]);
+        }
+
+        try
+        {
+            await LoadSettings();
         }
         catch (Exception ex)
         {
@@ -82,10 +88,11 @@
         }
         else
         {
-            var settings = SettingService.MergeSettings(PageState.Site.Settings, PageState.Page.Settings);
+            var settings = await SettingService.GetPageSettingsAsync(pageId);
+            settings = SettingService.MergeSettings(PageState.Site.Settings, settings);
             _login = SettingService.GetSetting(settings, GetType().Namespace + ":Login", "-");
             _register = SettingService.GetSetting(settings, GetType().Namespace + ":Register", "-");
-            _footer = SettingService.GetSetting(settings, GetType().Namespace + ":Footer", "-");
+            _footer = SettingService.GetSetting(settings, GetType().Namespace + ":Footer", "-");                
         }
         await Task.Yield();
     }
@@ -128,7 +135,7 @@
             }
             else
             {
-                var settings = await SettingService.GetPageSettingsAsync(PageState.Page.PageId);
+                var settings = await SettingService.GetPageSettingsAsync(pageId);
                 if (_login != "-")
                 {
                     settings = SettingService.SetSetting(settings, GetType().Namespace + ":Login", _login);
@@ -141,7 +148,7 @@
                 {
                     settings = SettingService.SetSetting(settings, GetType().Namespace + ":Footer", _footer);
                 }
-                await SettingService.UpdatePageSettingsAsync(settings, PageState.Page.PageId);
+                await SettingService.UpdatePageSettingsAsync(settings, pageId);
             }
         }
         catch (Exception ex)

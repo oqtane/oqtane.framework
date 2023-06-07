@@ -193,39 +193,35 @@
                         <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
                     }
                 </TabPanel>
-                @if (_page.UserId == null)
-                {
-                    <TabPanel Name="Permissions" ResourceKey="Permissions">
-                        @if (_permissions != null)
-                        {
-                            <div class="container">
-                                <div class="row mb-1 align-items-center">
-                                    <PermissionGrid EntityName="@EntityNames.Page" PermissionList="@_permissions" @ref="_permissionGrid" />
-                                </div>
+                <TabPanel Name="Permissions" ResourceKey="Permissions">
+                    @if (_permissions != null)
+                    {
+                        <div class="container">
+                            <div class="row mb-1 align-items-center">
+                                <PermissionGrid EntityName="@EntityNames.Page" PermissionList="@_permissions" @ref="_permissionGrid" />
                             </div>
-                        }
-                    </TabPanel>
-                    <TabPanel Name="PageModules" Heading="Modules" ResourceKey="PageModules">
-                        @if (_pageModules != null)
-                        {
-                            <Pager Items="_pageModules">
-                                <Header>
-                                <th style="width: 1px;">&nbsp;</th>
-                                <th style="width: 1px;">&nbsp;</th>
-                                <th>@Localizer["ModuleTitle"]</th>
-                                <th>@Localizer["ModuleDefinition"]</th>
-                                </Header>
-                                <Row>
-                                    <td><ActionLink Action="Settings" Text="Edit" ModuleId="@context.ModuleId" Security="SecurityAccessLevel.Edit" PermissionList="@context.PermissionList" ResourceKey="ModuleSettings" /></td>
-                                    <td><ActionDialog Header="Delete Module" Message="Are You Sure You Wish To Delete This Module?" Action="Delete" Security="SecurityAccessLevel.Edit" PermissionList="@context.PermissionList" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" /></td>
-                                    <td>@context.Title</td>
-                                    <td>@context.ModuleDefinition?.Name</td>
-                                </Row>
-                            </Pager>
-                        }
-                    </TabPanel>
-
-                }
+                        </div>
+                    }
+                </TabPanel>
+                <TabPanel Name="PageModules" Heading="Modules" ResourceKey="PageModules">
+                    @if (_pageModules != null)
+                    {
+                        <Pager Items="_pageModules">
+                            <Header>
+                            <th style="width: 1px;">&nbsp;</th>
+                            <th style="width: 1px;">&nbsp;</th>
+                            <th>@Localizer["ModuleTitle"]</th>
+                            <th>@Localizer["ModuleDefinition"]</th>
+                            </Header>
+                            <Row>
+                                <td><ActionLink Action="Settings" Text="Edit" ModuleId="@context.ModuleId" Security="SecurityAccessLevel.Edit" PermissionList="@context.PermissionList" ResourceKey="ModuleSettings" /></td>
+                                <td><ActionDialog Header="Delete Module" Message="Are You Sure You Wish To Delete This Module?" Action="Delete" Security="SecurityAccessLevel.Edit" PermissionList="@context.PermissionList" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" /></td>
+                                <td>@context.Title</td>
+                                <td>@context.ModuleDefinition?.Name</td>
+                            </Row>
+                        </Pager>
+                    }
+                </TabPanel>
                 @if (_themeSettingsType != null)
                 {
                     <TabPanel Name="ThemeSettings" Heading="Theme Settings" ResourceKey="ThemeSettings">
@@ -499,23 +495,20 @@
     private void ThemeSettings()
     {
         _themeSettingsType = null;
-        if (!string.IsNullOrEmpty(PageState.ReturnUrl)) // can only be displayed if invoked from Control Panel
+        var theme = PageState.Site.Themes.FirstOrDefault(item => item.Themes.Any(themecontrol => themecontrol.TypeName.Equals(_themetype)));
+        if (theme != null && !string.IsNullOrEmpty(theme.ThemeSettingsType))
         {
-            var theme = PageState.Site.Themes.FirstOrDefault(item => item.Themes.Any(themecontrol => themecontrol.TypeName.Equals(_themetype)));
-            if (theme != null && !string.IsNullOrEmpty(theme.ThemeSettingsType))
+            _themeSettingsType = Type.GetType(theme.ThemeSettingsType);
+            if (_themeSettingsType != null)
             {
-                _themeSettingsType = Type.GetType(theme.ThemeSettingsType);
-                if (_themeSettingsType != null)
+                ThemeSettingsComponent = builder =>
                 {
-                    ThemeSettingsComponent = builder =>
-                    {
-                        builder.OpenComponent(0, _themeSettingsType);
-                        builder.AddComponentReferenceCapture(1, inst => { _themeSettings = Convert.ChangeType(inst, _themeSettingsType); });
-                        builder.CloseComponent();
-                    };
-                }
-                _refresh = true;
+                    builder.OpenComponent(0, _themeSettingsType);
+                    builder.AddComponentReferenceCapture(1, inst => { _themeSettings = Convert.ChangeType(inst, _themeSettingsType); });
+                    builder.CloseComponent();
+                };
             }
+            _refresh = true;
         }
     }
 
