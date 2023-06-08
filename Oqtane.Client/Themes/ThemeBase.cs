@@ -170,6 +170,12 @@ namespace Oqtane.Themes
             }
         }
 
+        public async Task ScrollToPageTop()
+        {
+            var interop = new Interop(JSRuntime);
+            await interop.ScrollTo(0, 0, "smooth");
+        }
+
         [Obsolete("ContentUrl(int fileId) is deprecated. Use FileUrl(int fileId) instead.", false)]
         public string ContentUrl(int fileid)
         {
