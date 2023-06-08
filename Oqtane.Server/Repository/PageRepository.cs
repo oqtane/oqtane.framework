@@ -10,14 +10,16 @@ namespace Oqtane.Repository
     public class PageRepository : IPageRepository
     {
         private TenantDBContext _db;
-        private readonly IPermissionRepository _permissions;
         private readonly IPageModuleRepository _pageModules;
+        private readonly IPermissionRepository _permissions;
+        private readonly ISettingRepository _settings;
 
-        public PageRepository(TenantDBContext context, IPermissionRepository permissions, IPageModuleRepository pageModules)
+        public PageRepository(TenantDBContext context, IPageModuleRepository pageModules, IPermissionRepository permissions, ISettingRepository settings)
         {
             _db = context;
-            _permissions = permissions;
             _pageModules = pageModules;
+            _permissions = permissions;
+            _settings = settings;
         }
 
         public IEnumerable<Page> GetPages(int siteId)
@@ -71,21 +73,6 @@ namespace Oqtane.Repository
             return page;
         }
 
-        public Page GetPage(int pageId, int userId)
-        {
-            Page page = _db.Page.Find(pageId);
-            if (page != null)
-            {
-                Page personalized = _db.Page.FirstOrDefault(item => item.SiteId == page.SiteId && item.Path == page.Path && item.UserId == userId);
-                if (personalized != null)
-                {
-                    page = personalized;
-                }
-                page.PermissionList = _permissions.GetPermissions(page.SiteId, EntityNames.Page, page.PageId)?.ToList();
-            }
-            return page;
-        }
-
         public Page GetPage(string path, int siteId)
         {
             Page page = _db.Page.FirstOrDefault(item => item.Path == path && item.SiteId == siteId);
@@ -100,11 +87,14 @@ namespace Oqtane.Repository
         {
             Page page = _db.Page.Find(pageId);
             _permissions.DeletePermissions(page.SiteId, EntityNames.Page, pageId);
-            IEnumerable<PageModule> pageModules = _db.PageModule.Where(item => item.PageId == pageId).ToList();
+            _settings.DeleteSettings(EntityNames.Page, pageId);
+            // remove page modules for page
+            var pageModules = _db.PageModule.Where(item => item.PageId == pageId).ToList();
             foreach (var pageModule in pageModules)
             {
                 _pageModules.DeletePageModule(pageModule.PageModuleId);
             }
+            // must occur after page modules are deleted because of cascading delete relationship
             _db.Page.Remove(page);
             _db.SaveChanges();
         }

@@ -56,7 +56,7 @@
 					</div>
 					<hr class="app-rule" />
 				}
-				@if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
+                @if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
 				{
 					<div class="row">
 						<div class="col text-center">
@@ -65,7 +65,10 @@
 					</div>
 					<div class="row d-flex mb-2">
 						<div class="col d-flex justify-content-between">
-							<button type="button" class="btn btn-secondary col me-1" data-bs-dismiss="offcanvas" @onclick=@(async () => Navigate("Add"))>@SharedLocalizer["Add"]</button>
+                            @if (PageState.Page.UserId == null)
+                            {
+                                <button type="button" class="btn btn-secondary col me-1" data-bs-dismiss="offcanvas" @onclick=@(async () => Navigate("Add"))>@SharedLocalizer["Add"]</button>
+                            }
 							<button type="button" class="btn btn-secondary col" data-bs-dismiss="offcanvas" @onclick=@(async () => Navigate("Edit"))>@SharedLocalizer["Edit"]</button>
 							<button type="button" class="btn btn-danger col ms-1" @onclick="ConfirmDelete">@SharedLocalizer["Delete"]</button>
 						</div>
@@ -489,9 +492,9 @@
 		{
 			if (PageState.Page.IsPersonalizable && PageState.User != null)
 			{
-				await PageService.AddPageAsync(PageState.Page.PageId, PageState.User.UserId);
+				var page = await PageService.AddPageAsync(PageState.Page.PageId, PageState.User.UserId);
 				PageState.EditMode = true;
-				NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + ((PageState.EditMode) ? "true" : "false")));
+				NavigationManager.NavigateTo(NavigateUrl(page.Path, "edit=" + ((PageState.EditMode) ? "true" : "false")));
 			}
 		}
 	}
@@ -520,10 +523,10 @@
 					switch (location)
 					{
 						case "Add":
-							url = EditUrl(PageState.Page.Path, module.ModuleId, location, "cp=" + PageState.Page.PageId);
-							break;
+                            url = EditUrl("admin/pages", module.ModuleId, location, $"id={PageState.Page.PageId}&returnurl={WebUtility.UrlEncode(PageState.Route.PathAndQuery)}");
+                            break;
 						case "Edit":
-							url = EditUrl(PageState.Page.Path, module.ModuleId, location, "id=" + PageState.Page.PageId.ToString() + "&cp=" + PageState.Page.PageId);
+                            url = EditUrl("admin/pages", module.ModuleId, location, $"id={PageState.Page.PageId}&returnurl={WebUtility.UrlEncode(PageState.Route.PathAndQuery)}");
 							break;
 					}
 				}
