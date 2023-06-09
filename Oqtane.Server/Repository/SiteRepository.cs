@@ -319,6 +319,15 @@ namespace Oqtane.Repository
                         {
                             pages = _pageRepository.GetPages(site.SiteId).ToList();
                         }
+                        Page parent = null;
+                        if (string.IsNullOrEmpty(pageTemplate.Path))
+                        {
+                            if (!string.IsNullOrEmpty(pageTemplate.Parent))
+                            {
+                                parent = pages.FirstOrDefault(item => item.Path.ToLower() == pageTemplate.Parent.ToLower());
+                            }
+                            pageTemplate.Path = (parent != null) ? parent.Path + "/" + pageTemplate.Name : pageTemplate.Name;
+                        }
                         var page = pages.FirstOrDefault(item => item.Path.ToLower() == pageTemplate.Path.ToLower());
                         if (page == null)
                         {
@@ -326,17 +335,18 @@ namespace Oqtane.Repository
                             page.SiteId = site.SiteId;
                             page.Path = pageTemplate.Path.ToLower();
                         }
-                        page.Name = (!string.IsNullOrEmpty(pageTemplate.Name)) ? pageTemplate.Name : page.Path;
-                        page.Name = (page.Name.Contains("/")) ? page.Name.Substring(page.Name.LastIndexOf("/") + 1) : page.Name;
-                        int? parentid = null;
-                        if (!string.IsNullOrEmpty(pageTemplate.Parent))
+                        if (string.IsNullOrEmpty(pageTemplate.Parent))
                         {
-                            if (pages.Any(item => item.Path.ToLower() == pageTemplate.Parent.ToLower()))
+                            if (pageTemplate.Path.Contains("/"))
                             {
-                                parentid = pages.FirstOrDefault(item => item.Path.ToLower() == pageTemplate.Parent.ToLower()).PageId;
+                                parent = pages.FirstOrDefault(item => item.Path.ToLower() == pageTemplate.Path.Substring(0, pageTemplate.Path.LastIndexOf("/")));
                             }
                         }
-                        page.ParentId = parentid;
+                        page.ParentId = (parent != null) ? parent.PageId : null;
+                        if (string.IsNullOrEmpty(pageTemplate.Name))
+                        {
+                            page.Name = (pageTemplate.Path.Contains("/")) ? pageTemplate.Path.Substring(pageTemplate.Name.LastIndexOf("/") + 1) : pageTemplate.Path;
+                        }
                         page.Title = pageTemplate.Title;
                         page.Order = pageTemplate.Order;
                         page.Url = pageTemplate.Url;

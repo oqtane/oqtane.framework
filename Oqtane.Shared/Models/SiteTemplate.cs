@@ -44,6 +44,7 @@ namespace Oqtane.Models
         }
 
         public string Path { get; set; }
+        // note that Parent actually means Parent Path
         public string Parent { get; set; }
         public string Name { get; set; }
         public string Title { get; set; }
