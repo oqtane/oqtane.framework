@@ -27,7 +27,7 @@ namespace Oqtane.Services
 
         public List<ThemeControl> GetThemeControls(List<Theme> themes)
         {
-            return themes.SelectMany(item => item.Themes).ToList();
+            return themes.SelectMany(item => item.Themes).OrderBy(item => item.Name).ToList();
         }
 
         //[Obsolete("This method is deprecated.", false)]
@@ -39,7 +39,7 @@ namespace Oqtane.Services
         public List<ThemeControl> GetContainerControls(List<Theme> themes, string themeName)
         {
             return themes.Where(item => Utilities.GetTypeName(themeName).StartsWith(Utilities.GetTypeName(item.ThemeName)))
-                .SelectMany(item => item.Containers).ToList();
+                .SelectMany(item => item.Containers).OrderBy(item => item.Name).ToList();
         }
 
         public async Task UpdateThemeAsync(Theme theme)
