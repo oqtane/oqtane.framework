@@ -349,6 +349,10 @@ namespace Oqtane.Repository
                                 parent = pages.FirstOrDefault(item => item.Path.ToLower() == pageTemplate.Path.Substring(0, pageTemplate.Path.LastIndexOf("/")).ToLower());
                             }
                         }
+                        else
+                        {
+                            parent = pages.FirstOrDefault(item => item.Path.ToLower() == pageTemplate.Parent.ToLower());
+                        }
                         page.ParentId = (parent != null) ? parent.PageId : null;
                         page.Path = page.Path.ToLower();
                         page.Title = pageTemplate.Title;
