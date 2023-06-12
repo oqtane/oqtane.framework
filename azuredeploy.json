@@ -4,7 +4,7 @@
   "parameters": {
     "sqlDatabaseEditionTierDtuCapacity": {
       "type": "string",
-      "defaultValue": "Standard-S1-20-250",
+      "defaultValue": "Basic-Basic-5-2",
       "allowedValues": [
         "Basic-Basic-5-2",
         "Standard-S0-10-250",
