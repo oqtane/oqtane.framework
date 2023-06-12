@@ -33,11 +33,13 @@
         var headcontent = "";
         // favicon
         var favicon = "favicon.ico";
+        var favicontype = "x-icon";
         if (PageState.Site.FaviconFileId != null)
         {
             favicon = Utilities.FileUrl(PageState.Alias, PageState.Site.FaviconFileId.Value);
+            favicontype = favicon.Substring(favicon.LastIndexOf(".") + 1);
         }
-        headcontent += $"<link id=\"app-favicon\" rel=\"shortcut icon\" type=\"image/x-icon\" href=\"{favicon}\" />\n";
+        headcontent += $"<link id=\"app-favicon\" rel=\"shortcut icon\" type=\"image/{favicontype}\" href=\"{favicon}\" />\n";
         // stylesheets
         foreach (Resource resource in PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
         {

@@ -175,7 +175,7 @@
     <value>Specify a logo for the site</value>
   </data>
   <data name="FavoriteIcon.HelpText" xml:space="preserve">
-    <value>Specify a Favicon</value>
+    <value>Specify a Favicon. The format for the image must be 16×16, 32×32, 48×48, or 64×64 pixels in size, and 8-bit, 24-bit, or 32-bit in color depth. The format of the image must be ICO, PNG, or GIF.</value>
   </data>
   <data name="DefaultTheme.HelpText" xml:space="preserve">
     <value>Select the sites default theme</value>
