@@ -397,10 +397,6 @@
                     typename = module.ModuleDefinition.ControlTypeTemplate;
 
                     // handle default action
-                    if (moduleid != module.ModuleId)
-                    {
-                        action = Constants.DefaultAction;
-                    }
                     if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
                     {
                         action = module.ModuleDefinition.DefaultAction;
