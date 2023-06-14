@@ -130,12 +130,14 @@ namespace Oqtane.Repository
                 {
                     // override user customizable property values
                     Theme.Name = (!string.IsNullOrEmpty(theme.Name)) ? theme.Name : Theme.Name;
-                    foreach (var themecontrol in Theme.Themes)
-                    {
-                        themecontrol.Name = Theme.Name + " - " + themecontrol.Name;
-                    }
                     // remove theme from list as it is already synced
                     themes.Remove(theme);
+                }
+
+                // format theme control names
+                foreach (var themecontrol in Theme.Themes)
+                {
+                    themecontrol.Name = Theme.Name + " - " + themecontrol.Name;
                 }
 
                 Theme.ThemeId = theme.ThemeId;

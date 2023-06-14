@@ -180,4 +180,7 @@
   <data name="EnterConnectionString" xml:space="preserve">
     <value>Enter Connection String</value>
   </data>
+  <data name="For" xml:space="preserve">
+    <value>for</value>
+  </data>
 </root>
