@@ -14,5 +14,17 @@ namespace Oqtane.Shared
         private dynamic _properties;
         public dynamic Properties => _properties ?? (_properties = new PropertyDictionary());
 
+
+        public void AppendHeadContent(string content)
+        {
+            if (string.IsNullOrEmpty(Properties.HeadContent))
+            {
+                Properties.HeadContent = content;
+            }
+            else if (!Properties.HeadContent.Contains(content))
+            {
+                Properties.HeadContent += content;
+            }
+        }
     }
 }
