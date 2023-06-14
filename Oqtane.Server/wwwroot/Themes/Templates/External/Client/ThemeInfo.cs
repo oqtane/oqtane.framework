@@ -1,5 +1,7 @@
-﻿using Oqtane.Models;
+﻿using System.Collections.Generic;
+using Oqtane.Models;
 using Oqtane.Themes;
+using Oqtane.Shared;
 
 namespace [Owner].[Theme]
 {
