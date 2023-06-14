@@ -281,14 +281,7 @@ namespace Oqtane.Modules
         // note - only supports links and meta tags - not scripts
         public void AddHeadContent(string content)
         {
-            if (string.IsNullOrEmpty(SiteState.Properties.HeadContent))
-            {
-                SiteState.Properties.HeadContent = content;
-            }
-            else if (!SiteState.Properties.HeadContent.Contains(content))
-            {
-                SiteState.Properties.HeadContent += content;
-            }
+            SiteState.AppendHeadContent(content);
         }
 
         public void AddScript(Resource resource)
