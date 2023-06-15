@@ -5,6 +5,7 @@
 @inject ISiteService SiteService
 @inject IUserService UserService
 @inject IDatabaseService DatabaseService
+@inject ISiteTemplateService SiteTemplateService
 @inject IJSRuntime JSRuntime
 @inject IStringLocalizer<Installer> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
@@ -14,7 +15,7 @@
     <div class="row">
         <div class="mx-auto text-center">
             <img src="oqtane-black.png" />
-            <div style="font-weight: bold">@SharedLocalizer["Version"] @Constants.Version @Localizer["For"] .NET 7</div>
+            <div style="font-weight: bold">@SharedLocalizer["Version"] @Constants.Version (.NET 7)</div>
         </div>
     </div>
     <hr class="app-rule" />
@@ -62,7 +63,7 @@
 						</div>
 					</div>
 				}
-			</div>
+            </div>
         </div>
         <div class="col text-center">
             <h2>@Localizer["ApplicationAdmin"]</h2><br />
@@ -97,6 +98,20 @@
                         <input type="text" class="form-control" @bind="@_hostEmail" />
                     </div>
                 </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="template" HelpText="Select a site template" ResourceKey="Template">Template:</Label>
+                    <div class="col-sm-9">
+                        @if (_templates != null)
+                        {
+                            <select id="template" class="form-select" @bind="@_template" required>
+                                @foreach (var template in _templates)
+                                {
+                                    <option value="@template.TypeName">@template.Name</option>
+                                }
+                            </select>
+                        }
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -116,23 +131,25 @@
 </div>
 
 @code {
-	private List<Database> _databases;
-	private string _databaseName;
-	private Type _databaseConfigType;
-	private object _databaseConfig;
-	private RenderFragment DatabaseConfigComponent { get; set; }
-	private bool _showConnectionString = false;
-	private string _connectionString = string.Empty;
+    private List<Database> _databases;
+    private string _databaseName;
+    private Type _databaseConfigType;
+    private object _databaseConfig;
+    private RenderFragment DatabaseConfigComponent { get; set; }
+    private bool _showConnectionString = false;
+    private string _connectionString = string.Empty;
 
-	private string _hostUsername = string.Empty;
-	private string _hostPassword = string.Empty;
-	private string _passwordType = "password";
-	private string _confirmPasswordType = "password";
-	private string _togglePassword = string.Empty;
-	private string _toggleConfirmPassword = string.Empty;
-	private string _confirmPassword = string.Empty;
-	private string _hostEmail = string.Empty;
-	private bool _register = true;
+    private string _hostUsername = string.Empty;
+    private string _hostPassword = string.Empty;
+    private string _passwordType = "password";
+    private string _confirmPasswordType = "password";
+    private string _togglePassword = string.Empty;
+    private string _toggleConfirmPassword = string.Empty;
+    private string _confirmPassword = string.Empty;
+    private string _hostEmail = string.Empty;
+    private List<SiteTemplate> _templates;
+    private string _template = Constants.DefaultSiteTemplate;
+    private bool _register = true;
 	private string _message = string.Empty;
 	private string _loadingDisplay = "display: none;";
 
@@ -155,7 +172,9 @@
 			_databaseName = "LocalDB";
 		}
 		LoadDatabaseConfigComponent();
-	}
+
+        _templates = await SiteTemplateService.GetSiteTemplatesAsync();
+    }
 
 	private void DatabaseChanged(ChangeEventArgs eventArgs)
 	{
@@ -234,7 +253,8 @@
 					TenantName = TenantNames.Master,
 					IsNewTenant = true,
 					SiteName = Constants.DefaultSite,
-					Register = _register
+					Register = _register,
+                    SiteTemplate = _template
 				};
 
 				var installation = await InstallationService.Install(config);

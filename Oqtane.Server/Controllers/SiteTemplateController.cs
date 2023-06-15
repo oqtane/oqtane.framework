@@ -19,7 +19,6 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>
         [HttpGet]
-        [Authorize(Roles = RoleNames.Host)]
         public IEnumerable<SiteTemplate> Get()
         {
             return _siteTemplates.GetSiteTemplates();

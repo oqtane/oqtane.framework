@@ -5,6 +5,7 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
@@ -42,7 +43,7 @@ namespace Oqtane.Repository
                 siteTemplate = new SiteTemplate
                 {
                     Name = (string)siteTemplateType.GetProperty("Name")?.GetValue(siteTemplateObject),
-                    TypeName = siteTemplateType.AssemblyQualifiedName
+                    TypeName = Utilities.GetFullTypeName(siteTemplateType.AssemblyQualifiedName)
                 };
                 siteTemplates.Add(siteTemplate);
             }
