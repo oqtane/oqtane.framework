@@ -7,9 +7,9 @@
     <Authors>[Owner]</Authors>
     <Company>[Owner]</Company>
     <Description>[Description]</Description>
-    <Product>[Owner].[Theme]</Product>
+    <Product>[Owner].Theme.[Theme]</Product>
     <Copyright>[Owner]</Copyright>
-    <AssemblyName>[Owner].[Theme].Client.Oqtane</AssemblyName>
+    <AssemblyName>[Owner].Theme.[Theme].Client.Oqtane</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
