@@ -2,12 +2,12 @@
 @using Oqtane.Shared
 @inject SiteState SiteState
 
-@((MarkupString)title)
-@((MarkupString)content)
+@((MarkupString)_title)
+@((MarkupString)_content)
 
 @code {
-    private string title = "";
-    private string content = "";
+    private string _title = "";
+    private string _content = "";
 
     protected override void OnInitialized()
     {
@@ -19,12 +19,20 @@
         switch (e.PropertyName)
         {
             case "PageTitle":
-                title = "\n<title>" + SiteState.Properties.PageTitle + "</title>";
-                StateHasChanged();
+                var title = "\n<title>" + SiteState.Properties.PageTitle + "</title>";
+                if (title != _title)
+                {
+                    _title = title;
+                    StateHasChanged();
+                }
                 break;
             case "HeadContent":
-                content = RemoveScripts(SiteState.Properties.HeadContent) + "\n";
-                StateHasChanged();
+                var content = RemoveScripts(SiteState.Properties.HeadContent) + "\n";
+                if (content != _content)
+                {
+                    _content = content;
+                    StateHasChanged();
+                }
                 break;
         }
     }
