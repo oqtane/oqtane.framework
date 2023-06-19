@@ -142,7 +142,7 @@
         if (_owner != "" && _theme != "" && _template != "-")
         {
             var template = _templates.FirstOrDefault(item => item.Name == _template);
-            _location = template.Location + _owner + "." + _theme;
+            _location = template.Location + _owner + ".Theme." + _theme;
 
         }
         StateHasChanged();
