@@ -318,31 +318,29 @@
     {
         try
         {
+            page.Panes = new List<string>();
+            page.Resources = new List<Resource>();
+
+            // validate theme
             if (string.IsNullOrEmpty(page.ThemeType))
             {
                 page.ThemeType = site.DefaultThemeType;
             }
-
-            page.Panes = new List<string>();
-            page.Resources = new List<Resource>();
-
-            // get theme resources
             var theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == page.ThemeType));
-            if (theme != null)
-            {
-                page.Resources = ManagePageResources(page.Resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName));
-            }
-
-            string panes = "";
             Type themetype = Type.GetType(page.ThemeType);
-            if (themetype == null)
+            if (themetype == null || theme == null)
             {
-                // fallback
+                // fallback to default Oqtane theme
                 page.ThemeType = Constants.DefaultTheme;
                 themetype = Type.GetType(Constants.DefaultTheme);
             }
+
+            string panes = "";
             if (themetype != null)
             {
+                // get resources for theme (ITheme)
+                page.Resources = ManagePageResources(page.Resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName));
+
                 var themeobject = Activator.CreateInstance(themetype) as IThemeControl;
                 if (themeobject != null)
                 {
@@ -350,9 +348,11 @@
                     {
                         panes = themeobject.Panes;
                     }
+                    // get resources for theme control
                     page.Resources = ManagePageResources(page.Resources, themeobject.Resources, ResourceLevel.Page, alias, "Themes", themetype.Namespace);
                 }
             }
+
             if (!string.IsNullOrEmpty(panes))
             {
                 page.Panes = panes.Replace(";", ",").Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
