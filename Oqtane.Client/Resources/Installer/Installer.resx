@@ -124,7 +124,7 @@
     <value>Database:</value>
   </data>
   <data name="ApplicationAdmin" xml:space="preserve">
-    <value>Application Administrator</value>
+    <value>Application Administration</value>
   </data>
   <data name="InstallNow" xml:space="preserve">
     <value>Install Now</value>
@@ -180,7 +180,7 @@
   <data name="EnterConnectionString" xml:space="preserve">
     <value>Enter Connection String</value>
   </data>
-  <data name="For" xml:space="preserve">
-    <value>for</value>
+  <data name="Template" xml:space="preserve">
+    <value>Select a site template</value>
   </data>
 </root>
