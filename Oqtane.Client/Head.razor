@@ -2,8 +2,14 @@
 @using Oqtane.Shared
 @inject SiteState SiteState
 
-@((MarkupString)_title)
-@((MarkupString)_content)
+@if (!string.IsNullOrEmpty(_title))
+{
+    @((MarkupString)_title)
+}
+@if (!string.IsNullOrEmpty(_content))
+{
+    @((MarkupString)_content)
+}
 
 @code {
     private string _title = "";

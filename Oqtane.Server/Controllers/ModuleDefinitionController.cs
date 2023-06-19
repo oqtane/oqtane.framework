@@ -258,6 +258,7 @@ namespace Oqtane.Controllers
                 // remove module definition
                 _moduleDefinitions.DeleteModuleDefinition(id);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, SyncEventActions.Delete);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, moduledefinition.SiteId, SyncEventActions.Refresh);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Definition {ModuleDefinitionName} Deleted", moduledefinition.Name);
             }
             else

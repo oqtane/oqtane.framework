@@ -117,7 +117,9 @@ namespace Oqtane.Controllers
                 }
 
                 // remove theme
-                //_themes.DeleteTheme(theme.ThemeName);
+                _themes.DeleteTheme(theme.ThemeId);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Theme, theme.ThemeId, SyncEventActions.Delete);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, theme.SiteId, SyncEventActions.Refresh);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Theme Removed For {ThemeName}", theme.ThemeName);
             }
             else
