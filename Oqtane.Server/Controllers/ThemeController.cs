@@ -171,12 +171,12 @@ namespace Oqtane.Controllers
                 if (theme.Template.ToLower().Contains("internal"))
                 {
                     rootPath = Utilities.PathCombine(rootFolder.FullName, Path.DirectorySeparatorChar.ToString());
-                    theme.ThemeName = theme.Owner + "." + theme.Name + ", Oqtane.Client";
+                    theme.ThemeName = theme.Owner + ".Theme." + theme.Name + ", Oqtane.Client";
                 }
                 else
                 {
-                    rootPath = Utilities.PathCombine(rootFolder.Parent.FullName, theme.Owner + "." + theme.Name, Path.DirectorySeparatorChar.ToString());
-                    theme.ThemeName = theme.Owner + "." + theme.Name + ", " + theme.Owner + "." + theme.Name + ".Client.Oqtane";
+                    rootPath = Utilities.PathCombine(rootFolder.Parent.FullName, theme.Owner + ".Theme." + theme.Name, Path.DirectorySeparatorChar.ToString());
+                    theme.ThemeName = theme.Owner + ".Theme." + theme.Name + ", " + theme.Owner + ".Theme." + theme.Name + ".Client.Oqtane";
                 }
 
                 ProcessTemplatesRecursively(new DirectoryInfo(templatePath), rootPath, rootFolder.Name, templatePath, theme);
