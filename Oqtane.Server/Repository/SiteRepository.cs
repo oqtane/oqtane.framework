@@ -99,7 +99,8 @@ namespace Oqtane.Repository
         {
             var site = GetSite(alias.SiteId);            
 
-            _themeRepository.GetThemes();
+            // load themes and module definitions 
+            site.Themes = _themeRepository.GetThemes().ToList();
             var moduleDefinitions = _moduleDefinitionRepository.GetModuleDefinitions(alias.SiteId);
 
             // site migrations
