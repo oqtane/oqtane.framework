@@ -25,7 +25,7 @@
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
                                 <div class="col-sm-9">
-                                    <select id="parent" class="form-select" @onchange="(e => ParentChanged(e))" required>
+                                    <select id="parent" class="form-select" value="@_parentid" @onchange="(e => ParentChanged(e))" required>
                                         <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
                                         @foreach (Page page in PageState.Pages)
                                         {
@@ -454,11 +454,11 @@
                     await logger.LogInformation("Page Added {Page}", page);
                     if (!string.IsNullOrEmpty(PageState.ReturnUrl))
                     {
-                        NavigationManager.NavigateTo(PageState.ReturnUrl);
+                        NavigationManager.NavigateTo(page.Path); // redirect to new page
                     }
                     else
                     {
-                        NavigationManager.NavigateTo(NavigateUrl(page.Path));
+                        NavigationManager.NavigateTo(NavigateUrl()); // redirect to page management
                     }
                 }
                 else
