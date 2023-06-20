@@ -522,7 +522,7 @@
                 }
 
                 // ensure resource does not exist already
-                if (pageresources.Find(item => item.Url == resource.Url) == null)
+                if (!pageresources.Any(item => item.Url.ToLower() == resource.Url.ToLower()))
                 {
                     resource.Level = level;
 					pageresources.Add(resource);
