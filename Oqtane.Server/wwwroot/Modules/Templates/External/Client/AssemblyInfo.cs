@@ -1,4 +1,4 @@
-﻿using System.Resources;
+using System.Resources;
 using Microsoft.Extensions.Localization;
 
-[assembly: RootNamespace("[Owner].[Module].Client")]
+[assembly: RootNamespace("[Owner].Module.[Module].Client")]

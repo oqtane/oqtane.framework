@@ -7,9 +7,9 @@ using Oqtane.Models;
 using Oqtane.Infrastructure;
 using Oqtane.Enums;
 using Oqtane.Repository;
-using [Owner].[Module].Repository;
+using [Owner].Module.[Module].Repository;
 
-namespace [Owner].[Module].Manager
+namespace [Owner].Module.[Module].Manager
 {
     public class [Module]Manager : MigratableModuleBase, IInstallable, IPortable
     {
@@ -32,7 +32,7 @@ namespace [Owner].[Module].Manager
             return Migrate(new [Module]Context(_DBContextDependencies), tenant, MigrationType.Down);
         }
 
-        public string ExportModule(Module module)
+        public string ExportModule(Oqtane.Models.Module module)
         {
             string content = "";
             List<Models.[Module]> [Module]s = _[Module]Repository.Get[Module]s(module.ModuleId).ToList();
@@ -43,7 +43,7 @@ namespace [Owner].[Module].Manager
             return content;
         }
 
-        public void ImportModule(Module module, string content, string version)
+        public void ImportModule(Oqtane.Models.Module module, string content, string version)
         {
             List<Models.[Module]> [Module]s = null;
             if (!string.IsNullOrEmpty(content))
