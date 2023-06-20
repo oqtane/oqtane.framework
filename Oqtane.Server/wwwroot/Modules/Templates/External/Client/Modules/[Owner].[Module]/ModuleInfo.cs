@@ -1,5 +1,7 @@
 using Oqtane.Models;
 using Oqtane.Modules;
+using Oqtane.Shared;
+using System.Collections.Generic;
 
 namespace [Owner].[Module]
 {
@@ -13,7 +15,12 @@ namespace [Owner].[Module]
             ServerManagerType = "[ServerManagerType]",
             ReleaseVersions = "1.0.0",
             Dependencies = "[Owner].[Module].Shared.Oqtane",
-            PackageName = "[Owner].[Module]" 
+            PackageName = "[Owner].[Module]",
+            Resources = new List<Resource>()
+            {
+                new Resource { ResourceType = ResourceType.Stylesheet, Url = "~/Module.css" },
+                new Resource { ResourceType = ResourceType.Script, Url = "~/Module.js" }
+            }			
         };
     }
 }

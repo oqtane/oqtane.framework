@@ -33,11 +33,6 @@
 
     public override string Title => "Manage [Module]";
 
-    public override List<Resource> Resources => new List<Resource>()
-    {
-        new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" }
-    };
-
     private ElementReference form;
     private bool validated = false;
 
