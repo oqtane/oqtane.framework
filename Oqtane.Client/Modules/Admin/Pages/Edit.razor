@@ -367,11 +367,11 @@
 
                 // appearance
                 _title = _page.Title;
-                _themetype = _page.ThemeType;
-                if (string.IsNullOrEmpty(_themetype))
+                if (string.IsNullOrEmpty(_page.ThemeType))
                 {
-                    _themetype = PageState.Site.DefaultThemeType;
+                    _page.ThemeType = PageState.Site.DefaultThemeType;
                 }
+                _themetype = _page.ThemeType;
                 _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
                 _containertype = _page.DefaultContainerType;
                 if (string.IsNullOrEmpty(_containertype))
@@ -480,10 +480,15 @@
         try
         {
             _themetype = (string)e.Value;
-            _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
-            _containertype = "-";
-            ThemeSettings();
-            StateHasChanged();
+            var oldTheme = PageState.Site.Themes.FirstOrDefault(item => item.Themes.Any(themecontrol => themecontrol.TypeName.Equals(_page.ThemeType)));
+            var newTheme = PageState.Site.Themes.FirstOrDefault(item => item.Themes.Any(themecontrol => themecontrol.TypeName.Equals(_themetype)));
+            if (oldTheme.ThemeName != newTheme.ThemeName)
+            {
+                _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
+                _containertype = _containers.First().TypeName;
+                ThemeSettings();
+                StateHasChanged();                
+            }
         }
         catch (Exception ex)
         {
