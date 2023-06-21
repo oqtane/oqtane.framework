@@ -513,22 +513,25 @@
         {
             foreach (var resource in resources)
             {
-                if (resource.Url.StartsWith("~"))
+                if (resource.Level != ResourceLevel.Site)
                 {
-                    resource.Url = resource.Url.Replace("~", "/" + type + "/" + name + "/").Replace("//", "/");
-                }
-                if (!resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
-                {
-                    resource.Url = alias.BaseUrl + resource.Url;
-                }
+                    if (resource.Url.StartsWith("~"))
+                    {
+                        resource.Url = resource.Url.Replace("~", "/" + type + "/" + name + "/").Replace("//", "/");
+                    }
+                    if (!resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
+                    {
+                        resource.Url = alias.BaseUrl + resource.Url;
+                    }
 
-                // ensure resource does not exist already
-                if (!pageresources.Exists(item => item.Url.ToLower() == resource.Url.ToLower()))
-                {
-                    resource.Level = level;
-                    resource.Namespace = name;
-                    pageresources.Add(resource);
-				}
+                    // ensure resource does not exist already
+                    if (!pageresources.Exists(item => item.Url.ToLower() == resource.Url.ToLower()))
+                    {
+                        resource.Level = level;
+                        resource.Namespace = name;
+                        pageresources.Add(resource);
+                    }
+                }
 			}
 		}
 		return pageresources;
