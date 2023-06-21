@@ -105,10 +105,9 @@
 
         if (PageState.Page.Resources != null)
         {
-            var interop = new Interop(JSRuntime);
-
             if (PageState.Page.Resources.Exists(item => item.ResourceType == ResourceType.Stylesheet))
             {
+                var interop = new Interop(JSRuntime);
                 string batch = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
                 var links = new List<object>();
                 foreach (Resource resource in PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
@@ -125,28 +124,28 @@
                 await interop.RemoveElementsById("app-stylesheet-module-", "", "app-stylesheet-module-" + batch + "-00");
             }
 
-            if (PageState.Page.Resources.Exists(item => item.ResourceType == ResourceType.Script))
-            {
-                var scripts = new List<object>();
-                var inline = 0;
-                foreach (Resource resource in PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Script && item.Level != ResourceLevel.Site))
-                {
-                    if (!string.IsNullOrEmpty(resource.Url))
-                    {
-                        var url = (resource.Url.Contains("://")) ? resource.Url : PageState.Alias.BaseUrl + resource.Url;
-                        scripts.Add(new { href = url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", es6module = resource.ES6Module, location = resource.Location.ToString().ToLower() });
-                    }
-                    else
-                    {
-                        inline += 1;
-                        await interop.IncludeScript(GetType().Namespace.ToLower() + inline.ToString(), "", "", "", resource.Content, resource.Location.ToString().ToLower());
-                    }
-                }
-                if (scripts.Any())
-                {
-                    await interop.IncludeScripts(scripts.ToArray());
-                }
-            }
+            //if (PageState.Page.Resources.Exists(item => item.ResourceType == ResourceType.Script))
+            //{
+            //    var scripts = new List<object>();
+            //    var inline = 0;
+            //    foreach (Resource resource in PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Script && item.Level != ResourceLevel.Site))
+            //    {
+            //        if (!string.IsNullOrEmpty(resource.Url))
+            //        {
+            //            var url = (resource.Url.Contains("://")) ? resource.Url : PageState.Alias.BaseUrl + resource.Url;
+            //            scripts.Add(new { href = url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", es6module = resource.ES6Module, location = resource.Location.ToString().ToLower() });
+            //        }
+            //        else
+            //        {
+            //            inline += 1;
+            //            await interop.IncludeScript(GetType().Namespace.ToLower() + inline.ToString(), "", "", "", resource.Content, resource.Location.ToString().ToLower());
+            //        }
+            //    }
+            //    if (scripts.Any())
+            //    {
+            //        await interop.IncludeScripts(scripts.ToArray());
+            //    }
+            //}
         }
     }
 
