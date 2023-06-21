@@ -333,10 +333,11 @@
                 // fallback to default Oqtane theme
                 page.ThemeType = Constants.DefaultTheme;
                 themetype = Type.GetType(Constants.DefaultTheme);
+                theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == page.ThemeType));
             }
 
             string panes = "";
-            if (themetype != null)
+            if (themetype != null && theme != null)
             {
                 // get resources for theme (ITheme)
                 page.Resources = ManagePageResources(page.Resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName));
@@ -522,10 +523,11 @@
                 }
 
                 // ensure resource does not exist already
-                if (!pageresources.Any(item => item.Url.ToLower() == resource.Url.ToLower()))
+                if (!pageresources.Exists(item => item.Url.ToLower() == resource.Url.ToLower()))
                 {
                     resource.Level = level;
-					pageresources.Add(resource);
+                    resource.Namespace = name;
+                    pageresources.Add(resource);
 				}
 			}
 		}

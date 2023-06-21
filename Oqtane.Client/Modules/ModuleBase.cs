@@ -9,6 +9,7 @@ using Oqtane.UI;
 using System.Collections.Generic;
 using Microsoft.JSInterop;
 using System.Linq;
+using Oqtane.Themes;
 
 namespace Oqtane.Modules
 {
@@ -70,12 +71,28 @@ namespace Oqtane.Modules
         {
             if (firstRender)
             {
-                if (Resources != null && Resources.Exists(item => item.ResourceType == ResourceType.Script))
+                List<Resource> resources = null;
+                var type = GetType();
+                if (type.BaseType == typeof(ModuleBase))
+                {
+                    if (PageState.Page.Resources != null)
+                    {
+                        resources = PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Script && item.Namespace == type.Namespace).ToList();
+                    }
+                }
+                else // modulecontrolbase
+                {
+                    if (Resources != null)
+                    {
+                        resources = Resources.Where(item => item.ResourceType == ResourceType.Script).ToList();
+                    }
+                }
+                if (resources != null &&resources.Any())
                 {
                     var interop = new Interop(JSRuntime);
                     var scripts = new List<object>();
                     var inline = 0;
-                    foreach (Resource resource in Resources.Where(item => item.ResourceType == ResourceType.Script))
+                    foreach (Resource resource in resources)
                     {
                         if (!string.IsNullOrEmpty(resource.Url))
                         {
@@ -104,6 +121,7 @@ namespace Oqtane.Modules
         }
 
         // url methods
+
         public string NavigateUrl()
         {
             return NavigateUrl(PageState.Page.Path);

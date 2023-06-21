@@ -62,6 +62,10 @@ namespace Oqtane.Models
         /// </summary>
         public string Content { get; set; }
 
+        /// <summary>
+        /// The namespace of the component that declared the resource - only used in SiteRouter
+        /// </summary>
+        public string Namespace { get; set; }
 
         [Obsolete("ResourceDeclaration is deprecated", false)]
         public ResourceDeclaration Declaration { get; set; }
