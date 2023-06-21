@@ -475,8 +475,8 @@ namespace Oqtane.Pages
             {
                 var url = (resource.Url.Contains("://")) ? resource.Url : alias.BaseUrl + resource.Url;
                 return "<script src=\"" + url + "\"" +
-                    ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
                     ((!string.IsNullOrEmpty(resource.Integrity)) ? " integrity=\"" + resource.Integrity + "\"" : "") +
+                    ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
                     "></script>";
             }
             else
