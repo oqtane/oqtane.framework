@@ -172,7 +172,7 @@ namespace Oqtane.Pages
                             page.ThemeType = site.DefaultThemeType;
                         }
                         var theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == page.ThemeType));
-                        if (theme != null)
+                        if (theme?.Resources != null)
                         {
                             resources.AddRange(theme.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet).ToList());
                         }
@@ -180,7 +180,7 @@ namespace Oqtane.Pages
                         if (type != null)
                         {
                             var obj = Activator.CreateInstance(type) as IThemeControl;
-                            if (obj.Resources != null)
+                            if (obj?.Resources != null)
                             {
                                 resources.AddRange(obj.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet).ToList());
                             }
