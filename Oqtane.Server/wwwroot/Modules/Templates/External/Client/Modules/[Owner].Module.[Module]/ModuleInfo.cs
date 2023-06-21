@@ -1,7 +1,7 @@
 using Oqtane.Models;
 using Oqtane.Modules;
 
-namespace [Owner].[Module]
+namespace [Owner].Module.[Module]
 {
     public class ModuleInfo : IModule
     {
@@ -12,8 +12,8 @@ namespace [Owner].[Module]
             Version = "1.0.0",
             ServerManagerType = "[ServerManagerType]",
             ReleaseVersions = "1.0.0",
-            Dependencies = "[Owner].[Module].Shared.Oqtane",
-            PackageName = "[Owner].[Module]" 
+            Dependencies = "[Owner].Module.[Module].Shared.Oqtane",
+            PackageName = "[Owner].Module.[Module]" 
         };
     }
 }

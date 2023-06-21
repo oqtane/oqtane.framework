@@ -21,10 +21,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="wwwroot\Modules\Templates\**" />
-    <Content Remove="wwwroot\Modules\Templates\**" />
-    <EmbeddedResource Remove="wwwroot\Modules\Templates\**" />
     <Compile Remove="wwwroot\Themes\Templates\**" />
+    <Content Remove="wwwroot\Modules\Templates\**" />
     <Content Remove="wwwroot\Themes\Templates\**" />
+    <EmbeddedResource Remove="wwwroot\Modules\Templates\**" />
     <EmbeddedResource Remove="wwwroot\Themes\Templates\**" />
   </ItemGroup>
   <ItemGroup>
@@ -62,16 +62,5 @@
   <ItemGroup>
     <!-- extends watching group to include *.dll files and exclude the ones cause an infinite loop -->
     <Watch Include="**\*.dll" Exclude="**\Microsoft.EntityFrameworkCore.*.dll;**\Oqtane.Database.*.dll;" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="wwwroot\Themes\Templates\External\Client\wwwroot\Themes\[Owner].Theme.[Theme]\Theme.css" />
-    <Content Include="wwwroot\Themes\Templates\External\Package\icon.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="wwwroot\Themes\Templates\External\Client\[Owner].Theme.[Theme].Client.csproj" />
-    <None Include="wwwroot\Themes\Templates\External\Package\debug.cmd" />
-    <None Include="wwwroot\Themes\Templates\External\Package\release.cmd" />
-    <None Include="wwwroot\Themes\Templates\External\Package\[Owner].Theme.[Theme].nuspec" />
-    <None Include="wwwroot\Themes\Templates\External\Package\[Owner].Theme.[Theme].Package.csproj" />
   </ItemGroup>
 </Project>

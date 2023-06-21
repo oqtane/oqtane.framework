@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -13,9 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Client\[Owner].[Module].Client.csproj" />
-    <ProjectReference Include="..\Server\[Owner].[Module].Server.csproj" />
-    <ProjectReference Include="..\Shared\[Owner].[Module].Shared.csproj" />
+    <ProjectReference Include="..\Client\[Owner].Module.[Module].Client.csproj" />
+    <ProjectReference Include="..\Server\[Owner].Module.[Module].Server.csproj" />
+    <ProjectReference Include="..\Shared\[Owner].Module.[Module].Shared.csproj" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

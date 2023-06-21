@@ -1,7 +1,7 @@
-﻿using Microsoft.JSInterop;
+using Microsoft.JSInterop;
 using System.Threading.Tasks;
 
-namespace [Owner].[Module]
+namespace [Owner].Module.[Module]
 {
     public class Interop
     {
