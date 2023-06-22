@@ -78,7 +78,6 @@
                     <Label Class="col-sm-3" For="defaultTheme" HelpText="Select the sites default theme" ResourceKey="DefaultTheme">Default Theme: </Label>
                     <div class="col-sm-9">
                         <select id="defaultTheme" class="form-select" value="@_themetype" @onchange="(e => ThemeChanged(e))" required>
-                            <option value="-">&lt;@Localizer["Theme.Select"]&gt;</option>
                             @foreach (var theme in _themes)
                             {
                                 <option value="@theme.TypeName">@theme.Name</option>
@@ -90,7 +89,6 @@
                     <Label Class="col-sm-3" For="defaultContainer" HelpText="Select the default container for the site" ResourceKey="DefaultContainer">Default Container: </Label>
                     <div class="col-sm-9">
                         <select id="defaultContainer" class="form-select" @bind="@_containertype" required>
-                            <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
                             @foreach (var container in _containers)
                             {
                                 <option value="@container.TypeName">@container.Name</option>
@@ -102,7 +100,6 @@
                     <Label Class="col-sm-3" For="defaultAdminContainer" HelpText="Select the default admin container for the site" ResourceKey="DefaultAdminContainer">Default Admin Container: </Label>
                     <div class="col-sm-9">
                         <select id="defaultAdminContainer" class="form-select" @bind="@_admincontainertype" required>
-                            <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
                             <option value="@Constants.DefaultAdminContainer">&lt;@Localizer["DefaultAdminContainer"]&gt;</option>
                             @foreach (var container in _containers)
                             {
@@ -356,9 +353,9 @@
     private FileManager _logofilemanager;
     private int _faviconfileid = -1;
     private FileManager _faviconfilemanager;
-    private string _themetype = "-";
-    private string _containertype = "-";
-    private string _admincontainertype = "-";
+    private string _themetype = "";
+    private string _containertype = "";
+    private string _admincontainertype = "";
     private string _headcontent = string.Empty;
     private string _bodycontent = string.Empty;
     private string _smtphost = string.Empty;
@@ -499,15 +496,8 @@
         try
         {
             _themetype = (string)e.Value;
-            if (_themetype != "-")
-            {
-                _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
-            }
-            else
-            {
-                _containers = new List<ThemeControl>();
-            }
-            _containertype = "-";
+            _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
+            _containertype = _containers.First().TypeName;
             _admincontainertype = Constants.DefaultAdminContainer;
             StateHasChanged();
         }
