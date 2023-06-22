@@ -5,7 +5,7 @@ using Oqtane.Databases.Interfaces;
 using Oqtane.Migrations;
 using Oqtane.Migrations.EntityBuilders;
 
-namespace [Owner].[Module].Migrations.EntityBuilders
+namespace [Owner].Module.[Module].Migrations.EntityBuilders
 {
     public class [Module]EntityBuilder : AuditableBaseEntityBuilder<[Module]EntityBuilder>
     {

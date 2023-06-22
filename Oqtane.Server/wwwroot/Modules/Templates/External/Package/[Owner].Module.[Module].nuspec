@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>[Owner].[Module]</id>
+    <id>[Owner].Module.[Module]</id>
     <version>1.0.0</version>
     <authors>[Owner]</authors>
     <owners>[Owner]</owners>
@@ -20,12 +20,12 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="..\Client\bin\Release\net7.0\[Owner].[Module].Client.Oqtane.dll" target="lib\net7.0" /> 
-    <file src="..\Client\bin\Release\net7.0\[Owner].[Module].Client.Oqtane.pdb" target="lib\net7.0" /> 
-    <file src="..\Server\bin\Release\net7.0\[Owner].[Module].Server.Oqtane.dll" target="lib\net7.0" /> 
-    <file src="..\Server\bin\Release\net7.0\[Owner].[Module].Server.Oqtane.pdb" target="lib\net7.0" /> 
-    <file src="..\Shared\bin\Release\net7.0\[Owner].[Module].Shared.Oqtane.dll" target="lib\net7.0" /> 
-    <file src="..\Shared\bin\Release\net7.0\[Owner].[Module].Shared.Oqtane.pdb" target="lib\net7.0" /> 
+    <file src="..\Client\bin\Release\net7.0\[Owner].Module.[Module].Client.Oqtane.dll" target="lib\net7.0" /> 
+    <file src="..\Client\bin\Release\net7.0\[Owner].Module.[Module].Client.Oqtane.pdb" target="lib\net7.0" /> 
+    <file src="..\Server\bin\Release\net7.0\[Owner].Module.[Module].Server.Oqtane.dll" target="lib\net7.0" /> 
+    <file src="..\Server\bin\Release\net7.0\[Owner].Module.[Module].Server.Oqtane.pdb" target="lib\net7.0" /> 
+    <file src="..\Shared\bin\Release\net7.0\[Owner].Module.[Module].Shared.Oqtane.dll" target="lib\net7.0" /> 
+    <file src="..\Shared\bin\Release\net7.0\[Owner].Module.[Module].Shared.Oqtane.pdb" target="lib\net7.0" /> 
     <file src="..\Server\wwwroot\**\*.*" target="wwwroot" /> 
     <file src="icon.png" target="" />
   </files>

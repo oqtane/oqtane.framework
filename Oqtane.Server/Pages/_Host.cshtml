@@ -15,8 +15,8 @@
     {
         <link id="app-manifest" rel="manifest" />
     }
-    <style id="app-stylesheet-page"></style>
-    <style id="app-stylesheet-module"></style>
+    <link id="app-stylesheet-page" />
+    <link id="app-stylesheet-module" />
     <component type="typeof(Oqtane.Head)" render-mode="@((RenderMode)Enum.Parse(typeof(RenderMode), Model.RenderMode, true))" />
     @Html.Raw(Model.HeadResources)
 </head>

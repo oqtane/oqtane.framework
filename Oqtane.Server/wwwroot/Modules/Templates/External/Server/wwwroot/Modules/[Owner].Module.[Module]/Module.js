@@ -1,5 +1,5 @@
 /* Module Script */
 var [Owner] = [Owner] || {};
 
-[Owner].[Module] = {
+[Owner].Module.[Module] = {
 };

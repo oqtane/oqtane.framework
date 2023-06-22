@@ -5,7 +5,7 @@ using Oqtane.Repository;
 using Oqtane.Infrastructure;
 using Oqtane.Repository.Databases.Interfaces;
 
-namespace [Owner].[Module].Repository
+namespace [Owner].Module.[Module].Repository
 {
     public class [Module]Context : DBContextBase, ITransientService, IMultiDatabase
     {

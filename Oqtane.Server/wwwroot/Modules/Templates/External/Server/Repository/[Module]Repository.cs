@@ -2,9 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Collections.Generic;
 using Oqtane.Modules;
-using [Owner].[Module].Models;
+using [Owner].Module.[Module].Models;
 
-namespace [Owner].[Module].Repository
+namespace [Owner].Module.[Module].Repository
 {
     public class [Module]Repository : I[Module]Repository, ITransientService
     {
