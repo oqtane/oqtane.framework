@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Oqtane.Documentation;
 using Oqtane.Models;
 using Oqtane.Shared;
+using Oqtane.UI;
 
 namespace Oqtane.Services
 {
@@ -30,16 +31,15 @@ namespace Oqtane.Services
             return themes.SelectMany(item => item.Themes).OrderBy(item => item.Name).ToList();
         }
 
-        //[Obsolete("This method is deprecated.", false)]
-        public List<ThemeControl> GetLayoutControls(List<Theme> themes, string themeName)
+        public List<ThemeControl> GetThemeControls(List<Theme> themes, string themeType)
         {
-            return null;
+            return themes.First(item => item.Themes.Any(item => item.TypeName == themeType)).Themes.OrderBy(item => item.Name).ToList();
         }
 
-        public List<ThemeControl> GetContainerControls(List<Theme> themes, string themeName)
+
+        public List<ThemeControl> GetContainerControls(List<Theme> themes, string themeType)
         {
-            return themes.Where(item => Utilities.GetTypeName(themeName).StartsWith(Utilities.GetTypeName(item.ThemeName)))
-                .SelectMany(item => item.Containers).OrderBy(item => item.Name).ToList();
+            return themes.First(item => item.Themes.Any(item => item.TypeName == themeType)).Containers.OrderBy(item => item.Name).ToList();
         }
 
         public async Task UpdateThemeAsync(Theme theme)
@@ -61,6 +61,12 @@ namespace Oqtane.Services
         {
             List<Template> templates = await GetJsonAsync<List<Template>>($"{ApiUrl}/templates");
             return templates;
+        }
+
+        //[Obsolete("This method is deprecated.", false)]
+        public List<ThemeControl> GetLayoutControls(List<Theme> themes, string themeName)
+        {
+            return null;
         }
     }
 }
