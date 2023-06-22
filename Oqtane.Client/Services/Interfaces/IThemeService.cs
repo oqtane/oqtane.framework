@@ -32,20 +32,19 @@ namespace Oqtane.Services
         List<ThemeControl> GetThemeControls(List<Theme> themes);
 
         /// <summary>
-        /// Returns a list of layouts (<see cref="ThemeControl"/>) from the given themes with a matching theme name
+        /// Returns a list of <see cref="ThemeControl"/>s from the given themes with a matching theme type
         /// </summary>
         /// <param name="themes"></param>
-        /// <param name="themeName"></param>
         /// <returns></returns>
-        List<ThemeControl> GetLayoutControls(List<Theme> themes, string themeName);
+        List<ThemeControl> GetThemeControls(List<Theme> themes, string themeType);
 
         /// <summary>
-        /// Returns a list of containers (<see cref="ThemeControl"/>) from the given themes with a matching theme name
+        /// Returns a list of containers (<see cref="ThemeControl"/>) from the given themes with a matching theme type
         /// </summary>
         /// <param name="themes"></param>
         /// <param name="themeName"></param>
         /// <returns></returns>
-        List<ThemeControl> GetContainerControls(List<Theme> themes, string themeName);
+        List<ThemeControl> GetContainerControls(List<Theme> themes, string themeType);
 
         /// <summary>
         /// Updates a existing theem
@@ -73,5 +72,14 @@ namespace Oqtane.Services
         /// </summary>
         /// <returns></returns>
         Task<List<Template>> GetThemeTemplatesAsync();
+
+
+        /// <summary>
+        /// Returns a list of layouts (<see cref="ThemeControl"/>) from the given themes with a matching theme name
+        /// </summary>
+        /// <param name="themes"></param>
+        /// <param name="themeName"></param>
+        /// <returns></returns>
+        List<ThemeControl> GetLayoutControls(List<Theme> themes, string themeName);
     }
 }
