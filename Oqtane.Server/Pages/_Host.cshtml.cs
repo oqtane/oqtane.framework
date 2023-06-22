@@ -21,6 +21,7 @@ using Oqtane.Security;
 using Oqtane.Extensions;
 using Oqtane.Themes;
 using System.Collections.Generic;
+using Oqtane.UI;
 
 namespace Oqtane.Pages
 {
@@ -511,8 +512,12 @@ namespace Oqtane.Pages
 
                     if (!HeadResources.Contains(resource.Url, StringComparison.OrdinalIgnoreCase))
                     {
-                        count++;
-                        string id = "id=\"app-stylesheet-" + ResourceLevel.Page.ToString().ToLower() + "-" + DateTime.UtcNow.ToString("yyyyMMddHHmmssfff") + "-" + count.ToString("00") + "\" ";
+                        string id = "";
+                        if (!HttpContext.Request.Query.ContainsKey("method") || (HttpContext.Request.Query.ContainsKey("method") && HttpContext.Request.Query["method"] == "old"))
+                        {
+                            count++;
+                            id = "id=\"app-stylesheet-" + ResourceLevel.Page.ToString().ToLower() + "-" + DateTime.UtcNow.ToString("yyyyMMddHHmmssfff") + "-" + count.ToString("00") + "\" ";
+                        }
                         HeadResources += "<link " + id + "rel=\"stylesheet\" href=\"" + resource.Url + "\"" + (!string.IsNullOrEmpty(resource.Integrity) ? " integrity=\"" + resource.Integrity + "\"" : "") + (!string.IsNullOrEmpty(resource.CrossOrigin) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") + " type=\"text/css\"/>" + Environment.NewLine;
                     }
                 }
