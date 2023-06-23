@@ -25,11 +25,12 @@ namespace Oqtane.Services
         Task<Theme> GetThemeAsync(int themeId, int siteId);
 
         /// <summary>
-        /// Returns a theme <see cref="ThemeControl"/>s containing a theme control type
+        /// Returns a theme <see cref="ThemeControl"/>s containing a specific theme control type
         /// </summary>
         /// <param name="themes"></param>
+        /// <param name="themeControlType"></param>
         /// <returns></returns>
-        Theme GetTheme(List<Theme> themes, string themeType);
+        Theme GetTheme(List<Theme> themes, string themeControlType);
 
         /// <summary>
         /// Returns a list of <see cref="ThemeControl"/>s from the given themes
@@ -39,19 +40,20 @@ namespace Oqtane.Services
         List<ThemeControl> GetThemeControls(List<Theme> themes);
 
         /// <summary>
-        /// Returns a list of <see cref="ThemeControl"/>s from the given themes with a matching theme type
+        /// Returns a list of <see cref="ThemeControl"/>s for a theme containing a specific theme control type
         /// </summary>
         /// <param name="themes"></param>
+        /// <param name="themeControlType"></param>
         /// <returns></returns>
-        List<ThemeControl> GetThemeControls(List<Theme> themes, string themeType);
+        List<ThemeControl> GetThemeControls(List<Theme> themes, string themeControlType);
 
         /// <summary>
-        /// Returns a list of containers (<see cref="ThemeControl"/>) from the given themes with a matching theme type
+        /// Returns a list of containers (<see cref="ThemeControl"/>) for a theme containing a specific theme control type
         /// </summary>
         /// <param name="themes"></param>
-        /// <param name="themeName"></param>
+        /// <param name="themeControlType"></param>
         /// <returns></returns>
-        List<ThemeControl> GetContainerControls(List<Theme> themes, string themeType);
+        List<ThemeControl> GetContainerControls(List<Theme> themes, string themeControlType);
 
         /// <summary>
         /// Updates a existing theem
