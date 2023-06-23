@@ -25,6 +25,13 @@ namespace Oqtane.Services
         Task<Theme> GetThemeAsync(int themeId, int siteId);
 
         /// <summary>
+        /// Returns a theme <see cref="ThemeControl"/>s containing a theme control type
+        /// </summary>
+        /// <param name="themes"></param>
+        /// <returns></returns>
+        Theme GetTheme(List<Theme> themes, string themeType);
+
+        /// <summary>
         /// Returns a list of <see cref="ThemeControl"/>s from the given themes
         /// </summary>
         /// <param name="themes"></param>

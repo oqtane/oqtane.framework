@@ -355,7 +355,7 @@
                 // appearance
                 _title = _page.Title;
                 _themetype = _page.ThemeType;
-                if (string.IsNullOrEmpty(_themetype))
+                if (string.IsNullOrEmpty(_themetype) || ThemeService.GetTheme(PageState.Site.Themes, _themetype)?.ThemeName != ThemeService.GetTheme(PageState.Site.Themes, PageState.Site.DefaultThemeType)?.ThemeName)
                 {
                     _themetype = PageState.Site.DefaultThemeType;
                 }
