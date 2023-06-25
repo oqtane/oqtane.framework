@@ -167,29 +167,26 @@ namespace Oqtane.Pages
                         }
 
                         // stylesheets
-                        if (!HttpContext.Request.Query.ContainsKey("method") || (HttpContext.Request.Query.ContainsKey("method") && HttpContext.Request.Query["method"] == "old"))
+                        var resources = new List<Resource>();
+                        if (string.IsNullOrEmpty(page.ThemeType))
                         {
-                            var resources = new List<Resource>();
-                            if (string.IsNullOrEmpty(page.ThemeType))
-                            {
-                                page.ThemeType = site.DefaultThemeType;
-                            }
-                            var theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == page.ThemeType));
-                            if (theme?.Resources != null)
-                            {
-                                resources.AddRange(theme.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet).ToList());
-                            }
-                            var type = Type.GetType(page.ThemeType);
-                            if (type != null)
-                            {
-                                var obj = Activator.CreateInstance(type) as IThemeControl;
-                                if (obj?.Resources != null)
-                                {
-                                    resources.AddRange(obj.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet).ToList());
-                                }
-                            }
-                            ManageStyleSheets(resources, alias, theme.ThemeName);
+                            page.ThemeType = site.DefaultThemeType;
                         }
+                        var theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == page.ThemeType));
+                        if (theme?.Resources != null)
+                        {
+                            resources.AddRange(theme.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet).ToList());
+                        }
+                        var type = Type.GetType(page.ThemeType);
+                        if (type != null)
+                        {
+                            var obj = Activator.CreateInstance(type) as IThemeControl;
+                            if (obj?.Resources != null)
+                            {
+                                resources.AddRange(obj.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet).ToList());
+                            }
+                        }
+                        ManageStyleSheets(resources, alias, theme.ThemeName);
 
                         // scripts
                         if (Runtime == "Server")
