@@ -2,13 +2,13 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Oqtane.Databases.Interfaces;
 using Oqtane.Migrations;
-using [Owner].[Module].Migrations.EntityBuilders;
-using [Owner].[Module].Repository;
+using [Owner].Module.[Module].Migrations.EntityBuilders;
+using [Owner].Module.[Module].Repository;
 
-namespace [Owner].[Module].Migrations
+namespace [Owner].Module.[Module].Migrations
 {
     [DbContext(typeof([Module]Context))]
-    [Migration("[Owner].[Module].01.00.00.00")]
+    [Migration("[Owner].Module.[Module].01.00.00.00")]
     public class InitializeModule : MultiDatabaseMigration
     {
         public InitializeModule(IDatabase database) : base(database)

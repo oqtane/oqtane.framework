@@ -5,15 +5,17 @@
 @inject ISiteService SiteService
 @inject IUserService UserService
 @inject IDatabaseService DatabaseService
+@inject ISiteTemplateService SiteTemplateService
 @inject IJSRuntime JSRuntime
 @inject IStringLocalizer<Installer> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject SiteState SiteState
 
 <div class="container">
     <div class="row">
         <div class="mx-auto text-center">
             <img src="oqtane-black.png" />
-            <div style="font-weight: bold">@SharedLocalizer["Version"] @Constants.Version</div>
+            <div style="font-weight: bold">@SharedLocalizer["Version"] @Constants.Version (.NET 7)</div>
         </div>
     </div>
     <hr class="app-rule" />
@@ -61,7 +63,7 @@
 						</div>
 					</div>
 				}
-			</div>
+            </div>
         </div>
         <div class="col text-center">
             <h2>@Localizer["ApplicationAdmin"]</h2><br />
@@ -96,6 +98,20 @@
                         <input type="text" class="form-control" @bind="@_hostEmail" />
                     </div>
                 </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="template" HelpText="Select a site template" ResourceKey="Template">Template:</Label>
+                    <div class="col-sm-9">
+                        @if (_templates != null)
+                        {
+                            <select id="template" class="form-select" @bind="@_template" required>
+                                @foreach (var template in _templates)
+                                {
+                                    <option value="@template.TypeName">@template.Name</option>
+                                }
+                            </select>
+                        }
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -103,7 +119,13 @@
     <div class="row">
         <div class="mx-auto text-center">
             <button type="button" class="btn btn-success" @onclick="Install">@Localizer["InstallNow"]</button><br /><br />
-            <ModuleMessage Message="@_message" Type="MessageType.Error"></ModuleMessage>
+            @if (!string.IsNullOrEmpty(_message))
+            {
+                <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                    @((MarkupString)_message)
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="DismissModal"></button>
+                </div>
+            }
         </div>
         <div class="app-progress-indicator" style="@_loadingDisplay"></div>
     </div>
@@ -115,29 +137,35 @@
 </div>
 
 @code {
-	private List<Database> _databases;
-	private string _databaseName;
-	private Type _databaseConfigType;
-	private object _databaseConfig;
-	private RenderFragment DatabaseConfigComponent { get; set; }
-	private bool _showConnectionString = false;
-	private string _connectionString = string.Empty;
+    private List<Database> _databases;
+    private string _databaseName;
+    private Type _databaseConfigType;
+    private object _databaseConfig;
+    private RenderFragment DatabaseConfigComponent { get; set; }
+    private bool _showConnectionString = false;
+    private string _connectionString = string.Empty;
 
-	private string _hostUsername = string.Empty;
-	private string _hostPassword = string.Empty;
-	private string _passwordType = "password";
-	private string _confirmPasswordType = "password";
-	private string _togglePassword = string.Empty;
-	private string _toggleConfirmPassword = string.Empty;
-	private string _confirmPassword = string.Empty;
-	private string _hostEmail = string.Empty;
-	private bool _register = true;
+    private string _hostUsername = string.Empty;
+    private string _hostPassword = string.Empty;
+    private string _passwordType = "password";
+    private string _confirmPasswordType = "password";
+    private string _togglePassword = string.Empty;
+    private string _toggleConfirmPassword = string.Empty;
+    private string _confirmPassword = string.Empty;
+    private string _hostEmail = string.Empty;
+    private List<SiteTemplate> _templates;
+    private string _template = Constants.DefaultSiteTemplate;
+    private bool _register = true;
 	private string _message = string.Empty;
 	private string _loadingDisplay = "display: none;";
 
 	protected override async Task OnInitializedAsync()
 	{
-		_togglePassword = SharedLocalizer["ShowPassword"];
+        // include CSS
+        var content = "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css\" integrity=\"sha512-t4GWSVZO1eC8BM339Xd7Uphw5s17a86tIZIj8qRxhnKub6WoyhnrxeCIMeAqBPgdZGlCcG2PrZjMc+Wr78+5Xg==\" crossorigin=\"anonymous\" type=\"text/css\"/>";
+        SiteState.AppendHeadContent(content);
+
+        _togglePassword = SharedLocalizer["ShowPassword"];
 		_toggleConfirmPassword = SharedLocalizer["ShowPassword"];
 
 		_databases = await DatabaseService.GetDatabasesAsync();
@@ -150,7 +178,9 @@
 			_databaseName = "LocalDB";
 		}
 		LoadDatabaseConfigComponent();
-	}
+
+        _templates = await SiteTemplateService.GetSiteTemplatesAsync();
+    }
 
 	private void DatabaseChanged(ChangeEventArgs eventArgs)
 	{
@@ -185,9 +215,9 @@
 	{
 		if (firstRender)
 		{
+            // include JavaScript
 			var interop = new Interop(JSRuntime);
-			await interop.IncludeLink("", "stylesheet", "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.0/css/bootstrap.min.css", "text/css", "sha512-XWTTruHZEYJsxV3W/lSXG1n3Q39YIWOstqvmFsdNEEQfHoZ6vm6E9GK2OrF6DSJSpIbRbi+Nn0WDPID9O7xB2Q==", "anonymous", "");
-			await interop.IncludeScript("", "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.0/js/bootstrap.bundle.min.js", "sha512-9GacT4119eY3AcosfWtHMsT5JyZudrexyEVzTBWV3viP/YfB9e2pEy3N7WXL3SV6ASXpTU0vzzSxsbfsuUH4sQ==", "anonymous", "", "head");
+            await interop.IncludeScript("", "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js", "sha512-VK2zcvntEufaimc+efOYi622VN5ZacdnufnmX7zIhCPmjhKnOi9ZDMtg1/ug5l183f19gG1/cBstPO4D8N/Img==", "anonymous", "", "head");
 		}
 	}
 
@@ -229,7 +259,8 @@
 					TenantName = TenantNames.Master,
 					IsNewTenant = true,
 					SiteName = Constants.DefaultSite,
-					Register = _register
+					Register = _register,
+                    SiteTemplate = _template
 				};
 
 				var installation = await InstallationService.Install(config);
@@ -291,4 +322,9 @@
 		_showConnectionString = !_showConnectionString;
 	}
 
+    private void DismissModal()
+    {
+        _message = "";
+        StateHasChanged();
+    }
 }

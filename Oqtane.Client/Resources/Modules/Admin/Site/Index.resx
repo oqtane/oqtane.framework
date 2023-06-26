@@ -175,7 +175,7 @@
     <value>Specify a logo for the site</value>
   </data>
   <data name="FavoriteIcon.HelpText" xml:space="preserve">
-    <value>Specify a Favicon</value>
+    <value>Specify a Favicon. The format for the image must be 16×16, 32×32, 48×48, or 64×64 pixels in size, and 8-bit, 24-bit, or 32-bit in color depth. The format of the image must be ICO, PNG, or GIF.</value>
   </data>
   <data name="DefaultTheme.HelpText" xml:space="preserve">
     <value>Select the sites default theme</value>
@@ -350,5 +350,35 @@
   </data>
   <data name="SiteMap.Text" xml:space="preserve">
     <value>Site Map:</value>
+  </data>
+  <data name="Appearance.Heading" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="HeadContent.HelpText" xml:space="preserve">
+    <value>Optionally enter content to be included in the page head (ie. meta, link, or script tags)</value>
+  </data>
+  <data name="HeadContent.Text" xml:space="preserve">
+    <value>Head Content:</value>
+  </data>
+  <data name="BodyContent.HelpText" xml:space="preserve">
+    <value>Optionally enter content to be included in the page body (ie. script tags)</value>
+  </data>
+  <data name="BodyContent.Text" xml:space="preserve">
+    <value>Body Content:</value>
+  </data>
+  <data name="PageContent.Heading" xml:space="preserve">
+    <value>Page Content</value>
+  </data>
+  <data name="SMTPEnabled.HelpText" xml:space="preserve">
+    <value>Specify if SMTP is enabled for this site</value>
+  </data>
+  <data name="SMTPEnabled.Text" xml:space="preserve">
+    <value>Enabled?</value>
+  </data>
+  <data name="Version.HelpText" xml:space="preserve">
+    <value>The site version (for site content migrations)</value>
+  </data>
+  <data name="Version.Text" xml:space="preserve">
+    <value>Version:</value>
   </data>
 </root>

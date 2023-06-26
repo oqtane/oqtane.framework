@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Extensions;
 using Oqtane.Models;
@@ -11,16 +12,20 @@ namespace Oqtane.Repository
     {
         private TenantDBContext _db;
         private readonly IModuleDefinitionRepository _moduleDefinitions;
+        private readonly IModuleRepository _modules;
         private readonly IPermissionRepository _permissions;
+        private readonly ISettingRepository _settings;
 
-        public PageModuleRepository(TenantDBContext context, IModuleDefinitionRepository moduleDefinitions, IPermissionRepository permissions)
+        public PageModuleRepository(TenantDBContext context, IModuleDefinitionRepository moduleDefinitions, IModuleRepository modules, IPermissionRepository permissions, ISettingRepository settings)
         {
             _db = context;
             _moduleDefinitions = moduleDefinitions;
+            _modules = modules;
             _permissions = permissions;
-        }
+            _settings = settings;
+    }
 
-        public IEnumerable<PageModule> GetPageModules(int siteId)
+    public IEnumerable<PageModule> GetPageModules(int siteId)
         {
             var pagemodules = _db.PageModule
                 .Include(item => item.Module) // eager load modules
@@ -93,9 +98,18 @@ namespace Oqtane.Repository
 
         public void DeletePageModule(int pageModuleId)
         {
-            PageModule pageModule = _db.PageModule.Find(pageModuleId);
+            PageModule pageModule = _db.PageModule.Include(item => item.Module) // eager load modules
+                .SingleOrDefault(item => item.PageModuleId == pageModuleId);
+            _settings.DeleteSettings(EntityNames.PageModule, pageModuleId);
             _db.PageModule.Remove(pageModule);
             _db.SaveChanges();
+
+            // check if there are any remaining module instances in the site
+            var pageModules = GetPageModules(pageModule.Module.SiteId);
+            if (!pageModules.Any(item => item.ModuleId == pageModule.ModuleId))
+            {
+                _modules.DeleteModule(pageModule.ModuleId);
+            }
         }
 
         private PageModule GetPageModule(PageModule pageModule, List<ModuleDefinition> moduleDefinitions, List<Permission> modulePermissions)

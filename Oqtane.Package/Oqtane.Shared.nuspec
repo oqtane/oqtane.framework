@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>Oqtane.Shared</id>
-    <version>3.4.3</version>
+    <version>4.0.0</version>
     <authors>Shaun Walker</authors>
     <owners>.NET Foundation</owners>
     <title>Oqtane Framework</title>
@@ -12,13 +12,13 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
-    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v3.4.3</releaseNotes>
+    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v4.0.0</releaseNotes>
     <icon>icon.png</icon>
     <tags>oqtane</tags>
   </metadata>
   <files>
-    <file src="..\Oqtane.Shared\bin\Release\net6.0\Oqtane.Shared.dll" target="lib\net6.0" /> 
-    <file src="..\Oqtane.Shared\bin\Release\net6.0\Oqtane.Shared.pdb" target="lib\net6.0" /> 
+    <file src="..\Oqtane.Shared\bin\Release\net7.0\Oqtane.Shared.dll" target="lib\net7.0" /> 
+    <file src="..\Oqtane.Shared\bin\Release\net7.0\Oqtane.Shared.pdb" target="lib\net7.0" /> 
     <file src="icon.png" target="" />
   </files>
 </package>

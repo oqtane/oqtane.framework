@@ -1,0 +1,64 @@
+@using System.ComponentModel
+@using Oqtane.Shared
+@inject SiteState SiteState
+
+@if (!string.IsNullOrEmpty(_title))
+{
+    @((MarkupString)_title)
+}
+@if (!string.IsNullOrEmpty(_content))
+{
+    @((MarkupString)_content)
+}
+
+@code {
+    private string _title = "";
+    private string _content = "";
+
+    protected override void OnInitialized()
+    {
+        ((INotifyPropertyChanged)SiteState.Properties).PropertyChanged += PropertyChanged;
+    }
+
+    private void PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        switch (e.PropertyName)
+        {
+            case "PageTitle":
+                var title = "\n<title>" + SiteState.Properties.PageTitle + "</title>";
+                if (title != _title)
+                {
+                    _title = title;
+                    StateHasChanged();
+                }
+                break;
+            case "HeadContent":
+                var content = RemoveScripts(SiteState.Properties.HeadContent) + "\n";
+                if (content != _content)
+                {
+                    _content = content;
+                    StateHasChanged();
+                }
+                break;
+        }
+    }
+
+    private string RemoveScripts(string headcontent)
+    {
+        if (!string.IsNullOrEmpty(headcontent))
+        {
+            var index = headcontent.IndexOf("<script");
+            while (index >= 0)
+            {
+                headcontent = headcontent.Remove(index, headcontent.IndexOf("</script>") + 9 - index);
+                index = headcontent.IndexOf("<script");
+            }
+        }
+        return headcontent;
+    }
+
+    public void Dispose()
+    {
+        ((INotifyPropertyChanged)SiteState.Properties).PropertyChanged -= PropertyChanged;
+    }
+}

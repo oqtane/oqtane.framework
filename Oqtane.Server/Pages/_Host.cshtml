@@ -7,20 +7,19 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@Model.Title</title>
-	@Html.Raw(@Model.Meta)
     <base href="~/" />
-    <link id="app-favicon" rel="shortcut icon" type="image/x-icon" href="@Model.FavIcon" />
-	@if (!string.IsNullOrEmpty(Model.PWAScript))
-	{
-		<link id="app-manifest" rel="manifest" />
-	}
     <script src="js/app.js"></script>
     <script src="js/loadjs.min.js"></script>
     <link rel="stylesheet" href="css/app.css" />
+    @if (!string.IsNullOrEmpty(Model.PWAScript))
+    {
+        <link id="app-manifest" rel="manifest" />
+    }
+    @Html.Raw(Model.StyleSheets)
+    <link id="app-stylesheet-page" />
+    <link id="app-stylesheet-module" />
+    <component type="typeof(Oqtane.Head)" render-mode="@((RenderMode)Enum.Parse(typeof(RenderMode), Model.RenderMode, true))" />
     @Html.Raw(Model.HeadResources)
-	<link id="app-stylesheet-page" rel="stylesheet" href="css/empty.css" disabled />
-	<link id="app-stylesheet-module" rel="stylesheet" href="css/empty.css" disabled />
 </head>
 <body>
 	@if (string.IsNullOrEmpty(Model.Message))
@@ -54,12 +53,12 @@
 		{
 			@Html.Raw(Model.ReconnectScript)
 		}
-		@if (!string.IsNullOrEmpty(Model.PWAScript))
-		{
-			@Html.Raw(Model.PWAScript)
-		}
-		@Html.Raw(Model.BodyResources)
-	}
+        @if (!string.IsNullOrEmpty(Model.PWAScript))
+        {
+            @Html.Raw(Model.PWAScript)
+        }
+        @Html.Raw(Model.BodyResources)
+    }
 	else
 	{
 		<div class="app-alert">@Model.Message</div>

@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Http;
 using Oqtane.Shared;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
-using [Owner].[Module].Repository;
+using [Owner].Module.[Module].Repository;
 using Oqtane.Controllers;
 using System.Net;
 
-namespace [Owner].[Module].Controllers
+namespace [Owner].Module.[Module].Controllers
 {
     [Route(ControllerRoutes.ApiRoute)]
     public class [Module]Controller : ModuleControllerBase

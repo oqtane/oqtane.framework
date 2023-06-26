@@ -4,37 +4,211 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+using System.Security;
 using Microsoft.Extensions.Caching.Memory;
+using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.Themes;
+using System.Reflection.Metadata;
+using Oqtane.Migrations.Master;
 
 namespace Oqtane.Repository
 {
     public class ThemeRepository : IThemeRepository
     {
+        private MasterDBContext _db;
         private readonly IMemoryCache _cache;
+        private readonly ITenantManager _tenants;
+        private readonly ISettingRepository _settings;
+        private readonly ServerStateManager _serverState;
+        private readonly string settingprefix = "SiteEnabled:";
 
-        public ThemeRepository(IMemoryCache cache)
+        public ThemeRepository(MasterDBContext context, IMemoryCache cache, ITenantManager tenants, ISettingRepository settings, ServerStateManager serverState)
         {
+            _db = context;
             _cache = cache;
+            _tenants = tenants;
+            _settings = settings;
+            _serverState = serverState;
         }
 
         public IEnumerable<Theme> GetThemes()
         {
-            return LoadThemes();
+            // for consistency siteid should be passed in as parameter, but this would require breaking change
+            return LoadThemes(_tenants.GetAlias().SiteId);
         }
 
-        private List<Theme> LoadThemes()
+        public Theme GetTheme(int themeId, int siteId)
         {
-            // get module definitions
-            List<Theme> themes = _cache.GetOrCreate("themes", entry =>
+            List<Theme> themes = LoadThemes(siteId);
+            return themes.Find(item => item.ThemeId == themeId);
+        }
+
+        public void UpdateTheme(Theme theme)
+        {
+            _db.Entry(theme).State = EntityState.Modified;
+            _db.SaveChanges();
+
+            var settingname = $"{settingprefix}{_tenants.GetAlias().SiteKey}";
+            var setting = _settings.GetSetting(EntityNames.Theme, theme.ThemeId, settingname);
+            if (setting == null)
             {
-                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                return LoadThemesFromAssemblies();
+                _settings.AddSetting(new Setting { EntityName = EntityNames.Theme, EntityId = theme.ThemeId, SettingName = settingname, SettingValue = theme.IsEnabled.ToString(), IsPrivate = true });
+            }
+            else
+            {
+                setting.SettingValue = theme.IsEnabled.ToString();
+                _settings.UpdateSetting(setting);
+            }
+
+            _cache.Remove($"themes:{_tenants.GetAlias().SiteKey}");
+        }
+
+        public void DeleteTheme(int themeId)
+        {
+            Theme theme = _db.Theme.Find(themeId);
+            _settings.DeleteSettings(EntityNames.Theme, themeId);
+            _db.Theme.Remove(theme);
+            _db.SaveChanges();
+            _cache.Remove($"themes:{_tenants.GetAlias().SiteKey}");
+        }
+
+        public List<Theme> FilterThemes(List<Theme> themes)
+        {
+            var Themes = new List<Theme>();
+
+            foreach (Theme theme in themes.Where(item => item.IsEnabled))
+            {
+                var Theme = new Theme();
+                Theme.ThemeName = theme.ThemeName;
+                Theme.Name = theme.Name;
+                Theme.Resources = theme.Resources;
+                Theme.Themes = theme.Themes;
+                Theme.Containers = theme.Containers;
+                Theme.ThemeSettingsType = theme.ThemeSettingsType;
+                Theme.ContainerSettingsType = theme.ContainerSettingsType;
+                Themes.Add(Theme);
+            }
+
+            return Themes;
+        }
+
+        private List<Theme> LoadThemes(int siteId)
+        {
+            // get themes
+            List<Theme> themes = _cache.GetOrCreate($"themes:{_tenants.GetAlias().SiteKey}", entry =>
+            {
+                entry.Priority = CacheItemPriority.NeverRemove;
+                return ProcessThemes(siteId);
             });
 
             return themes;
+        }
+
+        private List<Theme> ProcessThemes(int siteId)
+        {
+            // get themes
+            List<Theme> Themes = LoadThemesFromAssemblies();
+
+            // get themes in database
+            List<Theme> themes = _db.Theme.ToList();
+
+            // sync theme assemblies with database
+            foreach (Theme Theme in Themes)
+            {
+                Theme theme = themes.Where(item => item.ThemeName == Theme.ThemeName).FirstOrDefault();
+                if (theme == null)
+                {
+                    // new theme
+                    theme = new Theme { ThemeName = Theme.ThemeName };
+                    _db.Theme.Add(theme);
+                    _db.SaveChanges();
+                }
+                else
+                {
+                    // override user customizable property values
+                    Theme.Name = (!string.IsNullOrEmpty(theme.Name)) ? theme.Name : Theme.Name;
+                    // remove theme from list as it is already synced
+                    themes.Remove(theme);
+                }
+
+                // format theme control names
+                foreach (var themecontrol in Theme.Themes)
+                {
+                    themecontrol.Name = Theme.Name + " - " + themecontrol.Name;
+                }
+
+                Theme.ThemeId = theme.ThemeId;
+                Theme.CreatedBy = theme.CreatedBy;
+                Theme.CreatedOn = theme.CreatedOn;
+                Theme.ModifiedBy = theme.ModifiedBy;
+                Theme.ModifiedOn = theme.ModifiedOn;
+            }
+
+            // any remaining themes are orphans
+            foreach (Theme theme in themes)
+            {
+                _db.Theme.Remove(theme); // delete
+                _db.SaveChanges();
+            }
+
+            if (siteId != -1)
+            {
+                // get settings for site
+                var settings = _settings.GetSettings(EntityNames.Theme).ToList();
+
+                // populate theme site settings
+                var serverState = _serverState.GetServerState(siteId);
+                foreach (Theme theme in Themes)
+                {
+                    theme.SiteId = siteId;
+
+                    var setting = settings.FirstOrDefault(item => item.EntityId == theme.ThemeId && item.SettingName == $"{settingprefix}{_tenants.GetAlias().SiteKey}");
+                    if (setting != null)
+                    {
+                        theme.IsEnabled = bool.Parse(setting.SettingValue);
+                    }
+                    else
+                    {
+                        theme.IsEnabled = theme.IsAutoEnabled;
+                    }
+
+                    if (theme.IsEnabled)
+                    {
+                        // build list of assemblies for site
+                        if (!serverState.Assemblies.Contains(theme.AssemblyName))
+                        {
+                            serverState.Assemblies.Add(theme.AssemblyName);
+                        }
+                        if (!string.IsNullOrEmpty(theme.Dependencies))
+                        {
+                            foreach (var assembly in theme.Dependencies.Replace(".dll", "").Split(',', StringSplitOptions.RemoveEmptyEntries).Reverse())
+                            {
+                                if (!serverState.Assemblies.Contains(assembly))
+                                {
+                                    serverState.Assemblies.Insert(0, assembly);
+                                }
+                            }
+                        }
+                        // build list of scripts for site
+                        if (theme.Resources != null)
+                        {
+                            foreach (var resource in theme.Resources.Where(item => item.Level == ResourceLevel.Site))
+                            {
+                                if (!serverState.Scripts.Contains(resource))
+                                {
+                                    serverState.Scripts.Add(resource);
+                                }
+                            }
+                        }
+                    }
+                }
+                _serverState.SetServerState(siteId, serverState);
+            }
+
+            return Themes;
         }
 
         private List<Theme> LoadThemesFromAssemblies()
@@ -96,12 +270,22 @@ namespace Oqtane.Repository
                             Version = new Version(1, 0, 0).ToString()
                         };
                     }
+
                     // set internal properties
                     theme.ThemeName = qualifiedThemeType;
                     theme.Themes = new List<ThemeControl>();
                     theme.Containers = new List<ThemeControl>();
                     theme.AssemblyName = assembly.FullName.Split(",")[0];
-
+                    if (theme.Resources != null)
+                    {
+                        foreach (var resource in theme.Resources)
+                        {
+                            if (resource.Url.StartsWith("~"))
+                            {
+                                resource.Url = resource.Url.Replace("~", "/Themes/" + Utilities.GetTypeName(theme.ThemeName) + "/").Replace("//", "/");
+                            }
+                        }
+                    }
                     Debug.WriteLine($"Oqtane Info: Registering Theme {theme.ThemeName}");
                     themes.Add(theme);
                     index = themes.FindIndex(item => item.ThemeName == qualifiedThemeType);
@@ -113,7 +297,7 @@ namespace Oqtane.Repository
                     new ThemeControl
                     {
                         TypeName = themeControlType.FullName + ", " + themeControlType.Assembly.GetName().Name,
-                        Name = theme.Name + " - " + ((string.IsNullOrEmpty(themecontrolobject.Name)) ? Utilities.GetTypeNameLastSegment(themeControlType.FullName, 0) : themecontrolobject.Name),
+                        Name = ((string.IsNullOrEmpty(themecontrolobject.Name)) ? Utilities.GetTypeNameLastSegment(themeControlType.FullName, 0) : themecontrolobject.Name),
                         Thumbnail = themecontrolobject.Thumbnail,
                         Panes = themecontrolobject.Panes
                     }
@@ -142,11 +326,6 @@ namespace Oqtane.Repository
                 themes[index] = theme;
             }
             return themes;
-        }
-
-        public void DeleteTheme(string ThemeName)
-        {
-            _cache.Remove("themes");
         }
     }
 }

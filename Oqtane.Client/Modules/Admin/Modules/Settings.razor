@@ -44,12 +44,20 @@
                         <Label Class="col-sm-3" For="page" HelpText="The page that the module is located on" ResourceKey="Page">Page: </Label>
                         <div class="col-sm-9">
                             <select id="page" class="form-select" @bind="@_pageId" required>
-                                @foreach (Page p in PageState.Pages)
+                                @if (PageState.Page.UserId != null)
                                 {
-                                    if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
+                                    <option value="@PageState.Page.PageId">@(PageState.Page.Name)</option>
+                                }
+                                else
+                                {
+                                    foreach (Page p in PageState.Pages)
                                     {
-                                        <option value="@p.PageId">@(new string('-', p.Level * 2))@(p.Name)</option>
+                                        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, p.PermissionList))
+                                        {
+                                            <option value="@p.PageId">@(new string('-', p.Level * 2))@(p.Name)</option>
+                                        }
                                     }
+
                                 }
                             </select>
                         </div>
@@ -90,37 +98,35 @@
 </form>
 
 @code {
-	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
-	public override string Title => "Module Settings";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
+    public override string Title => "Module Settings";
 
-	private ElementReference form;
-	private bool validated = false;
-	private List<Theme> _themes;
-	private List<ThemeControl> _containers = new List<ThemeControl>();
-	private string _title;
-	private string _containerType;
-	private string _allPages = "false";
-	private string _permissionNames = "";
-	private List<Permission> _permissions = null;
-	private string _pageId;
-	private PermissionGrid _permissionGrid;
-	private Type _moduleSettingsType;
-	private object _moduleSettings;
-	private string _moduleSettingsTitle = "Module Settings";
-	private RenderFragment ModuleSettingsComponent { get; set; }
-	private Type _containerSettingsType;
-	private object _containerSettings;
-	private RenderFragment ContainerSettingsComponent { get; set; }
-	private string createdby;
-	private DateTime createdon;
-	private string modifiedby;
-	private DateTime modifiedon;
+    private ElementReference form;
+    private bool validated = false;
+    private List<ThemeControl> _containers = new List<ThemeControl>();
+    private string _title;
+    private string _containerType;
+    private string _allPages = "false";
+    private string _permissionNames = "";
+    private List<Permission> _permissions = null;
+    private string _pageId;
+    private PermissionGrid _permissionGrid;
+    private Type _moduleSettingsType;
+    private object _moduleSettings;
+    private string _moduleSettingsTitle = "Module Settings";
+    private RenderFragment ModuleSettingsComponent { get; set; }
+    private Type _containerSettingsType;
+    private object _containerSettings;
+    private RenderFragment ContainerSettingsComponent { get; set; }
+    private string createdby;
+    private DateTime createdon;
+    private string modifiedby;
+    private DateTime modifiedon;
 
-	protected override async Task OnInitializedAsync()
-	{
-		_title = ModuleState.Title;
-		_themes = await ThemeService.GetThemesAsync();
-		_containers = ThemeService.GetContainerControls(_themes, PageState.Page.ThemeType);
+    protected override void OnInitialized()
+    {
+        _title = ModuleState.Title;
+        _containers = ThemeService.GetContainerControls(PageState.Site.Themes, PageState.Page.ThemeType);
 		_containerType = ModuleState.ContainerType;
 		_allPages = ModuleState.AllPages.ToString();
 		_permissions = ModuleState.PermissionList;
@@ -165,7 +171,7 @@
 			AddModuleMessage(string.Format(Localizer["Error.Module.Load"], ModuleState.ModuleDefinitionName), MessageType.Error);
 		}
 
-		var theme = _themes.FirstOrDefault(item => item.Containers.Any(themecontrol => themecontrol.TypeName.Equals(_containerType)));
+        var theme = PageState.Site.Themes.FirstOrDefault(item => item.Containers.Any(themecontrol => themecontrol.TypeName.Equals(_containerType)));
 		if (theme != null && !string.IsNullOrEmpty(theme.ContainerSettingsType))
 		{
 			_containerSettingsType = Type.GetType(theme.ContainerSettingsType);

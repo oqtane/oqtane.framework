@@ -123,14 +123,14 @@ namespace Oqtane.Controllers
                 if (moduleDefinition.Template.ToLower().Contains("internal"))
                 {
                     rootPath = Utilities.PathCombine(rootFolder.FullName, Path.DirectorySeparatorChar.ToString());
-                    moduleDefinition.ModuleDefinitionName = moduleDefinition.Owner + "." + moduleDefinition.Name + ", Oqtane.Client";
-                    moduleDefinition.ServerManagerType = moduleDefinition.Owner + "." + moduleDefinition.Name + ".Manager." + moduleDefinition.Name + "Manager, Oqtane.Server";
+                    moduleDefinition.ModuleDefinitionName = moduleDefinition.Owner + ".Module." + moduleDefinition.Name + ", Oqtane.Client";
+                    moduleDefinition.ServerManagerType = moduleDefinition.Owner + ".Module." + moduleDefinition.Name + ".Manager." + moduleDefinition.Name + "Manager, Oqtane.Server";
                 }
                 else
                 {
-                    rootPath = Utilities.PathCombine(rootFolder.Parent.FullName, moduleDefinition.Owner + "." + moduleDefinition.Name, Path.DirectorySeparatorChar.ToString());
-                    moduleDefinition.ModuleDefinitionName = moduleDefinition.Owner + "." + moduleDefinition.Name + ", " + moduleDefinition.Owner + "." + moduleDefinition.Name + ".Client.Oqtane";
-                    moduleDefinition.ServerManagerType = moduleDefinition.Owner + "." + moduleDefinition.Name + ".Manager." + moduleDefinition.Name + "Manager, " + moduleDefinition.Owner + "." + moduleDefinition.Name + ".Server.Oqtane";
+                    rootPath = Utilities.PathCombine(rootFolder.Parent.FullName, moduleDefinition.Owner + ".Module." + moduleDefinition.Name, Path.DirectorySeparatorChar.ToString());
+                    moduleDefinition.ModuleDefinitionName = moduleDefinition.Owner + ".Module." + moduleDefinition.Name + ", " + moduleDefinition.Owner + ".Module." + moduleDefinition.Name + ".Client.Oqtane";
+                    moduleDefinition.ServerManagerType = moduleDefinition.Owner + ".Module." + moduleDefinition.Name + ".Manager." + moduleDefinition.Name + "Manager, " + moduleDefinition.Owner + ".Module." + moduleDefinition.Name + ".Server.Oqtane";
                 }
 
                 ProcessTemplatesRecursively(new DirectoryInfo(templatePath), rootPath, rootFolder.Name, templatePath, moduleDefinition);
@@ -255,10 +255,10 @@ namespace Oqtane.Controllers
                     _modules.DeleteModule(moduleToRemove.ModuleId);
                 }
 
-
                 // remove module definition
                 _moduleDefinitions.DeleteModuleDefinition(id);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, SyncEventActions.Delete);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, moduledefinition.SiteId, SyncEventActions.Refresh);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Definition {ModuleDefinitionName} Deleted", moduledefinition.Name);
             }
             else
@@ -331,9 +331,9 @@ namespace Oqtane.Controllers
                     if (moduleDefinition.Version == "local")
                     {
                         text = text.Replace("[FrameworkVersion]", Constants.Version);
-                        text = text.Replace("[ClientReference]", $"<Reference Include=\"Oqtane.Client\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net6.0\\Oqtane.Client.dll</HintPath></Reference>");
-                        text = text.Replace("[ServerReference]", $"<Reference Include=\"Oqtane.Server\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net6.0\\Oqtane.Server.dll</HintPath></Reference>");
-                        text = text.Replace("[SharedReference]", $"<Reference Include=\"Oqtane.Shared\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net6.0\\Oqtane.Shared.dll</HintPath></Reference>");
+                        text = text.Replace("[ClientReference]", $"<Reference Include=\"Oqtane.Client\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net7.0\\Oqtane.Client.dll</HintPath></Reference>");
+                        text = text.Replace("[ServerReference]", $"<Reference Include=\"Oqtane.Server\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net7.0\\Oqtane.Server.dll</HintPath></Reference>");
+                        text = text.Replace("[SharedReference]", $"<Reference Include=\"Oqtane.Shared\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net7.0\\Oqtane.Shared.dll</HintPath></Reference>");
                     }
                     else
                     {

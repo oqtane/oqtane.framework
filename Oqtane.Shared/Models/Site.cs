@@ -79,7 +79,7 @@ namespace Oqtane.Models
         public string RenderMode { get; set; }
 
         /// <summary>
-        /// Keeps track of site configuration changes and is used by the IUpgradeable interface
+        /// Keeps track of site configuration changes and is used by the ISiteMigration interface
         /// </summary>
         public string Version { get; set; }
 
@@ -87,6 +87,16 @@ namespace Oqtane.Models
         /// The home page of the site which will be used as a fallback if no page has a path of "/" 
         /// </summary>
         public int? HomePageId { get; set; }
+
+        /// <summary>
+        /// Content to be included in the head of the page
+        /// </summary>
+        public string HeadContent { get; set; }
+
+        /// <summary>
+        /// Content to be included in the body of the page
+        /// </summary>
+        public string BodyContent { get; set; }
 
         [NotMapped]
         public Dictionary<string, string> Settings { get; set; }
@@ -99,6 +109,9 @@ namespace Oqtane.Models
 
         [NotMapped]
         public List<Language> Languages { get; set; }
+
+        [NotMapped]
+        public List<Theme> Themes { get; set; }
 
         #region IDeletable Properties
 

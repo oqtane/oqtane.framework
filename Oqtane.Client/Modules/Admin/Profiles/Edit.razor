@@ -65,6 +65,12 @@
             </div>
         </div>
         <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="validation" HelpText="Optionally provide a regular expression (RegExp) for validating the value entered" ResourceKey="Validation">Validation: </Label>
+            <div class="col-sm-9">
+                <input id="validation" class="form-control" @bind="@_validation" maxlength="200" />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="private" HelpText="Should this profile item be visible to all users?" ResourceKey="Private">Private? </Label>
             <div class="col-sm-9">
                 <select id="private" class="form-select" @bind="@_isprivate" required>
@@ -97,6 +103,7 @@
     private string _maxlength = "0";
     private string _defaultvalue = string.Empty;
     private string _options = string.Empty;
+    private string _validation = string.Empty;
     private string _isrequired = "False";
     private string _isprivate = "False";
     private string createdby;
@@ -126,6 +133,7 @@
                     _maxlength = profile.MaxLength.ToString();
                     _defaultvalue = profile.DefaultValue;
                     _options = profile.Options;
+                    _validation = profile.Validation;
                     _isrequired = profile.IsRequired.ToString();
                     _isprivate = profile.IsPrivate.ToString();
                     createdby = profile.CreatedBy;
@@ -169,6 +177,7 @@
                 profile.MaxLength = int.Parse(_maxlength);
                 profile.DefaultValue = _defaultvalue;
                 profile.Options = _options;
+                profile.Validation = _validation;
                 profile.IsRequired = (_isrequired == null ? false : Boolean.Parse(_isrequired));
                 profile.IsPrivate = (_isprivate == null ? false : Boolean.Parse(_isprivate));
                 if (_profileid != -1)

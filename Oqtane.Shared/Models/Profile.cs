@@ -68,5 +68,10 @@ namespace Oqtane.Models
         /// This gives possible values for dropdown input fields. 
         /// </summary>
         public string Options { get; set; }
+
+        /// <summary>
+        /// Optional RegExp validation expression 
+        /// </summary>
+        public string Validation { get; set; }
     }
 }

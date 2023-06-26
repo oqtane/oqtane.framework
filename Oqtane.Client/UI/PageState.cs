@@ -13,6 +13,7 @@ namespace Oqtane.UI
         public Page Page { get; set; }
         public User User { get; set; }
         public Uri Uri { get; set; }
+        public Route Route { get; set; }
         public Dictionary<string, string> QueryString { get; set; }
         public string UrlParameters { get; set; }
         public int ModuleId { get; set; }
@@ -23,6 +24,7 @@ namespace Oqtane.UI
         public int VisitorId { get; set; }
         public string RemoteIPAddress { get; set; }
         public string ReturnUrl { get; set; }
+        public bool IsInternalNavigation { get; set; }
 
         public List<Page> Pages
         {

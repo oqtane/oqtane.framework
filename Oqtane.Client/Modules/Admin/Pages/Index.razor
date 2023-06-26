@@ -5,7 +5,7 @@
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-@if (PageState.Pages != null)
+@if (PageState.Pages != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
 {
     <ActionLink Action="Add" Text="Add Page" ResourceKey="AddPage" />
 

@@ -9,6 +9,7 @@ using Oqtane.UI;
 using System.Collections.Generic;
 using Microsoft.JSInterop;
 using System.Linq;
+using Oqtane.Themes;
 
 namespace Oqtane.Modules
 {
@@ -70,17 +71,33 @@ namespace Oqtane.Modules
         {
             if (firstRender)
             {
-                if (Resources != null && Resources.Exists(item => item.ResourceType == ResourceType.Script))
+                List<Resource> resources = null;
+                var type = GetType();
+                if (type.BaseType == typeof(ModuleBase))
+                {
+                    if (PageState.Page.Resources != null)
+                    {
+                        resources = PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Script && item.Level != ResourceLevel.Site && item.Namespace == type.Namespace).ToList();
+                    }
+                }
+                else // modulecontrolbase
+                {
+                    if (Resources != null)
+                    {
+                        resources = Resources.Where(item => item.ResourceType == ResourceType.Script).ToList();
+                    }
+                }
+                if (resources != null &&resources.Any())
                 {
                     var interop = new Interop(JSRuntime);
                     var scripts = new List<object>();
                     var inline = 0;
-                    foreach (Resource resource in Resources.Where(item => item.ResourceType == ResourceType.Script))
+                    foreach (Resource resource in resources)
                     {
                         if (!string.IsNullOrEmpty(resource.Url))
                         {
                             var url = (resource.Url.Contains("://")) ? resource.Url : PageState.Alias.BaseUrl + resource.Url;
-                            scripts.Add(new { href = url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", es6module = resource.ES6Module });
+                            scripts.Add(new { href = url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", es6module = resource.ES6Module, location = resource.Location.ToString().ToLower() });
                         }
                         else
                         {
@@ -104,6 +121,7 @@ namespace Oqtane.Modules
         }
 
         // url methods
+
         public string NavigateUrl()
         {
             return NavigateUrl(PageState.Page.Path);
@@ -271,6 +289,33 @@ namespace Oqtane.Modules
         {
             var obj = new { PageModuleId = ModuleState.PageModuleId, Visible = visible };
             SiteState.Properties.ModuleVisibility = obj;
+        }
+
+        public void SetPageTitle(string title)
+        {
+            SiteState.Properties.PageTitle = title;
+        }
+
+        // note - only supports links and meta tags - not scripts
+        public void AddHeadContent(string content)
+        {
+            SiteState.AppendHeadContent(content);
+        }
+
+        public void AddScript(Resource resource)
+        {
+            resource.ResourceType = ResourceType.Script;
+            if (Resources == null) Resources = new List<Resource>();
+            if (!Resources.Any(item => (!string.IsNullOrEmpty(resource.Url) && item.Url == resource.Url) || (!string.IsNullOrEmpty(resource.Content) && item.Content == resource.Content)))
+            {
+                Resources.Add(resource);
+            }
+        }
+
+        public async Task ScrollToPageTop()
+        {
+            var interop = new Interop(JSRuntime);
+            await interop.ScrollTo(0, 0, "smooth");
         }
 
         // logging methods

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using [Owner].[Module].Models;
+using [Owner].Module.[Module].Models;
 
-namespace [Owner].[Module].Services
+namespace [Owner].Module.[Module].Services
 {
     public interface I[Module]Service 
     {

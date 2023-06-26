@@ -6,6 +6,9 @@ namespace Oqtane.Repository
     public interface IThemeRepository
     {
         IEnumerable<Theme> GetThemes();
-        void DeleteTheme(string ThemeName);
+        Theme GetTheme(int themeId, int siteId);
+        void UpdateTheme(Theme theme);
+        void DeleteTheme(int themeId);
+        List<Theme> FilterThemes(List<Theme> themes);
     }
 }

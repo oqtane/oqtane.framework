@@ -1,4 +1,5 @@
 @namespace Oqtane.Modules.Admin.Users
+@using System.Text.RegularExpressions;
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
@@ -148,124 +149,124 @@ else
 <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
 
 @code {
-	private int userid;
-	private string username = string.Empty;
-	private string _password = string.Empty;
-	private string _passwordtype = "password";
-	private string _togglepassword = string.Empty;
-	private string confirm = string.Empty;
-	private string email = string.Empty;
-	private string displayname = string.Empty;
-	private FileManager filemanager;
-	private int photofileid = -1;
-	private File photo = null;
-	private string isdeleted;
-	private string lastlogin;
-	private string lastipaddress;
+    private int userid;
+    private string username = string.Empty;
+    private string _password = string.Empty;
+    private string _passwordtype = "password";
+    private string _togglepassword = string.Empty;
+    private string confirm = string.Empty;
+    private string email = string.Empty;
+    private string displayname = string.Empty;
+    private FileManager filemanager;
+    private int photofileid = -1;
+    private File photo = null;
+    private string isdeleted;
+    private string lastlogin;
+    private string lastipaddress;
 
-	private List<Profile> profiles;
-	private Dictionary<string, string> settings;
-	private string category = string.Empty;
+    private List<Profile> profiles;
+    private Dictionary<string, string> settings;
+    private string category = string.Empty;
 
-	private string createdby;
-	private DateTime createdon;
-	private string modifiedby;
-	private DateTime modifiedon;
-	private string deletedby;
-	private DateTime? deletedon;
+    private string createdby;
+    private DateTime createdon;
+    private string modifiedby;
+    private DateTime modifiedon;
+    private string deletedby;
+    private DateTime? deletedon;
 
-	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
 
-	protected override async Task OnParametersSetAsync()
-	{
-		try
-		{
-			if (PageState.QueryString.ContainsKey("id"))
-			{
-				_togglepassword = SharedLocalizer["ShowPassword"];
-				profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
-				userid = Int32.Parse(PageState.QueryString["id"]);
-				var user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
-				if (user != null)
-				{
-					username = user.Username;
-					email = user.Email;
-					displayname = user.DisplayName;
-					if (user.PhotoFileId != null)
-					{
-						photofileid = user.PhotoFileId.Value;
-						photo = await FileService.GetFileAsync(photofileid);
-					}
-					else
-					{
-						photofileid = -1;
-						photo = null;
-					}
-					isdeleted = user.IsDeleted.ToString();
-					lastlogin = string.Format("{0:MMM dd yyyy HH:mm:ss}", user.LastLoginOn);
-					lastipaddress = user.LastIPAddress;
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            if (PageState.QueryString.ContainsKey("id"))
+            {
+                _togglepassword = SharedLocalizer["ShowPassword"];
+                profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
+                userid = Int32.Parse(PageState.QueryString["id"]);
+                var user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
+                if (user != null)
+                {
+                    username = user.Username;
+                    email = user.Email;
+                    displayname = user.DisplayName;
+                    if (user.PhotoFileId != null)
+                    {
+                        photofileid = user.PhotoFileId.Value;
+                        photo = await FileService.GetFileAsync(photofileid);
+                    }
+                    else
+                    {
+                        photofileid = -1;
+                        photo = null;
+                    }
+                    isdeleted = user.IsDeleted.ToString();
+                    lastlogin = string.Format("{0:MMM dd yyyy HH:mm:ss}", user.LastLoginOn);
+                    lastipaddress = user.LastIPAddress;
 
-					settings = await SettingService.GetUserSettingsAsync(user.UserId);
-					createdby = user.CreatedBy;
-					createdon = user.CreatedOn;
-					modifiedby = user.ModifiedBy;
-					modifiedon = user.ModifiedOn;
-					deletedby = user.DeletedBy;
-					deletedon = user.DeletedOn;
-				}
-			}
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Loading User {UserId} {Error}", userid, ex.Message);
-			AddModuleMessage(Localizer["Error.User.Load"], MessageType.Error);
-		}
-	}
+                    settings = await SettingService.GetUserSettingsAsync(user.UserId);
+                    createdby = user.CreatedBy;
+                    createdon = user.CreatedOn;
+                    modifiedby = user.ModifiedBy;
+                    modifiedon = user.ModifiedOn;
+                    deletedby = user.DeletedBy;
+                    deletedon = user.DeletedOn;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading User {UserId} {Error}", userid, ex.Message);
+            AddModuleMessage(Localizer["Error.User.Load"], MessageType.Error);
+        }
+    }
 
-	private string GetProfileValue(string SettingName, string DefaultValue)
-	{
-		string value = SettingService.GetSetting(settings, SettingName, DefaultValue);
-		if (value.Contains("]"))
-		{
-			value = value.Substring(value.IndexOf("]") + 1);
-		}
-		return value;
-	}
+    private string GetProfileValue(string SettingName, string DefaultValue)
+    {
+        string value = SettingService.GetSetting(settings, SettingName, DefaultValue);
+        if (value.Contains("]"))
+        {
+            value = value.Substring(value.IndexOf("]") + 1);
+        }
+        return value;
+    }
 
-	private async Task SaveUser()
-	{
-		try
-		{
-			if (username != string.Empty && email != string.Empty && ValidateProfiles())
-			{
-				if (_password == confirm)
-				{
-					var user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
-					user.SiteId = PageState.Site.SiteId;
-					user.Username = username;
-					user.Password = _password;
-					user.Email = email;
-					user.DisplayName = string.IsNullOrWhiteSpace(displayname) ? username : displayname;
-					user.PhotoFileId = null;
-					user.PhotoFileId = filemanager.GetFileId();
-					if (user.PhotoFileId == -1)
-					{
-						user.PhotoFileId = null;
-					}
+    private async Task SaveUser()
+    {
+        try
+        {
+            if (username != string.Empty && email != string.Empty && ValidateProfiles())
+            {
+                if (_password == confirm)
+                {
+                    var user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
+                    user.SiteId = PageState.Site.SiteId;
+                    user.Username = username;
+                    user.Password = _password;
+                    user.Email = email;
+                    user.DisplayName = string.IsNullOrWhiteSpace(displayname) ? username : displayname;
+                    user.PhotoFileId = null;
+                    user.PhotoFileId = filemanager.GetFileId();
+                    if (user.PhotoFileId == -1)
+                    {
+                        user.PhotoFileId = null;
+                    }
 
-					user.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
+                    user.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
 
-					user = await UserService.UpdateUserAsync(user);
-					if (user != null)
-					{
-						await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
-						await logger.LogInformation("User Saved {User}", user);
-						NavigationManager.NavigateTo(NavigateUrl());
-					}
-					else
-					{
-						AddModuleMessage(Localizer["Message.Password.Complexity"], MessageType.Error);
-					}
+                    user = await UserService.UpdateUserAsync(user);
+                    if (user != null)
+                    {
+                        await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
+                        await logger.LogInformation("User Saved {User}", user);
+                        NavigationManager.NavigateTo(NavigateUrl());
+                    }
+                    else
+                    {
+                        AddModuleMessage(Localizer["Message.Password.Complexity"], MessageType.Error);
+                    }
                 }
                 else
                 {
@@ -293,9 +294,17 @@ else
             {
                 settings = SettingService.SetSetting(settings, profile.Name, profile.DefaultValue);
             }
-            if (profile.IsRequired && string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)))
+            if (!profile.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
             {
-                valid = false;
+                if (valid == true && profile.IsRequired && string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)))
+                {
+                    valid = false;
+                }
+                if (valid == true && !string.IsNullOrEmpty(profile.Validation))
+                {
+                    Regex regex = new Regex(profile.Validation);
+                    valid = regex.Match(SettingService.GetSetting(settings, profile.Name, string.Empty)).Success;
+                }
             }
         }
         return valid;

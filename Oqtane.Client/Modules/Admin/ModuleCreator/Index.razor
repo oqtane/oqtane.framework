@@ -195,7 +195,7 @@ else
         if (_owner != "" && _module != "" && _template != "-")
         {
             var template = _templates.FirstOrDefault(item => item.Name == _template);
-            _location = template.Location + _owner + "." + _module;
+            _location = template.Location + _owner + ".Module." + _module;
 
         }
         StateHasChanged();

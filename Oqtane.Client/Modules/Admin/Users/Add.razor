@@ -1,4 +1,5 @@
 @namespace Oqtane.Modules.Admin.Users
+@using System.Text.RegularExpressions;
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
@@ -95,8 +96,8 @@
 @code {
     private string username = string.Empty;
     private string _password = string.Empty;
-	private string _passwordtype = "password";
-	private string _togglepassword = string.Empty;
+    private string _passwordtype = "password";
+    private string _togglepassword = string.Empty;
     private string confirm = string.Empty;
     private string email = string.Empty;
     private string displayname = string.Empty;
@@ -121,15 +122,15 @@
         }
     }
 
-	private string GetProfileValue(string SettingName, string DefaultValue)
-	{
-		string value = SettingService.GetSetting(settings, SettingName, DefaultValue);
-		if (value.Contains("]"))
-		{
-			value = value.Substring(value.IndexOf("]") + 1);
-		}
-		return value;
-	}
+    private string GetProfileValue(string SettingName, string DefaultValue)
+    {
+        string value = SettingService.GetSetting(settings, SettingName, DefaultValue);
+        if (value.Contains("]"))
+        {
+            value = value.Substring(value.IndexOf("]") + 1);
+        }
+        return value;
+    }
 
     private async Task SaveUser()
     {
@@ -195,9 +196,17 @@
             {
                 settings = SettingService.SetSetting(settings, profile.Name, profile.DefaultValue);
             }
-            if (profile.IsRequired && string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)))
+            if (!profile.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
             {
-                valid = false;
+                if (valid == true && profile.IsRequired && string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)))
+                {
+                    valid = false;
+                }
+                if (valid == true && !string.IsNullOrEmpty(profile.Validation))
+                {
+                    Regex regex = new Regex(profile.Validation);
+                    valid = regex.Match(SettingService.GetSetting(settings, profile.Name, string.Empty)).Success;
+                }
             }
         }
         return valid;

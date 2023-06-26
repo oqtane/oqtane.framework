@@ -1,3 +1,4 @@
+@using System.Net
 @namespace Oqtane.Themes.Controls
 @inherits ThemeControlBase
 @inject NavigationManager NavigationManager
@@ -55,7 +56,7 @@
 					</div>
 					<hr class="app-rule" />
 				}
-				@if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
+                @if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
 				{
 					<div class="row">
 						<div class="col text-center">
@@ -64,7 +65,10 @@
 					</div>
 					<div class="row d-flex mb-2">
 						<div class="col d-flex justify-content-between">
-							<button type="button" class="btn btn-secondary col me-1" data-bs-dismiss="offcanvas" @onclick=@(async () => Navigate("Add"))>@SharedLocalizer["Add"]</button>
+                            @if (PageState.Page.UserId == null)
+                            {
+                                <button type="button" class="btn btn-secondary col me-1" data-bs-dismiss="offcanvas" @onclick=@(async () => Navigate("Add"))>@SharedLocalizer["Add"]</button>
+                            }
 							<button type="button" class="btn btn-secondary col" data-bs-dismiss="offcanvas" @onclick=@(async () => Navigate("Edit"))>@SharedLocalizer["Edit"]</button>
 							<button type="button" class="btn btn-danger col ms-1" @onclick="ConfirmDelete">@SharedLocalizer["Delete"]</button>
 						</div>
@@ -144,7 +148,7 @@
 										}
 										@foreach (var moduledefinition in _moduleDefinitions)
 										{
-											if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Utilize, moduledefinition.PermissionList))
+											if (moduledefinition.IsEnabled && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Utilize, moduledefinition.PermissionList))
 											{
 												if (moduledefinition.Runtimes == "" || moduledefinition.Runtimes.Contains(PageState.Runtime.ToString()))
 												{
@@ -223,270 +227,274 @@
 }
 
 @code{
-	private bool _canViewAdminDashboard = false;
-	private bool _showEditMode = false;
-	private bool _deleteConfirmation = false;
-	private List<string> _categories = new List<string>();
-	private List<ModuleDefinition> _allModuleDefinitions;
-	private List<ModuleDefinition> _moduleDefinitions;
-	private List<Page> _pages = new List<Page>();
-	private List<Module> _modules = new List<Module>();
-	private List<ThemeControl> _containers = new List<ThemeControl>();
-	private string _category = "Common";
+    private bool _canViewAdminDashboard = false;
+    private bool _showEditMode = false;
+    private bool _deleteConfirmation = false;
+    private List<string> _categories = new List<string>();
+    private List<ModuleDefinition> _allModuleDefinitions;
+    private List<ModuleDefinition> _moduleDefinitions;
+    private List<Page> _pages = new List<Page>();
+    private List<Module> _modules = new List<Module>();
+    private List<ThemeControl> _containers = new List<ThemeControl>();
+    private string _category = "Common";
 
-	protected string PageId { get; private set; } = "-";
-	protected string ModuleId { get; private set; } = "-";
-	protected string ModuleType { get; private set; } = "new";
-	protected string ModuleDefinitionName { get; private set; } = "-";
+    protected string PageId { get; private set; } = "-";
+    protected string ModuleId { get; private set; } = "-";
+    protected string ModuleType { get; private set; } = "new";
+    protected string ModuleDefinitionName { get; private set; } = "-";
 
-	protected string Category
-	{
-		get => _category;
-		private set
-		{
-			if (_category != value)
-			{
-				_category = value;
-				_moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(Category)).ToList();
-				ModuleDefinitionName = "-";
-				Message = "";
-				StateHasChanged();
-				_ = UpdateSettingsAsync();
-			}
-		}
-	}
+    protected string Category
+    {
+        get => _category;
+        private set
+        {
+            if (_category != value)
+            {
+                _category = value;
+                _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(Category)).ToList();
+                ModuleDefinitionName = "-";
+                Message = "";
+                StateHasChanged();
+                _ = UpdateSettingsAsync();
+            }
+        }
+    }
 
-	protected string Pane
-	{
-		get => _pane;
-		private set
-		{
-			if (_pane != value)
-			{
-				_pane = value;
-				_ = UpdateSettingsAsync();
-			}
-		}
-	}
+    protected string Pane
+    {
+        get => _pane;
+        private set
+        {
+            if (_pane != value)
+            {
+                _pane = value;
+                _ = UpdateSettingsAsync();
+            }
+        }
+    }
 
-	protected string Title { get; private set; } = "";
-	protected string ContainerType { get; private set; } = "";
-	protected string Visibility { get; private set; } = "view";
-	protected string Message { get; private set; } = "";
+    protected string Title { get; private set; } = "";
+    protected string ContainerType { get; private set; } = "";
+    protected string Visibility { get; private set; } = "view";
+    protected string Message { get; private set; } = "";
 
-	[Parameter]
-	public string ButtonClass { get; set; } = "btn-outline-secondary";
+    [Parameter]
+    public string ButtonClass { get; set; } = "btn-outline-secondary";
 
-	[Parameter]
-	public string ContainerClass { get; set; } = "offcanvas offcanvas-end";
+    [Parameter]
+    public string ContainerClass { get; set; } = "offcanvas offcanvas-end";
 
-	[Parameter]
-	public string HeaderClass { get; set; } = "offcanvas-header";
+    [Parameter]
+    public string HeaderClass { get; set; } = "offcanvas-header";
 
-	[Parameter]
-	public string BodyClass { get; set; } = "offcanvas-body overflow-auto";
+    [Parameter]
+    public string BodyClass { get; set; } = "offcanvas-body overflow-auto";
 
-	[Parameter]
-	public bool ShowLanguageSwitcher { get; set; } = true;
+    [Parameter]
+    public bool ShowLanguageSwitcher { get; set; } = true;
 
 
-	protected override async Task OnParametersSetAsync()
-	{
-		_canViewAdminDashboard = CanViewAdminDashboard();
-		_showEditMode = false;
-		if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
-		{
-			_showEditMode = true;
-			_pages?.Clear();
+    protected override async Task OnParametersSetAsync()
+    {
+        _canViewAdminDashboard = CanViewAdminDashboard();
+        _showEditMode = false;
+        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
+        {
+            _showEditMode = true;
+            _pages?.Clear();
 
-			foreach (Page p in PageState.Pages)
-			{
-				if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
-				{
-					_pages.Add(p);
-				}
-			}
-			await LoadSettingsAsync();
+            foreach (Page p in PageState.Pages)
+            {
+                if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
+                {
+                    _pages.Add(p);
+                }
+            }
+            await LoadSettingsAsync();
 
-			var themes = await ThemeService.GetThemesAsync();
-			_containers = ThemeService.GetContainerControls(themes, PageState.Page.ThemeType);
-			ContainerType = PageState.Site.DefaultContainerType;
-			_allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
-			_moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(Category)).ToList();
-			_categories = _allModuleDefinitions.SelectMany(m => m.Categories.Split(',')).Distinct().ToList();
-		}
-		else
-		{
-			foreach (var module in PageState.Modules.Where(item => item.PageId == PageState.Page.PageId))
-			{
-				if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, module.PermissionList))
-				{
-					_showEditMode = true;
-					break;
-				}
-			}			
-		}
-	}
+            var themes = await ThemeService.GetThemesAsync();
+            _containers = ThemeService.GetContainerControls(themes, PageState.Page.ThemeType);
+            ContainerType = PageState.Site.DefaultContainerType;
+            _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
+            _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(Category)).ToList();
+            _categories = _allModuleDefinitions.SelectMany(m => m.Categories.Split(',')).Distinct().ToList();
+        }
+        else
+        {
+            foreach (var module in PageState.Modules.Where(item => item.PageId == PageState.Page.PageId))
+            {
+                if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, module.PermissionList))
+                {
+                    _showEditMode = true;
+                    break;
+                }
+            }			
+        }
+    }
 
-	private bool CanViewAdminDashboard()
-	{
-		var admin = PageState.Pages.FirstOrDefault(item => item.Path == "admin");
-		if (admin != null)
-		{
-			foreach (var page in PageState.Pages.Where(item => item.ParentId == admin?.PageId))
-			{
-				if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, page.PermissionList))
-				{
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+    private bool CanViewAdminDashboard()
+    {
+        var admin = PageState.Pages.FirstOrDefault(item => item.Path == "admin");
+        if (admin != null)
+        {
+            foreach (var page in PageState.Pages.Where(item => item.ParentId == admin?.PageId))
+            {
+                if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, page.PermissionList))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
-	private void CategoryChanged(ChangeEventArgs e)
-	{
-		Category = (string)e.Value;
-	}
+    private void CategoryChanged(ChangeEventArgs e)
+    {
+        Category = (string)e.Value;
+    }
 
-	private void ModuleChanged(ChangeEventArgs e)
-	{
-		ModuleDefinitionName = (string)e.Value;
-		if (ModuleDefinitionName != "-")
-		{
-			var moduleDefinition = _moduleDefinitions.FirstOrDefault(item => item.ModuleDefinitionName == ModuleDefinitionName);
-			Message = "<div class=\"alert alert-info mt-2 text-center\" role=\"alert\">" + moduleDefinition.Description + "</div>";
-		}
-		else
-		{
-			Message = "";
-		}
-		StateHasChanged();
-	}
+    private void ModuleChanged(ChangeEventArgs e)
+    {
+        ModuleDefinitionName = (string)e.Value;
+        if (ModuleDefinitionName != "-")
+        {
+            var moduleDefinition = _moduleDefinitions.FirstOrDefault(item => item.ModuleDefinitionName == ModuleDefinitionName);
+            Message = "<div class=\"alert alert-info mt-2 text-center\" role=\"alert\">" + moduleDefinition.Description + "</div>";
+        }
+        else
+        {
+            Message = "";
+        }
+        StateHasChanged();
+    }
 
-	private void PageChanged(ChangeEventArgs e)
-	{
-		PageId = (string)e.Value;
-		if (PageId != "-")
-		{
-			_modules = PageState.Modules
-				.Where(module => module.PageId == int.Parse(PageId) &&
-				UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.PermissionList))
-				.ToList();
-		}
-		ModuleId = "-";
-		StateHasChanged();
-	}
+    private void PageChanged(ChangeEventArgs e)
+    {
+        PageId = (string)e.Value;
+        if (PageId != "-")
+        {
+            _modules = PageState.Modules
+                .Where(module => module.PageId == int.Parse(PageId) &&
+                UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.PermissionList))
+                .ToList();
+        }
+        ModuleId = "-";
+        StateHasChanged();
+    }
 
-	private async Task AddModule()
-	{
-		if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
-		{
-			if ((ModuleType == "new" && ModuleDefinitionName != "-") || (ModuleType != "new" && ModuleId != "-"))
-			{
-				if (ModuleType == "new")
-				{
-					Module module = new Module();
-					module.SiteId = PageState.Site.SiteId;
-					module.PageId = PageState.Page.PageId;
-					module.ModuleDefinitionName = ModuleDefinitionName;
-					module.AllPages = false;
+    private async Task AddModule()
+    {
+        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
+        {
+            if ((ModuleType == "new" && ModuleDefinitionName != "-") || (ModuleType != "new" && ModuleId != "-"))
+            {
+                if (ModuleType == "new")
+                {
+                    Module module = new Module();
+                    module.SiteId = PageState.Site.SiteId;
+                    module.PageId = PageState.Page.PageId;
+                    module.ModuleDefinitionName = ModuleDefinitionName;
+                    module.AllPages = false;
 
-					var permissions = new List<Permission>();
-					if (Visibility == "view")
-					{
-						// set module view permissions to page view permissions
-						permissions = SetPermissions(permissions, module.SiteId, PermissionNames.View, PermissionNames.View);
-					}
-					else
-					{
-						// set module view permissions to page edit permissions
-						permissions = SetPermissions(permissions, module.SiteId, PermissionNames.View, PermissionNames.Edit);
-					}
-					// set module edit permissions to page edit permissions
-					permissions = SetPermissions(permissions, module.SiteId, PermissionNames.Edit, PermissionNames.Edit);
-					module.PermissionList = permissions;
+                    var permissions = new List<Permission>();
+                    if (Visibility == "view")
+                    {
+                        // set module view permissions to page view permissions
+                        permissions = SetPermissions(permissions, module.SiteId, PermissionNames.View, PermissionNames.View);
+                    }
+                    else
+                    {
+                        // set module view permissions to page edit permissions
+                        permissions = SetPermissions(permissions, module.SiteId, PermissionNames.View, PermissionNames.Edit);
+                    }
+                    // set module edit permissions to page edit permissions
+                    permissions = SetPermissions(permissions, module.SiteId, PermissionNames.Edit, PermissionNames.Edit);
+                    module.PermissionList = permissions;
 
-					module = await ModuleService.AddModuleAsync(module);
-					ModuleId = module.ModuleId.ToString();
-				}
+                    module = await ModuleService.AddModuleAsync(module);
+                    ModuleId = module.ModuleId.ToString();
+                }
 
-				var pageModule = new PageModule
+                var pageModule = new PageModule
                 {
                     PageId = PageState.Page.PageId,
                     ModuleId = int.Parse(ModuleId),
                     Title = Title
                 };
-				if (pageModule.Title == "")
-				{
-					if (ModuleType == "new")
-					{
-						pageModule.Title = _moduleDefinitions.FirstOrDefault(item => item.ModuleDefinitionName == ModuleDefinitionName)?.Name;
-					}
-					else
-					{
-						pageModule.Title = _modules.FirstOrDefault(item => item.ModuleId == int.Parse(ModuleId))?.Title;
-					}
-				}
+                if (pageModule.Title == "")
+                {
+                    if (ModuleType == "new")
+                    {
+                        pageModule.Title = _moduleDefinitions.FirstOrDefault(item => item.ModuleDefinitionName == ModuleDefinitionName)?.Name;
+                    }
+                    else
+                    {
+                        pageModule.Title = _modules.FirstOrDefault(item => item.ModuleId == int.Parse(ModuleId))?.Title;
+                    }
+                }
 
-				pageModule.Pane = Pane;
-				pageModule.Order = int.MaxValue;
-				pageModule.ContainerType = ContainerType;
+                pageModule.Pane = Pane;
+                pageModule.Order = int.MaxValue;
+                pageModule.ContainerType = ContainerType;
 
-				if (pageModule.ContainerType == PageState.Site.DefaultContainerType)
-				{
-					pageModule.ContainerType = "";
-				}
+                if (pageModule.ContainerType == PageState.Site.DefaultContainerType)
+                {
+                    pageModule.ContainerType = "";
+                }
 
-				await PageModuleService.AddPageModuleAsync(pageModule);
-				await PageModuleService.UpdatePageModuleOrderAsync(pageModule.PageId, pageModule.Pane);
+                await PageModuleService.AddPageModuleAsync(pageModule);
+                await PageModuleService.UpdatePageModuleOrderAsync(pageModule.PageId, pageModule.Pane);
 
-				Message = $"<div class=\"alert alert-success mt-2 text-center\" role=\"alert\">{Localizer["Success.Page.ModuleAdd"]}</div>";
-				Title = "";
-				NavigationManager.NavigateTo(NavigateUrl());
-			}
-			else
-			{
-				Message = $"<div class=\"alert alert-warning mt-2 text-center\" role=\"alert\">{Localizer["Message.Require.ModuleSelect"]}</div>";
-			}
-		}
-		else
-		{
-			Message = $"<div class=\"alert alert-error mt-2 text-center\" role=\"alert\">{Localizer["Error.Authorize.No"]}</div>";
-		}
-	}
+                Message = $"<div class=\"alert alert-success mt-2 text-center\" role=\"alert\">{Localizer["Success.Page.ModuleAdd"]}</div>";
+                Title = "";
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+            else
+            {
+                Message = $"<div class=\"alert alert-warning mt-2 text-center\" role=\"alert\">{Localizer["Message.Require.ModuleSelect"]}</div>";
+            }
+        }
+        else
+        {
+            Message = $"<div class=\"alert alert-error mt-2 text-center\" role=\"alert\">{Localizer["Error.Authorize.No"]}</div>";
+        }
+    }
 
-	private List<Permission> SetPermissions(List<Permission> permissions, int siteId, string modulePermission, string pagePermission)
-	{
-		foreach (var permission in PageState.Page.PermissionList.Where(item => item.PermissionName == pagePermission))
-		{
-			permissions.Add(new Permission { SiteId = siteId, EntityName = EntityNames.Module, PermissionName = modulePermission, RoleId = permission.RoleId, UserId = permission.UserId, IsAuthorized = permission.IsAuthorized });
-		}
-		return permissions;
-	}
+    private List<Permission> SetPermissions(List<Permission> permissions, int siteId, string modulePermission, string pagePermission)
+    {
+        foreach (var permission in PageState.Page.PermissionList.Where(item => item.PermissionName == pagePermission))
+        {
+            permissions.Add(new Permission { SiteId = siteId, EntityName = EntityNames.Module, PermissionName = modulePermission, RoleId = permission.RoleId, UserId = permission.UserId, IsAuthorized = permission.IsAuthorized });
+        }
+        return permissions;
+    }
 
-	private async Task ToggleEditMode(bool EditMode)
-	{
-		if (_showEditMode)
-		{
-			if (EditMode)
-			{
-				PageState.EditMode = false;
-			}
-			else
-			{
-				PageState.EditMode = true;
-			}
+    private async Task ToggleEditMode(bool EditMode)
+    {
+        if (_showEditMode)
+        {
+            if (EditMode)
+            {
+                PageState.EditMode = false;
+            }
+            else
+            {
+                PageState.EditMode = true;
+            }
 
-			NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + ((PageState.EditMode) ? "true" : "false")));
+            // preserve other querystring parameters
+            if (PageState.QueryString.ContainsKey("edit")) PageState.QueryString.Remove("edit");
+            PageState.QueryString.Add("edit", PageState.EditMode.ToString().ToLower());
+            var url = PageState.Route.AbsolutePath + Utilities.CreateQueryString(PageState.QueryString);
+            NavigationManager.NavigateTo(url);
 		}
 		else
 		{
 			if (PageState.Page.IsPersonalizable && PageState.User != null)
 			{
-				await PageService.AddPageAsync(PageState.Page.PageId, PageState.User.UserId);
+				var page = await PageService.AddPageAsync(PageState.Page.PageId, PageState.User.UserId);
 				PageState.EditMode = true;
-				NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + ((PageState.EditMode) ? "true" : "false")));
+				NavigationManager.NavigateTo(NavigateUrl(page.Path, "edit=" + ((PageState.EditMode) ? "true" : "false")));
 			}
 		}
 	}
@@ -501,7 +509,7 @@
 				module = PageState.Modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.AdminDashboardModule);
 				if (module != null)
 				{
-					NavigationManager.NavigateTo(EditUrl(PageState.Page.Path, module.ModuleId, "Index", ""));
+                    NavigationManager.NavigateTo(EditUrl("admin", module.ModuleId, "Index", "returnurl=" + WebUtility.UrlEncode(PageState.Route.PathAndQuery)));
 				}
 				break;
 			case "Add":
@@ -515,10 +523,10 @@
 					switch (location)
 					{
 						case "Add":
-							url = EditUrl(PageState.Page.Path, module.ModuleId, location, "cp=" + PageState.Page.PageId);
-							break;
+                            url = EditUrl("admin/pages", module.ModuleId, location, $"id={PageState.Page.PageId}&returnurl={WebUtility.UrlEncode(PageState.Route.PathAndQuery)}");
+                            break;
 						case "Edit":
-							url = EditUrl(PageState.Page.Path, module.ModuleId, location, "id=" + PageState.Page.PageId.ToString() + "&cp=" + PageState.Page.PageId);
+                            url = EditUrl("admin/pages", module.ModuleId, location, $"id={PageState.Page.PageId}&returnurl={WebUtility.UrlEncode(PageState.Route.PathAndQuery)}");
 							break;
 					}
 				}

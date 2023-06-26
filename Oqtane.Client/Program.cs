@@ -16,7 +16,6 @@ using Microsoft.JSInterop;
 using Oqtane.Documentation;
 using Oqtane.Modules;
 using Oqtane.Services;
-using Oqtane.Shared;
 using Oqtane.UI;
 
 namespace Oqtane.Client

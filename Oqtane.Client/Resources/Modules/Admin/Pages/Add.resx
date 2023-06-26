@@ -150,8 +150,8 @@
   <data name="Container.Select" xml:space="preserve">
     <value>Select Container</value>
   </data>
-  <data name="Error.Page.Initialize" xml:space="preserve">
-    <value>Error Initializing Page</value>
+  <data name="Error.Page.Load" xml:space="preserve">
+    <value>Error Loading Page</value>
   </data>
   <data name="Error.ChildPage.Load" xml:space="preserve">
     <value>Error Loading Child Pages For Parent</value>
@@ -228,13 +228,22 @@
   <data name="Appearance.Name" xml:space="preserve">
     <value>Appearance</value>
   </data>
-  <data name="Meta.HelpText" xml:space="preserve">
-    <value>Optionally enter meta tags (in exactly the form you want them to be included in the page output).</value>
+  <data name="HeadContent.HelpText" xml:space="preserve">
+    <value>Optionally enter content to be included in the page head (ie. meta, link, or script tags)</value>
   </data>
-  <data name="Meta.Text" xml:space="preserve">
-    <value>Meta:</value>
+  <data name="HeadContent.Text" xml:space="preserve">
+    <value>Head Content:</value>
   </data>
   <data name="Message.Page.Reserved" xml:space="preserve">
     <value>The page name {0} is reserved. Please enter a different name for your page.</value>
+  </data>
+  <data name="BodyContent.HelpText" xml:space="preserve">
+    <value>Optionally enter content to be included in the page body (ie. script tags)</value>
+  </data>
+  <data name="BodyContent.Text" xml:space="preserve">
+    <value>Body Content:</value>
+  </data>
+  <data name="PageContent.Heading" xml:space="preserve">
+    <value>Page Content</value>
   </data>
 </root>

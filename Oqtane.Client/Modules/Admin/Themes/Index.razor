@@ -23,11 +23,12 @@ else
             <th style="width: 1px;">&nbsp;</th>
             <th>@SharedLocalizer["Name"]</th>
             <th>@SharedLocalizer["Version"]</th>
+            <th>@Localizer["Enabled"]</th>
             <th>@SharedLocalizer["Expires"]</th>
             <th>&nbsp;</th>
         </Header>
         <Row>
-            <td><ActionLink Action="View" Parameters="@($"name=" + WebUtility.UrlEncode(context.ThemeName))" ResourceKey="ViewTheme" /></td>
+            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ThemeId.ToString())" ResourceKey="EditModule" /></td>
             <td>
 				@if (context.AssemblyName != Constants.ClientId)
                     {
@@ -36,6 +37,16 @@ else
             </td>
             <td>@context.Name</td>
             <td>@context.Version</td>
+            <td>
+                @if (context.IsEnabled)
+                {
+                    <span>@SharedLocalizer["Yes"]</span>
+                }
+                else
+                {
+                    <span>@SharedLocalizer["No"]</span>
+                }
+            </td>
             <td>
                 @((MarkupString)PurchaseLink(context.PackageName))
             </td>

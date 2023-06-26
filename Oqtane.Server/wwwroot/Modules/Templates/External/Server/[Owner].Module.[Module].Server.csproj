@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <Version>1.0.0</Version>
+    <Product>[Owner].Module.[Module]</Product>
+    <Authors>[Owner]</Authors>
+    <Company>[Owner]</Company>
+    <Description>[Description]</Description>
+    <Copyright>[Owner]</Copyright>
+    <AssemblyName>[Owner].Module.[Module].Server.Oqtane</AssemblyName>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\_content\**\*.*" />
+    <None Include="wwwroot\_content\**\*.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="7.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="7.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\[Owner].Module.[Module].Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    [ServerReference]
+    [SharedReference]
+  </ItemGroup>
+</Project>

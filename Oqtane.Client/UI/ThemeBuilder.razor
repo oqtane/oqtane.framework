@@ -1,59 +1,186 @@
 @namespace Oqtane.UI
-@inject IJSRuntime JsRuntime
+@inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
+@inject SiteState SiteState
 
 @DynamicComponent
 
 @code {
-	[CascadingParameter] PageState PageState { get; set; }
+    [CascadingParameter] PageState PageState { get; set; }
 
-	RenderFragment DynamicComponent { get; set; }
+    RenderFragment DynamicComponent { get; set; }
 
-	protected override void OnParametersSet()
-	{
-		// handle page redirection
-		if (!string.IsNullOrEmpty(PageState.Page.Url))
-		{
-			NavigationManager.NavigateTo(PageState.Page.Url);
-			return;
-		}
-
-		DynamicComponent = builder =>
-		{
-			var themeType = Type.GetType(PageState.Page.ThemeType);
-			builder.OpenComponent(0, themeType);
-			builder.CloseComponent();
-		};
-	}
-
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		var interop = new Interop(JsRuntime);
-
-        // manage stylesheets for this page 
-		string batch = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
-		var links = new List<object>();
-		foreach (Resource resource in PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
-		{
-			var prefix = "app-stylesheet-" + resource.Level.ToString().ToLower();
-			var url = (resource.Url.Contains("://")) ? resource.Url : PageState.Alias.BaseUrl + resource.Url;
-			links.Add(new { id = prefix + "-" + batch + "-" + (links.Count + 1).ToString("00"), rel = "stylesheet", href = url, type = "text/css", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", insertbefore = prefix });
-        }
-        if (links.Any())
+    protected override void OnParametersSet()
+    {
+        // handle page redirection
+        if (!string.IsNullOrEmpty(PageState.Page.Url))
         {
-            await interop.IncludeLinks(links.ToArray());
+            NavigationManager.NavigateTo(PageState.Page.Url);
+            return;
         }
-		await interop.RemoveElementsById("app-stylesheet-page-", "", "app-stylesheet-page-" + batch + "-00");
-		await interop.RemoveElementsById("app-stylesheet-module-", "", "app-stylesheet-module-" + batch + "-00");
 
-		// set page title
-		if (!string.IsNullOrEmpty(PageState.Page.Title))
-		{
-			await interop.UpdateTitle(PageState.Page.Title);
-		}
-		else
-		{
-			await interop.UpdateTitle(PageState.Site.Name + " - " + PageState.Page.Name);
-		}
-	}
+        // set page title
+        if (!string.IsNullOrEmpty(PageState.Page.Title))
+        {
+            SiteState.Properties.PageTitle = PageState.Page.Title;
+        }
+        else
+        {
+            SiteState.Properties.PageTitle = PageState.Site.Name + " - " + PageState.Page.Name;
+        }
+
+        // set page head content
+        var headcontent = "";
+
+        // favicon
+        var favicon = "favicon.ico";
+        var favicontype = "x-icon";
+        if (PageState.Site.FaviconFileId != null)
+        {
+            favicon = Utilities.FileUrl(PageState.Alias, PageState.Site.FaviconFileId.Value);
+            favicontype = favicon.Substring(favicon.LastIndexOf(".") + 1);
+        }
+        headcontent += $"<link id=\"app-favicon\" rel=\"shortcut icon\" type=\"image/{favicontype}\" href=\"{favicon}\" />\n";
+
+        // head content
+        AddHeadContent(headcontent, PageState.Site.HeadContent);
+        if (!string.IsNullOrEmpty(PageState.Site.HeadContent))
+        {
+            headcontent = AddHeadContent(headcontent, PageState.Site.HeadContent);
+        }
+        if (!string.IsNullOrEmpty(PageState.Page.HeadContent))
+        {
+            headcontent = AddHeadContent(headcontent, PageState.Page.HeadContent);
+        }
+        SiteState.Properties.HeadContent = headcontent;
+
+        DynamicComponent = builder =>
+        {
+            var themeType = Type.GetType(PageState.Page.ThemeType);
+            builder.OpenComponent(0, themeType);
+            builder.CloseComponent();
+        };
+    }
+
+    private string AddHeadContent(string headcontent, string content)
+    {
+        if (!string.IsNullOrEmpty(content))
+        {
+            // format head content, remove scripts, and filter duplicate elements
+            var elements = (">" + content.Replace("\n", "") + "<").Split("><");
+            foreach (var element in elements)
+            {
+                if (!string.IsNullOrEmpty(element) && !element.Contains("script"))
+                {
+                    if (!headcontent.Contains("<" + element + ">"))
+                    {
+                        headcontent += "<" + element + ">" + "\n";
+                    }
+                }
+            }
+        }
+        return headcontent;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            if (!string.IsNullOrEmpty(PageState.Page.HeadContent) && PageState.Page.HeadContent.Contains("<script"))
+            {
+                await InjectScripts(PageState.Page.HeadContent, ResourceLocation.Head);
+            }
+            if (!string.IsNullOrEmpty(PageState.Page.BodyContent) && PageState.Page.BodyContent.Contains("<script"))
+            {
+                await InjectScripts(PageState.Page.BodyContent, ResourceLocation.Body);
+            }
+        }
+
+        // style sheets
+        if (PageState.Page.Resources != null && PageState.Page.Resources.Exists(item => item.ResourceType == ResourceType.Stylesheet))
+        {
+            var interop = new Interop(JSRuntime);
+            string batch = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
+            var links = new List<object>();
+            foreach (Resource resource in PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
+            {
+                var prefix = "app-stylesheet-" + resource.Level.ToString().ToLower();
+                var url = (resource.Url.Contains("://")) ? resource.Url : PageState.Alias.BaseUrl + resource.Url;
+                links.Add(new { id = prefix + "-" + batch + "-" + (links.Count + 1).ToString("00"), rel = "stylesheet", href = url, type = "text/css", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", insertbefore = prefix });
+            }
+            if (links.Any())
+            {
+                await interop.IncludeLinks(links.ToArray());
+            }
+            await interop.RemoveElementsById("app-stylesheet-page-", "", "app-stylesheet-page-" + batch + "-00");
+            await interop.RemoveElementsById("app-stylesheet-module-", "", "app-stylesheet-module-" + batch + "-00");
+        }
+    }
+
+    private async Task InjectScripts(string content, ResourceLocation location)
+    {
+        // inject scripts into page dynamically
+        var interop = new Interop(JSRuntime);
+        var scripts = new List<object>();
+        var count = 0;
+        var index = content.IndexOf("<script");
+        while (index >= 0)
+        {
+            var script = content.Substring(index, content.IndexOf("</script>", index) + 9 - index);
+            // get script attributes
+            var attributes = script.Substring(0, script.IndexOf(">")).Replace("\"", "").Split(" ");
+            string id = "";
+            string src = "";
+            string integrity = "";
+            string crossorigin = "";
+            string type = "";
+            foreach (var attribute in attributes)
+            {
+                if (attribute.Contains("="))
+                {
+                    var value = attribute.Split("=");
+                    switch (value[0])
+                    {
+                        case "id":
+                            id = value[1];
+                            break;
+                        case "src":
+                            src = value[1];
+                            break;
+                        case "integrity":
+                            integrity = value[1];
+                            break;
+                        case "crossorigin":
+                            crossorigin = value[1];
+                            break;
+                        case "type":
+                            type = value[1];
+                            break;
+                    }
+                }
+            }
+            // inject script
+            if (!string.IsNullOrEmpty(src))
+            {
+                src = (src.Contains("://")) ? src : PageState.Alias.BaseUrl + src;
+                scripts.Add(new { href = src, bundle = "", integrity = integrity, crossorigin = crossorigin, es6module = (type == "module"), location = location });
+            }
+            else
+            {
+                // inline script must have an id attribute
+                if (id == "")
+                {
+                    count += 1;
+                    id = $"page{PageState.Page.PageId}-script{count}";
+                }
+                index = script.IndexOf(">") + 1;
+                await interop.IncludeScript(id, "", "", "", "", script.Substring(index, script.IndexOf("</script>") - index), location.ToString().ToLower());
+            }
+            index = content.IndexOf("<script", index + 1);
+        }
+        if (scripts.Any())
+        {
+            await interop.IncludeScripts(scripts.ToArray());
+        }
+    }
 }

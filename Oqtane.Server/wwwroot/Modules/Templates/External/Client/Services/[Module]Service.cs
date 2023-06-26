@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Oqtane.Modules;
 using Oqtane.Services;
 using Oqtane.Shared;
-using [Owner].[Module].Models;
+using [Owner].Module.[Module].Models;
 
-namespace [Owner].[Module].Services
+namespace [Owner].Module.[Module].Services
 {
     public class [Module]Service : ServiceBase, I[Module]Service, IService
     {
