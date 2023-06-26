@@ -19,12 +19,7 @@ namespace Oqtane.Themes.Controls
         {
             if (page.IsClickable)
             {
-                var url = string.IsNullOrEmpty(page.Url) ? NavigateUrl(page.Path) : page.Url;
-                if (PageState.QueryString.ContainsKey("method"))
-                {
-                    url += ((url.Contains("?")) ? "&" : "?") + "method=" + PageState.QueryString["method"];
-                }
-                return url;
+                return string.IsNullOrEmpty(page.Url) ? NavigateUrl(page.Path) : page.Url;
             }
             else
             {
