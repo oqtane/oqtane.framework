@@ -1,6 +1,6 @@
 # Latest Release
 
-[3.4.3](https://github.com/oqtane/oqtane.framework/releases/tag/v3.4.3) was released on May 3, 2023 and is primarily focused on stablization. This release includes 27 pull requests by 6 different contributors, pushing the total number of project commits all-time over 3400. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
+[4.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v4.0.0) was released on June 26, 2023 and is a major framework upgrade to .NET 7. This release includes 104 pull requests by 5 different contributors, pushing the total number of project commits all-time over 3600. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Foqtane%2Foqtane.framework%2Fmaster%2Fazuredeploy.json)
 
@@ -8,7 +8,7 @@
 
 ![Oqtane](https://github.com/oqtane/framework/blob/master/oqtane.png?raw=true "Oqtane")
 
-Oqtane is a CMS and Application Framework. It leverages Blazor, an open source and cross-platform web UI framework for building modern apps using .NET and C# instead of JavaScript. Blazor apps are composed of reusable web UI components implemented using C#, HTML, and CSS. Both client and server code is written in C#, allowing you to share code and libraries.
+Oqtane is an open source CMS and Application Framework that provides advanced functionality for developing web, mobile, and desktop applications on .NET. It leverages Blazor to compose a fully dynamic digital experience which can be hosted on Blazor Server, Blazor WebAssembly, or Blazor Hybrid (via .NET MAUI).
 
 Oqtane is being developed based on some fundamental principles which are outlined in the [Oqtane Philosophy](https://www.oqtane.org/blog/!/20/oqtane-philosophy).
 
@@ -16,9 +16,9 @@ Please note that this project is owned by the .NET Foundation and is governed by
 
 # Getting Started
 
-**Using Version 3:**
+**Using Version 4:**
 
-- Install **[.NET 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0)**.
+- Install **[.NET 7 SDK](https://dotnet.microsoft.com/download/dotnet/7.0)**.
    
 - Install the latest edition (v17.0 or higher) of [Visual Studio 2022](https://visualstudio.microsoft.com/vs/preview/#download-preview) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you wish to use LocalDB for development ( not a requirement as Oqtane supports SQLite, mySQL, and PostgreSQL ) you must also install the **Data storage and processing**.  
 
@@ -53,7 +53,7 @@ Backlog (TBD)
 5.0.0 (Q4 2023)
 - [ ] Migration to .NET 8
 
-4.0.0 (Q2 2023)
+[4.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v4.0.0) ( June 26, 2023 )
 - [x] Migration to .NET 7
 - [x] Improved JavaScript, CSS, and Meta support
 - [x] Optimized Client Assembly Loading 
@@ -203,6 +203,8 @@ Backlog (TBD)
 Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology and a Single Page Application (SPA) architecture. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly themes, and extensibility via third party modules.
 
 # Release Announcements
+
+[Oqtane 4.0](https://www.oqtane.org/blog/!/63/announcing-oqtane-4-0-for-net-7)
 
 [Oqtane 3.4](https://www.oqtane.org/blog/!/56/oqtane-3-4-0-released)
 
