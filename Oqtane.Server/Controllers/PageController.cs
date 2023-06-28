@@ -14,6 +14,7 @@ using Oqtane.Modules.Admin.Users;
 using System.IO;
 using Oqtane.Services;
 using Oqtane.UI;
+using System;
 
 namespace Oqtane.Controllers
 {
@@ -182,9 +183,9 @@ namespace Oqtane.Controllers
                 page = new Page();
                 page.SiteId = parent.SiteId;
                 page.ParentId = parent.PageId;
-                page.Name = user.Username;
-                page.Path = parent.Path + "/" + page.Name;
-                page.Title = parent.Name + " - " + page.Name;
+                page.Name = user.DisplayName;
+                page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(page.Name);
+                page.Title = page.Name + " - " + parent.Name;
                 page.Order = 0;
                 page.IsNavigation = false;
                 page.Url = "";
