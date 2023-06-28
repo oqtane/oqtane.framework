@@ -135,4 +135,7 @@
   <data name="Browse" xml:space="preserve">
     <value>Browse</value>
   </data>
+  <data name="AliasName" xml:space="preserve">
+    <value>Url</value>
+  </data>
 </root>
