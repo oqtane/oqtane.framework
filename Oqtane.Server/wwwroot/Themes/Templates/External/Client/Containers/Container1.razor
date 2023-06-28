@@ -1,20 +1,48 @@
 @namespace [Owner].Theme.[Theme]
 @inherits ContainerBase
+@inject ISettingService SettingService
 
-<div class="container">
+<div class="@_classes">
+    @if (_title && ModuleState.Title != "-")
+    {
     <div class="row px-4">
         <div class="d-flex flex-nowrap">
             <ModuleActions /><h2><ModuleTitle /></h2>
         </div>
         <hr class="app-rule" />
     </div>
+    }
+    else
+    {
+    <ModuleActions />
+    }
     <div class="row px-4">
-        <div class="container">
+        <div class="container-fluid">
             <ModuleInstance />
         </div>
     </div>
 </div>
 
 @code {
-    public override string Name => "Container1";
+    public override string Name => "[Owner] [Theme] - Container1";
+
+    private bool _title = true;
+    private string _classes = "container-fluid";
+
+    protected override void OnParametersSet()
+    {
+        try
+        {
+            _title = bool.Parse(SettingService.GetSetting(ModuleState.Settings, GetType().Namespace + ":Title", "true"));
+            _classes += " " + SettingService.GetSetting(ModuleState.Settings, GetType().Namespace + ":Background", "");
+            _classes += " " + SettingService.GetSetting(ModuleState.Settings, GetType().Namespace + ":Text", "");
+            _classes += " " + SettingService.GetSetting(ModuleState.Settings, GetType().Namespace + ":Border", "");
+            _classes = _classes.Trim();
+        }
+        catch
+        {
+            // error loading container settings
+        }
+    }
+
 }
