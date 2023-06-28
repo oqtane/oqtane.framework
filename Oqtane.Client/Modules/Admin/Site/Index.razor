@@ -234,53 +234,53 @@
         {
 			<Section Name="Aliases" Heading="Aliases" ResourceKey="Aliases">
 	            <div class="container">
-						<div class="row mb-1 align-items-center">
-							<Label Class="col-sm-3" For="aliases" HelpText="The list of aliases for this site" ResourceKey="Aliases">Aliases: </Label>
-							<div class="col-sm-9">
-								<button type="button" class="btn btn-primary" @onclick="AddAlias">@SharedLocalizer["Add"]</button>
-								<Pager Items="@_aliases">
-									<Header>
-										<th style="width: 1px;">&nbsp;</th>
-										<th style="width: 1px;">&nbsp;</th>
-										<th>@Localizer["AliasName"]</th>
-										<th>@Localizer["AliasDefault"]</th>
-									</Header>
-									<Row>
-										@if (context.AliasId != _aliasid)
-										{
-											<td>
-												@if (_aliasid == -1)
-												{
-													<button type="button" class="btn btn-primary" @onclick="@(() => EditAlias(context))">@SharedLocalizer["Edit"]</button>
-												}
-											</td>
-											<td>
-												@if (_aliasid == -1)
-												{
-													<ActionDialog Action="Delete" OnClick="@(async () => await DeleteAlias(context))" ResourceKey="DeleteModule" Class="btn btn-danger" Header="Delete Alias" Message="@string.Format(Localizer["Confirm.Alias.Delete", context.Name])" />
-												}
-											</td>
-											<td>@context.Name</td>
-											<td>@context.IsDefault</td>
-										}
-										else
-										{
-											<td><button type="button" class="btn btn-success" @onclick="@(async () => await SaveAlias())">@SharedLocalizer["Save"]</button></td>
-											<td><button type="button" class="btn btn-secondary" @onclick="@(async () => await CancelAlias())">@SharedLocalizer["Cancel"]</button></td>
-											<td>
-												<input id="aliasname" class="form-control" @bind="@_aliasname" />
-											</td>
-											<td>
-												<select id="defaultaias" class="form-select" @bind="@_defaultalias" required>
-													<option value="True">@SharedLocalizer["Yes"]</option>
-													<option value="False">@SharedLocalizer["No"]</option>
-												</select>
-											</td>
-										}
-									</Row>
-								</Pager>
-							</div>
+					<div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="aliases" HelpText="The urls for the site. This can include domain names (ie. domain.com), subdomains (ie. sub.domain.com) or virtual folders (ie. domain.com/folder)." ResourceKey="Aliases">Aliases: </Label>
+						<div class="col-sm-9">
+							<button type="button" class="btn btn-primary" @onclick="AddAlias">@SharedLocalizer["Add"]</button>
+							<Pager Items="@_aliases">
+								<Header>
+									<th style="width: 1px;">&nbsp;</th>
+									<th style="width: 1px;">&nbsp;</th>
+									<th>@Localizer["AliasName"]</th>
+									<th>@Localizer["AliasDefault"]</th>
+								</Header>
+								<Row>
+									@if (context.AliasId != _aliasid)
+									{
+										<td>
+											@if (_aliasid == -1)
+											{
+												<button type="button" class="btn btn-primary" @onclick="@(() => EditAlias(context))">@SharedLocalizer["Edit"]</button>
+											}
+										</td>
+										<td>
+											@if (_aliasid == -1)
+											{
+												<ActionDialog Action="Delete" OnClick="@(async () => await DeleteAlias(context))" ResourceKey="DeleteModule" Class="btn btn-danger" Header="Delete Alias" Message="@string.Format(Localizer["Confirm.Alias.Delete", context.Name])" />
+											}
+										</td>
+										<td>@context.Name</td>
+										<td>@context.IsDefault</td>
+									}
+									else
+									{
+										<td><button type="button" class="btn btn-success" @onclick="@(async () => await SaveAlias())">@SharedLocalizer["Save"]</button></td>
+										<td><button type="button" class="btn btn-secondary" @onclick="@(async () => await CancelAlias())">@SharedLocalizer["Cancel"]</button></td>
+										<td>
+											<input id="aliasname" class="form-control" @bind="@_aliasname" />
+										</td>
+										<td>
+											<select id="defaultalias" class="form-select" @bind="@_defaultalias" required>
+												<option value="True">@SharedLocalizer["Yes"]</option>
+												<option value="False">@SharedLocalizer["No"]</option>
+											</select>
+										</td>
+									}
+								</Row>
+							</Pager>
 						</div>
+					</div>
 				</div>
 			</Section>
             <Section Name="Hosting" Heading="Hosting Model" ResourceKey="Hosting">

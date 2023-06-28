@@ -136,7 +136,7 @@
     <value>Default Admin Container</value>
   </data>
   <data name="Aliases.HelpText" xml:space="preserve">
-    <value>Enter the alias for the server</value>
+    <value>The urls for the site (comman delimited). This can include domain names (ie. domain.com), subdomains (ie. sub.domain.com) or a virtual folder (ie. domain.com/folder).</value>
   </data>
   <data name="DefaultContainer.HelpText" xml:space="preserve">
     <value>Select the default container for the site</value>
@@ -145,7 +145,7 @@
     <value>Database: </value>
   </data>
   <data name="Aliases.Text" xml:space="preserve">
-    <value>Aliases: </value>
+    <value>Urls: </value>
   </data>
   <data name="DefaultTheme.Text" xml:space="preserve">
     <value>Default Theme: </value>
