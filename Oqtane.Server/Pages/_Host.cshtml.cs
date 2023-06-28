@@ -114,7 +114,7 @@ namespace Oqtane.Pages
                     }
 
                     var site = _sites.InitializeSite(alias);
-                    if (site != null && !site.IsDeleted && site.Runtime != "Hybrid")
+                    if (site != null && (!site.IsDeleted || url.Contains("admin/site")) && site.Runtime != "Hybrid")
                     {
                         Route route = new Route(url, alias.Path);
 
