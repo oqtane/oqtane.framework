@@ -12,6 +12,8 @@ using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Modules.Admin.Users;
 using System.IO;
+using Oqtane.Services;
+using Oqtane.UI;
 
 namespace Oqtane.Controllers
 {
@@ -263,14 +265,18 @@ namespace Oqtane.Controllers
                 // save url mapping if page path changed
                 if (currentPage.Path != page.Path)
                 {
-                    var urlMapping = new UrlMapping();
-                    urlMapping.SiteId = page.SiteId;
-                    urlMapping.Url = currentPage.Path;
-                    urlMapping.MappedUrl = page.Path;
-                    urlMapping.Requests = 0;
-                    urlMapping.CreatedOn = System.DateTime.UtcNow;
-                    urlMapping.RequestedOn = System.DateTime.UtcNow;
-                    _urlMappings.AddUrlMapping(urlMapping);
+                    var urlMapping = _urlMappings.GetUrlMapping(page.SiteId, currentPage.Path);
+                    if (urlMapping == null)
+                    {
+                        urlMapping = new UrlMapping();
+                        urlMapping.SiteId = page.SiteId;
+                        urlMapping.Url = currentPage.Path;
+                        urlMapping.MappedUrl = page.Path;
+                        urlMapping.Requests = 0;
+                        urlMapping.CreatedOn = System.DateTime.UtcNow;
+                        urlMapping.RequestedOn = System.DateTime.UtcNow;
+                        _urlMappings.AddUrlMapping(urlMapping);
+                    }
                 }
 
                 // get differences between current and new page permissions
@@ -311,6 +317,16 @@ namespace Oqtane.Controllers
                                 _permissionRepository.DeletePermission(modulePermission.PermissionId);
                             }
                         }
+                    }
+                }
+
+                // update child paths
+                if (page.ParentId != currentPage.ParentId)
+                {
+                    foreach (Page _page in _pages.GetPages(page.SiteId).Where(item => item.Path.StartsWith(currentPage.Path)).ToList())
+                    {
+                        _page.Path = _page.Path.Replace(currentPage.Path, page.Path);
+                        _pages.UpdatePage(_page);
                     }
                 }
 
