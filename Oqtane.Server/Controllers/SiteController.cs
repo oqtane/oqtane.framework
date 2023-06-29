@@ -246,7 +246,7 @@ namespace Oqtane.Controllers
                 foreach (Page child in children)
                 {
                     child.Level = level + 1;
-                    child.HasChildren = pages.Any(item => item.ParentId == child.PageId && !item.IsDeleted);
+                    child.HasChildren = pages.Any(item => item.ParentId == child.PageId && !item.IsDeleted && item.IsNavigation);
                     hierarchy.Add(child);
                     getPath(pageList, child);
                 }
