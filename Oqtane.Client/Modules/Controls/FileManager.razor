@@ -55,7 +55,7 @@
                             </div>
                             <div class="col mt-2 text-end">
                                 <button type="button" class="btn btn-success" @onclick="UploadFiles">@SharedLocalizer["Upload"]</button>
-                                @if (ShowFiles && GetFileId() != -1)
+                                @if (GetFileId() != -1)
                                 {
                                     <button type="button" class="btn btn-danger mx-1" @onclick="DeleteFile">@SharedLocalizer["Delete"]</button>
                                 }
@@ -63,7 +63,7 @@
                         </div>
                         <div class="row">
                             <div class="col mt-1"><span id="@_progressinfoid" style="display: none;"></span></div>
-                            <div class="col text-center mt-1"><progress id="@_progressbarid" class="mt-1" style="display: none;"></progress></div>
+                            <div class="col mt-1"><progress id="@_progressbarid" class="mt-1" style="display: none;"></progress></div>
                         </div>
                     }
                 </div>
@@ -382,38 +382,41 @@
                         }
                         StateHasChanged();
                     }
-				}
-				catch (Exception ex)
-				{
-					await logger.LogError(ex, "File Upload Failed {Error}", ex.Message);
-					_message = Localizer["Error.File.Upload"];
-					_messagetype = MessageType.Error;
-				}
-			}
-			else
-			{
-				_message = string.Format(Localizer["Message.File.Restricted"], restricted);
-				_messagetype = MessageType.Warning;
-			}
-		}
-		else
-		{
-			_message = Localizer["Message.File.NotSelected"];
-			_messagetype = MessageType.Warning;
-		}
-	}
+                }
+                catch (Exception ex)
+                {
+                    await logger.LogError(ex, "File Upload Failed {Error}", ex.Message);
+                    _message = Localizer["Error.File.Upload"];
+                    _messagetype = MessageType.Error;
+                }
+            }
+            else
+            {
+                _message = string.Format(Localizer["Message.File.Restricted"], restricted);
+                _messagetype = MessageType.Warning;
+            }
+        }
+        else
+        {
+            _message = Localizer["Message.File.NotSelected"];
+            _messagetype = MessageType.Warning;
+        }
+    }
 
-	private async Task DeleteFile()
-	{
-		_message = string.Empty;
-		try
-		{
-			await FileService.DeleteFileAsync(FileId);
-			await logger.LogInformation("File Deleted {File}", FileId);
-			await OnDelete.InvokeAsync(FileId);
+    private async Task DeleteFile()
+    {
+        _message = string.Empty;
+        try
+        {
+            await FileService.DeleteFileAsync(FileId);
+            await logger.LogInformation("File Deleted {File}", FileId);
+            await OnDelete.InvokeAsync(FileId);
 
-			_message = Localizer["Success.File.Delete"];
-			_messagetype = MessageType.Success;
+            if (ShowSuccess)
+            {
+                _message = Localizer["Success.File.Delete"];
+                _messagetype = MessageType.Success;
+            }
 
 			await GetFiles();
 			FileId = -1;
