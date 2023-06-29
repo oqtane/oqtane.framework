@@ -143,7 +143,7 @@
     [Parameter]
     public EventCallback<int> OnDelete { get; set; } // optional - executes a method in the calling component when a file is deleted
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         // packages folder is a framework folder for uploading installable nuget packages
         if (Folder == Constants.PackagesFolder)
@@ -152,11 +152,6 @@
             ShowFolders = false;
             Filter = "nupkg";
             ShowSuccess = true;
-        }
-
-        if (!ShowFiles)
-        {
-            ShowImage = false;
         }
 
         _folders = await FolderService.GetFoldersAsync(ModuleState.SiteId);
