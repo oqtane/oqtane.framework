@@ -603,16 +603,6 @@
                         await PageService.UpdatePageOrderAsync(_page.SiteId, _page.PageId, int.Parse(_currentparentid));
                     }
 
-                    // update child paths
-                    if (_parentid != _currentparentid)
-                    {
-                        foreach (Page p in PageState.Pages.Where(item => item.Path.StartsWith(currentPath)))
-                        {
-                            p.Path = p.Path.Replace(currentPath, _page.Path);
-                            await PageService.UpdatePageAsync(p);
-                        }
-                    }
-
                     if (_themeSettingsType != null && _themeSettings is ISettingsControl themeSettingsControl)
                     {
                         await themeSettingsControl.UpdateSettings();
