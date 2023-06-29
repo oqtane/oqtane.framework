@@ -34,13 +34,13 @@ else
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="effectiveDate" HelpText="The date that this role assignment is active" ResourceKey="EffectiveDate">Effective Date: </Label>
             <div class="col-sm-9">
-                <input id="effectiveDate" class="form-control" @bind="@effectivedate" />
+                <input type="date" id="effectiveDate" class="form-control" @bind="@effectivedate" />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="expiryDate" HelpText="The date that this role assignment expires" ResourceKey="ExpiryDate">Expiry Date: </Label>
             <div class="col-sm-9">
-                <input id="expiryDate" class="form-control" @bind="@expirydate" />
+                <input type="date" id="expiryDate" class="form-control" @bind="@expirydate" />
             </div>
         </div>
 
@@ -75,8 +75,8 @@ else
     private string name = string.Empty;
     private List<Role> roles;
     private int roleid = -1;
-    private string effectivedate = string.Empty;
-    private string expirydate = string.Empty;
+    private DateTime? effectivedate = null;
+    private DateTime? expirydate = null;
     private List<UserRole> userroles;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
@@ -130,23 +130,8 @@ else
                 var userrole = userroles.Where(item => item.UserId == userid && item.RoleId == roleid).FirstOrDefault();
                 if (userrole != null)
                 {
-                    if (string.IsNullOrEmpty(effectivedate))
-                    {
-                        userrole.EffectiveDate = null;
-                    }
-                    else
-                    {
-                        userrole.EffectiveDate = DateTime.Parse(effectivedate);
-                    }
-
-                    if (string.IsNullOrEmpty(expirydate))
-                    {
-                        userrole.ExpiryDate = null;
-                    }
-                    else
-                    {
-                        userrole.ExpiryDate = DateTime.Parse(expirydate);
-                    }
+                    userrole.EffectiveDate = effectivedate;
+                    userrole.ExpiryDate = expirydate;
                     await UserRoleService.UpdateUserRoleAsync(userrole);
                 }
                 else
@@ -154,25 +139,8 @@ else
                     userrole = new UserRole();
                     userrole.UserId = userid;
                     userrole.RoleId = roleid;
-
-                    if (string.IsNullOrEmpty(effectivedate))
-                    {
-                        userrole.EffectiveDate = null;
-                    }
-                    else
-                    {
-                        userrole.EffectiveDate = DateTime.Parse(effectivedate);
-                    }
-
-                    if (string.IsNullOrEmpty(expirydate))
-                    {
-                        userrole.ExpiryDate = null;
-                    }
-                    else
-                    {
-                        userrole.ExpiryDate = DateTime.Parse(expirydate);
-                    }
-
+                    userrole.EffectiveDate = effectivedate;
+                    userrole.ExpiryDate = expirydate;
                     await UserRoleService.AddUserRoleAsync(userrole);
                 }
 

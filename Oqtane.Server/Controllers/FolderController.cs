@@ -124,7 +124,10 @@ namespace Oqtane.Controllers
                             Folder parent = _folders.GetFolder(folder.ParentId.Value);
                             folder.Path = Utilities.UrlCombine(parent.Path, folder.Name);
                         }
-                        folder.Path = folder.Path + "/";
+                        if (!folder.Path.EndsWith("/"))
+                        {
+                            folder.Path = folder.Path + "/";
+                        }
                         folder = _folders.AddFolder(folder);
                         _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Folder, folder.FolderId, SyncEventActions.Create);
                         _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Added {Folder}", folder);
@@ -166,7 +169,10 @@ namespace Oqtane.Controllers
                         Folder parent = _folders.GetFolder(folder.ParentId.Value);
                         folder.Path = Utilities.UrlCombine(parent.Path, folder.Name);
                     }
-                    folder.Path = folder.Path + "/";
+                    if (!folder.Path.EndsWith("/"))
+                    {
+                        folder.Path = folder.Path + "/";
+                    }
 
                     Folder _folder = _folders.GetFolder(id, false);
                     if (_folder.Path != folder.Path && Directory.Exists(_folders.GetFolderPath(_folder)))

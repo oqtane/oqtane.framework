@@ -291,7 +291,7 @@ Oqtane.Interop = {
         var progressbar = document.getElementById('ProgressBar_' + id);
 
         progressinfo.setAttribute("style", "display: inline;");
-        progressbar.setAttribute("style", "width: 200px; display: inline;");
+        progressbar.setAttribute("style", "width: 100%; display: inline;");
 
         for (var i = 0; i < files.length; i++) {
             var FileChunk = [];
