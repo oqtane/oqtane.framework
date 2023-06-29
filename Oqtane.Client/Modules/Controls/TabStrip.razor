@@ -8,7 +8,7 @@
                 @foreach (TabPanel tabPanel in _tabPanels)
                 {
                     <li class="nav-item" @key="tabPanel.Name">
-                        @if (tabPanel.Name == ActiveTab)
+                        @if (tabPanel.Name.ToLower() == ActiveTab.ToLower())
                         {
                             <a class="nav-link active" data-bs-toggle="tab" href="#@(Id + tabPanel.Name)" role="tab" @onclick:preventDefault="true">
                                 @tabPanel.DisplayHeading()
