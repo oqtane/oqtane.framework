@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <OutputType>Exe</OutputType>
-    <RazorLangVersion>3.0</RazorLangVersion>
+    <RazorLangVersion>7.0</RazorLangVersion>
     <Configurations>Debug;Release</Configurations>
     <Version>4.0.0</Version>
     <Product>Oqtane</Product>
