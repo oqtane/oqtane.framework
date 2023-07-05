@@ -9,6 +9,9 @@ using Oqtane.Repository;
 using Oqtane.Security;
 using System.Net;
 using System.Reflection.Metadata;
+using Microsoft.Extensions.Localization;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.Linq;
 
 namespace Oqtane.Controllers
 {
@@ -29,6 +32,72 @@ namespace Oqtane.Controllers
             _logger = logger;
             _alias = tenantManager.GetAlias();
         }
+
+        // GET: api/<controller>/read?siteid=x&direction=to&userid=1&count=5&isread=false
+        [HttpGet("read")]
+        [Authorize(Roles = RoleNames.Registered)]
+        public IEnumerable<Notification> Get(string siteid, string direction, string userid, string count, string isread)
+        {
+            IEnumerable<Notification> notifications = null;
+
+            int SiteId;
+            int UserId;
+            int Count;
+            bool IsRead;
+            if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId && int.TryParse(userid, out UserId) && int.TryParse(count, out Count) && bool.TryParse(isread, out IsRead) && IsAuthorized(UserId))
+            {
+                if (direction == "to")
+                {
+                    notifications = _notifications.GetNotifications(SiteId, -1, UserId, Count, IsRead);
+                }
+                else
+                {
+                    notifications = _notifications.GetNotifications(SiteId, UserId, -1, Count, IsRead);
+                }
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Notification Get Attempt {SiteId} {Direction} {UserId} {Count} {isRead}", siteid, direction, userid, count, isread);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                notifications = null;
+            }
+
+
+            return notifications;
+        }
+
+        // GET: api/<controller>/read?siteid=x&direction=to&userid=1&count=5&isread=false
+        [HttpGet("read-count")]
+        [Authorize(Roles = RoleNames.Registered)]
+        public int Get(string siteid, string direction, string userid, string isread)
+        {
+            int notificationsCount = 0;
+
+            int SiteId;
+            int UserId;
+            bool IsRead;
+            if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId && int.TryParse(userid, out UserId) && bool.TryParse(isread, out IsRead) && IsAuthorized(UserId))
+            {
+                if (direction == "to")
+                {
+                    notificationsCount = _notifications.GetNotificationCount(SiteId, -1, UserId, IsRead);
+                }
+                else
+                {
+                    notificationsCount = _notifications.GetNotificationCount(SiteId, UserId, -1, IsRead);
+                }
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Notification Get Attempt {SiteId} {Direction} {UserId} {isRead}", siteid, direction, userid, isread);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                notificationsCount = 0;
+            }
+
+
+            return notificationsCount;
+        }
+
 
         // GET: api/<controller>?siteid=x&type=y&userid=z
         [HttpGet]

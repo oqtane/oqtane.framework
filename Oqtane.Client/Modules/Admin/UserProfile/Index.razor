@@ -159,22 +159,41 @@ else
                     <Row>
                         <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" /></td>
                         <td><ActionDialog Header="Delete Notification" Message="Are You Sure You Wish To Delete This Notification?" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" ResourceKey="DeleteNotification" /></td>
-                        <td>@context.FromDisplayName</td>
-                        <td>@context.Subject</td>
-                        <td>@string.Format("{0:dd-MMM-yyyy HH:mm:ss}", @context.CreatedOn)</td>
+                        
+                        @if (context.IsRead)
+                        {
+                            <td>@context.FromDisplayName</td>
+                            <td>@context.Subject</td>
+                            <td>@string.Format("{0:dd-MMM-yyyy HH:mm:ss}", @context.CreatedOn)</td>
+                        } 
+                        else 
+                        {
+                            <td><b>@context.FromDisplayName</b></td>
+                            <td><b>@context.Subject</b></td>
+                            <td><b>@string.Format("{0:dd-MMM-yyyy HH:mm:ss}", @context.CreatedOn)</b></td>
+                        }
                     </Row>
                     <Detail>
                         <td colspan="2"></td>
                         <td colspan="3">
                             @{
-                                        string input = "___";
-                                        if (context.Body.Contains(input))
-                                        {
-                                            context.Body = context.Body.Split(input)[0];
-                                            context.Body = context.Body.Replace("\n", "");
-                                            context.Body = context.Body.Replace("\r", "");
-                                        } }
-                            @(context.Body.Length > 100 ? (context.Body.Substring(0, 97) + "...") : context.Body)
+                                string input = "___";
+                                if (context.Body.Contains(input))
+                                {
+                                    context.Body = context.Body.Split(input)[0];
+                                    context.Body = context.Body.Replace("\n", "");
+                                    context.Body = context.Body.Replace("\r", "");
+                                }
+                                notificationSummary = context.Body.Length > 100 ? (context.Body.Substring(0, 97) + "...") : context.Body;
+                            }
+                            @if (context.IsRead)
+                            {
+                                @notificationSummary
+                            }
+                            else
+                            {
+                                <b>@notificationSummary</b>
+                            }
                         </td>
                     </Detail>
                 </Pager>
@@ -192,22 +211,42 @@ else
                     <Row>
                         <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" /></td>
                         <td><ActionDialog Header="Delete Notification" Message="Are You Sure You Wish To Delete This Notification?" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" ResourceKey="DeleteNotification" /></td>
-                        <td>@context.ToDisplayName</td>
-                        <td>@context.Subject</td>
-                        <td>@string.Format("{0:dd-MMM-yyyy HH:mm:ss}", @context.CreatedOn)</td>
+
+                        @if (context.IsRead)
+                        {
+                            <td>@context.ToDisplayName</td>
+                            <td>@context.Subject</td>
+                            <td>@string.Format("{0:dd-MMM-yyyy HH:mm:ss}", @context.CreatedOn)</td>
+                        } 
+                        else
+                        {
+                            <td><b>@context.ToDisplayName</b></td>
+                            <td><b>@context.Subject</b></td>
+                            <td><b>@string.Format("{0:dd-MMM-yyyy HH:mm:ss}", @context.CreatedOn)</b></td>
+                        }
+
                     </Row>
                     <Detail>
                         <td colspan="2"></td>
                         <td colspan="3">
                             @{
-                                        string input = "___";
-                                        if (context.Body.Contains(input))
-                                        {
-                                            context.Body = context.Body.Split(input)[0];
-                                            context.Body = context.Body.Replace("\n", "");
-                                            context.Body = context.Body.Replace("\r", "");
-                                        } }
-                            @(context.Body.Length > 100 ? (context.Body.Substring(0, 97) + "...") : context.Body)
+                                string input = "___";
+                                if (context.Body.Contains(input))
+                                {
+                                    context.Body = context.Body.Split(input)[0];
+                                    context.Body = context.Body.Replace("\n", "");
+                                    context.Body = context.Body.Replace("\r", "");
+                                }
+                                notificationSummary = context.Body.Length > 100 ? (context.Body.Substring(0, 97) + "...") : context.Body;
+                            }
+                            @if (context.IsRead)
+                            {
+                                @notificationSummary
+                            }
+                            else 
+                            {
+                                <b>@notificationSummary</b>
+                            } 
                         </td>
                     </Detail>
                 </Pager>
@@ -246,6 +285,7 @@ else
     private string category = string.Empty;
     private string filter = "to";
     private List<Notification> notifications;
+    private string notificationSummary = string.Empty;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
 

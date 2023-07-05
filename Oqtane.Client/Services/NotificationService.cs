@@ -22,6 +22,20 @@ namespace Oqtane.Services
             return notifications.OrderByDescending(item => item.CreatedOn).ToList();
         }
 
+        public async Task<List<Notification>> GetNotificationsAsync(int siteId, string direction, int userId, int count, bool isRead)
+        {
+            var notifications = await GetJsonAsync<List<Notification>>($"{Apiurl}/read?siteid={siteId}&direction={direction.ToLower()}&userid={userId}&count={count}&isread={isRead}");
+
+            return notifications.OrderByDescending(item => item.CreatedOn).ToList();
+        }
+
+        public async Task<int> GetNotificationCountAsync(int siteId, string direction, int userId, bool isRead)
+        {
+            var notificationCount = await GetJsonAsync<int>($"{Apiurl}/read-count?siteid={siteId}&direction={direction.ToLower()}&userid={userId}&isread={isRead}");
+
+            return notificationCount;
+        }
+
         public async Task<Notification> GetNotificationAsync(int notificationId)
         {
             return await GetJsonAsync<Notification>($"{Apiurl}/{notificationId}");
