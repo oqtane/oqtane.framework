@@ -144,6 +144,11 @@ else
     <TabPanel Name="Notifications" ResourceKey="Notifications">
         @if (notifications != null)
         {
+            <select class="form-select" @onchange="(e => FilterChanged(e))">
+                <option value="to">@Localizer["Inbox"]</option>
+                <option value="from">@Localizer["Items.Sent"]</option>
+            </select>
+            <br />
             <ActionLink Action="Add" Text="Send Notification" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="SendNotification" />
             <br /><br />
             @if (filter == "to")
@@ -256,11 +261,6 @@ else
                 <br />
                 <ActionDialog Header="Clear Notifications" Message="Are You Sure You Wish To Permanently Delete All Notifications ?" Action="Delete All Notifications" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteAllNotifications())" ResourceKey="DeleteAllNotifications" />
             }
-            <br /><hr />
-            <select class="form-select" @onchange="(e => FilterChanged(e))">
-                <option value="to">@Localizer["Inbox"]</option>
-                <option value="from">@Localizer["Items.Sent"]</option>
-            </select>
         }
     </TabPanel>
 </TabStrip>
