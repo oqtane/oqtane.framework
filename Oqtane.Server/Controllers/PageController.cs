@@ -183,7 +183,7 @@ namespace Oqtane.Controllers
                 page = new Page();
                 page.SiteId = parent.SiteId;
                 page.ParentId = parent.PageId;
-                page.Name = user.DisplayName;
+                page.Name = user.DisplayName != null ? user.DisplayName : user.Username;
                 page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(page.Name);
                 page.Title = page.Name + " - " + parent.Name;
                 page.Order = 0;
