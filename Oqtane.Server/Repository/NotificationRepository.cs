@@ -42,6 +42,7 @@ namespace Oqtane.Repository
                     .Where(item => item.IsDelivered == false && item.IsDeleted == false)
                     .Where(item => item.SendOn == null || item.SendOn < System.DateTime.UtcNow)
                     .Where(item => item.IsRead == isRead)
+                    .OrderByDescending(item => item.CreatedOn)
                     .ToList()
                     .Take(count);
             }
@@ -51,6 +52,7 @@ namespace Oqtane.Repository
                 .Where(item => item.ToUserId == toUserId || toUserId == -1)
                 .Where(item => item.FromUserId == fromUserId || fromUserId == -1)
                 .Where(item => item.IsRead == isRead)
+                .OrderByDescending(item => item.CreatedOn)
                 .ToList()
                 .Take(count);
         }
