@@ -118,6 +118,9 @@
             Notification notification = await NotificationService.GetNotificationAsync(notificationid);
             if (notification != null)
             {
+                notification.IsRead = true;
+                notification = await NotificationService.UpdateNotificationAsync(notification);
+
                 int userid = -1;
                 if (notification.ToUserId == PageState.User.UserId)
                 {

@@ -94,6 +94,10 @@ namespace Oqtane.Models
         /// </summary>
         public DateTime? SendOn { get; set; }
 
+        /// <summary>
+        /// If it has been read. See also <see cref="IsDelivered" />
+        /// </summary>
+        public bool IsRead { get; set; }
 
         // constructors
         public Notification() {}
@@ -174,6 +178,7 @@ namespace Oqtane.Models
             }
             IsDelivered = false;
             DeliveredOn = null;
+            IsRead = false;
         }
     }
 
