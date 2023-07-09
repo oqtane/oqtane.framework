@@ -23,7 +23,12 @@ namespace Oqtane.Services
 
         public async Task<List<Package>> GetPackagesAsync(string type, string search, string price, string package)
         {
-            return await GetJsonAsync<List<Package>>($"{Apiurl}?type={type}&search={WebUtility.UrlEncode(search)}&price={price}&package={package}");
+            return await GetPackagesAsync(type, search, price, package, "");
+        }
+
+        public async Task<List<Package>> GetPackagesAsync(string type, string search, string price, string package, string sort)
+        {
+            return await GetJsonAsync<List<Package>>($"{Apiurl}?type={type}&search={WebUtility.UrlEncode(search)}&price={price}&package={package}&sort={sort}");
         }
 
         public async Task<Package> GetPackageAsync(string packageId, string version)

@@ -101,6 +101,7 @@ namespace Oqtane.Repository
                 ModuleDefinition.IsPortable = moduleDefinition.IsPortable;
                 ModuleDefinition.Resources = moduleDefinition.Resources;
                 ModuleDefinition.IsEnabled = moduleDefinition.IsEnabled;
+                ModuleDefinition.PackageName = moduleDefinition.PackageName;
             }
 
             return ModuleDefinition;

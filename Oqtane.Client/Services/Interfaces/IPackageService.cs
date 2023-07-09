@@ -28,6 +28,17 @@ namespace Oqtane.Services
         Task<List<Package>> GetPackagesAsync(string type, string search, string price, string package);
 
         /// <summary>
+        /// Returns a list of packages matching the given parameters
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="search"></param>
+        /// <param name="price"></param>
+        /// <param name="package"></param>
+        /// <param name="sort"></param>
+        /// <returns></returns>
+        Task<List<Package>> GetPackagesAsync(string type, string search, string price, string package, string sort);
+
+        /// <summary>
         /// Returns a specific package
         /// </summary>
         /// <param name="packageId"></param>
