@@ -80,7 +80,7 @@ namespace Oqtane.Controllers
         public Folder GetByPath(int siteId, string path)
         {
             var folderPath = WebUtility.UrlDecode(path).Replace("\\", "/");
-            if (!folderPath.EndsWith("/"))
+            if (!folderPath.EndsWith("/") && folderPath != "")
             {
                 folderPath += "/";
             }

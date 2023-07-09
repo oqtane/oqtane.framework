@@ -17,7 +17,10 @@
     <hr class="app-rule" />
 </div>
 <div class="collapse @_show" id="@Name">
-    @ChildContent
+    @if (ChildContent != null)
+    {
+        @ChildContent
+    }
 </div>
 
 @code {
@@ -26,7 +29,7 @@
     private string _show = string.Empty;
 
     [Parameter]
-    public RenderFragment ChildContent { get; set; }
+    public RenderFragment ChildContent { get; set; } = null;
 
     [Parameter]
     public string Name { get; set; } // required - the name of the section
