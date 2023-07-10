@@ -129,6 +129,22 @@ namespace Oqtane.Controllers
             }
         }
 
+        [HttpGet("name/{name}/{folderId}")]
+        public Models.File Get(string name, int folderId)
+        {
+            Models.File file = _files.GetFile(folderId, name);
+            if (file != null && file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.PermissionList))
+            {
+                return file;
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized File Get Attempt {Name} For Folder {FolderId}", name, folderId);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return null;
+            }
+        }
+
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = RoleNames.Registered)]

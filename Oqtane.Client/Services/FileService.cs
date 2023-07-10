@@ -46,6 +46,11 @@ namespace Oqtane.Services
             return await GetJsonAsync<File>($"{Apiurl}/{fileId}");
         }
 
+        public async Task<File> GetFileAsync(int folderId, string name)
+        {
+            return await GetJsonAsync<File>($"{Apiurl}/name/{name}/{folderId}");
+        }
+
         public async Task<File> AddFileAsync(File file)
         {
             return await PostJsonAsync<File>(Apiurl, file);
