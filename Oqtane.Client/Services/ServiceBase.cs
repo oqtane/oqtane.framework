@@ -21,7 +21,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private HttpClient GetHttpClient()
+        public HttpClient GetHttpClient()
         {
             if (!_httpClient.DefaultRequestHeaders.Contains(Constants.AntiForgeryTokenHeaderName) && _siteState != null && !string.IsNullOrEmpty(_siteState.AntiForgeryToken))
             {
