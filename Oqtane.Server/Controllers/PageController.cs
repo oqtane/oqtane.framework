@@ -106,8 +106,11 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Page Get Attempt {SiteId} {Path}", siteid, path);
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                if (page != null)
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Page Get Attempt {SiteId} {Path}", siteid, path);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                }
                 return null;
             }
         }
@@ -177,8 +180,8 @@ namespace Oqtane.Controllers
                 page = new Page();
                 page.SiteId = parent.SiteId;
                 page.ParentId = parent.PageId;
-                page.Name = user.DisplayName != null ? user.DisplayName : user.Username;
-                page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(page.Name);
+                page.Name = user.Username;
+                page.Path = parent.Path + "/" + page.Name;
                 page.Title = page.Name + " - " + parent.Name;
                 page.Order = 0;
                 page.IsNavigation = false;
