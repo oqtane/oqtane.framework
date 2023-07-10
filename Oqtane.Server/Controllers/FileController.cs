@@ -143,9 +143,8 @@ namespace Oqtane.Controllers
                 {
                     _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized File Get Attempt {Name} For Folder {FolderId}", name, folderId);
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                    file = null;
                 }
-                return file;
+                return null;
             }
         }
 
