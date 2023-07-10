@@ -15,9 +15,15 @@
             {
                 <div class="container">
                     <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="module" HelpText="The name of the module" ResourceKey="Module">Module: </Label>
+                        <div class="col-sm-9">
+                            <input id="module" type="text" class="form-control" @bind="@_module" disabled />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="title" HelpText="Enter the title of the module" ResourceKey="Title">Title: </Label>
                         <div class="col-sm-9">
-                            <input id="title" type="text" name="Title" class="form-control" @bind="@_title" required />
+                            <input id="title" type="text" class="form-control" @bind="@_title" required />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
@@ -104,6 +110,7 @@
     private ElementReference form;
     private bool validated = false;
     private List<ThemeControl> _containers = new List<ThemeControl>();
+    private string _module;
     private string _title;
     private string _containerType;
     private string _allPages = "false";
@@ -125,6 +132,7 @@
 
     protected override void OnInitialized()
     {
+        _module = ModuleState.ModuleDefinition.Name;
         _title = ModuleState.Title;
         _containers = ThemeService.GetContainerControls(PageState.Site.Themes, PageState.Page.ThemeType);
 		_containerType = ModuleState.ContainerType;
