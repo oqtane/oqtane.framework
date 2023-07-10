@@ -1,5 +1,6 @@
 using Oqtane.Models;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace Oqtane.Services
@@ -32,6 +33,15 @@ namespace Oqtane.Services
         /// <param name="fileId"></param>
         /// <returns></returns>
         Task<File> GetFileAsync(int fileId);
+
+        /// <summary>
+        /// Get a <see cref="File"/> based on the <see cref="Folder"/> and file name.
+        /// </summary>
+        /// <param name="folderId">Reference to the <see cref="Folder"/></param>
+        /// <param name="name">name of the file
+        /// </param>
+        /// <returns></returns>
+        Task<File> GetFileAsync(int folderId, string name);
 
         /// <summary>
         /// Add / store a <see cref="File"/> record.
