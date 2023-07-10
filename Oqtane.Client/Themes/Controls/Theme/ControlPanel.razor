@@ -471,6 +471,12 @@
 
     private async Task ToggleEditMode(bool EditMode)
     {
+        Page page = null;
+        if (PageState.Page.IsPersonalizable && PageState.User != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Registered))
+        {
+            page = await PageService.AddPageAsync(PageState.Page.PageId, PageState.User.UserId);
+        }
+
         if (_showEditMode)
         {
             if (EditMode)
@@ -490,9 +496,8 @@
 		}
 		else
 		{
-			if (PageState.Page.IsPersonalizable && PageState.User != null)
+            if (PageState.Page.IsPersonalizable && PageState.User != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Registered))
 			{
-				var page = await PageService.AddPageAsync(PageState.Page.PageId, PageState.User.UserId);
 				PageState.EditMode = true;
 				NavigationManager.NavigateTo(NavigateUrl(page.Path, "edit=" + ((PageState.EditMode) ? "true" : "false")));
 			}

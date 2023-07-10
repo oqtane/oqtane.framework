@@ -9,6 +9,7 @@ using System.Net;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
+using System.IO;
 
 namespace Oqtane.Controllers
 {
@@ -177,64 +178,68 @@ namespace Oqtane.Controllers
             User user = _userPermissions.GetUser(User);
             if (parent != null && parent.SiteId == _alias.SiteId && parent.IsPersonalizable && user.UserId == int.Parse(userid))
             {
-                page = new Page();
-                page.SiteId = parent.SiteId;
-                page.ParentId = parent.PageId;
-                page.Name = user.Username;
-                page.Path = parent.Path + "/" + page.Name;
-                page.Title = page.Name + " - " + parent.Name;
-                page.Order = 0;
-                page.IsNavigation = false;
-                page.Url = "";
-                page.ThemeType = parent.ThemeType;
-                page.DefaultContainerType = parent.DefaultContainerType;
-                page.Icon = parent.Icon;
-                page.PermissionList = new List<Permission>()
+                page = _pages.GetPage(parent.Path + "/" + user.Username, parent.SiteId);
+                if (page == null)
                 {
-                    new Permission(PermissionNames.View, int.Parse(userid), true),
-                    new Permission(PermissionNames.View, RoleNames.Everyone, true),
-                    new Permission(PermissionNames.Edit, int.Parse(userid), true)
-                };
-                page.IsPersonalizable = false;
-                page.UserId = int.Parse(userid);
-                page = _pages.AddPage(page);
-
-                // copy modules
-                List<PageModule> pagemodules = _pageModules.GetPageModules(page.SiteId).ToList();
-                foreach (PageModule pm in pagemodules.Where(item => item.PageId == parent.PageId && !item.IsDeleted))
-                {
-                    Module module = new Module();
-                    module.SiteId = page.SiteId;
-                    module.PageId = page.PageId;
-                    module.ModuleDefinitionName = pm.Module.ModuleDefinitionName;
-                    module.AllPages = false;
-                    module.PermissionList = new List<Permission>()
+                    page = new Page();
+                    page.SiteId = parent.SiteId;
+                    page.ParentId = parent.PageId;
+                    page.Name = (!string.IsNullOrEmpty(user.DisplayName)) ? user.DisplayName : user.Username;
+                    page.Path = parent.Path + "/" + user.Username;
+                    page.Title = page.Name + " - " + parent.Name;
+                    page.Order = 0;
+                    page.IsNavigation = false;
+                    page.Url = "";
+                    page.ThemeType = parent.ThemeType;
+                    page.DefaultContainerType = parent.DefaultContainerType;
+                    page.Icon = parent.Icon;
+                    page.PermissionList = new List<Permission>()
                     {
                         new Permission(PermissionNames.View, int.Parse(userid), true),
                         new Permission(PermissionNames.View, RoleNames.Everyone, true),
                         new Permission(PermissionNames.Edit, int.Parse(userid), true)
                     };
-                    module = _modules.AddModule(module);
+                    page.IsPersonalizable = false;
+                    page.UserId = int.Parse(userid);
+                    page = _pages.AddPage(page);
 
-                    string content = _modules.ExportModule(pm.ModuleId);
-                    if (content != "")
+                    // copy modules
+                    List<PageModule> pagemodules = _pageModules.GetPageModules(page.SiteId).ToList();
+                    foreach (PageModule pm in pagemodules.Where(item => item.PageId == parent.PageId && !item.IsDeleted))
                     {
-                        _modules.ImportModule(module.ModuleId, content);
+                        Module module = new Module();
+                        module.SiteId = page.SiteId;
+                        module.PageId = page.PageId;
+                        module.ModuleDefinitionName = pm.Module.ModuleDefinitionName;
+                        module.AllPages = false;
+                        module.PermissionList = new List<Permission>()
+                        {
+                            new Permission(PermissionNames.View, int.Parse(userid), true),
+                            new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                            new Permission(PermissionNames.Edit, int.Parse(userid), true)
+                        };
+                        module = _modules.AddModule(module);
+
+                        string content = _modules.ExportModule(pm.ModuleId);
+                        if (content != "")
+                        {
+                            _modules.ImportModule(module.ModuleId, content);
+                        }
+
+                        PageModule pagemodule = new PageModule();
+                        pagemodule.PageId = page.PageId;
+                        pagemodule.ModuleId = module.ModuleId;
+                        pagemodule.Title = pm.Title;
+                        pagemodule.Pane = pm.Pane;
+                        pagemodule.Order = pm.Order;
+                        pagemodule.ContainerType = pm.ContainerType;
+
+                        _pageModules.AddPageModule(pagemodule);
                     }
 
-                    PageModule pagemodule = new PageModule();
-                    pagemodule.PageId = page.PageId;
-                    pagemodule.ModuleId = module.ModuleId;
-                    pagemodule.Title = pm.Title;
-                    pagemodule.Pane = pm.Pane;
-                    pagemodule.Order = pm.Order;
-                    pagemodule.ContainerType = pm.ContainerType;
-
-                    _pageModules.AddPageModule(pagemodule);
+                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Page, page.PageId, SyncEventActions.Create);
+                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, page.SiteId, SyncEventActions.Refresh);
                 }
-
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Page, page.PageId, SyncEventActions.Create);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, page.SiteId, SyncEventActions.Refresh);
             }
             else
             {
