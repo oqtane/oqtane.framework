@@ -19,7 +19,7 @@ namespace Oqtane.Migrations.Tenant
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             var notificationEntityBuilder = new NotificationEntityBuilder(migrationBuilder, ActiveDatabase);
-            notificationEntityBuilder.AddBooleanColumn("IsRead", false);
+            notificationEntityBuilder.AddBooleanColumn("IsRead", true);
             notificationEntityBuilder.UpdateColumn("IsRead", "1", "bool", "");
         }
 
