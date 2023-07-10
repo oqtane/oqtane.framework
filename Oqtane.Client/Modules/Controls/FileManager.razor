@@ -219,7 +219,14 @@
             if (folder != null)
             {
                 _haseditpermission = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, folder.PermissionList);
-                _files = await FileService.GetFilesAsync(FolderId);
+                if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Browse, folder.PermissionList))
+                {
+                    _files = await FileService.GetFilesAsync(FolderId);
+                }
+                else
+                {
+                    _files = new List<File>();
+                }
             }
             else
             {
