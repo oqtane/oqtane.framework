@@ -19,7 +19,6 @@ namespace Oqtane.Themes.Controls
         [Inject] public IUserService UserService { get; set; }
         [Inject] public IJSRuntime jsRuntime { get; set; }
         [Inject] public IServiceProvider ServiceProvider { get; set; }
-        [Inject] public ILogService LoggingService { get; set; }
 
         protected void LoginUser()
         {
