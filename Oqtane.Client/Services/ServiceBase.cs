@@ -206,7 +206,6 @@ namespace Oqtane.Services
                 Console.WriteLine($"Request: {response.RequestMessage.RequestUri}");
                 Console.WriteLine($"Response status: {response.StatusCode} {response.ReasonPhrase}");
             }
-
             return false;
         }
 

@@ -65,6 +65,10 @@ namespace Oqtane.Controllers
                     user.SiteId = int.Parse(siteid);
                     user.Roles = GetUserRoles(user.UserId, user.SiteId);
                 }
+                else
+                {
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                }
                 return Filter(user);
             }
             else
@@ -87,6 +91,10 @@ namespace Oqtane.Controllers
                 {
                     user.SiteId = int.Parse(siteid);
                     user.Roles = GetUserRoles(user.UserId, user.SiteId);
+                }
+                else
+                {
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
                 }
                 return Filter(user);
             }
