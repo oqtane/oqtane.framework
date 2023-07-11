@@ -26,7 +26,7 @@ namespace Oqtane.Migrations.Tenant
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             var notificationEntityBuilder = new NotificationEntityBuilder(migrationBuilder, ActiveDatabase);
-            notificationEntityBuilder.DropColumn("IsPublic");
+            notificationEntityBuilder.DropColumn("IsRead");
         }
 
     }
