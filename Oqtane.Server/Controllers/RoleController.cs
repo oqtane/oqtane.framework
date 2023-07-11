@@ -59,9 +59,16 @@ namespace Oqtane.Controllers
                 return role;
             }
             else
-            { 
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Role Get Attempt {RoleId}", id);
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            {
+                if (role != null)
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Role Get Attempt {RoleId}", id);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                }
+                else
+                {
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                }
                 return null;
             }
         }

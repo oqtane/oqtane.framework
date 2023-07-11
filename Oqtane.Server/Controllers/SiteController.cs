@@ -79,7 +79,7 @@ namespace Oqtane.Controllers
         private Site GetSite(int siteid)
         {
             var site = _sites.GetSite(siteid);
-            if (site.SiteId == _alias.SiteId)
+            if (site != null && site.SiteId == _alias.SiteId)
             {
                 // site settings
                 site.Settings = _settings.GetSettings(EntityNames.Site, site.SiteId)
@@ -153,8 +153,15 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Site Get Attempt {SiteId}", siteid);
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                if (site != null)
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Site Get Attempt {SiteId}", siteid);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                }
+                else
+                {
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                }
                 return null;
             }
         }
