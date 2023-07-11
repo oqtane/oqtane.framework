@@ -89,10 +89,14 @@ namespace Oqtane.Controllers
             }
             else
             {
-                if (entityName != EntityNames.Visitor)
+                if (setting != null && entityName != EntityNames.Visitor)
                 {
                     _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Setting {EntityName} {SettingId}", entityName, id);
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                }
+                else
+                {
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
                 }
                 return null;
             }
