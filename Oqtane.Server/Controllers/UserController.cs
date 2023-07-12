@@ -29,13 +29,14 @@ namespace Oqtane.Controllers
         private readonly ITenantManager _tenantManager;
         private readonly INotificationRepository _notifications;
         private readonly IFolderRepository _folders;
+        private readonly IUserManager _userManager;
         private readonly ISiteRepository _sites;
         private readonly IUserPermissions _userPermissions;
         private readonly IJwtManager _jwtManager;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
 
-        public UserController(IUserRepository users, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, ISiteRepository sites, IUserPermissions userPermissions, IJwtManager jwtManager, ISyncManager syncManager, ILogManager logger)
+        public UserController(IUserRepository users, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, IUserManager userManager, ISiteRepository sites, IUserPermissions userPermissions, IJwtManager jwtManager, ISyncManager syncManager, ILogManager logger)
         {
             _users = users;
             _userRoles = userRoles;
@@ -44,6 +45,7 @@ namespace Oqtane.Controllers
             _tenantManager = tenantManager;
             _notifications = notifications;
             _folders = folders;
+            _userManager = userManager;
             _sites = sites;
             _userPermissions = userPermissions;
             _jwtManager = jwtManager;
@@ -141,8 +143,28 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && user.SiteId == _tenantManager.GetAlias().SiteId)
             {
-                var User = await CreateUser(user);
-                return User;
+                bool allowregistration;
+                if (_userPermissions.IsAuthorized(User, user.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin))
+                {
+                    user.EmailConfirmed = true;
+                    allowregistration = true;
+                }
+                else
+                {
+                    user.EmailConfirmed = false;
+                    allowregistration = _sites.GetSite(user.SiteId).AllowRegistration;
+                }
+
+                if (allowregistration)
+                {
+                    user = await _userManager.AddUser(user);
+                }
+                else
+                {
+                    _logger.Log(user.SiteId, LogLevel.Error, this, LogFunction.Create, "User Registration Is Not Enabled For Site. User Was Not Added {User}", user);
+                }
+
+                return user;
             }
             else
             {
@@ -151,99 +173,6 @@ namespace Oqtane.Controllers
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
-        }
-
-        private async Task<User> CreateUser(User user)
-        {
-            User newUser = null;
-
-            bool verified;
-            bool allowregistration;
-            if (_userPermissions.IsAuthorized(User, user.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin))
-            {
-                verified = true;
-                allowregistration = true;
-            }
-            else
-            {
-                verified = false;
-                allowregistration = _sites.GetSite(user.SiteId).AllowRegistration;
-            }
-
-            if (allowregistration)
-            {
-                bool succeeded;
-                string errors = "";
-                IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
-                if (identityuser == null)
-                {
-                    identityuser = new IdentityUser();
-                    identityuser.UserName = user.Username;
-                    identityuser.Email = user.Email;
-                    identityuser.EmailConfirmed = verified;
-                    var result = await _identityUserManager.CreateAsync(identityuser, user.Password);
-                    succeeded = result.Succeeded;
-                    if (!succeeded)
-                    {
-                        errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                    }
-                }
-                else
-                {
-                    var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, false);
-                    succeeded = result.Succeeded;
-                    if (!succeeded)
-                    {
-                        errors = "Password Not Valid For User";
-                    }
-                    verified = succeeded;
-                }
-
-                if (succeeded)
-                {
-                    user.LastLoginOn = null;
-                    user.LastIPAddress = "";
-                    newUser = _users.AddUser(user);
-                    _syncManager.AddSyncEvent(_tenantManager.GetAlias().TenantId, EntityNames.User, newUser.UserId, SyncEventActions.Create);
-                }
-                else
-                {
-                    _logger.Log(user.SiteId, LogLevel.Error, this, LogFunction.Create, "Unable To Add User {Username} - {Errors}", user.Username, errors);
-                }
-
-                if (newUser != null)
-                {
-                    if (!verified)
-                    {
-                        string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
-                        string url = HttpContext.Request.Scheme + "://" + _tenantManager.GetAlias().Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
-                        string body = "Dear " + user.DisplayName + ",\n\nIn Order To Complete The Registration Of Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
-                        var notification = new Notification(user.SiteId, newUser, "User Account Verification", body);
-                        _notifications.AddNotification(notification);
-                    }
-                    else
-                    {
-                        string url = HttpContext.Request.Scheme + "://" + _tenantManager.GetAlias().Name;
-                        string body = "Dear " + user.DisplayName + ",\n\nA User Account Has Been Successfully Created For You. Please Use The Following Link To Access The Site:\n\n" + url + "\n\nThank You!";
-                        var notification = new Notification(user.SiteId, newUser, "User Account Notification", body);
-                        _notifications.AddNotification(notification);
-                    }
-
-                    newUser.Password = ""; // remove sensitive information
-                    _logger.Log(user.SiteId, LogLevel.Information, this, LogFunction.Create, "User Added {User}", newUser);
-                }
-                else
-                {
-                    user.Password = ""; // remove sensitive information
-                    _logger.Log(user.SiteId, LogLevel.Error, this, LogFunction.Create, "Unable To Add User {User}", user);
-                }
-            }
-            else
-            {
-                _logger.Log(user.SiteId, LogLevel.Error, this, LogFunction.Create, "User Registration Is Not Enabled For Site. User Was Not Added {User}", user);
-            }
-
-            return newUser;
         }
 
         // PUT api/<controller>/5
