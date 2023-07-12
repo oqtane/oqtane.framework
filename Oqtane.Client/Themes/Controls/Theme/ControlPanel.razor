@@ -36,7 +36,7 @@
 
 @if (_canViewAdminDashboard || UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
 {
-    <button type="button" class="btn @ButtonClass" data-bs-toggle="offcanvas" data-bs-target="#offcanvasControlPanel" aria-controls="offcanvasControlPanel">
+    <button type="button" class="btn @ButtonClass ms-1" data-bs-toggle="offcanvas" data-bs-target="#offcanvasControlPanel" aria-controls="offcanvasControlPanel">
         <span class="oi oi-cog"></span>
     </button>
 
@@ -471,6 +471,12 @@
 
     private async Task ToggleEditMode(bool EditMode)
     {
+        Page page = null;
+        if (PageState.Page.IsPersonalizable && PageState.User != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Registered))
+        {
+            page = await PageService.AddPageAsync(PageState.Page.PageId, PageState.User.UserId);
+        }
+
         if (_showEditMode)
         {
             if (EditMode)
@@ -490,9 +496,8 @@
 		}
 		else
 		{
-			if (PageState.Page.IsPersonalizable && PageState.User != null)
+            if (PageState.Page.IsPersonalizable && PageState.User != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Registered))
 			{
-				var page = await PageService.AddPageAsync(PageState.Page.PageId, PageState.User.UserId);
 				PageState.EditMode = true;
 				NavigationManager.NavigateTo(NavigateUrl(page.Path, "edit=" + ((PageState.EditMode) ? "true" : "false")));
 			}

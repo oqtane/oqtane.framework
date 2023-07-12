@@ -219,7 +219,14 @@
             if (folder != null)
             {
                 _haseditpermission = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, folder.PermissionList);
-                _files = await FileService.GetFilesAsync(FolderId);
+                if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Browse, folder.PermissionList))
+                {
+                    _files = await FileService.GetFilesAsync(FolderId);
+                }
+                else
+                {
+                    _files = new List<File>();
+                }
             }
             else
             {
@@ -322,26 +329,28 @@
                     var folder = (Folder == Constants.PackagesFolder) ? Folder : FolderId.ToString();
                     await interop.UploadFiles(posturl, folder, _guid, SiteState.AntiForgeryToken);
 
-                    // uploading is asynchronous so we need to wait for the uploads to complete
-                    // note that this will only wait a maximum of 15 seconds which may not be long enough for very large file uploads
-                    bool success = false;
-                    int attempts = 0;
-                    while (attempts < 5 && !success)
+                    // uploading is asynchronous so we need to poll to determine if uploads are completed
+                    var success = true;
+                    int upload = 0;
+                    while (upload < uploads.Length && success)
                     {
-                        attempts += 1;
-                        Thread.Sleep(1000 * attempts); // progressive retry 
-
-                        success = true;
-                        List<File> files = await FileService.GetFilesAsync(folder);
-                        if (files.Count > 0)
+                        success = false;
+                        // note that progressive retry will only wait a maximum of 15 seconds which may not be long enough for very large file uploads
+                        int attempts = 0;
+                        while (attempts < 5 && !success)
                         {
-                            foreach (string upload in uploads)
+                            attempts += 1;
+                            Thread.Sleep(1000 * attempts); // progressive retry
+
+                            var file = await FileService.GetFileAsync(int.Parse(folder), uploads[upload]);
+                            if (file != null)
                             {
-                                if (!files.Exists(item => item.Name == upload))
-                                {
-                                    success = false;
-                                }
+                                success = true;
                             }
+                        }
+                        if (success)
+                        {
+                            upload++;
                         }
                     }
 
@@ -372,14 +381,14 @@
                     else
                     {
                         // set FileId to first file in upload collection
-                        await GetFiles();
-                        var file = _files.Where(item => item.Name == uploads[0]).FirstOrDefault();
+                        var file = await FileService.GetFileAsync(int.Parse(folder), uploads[0]);
                         if (file != null)
                         {
                             FileId = file.FileId;
                             await SetImage();
                             await OnUpload.InvokeAsync(FileId);
                         }
+                        await GetFiles();
                         StateHasChanged();
                     }
                 }

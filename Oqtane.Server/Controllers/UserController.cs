@@ -65,6 +65,10 @@ namespace Oqtane.Controllers
                     user.SiteId = int.Parse(siteid);
                     user.Roles = GetUserRoles(user.UserId, user.SiteId);
                 }
+                else
+                {
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                }
                 return Filter(user);
             }
             else
@@ -87,6 +91,10 @@ namespace Oqtane.Controllers
                 {
                     user.SiteId = int.Parse(siteid);
                     user.Roles = GetUserRoles(user.UserId, user.SiteId);
+                }
+                else
+                {
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
                 }
                 return Filter(user);
             }
@@ -648,9 +656,13 @@ namespace Oqtane.Controllers
             foreach (UserRole userrole in userroles)
             {
                 roles += userrole.Role.Name + ";";
-                if (userrole.Role.Name == RoleNames.Host && userroles.Where(item => item.Role.Name == RoleNames.Admin).FirstOrDefault() == null)
+                if (userrole.Role.Name == RoleNames.Host && !userroles.Any(item => item.Role.Name == RoleNames.Admin))
                 {
                     roles += RoleNames.Admin + ";";
+                }
+                if (userrole.Role.Name == RoleNames.Host && !userroles.Any(item => item.Role.Name == RoleNames.Registered))
+                {
+                    roles += RoleNames.Registered + ";";
                 }
             }
             if (roles != "") roles = ";" + roles;

@@ -223,12 +223,12 @@
             }
             if (page == null)
             {
-                // look for personalized page
                 page = await PageService.GetPageAsync(route.PagePath, site.SiteId);
             }
             else
             {
-                if (user != null && page.IsPersonalizable)
+                // look for personalized page
+                if (user != null && page.IsPersonalizable && !UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList))
                 {
                     var personalized = await PageService.GetPageAsync(route.PagePath + "/" + user.Username, site.SiteId);
                     if (personalized != null)

@@ -55,9 +55,16 @@ namespace Oqtane.Controllers
                 return urlMapping;
             }
             else
-            { 
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized UrlMapping Get Attempt {UrlMappingId}", id);
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            {
+                if (urlMapping != null)
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized UrlMapping Get Attempt {UrlMappingId}", id);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                }
+                else
+                {
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                }
                 return null;
             }
         }
@@ -73,8 +80,15 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized UrlMapping Get Attempt {SiteId} {Url}", siteid, url);
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                if (urlMapping != null)
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized UrlMapping Get Attempt {SiteId} {Url}", siteid, url);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                }
+                else
+                {
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                }
                 return null;
             }
         }

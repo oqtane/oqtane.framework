@@ -43,7 +43,7 @@ namespace Oqtane.Controllers
             {
                 foreach (Folder folder in _folders.GetFolders(SiteId))
                 {
-                    if (_userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.PermissionList))
+                    if (_userPermissions.IsAuthorized(User, PermissionNames.View, folder.PermissionList))
                     {
                         folders.Add(folder);
                     }
@@ -64,14 +64,21 @@ namespace Oqtane.Controllers
         public Folder Get(int id)
         {
             Folder folder = _folders.GetFolder(id);
-            if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.PermissionList))
+            if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, folder.PermissionList))
             {
                 return folder;
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Get Attempt {FolderId}", id);
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                if (folder != null)
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Get Attempt {FolderId}", id);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                }
+                else
+                {
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                }
                 return null;
             }
         }
@@ -80,19 +87,26 @@ namespace Oqtane.Controllers
         public Folder GetByPath(int siteId, string path)
         {
             var folderPath = WebUtility.UrlDecode(path).Replace("\\", "/");
-            if (!folderPath.EndsWith("/"))
+            if (!folderPath.EndsWith("/") && folderPath != "")
             {
                 folderPath += "/";
             }
             Folder folder = _folders.GetFolder(siteId, folderPath);
-            if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.PermissionList))
+            if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, folder.PermissionList))
             {
                 return folder;
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Get Attempt {Path} For Site {SiteId}", path, siteId);
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                if (folder != null)
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Get Attempt {Path} For Site {SiteId}", path, siteId);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                }
+                else
+                {
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                }
                 return null;
             }
         }

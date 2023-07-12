@@ -21,7 +21,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private HttpClient GetHttpClient()
+        public HttpClient GetHttpClient()
         {
             if (!_httpClient.DefaultRequestHeaders.Contains(Constants.AntiForgeryTokenHeaderName) && _siteState != null && !string.IsNullOrEmpty(_siteState.AntiForgeryToken))
             {
@@ -206,7 +206,6 @@ namespace Oqtane.Services
                 Console.WriteLine($"Request: {response.RequestMessage.RequestUri}");
                 Console.WriteLine($"Response status: {response.StatusCode} {response.ReasonPhrase}");
             }
-
             return false;
         }
 
