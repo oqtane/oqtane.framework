@@ -40,19 +40,10 @@
     [Parameter]
     public string Expanded { get; set; } // optional - will default to false if not provided
 
-    protected override void OnInitialized()
-    {
-        _heading = (!string.IsNullOrEmpty(Heading)) ? Heading : Name;
-        _expanded = (!string.IsNullOrEmpty(Expanded)) ? Expanded.ToLower() : "false";
-        if (_expanded == "true") { _show = "show"; }
-    }
-
     protected override void OnParametersSet()
     {
-        base.OnParametersSet();
-
-        _heading = !string.IsNullOrEmpty(Heading)
-            ? Localize(nameof(Heading), Heading)
-            : Localize(nameof(Name), Name);
+        _heading = !string.IsNullOrEmpty(Heading) ? Localize(nameof(Heading), Heading) : Localize(nameof(Name), Name);
+        _expanded = (!string.IsNullOrEmpty(Expanded)) ? Expanded.ToLower() : "false";
+        if (_expanded == "true") { _show = "show"; }
     }
 }

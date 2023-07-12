@@ -73,13 +73,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         internal static IServiceCollection AddOqtaneTransientServices(this IServiceCollection services)
         {
-            services.AddTransient<IDBContextDependencies, DBContextDependencies>();
-            services.AddTransient<ITenantManager, TenantManager>();
-            services.AddTransient<IAliasAccessor, AliasAccessor>();
-            services.AddTransient<IUserPermissions, UserPermissions>();
-            services.AddTransient<ITenantResolver, TenantResolver>();
-            services.AddTransient<IJwtManager, JwtManager>();
-
+            // repositories
             services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
             services.AddTransient<IThemeRepository, ThemeRepository>();
             services.AddTransient<IAliasRepository, AliasRepository>();
@@ -95,7 +89,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IPermissionRepository, PermissionRepository>();
             services.AddTransient<ISettingRepository, SettingRepository>();
             services.AddTransient<ILogRepository, LogRepository>();
-            services.AddTransient<ILogManager, LogManager>();
             services.AddTransient<ILocalizationManager, LocalizationManager>();
             services.AddTransient<IJobRepository, JobRepository>();
             services.AddTransient<IJobLogRepository, JobLogRepository>();
@@ -104,10 +97,20 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IFileRepository, FileRepository>();
             services.AddTransient<ISiteTemplateRepository, SiteTemplateRepository>();
             services.AddTransient<ISqlRepository, SqlRepository>();
-            services.AddTransient<IUpgradeManager, UpgradeManager>();
             services.AddTransient<ILanguageRepository, LanguageRepository>();
             services.AddTransient<IVisitorRepository, VisitorRepository>();
             services.AddTransient<IUrlMappingRepository, UrlMappingRepository>();
+
+            // managers
+            services.AddTransient<IDBContextDependencies, DBContextDependencies>();
+            services.AddTransient<ITenantManager, TenantManager>();
+            services.AddTransient<IAliasAccessor, AliasAccessor>();
+            services.AddTransient<IUserPermissions, UserPermissions>();
+            services.AddTransient<ITenantResolver, TenantResolver>();
+            services.AddTransient<IJwtManager, JwtManager>();
+            services.AddTransient<ILogManager, LogManager>();
+            services.AddTransient<IUpgradeManager, UpgradeManager>();
+            services.AddTransient<IUserManager, UserManager>();
 
             // obsolete - replaced by ITenantManager
             services.AddTransient<ITenantResolver, TenantResolver>();
