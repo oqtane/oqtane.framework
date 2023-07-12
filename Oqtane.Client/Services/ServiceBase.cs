@@ -201,7 +201,7 @@ namespace Oqtane.Services
 
         private bool CheckResponse(HttpResponseMessage response, string uri)
         {
-            if (!response.RequestMessage.RequestUri.AbsolutePath.StartsWith("/api/"))
+            if (!response.RequestMessage.RequestUri.AbsolutePath.Contains("/api/"))
             {
                 Console.WriteLine($"Request: {uri} Not Mapped To A Controller Method");
                 return false;
