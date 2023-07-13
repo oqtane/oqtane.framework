@@ -359,7 +359,7 @@
                 {
                     _themetype = PageState.Site.DefaultThemeType;
                 }
-                _themes = ThemeService.GetThemeControls(PageState.Site.Themes, _themetype);
+                _themes = ThemeService.GetThemeControls(PageState.Site.Themes);
                 _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
                 _containertype = _page.DefaultContainerType;
                 if (string.IsNullOrEmpty(_containertype))

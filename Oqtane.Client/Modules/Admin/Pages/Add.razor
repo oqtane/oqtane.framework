@@ -246,7 +246,7 @@
             if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin) || (_parent != null && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, _parent.PermissionList)))
             {
                 _themetype = PageState.Site.DefaultThemeType;
-                _themes = ThemeService.GetThemeControls(PageState.Site.Themes, _themetype);
+                _themes = ThemeService.GetThemeControls(PageState.Site.Themes);
                 _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
                 _containertype = PageState.Site.DefaultContainerType;
                 _children = PageState.Pages.Where(item => item.ParentId == null).ToList();
