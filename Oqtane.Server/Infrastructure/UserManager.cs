@@ -116,6 +116,7 @@ namespace Oqtane.Infrastructure
 
             if (succeeded)
             {
+                user.DisplayName = (user.DisplayName == null) ? user.Username : user.DisplayName;
                 user.LastLoginOn = null;
                 user.LastIPAddress = "";
                 User = _users.AddUser(user);
