@@ -14,6 +14,7 @@ using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Extensions;
+using Oqtane.Managers;
 
 namespace Oqtane.Controllers
 {
