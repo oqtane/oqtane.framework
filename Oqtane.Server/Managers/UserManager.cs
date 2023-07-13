@@ -4,16 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Oqtane.Enums;
+using Oqtane.Infrastructure;
 using Oqtane.Models;
-using Oqtane.Modules.Admin.Roles;
 using Oqtane.Repository;
 using Oqtane.Shared;
 
-namespace Oqtane.Infrastructure
+namespace Oqtane.Managers
 {
     public class UserManager : IUserManager
     {
