@@ -9,12 +9,12 @@
 		@if (_useadminborder)
 		{
 			<div class="app-pane-admin-border">
-				@DynamicComponent
+                <DynamicComponent Type="@ComponentType"></DynamicComponent>
 			</div>
 		}
 		else
 		{
-			@DynamicComponent
+		    <DynamicComponent Type="@ComponentType"></DynamicComponent>
 		}
 	</CascadingValue>
     
@@ -23,14 +23,13 @@
 @code {
 	private bool _visible = true;
 	private bool _useadminborder = false;
+    public Type ComponentType { get; set; }
 
     [CascadingParameter]
     protected PageState PageState { get; set; }
 
     [Parameter]
     public Module ModuleState { get; set; }
-
-    RenderFragment DynamicComponent { get; set; }
 
 	protected override void OnInitialized()
 	{
@@ -54,17 +53,7 @@
             _useadminborder = false;
         }
 
-        DynamicComponent = builder =>
-        {
-            Type containerType = Type.GetType(container);
-            if (containerType == null)
-            {
-                // fallback
-                containerType = Type.GetType(Constants.DefaultContainer);
-            }
-            builder.OpenComponent(0, containerType);
-            builder.CloseComponent();
-        };
+        ComponentType = Type.GetType(container) ?? Type.GetType(Constants.DefaultContainer);
     }
 
 	private void PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -83,4 +72,6 @@
 	{
 		((INotifyPropertyChanged)SiteState.Properties).PropertyChanged -= PropertyChanged;
 	}
+
+
 }

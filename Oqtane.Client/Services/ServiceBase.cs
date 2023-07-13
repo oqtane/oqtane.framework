@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading;
 using System.Threading.Tasks;
 using Oqtane.Models;
@@ -105,7 +106,7 @@ namespace Oqtane.Services
         protected async Task GetAsync(string uri)
         {
             var response = await GetHttpClient().GetAsync(uri);
-            CheckResponse(response);
+            CheckResponse(response, uri);
         }
 
         protected async Task<string> GetStringAsync(string uri)
@@ -139,7 +140,7 @@ namespace Oqtane.Services
         protected async Task<T> GetJsonAsync<T>(string uri)
         {
             var response = await GetHttpClient().GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, CancellationToken.None);
-            if (CheckResponse(response) && ValidateJsonContent(response.Content))
+            if (CheckResponse(response, uri) && ValidateJsonContent(response.Content))
             {
                 return await response.Content.ReadFromJsonAsync<T>();
             }
@@ -150,7 +151,7 @@ namespace Oqtane.Services
         protected async Task PutAsync(string uri)
         {
             var response = await GetHttpClient().PutAsync(uri, null);
-            CheckResponse(response);
+            CheckResponse(response, uri);
         }
 
         protected async Task<T> PutJsonAsync<T>(string uri, T value)
@@ -161,7 +162,7 @@ namespace Oqtane.Services
         protected async Task<TResult> PutJsonAsync<TValue, TResult>(string uri, TValue value)
         {
             var response = await GetHttpClient().PutAsJsonAsync(uri, value);
-            if (CheckResponse(response) && ValidateJsonContent(response.Content))
+            if (CheckResponse(response, uri) && ValidateJsonContent(response.Content))
             {
                 var result = await response.Content.ReadFromJsonAsync<TResult>();
                 return result;
@@ -172,7 +173,7 @@ namespace Oqtane.Services
         protected async Task PostAsync(string uri)
         {
             var response = await GetHttpClient().PostAsync(uri, null);
-            CheckResponse(response);
+            CheckResponse(response, uri);
         }
 
         protected async Task<T> PostJsonAsync<T>(string uri, T value)
@@ -183,7 +184,7 @@ namespace Oqtane.Services
         protected async Task<TResult> PostJsonAsync<TValue, TResult>(string uri, TValue value)
         {
             var response = await GetHttpClient().PostAsJsonAsync(uri, value);
-            if (CheckResponse(response) && ValidateJsonContent(response.Content))
+            if (CheckResponse(response, uri) && ValidateJsonContent(response.Content))
             {
                 var result = await response.Content.ReadFromJsonAsync<TResult>();
                 return result;
@@ -195,11 +196,16 @@ namespace Oqtane.Services
         protected async Task DeleteAsync(string uri)
         {
             var response = await GetHttpClient().DeleteAsync(uri);
-            CheckResponse(response);
+            CheckResponse(response, uri);
         }
 
-        private bool CheckResponse(HttpResponseMessage response)
+        private bool CheckResponse(HttpResponseMessage response, string uri)
         {
+            if (!response.RequestMessage.RequestUri.AbsolutePath.Contains("/api/"))
+            {
+                Console.WriteLine($"Request: {uri} Not Mapped To A Controller Method");
+                return false;
+            }
             if (response.IsSuccessStatusCode) return true;
             if (response.StatusCode != HttpStatusCode.NoContent && response.StatusCode != HttpStatusCode.NotFound)
             {
