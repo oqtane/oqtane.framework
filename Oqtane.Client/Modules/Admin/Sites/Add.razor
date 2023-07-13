@@ -288,12 +288,13 @@ else
 			if (_themetype != "-")
 			{
 				_containers = ThemeService.GetContainerControls(_themeList, _themetype);
-			}
+                _containertype = _containers.First().TypeName;
+            }
 			else
 			{
 				_containers = new List<ThemeControl>();
-			}
-			_containertype = "-";
+                _containertype = "-";
+            }
 			_admincontainertype = "";
 			StateHasChanged();
 		}

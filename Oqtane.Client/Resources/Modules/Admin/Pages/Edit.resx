@@ -282,4 +282,7 @@
   <data name="PageContent.Heading" xml:space="preserve">
     <value>Page Content</value>
   </data>
+  <data name="ThemeChanged.Message" xml:space="preserve">
+    <value>Please Note That Overriding The Default Site Theme With An Unrelated Page Theme May Result In Compatibility Issues For Your Site</value>
+  </data>
 </root>
