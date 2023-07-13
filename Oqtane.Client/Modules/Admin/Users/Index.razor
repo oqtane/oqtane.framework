@@ -35,9 +35,9 @@ else
 					<th style="width: 1px;">&nbsp;</th>
 					<th style="width: 1px;">&nbsp;</th>
 					<th style="width: 1px;">&nbsp;</th>
-					<th>@SharedLocalizer["Username"]</th>
-					<th>@SharedLocalizer["Name"]</th>
-					<th>@Localizer["LastLoginOn"]</th>
+                    <th class="app-sort-th" @onclick="@(() => SortTable("Username"))">@Localizer["Username"]<i class="@(SetSortIcon("Username"))"></i></th>
+                    <th class="app-sort-th" @onclick="@(() => SortTable("DisplayName"))">@Localizer["Name"]<i class="@(SetSortIcon("DisplayName"))"></i></th>
+                    <th class="app-sort-th" @onclick="@(() => SortTable("LastLoginOn"))">@Localizer["LastLoginOn"]<i class="@(SetSortIcon("LastLoginOn"))"></i></th>
 				</Header>
 				<Row>
 					<td>
@@ -413,6 +413,9 @@ else
 	private string _lifetime;
 	private string _token;
 
+    private bool isSortedAscending;
+    private string activeSortColumn;
+
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
 
 	protected override async Task OnInitializedAsync()
@@ -654,4 +657,43 @@ else
 			_togglesecret = SharedLocalizer["ShowPassword"];
 		}
 	}
+
+    private void SortTable(string columnName)
+    {
+        if (columnName != activeSortColumn)
+        {
+            users = users.OrderBy(x => x.User.GetType().GetProperty(columnName)?.GetValue(x.User)).ToList();
+            isSortedAscending = true;
+            activeSortColumn = columnName;
+        }
+        else
+        {
+            if (isSortedAscending)
+            {
+                users = users.OrderByDescending(x => x.User.GetType().GetProperty(columnName)?.GetValue(x.User)).ToList();
+            }
+            else
+            {
+                users = users.OrderBy(x => x.User.GetType().GetProperty(columnName)?.GetValue(x.User)).ToList();
+            }
+
+            isSortedAscending = !isSortedAscending;
+        }
+    }
+
+    private string SetSortIcon(string columnName)
+    {
+        if (activeSortColumn != columnName)
+        {
+            return "app-fas pe-3 ";
+        }
+        if (isSortedAscending)
+        {
+            return "app-fas oi oi-sort-ascending";
+        }
+        else
+        {
+            return "app-fas oi oi-sort-descending";
+        }
+    }
 }
