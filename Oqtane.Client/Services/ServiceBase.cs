@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Reflection.Metadata.Ecma335;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Oqtane.Enums;
 using Oqtane.Models;
 using Oqtane.Shared;
 
@@ -106,7 +107,7 @@ namespace Oqtane.Services
         protected async Task GetAsync(string uri)
         {
             var response = await GetHttpClient().GetAsync(uri);
-            CheckResponse(response, uri);
+            await CheckResponse(response, uri);
         }
 
         protected async Task<string> GetStringAsync(string uri)
@@ -140,7 +141,7 @@ namespace Oqtane.Services
         protected async Task<T> GetJsonAsync<T>(string uri)
         {
             var response = await GetHttpClient().GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, CancellationToken.None);
-            if (CheckResponse(response, uri) && ValidateJsonContent(response.Content))
+            if (await CheckResponse(response, uri) && ValidateJsonContent(response.Content))
             {
                 return await response.Content.ReadFromJsonAsync<T>();
             }
@@ -151,7 +152,7 @@ namespace Oqtane.Services
         protected async Task PutAsync(string uri)
         {
             var response = await GetHttpClient().PutAsync(uri, null);
-            CheckResponse(response, uri);
+            await CheckResponse(response, uri);
         }
 
         protected async Task<T> PutJsonAsync<T>(string uri, T value)
@@ -162,7 +163,7 @@ namespace Oqtane.Services
         protected async Task<TResult> PutJsonAsync<TValue, TResult>(string uri, TValue value)
         {
             var response = await GetHttpClient().PutAsJsonAsync(uri, value);
-            if (CheckResponse(response, uri) && ValidateJsonContent(response.Content))
+            if (await CheckResponse(response, uri) && ValidateJsonContent(response.Content))
             {
                 var result = await response.Content.ReadFromJsonAsync<TResult>();
                 return result;
@@ -173,7 +174,7 @@ namespace Oqtane.Services
         protected async Task PostAsync(string uri)
         {
             var response = await GetHttpClient().PostAsync(uri, null);
-            CheckResponse(response, uri);
+            await CheckResponse(response, uri);
         }
 
         protected async Task<T> PostJsonAsync<T>(string uri, T value)
@@ -184,7 +185,7 @@ namespace Oqtane.Services
         protected async Task<TResult> PostJsonAsync<TValue, TResult>(string uri, TValue value)
         {
             var response = await GetHttpClient().PostAsJsonAsync(uri, value);
-            if (CheckResponse(response, uri) && ValidateJsonContent(response.Content))
+            if (await CheckResponse(response, uri) && ValidateJsonContent(response.Content))
             {
                 var result = await response.Content.ReadFromJsonAsync<TResult>();
                 return result;
@@ -196,21 +197,20 @@ namespace Oqtane.Services
         protected async Task DeleteAsync(string uri)
         {
             var response = await GetHttpClient().DeleteAsync(uri);
-            CheckResponse(response, uri);
+            await CheckResponse(response, uri);
         }
 
-        private bool CheckResponse(HttpResponseMessage response, string uri)
+        private async Task<bool> CheckResponse(HttpResponseMessage response, string uri)
         {
-            if (!response.RequestMessage.RequestUri.AbsolutePath.Contains("/api/"))
+            if (uri.Contains("/api/") && !response.RequestMessage.RequestUri.AbsolutePath.Contains("/api/"))
             {
-                Console.WriteLine($"Request: {uri} Not Mapped To A Controller Method");
+                await Log(uri, response.RequestMessage.Method.ToString(), "Request {Uri} Not Mapped To A Controller Method", uri);
                 return false;
             }
             if (response.IsSuccessStatusCode) return true;
             if (response.StatusCode != HttpStatusCode.NoContent && response.StatusCode != HttpStatusCode.NotFound)
             {
-                Console.WriteLine($"Request: {response.RequestMessage.RequestUri}");
-                Console.WriteLine($"Response status: {response.StatusCode} {response.ReasonPhrase}");
+                await Log(uri, response.RequestMessage.Method.ToString(), "Request {Uri} Failed With Status {StatusCode} - {ReasonPhrase}", uri, response.StatusCode, response.ReasonPhrase);
             }
             return false;
         }
@@ -219,6 +219,44 @@ namespace Oqtane.Services
         {
             var mediaType = content?.Headers.ContentType?.MediaType;
             return mediaType != null && mediaType.Equals("application/json", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private async Task Log(string uri, string method, string message, params object[] args)
+        {
+            if (_siteState.Alias != null)
+            {
+                var log = new Log();
+                log.SiteId = _siteState.Alias.SiteId;
+                log.PageId = null;
+                log.ModuleId = null;
+                log.UserId = null;
+                log.Url = uri;
+                log.Category = GetType().AssemblyQualifiedName;
+                log.Feature = Utilities.GetTypeNameLastSegment(log.Category, 0);
+                switch (method)
+                {
+                    case "GET":
+                        log.Function = LogFunction.Read.ToString();
+                        break;
+                    case "POST":
+                        log.Function = LogFunction.Create.ToString();
+                        break;
+                    case "PUT":
+                        log.Function = LogFunction.Update.ToString();
+                        break;
+                    case "DELETE":
+                        log.Function = LogFunction.Delete.ToString();
+                        break;
+                    default:
+                        log.Function = LogFunction.Other.ToString();
+                        break;
+                }
+                log.Level = LogLevel.Error.ToString();
+                log.Message = message;
+                log.MessageTemplate = "";
+                log.Properties = JsonSerializer.Serialize(args);
+                await PostJsonAsync(CreateApiUrl("Log"), log);
+            }
         }
 
         //[Obsolete("This constructor is obsolete. Use ServiceBase(HttpClient client, SiteState siteState) : base(http, siteState) {} instead.", false)]

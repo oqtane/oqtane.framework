@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -136,7 +136,7 @@
     <value>The function that was performed</value>
   </data>
   <data name="Category.HelpText" xml:space="preserve">
-    <value>The categories that were affected</value>
+    <value>The fully qualified type type that was affected</value>
   </data>
   <data name="Page.HelpText" xml:space="preserve">
     <value>The page that was affected</value>
@@ -178,7 +178,7 @@
     <value>Function: </value>
   </data>
   <data name="Category.Text" xml:space="preserve">
-    <value>Category: </value>
+    <value>Type Name: </value>
   </data>
   <data name="Page.Text" xml:space="preserve">
     <value>Page: </value>
