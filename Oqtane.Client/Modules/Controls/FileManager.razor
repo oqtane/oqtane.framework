@@ -1,5 +1,5 @@
 @namespace Oqtane.Modules.Controls
-@using System.Threading
+@using System.Threading;
 @inherits ModuleControlBase
 @inject IFolderService FolderService
 @inject IFileService FileService
@@ -143,6 +143,11 @@
     [Parameter]
     public EventCallback<int> OnDelete { get; set; } // optional - executes a method in the calling component when a file is deleted
 
+    protected override async Task OnInitializedAsync()
+    {
+        await OnSelect.InvokeAsync(FileId);
+    }
+
     protected override async Task OnParametersSetAsync()
     {
         // packages folder is a framework folder for uploading installable nuget packages
@@ -177,7 +182,7 @@
             if (file != null)
             {
                 FolderId = file.FolderId;
-                await OnSelect.InvokeAsync(FileId);
+
             }
             else
             {
@@ -274,10 +279,9 @@
         FileId = int.Parse((string)e.Value);
         if (FileId != -1)
         {
+            await SetImage();
             await OnSelect.InvokeAsync(FileId);
         }
-
-        await SetImage();
         StateHasChanged();
     }
 
