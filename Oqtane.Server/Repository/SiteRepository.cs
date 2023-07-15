@@ -97,16 +97,18 @@ namespace Oqtane.Repository
 
         public Site InitializeSite(Alias alias)
         {
-            var site = GetSite(alias.SiteId);            
+            var site = GetSite(alias.SiteId);
 
-            // load themes and module definitions 
+            // load themes
             site.Themes = _themeRepository.GetThemes().ToList();
-            var moduleDefinitions = _moduleDefinitionRepository.GetModuleDefinitions(alias.SiteId);
 
             // site migrations
             var serverstate = _serverState.GetServerState(alias.SiteId);
             if (!serverstate.IsMigrated)
             {
+                // load module definitions
+                var moduleDefinitions = _moduleDefinitionRepository.GetModuleDefinitions(alias.SiteId);
+
                 // ensure migrations are only executed once
                 lock (_lock)
                 {
@@ -281,7 +283,7 @@ namespace Oqtane.Repository
                     else
                     {
                         site.SiteTemplateType = section.Value;
-                    }                    
+                    }
                 }
                 else
                 {
