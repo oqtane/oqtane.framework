@@ -45,16 +45,7 @@ namespace Oqtane.Controllers
                     client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
                     client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
                     packages = await GetJson<List<Package>>(client, Constants.PackageRegistryUrl + $"/api/registry/packages/?id={_configManager.GetInstallationId()}&type={type.ToLower()}&version={Constants.Version}&search={search}&price={price}&package={package}&sort={sort}");
-                    if (packages != null)
-                    {
-                        var installationid = _configManager.GetInstallationId();
-                        foreach (var _package in packages)
-                        {
-                            _package.PaymentUrl = _package.PaymentUrl.Replace("{InstallationId}", installationid);
-                            _package.SupportUrl = _package.SupportUrl.Replace("{InstallationId}", installationid);
-                        }
-                    }
-                }
+                 }
             }
             return packages;
         }
@@ -73,13 +64,6 @@ namespace Oqtane.Controllers
                     client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
                     client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
                     package = await GetJson<Package>(client, Constants.PackageRegistryUrl + $"/api/registry/package/?id={_configManager.GetInstallationId()}&package={packageid}&version={version}&download={download}");
-                    if (package != null)
-                    {
-                        var installationid = _configManager.GetInstallationId();
-                        package.PaymentUrl = package.PaymentUrl.Replace("{InstallationId}", installationid);
-                        package.SupportUrl = package.SupportUrl.Replace("{InstallationId}", installationid);
-
-                    }
                 }
 
                 if (package != null)
