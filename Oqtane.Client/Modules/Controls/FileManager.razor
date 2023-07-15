@@ -271,13 +271,10 @@
     {
         _message = string.Empty;
         FileId = int.Parse((string)e.Value);
-        if (FileId != -1)
-        {
-            await OnSelect.InvokeAsync(FileId);
-        }
-
         await SetImage();
+        await OnSelect.InvokeAsync(FileId);
         StateHasChanged();
+
     }
 
     private async Task SetImage()
