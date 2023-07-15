@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Oqtane.Models;
 
-namespace Oqtane.Infrastructure
+namespace Oqtane.Managers
 {
     public interface IUserManager
     {

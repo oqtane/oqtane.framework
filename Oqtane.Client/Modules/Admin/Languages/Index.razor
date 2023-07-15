@@ -22,7 +22,7 @@ else
             <th>@Localizer["Default"]</th>
 			@if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
 			{
-				<th style="width: 1px;">@Localizer["Translation"]</th>
+                <th style="width: 1px;">@Localizer["Translation"]</th>
 				<th style="width: 1px;">&nbsp;</th>
 			}
         </Header>
@@ -33,7 +33,7 @@ else
 			<td><TriStateCheckBox Value="@(context.IsDefault)" Disabled="true"></TriStateCheckBox></td>
 			@if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
 			{
-				<td>@((string.IsNullOrEmpty(context.Version)) ? "---" : context.Version)</td>
+                <td>@((string.IsNullOrEmpty(context.Version)) ? "---" : context.Version)</td>
 				<td>
 					@{
 						var translation = TranslationAvailable(context.Code, context.Version);
@@ -114,8 +114,8 @@ else
 			_packages = await PackageService.GetPackagesAsync("translation");			
 		}
 	}
-
-	private async Task GetLanguages()
+    
+    private async Task GetLanguages()
 	{
 		_languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId, Constants.ClientId);
 	}

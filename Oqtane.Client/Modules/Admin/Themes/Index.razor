@@ -24,6 +24,7 @@ else
             <th>@SharedLocalizer["Name"]</th>
             <th>@SharedLocalizer["Version"]</th>
             <th>@Localizer["Enabled"]</th>
+            <th>@SharedLocalizer["Support"]</th>
             <th>@SharedLocalizer["Expires"]</th>
             <th>&nbsp;</th>
         </Header>
@@ -46,6 +47,9 @@ else
                 {
                     <span>@SharedLocalizer["No"]</span>
                 }
+            </td>
+            <td>
+                @((MarkupString)SupportLink(context.PackageName))
             </td>
             <td>
                 @((MarkupString)PurchaseLink(context.PackageName))
@@ -97,12 +101,26 @@ else
             {
                 if (package.ExpiryDate != null && package.ExpiryDate.Value.Date != DateTime.MaxValue.Date)
                 {
-                    link += "<span>" + package.ExpiryDate.Value.Date.ToString("MMM dd, yyyy") + "</span>";
+                    link += "<span>" + package.ExpiryDate.Value.Date.ToString("MMM dd, yyyy") + "</span><br />";
                     if (!string.IsNullOrEmpty(package.PaymentUrl))
                     {
                         link += "&nbsp;&nbsp;<a class=\"btn btn-primary\" style=\"text-decoration: none !important\" href=\"" + package.PaymentUrl + "\" target=\"_new\">" + SharedLocalizer["Extend"] + "</a>";
                     }
                 }
+            }
+        }
+        return link;
+    }
+
+    private string SupportLink(string packagename)
+    {
+        string link = "";
+        if (!string.IsNullOrEmpty(packagename) && _packages != null)
+        {
+            var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
+            if (package != null && !string.IsNullOrEmpty(package.SupportUrl))
+            {
+                link += "<a class=\"btn btn-success\" style=\"text-decoration: none !important\" href=\"" + package.SupportUrl + "\" target=\"_new\">" + SharedLocalizer["Help"] + "</a>";
             }
         }
         return link;
