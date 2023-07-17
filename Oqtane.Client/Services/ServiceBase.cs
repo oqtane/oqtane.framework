@@ -66,7 +66,7 @@ namespace Oqtane.Services
                 // legacy support for ControllerRoutes.Default
                 if (alias != null)
                 {
-                    // include the alias for multi-tenant context
+                    // include the alias id for multi-tenant context
                     apiurl += $"{alias.AliasId}/";
                 }
                 else
@@ -223,7 +223,7 @@ namespace Oqtane.Services
 
         private async Task Log(string uri, string method, string status, string message, params object[] args)
         {
-            if (_siteState.Alias != null)
+            if (_siteState.Alias != null && !uri.StartsWith(CreateApiUrl("Log")))
             {
                 var log = new Log();
                 log.SiteId = _siteState.Alias.SiteId;
