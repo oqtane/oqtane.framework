@@ -89,7 +89,7 @@ namespace Oqtane.Controllers
             {
                 if (page != null)
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Page Get Attempt {PageId}", id);
+                    _logger.Log(LogLevel.Warning, this, LogFunction.Security, "Unauthorized Page Get Attempt {PageId}", id);
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 }
                 else
@@ -116,7 +116,7 @@ namespace Oqtane.Controllers
             {
                 if (page != null)
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Page Get Attempt {SiteId} {Path}", siteid, path);
+                    _logger.Log(LogLevel.Warning, this, LogFunction.Security, "Unauthorized Page Get Attempt {SiteId} {Path}", siteid, path);
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 }
                 else
