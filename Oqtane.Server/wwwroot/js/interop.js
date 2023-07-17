@@ -290,8 +290,10 @@ Oqtane.Interop = {
         var progressinfo = document.getElementById('ProgressInfo_' + id);
         var progressbar = document.getElementById('ProgressBar_' + id);
 
-        progressinfo.setAttribute("style", "display: inline;");
-        progressbar.setAttribute("style", "width: 100%; display: inline;");
+        if (progressinfo !== null && progressbar !== null) {
+            progressinfo.setAttribute("style", "display: inline;");
+            progressbar.setAttribute("style", "width: 100%; display: inline;");
+        }
 
         for (var i = 0; i < files.length; i++) {
             var FileChunk = [];
@@ -322,21 +324,29 @@ Oqtane.Interop = {
                 var request = new XMLHttpRequest();
                 request.open('POST', posturl, true);
                 request.upload.onloadstart = function (e) {
-                    progressinfo.innerHTML = file.name + ' 0%';
-                    progressbar.value = 0;
+                    if (progressinfo !== null && progressbar !== null) {
+                        progressinfo.innerHTML = file.name + ' 0%';
+                        progressbar.value = 0;
+                    }
                 };
                 request.upload.onprogress = function (e) {
-                    var percent = Math.ceil((e.loaded / e.total) * 100);
-                    progressinfo.innerHTML = file.name + '[' + PartCount + '] ' + percent + '%';
-                    progressbar.value = (percent / 100);
+                    if (progressinfo !== null && progressbar !== null) {
+                        var percent = Math.ceil((e.loaded / e.total) * 100);
+                        progressinfo.innerHTML = file.name + '[' + PartCount + '] ' + percent + '%';
+                        progressbar.value = (percent / 100);
+                    }
                 };
                 request.upload.onloadend = function (e) {
-                    progressinfo.innerHTML = file.name + ' 100%';
-                    progressbar.value = 1;
+                    if (progressinfo !== null && progressbar !== null) {
+                        progressinfo.innerHTML = file.name + ' 100%';
+                        progressbar.value = 1;
+                    }
                 };
-                request.upload.onerror = function () {
-                    progressinfo.innerHTML = file.name + ' Error: ' + xhr.status;
-                    progressbar.value = 0;
+                request.upload.onerror = function() {
+                    if (progressinfo !== null && progressbar !== null) {
+                        progressinfo.innerHTML = file.name + ' Error: ' + xhr.status;
+                        progressbar.value = 0;
+                    }
                 };
                 request.send(data);
             }
