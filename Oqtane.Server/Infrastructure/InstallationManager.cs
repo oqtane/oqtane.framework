@@ -201,7 +201,24 @@ namespace Oqtane.Infrastructure
                 {
                     Directory.CreateDirectory(Path.GetDirectoryName(filename));
                 }
-                entry.ExtractToFile(filename, true);
+                if (Path.Exists(filename) && Path.GetExtension(filename).ToLower() == ".dll")
+                {
+                    // ensure assembly version is equal to or greater than existing assembly
+                    var assembly = filename.Replace(Path.GetFileName(filename), "temp.dll");
+                    entry.ExtractToFile(assembly, true);
+                    if (Version.Parse(FileVersionInfo.GetVersionInfo(assembly).FileVersion).CompareTo(Version.Parse(FileVersionInfo.GetVersionInfo(filename).FileVersion)) >= 0)
+                    {
+                        File.Move(assembly, filename, true);
+                    }
+                    else
+                    {
+                        File.Delete(assembly);
+                    }
+                }
+                else
+                {
+                    entry.ExtractToFile(filename, true);
+                }
             }
             catch
             {
