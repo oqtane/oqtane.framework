@@ -61,10 +61,20 @@
                                 }
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col mt-1"><span id="@_progressinfoid" style="display: none;"></span></div>
-                            <div class="col mt-1"><progress id="@_progressbarid" class="mt-1" style="display: none;"></progress></div>
-                        </div>
+                        @if (ShowProgress)
+                        {
+                            <div class="row">
+                                <div class="col mt-1"><span id="@_progressinfoid" style="display: none;"></span></div>
+                                <div class="col mt-1"><progress id="@_progressbarid" class="mt-1" style="display: none;"></progress></div>
+                            </div>
+                        }
+                        else
+                        {
+                            if (_uploading)
+                            {
+                                <div class="app-progress-indicator"></div>
+                            }
+                        }
                     }
                 </div>
             </div>
@@ -100,6 +110,7 @@
     private string _guid;
     private string _message = string.Empty;
     private MessageType _messagetype;
+    private bool _uploading = false;
 
     [Parameter]
     public string Id { get; set; } // optional - for setting the id of the FileManager component for accessibility
@@ -127,6 +138,9 @@
 
     [Parameter]
     public bool ShowImage { get; set; } = true; // optional - for indicating whether an image thumbnail should be displayed - default is true
+
+    [Parameter]
+    public bool ShowProgress { get; set; } = true; // optional - for indicating whether progress info should be displayed during upload - default is true
 
     [Parameter]
     public bool ShowSuccess { get; set; } = false; // optional - for indicating whether a success message should be displayed upon successful upload - default is false
@@ -318,6 +332,12 @@
             }
             if (restricted == "")
             {
+                if (!ShowProgress)
+                {
+                    _uploading = true;
+                    StateHasChanged();
+                }
+
                 try
                 {
                     // upload the files
@@ -351,8 +371,16 @@
                     }
 
                     // reset progress indicators
-                    await interop.SetElementAttribute(_guid + "ProgressInfo", "style", "display: none;");
-                    await interop.SetElementAttribute(_guid + "ProgressBar", "style", "display: none;");
+                    if (ShowProgress)
+                    {
+                        await interop.SetElementAttribute(_guid + "ProgressInfo", "style", "display: none;");
+                        await interop.SetElementAttribute(_guid + "ProgressBar", "style", "display: none;");
+                    }
+                    else
+                    {
+                        _uploading = false;
+                        StateHasChanged();
+                    }
 
                     if (success)
                     {
@@ -393,7 +421,9 @@
                     await logger.LogError(ex, "File Upload Failed {Error}", ex.Message);
                     _message = Localizer["Error.File.Upload"];
                     _messagetype = MessageType.Error;
+                    _uploading = false;
                 }
+
             }
             else
             {
