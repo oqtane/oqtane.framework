@@ -217,8 +217,13 @@
                 }
                 _packageid = package.PackageId;
                 _version = package.Version;
+                StateHasChanged();
             }
-            StateHasChanged();
+            else
+            {
+                await logger.LogError("Error Getting Package {PackageId} {Version}", packageid, version);
+                AddModuleMessage(Localizer["Error.Theme.Download"], MessageType.Error);
+            }
         }
         catch (Exception ex)
         {

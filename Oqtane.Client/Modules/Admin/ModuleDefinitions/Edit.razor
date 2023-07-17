@@ -319,55 +319,63 @@
                     AddModuleMessage(Localizer["Message.DuplicateName"], MessageType.Warning);
                 }
             }
-			catch (Exception ex)
-			{
-				await logger.LogError(ex, "Error Saving ModuleDefinition {ModuleDefinitionId} {Error}", _moduleDefinitionId, ex.Message);
-				AddModuleMessage(Localizer["Error.Module.Save"], MessageType.Error);
-			}
-		}
-		else
-		{
-			AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
-		}
-	}
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Saving ModuleDefinition {ModuleDefinitionId} {Error}", _moduleDefinitionId, ex.Message);
+                AddModuleMessage(Localizer["Error.Module.Save"], MessageType.Error);
+            }
+        }
+        else
+        {
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+        }
+    }
 
-	private void HideModal()
-	{
-		_package = null;
-		StateHasChanged();
-	}
+    private void HideModal()
+    {
+        _package = null;
+        StateHasChanged();
+    }
 
-	private string TranslationAvailable(string packagename, string version)
-	{
-		if (_packages != null)
-		{
-			var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
-			if (package != null)
-			{
-				if (string.IsNullOrEmpty(version))
-				{
-					return "install";
-				}
-				else
-				{
-					if (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0)
-					{
-						return "upgrade";
-					}
-				}
-			}
-		}
-		return "";
-	}
+    private string TranslationAvailable(string packagename, string version)
+    {
+        if (_packages != null)
+        {
+            var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
+            if (package != null)
+            {
+                if (string.IsNullOrEmpty(version))
+                {
+                    return "install";
+                }
+                else
+                {
+                    if (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0)
+                    {
+                        return "upgrade";
+                    }
+                }
+            }
+        }
+        return "";
+    }
 
-	private async Task GetPackage(string packagename)
-	{
-		var version = _packages.Where(item => item.PackageId == packagename).FirstOrDefault().Version;
-		try
-		{
-			_package = await PackageService.GetPackageAsync(packagename, version);
-			StateHasChanged();
-		}
+    private async Task GetPackage(string packagename)
+    {
+        var version = _packages.Where(item => item.PackageId == packagename).FirstOrDefault().Version;
+        try
+        {
+            _package = await PackageService.GetPackageAsync(packagename, version);
+            if (_package != null)
+            {
+                StateHasChanged();
+            }
+            else
+            {
+                await logger.LogError("Error Getting Package {PackageId} {Version}", packagename, version);
+                AddModuleMessage(Localizer["Error.Translation.Download"], MessageType.Error);
+            }
+        }
 		catch (Exception ex)
 		{
 			await logger.LogError(ex, "Error Getting Package {PackageId} {Version}", packagename, version);
