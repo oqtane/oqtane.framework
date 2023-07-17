@@ -210,7 +210,7 @@ namespace Oqtane.Infrastructure
                     {
                         var subject = $"{alias.Name} Site {log.Level} Notification";
                         var url = $"{_accessor.HttpContext.Request.Scheme}://{alias.Name}/admin/log?id={log.LogId}";
-                        string body = $"Log Message: {log.Message}\n\nPlease visit {url} for more information";
+                        string body = $"Log Message: {log.Message}<br /><br />Please visit {url} for more information";
                         var notification = new Notification(log.SiteId.Value, userrole.User, subject, body);
                         _notifications.AddNotification(notification);
                     }
