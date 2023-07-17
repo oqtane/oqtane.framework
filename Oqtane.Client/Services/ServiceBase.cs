@@ -202,15 +202,15 @@ namespace Oqtane.Services
 
         private async Task<bool> CheckResponse(HttpResponseMessage response, string uri)
         {
-            if (uri.Contains("/api/") && !response.RequestMessage.RequestUri.AbsolutePath.Contains("/api/"))
+            if (response.IsSuccessStatusCode && uri.Contains("/api/") && !response.RequestMessage.RequestUri.AbsolutePath.Contains("/api/"))
             {
-                await Log(uri, response.RequestMessage.Method.ToString(), "Request {Uri} Not Mapped To A Controller Method", uri);
+                await Log(uri, response.RequestMessage.Method.ToString(), response.StatusCode.ToString(), "Request {Uri} Not Mapped To An API Controller Method", uri);
                 return false;
             }
             if (response.IsSuccessStatusCode) return true;
             if (response.StatusCode != HttpStatusCode.NoContent && response.StatusCode != HttpStatusCode.NotFound)
             {
-                await Log(uri, response.RequestMessage.Method.ToString(), "Request {Uri} Failed With Status {StatusCode} - {ReasonPhrase}", uri, response.StatusCode, response.ReasonPhrase);
+                await Log(uri, response.RequestMessage.Method.ToString(), response.StatusCode.ToString(), "Request {Uri} Failed With Status {StatusCode} - {ReasonPhrase}", uri, response.StatusCode, response.ReasonPhrase);
             }
             return false;
         }
@@ -221,7 +221,7 @@ namespace Oqtane.Services
             return mediaType != null && mediaType.Equals("application/json", StringComparison.OrdinalIgnoreCase);
         }
 
-        private async Task Log(string uri, string method, string message, params object[] args)
+        private async Task Log(string uri, string method, string status, string message, params object[] args)
         {
             if (_siteState.Alias != null)
             {
@@ -251,7 +251,14 @@ namespace Oqtane.Services
                         log.Function = LogFunction.Other.ToString();
                         break;
                 }
-                log.Level = LogLevel.Error.ToString();
+                if (status == "500")
+                {
+                    log.Level = LogLevel.Error.ToString();
+                }
+                else
+                {
+                    log.Level = LogLevel.Warning.ToString();
+                }
                 log.Message = message;
                 log.MessageTemplate = "";
                 log.Properties = JsonSerializer.Serialize(args);
