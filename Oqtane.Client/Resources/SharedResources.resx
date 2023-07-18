@@ -343,7 +343,7 @@
     <value>Please note that third party extensions are registered in the &lt;a href="https://www.oqtane.net" target="_new"&gt;Oqtane Marketplace&lt;/a&gt; which enables them to be seamlessly downloaded and installed into the framework.</value>
   </data>
   <data name="Home" xml:space="preserve">
-  <value>Home</value>
+    <value>Home</value>
   </data>
   <data name="Close" xml:space="preserve">
     <value>Close</value>
@@ -383,5 +383,11 @@
   </data>
   <data name="Confirm" xml:space="preserve">
     <value>Confirm</value>
+  </data>
+  <data name="Help" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="Support" xml:space="preserve">
+    <value>Support</value>
   </data>
 </root>

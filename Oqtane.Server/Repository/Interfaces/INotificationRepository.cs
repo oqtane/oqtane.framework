@@ -6,6 +6,8 @@ namespace Oqtane.Repository
     public interface INotificationRepository
     {
         IEnumerable<Notification> GetNotifications(int siteId, int fromUserId, int toUserId);
+        IEnumerable<Notification> GetNotifications(int siteId, int fromUserId, int toUserId, int count, bool isRead);
+        int GetNotificationCount(int siteId, int fromUserId, int toUserId, bool isRead);
         Notification AddNotification(Notification notification);
         Notification UpdateNotification(Notification notification);
         Notification GetNotification(int notificationId);

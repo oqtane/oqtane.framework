@@ -42,7 +42,7 @@ namespace Oqtane.Infrastructure
                 // get site settings
                 List<Setting> sitesettings = settingRepository.GetSettings(EntityNames.Site, site.SiteId).ToList();
                 Dictionary<string, string> settings = GetSettings(sitesettings);
-                if (!settings.ContainsKey("SMTPEnabled") || settings["SMTPEnabled"] == "True")
+                if (!site.IsDeleted && (!settings.ContainsKey("SMTPEnabled") || settings["SMTPEnabled"] == "True"))
                 {
                     if (settings.ContainsKey("SMTPHost") && settings["SMTPHost"] != "" &&
                         settings.ContainsKey("SMTPPort") && settings["SMTPPort"] != "" &&
@@ -162,7 +162,7 @@ namespace Oqtane.Infrastructure
                 }
                 else
                 {
-                    log += "SMTP Disabled In Site Settings" + "<br />";
+                    log += "Site Deleted Or SMTP Disabled In Site Settings" + "<br />";
                 }
             }
 

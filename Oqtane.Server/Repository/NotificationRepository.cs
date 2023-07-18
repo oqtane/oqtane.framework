@@ -33,6 +33,54 @@ namespace Oqtane.Repository
                 .ToList();
         }
 
+        public IEnumerable<Notification> GetNotifications(int siteId, int fromUserId, int toUserId, int count, bool isRead)
+        {
+            if (toUserId == -1 && fromUserId == -1)
+            {
+                return _db.Notification
+                    .Where(item => item.SiteId == siteId)
+                    .Where(item => item.IsDelivered == false && item.IsDeleted == false)
+                    .Where(item => item.SendOn == null || item.SendOn < System.DateTime.UtcNow)
+                    .Where(item => item.IsRead == isRead)
+                    .OrderByDescending(item => item.CreatedOn)
+                    .ToList()
+                    .Take(count);
+            }
+
+            return _db.Notification
+                .Where(item => item.SiteId == siteId)
+                .Where(item => item.ToUserId == toUserId || toUserId == -1)
+                .Where(item => item.FromUserId == fromUserId || fromUserId == -1)
+                .Where(item => item.IsRead == isRead)
+                .OrderByDescending(item => item.CreatedOn)
+                .ToList()
+                .Take(count);
+        }
+
+        public int GetNotificationCount(int siteId, int fromUserId, int toUserId, bool isRead)
+        {
+            if (toUserId == -1 && fromUserId == -1)
+            {
+                return _db.Notification
+                    .Where(item => item.SiteId == siteId)
+                    .Where(item => item.IsDelivered == false && item.IsDeleted == false)
+                    .Where(item => item.SendOn == null || item.SendOn < System.DateTime.UtcNow)
+                    .Where(item => item.IsRead == isRead)
+                    .ToList()
+                    .Count();
+
+            }
+
+            return _db.Notification
+                .Where(item => item.SiteId == siteId)
+                .Where(item => item.ToUserId == toUserId || toUserId == -1)
+                .Where(item => item.FromUserId == fromUserId || fromUserId == -1)
+                .Where(item => item.IsRead == isRead)
+                .ToList()
+                .Count();
+        }
+
+
         public Notification AddNotification(Notification notification)
         {
             _db.Notification.Add(notification);

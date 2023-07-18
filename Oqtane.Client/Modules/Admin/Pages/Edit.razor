@@ -148,7 +148,7 @@
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="theme" HelpText="Select the theme for this page" ResourceKey="Theme">Theme: </Label>
                                 <div class="col-sm-9">
-                                    <select id="theme" class="form-select" @bind="@_themetype" required>
+                                    <select id="theme" class="form-select" value="@_themetype" @onchange="(e => ThemeChanged(e))" required>
                                         @foreach (var theme in _themes)
                                         {
                                             <option value="@theme.TypeName">@theme.Name</option>
@@ -359,7 +359,7 @@
                 {
                     _themetype = PageState.Site.DefaultThemeType;
                 }
-                _themes = ThemeService.GetThemeControls(PageState.Site.Themes, _themetype);
+                _themes = ThemeService.GetThemeControls(PageState.Site.Themes);
                 _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
                 _containertype = _page.DefaultContainerType;
                 if (string.IsNullOrEmpty(_containertype))
@@ -398,25 +398,6 @@
         {
             await logger.LogError(ex, "Error Loading Page {PageId} {Error}", _pageId, ex.Message);
             AddModuleMessage(Localizer["Error.Page.Load"], MessageType.Error);
-        }
-    }
-
-    private async Task DeleteModule(Module module)
-    {
-        try
-        {
-            PageModule pagemodule = await PageModuleService.GetPageModuleAsync(_page.PageId, module.ModuleId);
-            pagemodule.IsDeleted = true;
-            await PageModuleService.UpdatePageModuleAsync(pagemodule);
-            await logger.LogInformation(LogFunction.Update,"Module Deleted {Title}", module.Title);
-            _pageModules.RemoveAll(item => item.PageModuleId == pagemodule.PageModuleId);
-            StateHasChanged();
-            NavigationManager.NavigateTo(NavigationManager.Uri + "&tab=PageModules");
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Deleting Module {Title} {Error}", module.Title, ex.Message);
-            AddModuleMessage(Localizer["Error.Module.Delete"], MessageType.Error);
         }
     }
 
@@ -460,6 +441,19 @@
         {
             await logger.LogError(ex, "Error Loading Child Pages For Parent {PageId} {Error}", _parentid, ex.Message);
             AddModuleMessage(Localizer["Error.ChildPage.Load"], MessageType.Error);
+        }
+    }
+
+    private void ThemeChanged(ChangeEventArgs e)
+    {
+        _themetype = (string)e.Value;
+        if (ThemeService.GetTheme(PageState.Site.Themes, _themetype)?.ThemeName != ThemeService.GetTheme(PageState.Site.Themes, PageState.Site.DefaultThemeType)?.ThemeName)
+        {
+            AddModuleMessage(Localizer["ThemeChanged.Message"], MessageType.Warning);
+            _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
+            _containertype = _containers.First().TypeName;
+            ThemeSettings();
+            StateHasChanged();
         }
     }
 
@@ -603,16 +597,6 @@
                         await PageService.UpdatePageOrderAsync(_page.SiteId, _page.PageId, int.Parse(_currentparentid));
                     }
 
-                    // update child paths
-                    if (_parentid != _currentparentid)
-                    {
-                        foreach (Page p in PageState.Pages.Where(item => item.Path.StartsWith(currentPath)))
-                        {
-                            p.Path = p.Path.Replace(currentPath, _page.Path);
-                            await PageService.UpdatePageAsync(p);
-                        }
-                    }
-
                     if (_themeSettingsType != null && _themeSettings is ISettingsControl themeSettingsControl)
                     {
                         await themeSettingsControl.UpdateSettings();
@@ -656,4 +640,24 @@
             NavigationManager.NavigateTo(NavigateUrl());
         }
     }
+
+    private async Task DeleteModule(Module module)
+    {
+        try
+        {
+            PageModule pagemodule = await PageModuleService.GetPageModuleAsync(_page.PageId, module.ModuleId);
+            pagemodule.IsDeleted = true;
+            await PageModuleService.UpdatePageModuleAsync(pagemodule);
+            await logger.LogInformation(LogFunction.Update, "Module Deleted {Title}", module.Title);
+            _pageModules.RemoveAll(item => item.PageModuleId == pagemodule.PageModuleId);
+            StateHasChanged();
+            NavigationManager.NavigateTo(NavigationManager.Uri + "&tab=PageModules");
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Module {Title} {Error}", module.Title, ex.Message);
+            AddModuleMessage(Localizer["Error.Module.Delete"], MessageType.Error);
+        }
+    }
+
 }

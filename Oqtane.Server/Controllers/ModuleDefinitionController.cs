@@ -89,15 +89,22 @@ namespace Oqtane.Controllers
             if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
             {
                 ModuleDefinition moduledefinition = _moduleDefinitions.GetModuleDefinition(id, SiteId);
-                if (_userPermissions.IsAuthorized(User, PermissionNames.Utilize, moduledefinition.PermissionList))
+                if (moduledefinition != null && _userPermissions.IsAuthorized(User, PermissionNames.Utilize, moduledefinition.PermissionList))
                 {
-                    if (string.IsNullOrEmpty(moduledefinition.Version)) moduledefinition.Version = new Version(1, 0, 0).ToString();
+                    moduledefinition.Version = (string.IsNullOrEmpty(moduledefinition.Version)) ? new Version(1, 0, 0).ToString() : moduledefinition.Version;
                     return moduledefinition;
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized ModuleDefinition Get Attempt {ModuleDefinitionId} {SiteId}", id, siteid);
-                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    if (moduledefinition != null)
+                    {
+                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized ModuleDefinition Get Attempt {ModuleDefinitionId} {SiteId}", id, siteid);
+                        HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    }
+                    else
+                    {
+                        HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    }
                     return null;
                 }
             }

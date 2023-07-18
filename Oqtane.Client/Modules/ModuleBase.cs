@@ -9,7 +9,6 @@ using Oqtane.UI;
 using System.Collections.Generic;
 using Microsoft.JSInterop;
 using System.Linq;
-using Oqtane.Themes;
 
 namespace Oqtane.Modules
 {

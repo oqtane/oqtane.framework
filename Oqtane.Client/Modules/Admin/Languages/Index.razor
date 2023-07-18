@@ -22,7 +22,7 @@ else
             <th>@Localizer["Default"]</th>
 			@if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
 			{
-				<th style="width: 1px;">@Localizer["Translation"]</th>
+                <th style="width: 1px;">@Localizer["Translation"]</th>
 				<th style="width: 1px;">&nbsp;</th>
 			}
         </Header>
@@ -33,7 +33,7 @@ else
 			<td><TriStateCheckBox Value="@(context.IsDefault)" Disabled="true"></TriStateCheckBox></td>
 			@if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
 			{
-				<td>@((string.IsNullOrEmpty(context.Version)) ? "---" : context.Version)</td>
+                <td>@((string.IsNullOrEmpty(context.Version)) ? "---" : context.Version)</td>
 				<td>
 					@{
 						var translation = TranslationAvailable(context.Code, context.Version);
@@ -99,56 +99,64 @@ else
 }
 
 @code {
-	private List<Language> _languages;
-	private List<Package> _packages;
-	private Package _package;
+    private List<Language> _languages;
+    private List<Package> _packages;
+    private Package _package;
 
-	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-	protected override async Task OnParametersSetAsync()
-	{
-		await GetLanguages();
+    protected override async Task OnParametersSetAsync()
+    {
+        await GetLanguages();
 
-		if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-		{
-			_packages = await PackageService.GetPackagesAsync("translation");			
-		}
-	}
+        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+        {
+            _packages = await PackageService.GetPackagesAsync("translation");			
+        }
+    }
 
-	private async Task GetLanguages()
-	{
-		_languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId, Constants.ClientId);
-	}
+    private async Task GetLanguages()
+    {
+        _languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId, Constants.ClientId);
+    }
 
-	private async Task DeleteLanguage(Language language)
-	{
-		try
-		{
-			await LanguageService.DeleteLanguageAsync(language.LanguageId);
-			await logger.LogInformation("Language Deleted {Language}", language);
-			await GetLanguages();
-			StateHasChanged();
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Deleting Language {Language} {Error}", language, ex.Message);
+    private async Task DeleteLanguage(Language language)
+    {
+        try
+        {
+            await LanguageService.DeleteLanguageAsync(language.LanguageId);
+            await logger.LogInformation("Language Deleted {Language}", language);
+            await GetLanguages();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Language {Language} {Error}", language, ex.Message);
 
-			AddModuleMessage(Localizer["Error.Language.Delete"], MessageType.Error);
-		}
-	}
+            AddModuleMessage(Localizer["Error.Language.Delete"], MessageType.Error);
+        }
+    }
 
-	private Package TranslationAvailable(string code, string version)
-	{
-		return _packages?.FirstOrDefault(item => item.PackageId == (Constants.PackageId + "." + code));
-	}
+    private Package TranslationAvailable(string code, string version)
+    {
+        return _packages?.FirstOrDefault(item => item.PackageId == (Constants.PackageId + "." + code));
+    }
 
-	private async Task GetPackage(string code, string version)
-	{
-		try
-		{
-			_package = await PackageService.GetPackageAsync(Constants.PackageId + "." + code, version);
-			StateHasChanged();
-		}
+    private async Task GetPackage(string code, string version)
+    {
+        try
+        {
+            _package = await PackageService.GetPackageAsync(Constants.PackageId + "." + code, version);
+            if (_package != null)
+            {
+                StateHasChanged();
+            }
+            else
+            {
+                await logger.LogError("Error Getting Package {PackageId} {Version}", Constants.PackageId + "." + code, Constants.Version);
+                AddModuleMessage(Localizer["Error.Translation.Download"], MessageType.Error);
+            }
+        }
 		catch (Exception ex)
 		{
 			await logger.LogError(ex, "Error Getting Package {PackageId} {Version}", Constants.PackageId + "." + code, Constants.Version);

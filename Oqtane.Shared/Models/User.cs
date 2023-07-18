@@ -99,5 +99,11 @@ namespace Oqtane.Models
         {
             get => "Users\\" + UserId.ToString() + "\\";
         }
+
+        /// <summary>
+        /// Information if this user's email address is confirmed (set during user creation)
+        /// </summary>
+        [NotMapped]
+        public bool EmailConfirmed { get; set; }
     }
 }

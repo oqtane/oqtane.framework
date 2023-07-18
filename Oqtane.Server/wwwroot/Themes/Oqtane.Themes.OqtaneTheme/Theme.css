@@ -12,12 +12,14 @@ body {
     background-color: #ffffff !important;
     border-width: 0.5px !important;
     border-bottom-color: #ccc !important;
+    color: #000 !important;
 }
 
 .table .form-select {
     background-color: #ffffff !important;
     border-width: 0.5px !important;
     border-bottom-color: #ccc !important;
+    color: #000 !important;
 }
 
 .table .btn-primary {

@@ -29,7 +29,7 @@ else
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="alias" HelpText="Enter the aliases for the site. An alias can be a domain name (www.site.com) or a virtual folder (ie. www.site.com/folder)." ResourceKey="Aliases">Aliases: </Label>
+                <Label Class="col-sm-3" For="alias" HelpText="The urls for the site (comman delimited). This can include domain names (ie. domain.com), subdomains (ie. sub.domain.com) or virtual folders (ie. domain.com/folder)." ResourceKey="Aliases">Urls: </Label>
                 <div class="col-sm-9">
                     <textarea id="alias" class="form-control" @bind="@_urls" rows="3" required></textarea>
                 </div>
@@ -288,12 +288,13 @@ else
 			if (_themetype != "-")
 			{
 				_containers = ThemeService.GetContainerControls(_themeList, _themetype);
-			}
+                _containertype = _containers.First().TypeName;
+            }
 			else
 			{
 				_containers = new List<ThemeControl>();
-			}
-			_containertype = "-";
+                _containertype = "-";
+            }
 			_admincontainertype = "";
 			StateHasChanged();
 		}

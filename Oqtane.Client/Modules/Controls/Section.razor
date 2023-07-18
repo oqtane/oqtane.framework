@@ -17,7 +17,10 @@
     <hr class="app-rule" />
 </div>
 <div class="collapse @_show" id="@Name">
-    @ChildContent
+    @if (ChildContent != null)
+    {
+        @ChildContent
+    }
 </div>
 
 @code {
@@ -26,7 +29,7 @@
     private string _show = string.Empty;
 
     [Parameter]
-    public RenderFragment ChildContent { get; set; }
+    public RenderFragment ChildContent { get; set; } = null;
 
     [Parameter]
     public string Name { get; set; } // required - the name of the section
@@ -37,19 +40,10 @@
     [Parameter]
     public string Expanded { get; set; } // optional - will default to false if not provided
 
-    protected override void OnInitialized()
-    {
-        _heading = (!string.IsNullOrEmpty(Heading)) ? Heading : Name;
-        _expanded = (!string.IsNullOrEmpty(Expanded)) ? Expanded : "false";
-        if (_expanded == "true") { _show = "show"; }
-    }
-
     protected override void OnParametersSet()
     {
-        base.OnParametersSet();
-
-        _heading = !string.IsNullOrEmpty(Heading)
-            ? Localize(nameof(Heading), Heading)
-            : Localize(nameof(Name), Name);
+        _heading = !string.IsNullOrEmpty(Heading) ? Localize(nameof(Heading), Heading) : Localize(nameof(Name), Name);
+        _expanded = (!string.IsNullOrEmpty(Expanded)) ? Expanded.ToLower() : "false";
+        if (_expanded == "true") { _show = "show"; }
     }
 }

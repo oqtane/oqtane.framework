@@ -166,7 +166,7 @@
     <value>The name of the database used for the site</value>
   </data>
   <data name="Aliases.HelpText" xml:space="preserve">
-    <value>The aliases for the site. An alias can be a domain name (www.site.com) or a virtual folder (ie. www.site.com/folder).</value>
+    <value>The urls for the site. This can include domain names (ie. domain.com), subdomains (ie. sub.domain.com) or virtual folders (ie. domain.com/folder).</value>
   </data>
   <data name="IsDeleted.HelpText" xml:space="preserve">
     <value>Is this site deleted?</value>
@@ -217,7 +217,7 @@
     <value>Database: </value>
   </data>
   <data name="Aliases.Text" xml:space="preserve">
-    <value>Aliases: </value>
+    <value>Urls:</value>
   </data>
   <data name="IsDeleted.Text" xml:space="preserve">
     <value>Deleted? </value>
@@ -322,10 +322,10 @@
     <value>Default Alias: </value>
   </data>
   <data name="Aliases.Heading" xml:space="preserve">
-    <value>Aliases</value>
+    <value>Urls</value>
   </data>
   <data name="AliasName" xml:space="preserve">
-    <value>Name</value>
+    <value>Url</value>
   </data>
   <data name="AliasDefault" xml:space="preserve">
     <value>Default?</value>

@@ -36,7 +36,7 @@
 
 @if (_canViewAdminDashboard || UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
 {
-    <button type="button" class="btn @ButtonClass" data-bs-toggle="offcanvas" data-bs-target="#offcanvasControlPanel" aria-controls="offcanvasControlPanel">
+    <button type="button" class="btn @ButtonClass ms-1" data-bs-toggle="offcanvas" data-bs-target="#offcanvasControlPanel" aria-controls="offcanvasControlPanel">
         <span class="oi oi-cog"></span>
     </button>
 
@@ -124,7 +124,7 @@
 							{
 								@if (_moduleDefinitions != null)
 								{
-									<select class="form-select" @onchange="(e => CategoryChanged(e))">
+									<select class="form-select mt-1" @onchange="(e => CategoryChanged(e))">
 										@foreach (var category in _categories)
 										{
 											if (category == Category)
@@ -137,7 +137,7 @@
 											}
 										}
 									</select>
-									<select class="form-select" @onchange="(e => ModuleChanged(e))">
+                                    <select class="form-select mt-1" @onchange="(e => ModuleChanged(e))">
 										@if (ModuleDefinitionName == "-")
 										{
 											<option value="-" selected>&lt;@Localizer["Module.Select"]&gt;</option>
@@ -161,14 +161,14 @@
 							}
 							else
 							{
-								<select class="form-select" @onchange="(e => PageChanged(e))">
+                                <select class="form-select mt-1" @onchange="(e => PageChanged(e))">
 									<option value="-">&lt;@Localizer["Page.Select"]&gt;</option>
 									@foreach (Page p in _pages)
 									{
 										<option value="@p.PageId">@p.Name</option>
 									}
 								</select>
-								<select class="form-select" @bind="@ModuleId">
+                                <select class="form-select mt-1" @bind="@ModuleId">
 									<option value="-">&lt;@Localizer["Module.Select"]&gt;</option>
 									@foreach (Module module in _modules)
 									{
@@ -471,6 +471,12 @@
 
     private async Task ToggleEditMode(bool EditMode)
     {
+        Page page = null;
+        if (PageState.Page.IsPersonalizable && PageState.User != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Registered))
+        {
+            page = await PageService.AddPageAsync(PageState.Page.PageId, PageState.User.UserId);
+        }
+
         if (_showEditMode)
         {
             if (EditMode)
@@ -490,9 +496,8 @@
 		}
 		else
 		{
-			if (PageState.Page.IsPersonalizable && PageState.User != null)
+            if (PageState.Page.IsPersonalizable && PageState.User != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Registered))
 			{
-				var page = await PageService.AddPageAsync(PageState.Page.PageId, PageState.User.UserId);
 				PageState.EditMode = true;
 				NavigationManager.NavigateTo(NavigateUrl(page.Path, "edit=" + ((PageState.EditMode) ? "true" : "false")));
 			}
@@ -545,13 +550,29 @@
 		if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
 		{
 			var permissions = PageState.Page.PermissionList;
-            if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Everyone))
+            switch (action)
             {
-				permissions.Add(new Permission(PageState.Site.SiteId, EntityNames.Page, PageState.Page.PageId, PermissionNames.View, RoleNames.Everyone, null, true));
-            }
-            if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Registered))
-            {
-				permissions.Add(new Permission(PageState.Site.SiteId, EntityNames.Page, PageState.Page.PageId, PermissionNames.View, RoleNames.Registered, null, true));
+                case "publish":
+                    if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Everyone))
+                    {
+                        permissions.Add(new Permission(PageState.Site.SiteId, EntityNames.Page, PageState.Page.PageId, PermissionNames.View, RoleNames.Everyone, null, true));
+                    }
+                    if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Registered))
+                    {
+                        permissions.Add(new Permission(PageState.Site.SiteId, EntityNames.Page, PageState.Page.PageId, PermissionNames.View, RoleNames.Registered, null, true));
+                    }
+                    break;
+                case "unpublish":
+                    if (permissions.Any(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Everyone))
+                    {
+                        permissions.RemoveAll(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Everyone);
+                    }
+
+                    if (permissions.Any(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Registered))
+                    {
+                        permissions.RemoveAll(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Registered);
+                    }
+                    break;
             }
 			PageState.Page.PermissionList = permissions;
 			await PageService.UpdatePageAsync(PageState.Page);

@@ -137,7 +137,7 @@
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="theme" HelpText="Select the theme for this page" ResourceKey="Theme">Theme: </Label>
                             <div class="col-sm-9">
-                                <select id="theme" class="form-select" @bind="@_themetype" required>
+                                <select id="theme" class="form-select" value="@_themetype" @onchange="(e => ThemeChanged(e))" required>
                                     @foreach (var theme in _themes)
                                     {
                                         <option value="@theme.TypeName">@theme.Name</option>
@@ -246,7 +246,7 @@
             if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin) || (_parent != null && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, _parent.PermissionList)))
             {
                 _themetype = PageState.Site.DefaultThemeType;
-                _themes = ThemeService.GetThemeControls(PageState.Site.Themes, _themetype);
+                _themes = ThemeService.GetThemeControls(PageState.Site.Themes);
                 _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
                 _containertype = PageState.Site.DefaultContainerType;
                 _children = PageState.Pages.Where(item => item.ParentId == null).ToList();
@@ -300,6 +300,19 @@
 			AddModuleMessage(Localizer["Error.ChildPage.Load"], MessageType.Error);
 		}
 	}
+
+    private void ThemeChanged(ChangeEventArgs e)
+    {
+        _themetype = (string)e.Value;
+        if (ThemeService.GetTheme(PageState.Site.Themes, _themetype)?.ThemeName != ThemeService.GetTheme(PageState.Site.Themes, PageState.Site.DefaultThemeType)?.ThemeName)
+        {
+            AddModuleMessage(Localizer["ThemeChanged.Message"], MessageType.Warning);
+            _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
+            _containertype = _containers.First().TypeName;
+            ThemeSettings();
+            StateHasChanged();
+        }
+    }
 
 	private void ThemeSettings()
 	{

@@ -34,7 +34,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>?type=x&search=y&price=z&package=a
         [HttpGet]
-        public async Task<IEnumerable<Package>> Get(string type, string search, string price, string package)
+        public async Task<IEnumerable<Package>> Get(string type, string search, string price, string package, string sort)
         {
             // get packages
             List<Package> packages = new List<Package>();
@@ -44,8 +44,8 @@ namespace Oqtane.Controllers
                 {
                     client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
                     client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
-                    packages = await GetJson<List<Package>>(client, Constants.PackageRegistryUrl + $"/api/registry/packages/?id={_configManager.GetInstallationId()}&type={type.ToLower()}&version={Constants.Version}&search={search}&price={price}&package={package}");
-                }
+                    packages = await GetJson<List<Package>>(client, Constants.PackageRegistryUrl + $"/api/registry/packages/?id={_configManager.GetInstallationId()}&type={type.ToLower()}&version={Constants.Version}&search={search}&price={price}&package={package}&sort={sort}");
+                 }
             }
             return packages;
         }
