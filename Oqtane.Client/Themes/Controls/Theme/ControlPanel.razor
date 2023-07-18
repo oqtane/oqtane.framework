@@ -124,7 +124,7 @@
 							{
 								@if (_moduleDefinitions != null)
 								{
-									<select class="form-select" @onchange="(e => CategoryChanged(e))">
+									<select class="form-select mt-1" @onchange="(e => CategoryChanged(e))">
 										@foreach (var category in _categories)
 										{
 											if (category == Category)
@@ -137,7 +137,7 @@
 											}
 										}
 									</select>
-									<select class="form-select" @onchange="(e => ModuleChanged(e))">
+                                    <select class="form-select mt-1" @onchange="(e => ModuleChanged(e))">
 										@if (ModuleDefinitionName == "-")
 										{
 											<option value="-" selected>&lt;@Localizer["Module.Select"]&gt;</option>
@@ -161,14 +161,14 @@
 							}
 							else
 							{
-								<select class="form-select" @onchange="(e => PageChanged(e))">
+                                <select class="form-select mt-1" @onchange="(e => PageChanged(e))">
 									<option value="-">&lt;@Localizer["Page.Select"]&gt;</option>
 									@foreach (Page p in _pages)
 									{
 										<option value="@p.PageId">@p.Name</option>
 									}
 								</select>
-								<select class="form-select" @bind="@ModuleId">
+                                <select class="form-select mt-1" @bind="@ModuleId">
 									<option value="-">&lt;@Localizer["Module.Select"]&gt;</option>
 									@foreach (Module module in _modules)
 									{
