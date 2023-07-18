@@ -1,6 +1,6 @@
 # Latest Release
 
-[4.0.1](https://github.com/oqtane/oqtane.framework/releases/tag/v4.0.1) was released on July 18, 2023 and is a stabilization release. This release includes 68 pull requests by 8 different contributors, pushing the total number of project commits all-time over 3800. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
+[4.0.1](https://github.com/oqtane/oqtane.framework/releases/tag/v4.0.1) was released on July 18, 2023 and is primary focused on stabilization. This release includes 68 pull requests by 8 different contributors, pushing the total number of project commits all-time over 3800. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Foqtane%2Foqtane.framework%2Fmaster%2Fazuredeploy.json)
 
