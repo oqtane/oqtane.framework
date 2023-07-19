@@ -372,10 +372,21 @@
                             attempts += 1;
                             Thread.Sleep(1000 * attempts); // progressive retry
 
-                            var file = await FileService.GetFileAsync(int.Parse(folder), uploads[upload]);
-                            if (file != null)
+                            if (Folder == Constants.PackagesFolder)
                             {
-                                success = true;
+                                var files = await FileService.GetFilesAsync(folder);
+                                if (files != null && files.Any(item => item.Name == uploads[upload]))
+                                {
+                                    success = true;
+                                }
+                            }
+                            else
+                            {
+                                var file = await FileService.GetFileAsync(int.Parse(folder), uploads[upload]);
+                                if (file != null)
+                                {
+                                    success = true;
+                                }
                             }
                         }
                         if (success)
