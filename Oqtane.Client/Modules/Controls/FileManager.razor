@@ -168,7 +168,21 @@
             ShowSuccess = true;
         }
 
-        _folders = await FolderService.GetFoldersAsync(ModuleState.SiteId);
+        if (ShowFolders)
+        {
+            _folders = await FolderService.GetFoldersAsync(ModuleState.SiteId);
+        }
+        else
+        {
+            if (FolderId != -1)
+            {
+                var folder = await FolderService.GetFolderAsync(FolderId);
+                if (folder != null)
+                {
+                    _folders = new List<Folder> { folder };
+                }
+            }
+        }
 
         if (!string.IsNullOrEmpty(Folder) && Folder != Constants.PackagesFolder)
         {
