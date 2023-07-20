@@ -202,11 +202,11 @@ namespace Oqtane.Services
 
         private async Task<bool> CheckResponse(HttpResponseMessage response, string uri)
         {
-            if (response.IsSuccessStatusCode && uri.Contains("/api/") && !response.RequestMessage.RequestUri.AbsolutePath.Contains("/api/"))
-            {
-                await Log(uri, response.RequestMessage.Method.ToString(), response.StatusCode.ToString(), "Request {Uri} Not Mapped To An API Controller Method", uri);
-                return false;
-            }
+            //if (response.IsSuccessStatusCode && uri.Contains("/api/") && !response.RequestMessage.RequestUri.AbsolutePath.Contains("/api/"))
+            //{
+            //    await Log(uri, response.RequestMessage.Method.ToString(), response.StatusCode.ToString(), "Request {Uri} Not Mapped To An API Controller Method", uri);
+            //    return false;
+            //}
             if (response.IsSuccessStatusCode) return true;
             if (response.StatusCode != HttpStatusCode.NoContent && response.StatusCode != HttpStatusCode.NotFound)
             {
