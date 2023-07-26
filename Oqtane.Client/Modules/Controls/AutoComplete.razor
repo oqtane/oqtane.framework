@@ -62,6 +62,13 @@
                 InputAttributes.Add(nameof(Required), true);
             }
         }
+        else
+        {
+            if (InputAttributes.ContainsKey(nameof(Required)))
+            {
+                InputAttributes.Remove(nameof(Required));
+            }
+        }
     }
     private async Task OnInput(ChangeEventArgs e)
 	{
