@@ -102,6 +102,7 @@ namespace Oqtane.Repository
                 ModuleDefinition.Resources = moduleDefinition.Resources;
                 ModuleDefinition.IsEnabled = moduleDefinition.IsEnabled;
                 ModuleDefinition.PackageName = moduleDefinition.PackageName;
+                ModuleDefinition.Version = moduleDefinition.Version;
             }
 
             return ModuleDefinition;
