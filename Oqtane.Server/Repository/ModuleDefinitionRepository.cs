@@ -212,9 +212,9 @@ namespace Oqtane.Repository
                         {
                             foreach (var assembly in moduledefinition.Dependencies.Replace(".dll", "").Split(',', StringSplitOptions.RemoveEmptyEntries).Reverse())
                             {
-                                if (!serverState.Assemblies.Contains(assembly))
+                                if (!serverState.Assemblies.Contains(assembly.Trim()))
                                 {
-                                    serverState.Assemblies.Insert(0, assembly);
+                                    serverState.Assemblies.Insert(0, assembly.Trim());
                                 }
                             }
                         }
