@@ -34,9 +34,9 @@ namespace Oqtane.Controllers
         private readonly IAliasRepository _aliases;
         private readonly ILogger<InstallationController> _filelogger;
         private readonly ITenantManager _tenantManager;
-        private readonly ServerStateManager _serverState;
+        private readonly IServerStateManager _serverState;
 
-        public InstallationController(IConfigManager configManager, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager, IMemoryCache cache, IHttpContextAccessor accessor, IAliasRepository aliases, ILogger<InstallationController> filelogger, ITenantManager tenantManager, ServerStateManager serverState)
+        public InstallationController(IConfigManager configManager, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager, IMemoryCache cache, IHttpContextAccessor accessor, IAliasRepository aliases, ILogger<InstallationController> filelogger, ITenantManager tenantManager, IServerStateManager serverState)
         {
             _configManager = configManager;
             _installationManager = installationManager;
@@ -119,9 +119,9 @@ namespace Oqtane.Controllers
 
         private List<ClientAssembly> GetAssemblyList()
         {
-            int siteId = _tenantManager.GetAlias().SiteId;
+            var siteKey = _tenantManager.GetAlias().SiteKey;
 
-            return _cache.GetOrCreate($"assemblieslist:{siteId}", entry =>
+            return _cache.GetOrCreate($"assemblieslist:{siteKey}", entry =>
             {
                 var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
                 var assemblyList = new List<ClientAssembly>();
@@ -134,7 +134,7 @@ namespace Oqtane.Controllers
                 }
 
                 // get site assemblies which should be downloaded to client
-                var assemblies = _serverState.GetServerState(siteId).Assemblies;
+                var assemblies = _serverState.GetServerState(siteKey).Assemblies;
 
                 // populate assembly list
                 foreach (var assembly in assemblies)
@@ -179,9 +179,11 @@ namespace Oqtane.Controllers
 
         private byte[] GetAssemblies(string list)
         {
+            var siteKey = _tenantManager.GetAlias().SiteKey;
+
             if (list == "*")
             {
-                return _cache.GetOrCreate("assemblies", entry =>
+                return _cache.GetOrCreate($"assemblies:{siteKey}", entry =>
                 {
                     return GetZIP(list);
                 });

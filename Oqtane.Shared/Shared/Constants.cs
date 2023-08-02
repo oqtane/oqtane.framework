@@ -79,6 +79,7 @@ namespace Oqtane.Shared
         public static readonly string HttpContextSiteSettingsKey = "SiteSettings";
 
         public static readonly string MauiUserAgent = "MAUI";
+        public static readonly string MauiAliasPath = "Alias-Path";
         public static readonly string VisitorCookiePrefix = "APP_VISITOR_";
 
         // Obsolete constants

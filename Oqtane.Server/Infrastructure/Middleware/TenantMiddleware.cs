@@ -22,6 +22,7 @@ namespace Oqtane.Infrastructure
             var config = context.RequestServices.GetService(typeof(IConfigManager)) as IConfigManager;
             string path = context.Request.Path.ToString();
 
+
             if (config.IsInstalled() && !path.StartsWith("/_blazor"))
             {
                 // get alias (note that this also sets SiteState.Alias)
@@ -42,6 +43,14 @@ namespace Oqtane.Infrastructure
                             .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                     });
                     context.Items.Add(Constants.HttpContextSiteSettingsKey, sitesettings);
+
+                    // handle first request to site
+                    var serverState = context.RequestServices.GetService(typeof(IServerStateManager)) as IServerStateManager;
+                    if (!serverState.GetServerState(alias.SiteKey).IsInitialized)
+                    {
+                        var sites = context.RequestServices.GetService(typeof(ISiteRepository)) as ISiteRepository;
+                        sites.InitializeSite(alias);
+                    }
 
                     // rewrite path by removing alias path prefix from reserved route (api,pages,files) requests for consistent routes
                     if (!string.IsNullOrEmpty(alias.Path))

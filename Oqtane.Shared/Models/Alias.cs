@@ -70,7 +70,7 @@ namespace Oqtane.Models
         }
 
         /// <summary>
-        /// Protocol for the request from which the alias was resolved (ie. http or https )
+        /// Protocol for the request from which the alias was resolved (ie. http:// or https:// )
         /// </summary>
         [NotMapped]
         public string Protocol { get; set; }

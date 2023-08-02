@@ -21,10 +21,10 @@ namespace Oqtane.Repository
         private readonly IPermissionRepository _permissions;
         private readonly ITenantManager _tenants;
         private readonly ISettingRepository _settings;
-        private readonly ServerStateManager _serverState;
+        private readonly IServerStateManager _serverState;
         private readonly string settingprefix = "SiteEnabled:";
 
-        public ModuleDefinitionRepository(MasterDBContext context, IMemoryCache cache, IPermissionRepository permissions, ITenantManager tenants, ISettingRepository settings, ServerStateManager serverState)
+        public ModuleDefinitionRepository(MasterDBContext context, IMemoryCache cache, IPermissionRepository permissions, ITenantManager tenants, ISettingRepository settings, IServerStateManager serverState)
         {
             _db = context;
             _cache = cache;
@@ -179,6 +179,8 @@ namespace Oqtane.Repository
 
             if (siteId != -1)
             {
+                var siteKey = _tenants.GetAlias().SiteKey;
+
                 // get all module definition permissions for site
                 List<Permission> permissions = _permissions.GetPermissions(siteId, EntityNames.ModuleDefinition).ToList();
 
@@ -186,7 +188,7 @@ namespace Oqtane.Repository
                 var settings = _settings.GetSettings(EntityNames.ModuleDefinition).ToList();
 
                 // populate module definition site settings and permissions
-                var serverState = _serverState.GetServerState(siteId);
+                var serverState = _serverState.GetServerState(siteKey);
                 foreach (ModuleDefinition moduledefinition in ModuleDefinitions)
                 {
                     moduledefinition.SiteId = siteId;
@@ -251,7 +253,6 @@ namespace Oqtane.Repository
                         }
                     }
                 }
-                _serverState.SetServerState(siteId, serverState);
 
                 // clean up any orphaned permissions
                 var ids = new HashSet<int>(ModuleDefinitions.Select(item => item.ModuleDefinitionId));

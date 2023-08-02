@@ -6,6 +6,7 @@ using Oqtane.Shared;
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Net;
+using System.Linq;
 
 namespace Oqtane.Services
 {
@@ -14,11 +15,13 @@ namespace Oqtane.Services
     {
         private readonly NavigationManager _navigationManager;
         private readonly SiteState _siteState;
+        private readonly HttpClient _http;
 
         public InstallationService(HttpClient http, SiteState siteState, NavigationManager navigationManager) : base(http, siteState)
         {
             _navigationManager = navigationManager;
             _siteState = siteState;
+            _http = http;
         }
 
         private string ApiUrl => (_siteState.Alias == null)
@@ -27,7 +30,15 @@ namespace Oqtane.Services
 
         public async Task<Installation> IsInstalled()
         {
-            var path = new Uri(_navigationManager.Uri).LocalPath.Substring(1);            
+            var path = "";
+            if (_http.DefaultRequestHeaders.UserAgent.ToString().Contains(Constants.MauiUserAgent))
+            {
+                path = _http.DefaultRequestHeaders.GetValues(Constants.MauiAliasPath).First();
+            }
+            else
+            {
+                path = new Uri(_navigationManager.Uri).LocalPath.Substring(1);
+            }
             return await GetJsonAsync<Installation>($"{ApiUrl}/installed/?path={WebUtility.UrlEncode(path)}");
         }
 

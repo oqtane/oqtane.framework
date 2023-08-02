@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Oqtane.Models;
@@ -57,7 +58,7 @@ namespace Oqtane.Infrastructure
                         alias.BaseUrl = "";
                         if (httpcontext.Request.Headers.ContainsKey("User-Agent") && httpcontext.Request.Headers["User-Agent"] == Shared.Constants.MauiUserAgent)
                         {
-                            alias.BaseUrl = alias.Protocol + alias.Name;
+                            alias.BaseUrl = alias.Protocol + alias.Name.Replace("/" + alias.Path, "");
                         }
                         _siteState.Alias = alias;
                     }

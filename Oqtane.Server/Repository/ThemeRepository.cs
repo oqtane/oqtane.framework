@@ -22,10 +22,10 @@ namespace Oqtane.Repository
         private readonly IMemoryCache _cache;
         private readonly ITenantManager _tenants;
         private readonly ISettingRepository _settings;
-        private readonly ServerStateManager _serverState;
+        private readonly IServerStateManager _serverState;
         private readonly string settingprefix = "SiteEnabled:";
 
-        public ThemeRepository(MasterDBContext context, IMemoryCache cache, ITenantManager tenants, ISettingRepository settings, ServerStateManager serverState)
+        public ThemeRepository(MasterDBContext context, IMemoryCache cache, ITenantManager tenants, ISettingRepository settings, IServerStateManager serverState)
         {
             _db = context;
             _cache = cache;
@@ -157,11 +157,13 @@ namespace Oqtane.Repository
 
             if (siteId != -1)
             {
+                var siteKey = _tenants.GetAlias().SiteKey;
+
                 // get settings for site
                 var settings = _settings.GetSettings(EntityNames.Theme).ToList();
 
                 // populate theme site settings
-                var serverState = _serverState.GetServerState(siteId);
+                var serverState = _serverState.GetServerState(siteKey);
                 foreach (Theme theme in Themes)
                 {
                     theme.SiteId = siteId;
@@ -206,7 +208,6 @@ namespace Oqtane.Repository
                         }
                     }
                 }
-                _serverState.SetServerState(siteId, serverState);
             }
 
             return Themes;
