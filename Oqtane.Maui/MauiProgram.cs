@@ -7,15 +7,17 @@ using Oqtane.Services;
 using System.Globalization;
 using System.Text.Json;
 using Windows.Storage.Provider;
+using System.Text.Json.Nodes;
 
 namespace Oqtane.Maui;
 
 public static class MauiProgram
 {
-    // the API service url
-    //static string apiurl = "https://www.dnfprojects.com/"; // for testing remote site
+    // the API service url -  can be overridden in an appsettings.json in AppDataDirectory
+
     static string apiurl = "http://localhost:44357/"; // for local development (Oqtane.Server must be already running for MAUI client to connect)
     //static string apiurl = "http://localhost:44357/sitename/"; // local microsite example
+    //static string apiurl = "https://www.dnfprojects.com/"; // for testing remote site
 
     public static MauiApp CreateMauiApp()
 	{
@@ -29,7 +31,9 @@ public static class MauiProgram
 		builder.Services.AddMauiBlazorWebView();
 		#if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();
-        #endif
+#endif
+
+        LoadAppSettings(); 
 
         var httpClient = new HttpClient { BaseAddress = new Uri(GetBaseUrl(apiurl)) };
         httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(Shared.Constants.MauiUserAgent);
@@ -61,6 +65,28 @@ public static class MauiProgram
 
         return builder.Build();
 	}
+
+
+    private static void LoadAppSettings()
+    {
+        // appsettings.json file format
+        // {
+        //    "Url": "http://localhost:44357/"
+        // }       
+
+        string file = Path.Combine(FileSystem.Current.AppDataDirectory, "appsettings.json");
+        if (File.Exists(file))
+        {
+            using FileStream stream = File.OpenRead(file);
+            using StreamReader reader = new StreamReader(stream);
+            var content = reader.ReadToEnd();
+            var obj = JsonSerializer.Deserialize<JsonObject>(content)!;
+            if (!string.IsNullOrEmpty((string)obj["Url"]))
+            {
+                apiurl = (string)obj["Url"];
+            }
+        }
+    }
 
     private static void LoadClientAssemblies(HttpClient http)
     {
