@@ -4,7 +4,6 @@ using Oqtane.Shared;
 using Oqtane.Models;
 using System;
 using System.Linq;
-using System.Reflection;
 using Oqtane.Repository;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
@@ -38,10 +37,11 @@ namespace Oqtane.Pages
         private readonly IVisitorRepository _visitors;
         private readonly IAliasRepository _aliases;
         private readonly ISettingRepository _settings;
-        private readonly ServerStateManager _serverState;
+        private readonly IThemeRepository _themes;
+        private readonly IServerStateManager _serverState;
         private readonly ILogManager _logger;
 
-        public HostModel(IConfigManager configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, IJwtManager jwtManager, ISiteRepository sites, IPageRepository pages, IUrlMappingRepository urlMappings, IVisitorRepository visitors, IAliasRepository aliases, ISettingRepository settings, ServerStateManager serverState, ILogManager logger)
+        public HostModel(IConfigManager configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, IJwtManager jwtManager, ISiteRepository sites, IPageRepository pages, IUrlMappingRepository urlMappings, IVisitorRepository visitors, IAliasRepository aliases, ISettingRepository settings, IThemeRepository themes, IServerStateManager serverState, ILogManager logger)
         {
             _configuration = configuration;
             _tenantManager = tenantManager;
@@ -55,6 +55,7 @@ namespace Oqtane.Pages
             _visitors = visitors;
             _aliases = aliases;
             _settings = settings;
+            _themes = themes;
             _serverState = serverState;
             _logger = logger;
         }
@@ -113,7 +114,7 @@ namespace Oqtane.Pages
                         }
                     }
 
-                    var site = _sites.InitializeSite(alias);
+                    var site = _sites.GetSite(alias.SiteId);
                     if (site != null && (!site.IsDeleted || url.Contains("admin/site")) && site.Runtime != "Hybrid")
                     {
                         Route route = new Route(url, alias.Path);
@@ -167,12 +168,13 @@ namespace Oqtane.Pages
                         }
 
                         // stylesheets
+                        var themes = _themes.GetThemes().ToList();
                         var resources = new List<Resource>();
                         if (string.IsNullOrEmpty(page.ThemeType))
                         {
                             page.ThemeType = site.DefaultThemeType;
                         }
-                        var theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == page.ThemeType));
+                        var theme = themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == page.ThemeType));
                         if (theme?.Resources != null)
                         {
                             resources.AddRange(theme.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet).ToList());
@@ -199,7 +201,7 @@ namespace Oqtane.Pages
                         }
                         HeadResources += ParseScripts(site.HeadContent);
                         BodyResources += ParseScripts(site.BodyContent);
-                        var scripts = _serverState.GetServerState(site.SiteId).Scripts;
+                        var scripts = _serverState.GetServerState(alias.SiteKey).Scripts;
                         foreach (var script in scripts)
                         {
                             AddScript(script, alias);

@@ -112,8 +112,8 @@
             returnurl = WebUtility.UrlDecode(querystring["returnurl"]);
         }
 
-        // reload the client application from the server if there is a forced reload or the user navigated to a site with a different alias 
-        if (querystring.ContainsKey("reload") || (!NavigationManager.ToBaseRelativePath(_absoluteUri).ToLower().StartsWith(SiteState.Alias.Path.ToLower()) && !string.IsNullOrEmpty(SiteState.Alias.Path)))
+        // reload the client application from the server if there is a forced reload
+        if (querystring.ContainsKey("reload"))
         {
             if (querystring.ContainsKey("reload") && querystring["reload"] == "post")
             {

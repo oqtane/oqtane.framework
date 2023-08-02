@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
@@ -65,6 +66,9 @@ namespace Oqtane.Client
 
         private static async Task LoadClientAssemblies(HttpClient http, IServiceProvider serviceProvider)
         {
+            var navigationManager = serviceProvider.GetRequiredService<NavigationManager>();
+            var urlpath = GetUrlPath(navigationManager.Uri);
+
             var dlls = new Dictionary<string, byte[]>();
             var pdbs = new Dictionary<string, byte[]>();
             var list = new List<string>();
@@ -76,7 +80,7 @@ namespace Oqtane.Client
             if (files.Count() != 0)
             {
                 // get list of assemblies from server
-                var json = await http.GetStringAsync("/api/Installation/list");
+                var json = await http.GetStringAsync($"{urlpath}api/Installation/list");
                 var assemblies = JsonSerializer.Deserialize<List<string>>(json);
 
                 // determine which assemblies need to be downloaded
@@ -138,7 +142,7 @@ namespace Oqtane.Client
             if (list.Count != 0)
             {
                 // get assemblies from server and load into client app domain
-                var zip = await http.GetByteArrayAsync($"/api/Installation/load?list=" + string.Join(",", list));
+                var zip = await http.GetByteArrayAsync($"{urlpath}api/Installation/load?list=" + string.Join(",", list));
 
                 // asemblies and debug symbols are packaged in a zip file
                 using (ZipArchive archive = new ZipArchive(new MemoryStream(zip)))
@@ -253,6 +257,13 @@ namespace Oqtane.Client
             var cultureInfo = CultureInfo.GetCultureInfo(culture);
             CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
             CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+        }
+
+        private static string GetUrlPath(string url)
+        {
+            var path = new Uri(url).AbsolutePath.Substring(1);
+            path = (!string.IsNullOrEmpty(path) && !path.EndsWith("/")) ? path + "/" : path;
+            return path;
         }
     }
 }
