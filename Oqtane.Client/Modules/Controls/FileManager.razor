@@ -168,6 +168,21 @@
             ShowSuccess = true;
         }
 
+        if (!string.IsNullOrEmpty(Folder) && Folder != Constants.PackagesFolder)
+        {
+            Folder folder = await FolderService.GetFolderAsync(ModuleState.SiteId, Folder);
+            if (folder != null)
+            {
+                FolderId = folder.FolderId;
+            }
+            else
+            {
+                FolderId = -1;
+                _message = "Folder Path " + Folder + "Does Not Exist";
+                _messagetype = MessageType.Error;
+            }
+        }
+
         if (ShowFolders)
         {
             _folders = await FolderService.GetFoldersAsync(ModuleState.SiteId);
@@ -181,21 +196,6 @@
                 {
                     _folders = new List<Folder> { folder };
                 }
-            }
-        }
-
-        if (!string.IsNullOrEmpty(Folder) && Folder != Constants.PackagesFolder)
-        {
-            Folder folder = await FolderService.GetFolderAsync(ModuleState.SiteId, Folder);
-            if (folder != null)
-            {
-                FolderId = folder.FolderId;
-            }
-            else
-            {
-                FolderId = -1;
-                _message = "Folder Path " + Folder + "Does Not Exist";
-                _messagetype = MessageType.Error;
             }
         }
 
