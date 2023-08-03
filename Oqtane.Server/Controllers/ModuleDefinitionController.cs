@@ -283,23 +283,26 @@ namespace Oqtane.Controllers
             var templates = new List<Template>();
             var root = Directory.GetParent(_environment.ContentRootPath);
             string templatePath = Utilities.PathCombine(_environment.WebRootPath, "Modules", "Templates", Path.DirectorySeparatorChar.ToString());
-            foreach (string directory in Directory.GetDirectories(templatePath))
+            if (Directory.Exists(templatePath))
             {
-                string name = directory.Replace(templatePath, "");
-                if (System.IO.File.Exists(Path.Combine(directory, "template.json")))
+                foreach (string directory in Directory.GetDirectories(templatePath))
                 {
-                    var template = JsonSerializer.Deserialize<Template>(System.IO.File.ReadAllText(Path.Combine(directory, "template.json")));
-                    template.Name = name;
-                    template.Location = "";
-                    if (template.Type.ToLower() != "internal")
+                    string name = directory.Replace(templatePath, "");
+                    if (System.IO.File.Exists(Path.Combine(directory, "template.json")))
                     {
-                        template.Location = Utilities.PathCombine(root.Parent.ToString(), Path.DirectorySeparatorChar.ToString());
+                        var template = JsonSerializer.Deserialize<Template>(System.IO.File.ReadAllText(Path.Combine(directory, "template.json")));
+                        template.Name = name;
+                        template.Location = "";
+                        if (template.Type.ToLower() != "internal")
+                        {
+                            template.Location = Utilities.PathCombine(root.Parent.ToString(), Path.DirectorySeparatorChar.ToString());
+                        }
+                        templates.Add(template);
                     }
-                    templates.Add(template);
-                }
-                else
-                {
-                    templates.Add(new Template { Name = name, Title = name, Type = "External", Version = "", Location = Utilities.PathCombine(root.Parent.ToString(), Path.DirectorySeparatorChar.ToString()) });
+                    else
+                    {
+                        templates.Add(new Template { Name = name, Title = name, Type = "External", Version = "", Location = Utilities.PathCombine(root.Parent.ToString(), Path.DirectorySeparatorChar.ToString()) });
+                    }
                 }
             }
             return templates;
