@@ -6,19 +6,12 @@ using Oqtane.Modules;
 using Oqtane.Services;
 using System.Globalization;
 using System.Text.Json;
-using Windows.Storage.Provider;
 using System.Text.Json.Nodes;
 
 namespace Oqtane.Maui;
 
 public static class MauiProgram
 {
-    // the API service url -  can be overridden in an appsettings.json in AppDataDirectory
-
-    static string apiurl = "http://localhost:44357/"; // for local development (Oqtane.Server must be already running for MAUI client to connect)
-    //static string apiurl = "http://localhost:44357/sitename/"; // local microsite example
-    //static string apiurl = "https://www.dnfprojects.com/"; // for testing remote site
-
     public static MauiApp CreateMauiApp()
 	{
 		var builder = MauiApp.CreateBuilder();
@@ -33,16 +26,19 @@ public static class MauiProgram
 		builder.Services.AddBlazorWebViewDeveloperTools();
 #endif
 
-        LoadAppSettings(); 
+        var apiurl = LoadAppSettings(); 
 
-        var httpClient = new HttpClient { BaseAddress = new Uri(GetBaseUrl(apiurl)) };
-        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(Shared.Constants.MauiUserAgent);
-        httpClient.DefaultRequestHeaders.Add(Shared.Constants.MauiAliasPath, GetUrlPath(apiurl).Replace("/", ""));
-        builder.Services.AddSingleton(httpClient);
-        builder.Services.AddHttpClient(); // IHttpClientFactory for calling remote services via RemoteServiceBase
+        if (!string.IsNullOrEmpty(apiurl))
+        {
+            var httpClient = new HttpClient { BaseAddress = new Uri(GetBaseUrl(apiurl)) };
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(Shared.Constants.MauiUserAgent);
+            httpClient.DefaultRequestHeaders.Add(Shared.Constants.MauiAliasPath, GetUrlPath(apiurl).Replace("/", ""));
+            builder.Services.AddSingleton(httpClient);
+            builder.Services.AddHttpClient(); // IHttpClientFactory for calling remote services via RemoteServiceBase
 
-        // dynamically load client assemblies
-        LoadClientAssemblies(httpClient);
+            // dynamically load client assemblies
+            LoadClientAssemblies(httpClient, apiurl);
+        }
 
         // register localization services
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
@@ -67,28 +63,36 @@ public static class MauiProgram
 	}
 
 
-    private static void LoadAppSettings()
+    private static string LoadAppSettings()
     {
-        // appsettings.json file format
-        // {
-        //    "Url": "http://localhost:44357/"
-        // }       
-
-        string file = Path.Combine(FileSystem.Current.AppDataDirectory, "appsettings.json");
-        if (File.Exists(file))
+        var url = MauiConstants.ApiUrl;
+        if (MauiConstants.UseAppSettings)
         {
-            using FileStream stream = File.OpenRead(file);
-            using StreamReader reader = new StreamReader(stream);
-            var content = reader.ReadToEnd();
-            var obj = JsonSerializer.Deserialize<JsonObject>(content)!;
-            if (!string.IsNullOrEmpty((string)obj["Url"]))
+            string file = Path.Combine(FileSystem.Current.AppDataDirectory, "appsettings.json");
+            if (File.Exists(file))
             {
-                apiurl = (string)obj["Url"];
+                using FileStream stream = File.OpenRead(file);
+                using StreamReader reader = new StreamReader(stream);
+                var content = reader.ReadToEnd();
+                var obj = JsonSerializer.Deserialize<JsonObject>(content)!;
+                if (!string.IsNullOrEmpty((string)obj["Url"]))
+                {
+                    url = (string)obj["Url"];
+                }
+            }
+            else
+            {
+                // create template appsettings.json file
+                using (StreamWriter writer = File.CreateText(file))
+                {
+                    writer.WriteLine("{ \"Url\": \"\" }");
+                }
             }
         }
+        return url;
     }
 
-    private static void LoadClientAssemblies(HttpClient http)
+    private static void LoadClientAssemblies(HttpClient http, string apiurl)
     {
         try
         {
@@ -227,7 +231,7 @@ public static class MauiProgram
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Oqtane Error: Loading Client Assemblies {ex}");
+            Debug.WriteLine($"Error Loading Client Assemblies From {apiurl} - {ex}");
         }
     }
 
