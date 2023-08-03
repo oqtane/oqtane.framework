@@ -640,7 +640,7 @@ namespace Oqtane.Repository
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
                             new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                         },
-                        Content = "<p>The page you requested does not exist.</p>"
+                        Content = "<p>The page you requested does not exist or you do not have sufficient rights to view it.</p>"
                     }
                 }
             });
