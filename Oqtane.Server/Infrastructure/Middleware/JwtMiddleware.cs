@@ -37,20 +37,46 @@ namespace Oqtane.Infrastructure
                         var identity = jwtManager.ValidateToken(token, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""));
                         if (identity != null && identity.Claims.Any())
                         {
-                            // create user identity using jwt claims (note the difference in claimtype names)
-                            var user = new User
+                            var idclaim = "nameid";
+                            var nameclaim = "unique_name";
+                            var legacynameclaim = "name"; // this was a breaking change in System.IdentityModel.Tokens.Jwt in .NET 7
+
+                            // get jwt claims for userid and username
+                            var userid = identity.Claims.FirstOrDefault(item => item.Type == idclaim)?.Value;
+                            if (userid != null)
                             {
-                                UserId = int.Parse(identity.Claims.FirstOrDefault(item => item.Type == "nameid")?.Value),
-                                Username = identity.Claims.FirstOrDefault(item => item.Type == "name")?.Value
-                            };
-                            // jwt already contains the roles - we are reloading to ensure most accurate permissions
-                            var _userRoles = context.RequestServices.GetService(typeof(IUserRoleRepository)) as IUserRoleRepository;
+                                if (!int.TryParse(userid, out _))
+                                {
+                                    userid = null;
+                                }
+                            }
+                            var username = identity.Claims.FirstOrDefault(item => item.Type == nameclaim)?.Value;
+                            if (username == null)
+                            {
+                                // fallback for legacy clients
+                                username = identity.Claims.FirstOrDefault(item => item.Type == legacynameclaim)?.Value;
+                            }
 
-                            // set claims identity
-                            var claimsidentity = UserSecurity.CreateClaimsIdentity(alias, user, _userRoles.GetUserRoles(user.UserId, alias.SiteId).ToList());
-                            context.User = new ClaimsPrincipal(claimsidentity);
+                            if (userid != null && username != null)
+                            {
+                                // create user identity
+                                var user = new User
+                                {
+                                    UserId = int.Parse(userid),
+                                    Username = username
+                                };
 
-                            logger.Log(alias.SiteId, LogLevel.Information, "TokenValidation", Enums.LogFunction.Security, "Token Validated For User {Username}", user.Username);
+                                // set claims identity (note jwt already contains the roles - we are reloading to ensure most accurate permissions)
+                                var _userRoles = context.RequestServices.GetService(typeof(IUserRoleRepository)) as IUserRoleRepository;
+                                var claimsidentity = UserSecurity.CreateClaimsIdentity(alias, user, _userRoles.GetUserRoles(user.UserId, alias.SiteId).ToList());
+                                context.User = new ClaimsPrincipal(claimsidentity);
+
+                                logger.Log(alias.SiteId, LogLevel.Information, "TokenValidation", Enums.LogFunction.Security, "Token Validated For UserId {UserId} And Username {Username}", user.UserId, user.Username);
+                            }
+                            else
+                            {
+                                logger.Log(alias.SiteId, LogLevel.Error, "TokenValidation", Enums.LogFunction.Security, "Token Validated But Could Not Locate UserId Or Username In Claims {Claims}", identity.Claims.ToString());
+                            }
                         }
                         else
                         {

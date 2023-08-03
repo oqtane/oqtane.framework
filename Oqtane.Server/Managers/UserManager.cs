@@ -130,14 +130,14 @@ namespace Oqtane.Managers
                 if (!user.EmailConfirmed)
                 {
                     string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
-                    string url = alias.Protocol + "://" + alias.Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
+                    string url = alias.Protocol + alias.Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
                     string body = "Dear " + user.DisplayName + ",\n\nIn Order To Complete The Registration Of Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
                     var notification = new Notification(user.SiteId, User, "User Account Verification", body);
                     _notifications.AddNotification(notification);
                 }
                 else
                 {
-                    string url = alias.Protocol + "://" + alias.Name;
+                    string url = alias.Protocol + alias.Name;
                     string body = "Dear " + user.DisplayName + ",\n\nA User Account Has Been Successfully Created For You. Please Use The Following Link To Access The Site:\n\n" + url + "\n\nThank You!";
                     var notification = new Notification(user.SiteId, User, "User Account Notification", body);
                     _notifications.AddNotification(notification);
@@ -299,7 +299,7 @@ namespace Oqtane.Managers
                         var alias = _tenantManager.GetAlias();
                         user = _users.GetUser(user.Username);
                         string token = await _identityUserManager.GeneratePasswordResetTokenAsync(identityuser);
-                        string url = alias.Protocol + "://" + alias.Name + "/reset?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
+                        string url = alias.Protocol + alias.Name + "/reset?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
                         string body = "Dear " + user.DisplayName + ",\n\nYou attempted multiple times unsuccessfully to log in to your account and it is now locked out. Please wait a few minutes and then try again... or use the link below to reset your password:\n\n" + url +
                             "\n\nPlease note that the link is only valid for 24 hours so if you are unable to take action within that time period, you should initiate another password reset on the site." +
                             "\n\nThank You!";
@@ -348,7 +348,7 @@ namespace Oqtane.Managers
                 var alias = _tenantManager.GetAlias();
                 user = _users.GetUser(user.Username);
                 string token = await _identityUserManager.GeneratePasswordResetTokenAsync(identityuser);
-                string url = alias.Protocol + "://" + alias.Name + "/reset?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
+                string url = alias.Protocol + alias.Name + "/reset?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
                 string body = "Dear " + user.DisplayName + ",\n\nYou recently requested to reset your password. Please use the link below to complete the process:\n\n" + url +
                     "\n\nPlease note that the link is only valid for 24 hours so if you are unable to take action within that time period, you should initiate another password reset on the site." +
                     "\n\nIf you did not request to reset your password you can safely ignore this message." +

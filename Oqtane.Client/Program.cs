@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Loader;
@@ -15,6 +17,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 using Oqtane.Documentation;
+using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Services;
 using Oqtane.UI;
@@ -66,8 +69,13 @@ namespace Oqtane.Client
 
         private static async Task LoadClientAssemblies(HttpClient http, IServiceProvider serviceProvider)
         {
+            // get alias
             var navigationManager = serviceProvider.GetRequiredService<NavigationManager>();
             var urlpath = GetUrlPath(navigationManager.Uri);
+            var json = await http.GetStringAsync($"api/Installation/installed/?path={WebUtility.UrlEncode(urlpath)}");
+            var installation = JsonSerializer.Deserialize<Installation>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            urlpath = installation.Alias.Path;
+            urlpath = (!string.IsNullOrEmpty(urlpath)) ? urlpath + "/" : urlpath;
 
             var dlls = new Dictionary<string, byte[]>();
             var pdbs = new Dictionary<string, byte[]>();
@@ -80,7 +88,7 @@ namespace Oqtane.Client
             if (files.Count() != 0)
             {
                 // get list of assemblies from server
-                var json = await http.GetStringAsync($"{urlpath}api/Installation/list");
+                json = await http.GetStringAsync($"{urlpath}api/Installation/list");
                 var assemblies = JsonSerializer.Deserialize<List<string>>(json);
 
                 // determine which assemblies need to be downloaded
@@ -261,9 +269,7 @@ namespace Oqtane.Client
 
         private static string GetUrlPath(string url)
         {
-            var path = new Uri(url).AbsolutePath.Substring(1);
-            path = (!string.IsNullOrEmpty(path) && !path.EndsWith("/")) ? path + "/" : path;
-            return path;
+            return new Uri(url).AbsolutePath.Substring(1);
         }
     }
 }
