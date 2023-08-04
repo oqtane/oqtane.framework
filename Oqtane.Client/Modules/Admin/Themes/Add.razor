@@ -212,7 +212,7 @@
 
     private string GetLogo(int fileid)
     {
-        var url = ImageUrl(fileid, 100, 100, "", "", "ffffff", 0, false);
+        var url = ImageUrl(fileid, 100, 100);
         url = (!string.IsNullOrEmpty(PageState.Alias.Path)) ? url.Substring(PageState.Alias.Path.Length + 1) : url;
         return Constants.PackageRegistryUrl + url;
     }
