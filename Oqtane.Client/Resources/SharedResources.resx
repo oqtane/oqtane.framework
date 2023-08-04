@@ -223,13 +223,13 @@
     <value>by</value>
   </data>
   <data name="Search.Downloads" xml:space="preserve">
-    <value>downloads</value>
+    <value>Downloads</value>
   </data>
   <data name="Search.Released" xml:space="preserve">
-    <value>released</value>
+    <value>Released</value>
   </data>
   <data name="Search.Version" xml:space="preserve">
-    <value>version</value>
+    <value>Version</value>
   </data>
   <data name="Edit" xml:space="preserve">
     <value>Edit</value>
@@ -277,19 +277,19 @@
     <value>Installed Version</value>
   </data>
   <data name="Search.Source" xml:space="preserve">
-    <value>source</value>
+    <value>Source</value>
   </data>
   <data name="Message.InfoRequired" xml:space="preserve">
     <value>Please Provide All Required Information</value>
   </data>
   <data name="Free" xml:space="preserve">
-    <value>Free</value>
+    <value>Open Source</value>
   </data>
   <data name="Paid" xml:space="preserve">
-    <value>Paid</value>
+    <value>Commercial</value>
   </data>
   <data name="Search.Price" xml:space="preserve">
-    <value>price</value>
+    <value>Price</value>
   </data>
   <data name="Accept" xml:space="preserve">
     <value>Accept</value>
@@ -389,5 +389,17 @@
   </data>
   <data name="Support" xml:space="preserve">
     <value>Support</value>
+  </data>
+  <data name="Search.Alphabetical" xml:space="preserve">
+    <value>Alphabetical</value>
+  </data>
+  <data name="Buy" xml:space="preserve">
+    <value>Buy Now</value>
+  </data>
+  <data name="Search.Popularity" xml:space="preserve">
+    <value>Popularity</value>
+  </data>
+  <data name="Search.Results" xml:space="preserve">
+    <value>Results</value>
   </data>
 </root>
