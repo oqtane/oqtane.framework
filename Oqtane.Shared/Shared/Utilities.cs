@@ -133,7 +133,7 @@ namespace Oqtane.Shared
             var url = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path : "";
             mode = string.IsNullOrEmpty(mode) ? "crop" : mode;
             position = string.IsNullOrEmpty(position) ? "center" : position;
-            background = string.IsNullOrEmpty(background) ? "000000" : background;
+            background = string.IsNullOrEmpty(background) ? "transparent" : background;
             return $"{alias?.BaseUrl}{url}{Constants.ImageUrl}{fileId}/{width}/{height}/{mode}/{position}/{background}/{rotate}/{recreate}";
         }
 
