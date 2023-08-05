@@ -148,14 +148,14 @@ namespace Oqtane.Services
             return default;
         }
 
-        protected async Task<T> GetJsonAsync<T>(string uri, T defaultvalue)
+        protected async Task<T> GetJsonAsync<T>(string uri, T defaultResult)
         {
             var response = await GetHttpClient().GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, CancellationToken.None);
             if (await CheckResponse(response, uri) && ValidateJsonContent(response.Content))
             {
                 return await response.Content.ReadFromJsonAsync<T>();
             }
-            return defaultvalue;
+            return defaultResult;
         }
 
         protected async Task PutAsync(string uri)
