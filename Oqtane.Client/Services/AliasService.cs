@@ -22,7 +22,7 @@ namespace Oqtane.Services
         /// <inheritdoc />
         public async Task<List<Alias>> GetAliasesAsync()
         {
-            List<Alias> aliases = await GetJsonAsync<List<Alias>>(ApiUrl);
+            List<Alias> aliases = await GetJsonAsync<List<Alias>>(ApiUrl, Enumerable.Empty<Alias>().ToList());
             return aliases.OrderBy(item => item.Name).ToList();
         }
 
