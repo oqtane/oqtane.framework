@@ -120,7 +120,7 @@ else
             var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
             if (package != null && !string.IsNullOrEmpty(package.SupportUrl))
             {
-                link += "<a class=\"btn btn-success\" style=\"text-decoration: none !important\" href=\"" + package.SupportUrl.Replace("{Version}", version) + "\" target=\"_new\">" + SharedLocalizer["Help"] + "</a>";
+                link += "<a class=\"btn btn-info\" style=\"text-decoration: none !important\" href=\"" + package.SupportUrl.Replace("{Version}", version) + "\" target=\"_new\">" + SharedLocalizer["Help"] + "</a>";
             }
         }
         return link;
