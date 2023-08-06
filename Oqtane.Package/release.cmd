@@ -14,7 +14,7 @@ dotnet publish ..\Oqtane.Server\Oqtane.Server.csproj /p:Configuration=Release
 del /F/Q/S "..\Oqtane.Server\bin\Release\net7.0\publish\wwwroot\Content" > NUL
 rmdir /Q/S "..\Oqtane.Server\bin\Release\net7.0\publish\wwwroot\Content"
 setlocal ENABLEDELAYEDEXPANSION
-set retain=Oqtane.Modules.Admin.Login,Oqtane.Modules.HtmlText,Templates
+set retain=Oqtane.Modules.Admin.Login,Oqtane.Modules.HtmlText
 for /D %%i in ("..\Oqtane.Server\bin\Release\net7.0\publish\wwwroot\Modules\*") do (
 set /A found=0
 for %%j in (%retain%) do (
@@ -22,7 +22,7 @@ if "%%~nxi" == "%%j" set /A found=1
 )
 if not !found! == 1 rmdir /Q/S "%%i"
 )
-set retain=Oqtane.Themes.BlazorTheme,Oqtane.Themes.OqtaneTheme,Templates
+set retain=Oqtane.Themes.BlazorTheme,Oqtane.Themes.OqtaneTheme
 for /D %%i in ("..\Oqtane.Server\bin\Release\net7.0\publish\wwwroot\Themes\*") do (
 set /A found=0
 for %%j in (%retain%) do (
