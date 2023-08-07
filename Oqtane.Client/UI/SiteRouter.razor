@@ -126,7 +126,7 @@
             }
             else
             {
-                NavigationManager.NavigateTo(_absoluteUri.Replace("?reload", ""), true);
+                NavigationManager.NavigateTo(_absoluteUri.Replace("?reload", "").Replace("&reload", ""), true);
                 return;				
             }
         }
@@ -184,12 +184,20 @@
             // reload client application if server was restarted or site runtime/rendermode was modified
             if (PageState != null && site != null && sync.SyncEvents.Exists(item => item.Action == SyncEventActions.Reload && ((item.EntityName == EntityNames.Host && site.Runtime != "Server") || (item.EntityName == EntityNames.Site && item.EntityId == site.SiteId))))
             {
-                NavigationManager.NavigateTo(_absoluteUri, true);
+                if (!querystring.ContainsKey("reloaded"))
+                {
+                    NavigationManager.NavigateTo(_absoluteUri + (!_absoluteUri.Contains("?") ? "?" : "&") + "reloaded", true);
+                    return;
+                }
             }
             // reload client application if current user auth information has changed 
             if (PageState != null && user != null && sync.SyncEvents.Exists(item => item.Action == SyncEventActions.Reload && item.EntityName == EntityNames.User && item.EntityId == user.UserId))
             {
-                NavigationManager.NavigateTo(_absoluteUri, true);
+                if (!querystring.ContainsKey("reloaded"))
+                {
+                    NavigationManager.NavigateTo(_absoluteUri + (!_absoluteUri.Contains("?") ? "?" : "&") + "reloaded", true);
+                    return;
+                }
             }
             // when site information has changed the PageState needs to be refreshed
             if (sync.SyncEvents.Exists(item => item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId))
