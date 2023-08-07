@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Models;
-using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Security.Claims;
@@ -22,23 +21,17 @@ namespace Oqtane.Controllers
     public class UserController : Controller
     {
         private readonly IUserRepository _users;
-        private readonly UserManager<IdentityUser> _identityUserManager;
-        private readonly SignInManager<IdentityUser> _identitySignInManager;
         private readonly ITenantManager _tenantManager;
-        private readonly INotificationRepository _notifications;
         private readonly IUserManager _userManager;
         private readonly ISiteRepository _sites;
         private readonly IUserPermissions _userPermissions;
         private readonly IJwtManager _jwtManager;
         private readonly ILogManager _logger;
 
-        public UserController(IUserRepository users, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IUserManager userManager, ISiteRepository sites, IUserPermissions userPermissions, IJwtManager jwtManager, ILogManager logger)
+        public UserController(IUserRepository users, ITenantManager tenantManager, IUserManager userManager, ISiteRepository sites, IUserPermissions userPermissions, IJwtManager jwtManager, ILogManager logger)
         {
             _users = users;
-            _identityUserManager = identityUserManager;
-            _identitySignInManager = identitySignInManager;
             _tenantManager = tenantManager;
-            _notifications = notifications;
             _userManager = userManager;
             _sites = sites;
             _userPermissions = userPermissions;

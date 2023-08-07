@@ -98,7 +98,7 @@
         User user = null;
         var editmode = false;
         var refresh = false;
-        var lastsyncdate = DateTime.UtcNow.AddHours(-1);
+        var lastsyncdate = DateTime.UtcNow.AddHours(-1); // events in the past hour
         var runtime = (Shared.Runtime)Enum.Parse(typeof(Shared.Runtime), Runtime);
         _error = "";
 
@@ -163,29 +163,6 @@
         else
         {
             user = PageState.User;
-        }       
-
-        // process any sync events
-        var sync = await SyncService.GetSyncAsync(lastsyncdate);
-        lastsyncdate = sync.SyncDate;
-        if (sync.SyncEvents.Any())
-        {
-            // reload client application if server was restarted or site runtime/rendermode was modified
-            if (PageState != null && sync.SyncEvents.Exists(item => (item.Action == SyncEventActions.Reload)))
-            {
-                NavigationManager.NavigateTo(_absoluteUri, true);
-                return;
-            }
-            // when site information has changed the PageState needs to be refreshed
-            if (sync.SyncEvents.Exists(item => item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId))
-            {
-                refresh = true;
-            }
-            // when user information has changed the PageState needs to be refreshed as the list of pages/modules may have changed
-            if (user != null && sync.SyncEvents.Exists(item => item.EntityName == EntityNames.User && item.EntityId == user.UserId))
-            {
-                refresh = true;
-            }
         }
 
         if (PageState == null || refresh || PageState.Alias.SiteId != SiteState.Alias.SiteId)
@@ -196,6 +173,28 @@
         else
         {
             site = PageState.Site;
+        }
+
+        // process any sync events
+        var sync = await SyncService.GetSyncAsync(lastsyncdate);
+        lastsyncdate = sync.SyncDate;
+        if (sync.SyncEvents.Any())
+        {
+            // reload client application if server was restarted or site runtime/rendermode was modified
+            if (PageState != null && sync.SyncEvents.Exists(item => item.Action == SyncEventActions.Reload && site != null && ((item.EntityName == EntityNames.Host && site.Runtime != "Server") || (item.EntityName == EntityNames.Site && item.EntityId == site.SiteId))))
+            {
+                NavigationManager.NavigateTo(_absoluteUri, true);
+            }
+            // when current user auth information has changed the client application needs to be reloaded
+            if (PageState != null && user != null && sync.SyncEvents.Exists(item => item.Action == SyncEventActions.Reload && item.EntityName == EntityNames.User && item.EntityId == user.UserId))
+            {
+                NavigationManager.NavigateTo(_absoluteUri, true);
+            }
+            // when site information has changed the PageState needs to be refreshed
+            if (sync.SyncEvents.Exists(item => item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId))
+            {
+                refresh = true;
+            }
         }
 
         if (site != null)
