@@ -53,10 +53,13 @@ Backlog (TBD)
 5.0.0 (Q4 2023)
 - [ ] Migration to .NET 8
 
-[4.0.1](https://github.com/oqtane/oqtane.framework/releases/tag/v4.0.1) ( July 18, 2023 )
+4.0.2 ( Aug 2023 )
 - [x] Stabilization improvements 
 
-[4.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v4.0.0) ( June 26, 2023 )
+[4.0.1](https://github.com/oqtane/oqtane.framework/releases/tag/v4.0.1) ( Jul 18, 2023 )
+- [x] Stabilization improvements 
+
+[4.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v4.0.0) ( Jun 26, 2023 )
 - [x] Migration to .NET 7
 - [x] Improved JavaScript, CSS, and Meta support
 - [x] Optimized Client Assembly Loading 
