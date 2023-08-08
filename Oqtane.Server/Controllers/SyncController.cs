@@ -23,10 +23,16 @@ namespace Oqtane.Controllers
         [HttpGet("{lastSyncDate}")]
         public Sync Get(string lastSyncDate)
         {
+            DateTime currentdate = DateTime.UtcNow;
+            DateTime lastdate = DateTime.ParseExact(lastSyncDate, "yyyyMMddHHmmssfff", CultureInfo.InvariantCulture);
+            if (lastdate == DateTime.MinValue)
+            {
+                lastdate = currentdate;
+            }
             Sync sync = new Sync
             {
-                SyncDate = DateTime.UtcNow,
-                SyncEvents = _syncManager.GetSyncEvents(_alias.TenantId, DateTime.ParseExact(lastSyncDate, "yyyyMMddHHmmssfff", CultureInfo.InvariantCulture))
+                SyncDate = currentdate,
+                SyncEvents = _syncManager.GetSyncEvents(_alias.TenantId, lastdate)
             };
             return sync;
         }        
