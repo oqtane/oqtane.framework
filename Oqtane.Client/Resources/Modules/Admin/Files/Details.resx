@@ -150,4 +150,7 @@
   <data name="Description.Text" xml:space="preserve">
     <value>Description:</value>
   </data>
+  <data name="ModuleTitle.Text" xml:space="preserve">
+    <value>File Management</value>
+  </data>
 </root>

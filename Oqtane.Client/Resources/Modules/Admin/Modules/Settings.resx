@@ -156,4 +156,7 @@
   <data name="Module.Text" xml:space="preserve">
     <value>Module:</value>
   </data>
+  <data name="ModuleTitle.Text" xml:space="preserve">
+    <value>Module Settings</value>
+  </data>
 </root>
