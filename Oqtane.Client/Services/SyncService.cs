@@ -16,7 +16,7 @@ namespace Oqtane.Services
         private string ApiUrl => CreateApiUrl("Sync");
 
         /// <inheritdoc />
-        public async Task<Sync> GetSyncAsync(DateTime lastSyncDate)
+        public async Task<Sync> GetSyncEventsAsync(DateTime lastSyncDate)
         {
             return await GetJsonAsync<Sync>($"{ApiUrl}/{lastSyncDate.ToString("yyyyMMddHHmmssfff")}");
         }

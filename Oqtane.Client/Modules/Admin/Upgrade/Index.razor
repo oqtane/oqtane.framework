@@ -17,11 +17,11 @@
         }
         else
         {
-            <ModuleMessage Type="MessageType.Info" Message="Framework Is Already Up To Date"></ModuleMessage>
+            <ModuleMessage Type="MessageType.Info" Message=@Localizer["Message.Text"]></ModuleMessage>
         }
     </TabPanel>
     <TabPanel Name="Upload" ResourceKey="Upload">
-        <ModuleMessage Type="MessageType.Info" Message="Upload A Framework Package (Oqtane.Framework.version.nupkg) And Then Select Upgrade"></ModuleMessage>
+        <ModuleMessage Type="MessageType.Info" Message=@Localizer["MessgeUpgrade.Text"]></ModuleMessage>
         <div class="container">
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" HelpText="Upload A Framework Package And Then Select Upgrade" ResourceKey="Framework">Framework: </Label>

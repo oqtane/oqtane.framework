@@ -24,7 +24,7 @@
         <div class="row justify-content-center mb-3">
             <div class="col">
                 <div class="input-group">
-                    <span class="input-group-text">Product</span>
+                    <span class="input-group-text">@Localizer["Product"]</span>
                     <input id="search" class="form-control" placeholder="@SharedLocalizer["Search.Hint"]" @bind="@_search" />
                     <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>
                     <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
@@ -113,7 +113,7 @@
         <br />
         <ModuleMessage Type="MessageType.Info" Message="@SharedLocalizer["Oqtane.Marketplace"]" />
     </TabPanel>
-    <TabPanel Name="Upload" ResourceKey="Upload">
+    <TabPanel Name="Upload" ResourceKey="Upload" Heading="Upload">
         <div class="container">
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" HelpText="Upload one or more module packages. Once they are uploaded click Install to complete the installation." ResourceKey="Module">Module: </Label>

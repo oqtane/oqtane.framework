@@ -141,4 +141,7 @@
   <data name="Upload.Heading" xml:space="preserve">
     <value>Upload</value>
   </data>
+  <data name="Product.Text" xml:space="preserve">
+    <value>Product</value>
+  </data>
 </root>
