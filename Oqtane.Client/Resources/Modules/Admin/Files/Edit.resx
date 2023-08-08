@@ -192,4 +192,7 @@
   <data name="Public" xml:space="preserve">
     <value>Public</value>
   </data>
+  <data name="ModuleTitle.Text" xml:space="preserve">
+    <value>Folder Management</value>
+  </data>
 </root>

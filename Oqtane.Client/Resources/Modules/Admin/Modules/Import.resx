@@ -138,4 +138,7 @@
   <data name="Message.Required.ImportContent" xml:space="preserve">
     <value>You Must Enter Some Content To Import</value>
   </data>
+  <data name="ModuleTitle.Text" xml:space="preserve">
+    <value>Import Content</value>
+  </data>
 </root>

@@ -144,4 +144,7 @@
   <data name="OriginalMessage" xml:space="preserve">
     <value>Original Message</value>
   </data>
+  <data name="ModuleTitle.Text" xml:space="preserve">
+    <value>View Notification</value>
+  </data>
 </root>

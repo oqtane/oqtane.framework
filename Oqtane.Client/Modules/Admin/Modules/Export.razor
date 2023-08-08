@@ -22,6 +22,11 @@
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
     public override string Title => "Export Content";
 
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        base.SetModuleTitle(Localizer["ModuleTitle.Text"]);
+    }
 
     private async Task ExportModule()
     {
