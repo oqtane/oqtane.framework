@@ -14,6 +14,6 @@ namespace Oqtane.Services
         /// </summary>
         /// <param name="lastSyncDate"></param>
         /// <returns></returns>
-        Task<Sync> GetSyncAsync(DateTime lastSyncDate);
+        Task<Sync> GetSyncEventsAsync(DateTime lastSyncDate);
     }
 }
