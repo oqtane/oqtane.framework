@@ -16,7 +16,7 @@
 else
 {
     <TabStrip>
-        <TabPanel Name="Manage" ResourceKey="Manage">
+        <TabPanel Name="Manage" ResourceKey="Manage" Heading="Manage">
             <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
                 <div class="container">
 					<div class="row mb-1 align-items-center">
@@ -45,7 +45,7 @@ else
 				<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
             </form>
         </TabPanel>
-        <TabPanel Name="Upload" ResourceKey="Upload" Security="SecurityAccessLevel.Host">
+        <TabPanel Name="Upload" ResourceKey="Upload" Security="SecurityAccessLevel.Host" Heading="Upload">
             <div class="container">
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" HelpText="Upload one or more translations. Once they are uploaded click Install." ResourceKey="LanguageUpload">Translation: </Label>
