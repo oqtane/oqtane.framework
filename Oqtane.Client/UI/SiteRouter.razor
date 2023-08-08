@@ -98,7 +98,7 @@
         User user = null;
         var editmode = false;
         var refresh = false;
-        var lastsyncdate = DateTime.UtcNow.AddHours(-1); // events in the past hour
+        var lastsyncdate = DateTime.MinValue;
         var runtime = (Shared.Runtime)Enum.Parse(typeof(Shared.Runtime), Runtime);
         _error = "";
 
@@ -177,27 +177,21 @@
         }
 
         // process any sync events
-        var sync = await SyncService.GetSyncAsync(lastsyncdate);
+        var sync = await SyncService.GetSyncEventsAsync(lastsyncdate);
         lastsyncdate = sync.SyncDate;
         if (sync.SyncEvents.Any())
         {
             // reload client application if server was restarted or site runtime/rendermode was modified
             if (PageState != null && site != null && sync.SyncEvents.Exists(item => item.Action == SyncEventActions.Reload && ((item.EntityName == EntityNames.Host && site.Runtime != "Server") || (item.EntityName == EntityNames.Site && item.EntityId == site.SiteId))))
             {
-                if (!querystring.ContainsKey("reloaded"))
-                {
-                    NavigationManager.NavigateTo(_absoluteUri + (!_absoluteUri.Contains("?") ? "?" : "&") + "reloaded", true);
-                    return;
-                }
+                NavigationManager.NavigateTo(_absoluteUri, true);
+                return;
             }
             // reload client application if current user auth information has changed 
             if (PageState != null && user != null && sync.SyncEvents.Exists(item => item.Action == SyncEventActions.Reload && item.EntityName == EntityNames.User && item.EntityId == user.UserId))
             {
-                if (!querystring.ContainsKey("reloaded"))
-                {
-                    NavigationManager.NavigateTo(_absoluteUri + (!_absoluteUri.Contains("?") ? "?" : "&") + "reloaded", true);
-                    return;
-                }
+                NavigationManager.NavigateTo(_absoluteUri, true);
+                return;
             }
             // when site information has changed the PageState needs to be refreshed
             if (sync.SyncEvents.Exists(item => item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId))
