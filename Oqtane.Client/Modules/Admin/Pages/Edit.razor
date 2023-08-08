@@ -137,7 +137,7 @@
                             </div>
                         </div>
                     </div>
-                    <Section Name="Appearance" ResourceKey="Appearance">
+                    <Section Name="Appearance" ResourceKey="Appearance" Heading="Appearance">
                         <div class="container">
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used." ResourceKey="Title">Title: </Label>
@@ -189,7 +189,7 @@
                     <br />
                     <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
                 </TabPanel>
-                <TabPanel Name="Permissions" ResourceKey="Permissions">
+                <TabPanel Name="Permissions" ResourceKey="Permissions" Heading="Permissions">
                     <div class="container">
                         <div class="row mb-1 align-items-center">
                             <PermissionGrid EntityName="@EntityNames.Page" PermissionList="@_permissions" @ref="_permissionGrid" />

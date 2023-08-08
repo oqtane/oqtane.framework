@@ -402,4 +402,7 @@
   <data name="Search.Results" xml:space="preserve">
     <value>Results</value>
   </data>
+  <data name="Search.RecentlyReleased" xml:space="preserve">
+    <value>Recently Released</value>
+  </data>
 </root>

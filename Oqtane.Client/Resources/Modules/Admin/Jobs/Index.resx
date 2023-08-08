@@ -195,4 +195,7 @@
   <data name="Message.NoJobs" xml:space="preserve">
     <value>Please Note That After An Initial Installation You Must &lt;a href={0}&gt;Restart&lt;/a&gt; The Application In Order To Activate The Default Scheduled Jobs.</value>
   </data>
+  <data name="Refresh.Text" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
 </root>

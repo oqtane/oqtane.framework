@@ -10,7 +10,7 @@
 {
     <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
         <TabStrip Refresh="@_refresh">
-            <TabPanel Name="Settings" ResourceKey="Settings">
+            <TabPanel Name="Settings" ResourceKey="Settings" Heading=@Localizer["Settings.Heading"]>
                 <div class="container">
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="name" HelpText="Enter the page name" ResourceKey="Name">Name: </Label>
@@ -126,7 +126,7 @@
                     </div>
                 </div>
 
-                <Section Name="Appearance" Heading="Appearance" ResourceKey="Appearance">
+                <Section Name="Appearance" ResourceKey="Appearance" Heading=@Localizer["Appearance.Name"]>
                     <div class="container">
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used." ResourceKey="Title">Title: </Label>
@@ -158,7 +158,7 @@
                         </div>
                     </div>
                 </Section>
-                <Section Name="PageContent" Heading="Page Content" ResourceKey="PageContent">
+                <Section Name="PageContent" ResourceKey="PageContent" Heading=@Localizer["PageContent.Heading"]>
                     <div class="container">
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="headcontent" HelpText="Optionally enter content to be included in the page head (ie. meta, link, or script tags)" ResourceKey="HeadContent">Head Content: </Label>
@@ -175,7 +175,7 @@
                     </div>
                 </Section>
             </TabPanel>
-            <TabPanel Name="Permissions" ResourceKey="Permissions">
+            <TabPanel Name="Permissions" ResourceKey="Permissions" Heading=@Localizer["Permissions.Heading"]>
                 <div class="container">
                     <div class="row mb-1 align-items-center">
                         <PermissionGrid EntityName="@EntityNames.Page" Permissions="@_permissions" @ref="_permissionGrid" />
@@ -184,7 +184,7 @@
             </TabPanel>
             @if (_themeSettingsType != null)
             {
-                <TabPanel Name="ThemeSettings" Heading="Theme Settings" ResourceKey="ThemeSettings">
+                <TabPanel Name="ThemeSettings" Heading=@Localizer["Theme.Heading"] ResourceKey="ThemeSettings">
                     @ThemeSettingsComponent
                 </TabPanel>
             }
