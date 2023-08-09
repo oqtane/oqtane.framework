@@ -136,9 +136,12 @@
     <value>No Modules Match The Criteria Provided Or Package Service Is Disabled</value>
   </data>
   <data name="Download.Heading" xml:space="preserve">
-    <value>Download</value>
+    <value>Marketplace</value>
   </data>
   <data name="Upload.Heading" xml:space="preserve">
     <value>Upload</value>
+  </data>
+  <data name="Product.Text" xml:space="preserve">
+    <value>Product</value>
   </data>
 </root>

@@ -5,9 +5,9 @@ namespace Oqtane.Infrastructure
 {
     public class ServerState
     {
-        public int SiteId { get; set; }
+        public string SiteKey { get; set; }
         public List<string> Assemblies { get; set; } = new List<string>();
         public List<Resource>Scripts { get; set; } = new List<Resource>();
-        public bool IsMigrated { get; set; } = false;
+        public bool IsInitialized { get; set; } = false;
     }
 }

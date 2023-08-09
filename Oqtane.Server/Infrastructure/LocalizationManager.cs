@@ -40,9 +40,13 @@ namespace Oqtane.Infrastructure
         public string[] GetInstalledCultures()
         {
             var cultures = new List<string>();
-            foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), $"{Constants.ClientId}{Constants.SatelliteAssemblyExtension}", SearchOption.AllDirectories))
+            foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), $"*{Constants.SatelliteAssemblyExtension}", SearchOption.AllDirectories))
             {
-                cultures.Add(Path.GetFileName(Path.GetDirectoryName(file)));
+                var culture = Path.GetFileName(Path.GetDirectoryName(file));
+                if (!cultures.Contains(culture))
+                {
+                    cultures.Add(culture);
+                }
             }
             return cultures.OrderBy(c => c).ToArray();
         }

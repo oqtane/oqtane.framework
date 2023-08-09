@@ -572,7 +572,7 @@ namespace Oqtane.Controllers
                         // validation
                         if (!Enum.TryParse(mode, true, out ResizeMode _)) mode = "crop";
                         if (!Enum.TryParse(position, true, out AnchorPositionMode _)) position = "center";
-                        if (!Color.TryParseHex("#" + background, out _)) background = "000000";
+                        if (!Color.TryParseHex("#" + background, out _)) background = "transparent";
                         if (!int.TryParse(rotate, out _)) rotate = "0";
                         rotate = (int.Parse(rotate) < 0 || int.Parse(rotate) > 360) ? "0" : rotate;
                         if (!bool.TryParse(recreate, out _)) recreate = "false";
@@ -644,10 +644,23 @@ namespace Oqtane.Controllers
                                 Mode = resizemode,
                                 Position = anchorpositionmode,
                                 Size = new Size(width, height)
-                            })
-                            .BackgroundColor(Color.ParseHex("#" + background)));
+                            }));
 
-                        image.Save(imagepath, new PngEncoder());
+                        if (background != "transparent")
+                        {
+                            image.Mutate(x => x
+                                .BackgroundColor(Color.ParseHex("#" + background)));
+                        }
+
+                        PngEncoder encoder = new PngEncoder
+                        {
+                            ColorType = PngColorType.RgbWithAlpha,
+                            TransparentColorMode = PngTransparentColorMode.Preserve,
+                            BitDepth = PngBitDepth.Bit8,
+                            CompressionLevel = PngCompressionLevel.BestSpeed
+                        };
+
+                        image.Save(imagepath, encoder);
                     }
                 }
             }
@@ -677,7 +690,14 @@ namespace Oqtane.Controllers
                     path = Utilities.PathCombine(path, folder, Path.DirectorySeparatorChar.ToString());
                     if (!Directory.Exists(path))
                     {
-                        Directory.CreateDirectory(path);
+                        try
+                        {
+                            Directory.CreateDirectory(path);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Log(LogLevel.Error, this, LogFunction.Create, ex, "Unable To Create Folder {Folder}", path);
+                        }
                     }
                 }
             }

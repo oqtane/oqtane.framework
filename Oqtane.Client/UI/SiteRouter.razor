@@ -93,12 +93,12 @@
     [SuppressMessage("ReSharper", "StringIndexOfIsCultureSpecific.1")]
     private async Task Refresh()
     {
-        Site site;
-        Page page;
+        Site site = null;
+        Page page = null;
         User user = null;
         var editmode = false;
         var refresh = false;
-        var lastsyncdate = DateTime.UtcNow.AddHours(-1);
+        var lastsyncdate = DateTime.MinValue;
         var runtime = (Shared.Runtime)Enum.Parse(typeof(Shared.Runtime), Runtime);
         _error = "";
 
@@ -112,8 +112,8 @@
             returnurl = WebUtility.UrlDecode(querystring["returnurl"]);
         }
 
-        // reload the client application from the server if there is a forced reload or the user navigated to a site with a different alias 
-        if (querystring.ContainsKey("reload") || (!NavigationManager.ToBaseRelativePath(_absoluteUri).ToLower().StartsWith(SiteState.Alias.Path.ToLower()) && !string.IsNullOrEmpty(SiteState.Alias.Path)))
+        // reload the client application from the server if there is a forced reload
+        if (querystring.ContainsKey("reload"))
         {
             if (querystring.ContainsKey("reload") && querystring["reload"] == "post")
             {
@@ -126,7 +126,7 @@
             }
             else
             {
-                NavigationManager.NavigateTo(_absoluteUri.Replace("?reload", ""), true);
+                NavigationManager.NavigateTo(_absoluteUri.Replace("?reload", "").Replace("&reload", ""), true);
                 return;				
             }
         }
@@ -163,31 +163,39 @@
         else
         {
             user = PageState.User;
-        }       
+        }
 
         // process any sync events
-        var sync = await SyncService.GetSyncAsync(lastsyncdate);
+        var sync = await SyncService.GetSyncEventsAsync(lastsyncdate);
         lastsyncdate = sync.SyncDate;
         if (sync.SyncEvents.Any())
         {
-            // reload client application if server was restarted or site runtime/rendermode was modified
-            if (PageState != null && sync.SyncEvents.Exists(item => (item.Action == SyncEventActions.Reload)))
+            // reload client application if server was restarted
+            if (sync.SyncEvents.Exists(item => item.Action == SyncEventActions.Reload && item.EntityName == EntityNames.Host))
             {
                 NavigationManager.NavigateTo(_absoluteUri, true);
                 return;
             }
-            // when site information has changed the PageState needs to be refreshed
-            if (sync.SyncEvents.Exists(item => item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId))
+            // reload client application if site runtime/rendermode was modified
+            if (sync.SyncEvents.Exists(item => item.Action == SyncEventActions.Reload && item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId))
             {
-                refresh = true;
+                NavigationManager.NavigateTo(_absoluteUri, true);
+                return;
             }
-            // when user information has changed the PageState needs to be refreshed as the list of pages/modules may have changed
-            if (user != null && sync.SyncEvents.Exists(item => item.EntityName == EntityNames.User && item.EntityId == user.UserId))
+            // reload client application if current user auth information has changed
+            if (user != null && sync.SyncEvents.Exists(item => item.Action == SyncEventActions.Reload && item.EntityName == EntityNames.User && item.EntityId == user.UserId))
+            {
+                NavigationManager.NavigateTo(_absoluteUri, true);
+                return;
+            }
+            // refresh PageState when site information has changed
+            if (sync.SyncEvents.Exists(item => item.Action == SyncEventActions.Refresh && item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId))
             {
                 refresh = true;
             }
         }
 
+        // get site
         if (PageState == null || refresh || PageState.Alias.SiteId != SiteState.Alias.SiteId)
         {
             site = await SiteService.GetSiteAsync(SiteState.Alias.SiteId);

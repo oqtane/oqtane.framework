@@ -2,7 +2,7 @@
 @inherits LocalizableComponent
 
 <div class="app-autocomplete">
-	<input class="form-control" value="@Value" @oninput="OnInput" @onkeyup="OnKeyUp" placeholder="@Placeholder" autocomplete="off" />
+    <input class="form-control" value="@Value" @oninput="OnInput" @onkeyup="OnKeyUp" placeholder="@Placeholder" autocomplete="off" @attributes="InputAttributes" />
 	@if (_results != null)
 	{
 		<select class="form-select" style="position: relative;" value="@Value" size="@Rows" @onkeyup="OnKeyUp" @onchange="(e => OnChange(e))">
@@ -29,27 +29,48 @@
 </div>
 
 @code {
-	Dictionary<string, string> _results;
+    Dictionary<string, string> _results;
+    Dictionary<string, object> InputAttributes { get; set; } = new();
 
-	[Parameter]
-	public Func<string, Task<Dictionary<string, string>>> OnSearch { get; set; } // required - an async delegate method which accepts a filter string parameter and returns a dictionary
+    [Parameter]
+    public Func<string, Task<Dictionary<string, string>>> OnSearch { get; set; } // required - an async delegate method which accepts a filter string parameter and returns a dictionary
 
-	[Parameter]
-	public int Characters { get; set; } = 3; // optional - number of characters before search is initiated
+    [Parameter]
+    public int Characters { get; set; } = 3; // optional - number of characters before search is initiated
 
-	[Parameter]
-	public int Rows { get; set; } = 3; // optional - number of result rows to display
+    [Parameter]
+    public int Rows { get; set; } = 3; // optional - number of result rows to display
 
-	[Parameter]
-	public string Placeholder { get; set; } // optional - placeholder input text
+    [Parameter]
+    public string Placeholder { get; set; } // optional - placeholder input text
 
-	[Parameter]
-	public string Value { get; set; } // value of item selected
+    [Parameter]
+    public string Value { get; set; } // value of item selected
 
-	[Parameter]
-	public string Key { get; set; } // key of item selected
+    [Parameter]
+    public string Key { get; set; } // key of item selected
 
-	private async Task OnInput(ChangeEventArgs e)
+    [Parameter]
+    public bool Required { get; set; } // optional - if the item is required
+
+    protected override void OnParametersSet()
+    {
+        if (Required)
+        {
+            if (!InputAttributes.ContainsKey(nameof(Required)))
+            {
+                InputAttributes.Add(nameof(Required), true);
+            }
+        }
+        else
+        {
+            if (InputAttributes.ContainsKey(nameof(Required)))
+            {
+                InputAttributes.Remove(nameof(Required));
+            }
+        }
+    }
+    private async Task OnInput(ChangeEventArgs e)
 	{
 		Value = e.Value?.ToString();
 		if (Value?.Length >= Characters)

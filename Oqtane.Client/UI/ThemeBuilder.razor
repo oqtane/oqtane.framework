@@ -70,7 +70,7 @@
             var elements = (">" + content.Replace("\n", "") + "<").Split("><");
             foreach (var element in elements)
             {
-                if (!string.IsNullOrEmpty(element) && !element.Contains("script"))
+                if (!string.IsNullOrEmpty(element) && !element.ToLower().StartsWith("script"))
                 {
                     if (!headcontent.Contains("<" + element + ">"))
                     {

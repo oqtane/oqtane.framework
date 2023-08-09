@@ -17,7 +17,7 @@ namespace [Owner].Module.[Module].Services
 
         public async Task<List<Models.[Module]>> Get[Module]sAsync(int ModuleId)
         {
-            List<Models.[Module]> [Module]s = await GetJsonAsync<List<Models.[Module]>>(CreateAuthorizationPolicyUrl($"{Apiurl}?moduleid={ModuleId}", EntityNames.Module, ModuleId));
+            List<Models.[Module]> [Module]s = await GetJsonAsync<List<Models.[Module]>>(CreateAuthorizationPolicyUrl($"{Apiurl}?moduleid={ModuleId}", EntityNames.Module, ModuleId), Enumerable.Empty<Models.[Module]>().ToList());
             return [Module]s.OrderBy(item => item.Name).ToList();
         }
 

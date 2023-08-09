@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Shared;
 
@@ -36,7 +35,9 @@ namespace Oqtane.Repository
             }
             else
             {
+                int siteId = user.SiteId;
                 user = _db.User.AsNoTracking().First(item => item.Username == user.Username);
+                user.SiteId = siteId;
             }
 
             // add folder for user

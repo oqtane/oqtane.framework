@@ -27,13 +27,13 @@ namespace Oqtane.Repository
         private readonly IThemeRepository _themeRepository;
         private readonly IServiceProvider _serviceProvider;
         private readonly IConfigurationRoot _config;
-        private readonly ServerStateManager _serverState;
+        private readonly IServerStateManager _serverState;
         private readonly ILogManager _logger;
         private static readonly object _lock = new object();
 
         public SiteRepository(TenantDBContext context, IRoleRepository roleRepository, IProfileRepository profileRepository, IFolderRepository folderRepository, IPageRepository pageRepository,
             IModuleRepository moduleRepository, IPageModuleRepository pageModuleRepository, IModuleDefinitionRepository moduleDefinitionRepository, IThemeRepository themeRepository, IServiceProvider serviceProvider,
-            IConfigurationRoot config, ServerStateManager serverState, ILogManager logger)
+            IConfigurationRoot config, IServerStateManager serverState, ILogManager logger)
         {
             _db = context;
             _roleRepository = roleRepository;
@@ -95,23 +95,25 @@ namespace Oqtane.Repository
             _db.SaveChanges();
         }
 
-        public Site InitializeSite(Alias alias)
+        public void InitializeSite(Alias alias)
         {
-            var site = GetSite(alias.SiteId);            
-
-            // load themes and module definitions 
-            site.Themes = _themeRepository.GetThemes().ToList();
-            var moduleDefinitions = _moduleDefinitionRepository.GetModuleDefinitions(alias.SiteId);
-
-            // site migrations
-            var serverstate = _serverState.GetServerState(alias.SiteId);
-            if (!serverstate.IsMigrated)
+            var serverstate = _serverState.GetServerState(alias.SiteKey);
+            if (!serverstate.IsInitialized)
             {
-                // ensure migrations are only executed once
+                // ensure site initialization is only executed once
                 lock (_lock)
                 {
-                    if (!serverstate.IsMigrated)
+                    if (!serverstate.IsInitialized)
                     {
+                        var site = GetSite(alias.SiteId);
+
+                        // initialize theme Assemblies and Scripts
+                        site.Themes = _themeRepository.GetThemes().ToList();
+
+                        // initialize module Assemblies and Scripts
+                        var moduleDefinitions = _moduleDefinitionRepository.GetModuleDefinitions(alias.SiteId);
+
+                        // execute migrations
                         var version = ProcessSiteMigrations(alias, site);
                         version = ProcessPageTemplates(alias, site, moduleDefinitions, version);
                         if (site.Version != version)
@@ -119,13 +121,11 @@ namespace Oqtane.Repository
                             site.Version = version;
                             UpdateSite(site);
                         }
-                        serverstate.IsMigrated = true;
-                        _serverState.SetServerState(alias.SiteId, serverstate);
+
+                        serverstate.IsInitialized = true;
                     }
                 }
-            }
-
-            return site;
+            } 
         }
 
         private string ProcessSiteMigrations(Alias alias, Site site)
@@ -640,7 +640,7 @@ namespace Oqtane.Repository
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
                             new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                         },
-                        Content = "<p>The page you requested does not exist.</p>"
+                        Content = "<p>The page you requested does not exist or you do not have sufficient rights to view it.</p>"
                     }
                 }
             });

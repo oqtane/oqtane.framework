@@ -168,8 +168,6 @@
             ShowSuccess = true;
         }
 
-        _folders = await FolderService.GetFoldersAsync(ModuleState.SiteId);
-
         if (!string.IsNullOrEmpty(Folder) && Folder != Constants.PackagesFolder)
         {
             Folder folder = await FolderService.GetFolderAsync(ModuleState.SiteId, Folder);
@@ -182,6 +180,22 @@
                 FolderId = -1;
                 _message = "Folder Path " + Folder + "Does Not Exist";
                 _messagetype = MessageType.Error;
+            }
+        }
+
+        if (ShowFolders)
+        {
+            _folders = await FolderService.GetFoldersAsync(ModuleState.SiteId);
+        }
+        else
+        {
+            if (FolderId != -1)
+            {
+                var folder = await FolderService.GetFolderAsync(FolderId);
+                if (folder != null)
+                {
+                    _folders = new List<Folder> { folder };
+                }
             }
         }
 
@@ -358,10 +372,21 @@
                             attempts += 1;
                             Thread.Sleep(1000 * attempts); // progressive retry
 
-                            var file = await FileService.GetFileAsync(int.Parse(folder), uploads[upload]);
-                            if (file != null)
+                            if (Folder == Constants.PackagesFolder)
                             {
-                                success = true;
+                                var files = await FileService.GetFilesAsync(folder);
+                                if (files != null && files.Any(item => item.Name == uploads[upload]))
+                                {
+                                    success = true;
+                                }
+                            }
+                            else
+                            {
+                                var file = await FileService.GetFileAsync(int.Parse(folder), uploads[upload]);
+                                if (file != null)
+                                {
+                                    success = true;
+                                }
                             }
                         }
                         if (success)

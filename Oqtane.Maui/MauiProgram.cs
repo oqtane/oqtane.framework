@@ -6,20 +6,16 @@ using Oqtane.Modules;
 using Oqtane.Services;
 using System.Globalization;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace Oqtane.Maui;
 
 public static class MauiProgram
 {
-    // the API service url
-    //static string apiurl = "https://www.dnfprojects.com"; // for testing
-    static string apiurl = "http://localhost:44357"; // for local development (Oqtane.Server must be already running for MAUI client to connect)
-
     public static MauiApp CreateMauiApp()
 	{
 		var builder = MauiApp.CreateBuilder();
-		builder
-			.UseMauiApp<App>()
+		builder.UseMauiApp<App>()
 			.ConfigureFonts(fonts =>
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -28,15 +24,21 @@ public static class MauiProgram
 		builder.Services.AddMauiBlazorWebView();
 		#if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();
-        #endif
+#endif
 
-        var httpClient = new HttpClient { BaseAddress = new Uri(apiurl) };
-        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(Shared.Constants.MauiUserAgent);
-        builder.Services.AddSingleton(httpClient);
-        builder.Services.AddHttpClient(); // IHttpClientFactory for calling remote services via RemoteServiceBase
+        var apiurl = LoadAppSettings(); 
 
-        // dynamically load client assemblies
-        LoadClientAssemblies(httpClient);
+        if (!string.IsNullOrEmpty(apiurl))
+        {
+            var httpClient = new HttpClient { BaseAddress = new Uri(GetBaseUrl(apiurl)) };
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(Shared.Constants.MauiUserAgent);
+            httpClient.DefaultRequestHeaders.Add(Shared.Constants.MauiAliasPath, GetUrlPath(apiurl).Replace("/", ""));
+            builder.Services.AddSingleton(httpClient);
+            builder.Services.AddHttpClient(); // IHttpClientFactory for calling remote services via RemoteServiceBase
+
+            // dynamically load client assemblies
+            LoadClientAssemblies(httpClient, apiurl);
+        }
 
         // register localization services
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
@@ -60,7 +62,37 @@ public static class MauiProgram
         return builder.Build();
 	}
 
-    private static void LoadClientAssemblies(HttpClient http)
+
+    private static string LoadAppSettings()
+    {
+        var url = MauiConstants.ApiUrl;
+        if (MauiConstants.UseAppSettings)
+        {
+            string file = Path.Combine(FileSystem.Current.AppDataDirectory, "appsettings.json");
+            if (File.Exists(file))
+            {
+                using FileStream stream = File.OpenRead(file);
+                using StreamReader reader = new StreamReader(stream);
+                var content = reader.ReadToEnd();
+                var obj = JsonSerializer.Deserialize<JsonObject>(content)!;
+                if (!string.IsNullOrEmpty((string)obj["Url"]))
+                {
+                    url = (string)obj["Url"];
+                }
+            }
+            else
+            {
+                // create template appsettings.json file
+                using (StreamWriter writer = File.CreateText(file))
+                {
+                    writer.WriteLine("{ \"Url\": \"\" }");
+                }
+            }
+        }
+        return url;
+    }
+
+    private static void LoadClientAssemblies(HttpClient http, string apiurl)
     {
         try
         {
@@ -84,7 +116,7 @@ public static class MauiProgram
             if (files.Count() != 0)
             {
                 // get list of assemblies from server
-                var json = Task.Run(() => http.GetStringAsync("/api/Installation/list")).GetAwaiter().GetResult();
+                var json = Task.Run(() => http.GetStringAsync($"{GetUrlPath(apiurl)}api/Installation/list")).GetAwaiter().GetResult();
                 var assemblies = JsonSerializer.Deserialize<List<string>>(json);
 
                 // determine which assemblies need to be downloaded
@@ -148,7 +180,7 @@ public static class MauiProgram
             if (list.Count != 0)
             {
                 // get assemblies from server
-                var zip = Task.Run(() => http.GetByteArrayAsync("/api/Installation/load?list=" + string.Join(",", list))).GetAwaiter().GetResult();
+                var zip = Task.Run(() => http.GetByteArrayAsync($"{GetUrlPath(apiurl)}api/Installation/load?list=" + string.Join(",", list))).GetAwaiter().GetResult();
 
                 // asemblies and debug symbols are packaged in a zip file
                 using (ZipArchive archive = new ZipArchive(new MemoryStream(zip)))
@@ -199,7 +231,7 @@ public static class MauiProgram
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Oqtane Error: Loading Client Assemblies {ex}");
+            Debug.WriteLine($"Error Loading Client Assemblies From {apiurl} - {ex}");
         }
     }
 
@@ -244,5 +276,18 @@ public static class MauiProgram
         {
             // could not interrogate assembly - likely missing dependencies
         }
+    }
+
+    private static string GetBaseUrl(string url)
+    {
+        var uri = new Uri(url);
+        return uri.Scheme + "://"+ uri.Authority + "/";
+    }
+
+    private static string GetUrlPath(string url)
+    {
+        var path = new Uri(url).AbsolutePath.Substring(1);
+        path = (!string.IsNullOrEmpty(path) && !path.EndsWith("/")) ? path + "/" : path;
+        return path;        
     }
 }

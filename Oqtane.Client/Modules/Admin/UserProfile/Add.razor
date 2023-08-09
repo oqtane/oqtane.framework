@@ -42,6 +42,12 @@
 
     public override string Title => "Send Notification";
 
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        base.SetModuleTitle(Localizer["ModuleTitle.Text"]);
+    }
+
     private async Task Send()
     {
         try

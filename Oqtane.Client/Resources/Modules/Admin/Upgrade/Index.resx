@@ -141,4 +141,10 @@
   <data name="Upload.Heading" xml:space="preserve">
     <value>Upload</value>
   </data>
+  <data name="Message.Text" xml:space="preserve">
+    <value>Framework Is Already Up To Date</value>
+  </data>
+  <data name="MessgeUpgrade.Text" xml:space="preserve">
+    <value>Upload A Framework Package (Oqtane.Framework.version.nupkg) And Then Select Upgrade</value>
+  </data>
 </root>

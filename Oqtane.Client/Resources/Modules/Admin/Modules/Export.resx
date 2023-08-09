@@ -132,4 +132,7 @@
   <data name="Success.Content.Export" xml:space="preserve">
     <value>Content Exported Successfully</value>
   </data>
+  <data name="ModuleTitle.Text" xml:space="preserve">
+    <value>Export Content</value>
+  </data>
 </root>

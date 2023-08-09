@@ -13,7 +13,7 @@
 }
 else
 {
-    <ActionLink Action="Add" Text="Install Theme" />
+    <ActionLink Action="Add" Text="Install Theme" ResourceKey="InstallTheme" />
     @((MarkupString)"&nbsp;")
     <ActionLink Action="Create" Text="Create Theme" ResourceKey="CreateTheme" Class="btn btn-secondary" />
 
@@ -49,7 +49,7 @@ else
                 }
             </td>
             <td>
-                @((MarkupString)SupportLink(context.PackageName))
+                @((MarkupString)SupportLink(context.PackageName, context.Version))
             </td>
             <td>
                 @((MarkupString)PurchaseLink(context.PackageName))
@@ -112,7 +112,7 @@ else
         return link;
     }
 
-    private string SupportLink(string packagename)
+    private string SupportLink(string packagename, string version)
     {
         string link = "";
         if (!string.IsNullOrEmpty(packagename) && _packages != null)
@@ -120,7 +120,7 @@ else
             var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
             if (package != null && !string.IsNullOrEmpty(package.SupportUrl))
             {
-                link += "<a class=\"btn btn-success\" style=\"text-decoration: none !important\" href=\"" + package.SupportUrl + "\" target=\"_new\">" + SharedLocalizer["Help"] + "</a>";
+                link += "<a class=\"btn btn-info\" style=\"text-decoration: none !important\" href=\"" + package.SupportUrl.Replace("{Version}", version) + "\" target=\"_new\">" + SharedLocalizer["Help"] + "</a>";
             }
         }
         return link;

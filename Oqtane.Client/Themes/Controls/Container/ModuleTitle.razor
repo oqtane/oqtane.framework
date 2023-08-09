@@ -2,6 +2,7 @@
 @namespace Oqtane.Themes.Controls
 @inherits ContainerBase      
 @attribute [OqtaneIgnore]
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <span class="app-moduletitle">
     @((MarkupString)title)
@@ -23,7 +24,7 @@
 		}
 		else
 		{
-			title = ModuleState.Title;
+            title = SharedLocalizer[ModuleState.Title];
 		}
 	}
 

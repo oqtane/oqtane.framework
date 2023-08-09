@@ -183,4 +183,16 @@
   <data name="ImageSizes.Text" xml:space="preserve">
     <value>Image Sizes:</value>
   </data>
+  <data name="FolderManagement.Title" xml:space="preserve">
+    <value>Folder Management!</value>
+  </data>
+  <data name="Private" xml:space="preserve">
+    <value>Private</value>
+  </data>
+  <data name="Public" xml:space="preserve">
+    <value>Public</value>
+  </data>
+  <data name="ModuleTitle.Text" xml:space="preserve">
+    <value>Folder Management</value>
+  </data>
 </root>

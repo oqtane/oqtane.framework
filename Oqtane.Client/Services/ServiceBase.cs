@@ -145,8 +145,17 @@ namespace Oqtane.Services
             {
                 return await response.Content.ReadFromJsonAsync<T>();
             }
-
             return default;
+        }
+
+        protected async Task<T> GetJsonAsync<T>(string uri, T defaultResult)
+        {
+            var response = await GetHttpClient().GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, CancellationToken.None);
+            if (await CheckResponse(response, uri) && ValidateJsonContent(response.Content))
+            {
+                return await response.Content.ReadFromJsonAsync<T>();
+            }
+            return defaultResult;
         }
 
         protected async Task PutAsync(string uri)
@@ -202,17 +211,27 @@ namespace Oqtane.Services
 
         private async Task<bool> CheckResponse(HttpResponseMessage response, string uri)
         {
-            if (response.IsSuccessStatusCode && uri.Contains("/api/") && !response.RequestMessage.RequestUri.AbsolutePath.Contains("/api/"))
+            if (response.IsSuccessStatusCode)
             {
-                await Log(uri, response.RequestMessage.Method.ToString(), response.StatusCode.ToString(), "Request {Uri} Not Mapped To An API Controller Method", uri);
+                // if response from api call is not from an api url then the route was not mapped correctly
+                if (uri.Contains("/api/") && !response.RequestMessage.RequestUri.AbsolutePath.Contains("/api/"))
+                {
+                    await Log(uri, response.RequestMessage.Method.ToString(), response.StatusCode.ToString(), "Request {Uri} Not Mapped To An API Controller Method", uri);
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (response.StatusCode != HttpStatusCode.NoContent && response.StatusCode != HttpStatusCode.NotFound)
+                {
+                    await Log(uri, response.RequestMessage.Method.ToString(), response.StatusCode.ToString(), "Request {Uri} Failed With Status {StatusCode} - {ReasonPhrase}", uri, response.StatusCode, response.ReasonPhrase);
+                }
                 return false;
             }
-            if (response.IsSuccessStatusCode) return true;
-            if (response.StatusCode != HttpStatusCode.NoContent && response.StatusCode != HttpStatusCode.NotFound)
-            {
-                await Log(uri, response.RequestMessage.Method.ToString(), response.StatusCode.ToString(), "Request {Uri} Failed With Status {StatusCode} - {ReasonPhrase}", uri, response.StatusCode, response.ReasonPhrase);
-            }
-            return false;
         }
 
         private static bool ValidateJsonContent(HttpContent content)

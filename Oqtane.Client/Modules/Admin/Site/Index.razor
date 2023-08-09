@@ -26,7 +26,7 @@
                 <Label Class="col-sm-3" For="homepage" HelpText="Select the home page for the site (to be used if there is no page with a path of '/')" ResourceKey="HomePage">Home Page: </Label>
                 <div class="col-sm-9">
                     <select id="homepage" class="form-select" @bind="@_homepageid" required>
-						<option value="-">&lt;@Localizer["Not Specified"]&gt;</option>
+                        <option value="-">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
                         @foreach (Page page in PageState.Pages)
                         {
 							if (UserSecurity.ContainsRole(page.PermissionList, PermissionNames.View, RoleNames.Everyone))
@@ -60,7 +60,7 @@
             </div>
         </div>
         <br />
-        <Section Name="Appearance" ResourceKey="Appearance">
+        <Section Name="Appearance" Heading="Appearance" ResourceKey="Appearance">
             <div class="container">
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="logo" HelpText="Specify a logo for the site" ResourceKey="Logo">Logo: </Label>

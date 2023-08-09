@@ -141,4 +141,7 @@
   <data name="Subject.Text" xml:space="preserve">
     <value>Subject: </value>
   </data>
+  <data name="ModuleTitle.Text" xml:space="preserve">
+    <value>Send Notification</value>
+  </data>
 </root>

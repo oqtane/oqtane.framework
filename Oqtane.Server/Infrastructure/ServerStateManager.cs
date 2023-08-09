@@ -5,7 +5,7 @@ using Oqtane.Models;
 namespace Oqtane.Infrastructure
 {
     // singleton
-    public class ServerStateManager
+    public class ServerStateManager : IServerStateManager
     {
         private List<ServerState> _serverStates { get; set; }
 
@@ -14,36 +14,19 @@ namespace Oqtane.Infrastructure
             _serverStates = new List<ServerState>();
         }
 
-        public ServerState GetServerState(int siteId)
+        public ServerState GetServerState(string siteKey)
         {
-            var serverState = _serverStates.FirstOrDefault(item => item.SiteId == siteId);
+            var serverState = _serverStates.FirstOrDefault(item => item.SiteKey == siteKey);
             if (serverState == null)
             {
                 serverState = new ServerState();
-                serverState.SiteId = siteId;
+                serverState.SiteKey = siteKey;
                 serverState.Assemblies = new List<string>();
                 serverState.Scripts = new List<Resource>();
-                return serverState;
-            }
-            else
-            {
-                return serverState;
-            }
-        }
-
-        public void SetServerState(int siteId, ServerState serverState)
-        {
-            var serverstate = _serverStates.FirstOrDefault(item => item.SiteId == siteId);
-            if (serverstate == null)
-            {
-                serverState.SiteId = siteId;
+                serverState.IsInitialized = false;
                 _serverStates.Add(serverState);
             }
-            else
-            {
-                serverstate.Assemblies = serverState.Assemblies;
-                serverstate.Scripts = serverState.Scripts;
-            }
+            return serverState;
         }
     }
 }

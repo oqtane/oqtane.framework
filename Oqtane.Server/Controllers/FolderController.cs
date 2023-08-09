@@ -43,7 +43,8 @@ namespace Oqtane.Controllers
             {
                 foreach (Folder folder in _folders.GetFolders(SiteId))
                 {
-                    if (_userPermissions.IsAuthorized(User, PermissionNames.View, folder.PermissionList))
+                    // note that Browse permission is used for this method
+                    if (_userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.PermissionList))
                     {
                         folders.Add(folder);
                     }
@@ -87,6 +88,7 @@ namespace Oqtane.Controllers
         public Folder GetByPath(int siteId, string path)
         {
             var folderPath = WebUtility.UrlDecode(path).Replace("\\", "/");
+            folderPath = (folderPath == "/") ? "" : folderPath;
             if (!folderPath.EndsWith("/") && folderPath != "")
             {
                 folderPath += "/";
