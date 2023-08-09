@@ -141,6 +141,9 @@
   <data name="CreateTheme.Text" xml:space="preserve">
     <value>Create Theme</value>
   </data>
+  <data name="InstallTheme.Text" xml:space="preserve">
+    <value>Install Theme</value>
+  </data>    
   <data name="ViewTheme.Text" xml:space="preserve">
     <value>View</value>
   </data>

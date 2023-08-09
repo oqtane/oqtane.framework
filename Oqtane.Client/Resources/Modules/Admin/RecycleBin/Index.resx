@@ -120,8 +120,14 @@
   <data name="DeleteModule.Header" xml:space="preserve">
     <value>Delete Module</value>
   </data>
+  <data name="DeleteModule.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
   <data name="DeletePage.Header" xml:space="preserve">
     <value>Delete Page</value>
+  </data>
+  <data name="DeletePage.Text" xml:space="preserve">
+    <value>Delete</value>
   </data>
   <data name="NoPage.Deleted" xml:space="preserve">
     <value>No Deleted Pages</value>

@@ -144,6 +144,9 @@
   <data name="DeleteModule.Header" xml:space="preserve">
     <value>Delete Module</value>
   </data>
+  <data name="DeleteModule.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
   <data name="InUse" xml:space="preserve">
     <value>In Use?</value>
   </data>
