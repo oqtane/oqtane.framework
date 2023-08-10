@@ -113,7 +113,7 @@
 			<button type="button" class="btn btn-success" @onclick="SaveModuleDefinition">@SharedLocalizer["Save"]</button>
 			<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 		</TabPanel>
-		<TabPanel Name="Translations" ResourceKey="Translations" Heading="Permissions">
+		<TabPanel Name="Translations" ResourceKey="Translations" Heading="Translations">
 			@if (_languages != null && _languages.Count > 0)
 			{
 				<Pager Items="@_languages">
