@@ -67,16 +67,19 @@
         if (!string.IsNullOrEmpty(content))
         {
             // format head content, remove scripts, and filter duplicate elements
-            var elements = (">" + content.Replace("\n", "") + "<").Split("><");
-            foreach (var element in elements)
+            content = content.Replace("\n", "");
+            var index = content.IndexOf("<");
+            while (index >= 0)
             {
-                if (!string.IsNullOrEmpty(element) && !element.ToLower().StartsWith("script"))
+                var element = content.Substring(index, content.IndexOf(">", index) - index + 1);
+                if (!string.IsNullOrEmpty(element) && !element.ToLower().StartsWith("<script"))
                 {
-                    if (!headcontent.Contains("<" + element + ">"))
+                    if (!headcontent.Contains(element))
                     {
-                        headcontent += "<" + element + ">" + "\n";
+                        headcontent += element + "\n";
                     }
                 }
+                index = content.IndexOf("<", index + 1);
             }
         }
         return headcontent;

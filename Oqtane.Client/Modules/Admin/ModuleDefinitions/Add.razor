@@ -96,7 +96,7 @@
                                             {
                                                 <button type="button" class="btn btn-primary" @onclick=@(async () => await GetPackage(context.PackageId, context.Version))>@SharedLocalizer["Download"]</button>
                                             }
-                                            @if (context.Price != null && !string.IsNullOrEmpty(context.PaymentUrl))
+                                            @if (context.Price != null && !string.IsNullOrEmpty(context.PaymentUrl) && string.IsNullOrEmpty(context.PackageUrl))
                                             {
                                                 <a class="btn btn-success ms-2" style="text-decoration: none !important" href="@context.PaymentUrl" target="_new">@SharedLocalizer["Buy"]</a>
                                             }
