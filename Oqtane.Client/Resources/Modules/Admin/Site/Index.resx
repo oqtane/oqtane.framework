@@ -312,6 +312,9 @@
   <data name="Database.HelpText" xml:space="preserve">
     <value>The type of database</value>
   </data>
+  <data name="DeleteSite.Header" xml:space="preserve">
+    <value>Delete Site</value>
+  </data>
   <data name="DeleteSite.Text" xml:space="preserve">
     <value>Delete Site</value>
   </data>
@@ -380,5 +383,11 @@
   </data>
   <data name="Version.Text" xml:space="preserve">
     <value>Version:</value>
+  </data>
+  <data name="DeleteAlias.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DeleteAlias.Header" xml:space="preserve">
+    <value>Delete Alias</value>
   </data>
 </root>
