@@ -405,4 +405,10 @@
   <data name="Search.RecentlyReleased" xml:space="preserve">
     <value>Recently Released</value>
   </data>
+  <data name="From" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="To" xml:space="preserve">
+    <value>To</value>
+  </data>
 </root>
