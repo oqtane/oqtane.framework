@@ -88,7 +88,7 @@
                                             @(context.Description.Length > 400 ? (context.Description.Substring(0, 400) + "...") : context.Description)<br />
                                             @if (context.Price != null && !string.IsNullOrEmpty(context.PaymentUrl))
                                             {
-                                                <small>@SharedLocalizer["Search.Price"]:</small> <strong>@context.Price.Value.ToString("$#,##0.00")</strong>
+                                                <small>@SharedLocalizer["From"]:</small> <strong>@context.Price.Value.ToString("$#,##0.00")</strong>
                                                 @((MarkupString)(context.TrialPeriod > 0 ? " <strong>(" + context.TrialPeriod + " Day Trial)</strong>" : ""))
                                             }
                                             <br />
