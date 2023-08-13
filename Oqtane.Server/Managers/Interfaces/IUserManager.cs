@@ -7,6 +7,7 @@ namespace Oqtane.Managers
     {
         User GetUser(int userid, int siteid);
         User GetUser(string username, int siteid);
+        User GetUser(string username, string email, int siteid);
         Task<User> AddUser(User user);
         Task<User> UpdateUser(User user);
         Task DeleteUser(int userid, int siteid);
