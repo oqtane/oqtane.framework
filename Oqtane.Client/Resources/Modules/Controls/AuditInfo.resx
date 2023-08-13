@@ -132,4 +132,7 @@
   <data name="Deleted" xml:space="preserve">
     <value>Deleted</value>
   </data>
+  <data name="DateTimeFormat" xml:space="preserve">
+    <value>MMM dd yyyy HH:mm:ss</value>
+  </data>
 </root>
