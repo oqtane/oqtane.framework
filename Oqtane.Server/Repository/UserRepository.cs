@@ -105,7 +105,21 @@ namespace Oqtane.Repository
 
         public User GetUser(string username)
         {
-            return _db.User.Where(item => item.Username == username).FirstOrDefault();
+            return GetUser(username, "");
+        }
+
+        public User GetUser(string username, string email)
+        {
+            User user = null;
+            if (!string.IsNullOrEmpty(username))
+            {
+                user = _db.User.Where(item => item.Username == username).FirstOrDefault();
+            }
+            if (user == null && !string.IsNullOrEmpty(email))
+            {
+                user = _db.User.Where(item => item.Email == email).FirstOrDefault();
+            }
+            return user;
         }
 
         public void DeleteUser(int userId)

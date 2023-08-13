@@ -51,7 +51,12 @@ namespace Oqtane.Managers
 
         public User GetUser(string username, int siteid)
         {
-            User user = _users.GetUser(username);
+            return GetUser(username, "", siteid);
+        }
+
+        public User GetUser(string username, string email, int siteid)
+        {
+            User user = _users.GetUser(username, email);
             if (user != null)
             {
                 user.SiteId = siteid;
