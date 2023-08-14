@@ -11,6 +11,7 @@ namespace Oqtane.Repository
         User GetUser(int userId);
         User GetUser(int userId, bool tracking);
         User GetUser(string username);
+        User GetUser(string username, string email);
         void DeleteUser(int userId);
     }
 }

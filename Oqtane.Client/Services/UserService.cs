@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Oqtane.Documentation;
 using System.Net;
+using System.ComponentModel.DataAnnotations;
 
 namespace Oqtane.Services
 {
@@ -21,7 +22,12 @@ namespace Oqtane.Services
 
         public async Task<User> GetUserAsync(string username, int siteId)
         {
-            return await GetJsonAsync<User>($"{Apiurl}/name/{username}?siteid={siteId}");
+            return await GetUserAsync(username, "", siteId);
+        }
+
+        public async Task<User> GetUserAsync(string username, string email, int siteId)
+        {
+            return await GetJsonAsync<User>($"{Apiurl}/name/{(!string.IsNullOrEmpty(username) ? username : "-")}/{(!string.IsNullOrEmpty(email) ? email : "-")}/?siteid={siteId}");
         }
 
         public async Task<User> AddUserAsync(User user)
