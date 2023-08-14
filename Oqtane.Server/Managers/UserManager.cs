@@ -143,7 +143,7 @@ namespace Oqtane.Managers
                 else
                 {
                     string url = alias.Protocol + alias.Name;
-                    string body = "Dear " + user.DisplayName + ",\n\nA User Account Has Been Successfully Created For You. Please Use The Following Link To Access The Site:\n\n" + url + "\n\nThank You!";
+                    string body = "Dear " + user.DisplayName + ",\n\nA User Account Has Been Successfully Created For You With The Username " + user.Username + ". Please Visit " + url + " And Use The Login Option To Sign In. If You Do Not Know Your Password, Use The Forgot Password Option On The Login Page To Reset Your Account.\n\nThank You!";
                     var notification = new Notification(user.SiteId, User, "User Account Notification", body);
                     _notifications.AddNotification(notification);
                 }
