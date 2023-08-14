@@ -130,7 +130,7 @@ namespace Oqtane.Infrastructure
                                 mailMessage.Subject = notification.Subject;
 
                                 //body
-                                mailMessage.Body = notification.Body;
+                                mailMessage.Body = notification.Body.Replace("\n", "<br />");
 
                                 // encoding
                                 mailMessage.SubjectEncoding = System.Text.Encoding.UTF8;
