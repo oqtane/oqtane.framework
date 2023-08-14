@@ -40,8 +40,6 @@
 
     protected override void OnParametersSet()
     {
-        DateTimeFormat = Localizer["DateTimeFormat"];
-
         _text = string.Empty;
         if (!String.IsNullOrEmpty(CreatedBy) || CreatedOn.HasValue)
         {
@@ -66,12 +64,12 @@
 
             if (!String.IsNullOrEmpty(ModifiedBy))
             {
-                _text += $" {Localizer["By"]} <b>{ModifiedBy}</b>";
+                _text += $" {Localizer["by"]} <b>{ModifiedBy}</b>";
             }
 
             if (ModifiedOn != null)
             {
-                _text += $" {Localizer["On"]} <b>{ModifiedOn.Value.ToString(DateTimeFormat)}</b>";
+                _text += $" {Localizer["on"]} <b>{ModifiedOn.Value.ToString(DateTimeFormat)}</b>";
             }
 
             _text += "</p>";
