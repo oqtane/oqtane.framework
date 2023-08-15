@@ -1,6 +1,7 @@
 @namespace Oqtane.Modules.Controls
 @using System.Text.Json
 @inherits LocalizableComponent
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_visible)
 {
@@ -20,7 +21,7 @@
                         {
                             <button type="button" class="@Class" @onclick="Confirm">@((MarkupString)_iconSpan) @Text</button>
                         }
-                        <button type="button" class="btn btn-secondary" @onclick="DisplayModal">@Localize("Cancel")</button>
+                        <button type="button" class="btn btn-secondary" @onclick="DisplayModal">@SharedLocalizer["Cancel"]</button>
                     </div>
                 </div>
             </div>

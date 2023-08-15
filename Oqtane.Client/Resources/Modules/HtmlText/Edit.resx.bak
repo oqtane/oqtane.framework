@@ -169,15 +169,15 @@
     <value>View</value>
   </data>
   <data name="Edit.Heading" xml:space="preserve">
-    <value>Edit</value>
+    <value>Edit2</value>
   </data>
   <data name="Versions.Heading" xml:space="preserve">
-    <value>Versions</value>
+    <value>Versions2</value>
   </data>
   <data name="HtmlEditor.Heading" xml:space="preserve">
-    <value>Raw HTML Editor</value>
+    <value>Raw HTML Editor2</value>
   </data>
     <data name="RichTextEditor.Heading" xml:space="preserve">
-    <value>Rich Text Editor</value>
+    <value>Rich Text Editor 2</value>
   </data>
 </root>

@@ -117,67 +117,76 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Confirm.Delete" xml:space="preserve">
-    <value>Are You Sure You Wish To Delete The {0} Version?</value>
+  <data name="ControlPanel" xml:space="preserve">
+    <value>Control Panel</value>
   </data>
-  <data name="Confirm.Restore" xml:space="preserve">
-    <value>Are You Sure You Wish To Restore The {0} Version?</value>
+  <data name="AdminDash" xml:space="preserve">
+    <value>Admin Dashboard</value>
   </data>
-  <data name="CreatedBy" xml:space="preserve">
-    <value>Created By</value>
+  <data name="Page.Unpublish" xml:space="preserve">
+    <value>Unpublish Page</value>
   </data>
-  <data name="CreatedOn" xml:space="preserve">
-    <value>Created On</value>
+  <data name="Page.Publish" xml:space="preserve">
+    <value>Publish Page</value>
   </data>
-  <data name="Delete.Header" xml:space="preserve">
-    <value>Delete Version</value>
+  <data name="Page.Delete" xml:space="preserve">
+    <value>Delete Page</value>
   </data>
-  <data name="Delete.Text" xml:space="preserve">
-    <value>Delete</value>
+  <data name="Module.AddNew" xml:space="preserve">
+    <value>Add New Module</value>
   </data>
-  <data name="Error.Content.Delete" xml:space="preserve">
-    <value>Error Deleting Version</value>
+  <data name="Module.AddExisting" xml:space="preserve">
+    <value>Add Existing Module</value>
   </data>
-  <data name="Error.Content.Load" xml:space="preserve">
-    <value>An Error Occurred Loading Content</value>
+  <data name="Modules" xml:space="preserve">
+    <value>Modules</value>
   </data>
-  <data name="Error.Content.Restore" xml:space="preserve">
-    <value>Error Restoring Version</value>
+  <data name="Page.Select" xml:space="preserve">
+    <value>Select Page</value>
   </data>
-  <data name="Error.Content.Save" xml:space="preserve">
-    <value>An Error Occurred Saving Content</value>
+  <data name="Page.Module.Add" xml:space="preserve">
+    <value>Add Module To Page</value>
   </data>
-  <data name="Error.Content.View" xml:space="preserve">
-    <value>Error Viewing Version</value>
+  <data name="Container" xml:space="preserve">
+    <value>Container:</value>
   </data>
-  <data name="Message.Content.Deleted" xml:space="preserve">
-    <value>Version Deleted</value>
+  <data name="Error.Authorize.No" xml:space="preserve">
+    <value>Not Authorized</value>
   </data>
-  <data name="Message.Content.Restored" xml:space="preserve">
-    <value>Version Restored</value>
+  <data name="Message.Require.ModuleSelect" xml:space="preserve">
+    <value>You Must Select A Module</value>
   </data>
-  <data name="ModuleTitle.Text" xml:space="preserve">
-    <value>Edit Html/Text</value>
+  <data name="Module.Manage" xml:space="preserve">
+    <value>Module Management:</value>
   </data>
-  <data name="Restore.Header" xml:space="preserve">
-    <value>Restore Version</value>
+  <data name="Module.Select" xml:space="preserve">
+    <value>Select Module</value>
   </data>
-  <data name="Restore.Text" xml:space="preserve">
-    <value>Restore</value>
+  <data name="Page.Manage" xml:space="preserve">
+    <value>Page Management:</value>
   </data>
-  <data name="View.Text" xml:space="preserve">
-    <value>View</value>
+  <data name="Pane" xml:space="preserve">
+    <value>Pane:</value>
   </data>
-  <data name="Edit.Heading" xml:space="preserve">
-    <value>Edit</value>
+  <data name="Success.Page.ModuleAdd" xml:space="preserve">
+    <value>Module Added to Page</value>
   </data>
-  <data name="Versions.Heading" xml:space="preserve">
-    <value>Versions</value>
+  <data name="Title" xml:space="preserve">
+    <value>Title:</value>
   </data>
-  <data name="HtmlEditor.Heading" xml:space="preserve">
-    <value>Raw HTML Editor</value>
+  <data name="System.Update" xml:space="preserve">
+    <value>Check For System Updates</value>
   </data>
-    <data name="RichTextEditor.Heading" xml:space="preserve">
-    <value>Rich Text Editor</value>
+  <data name="Visibility" xml:space="preserve">
+    <value>Visibility:</value>
+  </data>
+  <data name="VisibilityEdit" xml:space="preserve">
+    <value>Page Editors Only</value>
+  </data>
+  <data name="VisibilityView" xml:space="preserve">
+    <value>Same As Page</value>
+  </data>
+  <data name="Confirm.Page.Delete" xml:space="preserve">
+    <value>Are You Sure You Want To Delete This Page?2</value>
   </data>
 </root>
