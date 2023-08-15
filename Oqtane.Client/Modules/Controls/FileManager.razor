@@ -157,6 +157,15 @@
     [Parameter]
     public EventCallback<int> OnDelete { get; set; } // optional - executes a method in the calling component when a file is deleted
 
+    protected override void OnInitialized()
+    {
+        // create unique id for component
+        _guid = Guid.NewGuid().ToString("N");
+        _fileinputid = "FileInput_" + _guid;
+        _progressinfoid = "ProgressInfo_" + _guid;
+        _progressbarid = "ProgressBar_" + _guid;
+    }
+
     protected override async Task OnParametersSetAsync()
     {
         // packages folder is a framework folder for uploading installable nuget packages
@@ -222,12 +231,6 @@
         }
 
         await GetFiles();
-
-        // create unique id for component
-        _guid = Guid.NewGuid().ToString("N");
-        _fileinputid = "FileInput_" + _guid;
-        _progressinfoid = "ProgressInfo_" + _guid;
-        _progressbarid = "ProgressBar_" + _guid;
 
         _initialized = true;
     }
@@ -398,8 +401,8 @@
                     // reset progress indicators
                     if (ShowProgress)
                     {
-                        await interop.SetElementAttribute(_guid + "ProgressInfo", "style", "display: none;");
-                        await interop.SetElementAttribute(_guid + "ProgressBar", "style", "display: none;");
+                        await interop.SetElementAttribute(_progressinfoid, "style", "display: none;");
+                        await interop.SetElementAttribute(_progressbarid, "style", "display: none;");
                     }
                     else
                     {
@@ -435,6 +438,7 @@
                         {
                             FileId = file.FileId;
                             await SetImage();
+                            await OnSelect.InvokeAsync(FileId);
                             await OnUpload.InvokeAsync(FileId);
                         }
                         await GetFiles();
@@ -481,7 +485,8 @@
 			await GetFiles();
 			FileId = -1;
 			await SetImage();
-			StateHasChanged();
+            await OnSelect.InvokeAsync(FileId);
+            StateHasChanged();
 		}
 		catch (Exception ex)
 		{
