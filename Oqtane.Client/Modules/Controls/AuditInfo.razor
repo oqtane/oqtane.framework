@@ -64,12 +64,12 @@
 
             if (!String.IsNullOrEmpty(ModifiedBy))
             {
-                _text += $" {Localizer["by"]} <b>{ModifiedBy}</b>";
+                _text += $" {Localizer["By"]} <b>{ModifiedBy}</b>";
             }
 
             if (ModifiedOn != null)
             {
-                _text += $" {Localizer["on"]} <b>{ModifiedOn.Value.ToString(DateTimeFormat)}</b>";
+                _text += $" {Localizer["On"]} <b>{ModifiedOn.Value.ToString(DateTimeFormat)}</b>";
             }
 
             _text += "</p>";
