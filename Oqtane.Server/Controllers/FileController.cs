@@ -159,6 +159,48 @@ namespace Oqtane.Controllers
             }
         }
 
+        // POST api/<controller>
+        [HttpPost]
+        [Authorize(Roles = RoleNames.Registered)]
+        public Models.File Post([FromBody] Models.File file)
+        {
+            var folder = _folders.GetFolder(file.FolderId);
+            if (ModelState.IsValid && folder != null && folder.SiteId == _alias.SiteId)
+            {
+                if (_userPermissions.IsAuthorized(User, folder.SiteId, EntityNames.Folder, file.FolderId, PermissionNames.Edit))
+                {
+                    var filepath = _files.GetFilePath(file);
+                    if (System.IO.File.Exists(filepath))
+                    {
+                        file = CreateFile(file.Name, folder.FolderId, filepath);
+                        file = _files.AddFile(file);
+                        _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.File, file.FileId, SyncEventActions.Create);
+                        _logger.Log(LogLevel.Information, this, LogFunction.Create, "File Added {File}", file);
+                    }
+                    else
+                    {
+                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "File Does Not Exist At Path {FilePath}", filepath);
+                        HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                        file = null;
+                    }
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized File Post Attempt {File}", file);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    file = null;
+                }
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized File Post Attempt {File}", file);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                file = null;
+            }
+
+            return file;
+        }
+
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = RoleNames.Registered)]
