@@ -228,4 +228,10 @@
   <data name="Profile.Heading" xml:space="preserve">
     <value>Profile</value>
   </data>
+  <data name="ViewNotification.Text" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="DeleteNotification.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>    
 </root>

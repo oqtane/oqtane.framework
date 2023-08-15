@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -185,5 +185,8 @@
   </data>
   <data name="VisibilityView" xml:space="preserve">
     <value>Same As Page</value>
+  </data>
+  <data name="Confirm.Page.Delete" xml:space="preserve">
+    <value>Are You Sure You Want To Delete This Page?</value>
   </data>
 </root>

@@ -138,6 +138,9 @@
   <data name="DeleteTheme.Header" xml:space="preserve">
     <value>Delete Theme</value>
   </data>
+  <data name="DeleteTheme.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
   <data name="CreateTheme.Text" xml:space="preserve">
     <value>Create Theme</value>
   </data>
@@ -146,6 +149,9 @@
   </data>    
   <data name="ViewTheme.Text" xml:space="preserve">
     <value>View</value>
+  </data>
+  <data name="EditTheme.Text" xml:space="preserve">
+    <value>Edit</value>
   </data>
   <data name="Enabled" xml:space="preserve">
     <value>Enabled?</value>
