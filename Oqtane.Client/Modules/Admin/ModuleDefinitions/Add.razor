@@ -61,7 +61,7 @@
                             <div class="m-2 p-2 d-flex justify-content-center">
                                 <div class="container-fluid px-0">
                                     <div class="row g-0">
-                                        <div class="col-6">
+                                        <div class="col-4">
                                             @if (context.LogoFileId != null)
                                             {
                                                 <img src="@GetLogo(context.LogoFileId.Value)" class="img-fluid" alt="@context.Name" />
@@ -71,7 +71,7 @@
                                                 <img src="/package.png" class="img-fluid" alt="@context.Name" />
                                             }
                                         </div>
-                                        <div class="col-6 text-end">
+                                        <div class="col-8 text-end">
                                             <small>@SharedLocalizer["Search.Version"]:</small> <strong>@context.Version</strong>
                                             <br /><small>@SharedLocalizer["Search.Downloads"]:</small> <strong>@(String.Format("{0:n0}", context.Downloads))</strong>
                                             <br /><small>@SharedLocalizer["Search.Released"]:</small> <strong>@context.ReleaseDate.ToString("MM/dd/yyyy")</strong>
