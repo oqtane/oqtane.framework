@@ -9,6 +9,7 @@ using Oqtane.UI;
 using System.Collections.Generic;
 using Microsoft.JSInterop;
 using System.Linq;
+using System.Dynamic;
 
 namespace Oqtane.Modules
 {
@@ -280,13 +281,17 @@ namespace Oqtane.Modules
 
         public void SetModuleTitle(string title)
         {
-            var obj = new { PageModuleId = ModuleState.PageModuleId, Title = title };
+            dynamic obj = new ExpandoObject();
+            obj.PageModuleId = ModuleState.PageModuleId;
+            obj.Title = title;
             SiteState.Properties.ModuleTitle = obj;
         }
 
         public void SetModuleVisibility(bool visible)
         {
-            var obj = new { PageModuleId = ModuleState.PageModuleId, Visible = visible };
+            dynamic obj = new ExpandoObject();
+            obj.PageModuleId = ModuleState.PageModuleId;
+            obj.Visible = visible;
             SiteState.Properties.ModuleVisibility = obj;
         }
 
