@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -138,7 +138,7 @@
   <data name="Message.Required.ImportContent" xml:space="preserve">
     <value>You Must Enter Some Content To Import</value>
   </data>
-  <data name="ModuleTitle.Text" xml:space="preserve">
+  <data name="Import Content" xml:space="preserve">
     <value>Import Content</value>
   </data>
 </root>
