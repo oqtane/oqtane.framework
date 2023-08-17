@@ -12,7 +12,6 @@
 @inject IUrlMappingService UrlMappingService
 @inject ILogService LogService
 @inject IJSRuntime JSRuntime
-@inject IStringLocalizerFactory LocalizerFactory
 @implements IHandleAfterRender
 
 @if (!string.IsNullOrEmpty(_error))
@@ -465,8 +464,7 @@
                     // additional metadata needed for admin components
                     if (module.ModuleId == moduleid && action != "")
                     {
-                        var localizer = LocalizerFactory.Create(module.ModuleType);
-                        module.ControlTitle = localizer[moduleobject.Title];
+                        module.ControlTitle = moduleobject.Title;
                         module.SecurityAccessLevel = moduleobject.SecurityAccessLevel;
                         module.Actions = moduleobject.Actions;
                         module.UseAdminContainer = moduleobject.UseAdminContainer;
