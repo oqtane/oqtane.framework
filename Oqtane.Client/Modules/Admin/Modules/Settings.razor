@@ -130,11 +130,6 @@
     private string modifiedby;
     private DateTime modifiedon;
 
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-        base.SetModuleTitle(Localizer["ModuleTitle.Text"]);
-    }
     protected override void OnInitialized()
     {
         _module = ModuleState.ModuleDefinition.Name;

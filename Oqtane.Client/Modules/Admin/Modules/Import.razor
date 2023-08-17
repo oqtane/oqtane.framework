@@ -28,11 +28,6 @@
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
     public override string Title => "Import Content";
 
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-        base.SetModuleTitle(Localizer["ModuleTitle.Text"]);
-    }
     private async Task ImportModule()
     {
         validated = true;

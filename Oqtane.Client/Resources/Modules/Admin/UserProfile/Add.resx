@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -141,7 +141,7 @@
   <data name="Subject.Text" xml:space="preserve">
     <value>Subject: </value>
   </data>
-  <data name="ModuleTitle.Text" xml:space="preserve">
+  <data name="Send Notification" xml:space="preserve">
     <value>Send Notification</value>
   </data>
 </root>

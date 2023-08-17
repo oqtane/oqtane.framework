@@ -12,6 +12,7 @@
 @inject IUrlMappingService UrlMappingService
 @inject ILogService LogService
 @inject IJSRuntime JSRuntime
+@inject IStringLocalizerFactory LocalizerFactory
 @implements IHandleAfterRender
 
 @if (!string.IsNullOrEmpty(_error))
@@ -26,7 +27,7 @@
     private bool _isInternalNavigation = false;
     private bool _navigationInterceptionEnabled;
     private PageState _pagestate;
-    private string _error = "";
+    private string _error = "";    
 
     [Parameter]
     public string Runtime { get; set; }
@@ -387,6 +388,7 @@
     private (Page Page, List<Module> Modules) ProcessModules(Page page, List<Module> modules, int moduleid, string action, string defaultcontainertype, Alias alias)
     {
         var paneindex = new Dictionary<string, int>();
+
         foreach (Module module in modules)
         {
             // initialize module control properties
@@ -463,8 +465,9 @@
                     // additional metadata needed for admin components
                     if (module.ModuleId == moduleid && action != "")
                     {
+                        var localizer = LocalizerFactory.Create(module.ModuleType);
+                        module.ControlTitle = localizer[moduleobject.Title];
                         module.SecurityAccessLevel = moduleobject.SecurityAccessLevel;
-                        module.ControlTitle = moduleobject.Title;
                         module.Actions = moduleobject.Actions;
                         module.UseAdminContainer = moduleobject.UseAdminContainer;
                     }

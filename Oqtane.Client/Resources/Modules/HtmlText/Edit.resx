@@ -156,7 +156,7 @@
   <data name="Message.Content.Restored" xml:space="preserve">
     <value>Version Restored</value>
   </data>
-  <data name="ModuleTitle.Text" xml:space="preserve">
+  <data name="Edit Html/Text" xml:space="preserve">
     <value>Edit Html/Text</value>
   </data>
   <data name="Restore.Header" xml:space="preserve">
