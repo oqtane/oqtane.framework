@@ -23,9 +23,6 @@ namespace Oqtane.Infrastructure
             _serviceScopeFactory = serviceScopeFactory;
         }
 
-        // abstract method must be overridden
-        public abstract string ExecuteJob(IServiceProvider provider);
-
         // public properties which can be overridden and are used during auto registration of job
         public string Name { get; set; } = "";
         public string Frequency { get; set; } = "d"; // day
@@ -34,6 +31,17 @@ namespace Oqtane.Infrastructure
         public DateTime? EndDate { get; set; } = null;
         public int RetentionHistory { get; set; } = 10;
         public bool IsEnabled { get; set; } = false;
+
+        // one of the following methods must be overridden
+        public virtual string ExecuteJob(IServiceProvider provider)
+        {
+            return "";
+        }
+
+        public virtual Task<string> ExecuteJobAsync(IServiceProvider provider)
+        {
+            return Task.FromResult(string.Empty);
+        }
 
         protected async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -102,6 +110,7 @@ namespace Oqtane.Infrastructure
                                         // set tenant and execute job
                                         tenantManager.SetTenant(tenant.TenantId);
                                         notes += ExecuteJob(scope.ServiceProvider);
+                                        notes += await ExecuteJobAsync(scope.ServiceProvider);
                                     }
                                     log.Notes = notes;
                                     log.Succeeded = true;
