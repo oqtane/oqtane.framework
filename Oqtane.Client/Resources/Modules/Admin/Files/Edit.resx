@@ -178,7 +178,7 @@
     <value>Capacity:</value>
   </data>
   <data name="ImageSizes.HelpText" xml:space="preserve">
-    <value>Enter a list of image sizes which can be generated dynamically from uploaded images (ie. 200x200,x200,200x)</value>
+    <value>Enter a list of image sizes which can be generated dynamically from uploaded images (ie. 200x200,400x400). Use * to indicate the folder supports all image sizes.</value>
   </data>
   <data name="ImageSizes.Text" xml:space="preserve">
     <value>Image Sizes:</value>
