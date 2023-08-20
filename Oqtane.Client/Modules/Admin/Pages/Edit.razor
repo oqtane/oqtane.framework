@@ -4,7 +4,7 @@
 @inject NavigationManager NavigationManager
 @inject IPageService PageService
 @inject IPageModuleService PageModuleService
-@inject IThemeService  ThemeService
+@inject IThemeService ThemeService
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -27,16 +27,16 @@
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
                                 <div class="col-sm-9">
-                                        <select id="parent" class="form-select" value="@_parentid" @onchange="(e => ParentChanged(e))" required>
-                                            <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
-                                            @foreach (Page page in PageState.Pages)
+                                    <select id="parent" class="form-select" value="@_parentid" @onchange="(e => ParentChanged(e))" required>
+                                        <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
+                                        @foreach (Page page in PageState.Pages)
+                                        {
+                                            if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, page.PermissionList) && page.PageId != _pageId)
                                             {
-                                                if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, page.PermissionList) && page.PageId != _pageId)
-                                                {
-                                                    <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
-                                                }
+                                                <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
                                             }
-                                        </select>
+                                        }
+                                    </select>
                                 </div>
                             </div>
                             <div class="row mb-1 align-items-center">
@@ -124,7 +124,7 @@
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="icon" HelpText="Optionally provide an icon class name for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Label>
                             <div class="col-sm-9">
-                                <input id="icon" class="form-control" @bind="@_icon" maxlength="50" />
+                                <OIiconsSelector Value="@_icon" ValueChanged="IconChanged"/>
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
@@ -292,7 +292,7 @@
     private string _url;
     private string _ispersonalizable;
     private string _title;
-    private string _icon;
+    private string _icon { get; set; }
     private string _themetype;
     private string _containertype = "-";
     private Type _themeSettingsType;
@@ -660,4 +660,8 @@
         }
     }
 
+    private void IconChanged(string NewIcon)
+    {
+        _icon = NewIcon;
+    }
 }
