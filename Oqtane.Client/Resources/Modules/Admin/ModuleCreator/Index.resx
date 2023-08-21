@@ -130,16 +130,16 @@
     <value>Activate Module</value>
   </data>
   <data name="Info.Module.Creator" xml:space="preserve">
-    <value>Please Note That The Module Creator Is Only Intended To Be Used In A Development Environment</value>
+    <value>Please note that the module creator is only intended to be used in a development environment</value>
   </data>
   <data name="Info.Module.Activate" xml:space="preserve">
-    <value>Once You Have Compiled The Module And Restarted The Application You Can Activate The Module Below</value>
+    <value>Once you have compiled the Module and restarted the application you can activate the module below</value>
   </data>
   <data name="Success.Module.Create" xml:space="preserve">
-    <value>The Source Code For Your Module Has Been Created At The Location Specified Below And Must Be Compiled In Order To Make It Functional. Once It Has Been Compiled You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Apply These Changes.</value>
+    <value>The source code for your Module has been created at the location specified below and must be compiled In order to make It functional. Once It has been compiled you must &lt;a href={0}&gt;Restart&lt;/a&gt; your application to apply these changes.</value>
   </data>
   <data name="Message.Require.ValidName" xml:space="preserve">
-    <value>You Must Provide A Valid Owner Name And Module Name ( ie. No Punctuation Or Spaces And The Values Cannot Be The Same ) And Choose A Template</value>
+    <value>You must provide a valid owner name and module name ( ie. no punctuation or spaces and the values cannot be the same ) and choose a template</value>
   </data>
   <data name="OwnerName.HelpText" xml:space="preserve">
     <value>Enter the name of the organization who is developing this module. It should not contain spaces or punctuation.</value>
