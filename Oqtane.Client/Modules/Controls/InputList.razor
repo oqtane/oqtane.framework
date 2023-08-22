@@ -1,0 +1,31 @@
+@namespace Oqtane.Modules.Controls
+@using System.Linq.Expressions;
+@inherits ModuleControlBase
+<input type="text" value="@Value" list="Dictionarylist" class="form-select" @onchange="(e => OnChange(e))" />
+<datalist id="Dictionarylist" value="@Value">
+    @foreach(var iv in InputValues)
+    {
+        <option value="@iv.Value">@iv.Key</option>
+    }
+</datalist>
+
+@code {
+    [Parameter]
+    public string Value { get; set; }
+    [EditorRequired]
+    [Parameter]    
+    public Dictionary<string, string> InputValues { get; set; }
+    [EditorRequired]
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    protected void OnChange(ChangeEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e.Value.ToString())) { return; }
+        Value = e.Value.ToString();
+        if (ValueChanged.HasDelegate)
+        {
+            ValueChanged.InvokeAsync(Value);
+        }
+    }
+}

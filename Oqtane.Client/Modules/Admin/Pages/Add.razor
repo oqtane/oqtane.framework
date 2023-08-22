@@ -112,7 +112,7 @@
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="icon" HelpText="Optionally provide an icon class name for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Label>
                         <div class="col-sm-9">
-                            <input id="icon" class="form-control" @bind="@_icon" />
+                            <InputList Value="@_icon" ValueChanged="IconChanged" InputValues="@IconList" />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
@@ -215,7 +215,7 @@
     private string _url;
     private string _ispersonalizable = "False";
     private string _title;
-    private string _icon = string.Empty;
+    private string _icon { get; set; } = string.Empty;
     private string _themetype = string.Empty;
     private string _containertype = string.Empty;
     private string _headcontent;
@@ -227,6 +227,7 @@
     private RenderFragment ThemeSettingsComponent { get; set; }
     private bool _refresh = false;
     protected Page _parent = null;
+    protected Dictionary<string, string> IconList = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -239,6 +240,20 @@
                 if (_parent != null)
                 {
                     _parentid = _parent.PageId.ToString();
+                }
+            }
+
+            Type iconsType = typeof(Icons);
+            System.Reflection.FieldInfo[] fields = iconsType.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.GetField);
+
+            foreach (System.Reflection.FieldInfo field in fields)
+            {
+                if (field.FieldType == typeof(string))
+                {
+                    string fieldName = field.Name;
+                    string fieldValue = (string)field.GetValue(null);
+
+                    IconList.Add(fieldName, fieldValue);
                 }
             }
 
@@ -481,5 +496,9 @@
         {
             NavigationManager.NavigateTo(NavigateUrl());
         }
+    }
+    private void IconChanged(string NewIcon)
+    {
+        _icon = NewIcon;
     }
 }
