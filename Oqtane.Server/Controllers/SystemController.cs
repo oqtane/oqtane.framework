@@ -74,7 +74,6 @@ namespace Oqtane.Controllers
             return systeminfo;
         }
 
-
         // GET: api/<controller>
         [HttpGet("{key}/{value}")]
         [Authorize(Roles = RoleNames.Host)]
@@ -92,6 +91,36 @@ namespace Oqtane.Controllers
             {
                 UpdateSetting(kvp.Key, kvp.Value);
             }
+        }
+
+        // GET: api/<controller>/icons
+        [HttpGet("icons")]
+        public Dictionary<string, string> Get()
+        {
+            var icons = new Dictionary<string, string>();
+
+            // use reflection to get list of icons from Icons class
+            Type iconsType = typeof(Icons);
+            System.Reflection.FieldInfo[] fields = iconsType.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.GetField);
+            foreach (System.Reflection.FieldInfo field in fields)
+            {
+                if (field.FieldType == typeof(string))
+                {
+                    // add spacing between words based on capitalization
+                    var name = "";
+                    for (int index = 0; index < field.Name.Length; index++)
+                    {
+                        name += ((index > 0 && field.Name[index] == Char.ToUpper(field.Name[index])) ? " " : "") + field.Name[index];
+                    }
+
+                    string fieldName = name;
+                    string fieldValue = (string)field.GetValue(null);
+
+                    icons.Add(fieldName, fieldValue);
+                }
+            }
+
+            return icons;
         }
 
         private void UpdateSetting(string key, object value)

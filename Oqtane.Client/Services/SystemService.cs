@@ -33,5 +33,10 @@ namespace Oqtane.Services
         {
             await PostJsonAsync(Apiurl, settings);
         }
+
+        public async Task<Dictionary<string, string>> GetIconsAsync()
+        {
+            return await GetJsonAsync<Dictionary<string, string>>($"{Apiurl}/icons");
+        }
     }
 }
