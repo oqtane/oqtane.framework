@@ -142,10 +142,10 @@ namespace Oqtane.Repository
                 if (moduledefinition == null)
                 {
                     // new module definition
-                    moduledefinition = new ModuleDefinition { ModuleDefinitionName = ModuleDefinition.ModuleDefinitionName };
+                    moduledefinition = new ModuleDefinition { ModuleDefinitionName = ModuleDefinition.ModuleDefinitionName, Version = ModuleDefinition.Version };
                     _db.ModuleDefinition.Add(moduledefinition);
                     _db.SaveChanges();
-                    ModuleDefinition.Version = "";
+                    ModuleDefinition.Version = ""; // ensure migrations are executed during startup
                 }
                 else
                 {
@@ -153,16 +153,18 @@ namespace Oqtane.Repository
                     ModuleDefinition.Name = (!string.IsNullOrEmpty(moduledefinition.Name)) ? moduledefinition.Name : ModuleDefinition.Name;
                     ModuleDefinition.Description = (!string.IsNullOrEmpty(moduledefinition.Description)) ? moduledefinition.Description : ModuleDefinition.Description;
                     ModuleDefinition.Categories = (!string.IsNullOrEmpty(moduledefinition.Categories)) ? moduledefinition.Categories : ModuleDefinition.Categories;
-                    // manage releaseversions in cases where it was not provided or is lower than the module version
-                    if (string.IsNullOrEmpty(ModuleDefinition.ReleaseVersions) || Version.Parse(ModuleDefinition.Version).CompareTo(Version.Parse(ModuleDefinition.ReleaseVersions.Split(',').Last())) > 0)
-                    {
-                        ModuleDefinition.ReleaseVersions = ModuleDefinition.Version;
-                    }
-                    ModuleDefinition.Version = moduledefinition.Version;
+
                     // remove module definition from list as it is already synced
                     moduledefinitions.Remove(moduledefinition);
                 }
 
+                // manage releaseversions in cases where it was not provided or is lower than the module version
+                if (string.IsNullOrEmpty(ModuleDefinition.ReleaseVersions) || Version.Parse(ModuleDefinition.Version).CompareTo(Version.Parse(ModuleDefinition.ReleaseVersions.Split(',').Last())) > 0)
+                {
+                    ModuleDefinition.ReleaseVersions = ModuleDefinition.Version;
+                }
+
+                // load db properties
                 ModuleDefinition.ModuleDefinitionId = moduledefinition.ModuleDefinitionId;
                 ModuleDefinition.CreatedBy = moduledefinition.CreatedBy;
                 ModuleDefinition.CreatedOn = moduledefinition.CreatedOn;
