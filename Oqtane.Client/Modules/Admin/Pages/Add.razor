@@ -111,8 +111,11 @@
                     </div>
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="icon" HelpText="Optionally provide an icon class name for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Label>
-                        <div class="col-sm-9">
+                        <div class="col-sm-8">
                             <InputList Value="@_icon" ValueChanged="IconChanged" InputValues="@IconList" />
+                        </div>
+                        <div class="col-sm-1">
+                            <i class="@_icon"></i>
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
