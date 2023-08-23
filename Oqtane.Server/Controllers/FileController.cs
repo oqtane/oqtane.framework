@@ -679,29 +679,43 @@ namespace Oqtane.Controllers
                         Enum.TryParse(mode, true, out ResizeMode resizemode);
                         Enum.TryParse(position, true, out AnchorPositionMode anchorpositionmode);
 
-                        image.Mutate(x => x
-                            .AutoOrient() // auto orient the image
-                            .Rotate(angle)
-                            .Resize(new ResizeOptions
-                            {
-                                Mode = resizemode,
-                                Position = anchorpositionmode,
-                                Size = new Size(width, height)
-                            }));
+                        PngEncoder encoder;
 
                         if (background != "transparent")
                         {
                             image.Mutate(x => x
-                                .BackgroundColor(Color.ParseHex("#" + background)));
-                        }
+                                .AutoOrient() // auto orient the image
+                                .Rotate(angle)
+                                .Resize(new ResizeOptions
+                                {
+                                    Mode = resizemode,
+                                    Position = anchorpositionmode,
+                                    Size = new Size(width, height),
+                                    PadColor = Color.ParseHex("#" + background)
+                                }));
 
-                        PngEncoder encoder = new PngEncoder
+                            encoder = new PngEncoder();
+                        }
+                        else
                         {
-                            ColorType = PngColorType.RgbWithAlpha,
-                            TransparentColorMode = PngTransparentColorMode.Preserve,
-                            BitDepth = PngBitDepth.Bit8,
-                            CompressionLevel = PngCompressionLevel.BestSpeed
-                        };
+                            image.Mutate(x => x
+                                .AutoOrient() // auto orient the image
+                                .Rotate(angle)
+                                .Resize(new ResizeOptions
+                                {
+                                    Mode = resizemode,
+                                    Position = anchorpositionmode,
+                                    Size = new Size(width, height)
+                                }));
+
+                            encoder = new PngEncoder
+                            {
+                                ColorType = PngColorType.RgbWithAlpha,
+                                TransparentColorMode = PngTransparentColorMode.Preserve,
+                                BitDepth = PngBitDepth.Bit8,
+                                CompressionLevel = PngCompressionLevel.BestSpeed
+                            };
+                        }
 
                         image.Save(imagepath, encoder);
                     }
