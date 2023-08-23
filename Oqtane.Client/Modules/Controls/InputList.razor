@@ -1,23 +1,34 @@
 @namespace Oqtane.Modules.Controls
 @using System.Linq.Expressions;
-@inherits ModuleControlBase
-<input type="text" value="@Value" list="Dictionarylist" class="form-select" @onchange="(e => OnChange(e))" />
-<datalist id="Dictionarylist" value="@Value">
-    @foreach(var iv in InputValues)
+@inherits LocalizableComponent
+
+<input type="text" value="@Value" list="@_id" class="form-select" @onchange="(e => OnChange(e))" />
+<datalist id="@_id" value="@Value">
+    @foreach(var kvp in DataList)
     {
-        <option value="@iv.Value">@iv.Key</option>
+        <option value="@kvp.Value">@Localize(kvp.Key, kvp.Key)</option>
     }
 </datalist>
 
 @code {
+    private string _id;
+
     [Parameter]
     public string Value { get; set; }
+
     [EditorRequired]
     [Parameter]    
-    public Dictionary<string, string> InputValues { get; set; }
+    public Dictionary<string, string> DataList { get; set; }
+
     [EditorRequired]
     [Parameter]
     public EventCallback<string> ValueChanged { get; set; }
+
+    protected override void OnInitialized()
+    {
+        // create unique id for component
+        _id = "DataList_" + Guid.NewGuid().ToString("N");
+    }
 
     protected void OnChange(ChangeEventArgs e)
     {
