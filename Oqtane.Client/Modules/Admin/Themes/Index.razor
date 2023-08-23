@@ -100,11 +100,14 @@ else
             if (package != null)
             {
                 if (package.ExpiryDate != null && package.ExpiryDate.Value.Date != DateTime.MaxValue.Date)
-                {
-                    link += "<span>" + package.ExpiryDate.Value.Date.ToString("MMM dd, yyyy") + "</span><br />";
-                    if (!string.IsNullOrEmpty(package.PaymentUrl))
+                { 
+                    if (string.IsNullOrEmpty(package.PaymentUrl))
                     {
-                        link += "&nbsp;&nbsp;<a class=\"btn btn-primary\" style=\"text-decoration: none !important\" href=\"" + package.PaymentUrl + "\" target=\"_new\">" + SharedLocalizer["Extend"] + "</a>";
+                        link = "<span>" + package.ExpiryDate.Value.Date.ToString("MMM dd, yyyy") + "</span>";
+                    }
+                    else
+                    {
+                        link = "<a class=\"btn btn-primary\" style=\"text-decoration: none !important\" href=\"" + package.PaymentUrl + "\" target=\"_new\">" + package.ExpiryDate.Value.Date.ToString("MMM dd, yyyy") + "</a>";
                     }
                 }
             }
