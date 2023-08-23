@@ -45,7 +45,7 @@
     private string _passwordType = "password";
     private string _togglePassword = string.Empty;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
 	{
         _togglePassword = SharedLocalizer["ShowPassword"];
     }

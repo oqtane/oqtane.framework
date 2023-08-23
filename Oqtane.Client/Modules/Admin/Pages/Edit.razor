@@ -5,6 +5,7 @@
 @inject IPageService PageService
 @inject IPageModuleService PageModuleService
 @inject IThemeService  ThemeService
+@inject ISystemService SystemService
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -124,7 +125,7 @@
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="icon" HelpText="Optionally provide an icon class name for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Label>
                             <div class="col-sm-8">
-                                <InputList Value="@_icon" ValueChanged="IconChanged" InputValues="@IconList" />
+                                <InputList Value="@_icon" ValueChanged="IconChanged" InputValues="@_icons" />
                             </div>
                             <div class="col-sm-1">
                                 <i class="@_icon"></i>
@@ -295,7 +296,7 @@
     private string _url;
     private string _ispersonalizable;
     private string _title;
-    private string _icon { get; set; }
+    private string _icon;
     private string _themetype;
     private string _containertype = "-";
     private Type _themeSettingsType;
@@ -315,7 +316,8 @@
     private bool _refresh = false;
     protected Page _page = null;
     protected Page _parent = null;
-    protected Dictionary<string, string> IconList = new();
+    protected Dictionary<string, string> _icons;
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -323,6 +325,7 @@
             _children = PageState.Pages.Where(item => item.ParentId == null).ToList();
             _pageId = Int32.Parse(PageState.QueryString["id"]);
             _page = await PageService.GetPageAsync(_pageId);
+            _icons = await SystemService.GetIconsAsync();
 
             if (_page != null && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, _page.PermissionList))
             {
@@ -354,20 +357,6 @@
                 _url = _page.Url;
                 _icon = _page.Icon;
                 _ispersonalizable = _page.IsPersonalizable.ToString();
-
-                Type iconsType = typeof(Icons);
-                System.Reflection.FieldInfo[] fields = iconsType.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.GetField);
-
-                foreach (System.Reflection.FieldInfo field in fields)
-                {
-                    if (field.FieldType == typeof(string))
-                    {
-                        string fieldName = field.Name;
-                        string fieldValue = (string)field.GetValue(null);
-
-                        IconList.Add(fieldName, fieldValue);
-                    }
-                }
 
                 // appearance
                 _title = _page.Title;

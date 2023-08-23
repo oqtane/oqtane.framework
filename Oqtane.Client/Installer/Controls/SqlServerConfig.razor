@@ -75,7 +75,7 @@
     private string _encryption = "false";
     private string _trustservercertificate = "false";
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
 	{
         _togglePassword = SharedLocalizer["ShowPassword"];
     }
