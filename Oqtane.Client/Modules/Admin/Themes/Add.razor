@@ -63,9 +63,9 @@
                                 <div class="container-fluid px-0">
                                     <div class="row g-0 mb-2">
                                         <div class="col-4">
-                                            @if (context.LogoFileId != null)
+                                            @if (context.LogoUrl != null)
                                             {
-                                                <img src="@GetLogo(context.LogoFileId.Value)" class="img-fluid" alt="@context.Name" />
+                                                <img src="@context.LogoUrl" class="img-fluid" alt="@context.Name" />
                                             }
                                             else
                                             {
@@ -210,13 +210,6 @@
         }
 
         HideProgressIndicator();
-    }
-
-    private string GetLogo(int fileid)
-    {
-        var url = ImageUrl(fileid, 100, 100);
-        url = (!string.IsNullOrEmpty(PageState.Alias.Path)) ? url.Substring(PageState.Alias.Path.Length + 1) : url;
-        return Constants.PackageRegistryUrl + url;
     }
 
     private async void PriceChanged(string price)

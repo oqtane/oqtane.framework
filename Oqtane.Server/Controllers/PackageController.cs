@@ -38,14 +38,15 @@ namespace Oqtane.Controllers
         {
             // get packages
             List<Package> packages = new List<Package>();
-            if (bool.Parse(_configManager.GetSetting("PackageService", "true")) == true)
+            var url = _configManager.GetSetting("PackageRegistryUrl", Constants.PackageRegistryUrl);
+            if (!string.IsNullOrEmpty(url))
             {
                 using (var client = new HttpClient())
                 {
                     client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
                     client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
-                    packages = await GetJson<List<Package>>(client, Constants.PackageRegistryUrl + $"/api/registry/packages/?id={_configManager.GetInstallationId()}&type={type.ToLower()}&version={Constants.Version}&search={search}&price={price}&package={package}&sort={sort}");
-                 }
+                    packages = await GetJson<List<Package>>(client, url + $"/api/registry/packages/?id={_configManager.GetInstallationId()}&type={type.ToLower()}&version={Constants.Version}&search={search}&price={price}&package={package}&sort={sort}");
+                }
             }
             return packages;
         }
@@ -56,14 +57,15 @@ namespace Oqtane.Controllers
         {
             // get package info
             Package package = null;
-            if (bool.Parse(_configManager.GetSetting("PackageService", "true")) == true)
+            var url = _configManager.GetSetting("PackageRegistryUrl", Constants.PackageRegistryUrl);
+            if (!string.IsNullOrEmpty(url))
             {
                 var download = (string.IsNullOrEmpty(folder)) ? "false" : "true";
                 using (var client = new HttpClient())
                 {
                     client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
                     client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
-                    package = await GetJson<Package>(client, Constants.PackageRegistryUrl + $"/api/registry/package/?id={_configManager.GetInstallationId()}&package={packageid}&version={version}&download={download}");
+                    package = await GetJson<Package>(client, url + $"/api/registry/package/?id={_configManager.GetInstallationId()}&package={packageid}&version={version}&download={download}");
                 }
 
                 if (package != null)

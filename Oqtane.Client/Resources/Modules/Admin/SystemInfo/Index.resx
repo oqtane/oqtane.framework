@@ -213,17 +213,17 @@
   <data name="Log.Heading" xml:space="preserve">
     <value>Log</value>
   </data>
-    <data name="Register" xml:space="preserve">
+  <data name="Register" xml:space="preserve">
     <value>Please Register Me For Major Product Updates And Security Bulletins</value>
   </data>
   <data name="Success.Register" xml:space="preserve">
     <value>You Have Been Successfully Registered For Updates</value>
   </data>
-  <data name="PackageService.HelpText" xml:space="preserve">
-    <value>Specify If The Package Service Is Enabled For Installing Modules, Themes, And Translations</value>
+  <data name="PackageManager.HelpText" xml:space="preserve">
+    <value>Specify The Package Manager Service For Installing Modules, Themes, And Translations. If This Field Is Blank It Means The Package Manager Service Is Disabled For This Installation.</value>
   </data>
-  <data name="PackageService.Text" xml:space="preserve">
-    <value>Package Service Enabled?</value>
+  <data name="PackageManager.Text" xml:space="preserve">
+    <value>Package Manager:</value>
   </data>
   <data name="Swagger.HelpText" xml:space="preserve">
     <value>Specify If Swagger Is Enabled For Your Server API</value>
