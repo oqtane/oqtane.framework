@@ -145,7 +145,7 @@ namespace Oqtane.Repository
                     moduledefinition = new ModuleDefinition { ModuleDefinitionName = ModuleDefinition.ModuleDefinitionName, Version = ModuleDefinition.Version };
                     _db.ModuleDefinition.Add(moduledefinition);
                     _db.SaveChanges();
-                    ModuleDefinition.Version = ""; // ensure migrations are executed during startup
+                    ModuleDefinition.Version = ""; // ensure migrations are executed during startup for new module installations
                 }
                 else
                 {
@@ -159,7 +159,7 @@ namespace Oqtane.Repository
                 }
 
                 // manage releaseversions in cases where it was not provided or is lower than the module version
-                if (string.IsNullOrEmpty(ModuleDefinition.ReleaseVersions) || Version.Parse(ModuleDefinition.Version).CompareTo(Version.Parse(ModuleDefinition.ReleaseVersions.Split(',').Last())) > 0)
+                if (string.IsNullOrEmpty(ModuleDefinition.ReleaseVersions) || (!string.IsNullOrEmpty(ModuleDefinition.Version) && Version.Parse(ModuleDefinition.Version).CompareTo(Version.Parse(ModuleDefinition.ReleaseVersions.Split(',').Last())) > 0))
                 {
                     ModuleDefinition.ReleaseVersions = ModuleDefinition.Version;
                 }
