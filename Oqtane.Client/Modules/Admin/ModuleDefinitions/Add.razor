@@ -28,6 +28,7 @@
                     <input id="search" class="form-control" placeholder="@SharedLocalizer["Search.Hint"]" @bind="@_search" />
                     <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>
                     <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
+                    <button type="button" class="btn btn-primary ms-2" @onclick="Refresh"><span class="@Icons.Reload" aria-hidden="true"></span></button>
                 </div>
             </div>
         </div>
@@ -56,11 +57,11 @@
                             </select>
                         </div>
                     </div>
-                    <Pager Format="Grid" Items="@_packages" DisplayPages="1" PageSize="9" Toolbar="Both" Class="container-fluid px-0" RowClass="row g-0" ColumnClass="col-lg-4 col-md-6">
+                    <Pager Format="Grid" Items="@_packages" DisplayPages="1" PageSize="9" Toolbar="Both" Class="container-fluid px-0" RowClass="row g-0" ColumnClass="col-lg-4 col-md-6"  CurrentPage="@_page.ToString()" OnPageChange="OnPageChange">
                         <Row>
                             <div class="m-2 p-2 d-flex justify-content-center">
                                 <div class="container-fluid px-0">
-                                    <div class="row g-0">
+                                    <div class="row g-0 mb-2">
                                         <div class="col-4">
                                             @if (context.LogoFileId != null)
                                             {
@@ -162,6 +163,7 @@
 
 @code {
     private bool _initialized = false;
+    private int _page = 1;
     private List<Package> _packages;
     private string _price = "free";
     private string _sort = "popularity";
@@ -224,27 +226,24 @@
 
     private async Task Search()
     {
-        try
-        {
-            await LoadModuleDefinitions();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error On Search");
-        }
+        await LoadModuleDefinitions();
     }
 
     private async Task Reset()
     {
-        try
-        {
-            _search = "";
-            await LoadModuleDefinitions();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error On Reset");
-        }
+        _page = 1;
+        _search = "";
+        await LoadModuleDefinitions();
+    }
+
+    private async Task Refresh()
+    {
+        await LoadModuleDefinitions();
+    }
+
+    private void OnPageChange(int page)
+    {
+        _page = page;
     }
 
     private async void SortChanged(ChangeEventArgs e)
