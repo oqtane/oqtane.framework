@@ -106,17 +106,7 @@ namespace Oqtane.Controllers
             {
                 if (field.FieldType == typeof(string))
                 {
-                    // add spacing between words based on capitalization
-                    var name = "";
-                    for (int index = 0; index < field.Name.Length; index++)
-                    {
-                        name += ((index > 0 && field.Name[index] == Char.ToUpper(field.Name[index])) ? " " : "") + field.Name[index];
-                    }
-
-                    string fieldName = name;
-                    string fieldValue = (string)field.GetValue(null);
-
-                    icons.Add(fieldName, fieldValue);
+                    icons.Add((string)field.GetValue(null), field.Name); // ie. ("oi oi-home", "Home")
                 }
             }
 

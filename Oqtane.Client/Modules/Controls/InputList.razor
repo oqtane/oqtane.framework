@@ -1,12 +1,18 @@
 @namespace Oqtane.Modules.Controls
-@using System.Linq.Expressions;
 @inherits LocalizableComponent
 
-<input type="text" value="@Value" list="@_id" class="form-select" @onchange="(e => OnChange(e))" />
+<input type="text" value="@Value" list="@_id" class="form-control" @onchange="(e => OnChange(e))" />
 <datalist id="@_id" value="@Value">
     @foreach(var kvp in DataList)
     {
-        <option value="@kvp.Value">@Localize(kvp.Key, kvp.Key)</option>
+        if (!string.IsNullOrEmpty(kvp.Value))
+        {
+            <option value="@kvp.Key">@Localize(kvp.Value, kvp.Value)</option>
+        }
+        else
+        {
+            <option value="@kvp.Key">@Localize(kvp.Key, kvp.Key)</option>
+        }
     }
 </datalist>
 
@@ -32,11 +38,13 @@
 
     protected void OnChange(ChangeEventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(e.Value.ToString())) { return; }
-        Value = e.Value.ToString();
-        if (ValueChanged.HasDelegate)
+        if (!string.IsNullOrEmpty(e.Value.ToString()))
         {
-            ValueChanged.InvokeAsync(Value);
+            Value = e.Value.ToString();
+            if (ValueChanged.HasDelegate)
+            {
+                ValueChanged.InvokeAsync(Value);
+            }
         }
     }
 }
