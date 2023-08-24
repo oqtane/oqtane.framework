@@ -133,12 +133,9 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="packageservice" HelpText="Specify If The Package Service Is Enabled For Installing Modules, Themes, And Translations" ResourceKey="PackageService">Enable Package Service? </Label>
+                <Label Class="col-sm-3" For="packageregistryurl" HelpText="Specify The Package Manager Service For Installing Modules, Themes, And Translations. If This Field Is Blank It Means The Package Manager Service Is Disabled For This Installation." ResourceKey="PackageManager">Package Manager: </Label>
                 <div class="col-sm-9">
-                    <select id="packageservice" class="form-select" @bind="@_packageservice">
-                        <option value="true">@SharedLocalizer["True"]</option>
-                        <option value="false">@SharedLocalizer["False"]</option>
-                    </select>
+                    <input id="packageregistryurl" class="form-control" @bind="@_packageregistryurl" />
                 </div>
             </div>
         </div>
@@ -182,7 +179,7 @@
 	private string _logginglevel = string.Empty;
 	private string _notificationlevel = string.Empty;
 	private string _swagger = string.Empty;
-	private string _packageservice = string.Empty;
+    private string _packageregistryurl = string.Empty;
 
 	private string _log = string.Empty;
 
@@ -213,7 +210,7 @@
 			_logginglevel = systeminfo["Logging:LogLevel:Default"].ToString();
 			_notificationlevel = systeminfo["Logging:LogLevel:Notify"].ToString();
 			_swagger = systeminfo["UseSwagger"].ToString();
-			_packageservice = systeminfo["PackageService"].ToString();
+            _packageregistryurl = systeminfo["PackageRegistryUrl"].ToString();
 		}
 
 		systeminfo = await SystemService.GetSystemInfoAsync("log");
@@ -232,7 +229,7 @@
 			settings.Add("Logging:LogLevel:Default", _logginglevel);
 			settings.Add("Logging:LogLevel:Notify", _notificationlevel);
 			settings.Add("UseSwagger", _swagger);
-			settings.Add("PackageService", _packageservice);
+			settings.Add("PackageRegistryUrl", _packageregistryurl);
 			await SystemService.UpdateSystemInfoAsync(settings);
 			AddModuleMessage(Localizer["Success.UpdateConfig.Restart"], MessageType.Success);
 		}

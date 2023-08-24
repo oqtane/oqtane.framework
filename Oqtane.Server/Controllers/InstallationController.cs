@@ -7,9 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
-using Oqtane.Modules;
 using Oqtane.Shared;
-using Oqtane.Themes;
 using Microsoft.Extensions.Caching.Memory;
 using System.Net;
 using Oqtane.Repository;
@@ -244,12 +242,15 @@ namespace Oqtane.Controllers
         {
             try
             {
-                using (var client = new HttpClient())
+                var url = _configManager.GetSetting("PackageRegistryUrl", Constants.PackageRegistryUrl);
+                if (!string.IsNullOrEmpty(url))
                 {
-                    client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
-                    client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
-                    Uri uri = new Uri(Constants.PackageRegistryUrl + $"/api/registry/contact/?id={_configManager.GetInstallationId()}&email={WebUtility.UrlEncode(email)}");
-                    var response = await client.GetAsync(uri).ConfigureAwait(false);
+                    using (var client = new HttpClient())
+                    {
+                        client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
+                        client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
+                        var response = await client.GetAsync(new Uri(url + $"/api/registry/contact/?id={_configManager.GetInstallationId()}&email={WebUtility.UrlEncode(email)}")).ConfigureAwait(false);
+                    }
                 }
             }
             catch
