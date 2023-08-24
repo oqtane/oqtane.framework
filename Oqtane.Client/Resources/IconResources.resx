@@ -118,9 +118,672 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Icon.AccountLogin" xml:space="preserve">
-    <value>Account Login</value>
+    <value>AccountLogin</value>
+  </data>
+  <data name="Icon.AccountLogout" xml:space="preserve">
+    <value>AccountLogout</value>
+  </data>
+  <data name="Icon.ActionRedo" xml:space="preserve">
+    <value>ActionRedo</value>
+  </data>
+  <data name="Icon.ActionUndo" xml:space="preserve">
+    <value>ActionUndo</value>
+  </data>
+  <data name="Icon.AlignCenter" xml:space="preserve">
+    <value>AlignCenter</value>
+  </data>
+  <data name="Icon.AlignLeft" xml:space="preserve">
+    <value>AlignLeft</value>
+  </data>
+  <data name="Icon.AlignRight" xml:space="preserve">
+    <value>AlignRight</value>
+  </data>
+  <data name="Icon.Aperture" xml:space="preserve">
+    <value>Aperture</value>
+  </data>
+  <data name="Icon.ArrowBottom" xml:space="preserve">
+    <value>ArrowBottom</value>
+  </data>
+  <data name="Icon.ArrowCircleBottom" xml:space="preserve">
+    <value>ArrowCircleBottom</value>
+  </data>
+  <data name="Icon.ArrowCircleLeft" xml:space="preserve">
+    <value>ArrowCircleLeft</value>
+  </data>
+  <data name="Icon.ArrowCircleRight" xml:space="preserve">
+    <value>ArrowCircleRight</value>
+  </data>
+  <data name="Icon.ArrowCircleTop" xml:space="preserve">
+    <value>ArrowCircleTop</value>
+  </data>
+  <data name="Icon.ArrowLeft" xml:space="preserve">
+    <value>ArrowLeft</value>
+  </data>
+  <data name="Icon.ArrowRight" xml:space="preserve">
+    <value>ArrowRight</value>
+  </data>
+  <data name="Icon.ArrowThickBottom" xml:space="preserve">
+    <value>ArrowThickBottom</value>
+  </data>
+  <data name="Icon.ArrowThickLeft" xml:space="preserve">
+    <value>ArrowThickLeft</value>
+  </data>
+  <data name="Icon.ArrowThickRight" xml:space="preserve">
+    <value>ArrowThickRight</value>
+  </data>
+  <data name="Icon.ArrowThickTop" xml:space="preserve">
+    <value>ArrowThickTop</value>
+  </data>
+  <data name="Icon.ArrowTop" xml:space="preserve">
+    <value>ArrowTop</value>
+  </data>
+  <data name="Icon.AudioSpectrum" xml:space="preserve">
+    <value>AudioSpectrum</value>
+  </data>
+  <data name="Icon.Audio" xml:space="preserve">
+    <value>Audio</value>
+  </data>
+  <data name="Icon.Badge" xml:space="preserve">
+    <value>Badge</value>
+  </data>
+  <data name="Icon.Ban" xml:space="preserve">
+    <value>Ban</value>
+  </data>
+  <data name="Icon.BarChart" xml:space="preserve">
+    <value>BarChart</value>
+  </data>
+  <data name="Icon.Basket" xml:space="preserve">
+    <value>Basket</value>
+  </data>
+  <data name="Icon.BatteryEmpty" xml:space="preserve">
+    <value>BatteryEmpty</value>
+  </data>
+  <data name="Icon.BatteryFull" xml:space="preserve">
+    <value>BatteryFull</value>
+  </data>
+  <data name="Icon.Beaker" xml:space="preserve">
+    <value>Beaker</value>
+  </data>
+  <data name="Icon.Bell" xml:space="preserve">
+    <value>Bell</value>
+  </data>
+  <data name="Icon.Bluetooth" xml:space="preserve">
+    <value>Bluetooth</value>
+  </data>
+  <data name="Icon.Bold" xml:space="preserve">
+    <value>Bold</value>
+  </data>
+  <data name="Icon.Bolt" xml:space="preserve">
+    <value>Bolt</value>
+  </data>
+  <data name="Icon.Book" xml:space="preserve">
+    <value>Book</value>
+  </data>
+  <data name="Icon.Bookmark" xml:space="preserve">
+    <value>Bookmark</value>
+  </data>
+  <data name="Icon.Box" xml:space="preserve">
+    <value>Box</value>
+  </data>
+  <data name="Icon.Briefcase" xml:space="preserve">
+    <value>Briefcase</value>
+  </data>
+  <data name="Icon.BritishPound" xml:space="preserve">
+    <value>BritishPound</value>
+  </data>
+  <data name="Icon.Browser" xml:space="preserve">
+    <value>Browser</value>
+  </data>
+  <data name="Icon.Brush" xml:space="preserve">
+    <value>Brush</value>
+  </data>
+  <data name="Icon.Bug" xml:space="preserve">
+    <value>Bug</value>
+  </data>
+  <data name="Icon.Bullhorn" xml:space="preserve">
+    <value>Bullhorn</value>
+  </data>
+  <data name="Icon.Calculator" xml:space="preserve">
+    <value>Calculator</value>
+  </data>
+  <data name="Icon.Calendar" xml:space="preserve">
+    <value>Calendar</value>
+  </data>
+  <data name="Icon.CameraSlr" xml:space="preserve">
+    <value>CameraSlr</value>
+  </data>
+  <data name="Icon.CaretBottom" xml:space="preserve">
+    <value>CaretBottom</value>
+  </data>
+  <data name="Icon.CaretLeft" xml:space="preserve">
+    <value>CaretLeft</value>
+  </data>
+  <data name="Icon.CaretRight" xml:space="preserve">
+    <value>CaretRight</value>
+  </data>
+  <data name="Icon.CaretTop" xml:space="preserve">
+    <value>CaretTop</value>
+  </data>
+  <data name="Icon.Cart" xml:space="preserve">
+    <value>Cart</value>
+  </data>
+  <data name="Icon.Chat" xml:space="preserve">
+    <value>Chat</value>
+  </data>
+  <data name="Icon.Check" xml:space="preserve">
+    <value>Check</value>
+  </data>
+  <data name="Icon.ChevronBottom" xml:space="preserve">
+    <value>ChevronBottom</value>
+  </data>
+  <data name="Icon.ChevronLeft" xml:space="preserve">
+    <value>ChevronLeft</value>
+  </data>
+  <data name="Icon.ChevronRight" xml:space="preserve">
+    <value>ChevronRight</value>
+  </data>
+  <data name="Icon.ChevronTop" xml:space="preserve">
+    <value>ChevronTop</value>
+  </data>
+  <data name="Icon.CircleCheck" xml:space="preserve">
+    <value>CircleCheck</value>
+  </data>
+  <data name="Icon.CircleX" xml:space="preserve">
+    <value>CircleX</value>
+  </data>
+  <data name="Icon.Clipboard" xml:space="preserve">
+    <value>Clipboard</value>
+  </data>
+  <data name="Icon.Clock" xml:space="preserve">
+    <value>Clock</value>
+  </data>
+  <data name="Icon.CloudDownload" xml:space="preserve">
+    <value>CloudDownload</value>
+  </data>
+  <data name="Icon.CloudUpload" xml:space="preserve">
+    <value>CloudUpload</value>
+  </data>
+  <data name="Icon.Cloud" xml:space="preserve">
+    <value>Cloud</value>
+  </data>
+  <data name="Icon.Cloudy" xml:space="preserve">
+    <value>Cloudy</value>
+  </data>
+  <data name="Icon.Code" xml:space="preserve">
+    <value>Code</value>
+  </data>
+  <data name="Icon.Cog" xml:space="preserve">
+    <value>Cog</value>
+  </data>
+  <data name="Icon.CollapseDown" xml:space="preserve">
+    <value>CollapseDown</value>
+  </data>
+  <data name="Icon.CollapseLeft" xml:space="preserve">
+    <value>CollapseLeft</value>
+  </data>
+  <data name="Icon.CollapseRight" xml:space="preserve">
+    <value>CollapseRight</value>
+  </data>
+  <data name="Icon.CollapseUp" xml:space="preserve">
+    <value>CollapseUp</value>
+  </data>
+  <data name="Icon.Command" xml:space="preserve">
+    <value>Command</value>
+  </data>
+  <data name="Icon.CommentSquare" xml:space="preserve">
+    <value>CommentSquare</value>
+  </data>
+  <data name="Icon.Compass" xml:space="preserve">
+    <value>Compass</value>
+  </data>
+  <data name="Icon.Contrast" xml:space="preserve">
+    <value>Contrast</value>
+  </data>
+  <data name="Icon.Copywriting" xml:space="preserve">
+    <value>Copywriting</value>
+  </data>
+  <data name="Icon.CreditCard" xml:space="preserve">
+    <value>CreditCard</value>
+  </data>
+  <data name="Icon.Crop" xml:space="preserve">
+    <value>Crop</value>
+  </data>
+  <data name="Icon.Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="Icon.DataTransferDownload" xml:space="preserve">
+    <value>DataTransferDownload</value>
+  </data>
+  <data name="Icon.DataTransferUpload" xml:space="preserve">
+    <value>DataTransferUpload</value>
+  </data>
+  <data name="Icon.Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Icon.Dial" xml:space="preserve">
+    <value>Dial</value>
+  </data>
+  <data name="Icon.Document" xml:space="preserve">
+    <value>Document</value>
+  </data>
+  <data name="Icon.Dollar" xml:space="preserve">
+    <value>Dollar</value>
+  </data>
+  <data name="Icon.DoubleQuoteSansLeft" xml:space="preserve">
+    <value>DoubleQuoteSansLeft</value>
+  </data>
+  <data name="Icon.DoubleQuoteSansRight" xml:space="preserve">
+    <value>DoubleQuoteSansRight</value>
+  </data>
+  <data name="Icon.DoubleQuoteSerifLeft" xml:space="preserve">
+    <value>DoubleQuoteSerifLeft</value>
+  </data>
+  <data name="Icon.DoubleQuoteSerifRight" xml:space="preserve">
+    <value>DoubleQuoteSerifRight</value>
+  </data>
+  <data name="Icon.Droplet" xml:space="preserve">
+    <value>Droplet</value>
+  </data>
+  <data name="Icon.Eject" xml:space="preserve">
+    <value>Eject</value>
+  </data>
+  <data name="Icon.Elevator" xml:space="preserve">
+    <value>Elevator</value>
+  </data>
+  <data name="Icon.Ellipses" xml:space="preserve">
+    <value>Ellipses</value>
+  </data>
+  <data name="Icon.EnvelopeClosed" xml:space="preserve">
+    <value>EnvelopeClosed</value>
+  </data>
+  <data name="Icon.EnvelopeOpen" xml:space="preserve">
+    <value>EnvelopeOpen</value>
+  </data>
+  <data name="Icon.Euro" xml:space="preserve">
+    <value>Euro</value>
+  </data>
+  <data name="Icon.Excerpt" xml:space="preserve">
+    <value>Excerpt</value>
+  </data>
+  <data name="Icon.ExpandDown" xml:space="preserve">
+    <value>ExpandDown</value>
+  </data>
+  <data name="Icon.ExpandLeft" xml:space="preserve">
+    <value>ExpandLeft</value>
+  </data>
+  <data name="Icon.ExpandRight" xml:space="preserve">
+    <value>ExpandRight</value>
+  </data>
+  <data name="Icon.ExpandUp" xml:space="preserve">
+    <value>ExpandUp</value>
+  </data>
+  <data name="Icon.ExternalLink" xml:space="preserve">
+    <value>ExternalLink</value>
+  </data>
+  <data name="Icon.Eye" xml:space="preserve">
+    <value>Eye</value>
+  </data>
+  <data name="Icon.Eyedropper" xml:space="preserve">
+    <value>Eyedropper</value>
+  </data>
+  <data name="Icon.File" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="Icon.Fire" xml:space="preserve">
+    <value>Fire</value>
+  </data>
+  <data name="Icon.Flag" xml:space="preserve">
+    <value>Flag</value>
+  </data>
+  <data name="Icon.Flash" xml:space="preserve">
+    <value>Flash</value>
+  </data>
+  <data name="Icon.Folder" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="Icon.Fork" xml:space="preserve">
+    <value>Fork</value>
+  </data>
+  <data name="Icon.FullscreenEnter" xml:space="preserve">
+    <value>FullscreenEnter</value>
+  </data>
+  <data name="Icon.FullscreenExit" xml:space="preserve">
+    <value>FullscreenExit</value>
+  </data>
+  <data name="Icon.Globe" xml:space="preserve">
+    <value>Globe</value>
+  </data>
+  <data name="Icon.Graph" xml:space="preserve">
+    <value>Graph</value>
+  </data>
+  <data name="Icon.GridFourUp" xml:space="preserve">
+    <value>GridFourUp</value>
+  </data>
+  <data name="Icon.GridThreeUp" xml:space="preserve">
+    <value>GridThreeUp</value>
+  </data>
+  <data name="Icon.GridTwoUp" xml:space="preserve">
+    <value>GridTwoUp</value>
+  </data>
+  <data name="Icon.HardDrive" xml:space="preserve">
+    <value>HardDrive</value>
+  </data>
+  <data name="Icon.Header" xml:space="preserve">
+    <value>Header</value>
+  </data>
+  <data name="Icon.Headphones" xml:space="preserve">
+    <value>Headphones</value>
+  </data>
+  <data name="Icon.Heart" xml:space="preserve">
+    <value>Heart</value>
   </data>
   <data name="Icon.Home" xml:space="preserve">
     <value>Home</value>
+  </data>
+  <data name="Icon.Image" xml:space="preserve">
+    <value>Image</value>
+  </data>
+  <data name="Icon.Inbox" xml:space="preserve">
+    <value>Inbox</value>
+  </data>
+  <data name="Icon.Infinity" xml:space="preserve">
+    <value>Infinity</value>
+  </data>
+  <data name="Icon.Info" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="Icon.Italic" xml:space="preserve">
+    <value>Italic</value>
+  </data>
+  <data name="Icon.JustifyCenter" xml:space="preserve">
+    <value>JustifyCenter</value>
+  </data>
+  <data name="Icon.JustifyLeft" xml:space="preserve">
+    <value>JustifyLeft</value>
+  </data>
+  <data name="Icon.JustifyRight" xml:space="preserve">
+    <value>JustifyRight</value>
+  </data>
+  <data name="Icon.Key" xml:space="preserve">
+    <value>Key</value>
+  </data>
+  <data name="Icon.Laptop" xml:space="preserve">
+    <value>Laptop</value>
+  </data>
+  <data name="Icon.Layers" xml:space="preserve">
+    <value>Layers</value>
+  </data>
+  <data name="Icon.Lightbulb" xml:space="preserve">
+    <value>Lightbulb</value>
+  </data>
+  <data name="Icon.LinkBroken" xml:space="preserve">
+    <value>LinkBroken</value>
+  </data>
+  <data name="Icon.LinkIntact" xml:space="preserve">
+    <value>LinkIntact</value>
+  </data>
+  <data name="Icon.ListRich" xml:space="preserve">
+    <value>ListRich</value>
+  </data>
+  <data name="Icon.List" xml:space="preserve">
+    <value>List</value>
+  </data>
+  <data name="Icon.Location" xml:space="preserve">
+    <value>Location</value>
+  </data>
+  <data name="Icon.LockLocked" xml:space="preserve">
+    <value>LockLocked</value>
+  </data>
+  <data name="Icon.LockUnlocked" xml:space="preserve">
+    <value>LockUnlocked</value>
+  </data>
+  <data name="Icon.LoopCircular" xml:space="preserve">
+    <value>LoopCircular</value>
+  </data>
+  <data name="Icon.LoopSquare" xml:space="preserve">
+    <value>LoopSquare</value>
+  </data>
+  <data name="Icon.Loop" xml:space="preserve">
+    <value>Loop</value>
+  </data>
+  <data name="Icon.MagnifyingGlass" xml:space="preserve">
+    <value>MagnifyingGlass</value>
+  </data>
+  <data name="Icon.MapMarker" xml:space="preserve">
+    <value>MapMarker</value>
+  </data>
+  <data name="Icon.Map" xml:space="preserve">
+    <value>Map</value>
+  </data>
+  <data name="Icon.MediaPause" xml:space="preserve">
+    <value>MediaPause</value>
+  </data>
+  <data name="Icon.MediaPlay" xml:space="preserve">
+    <value>MediaPlay</value>
+  </data>
+  <data name="Icon.MediaRecord" xml:space="preserve">
+    <value>MediaRecord</value>
+  </data>
+  <data name="Icon.MediaSkipBackward" xml:space="preserve">
+    <value>MediaSkipBackward</value>
+  </data>
+  <data name="Icon.MediaSkipForward" xml:space="preserve">
+    <value>MediaSkipForward</value>
+  </data>
+  <data name="Icon.MediaStepBackward" xml:space="preserve">
+    <value>MediaStepBackward</value>
+  </data>
+  <data name="Icon.MediaStepForward" xml:space="preserve">
+    <value>MediaStepForward</value>
+  </data>
+  <data name="Icon.MediaStop" xml:space="preserve">
+    <value>MediaStop</value>
+  </data>
+  <data name="Icon.MedicalCross" xml:space="preserve">
+    <value>MedicalCross</value>
+  </data>
+  <data name="Icon.Menu" xml:space="preserve">
+    <value>Menu</value>
+  </data>
+  <data name="Icon.Microphone" xml:space="preserve">
+    <value>Microphone</value>
+  </data>
+  <data name="Icon.Minus" xml:space="preserve">
+    <value>Minus</value>
+  </data>
+  <data name="Icon.Monitor" xml:space="preserve">
+    <value>Monitor</value>
+  </data>
+  <data name="Icon.Moon" xml:space="preserve">
+    <value>Moon</value>
+  </data>
+  <data name="Icon.Move" xml:space="preserve">
+    <value>Move</value>
+  </data>
+  <data name="Icon.MusicalNote" xml:space="preserve">
+    <value>MusicalNote</value>
+  </data>
+  <data name="Icon.Paperclip" xml:space="preserve">
+    <value>Paperclip</value>
+  </data>
+  <data name="Icon.Pencil" xml:space="preserve">
+    <value>Pencil</value>
+  </data>
+  <data name="Icon.People" xml:space="preserve">
+    <value>People</value>
+  </data>
+  <data name="Icon.Person" xml:space="preserve">
+    <value>Person</value>
+  </data>
+  <data name="Icon.Phone" xml:space="preserve">
+    <value>Phone</value>
+  </data>
+  <data name="Icon.PieChart" xml:space="preserve">
+    <value>PieChart</value>
+  </data>
+  <data name="Icon.Pin" xml:space="preserve">
+    <value>Pin</value>
+  </data>
+  <data name="Icon.PlayCircle" xml:space="preserve">
+    <value>PlayCircle</value>
+  </data>
+  <data name="Icon.Plus" xml:space="preserve">
+    <value>Plus</value>
+  </data>
+  <data name="Icon.PowerStandby" xml:space="preserve">
+    <value>PowerStandby</value>
+  </data>
+  <data name="Icon.Print" xml:space="preserve">
+    <value>Print</value>
+  </data>
+  <data name="Icon.Project" xml:space="preserve">
+    <value>Project</value>
+  </data>
+  <data name="Icon.Pulse" xml:space="preserve">
+    <value>Pulse</value>
+  </data>
+  <data name="Icon.PuzzlePiece" xml:space="preserve">
+    <value>PuzzlePiece</value>
+  </data>
+  <data name="Icon.QuestionMark" xml:space="preserve">
+    <value>QuestionMark</value>
+  </data>
+  <data name="Icon.Rain" xml:space="preserve">
+    <value>Rain</value>
+  </data>
+  <data name="Icon.Random" xml:space="preserve">
+    <value>Random</value>
+  </data>
+  <data name="Icon.Reload" xml:space="preserve">
+    <value>Reload</value>
+  </data>
+  <data name="Icon.ResizeBoth" xml:space="preserve">
+    <value>ResizeBoth</value>
+  </data>
+  <data name="Icon.ResizeHeight" xml:space="preserve">
+    <value>ResizeHeight</value>
+  </data>
+  <data name="Icon.ResizeWidth" xml:space="preserve">
+    <value>ResizeWidth</value>
+  </data>
+  <data name="Icon.RssAlt" xml:space="preserve">
+    <value>RssAlt</value>
+  </data>
+  <data name="Icon.Rss" xml:space="preserve">
+    <value>Rss</value>
+  </data>
+  <data name="Icon.Script" xml:space="preserve">
+    <value>Script</value>
+  </data>
+  <data name="Icon.ShareBoxed" xml:space="preserve">
+    <value>ShareBoxed</value>
+  </data>
+  <data name="Icon.Share" xml:space="preserve">
+    <value>Share</value>
+  </data>
+  <data name="Icon.Shield" xml:space="preserve">
+    <value>Shield</value>
+  </data>
+  <data name="Icon.Signal" xml:space="preserve">
+    <value>Signal</value>
+  </data>
+  <data name="Icon.Signpost" xml:space="preserve">
+    <value>Signpost</value>
+  </data>
+  <data name="Icon.SortAscending" xml:space="preserve">
+    <value>SortAscending</value>
+  </data>
+  <data name="Icon.SortDescending" xml:space="preserve">
+    <value>SortDescending</value>
+  </data>
+  <data name="Icon.Spreadsheet" xml:space="preserve">
+    <value>Spreadsheet</value>
+  </data>
+  <data name="Icon.Star" xml:space="preserve">
+    <value>Star</value>
+  </data>
+  <data name="Icon.Sun" xml:space="preserve">
+    <value>Sun</value>
+  </data>
+  <data name="Icon.Tablet" xml:space="preserve">
+    <value>Tablet</value>
+  </data>
+  <data name="Icon.Tag" xml:space="preserve">
+    <value>Tag</value>
+  </data>
+  <data name="Icon.Tags" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="Icon.Target" xml:space="preserve">
+    <value>Target</value>
+  </data>
+  <data name="Icon.Task" xml:space="preserve">
+    <value>Task</value>
+  </data>
+  <data name="Icon.Terminal" xml:space="preserve">
+    <value>Terminal</value>
+  </data>
+  <data name="Icon.Text" xml:space="preserve">
+    <value>Text</value>
+  </data>
+  <data name="Icon.ThumbDown" xml:space="preserve">
+    <value>ThumbDown</value>
+  </data>
+  <data name="Icon.ThumbUp" xml:space="preserve">
+    <value>ThumbUp</value>
+  </data>
+  <data name="Icon.Timer" xml:space="preserve">
+    <value>Timer</value>
+  </data>
+  <data name="Icon.Transfer" xml:space="preserve">
+    <value>Transfer</value>
+  </data>
+  <data name="Icon.Trash" xml:space="preserve">
+    <value>Trash</value>
+  </data>
+  <data name="Icon.Underline" xml:space="preserve">
+    <value>Underline</value>
+  </data>
+  <data name="Icon.VerticalAlignBottom" xml:space="preserve">
+    <value>VerticalAlignBottom</value>
+  </data>
+  <data name="Icon.VerticalAlignCenter" xml:space="preserve">
+    <value>VerticalAlignCenter</value>
+  </data>
+  <data name="Icon.VerticalAlignTop" xml:space="preserve">
+    <value>VerticalAlignTop</value>
+  </data>
+  <data name="Icon.Video" xml:space="preserve">
+    <value>Video</value>
+  </data>
+  <data name="Icon.VolumeHigh" xml:space="preserve">
+    <value>VolumeHigh</value>
+  </data>
+  <data name="Icon.VolumeLow" xml:space="preserve">
+    <value>VolumeLow</value>
+  </data>
+  <data name="Icon.VolumeOff" xml:space="preserve">
+    <value>VolumeOff</value>
+  </data>
+  <data name="Icon.Warning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="Icon.Wifi" xml:space="preserve">
+    <value>Wifi</value>
+  </data>
+  <data name="Icon.Wrench" xml:space="preserve">
+    <value>Wrench</value>
+  </data>
+  <data name="Icon.X" xml:space="preserve">
+    <value>X</value>
+  </data>
+  <data name="Icon.Yen" xml:space="preserve">
+    <value>Yen</value>
+  </data>
+  <data name="Icon.ZoomIn" xml:space="preserve">
+    <value>ZoomIn</value>
+  </data>
+  <data name="Icon.ZoomOut" xml:space="preserve">
+    <value>ZoomOut</value>
   </data>
 </root>
