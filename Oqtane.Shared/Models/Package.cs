@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
 {
@@ -34,14 +33,13 @@ namespace Oqtane.Models
         public string Description { get; set; }
 
         /// <summary>
-        /// logo
+        /// logo file id
         /// </summary>
         public int? LogoFileId { get; set; }
 
         /// <summary>
-        /// logo
+        /// logo url
         /// </summary>
-        [NotMapped]
         public string LogoUrl { get; set; }
 
         /// <summary>
