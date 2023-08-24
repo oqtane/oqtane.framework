@@ -490,35 +490,39 @@ namespace Oqtane.Shared
             return $"[{@class.GetType()}] {message}";
         }
 
-        public static DateTime? LocalDateAndTimeAsUtc(DateTime? date, string time, TimeZoneInfo localTimeZone = null)
+        public static DateTime? LocalDateAndTimeAsUtc(DateTime? date, DateTime? time, TimeZoneInfo localTimeZone = null)
         {
             localTimeZone ??= TimeZoneInfo.Local;
+
             if (date != null)
             {
-                if (!string.IsNullOrEmpty(time))
+                if (time != null)
                 {
-                    return TimeZoneInfo.ConvertTime(DateTime.Parse(date.Value.Date.ToShortDateString() + " " + time), localTimeZone, TimeZoneInfo.Utc);
+                    DateTime localDateTime = date.Value.Date.Add(time.Value.TimeOfDay);
+                    return TimeZoneInfo.ConvertTimeToUtc(localDateTime, localTimeZone);
                 }
-                return TimeZoneInfo.ConvertTime(date.Value.Date, localTimeZone, TimeZoneInfo.Utc);
+
+                return TimeZoneInfo.ConvertTimeToUtc(date.Value.Date, localTimeZone);
             }
+
             return null;
         }
 
-        public static (DateTime? date, string time) UtcAsLocalDateAndTime(DateTime? dateTime, TimeZoneInfo timeZone = null)
+        public static (DateTime? date, DateTime? time) UtcAsLocalDateAndTime(DateTime? dateTime, TimeZoneInfo timeZone = null)
         {
             timeZone ??= TimeZoneInfo.Local;
             DateTime? localDateTime = null;
-            string localTime = string.Empty;
+            DateTime? localTime = null;
 
             if (dateTime.HasValue && dateTime?.Kind != DateTimeKind.Local)
             {
                 if (dateTime?.Kind == DateTimeKind.Unspecified)
                 {
                     // Treat Unspecified as Utc not Local. This is due to EF Core, on some databases, after retrieval will have DateTimeKind as Unspecified.
-                    // All values in database should be UTC.
+                    // All values in the database should be UTC.
                     // Normal .net conversion treats Unspecified as local.
                     // https://docs.microsoft.com/en-us/dotnet/api/system.timezoneinfo.converttime?view=net-6.0
-                    localDateTime = TimeZoneInfo.ConvertTime(new DateTime(dateTime.Value.Ticks, DateTimeKind.Utc), timeZone);
+                    localDateTime = TimeZoneInfo.ConvertTime(new DateTimeOffset(dateTime.Value.Ticks, TimeSpan.Zero), timeZone).DateTime;
                 }
                 else
                 {
@@ -526,13 +530,16 @@ namespace Oqtane.Shared
                 }
             }
 
-            if (localDateTime != null && localDateTime.Value.TimeOfDay.TotalSeconds != 0)
+            if (localDateTime != null)
             {
-                localTime = localDateTime.Value.ToString("HH:mm");
+                localTime = localDateTime.Value.TimeOfDay.TotalSeconds != 0 ? localDateTime.Value.Date.Add(localDateTime.Value.TimeOfDay) : (DateTime?)null;
             }
 
             return (localDateTime?.Date, localTime);
         }
+
+
+
 
         [Obsolete("ContentUrl(Alias alias, int fileId) is deprecated. Use FileUrl(Alias alias, int fileId) instead.", false)]
         public static string ContentUrl(Alias alias, int fileId)

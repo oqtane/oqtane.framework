@@ -56,7 +56,7 @@
                         <input id="starting" type="date" class="form-control" @bind="@_startDate" />
                     </div>
                     <div class="col">
-                        <input id="starting" type="text" class="form-control" placeholder="hh:mm" @bind="@_startTime" />
+                        <input id="starting" type="time" class="form-control" placeholder="hh:mm" @bind="@_startTime" />
                     </div>
                 </div>
             </div>
@@ -69,7 +69,7 @@
                         <input id="ending" type="date" class="form-control" @bind="@_endDate" />
                     </div>
                     <div class="col">
-                        <input id="ending" type="text" class="form-control" placeholder="hh:mm" @bind="@_endTime" />
+                        <input id="ending" type="time" class="form-control" placeholder="hh:mm" @bind="@_endTime" />
                     </div>
                 </div>
             </div>
@@ -82,7 +82,7 @@
                         <input id="next" type="date" class="form-control" @bind="@_nextDate" />
                     </div>
                     <div class="col">
-                        <input id="next" type="text" class="form-control" placeholder="hh:mm" @bind="@_nextTime" />
+                        <input id="next" type="time" class="form-control" placeholder="hh:mm" @bind="@_nextTime" />
                     </div>
                 </div>
             </div>
@@ -97,22 +97,22 @@
 </form>
 
 @code {
-	private ElementReference form;
-	private bool validated = false;
-	private int _jobId;
-	private string _name = string.Empty;
-	private string _jobType = string.Empty;
-	private string _isEnabled = "True";
-	private string _interval = string.Empty;
-	private string _frequency = string.Empty;
-	private DateTime? _startDate = null;
-	private string _startTime = string.Empty;
-	private DateTime? _endDate = null;
-	private string _endTime = string.Empty;
-	private string _retentionHistory = string.Empty;
-	private DateTime? _nextDate = null;
-	private string _nextTime = string.Empty;
-	private string createdby;
+    private ElementReference form;
+    private bool validated = false;
+    private int _jobId;
+    private string _name = string.Empty;
+    private string _jobType = string.Empty;
+    private string _isEnabled = "True";
+    private string _interval = string.Empty;
+    private string _frequency = string.Empty;
+    private DateTime? _startDate = null;
+    private DateTime? _startTime = null;
+    private DateTime? _endDate = null;
+    private DateTime? _endTime = null;
+    private string _retentionHistory = string.Empty;
+    private DateTime? _nextDate = null;
+    private DateTime? _nextTime = null;
+    private string createdby;
 	private DateTime createdon;
 	private string modifiedby;
 	private DateTime modifiedon;
@@ -133,9 +133,9 @@
 				_interval = job.Interval.ToString();
 				_frequency = job.Frequency;
 				(_startDate, _startTime) = Utilities.UtcAsLocalDateAndTime(job.StartDate);
-				(_endDate, _endTime) = Utilities.UtcAsLocalDateAndTime(job.EndDate);
+                (_endDate, _endTime) = Utilities.UtcAsLocalDateAndTime(job.EndDate);
 				_retentionHistory = job.RetentionHistory.ToString();
-				(_nextDate, _nextTime) = Utilities.UtcAsLocalDateAndTime(job.NextExecution);
+                (_nextDate, _nextTime) = Utilities.UtcAsLocalDateAndTime(job.NextExecution);
 				createdby = job.CreatedBy;
 				createdon = job.CreatedOn;
 				modifiedby = job.ModifiedBy;
