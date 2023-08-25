@@ -23,6 +23,7 @@ else
     <TabPanel Name="Identity" ResourceKey="Identity">
         @if (profiles != null && settings != null)
         {
+            <ModuleMessage Message="@_passwordrequirements" Type="MessageType.Info" />
             <div class="container">
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="username" HelpText="Your username. Note that this field can not be modified." ResourceKey="Username"></Label>
@@ -267,6 +268,7 @@ else
 <br /><br />
 
 @code {
+    private string _passwordrequirements;
     private string username = string.Empty;
     private string _password = string.Empty;
     private string _passwordtype = "password";
@@ -293,6 +295,8 @@ else
     {
         try
         {
+            _passwordrequirements = await UserService.GetPasswordRequirementsAsync(PageState.Site.SiteId);
+
             _togglepassword = SharedLocalizer["ShowPassword"];
 
             if (PageState.Site.Settings.ContainsKey("LoginOptions:TwoFactor") && !string.IsNullOrEmpty(PageState.Site.Settings["LoginOptions:TwoFactor"]))

@@ -21,6 +21,7 @@ else
     <TabPanel Name="Identity" ResourceKey="Identity">
         @if (profiles != null)
         {
+            <ModuleMessage Message="@_passwordrequirements" Type="MessageType.Info" />
             <div class="container">
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="username" HelpText="The unique username for a user. Note that this field can not be modified." ResourceKey="Username"></Label>
@@ -149,6 +150,7 @@ else
 <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
 
 @code {
+    private string _passwordrequirements;
     private int userid;
     private string username = string.Empty;
     private string _password = string.Empty;
@@ -183,6 +185,7 @@ else
         {
             if (PageState.QueryString.ContainsKey("id"))
             {
+                _passwordrequirements = await UserService.GetPasswordRequirementsAsync(PageState.Site.SiteId);
                 _togglepassword = SharedLocalizer["ShowPassword"];
                 profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
                 userid = Int32.Parse(PageState.QueryString["id"]);
