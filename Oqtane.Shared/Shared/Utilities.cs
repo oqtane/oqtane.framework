@@ -1,5 +1,6 @@
 using Oqtane.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
@@ -490,22 +491,51 @@ namespace Oqtane.Shared
             return $"[{@class.GetType()}] {message}";
         }
 
+        public static DateTime? LocalDateAndTimeAsUtc(DateTime? date, string time, TimeZoneInfo localTimeZone = null)
+        {
+            if (date != null && !string.IsNullOrEmpty(time) && TimeSpan.TryParse(time, out TimeSpan timespan))
+            {
+                return LocalDateAndTimeAsUtc(date.Value.Date.Add(timespan), localTimeZone);
+            }
+            return null;
+        }
+
         public static DateTime? LocalDateAndTimeAsUtc(DateTime? date, DateTime? time, TimeZoneInfo localTimeZone = null)
         {
-            localTimeZone ??= TimeZoneInfo.Local;
-
             if (date != null)
             {
                 if (time != null)
                 {
-                    DateTime localDateTime = date.Value.Date.Add(time.Value.TimeOfDay);
-                    return TimeZoneInfo.ConvertTimeToUtc(localDateTime, localTimeZone);
+                    return LocalDateAndTimeAsUtc(date.Value.Date.Add(time.Value.TimeOfDay), localTimeZone);
                 }
-
-                return TimeZoneInfo.ConvertTimeToUtc(date.Value.Date, localTimeZone);
+                return LocalDateAndTimeAsUtc(date.Value.Date, localTimeZone);
             }
-
             return null;
+        }
+
+        public static DateTime? LocalDateAndTimeAsUtc(DateTime? date, TimeZoneInfo localTimeZone = null)
+        {
+            if (date != null)
+            {
+                localTimeZone ??= TimeZoneInfo.Local;
+                return TimeZoneInfo.ConvertTime(date.Value, localTimeZone, TimeZoneInfo.Utc);
+            }
+            return null;
+        }
+
+        public static DateTime? UtcAsLocalDate(DateTime? dateTime, TimeZoneInfo timeZone = null)
+        {
+            return UtcAsLocalDateAndTime(dateTime, timeZone).date;
+        }
+
+        public static DateTime? UtcAsLocalDateTime(DateTime? dateTime, TimeZoneInfo timeZone = null)
+        {
+            var result = UtcAsLocalDateAndTime(dateTime, timeZone);
+            if (result.date != null && !string.IsNullOrEmpty(result.time) && TimeSpan.TryParse(result.time, out TimeSpan timespan))
+            {
+                result.date = result.date.Value.Add(timespan);
+            }
+            return result.date;
         }
 
         public static (DateTime? date, string time) UtcAsLocalDateAndTime(DateTime? dateTime, TimeZoneInfo timeZone = null)
@@ -536,49 +566,6 @@ namespace Oqtane.Shared
             }
 
             return (localDateTime?.Date, localTime);
-        }
-
-        public static DateTime? LocalDateAndTimeAsUtc(DateTime? date, string time, TimeZoneInfo localTimeZone = null)
-        {
-            localTimeZone ??= TimeZoneInfo.Local;
-            if (date != null)
-            {
-                if (!string.IsNullOrEmpty(time))
-                {
-                    return TimeZoneInfo.ConvertTime(DateTime.Parse(date.Value.Date.ToShortDateString() + " " + time), localTimeZone, TimeZoneInfo.Utc);
-                }
-                return TimeZoneInfo.ConvertTime(date.Value.Date, localTimeZone, TimeZoneInfo.Utc);
-            }
-            return null;
-        }
-        public static DateTime? UtcAsLocalDateAndTimeToDate(DateTime? dateTime, TimeZoneInfo timeZone = null)
-        {
-            var result = UtcAsLocalDateAndTime(dateTime, timeZone);
-            return result.date;
-        }
-
-        public static DateTime? UtcAsLocalDateAndTimeToTime(DateTime? dateTime, TimeZoneInfo timeZone = null)
-        {
-            var result = UtcAsLocalDateAndTime(dateTime, timeZone);
-
-            if (string.IsNullOrEmpty(result.time))
-            {
-                return result.date;
-            }
-            else
-            {
-                var timeParts = result.time.Split(':');
-                if (timeParts.Length == 2 && int.TryParse(timeParts[0], out int hours) && int.TryParse(timeParts[1], out int minutes))
-                {
-                    TimeSpan timeOfDay = new TimeSpan(hours, minutes, 0);
-                    return result.date?.Date + timeOfDay;
-                }
-                else
-                {
-                    // Handle parsing error
-                    return null;
-                }
-            }
         }
 
         [Obsolete("ContentUrl(Alias alias, int fileId) is deprecated. Use FileUrl(Alias alias, int fileId) instead.", false)]
