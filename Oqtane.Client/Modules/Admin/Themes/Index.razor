@@ -79,7 +79,8 @@ else
         try
         {
             _themes = await ThemeService.GetThemesAsync();
-            _packages = await PackageService.GetPackagesAsync(_themes.Select(item => item.PackageName).ToList());
+            var list = _themes.Where(item => !string.IsNullOrEmpty(item.PackageName)).Select(item => item.PackageName).Distinct().ToList();
+            _packages = await PackageService.GetPackagesAsync(list);
         }
         catch (Exception ex)
         {

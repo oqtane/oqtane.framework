@@ -128,7 +128,8 @@ else
     private async Task LoadModuleDefinitions()
     {
         _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(_category)).ToList();
-        _packages = await PackageService.GetPackagesAsync(_moduleDefinitions.Select(item => item.PackageName).ToList());
+        var list = _moduleDefinitions.Where(item => !string.IsNullOrEmpty(item.PackageName)).Select(item => item.PackageName).Distinct().ToList();
+        _packages = await PackageService.GetPackagesAsync(list);
     }
 
     private string PurchaseLink(string packagename)
