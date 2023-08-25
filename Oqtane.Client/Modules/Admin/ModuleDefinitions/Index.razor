@@ -37,7 +37,7 @@ else
 		</div>
 	</div>
 			
-	<Pager Items="@_moduleDefinitions.Where(item => item.Categories.Contains(_category))">
+	<Pager Items="@_moduleDefinitions">
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
@@ -99,6 +99,7 @@ else
 }
 
 @code {
+    private List<ModuleDefinition> _allModuleDefinitions;
     private List<ModuleDefinition> _moduleDefinitions;
     private List<Package> _packages;
     private List<string> _categories = new List<string>();
@@ -110,9 +111,9 @@ else
     {
         try
         {
-            _moduleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
-            _packages = await PackageService.GetPackagesAsync("module");
-            _categories = _moduleDefinitions.SelectMany(m => m.Categories.Split(',')).Distinct().ToList();
+            _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
+            _categories = _allModuleDefinitions.SelectMany(m => m.Categories.Split(',')).Distinct().ToList();
+            await LoadModuleDefinitions();
         }
         catch (Exception ex)
         {
@@ -122,6 +123,12 @@ else
                 AddModuleMessage(Localizer["Error.Module.Load"], MessageType.Error);
             }
         }
+    }
+
+    private async Task LoadModuleDefinitions()
+    {
+        _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(_category)).ToList();
+        _packages = await PackageService.GetPackagesAsync(_moduleDefinitions.Select(item => item.PackageName).ToList());
     }
 
     private string PurchaseLink(string packagename)
@@ -205,9 +212,9 @@ else
 		}
 	}
 
-	private void CategoryChanged(ChangeEventArgs e)
+	private async Task CategoryChanged(ChangeEventArgs e)
 	{
 		_category = (string)e.Value;
-		StateHasChanged();
+        await LoadModuleDefinitions();
 	}
 }

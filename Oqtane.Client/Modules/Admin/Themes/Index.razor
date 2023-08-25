@@ -79,7 +79,7 @@ else
         try
         {
             _themes = await ThemeService.GetThemesAsync();
-            _packages = await PackageService.GetPackagesAsync("theme");
+            _packages = await PackageService.GetPackagesAsync(_themes.Select(item => item.PackageName).ToList());
         }
         catch (Exception ex)
         {
