@@ -39,6 +39,13 @@ namespace Oqtane.Services
         Task<List<Package>> GetPackagesAsync(string type, string search, string price, string package, string sort);
 
         /// <summary>
+        /// Returns a list of packages matching the list of package names
+        /// </summary>
+        /// <param name="names"></param>
+        /// <returns></returns>
+        Task<List<Package>> GetPackagesAsync(List<string> packagenames);
+
+        /// <summary>
         /// Returns a specific package
         /// </summary>
         /// <param name="packageId"></param>

@@ -51,6 +51,25 @@ namespace Oqtane.Controllers
             return packages;
         }
 
+        // GET: api/<controller>/list/?names=x,y,z
+        [HttpGet("list")]
+        public async Task<IEnumerable<Package>> GetPackages(string names)
+        {
+            // get packages
+            List<Package> packages = new List<Package>();
+            var url = _configManager.GetSetting("PackageRegistryUrl", Constants.PackageRegistryUrl);
+            if (!string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(names))
+            {
+                using (var client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
+                    client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
+                    packages = await GetJson<List<Package>>(client, url + $"/api/registry/list/?id={_configManager.GetInstallationId()}&version={Constants.Version}&list={names}");
+                }
+            }
+            return packages;
+        }
+
         [HttpPost]
         [Authorize(Roles = RoleNames.Host)]
         public async Task<Package> Post(string packageid, string version, string folder)
