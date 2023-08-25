@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -117,64 +117,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Info.Registration.Exists" xml:space="preserve">
-    <value>You Are Already Registered</value>
+  <data name="Password.DigitRequirement" xml:space="preserve">
+    <value>At Least One Digit</value>
   </data>
-  <data name="Info.Registration.InvalidEmail" xml:space="preserve">
-    <value>Please Note That Registration Requires A Valid Email Address In Order To Verify Your Identity</value>
+  <data name="Password.LowercaseRequirement" xml:space="preserve">
+    <value>At Least One Lowercase Letter</value>
   </data>
-  <data name="Password.Confirm" xml:space="preserve">
-    <value>Confirm Password:</value>
+  <data name="Password.PunctuationRequirement" xml:space="preserve">
+    <value>At Least One Punctuation Mark</value>
   </data>
-  <data name="Register" xml:space="preserve">
-    <value>Register</value>
+  <data name="Password.UppercaseRequirement" xml:space="preserve">
+    <value>At Least One Uppercase Letter</value>
   </data>
-  <data name="Info.Registration.Disabled" xml:space="preserve">
-    <value>Registration is Disabled For This Site</value>
-  </data>
-  <data name="Info.User.AccountCreate" xml:space="preserve">
-    <value>User Account Created. Please Check Your Email For Verification Instructions.</value>
-  </data>
-  <data name="Error.User.AddInfo" xml:space="preserve">
-    <value>Error Adding User. Please Ensure Password Meets Complexity Requirements And Username Is Not Already In Use.</value>
-  </data>
-  <data name="Message.Password.NoMatch" xml:space="preserve">
-    <value>Passwords Entered Do Not Match</value>
-  </data>
-  <data name="Message.Required.UserInfo" xml:space="preserve">
-    <value>You Must Provide A Username, Password, and Email Address</value>
-  </data>
-  <data name="Error.User.Add" xml:space="preserve">
-    <value>Error Adding User</value>
-  </data>
-  <data name="Confirm.HelpText" xml:space="preserve">
-    <value>Enter your password again to confirm it matches the value entered above</value>
-  </data>
-  <data name="Confirm.Text" xml:space="preserve">
-    <value>Confirm Password:</value>
-  </data>
-  <data name="DisplayName.HelpText" xml:space="preserve">
-    <value>Your full name</value>
-  </data>
-  <data name="DisplayName.Text" xml:space="preserve">
-    <value>Full Name:</value>
-  </data>
-  <data name="Email.HelpText" xml:space="preserve">
-    <value>Your email address where you wish to receive notifications</value>
-  </data>
-  <data name="Email.Text" xml:space="preserve">
-    <value>Email:</value>
-  </data>
-  <data name="Password.HelpText" xml:space="preserve">
-    <value>Please enter a sufficiently secure password which meets the password complexity requirements</value>
-  </data>
-  <data name="Password.Text" xml:space="preserve">
-    <value>Password:</value>
-  </data>
-  <data name="Username.HelpText" xml:space="preserve">
-    <value>Your username. Note that this field can not be modified once it is saved.</value>
-  </data>
-  <data name="Username.Text" xml:space="preserve">
-    <value>Username:</value>
+  <data name="Password.ValidationCriteria" xml:space="preserve">
+    <value>Passwords Must Have A Minimum Length Of {0} Characters, Including At Least {1} Unique Character(s), {2}{3}{4}{5} To Satisfy Password Compexity Requirements For This Site.</value>
   </data>
 </root>

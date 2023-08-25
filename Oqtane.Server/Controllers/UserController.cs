@@ -14,6 +14,10 @@ using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Extensions;
 using Oqtane.Managers;
+using Oqtane.Services;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.Extensions.Localization;
+using Oqtane.Modules.Admin.Roles;
 
 namespace Oqtane.Controllers
 {
@@ -27,8 +31,9 @@ namespace Oqtane.Controllers
         private readonly IUserPermissions _userPermissions;
         private readonly IJwtManager _jwtManager;
         private readonly ILogManager _logger;
+        private readonly IStringLocalizer<UserController> _localizer;
 
-        public UserController(IUserRepository users, ITenantManager tenantManager, IUserManager userManager, ISiteRepository sites, IUserPermissions userPermissions, IJwtManager jwtManager, ILogManager logger)
+        public UserController(IUserRepository users, ITenantManager tenantManager, IUserManager userManager, ISiteRepository sites, IUserPermissions userPermissions, IJwtManager jwtManager, ILogManager logger, IStringLocalizer<UserController> localizer)
         {
             _users = users;
             _tenantManager = tenantManager;
@@ -37,6 +42,7 @@ namespace Oqtane.Controllers
             _userPermissions = userPermissions;
             _jwtManager = jwtManager;
             _logger = logger;
+            _localizer = localizer;
         }
 
         // GET api/<controller>/5?siteid=x
@@ -335,6 +341,38 @@ namespace Oqtane.Controllers
                 user.Roles = roles;
             }
             return user;
+        }
+
+        // GET api/<controller>/passwordrequirements/5
+        [HttpGet("passwordrequirements/{siteid}")]
+        public string PasswordRequirements(int siteid)
+        {
+            var requirements = "";
+
+            var site = _sites.GetSite(siteid);
+            if (site != null && (site.AllowRegistration || User.IsInRole(RoleNames.Registered)))
+            {
+                // get settings
+                var sitesettings = HttpContext.GetSiteSettings();
+                var minimumlength = sitesettings.GetValue("IdentityOptions:Password:RequiredLength", "6");
+                var uniquecharacters = sitesettings.GetValue("IdentityOptions:Password:RequiredUniqueChars", "1");
+                var requiredigit = bool.Parse(sitesettings.GetValue("IdentityOptions:Password:RequireDigit", "true"));
+                var requireupper = bool.Parse(sitesettings.GetValue("IdentityOptions:Password:RequireUppercase", "true"));
+                var requirelower = bool.Parse(sitesettings.GetValue("IdentityOptions:Password:RequireLowercase", "true"));
+                var requirepunctuation = bool.Parse(sitesettings.GetValue("IdentityOptions:Password:RequireNonAlphanumeric", "true"));
+
+                // replace the placeholders with the setting values
+                string digitRequirement = requiredigit ? _localizer["Password.DigitRequirement"] + ", " : "";
+                string uppercaseRequirement = requireupper ? _localizer["Password.UppercaseRequirement"] + ", " : "";
+                string lowercaseRequirement = requirelower ? _localizer["Password.LowercaseRequirement"] + ", " : "";
+                string punctuationRequirement = requirepunctuation ? _localizer["Password.PunctuationRequirement"] + ", " : "";
+                string passwordValidationCriteriaTemplate = _localizer["Password.ValidationCriteria"];
+
+                // format requirements
+                requirements = string.Format(passwordValidationCriteriaTemplate, minimumlength, uniquecharacters, digitRequirement, uppercaseRequirement, lowercaseRequirement, punctuationRequirement);
+            }
+
+            return requirements;
         }
     }
 }

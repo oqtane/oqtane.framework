@@ -135,6 +135,11 @@ namespace Oqtane.Services
         /// <returns></returns>
         Task<User> LinkUserAsync(User user, string token, string type, string key, string name);
 
-
+        /// <summary>
+        /// Get password requirements for site
+        /// </summary>
+        /// <param name="siteId">ID of a <see cref="Site"/></param>
+        /// <returns></returns>
+        Task<string> GetPasswordRequirementsAsync(int siteId);
     }
 }

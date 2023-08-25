@@ -96,5 +96,9 @@ namespace Oqtane.Services
             return await PostJsonAsync<User>($"{Apiurl}/link?token={token}&type={type}&key={key}&name={name}", user);
         }
 
+        public async Task<string> GetPasswordRequirementsAsync(int siteId)
+        {
+            return await GetStringAsync($"{Apiurl}/passwordrequirements/{siteId}");
+        }
     }
 }
