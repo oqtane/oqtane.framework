@@ -29,7 +29,7 @@ namespace Oqtane.Services
         public async Task<Folder> GetFolderAsync(int siteId, [NotNull] string folderPath)
         {
             var path = WebUtility.UrlEncode(folderPath);
-            return await GetJsonAsync<Folder>($"{ApiUrl}/{siteId}/{path}");
+            return await GetJsonAsync<Folder>($"{ApiUrl}/path/{siteId}/?path={path}");
         }
 
         public async Task<Folder> AddFolderAsync(Folder folder)
