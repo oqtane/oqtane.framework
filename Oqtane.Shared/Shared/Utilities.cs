@@ -508,21 +508,21 @@ namespace Oqtane.Shared
             return null;
         }
 
-        public static (DateTime? date, DateTime? time) UtcAsLocalDateAndTime(DateTime? dateTime, TimeZoneInfo timeZone = null)
+        public static (DateTime? date, string time) UtcAsLocalDateAndTime(DateTime? dateTime, TimeZoneInfo timeZone = null)
         {
             timeZone ??= TimeZoneInfo.Local;
             DateTime? localDateTime = null;
-            DateTime? localTime = null;
+            string localTime = string.Empty;
 
             if (dateTime.HasValue && dateTime?.Kind != DateTimeKind.Local)
             {
                 if (dateTime?.Kind == DateTimeKind.Unspecified)
                 {
                     // Treat Unspecified as Utc not Local. This is due to EF Core, on some databases, after retrieval will have DateTimeKind as Unspecified.
-                    // All values in the database should be UTC.
+                    // All values in database should be UTC.
                     // Normal .net conversion treats Unspecified as local.
                     // https://docs.microsoft.com/en-us/dotnet/api/system.timezoneinfo.converttime?view=net-6.0
-                    localDateTime = TimeZoneInfo.ConvertTime(new DateTimeOffset(dateTime.Value.Ticks, TimeSpan.Zero), timeZone).DateTime;
+                    localDateTime = TimeZoneInfo.ConvertTime(new DateTime(dateTime.Value.Ticks, DateTimeKind.Utc), timeZone);
                 }
                 else
                 {
@@ -530,16 +530,56 @@ namespace Oqtane.Shared
                 }
             }
 
-            if (localDateTime != null)
+            if (localDateTime != null && localDateTime.Value.TimeOfDay.TotalSeconds != 0)
             {
-                localTime = localDateTime.Value.TimeOfDay.TotalSeconds != 0 ? localDateTime.Value.Date.Add(localDateTime.Value.TimeOfDay) : (DateTime?)null;
+                localTime = localDateTime.Value.ToString("HH:mm");
             }
 
             return (localDateTime?.Date, localTime);
         }
 
+        public static DateTime? LocalDateAndTimeAsUtc(DateTime? date, string time, TimeZoneInfo localTimeZone = null)
+        {
+            localTimeZone ??= TimeZoneInfo.Local;
+            if (date != null)
+            {
+                if (!string.IsNullOrEmpty(time))
+                {
+                    return TimeZoneInfo.ConvertTime(DateTime.Parse(date.Value.Date.ToShortDateString() + " " + time), localTimeZone, TimeZoneInfo.Utc);
+                }
+                return TimeZoneInfo.ConvertTime(date.Value.Date, localTimeZone, TimeZoneInfo.Utc);
+            }
+            return null;
+        }
+        public static DateTime? UtcAsLocalDateAndTimeToDate(DateTime? dateTime, TimeZoneInfo timeZone = null)
+        {
+            var result = UtcAsLocalDateAndTime(dateTime, timeZone);
+            return result.date;
+        }
 
+        public static DateTime? UtcAsLocalDateAndTimeToTime(DateTime? dateTime, TimeZoneInfo timeZone = null)
+        {
+            var result = UtcAsLocalDateAndTime(dateTime, timeZone);
 
+            if (string.IsNullOrEmpty(result.time))
+            {
+                return result.date;
+            }
+            else
+            {
+                var timeParts = result.time.Split(':');
+                if (timeParts.Length == 2 && int.TryParse(timeParts[0], out int hours) && int.TryParse(timeParts[1], out int minutes))
+                {
+                    TimeSpan timeOfDay = new TimeSpan(hours, minutes, 0);
+                    return result.date?.Date + timeOfDay;
+                }
+                else
+                {
+                    // Handle parsing error
+                    return null;
+                }
+            }
+        }
 
         [Obsolete("ContentUrl(Alias alias, int fileId) is deprecated. Use FileUrl(Alias alias, int fileId) instead.", false)]
         public static string ContentUrl(Alias alias, int fileId)
