@@ -177,4 +177,7 @@
   <data name="IsEnabled.Text" xml:space="preserve">
     <value>Enabled?</value>
   </data>
+  <data name="View License" xml:space="preserve">
+    <value>View License</value>
+  </data>
 </root>
