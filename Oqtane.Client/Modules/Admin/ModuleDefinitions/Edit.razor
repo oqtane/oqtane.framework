@@ -85,20 +85,14 @@
 					<div class="row mb-1 align-items-center">
 						<Label Class="col-sm-3" For="license" HelpText="The module license terms" ResourceKey="License">License: </Label>
 						<div class="col-sm-9">
-                            @if (_license.StartsWith("http") || _license.StartsWith("/"))
+                            @if (_license.StartsWith("http") || _license.StartsWith("/") || _license.StartsWith("~"))
                             {
-                                <a href="@_license" class="btn btn-info" style="text-decoration: none !important" target="_new">@Localizer["View License"]</a>
+                                <a href="@_license.Replace("~", PageState?.Alias.BaseUrl + "/Modules/" + Utilities.GetTypeName(_moduledefinitionname))" class="btn btn-info" style="text-decoration: none !important" target="_new">@Localizer["View License"]</a>
                             }
                             else
                             {
                                 <textarea id="license" class="form-control" @bind="@_license" rows="5" disabled></textarea>
                             }
-						</div>
-					</div>
-					<div class="row mb-1 align-items-center">
-						<Label Class="col-sm-3" For="runtimes" HelpText="The Blazor runtimes which this module supports" ResourceKey="Runtimes">Runtimes: </Label>
-						<div class="col-sm-9">
-							<input id="runtimes" class="form-control" @bind="@_runtimes" disabled />
 						</div>
 					</div>
 				</div>
@@ -223,7 +217,6 @@
     private string _url = "";
     private string _contact = "";
     private string _license = "";
-    private string _runtimes = "";
     private List<Permission> _permissions = null;
     private string _createdby;
     private DateTime _createdon;
@@ -259,7 +252,6 @@
                 _url = moduleDefinition.Url;
                 _contact = moduleDefinition.Contact;
                 _license = moduleDefinition.License;
-                _runtimes = moduleDefinition.Runtimes;
                 _permissions = moduleDefinition.PermissionList;
                 _createdby = moduleDefinition.CreatedBy;
                 _createdon = moduleDefinition.CreatedOn;
@@ -383,27 +375,27 @@
                 AddModuleMessage(Localizer["Error.Translation.Download"], MessageType.Error);
             }
         }
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Getting Package {PackageId} {Version}", packagename, version);
-			AddModuleMessage(Localizer["Error.Translation.Download"], MessageType.Error);
-		}
-	}
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Getting Package {PackageId} {Version}", packagename, version);
+            AddModuleMessage(Localizer["Error.Translation.Download"], MessageType.Error);
+        }
+    }
 
-	private async Task DownloadPackage()
-	{
-		try
-		{
-			await PackageService.DownloadPackageAsync(_package.PackageId, _package.Version, Constants.PackagesFolder);
-			await logger.LogInformation("Package {PackageId} {Version} Downloaded Successfully", _package.PackageId, _package.Version);
-			AddModuleMessage(string.Format(Localizer["Success.Translation.Download"], NavigateUrl("admin/system")), MessageType.Success);
-			_package = null;
-			StateHasChanged();
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Downloading Package {PackageId} {Version}", _packagename, _version);
-			AddModuleMessage(Localizer["Error.Translation.Download"], MessageType.Error);
-		}
-	}
+    private async Task DownloadPackage()
+    {
+        try
+        {
+            await PackageService.DownloadPackageAsync(_package.PackageId, _package.Version, Constants.PackagesFolder);
+            await logger.LogInformation("Package {PackageId} {Version} Downloaded Successfully", _package.PackageId, _package.Version);
+            AddModuleMessage(string.Format(Localizer["Success.Translation.Download"], NavigateUrl("admin/system")), MessageType.Success);
+            _package = null;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Downloading Package {PackageId} {Version}", _packagename, _version);
+            AddModuleMessage(Localizer["Error.Translation.Download"], MessageType.Error);
+        }
+    }
 }
