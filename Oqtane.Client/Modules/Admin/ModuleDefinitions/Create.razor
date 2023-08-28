@@ -115,7 +115,8 @@
             {
                 if (IsValid(_owner) && IsValid(_module) && _owner != _module && _template != "-")
                 {
-                    var moduleDefinition = new ModuleDefinition { Owner = _owner, Name = _module, Description = _description, Template = _template, Version = _reference };
+                    var template = _templates.FirstOrDefault(item => item.Name == _template); 
+                    var moduleDefinition = new ModuleDefinition { Owner = _owner, Name = _module, Description = _description, Template = _template, Version = _reference, ModuleDefinitionName = template.Namespace };
                     moduleDefinition = await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition);
                     GetLocation();
                     AddModuleMessage(string.Format(Localizer["Success.Module.Create"], NavigateUrl("admin/system")), MessageType.Success);
@@ -139,7 +140,7 @@
     private bool IsValid(string name)
     {
         // must contain letters, underscores and digits and first character must be letter or underscore
-		return !string.IsNullOrEmpty(name) && name.ToLower() != "module" && !name.ToLower().Contains("oqtane") && Regex.IsMatch(name, "^[A-Za-z_][A-Za-z0-9_]*$");
+        return !string.IsNullOrEmpty(name) && name.ToLower() != "module" && !name.ToLower().Contains("oqtane") && Regex.IsMatch(name, "^[A-Za-z_][A-Za-z0-9_]*$");
     }
 
     private void TemplateChanged(ChangeEventArgs e)
@@ -151,7 +152,7 @@
             var template = _templates.FirstOrDefault(item => item.Name == _template);
             _minversion = template.Version;
         }
-		GetLocation();
+        GetLocation();
     }
 
     private void GetLocation()
@@ -160,8 +161,14 @@
         if (_owner != "" && _module != "" && _template != "-")
         {
             var template = _templates.FirstOrDefault(item => item.Name == _template);
-            _location = template.Location + _owner + ".Module." + _module;
-
+            if (!string.IsNullOrEmpty(template.Namespace))
+            {
+                _location = template.Location + template.Namespace.Replace("[Owner]", _owner).Replace("[Module]", _module);
+            }
+            else
+            {
+                _location = template.Location + _owner + ".Module." + _module;
+            }
         }
         StateHasChanged();
     }
