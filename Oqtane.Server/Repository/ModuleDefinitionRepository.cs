@@ -138,14 +138,21 @@ namespace Oqtane.Repository
             // sync module assemblies with database
             foreach (ModuleDefinition ModuleDefinition in ModuleDefinitions)
             {
+                // manage releaseversions in cases where it was not provided or is lower than the module version
+                if (string.IsNullOrEmpty(ModuleDefinition.ReleaseVersions) || (!string.IsNullOrEmpty(ModuleDefinition.Version) && Version.Parse(ModuleDefinition.Version).CompareTo(Version.Parse(ModuleDefinition.ReleaseVersions.Split(',').Last())) > 0))
+                {
+                    ModuleDefinition.ReleaseVersions = ModuleDefinition.Version;
+                }
+
                 ModuleDefinition moduledefinition = moduledefinitions.Where(item => item.ModuleDefinitionName == ModuleDefinition.ModuleDefinitionName).FirstOrDefault();
+
                 if (moduledefinition == null)
                 {
-                    // new module definition
-                    moduledefinition = new ModuleDefinition { ModuleDefinitionName = ModuleDefinition.ModuleDefinitionName, Version = ModuleDefinition.Version };
+                    // new module definition (version is explicitly not set because it is updated as part of module migrations at startup)
+                    moduledefinition = new ModuleDefinition { ModuleDefinitionName = ModuleDefinition.ModuleDefinitionName };
                     _db.ModuleDefinition.Add(moduledefinition);
                     _db.SaveChanges();
-                    ModuleDefinition.Version = ""; // ensure migrations are executed during startup for new module installations
+                    ModuleDefinition.Version = ""; 
                 }
                 else
                 {
@@ -156,12 +163,6 @@ namespace Oqtane.Repository
 
                     // remove module definition from list as it is already synced
                     moduledefinitions.Remove(moduledefinition);
-                }
-
-                // manage releaseversions in cases where it was not provided or is lower than the module version
-                if (string.IsNullOrEmpty(ModuleDefinition.ReleaseVersions) || (!string.IsNullOrEmpty(ModuleDefinition.Version) && Version.Parse(ModuleDefinition.Version).CompareTo(Version.Parse(ModuleDefinition.ReleaseVersions.Split(',').Last())) > 0))
-                {
-                    ModuleDefinition.ReleaseVersions = ModuleDefinition.Version;
                 }
 
                 // load db properties
