@@ -28,11 +28,11 @@ namespace Oqtane.UI
 
         public List<Page> Pages
         {
-            get { return Site.Pages.Where(item => !item.IsDeleted).ToList(); }
+            get { return Site.Pages; }
         }
         public List<Module> Modules
         {
-            get { return Site.Modules.Where(item => !item.IsDeleted).ToList(); }
+            get { return Site.Modules; }
         }
         public List<Language> Languages
         {
