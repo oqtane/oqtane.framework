@@ -372,12 +372,15 @@ namespace Oqtane.Repository
                         page.PermissionList = pageTemplate.PermissionList;
                         try
                         {
-                            if (page.PageId != 0 && pageTemplate.Update)
+                            if (page.PageId != 0)
                             {
-                                page = _pageRepository.UpdatePage(page);
-                                if (alias != null)
+                                if (pageTemplate.Update)
                                 {
-                                    _logger.Log(LogLevel.Information, "Site Template", LogFunction.Update, "Page Updated {Page}", page);
+                                    page = _pageRepository.UpdatePage(page);
+                                    if (alias != null)
+                                    {
+                                        _logger.Log(LogLevel.Information, "Site Template", LogFunction.Update, "Page Updated {Page}", page);
+                                    }
                                 }
                             }
                             else
@@ -430,13 +433,20 @@ namespace Oqtane.Repository
                                 pageModule.Module.IsDeleted = false;
                                 try
                                 {
-                                    if (pageModule.ModuleId != 0 && pageTemplate.Update)
+                                    if (pageModule.ModuleId != 0)
                                     {
-                                        _moduleRepository.UpdateModule(pageModule.Module);
-                                        _pageModuleRepository.UpdatePageModule(pageModule);
-                                        if (alias != null)
+                                        if (pageTemplate.Update)
                                         {
-                                            _logger.Log(LogLevel.Information, "Site Template", LogFunction.Update, "Page Module Updated {PageModule}", pageModule);
+                                            _moduleRepository.UpdateModule(pageModule.Module);
+                                            _pageModuleRepository.UpdatePageModule(pageModule);
+                                            if (alias != null)
+                                            {
+                                                _logger.Log(LogLevel.Information, "Site Template", LogFunction.Update, "Page Module Updated {PageModule}", pageModule);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            pageTemplateModule.Content = ""; // do not update content
                                         }
                                     }
                                     else
