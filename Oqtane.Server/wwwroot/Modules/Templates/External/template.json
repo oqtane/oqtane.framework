@@ -1,5 +1,6 @@
 {
   "Title": "Default Module Template",
   "Type": "External",
-  "Version": "4.0.2"
+  "Version": "4.0.3",
+  "Namespace": "[Owner].Module.[Module]"
 }
