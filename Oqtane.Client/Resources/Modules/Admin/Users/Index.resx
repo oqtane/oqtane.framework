@@ -396,4 +396,10 @@
   <data name="ProfileClaimTypes.Text" xml:space="preserve">
     <value>User Profile Claims:</value>
   </data>
+  <data name="Username" xml:space="preserve">
+    <value>User Name</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
 </root>

@@ -48,7 +48,7 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="imagesizes" HelpText="Enter a list of image sizes which can be generated dynamically from uploaded images (ie. 200x200,x200,200x)" ResourceKey="ImageSizes">Image Sizes: </Label>
+                <Label Class="col-sm-3" For="imagesizes" HelpText="Enter a list of image sizes which can be generated dynamically from uploaded images (ie. 200x200,400x400). Use * to indicate the folder supports all image sizes." ResourceKey="ImageSizes">Image Sizes: </Label>
                 <div class="col-sm-9">
                     <input id="imagesizes" class="form-control" @bind="@_imagesizes" maxlength="512" />
                 </div>
@@ -112,11 +112,6 @@
 
     public override string Title => "Folder Management"; 
 
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-        base.SetModuleTitle(Localizer["ModuleTitle.Text"]);
-    }
     protected override async Task OnInitializedAsync()
     {
         try

@@ -97,7 +97,7 @@ namespace Oqtane.Models
         [NotMapped]
         public string FolderPath
         {
-            get => "Users\\" + UserId.ToString() + "\\";
+            get => "Users/" + UserId.ToString() + "/";
         }
 
         /// <summary>

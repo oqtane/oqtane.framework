@@ -26,7 +26,7 @@
     private bool _isInternalNavigation = false;
     private bool _navigationInterceptionEnabled;
     private PageState _pagestate;
-    private string _error = "";
+    private string _error = "";    
 
     [Parameter]
     public string Runtime { get; set; }
@@ -387,6 +387,7 @@
     private (Page Page, List<Module> Modules) ProcessModules(Page page, List<Module> modules, int moduleid, string action, string defaultcontainertype, Alias alias)
     {
         var paneindex = new Dictionary<string, int>();
+
         foreach (Module module in modules)
         {
             // initialize module control properties
@@ -397,7 +398,7 @@
             module.PaneModuleIndex = -1;
             module.PaneModuleCount = 0;
 
-            if ((module.PageId == page.PageId || module.ModuleId == moduleid))
+            if (module.PageId == page.PageId || module.ModuleId == moduleid)
             {
                 var typename = Constants.ErrorModule;
 
@@ -463,8 +464,8 @@
                     // additional metadata needed for admin components
                     if (module.ModuleId == moduleid && action != "")
                     {
-                        module.SecurityAccessLevel = moduleobject.SecurityAccessLevel;
                         module.ControlTitle = moduleobject.Title;
+                        module.SecurityAccessLevel = moduleobject.SecurityAccessLevel;
                         module.Actions = moduleobject.Actions;
                         module.UseAdminContainer = moduleobject.UseAdminContainer;
                     }

@@ -123,7 +123,7 @@ namespace Oqtane.Repository
                 if (theme == null)
                 {
                     // new theme
-                    theme = new Theme { ThemeName = Theme.ThemeName };
+                    theme = new Theme { ThemeName = Theme.ThemeName, Version = Theme.Version };
                     _db.Theme.Add(theme);
                     _db.SaveChanges();
                 }
@@ -131,6 +131,7 @@ namespace Oqtane.Repository
                 {
                     // override user customizable property values
                     Theme.Name = (!string.IsNullOrEmpty(theme.Name)) ? theme.Name : Theme.Name;
+
                     // remove theme from list as it is already synced
                     themes.Remove(theme);
                 }
@@ -141,6 +142,7 @@ namespace Oqtane.Repository
                     themecontrol.Name = Theme.Name + " - " + themecontrol.Name;
                 }
 
+                // load db properties
                 Theme.ThemeId = theme.ThemeId;
                 Theme.CreatedBy = theme.CreatedBy;
                 Theme.CreatedOn = theme.CreatedOn;

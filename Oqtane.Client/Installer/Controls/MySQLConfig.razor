@@ -1,5 +1,6 @@
 @namespace Oqtane.Installer.Controls
 @implements Oqtane.Interfaces.IDatabaseConfigControl
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <div class="row mb-1 align-items-center">
     <Label Class="col-sm-3" For="server" HelpText="Enter the database server" ResourceKey="Server">Server:</Label>
@@ -28,7 +29,10 @@
 <div class="row mb-1 align-items-center">
     <Label Class="col-sm-3" For="pwd" HelpText="Enter the password to use for the database" ResourceKey="Pwd">Password:</Label>
     <div class="col-sm-9">
-        <input id="pwd" type="password" class="form-control" @bind="@_pwd" autocomplete="new-password" />
+        <div class="input-group">
+            <input id="pwd" type="@_passwordType" class="form-control" @bind="@_pwd" autocomplete="new-password" />
+            <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglePassword</button>
+        </div>
     </div>
 </div>
 
@@ -38,6 +42,13 @@
     private string _database = "Oqtane-" + DateTime.UtcNow.ToString("yyyyMMddHHmm");
     private string _uid = String.Empty;
     private string _pwd = String.Empty;
+    private string _passwordType = "password";
+    private string _togglePassword = string.Empty;
+
+    protected override void OnInitialized()
+	{
+        _togglePassword = SharedLocalizer["ShowPassword"];
+    }
 
     public string GetConnectionString()
     {
@@ -54,5 +65,19 @@
         }
 
         return connectionString;
+    }
+
+    private void TogglePassword()
+    {
+        if (_passwordType == "password")
+        {
+            _passwordType = "text";
+            _togglePassword = SharedLocalizer["HidePassword"];
+        }
+        else
+        {
+            _passwordType = "password";
+            _togglePassword = SharedLocalizer["ShowPassword"];
+        }
     }
 }

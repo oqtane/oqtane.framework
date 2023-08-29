@@ -1,0 +1,50 @@
+@namespace Oqtane.Modules.Controls
+@inherits LocalizableComponent
+
+<input type="text" value="@Value" list="@_id" class="form-control" @onchange="(e => OnChange(e))" />
+<datalist id="@_id" value="@Value">
+    @foreach(var kvp in DataList)
+    {
+        if (!string.IsNullOrEmpty(kvp.Value))
+        {
+            <option value="@kvp.Key">@Localize(kvp.Value, kvp.Value)</option>
+        }
+        else
+        {
+            <option value="@kvp.Key">@Localize(kvp.Key, kvp.Key)</option>
+        }
+    }
+</datalist>
+
+@code {
+    private string _id;
+
+    [Parameter]
+    public string Value { get; set; }
+
+    [EditorRequired]
+    [Parameter]    
+    public Dictionary<string, string> DataList { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    protected override void OnInitialized()
+    {
+        // create unique id for component
+        _id = "DataList_" + Guid.NewGuid().ToString("N");
+    }
+
+    protected void OnChange(ChangeEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(e.Value.ToString()))
+        {
+            Value = e.Value.ToString();
+            if (ValueChanged.HasDelegate)
+            {
+                ValueChanged.InvokeAsync(Value);
+            }
+        }
+    }
+}

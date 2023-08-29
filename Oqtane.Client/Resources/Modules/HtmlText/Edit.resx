@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -156,7 +156,7 @@
   <data name="Message.Content.Restored" xml:space="preserve">
     <value>Version Restored</value>
   </data>
-  <data name="ModuleTitle.Text" xml:space="preserve">
+  <data name="Edit Html/Text" xml:space="preserve">
     <value>Edit Html/Text</value>
   </data>
   <data name="Restore.Header" xml:space="preserve">
@@ -167,5 +167,17 @@
   </data>
   <data name="View.Text" xml:space="preserve">
     <value>View</value>
+  </data>
+  <data name="Edit.Heading" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Versions.Heading" xml:space="preserve">
+    <value>Versions</value>
+  </data>
+  <data name="HtmlEditor.Heading" xml:space="preserve">
+    <value>Raw HTML Editor</value>
+  </data>
+    <data name="RichTextEditor.Heading" xml:space="preserve">
+    <value>Rich Text Editor</value>
   </data>
 </root>

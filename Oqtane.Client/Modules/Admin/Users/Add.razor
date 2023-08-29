@@ -12,6 +12,7 @@
     <TabPanel Name="Identity" ResourceKey="Identity">
         @if (profiles != null)
         {
+            <ModuleMessage Message="@_passwordrequirements" Type="MessageType.Info" />
             <div class="container">
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="username" HelpText="A unique username for a user. Note that this field can not be modified once it is saved." ResourceKey="Username"></Label>
@@ -94,6 +95,7 @@
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 
 @code {
+    private string _passwordrequirements;
     private string username = string.Empty;
     private string _password = string.Empty;
     private string _passwordtype = "password";
@@ -111,6 +113,7 @@
     {
         try
         {
+            _passwordrequirements = await UserService.GetPasswordRequirementsAsync(PageState.Site.SiteId);
             _togglepassword = SharedLocalizer["ShowPassword"];
             profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
             settings = new Dictionary<string, string>();

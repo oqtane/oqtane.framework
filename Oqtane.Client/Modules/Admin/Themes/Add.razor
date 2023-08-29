@@ -24,10 +24,11 @@
         <div class="row justify-content-center mb-3">
             <div class="col">
                 <div class="input-group">
-                    <span class="input-group-text">Product</span>
+                    <span class="input-group-text">@Localizer["Product"]</span>
                     <input id="search" class="form-control" placeholder="@SharedLocalizer["Search.Hint"]" @bind="@_search" />
                     <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>
                     <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
+                    <button type="button" class="btn btn-primary ms-2" @onclick="Refresh"><span class="@Icons.Reload" aria-hidden="true"></span></button>
                 </div>
             </div>
         </div>
@@ -60,18 +61,18 @@
                         <Row>
                             <div class="m-2 p-2 d-flex justify-content-center">
                                 <div class="container-fluid px-0">
-                                    <div class="row g-0">
-                                        <div class="col-6">
-                                            @if (context.LogoFileId != null)
+                                    <div class="row g-0 mb-2">
+                                        <div class="col-4">
+                                            @if (context.LogoUrl != null)
                                             {
-                                                <img src="@GetLogo(context.LogoFileId.Value)" class="img-fluid" alt="@context.Name" />
+                                                <img src="@context.LogoUrl" class="img-fluid" alt="@context.Name" />
                                             }
                                             else
                                             {
                                                 <img src="/package.png" class="img-fluid" alt="@context.Name" />
                                             }
                                         </div>
-                                        <div class="col-6 text-end">
+                                        <div class="col-8 text-end">
                                             <small>@SharedLocalizer["Search.Version"]:</small> <strong>@context.Version</strong>
                                             <br /><small>@SharedLocalizer["Search.Downloads"]:</small> <strong>@(String.Format("{0:n0}", context.Downloads))</strong>
                                             <br /><small>@SharedLocalizer["Search.Released"]:</small> <strong>@context.ReleaseDate.ToString("MM/dd/yyyy")</strong>
@@ -90,7 +91,7 @@
                                             @(context.Description.Length > 400 ? (context.Description.Substring(0, 400) + "...") : context.Description)<br />
                                             @if (context.Price != null && !string.IsNullOrEmpty(context.PaymentUrl))
                                             {
-                                                <small>@SharedLocalizer["Search.Price"]:</small> <strong>@context.Price.Value.ToString("$#,##0.00")</strong>
+                                                <small>@SharedLocalizer["From"]:</small> <strong>@context.Price.Value.ToString("$#,##0.00")</strong>
                                                 @((MarkupString)(context.TrialPeriod > 0 ? " <strong>(" + context.TrialPeriod + " Day Trial)</strong>" : ""))
                                             }
                                             <br />
@@ -98,7 +99,7 @@
                                             {
                                                 <button type="button" class="btn btn-primary" @onclick=@(async () => await GetPackage(context.PackageId, context.Version))>@SharedLocalizer["Download"]</button>
                                             }
-                                            @if (context.Price != null && !string.IsNullOrEmpty(context.PaymentUrl))
+                                            @if (context.Price != null && !string.IsNullOrEmpty(context.PaymentUrl) && string.IsNullOrEmpty(context.PackageUrl))
                                             {
                                                 <a class="btn btn-success ms-2" style="text-decoration: none !important" href="@context.PaymentUrl" target="_new">@SharedLocalizer["Buy"]</a>
                                             }
@@ -164,6 +165,7 @@
 
 @code {
     private bool _initialized = false;
+    private int _page = 1;
     private List<Package> _packages;
     private string _price = "free";
     private string _sort = "popularity";
@@ -210,13 +212,6 @@
         HideProgressIndicator();
     }
 
-    private string GetLogo(int fileid)
-    {
-        var url = ImageUrl(fileid, 100, 100);
-        url = (!string.IsNullOrEmpty(PageState.Alias.Path)) ? url.Substring(PageState.Alias.Path.Length + 1) : url;
-        return Constants.PackageRegistryUrl + url;
-    }
-
     private async void PriceChanged(string price)
     {
         _price = price;
@@ -226,27 +221,24 @@
 
     private async Task Search()
     {
-        try
-        {
-            await LoadThemes();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error On Search");
-        }
+        await LoadThemes();
     }
 
     private async Task Reset()
     {
-        try
-        {
-            _search = "";
-            await LoadThemes();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error On Reset");
-        }
+        _page = 1;
+        _search = "";
+        await LoadThemes();
+    }
+
+    private async Task Refresh()
+    {
+        await LoadThemes();
+    }
+
+    private void OnPageChange(int page)
+    {
+        _page = page;
     }
 
     private async void SortChanged(ChangeEventArgs e)

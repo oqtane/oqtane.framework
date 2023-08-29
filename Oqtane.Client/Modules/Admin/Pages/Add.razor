@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IPageService PageService
 @inject IThemeService  ThemeService
+@inject ISystemService SystemService
 @inject IStringLocalizer<Add> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -111,8 +112,11 @@
                     </div>
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="icon" HelpText="Optionally provide an icon class name for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Label>
-                        <div class="col-sm-9">
-                            <input id="icon" class="form-control" @bind="@_icon" />
+                        <div class="col-sm-8">
+                            <InputList Value="@_icon" ValueChanged="IconChanged" DataList="@_icons" ResourceKey="Icon" ResourceType="@_iconresources" />
+                        </div>
+                        <div class="col-sm-1">
+                            <i class="@_icon"></i>
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
@@ -227,6 +231,8 @@
     private RenderFragment ThemeSettingsComponent { get; set; }
     private bool _refresh = false;
     protected Page _parent = null;
+    protected Dictionary<string, string> _icons;
+    private string _iconresources = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -241,6 +247,8 @@
                     _parentid = _parent.PageId.ToString();
                 }
             }
+            _icons = await SystemService.GetIconsAsync();
+            _iconresources = typeof(IconResources).FullName;
 
             // if admin or user has edit access to parent page
             if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin) || (_parent != null && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, _parent.PermissionList)))
@@ -481,5 +489,9 @@
         {
             NavigationManager.NavigateTo(NavigateUrl());
         }
+    }
+    private void IconChanged(string NewIcon)
+    {
+        _icon = NewIcon;
     }
 }

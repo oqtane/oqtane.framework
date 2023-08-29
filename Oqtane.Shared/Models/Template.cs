@@ -26,6 +26,11 @@ namespace Oqtane.Models
         public string Version { get; set; }
 
         /// <summary>
+        /// namespace (uses tokens)
+        /// </summary>
+        public string Namespace { get; set; }
+
+        /// <summary>
         /// location where template will be created (dynamically set)
         /// </summary>
         public string Location { get; set; }

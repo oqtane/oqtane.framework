@@ -33,9 +33,14 @@ namespace Oqtane.Models
         public string Description { get; set; }
 
         /// <summary>
-        /// logo
+        /// logo file id
         /// </summary>
         public int? LogoFileId { get; set; }
+
+        /// <summary>
+        /// logo url
+        /// </summary>
+        public string LogoUrl { get; set; }
 
         /// <summary>
         /// License for the Package. 

@@ -14,6 +14,7 @@ using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Extensions;
 using Oqtane.Managers;
+using System.Collections.Generic;
 
 namespace Oqtane.Controllers
 {
@@ -61,13 +62,15 @@ namespace Oqtane.Controllers
             }
         }
 
-        // GET api/<controller>/name/x?siteid=x
-        [HttpGet("name/{name}")]
-        public User Get(string name, string siteid)
+        // GET api/<controller>/name/{name}/{email}?siteid=x
+        [HttpGet("name/{name}/{email}")]
+        public User Get(string name, string email, string siteid)
         {
             if (int.TryParse(siteid, out int SiteId) && SiteId == _tenantManager.GetAlias().SiteId)
             {
-                User user = _userManager.GetUser(name, SiteId);
+                name = (name == "-") ? "" : name;
+                email = (email == "-") ? "" : email;
+                User user = _userManager.GetUser(name, email, SiteId);
                 if (user == null)
                 {
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -76,7 +79,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Get Attempt {Username} {SiteId}", name, siteid);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Get Attempt {Username} {Email} {SiteId}", name, email, siteid);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
@@ -333,6 +336,24 @@ namespace Oqtane.Controllers
                 user.Roles = roles;
             }
             return user;
+        }
+
+        // GET api/<controller>/passwordrequirements/5
+        [HttpGet("passwordrequirements/{siteid}")]
+        public Dictionary<string, string> PasswordRequirements(int siteid)
+        {
+            var requirements = new Dictionary<string, string>();
+
+            var site = _sites.GetSite(siteid);
+            if (site != null && (site.AllowRegistration || User.IsInRole(RoleNames.Registered)))
+            {
+                // get password settings
+                var sitesettings = HttpContext.GetSiteSettings();
+                requirements = sitesettings.Where(item => item.Key.StartsWith("IdentityOptions:Password:"))
+                    .ToDictionary(item => item.Key, item => item.Value);
+            }
+
+            return requirements;
         }
     }
 }

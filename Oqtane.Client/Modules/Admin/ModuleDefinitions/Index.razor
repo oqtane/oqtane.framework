@@ -37,7 +37,7 @@ else
 		</div>
 	</div>
 			
-	<Pager Items="@_moduleDefinitions.Where(item => item.Categories.Contains(_category))">
+	<Pager Items="@_moduleDefinitions">
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
@@ -99,47 +99,58 @@ else
 }
 
 @code {
-	private List<ModuleDefinition> _moduleDefinitions;
-	private List<Package> _packages;
-	private List<string> _categories = new List<string>();
-	private string _category = "Common";
+    private List<ModuleDefinition> _allModuleDefinitions;
+    private List<ModuleDefinition> _moduleDefinitions;
+    private List<Package> _packages;
+    private List<string> _categories = new List<string>();
+    private string _category = "Common";
 
-	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-	protected override async Task OnParametersSetAsync()
-	{
-		try
-		{
-			_moduleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
-			_packages = await PackageService.GetPackagesAsync("module");
-			_categories = _moduleDefinitions.SelectMany(m => m.Categories.Split(',')).Distinct().ToList();
-		}
-		catch (Exception ex)
-		{
-			if (_moduleDefinitions == null)
-			{
-				await logger.LogError(ex, "Error Loading Modules {Error}", ex.Message);
-				AddModuleMessage(Localizer["Error.Module.Load"], MessageType.Error);
-			}
-		}
-	}
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
+            _categories = _allModuleDefinitions.SelectMany(m => m.Categories.Split(',')).Distinct().ToList();
+            await LoadModuleDefinitions();
+        }
+        catch (Exception ex)
+        {
+            if (_moduleDefinitions == null)
+            {
+                await logger.LogError(ex, "Error Loading Modules {Error}", ex.Message);
+                AddModuleMessage(Localizer["Error.Module.Load"], MessageType.Error);
+            }
+        }
+    }
 
-	private string PurchaseLink(string packagename)
-	{
-		string link = "";
-		if (!string.IsNullOrEmpty(packagename) && _packages != null)
-		{
-			var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
-			if (package != null)
-			{
-				if (package.ExpiryDate != null && package.ExpiryDate.Value.Date != DateTime.MaxValue.Date)
-				{
-					link += "<span>" + package.ExpiryDate.Value.Date.ToString("MMM dd, yyyy") + "</span><br />";
-					if (!string.IsNullOrEmpty(package.PaymentUrl))
-					{
-						link += "&nbsp;&nbsp;<a class=\"btn btn-primary\" style=\"text-decoration: none !important\" href=\"" + package.PaymentUrl + "\" target=\"_new\">" + SharedLocalizer["Extend"] + "</a>";
-					}
-				}
+    private async Task LoadModuleDefinitions()
+    {
+        _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(_category)).ToList();
+        var list = _moduleDefinitions.Where(item => !string.IsNullOrEmpty(item.PackageName)).Select(item => item.PackageName).Distinct().ToList();
+        _packages = await PackageService.GetPackagesAsync(list);
+    }
+
+    private string PurchaseLink(string packagename)
+    {
+        string link = "";
+        if (!string.IsNullOrEmpty(packagename) && _packages != null)
+        {
+            var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
+            if (package != null)
+            {
+                if (package.ExpiryDate != null && package.ExpiryDate.Value.Date != DateTime.MaxValue.Date)
+                {
+                    if (string.IsNullOrEmpty(package.PaymentUrl))
+                    {
+                        link = "<span>" + package.ExpiryDate.Value.Date.ToString("MMM dd, yyyy") + "</span>";
+                    }
+                    else
+                    {
+                        link = "<a class=\"btn btn-primary\" style=\"text-decoration: none !important\" href=\"" + package.PaymentUrl + "\" target=\"_new\">" + package.ExpiryDate.Value.Date.ToString("MMM dd, yyyy") + "</a>";
+                    }
+                }
 			}
 		}
 		return link;
@@ -202,9 +213,9 @@ else
 		}
 	}
 
-	private void CategoryChanged(ChangeEventArgs e)
+	private async Task CategoryChanged(ChangeEventArgs e)
 	{
 		_category = (string)e.Value;
-		StateHasChanged();
+        await LoadModuleDefinitions();
 	}
 }

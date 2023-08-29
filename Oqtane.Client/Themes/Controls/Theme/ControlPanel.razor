@@ -36,14 +36,14 @@
 
 @if (_canViewAdminDashboard || UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
 {
-    <button type="button" class="btn @ButtonClass ms-1" data-bs-toggle="offcanvas" data-bs-target="#offcanvasControlPanel" aria-controls="offcanvasControlPanel">
+    <button type="button" class="btn @ButtonClass ms-1" data-bs-toggle="offcanvas" data-bs-target="#offcanvasControlPanel" aria-controls="offcanvasControlPanel" @onclick="ClearMessage">
         <span class="oi oi-cog"></span>
     </button>
 
 	<div class="@ContainerClass" tabindex="-1" data-bs-scroll="true" data-bs-backdrop="true" id="offcanvasControlPanel" aria-labelledby="offcanvasScrollingLabel">
 		<div class="@HeaderClass">
 			<h5 id="offcanvasScrollingLabel" class="offcanvas-title">@Localizer["ControlPanel"]</h5>
-			<button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+			<button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" @onclick="ClearMessage"></button>
 		</div>
 		<div class="@BodyClass">
 			<div class="container-fluid">
@@ -98,7 +98,7 @@
 											<button type="button" class="btn-close" aria-label="Close" @onclick="ConfirmDelete"></button>
 										</div>
 										<div class="modal-body">
-											<p>Are You Sure You Want To Delete This Page?</p>
+											<p>@Localizer["Confirm.Page.Delete"]</p>
 										</div>
 										<div class="modal-footer">
 											<button type="button" class="btn btn-danger" @onclick="DeletePage">@SharedLocalizer["Delete"]</button>
@@ -647,4 +647,10 @@
         await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
     }
 
+    private void ClearMessage()
+    {
+
+        Message = "";
+
+    }
 }

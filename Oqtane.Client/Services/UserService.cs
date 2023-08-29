@@ -4,13 +4,20 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Oqtane.Documentation;
 using System.Net;
+using System.Collections.Generic;
+using Microsoft.Extensions.Localization;
 
 namespace Oqtane.Services
 {
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class UserService : ServiceBase, IUserService
     {
-        public UserService(HttpClient http, SiteState siteState) : base(http, siteState) { }
+        private readonly IStringLocalizer<SharedResources> _localizer;
+
+        public UserService(IStringLocalizer<SharedResources> localizer, HttpClient http, SiteState siteState) : base(http, siteState)
+        {
+            _localizer = localizer;
+        }
 
         private string Apiurl => CreateApiUrl("User");
 
@@ -21,7 +28,12 @@ namespace Oqtane.Services
 
         public async Task<User> GetUserAsync(string username, int siteId)
         {
-            return await GetJsonAsync<User>($"{Apiurl}/name/{username}?siteid={siteId}");
+            return await GetUserAsync(username, "", siteId);
+        }
+
+        public async Task<User> GetUserAsync(string username, string email, int siteId)
+        {
+            return await GetJsonAsync<User>($"{Apiurl}/name/{(!string.IsNullOrEmpty(username) ? username : "-")}/{(!string.IsNullOrEmpty(email) ? email : "-")}/?siteid={siteId}");
         }
 
         public async Task<User> AddUserAsync(User user)
@@ -90,5 +102,26 @@ namespace Oqtane.Services
             return await PostJsonAsync<User>($"{Apiurl}/link?token={token}&type={type}&key={key}&name={name}", user);
         }
 
+        public async Task<string> GetPasswordRequirementsAsync(int siteId)
+        {
+            var requirements = await GetJsonAsync<Dictionary<string, string>>($"{Apiurl}/passwordrequirements/{siteId}");
+
+            var minimumlength = (requirements.ContainsKey("IdentityOptions:Password:RequiredLength")) ? requirements["IdentityOptions:Password:RequiredLength"] : "6";
+            var uniquecharacters = (requirements.ContainsKey("IdentityOptions:Password:RequiredUniqueChars")) ? requirements["IdentityOptions:Password:RequiredUniqueChars"] : "1";
+            var requiredigit = bool.Parse((requirements.ContainsKey("IdentityOptions:Password:RequireDigit")) ? requirements["IdentityOptions:Password:RequireDigit"] : "true");
+            var requireupper = bool.Parse((requirements.ContainsKey("IdentityOptions:Password:RequireUppercase")) ? requirements["IdentityOptions:Password:RequireUppercase"] : "true");
+            var requirelower = bool.Parse((requirements.ContainsKey("IdentityOptions:Password:RequireLowercase")) ? requirements["IdentityOptions:Password:RequireLowercase"] : "true");
+            var requirepunctuation = bool.Parse((requirements.ContainsKey("IdentityOptions:Password:RequireNonAlphanumeric")) ? requirements["IdentityOptions:Password:RequireNonAlphanumeric"] : "true");
+
+            // replace the placeholders with the setting values
+            string digitRequirement = requiredigit ? _localizer["Password.DigitRequirement"] + ", " : "";
+            string uppercaseRequirement = requireupper ? _localizer["Password.UppercaseRequirement"] + ", " : "";
+            string lowercaseRequirement = requirelower ? _localizer["Password.LowercaseRequirement"] + ", " : "";
+            string punctuationRequirement = requirepunctuation ? _localizer["Password.PunctuationRequirement"] + ", " : "";
+            string passwordValidationCriteriaTemplate = _localizer["Password.ValidationCriteria"];
+
+            // format requirements
+            return string.Format(passwordValidationCriteriaTemplate, minimumlength, uniquecharacters, digitRequirement, uppercaseRequirement, lowercaseRequirement, punctuationRequirement);
+        }
     }
 }

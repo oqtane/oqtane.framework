@@ -1,5 +1,6 @@
 {
   "Title": "Default Theme Template",
   "Type": "External",
-  "Version": "4.0.0"
+  "Version": "4.0.3",
+  "Namespace": "[Owner].Theme.[Theme]"
 }

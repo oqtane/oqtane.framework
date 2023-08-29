@@ -97,6 +97,10 @@ namespace Oqtane.Models
         [NotMapped]
         public string ControlTypeRoutes { get; set; }
 
+        /// <summary>
+        /// ReleaseVersions contains a comma delimited list of all official release versions of a module ie "1.0.0,1.0.1"
+        /// Must be set for modules which use SQL scripts or include version-based logic in IInstallable implementations
+        /// </summary>
         [NotMapped]
         public string ReleaseVersions { get; set; }
 

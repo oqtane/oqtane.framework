@@ -257,7 +257,7 @@
 										<td>
 											@if (_aliasid == -1)
 											{
-												<ActionDialog Action="Delete" OnClick="@(async () => await DeleteAlias(context))" ResourceKey="DeleteModule" Class="btn btn-danger" Header="Delete Alias" Message="@string.Format(Localizer["Confirm.Alias.Delete", context.Name])" />
+												<ActionDialog Action="Delete" OnClick="@(async () => await DeleteAlias(context))" ResourceKey="DeleteAlias" Class="btn btn-danger" Header="Delete Alias" Message="@string.Format(Localizer["Confirm.Alias.Delete", context.Name])" />
 											}
 										</td>
 										<td>@context.Name</td>

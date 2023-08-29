@@ -129,4 +129,25 @@
   <data name="Message.Username.DontExist" xml:space="preserve">
     <value>User Does Not Exist With Name Specified</value>
   </data>
+  <data name="ModuleDefinition" xml:space="preserve">
+    <value>Module</value>
+  </data>
+  <data name="Page" xml:space="preserve">
+    <value>Page</value>
+  </data>
+  <data name="Folder" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="View" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Utilize" xml:space="preserve">
+    <value>Utilize</value>
+  </data>
+  <data name="Browse" xml:space="preserve">
+    <value>Browse</value>
+  </data>
 </root>

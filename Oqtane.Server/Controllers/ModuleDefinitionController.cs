@@ -127,17 +127,26 @@ namespace Oqtane.Controllers
                 DirectoryInfo rootFolder = Directory.GetParent(_environment.ContentRootPath);
                 string templatePath = Utilities.PathCombine(_environment.WebRootPath, "Modules", "Templates", moduleDefinition.Template, Path.DirectorySeparatorChar.ToString());
 
+                if (!string.IsNullOrEmpty(moduleDefinition.ModuleDefinitionName))
+                {
+                    moduleDefinition.ModuleDefinitionName = moduleDefinition.ModuleDefinitionName.Replace("[Owner]", moduleDefinition.Owner).Replace("[Module]", moduleDefinition.Name);
+                }
+                else
+                {
+                    moduleDefinition.ModuleDefinitionName = moduleDefinition.Owner + ".Module." + moduleDefinition.Name;
+                }
+
                 if (moduleDefinition.Template.ToLower().Contains("internal"))
                 {
                     rootPath = Utilities.PathCombine(rootFolder.FullName, Path.DirectorySeparatorChar.ToString());
-                    moduleDefinition.ModuleDefinitionName = moduleDefinition.Owner + ".Module." + moduleDefinition.Name + ", Oqtane.Client";
-                    moduleDefinition.ServerManagerType = moduleDefinition.Owner + ".Module." + moduleDefinition.Name + ".Manager." + moduleDefinition.Name + "Manager, Oqtane.Server";
+                    moduleDefinition.ModuleDefinitionName = moduleDefinition.ModuleDefinitionName + ", Oqtane.Client";
+                    moduleDefinition.ServerManagerType = moduleDefinition.ModuleDefinitionName + ".Manager." + moduleDefinition.Name + "Manager, Oqtane.Server";
                 }
                 else
                 {
                     rootPath = Utilities.PathCombine(rootFolder.Parent.FullName, moduleDefinition.Owner + ".Module." + moduleDefinition.Name, Path.DirectorySeparatorChar.ToString());
-                    moduleDefinition.ModuleDefinitionName = moduleDefinition.Owner + ".Module." + moduleDefinition.Name + ", " + moduleDefinition.Owner + ".Module." + moduleDefinition.Name + ".Client.Oqtane";
-                    moduleDefinition.ServerManagerType = moduleDefinition.Owner + ".Module." + moduleDefinition.Name + ".Manager." + moduleDefinition.Name + "Manager, " + moduleDefinition.Owner + ".Module." + moduleDefinition.Name + ".Server.Oqtane";
+                    moduleDefinition.ModuleDefinitionName = moduleDefinition.ModuleDefinitionName + ", " + moduleDefinition.ModuleDefinitionName + ".Client.Oqtane";
+                    moduleDefinition.ServerManagerType = moduleDefinition.ModuleDefinitionName + ".Manager." + moduleDefinition.Name + "Manager, " + moduleDefinition.ModuleDefinitionName + ".Server.Oqtane";
                 }
 
                 ProcessTemplatesRecursively(new DirectoryInfo(templatePath), rootPath, rootFolder.Name, templatePath, moduleDefinition);
@@ -301,7 +310,7 @@ namespace Oqtane.Controllers
                     }
                     else
                     {
-                        templates.Add(new Template { Name = name, Title = name, Type = "External", Version = "", Location = Utilities.PathCombine(root.Parent.ToString(), Path.DirectorySeparatorChar.ToString()) });
+                        templates.Add(new Template { Name = name, Title = name, Type = "External", Version = "", Namespace = "", Location = Utilities.PathCombine(root.Parent.ToString(), Path.DirectorySeparatorChar.ToString()) });
                     }
                 }
             }

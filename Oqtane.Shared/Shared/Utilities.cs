@@ -1,5 +1,6 @@
 using Oqtane.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
@@ -492,16 +493,49 @@ namespace Oqtane.Shared
 
         public static DateTime? LocalDateAndTimeAsUtc(DateTime? date, string time, TimeZoneInfo localTimeZone = null)
         {
-            localTimeZone ??= TimeZoneInfo.Local;
-            if (date != null)
+            if (date != null && !string.IsNullOrEmpty(time) && TimeSpan.TryParse(time, out TimeSpan timespan))
             {
-                if (!string.IsNullOrEmpty(time))
-                {
-                    return TimeZoneInfo.ConvertTime(DateTime.Parse(date.Value.Date.ToShortDateString() + " " + time), localTimeZone, TimeZoneInfo.Utc);
-                }
-                return TimeZoneInfo.ConvertTime(date.Value.Date, localTimeZone, TimeZoneInfo.Utc);
+                return LocalDateAndTimeAsUtc(date.Value.Date.Add(timespan), localTimeZone);
             }
             return null;
+        }
+
+        public static DateTime? LocalDateAndTimeAsUtc(DateTime? date, DateTime? time, TimeZoneInfo localTimeZone = null)
+        {
+            if (date != null)
+            {
+                if (time != null)
+                {
+                    return LocalDateAndTimeAsUtc(date.Value.Date.Add(time.Value.TimeOfDay), localTimeZone);
+                }
+                return LocalDateAndTimeAsUtc(date.Value.Date, localTimeZone);
+            }
+            return null;
+        }
+
+        public static DateTime? LocalDateAndTimeAsUtc(DateTime? date, TimeZoneInfo localTimeZone = null)
+        {
+            if (date != null)
+            {
+                localTimeZone ??= TimeZoneInfo.Local;
+                return TimeZoneInfo.ConvertTime(date.Value, localTimeZone, TimeZoneInfo.Utc);
+            }
+            return null;
+        }
+
+        public static DateTime? UtcAsLocalDate(DateTime? dateTime, TimeZoneInfo timeZone = null)
+        {
+            return UtcAsLocalDateAndTime(dateTime, timeZone).date;
+        }
+
+        public static DateTime? UtcAsLocalDateTime(DateTime? dateTime, TimeZoneInfo timeZone = null)
+        {
+            var result = UtcAsLocalDateAndTime(dateTime, timeZone);
+            if (result.date != null && !string.IsNullOrEmpty(result.time) && TimeSpan.TryParse(result.time, out TimeSpan timespan))
+            {
+                result.date = result.date.Value.Add(timespan);
+            }
+            return result.date;
         }
 
         public static (DateTime? date, string time) UtcAsLocalDateAndTime(DateTime? dateTime, TimeZoneInfo timeZone = null)

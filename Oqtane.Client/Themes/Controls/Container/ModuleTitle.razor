@@ -3,6 +3,7 @@
 @inherits ContainerBase      
 @attribute [OqtaneIgnore]
 @inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject IStringLocalizerFactory LocalizerFactory
 
 <span class="app-moduletitle">
     @((MarkupString)title)
@@ -20,7 +21,8 @@
 	{
 		if (!string.IsNullOrEmpty(ModuleState.ControlTitle))
 		{
-			title = ModuleState.ControlTitle;
+            var localizer = LocalizerFactory.Create(ModuleState.ModuleType);
+            title = localizer[ModuleState.ControlTitle];
 		}
 		else
 		{

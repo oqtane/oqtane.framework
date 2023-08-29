@@ -68,7 +68,14 @@
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="license" HelpText="The license of the theme" ResourceKey="License">License: </Label>
                 <div class="col-sm-9">
-                    <textarea id="license" class="form-control" @bind="@_license" rows="5" disabled></textarea>
+                    @if (_license.StartsWith("http") || _license.StartsWith("/") || _license.StartsWith("~"))
+                    {
+                        <a href="@_license.Replace("~", PageState?.Alias.BaseUrl + "/Themes/" + Utilities.GetTypeName(_themeName))" class="btn btn-info" style="text-decoration: none !important" target="_new">@Localizer["View License"]</a>
+                    }
+                    else
+                    {
+                        <textarea id="license" class="form-control" @bind="@_license" rows="5" disabled></textarea>
+                    }
                 </div>
             </div>
         </div>

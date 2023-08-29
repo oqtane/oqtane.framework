@@ -68,12 +68,6 @@
 	private List<Models.HtmlText> _htmltexts;
 	private string _view = "";
 
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-        base.SetModuleTitle(Localizer["ModuleTitle.Text"]);
-    }
-
 	protected override async Task OnInitializedAsync()
 	{
 		try

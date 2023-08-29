@@ -405,4 +405,25 @@
   <data name="Search.RecentlyReleased" xml:space="preserve">
     <value>Recently Released</value>
   </data>
+  <data name="From" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="To" xml:space="preserve">
+    <value>To</value>
+  </data>
+  <data name="Password.DigitRequirement" xml:space="preserve">
+    <value>At Least One Digit</value>
+  </data>
+  <data name="Password.LowercaseRequirement" xml:space="preserve">
+    <value>At Least One Lowercase Letter</value>
+  </data>
+  <data name="Password.PunctuationRequirement" xml:space="preserve">
+    <value>At Least One Punctuation Mark</value>
+  </data>
+  <data name="Password.UppercaseRequirement" xml:space="preserve">
+    <value>At Least One Uppercase Letter</value>
+  </data>
+  <data name="Password.ValidationCriteria" xml:space="preserve">
+    <value>Passwords Must Have A Minimum Length Of {0} Characters, Including At Least {1} Unique Character(s), {2}{3}{4}{5} To Satisfy Password Compexity Requirements For This Site.</value>
+  </data>
 </root>

@@ -84,10 +84,11 @@ namespace Oqtane.Controllers
             }
         }
 
-        [HttpGet("{siteId}/{path}")]
+        // GET api/<controller>/path/x/?path=y
+        [HttpGet("path/{siteId}")]
         public Folder GetByPath(int siteId, string path)
         {
-            var folderPath = WebUtility.UrlDecode(path).Replace("\\", "/");
+            var folderPath = WebUtility.UrlDecode(path).Replace("\\", "/"); // handle legacy path format
             folderPath = (folderPath == "/") ? "" : folderPath;
             if (!folderPath.EndsWith("/") && folderPath != "")
             {

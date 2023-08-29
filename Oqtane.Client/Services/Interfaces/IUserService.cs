@@ -1,4 +1,5 @@
 using Oqtane.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Oqtane.Services
@@ -15,7 +16,6 @@ namespace Oqtane.Services
         /// <param name="siteId">ID of a <see cref="Site"/></param>
         /// <returns></returns>
         Task<User> GetUserAsync(int userId, int siteId);
-
         
         /// <summary>
         /// Get a <see cref="User"/> of a specific site
@@ -24,6 +24,15 @@ namespace Oqtane.Services
         /// <param name="siteId">ID of a <see cref="Site"/></param>
         /// <returns></returns>
         Task<User> GetUserAsync(string username, int siteId);
+
+        /// <summary>
+        /// Get a <see cref="User"/> of a specific site
+        /// </summary>
+        /// <param name="username">Username / login of a <see cref="User"/></param>
+        /// <param name="email">email address of a <see cref="User"/></param>
+        /// <param name="siteId">ID of a <see cref="Site"/></param>
+        /// <returns></returns>
+        Task<User> GetUserAsync(string username, string email, int siteId);
 
         /// <summary>
         /// Save a user to the Database.
@@ -127,6 +136,11 @@ namespace Oqtane.Services
         /// <returns></returns>
         Task<User> LinkUserAsync(User user, string token, string type, string key, string name);
 
-
+        /// <summary>
+        /// Get password requirements for site
+        /// </summary>
+        /// <param name="siteId">ID of a <see cref="Site"/></param>
+        /// <returns></returns>
+        Task<string> GetPasswordRequirementsAsync(int siteId);
     }
 }
