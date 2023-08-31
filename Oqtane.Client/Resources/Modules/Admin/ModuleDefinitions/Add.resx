@@ -124,7 +124,7 @@
     <value>Error Loading Packages</value>
   </data>
   <data name="Success.Module.Download" xml:space="preserve">
-    <value>Module Package Saved Successfully. You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Complete The Installation.</value>
+    <value>Module Package Downloaded Successfully. You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Complete The Installation.</value>
   </data>
   <data name="Error.Module.Download" xml:space="preserve">
     <value>Error Downloading Module</value>

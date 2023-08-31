@@ -48,7 +48,10 @@
                             <select class="form-select" value="@_sort" @onchange="(e => SortChanged(e))">
                                 <option value="popularity">@SharedLocalizer["Search.Popularity"]</option>
                                 <option value="alphabetical">@SharedLocalizer["Search.Alphabetical"]</option>
-                                <option value="downloads">@SharedLocalizer["Search.Downloads"]</option>
+                                @if (_price == "free")
+                                {
+                                    <option value="downloads">@SharedLocalizer["Search.Downloads"]</option>
+                                }
                                 <option value="recent">@SharedLocalizer["Search.RecentlyReleased"]</option>
                                 @if (_price == "paid")
                                 {
@@ -74,11 +77,19 @@
                                         </div>
                                         <div class="col-8 text-end">
                                             <small>@SharedLocalizer["Search.Version"]:</small> <strong>@context.Version</strong>
-                                            <br /><small>@SharedLocalizer["Search.Downloads"]:</small> <strong>@(String.Format("{0:n0}", context.Downloads))</strong>
                                             <br /><small>@SharedLocalizer["Search.Released"]:</small> <strong>@context.ReleaseDate.ToString("MM/dd/yyyy")</strong>
                                             @if (!string.IsNullOrEmpty(context.PackageUrl))
                                             {
                                                 <br /><small>@SharedLocalizer["Search.Source"]:</small> <strong>@(new Uri(context.PackageUrl).Host)</strong>
+                                            }
+                                            @if (_price == "free")
+                                            {
+                                                <br /><small>@SharedLocalizer["Search.Downloads"]:</small> <strong>@(String.Format("{0:n0}", context.Downloads))</strong>
+                                            }
+                                            else
+                                            {
+                                                <br /><small>@SharedLocalizer["From"]:</small> <strong>@context.Price.Value.ToString("$#,##0.00")</strong>
+                                                @((MarkupString)(context.TrialPeriod > 0 ? " <strong>(" + context.TrialPeriod + " Day Trial)</strong>" : ""))
                                             }
                                         </div>
                                     </div>
@@ -87,11 +98,6 @@
                                             <h3 style="display: inline;"><a href="@context.ProductUrl" target="_blank">@context.Name</a></h3><br />
                                             <small>@SharedLocalizer["Search.By"]:</small> <strong><a href="@context.OwnerUrl" target="new">@context.Owner</a></strong><br />
                                             @(context.Description.Length > 400 ? (context.Description.Substring(0, 400) + "...") : context.Description)<br />
-                                            @if (context.Price != null && !string.IsNullOrEmpty(context.PaymentUrl))
-                                            {
-                                                <small>@SharedLocalizer["From"]:</small> <strong>@context.Price.Value.ToString("$#,##0.00")</strong>
-                                                @((MarkupString)(context.TrialPeriod > 0 ? " <strong>(" + context.TrialPeriod + " Day Trial)</strong>" : ""))
-                                            }
                                             <br />
                                             @if (!string.IsNullOrEmpty(context.PackageUrl))
                                             {
@@ -213,6 +219,7 @@
     private async void PriceChanged(string price)
     {
         _price = price;
+        _sort = "popularity";
         await LoadModuleDefinitions();
         StateHasChanged();
     }
