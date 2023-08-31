@@ -82,7 +82,7 @@
                                             {
                                                 <br /><small>@SharedLocalizer["Search.Source"]:</small> <strong>@(new Uri(context.PackageUrl).Host)</strong>
                                             }
-                                            @if (_price == "free")
+                                            @if (context.Price == null)
                                             {
                                                 <br /><small>@SharedLocalizer["Search.Downloads"]:</small> <strong>@(String.Format("{0:n0}", context.Downloads))</strong>
                                             }
