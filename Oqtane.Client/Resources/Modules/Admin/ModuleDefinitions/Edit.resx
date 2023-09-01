@@ -196,7 +196,7 @@
     <value>Information</value>
   </data>
   <data name="PackageName.HelpText" xml:space="preserve">
-    <value>The unique name of the package from which this module was installed</value>
+    <value>The unique name of the package from which this module was installed. This value must be specified within the module's IModule interface specification.</value>
   </data>
   <data name="PackageName.Text" xml:space="preserve">
     <value>Package Name:</value>
