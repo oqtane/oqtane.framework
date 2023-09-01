@@ -209,7 +209,7 @@
                         <th>@Localizer["ModuleDefinition"]</th>
                         </Header>
                         <Row>
-                            <td><ActionLink Action="Settings" Text="Edit" ModuleId="@context.ModuleId" Security="SecurityAccessLevel.Edit" PermissionList="@context.PermissionList" ResourceKey="ModuleSettings" /></td>
+                            <td><ActionLink Action="Settings" Text="Edit" Path="@_actualpath" ModuleId="@context.ModuleId" Security="SecurityAccessLevel.Edit" PermissionList="@context.PermissionList" ResourceKey="ModuleSettings" /></td>
                             <td><ActionDialog Header="Delete Module" Message="Are You Sure You Wish To Delete This Module?" Action="Delete" Security="SecurityAccessLevel.Edit" PermissionList="@context.PermissionList" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" /></td>
                             <td>@context.Title</td>
                             <td>@context.ModuleDefinition?.Name</td>
@@ -292,6 +292,7 @@
     private int _childid = -1;
     private string _isnavigation;
     private string _isclickable;
+    private string _actualpath;
     private string _path;
     private string _url;
     private string _ispersonalizable;
@@ -344,7 +345,8 @@
                 _currentparentid = _parentid;
                 _isnavigation = _page.IsNavigation.ToString();
                 _isclickable = _page.IsClickable.ToString();
-                _path = _page.Path;
+                _actualpath = _page.Path;
+                _path = _actualpath;
                 if (string.IsNullOrEmpty(_path))
                 {
                     _path = "/";
@@ -672,5 +674,4 @@
     {
         _icon = NewIcon;
     }
-
 }
