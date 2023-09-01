@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
@@ -105,5 +106,11 @@ namespace Oqtane.Models
         /// </summary>
         [NotMapped]
         public bool EmailConfirmed { get; set; }
+
+        /// <summary>
+        /// Public User Settings
+        /// </summary>
+        [NotMapped]
+        public Dictionary<string, string> Settings { get; set; }
     }
 }
