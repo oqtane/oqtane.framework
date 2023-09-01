@@ -424,8 +424,8 @@ namespace Oqtane.Repository
                                     pageModule.Module.ModuleDefinitionName = pageTemplateModule.ModuleDefinitionName;
                                 }
                                 pageModule.Title = pageTemplateModule.Title;
-                                pageModule.Pane = pageTemplateModule.Pane;
-                                pageModule.Order = pageTemplateModule.Order;
+                                pageModule.Pane = (string.IsNullOrEmpty(pageTemplateModule.Pane)) ? PaneNames.Default : pageTemplateModule.Pane;
+                                pageModule.Order = (pageTemplateModule.Order == 0) ? 1 : pageTemplateModule.Order;
                                 pageModule.ContainerType = pageTemplateModule.ContainerType;
                                 pageModule.IsDeleted = pageTemplateModule.IsDeleted;
                                 pageModule.Module.PermissionList = pageTemplateModule.PermissionList;

@@ -49,8 +49,11 @@
 			<div class="row mb-1 align-items-center">
 				<Label Class="col-sm-3" For="sitemap" HelpText="The site map url for this site which can be submitted to search engines for indexing" ResourceKey="SiteMap">Site Map: </Label>
 				<div class="col-sm-9">
-					<input id="sitemap" class="form-control" @bind="@_sitemap" required disabled />
-				</div>
+                    <div class="input-group">
+                        <input id="sitemap" class="form-control" @bind="@_sitemap" disabled />
+                        <a href="@_sitemap" class="btn btn-secondary" target="_new">@Localizer["Browse"]</a>
+                    </div>
+                </div>
 			</div>
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="version" HelpText="The site version (for site content migrations)" ResourceKey="Version">Version: </Label>
