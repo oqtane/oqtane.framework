@@ -26,16 +26,18 @@ namespace Oqtane.Controllers
         private readonly IUserManager _userManager;
         private readonly ISiteRepository _sites;
         private readonly IUserPermissions _userPermissions;
+        private readonly ISettingRepository _settings;
         private readonly IJwtManager _jwtManager;
         private readonly ILogManager _logger;
 
-        public UserController(IUserRepository users, ITenantManager tenantManager, IUserManager userManager, ISiteRepository sites, IUserPermissions userPermissions, IJwtManager jwtManager, ILogManager logger)
+        public UserController(IUserRepository users, ITenantManager tenantManager, IUserManager userManager, ISiteRepository sites, IUserPermissions userPermissions, ISettingRepository settings, IJwtManager jwtManager, ILogManager logger)
         {
             _users = users;
             _tenantManager = tenantManager;
             _userManager = userManager;
             _sites = sites;
             _userPermissions = userPermissions;
+            _settings = settings;
             _jwtManager = jwtManager;
             _logger = logger;
         }
@@ -51,6 +53,12 @@ namespace Oqtane.Controllers
                 if (user == null)
                 {
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                }
+                else
+                {
+                    List<Setting> settings = _settings.GetSettings(EntityNames.User, user.UserId).ToList();
+                    user.Settings = settings.Where(item => !item.IsPrivate || _userPermissions.GetUser(User).UserId == user.UserId)
+                        .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                 }
                 return Filter(user);
             }
@@ -74,6 +82,12 @@ namespace Oqtane.Controllers
                 if (user == null)
                 {
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                }
+                else
+                {
+                    List<Setting> settings = _settings.GetSettings(EntityNames.User, user.UserId).ToList();
+                    user.Settings = settings.Where(item => !item.IsPrivate || _userPermissions.GetUser(User).UserId == user.UserId)
+                        .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                 }
                 return Filter(user);
             }
