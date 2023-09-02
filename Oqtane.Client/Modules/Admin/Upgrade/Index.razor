@@ -85,8 +85,8 @@
     {
         try
         {
-            await PackageService.DownloadPackageAsync(packageid, version, Constants.PackagesFolder);
-            await PackageService.DownloadPackageAsync(Constants.UpdaterPackageId, version, Constants.PackagesFolder);
+            await PackageService.DownloadPackageAsync(packageid, version);
+            await PackageService.DownloadPackageAsync(Constants.UpdaterPackageId, version);
             AddModuleMessage(Localizer["Success.Framework.Download"], MessageType.Success);
         }
         catch (Exception ex)

@@ -61,7 +61,24 @@
 					<div class="row mb-1 align-items-center">
 						<Label Class="col-sm-3" For="packagename" HelpText="The unique name of the package from which this module was installed. This value must be specified within the module's IModule interface specification." ResourceKey="PackageName">Package Name: </Label>
 						<div class="col-sm-9">
-							<input id="packagename" class="form-control" @bind="@_packagename" disabled />
+                            @if (!string.IsNullOrEmpty(_packagename))
+                            {
+                                <div class="input-group">
+                                    <input id="packagename" class="form-control" @bind="@_packagename" disabled />
+                                    @if (string.IsNullOrEmpty(_packageurl))
+                                    {
+                                        <button type="button" class="btn btn-secondary" @onclick="ValidatePackage">@Localizer["Validate"]</button>
+                                    }
+                                    else
+                                    {
+                                        <a href="@_packageurl" target="_blank" class="btn btn-primary">@SharedLocalizer["Download"]</a>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <input id="packagename" class="form-control" @bind="@_packagename" disabled />
+                            }
 						</div>
 					</div>
 					<div class="row mb-1 align-items-center">
@@ -191,7 +208,7 @@
 							</p>
 						</div>
 						<div class="modal-footer">
-							<button type="button" class="btn btn-success" @onclick="DownloadPackage">@SharedLocalizer["Accept"]</button>
+							<button type="button" class="btn btn-success" @onclick="DownloadTranslation">@SharedLocalizer["Accept"]</button>
 							<button type="button" class="btn btn-secondary" @onclick="HideModal">@SharedLocalizer["Cancel"]</button>
 						</div>
 					</div>
@@ -213,6 +230,7 @@
     private string _moduledefinitionname = "";
     private string _version;
     private string _packagename = "";
+    private string _packageurl = ""; 
     private string _owner = "";
     private string _url = "";
     private string _contact = "";
@@ -364,7 +382,7 @@
         var version = _packages.Where(item => item.PackageId == packagename).FirstOrDefault().Version;
         try
         {
-            _package = await PackageService.GetPackageAsync(packagename, version);
+            _package = await PackageService.GetPackageAsync(packagename, version, false);
             if (_package != null)
             {
                 StateHasChanged();
@@ -382,11 +400,11 @@
         }
     }
 
-    private async Task DownloadPackage()
+    private async Task DownloadTranslation()
     {
         try
         {
-            await PackageService.DownloadPackageAsync(_package.PackageId, _package.Version, Constants.PackagesFolder);
+            await PackageService.DownloadPackageAsync(_package.PackageId, _package.Version);
             await logger.LogInformation("Package {PackageId} {Version} Downloaded Successfully", _package.PackageId, _package.Version);
             AddModuleMessage(string.Format(Localizer["Success.Translation.Download"], NavigateUrl("admin/system")), MessageType.Success);
             _package = null;
@@ -398,4 +416,28 @@
             AddModuleMessage(Localizer["Error.Translation.Download"], MessageType.Error);
         }
     }
+
+    private async Task ValidatePackage()
+    {
+        try
+        {
+            var package = await PackageService.GetPackageAsync(_packagename, _version, true);
+            if (package == null || string.IsNullOrEmpty(package.PackageUrl))
+            {
+                AddModuleMessage(Localizer["Message.Validate"], MessageType.Warning);
+            }
+            else
+            {
+                _packageurl = package.PackageUrl;
+                AddModuleMessage(Localizer["Message.Download"], MessageType.Info);
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Downloading Package {PackageId} {Version}", _packagename, _version);
+            AddModuleMessage(Localizer["Error.Validate"], MessageType.Error);
+        }
+    }
+
 }

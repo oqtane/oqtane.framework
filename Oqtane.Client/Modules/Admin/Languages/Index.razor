@@ -146,7 +146,7 @@ else
     {
         try
         {
-            _package = await PackageService.GetPackageAsync(Constants.PackageId + "." + code, version);
+            _package = await PackageService.GetPackageAsync(Constants.PackageId + "." + code, version, false);
             if (_package != null)
             {
                 StateHasChanged();
@@ -168,7 +168,7 @@ else
 	{
 		try
 		{
-			await PackageService.DownloadPackageAsync(_package.PackageId, _package.Version, Constants.PackagesFolder);
+			await PackageService.DownloadPackageAsync(_package.PackageId, _package.Version);
 			await logger.LogInformation("Language Package {Name} {Version} Downloaded Successfully", _package.PackageId, _package.Version);
 			AddModuleMessage(string.Format(Localizer["Success.Language.Download"], NavigateUrl("admin/system")), MessageType.Success);
 			_package = null;
