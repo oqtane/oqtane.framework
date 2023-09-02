@@ -228,4 +228,16 @@
   <data name="View License" xml:space="preserve">
     <value>View License</value>
   </data>
+  <data name="Error.Validate" xml:space="preserve">
+    <value>Error Validating Package</value>
+  </data>
+  <data name="Message.Download" xml:space="preserve">
+    <value>Package Version Has Been Verified. Please Select The Download Button To Obtain The Package.</value>
+  </data>
+  <data name="Message.Validate" xml:space="preserve">
+    <value>This Package Version Has Not Been Registered In The Oqtane Marketplace Or You Do Not Have The Right To Use It From This Installation</value>
+  </data>
+  <data name="Validate" xml:space="preserve">
+    <value>Validate</value>
+  </data>
 </root>

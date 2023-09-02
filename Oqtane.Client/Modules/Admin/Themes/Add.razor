@@ -263,7 +263,7 @@
     {
         try
         {
-            var package = await PackageService.GetPackageAsync(packageid, version);
+            var package = await PackageService.GetPackageAsync(packageid, version, false);
             if (package != null)
             {
                 _productname = package.Name;
@@ -292,7 +292,7 @@
     {
         try
         {
-            await PackageService.DownloadPackageAsync(_packageid, _version, Constants.PackagesFolder);
+            await PackageService.DownloadPackageAsync(_packageid, _version);
             await logger.LogInformation("Package {PackageId} {Version} Downloaded Successfully", _packageid, _version);
 			AddModuleMessage(string.Format(Localizer["Success.Theme.Download"], NavigateUrl("admin/system")), MessageType.Success);
             _productname = "";

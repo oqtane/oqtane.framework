@@ -79,8 +79,7 @@ else
         try
         {
             _themes = await ThemeService.GetThemesAsync();
-            var list = _themes.Where(item => !string.IsNullOrEmpty(item.PackageName)).Select(item => item.PackageName).Distinct().ToList();
-            _packages = await PackageService.GetPackagesAsync(list);
+            _packages = await PackageService.GetPackageUpdatesAsync("theme");
         }
         catch (Exception ex)
         {
@@ -147,7 +146,7 @@ else
     {
         try
         {
-            await PackageService.DownloadPackageAsync(packagename, version, Constants.PackagesFolder);
+            await PackageService.DownloadPackageAsync(packagename, version);
             await logger.LogInformation("Theme Downloaded {ThemeName} {Version}", packagename, version);
             AddModuleMessage(string.Format(Localizer["Success.Theme.Install"], NavigateUrl("admin/system")), MessageType.Success);
         }
