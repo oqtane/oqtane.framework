@@ -390,4 +390,10 @@
   <data name="DeleteAlias.Header" xml:space="preserve">
     <value>Delete Alias</value>
   </data>
+  <data name="SiteGuid.HelpText" xml:space="preserve">
+    <value>The Unique Identifier For The Site</value>
+  </data>
+  <data name="SiteGuid.Text" xml:space="preserve">
+    <value>Id:</value>
+  </data>
 </root>
