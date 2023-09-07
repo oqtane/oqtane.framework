@@ -613,6 +613,13 @@
                     }
 
                     await logger.LogInformation("Page Saved {Page}", _page);
+                    if (currentPath != _page.Path)
+                    {
+                        string newPageUrl = NavigateUrl(_page.Path);
+
+                        NavigationManager.NavigateTo(newPageUrl);
+                        return;
+                    }
                     if (!string.IsNullOrEmpty(PageState.ReturnUrl))
                     {
                         NavigationManager.NavigateTo(PageState.ReturnUrl);
