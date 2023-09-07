@@ -25,7 +25,7 @@
         switch (e.PropertyName)
         {
             case "PageTitle":
-                var title = "\n<title>" + SiteState.Properties.PageTitle + "</title>";
+                var title = "\n\t<title>" + SiteState.Properties.PageTitle + "</title>";
                 if (title != _title)
                 {
                     _title = title;
@@ -33,7 +33,7 @@
                 }
                 break;
             case "HeadContent":
-                var content = RemoveScripts(SiteState.Properties.HeadContent) + "\n";
+                var content = "\t" + RemoveScripts(SiteState.Properties.HeadContent) + "\n\t";
                 if (content != _content)
                 {
                     _content = content;
