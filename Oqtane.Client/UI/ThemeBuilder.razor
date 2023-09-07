@@ -40,7 +40,7 @@
             favicon = Utilities.FileUrl(PageState.Alias, PageState.Site.FaviconFileId.Value);
             favicontype = favicon.Substring(favicon.LastIndexOf(".") + 1);
         }
-        headcontent += $"<link id=\"app-favicon\" rel=\"shortcut icon\" type=\"image/{favicontype}\" href=\"{favicon}\" />\n";
+        headcontent += $"\n\t<link id=\"app-favicon\" rel=\"shortcut icon\" type=\"image/{favicontype}\" href=\"{favicon}\" />\n";
 
         // head content
         AddHeadContent(headcontent, PageState.Site.HeadContent);
@@ -76,7 +76,7 @@
                 {
                     if (!headcontent.Contains(element))
                     {
-                        headcontent += element + "\n";
+                        headcontent += element + "\n\t";
                     }
                 }
                 index = content.IndexOf("<", index + 1);
