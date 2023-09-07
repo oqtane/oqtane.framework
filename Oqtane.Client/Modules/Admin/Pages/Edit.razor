@@ -616,8 +616,7 @@
 
                     if (!string.IsNullOrEmpty(PageState.ReturnUrl))
                     {                    
-                        PageState.ReturnUrl = _page.Path;
-                        NavigationManager.NavigateTo(PageState.ReturnUrl);
+                        NavigationManager.NavigateTo(_page.Path);
                     }
                     else
                     {
