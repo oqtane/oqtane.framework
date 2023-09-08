@@ -33,7 +33,7 @@
                 }
                 break;
             case "HeadContent":
-                var content = "\t" + RemoveScripts(SiteState.Properties.HeadContent) + "\n\t";
+                var content = "\t" + RemoveScripts(SiteState.Properties.HeadContent);
                 if (content != _content)
                 {
                     _content = content;
