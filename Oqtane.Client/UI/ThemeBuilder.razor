@@ -166,7 +166,7 @@
             if (!string.IsNullOrEmpty(src))
             {
                 src = (src.Contains("://")) ? src : PageState.Alias.BaseUrl + src;
-                scripts.Add(new { href = src, bundle = "", integrity = integrity, crossorigin = crossorigin, es6module = (type == "module"), location = location });
+                scripts.Add(new { href = src, bundle = "", integrity = integrity, crossorigin = crossorigin, es6module = (type == "module"), location = location.ToString().ToLower() });
             }
             else
             {
