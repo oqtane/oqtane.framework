@@ -279,7 +279,7 @@ Oqtane.Interop = {
         var fileinput = document.getElementById(id);
         if (fileinput !== null) {
             for (var i = 0; i < fileinput.files.length; i++) {
-                files.push(fileinput.files[i].name);
+                files.push(fileinput.files[i].name + ":" + fileinput.files[i].size);
             }
         }
         return files;

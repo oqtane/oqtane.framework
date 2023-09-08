@@ -341,7 +341,8 @@
             string restricted = "";
             foreach (var upload in uploads)
             {
-                var extension = (upload.LastIndexOf(".") != -1) ? upload.Substring(upload.LastIndexOf(".") + 1) : "";
+                var filename = upload.Split(':')[0];
+                var extension = (filename.LastIndexOf(".") != -1) ? filename.Substring(filename.LastIndexOf(".") + 1) : "";
                 if (!Constants.UploadableFiles.Split(',').Contains(extension.ToLower()))
                 {
                     restricted += (restricted == "" ? "" : ",") + extension;
@@ -368,24 +369,27 @@
                     while (upload < uploads.Length && success)
                     {
                         success = false;
-                        // note that progressive retry will only wait a maximum of 15 seconds which may not be long enough for very large file uploads
+                        var filename = uploads[upload].Split(':')[0];
+                        var size = Int64.Parse(uploads[upload].Split(':')[1]);
+                        var maxattempts = (int)Math.Ceiling(size / 500000.0) + 1; // 30 MB takes 1 minute at 5 Mbps
+
                         int attempts = 0;
-                        while (attempts < 5 && !success)
+                        while (attempts < maxattempts && !success)
                         {
                             attempts += 1;
-                            Thread.Sleep(1000 * attempts); // progressive retry
+                            Thread.Sleep(1000);
 
                             if (Folder == Constants.PackagesFolder)
                             {
                                 var files = await FileService.GetFilesAsync(folder);
-                                if (files != null && files.Any(item => item.Name == uploads[upload]))
+                                if (files != null && files.Any(item => item.Name == filename))
                                 {
                                     success = true;
                                 }
                             }
                             else
                             {
-                                var file = await FileService.GetFileAsync(int.Parse(folder), uploads[upload]);
+                                var file = await FileService.GetFileAsync(int.Parse(folder), filename);
                                 if (file != null)
                                 {
                                     success = true;
@@ -433,7 +437,7 @@
                     else
                     {
                         // set FileId to first file in upload collection
-                        var file = await FileService.GetFileAsync(int.Parse(folder), uploads[0]);
+                        var file = await FileService.GetFileAsync(int.Parse(folder), uploads[0].Split(":")[0]);
                         if (file != null)
                         {
                             FileId = file.FileId;
