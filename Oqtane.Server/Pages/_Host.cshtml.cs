@@ -437,17 +437,17 @@ namespace Oqtane.Pages
             "</script>";
         }
 
-        private string ParseScripts(string headcontent)
+        private string ParseScripts(string content)
         {
             // iterate scripts
             var scripts = "";
-            if (!string.IsNullOrEmpty(headcontent))
+            if (!string.IsNullOrEmpty(content))
             {
-                var index = headcontent.IndexOf("<script");
+                var index = content.IndexOf("<script");
                 while (index >= 0)
                 {
-                    scripts += headcontent.Substring(index, headcontent.IndexOf("</script>", index) + 9 - index);
-                    index = headcontent.IndexOf("<script", index + 1);
+                    scripts += content.Substring(index, content.IndexOf("</script>", index) + 9 - index);
+                    index = content.IndexOf("<script", index + 1);
                 }
             }
             return scripts;
