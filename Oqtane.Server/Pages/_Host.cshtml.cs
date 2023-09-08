@@ -202,7 +202,7 @@ namespace Oqtane.Pages
                         HeadResources += ParseScripts(site.HeadContent);
                         HeadResources += ParseScripts(page.HeadContent);
                         BodyResources += ParseScripts(site.BodyContent);
-                        HeadResources += ParseScripts(page.BodyContent);
+                        BodyResources += ParseScripts(page.BodyContent);
                         var scripts = _serverState.GetServerState(alias.SiteKey).Scripts;
                         foreach (var script in scripts)
                         {
