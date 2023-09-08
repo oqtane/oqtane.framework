@@ -200,7 +200,9 @@ namespace Oqtane.Pages
                             PWAScript = CreatePWAScript(alias, site, route);
                         }
                         HeadResources += ParseScripts(site.HeadContent);
+                        HeadResources += ParseScripts(page.HeadContent);
                         BodyResources += ParseScripts(site.BodyContent);
+                        HeadResources += ParseScripts(page.HeadContent);
                         var scripts = _serverState.GetServerState(alias.SiteKey).Scripts;
                         foreach (var script in scripts)
                         {
