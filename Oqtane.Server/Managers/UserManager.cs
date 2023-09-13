@@ -257,45 +257,52 @@ namespace Oqtane.Managers
                     var LastIPAddress = user.LastIPAddress ?? "";
 
                     user = _users.GetUser(user.Username);
-                    if (user.TwoFactorRequired)
+                    if (!user.IsDeleted)
                     {
-                        var token = await _identityUserManager.GenerateTwoFactorTokenAsync(identityuser, "Email");
-                        user.TwoFactorCode = token;
-                        user.TwoFactorExpiry = DateTime.UtcNow.AddMinutes(10);
-                        _users.UpdateUser(user);
+                        if (user.TwoFactorRequired)
+                        {
+                            var token = await _identityUserManager.GenerateTwoFactorTokenAsync(identityuser, "Email");
+                            user.TwoFactorCode = token;
+                            user.TwoFactorExpiry = DateTime.UtcNow.AddMinutes(10);
+                            _users.UpdateUser(user);
 
-                        string body = "Dear " + user.DisplayName + ",\n\nYou requested a secure verification code to log in to your account. Please enter the secure verification code on the site:\n\n" + token +
-                            "\n\nPlease note that the code is only valid for 10 minutes so if you are unable to take action within that time period, you should initiate a new login on the site." +
-                            "\n\nThank You!";
-                        var notification = new Notification(user.SiteId, user, "User Verification Code", body);
-                        _notifications.AddNotification(notification);
+                            string body = "Dear " + user.DisplayName + ",\n\nYou requested a secure verification code to log in to your account. Please enter the secure verification code on the site:\n\n" + token +
+                                "\n\nPlease note that the code is only valid for 10 minutes so if you are unable to take action within that time period, you should initiate a new login on the site." +
+                                "\n\nThank You!";
+                            var notification = new Notification(user.SiteId, user, "User Verification Code", body);
+                            _notifications.AddNotification(notification);
 
-                        _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Verification Notification Sent For {Username}", user.Username);
-                        user.TwoFactorRequired = true;
+                            _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Verification Notification Sent For {Username}", user.Username);
+                            user.TwoFactorRequired = true;
+                        }
+                        else
+                        {
+                            user = _users.GetUser(identityuser.UserName);
+                            if (user != null)
+                            {
+                                if (identityuser.EmailConfirmed)
+                                {
+                                    user.IsAuthenticated = true;
+                                    user.LastLoginOn = DateTime.UtcNow;
+                                    user.LastIPAddress = LastIPAddress;
+                                    _users.UpdateUser(user);
+                                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful {Username}", user.Username);
+
+                                    if (setCookie)
+                                    {
+                                        await _identitySignInManager.SignInAsync(identityuser, isPersistent);
+                                    }
+                                }
+                                else
+                                {
+                                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Not Verified {Username}", user.Username);
+                                }
+                            }
+                        }
                     }
                     else
                     {
-                        user = _users.GetUser(identityuser.UserName);
-                        if (user != null)
-                        {
-                            if (identityuser.EmailConfirmed)
-                            {
-                                user.IsAuthenticated = true;
-                                user.LastLoginOn = DateTime.UtcNow;
-                                user.LastIPAddress = LastIPAddress;
-                                _users.UpdateUser(user);
-                                _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful {Username}", user.Username);
-
-                                if (setCookie)
-                                {
-                                    await _identitySignInManager.SignInAsync(identityuser, isPersistent);
-                                }
-                            }
-                            else
-                            {
-                                _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Not Verified {Username}", user.Username);
-                            }
-                        }
+                        _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Failed - Account Deleted {Username}", user.Username);
                     }
                 }
                 else
