@@ -148,7 +148,7 @@ namespace Oqtane.Repository
 
         private void ManageCache(string EntityName)
         {
-            if (EntityName == EntityNames.Site)
+            if (EntityName == EntityNames.Site && _tenantManager.GetAlias() != null)
             {
                 _cache.Remove(Constants.HttpContextSiteSettingsKey + _tenantManager.GetAlias().SiteKey);
             }
