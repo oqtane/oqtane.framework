@@ -40,9 +40,9 @@
                             <Label Class="col-sm-3" For="insert" HelpText="Select the location where you would like the page to be inserted in relation to other pages" ResourceKey="Insert">Insert: </Label>
                             <div class="col-sm-9">
                                 <select id="insert" class="form-select" @bind="@_insert" required>
-                                    <option value="<<">@Localizer["AtBeginning"]</option>
                                     @if (_children != null && _children.Count > 0)
                                     {
+                                        <option value="<<">@Localizer["AtBeginning"]</option>
                                         <option value="<">@Localizer["Before"]</option>
                                         <option value=">">@Localizer["After"]</option>
                                     }
@@ -257,7 +257,14 @@
                 _themes = ThemeService.GetThemeControls(PageState.Site.Themes);
                 _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
                 _containertype = PageState.Site.DefaultContainerType;
-                _children = PageState.Pages.Where(item => item.ParentId == null).ToList();
+                _children = new List<Page>();
+                foreach (Page p in PageState.Pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == int.Parse(_parentid))))
+                {
+                    if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
+                    {
+                        _children.Add(p);
+                    }
+                }
                 ThemeSettings();
                 _initialized = true;
             }
@@ -279,28 +286,15 @@
 		try
 		{
 			_parentid = (string)e.Value;
-			_children = new List<Page>();
-			if (_parentid == "-1")
-			{
-				foreach (Page p in PageState.Pages.Where(item => item.ParentId == null))
-				{
-					if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
-					{
-						_children.Add(p);
-					}
-				}
-			}
-			else
-			{
-				foreach (Page p in PageState.Pages.Where(item => item.ParentId == int.Parse(_parentid)))
-				{
-					if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
-					{
-						_children.Add(p);
-					}
-				}
-			}
-			StateHasChanged();
+            _children = new List<Page>();
+            foreach (Page p in PageState.Pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == int.Parse(_parentid))))
+            {
+                if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
+                {
+                    _children.Add(p);
+                }
+            }
+            StateHasChanged();
 		}
 		catch (Exception ex)
 		{

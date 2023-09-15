@@ -48,13 +48,16 @@
                                         {
                                             <option value="=">&lt;@Localizer["ThisLocation.Keep"]&gt;</option>
                                         }
-                                        <option value="<<">@Localizer["ToBeginning"]</option>
                                         @if (_children != null && _children.Count > 0)
                                         {
+                                            <option value="<<">@Localizer["ToBeginning"]</option>
                                             <option value="<">@Localizer["Before"]</option>
                                             <option value=">">@Localizer["After"]</option>
                                         }
-                                        <option value=">>">@Localizer["ToEnd"]</option>
+                                        @if (_parentid != _currentparentid)
+                                        {
+                                            <option value=">>">@Localizer["ToEnd"]</option>
+                                        }
                                     </select>
                                     @if (_children != null && _children.Count > 0 && (_insert == "<" || _insert == ">"))
                                     {
@@ -324,7 +327,6 @@
     {
         try
         {
-            _children = PageState.Pages.Where(item => item.ParentId == null).ToList();
             _pageId = Int32.Parse(PageState.QueryString["id"]);
             _page = await PageService.GetPageAsync(_pageId);
             _icons = await SystemService.GetIconsAsync();
@@ -341,6 +343,14 @@
                 {
                     _parentid = _page.ParentId.ToString();
                     _parent = PageState.Pages.FirstOrDefault(item => item.PageId == _page.ParentId);
+                }
+                _children = new List<Page>();
+                foreach (Page p in PageState.Pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == int.Parse(_parentid))))
+                {
+                    if (p.PageId != _pageId && UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
+                    {
+                        _children.Add(p);
+                    }
                 }
                 _currentparentid = _parentid;
                 _isnavigation = _page.IsNavigation.ToString();
@@ -417,34 +427,14 @@
         {
             _parentid = (string)e.Value;
             _children = new List<Page>();
-            if (_parentid == "-1")
+            foreach (Page p in PageState.Pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == int.Parse(_parentid))))
             {
-                foreach (Page p in PageState.Pages.Where(item => item.ParentId == null))
+                if (p.PageId != _pageId && UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
                 {
-                    if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
-                    {
-                        _children.Add(p);
-                    }
+                    _children.Add(p);
                 }
             }
-            else
-            {
-                foreach (Page p in PageState.Pages.Where(item => item.ParentId == int.Parse(_parentid)))
-                {
-                    if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
-                    {
-                        _children.Add(p);
-                    }
-                }
-            }
-            if (_parentid == _currentparentid)
-            {
-                _insert = "=";
-            }
-            else
-            {
-                _insert = ">>";
-            }
+            _insert = (_parentid == _currentparentid) ? "=" : ">>";
             StateHasChanged();
         }
         catch (Exception ex)
