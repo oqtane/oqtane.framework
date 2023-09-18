@@ -9,8 +9,6 @@ using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Security;
 using System.Net;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Identity.Client.Extensibility;
 using System;
 
 namespace Oqtane.Controllers
