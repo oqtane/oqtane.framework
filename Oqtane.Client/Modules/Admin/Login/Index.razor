@@ -167,7 +167,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && PageState.User == null)
+        if (firstRender && PageState.User == null && _allowsitelogin)
         {
             await username.FocusAsync();
         }
