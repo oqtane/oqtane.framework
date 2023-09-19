@@ -136,7 +136,7 @@
     <value>User Account Created. Please Check Your Email For Verification Instructions.</value>
   </data>
   <data name="Error.User.AddInfo" xml:space="preserve">
-    <value>Error Adding User. Please Ensure Password Meets Complexity Requirements And Username Is Not Already In Use.</value>
+    <value>Error Adding User. Please Ensure Password Meets Complexity Requirements And Username And Email Is Not Already In Use.</value>
   </data>
   <data name="Message.Password.NoMatch" xml:space="preserve">
     <value>Passwords Entered Do Not Match</value>
