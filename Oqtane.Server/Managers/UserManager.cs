@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -106,9 +107,10 @@ namespace Oqtane.Managers
             {
                 if (string.IsNullOrEmpty(user.Password))
                 {
-                    // create random password ie. Jan-01-2023+12:00:00!
+                    // create random interal password based on random date and punctuation ie. Jan-23-1981+14:43:12!
                     Random rnd = new Random();
-                    user.Password = DateTime.UtcNow.ToString("MMM-dd-yyyy+HH:mm:ss", CultureInfo.InvariantCulture) + (char)rnd.Next(33, 47);
+                    var date = DateTime.UtcNow.AddDays(-rnd.Next(50 * 365)).AddHours(rnd.Next(0, 24)).AddMinutes(rnd.Next(0, 60)).AddSeconds(rnd.Next(0, 60));
+                    user.Password = date.ToString("MMM-dd-yyyy+HH:mm:ss", CultureInfo.InvariantCulture) + (char)rnd.Next(33, 47);
                 }
                 identityuser = new IdentityUser();
                 identityuser.UserName = user.Username;
