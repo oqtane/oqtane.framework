@@ -17,13 +17,23 @@ namespace Oqtane.Themes.Controls
     {
         [Inject] public NavigationManager NavigationManager { get; set; }
         [Inject] public IUserService UserService { get; set; }
+        [Inject] public ISettingService SettingService { get; set; }
         [Inject] public IJSRuntime jsRuntime { get; set; }
         [Inject] public IServiceProvider ServiceProvider { get; set; }
+
+        private bool _allowsitelogin = true;
 
         protected void LoginUser()
         {
             Route route = new Route(PageState.Uri.AbsoluteUri, PageState.Alias.Path);
-            NavigationManager.NavigateTo(NavigateUrl("login", "?returnurl=" + WebUtility.UrlEncode(route.PathAndQuery)));
+            if (bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AllowSiteLogin", "true")))
+            {
+                NavigationManager.NavigateTo(NavigateUrl("login", "?returnurl=" + WebUtility.UrlEncode(route.PathAndQuery)));
+            }
+            else
+            {
+                NavigationManager.NavigateTo(Utilities.TenantUrl(PageState.Alias, "/pages/external?returnurl=" + WebUtility.UrlEncode(route.PathAndQuery)), true);
+            }
         }
 
         protected async Task LogoutUser()

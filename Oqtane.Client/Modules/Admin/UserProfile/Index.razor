@@ -299,10 +299,7 @@ else
 
             _togglepassword = SharedLocalizer["ShowPassword"];
 
-            if (PageState.Site.Settings.ContainsKey("LoginOptions:TwoFactor") && !string.IsNullOrEmpty(PageState.Site.Settings["LoginOptions:TwoFactor"]))
-            {
-                allowtwofactor = (PageState.Site.Settings["LoginOptions:TwoFactor"] == "true");
-            }
+            allowtwofactor = (SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:TwoFactor", "false") == "true");
 
             if (PageState.User != null)
             {
