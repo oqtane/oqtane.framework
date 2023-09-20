@@ -21,8 +21,6 @@ namespace Oqtane.Themes.Controls
         [Inject] public IJSRuntime jsRuntime { get; set; }
         [Inject] public IServiceProvider ServiceProvider { get; set; }
 
-        private bool _allowsitelogin = true;
-
         protected void LoginUser()
         {
             Route route = new Route(PageState.Uri.AbsoluteUri, PageState.Alias.Path);

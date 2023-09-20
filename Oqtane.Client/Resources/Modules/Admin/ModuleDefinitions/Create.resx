@@ -132,6 +132,9 @@
   <data name="Message.Require.ValidName" xml:space="preserve">
     <value>You Must Provide A Valid Owner Name And Module Name ( ie. No Punctuation Or Spaces And The Values Cannot Be The Same ) And Choose A Template</value>
   </data>
+  <data name="Message.Require.ValidDescription" xml:space="preserve">
+    <value>You Must Provide A Valid Description (ie. No Punctuation)</value>
+  </data>
   <data name="OwnerName.HelpText" xml:space="preserve">
     <value>Enter the name of the organization who is developing this module. It should not contain spaces or punctuation.</value>
   </data>
