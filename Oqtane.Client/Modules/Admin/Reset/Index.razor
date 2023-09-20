@@ -6,6 +6,7 @@
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+    <ModuleMessage Message="@_passwordrequirements" Type="MessageType.Info" />
     <div class="container">
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="username" HelpText="Your username will be populated from the link you received in the password reset notification" ResourceKey="Username">Username: </Label>
@@ -45,12 +46,14 @@
 	private string _passwordtype = "password";
 	private string _togglepassword = string.Empty;
 	private string _confirm = string.Empty;
+    private string _passwordrequirements;
 
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
 	protected override async Task OnInitializedAsync()
 	{
 		_togglepassword = SharedLocalizer["ShowPassword"];
+        _passwordrequirements = await UserService.GetPasswordRequirementsAsync(PageState.Site.SiteId);
 
 		if (PageState.QueryString.ContainsKey("name") && PageState.QueryString.ContainsKey("token"))
         {
