@@ -144,7 +144,10 @@
   <data name="Message.Text" xml:space="preserve">
     <value>Framework Is Already Up To Date</value>
   </data>
-  <data name="MessgeUpgrade.Text" xml:space="preserve">
+  <data name="MessageUpgrade.Text" xml:space="preserve">
     <value>Upload A Framework Package (Oqtane.Framework.version.nupkg) And Then Select Upgrade</value>
+  </data>
+  <data name="Localhost.Text" xml:space="preserve">
+    <value>You Cannot Perform A System Update In A Development Environment</value>
   </data>
 </root>
