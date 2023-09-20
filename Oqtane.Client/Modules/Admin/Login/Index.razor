@@ -3,6 +3,7 @@
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
+@inject ISettingService SettingService
 @inject IServiceProvider ServiceProvider
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
@@ -94,15 +95,8 @@
         {
             _togglepassword = SharedLocalizer["ShowPassword"];
 
-            if (PageState.Site.Settings.ContainsKey("LoginOptions:AllowSiteLogin") && !string.IsNullOrEmpty(PageState.Site.Settings["LoginOptions:AllowSiteLogin"]))
-            {
-                _allowsitelogin = bool.Parse(PageState.Site.Settings["LoginOptions:AllowSiteLogin"]);
-            }
-
-            if (PageState.Site.Settings.ContainsKey("ExternalLogin:ProviderType") && !string.IsNullOrEmpty(PageState.Site.Settings["ExternalLogin:ProviderType"]))
-            {
-                _allowexternallogin = true;
-            }
+            _allowsitelogin = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AllowSiteLogin", "true"));
+            _allowexternallogin = (SettingService.GetSetting(PageState.Site.Settings, "ExternalLogin:ProviderType", "") != "") ? true : false;
 
             if (PageState.QueryString.ContainsKey("returnurl"))
             {
@@ -220,7 +214,7 @@
                 }
                 else
                 {
-                    if ((PageState.Site.Settings.ContainsKey("LoginOptions:TwoFactor") && PageState.Site.Settings["LoginOptions:TwoFactor"] == "required") || user.TwoFactorRequired)
+                    if (SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:TwoFactor", "false") == "required" || user.TwoFactorRequired)
                     {
                         twofactor = true;
                         validated = false;
