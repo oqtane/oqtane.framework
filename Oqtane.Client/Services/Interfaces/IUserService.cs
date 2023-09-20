@@ -142,5 +142,12 @@ namespace Oqtane.Services
         /// <param name="siteId">ID of a <see cref="Site"/></param>
         /// <returns></returns>
         Task<string> GetPasswordRequirementsAsync(int siteId);
+
+        /// <summary>
+        /// Bulk import of users
+        /// </summary>
+        /// <param name="fileId">ID of a <see cref="File"/></param>
+        /// <returns></returns>
+        Task<bool> ImportUsersAsync(int siteId, int fileId);
     }
 }

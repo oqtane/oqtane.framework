@@ -18,5 +18,6 @@ namespace Oqtane.Managers
         User VerifyTwoFactor(User user, string token);
         Task<User> LinkExternalAccount(User user, string token, string type, string key, string name);
         Task<bool> ValidatePassword(string password);
+        Task<bool> ImportUsers(int siteId, int fileId);
     }
 }

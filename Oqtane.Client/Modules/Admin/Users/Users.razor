@@ -1,0 +1,55 @@
+@namespace Oqtane.Modules.Admin.Users
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IUserService UserService
+@inject IStringLocalizer<Users> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+<div class="container">
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="userfile" HelpText="Select or upload a CSV file containing user information. The CSV file must be in the Template format specified." ResourceKey="UserFile">User File:</Label>
+        <div class="col-sm-9">
+            <FileManager Id="userfile" @ref="_filemanager" Filter="csv" />
+        </div>
+    </div>
+</div>
+<br />
+<button type="button" class="btn btn-success" @onclick="ImportUsers">@Localizer["Import"]</button>&nbsp;
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>&nbsp;
+<a class="btn btn-info" href="/users.csv" target="_new">@Localizer["Template"]</a>
+
+@code {
+    private FileManager _filemanager;
+
+    public override string Title => "Import Users";
+
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+
+    private async Task ImportUsers()
+    {
+        try
+        {
+            var fileid = _filemanager.GetFileId();
+            if (fileid != -1)
+            {
+                if (await UserService.ImportUsersAsync(PageState.Site.SiteId, fileid))
+                {
+                    AddModuleMessage(Localizer["Message.Import.Success"], MessageType.Success);
+                }
+                else
+                {
+                    AddModuleMessage(Localizer["Message.Import.Failure"], MessageType.Error);
+                }
+            }
+            else
+            {
+                AddModuleMessage(Localizer["Message.Import.Validation"], MessageType.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Importing Users {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Import"], MessageType.Error);
+        }
+    }
+}
