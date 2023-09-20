@@ -20,8 +20,9 @@ else
 			<div class="container">
 				<div class="row mb-1 align-items-center">
 					<div class="col-sm-4">
-						<ActionLink Action="Add" Text="Add User" Security="SecurityAccessLevel.Edit" ResourceKey="AddUser" />
-					</div>
+						<ActionLink Action="Add" Text="Add User" Security="SecurityAccessLevel.Edit" ResourceKey="AddUser" />&nbsp;
+                        <ActionLink Text="Import Users" Class="btn btn-secondary" Action="Users" Security="SecurityAccessLevel.Admin" />                    
+                    </div>
 					<div class="col-sm-4">
 						<input class="form-control" @bind="@_search" />
 					</div>
@@ -54,7 +55,7 @@ else
 					<td>@((context.User.LastLoginOn != DateTime.MinValue) ? string.Format("{0:dd-MMM-yyyy HH:mm:ss}", context.User.LastLoginOn) : "")</td>
 				</Row>
 			</Pager>
-		</TabPanel>
+        </TabPanel>
         <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings" Security="SecurityAccessLevel.Admin">
 			<div class="container">
 				<Section Name="User" Heading="User Settings" ResourceKey="UserSettings">
@@ -360,7 +361,7 @@ else
 			</div>
 			<br />
 			<button type="button" class="btn btn-success" @onclick="SaveSiteSettings">@SharedLocalizer["Save"]</button>
-		</TabPanel>
+        </TabPanel>
 	</TabStrip>
 }
 

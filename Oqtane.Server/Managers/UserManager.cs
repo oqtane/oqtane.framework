@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -16,24 +17,32 @@ namespace Oqtane.Managers
     public class UserManager : IUserManager
     {
         private readonly IUserRepository _users;
+        private readonly IRoleRepository _roles;
         private readonly IUserRoleRepository _userRoles;
         private readonly UserManager<IdentityUser> _identityUserManager;
         private readonly SignInManager<IdentityUser> _identitySignInManager;
         private readonly ITenantManager _tenantManager;
         private readonly INotificationRepository _notifications;
         private readonly IFolderRepository _folders;
+        private readonly IFileRepository _files;
+        private readonly IProfileRepository _profiles;
+        private readonly ISettingRepository _settings;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
 
-        public UserManager(IUserRepository users, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, ISyncManager syncManager, ILogManager logger)
+        public UserManager(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, IFileRepository files, IProfileRepository profiles, ISettingRepository settings, ISyncManager syncManager, ILogManager logger)
         {
             _users = users;
+            _roles = roles;
             _userRoles = userRoles;
             _identityUserManager = identityUserManager;
             _identitySignInManager = identitySignInManager;
             _tenantManager = tenantManager;
             _notifications = notifications;
             _folders = folders;
+            _files = files;
+            _profiles = profiles;
+            _settings = settings;
             _syncManager = syncManager;
             _logger = logger;
         }
@@ -95,6 +104,12 @@ namespace Oqtane.Managers
             IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
             if (identityuser == null)
             {
+                if (string.IsNullOrEmpty(user.Password))
+                {
+                    // create random password ie. Jan-01-2023+12:00:00!
+                    Random rnd = new Random();
+                    user.Password = DateTime.UtcNow.ToString("MMM-dd-yyyy+HH:mm:ss", CultureInfo.InvariantCulture) + (char)rnd.Next(33, 47);
+                }
                 identityuser = new IdentityUser();
                 identityuser.UserName = user.Username;
                 identityuser.Email = user.Email;
@@ -442,6 +457,145 @@ namespace Oqtane.Managers
             var validator = new PasswordValidator<IdentityUser>();
             var result = await validator.ValidateAsync(_identityUserManager, null, password);
             return result.Succeeded;
+        }
+
+        public async Task<bool> ImportUsers(int siteId, int fileId)
+        {
+            var success = true;
+            int users = 0;
+
+            var file = _files.GetFile(fileId);
+            if (file != null)
+            {
+                var path = _files.GetFilePath(file);
+                if (System.IO.File.Exists(path))
+                {
+                    var roles = _roles.GetRoles(siteId).ToList();
+                    var profiles = _profiles.GetProfiles(siteId).ToList();
+
+                    try
+                    {
+                        string row;
+                        using (var reader = new StreamReader(path))
+                        {
+                            // get header row
+                            row = reader.ReadLine();
+                            var header = row.Replace("\"", "").Split(',');
+
+                            row = reader.ReadLine();
+                            while (row != null)
+                            {
+                                var values = row.Replace("\"", "").Split(',');
+
+                                if (values.Length > 3)
+                                {
+                                    // user
+                                    var user = _users.GetUser(values[1], values[0]);
+                                    if (user == null)
+                                    {
+                                        user = new User();
+                                        user.SiteId = siteId;
+                                        user.Email = values[0];
+                                        user.Username = (!string.IsNullOrEmpty(values[1])) ? values[1] : user.Email;
+                                        user.DisplayName = (!string.IsNullOrEmpty(values[2])) ? values[2] : user.Username;
+                                        user = await AddUser(user);
+                                        if (user == null)
+                                        {
+                                            _logger.Log(LogLevel.Error, this, LogFunction.Create, "Error Creating User {Email}", values[0]);
+                                            success = false;
+                                        }
+                                    }
+
+                                    if (user != null && !string.IsNullOrEmpty(values[3]))
+                                    {
+                                        // roles (comma delimited)
+                                        foreach (var rolename in values[3].Split(','))
+                                        {
+                                            var role = roles.FirstOrDefault(item => item.Name == rolename);
+                                            if (role == null)
+                                            {
+                                                role = new Role();
+                                                role.SiteId = siteId;
+                                                role.Name = rolename;
+                                                role.Description = rolename;
+                                                role = _roles.AddRole(role);
+                                                roles.Add(role);
+                                            }
+                                            if (role != null)
+                                            {
+                                                var userrole = _userRoles.GetUserRole(user.UserId, role.RoleId, false);
+                                                if (userrole == null)
+                                                {
+                                                    userrole = new UserRole();
+                                                    userrole.UserId = user.UserId;
+                                                    userrole.RoleId = role.RoleId;
+                                                    _userRoles.AddUserRole(userrole);
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    if (user != null && values.Length > 4)
+                                    {
+                                        var settings = _settings.GetSettings(EntityNames.User, user.UserId);
+                                        for (int index = 4; index < values.Length - 1; index++)
+                                        {
+                                            if (header.Length > index && !string.IsNullOrEmpty(values[index]))
+                                            {
+                                                var profile = profiles.FirstOrDefault(item => item.Name == header[index]);
+                                                if (profile != null)
+                                                {
+                                                    var setting = settings.FirstOrDefault(item => item.SettingName == profile.Name);
+                                                    if (setting == null)
+                                                    {
+                                                        setting = new Setting();
+                                                        setting.EntityName = EntityNames.User;
+                                                        setting.EntityId = user.UserId;
+                                                        setting.SettingName = profile.Name;
+                                                        setting.SettingValue = values[index];
+                                                        _settings.AddSetting(setting);
+                                                    }
+                                                    else
+                                                    {
+                                                        if (setting.SettingValue != values[index])
+                                                        {
+                                                            setting.SettingValue = values[index];
+                                                            _settings.UpdateSetting(setting);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    users++;
+                                }
+
+                                row = reader.ReadLine();
+                            }
+                        }
+
+                        _logger.Log(LogLevel.Information, this, LogFunction.Create, "{Users} Users Imported", users);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Log(LogLevel.Error, this, LogFunction.Create, ex, "Error Importing User Import File {SiteId} {FileId}", siteId, fileId);
+                        success = false;
+                    }
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Create,"User Import File Does Not Exist {Path}", path);
+                    success = false;
+                }
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Import File Does Not Exist {SiteId} {FileId}", siteId, fileId);
+                success = false;
+            }
+
+            return success;
         }
     }
 }
