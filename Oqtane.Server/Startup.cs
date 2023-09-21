@@ -114,12 +114,12 @@ namespace Oqtane
             services.ConfigureOqtaneIdentityOptions(Configuration);
 
             services.AddAuthentication(options =>
-                {
-                    options.DefaultScheme = Constants.AuthenticationScheme;
-                })
-                .AddCookie(Constants.AuthenticationScheme)
-                .AddOpenIdConnect(AuthenticationProviderTypes.OpenIDConnect, options => { })
-                .AddOAuth(AuthenticationProviderTypes.OAuth2, options => { });
+            {
+                options.DefaultScheme = Constants.AuthenticationScheme;
+            })
+            .AddCookie(Constants.AuthenticationScheme)
+            .AddOpenIdConnect(AuthenticationProviderTypes.OpenIDConnect, options => { })
+            .AddOAuth(AuthenticationProviderTypes.OAuth2, options => { });
 
             services.ConfigureOqtaneCookieOptions();
             services.ConfigureOqtaneAuthenticationOptions(Configuration);
