@@ -17,9 +17,9 @@ else
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
             <th>@SharedLocalizer["Name"]</th>
-            <th>@SharedLocalizer["Title"]</th>
-            <th>@SharedLocalizer["Category"]</th>
-            <th>@SharedLocalizer["ViewOrder"]</th>
+            <th>@Localizer["Title"]</th>
+            <th>@Localizer["Category"]</th>
+            <th>@Localizer["Order"]</th>
         </Header>
         <Row>
 			<td><ActionLink Action="Edit" Parameters="@($"id=" + context.ProfileId.ToString())" Security="SecurityAccessLevel.Edit" ResourceKey="EditProfile" /></td>
