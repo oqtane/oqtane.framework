@@ -46,6 +46,7 @@ namespace Oqtane.Pages
 
                 if (validuser)
                 {
+                    // note that .NET Identity uses a hardcoded ApplicationScheme of "Identity.Application" in SignInAsync
                     await _identitySignInManager.SignInAsync(identityuser, remember);
                 }
             }
