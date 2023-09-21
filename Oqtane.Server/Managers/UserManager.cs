@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -461,9 +460,10 @@ namespace Oqtane.Managers
             return result.Succeeded;
         }
 
-        public async Task<bool> ImportUsers(int siteId, int fileId)
+        public async Task<Dictionary<string, string>> ImportUsers(int siteId, int fileId)
         {
             var success = true;
+            int rows = 0;
             int users = 0;
 
             var file = _files.GetFile(fileId);
@@ -477,127 +477,160 @@ namespace Oqtane.Managers
 
                     try
                     {
-                        string row;
+                        string row = "";
                         using (var reader = new StreamReader(path))
                         {
-                            // get header row
-                            row = reader.ReadLine();
-                            var header = row.Replace("\"", "").Split(',');
-
-                            row = reader.ReadLine();
-                            while (row != null)
+                            // header row
+                            if (reader.Peek() > -1)
                             {
-                                var values = row.Replace("\"", "").Split(',');
+                                row = reader.ReadLine();
+                            }
 
-                                if (values.Length > 3)
+                            if (!string.IsNullOrEmpty(row.Trim()))
+                            {
+                                var header = row.Replace("\"", "").Split('\t');
+
+                                // detail rows
+                                while (reader.Peek() > -1)
                                 {
-                                    // user
-                                    var user = _users.GetUser(values[1], values[0]);
-                                    if (user == null)
+                                    row = reader.ReadLine();
+                                    rows++;
+
+                                    if (!string.IsNullOrEmpty(row.Trim()))
                                     {
-                                        user = new User();
-                                        user.SiteId = siteId;
-                                        user.Email = values[0];
-                                        user.Username = (!string.IsNullOrEmpty(values[1])) ? values[1] : user.Email;
-                                        user.DisplayName = (!string.IsNullOrEmpty(values[2])) ? values[2] : user.Username;
-                                        user = await AddUser(user);
+                                        var values = row.Replace("\"", "").Split('\t');
+
+                                        // user
+                                        var email = (values.Length > 0) ? values[0].Trim() : "";
+                                        var username = (values.Length > 1) ? values[1].Trim() : "";
+                                        var displayname = (values.Length > 2) ? values[2].Trim() : "";
+
+                                        var user = _users.GetUser(username, email);
                                         if (user == null)
                                         {
-                                            _logger.Log(LogLevel.Error, this, LogFunction.Create, "Error Creating User {Email}", values[0]);
-                                            success = false;
-                                        }
-                                    }
-
-                                    if (user != null && !string.IsNullOrEmpty(values[3]))
-                                    {
-                                        // roles (comma delimited)
-                                        foreach (var rolename in values[3].Split(','))
-                                        {
-                                            var role = roles.FirstOrDefault(item => item.Name == rolename);
-                                            if (role == null)
+                                            user = new User();
+                                            user.SiteId = siteId;
+                                            user.Email = values[0];
+                                            user.Username = (!string.IsNullOrEmpty(username)) ? username : user.Email;
+                                            user.DisplayName = (!string.IsNullOrEmpty(displayname)) ? displayname : user.Username;
+                                            user = await AddUser(user);
+                                            if (user == null)
                                             {
-                                                role = new Role();
-                                                role.SiteId = siteId;
-                                                role.Name = rolename;
-                                                role.Description = rolename;
-                                                role = _roles.AddRole(role);
-                                                roles.Add(role);
+                                                _logger.Log(LogLevel.Error, this, LogFunction.Create, "Error Importing User {Email} {Username} {DisplayName}", email, username, displayname);
+                                                success = false;
                                             }
-                                            if (role != null)
+                                        }
+                                        else
+                                        {
+                                            if (!string.IsNullOrEmpty(displayname))
                                             {
-                                                var userrole = _userRoles.GetUserRole(user.UserId, role.RoleId, false);
-                                                if (userrole == null)
+                                                user.DisplayName = displayname;
+                                                user = await UpdateUser(user);
+                                            }
+                                        }
+
+                                        var rolenames = (values.Length > 3) ? values[3].Trim() : "";
+                                        if (user != null && !string.IsNullOrEmpty(rolenames))
+                                        {
+                                            // roles (comma delimited)
+                                            foreach (var rolename in rolenames.Split(','))
+                                            {
+                                                var role = roles.FirstOrDefault(item => item.Name == rolename.Trim());
+                                                if (role == null)
                                                 {
-                                                    userrole = new UserRole();
-                                                    userrole.UserId = user.UserId;
-                                                    userrole.RoleId = role.RoleId;
-                                                    _userRoles.AddUserRole(userrole);
+                                                    role = new Role();
+                                                    role.SiteId = siteId;
+                                                    role.Name = rolename.Trim();
+                                                    role.Description = rolename.Trim();
+                                                    role = _roles.AddRole(role);
+                                                    roles.Add(role);
+                                                }
+                                                if (role != null)
+                                                {
+                                                    var userrole = _userRoles.GetUserRole(user.UserId, role.RoleId, false);
+                                                    if (userrole == null)
+                                                    {
+                                                        userrole = new UserRole();
+                                                        userrole.UserId = user.UserId;
+                                                        userrole.RoleId = role.RoleId;
+                                                        _userRoles.AddUserRole(userrole);
+                                                    }
                                                 }
                                             }
                                         }
-                                    }
 
-                                    if (user != null && values.Length > 4)
-                                    {
-                                        var settings = _settings.GetSettings(EntityNames.User, user.UserId);
-                                        for (int index = 4; index < values.Length - 1; index++)
+                                        if (user != null && values.Length > 4)
                                         {
-                                            if (header.Length > index && !string.IsNullOrEmpty(values[index]))
+                                            // profiles
+                                            var settings = _settings.GetSettings(EntityNames.User, user.UserId);
+                                            for (int index = 4; index < values.Length - 1; index++)
                                             {
-                                                var profile = profiles.FirstOrDefault(item => item.Name == header[index]);
-                                                if (profile != null)
+                                                if (header.Length > index && !string.IsNullOrEmpty(values[index].Trim()))
                                                 {
-                                                    var setting = settings.FirstOrDefault(item => item.SettingName == profile.Name);
-                                                    if (setting == null)
+                                                    var profile = profiles.FirstOrDefault(item => item.Name == header[index].Trim());
+                                                    if (profile != null)
                                                     {
-                                                        setting = new Setting();
-                                                        setting.EntityName = EntityNames.User;
-                                                        setting.EntityId = user.UserId;
-                                                        setting.SettingName = profile.Name;
-                                                        setting.SettingValue = values[index];
-                                                        _settings.AddSetting(setting);
-                                                    }
-                                                    else
-                                                    {
-                                                        if (setting.SettingValue != values[index])
+                                                        var setting = settings.FirstOrDefault(item => item.SettingName == profile.Name);
+                                                        if (setting == null)
                                                         {
-                                                            setting.SettingValue = values[index];
-                                                            _settings.UpdateSetting(setting);
+                                                            setting = new Setting();
+                                                            setting.EntityName = EntityNames.User;
+                                                            setting.EntityId = user.UserId;
+                                                            setting.SettingName = profile.Name;
+                                                            setting.SettingValue = values[index].Trim();
+                                                            _settings.AddSetting(setting);
+                                                        }
+                                                        else
+                                                        {
+                                                            if (setting.SettingValue != values[index].Trim())
+                                                            {
+                                                                setting.SettingValue = values[index].Trim();
+                                                                _settings.UpdateSetting(setting);
+                                                            }
                                                         }
                                                     }
                                                 }
                                             }
                                         }
+
+                                        users++;
                                     }
-
-                                    users++;
                                 }
-
-                                row = reader.ReadLine();
+                            }
+                            else
+                            {
+                                success = false;
+                                _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Import File Contains No Header Row");
                             }
                         }
 
-                        _logger.Log(LogLevel.Information, this, LogFunction.Create, "{Users} Users Imported", users);
+                        _logger.Log(LogLevel.Information, this, LogFunction.Create, "User Import: {Rows} Rows Processed, {Users} Users Imported", rows, users);
                     }
                     catch (Exception ex)
                     {
-                        _logger.Log(LogLevel.Error, this, LogFunction.Create, ex, "Error Importing User Import File {SiteId} {FileId}", siteId, fileId);
                         success = false;
+                        _logger.Log(LogLevel.Error, this, LogFunction.Create, ex, "Error Importing User Import File {SiteId} {FileId}", siteId, fileId);
                     }
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Create,"User Import File Does Not Exist {Path}", path);
                     success = false;
+                    _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Import File Does Not Exist {Path}", path);
                 }
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Import File Does Not Exist {SiteId} {FileId}", siteId, fileId);
                 success = false;
+                _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Import File Does Not Exist {SiteId} {FileId}", siteId, fileId);
             }
 
-            return success;
+            // return results
+            var result = new Dictionary<string, string>();
+            result.Add("Success", success.ToString());
+            result.Add("Rows", rows.ToString());
+            result.Add("Users", users.ToString());
+
+            return result;
         }
     }
 }

@@ -117,11 +117,11 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="UserFile.HelpText" xml:space="preserve">
-    <value>Select or upload a CSV file containing user information. The CSV file must be in the Template format specified.</value>
+  <data name="ImportFile.HelpText" xml:space="preserve">
+    <value>Upload or select a tab delimited text file containing user information. The file must be in the Template format specified (Roles can be specified as a comma delimited list).</value>
   </data>
-  <data name="UserFile.Text" xml:space="preserve">
-    <value>User File:</value>
+  <data name="ImportFile.Text" xml:space="preserve">
+    <value>Import File:</value>
   </data>
   <data name="Error.Import" xml:space="preserve">
     <value>Error Importing Users</value>
@@ -130,10 +130,10 @@
     <value>Import</value>
   </data>
   <data name="Message.Import.Failure" xml:space="preserve">
-    <value>User Import Failed</value>
+    <value>User Import Failed. Please Review Your Event Log For More Detailed Information.</value>
   </data>
   <data name="Message.Import.Success" xml:space="preserve">
-    <value>Users Imported Successfully</value>
+    <value>Users Imported Successfully. {0} Rows Processed, {1} Users Imported.</value>
   </data>
   <data name="Message.Import.Validation" xml:space="preserve">
     <value>You Must Specify A User File For Import</value>

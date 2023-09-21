@@ -375,7 +375,7 @@ namespace Oqtane.Controllers
         // POST api/<controller>/import?siteid=x&fileid=y
         [HttpPost("import")]
         [Authorize(Roles = RoleNames.Admin)]
-        public async Task<bool> Import(string siteid, string fileid)
+        public async Task<Dictionary<string, string>> Import(string siteid, string fileid)
         {
             if (int.TryParse(siteid, out int SiteId) && SiteId == _tenantManager.GetAlias().SiteId && int.TryParse(fileid, out int FileId))
             {
@@ -385,7 +385,7 @@ namespace Oqtane.Controllers
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Import Attempt {SiteId} {FileId}", siteid, fileid);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                return false;
+                return null;
             }
         }
     }
