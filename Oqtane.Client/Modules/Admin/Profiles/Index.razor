@@ -17,11 +17,17 @@ else
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
             <th>@SharedLocalizer["Name"]</th>
+            <th>@SharedLocalizer["Title"]</th>
+            <th>@SharedLocalizer["Category"]</th>
+            <th>@SharedLocalizer["ViewOrder"]</th>
         </Header>
         <Row>
 			<td><ActionLink Action="Edit" Parameters="@($"id=" + context.ProfileId.ToString())" Security="SecurityAccessLevel.Edit" ResourceKey="EditProfile" /></td>
 			<td><ActionDialog Header="Delete Profile" Message="@string.Format(Localizer["Confirm.Profile.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteProfile(context.ProfileId))" ResourceKey="DeleteProfile" /></td>
             <td>@context.Name</td>
+            <td>@context.Title</td>
+            <td>@context.Category</td>
+            <td>@context.ViewOrder</td>
         </Row>
     </Pager>
 }
