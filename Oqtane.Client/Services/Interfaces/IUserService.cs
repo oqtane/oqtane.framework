@@ -148,6 +148,6 @@ namespace Oqtane.Services
         /// </summary>
         /// <param name="fileId">ID of a <see cref="File"/></param>
         /// <returns></returns>
-        Task<bool> ImportUsersAsync(int siteId, int fileId);
+        Task<Dictionary<string, string>> ImportUsersAsync(int siteId, int fileId);
     }
 }

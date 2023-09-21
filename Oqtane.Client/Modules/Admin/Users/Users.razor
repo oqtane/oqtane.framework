@@ -7,16 +7,16 @@
 
 <div class="container">
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="userfile" HelpText="Select or upload a CSV file containing user information. The CSV file must be in the Template format specified." ResourceKey="UserFile">User File:</Label>
+        <Label Class="col-sm-3" For="importfile" HelpText="Upload or select a tab delimited text file containing user information. The file must be in the Template format specified (Roles can be specified as a comma delimited list)." ResourceKey="ImportFile">Import File:</Label>
         <div class="col-sm-9">
-            <FileManager Id="userfile" @ref="_filemanager" Filter="csv" />
+            <FileManager Id="importfile" @ref="_filemanager" Filter="txt" />
         </div>
     </div>
 </div>
 <br />
 <button type="button" class="btn btn-success" @onclick="ImportUsers">@Localizer["Import"]</button>&nbsp;
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>&nbsp;
-<a class="btn btn-info" href="/users.csv" target="_new">@Localizer["Template"]</a>
+<a class="btn btn-info" href="/users.txt" target="_new">@Localizer["Template"]</a>
 
 @code {
     private FileManager _filemanager;
@@ -32,14 +32,17 @@
             var fileid = _filemanager.GetFileId();
             if (fileid != -1)
             {
-                if (await UserService.ImportUsersAsync(PageState.Site.SiteId, fileid))
+                ShowProgressIndicator();
+                var results = await UserService.ImportUsersAsync(PageState.Site.SiteId, fileid);
+                if (bool.Parse(results["Success"]))
                 {
-                    AddModuleMessage(Localizer["Message.Import.Success"], MessageType.Success);
+                    AddModuleMessage(string.Format(Localizer["Message.Import.Success"], results["Rows"], results["Users"]), MessageType.Success);
                 }
                 else
                 {
                     AddModuleMessage(Localizer["Message.Import.Failure"], MessageType.Error);
                 }
+                HideProgressIndicator();
             }
             else
             {
