@@ -115,9 +115,7 @@ namespace Oqtane
 
             services.AddAuthentication(options =>
                 {
-                    options.DefaultAuthenticateScheme = Constants.AuthenticationScheme;
-                    options.DefaultChallengeScheme = Constants.AuthenticationScheme;
-                    options.DefaultSignOutScheme = Constants.AuthenticationScheme;
+                    options.DefaultScheme = Constants.AuthenticationScheme;
                 })
                 .AddCookie(Constants.AuthenticationScheme)
                 .AddOpenIdConnect(AuthenticationProviderTypes.OpenIDConnect, options => { })
