@@ -1,0 +1,319 @@
+@namespace Oqtane.Modules.Controls
+@inherits LocalizableComponent
+@inject IStringLocalizer<Search> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@using System.Threading
+@using System.Text.RegularExpressions
+
+@if (IsSearchEnabled)
+{
+    <div class="app-search">
+        @if (ShowSearchButton && ButtonPosition == "left")
+        {
+            @RenderButton
+        }
+
+        <input class="form-control" value="@SearchTerm" @oninput="OnInput" @onkeypress="OnKeyPress" placeholder="@Placeholder" autocomplete="@GetAutocomplete()" aria-label="@InputAriaLabel" tabindex="@InputTabIndex" title="@GetToolTip()" maxlength="@MaxCharacters" />
+
+        @if (ShowSearchButton && ButtonPosition == "right")
+        {
+            @RenderButton
+        }
+    </div>
+}
+
+@code {
+    // Search settings
+    [Parameter]
+    public bool IsSearchEnabled { get; set; } = true;
+
+    [Parameter]
+    public bool ResultsAsTyped { get; set; } = false;
+
+    [Parameter]
+    public bool CaseSensitive { get; set; } = false;
+
+    [Parameter]
+    public bool EnterKeyEnabled { get; set; } = true;
+
+    [Parameter]
+    public bool DebounceEnabled { get; set; } = false;
+
+    [Parameter]
+    public int DebounceTime { get; set; } = 500; // Time in milliseconds
+
+    // Search data
+    [Parameter]
+    public IEnumerable<object> DataSource { get; set; }
+
+    [Parameter]
+    public List<string> ItemTypes { get; set; }
+
+    // Search term settings
+    [Parameter]
+    public string SearchTerm { get; set; }
+
+    [Parameter]
+    public int MinCharacters { get; set; } = 3;
+
+    [Parameter]
+    public int MaxCharacters { get; set; } = 50;
+
+    [Parameter]
+    public string InputValidationRegex { get; set; } = @"^[a-zA-Z0-9\s]*$";
+
+    // UI settings
+    [Parameter]
+    public bool ShowSearchButton { get; set; } = true;
+
+    [Parameter]
+    public string SearchIcon { get; set; } = Icons.MagnifyingGlass;
+
+    [Parameter]
+    public string IconPosition { get; set; } = "left";
+
+    [Parameter]
+    public string ButtonPosition { get; set; } = "right";
+
+    [Parameter]
+    public bool ShowSearchIcon { get; set; } = true;
+
+    [Parameter]
+    public bool ShowButtonText { get; set; } = true;
+
+    [Parameter]
+    public string Placeholder { get; set; } = "Search...";
+
+    [Parameter]
+    public int InputTabIndex { get; set; } = 0;
+
+    [Parameter]
+    public int ButtonTabIndex { get; set; } = 1;
+
+    [Parameter]
+    public string InputAriaLabel { get; set; } = "Search input";
+
+    [Parameter]
+    public string ButtonAriaLabel { get; set; } = "Search";
+
+    [Parameter]
+    public string ButtonLabel { get; set; } = "Search";
+
+    [Parameter]
+    public string ButtonToolTip { get; set; } = "Search";
+
+    [Parameter]
+    public bool EnableAutocomplete { get; set; } = true;
+
+    // Callbacks
+    [Parameter]
+    public EventCallback<string> OnSearch { get; set; }
+
+    [Parameter]
+    public EventCallback<string> SearchTermChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<IEnumerable<object>> OnSearchResultsChanged { get; set; }
+
+    private Timer debounceTimer;
+
+    private async Task OnInput(ChangeEventArgs e)
+    {
+        var input = e.Value?.ToString();
+        var regex = InputValidationRegex;
+
+        if (Regex.IsMatch(input, regex))
+        {
+            SearchTerm = input;
+
+            if (DebounceEnabled)
+            {
+                if (debounceTimer != null)
+                {
+                    debounceTimer.Dispose();
+                }
+
+                debounceTimer = new Timer(_ =>
+                {
+                    Task.Run(async () =>
+                    {
+                        await InvokeAsync(PerformSearchIfNeeded);
+                    });
+                }, null, DebounceTime, Timeout.Infinite);
+            }
+            else
+            {
+                SearchTerm = input;
+                await PerformSearchIfNeeded();
+            }
+        }
+        else
+        {
+            // Handle validation error...
+        }
+    }
+
+    private async Task PerformSearchIfNeeded()
+    {
+        if (string.IsNullOrEmpty(SearchTerm) || SearchTerm.Length < MinCharacters)
+        {
+            // If searchTerm is empty or less than MinCharacters, return the original DataSource
+            await InvokeAsync(() => OnSearchResultsChanged.InvokeAsync(DataSource));
+        }
+        else
+        {
+            if (ShowSearchButton)
+            {
+                // Do nothing here; the search will be triggered when the button is clicked.
+            }
+            else
+            {
+                if (EnterKeyEnabled || ResultsAsTyped)
+                {
+                    try
+                    {
+                        await InvokeAsync(PerformSearch);
+                    }
+                    catch (Exception ex)
+                    {
+                        await logger.LogError(ex, "An error occurred while performing search. {0}");
+                    }
+                }
+            }
+        }
+    }
+
+    private async Task PerformSearch()
+    {
+        try
+        {
+            if (SearchTerm.Length >= MinCharacters)
+            {
+                // Filter data based on searchTerm and itemTypes
+                var filteredData = FilterData(DataSource, SearchTerm, ItemTypes);
+
+                // Convert the filtered data to a list of objects
+                var filteredDataList = filteredData.Cast<object>().ToList();
+
+                // Invoke the callback to send the filtered data to the parent component
+                await OnSearchResultsChanged.InvokeAsync(filteredDataList);
+            }
+            else if (string.IsNullOrEmpty(SearchTerm))
+            {
+                // If searchTerm is empty, return the original DataSource
+                await OnSearchResultsChanged.InvokeAsync(DataSource);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "An error occurred while performing search. {0}");
+        }
+    }
+
+    private IEnumerable<T> FilterData<T>(IEnumerable<T> data, string searchTerm, List<string> itemTypes)
+    {
+        if (data != null && searchTerm != null)
+        {
+            if (!CaseSensitive)
+            {
+                searchTerm = searchTerm.Trim().ToLower();
+            }
+
+            return data.Where(item =>
+            {
+                var propertyValues = itemTypes
+                    .Select(itemType => GetPropertyValue(item, itemType))
+                    .Where(value => value != null)
+                    .Select(value => CaseSensitive ? value.ToString() : value.ToString().ToLower());
+
+                return propertyValues.Any(value => value.Contains(searchTerm));
+            }).ToList();
+        }
+
+        return Enumerable.Empty<T>();
+    }
+
+
+    private object GetPropertyValue(object obj, string propertyName)
+    {
+        var propertyInfo = obj.GetType().GetProperty(propertyName);
+        if (propertyInfo != null)
+        {
+            return propertyInfo.GetValue(obj);
+        }
+
+        return null;
+    }
+
+    private async Task OnKeyPress(KeyboardEventArgs e)
+    {
+        if (EnterKeyEnabled && e.Key == "Enter")
+        {
+            if (SearchTerm.Length >= MinCharacters)
+            {
+                await PerformSearch();
+            }
+            else if (string.IsNullOrEmpty(SearchTerm))
+            {
+                SearchTerm = "";
+                await PerformSearch();
+            }
+        }
+    }
+
+    private string GetToolTip()
+    {
+        if (MinCharacters > 1)
+        {
+            return string.Format(Localizer["SearchTermCharacterLimitToolTip"], MinCharacters, MaxCharacters);
+        }
+        else
+        {
+            return Localizer["SearchTermToolTip"];
+        }
+    }
+
+    private RenderFragment RenderButton => builder =>
+    {
+    builder.OpenElement(0, "button");
+    builder.AddAttribute(1, "class", "btn btn-primary");
+    builder.AddAttribute(2, "onclick", EventCallback.Factory.Create(this, PerformSearch));
+    builder.AddAttribute(3, "aria-label", ButtonAriaLabel);
+    builder.AddAttribute(4, "title", ButtonToolTip);
+    builder.AddAttribute(5, "tabindex", ButtonTabIndex);
+
+    if (ShowSearchIcon && IconPosition == "left")
+    {
+        builder.OpenElement(6, "i");
+        builder.AddAttribute(7, "class", SearchIcon);
+        builder.CloseElement();
+        if (ShowButtonText)
+        {
+            builder.AddContent(8, "\u00A0");
+        }
+    }
+
+    if (ShowButtonText)
+    {
+        builder.AddContent(8, ButtonLabel);
+    }
+
+    if (ShowSearchIcon && IconPosition == "right")
+    {
+        if (ShowButtonText)
+        {
+            builder.AddContent(10, "\u00A0");
+        }
+        builder.OpenElement(9, "i");
+        builder.AddAttribute(10, "class", SearchIcon);
+        builder.CloseElement();
+    }
+
+    builder.CloseElement();
+    };
+
+    private string GetAutocomplete()
+    {
+        return EnableAutocomplete ? "on" : "off";
+    }
+}
