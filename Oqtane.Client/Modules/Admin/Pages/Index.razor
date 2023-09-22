@@ -3,13 +3,33 @@
 @inject NavigationManager NavigationManager
 @inject IPageService PageService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<Search> SearchLocalizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (PageState.Pages != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
 {
     <ActionLink Action="Add" Text="Add Page" ResourceKey="AddPage" />
-
-    <Pager Items="@PageState.Pages.Where(item => !item.IsDeleted)">
+    <Search DataSource="allResults"
+            IsSearchEnabled="true"
+            MinCharacters="0"
+            InputValidationRegex="@SearchLocalizer["SearchValidationRegex"].Value"
+            Placeholder="@SearchLocalizer["SearchPlaceholder"].Value"
+            InputAriaLabel="@SearchLocalizer["SearchInputAriaLabel"].Value"
+            ButtonAriaLabel="@SearchLocalizer["SearchButtonAriaLabel"].Value"
+            ButtonToolTip="@SearchLocalizer["SearchButtonToolTip"].Value"
+            ButtonPosition="right"
+            IconPosition="left"
+            ShowSearchButton="true"
+            EnterKeyEnabled="true"
+            ResultsAsTyped="false"
+            DebounceEnabled="false"
+            CaseSensitive="false"
+            @bind-searchTerm="searchTerm"
+            ItemTypes='new List<string> { "Name" }'
+            InputTabIndex = "0"
+            ButtonTabIndex = "1"
+            OnSearchResultsChanged="HandleSearchResults" />
+    <Pager Items="@pageList">
         <Header>
         <th style="width: 1px;">&nbsp;</th>
         <th style="width: 1px;">&nbsp;</th>
@@ -28,6 +48,10 @@
 @code {
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
+    private string searchTerm = "";
+    private IEnumerable<Page> allResults;
+    private IEnumerable<Page> pageList;
+
     private async Task DeletePage(Page page)
     {
         try
@@ -44,8 +68,20 @@
             AddModuleMessage(Localizer["Error.Page.Delete"], MessageType.Error);
         }
     }
+
     protected string Browse(Page page)
     {
         return string.IsNullOrEmpty(page.Url) ? NavigateUrl(page.Path) : page.Url;
+    }
+
+    protected override void OnInitialized()
+    {
+        allResults = PageState.Pages.Where(page => !page.IsDeleted).ToList();
+        pageList = allResults;
+    }
+
+    private void HandleSearchResults(IEnumerable<object> filteredDataList)
+    {
+        pageList = filteredDataList.Cast<Page>().ToList();
     }
 }
