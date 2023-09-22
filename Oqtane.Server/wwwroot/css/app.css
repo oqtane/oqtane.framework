@@ -214,7 +214,7 @@ app {
     top: 0.5rem;
 }
 
-/* Oqtane Conrol Styles */
+/* Oqtane Control Styles */
 
 /* Pager */
 .app-pager-pointer {
@@ -228,3 +228,22 @@ app {
 .app-fas {
     margin-left: 5px;
 }
+
+/* Search */
+.app-search {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin: 10px auto;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+    .app-search .form-control {
+        flex: 1;
+        border: none;
+    }
+
+    .app-search .btn-primary {
+        margin: auto;
+    }
