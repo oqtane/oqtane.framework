@@ -37,7 +37,8 @@ else
 					<th style="width: 1px;">&nbsp;</th>
 					<th style="width: 1px;">&nbsp;</th>
                     <th class="app-sort-th link-primary text-decoration-underline" @onclick="@(() => SortTable("Username"))">@Localizer["Username"]<i class="@(SetSortIcon("Username"))"></i></th>
-                <th class="app-sort-th link-primary text-decoration-underline" @onclick="@(() => SortTable("DisplayName"))">@Localizer["Name"]<i class="@(SetSortIcon("DisplayName"))"></i></th>
+                    <th class="app-sort-th link-primary text-decoration-underline" @onclick="@(() => SortTable("DisplayName"))">@Localizer["Name"]<i class="@(SetSortIcon("DisplayName"))"></i></th>
+                    <th class="app-sort-th link-primary text-decoration-underline" @onclick="@(() => SortTable("Email"))">@Localizer["Email"]<i class="@(SetSortIcon("Email"))"></i></th>
                     <th class="app-sort-th link-primary text-decoration-underline" @onclick="@(() => SortTable("LastLoginOn"))">@Localizer["LastLoginOn"]<i class="@(SetSortIcon("LastLoginOn"))"></i></th>
 				</Header>
 				<Row>
@@ -52,6 +53,7 @@ else
 					</td>
 					<td>@context.User.Username</td>
 					<td>@((MarkupString)string.Format("<a href=\"mailto:{0}\">{1}</a>", @context.User.Email, @context.User.DisplayName))</td>
+					<td>@((MarkupString)string.Format("<a href=\"mailto:{0}\">{1}</a>", @context.User.Email, @context.User.Email))</td>
 					<td>@((context.User.LastLoginOn != DateTime.MinValue) ? string.Format("{0:dd-MMM-yyyy HH:mm:ss}", context.User.LastLoginOn) : "")</td>
 				</Row>
 			</Pager>
