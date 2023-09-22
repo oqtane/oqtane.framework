@@ -52,7 +52,7 @@ else
 						<ActionLink Action="Roles" Parameters="@($"id=" + context.UserId.ToString())" Security="SecurityAccessLevel.Edit" ResourceKey="Roles" />
 					</td>
 					<td>@context.User.Username</td>
-					<td>@context.User.Email</td>
+					<td>@context.User.DisplayName</td>
 					<td>@((MarkupString)string.Format("<a href=\"mailto:{0}\">{1}</a>", @context.User.Email, @context.User.Email))</td>
 					<td>@((context.User.LastLoginOn != DateTime.MinValue) ? string.Format("{0:dd-MMM-yyyy HH:mm:ss}", context.User.LastLoginOn) : "")</td>
 				</Row>
