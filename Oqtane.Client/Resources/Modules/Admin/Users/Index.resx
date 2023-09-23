@@ -390,7 +390,7 @@
   <data name="RoleClaimType.Text" xml:space="preserve">
     <value>Role Claim:</value>
   </data>
-    <data name="ProfileClaimTypes.HelpText" xml:space="preserve">
+  <data name="ProfileClaimTypes.HelpText" xml:space="preserve">
     <value>Optionally provide a comma delimited list of user profile claims provided by the identity provider, as well as mappings to your user profile definition. For example if the identity provider includes a 'given_name' claim and you have a 'FirstName' user profile definition you should specify 'given_name:FirstName'.</value>
   </data>
   <data name="ProfileClaimTypes.Text" xml:space="preserve">
@@ -404,5 +404,8 @@
   </data>
   <data name="Email" xml:space="preserve">
     <value>Email</value>
+  </data>
+  <data name="ImportUsers.Text" xml:space="preserve">
+    <value>Import Users</value>
   </data>
 </root>

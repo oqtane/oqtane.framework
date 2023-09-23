@@ -21,7 +21,7 @@ else
 				<div class="row mb-1 align-items-center">
 					<div class="col-sm-4">
 						<ActionLink Action="Add" Text="Add User" Security="SecurityAccessLevel.Edit" ResourceKey="AddUser" />&nbsp;
-                        <ActionLink Text="Import Users" Class="btn btn-secondary" Action="Users" Security="SecurityAccessLevel.Admin" />                    
+                        <ActionLink Text="Import Users" Class="btn btn-secondary" Action="Users" Security="SecurityAccessLevel.Admin" ResourceKey="ImportUsers"/>                    
                     </div>
 					<div class="col-sm-4">
 						<input class="form-control" @bind="@_search" />
