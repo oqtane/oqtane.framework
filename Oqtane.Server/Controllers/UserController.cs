@@ -379,7 +379,26 @@ namespace Oqtane.Controllers
         {
             if (int.TryParse(siteid, out int SiteId) && SiteId == _tenantManager.GetAlias().SiteId && int.TryParse(fileid, out int FileId) && bool.TryParse(notify, out bool Notify))
             {
-                return await _userManager.ImportUsers(SiteId, FileId, Notify);
+                var file = _files.GetFile(FileId);
+                if (file != null)
+                {
+                    if (_userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.PermissionList))
+                    {
+                        return await _userManager.ImportUsers(SiteId, _files.GetFilePath(file), Notify);
+                    }
+                    else
+                    {
+                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Import Attempt {SiteId} {FileId}", siteid, fileid);
+                        HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                        return null;
+                    }
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Import File Does Not Exist {SiteId} {FileId}", siteid, fileid);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    return null;
+                }
             }
             else
             {
