@@ -12,6 +12,15 @@
             <FileManager Id="importfile" @ref="_filemanager" Filter="txt" />
         </div>
     </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="notify" HelpText="Indicate if new users should receive an email notification" ResourceKey="Notify">Notify? </Label>
+        <div class="col-sm-9">
+            <select id="notify" class="form-select" @bind="@_notify" required>
+                <option value="True">@SharedLocalizer["Yes"]</option>
+                <option value="False">@SharedLocalizer["No"]</option>
+            </select>
+        </div>
+    </div>
 </div>
 <br />
 <button type="button" class="btn btn-success" @onclick="ImportUsers">@Localizer["Import"]</button>&nbsp;
@@ -25,6 +34,8 @@
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
+    private string _notify = "True";
+
     private async Task ImportUsers()
     {
         try
@@ -33,10 +44,10 @@
             if (fileid != -1)
             {
                 ShowProgressIndicator();
-                var results = await UserService.ImportUsersAsync(PageState.Site.SiteId, fileid);
+                var results = await UserService.ImportUsersAsync(PageState.Site.SiteId, fileid, bool.Parse(_notify));
                 if (bool.Parse(results["Success"]))
                 {
-                    AddModuleMessage(string.Format(Localizer["Message.Import.Success"], results["Rows"], results["Users"]), MessageType.Success);
+                    AddModuleMessage(string.Format(Localizer["Message.Import.Success"], results["Users"]), MessageType.Success);
                 }
                 else
                 {

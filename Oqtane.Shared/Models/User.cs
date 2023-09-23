@@ -108,6 +108,12 @@ namespace Oqtane.Models
         public bool EmailConfirmed { get; set; }
 
         /// <summary>
+        /// Indicates if new user should be notified by email (set during user creation)
+        /// </summary>
+        [NotMapped]
+        public bool SuppressNotification { get; set; }
+
+        /// <summary>
         /// Public User Settings
         /// </summary>
         [NotMapped]

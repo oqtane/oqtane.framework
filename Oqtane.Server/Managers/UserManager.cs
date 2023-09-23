@@ -158,10 +158,13 @@ namespace Oqtane.Managers
                 }
                 else
                 {
-                    string url = alias.Protocol + alias.Name;
-                    string body = "Dear " + user.DisplayName + ",\n\nA User Account Has Been Successfully Created For You With The Username " + user.Username + ". Please Visit " + url + " And Use The Login Option To Sign In. If You Do Not Know Your Password, Use The Forgot Password Option On The Login Page To Reset Your Account.\n\nThank You!";
-                    var notification = new Notification(user.SiteId, User, "User Account Notification", body);
-                    _notifications.AddNotification(notification);
+                    if (!user.SuppressNotification)
+                    {
+                        string url = alias.Protocol + alias.Name;
+                        string body = "Dear " + user.DisplayName + ",\n\nA User Account Has Been Successfully Created For You With The Username " + user.Username + ". Please Visit " + url + " And Use The Login Option To Sign In. If You Do Not Know Your Password, Use The Forgot Password Option On The Login Page To Reset Your Account.\n\nThank You!";
+                        var notification = new Notification(user.SiteId, User, "User Account Notification", body);
+                        _notifications.AddNotification(notification);
+                    }
                 }
 
                 User.Password = ""; // remove sensitive information
@@ -183,7 +186,7 @@ namespace Oqtane.Managers
             {
                 identityuser.Email = user.Email;
                 var valid = true;
-                if (user.Password != "")
+                if (!string.IsNullOrEmpty(user.Password))
                 {
                     var validator = new PasswordValidator<IdentityUser>();
                     var result = await validator.ValidateAsync(_identityUserManager, null, user.Password);
@@ -195,7 +198,10 @@ namespace Oqtane.Managers
                 }
                 if (valid)
                 {
-                    await _identityUserManager.UpdateAsync(identityuser);
+                    if (!string.IsNullOrEmpty(user.Password))
+                    {
+                        await _identityUserManager.UpdateAsync(identityuser); // requires password to be provided
+                    }
 
                     user = _users.UpdateUser(user);
                     _syncManager.AddSyncEvent(_tenantManager.GetAlias().TenantId, EntityNames.User, user.UserId, SyncEventActions.Update);
@@ -460,7 +466,7 @@ namespace Oqtane.Managers
             return result.Succeeded;
         }
 
-        public async Task<Dictionary<string, string>> ImportUsers(int siteId, int fileId)
+        public async Task<Dictionary<string, string>> ImportUsers(int siteId, int fileId, bool notify)
         {
             var success = true;
             int rows = 0;
@@ -489,111 +495,133 @@ namespace Oqtane.Managers
                             if (!string.IsNullOrEmpty(row.Trim()))
                             {
                                 var header = row.Replace("\"", "").Split('\t');
-
-                                // detail rows
-                                while (reader.Peek() > -1)
+                                if (header[0].Trim() == "Email")
                                 {
-                                    row = reader.ReadLine();
-                                    rows++;
-
-                                    if (!string.IsNullOrEmpty(row.Trim()))
+                                    for (int index = 4; index < header.Length - 1; index++)
                                     {
-                                        var values = row.Replace("\"", "").Split('\t');
-
-                                        // user
-                                        var email = (values.Length > 0) ? values[0].Trim() : "";
-                                        var username = (values.Length > 1) ? values[1].Trim() : "";
-                                        var displayname = (values.Length > 2) ? values[2].Trim() : "";
-
-                                        var user = _users.GetUser(username, email);
-                                        if (user == null)
+                                        if (!string.IsNullOrEmpty(header[index].Trim()) && !profiles.Any(item => item.Name == header[index].Trim()))
                                         {
-                                            user = new User();
-                                            user.SiteId = siteId;
-                                            user.Email = values[0];
-                                            user.Username = (!string.IsNullOrEmpty(username)) ? username : user.Email;
-                                            user.DisplayName = (!string.IsNullOrEmpty(displayname)) ? displayname : user.Username;
-                                            user = await AddUser(user);
+                                            _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Import Contains Profile Name {Profile} Which Does Not Exist", header[index]);
+                                            success = false;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Import File Is Not In Correct Format. Please Use Template Provided.");
+                                    success = false;
+                                }
+
+                                if (success)
+                                {
+                                    // detail rows
+                                    while (reader.Peek() > -1)
+                                    {
+                                        row = reader.ReadLine();
+                                        rows++;
+
+                                        if (!string.IsNullOrEmpty(row.Trim()))
+                                        {
+                                            var values = row.Replace("\"", "").Split('\t');
+
+                                            // user
+                                            var email = (values.Length > 0) ? values[0].Trim() : "";
+                                            var username = (values.Length > 1) ? values[1].Trim() : "";
+                                            var displayname = (values.Length > 2) ? values[2].Trim() : "";
+
+                                            var user = _users.GetUser(username, email);
                                             if (user == null)
                                             {
-                                                _logger.Log(LogLevel.Error, this, LogFunction.Create, "Error Importing User {Email} {Username} {DisplayName}", email, username, displayname);
-                                                success = false;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            if (!string.IsNullOrEmpty(displayname))
-                                            {
-                                                user.DisplayName = displayname;
-                                                user = await UpdateUser(user);
-                                            }
-                                        }
-
-                                        var rolenames = (values.Length > 3) ? values[3].Trim() : "";
-                                        if (user != null && !string.IsNullOrEmpty(rolenames))
-                                        {
-                                            // roles (comma delimited)
-                                            foreach (var rolename in rolenames.Split(','))
-                                            {
-                                                var role = roles.FirstOrDefault(item => item.Name == rolename.Trim());
-                                                if (role == null)
+                                                user = new User();
+                                                user.SiteId = siteId;
+                                                user.Email = values[0];
+                                                user.Username = (!string.IsNullOrEmpty(username)) ? username : user.Email;
+                                                user.DisplayName = (!string.IsNullOrEmpty(displayname)) ? displayname : user.Username;
+                                                user.EmailConfirmed = true;
+                                                user.SuppressNotification = !notify;
+                                                user = await AddUser(user);
+                                                if (user == null)
                                                 {
-                                                    role = new Role();
-                                                    role.SiteId = siteId;
-                                                    role.Name = rolename.Trim();
-                                                    role.Description = rolename.Trim();
-                                                    role = _roles.AddRole(role);
-                                                    roles.Add(role);
+                                                    _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Import Error Importing User {Email} {Username} {DisplayName}", email, username, displayname);
+                                                    success = false;
                                                 }
-                                                if (role != null)
+                                            }
+                                            else
+                                            {
+                                                if (!string.IsNullOrEmpty(displayname))
                                                 {
-                                                    var userrole = _userRoles.GetUserRole(user.UserId, role.RoleId, false);
-                                                    if (userrole == null)
+                                                    user.DisplayName = displayname;
+                                                    user.Password = "";
+                                                    user = await UpdateUser(user);
+                                                }
+                                            }
+
+                                            var rolenames = (values.Length > 3) ? values[3].Trim() : "";
+                                            if (user != null && !string.IsNullOrEmpty(rolenames))
+                                            {
+                                                // roles (comma delimited)
+                                                foreach (var rolename in rolenames.Split(','))
+                                                {
+                                                    var role = roles.FirstOrDefault(item => item.Name == rolename.Trim());
+                                                    if (role == null)
                                                     {
-                                                        userrole = new UserRole();
-                                                        userrole.UserId = user.UserId;
-                                                        userrole.RoleId = role.RoleId;
-                                                        _userRoles.AddUserRole(userrole);
+                                                        role = new Role();
+                                                        role.SiteId = siteId;
+                                                        role.Name = rolename.Trim();
+                                                        role.Description = rolename.Trim();
+                                                        role = _roles.AddRole(role);
+                                                        roles.Add(role);
+                                                    }
+                                                    if (role != null)
+                                                    {
+                                                        var userrole = _userRoles.GetUserRole(user.UserId, role.RoleId, false);
+                                                        if (userrole == null)
+                                                        {
+                                                            userrole = new UserRole();
+                                                            userrole.UserId = user.UserId;
+                                                            userrole.RoleId = role.RoleId;
+                                                            _userRoles.AddUserRole(userrole);
+                                                        }
                                                     }
                                                 }
                                             }
-                                        }
 
-                                        if (user != null && values.Length > 4)
-                                        {
-                                            // profiles
-                                            var settings = _settings.GetSettings(EntityNames.User, user.UserId);
-                                            for (int index = 4; index < values.Length - 1; index++)
+                                            if (user != null && values.Length > 4)
                                             {
-                                                if (header.Length > index && !string.IsNullOrEmpty(values[index].Trim()))
+                                                // profiles
+                                                var settings = _settings.GetSettings(EntityNames.User, user.UserId);
+                                                for (int index = 4; index < values.Length - 1; index++)
                                                 {
-                                                    var profile = profiles.FirstOrDefault(item => item.Name == header[index].Trim());
-                                                    if (profile != null)
+                                                    if (header.Length > index && !string.IsNullOrEmpty(values[index].Trim()))
                                                     {
-                                                        var setting = settings.FirstOrDefault(item => item.SettingName == profile.Name);
-                                                        if (setting == null)
+                                                        var profile = profiles.FirstOrDefault(item => item.Name == header[index].Trim());
+                                                        if (profile != null)
                                                         {
-                                                            setting = new Setting();
-                                                            setting.EntityName = EntityNames.User;
-                                                            setting.EntityId = user.UserId;
-                                                            setting.SettingName = profile.Name;
-                                                            setting.SettingValue = values[index].Trim();
-                                                            _settings.AddSetting(setting);
-                                                        }
-                                                        else
-                                                        {
-                                                            if (setting.SettingValue != values[index].Trim())
+                                                            var setting = settings.FirstOrDefault(item => item.SettingName == profile.Name);
+                                                            if (setting == null)
                                                             {
+                                                                setting = new Setting();
+                                                                setting.EntityName = EntityNames.User;
+                                                                setting.EntityId = user.UserId;
+                                                                setting.SettingName = profile.Name;
                                                                 setting.SettingValue = values[index].Trim();
-                                                                _settings.UpdateSetting(setting);
+                                                                _settings.AddSetting(setting);
+                                                            }
+                                                            else
+                                                            {
+                                                                if (setting.SettingValue != values[index].Trim())
+                                                                {
+                                                                    setting.SettingValue = values[index].Trim();
+                                                                    _settings.UpdateSetting(setting);
+                                                                }
                                                             }
                                                         }
                                                     }
                                                 }
                                             }
-                                        }
 
-                                        users++;
+                                            users++;
+                                        }
                                     }
                                 }
                             }
@@ -627,7 +655,6 @@ namespace Oqtane.Managers
             // return results
             var result = new Dictionary<string, string>();
             result.Add("Success", success.ToString());
-            result.Add("Rows", rows.ToString());
             result.Add("Users", users.ToString());
 
             return result;

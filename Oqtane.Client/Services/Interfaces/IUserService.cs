@@ -146,8 +146,10 @@ namespace Oqtane.Services
         /// <summary>
         /// Bulk import of users
         /// </summary>
+        /// <param name="siteId">ID of a <see cref="Site"/></param>
         /// <param name="fileId">ID of a <see cref="File"/></param>
+        /// <param name="notify">Indicates if new users should be notified by email</param>
         /// <returns></returns>
-        Task<Dictionary<string, string>> ImportUsersAsync(int siteId, int fileId);
+        Task<Dictionary<string, string>> ImportUsersAsync(int siteId, int fileId, bool notify);
     }
 }

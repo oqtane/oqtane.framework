@@ -127,9 +127,9 @@ namespace Oqtane.Services
             return string.Format(passwordValidationCriteriaTemplate, minimumlength, uniquecharacters, digitRequirement, uppercaseRequirement, lowercaseRequirement, punctuationRequirement);
         }
 
-        public async Task<Dictionary<string, string>> ImportUsersAsync(int siteId, int fileId)
+        public async Task<Dictionary<string, string>> ImportUsersAsync(int siteId, int fileId, bool notify)
         {
-            return await PostJsonAsync<Dictionary<string, string>>($"{Apiurl}/import?siteid={siteId}&fileid={fileId}", null);
+            return await PostJsonAsync<Dictionary<string, string>>($"{Apiurl}/import?siteid={siteId}&fileid={fileId}&notify={notify}", null);
         }
     }
 }

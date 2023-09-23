@@ -372,14 +372,14 @@ namespace Oqtane.Controllers
             return requirements;
         }
 
-        // POST api/<controller>/import?siteid=x&fileid=y
+        // POST api/<controller>/import?siteid=x&fileid=y&notify=z
         [HttpPost("import")]
         [Authorize(Roles = RoleNames.Admin)]
-        public async Task<Dictionary<string, string>> Import(string siteid, string fileid)
+        public async Task<Dictionary<string, string>> Import(string siteid, string fileid, string notify)
         {
-            if (int.TryParse(siteid, out int SiteId) && SiteId == _tenantManager.GetAlias().SiteId && int.TryParse(fileid, out int FileId))
+            if (int.TryParse(siteid, out int SiteId) && SiteId == _tenantManager.GetAlias().SiteId && int.TryParse(fileid, out int FileId) && bool.TryParse(notify, out bool Notify))
             {
-                return await _userManager.ImportUsers(SiteId, FileId);
+                return await _userManager.ImportUsers(SiteId, FileId, Notify);
             }
             else
             {

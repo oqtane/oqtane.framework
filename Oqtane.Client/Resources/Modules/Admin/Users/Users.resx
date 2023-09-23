@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -133,12 +133,18 @@
     <value>User Import Failed. Please Review Your Event Log For More Detailed Information.</value>
   </data>
   <data name="Message.Import.Success" xml:space="preserve">
-    <value>Users Imported Successfully. {0} Rows Processed, {1} Users Imported.</value>
+    <value>User Import Successful. {0} Users Imported.</value>
   </data>
   <data name="Message.Import.Validation" xml:space="preserve">
     <value>You Must Specify A User File For Import</value>
   </data>
   <data name="Template" xml:space="preserve">
     <value>Template</value>
+  </data>
+  <data name="Notify.HelpText" xml:space="preserve">
+    <value>Indicate if new users should receive an email notification</value>
+  </data>
+  <data name="Notify.Text" xml:space="preserve">
+    <value>Notify?</value>
   </data>
 </root>
