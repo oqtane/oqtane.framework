@@ -171,4 +171,10 @@
   <data name="Password.Placeholder" xml:space="preserve">
     <value>Password</value>
   </data>
+  <data name="Notify.HelpText" xml:space="preserve">
+    <value>Indicate if new users should receive an email notification</value>
+  </data>
+  <data name="Notify.Text" xml:space="preserve">
+    <value>Notify?</value>
+  </data>
 </root>
