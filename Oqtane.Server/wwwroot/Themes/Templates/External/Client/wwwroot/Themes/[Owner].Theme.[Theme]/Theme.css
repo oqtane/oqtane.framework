@@ -79,6 +79,10 @@ div.app-moduleactions a.dropdown-toggle, div.app-moduleactions div.dropdown-menu
     color: #000000;
 }
 
+.dropdown-menu span {
+  mix-blend-mode: difference;
+}
+
 @media (max-width: 767px) {
 
     .app-menu {

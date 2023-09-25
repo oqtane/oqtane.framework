@@ -146,6 +146,10 @@
         {
             editmode = false; // reset edit mode when navigating to different page
         }
+        if (querystring.ContainsKey("edit") && querystring["edit"] == "true")
+        {
+            editmode = true; // querystring can set edit mode
+        }
 
         // get user
         if (PageState == null || refresh || PageState.Alias.SiteId != SiteState.Alias.SiteId)
@@ -290,7 +294,7 @@
                 var urlMapping = await UrlMappingService.GetUrlMappingAsync(site.SiteId, route.PagePath);
                 if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
                 {
-                    var url = (urlMapping.MappedUrl.StartsWith("http")) ? urlMapping.MappedUrl : route.SiteUrl + "/" + urlMapping.MappedUrl;
+                    var url = (urlMapping.MappedUrl.StartsWith("http")) ? urlMapping.MappedUrl : route.SiteUrl + "/" + urlMapping.MappedUrl + route.Query;
                     NavigationManager.NavigateTo(url, false);
                 }
                 else // not mapped

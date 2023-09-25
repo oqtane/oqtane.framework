@@ -48,7 +48,10 @@
                             <select class="form-select" value="@_sort" @onchange="(e => SortChanged(e))">
                                 <option value="popularity">@SharedLocalizer["Search.Popularity"]</option>
                                 <option value="alphabetical">@SharedLocalizer["Search.Alphabetical"]</option>
-                                <option value="downloads">@SharedLocalizer["Search.Downloads"]</option>
+                                @if (_price == "free")
+                                {
+                                    <option value="downloads">@SharedLocalizer["Search.Downloads"]</option>
+                                }
                                 <option value="recent">@SharedLocalizer["Search.RecentlyReleased"]</option>
                                 @if (_price == "paid")
                                 {
@@ -74,11 +77,19 @@
                                         </div>
                                         <div class="col-8 text-end">
                                             <small>@SharedLocalizer["Search.Version"]:</small> <strong>@context.Version</strong>
-                                            <br /><small>@SharedLocalizer["Search.Downloads"]:</small> <strong>@(String.Format("{0:n0}", context.Downloads))</strong>
                                             <br /><small>@SharedLocalizer["Search.Released"]:</small> <strong>@context.ReleaseDate.ToString("MM/dd/yyyy")</strong>
                                             @if (!string.IsNullOrEmpty(context.PackageUrl))
                                             {
                                                 <br /><small>@SharedLocalizer["Search.Source"]:</small> <strong>@(new Uri(context.PackageUrl).Host)</strong>
+                                            }
+                                            @if (context.Price == null)
+                                            {
+                                                <br /><small>@SharedLocalizer["Search.Downloads"]:</small> <strong>@(String.Format("{0:n0}", context.Downloads))</strong>
+                                            }
+                                            else
+                                            {
+                                                <br /><small>@SharedLocalizer["From"]:</small> <strong>@context.Price.Value.ToString("$#,##0.00")</strong>
+                                                @((MarkupString)(context.TrialPeriod > 0 ? " <strong>(" + context.TrialPeriod + " Day Trial)</strong>" : ""))
                                             }
                                         </div>
                                     </div>
@@ -87,17 +98,12 @@
                                             <h3 style="display: inline;"><a href="@context.ProductUrl" target="_blank">@context.Name</a></h3><br />
                                             <small>@SharedLocalizer["Search.By"]:</small> <strong><a href="@context.OwnerUrl" target="new">@context.Owner</a></strong><br />
                                             @(context.Description.Length > 400 ? (context.Description.Substring(0, 400) + "...") : context.Description)<br />
-                                            @if (context.Price != null && !string.IsNullOrEmpty(context.PaymentUrl))
-                                            {
-                                                <small>@SharedLocalizer["From"]:</small> <strong>@context.Price.Value.ToString("$#,##0.00")</strong>
-                                                @((MarkupString)(context.TrialPeriod > 0 ? " <strong>(" + context.TrialPeriod + " Day Trial)</strong>" : ""))
-                                            }
                                             <br />
                                             @if (!string.IsNullOrEmpty(context.PackageUrl))
                                             {
                                                 <button type="button" class="btn btn-primary" @onclick=@(async () => await GetPackage(context.PackageId, context.Version))>@SharedLocalizer["Download"]</button>
                                             }
-                                            @if (context.Price != null && !string.IsNullOrEmpty(context.PaymentUrl) && string.IsNullOrEmpty(context.PackageUrl))
+                                            @if (context.Price != null && !string.IsNullOrEmpty(context.PaymentUrl))
                                             {
                                                 <a class="btn btn-success ms-2" style="text-decoration: none !important" href="@context.PaymentUrl" target="_new">@SharedLocalizer["Buy"]</a>
                                             }
@@ -213,6 +219,7 @@
     private async void PriceChanged(string price)
     {
         _price = price;
+        _sort = "popularity";
         await LoadModuleDefinitions();
         StateHasChanged();
     }
@@ -256,7 +263,7 @@
     {
         try
         {
-            var package = await PackageService.GetPackageAsync(packageid, version);
+            var package = await PackageService.GetPackageAsync(packageid, version, false);
             if (package != null)
             {
                 _productname = package.Name;
@@ -285,7 +292,7 @@
     {
         try
         {
-            await PackageService.DownloadPackageAsync(_packageid, _packageversion, Constants.PackagesFolder);
+            await PackageService.DownloadPackageAsync(_packageid, _packageversion);
             await logger.LogInformation("Package {PackageId} {Version} Downloaded Successfully", _packageid, _packageversion);
             AddModuleMessage(string.Format(Localizer["Success.Module.Download"], NavigateUrl("admin/system")), MessageType.Success);
             _productname = "";

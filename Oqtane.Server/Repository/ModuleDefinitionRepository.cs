@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Xml;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Infrastructure;
@@ -148,10 +147,11 @@ namespace Oqtane.Repository
 
                 if (moduledefinition == null)
                 {
-                    // new module definition (version is explicitly not set because it is updated as part of module migrations at startup)
+                    // new module definition
                     moduledefinition = new ModuleDefinition { ModuleDefinitionName = ModuleDefinition.ModuleDefinitionName };
                     _db.ModuleDefinition.Add(moduledefinition);
                     _db.SaveChanges();
+                    // version is explicitly not set because it is updated as part of module migrations at startup
                     ModuleDefinition.Version = ""; 
                 }
                 else
@@ -160,6 +160,8 @@ namespace Oqtane.Repository
                     ModuleDefinition.Name = (!string.IsNullOrEmpty(moduledefinition.Name)) ? moduledefinition.Name : ModuleDefinition.Name;
                     ModuleDefinition.Description = (!string.IsNullOrEmpty(moduledefinition.Description)) ? moduledefinition.Description : ModuleDefinition.Description;
                     ModuleDefinition.Categories = (!string.IsNullOrEmpty(moduledefinition.Categories)) ? moduledefinition.Categories : ModuleDefinition.Categories;
+                    // get current version
+                    ModuleDefinition.Version = moduledefinition.Version;
 
                     // remove module definition from list as it is already synced
                     moduledefinitions.Remove(moduledefinition);

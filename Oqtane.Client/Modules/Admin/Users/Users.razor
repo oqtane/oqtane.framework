@@ -1,0 +1,69 @@
+@namespace Oqtane.Modules.Admin.Users
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IUserService UserService
+@inject IStringLocalizer<Users> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+<div class="container">
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="importfile" HelpText="Upload or select a tab delimited text file containing user information. The file must be in the Template format specified (Roles can be specified as a comma delimited list)." ResourceKey="ImportFile">Import File:</Label>
+        <div class="col-sm-9">
+            <FileManager Id="importfile" @ref="_filemanager" Filter="txt" />
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="notify" HelpText="Indicate if new users should receive an email notification" ResourceKey="Notify">Notify? </Label>
+        <div class="col-sm-9">
+            <select id="notify" class="form-select" @bind="@_notify" required>
+                <option value="True">@SharedLocalizer["Yes"]</option>
+                <option value="False">@SharedLocalizer["No"]</option>
+            </select>
+        </div>
+    </div>
+</div>
+<br />
+<button type="button" class="btn btn-success" @onclick="ImportUsers">@Localizer["Import"]</button>&nbsp;
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>&nbsp;
+<a class="btn btn-info" href="/users.txt" target="_new">@Localizer["Template"]</a>
+
+@code {
+    private FileManager _filemanager;
+
+    public override string Title => "Import Users";
+
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+
+    private string _notify = "True";
+
+    private async Task ImportUsers()
+    {
+        try
+        {
+            var fileid = _filemanager.GetFileId();
+            if (fileid != -1)
+            {
+                ShowProgressIndicator();
+                var results = await UserService.ImportUsersAsync(PageState.Site.SiteId, fileid, bool.Parse(_notify));
+                if (bool.Parse(results["Success"]))
+                {
+                    AddModuleMessage(string.Format(Localizer["Message.Import.Success"], results["Users"]), MessageType.Success);
+                }
+                else
+                {
+                    AddModuleMessage(Localizer["Message.Import.Failure"], MessageType.Error);
+                }
+                HideProgressIndicator();
+            }
+            else
+            {
+                AddModuleMessage(Localizer["Message.Import.Validation"], MessageType.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Importing Users {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Import"], MessageType.Error);
+        }
+    }
+}

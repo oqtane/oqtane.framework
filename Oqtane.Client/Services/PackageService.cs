@@ -31,19 +31,19 @@ namespace Oqtane.Services
             return await GetJsonAsync<List<Package>>($"{Apiurl}?type={type}&search={WebUtility.UrlEncode(search)}&price={price}&package={package}&sort={sort}");
         }
 
-        public async Task<List<Package>> GetPackagesAsync(List<string> packagenames)
+        public async Task<List<Package>> GetPackageUpdatesAsync(string type)
         {
-            return await GetJsonAsync<List<Package>>($"{Apiurl}/list/?names={string.Join(",", packagenames)}");
+            return await GetJsonAsync<List<Package>>($"{Apiurl}/updates/?type={type}");
         }
 
-        public async Task<Package> GetPackageAsync(string packageId, string version)
+        public async Task<Package> GetPackageAsync(string packageId, string version, bool download)
         {
-            return await PostJsonAsync<Package>($"{Apiurl}?packageid={packageId}&version={version}", null);
+            return await PostJsonAsync<Package>($"{Apiurl}?packageid={packageId}&version={version}&download={download}&install=false", null);
         }
 
-        public async Task DownloadPackageAsync(string packageId, string version, string folder)
+        public async Task DownloadPackageAsync(string packageId, string version)
         {
-            await PostAsync($"{Apiurl}?packageid={packageId}&version={version}&folder={folder}");
+            await PostAsync($"{Apiurl}?packageid={packageId}&version={version}&download=true&install=true");
         }
 
         public async Task InstallPackagesAsync()

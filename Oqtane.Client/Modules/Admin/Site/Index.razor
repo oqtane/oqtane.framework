@@ -49,9 +49,18 @@
 			<div class="row mb-1 align-items-center">
 				<Label Class="col-sm-3" For="sitemap" HelpText="The site map url for this site which can be submitted to search engines for indexing" ResourceKey="SiteMap">Site Map: </Label>
 				<div class="col-sm-9">
-					<input id="sitemap" class="form-control" @bind="@_sitemap" required disabled />
-				</div>
+                    <div class="input-group">
+                        <input id="sitemap" class="form-control" @bind="@_sitemap" disabled />
+                        <a href="@_sitemap" class="btn btn-secondary" target="_new">@Localizer["Browse"]</a>
+                    </div>
+                </div>
 			</div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="siteguid" HelpText="The Unique Identifier For The Site" ResourceKey="SiteGuid">ID: </Label>
+                <div class="col-sm-9">
+                    <input id="siteguid" class="form-control" @bind="@_siteguid" required disabled />
+                </div>
+            </div>
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="version" HelpText="The site version (for site content migrations)" ResourceKey="Version">Version: </Label>
                 <div class="col-sm-9">
@@ -348,6 +357,7 @@
     private string _homepageid = "-";
     private string _isdeleted;
     private string _sitemap = "";
+    private string _siteguid = "";
     private string _version = "";
     private int _logofileid = -1;
     private FileManager _logofilemanager;
@@ -406,6 +416,7 @@
                 }
                 _isdeleted = site.IsDeleted.ToString();
                 _sitemap = PageState.Alias.Protocol + PageState.Alias.Name + "/pages/sitemap.xml";
+                _siteguid = site.SiteGuid;
                 _version = site.Version;
 
                 // appearance
@@ -602,7 +613,7 @@
 
                         // SMTP
 						var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
-						settings = SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
+                        settings = SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
 						settings = SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
 						settings = SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
 						settings = SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
@@ -610,6 +621,7 @@
 						settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
 						settings = SettingService.SetSetting(settings, "SMTPRelay", _smtprelay, true);
                         settings = SettingService.SetSetting(settings, "SMTPEnabled", _smtpenabled, true);
+                        settings = SettingService.SetSetting(settings, "SiteGuid", _siteguid, true);
                         settings = SettingService.SetSetting(settings, "NotificationRetention", _retention, true);
 						await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 

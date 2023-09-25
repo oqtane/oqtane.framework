@@ -72,7 +72,7 @@
             while (index >= 0)
             {
                 var element = content.Substring(index, content.IndexOf(">", index) - index + 1);
-                if (!string.IsNullOrEmpty(element) && !element.ToLower().StartsWith("<script"))
+                if (!string.IsNullOrEmpty(element) && !element.ToLower().StartsWith("<script") && !element.ToLower().StartsWith("</script"))
                 {
                     if (!headcontent.Contains(element))
                     {
@@ -166,7 +166,7 @@
             if (!string.IsNullOrEmpty(src))
             {
                 src = (src.Contains("://")) ? src : PageState.Alias.BaseUrl + src;
-                scripts.Add(new { href = src, bundle = "", integrity = integrity, crossorigin = crossorigin, es6module = (type == "module"), location = location });
+                scripts.Add(new { href = src, bundle = "", integrity = integrity, crossorigin = crossorigin, es6module = (type == "module"), location = location.ToString().ToLower() });
             }
             else
             {

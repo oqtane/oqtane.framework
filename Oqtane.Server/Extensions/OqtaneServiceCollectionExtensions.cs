@@ -121,6 +121,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IServiceCollection ConfigureOqtaneCookieOptions(this IServiceCollection services)
         {
+            // note that ConfigureApplicationCookie internally uses an ApplicationScheme of "Identity.Application"
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.HttpOnly = false;

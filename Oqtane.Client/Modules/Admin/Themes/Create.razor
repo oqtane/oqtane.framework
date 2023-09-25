@@ -80,7 +80,10 @@
 
     protected override void OnInitialized()
     {
-        AddModuleMessage(Localizer["Info.Theme.CreatorIntent"], MessageType.Info);
+        if (!NavigationManager.BaseUri.Contains("localhost:"))
+        {
+            AddModuleMessage(Localizer["Info.Theme.CreatorIntent"], MessageType.Info);
+        }
     }
 	
 	protected override async Task OnParametersSetAsync()

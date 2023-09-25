@@ -3,6 +3,7 @@
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
+@inject ISettingService SettingService
 @inject IServiceProvider ServiceProvider
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
@@ -92,22 +93,22 @@
     {
         try
         {
-            _togglepassword = SharedLocalizer["ShowPassword"];
-
-            if (PageState.Site.Settings.ContainsKey("LoginOptions:AllowSiteLogin") && !string.IsNullOrEmpty(PageState.Site.Settings["LoginOptions:AllowSiteLogin"]))
-            {
-                _allowsitelogin = bool.Parse(PageState.Site.Settings["LoginOptions:AllowSiteLogin"]);
-            }
-
-            if (PageState.Site.Settings.ContainsKey("ExternalLogin:ProviderType") && !string.IsNullOrEmpty(PageState.Site.Settings["ExternalLogin:ProviderType"]))
-            {
-                _allowexternallogin = true;
-            }
-
             if (PageState.QueryString.ContainsKey("returnurl"))
             {
                 _returnUrl = PageState.QueryString["returnurl"];
             }
+
+            _allowexternallogin = (SettingService.GetSetting(PageState.Site.Settings, "ExternalLogin:ProviderType", "") != "") ? true : false;
+            _allowsitelogin = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AllowSiteLogin", "true"));
+
+            if (_allowexternallogin && !_allowsitelogin)
+            {
+                // redirect to external login
+                NavigationManager.NavigateTo(Utilities.TenantUrl(PageState.Alias, "/pages/external?returnurl=" + _returnUrl), true);
+                return;
+            }
+
+            _togglepassword = SharedLocalizer["ShowPassword"];
 
             if (PageState.QueryString.ContainsKey("name"))
             {
@@ -167,7 +168,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && PageState.User == null)
+        if (firstRender && PageState.User == null && _allowsitelogin)
         {
             await username.FocusAsync();
         }
@@ -206,8 +207,7 @@
                     if (hybrid)
                     {
                         // hybrid apps utilize an interactive login
-                        var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider
-                            .GetService(typeof(IdentityAuthenticationStateProvider));
+                        var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
                         authstateprovider.NotifyAuthenticationChanged();
                         NavigationManager.NavigateTo(NavigateUrl(WebUtility.UrlDecode(_returnUrl), true));
                     }
@@ -221,7 +221,7 @@
                 }
                 else
                 {
-                    if ((PageState.Site.Settings.ContainsKey("LoginOptions:TwoFactor") && PageState.Site.Settings["LoginOptions:TwoFactor"] == "required") || user.TwoFactorRequired)
+                    if (SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:TwoFactor", "false") == "required" || user.TwoFactorRequired)
                     {
                         twofactor = true;
                         validated = false;

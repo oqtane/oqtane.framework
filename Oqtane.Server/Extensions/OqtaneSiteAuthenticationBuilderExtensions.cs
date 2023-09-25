@@ -28,7 +28,7 @@ namespace Oqtane.Extensions
         public static OqtaneSiteOptionsBuilder WithSiteAuthentication(this OqtaneSiteOptionsBuilder builder)
         {
             // site cookie authentication options
-            builder.AddSiteOptions<CookieAuthenticationOptions>((options, alias, sitesettings) =>
+            builder.AddSiteNamedOptions<CookieAuthenticationOptions>(Constants.AuthenticationScheme, (options, alias, sitesettings) =>
             {
                 options.Cookie.Name = sitesettings.GetValue("LoginOptions:CookieName", ".AspNetCore.Identity.Application");
             });

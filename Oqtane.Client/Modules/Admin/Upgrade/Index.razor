@@ -7,34 +7,38 @@
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<TabStrip>
-    <TabPanel Name="Download" ResourceKey="Download">
-        @if (_package != null && _upgradeavailable)
-        {
-            <ModuleMessage Type="MessageType.Info" Message="Select The Download Button To Download The Framework Upgrade Package And Then Select Upgrade"></ModuleMessage>
-            <button type="button" class="btn btn-primary" @onclick=@(async () => await Download(Constants.PackageId, @_package.Version))>@SharedLocalizer["Download"] @_package.Version</button>
-            <button type="button" class="btn btn-success" @onclick="Upgrade">@SharedLocalizer["Upgrade"]</button>
-        }
-        else
-        {
-            <ModuleMessage Type="MessageType.Info" Message=@Localizer["Message.Text"]></ModuleMessage>
-        }
-    </TabPanel>
-    <TabPanel Name="Upload" ResourceKey="Upload">
-        <ModuleMessage Type="MessageType.Info" Message=@Localizer["MessgeUpgrade.Text"]></ModuleMessage>
-        <div class="container">
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" HelpText="Upload A Framework Package And Then Select Upgrade" ResourceKey="Framework">Framework: </Label>
-                <div class="col-sm-9">
-                    <FileManager Folder="@Constants.PackagesFolder" />
+@if (_initialized)
+{
+    <TabStrip>
+        <TabPanel Name="Download" ResourceKey="Download">
+            @if (_package != null && _upgradeavailable)
+            {
+                <ModuleMessage Type="MessageType.Info" Message="Select The Download Button To Download The Framework Upgrade Package And Then Select Upgrade"></ModuleMessage>
+                <button type="button" class="btn btn-primary" @onclick=@(async () => await Download(Constants.PackageId, @_package.Version))>@SharedLocalizer["Download"] @_package.Version</button>
+                <button type="button" class="btn btn-success" @onclick="Upgrade">@SharedLocalizer["Upgrade"]</button>
+            }
+            else
+            {
+                <ModuleMessage Type="MessageType.Info" Message=@Localizer["Message.Text"]></ModuleMessage>
+            }
+        </TabPanel>
+        <TabPanel Name="Upload" ResourceKey="Upload">
+            <ModuleMessage Type="MessageType.Info" Message=@Localizer["MessageUpgrade.Text"]></ModuleMessage>
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" HelpText="Upload A Framework Package And Then Select Upgrade" ResourceKey="Framework">Framework: </Label>
+                    <div class="col-sm-9">
+                        <FileManager Folder="@Constants.PackagesFolder" />
+                    </div>
                 </div>
             </div>
-        </div>
-        <button type="button" class="btn btn-success" @onclick="Upgrade">@SharedLocalizer["Upgrade"]</button>
-    </TabPanel>
-</TabStrip>
+            <button type="button" class="btn btn-success" @onclick="Upgrade">@SharedLocalizer["Upgrade"]</button>
+        </TabPanel>
+    </TabStrip>
+}
 
 @code {
+    private bool _initialized = false;
     private Package _package;
     private bool _upgradeavailable = false;
 
@@ -44,18 +48,26 @@
     {
         try
         {
-            List<Package> packages = await PackageService.GetPackagesAsync("framework", "", "", "");
-            if (packages != null)
+            if (NavigationManager.BaseUri.Contains("localhost:"))
             {
-                _package = packages.Where(item => item.PackageId.StartsWith(Constants.PackageId)).FirstOrDefault();
-                if (_package != null)
+                AddModuleMessage(Localizer["Localhost.Text"], MessageType.Info);
+            }
+            else
+            {
+                List<Package> packages = await PackageService.GetPackagesAsync("framework", "", "", "");
+                if (packages != null)
                 {
-                    _upgradeavailable = (Version.Parse(_package.Version).CompareTo(Version.Parse(Constants.Version)) > 0);
+                    _package = packages.Where(item => item.PackageId.StartsWith(Constants.PackageId)).FirstOrDefault();
+                    if (_package != null)
+                    {
+                        _upgradeavailable = (Version.Parse(_package.Version).CompareTo(Version.Parse(Constants.Version)) > 0);
+                    }
+                    else
+                    {
+                        _package = new Package { Name = Constants.PackageId, Version = Constants.Version };
+                    }
                 }
-                else
-                {
-                    _package = new Package { Name = Constants.PackageId, Version = Constants.Version };
-                }
+                _initialized = true;
             }
         }
         catch
@@ -85,8 +97,8 @@
     {
         try
         {
-            await PackageService.DownloadPackageAsync(packageid, version, Constants.PackagesFolder);
-            await PackageService.DownloadPackageAsync(Constants.UpdaterPackageId, version, Constants.PackagesFolder);
+            await PackageService.DownloadPackageAsync(packageid, version);
+            await PackageService.DownloadPackageAsync(Constants.UpdaterPackageId, version);
             AddModuleMessage(Localizer["Success.Framework.Download"], MessageType.Success);
         }
         catch (Exception ex)

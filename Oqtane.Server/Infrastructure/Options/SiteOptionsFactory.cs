@@ -11,13 +11,15 @@ namespace Oqtane.Infrastructure
         private readonly IConfigureOptions<TOptions>[] _configureOptions;
         private readonly IPostConfigureOptions<TOptions>[] _postConfigureOptions;
         private readonly ISiteOptions<TOptions>[] _siteOptions;
+        private readonly ISiteNamedOptions<TOptions>[] _siteNamedOptions;
         private readonly IHttpContextAccessor _accessor;
 
-        public SiteOptionsFactory(IEnumerable<IConfigureOptions<TOptions>> configureOptions, IEnumerable<IPostConfigureOptions<TOptions>> postConfigureOptions, IEnumerable<ISiteOptions<TOptions>> siteOptions, IHttpContextAccessor accessor)
+        public SiteOptionsFactory(IEnumerable<IConfigureOptions<TOptions>> configureOptions, IEnumerable<IPostConfigureOptions<TOptions>> postConfigureOptions, IEnumerable<ISiteOptions<TOptions>> siteOptions, IEnumerable<ISiteNamedOptions<TOptions>> siteNamedOptions, IHttpContextAccessor accessor)
         {
             _configureOptions = configureOptions as IConfigureOptions<TOptions>[] ?? new List<IConfigureOptions<TOptions>>(configureOptions).ToArray();
             _postConfigureOptions = postConfigureOptions as IPostConfigureOptions<TOptions>[] ?? new List<IPostConfigureOptions<TOptions>>(postConfigureOptions).ToArray();
             _siteOptions = siteOptions as ISiteOptions<TOptions>[] ?? new List<ISiteOptions<TOptions>>(siteOptions).ToArray();
+            _siteNamedOptions = siteNamedOptions as ISiteNamedOptions<TOptions>[] ?? new List<ISiteNamedOptions<TOptions>>(siteNamedOptions).ToArray();
             _accessor = accessor;
          }
 
@@ -43,6 +45,11 @@ namespace Oqtane.Infrastructure
                 foreach (var siteOption in _siteOptions)
                 {
                     siteOption.Configure(options, _accessor.HttpContext.GetAlias(), _accessor.HttpContext.GetSiteSettings());
+                }
+
+                foreach (var siteNamedOption in _siteNamedOptions)
+                {
+                    siteNamedOption.Configure(name, options, _accessor.HttpContext.GetAlias(), _accessor.HttpContext.GetSiteSettings());
                 }
             }
 

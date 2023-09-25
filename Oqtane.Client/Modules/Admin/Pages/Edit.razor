@@ -48,13 +48,16 @@
                                         {
                                             <option value="=">&lt;@Localizer["ThisLocation.Keep"]&gt;</option>
                                         }
-                                        <option value="<<">@Localizer["ToBeginning"]</option>
                                         @if (_children != null && _children.Count > 0)
                                         {
+                                            <option value="<<">@Localizer["ToBeginning"]</option>
                                             <option value="<">@Localizer["Before"]</option>
                                             <option value=">">@Localizer["After"]</option>
                                         }
-                                        <option value=">>">@Localizer["ToEnd"]</option>
+                                        @if (_parentid != _currentparentid)
+                                        {
+                                            <option value=">>">@Localizer["ToEnd"]</option>
+                                        }
                                     </select>
                                     @if (_children != null && _children.Count > 0 && (_insert == "<" || _insert == ">"))
                                     {
@@ -209,7 +212,7 @@
                         <th>@Localizer["ModuleDefinition"]</th>
                         </Header>
                         <Row>
-                            <td><ActionLink Action="Settings" Text="Edit" ModuleId="@context.ModuleId" Security="SecurityAccessLevel.Edit" PermissionList="@context.PermissionList" ResourceKey="ModuleSettings" /></td>
+                            <td><ActionLink Action="Settings" Text="Edit" Path="@_actualpath" ModuleId="@context.ModuleId" Security="SecurityAccessLevel.Edit" PermissionList="@context.PermissionList" ResourceKey="ModuleSettings" /></td>
                             <td><ActionDialog Header="Delete Module" Message="Are You Sure You Wish To Delete This Module?" Action="Delete" Security="SecurityAccessLevel.Edit" PermissionList="@context.PermissionList" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" /></td>
                             <td>@context.Title</td>
                             <td>@context.ModuleDefinition?.Name</td>
@@ -292,6 +295,7 @@
     private int _childid = -1;
     private string _isnavigation;
     private string _isclickable;
+    private string _actualpath;
     private string _path;
     private string _url;
     private string _ispersonalizable;
@@ -323,7 +327,6 @@
     {
         try
         {
-            _children = PageState.Pages.Where(item => item.ParentId == null).ToList();
             _pageId = Int32.Parse(PageState.QueryString["id"]);
             _page = await PageService.GetPageAsync(_pageId);
             _icons = await SystemService.GetIconsAsync();
@@ -341,10 +344,19 @@
                     _parentid = _page.ParentId.ToString();
                     _parent = PageState.Pages.FirstOrDefault(item => item.PageId == _page.ParentId);
                 }
+                _children = new List<Page>();
+                foreach (Page p in PageState.Pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == int.Parse(_parentid))))
+                {
+                    if (p.PageId != _pageId && UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
+                    {
+                        _children.Add(p);
+                    }
+                }
                 _currentparentid = _parentid;
                 _isnavigation = _page.IsNavigation.ToString();
                 _isclickable = _page.IsClickable.ToString();
-                _path = _page.Path;
+                _actualpath = _page.Path;
+                _path = _actualpath;
                 if (string.IsNullOrEmpty(_path))
                 {
                     _path = "/";
@@ -363,10 +375,6 @@
                 // appearance
                 _title = _page.Title;
                 _themetype = _page.ThemeType;
-                if (string.IsNullOrEmpty(_themetype) || ThemeService.GetTheme(PageState.Site.Themes, _themetype)?.ThemeName != ThemeService.GetTheme(PageState.Site.Themes, PageState.Site.DefaultThemeType)?.ThemeName)
-                {
-                    _themetype = PageState.Site.DefaultThemeType;
-                }
                 _themes = ThemeService.GetThemeControls(PageState.Site.Themes);
                 _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
                 _containertype = _page.DefaultContainerType;
@@ -415,34 +423,14 @@
         {
             _parentid = (string)e.Value;
             _children = new List<Page>();
-            if (_parentid == "-1")
+            foreach (Page p in PageState.Pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == int.Parse(_parentid))))
             {
-                foreach (Page p in PageState.Pages.Where(item => item.ParentId == null))
+                if (p.PageId != _pageId && UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
                 {
-                    if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
-                    {
-                        _children.Add(p);
-                    }
+                    _children.Add(p);
                 }
             }
-            else
-            {
-                foreach (Page p in PageState.Pages.Where(item => item.ParentId == int.Parse(_parentid)))
-                {
-                    if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
-                    {
-                        _children.Add(p);
-                    }
-                }
-            }
-            if (_parentid == _currentparentid)
-            {
-                _insert = "=";
-            }
-            else
-            {
-                _insert = ">>";
-            }
+            _insert = (_parentid == _currentparentid) ? "=" : ">>";
             StateHasChanged();
         }
         catch (Exception ex)
@@ -672,5 +660,4 @@
     {
         _icon = NewIcon;
     }
-
 }

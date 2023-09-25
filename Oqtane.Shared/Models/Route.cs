@@ -122,7 +122,7 @@ namespace Oqtane.Models
         public string UrlParameters { get; set; }
 
         /// <summary>
-        /// A route may contain querystring parameters located after the ? delimiter
+        /// All querystring parameters (prefixed with a ? delimiter)
         /// </summary>
         public string Query { get; set; }
 

@@ -55,7 +55,7 @@
                 <div class="row mb-1 align-items-center">
                     <label class="col-sm-3">@Localizer["Message"] </label>
                     <div class="col-sm-9">
-                        <textarea class="form-control" @bind="@body" rows="5" readonly />
+                        <textarea id="txtFrom" class="form-control" @bind="@body" rows="5" readonly />
                     </div>
                 </div>
 
@@ -66,7 +66,7 @@
                 <div class="row mb-1 align-items-center">
                     <label class="col-sm-3">@Localizer["Message"] </label>
                     <div class="col-sm-9">
-                        <textarea class="form-control" @bind="@body" rows="5" readonly />
+                    <textarea id="txtTo" class="form-control" @bind="@body" rows="5" />
                     </div>
                 </div>
 
@@ -93,7 +93,7 @@
     {
         <div class="control-group">
             <label class="control-label">@Localizer["OriginalMessage"] </label>
-            <textarea class="form-control" @bind="@reply" rows="5" readonly />
+            <textarea id="txtReply" class="form-control" @bind="@reply" rows="5" readonly />
         </div>
     }
 }

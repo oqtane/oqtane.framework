@@ -17,6 +17,7 @@ namespace Oqtane.Themes.Controls
     {
         [Inject] public NavigationManager NavigationManager { get; set; }
         [Inject] public IUserService UserService { get; set; }
+        [Inject] public ISettingService SettingService { get; set; }
         [Inject] public IJSRuntime jsRuntime { get; set; }
         [Inject] public IServiceProvider ServiceProvider { get; set; }
 

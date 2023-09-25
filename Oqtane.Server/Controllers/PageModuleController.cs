@@ -9,7 +9,7 @@ using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Security;
 using System.Net;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using System;
 
 namespace Oqtane.Controllers
 {
@@ -133,14 +133,22 @@ namespace Oqtane.Controllers
             var page = _pages.GetPage(pageid);
             if (page != null && page.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, page.SiteId, EntityNames.Page, pageid, PermissionNames.Edit))
             {
+                var panes = pane;
+                if (pane == PaneNames.Default || pane == PaneNames.Admin)
+                {
+                    // treat default and admin panes as a single pane
+                    panes = PaneNames.Default + "," + PaneNames.Admin;
+                    pane = PaneNames.Default;
+                }
                 int order = 1;
                 List<PageModule> pagemodules = _pageModules.GetPageModules(page.SiteId)
-                    .Where(item => item.PageId == pageid && item.Pane == pane).OrderBy(item => item.Order).ToList();
+                    .Where(item => item.PageId == pageid && panes.Split(',').Contains(item.Pane)).OrderBy(item => item.Order).ToList();
                 foreach (PageModule pagemodule in pagemodules)
                 {
-                    if (pagemodule.Order != order)
+                    if (pagemodule.Order != order || pagemodule.Pane != pane)
                     {
                         pagemodule.Order = order;
+                        pagemodule.Pane = pane;
                         _pageModules.UpdatePageModule(pagemodule);
                         _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.PageModule, pagemodule.PageModuleId, SyncEventActions.Update);
                     }

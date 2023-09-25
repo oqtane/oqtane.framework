@@ -10,6 +10,8 @@
 @inject IPageModuleService PageModuleService
 @inject ILogService logger
 @inject ISettingService SettingService
+@inject IJSRuntime jsRuntime 
+@inject IServiceProvider ServiceProvider
 @inject IStringLocalizer<ControlPanel> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -109,10 +111,7 @@
 							</div>
 						</div>
 					}
-				}
 
-				@if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
-				{
 					<div class="row">
 						<div class="col text-center">
 							<label for="Module" class="control-label">@Localizer["Module.Manage"] </label>
@@ -220,8 +219,15 @@
 					</div>
 					<button type="button" class="btn btn-primary col-12 mt-4" @onclick="@AddModule">@Localizer["Page.Module.Add"]</button>
 					@((MarkupString)Message)
-				}
-			</div>
+                    <hr class="app-rule" />
+                }
+
+                <div class="row d-flex">
+                    <div class="col">
+                        <button type="button" data-bs-dismiss="offcanvas" class="btn btn-secondary col-12" @onclick=@(async () => await LogoutUser())>@Localizer["Logout"]</button>
+                    </div>
+                </div>
+            </div>
 		</div>
 	</div>
 }
@@ -242,6 +248,15 @@
     protected string ModuleId { get; private set; } = "-";
     protected string ModuleType { get; private set; } = "new";
     protected string ModuleDefinitionName { get; private set; } = "-";
+
+    protected string Title { get; private set; } = "";
+    protected string ContainerType { get; private set; } = "";
+    protected string Visibility { get; private set; } = "view";
+    protected string Message { get; private set; } = "";
+
+    private string settingCategory = "CP-category";
+    private string settingPane = "CP-pane";
+    private string _pane = "";
 
     protected string Category
     {
@@ -273,11 +288,6 @@
         }
     }
 
-    protected string Title { get; private set; } = "";
-    protected string ContainerType { get; private set; } = "";
-    protected string Visibility { get; private set; } = "view";
-    protected string Message { get; private set; } = "";
-
     [Parameter]
     public string ButtonClass { get; set; } = "btn-outline-secondary";
 
@@ -292,7 +302,6 @@
 
     [Parameter]
     public bool ShowLanguageSwitcher { get; set; } = true;
-
 
     protected override async Task OnParametersSetAsync()
     {
@@ -510,7 +519,7 @@
 		switch (location)
 		{
 			case "Admin":
-			// get admin dashboard moduleid
+			    // get admin dashboard moduleid
 				module = PageState.Modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.AdminDashboardModule);
 				if (module != null)
 				{
@@ -613,9 +622,36 @@
 		}
 	}
 
-	private string settingCategory = "CP-category";
-	private string settingPane = "CP-pane";
-	private string _pane = "";
+    // the following code is duplicated from LoginBase
+    private async Task LogoutUser()
+    {
+        await LoggingService.Log(PageState.Alias, PageState.Page.PageId, null, PageState.User?.UserId, GetType().AssemblyQualifiedName, "Logout", LogFunction.Security, LogLevel.Information, null, "User Logout For Username {Username}", PageState.User?.Username);
+
+        Route route = new Route(PageState.Uri.AbsoluteUri, PageState.Alias.Path);
+        var url = route.PathAndQuery;
+
+        // verify if anonymous users can access page
+        if (!UserSecurity.IsAuthorized(null, PermissionNames.View, PageState.Page.PermissionList))
+        {
+            url = PageState.Alias.Path;
+        }
+
+        if (PageState.Runtime == Shared.Runtime.Hybrid)
+        {
+            // hybrid apps utilize an interactive logout
+            await UserService.LogoutUserAsync(PageState.User);
+            var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
+            authstateprovider.NotifyAuthenticationChanged();
+            NavigationManager.NavigateTo(url, true);
+        }
+        else
+        {
+            // post to the Logout page to complete the logout process
+            var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, returnurl = url };
+            var interop = new Interop(jsRuntime);
+            await interop.SubmitForm(Utilities.TenantUrl(PageState.Alias, "/pages/logout/"), fields);
+        }
+    }
 
 	private async Task LoadSettingsAsync()
 	{

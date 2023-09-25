@@ -26,17 +26,21 @@ namespace Oqtane.Controllers
         private readonly IUserManager _userManager;
         private readonly ISiteRepository _sites;
         private readonly IUserPermissions _userPermissions;
+        private readonly ISettingRepository _settings;
         private readonly IJwtManager _jwtManager;
+        private readonly IFileRepository _files;
         private readonly ILogManager _logger;
 
-        public UserController(IUserRepository users, ITenantManager tenantManager, IUserManager userManager, ISiteRepository sites, IUserPermissions userPermissions, IJwtManager jwtManager, ILogManager logger)
+        public UserController(IUserRepository users, ITenantManager tenantManager, IUserManager userManager, ISiteRepository sites, IUserPermissions userPermissions, ISettingRepository settings, IJwtManager jwtManager, IFileRepository files, ILogManager logger)
         {
             _users = users;
             _tenantManager = tenantManager;
             _userManager = userManager;
             _sites = sites;
             _userPermissions = userPermissions;
+            _settings = settings;
             _jwtManager = jwtManager;
+            _files = files;
             _logger = logger;
         }
 
@@ -51,6 +55,12 @@ namespace Oqtane.Controllers
                 if (user == null)
                 {
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                }
+                else
+                {
+                    List<Setting> settings = _settings.GetSettings(EntityNames.User, user.UserId).ToList();
+                    user.Settings = settings.Where(item => !item.IsPrivate || _userPermissions.GetUser(User).UserId == user.UserId)
+                        .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                 }
                 return Filter(user);
             }
@@ -74,6 +84,12 @@ namespace Oqtane.Controllers
                 if (user == null)
                 {
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                }
+                else
+                {
+                    List<Setting> settings = _settings.GetSettings(EntityNames.User, user.UserId).ToList();
+                    user.Settings = settings.Where(item => !item.IsPrivate || _userPermissions.GetUser(User).UserId == user.UserId)
+                        .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                 }
                 return Filter(user);
             }
@@ -354,6 +370,42 @@ namespace Oqtane.Controllers
             }
 
             return requirements;
+        }
+
+        // POST api/<controller>/import?siteid=x&fileid=y&notify=z
+        [HttpPost("import")]
+        [Authorize(Roles = RoleNames.Admin)]
+        public async Task<Dictionary<string, string>> Import(string siteid, string fileid, string notify)
+        {
+            if (int.TryParse(siteid, out int SiteId) && SiteId == _tenantManager.GetAlias().SiteId && int.TryParse(fileid, out int FileId) && bool.TryParse(notify, out bool Notify))
+            {
+                var file = _files.GetFile(FileId);
+                if (file != null)
+                {
+                    if (_userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.PermissionList))
+                    {
+                        return await _userManager.ImportUsers(SiteId, _files.GetFilePath(file), Notify);
+                    }
+                    else
+                    {
+                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Import Attempt {SiteId} {FileId}", siteid, fileid);
+                        HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                        return null;
+                    }
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Import File Does Not Exist {SiteId} {FileId}", siteid, fileid);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    return null;
+                }
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Import Attempt {SiteId} {FileId}", siteid, fileid);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return null;
+            }
         }
     }
 }
