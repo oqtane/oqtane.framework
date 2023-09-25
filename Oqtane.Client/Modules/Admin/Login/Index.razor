@@ -93,15 +93,22 @@
     {
         try
         {
-            _togglepassword = SharedLocalizer["ShowPassword"];
-
-            _allowsitelogin = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AllowSiteLogin", "true"));
-            _allowexternallogin = (SettingService.GetSetting(PageState.Site.Settings, "ExternalLogin:ProviderType", "") != "") ? true : false;
-
             if (PageState.QueryString.ContainsKey("returnurl"))
             {
                 _returnUrl = PageState.QueryString["returnurl"];
             }
+
+            _allowexternallogin = (SettingService.GetSetting(PageState.Site.Settings, "ExternalLogin:ProviderType", "") != "") ? true : false;
+            _allowsitelogin = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AllowSiteLogin", "true"));
+
+            if (_allowexternallogin && !_allowsitelogin)
+            {
+                // redirect to external login
+                NavigationManager.NavigateTo(Utilities.TenantUrl(PageState.Alias, "/pages/external?returnurl=" + _returnUrl), true);
+                return;
+            }
+
+            _togglepassword = SharedLocalizer["ShowPassword"];
 
             if (PageState.QueryString.ContainsKey("name"))
             {
