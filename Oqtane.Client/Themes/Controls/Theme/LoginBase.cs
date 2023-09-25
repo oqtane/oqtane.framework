@@ -24,14 +24,7 @@ namespace Oqtane.Themes.Controls
         protected void LoginUser()
         {
             Route route = new Route(PageState.Uri.AbsoluteUri, PageState.Alias.Path);
-            if (bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AllowSiteLogin", "true")))
-            {
-                NavigationManager.NavigateTo(NavigateUrl("login", "?returnurl=" + WebUtility.UrlEncode(route.PathAndQuery)));
-            }
-            else
-            {
-                NavigationManager.NavigateTo(Utilities.TenantUrl(PageState.Alias, "/pages/external?returnurl=" + WebUtility.UrlEncode(route.PathAndQuery)), true);
-            }
+            NavigationManager.NavigateTo(NavigateUrl("login", "?returnurl=" + WebUtility.UrlEncode(route.PathAndQuery)));
         }
 
         protected async Task LogoutUser()
