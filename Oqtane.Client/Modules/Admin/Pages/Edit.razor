@@ -375,6 +375,10 @@
                 // appearance
                 _title = _page.Title;
                 _themetype = _page.ThemeType;
+                if (string.IsNullOrEmpty(_themetype))
+                {
+                    _themetype = PageState.Site.DefaultThemeType;
+                }
                 _themes = ThemeService.GetThemeControls(PageState.Site.Themes);
                 _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
                 _containertype = _page.DefaultContainerType;
