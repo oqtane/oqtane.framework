@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Oqtane.Database.Sqlite</id>
-        <version>4.0.4</version>
+        <version>4.0.5</version>
         <authors>Shaun Walker</authors>
         <owners>.NET Foundation</owners>
         <title>Oqtane SQLite Provider</title>
@@ -12,7 +12,7 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <license type="expression">MIT</license>
         <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
-        <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v4.0.4</releaseNotes>
+        <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v4.0.5</releaseNotes>
         <icon>icon.png</icon>
         <tags>oqtane</tags>
     </metadata>
