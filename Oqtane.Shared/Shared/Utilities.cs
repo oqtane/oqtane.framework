@@ -389,10 +389,12 @@ namespace Oqtane.Shared
         }
 
         public static string UrlCombine(params string[] segments)
-{
+        {
             segments = segments.Where(item => !string.IsNullOrEmpty(item) && item != "/" && item != "\\").ToArray();
-            for (int i = 1; i < segments.Length; i++)
-            {
+            for (int i = 0; i < segments.Length; i++)
+            {                
+                segments[i] = (segments[i].StartsWith("/") || segments[i].StartsWith("\\")) ? segments[i].Substring(1) : segments[i];
+                segments[i] = (segments[i].EndsWith("/") || segments[i].EndsWith("\\")) ? segments[i].Substring(0, segments[i].Length - 1) : segments[i];
                 segments[i] = segments[i].Replace("\\", "/");
             }
             return string.Join("/", segments);
