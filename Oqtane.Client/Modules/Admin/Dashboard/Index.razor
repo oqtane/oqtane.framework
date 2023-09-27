@@ -12,11 +12,12 @@
             if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
             {
                 string url = NavigateUrl(p.Path);
-                <div class="col-md-2 mx-auto text-center mb-3">
+                <p class="col-md-2 mx-auto text-center mb-3">
                     <NavLink class="nav-link text-primary" href="@url" Match="NavLinkMatch.All">
-                        <h2><span class="@p.Icon" aria-hidden="true"></span></h2>@SharedLocalizer[p.Name]
+                        <h2><span class="@p.Icon" aria-hidden="true"></span></h2>
+                        <p class="lead">@((MarkupString)SharedLocalizer[p.Name].ToString().Replace(" ", "<br />"))</p>
                     </NavLink>
-                </div>
+                </p>
             }
         }
     </div>
