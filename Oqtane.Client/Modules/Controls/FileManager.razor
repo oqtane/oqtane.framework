@@ -40,6 +40,13 @@
                             </div>
                         </div>
                     }
+                    else
+                    {
+                        if (_file != null)
+                        {
+                            <input class="form-control" @bind="@_file.Name" disabled />
+                        }
+                    }
                     @if (ShowUpload && _haseditpermission)
                     {
                         <div class="row">
