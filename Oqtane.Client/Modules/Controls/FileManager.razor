@@ -42,7 +42,7 @@
                     }
                     else
                     {
-                        if (_file != null)
+                        if (GetFileId() != -1 && !UploadMultiple)
                         {
                             <input class="form-control" @bind="@_file.Name" disabled />
                         }
@@ -62,7 +62,7 @@
                             </div>
                             <div class="col mt-2 text-end">
                                 <button type="button" class="btn btn-success" @onclick="UploadFiles">@SharedLocalizer["Upload"]</button>
-                                @if (GetFileId() != -1)
+                                @if (GetFileId() != -1 && !UploadMultiple)
                                 {
                                     <button type="button" class="btn btn-danger mx-1" @onclick="DeleteFile">@SharedLocalizer["Delete"]</button>
                                 }
@@ -378,7 +378,7 @@
                         success = false;
                         var filename = uploads[upload].Split(':')[0];
                         var size = Int64.Parse(uploads[upload].Split(':')[1]);
-                        var maxattempts = (int)Math.Ceiling(size / 500000.0) + 1; // 30 MB takes 1 minute at 5 Mbps
+                        var maxattempts = (int)Math.Ceiling(size / 500000.0) + 4; // 30 MB takes 1 minute at 5 Mbps (min 5 attempts)
 
                         int attempts = 0;
                         while (attempts < maxattempts && !success)
