@@ -9,26 +9,9 @@
 @if (PageState.Pages != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
 {
     <ActionLink Action="Add" Text="Add Page" ResourceKey="AddPage" />
-    <Search DataSource="allResults"
-            IsSearchEnabled="true"
-            MinCharacters="0"
-            InputValidationRegex="@SearchLocalizer["SearchValidationRegex"].Value"
-            Placeholder="@SearchLocalizer["SearchPlaceholder"].Value"
-            InputAriaLabel="@SearchLocalizer["SearchInputAriaLabel"].Value"
-            ButtonAriaLabel="@SearchLocalizer["SearchButtonAriaLabel"].Value"
-            ButtonToolTip="@SearchLocalizer["SearchButtonToolTip"].Value"
-            ButtonPosition="right"
-            IconPosition="left"
-            ShowSearchButton="true"
-            EnterKeyEnabled="true"
-            ResultsAsTyped="false"
-            DebounceEnabled="false"
-            CaseSensitive="false"
-            @bind-searchTerm="searchTerm"
-            ItemTypes='new List<string> { "Name" }'
-            InputTabIndex = "0"
-            ButtonTabIndex = "1"
-            OnSearchResultsChanged="HandleSearchResults" />
+    <Search DataSource="_allResults"
+            SearchColumns='new List<string> { "Name" }'
+            OnSearchChanged="HandleSearchChanged" />
     <Pager Items="@pageList">
         <Header>
         <th style="width: 1px;">&nbsp;</th>
@@ -76,12 +59,24 @@
 
     protected override void OnInitialized()
     {
-        allResults = PageState.Pages.Where(page => !page.IsDeleted).ToList();
-        pageList = allResults;
+        _allResults = PageState.Pages.Where(page => !page.IsDeleted).ToList();
+        _filteredResults = _allResults;
     }
 
-    private void HandleSearchResults(IEnumerable<object> filteredDataList)
+    private void HandleSearchChanged((string searchTerm, IEnumerable<object> searchResults) data)
     {
-        pageList = filteredDataList.Cast<Page>().ToList();
+        string searchTerm = data.searchTerm;
+        IEnumerable<object> searchResults = data.searchResults;
+
+        if (string.IsNullOrEmpty(searchTerm))
+        {
+            _filteredResults = _allResults;
+        }
+        else
+        {
+            _filteredResults = searchResults.Cast<Page>().ToList();
+        }
+
+        StateHasChanged();
     }
 }
