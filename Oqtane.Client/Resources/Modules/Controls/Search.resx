@@ -117,31 +117,104 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="SearchButton" xml:space="preserve">
-    <value>Search</value>
+  <data name="Button.Cancel.AriaLabel.Text" xml:space="preserve">
+    <value>Cancel</value>
+    <comment>ARIA label for the Cancel button.</comment>
   </data>
-  <data name="SearchButtonAriaLabel" xml:space="preserve">
-    <value>Search</value>
+  <data name="Button.Cancel.Text" xml:space="preserve">
+    <value>Cancel</value>
+    <comment>Text displayed on the Cancel button.</comment>
   </data>
-  <data name="SearchButtonLabel" xml:space="preserve">
-    <value>Search</value>
+  <data name="Button.Cancel.Title.Text" xml:space="preserve">
+    <value>Cancel your search and reset search results.</value>
+    <comment>Title attribute for the Cancel button.</comment>
   </data>
-  <data name="SearchButtonToolTip" xml:space="preserve">
+  <data name="Button.Search.AriaLabel.Text" xml:space="preserve">
     <value>Search</value>
+    <comment>ARIA label for the Search button.</comment>
   </data>
-  <data name="SearchInputArial" xml:space="preserve">
+  <data name="Button.Search.Icon" xml:space="preserve">
+    <value>oi oi-magnifying-glass</value>
+    <comment>Icon class for search button.</comment>
+  </data>
+  <data name="Button.Search.Icon.Title.Text" xml:space="preserve">
     <value>Search</value>
+    <comment>Title attribute for the Search icon (if applicable).</comment>
   </data>
-  <data name="SearchPlaceholder" xml:space="preserve">
+  <data name="Button.Search.Text" xml:space="preserve">
+    <value>Search</value>
+    <comment>Text displayed on the Search button.</comment>
+  </data>
+  <data name="Button.Search.Title.Text" xml:space="preserve">
+    <value>Search</value>
+    <comment>Title attribute for the Search button.</comment>
+  </data>
+  <data name="Error.Input.CharacterLimits.Text" xml:space="preserve">
+    <value>Search term must be between {0} and {1} alphanumeric characters long.</value>
+    <comment>Error message for character limits validation.</comment>
+  </data>
+  <data name="Error.Input.NoResults.Text" xml:space="preserve">
+    <value>No results found. Please enter a new search term.</value>
+    <comment>Error message for no search results.</comment>
+  </data>
+  <data name="Error.Input.Validation.Text" xml:space="preserve">
+    <value>Invalid input. Please use only valid alphanumeric characters.</value>
+    <comment>Error message for input validation.</comment>
+  </data>
+  <data name="Input.Search.AriaLabel.Text" xml:space="preserve">
+    <value>Search</value>
+    <comment>ARIA label for the search input field.</comment>
+  </data>
+  <data name="Input.Search.Cancel.Icon" xml:space="preserve">
+    <value>oi oi-x</value>
+    <comment>Icon for canceling input if Input.Icon.Cancel.Text is empty.</comment>
+  </data>
+  <data name="Input.Search.Cancel.Icon.Text" xml:space="preserve">
+    <value>X</value>
+    <comment>Text for the Cancel icon (if applicable).</comment>
+  </data>
+  <data name="Input.Search.Cancel.Icon.Title.Text" xml:space="preserve">
+    <value>Cancel Search</value>
+    <comment>Title attribute for the Cancel icon.</comment>
+  </data>
+  <data name="Input.Search.CharacterLimitTitle.Text" xml:space="preserve">
+    <value>Enter your search term between a minimum {0} and maximum {1} characters.</value>
+    <comment>Title attribute for search input with character limits message.</comment>
+  </data>
+  <data name="Input.Search.Icon" xml:space="preserve">
+    <value>oi oi-magnifying-glass</value>
+    <comment>Icon class for search input.</comment>
+  </data>
+  <data name="Input.Search.Icon.Title.Text" xml:space="preserve">
+    <value>Search</value>
+    <comment>ARIA label for the search input field.</comment>
+  </data>
+  <data name="Input.Search.Placeholder.Text" xml:space="preserve">
     <value>Search...</value>
+    <comment>Placeholder text for the search input field.</comment>
   </data>
-  <data name="SearchTermCharacterLimitToolTip" xml:space="preserve">
-    <value>Enter your search term. Minimum {0} and maximum {1} characters.</value>
+  <data name="Input.Search.Title.Text" xml:space="preserve">
+    <value>Search</value>
+    <comment>Title attribute for the search input field.</comment>
   </data>
-  <data name="SearchTermToolTip" xml:space="preserve">
-    <value>Enter your search term.</value>
+  <data name="Setting.Input.Search.Autocomplete" xml:space="preserve">
+    <value>false</value>
+    <comment>Whether autocomplete is enabled for the search input field (true/false).</comment>
   </data>
-  <data name="SearchValidationRegex" xml:space="preserve">
+  <data name="Setting.Input.Search.MaxCharacters" xml:space="preserve">
+    <value>100</value>
+    <comment>Maximum characters allowed in the search input.</comment>
+  </data>
+  <data name="Setting.Input.Search.MinCharacters" xml:space="preserve">
+    <value>1</value>
+    <comment>Minimum characters allowed in the search input.</comment>
+  </data>
+  <data name="Setting.Input.Search.Validation.Regex" xml:space="preserve">
     <value>^[a-zA-Z0-9\s]*$</value>
+    <comment>Regular expression for input validation.</comment>
+  </data>
+  <data name="Setting.Search.IsEnabled" xml:space="preserve">
+    <value>false</value>
+    <comment>Whether the search feature is enabled (true/false).</comment>
   </data>
 </root>
