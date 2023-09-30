@@ -1,207 +1,614 @@
 @namespace Oqtane.Modules.Controls
 @inherits LocalizableComponent
-@inject IStringLocalizer<Search> Localizer
+@inject IStringLocalizer<Search> SearchLocalizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
+@implements IDisposable
+@using System
 @using System.Threading
 @using System.Text.RegularExpressions
 
-@if (IsSearchEnabled)
+@if (_isSearchBoxEnabled)
 {
     <div class="app-search">
-        @if (ShowSearchButton && ButtonPosition == "left")
+        <div class="input-group">
+            @if (_showSearchButton && _searchButtonPosition == "left")
+            {
+                @RenderButton
+            }
+            <input class="form-control" id="inputSearch" @bind="SearchTerm" @oninput="OnInput" @onkeypress="OnEnterKeyPress" placeholder="@_searchInputPlaceholder" autocomplete="@GetAutocomplete()" aria-label="@_searchInputAriaLabel" tabindex="@_searchInputTabIndex" title="@_searchButtonTitle" maxlength="@_maxCharacters" />
+            @if (!string.IsNullOrEmpty(SearchTerm) && _searchInputSearchCancelIconInsteadOfText)
+            {
+                <span class="input-cancel" @onclick="CancelSearchAsync"><i class="@_searchInputCancelIcon"></i></span>
+            }
+            @if (!string.IsNullOrEmpty(SearchTerm) && !_searchInputSearchCancelIconInsteadOfText)
+            {
+                <span class="input-cancel" @onclick="CancelSearchAsync">@_searchInputCancelIconText</span>
+            }
+            @if ((string.IsNullOrEmpty(SearchTerm) && !_showSearchButtonIcon) || (string.IsNullOrEmpty(SearchTerm) && !_showSearchButton))
+            {
+                <span class="input-search"><i class="@_searchInputSearchIcon"></i></span>
+            }
+            @if (_showSearchButton && _searchButtonPosition == "right")
+            {
+                @RenderButton
+            }
+            @if (_showCancelButton)
+            {
+                <button class="btn btn-secondary" id="buttonCancelSearch" title="@_cancelButtonTitle" @onclick="CancelSearchAsync">@_cancelButtonText</button>
+            }
+        </div>
+    </div>
+    <div class="app-search-error">
+        @if (!string.IsNullOrEmpty(SearchTerm) && !_hasMetMinimumCharacters)
         {
-            @RenderButton
+            <div class="text-danger" id="characterLimitsErrorMessage">@_characterLimitsErrorMessage</div>
         }
-
-        <input class="form-control" value="@SearchTerm" @oninput="OnInput" @onkeypress="OnKeyPress" placeholder="@Placeholder" autocomplete="@GetAutocomplete()" aria-label="@InputAriaLabel" tabindex="@InputTabIndex" title="@GetToolTip()" maxlength="@MaxCharacters" />
-
-        @if (ShowSearchButton && ButtonPosition == "right")
+        @if (_hasInputValidationError)
         {
-            @RenderButton
+            <div class="text-danger" id="validationErrorMessage">@_inputValidationErrorMessage</div>
+        }
+        @if (_noSearchResults)
+        {
+            <div class="text-danger" id="noResultsErrorMessage">@_noResultsErrorMessage</div>
         }
     </div>
 }
-
 @code {
-    // Search settings
+    // Search configuration settings
+    /// <summary>
+    /// Gets or sets a value indicating whether the search box is enabled.
+    /// </summary>
     [Parameter]
-    public bool IsSearchEnabled { get; set; } = true;
+    public bool IsSearchBoxEnabled { get; set; } = false;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether the search results should appear as the user types.
+    /// Enable this with DebounceEnabled (if preferred) along with search button and enter key disabled
+    /// </summary>
     [Parameter]
-    public bool ResultsAsTyped { get; set; } = false;
+    public bool SearchAsYouType { get; set; } = false;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether the search is case-sensitive.
+    /// </summary>
     [Parameter]
     public bool CaseSensitive { get; set; } = false;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether the Enter key triggers the search.
+    /// </summary>
     [Parameter]
     public bool EnterKeyEnabled { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether search debouncing is enabled.
+    /// Enable this with SearchAsYouType with search button and enter key disabled.
+    /// Be sure to adjust DebounceTime for best desired results.
+    /// </summary>
     [Parameter]
     public bool DebounceEnabled { get; set; } = false;
 
+    /// <summary>
+    /// Gets or sets the debounce time in milliseconds.
+    /// </summary>
     [Parameter]
-    public int DebounceTime { get; set; } = 500; // Time in milliseconds
+    public int DebounceTime { get; set; } = 300; // Time in milliseconds
 
     // Search data
+    /// <summary>
+    /// Gets or sets the data source for the search.
+    /// </summary>
     [Parameter]
     public IEnumerable<object> DataSource { get; set; }
 
+    /// <summary>
+    /// Gets or sets the list of columns to use for filtering the search.
+    /// </summary>
     [Parameter]
-    public List<string> ItemTypes { get; set; }
+    public List<string> SearchColumns { get; set; } = new();
 
     // Search term settings
+    /// <summary>
+    /// Gets or sets the current search term.
+    /// </summary>
     [Parameter]
-    public string SearchTerm { get; set; }
+    public string SearchTerm { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Gets or sets the minimum number of characters required for a search.
+    /// </summary>
     [Parameter]
-    public int MinCharacters { get; set; } = 3;
+    public int MinCharacters { get; set; } = 1;
 
+    /// <summary>
+    /// Gets or sets the maximum number of characters allowed in the search term.
+    /// </summary>
     [Parameter]
-    public int MaxCharacters { get; set; } = 50;
+    public int MaxCharacters { get; set; } = 100;
 
+    /// <summary>
+    /// Gets or sets the regular expression used for search input validation.
+    /// </summary>
     [Parameter]
-    public string InputValidationRegex { get; set; } = @"^[a-zA-Z0-9\s]*$";
+    public string SearchInputValidationRegex { get; set; } = string.Empty;
 
-    // UI settings
+    // Search UI settings
+    /// <summary>
+    /// Gets or sets a value indicating whether to display the search button.
+    /// </summary>
     [Parameter]
     public bool ShowSearchButton { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether to display the search button.
+    /// </summary>
     [Parameter]
-    public string SearchIcon { get; set; } = Icons.MagnifyingGlass;
+    public bool ShowCancelButton { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets the CSS class for the search input icon.
+    /// </summary>
     [Parameter]
-    public string IconPosition { get; set; } = "left";
+    public string SearchInputSearchIcon { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether to display the search input icon.
+    /// Values true will show search input icon and false will display the "X" character as text.
+    /// </summary>
     [Parameter]
-    public string ButtonPosition { get; set; } = "right";
+    public bool SearchInputSearchCancelIconInsteadOfText { get; set; } = false;
 
+    /// <summary>
+    /// Gets or sets the CSS class for the cancel icon.
+    /// </summary>
     [Parameter]
-    public bool ShowSearchIcon { get; set; } = true;
+    public string SearchInputCancelIcon { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Gets or sets the cancel icon text for when using an "x" as an example instead of using an icon class like Icons.X.
+    /// </summary>
+    [Parameter]
+    public string SearchInputCancelIconText { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether to display the search icon.
+    /// </summary>
+    [Parameter]
+    public bool ShowSearchButtonIcon { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the CSS class for the search button icon.
+    /// </summary>
+    [Parameter]
+    public string SearchButtonIcon { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the position of the search icon (left or right).
+    /// </summary>
+    [Parameter]
+    public string SearchButtonIconPosition { get; set; } = "left";
+
+    /// <summary>
+    /// Gets or sets the position of the search button (right or left).
+    /// </summary>
+    [Parameter]
+    public string SearchButtonPosition { get; set; } = "right";
+
+    /// <summary>
+    /// Gets or sets a value indicating whether to display the search button text.
+    /// </summary>
     [Parameter]
     public bool ShowButtonText { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets the tabindex for the search button.
+    /// </summary>
     [Parameter]
-    public string Placeholder { get; set; } = "Search...";
+    public int SearchButtonTabIndex { get; set; } = 1;
 
+    /// <summary>
+    /// Gets or sets the tabindex for the search input field.
+    /// </summary>
     [Parameter]
-    public int InputTabIndex { get; set; } = 0;
+    public int SearchInputTabIndex { get; set; } = 0;
 
+    /// <summary>
+    /// Gets or sets the tabindex for the cancel button.
+    /// </summary>
     [Parameter]
-    public int ButtonTabIndex { get; set; } = 1;
+    public int CancelButtonTabIndex { get; set; } = 2;
 
+    /// <summary>
+    /// Gets or sets the title for the search input.
+    /// </summary>
     [Parameter]
-    public string InputAriaLabel { get; set; } = "Search input";
+    public string SearchInputTitle { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Gets or sets the character limit title for the search input.
+    /// </summary>
     [Parameter]
-    public string ButtonAriaLabel { get; set; } = "Search";
+    public string SearchInputCharacterLimitTitle { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Gets or sets the placeholder text for the search input.
+    /// </summary>
     [Parameter]
-    public string ButtonLabel { get; set; } = "Search";
+    public string SearchInputPlaceholder { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Gets or sets the ARIA label for the search input.
+    /// </summary>
     [Parameter]
-    public string ButtonToolTip { get; set; } = "Search";
+    public string SearchInputAriaLabel { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Gets or sets the ARIA label for the search button.
+    /// </summary>
     [Parameter]
-    public bool EnableAutocomplete { get; set; } = true;
+    public string SearchButtonAriaLabel { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the text for the search button.
+    /// </summary>
+    [Parameter]
+    public string SearchButtonText { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the title or tooltip text for the search button.
+    /// </summary>
+    [Parameter]
+    public string SearchButtonTitle { get; set; } = string.Empty;
+
+    // Cancel button settings
+    /// <summary>
+    /// Gets or sets the title or tooltip text for the cancel button.
+    /// </summary>
+    [Parameter]
+    public string CancelButtonTitle { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the ARIA label for the cancel button.
+    /// </summary>
+    [Parameter]
+    public string CancelButtonAriaLabel { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the text for the cancel button.
+    /// </summary>
+    [Parameter]
+    public string CancelButtonText { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether autocomplete is enabled for the search input.
+    /// </summary>
+    [Parameter]
+    public bool AutocompleteEnabled { get; set; } = false;
+
+    /// <summary>
+    /// Determines whether to show all results when the search term is empty or shorter than the minimum characters.
+    /// </summary>
+    [Parameter]
+    public bool ShowAllResultsOnEmptyOrShortSearch { get; set; } = false;
+
+    // Error messaging parameters
+    /// <summary>
+    /// Gets or sets the error message to display when the search term does not meet the character limits.
+    /// </summary>
+    [Parameter]
+    public string CharacterLimitsErrorMessage { get; set; }
+
+    /// <summary>
+    /// Gets or sets the error message to display when the search term contains invalid characters.
+    /// </summary>
+    [Parameter]
+    public string InputValidationErrorMessage { get; set; }
+
+    /// <summary>
+    /// Gets or sets the error message to display when no search results are found.
+    /// </summary>
+    [Parameter]
+    public string NoResultsErrorMessage { get; set; }
 
     // Callbacks
+    /// <summary>
+    /// Callback invoked when a search is performed.
+    /// </summary>
     [Parameter]
-    public EventCallback<string> OnSearch { get; set; }
+    public EventCallback<(string searchTerm, IEnumerable<object> searchResults)> OnSearchChanged { get; set; }
 
-    [Parameter]
-    public EventCallback<string> SearchTermChanged { get; set; }
+    // Private properties set by passing parameters or in the Search.resx resource file
+    // Default values are set here...
+    /// <summary>
+    /// Gets a value indicating whether the search box is enabled.
+    /// When set to true, the search box is active and can be used by the user.
+    /// When set to false, the search box is disabled and cannot be interacted with.
+    /// </summary>
+    private bool _isSearchBoxEnabled =>
+        IsSearchBoxEnabled || (SearchLocalizer["Setting.Search.IsEnabled"]?.Value.Equals("true", StringComparison.OrdinalIgnoreCase) == true);
 
-    [Parameter]
-    public EventCallback<IEnumerable<object>> OnSearchResultsChanged { get; set; }
+    /// <summary>
+    /// Gets the regular expression used for search input validation. This regular expression
+    /// is applied to the search term to check for character validity.
+    /// </summary>
+    private string _searchInputValidationRegex =>
+        !string.IsNullOrEmpty(SearchInputValidationRegex)
+        ? SearchInputValidationRegex
+        : SearchLocalizer["Setting.Input.Search.Validation.Regex"]?.Value
+            ?? "^[a-zA-Z0-9\\s]*$";
 
-    private Timer debounceTimer;
+    // Search settings
+    // Autocomplete setting
+    private bool _autocompleteEnabled =>
+        AutocompleteEnabled || (SearchLocalizer["Setting.Input.Search.Autocomplete"]?.Value?.Equals("true", StringComparison.OrdinalIgnoreCase) == true) || false;
+
+    // Character limits
+    private int _maxCharacters =>
+        MaxCharacters > 0 ? MaxCharacters : int.Parse(SearchLocalizer["Setting.Input.Search.MaxCharacters"]?.Value ?? "100");
+
+    private int _minCharacters =>
+        MinCharacters > 0 ? MinCharacters : int.Parse(SearchLocalizer["Setting.Input.Search.MinCharacters"]?.Value ?? "1");
+
+    // Search input attributes
+    // Search input title
+    private string _searchInputTitle =>
+        !string.IsNullOrEmpty(SearchInputTitle)
+        ? SearchInputTitle
+        : SearchLocalizer["Input.Search.Title.Text"]?.Value
+            ?? "Search";
+    // Search input placeholder attribute
+    private string _searchInputPlaceholder =>
+        !string.IsNullOrEmpty(SearchInputPlaceholder)
+        ? SearchInputPlaceholder
+        : SearchLocalizer["Input.Search.Placeholder.Text"]?.Value
+            ?? "Search...";
+    // Search input ARIA label attribute
+    private string _searchInputAriaLabel =>
+        !string.IsNullOrEmpty(SearchInputAriaLabel)
+        ? SearchInputAriaLabel
+        : SearchLocalizer["Input.Search.AriaLabel.Text"]?.Value
+            ?? "Search";
+
+    // Search input character limit title
+    private string _searchInputCharacterLimitTitle =>
+        !string.IsNullOrEmpty(SearchInputCharacterLimitTitle)
+        ? SearchInputCharacterLimitTitle
+        : SearchLocalizer["Input.Search.CharacterLimitTitle.Text", _minCharacters, _maxCharacters]?.Value
+            ?? "Enter your search term between a minimum 1 and maximum 100 characters.";
+
+    // Search input search icon
+    private string _searchInputSearchIcon =>
+        !string.IsNullOrEmpty(SearchInputSearchIcon)
+        ? SearchButtonText
+        : SearchLocalizer["Input.Search.Icon"]?.Value
+            ?? Icons.MagnifyingGlass;
+
+    // Search input cancel search icon
+    private string _searchInputCancelIcon =>
+        !string.IsNullOrEmpty(SearchInputCancelIcon)
+        ? SearchInputCancelIcon
+        : SearchLocalizer["Input.Search.Cancel.Icon"]?.Value
+            ?? Icons.X;
+
+    // Search input cancel search icon text
+    private string _searchInputCancelIconText =>
+        !string.IsNullOrEmpty(SearchInputCancelIconText)
+        ? SearchInputCancelIconText
+        : SearchLocalizer["Input.Search.Cancel.Icon.Text"]?.Value
+            ?? "X";
+
+    // Search input cancel search text
+    private string _searchButtonIcon =>
+        !string.IsNullOrEmpty(SearchButtonIcon)
+        ? SearchButtonIcon
+        : SearchLocalizer["Button.Search.Icon"]?.Value
+            ?? Icons.MagnifyingGlass;
+
+    // Search input tabindex
+    private int _searchInputTabIndex =>
+        SearchInputTabIndex >= 0
+        ? SearchInputTabIndex
+        : 0; // Default value as 0
+
+    // Search button attributes
+    // Search button text
+    private string _searchButtonText =>
+        !string.IsNullOrEmpty(SearchButtonText)
+        ? SearchButtonText
+        : SearchLocalizer["Button.Search.Text"]?.Value
+            ?? "Search";
+
+    // Search button ARIA label attribute
+    private string _searchButtonAriaLabel =>
+        !string.IsNullOrEmpty(SearchButtonAriaLabel)
+        ? SearchButtonAriaLabel
+        : SearchLocalizer["Button.Search.AriaLabel.Text"]?.Value
+            ?? "Search";
+
+    // Search button title attribute
+    private string _searchButtonTitle =>
+        !string.IsNullOrEmpty(SearchButtonTitle)
+        ? SearchButtonTitle
+        : SearchLocalizer["Button.Search.Title.Text"]?.Value
+            ?? "Search";
+
+    // Search button tabindex
+    private int _searchButtonTabIndex =>
+        SearchButtonTabIndex >= 0
+        ? SearchButtonTabIndex
+        : 1; // Default value as 1
+
+    // Cancel button attributes
+    // Cancel button title
+    private string _cancelButtonTitle =>
+        !string.IsNullOrEmpty(CancelButtonTitle)
+        ? CancelButtonTitle
+        : SearchLocalizer["Button.Cancel.Title.Text"]?.Value
+            ?? "Cancel";
+
+    // Cancel button ARIA label attribute
+    private string _cancelButtonAriaLabel =>
+        !string.IsNullOrEmpty(CancelButtonAriaLabel)
+        ? CancelButtonTitle
+        : SearchLocalizer["Button.Cancel.AriaLabel.Text"]?.Value
+            ?? "Cancel";
+
+    // Cancel button text
+    private string _cancelButtonText =>
+        !string.IsNullOrEmpty(CancelButtonText)
+        ? CancelButtonText
+        : SearchLocalizer["Button.Cancel.Text"]?.Value
+            ?? "Cancel";
+
+    // Cancel button tabindex attribute
+    private int _cancelButtonTabIndex =>
+        CancelButtonTabIndex >= 0
+        ? CancelButtonTabIndex
+        : 2; // Default value as 2
+
+    // Error Messages
+    // Character limits error message
+    private string _characterLimitsErrorMessage =>
+        !string.IsNullOrEmpty(CharacterLimitsErrorMessage)
+        ? CharacterLimitsErrorMessage
+        : SearchLocalizer["Error.Input.CharacterLimits.Text", MinCharacters, MaxCharacters]?.Value
+            ?? "Search term must be between 1 and 100 alphanumeric characters long.";
+
+    // Input validation error message
+    private string _inputValidationErrorMessage =>
+        !string.IsNullOrEmpty(InputValidationErrorMessage)
+        ? InputValidationErrorMessage
+        : SearchLocalizer["Error.Input.Validation.Text"]?.Value
+            ?? "Invalid input. Please use only valid alphanumeric characters.";
+
+    // No results error message
+    private string _noResultsErrorMessage =>
+        !string.IsNullOrEmpty(NoResultsErrorMessage)
+        ? NoResultsErrorMessage
+        : SearchLocalizer["Error.Input.NoResults.Text"]?.Value
+            ?? "No results found. Please enter a new search term.";
+
+    private Timer _debounceTimer;
+    private int _debounceTime => DebounceTime;
+    private bool _debounceEnabled => DebounceEnabled;
+    private bool _enterKeyEnabled => EnterKeyEnabled;
+    private bool _searchCanceled = false;
+
+    private bool _searchAsYouType => SearchAsYouType;
+    private bool _showSearchButton => ShowSearchButton;
+    private bool _showCancelButton => ShowCancelButton;
+    private bool _showSearchButtonIcon => ShowSearchButtonIcon;
+    private string _searchButtonPosition => SearchButtonPosition;
+    private bool _searchInputSearchCancelIconInsteadOfText => SearchInputSearchCancelIconInsteadOfText;
+
+    private bool _hasInputValidationError { get; set; } = false;
+    private bool _hasMetMinimumCharacters { get; set; } = false;
+    private bool _noSearchResults { get; set; } = false;
 
     private async Task OnInput(ChangeEventArgs e)
     {
         var input = e.Value?.ToString();
-        var regex = InputValidationRegex;
 
-        if (Regex.IsMatch(input, regex))
+        // Dispose of the previous timer.
+        _debounceTimer?.Dispose();
+
+        // Get the regular expression from the resource file
+        var regex = _searchInputValidationRegex;
+
+        if (input != SearchTerm)
         {
-            SearchTerm = input;
-
-            if (DebounceEnabled)
+            if (string.IsNullOrEmpty(input) || input.Length < _minCharacters)
             {
-                if (debounceTimer != null)
-                {
-                    debounceTimer.Dispose();
-                }
+                // If the input is empty or shorter than the minimum characters, show the message
+                _hasMetMinimumCharacters = false;
+                _hasInputValidationError = false;
+                _noSearchResults = false;
+                SearchTerm = input;
+                await PerformSearchAsync(string.Empty);
+                await InvokeAsync(StateHasChanged);
+                return;
 
-                debounceTimer = new Timer(_ =>
-                {
-                    Task.Run(async () =>
-                    {
-                        await InvokeAsync(PerformSearchIfNeeded);
-                    });
-                }, null, DebounceTime, Timeout.Infinite);
             }
-            else
+            else if (Regex.IsMatch(input, regex))
             {
                 SearchTerm = input;
-                await PerformSearchIfNeeded();
-            }
-        }
-        else
-        {
-            // Handle validation error...
-        }
-    }
+                _hasMetMinimumCharacters = true;
 
-    private async Task PerformSearchIfNeeded()
-    {
-        if (string.IsNullOrEmpty(SearchTerm) || SearchTerm.Length < MinCharacters)
-        {
-            // If searchTerm is empty or less than MinCharacters, return the original DataSource
-            await InvokeAsync(() => OnSearchResultsChanged.InvokeAsync(DataSource));
-        }
-        else
-        {
-            if (ShowSearchButton)
-            {
-                // Do nothing here; the search will be triggered when the button is clicked.
-            }
-            else
-            {
-                if (EnterKeyEnabled || ResultsAsTyped)
+                if (_debounceEnabled && SearchTerm.Length >= _minCharacters)
                 {
-                    try
+                    // Start or reset the debounce timer (adjust the delay as needed)
+                    if (_debounceTimer != null)
                     {
-                        await InvokeAsync(PerformSearch);
+                        _debounceTimer.Dispose();
                     }
-                    catch (Exception ex)
+
+                    _debounceTimer = new Timer(async _ =>
                     {
-                        await logger.LogError(ex, "An error occurred while performing search. {0}");
+                        // Perform the search and await it
+                        await PerformSearchAsync(SearchTerm);
+                        await InvokeAsync(StateHasChanged);
+                    }, null, _debounceTime, Timeout.Infinite);
+                }
+                else
+                {
+                    if (!ShowSearchButton)
+                    {
+                        await PerformSearchAsync(SearchTerm);
                     }
                 }
             }
+            else
+            {
+                // Handle validation error...
+                _hasInputValidationError = true;
+                if (SearchTerm.Length < _minCharacters)
+                {
+                    _hasMetMinimumCharacters = false;
+                }
+                _noSearchResults = false;
+            }
+
+            SearchTerm = input;
         }
+        await InvokeAsync(StateHasChanged);
     }
 
-    private async Task PerformSearch()
+    /// <summary>
+    /// Performs a search based on the provided search term.
+    /// </summary>
+    /// <param name="searchTerm">The search term to use for filtering.</param>
+    private async Task PerformSearchAsync(string searchTerm)
     {
         try
         {
-            if (SearchTerm.Length >= MinCharacters)
+            SearchTerm = searchTerm;
+
+            if (string.IsNullOrEmpty(SearchTerm) || SearchTerm.Length < _minCharacters || _searchCanceled)
+            {
+                _searchCanceled = false;
+                // If searchTerm is empty or less than MinCharacters, or search is canceled, return the original DataSource
+                await OnSearchChanged.InvokeAsync((SearchTerm, DataSource));
+                await InvokeAsync(StateHasChanged);
+                return;
+            }
+            else if (SearchTerm.Length >= _minCharacters)
             {
                 // Filter data based on searchTerm and itemTypes
-                var filteredData = FilterData(DataSource, SearchTerm, ItemTypes);
+                var filteredData = FilterData(DataSource, SearchTerm, SearchColumns);
 
                 // Convert the filtered data to a list of objects
                 var filteredDataList = filteredData.Cast<object>().ToList();
 
-                // Invoke the callback to send the filtered data to the parent component
-                await OnSearchResultsChanged.InvokeAsync(filteredDataList);
-            }
-            else if (string.IsNullOrEmpty(SearchTerm))
-            {
-                // If searchTerm is empty, return the original DataSource
-                await OnSearchResultsChanged.InvokeAsync(DataSource);
+                // Update _noSearchResults based on whether there are search results
+                _noSearchResults = filteredDataList.Count == 0;
+
+                // Set _hasMetMinimumCharacters to true if the search term meets the minimum character requirement
+                _hasMetMinimumCharacters = SearchTerm.Length >= _minCharacters;
+
+                // Invoke the callback to send the search term to the parent component
+                await OnSearchChanged.InvokeAsync((SearchTerm, filteredDataList));
+
+                await InvokeAsync(StateHasChanged);
             }
         }
         catch (Exception ex)
@@ -210,8 +617,17 @@
         }
     }
 
+    /// <summary>
+    /// Filters the data based on the search term and item types.
+    /// </summary>
     private IEnumerable<T> FilterData<T>(IEnumerable<T> data, string searchTerm, List<string> itemTypes)
     {
+        if (DataSource == null || SearchColumns == null)
+        {
+            // Handle null DataSource and/or ItemTypes gracefully.
+            // Default behavior or show an error message.
+        }
+
         if (data != null && searchTerm != null)
         {
             if (!CaseSensitive)
@@ -233,7 +649,9 @@
         return Enumerable.Empty<T>();
     }
 
-
+    /// <summary>
+    /// Gets the value of a property from an object.
+    /// </summary>
     private object GetPropertyValue(object obj, string propertyName)
     {
         var propertyInfo = obj.GetType().GetProperty(propertyName);
@@ -245,75 +663,115 @@
         return null;
     }
 
-    private async Task OnKeyPress(KeyboardEventArgs e)
+    /// <summary>
+    /// Handles the Enter key press event for performing a search when the EnterKeyEnabled property is true.
+    /// </summary>
+    /// <param name="e">The keyboard event arguments.</param>
+    private async Task OnEnterKeyPress(KeyboardEventArgs e)
     {
-        if (EnterKeyEnabled && e.Key == "Enter")
+        if (_enterKeyEnabled && (e.Key == "Enter" || e.Code == "NumpadEnter"))
         {
-            if (SearchTerm.Length >= MinCharacters)
+            if (Regex.IsMatch(SearchTerm, _searchInputValidationRegex) && SearchTerm.Length >= _minCharacters)
             {
-                await PerformSearch();
-            }
-            else if (string.IsNullOrEmpty(SearchTerm))
-            {
-                SearchTerm = "";
-                await PerformSearch();
+                await PerformSearchAsync(SearchTerm);
             }
         }
     }
 
+    /// <summary>
+    /// Renders the search button.
+    /// </summary>
+    private RenderFragment RenderButton => builder =>
+    {
+        builder.OpenElement(0, "button");
+        builder.AddAttribute(1, "class", "btn btn-primary");
+        builder.AddAttribute(2, "id", "buttonSearch");
+        builder.AddAttribute(2, "onclick", EventCallback.Factory.Create(this, () => PerformSearchAsync(SearchTerm)));
+        builder.AddAttribute(3, "aria-label", _searchButtonAriaLabel);
+        builder.AddAttribute(4, "title", _searchButtonTitle);
+        builder.AddAttribute(5, "tabindex", _searchButtonTabIndex);
+
+        if (ShowSearchButtonIcon && SearchButtonIconPosition == "left")
+        {
+            builder.OpenElement(6, "i");
+            builder.AddAttribute(7, "class", _searchButtonIcon);
+            builder.CloseElement();
+            if (ShowButtonText)
+            {
+                builder.AddContent(8, "\u00A0");
+            }
+        }
+
+        if (ShowButtonText)
+        {
+            builder.AddContent(8, _searchButtonText);
+        }
+
+        if (ShowSearchButtonIcon && SearchButtonIconPosition == "right")
+        {
+            if (ShowButtonText)
+            {
+                builder.AddContent(10, "\u00A0"); // Add a non-breaking space
+            }
+            builder.OpenElement(9, "i");
+            builder.AddAttribute(10, "class", _searchButtonIcon);
+            builder.CloseElement();
+        }
+
+        builder.CloseElement();
+    };
+
+    /// <summary>
+    /// Gets the autocomplete attribute value for the search input.
+    /// </summary>
+    private string GetAutocomplete()
+    {
+        return _autocompleteEnabled ? "on" : "off";
+    }
+
+    /// <summary>
+    /// Gets the tooltip text for the search input.
+    /// </summary>
     private string GetToolTip()
     {
-        if (MinCharacters > 1)
+        if (_minCharacters > 1)
         {
-            return string.Format(Localizer["SearchTermCharacterLimitToolTip"], MinCharacters, MaxCharacters);
+            return string.Format(_searchInputCharacterLimitTitle, _minCharacters, _maxCharacters);
         }
         else
         {
-            return Localizer["SearchTermToolTip"];
+            return _searchInputTitle;
         }
     }
 
-    private RenderFragment RenderButton => builder =>
+    /// <summary>
+    /// Clears the search term and resets search-related flags, triggering a search with an empty search term.
+    /// </summary>
+    private async Task CancelSearchAsync()
     {
-    builder.OpenElement(0, "button");
-    builder.AddAttribute(1, "class", "btn btn-primary");
-    builder.AddAttribute(2, "onclick", EventCallback.Factory.Create(this, PerformSearch));
-    builder.AddAttribute(3, "aria-label", ButtonAriaLabel);
-    builder.AddAttribute(4, "title", ButtonToolTip);
-    builder.AddAttribute(5, "tabindex", ButtonTabIndex);
+        // Set SearchTerm to empty string
+        SearchTerm = string.Empty;
 
-    if (ShowSearchIcon && IconPosition == "left")
-    {
-        builder.OpenElement(6, "i");
-        builder.AddAttribute(7, "class", SearchIcon);
-        builder.CloseElement();
-        if (ShowButtonText)
-        {
-            builder.AddContent(8, "\u00A0");
-        }
+        // Reset validation messages
+        _hasInputValidationError = false;
+        _noSearchResults = false;
+        _hasMetMinimumCharacters = false;
+
+        // Set the search canceled flag to true
+        _searchCanceled = true;
+
+        // Clear the search term and invoke the SearchTermChanged callback
+        await OnSearchChanged.InvokeAsync((SearchTerm, DataSource));
+
+        // Trigger a search with an empty search term to reset the results.
+        await PerformSearchAsync(string.Empty);
     }
 
-    if (ShowButtonText)
+    /// <summary>
+    /// Disposes of the debounce timer.
+    /// </summary>
+    public void Dispose()
     {
-        builder.AddContent(8, ButtonLabel);
-    }
-
-    if (ShowSearchIcon && IconPosition == "right")
-    {
-        if (ShowButtonText)
-        {
-            builder.AddContent(10, "\u00A0");
-        }
-        builder.OpenElement(9, "i");
-        builder.AddAttribute(10, "class", SearchIcon);
-        builder.CloseElement();
-    }
-
-    builder.CloseElement();
-    };
-
-    private string GetAutocomplete()
-    {
-        return EnableAutocomplete ? "on" : "off";
+        _debounceTimer?.Dispose();
     }
 }
