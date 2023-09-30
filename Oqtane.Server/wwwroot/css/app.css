@@ -231,19 +231,27 @@ app {
 
 /* Search */
 .app-search {
-    display: flex;
-    align-items: center;
-    padding: 10px;
     margin: 10px auto;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    position: relative;
 }
 
-    .app-search .form-control {
-        flex: 1;
-        border: none;
+    .app-search .input-group {
+        position: relative;
     }
 
-    .app-search .btn-primary {
-        margin: auto;
+    .app-search .input-search, .app-search .input-cancel {
+        position: absolute;
+        right: 170px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        z-index: 5;
+    }
+    .app-search .input-search i, .app-search .input-cancel i {
+        mix-blend-mode: difference;
+    }
+
+    .app-search #inputSearch {
+        position: relative;
+        z-index: 1;
     }
