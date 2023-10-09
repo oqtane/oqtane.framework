@@ -159,4 +159,10 @@
   <data name="Module Settings" xml:space="preserve">
     <value>Module Settings</value>
   </data>
+  <data name="Pane.HelpText" xml:space="preserve">
+    <value>The pane where the module will be displayed</value>
+  </data>
+  <data name="Pane.Text" xml:space="preserve">
+    <value>Pane:</value>
+  </data>
 </root>
