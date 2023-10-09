@@ -12,7 +12,7 @@ else
 {
 	<ActionLink Action="Add" Text="Add Role" Security="SecurityAccessLevel.Edit" ResourceKey="AddRole" />
 
-    <Pager Items="@_roles">
+    <Pager Items="@_roles" AllowSearch="True" SearchProperties="Name">
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>

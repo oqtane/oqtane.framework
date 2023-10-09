@@ -17,21 +17,10 @@ else
 {
     <TabStrip>
         <TabPanel Name="Users" Heading="Users" ResourceKey="Users">
-			<div class="container">
-				<div class="row mb-1 align-items-center">
-					<div class="col-sm-4">
-						<ActionLink Action="Add" Text="Add User" Security="SecurityAccessLevel.Edit" ResourceKey="AddUser" />&nbsp;
-                        <ActionLink Text="Import Users" Class="btn btn-secondary" Action="Users" Security="SecurityAccessLevel.Admin" ResourceKey="ImportUsers"/>                    
-                    </div>
-					<div class="col-sm-4">
-						<input class="form-control" @bind="@_search" />
-					</div>
-					<div class="col-sm-4">
-						<button type="button" class="btn btn-secondary" @onclick="OnSearch">@SharedLocalizer["Search"]</button>
-					</div>
-				</div>
-			</div>
-			<Pager Items="@users" RowClass="align-middle">
+			<ActionLink Action="Add" Text="Add User" Security="SecurityAccessLevel.Edit" ResourceKey="AddUser" />&nbsp;
+            <ActionLink Text="Import Users" Class="btn btn-secondary ms-2" Action="Users" Security="SecurityAccessLevel.Admin" ResourceKey="ImportUsers"/>
+
+            <Pager Items="@users" RowClass="align-middle" AllowSearch="True" SearchProperties="Username,Email,DisplayName">
 				<Header>
 					<th style="width: 1px;">&nbsp;</th>
 					<th style="width: 1px;">&nbsp;</th>
@@ -368,9 +357,7 @@ else
 }
 
 @code {
-    private List<UserRole> allusers;
     private List<UserRole> users;
-    private string _search = "";
 
     private string _allowregistration;
     private string _allowsitelogin;
@@ -423,7 +410,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadUserSettingsAsync();
         await LoadUsersAsync(true);
 
         var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
@@ -478,32 +464,14 @@ else
     {
         if (load)
         {
-            allusers = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Registered);
+            users = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Registered);
             if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
             {
                 var hosts = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Host);
-                allusers.AddRange(hosts);
-                allusers = allusers.OrderBy(u => u.User.DisplayName).ToList();
+                users.AddRange(hosts);
+                users = users.OrderBy(u => u.User.DisplayName).ToList();
             }           
         }
-
-		users = allusers;
-		if (!string.IsNullOrEmpty(_search))
-		{
-			users = users.Where(item =>
-				(
-					item.User.Username.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
-					item.User.Email.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
-					item.User.DisplayName.Contains(_search, StringComparison.OrdinalIgnoreCase)
-				)
-			).ToList();
-		}
-	}
-
-	private async Task OnSearch()
-	{
-		await UpdateUserSettingsAsync();
-		await LoadUsersAsync(false);
 	}
 
 	private async Task DeleteUser(UserRole UserRole)
@@ -524,21 +492,6 @@ else
 			await logger.LogError(ex, "Error Deleting User {User} {Error}", UserRole.User, ex.Message);
 			AddModuleMessage(ex.Message, MessageType.Error);
 		}
-	}
-
-	private string settingSearch = "AU-search";
-
-	private async Task LoadUserSettingsAsync()
-	{
-		Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-		_search = SettingService.GetSetting(settings, settingSearch, "");
-	}
-
-	private async Task UpdateUserSettingsAsync()
-	{
-		Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-		settings = SettingService.SetSetting(settings, settingSearch, _search);
-		await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
 	}
 
 	private async Task SaveSiteSettings()

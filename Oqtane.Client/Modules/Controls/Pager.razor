@@ -5,6 +5,15 @@
 
 @if (ItemList != null)
 {
+    @if (AllowSearch == "True")
+    {
+        <div class="input-group my-3">
+            <input id="search" class="form-control" @bind="@_search" />
+            <button type="button" class="btn btn-primary" @onclick="Search">@Localizer["Search"]</button>
+            <button type="button" class="btn btn-secondary" @onclick="Reset">@Localizer["Reset"]</button>
+        </div>
+    }
+
     @if ((Toolbar == "Top" || Toolbar == "Both") && _pages > 0 && Items.Count() > _maxItems)
     {
         <ul class="pagination justify-content-center my-2">
@@ -175,6 +184,9 @@
     private int _startPage = 0;
     private int _endPage = 0;
     private int _columns = 0;
+    private string _search = "";
+
+    private IEnumerable<TableItem> AllItems;
 
     [Parameter]
     public string Format { get; set; } // Table or Grid
@@ -221,6 +233,12 @@
     [Parameter]
     public Action<int> OnPageChange { get; set; } // a method to be executed in the calling component when the page changes
 
+    [Parameter]
+    public string AllowSearch { get; set; } // allow user to search items
+
+    [Parameter]
+    public string SearchProperties { get; set; } // comma delimited list of property names to include in search
+
     private IEnumerable<TableItem> ItemList { get; set; }
 
     protected override void OnInitialized()
@@ -230,6 +248,8 @@
 
     protected override void OnParametersSet()
     {
+        AllItems = Items;
+
         if (string.IsNullOrEmpty(Format))
         {
             Format = "Table";
@@ -274,6 +294,11 @@
             {
                 ColumnClass = "col";
             }
+        }
+
+        if (string.IsNullOrEmpty(AllowSearch) || string.IsNullOrEmpty(SearchProperties))
+        {
+            AllowSearch = "False";
         }
 
         if (!string.IsNullOrEmpty(PageSize))
@@ -323,10 +348,10 @@
         {
             _endPage = _pages;
         }
-		ItemList = Items.Skip((_page - 1) * _maxItems).Take(_maxItems);
-		StateHasChanged();
-		OnPageChange?.Invoke(_page);
-	}
+        ItemList = Items.Skip((_page - 1) * _maxItems).Take(_maxItems);
+        StateHasChanged();
+        OnPageChange?.Invoke(_page);
+    }
 
     public void UpdateList(int page)
     {
@@ -368,5 +393,45 @@
         }
 
         UpdateList(_page);
+    }
+
+    public void Search()
+    {
+        if (!string.IsNullOrEmpty(_search))
+        {
+            Items = AllItems.Where(item =>
+            {
+                var values = SearchProperties.Split(',')
+                    .Select(itemType => GetPropertyValue(item, itemType))
+                    .Where(value => value != null)
+                    .Select(value => value.ToString().ToLower());
+
+                return values.Any(value => value.Contains(_search.ToLower()));
+            }).ToList();
+        }
+        else
+        {
+            Items = AllItems;
+        }
+        _pages = (int)Math.Ceiling(Items.Count() / (decimal)_maxItems);
+        UpdateList(1);
+    }
+
+    private object GetPropertyValue(object obj, string propertyName)
+    {
+        var propertyInfo = obj.GetType().GetProperty(propertyName);
+        if (propertyInfo != null)
+        {
+            return propertyInfo.GetValue(obj);
+        }
+        return null;
+    }
+
+    public void Reset()
+    {
+        _search = "";
+        Items = AllItems;
+        _pages = (int)Math.Ceiling(Items.Count() / (decimal)_maxItems);
+        UpdateList(1);
     }
 }
