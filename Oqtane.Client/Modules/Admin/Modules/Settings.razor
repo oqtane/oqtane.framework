@@ -27,6 +27,17 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="pane" HelpText="The pane where the module will be displayed" ResourceKey="Pane">Pane: </Label>
+                        <div class="col-sm-9">
+                            <select class="form-select" @bind="@_pane">
+                                @foreach (string pane in PageState.Page.Panes)
+                                {
+                                    <option value="@pane">@pane Pane</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="container" HelpText="Select the module's container" ResourceKey="Container">Container: </Label>
                         <div class="col-sm-9">
                             <select id="container" class="form-select" @bind="@_containerType" required>
@@ -112,6 +123,7 @@
     private List<ThemeControl> _containers = new List<ThemeControl>();
     private string _module;
     private string _title;
+    private string _pane;
     private string _containerType;
     private string _allPages = "false";
     private string _permissionNames = "";
@@ -134,80 +146,82 @@
     {
         _module = ModuleState.ModuleDefinition.Name;
         _title = ModuleState.Title;
+        _pane = ModuleState.Pane;
         _containers = ThemeService.GetContainerControls(PageState.Site.Themes, PageState.Page.ThemeType);
-		_containerType = ModuleState.ContainerType;
-		_allPages = ModuleState.AllPages.ToString();
-		_permissions = ModuleState.PermissionList;
-		_pageId = ModuleState.PageId.ToString();
-		createdby = ModuleState.CreatedBy;
-		createdon = ModuleState.CreatedOn;
-		modifiedby = ModuleState.ModifiedBy;
-		modifiedon = ModuleState.ModifiedOn;
+        _containerType = ModuleState.ContainerType;
+        _allPages = ModuleState.AllPages.ToString();
+        _permissions = ModuleState.PermissionList;
+        _pageId = ModuleState.PageId.ToString();
+        createdby = ModuleState.CreatedBy;
+        createdon = ModuleState.CreatedOn;
+        modifiedby = ModuleState.ModifiedBy;
+        modifiedon = ModuleState.ModifiedOn;
 
-		if (ModuleState.ModuleDefinition != null)
-		{
-			_permissionNames = ModuleState.ModuleDefinition?.PermissionNames;
+        if (ModuleState.ModuleDefinition != null)
+        {
+            _permissionNames = ModuleState.ModuleDefinition?.PermissionNames;
 
-			if (!string.IsNullOrEmpty(ModuleState.ModuleDefinition.SettingsType))
-			{
-				// module settings type explicitly declared in IModule interface
-				_moduleSettingsType = Type.GetType(ModuleState.ModuleDefinition.SettingsType);
-			}
-			else
-			{
-				// legacy support - module settings type determined by convention ( ie. existence of a "Settings.razor" component in module )
-				_moduleSettingsType = Type.GetType(ModuleState.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, PageState.Action), false, true);
-			}
-			if (_moduleSettingsType != null)
-			{
-				var moduleobject = Activator.CreateInstance(_moduleSettingsType) as IModuleControl;
-				if (!string.IsNullOrEmpty(moduleobject.Title))
-				{
-					_moduleSettingsTitle = moduleobject.Title;
-				}
+            if (!string.IsNullOrEmpty(ModuleState.ModuleDefinition.SettingsType))
+            {
+                // module settings type explicitly declared in IModule interface
+                _moduleSettingsType = Type.GetType(ModuleState.ModuleDefinition.SettingsType);
+            }
+            else
+            {
+                // legacy support - module settings type determined by convention ( ie. existence of a "Settings.razor" component in module )
+                _moduleSettingsType = Type.GetType(ModuleState.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, PageState.Action), false, true);
+            }
+            if (_moduleSettingsType != null)
+            {
+                var moduleobject = Activator.CreateInstance(_moduleSettingsType) as IModuleControl;
+                if (!string.IsNullOrEmpty(moduleobject.Title))
+                {
+                    _moduleSettingsTitle = moduleobject.Title;
+                }
 
-				ModuleSettingsComponent = builder =>
-				{
-					builder.OpenComponent(0, _moduleSettingsType);
-					builder.AddComponentReferenceCapture(1, inst => { _moduleSettings = Convert.ChangeType(inst, _moduleSettingsType); });
-					builder.CloseComponent();
-				};
-			}
-		}
-		else
-		{
-			AddModuleMessage(string.Format(Localizer["Error.Module.Load"], ModuleState.ModuleDefinitionName), MessageType.Error);
-		}
+                ModuleSettingsComponent = builder =>
+                {
+                    builder.OpenComponent(0, _moduleSettingsType);
+                    builder.AddComponentReferenceCapture(1, inst => { _moduleSettings = Convert.ChangeType(inst, _moduleSettingsType); });
+                    builder.CloseComponent();
+                };
+            }
+        }
+        else
+        {
+            AddModuleMessage(string.Format(Localizer["Error.Module.Load"], ModuleState.ModuleDefinitionName), MessageType.Error);
+        }
 
         var theme = PageState.Site.Themes.FirstOrDefault(item => item.Containers.Any(themecontrol => themecontrol.TypeName.Equals(_containerType)));
-		if (theme != null && !string.IsNullOrEmpty(theme.ContainerSettingsType))
-		{
-			_containerSettingsType = Type.GetType(theme.ContainerSettingsType);
-			if (_containerSettingsType != null)
-			{
-				ContainerSettingsComponent = builder =>
-				{
-					builder.OpenComponent(0, _containerSettingsType);
-					builder.AddComponentReferenceCapture(1, inst => { _containerSettings = Convert.ChangeType(inst, _containerSettingsType); });
-					builder.CloseComponent();
-				};
-			}
-		}
-	}
+        if (theme != null && !string.IsNullOrEmpty(theme.ContainerSettingsType))
+        {
+            _containerSettingsType = Type.GetType(theme.ContainerSettingsType);
+            if (_containerSettingsType != null)
+            {
+                ContainerSettingsComponent = builder =>
+                {
+                    builder.OpenComponent(0, _containerSettingsType);
+                    builder.AddComponentReferenceCapture(1, inst => { _containerSettings = Convert.ChangeType(inst, _containerSettingsType); });
+                    builder.CloseComponent();
+                };
+            }
+        }
+    }
 
-	private async Task SaveModule()
-	{
-		validated = true;
-		var interop = new Interop(JSRuntime);
-		if (await interop.FormValid(form))
-		{
-			if (!string.IsNullOrEmpty(_title))
-			{
-				var pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
-				pagemodule.PageId = int.Parse(_pageId);
-				pagemodule.Title = _title;
-				pagemodule.ContainerType = (_containerType != "-") ? _containerType : string.Empty;
-				if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Page.DefaultContainerType)
+    private async Task SaveModule()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
+        {
+            if (!string.IsNullOrEmpty(_title))
+            {
+                var pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
+                pagemodule.PageId = int.Parse(_pageId);
+                pagemodule.Title = _title;
+                pagemodule.Pane = _pane;
+                pagemodule.ContainerType = (_containerType != "-") ? _containerType : string.Empty;
+                if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Page.DefaultContainerType)
 				{
 					pagemodule.ContainerType = string.Empty;
 				}
