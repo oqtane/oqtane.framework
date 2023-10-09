@@ -80,18 +80,50 @@
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="@p.Name" HelpText="@p.Description">@p.Title</Label>
                             <div class="col-sm-9">
-                                @if (p.IsRequired)
+                                @if (!string.IsNullOrEmpty(p.Options))
                                 {
-                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                    <select id="@p.Name" class="form-select" @onchange="@(e => ProfileChanged(e, p.Name))">
+                                        @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                                        {
+                                            @if (GetProfileValue(p.Name, "") == option || (GetProfileValue(p.Name, "") == "" && p.DefaultValue == option))
+                                            {
+                                                <option value="@option" selected>@option</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@option">@option</option>
+                                            }
+                                        }
+                                    </select>
                                 }
                                 else
                                 {
-                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                    @if (p.Rows == 1)
+                                    {
+                                        @if (p.IsRequired)
+                                        {
+                                            <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                        }
+                                        else
+                                        {
+                                            <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @if (p.IsRequired)
+                                        {
+                                            <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))"></textarea>
+                                        }
+                                        else
+                                        {
+                                            <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))"></textarea>
+                                        }
+                                    }
                                 }
                             </div>
                         </div>
                     }
-
                 </div>
             </div>
         }
@@ -148,31 +180,34 @@
     {
         try
         {
-            if (_username != string.Empty && _password != string.Empty && _confirm != string.Empty && _email != string.Empty && ValidateProfiles())
+            if (_username != string.Empty && _password != string.Empty && _confirm != string.Empty && _email != string.Empty)
             {
                 if (_password == _confirm)
                 {
-                    var user = new User();
-                    user.SiteId = PageState.Site.SiteId;
-                    user.Username = _username;
-                    user.Password = _password;
-                    user.Email = _email;
-                    user.DisplayName = string.IsNullOrWhiteSpace(_displayname) ? _username : _displayname;
-                    user.PhotoFileId = null;
-                    user.SuppressNotification = !bool.Parse(_notify);
-
-                    user = await UserService.AddUserAsync(user);
-
-                    if (user != null)
+                    if (ValidateProfiles())
                     {
-                        await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
-                        await logger.LogInformation("User Created {User}", user);
-                        NavigationManager.NavigateTo(NavigateUrl());
-                    }
-                    else
-                    {
-                        await logger.LogError("Error Adding User {Username} {Email}", _username, _email);
-                        AddModuleMessage(Localizer["Error.User.AddCheckPass"], MessageType.Error);
+                        var user = new User();
+                        user.SiteId = PageState.Site.SiteId;
+                        user.Username = _username;
+                        user.Password = _password;
+                        user.Email = _email;
+                        user.DisplayName = string.IsNullOrWhiteSpace(_displayname) ? _username : _displayname;
+                        user.PhotoFileId = null;
+                        user.SuppressNotification = !bool.Parse(_notify);
+
+                        user = await UserService.AddUserAsync(user);
+
+                        if (user != null)
+                        {
+                            await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
+                            await logger.LogInformation("User Created {User}", user);
+                            NavigationManager.NavigateTo(NavigateUrl());
+                        }
+                        else
+                        {
+                            await logger.LogError("Error Adding User {Username} {Email}", _username, _email);
+                            AddModuleMessage(Localizer["Error.User.AddCheckPass"], MessageType.Error);
+                        }
                     }
                 }
                 else
@@ -194,7 +229,6 @@
 
     private bool ValidateProfiles()
     {
-        bool valid = true;
         foreach (Profile profile in profiles)
         {
             if (string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)) && !string.IsNullOrEmpty(profile.DefaultValue))
@@ -203,18 +237,24 @@
             }
             if (!profile.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
             {
-                if (valid == true && profile.IsRequired && string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)))
+                if (profile.IsRequired && string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)))
                 {
-                    valid = false;
+                    AddModuleMessage(string.Format(SharedLocalizer["ProfileRequired"], profile.Title), MessageType.Warning);
+                    return false;
                 }
-                if (valid == true && !string.IsNullOrEmpty(profile.Validation))
+                if (!string.IsNullOrEmpty(profile.Validation))
                 {
                     Regex regex = new Regex(profile.Validation);
-                    valid = regex.Match(SettingService.GetSetting(settings, profile.Name, string.Empty)).Success;
+                    bool valid = regex.Match(SettingService.GetSetting(settings, profile.Name, string.Empty)).Success;
+                    if (!valid)
+                    {
+                        AddModuleMessage(string.Format(SharedLocalizer["ProfileInvalid"], profile.Title), MessageType.Warning);
+                        return false;
+                    }
                 }
             }
         }
-        return valid;
+        return true;
     }
 
     private void ProfileChanged(ChangeEventArgs e, string SettingName)
