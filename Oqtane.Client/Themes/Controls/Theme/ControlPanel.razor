@@ -114,7 +114,7 @@
 
 					<div class="row">
 						<div class="col text-center">
-							<label for="Module" class="control-label">@Localizer["Module.Manage"] </label>
+							<label for="Module" class="control-label">@Localizer["Module.Manage"]</label>
 							<select class="form-select" @bind="@ModuleType">
 								<option value="new">@Localizer["Module.AddNew"]</option>
 								<option value="existing">@Localizer["Module.AddExisting"]</option>
@@ -179,27 +179,33 @@
 					</div>
 					<div class="row">
 						<div class="col text-center">
-							<label for="Title" class="control-label">@Localizer["Title"] </label>
+							<label for="Title" class="control-label">@Localizer["Title"]</label>
 							<input type="text" name="Title" class="form-control" @bind="@Title" />
 						</div>
 					</div>
-					@if (_pane.Length > 1)
-					{
-						<div class="row">
-							<div class="col text-center">
-								<label for="Pane" class="control-label">@Localizer["Pane"] </label>
-								<select class="form-select" @bind="@Pane">
-									@foreach (string pane in PageState.Page.Panes)
-									{
-										<option value="@pane">@pane Pane</option>
-									}
-								</select>
-							</div>
-						</div>
-					}
 					<div class="row">
 						<div class="col text-center">
-							<label for="Container" class="control-label">@Localizer["Container"] </label>
+							<label for="Pane" class="control-label">@Localizer["Pane"]</label>
+							<select class="form-select" @bind="@Pane">
+								@foreach (string pane in PageState.Page.Panes)
+								{
+									<option value="@pane">@pane Pane</option>
+								}
+							</select>
+						</div>
+					</div>
+                    <div class="row">
+                        <div class="col text-center">
+                            <label for="Insert" class="control-label">@Localizer["Location"]</label>
+                            <select class="form-select" @bind="@Location">
+                                <option value="@int.MinValue">@Localizer["LocationTop"]</option>
+                                <option value="@int.MaxValue">@Localizer["LocationBottom"]</option>
+                            </select>
+                        </div>
+                    </div>
+					<div class="row">
+						<div class="col text-center">
+							<label for="Container" class="control-label">@Localizer["Container"]</label>
 							<select class="form-select" @bind="@ContainerType">
 								@foreach (var container in _containers)
 								{
@@ -243,6 +249,7 @@
     private List<Module> _modules = new List<Module>();
     private List<ThemeControl> _containers = new List<ThemeControl>();
     private string _category = "Common";
+    private string _pane = "";
 
     protected string PageId { get; private set; } = "-";
     protected string ModuleId { get; private set; } = "-";
@@ -251,12 +258,12 @@
 
     protected string Title { get; private set; } = "";
     protected string ContainerType { get; private set; } = "";
+    protected int Location { get; private set; } = int.MaxValue;
     protected string Visibility { get; private set; } = "view";
     protected string Message { get; private set; } = "";
 
     private string settingCategory = "CP-category";
     private string settingPane = "CP-pane";
-    private string _pane = "";
 
     protected string Category
     {
@@ -310,8 +317,9 @@
         if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
         {
             _showEditMode = true;
-            _pages?.Clear();
+            LoadSettingsAsync();
 
+            _pages?.Clear();
             foreach (Page p in PageState.Pages)
             {
                 if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
@@ -319,7 +327,6 @@
                     _pages.Add(p);
                 }
             }
-            await LoadSettingsAsync();
 
             var themes = await ThemeService.GetThemesAsync();
             _containers = ThemeService.GetContainerControls(themes, PageState.Page.ThemeType);
@@ -443,7 +450,7 @@
                 }
 
                 pageModule.Pane = Pane;
-                pageModule.Order = int.MaxValue;
+                pageModule.Order = Location;
                 pageModule.ContainerType = ContainerType;
 
                 if (pageModule.ContainerType == PageState.Site.DefaultContainerType)
@@ -653,11 +660,10 @@
         }
     }
 
-	private async Task LoadSettingsAsync()
+	private void LoadSettingsAsync()
 	{
-		Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-		_category = SettingService.GetSetting(settings, settingCategory, "Common");
-		var pane = SettingService.GetSetting(settings, settingPane, "");
+        _category = SettingService.GetSetting(PageState.User.Settings, settingCategory, "Common");
+        var pane = SettingService.GetSetting(PageState.User.Settings, settingPane, "");
 		if (PageState.Page.Panes.Contains(pane))
 		{
 			_pane = pane;
