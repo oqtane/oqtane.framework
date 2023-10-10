@@ -120,12 +120,6 @@
   <data name="PageOfPages" xml:space="preserve">
     <value>Page {0} of {1}</value>
   </data>
-  <data name="Reset" xml:space="preserve">
-    <value>Reset</value>
-  </data>
-  <data name="Search" xml:space="preserve">
-    <value>Search</value>
-  </data>
   <data name="SearchColumns" xml:space="preserve">
     <value>Search Columns; {0}</value>
   </data>
