@@ -9,7 +9,7 @@
     @if (AllowSearch == "True")
     {
         <div class="input-group my-3">
-            <input id="search" class="form-control" @bind="@_search" />
+            <input id="search" class="form-control" placeholder=@string.Format(Localizer["SearchColumns"], SearchProperties) @bind="@_search" />
             <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>
             <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
         </div>
