@@ -1,6 +1,7 @@
 @namespace Oqtane.Modules.Controls
 @inherits ModuleControlBase
 @inject IStringLocalizerFactory LocalizerFactory
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 @typeparam TableItem
 
 @if (ItemList != null)
@@ -9,8 +10,8 @@
     {
         <div class="input-group my-3">
             <input id="search" class="form-control" @bind="@_search" />
-            <button type="button" class="btn btn-primary" @onclick="Search">@Localizer["Search"]</button>
-            <button type="button" class="btn btn-secondary" @onclick="Reset">@Localizer["Reset"]</button>
+            <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>
+            <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
         </div>
     }
 
