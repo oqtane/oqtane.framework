@@ -17,7 +17,7 @@
 
 @if (ShowLanguageSwitcher)
 {
-    <LanguageSwitcher />
+    <LanguageSwitcher DropdownAlignment="@LanguageDropdownAlignment" />
 }
 
 @if (_showEditMode || (PageState.Page.IsPersonalizable && PageState.User != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Registered)))
@@ -239,6 +239,24 @@
 }
 
 @code{
+    [Parameter]
+    public string ButtonClass { get; set; } = "btn-outline-secondary";
+
+    [Parameter]
+    public string ContainerClass { get; set; } = "offcanvas offcanvas-end";
+
+    [Parameter]
+    public string HeaderClass { get; set; } = "offcanvas-header";
+
+    [Parameter]
+    public string BodyClass { get; set; } = "offcanvas-body overflow-auto";
+
+    [Parameter]
+    public bool ShowLanguageSwitcher { get; set; } = true;
+
+    [Parameter]
+    public string LanguageDropdownAlignment { get; set; } // Empty or Left or Right
+
     private bool _canViewAdminDashboard = false;
     private bool _showEditMode = false;
     private bool _deleteConfirmation = false;
@@ -294,21 +312,6 @@
             }
         }
     }
-
-    [Parameter]
-    public string ButtonClass { get; set; } = "btn-outline-secondary";
-
-    [Parameter]
-    public string ContainerClass { get; set; } = "offcanvas offcanvas-end";
-
-    [Parameter]
-    public string HeaderClass { get; set; } = "offcanvas-header";
-
-    [Parameter]
-    public string BodyClass { get; set; } = "offcanvas-body overflow-auto";
-
-    [Parameter]
-    public bool ShowLanguageSwitcher { get; set; } = true;
 
     protected override async Task OnParametersSetAsync()
     {
