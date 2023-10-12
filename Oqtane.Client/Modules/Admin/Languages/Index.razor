@@ -14,7 +14,7 @@ else
 {
     <ActionLink Action="Add" Text="Add Language" ResourceKey="AddLanguage" />
 
-    <Pager Items="@_languages" AllowSearch="True" SearchProperties="Name,Code">
+    <Pager Items="@_languages" SearchProperties="Name,Code">
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th>@SharedLocalizer["Name"]</th>
