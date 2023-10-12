@@ -6,7 +6,7 @@
 
 @if (ItemList != null)
 {
-    @if (AllowSearch == "True")
+    @if (!string.IsNullOrEmpty(SearchProperties))
     {
         <div class="input-group my-3">
             <input id="search" class="form-control" placeholder=@string.Format(Localizer["SearchPlaceholder"], SearchProperties) @bind="@_search" />
@@ -235,9 +235,6 @@
     public Action<int> OnPageChange { get; set; } // a method to be executed in the calling component when the page changes
 
     [Parameter]
-    public string AllowSearch { get; set; } // allow user to search items
-
-    [Parameter]
     public string SearchProperties { get; set; } // comma delimited list of property names to include in search
 
     private IEnumerable<TableItem> ItemList { get; set; }
@@ -249,8 +246,6 @@
 
     protected override void OnParametersSet()
     {
-        AllItems = Items;
-
         if (string.IsNullOrEmpty(Format))
         {
             Format = "Table";
@@ -297,9 +292,9 @@
             }
         }
 
-        if (string.IsNullOrEmpty(AllowSearch) || string.IsNullOrEmpty(SearchProperties))
+        if (!string.IsNullOrEmpty(SearchProperties))
         {
-            AllowSearch = "False";
+            AllItems = Items; // only used in search
         }
 
         if (!string.IsNullOrEmpty(PageSize))
