@@ -9,7 +9,7 @@
     @if (!string.IsNullOrEmpty(SearchProperties))
     {
         <div class="input-group my-3">
-            <input id="search" class="form-control" placeholder=@string.Format(Localizer["SearchPlaceholder"], SearchProperties) @bind="@_search" />
+            <input id="search" class="form-control" placeholder=@string.Format(Localizer["SearchPlaceholder"], FormatSearchProperties()) @bind="@_search" />
             <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>
             <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
         </div>
@@ -415,12 +415,25 @@
 
     private object GetPropertyValue(object obj, string propertyName)
     {
-        var propertyInfo = obj.GetType().GetProperty(propertyName);
-        if (propertyInfo != null)
+        var index = propertyName.IndexOf(".");
+        if (index != -1)
         {
-            return propertyInfo.GetValue(obj);
+            var propertyInfo = obj.GetType().GetProperty(propertyName.Substring(0, index));
+            if (propertyInfo != null)
+            {
+                return GetPropertyValue(propertyInfo.GetValue(obj), propertyName.Substring(index + 1));
+            }
+            return null;
         }
-        return null;
+        else
+        {
+            var propertyInfo = obj.GetType().GetProperty(propertyName);
+            if (propertyInfo != null)
+            {
+                return propertyInfo.GetValue(obj);
+            }
+            return null;
+        }
     }
 
     public void Reset()
@@ -429,5 +442,23 @@
         Items = AllItems;
         _pages = (int)Math.Ceiling(Items.Count() / (decimal)_maxItems);
         UpdateList(1);
+    }
+
+    private string FormatSearchProperties()
+    {
+        var properties = new List<string>();
+        foreach (var property in SearchProperties.Split(',', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var index = property.LastIndexOf(".");
+            if (index != -1)
+            {
+                properties.Add(property.Substring(index + 1));
+            }
+            else
+            {
+                properties.Add(property);
+            }
+        }
+        return string.Join(",", properties);
     }
 }
