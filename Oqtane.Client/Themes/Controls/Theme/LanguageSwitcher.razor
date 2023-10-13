@@ -24,7 +24,7 @@
 @code{
     private IEnumerable<Culture> _supportedCultures;
     [Parameter]
-    public string DropdownAlignment { get; set; } // Empty or Left or Right
+    public string DropdownAlignment { get; set; } = string.Empty; // Empty or Left or Right
     private string MenuAlignment = string.Empty;
 
     protected override void OnParametersSet()
