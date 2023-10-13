@@ -20,7 +20,7 @@ else
 			<ActionLink Action="Add" Text="Add User" Security="SecurityAccessLevel.Edit" ResourceKey="AddUser" />&nbsp;
             <ActionLink Text="Import Users" Class="btn btn-secondary ms-2" Action="Users" Security="SecurityAccessLevel.Admin" ResourceKey="ImportUsers"/>
 
-            <Pager Items="@users" RowClass="align-middle" SearchProperties="Username,Email,DisplayName">
+            <Pager Items="@users" RowClass="align-middle" SearchProperties="User.Username,User.Email,User.DisplayName">
 				<Header>
 					<th style="width: 1px;">&nbsp;</th>
 					<th style="width: 1px;">&nbsp;</th>
