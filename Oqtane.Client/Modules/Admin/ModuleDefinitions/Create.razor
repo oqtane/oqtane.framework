@@ -156,7 +156,7 @@
     private bool IsValidXML(string description)
     {
         // must contain letters, digits, or spaces
-        return Regex.IsMatch(description, "^[A-Za-z0-9 ]+$");
+        return Regex.IsMatch(description, "^[A-Za-z0-9 .,!?]+$");
     }
 
     private void TemplateChanged(ChangeEventArgs e)
