@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Oqtane.Databases.Interfaces;
 using Oqtane.Migrations.EntityBuilders;
 using Oqtane.Repository;
-using Oqtane.Shared;
 
 namespace Oqtane.Migrations.Tenant
 {
