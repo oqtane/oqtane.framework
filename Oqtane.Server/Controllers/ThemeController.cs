@@ -12,7 +12,6 @@ using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using System.Text.Json;
 using System.Net;
-using System.Reflection.Metadata;
 using System;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
