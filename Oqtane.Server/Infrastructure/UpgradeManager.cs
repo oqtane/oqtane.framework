@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
