@@ -8,10 +8,6 @@ using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Security;
 using System.Net;
-using System.Reflection.Metadata;
-using Microsoft.Extensions.Localization;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using System.Linq;
 
 namespace Oqtane.Controllers
 {
