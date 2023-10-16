@@ -32,8 +32,9 @@ namespace Oqtane.Repository
 
         public IEnumerable<File> GetFiles(int folderId, bool tracking)
         {
-            var alias = _tenants.GetAlias();
-            IEnumerable<Permission> permissions = _permissions.GetPermissions(alias.SiteId, EntityNames.Folder, folderId).ToList();
+            var folder = _folderRepository.GetFolder(folderId, false);
+            IEnumerable<Permission> permissions = _permissions.GetPermissions(folder.SiteId, EntityNames.Folder, folderId).ToList();
+
             IEnumerable<File> files;
             if (tracking)
             {
@@ -46,6 +47,7 @@ namespace Oqtane.Repository
             foreach (File file in files)
             {
                 file.Folder.PermissionList = permissions.ToList();
+                var alias = _tenants.GetAlias();
                 file.Url = GetFileUrl(file, alias);
             }
             return files;
