@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Oqtane.Services
 { 
     /// <summary>
-    /// Service to store and retreive notifications (<see cref="Notification"/>)
+    /// Service to store and retrieve notifications (<see cref="Notification"/>)
     /// </summary>
     public interface INotificationService
     {
