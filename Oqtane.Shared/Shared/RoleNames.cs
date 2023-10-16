@@ -1,6 +1,6 @@
-namespace Oqtane.Shared 
+namespace Oqtane.Shared
 {
-    public class RoleNames 
+    public class RoleNames
     {
         public const string Everyone = "All Users";
         public const string Host = "Host Users";
