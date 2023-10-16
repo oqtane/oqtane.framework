@@ -44,7 +44,7 @@ namespace Oqtane.Extensions
                     options.SaveTokens = false;
                     options.GetClaimsFromUserInfoEndpoint = true;
                     options.CallbackPath = string.IsNullOrEmpty(alias.Path) ? "/signin-" + AuthenticationProviderTypes.OpenIDConnect : "/" + alias.Path + "/signin-" + AuthenticationProviderTypes.OpenIDConnect;
-                    options.ResponseType = OpenIdConnectResponseType.Code; // authorization code flow
+                    options.ResponseType = sitesettings.GetValue("ExternalLogin:AuthResponseType", "code"); // authorization code flow
                     options.ResponseMode = OpenIdConnectResponseMode.FormPost; // recommended as most secure
 
                     // cookie config is required to avoid Correlation Failed errors

@@ -73,5 +73,10 @@ namespace Oqtane.Models
         /// Optional RegExp validation expression 
         /// </summary>
         public string Validation { get; set; }
+
+        /// <summary>
+        /// Optional number of rows (textarea)
+        /// </summary>
+        public int Rows { get; set; }
     }
 }

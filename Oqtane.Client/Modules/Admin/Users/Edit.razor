@@ -125,13 +125,27 @@ else
                                 }
                                 else
                                 {
-                                    @if (p.IsRequired)
+                                    @if (p.Rows == 1)
                                     {
-                                        <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                        @if (p.IsRequired)
+                                        {
+                                            <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                        }
+                                        else
+                                        {
+                                            <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                        }
                                     }
                                     else
                                     {
-                                        <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                        @if (p.IsRequired)
+                                        {
+                                            <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))"></textarea>
+                                        }
+                                        else
+                                        {
+                                            <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))"></textarea>
+                                        }
                                     }
                                 }
                             </div>
@@ -240,35 +254,38 @@ else
     {
         try
         {
-            if (username != string.Empty && email != string.Empty && ValidateProfiles())
+            if (username != string.Empty && email != string.Empty)
             {
                 if (_password == confirm)
                 {
-                    var user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
-                    user.SiteId = PageState.Site.SiteId;
-                    user.Username = username;
-                    user.Password = _password;
-                    user.Email = email;
-                    user.DisplayName = string.IsNullOrWhiteSpace(displayname) ? username : displayname;
-                    user.PhotoFileId = null;
-                    user.PhotoFileId = filemanager.GetFileId();
-                    if (user.PhotoFileId == -1)
+                    if (ValidateProfiles())
                     {
+                        var user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
+                        user.SiteId = PageState.Site.SiteId;
+                        user.Username = username;
+                        user.Password = _password;
+                        user.Email = email;
+                        user.DisplayName = string.IsNullOrWhiteSpace(displayname) ? username : displayname;
                         user.PhotoFileId = null;
-                    }
+                        user.PhotoFileId = filemanager.GetFileId();
+                        if (user.PhotoFileId == -1)
+                        {
+                            user.PhotoFileId = null;
+                        }
 
-                    user.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
+                        user.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
 
-                    user = await UserService.UpdateUserAsync(user);
-                    if (user != null)
-                    {
-                        await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
-                        await logger.LogInformation("User Saved {User}", user);
-                        NavigationManager.NavigateTo(NavigateUrl());
-                    }
-                    else
-                    {
-                        AddModuleMessage(Localizer["Message.Password.Complexity"], MessageType.Error);
+                        user = await UserService.UpdateUserAsync(user);
+                        if (user != null)
+                        {
+                            await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
+                            await logger.LogInformation("User Saved {User}", user);
+                            NavigationManager.NavigateTo(NavigateUrl());
+                        }
+                        else
+                        {
+                            AddModuleMessage(Localizer["Message.Password.Complexity"], MessageType.Error);
+                        }
                     }
                 }
                 else
@@ -290,7 +307,6 @@ else
 
     private bool ValidateProfiles()
     {
-        bool valid = true;
         foreach (Profile profile in profiles)
         {
             if (string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)) && !string.IsNullOrEmpty(profile.DefaultValue))
@@ -299,18 +315,24 @@ else
             }
             if (!profile.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
             {
-                if (valid == true && profile.IsRequired && string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)))
+                if (profile.IsRequired && string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)))
                 {
-                    valid = false;
+                    AddModuleMessage(string.Format(SharedLocalizer["ProfileRequired"], profile.Title), MessageType.Warning);
+                    return false;
                 }
-                if (valid == true && !string.IsNullOrEmpty(profile.Validation))
+                if (!string.IsNullOrEmpty(profile.Validation))
                 {
                     Regex regex = new Regex(profile.Validation);
-                    valid = regex.Match(SettingService.GetSetting(settings, profile.Name, string.Empty)).Success;
+                    bool valid = regex.Match(SettingService.GetSetting(settings, profile.Name, string.Empty)).Success;
+                    if (!valid)
+                    {
+                        AddModuleMessage(string.Format(SharedLocalizer["ProfileInvalid"], profile.Title), MessageType.Warning);
+                        return false;
+                    }
                 }
             }
         }
-        return valid;
+        return true;
     }
 
     private void ProfileChanged(ChangeEventArgs e, string SettingName)

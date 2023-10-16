@@ -408,4 +408,31 @@
   <data name="ImportUsers.Text" xml:space="preserve">
     <value>Import Users</value>
   </data>
+  <data name="AuthFlow.Code" xml:space="preserve">
+    <value>code</value>
+  </data>
+  <data name="AuthFlow.CodeIdToken" xml:space="preserve">
+    <value>code id_token</value>
+  </data>
+  <data name="AuthFlow.CodeIdTokenToken" xml:space="preserve">
+    <value>code id_token token</value>
+  </data>
+  <data name="AuthFlow.CodeToken" xml:space="preserve">
+    <value>code token</value>
+  </data>
+  <data name="AuthFlow.IdToken" xml:space="preserve">
+    <value>id_token</value>
+  </data>
+  <data name="AuthFlow.IdTokenToken" xml:space="preserve">
+    <value>id_token token</value>
+  </data>
+  <data name="AuthFlow.None" xml:space="preserve">
+    <value>none</value>
+  </data>
+  <data name="AuthFlow.Token" xml:space="preserve">
+    <value>token</value>
+  </data>
+  <data name="AuthResponseType" xml:space="preserve">
+    <value>Authorization Response Type</value>
+  </data>
 </root>

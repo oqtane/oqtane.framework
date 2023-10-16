@@ -17,21 +17,10 @@ else
 {
     <TabStrip>
         <TabPanel Name="Users" Heading="Users" ResourceKey="Users">
-			<div class="container">
-				<div class="row mb-1 align-items-center">
-					<div class="col-sm-4">
-						<ActionLink Action="Add" Text="Add User" Security="SecurityAccessLevel.Edit" ResourceKey="AddUser" />&nbsp;
-                        <ActionLink Text="Import Users" Class="btn btn-secondary" Action="Users" Security="SecurityAccessLevel.Admin" ResourceKey="ImportUsers"/>                    
-                    </div>
-					<div class="col-sm-4">
-						<input class="form-control" @bind="@_search" />
-					</div>
-					<div class="col-sm-4">
-						<button type="button" class="btn btn-secondary" @onclick="OnSearch">@SharedLocalizer["Search"]</button>
-					</div>
-				</div>
-			</div>
-			<Pager Items="@users" RowClass="align-middle">
+			<ActionLink Action="Add" Text="Add User" Security="SecurityAccessLevel.Edit" ResourceKey="AddUser" />&nbsp;
+            <ActionLink Text="Import Users" Class="btn btn-secondary ms-2" Action="Users" Security="SecurityAccessLevel.Admin" ResourceKey="ImportUsers"/>
+
+            <Pager Items="@users" RowClass="align-middle" SearchProperties="User.Username,User.Email,User.DisplayName">
 				<Header>
 					<th style="width: 1px;">&nbsp;</th>
 					<th style="width: 1px;">&nbsp;</th>
@@ -262,7 +251,22 @@ else
 									<input id="parameters" class="form-control" @bind="@_parameters" />
 								</div>
 							</div>
-							<div class="row mb-1 align-items-center">
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="authresponsetype" HelpText="Specify the authorization response type" ResourceKey="AuthResponseType">Authorization Response Type</Label>
+                                <div class="col-sm-9">
+                                    <select id="authresponsetype" class="form-select" @bind="@_authresponsetype" required>
+                                        <option value="code">@Localizer["AuthFlow.Code"]</option>
+                                        <option value="code id_token">@Localizer["AuthFlow.CodeIdToken"]</option>
+                                        <option value="code id_token token">@Localizer["AuthFlow.CodeIdTokenToken"]</option>
+                                        <option value="code token">@Localizer["AuthFlow.CodeToken"]</option>
+                                        <option value="id_token">@Localizer["AuthFlow.IdToken"]</option>
+                                        <option value="id_token token">@Localizer["AuthFlow.IdTokenToken"]</option>
+                                        <option value="token">@Localizer["AuthFlow.Token"]</option>
+                                        <option value="none">@Localizer["AuthFlow.None"]</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-1 align-items-center">
 								<Label Class="col-sm-3" For="pkce" HelpText="Indicate if the provider supports Proof Key for Code Exchange (PKCE)" ResourceKey="PKCE">Use PKCE?</Label>
 								<div class="col-sm-9">
 									<select id="pkce" class="form-select" @bind="@_pkce" required>
@@ -368,9 +372,7 @@ else
 }
 
 @code {
-    private List<UserRole> allusers;
     private List<UserRole> users;
-    private string _search = "";
 
     private string _allowregistration;
     private string _allowsitelogin;
@@ -400,6 +402,7 @@ else
     private string _scopes;
     private string _parameters;
     private string _pkce;
+    private string _authresponsetype;
     private string _redirecturl;
     private string _identifierclaimtype;
     private string _emailclaimtype;
@@ -423,7 +426,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadUserSettingsAsync();
         await LoadUsersAsync(true);
 
         var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
@@ -458,6 +460,7 @@ else
             _scopes = SettingService.GetSetting(settings, "ExternalLogin:Scopes", "");
             _parameters = SettingService.GetSetting(settings, "ExternalLogin:Parameters", "");
             _pkce = SettingService.GetSetting(settings, "ExternalLogin:PKCE", "false");
+            _authresponsetype = SettingService.GetSetting(settings, "ExternalLogin:AuthResponseType", "code");
             _redirecturl = PageState.Uri.Scheme + "://" + PageState.Alias.Name + "/signin-" + _providertype;
             _identifierclaimtype = SettingService.GetSetting(settings, "ExternalLogin:IdentifierClaimType", "sub");
             _emailclaimtype = SettingService.GetSetting(settings, "ExternalLogin:EmailClaimType", "email");
@@ -478,32 +481,14 @@ else
     {
         if (load)
         {
-            allusers = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Registered);
+            users = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Registered);
             if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
             {
                 var hosts = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Host);
-                allusers.AddRange(hosts);
-                allusers = allusers.OrderBy(u => u.User.DisplayName).ToList();
+                users.AddRange(hosts);
+                users = users.OrderBy(u => u.User.DisplayName).ToList();
             }           
         }
-
-		users = allusers;
-		if (!string.IsNullOrEmpty(_search))
-		{
-			users = users.Where(item =>
-				(
-					item.User.Username.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
-					item.User.Email.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
-					item.User.DisplayName.Contains(_search, StringComparison.OrdinalIgnoreCase)
-				)
-			).ToList();
-		}
-	}
-
-	private async Task OnSearch()
-	{
-		await UpdateUserSettingsAsync();
-		await LoadUsersAsync(false);
 	}
 
 	private async Task DeleteUser(UserRole UserRole)
@@ -524,21 +509,6 @@ else
 			await logger.LogError(ex, "Error Deleting User {User} {Error}", UserRole.User, ex.Message);
 			AddModuleMessage(ex.Message, MessageType.Error);
 		}
-	}
-
-	private string settingSearch = "AU-search";
-
-	private async Task LoadUserSettingsAsync()
-	{
-		Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-		_search = SettingService.GetSetting(settings, settingSearch, "");
-	}
-
-	private async Task UpdateUserSettingsAsync()
-	{
-		Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-		settings = SettingService.SetSetting(settings, settingSearch, _search);
-		await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
 	}
 
 	private async Task SaveSiteSettings()
@@ -579,6 +549,7 @@ else
 				settings = SettingService.SetSetting(settings, "ExternalLogin:Scopes", _scopes, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:Parameters", _parameters, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:PKCE", _pkce, true);
+                settings = SettingService.SetSetting(settings, "ExternalLogin:AuthResponseType", _authresponsetype, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:IdentifierClaimType", _identifierclaimtype, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:EmailClaimType", _emailclaimtype, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:RoleClaimType", _roleclaimtype, true);
