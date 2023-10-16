@@ -1,6 +1,6 @@
-namespace Oqtane.Shared 
+namespace Oqtane.Shared
 {
-    public class ExternalLoginStatus 
+    public class ExternalLoginStatus
     {
         public const string Success = "Success";
         public const string InvalidEmail = "InvalidEmail";
