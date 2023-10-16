@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Oqtane.Documentation;
-using Oqtane.Modules.HtmlText.Models;
 
 namespace Oqtane.Modules.HtmlText.Repository
 {
