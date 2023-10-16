@@ -5,14 +5,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using System.Security;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.Themes;
-using System.Reflection.Metadata;
-using Oqtane.Migrations.Master;
 
 namespace Oqtane.Repository
 {
