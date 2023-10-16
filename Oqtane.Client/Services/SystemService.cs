@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Oqtane.Documentation;
 using Oqtane.Shared;
-using System.Net;
 
 namespace Oqtane.Services
 {
