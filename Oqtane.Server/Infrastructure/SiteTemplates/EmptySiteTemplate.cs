@@ -1,8 +1,6 @@
 using Oqtane.Models;
 using Oqtane.Infrastructure;
 using System.Collections.Generic;
-using Oqtane.Extensions;
-using Oqtane.Repository;
 using Oqtane.Shared;
 using Oqtane.Documentation;
 
