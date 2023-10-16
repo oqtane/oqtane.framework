@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Options;
-using Oqtane.Models;
 using Oqtane.Shared;
 
 namespace Oqtane.Infrastructure
