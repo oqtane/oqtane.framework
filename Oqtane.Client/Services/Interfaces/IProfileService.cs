@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Oqtane.Services
 {
     /// <summary>
-    /// Service to store and retreive <see cref="Profile"/> entries
+    /// Service to store and retrieve <see cref="Profile"/> entries
     /// </summary>
     public interface IProfileService
     {
