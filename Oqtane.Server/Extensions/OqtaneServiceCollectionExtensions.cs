@@ -20,7 +20,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Oqtane.Infrastructure;
 using Oqtane.Managers;
-using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Repository;
 using Oqtane.Security;
