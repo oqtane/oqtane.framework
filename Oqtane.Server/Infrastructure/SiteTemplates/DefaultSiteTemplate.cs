@@ -3,7 +3,6 @@ using Oqtane.Infrastructure;
 using System.Collections.Generic;
 using Oqtane.Repository;
 using Microsoft.AspNetCore.Hosting;
-using Oqtane.Extensions;
 using Oqtane.Shared;
 using System.IO;
 using Oqtane.Documentation;
