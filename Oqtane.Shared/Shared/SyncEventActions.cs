@@ -1,5 +1,7 @@
-namespace Oqtane.Shared {
-    public class SyncEventActions {
+namespace Oqtane.Shared
+{
+    public class SyncEventActions
+    {
         // client actions for PageState management
         public const string Refresh = "Refresh"; 
         public const string Reload = "Reload";
