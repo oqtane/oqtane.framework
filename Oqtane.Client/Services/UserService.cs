@@ -6,9 +6,6 @@ using Oqtane.Documentation;
 using System.Net;
 using System.Collections.Generic;
 using Microsoft.Extensions.Localization;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Oqtane.Modules.Admin.Roles;
-using System.Xml.Linq;
 
 namespace Oqtane.Services
 {
