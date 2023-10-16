@@ -295,6 +295,10 @@
         if (!string.IsNullOrEmpty(SearchProperties))
         {
             AllItems = Items; // only used in search
+            if (!string.IsNullOrEmpty(_search))
+            {
+                Search();
+            }
         }
 
         if (!string.IsNullOrEmpty(PageSize))
