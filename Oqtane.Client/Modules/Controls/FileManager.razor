@@ -42,7 +42,7 @@
                     }
                     else
                     {
-                        if (GetFileId() != -1 && !UploadMultiple)
+                        if (FileId != -1 && _file != null && !UploadMultiple)
                         {
                             <input class="form-control" @bind="@_file.Name" disabled />
                         }
@@ -62,7 +62,7 @@
                             </div>
                             <div class="col mt-2 text-end">
                                 <button type="button" class="btn btn-success" @onclick="UploadFiles">@SharedLocalizer["Upload"]</button>
-                                @if (GetFileId() != -1 && !UploadMultiple)
+                                @if (FileId != -1 && !UploadMultiple)
                                 {
                                     <button type="button" class="btn btn-danger mx-1" @onclick="DeleteFile">@SharedLocalizer["Delete"]</button>
                                 }
