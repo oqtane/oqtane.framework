@@ -96,7 +96,7 @@ namespace Oqtane.Pages
                             }
                             else
                             {
-                                HttpContext.Response.Headers.Add(HeaderNames.ETag, etag);
+                                HttpContext.Response.Headers.Append(HeaderNames.ETag, etag);
                                 return PhysicalFile(filepath, file.GetMimeType());
                             }
                         }
