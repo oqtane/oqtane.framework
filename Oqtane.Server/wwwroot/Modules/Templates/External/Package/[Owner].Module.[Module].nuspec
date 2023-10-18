@@ -20,12 +20,12 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="..\Client\bin\Release\net7.0\[Owner].Module.[Module].Client.Oqtane.dll" target="lib\net7.0" /> 
-    <file src="..\Client\bin\Release\net7.0\[Owner].Module.[Module].Client.Oqtane.pdb" target="lib\net7.0" /> 
-    <file src="..\Server\bin\Release\net7.0\[Owner].Module.[Module].Server.Oqtane.dll" target="lib\net7.0" /> 
-    <file src="..\Server\bin\Release\net7.0\[Owner].Module.[Module].Server.Oqtane.pdb" target="lib\net7.0" /> 
-    <file src="..\Shared\bin\Release\net7.0\[Owner].Module.[Module].Shared.Oqtane.dll" target="lib\net7.0" /> 
-    <file src="..\Shared\bin\Release\net7.0\[Owner].Module.[Module].Shared.Oqtane.pdb" target="lib\net7.0" /> 
+    <file src="..\Client\bin\Release\net8.0\[Owner].Module.[Module].Client.Oqtane.dll" target="lib\net8.0" /> 
+    <file src="..\Client\bin\Release\net8.0\[Owner].Module.[Module].Client.Oqtane.pdb" target="lib\net8.0" /> 
+    <file src="..\Server\bin\Release\net8.0\[Owner].Module.[Module].Server.Oqtane.dll" target="lib\net8.0" /> 
+    <file src="..\Server\bin\Release\net8.0\[Owner].Module.[Module].Server.Oqtane.pdb" target="lib\net8.0" /> 
+    <file src="..\Shared\bin\Release\net8.0\[Owner].Module.[Module].Shared.Oqtane.dll" target="lib\net8.0" /> 
+    <file src="..\Shared\bin\Release\net8.0\[Owner].Module.[Module].Shared.Oqtane.pdb" target="lib\net8.0" /> 
     <file src="..\Server\wwwroot\**\*.*" target="wwwroot" /> 
     <file src="icon.png" target="" />
   </files>
