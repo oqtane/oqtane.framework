@@ -20,8 +20,8 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="..\Client\bin\Release\net7.0\[Owner].Theme.[Theme].Client.Oqtane.dll" target="lib\net7.0" /> 
-    <file src="..\Client\bin\Release\net7.0\[Owner].Theme.[Theme].Client.Oqtane.pdb" target="lib\net7.0" /> 
+    <file src="..\Client\bin\Release\net8.0\[Owner].Theme.[Theme].Client.Oqtane.dll" target="lib\net8.0" /> 
+    <file src="..\Client\bin\Release\net8.0\[Owner].Theme.[Theme].Client.Oqtane.pdb" target="lib\net8.0" /> 
     <file src="..\Client\wwwroot\**\*.*" target="wwwroot" /> 
     <file src="icon.png" target="" />
   </files>
