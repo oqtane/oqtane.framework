@@ -176,9 +176,9 @@ else
                         <Header>
                         <th style="width: 1px;">&nbsp;</th>
                         <th style="width: 1px;">&nbsp;</th>
-                        <th style="text-align: center;">@Localizer["From"]</th>
-                        <th style="text-align: center;">@Localizer["Subject"]</th>
-                        <th style="text-align: center;">@Localizer["Received"]</th>
+                        <th>@Localizer["From"]</th>
+                        <th>@Localizer["Subject"]</th>
+                        <th>@Localizer["Received"]</th>
                         </Header>
                         <Row>
                             <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" /></td>
@@ -237,9 +237,9 @@ else
                         <Header>
                         <th style="width: 1px;"></th>
                         <th style="width: 1px;"></th>
-                        <th style="text-align: center;">@Localizer["To"]</th>
-                        <th style="text-align: center;">@Localizer["Subject"]</th>
-                        <th style="text-align: center;">@Localizer["Sent"]</th>
+                        <th>@Localizer["To"]</th>
+                        <th>@Localizer["Subject"]</th>
+                        <th>@Localizer["Sent"]</th>
                         </Header>
                         <Row>
                             <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" /></td>
