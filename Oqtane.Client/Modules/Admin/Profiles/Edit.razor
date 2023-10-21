@@ -224,6 +224,7 @@
         else
         {
             AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+            // Validation field warning messages
             if (!isNameValid) AddModuleMessage(Localizer["Error.Profile.Name"], MessageType.Warning);
             if (!isTitleValid) AddModuleMessage(Localizer["Error.Profile.Title"], MessageType.Warning);
             if (!isDescriptionValid) AddModuleMessage(Localizer["Error.Profile.Description"], MessageType.Warning);
