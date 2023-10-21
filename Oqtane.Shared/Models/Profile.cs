@@ -77,6 +77,6 @@ namespace Oqtane.Models
         /// <summary>
         /// Optional number of rows (textarea)
         /// </summary>
-        public int Rows { get; set; }
+        public int Rows { get; set; } = 1;
     }
 }
