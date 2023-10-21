@@ -239,8 +239,6 @@ namespace Oqtane.Repository
             { SiteId = site.SiteId, Name = "PostalCode", Title = "Postal Code", Description = "Postal Code Or Zip Code", Category = "Address", ViewOrder = 7, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "", Rows = 1 });
             _profileRepository.AddProfile(new Profile
             { SiteId = site.SiteId, Name = "Phone", Title = "Phone Number", Description = "Phone Number", Category = "Contact", ViewOrder = 8, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "", Rows = 1 });
-            _profileRepository.AddProfile(new Profile
-            { SiteId = site.SiteId, Name = "Biography", Title = "Biography", Description = "Biography", Category = "Personal", ViewOrder = 9, MaxLength = 1000, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "", Rows = 5 });
 
             Folder folder = _folderRepository.AddFolder(new Folder
             {
