@@ -81,7 +81,7 @@
     }
     else
     {
-        if (title == "From")
+        if (title == "From" && !string.IsNullOrWhiteSpace(username) && username != "System")
         {
             <button type="button" class="btn btn-primary" @onclick="Reply">@Localizer["Reply"]</button>
         }
