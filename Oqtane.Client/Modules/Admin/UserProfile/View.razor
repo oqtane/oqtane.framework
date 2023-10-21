@@ -13,13 +13,13 @@
             <label Class="col-sm-3">@Localizer["Title"] </label>
             @if (title == "From")
             {
-                <div class="col-sm-3">
+                <div class="col-sm-9">
                     <input class="form-control" @bind="@username" readonly />
                 </div>
             }
             @if (title == "To")
             {
-                <div class="col-sm-3">
+                <div class="col-sm-9">
                     <input class="form-control" @bind="@username" />
                 </div>
             }
@@ -28,13 +28,13 @@
             <label Class="col-sm-3">@Localizer["Subject"] </label>
             @if (title == "From")
             {
-                <div class="col-sm-3">
+                <div class="col-sm-9">
                     <input class="form-control" @bind="@subject" readonly />
                 </div>
             }
             @if (title == "To")
             {
-                <div class="col-sm-3">
+                <div class="col-sm-9">
                     <input class="form-control" @bind="@subject" />
                 </div>
             }
