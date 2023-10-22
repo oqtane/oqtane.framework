@@ -18,8 +18,8 @@
             <div class="col-sm-9">
                 <input id="title" class="form-control" @bind="_title" maxlength="50" required />
             </div>
-         </div>
-         <div class="row mb-1 align-items-center">
+        </div>
+        <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="description" HelpText="@Localizer["Description.HelpText"]" ResourceKey="Description">@Localizer["Description.Text"]</Label>
             <div class="col-sm-9">
                 <textarea id="description" class="form-control" @bind="_description" rows="3" maxlength="256" required></textarea>
@@ -89,7 +89,7 @@
     <br />
     <button type="button" class="btn btn-success" @onclick="SaveProfile">@SharedLocalizer["Save"]</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-        @if (PageState.QueryString.ContainsKey("id"))
+    @if (PageState.QueryString.ContainsKey("id"))
     {
         <br />
         <br />
