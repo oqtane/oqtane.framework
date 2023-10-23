@@ -8,61 +8,61 @@
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <div class="container">
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="name" HelpText="@Localizer["Name.HelpText"]" ResourceKey="Name">@Localizer["Name.Text"]</Label>
+            <Label Class="col-sm-3" For="name" HelpText="The name of this profile item" ResourceKey="Name">Name: </Label>
             <div class="col-sm-9">
                 <input id="name" class="form-control" @bind="_name" maxlength="50" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="title" HelpText="@Localizer["Title.HelpText"]" ResourceKey="Title">@Localizer["Title.Text"]</Label>
+            <Label Class="col-sm-3" For="title" HelpText="The title of the profile item to display to the user" ResourceKey="Title">Title: </Label>
             <div class="col-sm-9">
                 <input id="title" class="form-control" @bind="_title" maxlength="50" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="description" HelpText="@Localizer["Description.HelpText"]" ResourceKey="Description">@Localizer["Description.Text"]</Label>
+            <Label Class="col-sm-3" For="description" HelpText="The help text displayed to the user for this profile item" ResourceKey="Description">Description: </Label>
             <div class="col-sm-9">
                 <textarea id="description" class="form-control" @bind="_description" rows="3" maxlength="256" required></textarea>
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="category" HelpText="@Localizer["Category.HelpText"]" ResourceKey="Category">@Localizer["Category.Text"]</Label>
+            <Label Class="col-sm-3" For="category" HelpText="The category of this profile item (for grouping)" ResourceKey="Category">Category: </Label>
             <div class="col-sm-9">
                 <input id="category" class="form-control" @bind="_category" maxlength="50" />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="order" HelpText="@Localizer["Order.HelpText"]" ResourceKey="Order">@Localizer["Order.Text"]</Label>
+            <Label Class="col-sm-3" For="order" HelpText="The index order of where this profile item should be displayed" ResourceKey="Order">Order: </Label>
             <div class="col-sm-9">
                 <input id="order" class="form-control" @bind="_vieworder" maxlength="4" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="length" HelpText="@Localizer["Length.HelpText"]" ResourceKey="Length">@Localizer["Length.Text"]</Label>
+            <Label Class="col-sm-3" For="length" HelpText="The max number of characters this profile item should accept (enter zero for unlimited)" ResourceKey="Length">Length: </Label>
             <div class="col-sm-9">
                 <input id="length" class="form-control" @bind="_maxlength" maxlength="4" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="rows" HelpText="@Localizer["Rows.HelpText"]" ResourceKey="Rows">@Localizer["Rows.Text"]</Label>
+            <Label Class="col-sm-3" For="rows" HelpText="The number of rows for text entry (one is the default)" ResourceKey="Rows">Rows: </Label>
             <div class="col-sm-9">
                 <input id="rows" class="form-control" @bind="_rows" maxlength="2" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="defaultVal" HelpText="@Localizer["DefaultValue.HelpText"]" ResourceKey="DefaultValue">@Localizer["DefaultValue.Text"]</Label>
+            <Label Class="col-sm-3" For="defaultVal" HelpText="The default value for this profile item" ResourceKey="DefaultValue">Default Value: </Label>
             <div class="col-sm-9">
                 <input id="defaultVal" class="form-control" @bind="_defaultvalue" maxlength="2000" />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="options" HelpText="@Localizer["Options.HelpText"]" ResourceKey="Options">@Localizer["Options.Text"]</Label>
+            <Label Class="col-sm-3" For="options" HelpText="A comma delimited list of options the user can select from" ResourceKey="Options">Options: </Label>
             <div class="col-sm-9">
                 <input id="options" class="form-control" @bind="_options" maxlength="2000" />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="required" HelpText="@Localizer["Required.HelpText"]" ResourceKey="Required">@Localizer["Required.Text"]</Label>
+            <Label Class="col-sm-3" For="required" HelpText="Should a user be required to provide a value for this profile item?" ResourceKey="Required">Required? </Label>
             <div class="col-sm-9">
                 <select id="required" class="form-select" @bind="_isrequired" required>
                     <option value="True">@SharedLocalizer["Yes"]</option>
@@ -71,13 +71,13 @@
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="validation" HelpText="@Localizer["Validation.HelpText"]" ResourceKey="Validation">@Localizer["Validation.Text"]</Label>
+            <Label Class="col-sm-3" For="validation" HelpText="Optionally provide a regular expression (RegExp) for validating the value entered" ResourceKey="Validation">Validation: </Label>
             <div class="col-sm-9">
-                <input id="validation" class="form-control" @bind="_validation" maxlength="300" />
+                <input id="validation" class="form-control" @bind="_validation" maxlength="200" />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="private" HelpText="@Localizer["Private.HelpText"]" ResourceKey="Private">@Localizer["Private.Text"]</Label>
+            <Label Class="col-sm-3" For="private" HelpText="Should this profile item be visible to all users?" ResourceKey="Private">Private? </Label>
             <div class="col-sm-9">
                 <select id="private" class="form-select" @bind="_isprivate" required>
                     <option value="True">@SharedLocalizer["Yes"]</option>
@@ -89,7 +89,7 @@
     <br />
     <button type="button" class="btn btn-success" @onclick="SaveProfile">@SharedLocalizer["Save"]</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-    @if (PageState.QueryString.ContainsKey("id"))
+        @if (PageState.QueryString.ContainsKey("id"))
     {
         <br />
         <br />
@@ -163,20 +163,12 @@
         validated = true;
         var interop = new Interop(JSRuntime);
 
-        // Validate all fields
-        bool isNameValid = !string.IsNullOrEmpty(_name);
-        bool isTitleValid = !string.IsNullOrEmpty(_title);
-        bool isDescriptionValid = !string.IsNullOrEmpty(_description);
-        bool isCategoryValid = true;  // Add validation logic for the category if needed
         bool isViewOrderValid = int.TryParse(_vieworder, out int viewOrder) && viewOrder >= 0;
         bool isMaxLengthValid = int.TryParse(_maxlength, out int maxLength) && maxLength >= 0;
         bool isRowsValid = int.TryParse(_rows, out int rows) && rows >= 1;
-        bool isDefaultValueValid = true;  // Add validation logic for the default value if needed
-        bool isOptionsValid = true;  // Add validation logic for the options if needed
-        bool isValidationValid = true;  // Add validation logic for the validation if needed
 
-        if (await interop.FormValid(form) && isNameValid && isTitleValid && isDescriptionValid && isCategoryValid &&
-                isViewOrderValid && isMaxLengthValid && isRowsValid && isDefaultValueValid && isOptionsValid && isValidationValid)
+        if (await interop.FormValid(form) && isViewOrderValid && isMaxLengthValid && isRowsValid)
+
         {
             try
             {
@@ -225,16 +217,9 @@
         {
             AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
             // Validation field warning messages
-            if (!isNameValid) AddModuleMessage(Localizer["Error.Profile.Name"], MessageType.Warning);
-            if (!isTitleValid) AddModuleMessage(Localizer["Error.Profile.Title"], MessageType.Warning);
-            if (!isDescriptionValid) AddModuleMessage(Localizer["Error.Profile.Description"], MessageType.Warning);
-            if (!isCategoryValid) AddModuleMessage(Localizer["Error.Profile.Category"], MessageType.Warning);
             if (!isViewOrderValid) AddModuleMessage(Localizer["Error.Profile.ViewOrder"], MessageType.Warning);
             if (!isMaxLengthValid) AddModuleMessage(Localizer["Error.Profile.Length"], MessageType.Warning);
             if (!isRowsValid) AddModuleMessage(Localizer["Error.Profile.Rows"], MessageType.Warning);
-            if (!isDefaultValueValid) AddModuleMessage(Localizer["Error.Profile.DefaultValue"], MessageType.Warning);
-            if (!isOptionsValid) AddModuleMessage(Localizer["Error.Profile.Options"], MessageType.Warning);
-            if (!isValidationValid) AddModuleMessage(Localizer["Error.Profile.Validation"], MessageType.Warning);
         }
     }
 }
