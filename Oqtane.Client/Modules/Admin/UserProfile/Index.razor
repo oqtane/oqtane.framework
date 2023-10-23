@@ -11,18 +11,18 @@
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-@if (PageState.User != null && photo != null)
+@if (_initialized)
 {
-    <img src="@ImageUrl(photofileid, 400, 400)" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
-}
-else
-{
-    <br />
-}
-<TabStrip>
-    <TabPanel Name="Identity" ResourceKey="Identity">
-        @if (profiles != null && settings != null)
-        {
+    @if (PageState.User != null && photo != null)
+    {
+        <img src="@ImageUrl(photofileid, 400, 400)" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
+    }
+    else
+    {
+        <br />
+    }
+    <TabStrip>
+        <TabPanel Name="Identity" ResourceKey="Identity">
             <ModuleMessage Message="@_passwordrequirements" Type="MessageType.Info" />
             <div class="container">
                 <div class="row mb-1 align-items-center">
@@ -33,34 +33,34 @@ else
                 </div>
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="password" HelpText="If you wish to change your password you can enter it here. Please choose a sufficiently secure password." ResourceKey="Password"></Label>
-					<div class="col-sm-9">
+                    <div class="col-sm-9">
                         <div class="input-group">
-						    <input id="password" type="@_passwordtype" class="form-control" @bind="@_password" autocomplete="new-password" />
+                            <input id="password" type="@_passwordtype" class="form-control" @bind="@_password" autocomplete="new-password" />
                             <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
-					    </div>
+                        </div>
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="confirm" HelpText="If you are changing your password you must enter it again to confirm it matches" ResourceKey="Confirm"></Label>
                     <div class="col-sm-9">
                         <div class="input-group">
-							<input id="confirm" type="@_passwordtype" class="form-control" @bind="@confirm" autocomplete="new-password" />
+                            <input id="confirm" type="@_passwordtype" class="form-control" @bind="@confirm" autocomplete="new-password" />
                             <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
-					    </div>
+                        </div>
                     </div>
                 </div>
-				@if (allowtwofactor)
-				{
-					<div class="row mb-1 align-items-center">
-						<Label Class="col-sm-3" For="twofactor" HelpText="Indicates if you are using two factor authentication. Two factor authentication requires you to enter a verification code sent via email after you sign in." ResourceKey="TwoFactor"></Label>
-						<div class="col-sm-9">
-							<select id="twofactor" class="form-select" @bind="@twofactor" required>
-								<option value="True">@SharedLocalizer["Yes"]</option>
-								<option value="False">@SharedLocalizer["No"]</option>
-							</select>
-						</div>
-					</div>
-				}
+                @if (allowtwofactor)
+                {
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="twofactor" HelpText="Indicates if you are using two factor authentication. Two factor authentication requires you to enter a verification code sent via email after you sign in." ResourceKey="TwoFactor"></Label>
+                        <div class="col-sm-9">
+                            <select id="twofactor" class="form-select" @bind="@twofactor" required>
+                                <option value="True">@SharedLocalizer["Yes"]</option>
+                                <option value="False">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
+                    </div>
+                }
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="email" HelpText="Your email address where you wish to receive notifications" ResourceKey="Email"></Label>
                     <div class="col-sm-9">
@@ -83,11 +83,8 @@ else
             <br />
             <button type="button" class="btn btn-success" @onclick="Save">@SharedLocalizer["Save"]</button>
             <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
-        }
-    </TabPanel>
-    <TabPanel Name="Profile" ResourceKey="Profile">
-        @if (profiles != null && settings != null)
-        {
+        </TabPanel>
+        <TabPanel Name="Profile" ResourceKey="Profile">
             <div class="container">
                 <div class="row mb-1 align-items-center">
                     @foreach (Profile profile in profiles)
@@ -104,8 +101,8 @@ else
                             }
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="@p.Name" HelpText="@p.Description">@p.Title</Label>
-                                <div class="col-sm-9">
-                                    @if (!string.IsNullOrEmpty(p.Options))
+                                    <div class="col-sm-9">
+                                        @if (!string.IsNullOrEmpty(p.Options))
                                     {
                                         <select id="@p.Name" class="form-select" @onchange="@(e => ProfileChanged(e, p.Name))">
                                             @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
@@ -154,18 +151,15 @@ else
             </div>
             <button type="button" class="btn btn-success" @onclick="Save">@SharedLocalizer["Save"]</button>
             <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
-        }
-    </TabPanel>
-    <TabPanel Name="Notifications" ResourceKey="Notifications">
-        @if (notifications != null)
-        {
+        </TabPanel>
+        <TabPanel Name="Notifications" ResourceKey="Notifications">
+            <ActionLink Action="Add" Text="Send Notification" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="SendNotification" />
+            <br />
+            <br />
             <select class="form-select" @onchange="(e => FilterChanged(e))">
                 <option value="to">@Localizer["Inbox"]</option>
                 <option value="from">@Localizer["Items.Sent"]</option>
             </select>
-            <br />
-            <ActionLink Action="Add" Text="Send Notification" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="SendNotification" />
-            <br />
             <br />
             @if (filter == "to")
             {
@@ -294,12 +288,14 @@ else
                     </div>
                 }
             }
-        }
-    </TabPanel>
-</TabStrip>
-<br /><br />
+        </TabPanel>
+    </TabStrip>
+    <br />
+    <br />
+}
 
 @code {
+    private bool _initialized = false;
     private string _passwordrequirements;
     private string username = string.Empty;
     private string _password = string.Empty;
@@ -325,15 +321,14 @@ else
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnInitializedAsync()
     {
         try
         {
             _passwordrequirements = await UserService.GetPasswordRequirementsAsync(PageState.Site.SiteId);
-
             _togglepassword = SharedLocalizer["ShowPassword"];
-
             allowtwofactor = (SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:TwoFactor", "false") == "true");
+            profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
 
             if (PageState.User != null)
             {
@@ -360,10 +355,11 @@ else
                     photo = null;
                 }
 
-                profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
                 settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
 
                 await LoadNotificationsAsync();
+
+                _initialized = true;
             }
             else
             {
@@ -463,13 +459,14 @@ else
     {
         foreach (Profile profile in profiles)
         {
-            if (string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)) && !string.IsNullOrEmpty(profile.DefaultValue))
+            var value = GetProfileValue(profile.Name, string.Empty);
+            if (string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(profile.DefaultValue))
             {
                 settings = SettingService.SetSetting(settings, profile.Name, profile.DefaultValue);
             }
             if (!profile.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
             {
-                if (profile.IsRequired && string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)))
+                if (profile.IsRequired && string.IsNullOrEmpty(value))
                 {
                     AddModuleMessage(string.Format(SharedLocalizer["ProfileRequired"], profile.Title), MessageType.Warning);
                     return false;
@@ -477,7 +474,7 @@ else
                 if (!string.IsNullOrEmpty(profile.Validation))
                 {
                     Regex regex = new Regex(profile.Validation);
-                    bool valid = regex.Match(SettingService.GetSetting(settings, profile.Name, string.Empty)).Success;
+                    bool valid = regex.Match(value).Success;
                     if (!valid)
                     {
                         AddModuleMessage(string.Format(SharedLocalizer["ProfileInvalid"], profile.Title), MessageType.Warning);
@@ -528,7 +525,6 @@ else
     private async void FilterChanged(ChangeEventArgs e)
     {
         filter = (string)e.Value;
-
         await LoadNotificationsAsync();
         StateHasChanged();
     }
