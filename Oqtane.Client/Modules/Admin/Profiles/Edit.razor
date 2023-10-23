@@ -34,19 +34,19 @@
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="order" HelpText="The index order of where this profile item should be displayed" ResourceKey="Order">Order: </Label>
             <div class="col-sm-9">
-                <input id="order" class="form-control" @bind="_vieworder" maxlength="4" required />
+                <input id="order" class="form-control" @bind="_vieworder" maxlength="4" type="number" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="length" HelpText="The max number of characters this profile item should accept (enter zero for unlimited)" ResourceKey="Length">Length: </Label>
             <div class="col-sm-9">
-                <input id="length" class="form-control" @bind="_maxlength" maxlength="4" required />
+                <input id="length" class="form-control" @bind="_maxlength" maxlength="4" type="number" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="rows" HelpText="The number of rows for text entry (one is the default)" ResourceKey="Rows">Rows: </Label>
             <div class="col-sm-9">
-                <input id="rows" class="form-control" @bind="_rows" maxlength="2" required />
+                <input id="rows" class="form-control" @bind="_rows" maxlength="2" type="number" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
@@ -163,11 +163,7 @@
         validated = true;
         var interop = new Interop(JSRuntime);
 
-        bool isViewOrderValid = int.TryParse(_vieworder, out int viewOrder) && viewOrder >= 0;
-        bool isMaxLengthValid = int.TryParse(_maxlength, out int maxLength) && maxLength >= 0;
-        bool isRowsValid = int.TryParse(_rows, out int rows) && rows >= 1;
-
-        if (await interop.FormValid(form) && isViewOrderValid && isMaxLengthValid && isRowsValid)
+        if (await interop.FormValid(form))
 
         {
             try
@@ -216,10 +212,6 @@
         else
         {
             AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
-            // Validation field warning messages
-            if (!isViewOrderValid) AddModuleMessage(Localizer["Error.Profile.ViewOrder"], MessageType.Warning);
-            if (!isMaxLengthValid) AddModuleMessage(Localizer["Error.Profile.Length"], MessageType.Warning);
-            if (!isRowsValid) AddModuleMessage(Localizer["Error.Profile.Rows"], MessageType.Warning);
         }
     }
 }
