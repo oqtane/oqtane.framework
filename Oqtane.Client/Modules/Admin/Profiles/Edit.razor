@@ -89,7 +89,7 @@
     <br />
     <button type="button" class="btn btn-success" @onclick="SaveProfile">@SharedLocalizer["Save"]</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-        @if (PageState.QueryString.ContainsKey("id"))
+    @if (PageState.QueryString.ContainsKey("id"))
     {
         <br />
         <br />
