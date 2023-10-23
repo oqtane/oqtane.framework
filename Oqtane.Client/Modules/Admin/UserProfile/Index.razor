@@ -28,14 +28,14 @@ else
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="username" HelpText="Your username. Note that this field can not be modified." ResourceKey="Username"></Label>
                     <div class="col-sm-9">
-                        <input id="username" class="form-control" @bind="@username" readonly />
+                        <input id="username" class="form-control" @bind="username" readonly />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="password" HelpText="If you wish to change your password you can enter it here. Please choose a sufficiently secure password." ResourceKey="Password"></Label>
 					<div class="col-sm-9">
                         <div class="input-group">
-						    <input id="password" type="@_passwordtype" class="form-control" @bind="@_password" autocomplete="new-password" />
+						    <input id="password" type="@_passwordtype" class="form-control" @bind="_password" autocomplete="new-password" />
                             <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
 					    </div>
                     </div>
@@ -44,7 +44,7 @@ else
                     <Label Class="col-sm-3" For="confirm" HelpText="If you are changing your password you must enter it again to confirm it matches" ResourceKey="Confirm"></Label>
                     <div class="col-sm-9">
                         <div class="input-group">
-							<input id="confirm" type="@_passwordtype" class="form-control" @bind="@confirm" autocomplete="new-password" />
+							<input id="confirm" type="@_passwordtype" class="form-control" @bind="confirm" autocomplete="new-password" />
                             <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
 					    </div>
                     </div>
@@ -54,7 +54,7 @@ else
 					<div class="row mb-1 align-items-center">
 						<Label Class="col-sm-3" For="twofactor" HelpText="Indicates if you are using two factor authentication. Two factor authentication requires you to enter a verification code sent via email after you sign in." ResourceKey="TwoFactor"></Label>
 						<div class="col-sm-9">
-							<select id="twofactor" class="form-select" @bind="@twofactor" required>
+							<select id="twofactor" class="form-select" @bind="twofactor" required>
 								<option value="True">@SharedLocalizer["Yes"]</option>
 								<option value="False">@SharedLocalizer["No"]</option>
 							</select>
@@ -64,13 +64,13 @@ else
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="email" HelpText="Your email address where you wish to receive notifications" ResourceKey="Email"></Label>
                     <div class="col-sm-9">
-                        <input id="email" class="form-control" @bind="@email" />
+                        <input id="email" class="form-control" @bind="email" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="displayname" HelpText="Your full name" ResourceKey="DisplayName"></Label>
                     <div class="col-sm-9">
-                        <input id="displayname" class="form-control" @bind="@displayname" />
+                        <input id="displayname" class="form-control" @bind="displayname" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
