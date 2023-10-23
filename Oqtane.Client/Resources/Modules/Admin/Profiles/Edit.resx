@@ -189,32 +189,11 @@
   <data name="Validation.Text" xml:space="preserve">
     <value>Validation: </value>
   </data>
-  <data name="Error.Profile.Category" xml:space="preserve">
-    <value>Category is required.</value>
-  </data>
-  <data name="Error.Profile.DefaultValue" xml:space="preserve">
-    <value>Default Value is invalid.</value>
-  </data>
-  <data name="Error.Profile.Description" xml:space="preserve">
-    <value>Description is required.</value>
-  </data>
   <data name="Error.Profile.Length" xml:space="preserve">
     <value>Max Length must be a number greater than or equal to 0.</value>
   </data>
-  <data name="Error.Profile.Name" xml:space="preserve">
-    <value>Name is required.</value>
-  </data>
-  <data name="Error.Profile.Options" xml:space="preserve">
-    <value>Options are invalid.</value>
-  </data>
   <data name="Error.Profile.Rows" xml:space="preserve">
     <value>Rows must be a number greater than or equal to 1.</value>
-  </data>
-  <data name="Error.Profile.Title" xml:space="preserve">
-    <value>Title is required.</value>
-  </data>
-  <data name="Error.Profile.Validation" xml:space="preserve">
-    <value>Validation is invalid.</value>
   </data>
   <data name="Error.Profile.ViewOrder" xml:space="preserve">
     <value>View Order must be a number greater than or equal to 0.</value>
