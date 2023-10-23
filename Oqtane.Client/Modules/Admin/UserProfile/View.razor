@@ -14,13 +14,13 @@
             @if (title == "From")
             {
                 <div class="col-sm-9">
-                    <input class="form-control" @bind="@username" readonly />
+                    <input class="form-control" @bind="username" readonly />
                 </div>
             }
             @if (title == "To")
             {
                 <div class="col-sm-9">
-                    <input class="form-control" @bind="@username" />
+                    <input class="form-control" @bind="username" />
                 </div>
             }
         </div>
@@ -29,13 +29,13 @@
             @if (title == "From")
             {
                 <div class="col-sm-9">
-                    <input class="form-control" @bind="@subject" readonly />
+                    <input class="form-control" @bind="subject" readonly />
                 </div>
             }
             @if (title == "To")
             {
                 <div class="col-sm-9">
-                    <input class="form-control" @bind="@subject" />
+                    <input class="form-control" @bind="subject" />
                 </div>
             }
         </div>
@@ -46,7 +46,7 @@
             <div class="row mb-1 align-items-center">
                 <label class="col-sm-3">@Localizer["Date"] </label>
                 <div class="col-sm-9">
-                    <input class="form-control" @bind="@createdon" readonly />
+                    <input class="form-control" @bind="createdon" readonly />
                 </div>
             </div>
         }
@@ -55,7 +55,7 @@
                 <div class="row mb-1 align-items-center">
                     <label class="col-sm-3">@Localizer["Message"] </label>
                     <div class="col-sm-9">
-                        <textarea id="txtFrom" class="form-control" @bind="@body" rows="5" readonly />
+                        <textarea id="txtFrom" class="form-control" @bind="body" rows="5" readonly />
                     </div>
                 </div>
 
@@ -66,7 +66,7 @@
                 <div class="row mb-1 align-items-center">
                     <label class="col-sm-3">@Localizer["Message"] </label>
                     <div class="col-sm-9">
-                    <textarea id="txtTo" class="form-control" @bind="@body" rows="5" />
+                    <textarea id="txtTo" class="form-control" @bind="body" rows="5" />
                     </div>
                 </div>
 
@@ -86,14 +86,14 @@
             <button type="button" class="btn btn-primary" @onclick="Reply">@Localizer["Reply"]</button>
         }
     }
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+    <NavLink class="btn btn-secondary" href="@(NavigateUrl() + "?tab=Notifications")">@SharedLocalizer["Cancel"]</NavLink>
     <br />
     <br />
     @if (title == "To")
     {
         <div class="control-group">
             <label class="control-label">@Localizer["OriginalMessage"] </label>
-            <textarea id="txtReply" class="form-control" @bind="@reply" rows="5" readonly />
+            <textarea id="txtReply" class="form-control" @bind="reply" rows="5" readonly />
         </div>
     }
 }
@@ -184,7 +184,7 @@
                 var notification = new Notification(PageState.Site.SiteId, PageState.User, user, subject, body, notificationid);
                 notification = await NotificationService.AddNotificationAsync(notification);
                 await logger.LogInformation("Notification Created {NotificationId}", notification.NotificationId);
-                NavigationManager.NavigateTo(NavigateUrl());
+                NavigationManager.NavigateTo(NavigateUrl() + "?tab=Notifications");
             }
             else
             {
