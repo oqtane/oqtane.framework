@@ -12,25 +12,25 @@
     <div class="row mb-1 align-items-center">
         <Label Class="col-sm-3" For="to" HelpText="Enter the username you wish to send a message to" ResourceKey="To">To: </Label>
         <div class="col-sm-9">
-            <input id="to" class="form-control" @bind="@username" />
+            <input id="to" class="form-control" @bind="username" />
         </div> 
     </div>
     <div class="row mb-1 align-items-center">
         <Label Class="col-sm-3" For="subject" HelpText="Enter the subject of the message" ResourceKey="Subject">Subject: </Label>
         <div class="col-sm-9">
-            <input id="subject" class="form-control" @bind="@subject" />
+            <input id="subject" class="form-control" @bind="subject" />
         </div>
     </div>
     <div class="row mb-1 align-items-center">
         <Label Class="col-sm-3" For="message" HelpText="Enter the message" ResourceKey="Message">Message: </Label>
         <div class="col-sm-9">
-            <textarea id="message" class="form-control" @bind="@body" rows="5" />
+            <textarea id="message" class="form-control" @bind="body" rows="5" />
         </div>
     </div>
 </div>
 <br/>
     <button type="button" class="btn btn-primary" @onclick="Send">@SharedLocalizer["Send"]</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+    <NavLink class="btn btn-secondary" href="@(NavigateUrl() + "?tab=Notifications")">@SharedLocalizer["Cancel"]</NavLink>
 }
 
 @code {
@@ -52,7 +52,7 @@
                 var notification = new Notification(PageState.Site.SiteId, PageState.User, user, subject, body);
                 notification = await NotificationService.AddNotificationAsync(notification);
                 await logger.LogInformation("Notification Created {NotificationId}", notification.NotificationId);
-                NavigationManager.NavigateTo(NavigateUrl());
+                NavigationManager.NavigateTo(NavigateUrl() + "?tab=Notifications");
             }
             else
             {
