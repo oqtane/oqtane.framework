@@ -435,4 +435,10 @@
   <data name="AuthResponseType" xml:space="preserve">
     <value>Authorization Response Type</value>
   </data>
+  <data name="VerifyUsers.HelpText" xml:space="preserve">
+    <value>Do you want existing users to perform an additional email verification step to link their external login? If you disable this option, existing users will be linked automatically.</value>
+  </data>
+  <data name="VerifyUsers.Text" xml:space="preserve">
+    <value>Verify Existing Users?</value>
+  </data>
 </root>
