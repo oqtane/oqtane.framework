@@ -153,7 +153,7 @@
             <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
         </TabPanel>
         <TabPanel Name="Notifications" ResourceKey="Notifications">
-            <ActionLink Action="Add" Text="Send Notification" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="SendNotification" />
+            <ActionLink Action="Add" Text="Send Notification" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="SendNotification" ReturnUrl="@NavigateUrl(PageState.Page.Path, "tab=Notifications")" />
             <br />
             <br />
             <select class="form-select" @onchange="(e => FilterChanged(e))">
@@ -174,7 +174,7 @@
                         <th>@Localizer["Received"]</th>
                         </Header>
                         <Row>
-                            <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" /></td>
+                            <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" ReturnUrl="@NavigateUrl(PageState.Page.Path, "tab=Notifications")" /></td>
                             <td><ActionDialog Header="Delete Notification" Message="Are You Sure You Wish To Delete This Notification?" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" ResourceKey="DeleteNotification" /></td>
 
                             @if (context.IsRead)
@@ -237,7 +237,7 @@
                         <th>@Localizer["Sent"]</th>
                         </Header>
                         <Row>
-                            <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" /></td>
+                            <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" ReturnUrl="@NavigateUrl(PageState.Page.Path, "tab=Notifications")" /></td>
                             <td><ActionDialog Header="Delete Notification" Message="Are You Sure You Wish To Delete This Notification?" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" ResourceKey="DeleteNotification" /></td>
 
                             @if (context.IsRead)
