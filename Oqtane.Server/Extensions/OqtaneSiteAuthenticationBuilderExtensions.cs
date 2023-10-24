@@ -298,6 +298,7 @@ namespace Oqtane.Extensions
                 if (identityuser != null)
                 {
                     user = _users.GetUser(identityuser.UserName);
+                    user.SiteId = alias.SiteId;
                 }
                 else
                 {
@@ -351,7 +352,7 @@ namespace Oqtane.Extensions
                                             _notifications.AddNotification(notification);
 
                                             // add user login
-                                            await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(providerType + ":" + alias.SiteId.ToString(), id, providerName));
+                                            await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(providerType + ":" + user.SiteId.ToString(), id, providerName));
 
                                             _logger.Log(user.SiteId, LogLevel.Information, "ExternalLogin", Enums.LogFunction.Create, "User Added {User}", user);
                                         }
@@ -380,18 +381,38 @@ namespace Oqtane.Extensions
                             var login = logins.FirstOrDefault(item => item.LoginProvider == (providerType + ":" + alias.SiteId.ToString()));
                             if (login == null)
                             {
-                                // new external login using existing user account - verification required
-                                var _notifications = httpContext.RequestServices.GetRequiredService<INotificationRepository>();
-                                string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
-                                string url = httpContext.Request.Scheme + "://" + alias.Name;
-                                url += $"/login?name={identityuser.UserName}&token={WebUtility.UrlEncode(token)}&key={WebUtility.UrlEncode(id)}";
-                                string body = $"You Recently Signed In To Our Site With {providerName} Using The Email Address {email}. ";
-                                body += "In Order To Complete The Linkage Of Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
-                                var notification = new Notification(alias.SiteId, email, email, "External Login Linkage", body);
-                                _notifications.AddNotification(notification);
+                                if (bool.Parse(httpContext.GetSiteSettings().GetValue("ExternalLogin:VerifyUsers", "true")))
+                                {
+                                    // external login using existing user account - verification required
+                                    var _notifications = httpContext.RequestServices.GetRequiredService<INotificationRepository>();
+                                    string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
+                                    string url = httpContext.Request.Scheme + "://" + alias.Name;
+                                    url += $"/login?name={identityuser.UserName}&token={WebUtility.UrlEncode(token)}&key={WebUtility.UrlEncode(id)}";
+                                    string body = $"You Recently Signed In To Our Site With {providerName} Using The Email Address {email}. ";
+                                    body += "In Order To Complete The Linkage Of Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
+                                    var notification = new Notification(alias.SiteId, email, email, "External Login Linkage", body);
+                                    _notifications.AddNotification(notification);
 
-                                identity.Label = ExternalLoginStatus.VerificationRequired;
-                                _logger.Log(alias.SiteId, LogLevel.Information, "ExternalLogin", Enums.LogFunction.Create, "External Login Linkage Verification For Provider {Provider} Sent To {Email}", providerName, email);
+                                    identity.Label = ExternalLoginStatus.VerificationRequired;
+                                    _logger.Log(alias.SiteId, LogLevel.Information, "ExternalLogin", Enums.LogFunction.Create, "External Login Linkage Verification For Provider {Provider} Sent To {Email}", providerName, email);
+                                }
+                                else
+                                {
+                                    // external login using existing user account - link automatically
+                                    user = _users.GetUser(identityuser.UserName);
+                                    user.SiteId = alias.SiteId;
+
+                                    var _notifications = httpContext.RequestServices.GetRequiredService<INotificationRepository>();
+                                    string url = httpContext.Request.Scheme + "://" + alias.Name;
+                                    string body = "You Recently Used An External Account To Sign In To Our Site.\n\n" + url + "\n\nThank You!";
+                                    var notification = new Notification(user.SiteId, user, "User Account Notification", body);
+                                    _notifications.AddNotification(notification);
+
+                                    // add user login
+                                    await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(providerType + ":" + user.SiteId.ToString(), id, providerName));
+
+                                    _logger.Log(user.SiteId, LogLevel.Information, "ExternalLogin", Enums.LogFunction.Create, "External Login Linkage Created For User {Username} And Provider {Provider}", user.Username, providerName);
+                                }
                             }
                             else
                             {
