@@ -10,61 +10,61 @@
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="name" HelpText="The name of this profile item" ResourceKey="Name">Name: </Label>
             <div class="col-sm-9">
-                <input id="name" class="form-control" @bind="_name" maxlength="50" required />
+                <input id="name" class="form-control" @bind="@_name" maxlength="50" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="title" HelpText="The title of the profile item to display to the user" ResourceKey="Title">Title: </Label>
             <div class="col-sm-9">
-                <input id="title" class="form-control" @bind="_title" maxlength="50" required />
+                <input id="title" class="form-control" @bind="@_title" maxlength="50" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="description" HelpText="The help text displayed to the user for this profile item" ResourceKey="Description">Description: </Label>
             <div class="col-sm-9">
-                <textarea id="description" class="form-control" @bind="_description" rows="3" maxlength="256" required></textarea>
+                <textarea id="description" class="form-control" @bind="@_description" rows="3" maxlength="256" required></textarea>
             </div>
         </div>
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="category" HelpText="The category of this profile item (for grouping)" ResourceKey="Category">Category: </Label>
             <div class="col-sm-9">
-                <input id="category" class="form-control" @bind="_category" maxlength="50" />
+                <input id="category" class="form-control" @bind="@_category" maxlength="50" />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="order" HelpText="The index order of where this profile item should be displayed" ResourceKey="Order">Order: </Label>
             <div class="col-sm-9">
-                <input id="order" class="form-control" @bind="_vieworder" maxlength="4" type="number" required />
+                <input id="order" class="form-control" @bind="@_vieworder" maxlength="4" type="number" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="length" HelpText="The max number of characters this profile item should accept (enter zero for unlimited)" ResourceKey="Length">Length: </Label>
             <div class="col-sm-9">
-                <input id="length" class="form-control" @bind="_maxlength" maxlength="4" type="number" required />
+                <input id="length" class="form-control" @bind="@_maxlength" maxlength="4" type="number" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="rows" HelpText="The number of rows for text entry (one is the default)" ResourceKey="Rows">Rows: </Label>
             <div class="col-sm-9">
-                <input id="rows" class="form-control" @bind="_rows" maxlength="2" type="number" required />
+                <input id="rows" class="form-control" @bind="@_rows" maxlength="2" type="number" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="defaultVal" HelpText="The default value for this profile item" ResourceKey="DefaultValue">Default Value: </Label>
             <div class="col-sm-9">
-                <input id="defaultVal" class="form-control" @bind="_defaultvalue" maxlength="2000" />
+                <input id="defaultVal" class="form-control" @bind="@_defaultvalue" maxlength="2000" />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="options" HelpText="A comma delimited list of options the user can select from" ResourceKey="Options">Options: </Label>
             <div class="col-sm-9">
-                <input id="options" class="form-control" @bind="_options" maxlength="2000" />
+                <input id="options" class="form-control" @bind="@_options" maxlength="2000" />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="required" HelpText="Should a user be required to provide a value for this profile item?" ResourceKey="Required">Required? </Label>
             <div class="col-sm-9">
-                <select id="required" class="form-select" @bind="_isrequired" required>
+                <select id="required" class="form-select" @bind="@_isrequired" required>
                     <option value="True">@SharedLocalizer["Yes"]</option>
                     <option value="False">@SharedLocalizer["No"]</option>
                 </select>
@@ -73,13 +73,13 @@
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="validation" HelpText="Optionally provide a regular expression (RegExp) for validating the value entered" ResourceKey="Validation">Validation: </Label>
             <div class="col-sm-9">
-                <input id="validation" class="form-control" @bind="_validation" maxlength="200" />
+                <input id="validation" class="form-control" @bind="@_validation" maxlength="200" />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="private" HelpText="Should this profile item be visible to all users?" ResourceKey="Private">Private? </Label>
             <div class="col-sm-9">
-                <select id="private" class="form-select" @bind="_isprivate" required>
+                <select id="private" class="form-select" @bind="@_isprivate" required>
                     <option value="True">@SharedLocalizer["Yes"]</option>
                     <option value="False">@SharedLocalizer["No"]</option>
                 </select>
