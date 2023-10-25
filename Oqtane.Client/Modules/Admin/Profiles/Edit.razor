@@ -46,7 +46,7 @@
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="rows" HelpText="The number of rows for text entry (one is the default)" ResourceKey="Rows">Rows: </Label>
             <div class="col-sm-9">
-                <input id="rows" class="form-control" @bind="@_rows" maxlength="2" type="number" required />
+                <input id="rows" class="form-control" @bind="@_rows" maxlength="2" type="number" min="1" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
