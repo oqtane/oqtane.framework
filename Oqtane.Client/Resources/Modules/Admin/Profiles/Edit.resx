@@ -187,6 +187,12 @@
     <value>Optionally provide a regular expression (RegExp) for validating the value entered</value>
   </data>
   <data name="Validation.Text" xml:space="preserve">
-    <value>Validation:</value>
+    <value>Validation: </value>
+  </data>
+  <data name="Rows.HelpText" xml:space="preserve">
+    <value>The number of rows for text entry (one is the default)</value>
+  </data>
+  <data name="Rows.Text" xml:space="preserve">
+    <value>Rows: </value>
   </data>
 </root>
