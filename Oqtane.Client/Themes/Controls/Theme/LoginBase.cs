@@ -23,8 +23,23 @@ namespace Oqtane.Themes.Controls
 
         protected void LoginUser()
         {
+            var allowexternallogin = (SettingService.GetSetting(PageState.Site.Settings, "ExternalLogin:ProviderType", "") != "") ? true : false;
+            var allowsitelogin = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AllowSiteLogin", "true"));
+
             Route route = new Route(PageState.Uri.AbsoluteUri, PageState.Alias.Path);
-            NavigationManager.NavigateTo(NavigateUrl("login", "?returnurl=" + WebUtility.UrlEncode(route.PathAndQuery)));
+            var returnurl = WebUtility.UrlEncode(route.PathAndQuery);
+
+            if (allowexternallogin && !allowsitelogin)
+            {
+                // external login
+                NavigationManager.NavigateTo(Utilities.TenantUrl(PageState.Alias, "/pages/external?returnurl=" + returnurl), true);
+            }
+            else
+            {
+                // local login
+                NavigationManager.NavigateTo(NavigateUrl("login", "?returnurl=" + returnurl));
+            }
+
         }
 
         protected async Task LogoutUser()

@@ -233,5 +233,11 @@
   </data>
   <data name="DeleteNotification.Text" xml:space="preserve">
     <value>Delete</value>
-  </data>    
+  </data>
+  <data name="NoNotificationsReceived.Text" xml:space="preserve">
+    <value>No notifications have been received</value>
+  </data>
+  <data name="NoNotificationsSent.Text" xml:space="preserve">
+    <value>No notifications have been sent</value>
+  </data>
 </root>

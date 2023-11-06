@@ -323,7 +323,16 @@ else
 									</select>
 								</div>
 							</div>
-						}
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="verifyusers" HelpText="Do you want existing users to perform an additional email verification step to link their external login? If you disable this option, existing users will be linked automatically." ResourceKey="VerifyUsers">Verify Existing Users?</Label>
+                                <div class="col-sm-9">
+                                    <select id="verifyusers" class="form-select" @bind="@_verifyusers">
+                                        <option value="true">@SharedLocalizer["Yes"]</option>
+                                        <option value="false">@SharedLocalizer["No"]</option>
+                                    </select>
+                                </div>
+                            </div>
+                        }
 					</Section>
 					<Section Name="Token" Heading="Token Settings" ResourceKey="TokenSettings">
 						<div class="row mb-1 align-items-center">
@@ -410,6 +419,7 @@ else
     private string _profileclaimtypes;
     private string _domainfilter;
     private string _createusers;
+    private string _verifyusers;
 
     private string _secret;
     private string _secrettype = "password";
@@ -468,6 +478,7 @@ else
             _profileclaimtypes = SettingService.GetSetting(settings, "ExternalLogin:ProfileClaimTypes", "");
             _domainfilter = SettingService.GetSetting(settings, "ExternalLogin:DomainFilter", "");
             _createusers = SettingService.GetSetting(settings, "ExternalLogin:CreateUsers", "true");
+            _verifyusers = SettingService.GetSetting(settings, "ExternalLogin:VerifyUsers", "true");
 
             _secret = SettingService.GetSetting(settings, "JwtOptions:Secret", "");
             _togglesecret = SharedLocalizer["ShowPassword"];
@@ -556,6 +567,7 @@ else
 				settings = SettingService.SetSetting(settings, "ExternalLogin:ProfileClaimTypes", _profileclaimtypes, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:DomainFilter", _domainfilter, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:CreateUsers", _createusers, true);
+                settings = SettingService.SetSetting(settings, "ExternalLogin:VerifyUsers", _verifyusers, true);
 
 				if (!string.IsNullOrEmpty(_secret) && _secret.Length < 16) _secret = (_secret + "????????????????").Substring(0, 16);
 				settings = SettingService.SetSetting(settings, "JwtOptions:Secret", _secret, true);

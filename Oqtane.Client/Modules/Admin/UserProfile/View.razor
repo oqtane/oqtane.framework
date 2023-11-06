@@ -8,94 +8,71 @@
 
 @if (PageState.User != null)
 {
-    <div class="container">
-        <div class="row mb-1 align-items-center">
-            <label Class="col-sm-3">@Localizer["Title"] </label>
-            @if (title == "From")
-            {
-                <div class="col-sm-3">
-                    <input class="form-control" @bind="@username" readonly />
-                </div>
-            }
-            @if (title == "To")
-            {
-                <div class="col-sm-3">
-                    <input class="form-control" @bind="@username" />
-                </div>
-            }
-        </div>
-        <div class="row mb-1 align-items-center">
-            <label Class="col-sm-3">@Localizer["Subject"] </label>
-            @if (title == "From")
-            {
-                <div class="col-sm-3">
-                    <input class="form-control" @bind="@subject" readonly />
-                </div>
-            }
-            @if (title == "To")
-            {
-                <div class="col-sm-3">
-                    <input class="form-control" @bind="@subject" />
-                </div>
-            }
-        </div>
-    </div>
-    <div class="container">
-        @if (title == "From")
-        {
+    @if (title == "From")
+    {
+        <div class="container">
             <div class="row mb-1 align-items-center">
-                <label class="col-sm-3">@Localizer["Date"] </label>
+                <Label Class="col-sm-3" For="username" HelpText="The user who sent the message" ResourceKey="From">From:</Label>
                 <div class="col-sm-9">
-                    <input class="form-control" @bind="@createdon" readonly />
+                    <input id="username" class="form-control" @bind="@username" readonly />
                 </div>
             </div>
-        }
-        @if (title == "From")
-        {
-                <div class="row mb-1 align-items-center">
-                    <label class="col-sm-3">@Localizer["Message"] </label>
-                    <div class="col-sm-9">
-                        <textarea id="txtFrom" class="form-control" @bind="@body" rows="5" readonly />
-                    </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="subject" HelpText="The subject of the message" ResourceKey="Subject">Subject:</Label>
+                <div class="col-sm-9">
+                    <input id="subject" class="form-control" @bind="@subject" readonly />
                 </div>
-
-        }
-        @if (title == "To")
-        {
-
-                <div class="row mb-1 align-items-center">
-                    <label class="col-sm-3">@Localizer["Message"] </label>
-                    <div class="col-sm-9">
-                    <textarea id="txtTo" class="form-control" @bind="@body" rows="5" />
-                    </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label class="col-sm-3" For="date" HelpText="The date the message was sent" ResourceKey="Date">Sent:</Label>
+                <div class="col-sm-9">
+                    <input id="date" class="form-control" @bind="@createdon" readonly />
                 </div>
-
-        }
-
-    </div>
-
-
-    @if (reply != string.Empty)
-    {
-        <button type="button" class="btn btn-primary" @onclick="Send">@SharedLocalizer["Send"]</button>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label class="col-sm-3" For="message" HelpText="The contents of the message" ResourceKey="Message">Message:</Label>
+                <div class="col-sm-9">
+                    <textarea id="message" class="form-control" @bind="@body" rows="5" readonly />
+                </div>
+            </div>
+        </div>
     }
     else
     {
-        if (title == "From")
-        {
-            <button type="button" class="btn btn-primary" @onclick="Reply">@Localizer["Reply"]</button>
-        }
-    }
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-    <br />
-    <br />
-    @if (title == "To")
-    {
-        <div class="control-group">
-            <label class="control-label">@Localizer["OriginalMessage"] </label>
-            <textarea id="txtReply" class="form-control" @bind="@reply" rows="5" readonly />
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="username" HelpText="The user who will be the recipient of the message" ResourceKey="To">To:</Label>
+                <div class="col-sm-9">
+                    <input id="username" class="form-control" @bind="@username" readonly />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="subject" HelpText="The subject of the message" ResourceKey="Subject">Subject:</Label>
+                <div class="col-sm-9">
+                    <input id="subject" class="form-control" @bind="@subject" readonly="@(!reply)" />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label class="col-sm-3" For="message" HelpText="The content of the message" ResourceKey="Message">Message:</Label>
+                <div class="col-sm-9">
+                    <textarea id="message" class="form-control" @bind="@body" rows="5" readonly="@(!reply)" />
+                </div>
+            </div>
         </div>
     }
+
+    @if (reply)
+    {
+        <button type="button" class="btn btn-primary me-2" @onclick="Send">@SharedLocalizer["Send"]</button>
+    }
+    else
+    {
+        if (title == "From" && username != Localizer["System"])
+        {
+            <button type="button" class="btn btn-primary me-2" @onclick="Reply">@Localizer["Reply"]</button>
+        }
+    }
+    <NavLink class="btn btn-secondary" href="@PageState.ReturnUrl">@SharedLocalizer["Cancel"]</NavLink>
 }
 
 @code {
@@ -105,7 +82,7 @@
     private string subject = string.Empty;
     private string createdon = string.Empty;
     private string body = string.Empty;
-    private string reply = string.Empty;
+    private bool reply = false;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
     public override string Title => "View Notification";
@@ -118,9 +95,6 @@
             Notification notification = await NotificationService.GetNotificationAsync(notificationid);
             if (notification != null)
             {
-                notification.IsRead = true;
-                notification = await NotificationService.UpdateNotificationAsync(notification);
-
                 int userid = -1;
                 if (notification.ToUserId == PageState.User.UserId)
                 {
@@ -148,11 +122,17 @@
                 }
                 if (username == "")
                 {
-                    username = "System";
+                    username = Localizer["System"];
                 }
                 subject = notification.Subject;
                 createdon = notification.CreatedOn.ToString();
                 body = notification.Body;
+
+                if (title == "From")
+                {
+                    notification.IsRead = true;
+                    notification = await NotificationService.UpdateNotificationAsync(notification);
+                }
             }
         }
         catch (Exception ex)
@@ -165,12 +145,16 @@
     private void Reply()
     {
         title = "To";
-        if (!subject.Contains("RE:"))
+        if (!subject.Contains(Localizer["RE:"]))
         {
-            subject = "RE: " + subject;
+            subject = Localizer["RE"] + " " + subject;
         }
-        reply = body;
-        body = "\n\n____________________________________________\nSent: " + createdon + "\nSubject: " + subject + "\n\n" + body;
+        body = $"\n\n____________________________________________\n" +
+            $"{Localizer["From.Text"]} {username}\n" +
+            $"{Localizer["Date.Text"]} {createdon}\n" +
+            $"{Localizer["Subject.Text"]} {subject}\n\n" +
+            body;
+        reply = true;
         StateHasChanged();
     }
 
@@ -184,7 +168,7 @@
                 var notification = new Notification(PageState.Site.SiteId, PageState.User, user, subject, body, notificationid);
                 notification = await NotificationService.AddNotificationAsync(notification);
                 await logger.LogInformation("Notification Created {NotificationId}", notification.NotificationId);
-                NavigationManager.NavigateTo(NavigateUrl());
+                NavigationManager.NavigateTo(PageState.ReturnUrl);
             }
             else
             {

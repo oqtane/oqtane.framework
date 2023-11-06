@@ -126,25 +126,43 @@
   <data name="Error.Notification.Add" xml:space="preserve">
     <value>Error Adding Notification</value>
   </data>
-  <data name="Title" xml:space="preserve">
-    <value>Title:</value>
-  </data>
-  <data name="Subject" xml:space="preserve">
-    <value>Subject:</value>
-  </data>
-  <data name="Date" xml:space="preserve">
-    <value>Date:</value>
-  </data>
-  <data name="Message" xml:space="preserve">
-    <value>Message:</value>
-  </data>
-  <data name="Reply" xml:space="preserve">
-    <value>Reply</value>
-  </data>
-  <data name="OriginalMessage" xml:space="preserve">
-    <value>Original Message</value>
-  </data>
   <data name="View Notification" xml:space="preserve">
     <value>View Notification</value>
+  </data>
+  <data name="Date.HelpText" xml:space="preserve">
+    <value>The date the message was sent</value>
+  </data>
+  <data name="Date.Text" xml:space="preserve">
+    <value>Sent:</value>
+  </data>
+  <data name="From.HelpText" xml:space="preserve">
+    <value>The user who sent the message</value>
+  </data>
+  <data name="From.Text" xml:space="preserve">
+    <value>From:</value>
+  </data>
+  <data name="Message.HelpText" xml:space="preserve">
+    <value>The content of the message</value>
+  </data>
+  <data name="Message.Text" xml:space="preserve">
+    <value>Message:</value>
+  </data>
+  <data name="RE" xml:space="preserve">
+    <value>RE:</value>
+  </data>
+  <data name="Subject.HelpText" xml:space="preserve">
+    <value>The subject of the message</value>
+  </data>
+  <data name="Subject.Text" xml:space="preserve">
+    <value>Subject:</value>
+  </data>
+  <data name="System" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="To.HelpText" xml:space="preserve">
+    <value>The user who will be the recipient of the message</value>
+  </data>
+  <data name="To.Text" xml:space="preserve">
+    <value>To:</value>
   </data>
 </root>
