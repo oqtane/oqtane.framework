@@ -36,10 +36,13 @@
 						</div>
 					</div>
 					<div class="form-group mt-2">
+						@if (!_alwaysremember)
+						{
 						<div class="form-check">
 							<input id="remember" type="checkbox" class="form-check-input" @bind="@_remember" />
 							<Label Class="control-label" For="remember" HelpText="Specify if you would like to be signed back in automatically the next time you visit this site" ResourceKey="Remember">Remember Me?</Label>
 						</div>
+						}
 					</div>
 					<button type="button" class="btn btn-primary" @onclick="Login">@SharedLocalizer["Login"]</button>
 					<button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
@@ -78,6 +81,7 @@
     private string _passwordtype = "password";
     private string _togglepassword = string.Empty;
     private bool _remember = false;
+    private bool _alwaysremember = false;
     private string _code = string.Empty;
 
     private string _returnUrl = string.Empty;
@@ -151,6 +155,10 @@
                     AddModuleMessage(Localizer["ExternalLoginStatus." + PageState.QueryString["status"]], MessageType.Info);
                 }
             }
+            if (PageState.Site.Settings.TryGetValue("LoginOptions:AlwaysRemember", out string alwaysRememberStr))
+            {
+                _alwaysremember = Convert.ToBoolean(alwaysRememberStr);
+            }
         }
         catch (Exception ex)
         {
@@ -185,7 +193,14 @@
                 var user = new User { SiteId = PageState.Site.SiteId, Username = _username, Password = _password, LastIPAddress = SiteState.RemoteIPAddress};
 
                 if (!twofactor)
-                {
+                { 
+                    bool alwaysRemember = false;
+                    if (PageState.Site.Settings.TryGetValue("LoginOptions:AlwaysRemember", out string alwaysRememberStr))
+                    {
+                        alwaysRemember = Convert.ToBoolean(alwaysRememberStr);
+                    }
+                    bool remember = alwaysRemember || _remember;
+                    _remember = remember;
                     user = await UserService.LoginUserAsync(user, hybrid, _remember);
                 }
                 else
