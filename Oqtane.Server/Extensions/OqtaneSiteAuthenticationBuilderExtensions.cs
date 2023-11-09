@@ -31,6 +31,12 @@ namespace Oqtane.Extensions
             builder.AddSiteNamedOptions<CookieAuthenticationOptions>(Constants.AuthenticationScheme, (options, alias, sitesettings) =>
             {
                 options.Cookie.Name = sitesettings.GetValue("LoginOptions:CookieName", ".AspNetCore.Identity.Application");
+                string cookieExpStr = sitesettings.GetValue("LoginOptions:CookieExpiration", "");
+                if (!string.IsNullOrEmpty(cookieExpStr) && TimeSpan.TryParse(cookieExpStr, out TimeSpan cookieExpTS))
+                {
+                    options.Cookie.Expiration = cookieExpTS;
+                    options.ExpireTimeSpan = cookieExpTS;
+                }
             });
 
             // site OpenId Connect options
