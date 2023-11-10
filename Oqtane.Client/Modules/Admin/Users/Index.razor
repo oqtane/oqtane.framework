@@ -99,15 +99,15 @@ else
 							</div>
 						</div>
 						<div class="row mb-1 align-items-center">
-							<Label Class="col-sm-3" For="cookieexpiration" HelpText="You can choose to use a custom authentication cookie expiration timespan for each site (e.g. '08:00:00' for 8 hours). Default is 14 days if not declared." ResourceKey="CookieExpiration">Cookie Expiration Timespan:</Label>
+                            <Label Class="col-sm-3" For="cookieexpiration" HelpText="You can choose to use a custom authentication cookie expiration timespan for each site (e.g. '08:00:00' for 8 hours). The default is 14 days if not specified." ResourceKey="CookieExpiration">Cookie Expiration Timespan:</Label>
 							<div class="col-sm-9">
 								<input id="cookieexpiration" class="form-control" @bind="@_cookieexpiration" />
 							</div>
 						</div>
 						<div class="row mb-1 align-items-center">
-							<Label Class="col-sm-3" For="alwaysremember" HelpText="Automatically sign in users the next time they visit the site (Remebered for the timespan defined in setting 'Cookie Expiration Timespan' or 14 days if not defined). Forces cookie expiration instead of session timespan." ResourceKey="AlwaysRemember">Always Remember User:</Label>
+                            <Label Class="col-sm-3" For="alwaysremember" HelpText="Enabling this option will set a permanent cookie in conjunction with the Cookie Expiration Timespan, which will automatically sign in users the next time they visit the site. By default the site will use session cookies." ResourceKey="AlwaysRemember">Always Remember User?</Label>
 							<div class="col-sm-9">
-								<select id="allowsitelogin" class="form-select" @bind="@_alwaysremember">
+                                <select id="alwaysremember" class="form-select" @bind="@_alwaysremember">
 									<option value="true">@SharedLocalizer["Yes"]</option>
 									<option value="false">@SharedLocalizer["No"]</option>
 								</select>
