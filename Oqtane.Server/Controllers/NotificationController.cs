@@ -179,7 +179,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public Notification Put(int id, [FromBody] Notification notification)
         {
-            if (ModelState.IsValid && notification.SiteId == _alias.SiteId && _notifications.GetNotification(notification.NotificationId, false) != null && IsAuthorized(notification.FromUserId))
+            if (ModelState.IsValid && notification.SiteId == _alias.SiteId && _notifications.GetNotification(notification.NotificationId, false) != null && (IsAuthorized(notification.FromUserId) || IsAuthorized(notification.ToUserId)))
             {
                 notification = _notifications.UpdateNotification(notification);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Notification, notification.NotificationId, SyncEventActions.Update);

@@ -2,7 +2,6 @@
 @inject IInstallationService InstallationService
 @inject IJSRuntime JSRuntime
 @inject SiteState SiteState
-@inject IServiceProvider ServiceProvider
 
 @if (_initialized)
 {
@@ -56,23 +55,11 @@
 
     private PageState PageState { get; set; }
 
-    private IHttpContextAccessor accessor;
-
     protected override async Task OnParametersSetAsync()
     {
         SiteState.RemoteIPAddress = RemoteIPAddress;
         SiteState.AntiForgeryToken = AntiForgeryToken;
         SiteState.AuthorizationToken = AuthorizationToken;
-
-        accessor = (IHttpContextAccessor)ServiceProvider.GetService(typeof(IHttpContextAccessor));
-        if (accessor != null)
-        {
-            SiteState.IsPrerendering = !accessor.HttpContext.Response.HasStarted;
-        }
-        else
-        {
-            SiteState.IsPrerendering = true;
-        }
 
         _installation = await InstallationService.IsInstalled();
         if (_installation.Alias != null)

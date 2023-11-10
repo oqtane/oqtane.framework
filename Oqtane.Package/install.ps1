@@ -1,1 +1,1 @@
-Compress-Archive -Path "..\Oqtane.Server\bin\Release\net7.0\publish\*" -DestinationPath "Oqtane.Framework.4.0.6.Install.zip" -Force 
+Compress-Archive -Path "..\Oqtane.Server\bin\Release\net8.0\publish\*" -DestinationPath "Oqtane.Framework.5.0.0.Install.zip" -Force 

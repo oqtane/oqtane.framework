@@ -9,7 +9,6 @@ namespace Oqtane.Shared
         public string AntiForgeryToken { get; set; } // passed from server for use in service calls on client
         public string AuthorizationToken { get; set; } // passed from server for use in service calls on client
         public string RemoteIPAddress { get; set; } // passed from server as cannot be reliably retrieved on client
-        public bool IsPrerendering{ get; set; } 
 
         private dynamic _properties;
         public dynamic Properties => _properties ?? (_properties = new PropertyDictionary());
