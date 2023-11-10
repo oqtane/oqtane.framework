@@ -168,12 +168,6 @@
   <data name="Password.Text" xml:space="preserve">
     <value>Password:</value>
   </data>
-  <data name="Photo.HelpText" xml:space="preserve">
-    <value>A photo of the user</value>
-  </data>
-  <data name="Photo.Text" xml:space="preserve">
-    <value>Photo:</value>
-  </data>
   <data name="Username.HelpText" xml:space="preserve">
     <value>The unique username for a user. Note that this field can not be modified.</value>
   </data>

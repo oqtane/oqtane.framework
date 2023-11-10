@@ -52,12 +52,6 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="@photofileid.ToString()" HelpText="A photo of the user" ResourceKey="Photo"></Label>
-                    <div class="col-sm-9">
-                        <FileManager FileId="@photofileid" @ref="filemanager" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="isdeleted" HelpText="Indicate if the user is active" ResourceKey="IsDeleted"></Label>
                     <div class="col-sm-9">
                         <select id="isdeleted" class="form-select" @bind="@isdeleted">
@@ -149,8 +143,6 @@
     private string confirm = string.Empty;
     private string email = string.Empty;
     private string displayname = string.Empty;
-    private FileManager filemanager;
-    private int photofileid = -1;
     private string isdeleted;
     private string lastlogin;
     private string lastipaddress;
@@ -185,14 +177,6 @@
                     username = user.Username;
                     email = user.Email;
                     displayname = user.DisplayName;
-                    if (user.PhotoFileId != null)
-                    {
-                        photofileid = user.PhotoFileId.Value;
-                    }
-                    else
-                    {
-                        photofileid = -1;
-                    }
                     isdeleted = user.IsDeleted.ToString();
                     lastlogin = string.Format("{0:MMM dd yyyy HH:mm:ss}", user.LastLoginOn);
                     lastipaddress = user.LastIPAddress;
@@ -243,7 +227,6 @@
                         user.Email = email;
                         user.DisplayName = string.IsNullOrWhiteSpace(displayname) ? username : displayname;
                         user.PhotoFileId = null;
-                        user.PhotoFileId = filemanager.GetFileId();
                         if (user.PhotoFileId == -1)
                         {
                             user.PhotoFileId = null;
