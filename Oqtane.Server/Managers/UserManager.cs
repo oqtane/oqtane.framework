@@ -184,7 +184,6 @@ namespace Oqtane.Managers
             IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
             if (identityuser != null)
             {
-                identityuser.Email = user.Email;
                 var valid = true;
                 if (!string.IsNullOrEmpty(user.Password))
                 {
@@ -201,6 +200,13 @@ namespace Oqtane.Managers
                     if (!string.IsNullOrEmpty(user.Password))
                     {
                         await _identityUserManager.UpdateAsync(identityuser); // requires password to be provided
+                    }
+
+                    if (user.Email != identityuser.Email)
+                    {
+                        await _identityUserManager.SetEmailAsync(identityuser, user.Email);
+                        var emailConfirmationToken = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
+                        await _identityUserManager.ConfirmEmailAsync(identityuser, emailConfirmationToken);
                     }
 
                     user = _users.UpdateUser(user);
