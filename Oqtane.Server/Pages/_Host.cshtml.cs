@@ -128,11 +128,6 @@ namespace Oqtane.Pages
                             RenderMode = site.RenderMode;
                         }
  
-                        if (site.VisitorTracking)
-                        {
-                            TrackVisitor(site.SiteId);
-                        }
-
                         var page = _pages.GetPage(route.PagePath, site.SiteId);
                         if (page == null && route.PagePath == "" && site.HomePageId != null)
                         {
@@ -154,6 +149,11 @@ namespace Oqtane.Pages
                                     return RedirectPermanent(route.SiteUrl + "/404");
                                 }
                             }
+                        }
+
+                        if (site.VisitorTracking)
+                        {
+                            TrackVisitor(site.SiteId);
                         }
 
                         // get jwt token for downstream APIs
