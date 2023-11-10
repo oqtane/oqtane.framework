@@ -49,8 +49,8 @@
                     }
                     @if (ShowUpload && _haseditpermission)
                     {
-                        <div class="row">
-                            <div class="col mt-2">
+                        <div class="row mt-2">
+                            <div class="col">
                                 @if (UploadMultiple)
                                 {
                                     <input type="file" id="@_fileinputid" name="file" accept="@_filter" multiple />
@@ -60,7 +60,7 @@
                                     <input type="file" id="@_fileinputid" name="file" accept="@_filter" />
                                 }
                             </div>
-                            <div class="col mt-2 text-end">
+                            <div class="col-auto">
                                 <button type="button" class="btn btn-success" @onclick="UploadFiles">@SharedLocalizer["Upload"]</button>
                                 @if (FileId != -1 && !UploadMultiple)
                                 {
