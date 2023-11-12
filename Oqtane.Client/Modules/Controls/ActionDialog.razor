@@ -14,7 +14,21 @@
                         <button type="button" class="btn-close" aria-label="Close" @onclick="DisplayModal"></button>
                     </div>
                     <div class="modal-body">
-                        <p>@Message</p>
+                        @if (ShowTextBox)
+                        {
+                            <div class="container">
+                                <div class="row mb-1 align-items-center">
+                                    <Label Class="col-sm-3" For="input" HelpText="@Message" ResourceKey="OwnerName">@TextBoxLabel: </Label>
+                                    <div class="col-sm-9">
+                                        <input id="input" class="form-control" @bind="@_input" />
+                                    </div>
+                                </div>
+                            </div>
+                        } 
+                        else
+                        {
+                            <p>@Message</p>
+                        }
                     </div>
                     <div class="modal-footer">
                         @if (!string.IsNullOrEmpty(Action))
@@ -42,10 +56,11 @@
 
 @code {
     private bool _visible = false;
-	private List<Permission> _permissions;
+    private List<Permission> _permissions;
     private bool _editmode = false;
     private bool _authorized = false;
     private string _iconSpan = string.Empty;
+    private string _input = string.Empty;
 
     [Parameter]
     public string Header { get; set; } // required
@@ -55,6 +70,12 @@
 
     [Parameter]
     public string Text { get; set; } // optional - defaults to Action if not specified
+
+    [Parameter]
+    public bool ShowTextBox { get; set; } = false; // optional - specifies if the TextBox should be displayed in the dialog - default is false
+
+    [Parameter]
+    public string TextBoxLabel { get; set; } // optional - specifies if the TextBox should be displayed in the dialog - default is false
 
     [Parameter]
     public string Action { get; set; } // optional
@@ -82,6 +103,9 @@
 
     [Parameter]
     public string IconName { get; set; } // optional - specifies an icon for the link - default is no icon
+
+    [Parameter]
+    public EventCallback<string> OnClose { get; set; } // optional - executes a method in the calling component when the Modal is Closed
 
 	protected override void OnInitialized()
 	{
@@ -178,9 +202,10 @@
         StateHasChanged();
     }
 
-    private void Confirm()
+    private async Task Confirm()
     {
         DisplayModal();
+        await OnClose.InvokeAsync(_input);
         OnClick();
     }
 }
