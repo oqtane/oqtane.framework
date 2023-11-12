@@ -98,6 +98,21 @@ else
 								<input id="cookiename" class="form-control" @bind="@_cookiename" />
 							</div>
 						</div>
+						<div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="cookieexpiration" HelpText="You can choose to use a custom authentication cookie expiration timespan for each site (e.g. '08:00:00' for 8 hours). The default is 14 days if not specified." ResourceKey="CookieExpiration">Cookie Expiration Timespan:</Label>
+							<div class="col-sm-9">
+								<input id="cookieexpiration" class="form-control" @bind="@_cookieexpiration" />
+							</div>
+						</div>
+						<div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="alwaysremember" HelpText="Enabling this option will set a permanent cookie in conjunction with the Cookie Expiration Timespan, which will automatically sign in users the next time they visit the site. By default the site will use session cookies." ResourceKey="AlwaysRemember">Always Remember User?</Label>
+							<div class="col-sm-9">
+                                <select id="alwaysremember" class="form-select" @bind="@_alwaysremember">
+									<option value="true">@SharedLocalizer["Yes"]</option>
+									<option value="false">@SharedLocalizer["No"]</option>
+								</select>
+							</div>
+						</div>
 					}
 				</Section>
 				@if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
@@ -387,6 +402,8 @@ else
     private string _allowsitelogin;
     private string _twofactor;
     private string _cookiename;
+    private string _cookieexpiration;
+    private string _alwaysremember;
 
     private string _minimumlength;
     private string _uniquecharacters;
@@ -446,6 +463,8 @@ else
         {
             _twofactor = SettingService.GetSetting(settings, "LoginOptions:TwoFactor", "false");
             _cookiename = SettingService.GetSetting(settings, "LoginOptions:CookieName", ".AspNetCore.Identity.Application");
+            _cookieexpiration = SettingService.GetSetting(settings, "LoginOptions:CookieExpiration", "");
+            _alwaysremember = SettingService.GetSetting(settings, "LoginOptions:AlwaysRemember", "false");
 
             _minimumlength = SettingService.GetSetting(settings, "IdentityOptions:Password:RequiredLength", "6");
             _uniquecharacters = SettingService.GetSetting(settings, "IdentityOptions:Password:RequiredUniqueChars", "1");
@@ -537,6 +556,8 @@ else
 			{
 				settings = SettingService.SetSetting(settings, "LoginOptions:TwoFactor", _twofactor, false);
 				settings = SettingService.SetSetting(settings, "LoginOptions:CookieName", _cookiename, true);
+				settings = SettingService.SetSetting(settings, "LoginOptions:CookieExpiration", _cookieexpiration, true);
+				settings = SettingService.SetSetting(settings, "LoginOptions:AlwaysRemember", _alwaysremember, false);
 
 				settings = SettingService.SetSetting(settings, "IdentityOptions:Password:RequiredLength", _minimumlength, true);
 				settings = SettingService.SetSetting(settings, "IdentityOptions:Password:RequiredUniqueChars", _uniquecharacters, true);

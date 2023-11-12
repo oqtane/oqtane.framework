@@ -132,9 +132,6 @@
   <data name="Theme.Select" xml:space="preserve">
     <value>Select Theme</value>
   </data>
-  <data name="DefaultContainer.Admin" xml:space="preserve">
-    <value>Default Admin Container</value>
-  </data>
   <data name="Aliases.HelpText" xml:space="preserve">
     <value>The urls for the site (comman delimited). This can include domain names (ie. domain.com), subdomains (ie. sub.domain.com) or a virtual folder (ie. domain.com/folder).</value>
   </data>
@@ -183,9 +180,6 @@
   <data name="DefaultTheme.HelpText" xml:space="preserve">
     <value>Select the default theme for the site</value>
   </data>
-  <data name="AdminContainer.HelpText" xml:space="preserve">
-    <value>Select the admin container for the site</value>
-  </data>
   <data name="SiteTemplate.HelpText" xml:space="preserve">
     <value>Select the site template</value>
   </data>
@@ -206,9 +200,6 @@
   </data>
   <data name="Name.Text" xml:space="preserve">
     <value>Site Name: </value>
-  </data>
-  <data name="AdminContainer.Text" xml:space="preserve">
-    <value>Admin Container: </value>
   </data>
   <data name="SiteTemplate.Text" xml:space="preserve">
     <value>Site Template: </value>
