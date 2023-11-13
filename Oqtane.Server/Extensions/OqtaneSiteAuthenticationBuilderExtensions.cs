@@ -213,6 +213,14 @@ namespace Oqtane.Extensions
             // pass properties to OnTicketReceived
             context.Properties.SetParameter("status", identity.Label);
             context.Properties.SetParameter("redirecturl", context.Properties.RedirectUri);
+
+            // set cookie expiration
+            string cookieExpStr = context.HttpContext.GetSiteSettings().GetValue("LoginOptions:CookieExpiration", "");
+            if (!string.IsNullOrEmpty(cookieExpStr) && TimeSpan.TryParse(cookieExpStr, out TimeSpan cookieExpTS))
+            {
+                context.Properties.ExpiresUtc = DateTime.Now.Add(cookieExpTS);
+                context.Properties.IsPersistent = true;
+            }
         }
 
         private static Task OnTicketReceived(TicketReceivedContext context)
