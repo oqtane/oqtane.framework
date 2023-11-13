@@ -251,10 +251,14 @@ namespace Oqtane.Infrastructure
                         string filepath = asset.StartsWith("\\") ? Path.Combine(_environment.ContentRootPath, asset.Substring(1)) : asset;
                         if (File.Exists(filepath))
                         {
-                            File.Delete(filepath);
-                            if (!Directory.EnumerateFiles(Path.GetDirectoryName(filepath)).Any())
+                            // do not remove licensing assemblies - this is a temporary fix until a more robust dependency management solution is available
+                            if (!filepath.Contains("Oqtane.Licensing."))
                             {
-                                Directory.Delete(Path.GetDirectoryName(filepath), true);
+                                File.Delete(filepath);
+                                if (!Directory.EnumerateFiles(Path.GetDirectoryName(filepath)).Any())
+                                {
+                                    Directory.Delete(Path.GetDirectoryName(filepath), true);
+                                }
                             }
                         }
                     }
