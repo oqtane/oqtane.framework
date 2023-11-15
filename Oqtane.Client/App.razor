@@ -49,6 +49,9 @@
     [Parameter]
     public string AuthorizationToken { get; set; }
 
+    [CascadingParameter]
+    HttpContext HttpContext { get; set; }
+
     private bool _initialized = false;
     private string _display = "display: none;";
     private Installation _installation = new Installation { Success = false, Message = "" };
@@ -60,6 +63,7 @@
         SiteState.RemoteIPAddress = RemoteIPAddress;
         SiteState.AntiForgeryToken = AntiForgeryToken;
         SiteState.AuthorizationToken = AuthorizationToken;
+        SiteState.IsPrerendering = (HttpContext != null) ? true : false;
 
         _installation = await InstallationService.IsInstalled();
         if (_installation.Alias != null)
