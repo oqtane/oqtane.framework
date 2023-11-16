@@ -19,8 +19,8 @@
     <files>
         <file src="bin\net8.0\Oqtane.Database.MySQL.dll" target="lib\net8.0" />
         <file src="bin\net8.0\Oqtane.Database.MySQL.pdb" target="lib\net8.0" />
-        <file src="bin\net8.0\Mysql.EntityFrameworkCore.dll" target="lib\net8.0" />
-        <file src="bin\net8.0\Mysql.Data.dll" target="lib\net8.0" />
+        <file src="bin\net8.0\MySql.EntityFrameworkCore.dll" target="lib\net8.0" />
+        <file src="bin\net8.0\MySql.Data.dll" target="lib\net8.0" />
         <file src="icon.png" target="" />
     </files>
 </package>

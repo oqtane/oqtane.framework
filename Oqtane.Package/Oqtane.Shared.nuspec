@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>Oqtane.Shared</id>
@@ -19,6 +19,7 @@
   <files>
     <file src="..\Oqtane.Shared\bin\Release\net8.0\Oqtane.Shared.dll" target="lib\net8.0" /> 
     <file src="..\Oqtane.Shared\bin\Release\net8.0\Oqtane.Shared.pdb" target="lib\net8.0" /> 
+    <file src="..\Oqtane.Server\bin\Release\net8.0\Oqtane.Licensing.Shared.Oqtane.dll" target="lib\net8.0" /> 
     <file src="icon.png" target="" />
   </files>
 </package>

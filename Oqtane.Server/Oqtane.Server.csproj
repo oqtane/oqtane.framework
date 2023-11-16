@@ -46,6 +46,7 @@
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.7-pre20231110210158" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.0" />
+    <PackageReference Include="Oqtane.Licensing" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Oqtane.Client\Oqtane.Client.csproj" />
