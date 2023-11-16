@@ -30,6 +30,7 @@
   
   <ItemGroup>
     <PackageReference Include="MySql.EntityFrameworkCore" Version="8.0.0-preview" />
+    <PackageReference Include="MySql.Data" Version="8.2.0" />
   </ItemGroup>
 
   <ItemGroup>
