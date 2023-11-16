@@ -1,6 +1,6 @@
 # Latest Release
 
-[4.0.6](https://github.com/oqtane/oqtane.framework/releases/tag/v4.0.6) was released on Oct 16, 2023 and is primarily focused on stabilization. This release includes 34 pull requests by 5 different contributors, pushing the total number of project commits all-time to over 4200. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
+[5.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v5.0.0) was released on Nov 16, 2023 and is a major release targeted at .NET 8. This release includes 45 pull requests by 4 different contributors, pushing the total number of project commits all-time to over 4300. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Foqtane%2Foqtane.framework%2Fmaster%2Fazuredeploy.json)
 
@@ -16,11 +16,11 @@ Please note that this project is owned by the .NET Foundation and is governed by
 
 # Getting Started
 
-**Using Version 4:**
+**Using Version 5:**
 
-- Install **[.NET 7 SDK](https://dotnet.microsoft.com/download/dotnet/7.0)**.
+- Install **[.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)**.
    
-- Install the latest edition (v17.0 or higher) of [Visual Studio 2022](https://visualstudio.microsoft.com/vs/preview/#download-preview) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you wish to use LocalDB for development ( not a requirement as Oqtane supports SQLite, mySQL, and PostgreSQL ) you must also install the **Data storage and processing**.  
+- Install the latest edition (v17.8 or higher) of [Visual Studio 2022](https://visualstudio.microsoft.com/downloads) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you wish to use LocalDB for development ( not a requirement as Oqtane supports SQLite, mySQL, and PostgreSQL ) you must also install the **Data storage and processing**.  
 
 - clone the Oqtane dev branch source code to your local system. Open the **Oqtane.sln** solution file and Build the solution. Make sure you specify Oqtane.Server as the Startup Project and then Run the application.
 
@@ -50,8 +50,8 @@ Backlog (TBD)
 - [ ] Folder Providers
 - [ ] Generative AI Integration
 
-5.0.0 (Q4 2023)
-- [ ] Migration to .NET 8
+[5.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v5.0.0) (Nov 16, 2023)
+- [x] Migration to .NET 8
 
 [4.0.6](https://github.com/oqtane/oqtane.framework/releases/tag/v4.0.6) ( Oct 16, 2023 )
 - [x] Stabilization improvements
