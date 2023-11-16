@@ -9,18 +9,10 @@
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-@if (PageState.User != null && photo != null)
+@if (_initialized)
 {
-    <img src="@photo.Url" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
-}
-else
-{
-    <br />
-}
-<TabStrip>
-    <TabPanel Name="Identity" ResourceKey="Identity">
-        @if (profiles != null)
-        {
+    <TabStrip>
+        <TabPanel Name="Identity" ResourceKey="Identity">
             <ModuleMessage Message="@_passwordrequirements" Type="MessageType.Info" />
             <div class="container">
                 <div class="row mb-1 align-items-center">
@@ -31,20 +23,20 @@ else
                 </div>
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="password" HelpText="The user's password. Please choose a password which is sufficiently secure." ResourceKey="Password"></Label>
-					<div class="col-sm-9">
+                    <div class="col-sm-9">
                         <div class="input-group">
-						    <input id="password" type="@_passwordtype" class="form-control" @bind="@_password" autocomplete="new-password" />
+                            <input id="password" type="@_passwordtype" class="form-control" @bind="@_password" autocomplete="new-password" />
                             <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
-					    </div>
+                        </div>
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="confirm" HelpText="Please enter the password again to confirm it matches with the value above" ResourceKey="Confirm"></Label>
                     <div class="col-sm-9">
                         <div class="input-group">
-							<input id="confirm" type="@_passwordtype" class="form-control" @bind="@confirm" autocomplete="new-password" />
+                            <input id="confirm" type="@_passwordtype" class="form-control" @bind="@confirm" autocomplete="new-password" />
                             <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
-					    </div>
+                        </div>
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
@@ -57,12 +49,6 @@ else
                     <Label Class="col-sm-3" For="displayname" HelpText="The full name of the user" ResourceKey="DisplayName"></Label>
                     <div class="col-sm-9">
                         <input id="displayname" class="form-control" @bind="@displayname" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="@photofileid.ToString()" HelpText="A photo of the user" ResourceKey="Photo"></Label>
-                    <div class="col-sm-9">
-                        <FileManager FileId="@photofileid" @ref="filemanager" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
@@ -87,11 +73,8 @@ else
                     </div>
                 </div>
             </div>
-        }
-    </TabPanel>
-    <TabPanel Name="Profile" ResourceKey="Profile">
-        @if (profiles != null)
-        {
+        </TabPanel>
+        <TabPanel Name="Profile" ResourceKey="Profile">
             <div class="container">
                 <div class="row mb-1 align-items-center">
                     @foreach (Profile profile in profiles)
@@ -106,8 +89,8 @@ else
                         }
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="@p.Name" HelpText="@p.Description">@p.Title</Label>
-                            <div class="col-sm-9">
-                                @if (!string.IsNullOrEmpty(p.Options))
+                                <div class="col-sm-9">
+                                    @if (!string.IsNullOrEmpty(p.Options))
                                 {
                                     <select id="@p.Name" class="form-select" @onchange="@(e => ProfileChanged(e, p.Name))">
                                         @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
@@ -127,25 +110,11 @@ else
                                 {
                                     @if (p.Rows == 1)
                                     {
-                                        @if (p.IsRequired)
-                                        {
-                                            <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
-                                        }
-                                        else
-                                        {
-                                            <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
-                                        }
+                                        <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
                                     }
                                     else
                                     {
-                                        @if (p.IsRequired)
-                                        {
-                                            <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))"></textarea>
-                                        }
-                                        else
-                                        {
-                                            <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))"></textarea>
-                                        }
+                                        <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))"></textarea>
                                     }
                                 }
                             </div>
@@ -153,17 +122,18 @@ else
                     }
                 </div>
             </div>
-        }
-    </TabPanel>
-</TabStrip>
+        </TabPanel>
+    </TabStrip>
 
-<button type="button" class="btn btn-success" @onclick="SaveUser">@SharedLocalizer["Save"]</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-<br />
-<br />
-<AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
+    <button type="button" class="btn btn-success" @onclick="SaveUser">@SharedLocalizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+    <br />
+    <br />
+    <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
+}
 
-@code {
+ @code {
+    private bool _initialized = false;
     private string _passwordrequirements;
     private int userid;
     private string username = string.Empty;
@@ -173,9 +143,6 @@ else
     private string confirm = string.Empty;
     private string email = string.Empty;
     private string displayname = string.Empty;
-    private FileManager filemanager;
-    private int photofileid = -1;
-    private File photo = null;
     private string isdeleted;
     private string lastlogin;
     private string lastipaddress;
@@ -193,32 +160,23 @@ else
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnInitializedAsync()
     {
         try
         {
-            if (PageState.QueryString.ContainsKey("id"))
+            _passwordrequirements = await UserService.GetPasswordRequirementsAsync(PageState.Site.SiteId);
+            _togglepassword = SharedLocalizer["ShowPassword"];
+            profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
+
+            if (PageState.QueryString.ContainsKey("id") && int.TryParse(PageState.QueryString["id"], out int UserId))
             {
-                _passwordrequirements = await UserService.GetPasswordRequirementsAsync(PageState.Site.SiteId);
-                _togglepassword = SharedLocalizer["ShowPassword"];
-                profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
-                userid = Int32.Parse(PageState.QueryString["id"]);
+                userid = UserId;
                 var user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
                 if (user != null)
                 {
                     username = user.Username;
                     email = user.Email;
                     displayname = user.DisplayName;
-                    if (user.PhotoFileId != null)
-                    {
-                        photofileid = user.PhotoFileId.Value;
-                        photo = await FileService.GetFileAsync(photofileid);
-                    }
-                    else
-                    {
-                        photofileid = -1;
-                        photo = null;
-                    }
                     isdeleted = user.IsDeleted.ToString();
                     lastlogin = string.Format("{0:MMM dd yyyy HH:mm:ss}", user.LastLoginOn);
                     lastipaddress = user.LastIPAddress;
@@ -232,6 +190,8 @@ else
                     deletedon = user.DeletedOn;
                 }
             }
+
+            _initialized = true;
         }
         catch (Exception ex)
         {
@@ -267,7 +227,6 @@ else
                         user.Email = email;
                         user.DisplayName = string.IsNullOrWhiteSpace(displayname) ? username : displayname;
                         user.PhotoFileId = null;
-                        user.PhotoFileId = filemanager.GetFileId();
                         if (user.PhotoFileId == -1)
                         {
                             user.PhotoFileId = null;
@@ -309,13 +268,14 @@ else
     {
         foreach (Profile profile in profiles)
         {
-            if (string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)) && !string.IsNullOrEmpty(profile.DefaultValue))
+            var value = GetProfileValue(profile.Name, string.Empty);
+            if (string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(profile.DefaultValue))
             {
                 settings = SettingService.SetSetting(settings, profile.Name, profile.DefaultValue);
             }
             if (!profile.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
             {
-                if (profile.IsRequired && string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)))
+                if (profile.IsRequired && string.IsNullOrEmpty(value))
                 {
                     AddModuleMessage(string.Format(SharedLocalizer["ProfileRequired"], profile.Title), MessageType.Warning);
                     return false;
@@ -323,7 +283,7 @@ else
                 if (!string.IsNullOrEmpty(profile.Validation))
                 {
                     Regex regex = new Regex(profile.Validation);
-                    bool valid = regex.Match(SettingService.GetSetting(settings, profile.Name, string.Empty)).Success;
+                    bool valid = regex.Match(value).Success;
                     if (!valid)
                     {
                         AddModuleMessage(string.Format(SharedLocalizer["ProfileInvalid"], profile.Title), MessageType.Warning);

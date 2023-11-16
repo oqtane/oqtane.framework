@@ -2,7 +2,6 @@
 @inject IInstallationService InstallationService
 @inject IJSRuntime JSRuntime
 @inject SiteState SiteState
-@inject IServiceProvider ServiceProvider
 
 @if (_initialized)
 {
@@ -50,29 +49,21 @@
     [Parameter]
     public string AuthorizationToken { get; set; }
 
+    [CascadingParameter]
+    HttpContext HttpContext { get; set; }
+
     private bool _initialized = false;
     private string _display = "display: none;";
     private Installation _installation = new Installation { Success = false, Message = "" };
 
     private PageState PageState { get; set; }
 
-    private IHttpContextAccessor accessor;
-
     protected override async Task OnParametersSetAsync()
     {
         SiteState.RemoteIPAddress = RemoteIPAddress;
         SiteState.AntiForgeryToken = AntiForgeryToken;
         SiteState.AuthorizationToken = AuthorizationToken;
-
-        accessor = (IHttpContextAccessor)ServiceProvider.GetService(typeof(IHttpContextAccessor));
-        if (accessor != null)
-        {
-            SiteState.IsPrerendering = !accessor.HttpContext.Response.HasStarted;
-        }
-        else
-        {
-            SiteState.IsPrerendering = true;
-        }
+        SiteState.IsPrerendering = (HttpContext != null) ? true : false;
 
         _installation = await InstallationService.IsInstalled();
         if (_installation.Alias != null)

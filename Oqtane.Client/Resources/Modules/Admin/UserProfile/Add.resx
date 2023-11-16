@@ -121,7 +121,7 @@
     <value>Message: </value>
   </data>
   <data name="Message.User.Invalid" xml:space="preserve">
-    <value>User Does Not Exist. Please Verify That The Username Provided Is Correct.</value>
+    <value>The User Specified Does Not Exist</value>
   </data>
   <data name="Error.Notification.Add" xml:space="preserve">
     <value>Error Adding Notification</value>
@@ -133,7 +133,7 @@
     <value>Enter the subject of the message</value>
   </data>
   <data name="Message.HelpText" xml:space="preserve">
-    <value>Enter the message</value>
+    <value>Enter the message content</value>
   </data>
   <data name="To.Text" xml:space="preserve">
     <value>To: </value>
@@ -143,5 +143,11 @@
   </data>
   <data name="Send Notification" xml:space="preserve">
     <value>Send Notification</value>
+  </data>
+  <data name="Message.Required" xml:space="preserve">
+    <value>You Must Enter All Required Information</value>
+  </data>
+  <data name="Username.Enter" xml:space="preserve">
+    <value>Enter Username</value>
   </data>
 </root>

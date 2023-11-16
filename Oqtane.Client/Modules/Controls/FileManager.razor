@@ -42,15 +42,15 @@
                     }
                     else
                     {
-                        if (GetFileId() != -1 && !UploadMultiple)
+                        if (FileId != -1 && _file != null && !UploadMultiple)
                         {
                             <input class="form-control" @bind="@_file.Name" disabled />
                         }
                     }
                     @if (ShowUpload && _haseditpermission)
                     {
-                        <div class="row">
-                            <div class="col mt-2">
+                        <div class="row mt-2">
+                            <div class="col">
                                 @if (UploadMultiple)
                                 {
                                     <input type="file" id="@_fileinputid" name="file" accept="@_filter" multiple />
@@ -60,9 +60,9 @@
                                     <input type="file" id="@_fileinputid" name="file" accept="@_filter" />
                                 }
                             </div>
-                            <div class="col mt-2 text-end">
+                            <div class="col-auto">
                                 <button type="button" class="btn btn-success" @onclick="UploadFiles">@SharedLocalizer["Upload"]</button>
-                                @if (GetFileId() != -1 && !UploadMultiple)
+                                @if (FileId != -1 && !UploadMultiple)
                                 {
                                     <button type="button" class="btn btn-danger mx-1" @onclick="DeleteFile">@SharedLocalizer["Delete"]</button>
                                 }
@@ -377,14 +377,19 @@
                     {
                         success = false;
                         var filename = uploads[upload].Split(':')[0];
-                        var size = Int64.Parse(uploads[upload].Split(':')[1]);
-                        var maxattempts = (int)Math.Ceiling(size / 500000.0) + 4; // 30 MB takes 1 minute at 5 Mbps (min 5 attempts)
+
+                        var size = Int64.Parse(uploads[upload].Split(':')[1]); // bytes
+                        var megabits = (size / 1048576.0) * 8; // binary conversion
+                        var uploadspeed = 2; // 2 Mbps (3G ranges from 300Kbps to 3Mbps)
+                        var uploadtime = (megabits / uploadspeed); // seconds
+                        var maxattempts = 5; // polling (minimum timeout duration will be 5 seconds)
+                        var sleep = (int)Math.Ceiling(uploadtime / maxattempts) * 1000; // milliseconds
 
                         int attempts = 0;
                         while (attempts < maxattempts && !success)
                         {
                             attempts += 1;
-                            Thread.Sleep(1000);
+                            Thread.Sleep(sleep);
 
                             if (Folder == Constants.PackagesFolder)
                             {
