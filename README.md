@@ -50,6 +50,9 @@ Backlog (TBD)
 - [ ] Folder Providers
 - [ ] Generative AI Integration
 
+5.1.0 (Q1 2024)
+- [ ] Full Stack Blazor (Static Server-Side Rendering)
+
 [5.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v5.0.0) (Nov 16, 2023)
 - [x] Migration to .NET 8
 
