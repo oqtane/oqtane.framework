@@ -223,6 +223,8 @@ Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalke
 
 # Release Announcements
 
+[Oqtane 5.0](https://www.oqtane.org/blog/!/75/announcing-oqtane-5-0-for-net-8)
+
 [Oqtane 4.0](https://www.oqtane.org/blog/!/63/announcing-oqtane-4-0-for-net-7)
 
 [Oqtane 3.4](https://www.oqtane.org/blog/!/56/oqtane-3-4-0-released)
