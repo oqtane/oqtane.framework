@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -16,24 +17,32 @@ namespace Oqtane.Managers
     public class UserManager : IUserManager
     {
         private readonly IUserRepository _users;
+        private readonly IRoleRepository _roles;
         private readonly IUserRoleRepository _userRoles;
         private readonly UserManager<IdentityUser> _identityUserManager;
         private readonly SignInManager<IdentityUser> _identitySignInManager;
         private readonly ITenantManager _tenantManager;
         private readonly INotificationRepository _notifications;
         private readonly IFolderRepository _folders;
+        private readonly IFileRepository _files;
+        private readonly IProfileRepository _profiles;
+        private readonly ISettingRepository _settings;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
 
-        public UserManager(IUserRepository users, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, ISyncManager syncManager, ILogManager logger)
+        public UserManager(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, IFileRepository files, IProfileRepository profiles, ISettingRepository settings, ISyncManager syncManager, ILogManager logger)
         {
             _users = users;
+            _roles = roles;
             _userRoles = userRoles;
             _identityUserManager = identityUserManager;
             _identitySignInManager = identitySignInManager;
             _tenantManager = tenantManager;
             _notifications = notifications;
             _folders = folders;
+            _files = files;
+            _profiles = profiles;
+            _settings = settings;
             _syncManager = syncManager;
             _logger = logger;
         }
@@ -95,6 +104,13 @@ namespace Oqtane.Managers
             IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
             if (identityuser == null)
             {
+                if (string.IsNullOrEmpty(user.Password))
+                {
+                    // create random interal password based on random date and punctuation ie. Jan-23-1981+14:43:12!
+                    Random rnd = new Random();
+                    var date = DateTime.UtcNow.AddDays(-rnd.Next(50 * 365)).AddHours(rnd.Next(0, 24)).AddMinutes(rnd.Next(0, 60)).AddSeconds(rnd.Next(0, 60));
+                    user.Password = date.ToString("MMM-dd-yyyy+HH:mm:ss", CultureInfo.InvariantCulture) + (char)rnd.Next(33, 47);
+                }
                 identityuser = new IdentityUser();
                 identityuser.UserName = user.Username;
                 identityuser.Email = user.Email;
@@ -142,10 +158,13 @@ namespace Oqtane.Managers
                 }
                 else
                 {
-                    string url = alias.Protocol + alias.Name;
-                    string body = "Dear " + user.DisplayName + ",\n\nA User Account Has Been Successfully Created For You With The Username " + user.Username + ". Please Visit " + url + " And Use The Login Option To Sign In. If You Do Not Know Your Password, Use The Forgot Password Option On The Login Page To Reset Your Account.\n\nThank You!";
-                    var notification = new Notification(user.SiteId, User, "User Account Notification", body);
-                    _notifications.AddNotification(notification);
+                    if (!user.SuppressNotification)
+                    {
+                        string url = alias.Protocol + alias.Name;
+                        string body = "Dear " + user.DisplayName + ",\n\nA User Account Has Been Successfully Created For You With The Username " + user.Username + ". Please Visit " + url + " And Use The Login Option To Sign In. If You Do Not Know Your Password, Use The Forgot Password Option On The Login Page To Reset Your Account.\n\nThank You!";
+                        var notification = new Notification(user.SiteId, User, "User Account Notification", body);
+                        _notifications.AddNotification(notification);
+                    }
                 }
 
                 User.Password = ""; // remove sensitive information
@@ -165,9 +184,8 @@ namespace Oqtane.Managers
             IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
             if (identityuser != null)
             {
-                identityuser.Email = user.Email;
                 var valid = true;
-                if (user.Password != "")
+                if (!string.IsNullOrEmpty(user.Password))
                 {
                     var validator = new PasswordValidator<IdentityUser>();
                     var result = await validator.ValidateAsync(_identityUserManager, null, user.Password);
@@ -179,7 +197,17 @@ namespace Oqtane.Managers
                 }
                 if (valid)
                 {
-                    await _identityUserManager.UpdateAsync(identityuser);
+                    if (!string.IsNullOrEmpty(user.Password))
+                    {
+                        await _identityUserManager.UpdateAsync(identityuser); // requires password to be provided
+                    }
+
+                    if (user.Email != identityuser.Email)
+                    {
+                        await _identityUserManager.SetEmailAsync(identityuser, user.Email);
+                        var emailConfirmationToken = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
+                        await _identityUserManager.ConfirmEmailAsync(identityuser, emailConfirmationToken);
+                    }
 
                     user = _users.UpdateUser(user);
                     _syncManager.AddSyncEvent(_tenantManager.GetAlias().TenantId, EntityNames.User, user.UserId, SyncEventActions.Update);
@@ -257,45 +285,52 @@ namespace Oqtane.Managers
                     var LastIPAddress = user.LastIPAddress ?? "";
 
                     user = _users.GetUser(user.Username);
-                    if (user.TwoFactorRequired)
+                    if (!user.IsDeleted)
                     {
-                        var token = await _identityUserManager.GenerateTwoFactorTokenAsync(identityuser, "Email");
-                        user.TwoFactorCode = token;
-                        user.TwoFactorExpiry = DateTime.UtcNow.AddMinutes(10);
-                        _users.UpdateUser(user);
+                        if (user.TwoFactorRequired)
+                        {
+                            var token = await _identityUserManager.GenerateTwoFactorTokenAsync(identityuser, "Email");
+                            user.TwoFactorCode = token;
+                            user.TwoFactorExpiry = DateTime.UtcNow.AddMinutes(10);
+                            _users.UpdateUser(user);
 
-                        string body = "Dear " + user.DisplayName + ",\n\nYou requested a secure verification code to log in to your account. Please enter the secure verification code on the site:\n\n" + token +
-                            "\n\nPlease note that the code is only valid for 10 minutes so if you are unable to take action within that time period, you should initiate a new login on the site." +
-                            "\n\nThank You!";
-                        var notification = new Notification(user.SiteId, user, "User Verification Code", body);
-                        _notifications.AddNotification(notification);
+                            string body = "Dear " + user.DisplayName + ",\n\nYou requested a secure verification code to log in to your account. Please enter the secure verification code on the site:\n\n" + token +
+                                "\n\nPlease note that the code is only valid for 10 minutes so if you are unable to take action within that time period, you should initiate a new login on the site." +
+                                "\n\nThank You!";
+                            var notification = new Notification(user.SiteId, user, "User Verification Code", body);
+                            _notifications.AddNotification(notification);
 
-                        _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Verification Notification Sent For {Username}", user.Username);
-                        user.TwoFactorRequired = true;
+                            _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Verification Notification Sent For {Username}", user.Username);
+                            user.TwoFactorRequired = true;
+                        }
+                        else
+                        {
+                            user = _users.GetUser(identityuser.UserName);
+                            if (user != null)
+                            {
+                                if (identityuser.EmailConfirmed)
+                                {
+                                    user.IsAuthenticated = true;
+                                    user.LastLoginOn = DateTime.UtcNow;
+                                    user.LastIPAddress = LastIPAddress;
+                                    _users.UpdateUser(user);
+                                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful {Username}", user.Username);
+
+                                    if (setCookie)
+                                    {
+                                        await _identitySignInManager.SignInAsync(identityuser, isPersistent);
+                                    }
+                                }
+                                else
+                                {
+                                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Not Verified {Username}", user.Username);
+                                }
+                            }
+                        }
                     }
                     else
                     {
-                        user = _users.GetUser(identityuser.UserName);
-                        if (user != null)
-                        {
-                            if (identityuser.EmailConfirmed)
-                            {
-                                user.IsAuthenticated = true;
-                                user.LastLoginOn = DateTime.UtcNow;
-                                user.LastIPAddress = LastIPAddress;
-                                _users.UpdateUser(user);
-                                _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful {Username}", user.Username);
-
-                                if (setCookie)
-                                {
-                                    await _identitySignInManager.SignInAsync(identityuser, isPersistent);
-                                }
-                            }
-                            else
-                            {
-                                _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Not Verified {Username}", user.Username);
-                            }
-                        }
+                        _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Failed - Account Deleted {Username}", user.Username);
                     }
                 }
                 else
@@ -435,6 +470,190 @@ namespace Oqtane.Managers
             var validator = new PasswordValidator<IdentityUser>();
             var result = await validator.ValidateAsync(_identityUserManager, null, password);
             return result.Succeeded;
+        }
+
+        public async Task<Dictionary<string, string>> ImportUsers(int siteId, string filePath, bool notify)
+        {
+            var success = true;
+            int rows = 0;
+            int users = 0;
+
+            if (System.IO.File.Exists(filePath))
+            {
+                var roles = _roles.GetRoles(siteId).ToList();
+                var profiles = _profiles.GetProfiles(siteId).ToList();
+
+                try
+                {
+                    string row = "";
+                    using (var reader = new StreamReader(filePath))
+                    {
+                        // header row
+                        if (reader.Peek() > -1)
+                        {
+                            row = reader.ReadLine();
+                        }
+
+                        if (!string.IsNullOrEmpty(row.Trim()))
+                        {
+                            var header = row.Replace("\"", "").Split('\t');
+                            if (header[0].Trim() == "Email")
+                            {
+                                for (int index = 4; index < header.Length - 1; index++)
+                                {
+                                    if (!string.IsNullOrEmpty(header[index].Trim()) && !profiles.Any(item => item.Name == header[index].Trim()))
+                                    {
+                                        _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Import Contains Profile Name {Profile} Which Does Not Exist", header[index]);
+                                        success = false;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Import File Is Not In Correct Format. Please Use Template Provided.");
+                                success = false;
+                            }
+
+                            if (success)
+                            {
+                                // detail rows
+                                while (reader.Peek() > -1)
+                                {
+                                    row = reader.ReadLine();
+                                    rows++;
+
+                                    if (!string.IsNullOrEmpty(row.Trim()))
+                                    {
+                                        var values = row.Replace("\"", "").Split('\t');
+
+                                        // user
+                                        var email = (values.Length > 0) ? values[0].Trim() : "";
+                                        var username = (values.Length > 1) ? values[1].Trim() : "";
+                                        var displayname = (values.Length > 2) ? values[2].Trim() : "";
+
+                                        var user = _users.GetUser(username, email);
+                                        if (user == null)
+                                        {
+                                            user = new User();
+                                            user.SiteId = siteId;
+                                            user.Email = values[0];
+                                            user.Username = (!string.IsNullOrEmpty(username)) ? username : user.Email;
+                                            user.DisplayName = (!string.IsNullOrEmpty(displayname)) ? displayname : user.Username;
+                                            user.EmailConfirmed = true;
+                                            user.SuppressNotification = !notify;
+                                            user = await AddUser(user);
+                                            if (user == null)
+                                            {
+                                                _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Import Error Importing User {Email} {Username} {DisplayName}", email, username, displayname);
+                                                success = false;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (!string.IsNullOrEmpty(displayname))
+                                            {
+                                                user.DisplayName = displayname;
+                                                user.Password = "";
+                                                user = await UpdateUser(user);
+                                            }
+                                        }
+
+                                        var rolenames = (values.Length > 3) ? values[3].Trim() : "";
+                                        if (user != null && !string.IsNullOrEmpty(rolenames))
+                                        {
+                                            // roles (comma delimited)
+                                            foreach (var rolename in rolenames.Split(','))
+                                            {
+                                                var role = roles.FirstOrDefault(item => item.Name == rolename.Trim());
+                                                if (role == null)
+                                                {
+                                                    role = new Role();
+                                                    role.SiteId = siteId;
+                                                    role.Name = rolename.Trim();
+                                                    role.Description = rolename.Trim();
+                                                    role = _roles.AddRole(role);
+                                                    roles.Add(role);
+                                                }
+                                                if (role != null)
+                                                {
+                                                    var userrole = _userRoles.GetUserRole(user.UserId, role.RoleId, false);
+                                                    if (userrole == null)
+                                                    {
+                                                        userrole = new UserRole();
+                                                        userrole.UserId = user.UserId;
+                                                        userrole.RoleId = role.RoleId;
+                                                        _userRoles.AddUserRole(userrole);
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        if (user != null && values.Length > 4)
+                                        {
+                                            // profiles
+                                            var settings = _settings.GetSettings(EntityNames.User, user.UserId);
+                                            for (int index = 4; index < values.Length - 1; index++)
+                                            {
+                                                if (header.Length > index && !string.IsNullOrEmpty(values[index].Trim()))
+                                                {
+                                                    var profile = profiles.FirstOrDefault(item => item.Name == header[index].Trim());
+                                                    if (profile != null)
+                                                    {
+                                                        var setting = settings.FirstOrDefault(item => item.SettingName == profile.Name);
+                                                        if (setting == null)
+                                                        {
+                                                            setting = new Setting();
+                                                            setting.EntityName = EntityNames.User;
+                                                            setting.EntityId = user.UserId;
+                                                            setting.SettingName = profile.Name;
+                                                            setting.SettingValue = values[index].Trim();
+                                                            _settings.AddSetting(setting);
+                                                        }
+                                                        else
+                                                        {
+                                                            if (setting.SettingValue != values[index].Trim())
+                                                            {
+                                                                setting.SettingValue = values[index].Trim();
+                                                                _settings.UpdateSetting(setting);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        users++;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            success = false;
+                            _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Import File Contains No Header Row");
+                        }
+                    }
+
+                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "User Import: {Rows} Rows Processed, {Users} Users Imported", rows, users);
+                }
+                catch (Exception ex)
+                {
+                    success = false;
+                    _logger.Log(LogLevel.Error, this, LogFunction.Create, ex, "Error Importing User Import File {SiteId} {FilePath} {Notify}", siteId, filePath, notify);
+                }
+            }
+            else
+            {
+                success = false;
+                _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Import File Does Not Exist {FilePath}", filePath);
+            }
+
+            // return results
+            var result = new Dictionary<string, string>();
+            result.Add("Success", success.ToString());
+            result.Add("Users", users.ToString());
+
+            return result;
         }
     }
 }

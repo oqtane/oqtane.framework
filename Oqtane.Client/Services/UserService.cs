@@ -6,6 +6,9 @@ using Oqtane.Documentation;
 using System.Net;
 using System.Collections.Generic;
 using Microsoft.Extensions.Localization;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Oqtane.Modules.Admin.Roles;
+using System.Xml.Linq;
 
 namespace Oqtane.Services
 {
@@ -122,6 +125,11 @@ namespace Oqtane.Services
 
             // format requirements
             return string.Format(passwordValidationCriteriaTemplate, minimumlength, uniquecharacters, digitRequirement, uppercaseRequirement, lowercaseRequirement, punctuationRequirement);
+        }
+
+        public async Task<Dictionary<string, string>> ImportUsersAsync(int siteId, int fileId, bool notify)
+        {
+            return await PostJsonAsync<Dictionary<string, string>>($"{Apiurl}/import?siteid={siteId}&fileid={fileId}&notify={notify}", null);
         }
     }
 }

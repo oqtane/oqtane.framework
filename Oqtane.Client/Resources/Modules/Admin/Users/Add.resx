@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Error.User.AddCheckPass" xml:space="preserve">
-    <value>Error Adding User. Please Ensure Password Meets Complexity Requirements And Username Is Not Already In Use.</value>
+    <value>Error Adding User. Please Ensure Password Meets Complexity Requirements And Username And Email Is Not Already In Use.</value>
   </data>
   <data name="Message.Password.NoMatch" xml:space="preserve">
     <value>Passwords Entered Do Not Match</value>
@@ -170,5 +170,11 @@
   </data>
   <data name="Password.Placeholder" xml:space="preserve">
     <value>Password</value>
+  </data>
+  <data name="Notify.HelpText" xml:space="preserve">
+    <value>Indicate if new users should receive an email notification</value>
+  </data>
+  <data name="Notify.Text" xml:space="preserve">
+    <value>Notify?</value>
   </data>
 </root>

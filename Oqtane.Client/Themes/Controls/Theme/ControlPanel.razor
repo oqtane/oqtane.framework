@@ -10,12 +10,14 @@
 @inject IPageModuleService PageModuleService
 @inject ILogService logger
 @inject ISettingService SettingService
+@inject IJSRuntime jsRuntime 
+@inject IServiceProvider ServiceProvider
 @inject IStringLocalizer<ControlPanel> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (ShowLanguageSwitcher)
 {
-    <LanguageSwitcher />
+    <LanguageSwitcher DropdownAlignment="@LanguageDropdownAlignment" />
 }
 
 @if (_showEditMode || (PageState.Page.IsPersonalizable && PageState.User != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Registered)))
@@ -109,13 +111,10 @@
 							</div>
 						</div>
 					}
-				}
 
-				@if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
-				{
 					<div class="row">
 						<div class="col text-center">
-							<label for="Module" class="control-label">@Localizer["Module.Manage"] </label>
+							<label for="Module" class="control-label">@Localizer["Module.Manage"]</label>
 							<select class="form-select" @bind="@ModuleType">
 								<option value="new">@Localizer["Module.AddNew"]</option>
 								<option value="existing">@Localizer["Module.AddExisting"]</option>
@@ -180,27 +179,33 @@
 					</div>
 					<div class="row">
 						<div class="col text-center">
-							<label for="Title" class="control-label">@Localizer["Title"] </label>
+							<label for="Title" class="control-label">@Localizer["Title"]</label>
 							<input type="text" name="Title" class="form-control" @bind="@Title" />
 						</div>
 					</div>
-					@if (_pane.Length > 1)
-					{
-						<div class="row">
-							<div class="col text-center">
-								<label for="Pane" class="control-label">@Localizer["Pane"] </label>
-								<select class="form-select" @bind="@Pane">
-									@foreach (string pane in PageState.Page.Panes)
-									{
-										<option value="@pane">@pane Pane</option>
-									}
-								</select>
-							</div>
-						</div>
-					}
 					<div class="row">
 						<div class="col text-center">
-							<label for="Container" class="control-label">@Localizer["Container"] </label>
+							<label for="Pane" class="control-label">@Localizer["Pane"]</label>
+							<select class="form-select" @bind="@Pane">
+								@foreach (string pane in PageState.Page.Panes)
+								{
+									<option value="@pane">@pane Pane</option>
+								}
+							</select>
+						</div>
+					</div>
+                    <div class="row">
+                        <div class="col text-center">
+                            <label for="Insert" class="control-label">@Localizer["Location"]</label>
+                            <select class="form-select" @bind="@Location">
+                                <option value="@int.MinValue">@Localizer["LocationTop"]</option>
+                                <option value="@int.MaxValue">@Localizer["LocationBottom"]</option>
+                            </select>
+                        </div>
+                    </div>
+					<div class="row">
+						<div class="col text-center">
+							<label for="Container" class="control-label">@Localizer["Container"]</label>
 							<select class="form-select" @bind="@ContainerType">
 								@foreach (var container in _containers)
 								{
@@ -220,13 +225,38 @@
 					</div>
 					<button type="button" class="btn btn-primary col-12 mt-4" @onclick="@AddModule">@Localizer["Page.Module.Add"]</button>
 					@((MarkupString)Message)
-				}
-			</div>
+                    <hr class="app-rule" />
+                }
+
+                <div class="row d-flex">
+                    <div class="col">
+                        <button type="button" data-bs-dismiss="offcanvas" class="btn btn-secondary col-12" @onclick=@(async () => await LogoutUser())>@Localizer["Logout"]</button>
+                    </div>
+                </div>
+            </div>
 		</div>
 	</div>
 }
 
 @code{
+    [Parameter]
+    public string ButtonClass { get; set; } = "btn-outline-secondary";
+
+    [Parameter]
+    public string ContainerClass { get; set; } = "offcanvas offcanvas-end";
+
+    [Parameter]
+    public string HeaderClass { get; set; } = "offcanvas-header";
+
+    [Parameter]
+    public string BodyClass { get; set; } = "offcanvas-body overflow-auto";
+
+    [Parameter]
+    public bool ShowLanguageSwitcher { get; set; } = true;
+
+    [Parameter]
+    public string LanguageDropdownAlignment { get; set; } = string.Empty; // Empty or Left or Right
+
     private bool _canViewAdminDashboard = false;
     private bool _showEditMode = false;
     private bool _deleteConfirmation = false;
@@ -237,11 +267,21 @@
     private List<Module> _modules = new List<Module>();
     private List<ThemeControl> _containers = new List<ThemeControl>();
     private string _category = "Common";
+    private string _pane = "";
 
     protected string PageId { get; private set; } = "-";
     protected string ModuleId { get; private set; } = "-";
     protected string ModuleType { get; private set; } = "new";
     protected string ModuleDefinitionName { get; private set; } = "-";
+
+    protected string Title { get; private set; } = "";
+    protected string ContainerType { get; private set; } = "";
+    protected int Location { get; private set; } = int.MaxValue;
+    protected string Visibility { get; private set; } = "view";
+    protected string Message { get; private set; } = "";
+
+    private string settingCategory = "CP-category";
+    private string settingPane = "CP-pane";
 
     protected string Category
     {
@@ -273,27 +313,6 @@
         }
     }
 
-    protected string Title { get; private set; } = "";
-    protected string ContainerType { get; private set; } = "";
-    protected string Visibility { get; private set; } = "view";
-    protected string Message { get; private set; } = "";
-
-    [Parameter]
-    public string ButtonClass { get; set; } = "btn-outline-secondary";
-
-    [Parameter]
-    public string ContainerClass { get; set; } = "offcanvas offcanvas-end";
-
-    [Parameter]
-    public string HeaderClass { get; set; } = "offcanvas-header";
-
-    [Parameter]
-    public string BodyClass { get; set; } = "offcanvas-body overflow-auto";
-
-    [Parameter]
-    public bool ShowLanguageSwitcher { get; set; } = true;
-
-
     protected override async Task OnParametersSetAsync()
     {
         _canViewAdminDashboard = CanViewAdminDashboard();
@@ -301,8 +320,9 @@
         if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
         {
             _showEditMode = true;
-            _pages?.Clear();
+            LoadSettingsAsync();
 
+            _pages?.Clear();
             foreach (Page p in PageState.Pages)
             {
                 if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
@@ -310,7 +330,6 @@
                     _pages.Add(p);
                 }
             }
-            await LoadSettingsAsync();
 
             var themes = await ThemeService.GetThemesAsync();
             _containers = ThemeService.GetContainerControls(themes, PageState.Page.ThemeType);
@@ -434,7 +453,7 @@
                 }
 
                 pageModule.Pane = Pane;
-                pageModule.Order = int.MaxValue;
+                pageModule.Order = Location;
                 pageModule.ContainerType = ContainerType;
 
                 if (pageModule.ContainerType == PageState.Site.DefaultContainerType)
@@ -510,7 +529,7 @@
 		switch (location)
 		{
 			case "Admin":
-			// get admin dashboard moduleid
+			    // get admin dashboard moduleid
 				module = PageState.Modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.AdminDashboardModule);
 				if (module != null)
 				{
@@ -613,15 +632,41 @@
 		}
 	}
 
-	private string settingCategory = "CP-category";
-	private string settingPane = "CP-pane";
-	private string _pane = "";
+    // the following code is duplicated from LoginBase
+    private async Task LogoutUser()
+    {
+        await LoggingService.Log(PageState.Alias, PageState.Page.PageId, null, PageState.User?.UserId, GetType().AssemblyQualifiedName, "Logout", LogFunction.Security, LogLevel.Information, null, "User Logout For Username {Username}", PageState.User?.Username);
 
-	private async Task LoadSettingsAsync()
+        Route route = new Route(PageState.Uri.AbsoluteUri, PageState.Alias.Path);
+        var url = route.PathAndQuery;
+
+        // verify if anonymous users can access page
+        if (!UserSecurity.IsAuthorized(null, PermissionNames.View, PageState.Page.PermissionList))
+        {
+            url = PageState.Alias.Path;
+        }
+
+        if (PageState.Runtime == Shared.Runtime.Hybrid)
+        {
+            // hybrid apps utilize an interactive logout
+            await UserService.LogoutUserAsync(PageState.User);
+            var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
+            authstateprovider.NotifyAuthenticationChanged();
+            NavigationManager.NavigateTo(url, true);
+        }
+        else
+        {
+            // post to the Logout page to complete the logout process
+            var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, returnurl = url };
+            var interop = new Interop(jsRuntime);
+            await interop.SubmitForm(Utilities.TenantUrl(PageState.Alias, "/pages/logout/"), fields);
+        }
+    }
+
+	private void LoadSettingsAsync()
 	{
-		Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-		_category = SettingService.GetSetting(settings, settingCategory, "Common");
-		var pane = SettingService.GetSetting(settings, settingPane, "");
+        _category = SettingService.GetSetting(PageState.User.Settings, settingCategory, "Common");
+        var pane = SettingService.GetSetting(PageState.User.Settings, settingPane, "");
 		if (PageState.Page.Panes.Contains(pane))
 		{
 			_pane = pane;

@@ -117,61 +117,34 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Template.Text" xml:space="preserve">
-    <value>Template: </value>
+  <data name="ImportFile.HelpText" xml:space="preserve">
+    <value>Upload or select a tab delimited text file containing user information. The file must be in the Template format specified (Roles can be specified as a comma delimited list).</value>
   </data>
-  <data name="Template.Select" xml:space="preserve">
-    <value>Select Template</value>
+  <data name="ImportFile.Text" xml:space="preserve">
+    <value>Import File:</value>
   </data>
-  <data name="Module.Create" xml:space="preserve">
-    <value>Create Module</value>
+  <data name="Error.Import" xml:space="preserve">
+    <value>Error Importing Users</value>
   </data>
-  <data name="Module.Activate" xml:space="preserve">
-    <value>Activate Module</value>
+  <data name="Import" xml:space="preserve">
+    <value>Import</value>
   </data>
-  <data name="Info.Module.Creator" xml:space="preserve">
-    <value>Please Note That The Module Creator Is Only Intended To Be Used In A Development Environment</value>
+  <data name="Message.Import.Failure" xml:space="preserve">
+    <value>User Import Failed. Please Review Your Event Log For More Detailed Information.</value>
   </data>
-  <data name="Info.Module.Activate" xml:space="preserve">
-    <value>Once You Have Compiled The Module And Restarted The Application You Can Activate The Module Below</value>
+  <data name="Message.Import.Success" xml:space="preserve">
+    <value>User Import Successful. {0} Users Imported.</value>
   </data>
-  <data name="Success.Module.Create" xml:space="preserve">
-    <value>The Source Code For Your Module Has Been Created At The Location Specified Below And Must Be Compiled In Order To Make It Functional. Once It Has Been Compiled You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Apply These Changes.</value>
+  <data name="Message.Import.Validation" xml:space="preserve">
+    <value>You Must Specify A User File For Import</value>
   </data>
-  <data name="Message.Require.ValidName" xml:space="preserve">
-    <value>You Must Provide A Valid Owner Name And Module Name ( ie. No Punctuation Or Spaces And The Values Cannot Be The Same ) And Choose A Template</value>
+  <data name="Template" xml:space="preserve">
+    <value>Template</value>
   </data>
-  <data name="OwnerName.HelpText" xml:space="preserve">
-    <value>Enter the name of the organization who is developing this module. It should not contain spaces or punctuation.</value>
+  <data name="Notify.HelpText" xml:space="preserve">
+    <value>Indicate if new users should receive an email notification</value>
   </data>
-  <data name="ModuleName.HelpText" xml:space="preserve">
-    <value>Enter a name for this module. It should not contain spaces or punctuation.</value>
-  </data>
-  <data name="Description.HelpText" xml:space="preserve">
-    <value>Enter a short description for the module</value>
-  </data>
-  <data name="Template.HelpText" xml:space="preserve">
-    <value>Select a module template. Templates are located in the wwwroot/Modules/Templates folder on the server.</value>
-  </data>
-  <data name="FrameworkReference.HelpText" xml:space="preserve">
-    <value>Select a framework reference version</value>
-  </data>
-  <data name="Location.HelpText" xml:space="preserve">
-    <value>Location where the module will be created</value>
-  </data>
-  <data name="OwnerName.Text" xml:space="preserve">
-    <value>Owner Name: </value>
-  </data>
-  <data name="ModuleName.Text" xml:space="preserve">
-    <value>Module Name: </value>
-  </data>
-  <data name="Description.Text" xml:space="preserve">
-    <value>Description: </value>
-  </data>
-  <data name="FrameworkReference.Text" xml:space="preserve">
-    <value>Framework Reference: </value>
-  </data>
-  <data name="Location.Text" xml:space="preserve">
-    <value>Location: </value>
+  <data name="Notify.Text" xml:space="preserve">
+    <value>Notify?</value>
   </data>
 </root>

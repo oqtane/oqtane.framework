@@ -17,26 +17,17 @@ else
 {
     <TabStrip>
         <TabPanel Name="Users" Heading="Users" ResourceKey="Users">
-			<div class="container">
-				<div class="row mb-1 align-items-center">
-					<div class="col-sm-4">
-						<ActionLink Action="Add" Text="Add User" Security="SecurityAccessLevel.Edit" ResourceKey="AddUser" />
-					</div>
-					<div class="col-sm-4">
-						<input class="form-control" @bind="@_search" />
-					</div>
-					<div class="col-sm-4">
-						<button type="button" class="btn btn-secondary" @onclick="OnSearch">@SharedLocalizer["Search"]</button>
-					</div>
-				</div>
-			</div>
-			<Pager Items="@users" RowClass="align-middle">
+			<ActionLink Action="Add" Text="Add User" Security="SecurityAccessLevel.Edit" ResourceKey="AddUser" />&nbsp;
+            <ActionLink Text="Import Users" Class="btn btn-secondary ms-2" Action="Users" Security="SecurityAccessLevel.Admin" ResourceKey="ImportUsers"/>
+
+            <Pager Items="@users" RowClass="align-middle" SearchProperties="User.Username,User.Email,User.DisplayName">
 				<Header>
 					<th style="width: 1px;">&nbsp;</th>
 					<th style="width: 1px;">&nbsp;</th>
 					<th style="width: 1px;">&nbsp;</th>
                     <th class="app-sort-th link-primary text-decoration-underline" @onclick="@(() => SortTable("Username"))">@Localizer["Username"]<i class="@(SetSortIcon("Username"))"></i></th>
-                <th class="app-sort-th link-primary text-decoration-underline" @onclick="@(() => SortTable("DisplayName"))">@Localizer["Name"]<i class="@(SetSortIcon("DisplayName"))"></i></th>
+                    <th class="app-sort-th link-primary text-decoration-underline" @onclick="@(() => SortTable("DisplayName"))">@Localizer["Name"]<i class="@(SetSortIcon("DisplayName"))"></i></th>
+                    <th class="app-sort-th link-primary text-decoration-underline" @onclick="@(() => SortTable("Email"))">@Localizer["Email"]<i class="@(SetSortIcon("Email"))"></i></th>
                     <th class="app-sort-th link-primary text-decoration-underline" @onclick="@(() => SortTable("LastLoginOn"))">@Localizer["LastLoginOn"]<i class="@(SetSortIcon("LastLoginOn"))"></i></th>
 				</Header>
 				<Row>
@@ -50,11 +41,12 @@ else
 						<ActionLink Action="Roles" Parameters="@($"id=" + context.UserId.ToString())" Security="SecurityAccessLevel.Edit" ResourceKey="Roles" />
 					</td>
 					<td>@context.User.Username</td>
-					<td>@((MarkupString)string.Format("<a href=\"mailto:{0}\">{1}</a>", @context.User.Email, @context.User.DisplayName))</td>
+					<td>@context.User.DisplayName</td>
+					<td>@((MarkupString)string.Format("<a href=\"mailto:{0}\">{1}</a>", @context.User.Email, @context.User.Email))</td>
 					<td>@((context.User.LastLoginOn != DateTime.MinValue) ? string.Format("{0:dd-MMM-yyyy HH:mm:ss}", context.User.LastLoginOn) : "")</td>
 				</Row>
 			</Pager>
-		</TabPanel>
+        </TabPanel>
         <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings" Security="SecurityAccessLevel.Admin">
 			<div class="container">
 				<Section Name="User" Heading="User Settings" ResourceKey="UserSettings">
@@ -104,6 +96,21 @@ else
 							<Label Class="col-sm-3" For="cookiename" HelpText="You can choose to use a custom authentication cookie name for each site. However please be aware that if you want to share an authentication cookie between sites on the same domain they need to use a consistent cookie name. Also be aware that changing the authentication cookie name will logout all current users." ResourceKey="CookieName">Cookie Name:</Label>
 							<div class="col-sm-9">
 								<input id="cookiename" class="form-control" @bind="@_cookiename" />
+							</div>
+						</div>
+						<div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="cookieexpiration" HelpText="You can choose to use a custom authentication cookie expiration timespan for each site (e.g. '08:00:00' for 8 hours). The default is 14 days if not specified." ResourceKey="CookieExpiration">Cookie Expiration Timespan:</Label>
+							<div class="col-sm-9">
+								<input id="cookieexpiration" class="form-control" @bind="@_cookieexpiration" />
+							</div>
+						</div>
+						<div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="alwaysremember" HelpText="Enabling this option will set a permanent cookie in conjunction with the Cookie Expiration Timespan, which will automatically sign in users the next time they visit the site. By default the site will use session cookies." ResourceKey="AlwaysRemember">Always Remember User?</Label>
+							<div class="col-sm-9">
+                                <select id="alwaysremember" class="form-select" @bind="@_alwaysremember">
+									<option value="true">@SharedLocalizer["Yes"]</option>
+									<option value="false">@SharedLocalizer["No"]</option>
+								</select>
 							</div>
 						</div>
 					}
@@ -259,7 +266,22 @@ else
 									<input id="parameters" class="form-control" @bind="@_parameters" />
 								</div>
 							</div>
-							<div class="row mb-1 align-items-center">
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="authresponsetype" HelpText="Specify the authorization response type" ResourceKey="AuthResponseType">Authorization Response Type</Label>
+                                <div class="col-sm-9">
+                                    <select id="authresponsetype" class="form-select" @bind="@_authresponsetype" required>
+                                        <option value="code">@Localizer["AuthFlow.Code"]</option>
+                                        <option value="code id_token">@Localizer["AuthFlow.CodeIdToken"]</option>
+                                        <option value="code id_token token">@Localizer["AuthFlow.CodeIdTokenToken"]</option>
+                                        <option value="code token">@Localizer["AuthFlow.CodeToken"]</option>
+                                        <option value="id_token">@Localizer["AuthFlow.IdToken"]</option>
+                                        <option value="id_token token">@Localizer["AuthFlow.IdTokenToken"]</option>
+                                        <option value="token">@Localizer["AuthFlow.Token"]</option>
+                                        <option value="none">@Localizer["AuthFlow.None"]</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-1 align-items-center">
 								<Label Class="col-sm-3" For="pkce" HelpText="Indicate if the provider supports Proof Key for Code Exchange (PKCE)" ResourceKey="PKCE">Use PKCE?</Label>
 								<div class="col-sm-9">
 									<select id="pkce" class="form-select" @bind="@_pkce" required>
@@ -316,7 +338,16 @@ else
 									</select>
 								</div>
 							</div>
-						}
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="verifyusers" HelpText="Do you want existing users to perform an additional email verification step to link their external login? If you disable this option, existing users will be linked automatically." ResourceKey="VerifyUsers">Verify Existing Users?</Label>
+                                <div class="col-sm-9">
+                                    <select id="verifyusers" class="form-select" @bind="@_verifyusers">
+                                        <option value="true">@SharedLocalizer["Yes"]</option>
+                                        <option value="false">@SharedLocalizer["No"]</option>
+                                    </select>
+                                </div>
+                            </div>
+                        }
 					</Section>
 					<Section Name="Token" Heading="Token Settings" ResourceKey="TokenSettings">
 						<div class="row mb-1 align-items-center">
@@ -360,19 +391,19 @@ else
 			</div>
 			<br />
 			<button type="button" class="btn btn-success" @onclick="SaveSiteSettings">@SharedLocalizer["Save"]</button>
-		</TabPanel>
+        </TabPanel>
 	</TabStrip>
 }
 
 @code {
-    private List<UserRole> allusers;
     private List<UserRole> users;
-    private string _search = "";
 
     private string _allowregistration;
     private string _allowsitelogin;
     private string _twofactor;
     private string _cookiename;
+    private string _cookieexpiration;
+    private string _alwaysremember;
 
     private string _minimumlength;
     private string _uniquecharacters;
@@ -397,6 +428,7 @@ else
     private string _scopes;
     private string _parameters;
     private string _pkce;
+    private string _authresponsetype;
     private string _redirecturl;
     private string _identifierclaimtype;
     private string _emailclaimtype;
@@ -404,6 +436,7 @@ else
     private string _profileclaimtypes;
     private string _domainfilter;
     private string _createusers;
+    private string _verifyusers;
 
     private string _secret;
     private string _secrettype = "password";
@@ -420,7 +453,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadUserSettingsAsync();
         await LoadUsersAsync(true);
 
         var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
@@ -431,6 +463,8 @@ else
         {
             _twofactor = SettingService.GetSetting(settings, "LoginOptions:TwoFactor", "false");
             _cookiename = SettingService.GetSetting(settings, "LoginOptions:CookieName", ".AspNetCore.Identity.Application");
+            _cookieexpiration = SettingService.GetSetting(settings, "LoginOptions:CookieExpiration", "");
+            _alwaysremember = SettingService.GetSetting(settings, "LoginOptions:AlwaysRemember", "false");
 
             _minimumlength = SettingService.GetSetting(settings, "IdentityOptions:Password:RequiredLength", "6");
             _uniquecharacters = SettingService.GetSetting(settings, "IdentityOptions:Password:RequiredUniqueChars", "1");
@@ -455,6 +489,7 @@ else
             _scopes = SettingService.GetSetting(settings, "ExternalLogin:Scopes", "");
             _parameters = SettingService.GetSetting(settings, "ExternalLogin:Parameters", "");
             _pkce = SettingService.GetSetting(settings, "ExternalLogin:PKCE", "false");
+            _authresponsetype = SettingService.GetSetting(settings, "ExternalLogin:AuthResponseType", "code");
             _redirecturl = PageState.Uri.Scheme + "://" + PageState.Alias.Name + "/signin-" + _providertype;
             _identifierclaimtype = SettingService.GetSetting(settings, "ExternalLogin:IdentifierClaimType", "sub");
             _emailclaimtype = SettingService.GetSetting(settings, "ExternalLogin:EmailClaimType", "email");
@@ -462,6 +497,7 @@ else
             _profileclaimtypes = SettingService.GetSetting(settings, "ExternalLogin:ProfileClaimTypes", "");
             _domainfilter = SettingService.GetSetting(settings, "ExternalLogin:DomainFilter", "");
             _createusers = SettingService.GetSetting(settings, "ExternalLogin:CreateUsers", "true");
+            _verifyusers = SettingService.GetSetting(settings, "ExternalLogin:VerifyUsers", "true");
 
             _secret = SettingService.GetSetting(settings, "JwtOptions:Secret", "");
             _togglesecret = SharedLocalizer["ShowPassword"];
@@ -475,32 +511,14 @@ else
     {
         if (load)
         {
-            allusers = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Registered);
+            users = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Registered);
             if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
             {
                 var hosts = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Host);
-                allusers.AddRange(hosts);
-                allusers = allusers.OrderBy(u => u.User.DisplayName).ToList();
+                users.AddRange(hosts);
+                users = users.OrderBy(u => u.User.DisplayName).ToList();
             }           
         }
-
-		users = allusers;
-		if (!string.IsNullOrEmpty(_search))
-		{
-			users = users.Where(item =>
-				(
-					item.User.Username.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
-					item.User.Email.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
-					item.User.DisplayName.Contains(_search, StringComparison.OrdinalIgnoreCase)
-				)
-			).ToList();
-		}
-	}
-
-	private async Task OnSearch()
-	{
-		await UpdateUserSettingsAsync();
-		await LoadUsersAsync(false);
 	}
 
 	private async Task DeleteUser(UserRole UserRole)
@@ -523,21 +541,6 @@ else
 		}
 	}
 
-	private string settingSearch = "AU-search";
-
-	private async Task LoadUserSettingsAsync()
-	{
-		Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-		_search = SettingService.GetSetting(settings, settingSearch, "");
-	}
-
-	private async Task UpdateUserSettingsAsync()
-	{
-		Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-		settings = SettingService.SetSetting(settings, settingSearch, _search);
-		await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
-	}
-
 	private async Task SaveSiteSettings()
 	{
 		try
@@ -553,6 +556,8 @@ else
 			{
 				settings = SettingService.SetSetting(settings, "LoginOptions:TwoFactor", _twofactor, false);
 				settings = SettingService.SetSetting(settings, "LoginOptions:CookieName", _cookiename, true);
+				settings = SettingService.SetSetting(settings, "LoginOptions:CookieExpiration", _cookieexpiration, true);
+				settings = SettingService.SetSetting(settings, "LoginOptions:AlwaysRemember", _alwaysremember, false);
 
 				settings = SettingService.SetSetting(settings, "IdentityOptions:Password:RequiredLength", _minimumlength, true);
 				settings = SettingService.SetSetting(settings, "IdentityOptions:Password:RequiredUniqueChars", _uniquecharacters, true);
@@ -576,12 +581,14 @@ else
 				settings = SettingService.SetSetting(settings, "ExternalLogin:Scopes", _scopes, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:Parameters", _parameters, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:PKCE", _pkce, true);
+                settings = SettingService.SetSetting(settings, "ExternalLogin:AuthResponseType", _authresponsetype, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:IdentifierClaimType", _identifierclaimtype, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:EmailClaimType", _emailclaimtype, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:RoleClaimType", _roleclaimtype, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:ProfileClaimTypes", _profileclaimtypes, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:DomainFilter", _domainfilter, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:CreateUsers", _createusers, true);
+                settings = SettingService.SetSetting(settings, "ExternalLogin:VerifyUsers", _verifyusers, true);
 
 				if (!string.IsNullOrEmpty(_secret) && _secret.Length < 16) _secret = (_secret + "????????????????").Substring(0, 16);
 				settings = SettingService.SetSetting(settings, "JwtOptions:Secret", _secret, true);

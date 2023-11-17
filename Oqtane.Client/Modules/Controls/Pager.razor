@@ -1,10 +1,20 @@
 @namespace Oqtane.Modules.Controls
 @inherits ModuleControlBase
 @inject IStringLocalizerFactory LocalizerFactory
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 @typeparam TableItem
 
 @if (ItemList != null)
 {
+    @if (!string.IsNullOrEmpty(SearchProperties))
+    {
+        <div class="input-group my-3">
+            <input id="search" class="form-control" placeholder=@string.Format(Localizer["SearchPlaceholder"], FormatSearchProperties()) @bind="@_search" />
+            <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>
+            <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
+        </div>
+    }
+
     @if ((Toolbar == "Top" || Toolbar == "Both") && _pages > 0 && Items.Count() > _maxItems)
     {
         <ul class="pagination justify-content-center my-2">
@@ -175,6 +185,9 @@
     private int _startPage = 0;
     private int _endPage = 0;
     private int _columns = 0;
+    private string _search = "";
+
+    private IEnumerable<TableItem> AllItems;
 
     [Parameter]
     public string Format { get; set; } // Table or Grid
@@ -220,6 +233,9 @@
 
     [Parameter]
     public Action<int> OnPageChange { get; set; } // a method to be executed in the calling component when the page changes
+
+    [Parameter]
+    public string SearchProperties { get; set; } // comma delimited list of property names to include in search
 
     private IEnumerable<TableItem> ItemList { get; set; }
 
@@ -276,6 +292,15 @@
             }
         }
 
+        if (!string.IsNullOrEmpty(SearchProperties))
+        {
+            AllItems = Items; // only used in search
+            if (!string.IsNullOrEmpty(_search))
+            {
+                Search();
+            }
+        }
+
         if (!string.IsNullOrEmpty(PageSize))
         {
             _maxItems = int.Parse(PageSize);
@@ -323,10 +348,10 @@
         {
             _endPage = _pages;
         }
-		ItemList = Items.Skip((_page - 1) * _maxItems).Take(_maxItems);
-		StateHasChanged();
-		OnPageChange?.Invoke(_page);
-	}
+        ItemList = Items.Skip((_page - 1) * _maxItems).Take(_maxItems);
+        StateHasChanged();
+        OnPageChange?.Invoke(_page);
+    }
 
     public void UpdateList(int page)
     {
@@ -368,5 +393,76 @@
         }
 
         UpdateList(_page);
+    }
+
+    public void Search()
+    {
+        if (!string.IsNullOrEmpty(_search))
+        {
+            Items = AllItems.Where(item =>
+            {
+                var values = SearchProperties.Split(',')
+                    .Select(itemType => GetPropertyValue(item, itemType))
+                    .Where(value => value != null)
+                    .Select(value => value.ToString().ToLower());
+
+                return values.Any(value => value.Contains(_search.ToLower()));
+            }).ToList();
+        }
+        else
+        {
+            Items = AllItems;
+        }
+        _pages = (int)Math.Ceiling(Items.Count() / (decimal)_maxItems);
+        UpdateList(1);
+    }
+
+    private object GetPropertyValue(object obj, string propertyName)
+    {
+        var index = propertyName.IndexOf(".");
+        if (index != -1)
+        {
+            var propertyInfo = obj.GetType().GetProperty(propertyName.Substring(0, index));
+            if (propertyInfo != null)
+            {
+                return GetPropertyValue(propertyInfo.GetValue(obj), propertyName.Substring(index + 1));
+            }
+            return null;
+        }
+        else
+        {
+            var propertyInfo = obj.GetType().GetProperty(propertyName);
+            if (propertyInfo != null)
+            {
+                return propertyInfo.GetValue(obj);
+            }
+            return null;
+        }
+    }
+
+    public void Reset()
+    {
+        _search = "";
+        Items = AllItems;
+        _pages = (int)Math.Ceiling(Items.Count() / (decimal)_maxItems);
+        UpdateList(1);
+    }
+
+    private string FormatSearchProperties()
+    {
+        var properties = new List<string>();
+        foreach (var property in SearchProperties.Split(',', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var index = property.LastIndexOf(".");
+            if (index != -1)
+            {
+                properties.Add(property.Substring(index + 1));
+            }
+            else
+            {
+                properties.Add(property);
+            }
+        }
+        return string.Join(",", properties);
     }
 }

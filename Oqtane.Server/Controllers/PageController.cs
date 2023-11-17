@@ -280,16 +280,10 @@ namespace Oqtane.Controllers
                 if (currentPage.Path != page.Path)
                 {
                     var urlMapping = _urlMappings.GetUrlMapping(page.SiteId, currentPage.Path);
-                    if (urlMapping == null)
+                    if (urlMapping != null)
                     {
-                        urlMapping = new UrlMapping();
-                        urlMapping.SiteId = page.SiteId;
-                        urlMapping.Url = currentPage.Path;
                         urlMapping.MappedUrl = page.Path;
-                        urlMapping.Requests = 0;
-                        urlMapping.CreatedOn = System.DateTime.UtcNow;
-                        urlMapping.RequestedOn = System.DateTime.UtcNow;
-                        _urlMappings.AddUrlMapping(urlMapping);
+                        _urlMappings.UpdateUrlMapping(urlMapping);
                     }
                 }
 

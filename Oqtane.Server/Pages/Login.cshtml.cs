@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Oqtane.Extensions;
+using Oqtane.Managers;
+using Oqtane.Shared;
 
 namespace Oqtane.Pages
 {
@@ -12,14 +15,16 @@ namespace Oqtane.Pages
     {
         private readonly UserManager<IdentityUser> _identityUserManager;
         private readonly SignInManager<IdentityUser> _identitySignInManager;
+        private readonly IUserManager _userManager;
 
-        public LoginModel(UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager)
+        public LoginModel(UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, IUserManager userManager)
         {
             _identityUserManager = identityUserManager;
             _identitySignInManager = identitySignInManager;
+            _userManager = userManager;
         }
 
-         public async Task<IActionResult> OnPostAsync(string username, string password, bool remember, string returnurl)
+        public async Task<IActionResult> OnPostAsync(string username, string password, bool remember, string returnurl)
         {
             if (!User.Identity.IsAuthenticated && !string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
             {
@@ -30,12 +35,18 @@ namespace Oqtane.Pages
                     var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, password, true);
                     if (result.Succeeded)
                     {
-                        validuser = true;
+                        var alias = HttpContext.GetAlias();
+                        var user = _userManager.GetUser(identityuser.UserName, alias.SiteId);
+                        if (user != null && !user.IsDeleted)
+                        {
+                            validuser = true;
+                        }
                     }
                 }
 
                 if (validuser)
                 {
+                    // note that .NET Identity uses a hardcoded ApplicationScheme of "Identity.Application" in SignInAsync
                     await _identitySignInManager.SignInAsync(identityuser, remember);
                 }
             }

@@ -78,6 +78,29 @@ namespace Oqtane.Repository
             }
         }
 
+        public UserRole GetUserRole(int userId, int roleId)
+        {
+            return GetUserRole(userId, roleId, true);
+        }
+
+        public UserRole GetUserRole(int userId, int roleId, bool tracking)
+        {
+            if (tracking)
+            {
+                return _db.UserRole
+                    .Include(item => item.Role) // eager load roles
+                    .Include(item => item.User) // eager load users
+                    .FirstOrDefault(item => item.UserId == userId && item.RoleId == roleId);
+            }
+            else
+            {
+                return _db.UserRole.AsNoTracking()
+                    .Include(item => item.Role) // eager load roles
+                    .Include(item => item.User) // eager load users
+                    .FirstOrDefault(item => item.UserId == userId && item.RoleId == roleId);
+            }
+        }
+
         public void DeleteUserRole(int userRoleId)
         {
             UserRole userRole = _db.UserRole.Find(userRoleId);

@@ -1,8 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>Oqtane.Shared</id>
-    <version>4.0.3</version>
+    <version>5.0.0</version>
     <authors>Shaun Walker</authors>
     <owners>.NET Foundation</owners>
     <title>Oqtane Framework</title>
@@ -12,13 +12,14 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
-    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v4.0.3</releaseNotes>
+    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v5.0.0</releaseNotes>
     <icon>icon.png</icon>
     <tags>oqtane</tags>
   </metadata>
   <files>
-    <file src="..\Oqtane.Shared\bin\Release\net7.0\Oqtane.Shared.dll" target="lib\net7.0" /> 
-    <file src="..\Oqtane.Shared\bin\Release\net7.0\Oqtane.Shared.pdb" target="lib\net7.0" /> 
+    <file src="..\Oqtane.Shared\bin\Release\net8.0\Oqtane.Shared.dll" target="lib\net8.0" /> 
+    <file src="..\Oqtane.Shared\bin\Release\net8.0\Oqtane.Shared.pdb" target="lib\net8.0" /> 
+    <file src="..\Oqtane.Server\bin\Release\net8.0\Oqtane.Licensing.Shared.Oqtane.dll" target="lib\net8.0" /> 
     <file src="icon.png" target="" />
   </files>
 </package>

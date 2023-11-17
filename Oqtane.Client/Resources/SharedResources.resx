@@ -426,4 +426,10 @@
   <data name="Password.ValidationCriteria" xml:space="preserve">
     <value>Passwords Must Have A Minimum Length Of {0} Characters, Including At Least {1} Unique Character(s), {2}{3}{4}{5} To Satisfy Password Compexity Requirements For This Site.</value>
   </data>
+  <data name="ProfileInvalid" xml:space="preserve">
+    <value>{0} Is Not Valid</value>
+  </data>
+  <data name="ProfileRequired" xml:space="preserve">
+    <value>{0} Is Required</value>
+  </data>
 </root>

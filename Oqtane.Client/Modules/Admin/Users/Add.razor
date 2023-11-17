@@ -8,55 +8,63 @@
 @inject IStringLocalizer<Add> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<TabStrip>
-    <TabPanel Name="Identity" ResourceKey="Identity">
-        @if (profiles != null)
-        {
-            <ModuleMessage Message="@_passwordrequirements" Type="MessageType.Info" />
-            <div class="container">
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="username" HelpText="A unique username for a user. Note that this field can not be modified once it is saved." ResourceKey="Username"></Label>
-                    <div class="col-sm-9">
-                        <input id="username" class="form-control" @bind="@username" />
+@if (_initialized)
+{
+    <TabStrip>
+        <TabPanel Name="Identity" ResourceKey="Identity">
+            @if (profiles != null)
+            {
+                <ModuleMessage Message="@_passwordrequirements" Type="MessageType.Info" />
+                <div class="container">
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="username" HelpText="A unique username for a user. Note that this field can not be modified once it is saved." ResourceKey="Username"></Label>
+                        <div class="col-sm-9">
+                            <input id="username" class="form-control" @bind="@_username" />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="password" HelpText="The user's password. Please choose a password which is sufficiently secure." ResourceKey="Password"></Label>
+                        <div class="col-sm-9">
+                            <div class="input-group">
+                                <input id="password" type="@_passwordtype" class="form-control" @bind="@_password" autocomplete="new-password" required />
+                                <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="confirm" HelpText="Please enter the password again to confirm it matches with the value above" ResourceKey="Confirm"></Label>
+                        <div class="col-sm-9">
+                            <div class="input-group">
+                                <input id="confirm" type="@_passwordtype" class="form-control" @bind="@_confirm" autocomplete="new-password" required />
+                                <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="email" HelpText="The email address where the user will receive notifications" ResourceKey="Email"></Label>
+                        <div class="col-sm-9">
+                            <input id="email" class="form-control" @bind="@_email" />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="displayname" HelpText="The full name of the user" ResourceKey="DisplayName"></Label>
+                        <div class="col-sm-9">
+                            <input id="displayname" class="form-control" @bind="@_displayname" />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="notify" HelpText="Indicate if new users should receive an email notification" ResourceKey="Notify">Notify? </Label>
+                        <div class="col-sm-9">
+                            <select id="notify" class="form-select" @bind="@_notify" required>
+                                <option value="True">@SharedLocalizer["Yes"]</option>
+                                <option value="False">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="password" HelpText="The user's password. Please choose a password which is sufficiently secure." ResourceKey="Password"></Label>
-					<div class="col-sm-9">
-                        <div class="input-group">
-						    <input id="password" type="@_passwordtype" class="form-control" @bind="@_password" autocomplete="new-password" required />
-                            <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
-					    </div>
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="confirm" HelpText="Please enter the password again to confirm it matches with the value above" ResourceKey="Confirm"></Label>
-                    <div class="col-sm-9">
-                        <div class="input-group">
-							<input id="confirm" type="@_passwordtype" class="form-control" @bind="@confirm" autocomplete="new-password" required />
-                            <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
-					    </div>
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="email" HelpText="The email address where the user will receive notifications" ResourceKey="Email"></Label>
-                    <div class="col-sm-9">
-                        <input id="email" class="form-control" @bind="@email" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="displayname" HelpText="The full name of the user" ResourceKey="DisplayName"></Label>
-                    <div class="col-sm-9">
-                        <input id="displayname" class="form-control" @bind="@displayname" />
-                    </div>
-                </div>
-            </div>
-
-        }
-    </TabPanel>
-    <TabPanel Name="Profile" ResourceKey="Profile">
-        @if (profiles != null)
-        {
+            }
+        </TabPanel>
+        <TabPanel Name="Profile" ResourceKey="Profile">
             <div class="container">
                 <div class="row mb-1 align-items-center">
                     @foreach (Profile profile in profiles)
@@ -71,38 +79,59 @@
                         }
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="@p.Name" HelpText="@p.Description">@p.Title</Label>
-                            <div class="col-sm-9">
-                                @if (p.IsRequired)
+                                <div class="col-sm-9">
+                                    @if (!string.IsNullOrEmpty(p.Options))
                                 {
-                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                    <select id="@p.Name" class="form-select" @onchange="@(e => ProfileChanged(e, p.Name))">
+                                        @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                                        {
+                                            @if (GetProfileValue(p.Name, "") == option || (GetProfileValue(p.Name, "") == "" && p.DefaultValue == option))
+                                            {
+                                                <option value="@option" selected>@option</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@option">@option</option>
+                                            }
+                                        }
+                                    </select>
                                 }
                                 else
                                 {
-                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                    @if (p.Rows == 1)
+                                    {
+                                        <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                    }
+                                    else
+                                    {
+                                        <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))"></textarea>
+                                    }
                                 }
                             </div>
                         </div>
                     }
-
                 </div>
             </div>
-        }
-    </TabPanel>
-</TabStrip>
-<br />
-<br />
-<button type="button" class="btn btn-success" @onclick="SaveUser">@SharedLocalizer["Save"]</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+        </TabPanel>
+    </TabStrip>
+    <br />
+    <br />
+    <button type="button" class="btn btn-success" @onclick="SaveUser">@SharedLocalizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+}
+
 
 @code {
+    private bool _initialized = false;
     private string _passwordrequirements;
-    private string username = string.Empty;
+    private string _username = string.Empty;
     private string _password = string.Empty;
     private string _passwordtype = "password";
     private string _togglepassword = string.Empty;
-    private string confirm = string.Empty;
-    private string email = string.Empty;
-    private string displayname = string.Empty;
+    private string _confirm = string.Empty;
+    private string _email = string.Empty;
+    private string _displayname = string.Empty;
+    private string _notify = "True";
     private List<Profile> profiles;
     private Dictionary<string, string> settings;
     private string category = string.Empty;
@@ -117,6 +146,7 @@
             _togglepassword = SharedLocalizer["ShowPassword"];
             profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
             settings = new Dictionary<string, string>();
+            _initialized = true;
         }
         catch (Exception ex)
         {
@@ -139,30 +169,34 @@
     {
         try
         {
-            if (username != string.Empty && _password != string.Empty && confirm != string.Empty && email != string.Empty && ValidateProfiles())
+            if (_username != string.Empty && _password != string.Empty && _confirm != string.Empty && _email != string.Empty)
             {
-                if (_password == confirm)
+                if (_password == _confirm)
                 {
-                    var user = new User();
-                    user.SiteId = PageState.Site.SiteId;
-                    user.Username = username;
-                    user.Password = _password;
-                    user.Email = email;
-                    user.DisplayName = string.IsNullOrWhiteSpace(displayname) ? username : displayname;
-                    user.PhotoFileId = null;
-
-                    user = await UserService.AddUserAsync(user);
-
-                    if (user != null)
+                    if (ValidateProfiles())
                     {
-                        await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
-                        await logger.LogInformation("User Created {User}", user);
-                        NavigationManager.NavigateTo(NavigateUrl());
-                    }
-                    else
-                    {
-                        await logger.LogError("Error Adding User {Username} {Email}", username, email);
-                        AddModuleMessage(Localizer["Error.User.AddCheckPass"], MessageType.Error);
+                        var user = new User();
+                        user.SiteId = PageState.Site.SiteId;
+                        user.Username = _username;
+                        user.Password = _password;
+                        user.Email = _email;
+                        user.DisplayName = string.IsNullOrWhiteSpace(_displayname) ? _username : _displayname;
+                        user.PhotoFileId = null;
+                        user.SuppressNotification = !bool.Parse(_notify);
+
+                        user = await UserService.AddUserAsync(user);
+
+                        if (user != null)
+                        {
+                            await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
+                            await logger.LogInformation("User Created {User}", user);
+                            NavigationManager.NavigateTo(NavigateUrl());
+                        }
+                        else
+                        {
+                            await logger.LogError("Error Adding User {Username} {Email}", _username, _email);
+                            AddModuleMessage(Localizer["Error.User.AddCheckPass"], MessageType.Error);
+                        }
                     }
                 }
                 else
@@ -177,34 +211,40 @@
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Adding User {Username} {Email} {Error}", username, email, ex.Message);
+            await logger.LogError(ex, "Error Adding User {Username} {Email} {Error}", _username, _email, ex.Message);
             AddModuleMessage(Localizer["Error.User.Add"], MessageType.Error);
         }
     }
 
     private bool ValidateProfiles()
     {
-        bool valid = true;
         foreach (Profile profile in profiles)
         {
-            if (string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)) && !string.IsNullOrEmpty(profile.DefaultValue))
+            var value = GetProfileValue(profile.Name, string.Empty);
+            if (string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(profile.DefaultValue))
             {
                 settings = SettingService.SetSetting(settings, profile.Name, profile.DefaultValue);
             }
             if (!profile.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
             {
-                if (valid == true && profile.IsRequired && string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)))
+                if (profile.IsRequired && string.IsNullOrEmpty(value))
                 {
-                    valid = false;
+                    AddModuleMessage(string.Format(SharedLocalizer["ProfileRequired"], profile.Title), MessageType.Warning);
+                    return false;
                 }
-                if (valid == true && !string.IsNullOrEmpty(profile.Validation))
+                if (!string.IsNullOrEmpty(profile.Validation))
                 {
                     Regex regex = new Regex(profile.Validation);
-                    valid = regex.Match(SettingService.GetSetting(settings, profile.Name, string.Empty)).Success;
+                    bool valid = regex.Match(value).Success;
+                    if (!valid)
+                    {
+                        AddModuleMessage(string.Format(SharedLocalizer["ProfileInvalid"], profile.Title), MessageType.Warning);
+                        return false;
+                    }
                 }
             }
         }
-        return valid;
+        return true;
     }
 
     private void ProfileChanged(ChangeEventArgs e, string SettingName)

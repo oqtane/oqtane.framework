@@ -89,7 +89,10 @@
 
     protected override void OnInitialized()
     {
-        AddModuleMessage(Localizer["Info.Module.Development"], MessageType.Info);
+        if (!NavigationManager.BaseUri.Contains("localhost:"))
+        {
+            AddModuleMessage(Localizer["Info.Module.Development"], MessageType.Info);
+        }
     }
 
     protected override async Task OnParametersSetAsync()
@@ -115,11 +118,18 @@
             {
                 if (IsValid(_owner) && IsValid(_module) && _owner != _module && _template != "-")
                 {
-                    var template = _templates.FirstOrDefault(item => item.Name == _template); 
-                    var moduleDefinition = new ModuleDefinition { Owner = _owner, Name = _module, Description = _description, Template = _template, Version = _reference, ModuleDefinitionName = template.Namespace };
-                    moduleDefinition = await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition);
-                    GetLocation();
-                    AddModuleMessage(string.Format(Localizer["Success.Module.Create"], NavigateUrl("admin/system")), MessageType.Success);
+                    if (IsValidXML(_description))
+                    {
+                        var template = _templates.FirstOrDefault(item => item.Name == _template);
+                        var moduleDefinition = new ModuleDefinition { Owner = _owner, Name = _module, Description = _description, Template = _template, Version = _reference, ModuleDefinitionName = template.Namespace };
+                        moduleDefinition = await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition);
+                        GetLocation();
+                        AddModuleMessage(string.Format(Localizer["Success.Module.Create"], NavigateUrl("admin/system")), MessageType.Success);
+                    }
+                    else
+                    {
+                        AddModuleMessage(Localizer["Message.Require.ValidDescription"], MessageType.Warning);
+                    }
                 }
                 else
                 {
@@ -141,6 +151,12 @@
     {
         // must contain letters, underscores and digits and first character must be letter or underscore
         return !string.IsNullOrEmpty(name) && name.ToLower() != "module" && !name.ToLower().Contains("oqtane") && Regex.IsMatch(name, "^[A-Za-z_][A-Za-z0-9_]*$");
+    }
+
+    private bool IsValidXML(string description)
+    {
+        // must contain letters, digits, or spaces
+        return Regex.IsMatch(description, "^[A-Za-z0-9 .,!?]+$");
     }
 
     private void TemplateChanged(ChangeEventArgs e)

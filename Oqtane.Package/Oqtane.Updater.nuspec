@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>Oqtane.Updater</id>
-    <version>4.0.3</version>
+    <version>5.0.0</version>
     <authors>Shaun Walker</authors>
     <owners>.NET Foundation</owners>
     <title>Oqtane Framework</title>
@@ -12,12 +12,12 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
-    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v4.0.3</releaseNotes>
+    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v5.0.0</releaseNotes>
     <icon>icon.png</icon>
     <tags>oqtane</tags>
   </metadata>
   <files>
-    <file src="..\Oqtane.Updater\bin\Release\net7.0\publish\*.*" target="lib\net7.0" /> 
+    <file src="..\Oqtane.Updater\bin\Release\net8.0\publish\*.*" target="lib\net8.0" /> 
     <file src="icon.png" target="" />
   </files>
 </package>

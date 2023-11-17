@@ -17,13 +17,29 @@ namespace Oqtane.Themes.Controls
     {
         [Inject] public NavigationManager NavigationManager { get; set; }
         [Inject] public IUserService UserService { get; set; }
+        [Inject] public ISettingService SettingService { get; set; }
         [Inject] public IJSRuntime jsRuntime { get; set; }
         [Inject] public IServiceProvider ServiceProvider { get; set; }
 
         protected void LoginUser()
         {
+            var allowexternallogin = (SettingService.GetSetting(PageState.Site.Settings, "ExternalLogin:ProviderType", "") != "") ? true : false;
+            var allowsitelogin = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AllowSiteLogin", "true"));
+
             Route route = new Route(PageState.Uri.AbsoluteUri, PageState.Alias.Path);
-            NavigationManager.NavigateTo(NavigateUrl("login", "?returnurl=" + WebUtility.UrlEncode(route.PathAndQuery)));
+            var returnurl = WebUtility.UrlEncode(route.PathAndQuery);
+
+            if (allowexternallogin && !allowsitelogin)
+            {
+                // external login
+                NavigationManager.NavigateTo(Utilities.TenantUrl(PageState.Alias, "/pages/external?returnurl=" + returnurl), true);
+            }
+            else
+            {
+                // local login
+                NavigationManager.NavigateTo(NavigateUrl("login", "?returnurl=" + returnurl));
+            }
+
         }
 
         protected async Task LogoutUser()

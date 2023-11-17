@@ -2,6 +2,7 @@
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
+@inject IUserRoleService UserRoleService
 @inject INotificationService NotificationService
 @inject IStringLocalizer<Add> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
@@ -10,10 +11,10 @@
 {
 <div class="container">
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="to" HelpText="Enter the username you wish to send a message to" ResourceKey="To">To: </Label>
+        <Label Class="col-sm-3" For="to" HelpText="Enter the user you wish to send a message to" ResourceKey="To">To: </Label>
         <div class="col-sm-9">
-            <input id="to" class="form-control" @bind="@username" />
-        </div> 
+            <AutoComplete OnSearch="GetUsers" Placeholder="@Localizer["Username.Enter"]" @ref="username" />
+        </div>
     </div>
     <div class="row mb-1 align-items-center">
         <Label Class="col-sm-3" For="subject" HelpText="Enter the subject of the message" ResourceKey="Subject">Subject: </Label>
@@ -30,11 +31,11 @@
 </div>
 <br/>
     <button type="button" class="btn btn-primary" @onclick="Send">@SharedLocalizer["Send"]</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+    <NavLink class="btn btn-secondary" href="@PageState.ReturnUrl">@SharedLocalizer["Cancel"]</NavLink>
 }
 
 @code {
-    private string username = "";
+    private AutoComplete username;
     private string subject = "";
     private string body = "";
 
@@ -42,21 +43,35 @@
 
     public override string Title => "Send Notification";
 
+    private async Task<Dictionary<string, string>> GetUsers(string filter)
+    {
+        var users = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Registered);
+        return users.Where(item => item.User.Username.Contains(filter, StringComparison.OrdinalIgnoreCase))
+            .ToDictionary(item => item.UserId.ToString(), item => item.User.Username);
+    }
+
     private async Task Send()
     {
         try
         {
-            var user = await UserService.GetUserAsync(username, PageState.Site.SiteId);
-            if (user != null)
+            if (!string.IsNullOrEmpty(username.Key) && !string.IsNullOrEmpty(subject))
             {
-                var notification = new Notification(PageState.Site.SiteId, PageState.User, user, subject, body);
-                notification = await NotificationService.AddNotificationAsync(notification);
-                await logger.LogInformation("Notification Created {NotificationId}", notification.NotificationId);
-                NavigationManager.NavigateTo(NavigateUrl());
+                var user = await UserService.GetUserAsync(int.Parse(username.Key), ModuleState.SiteId);
+                if (user != null)
+                {
+                    var notification = new Notification(PageState.Site.SiteId, PageState.User, user, subject, body);
+                    notification = await NotificationService.AddNotificationAsync(notification);
+                    await logger.LogInformation("Notification Created {NotificationId}", notification.NotificationId);
+                    NavigationManager.NavigateTo(PageState.ReturnUrl);
+                }
+                else
+                {
+                    AddModuleMessage(Localizer["Message.User.Invalid"], MessageType.Warning);
+                }
             }
             else
             {
-                AddModuleMessage(Localizer["Message.User.Invalid"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.Required"], MessageType.Warning);
             }
         }
         catch (Exception ex)

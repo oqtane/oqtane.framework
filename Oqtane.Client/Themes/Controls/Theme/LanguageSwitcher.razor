@@ -8,11 +8,11 @@
 
 @if (_supportedCultures?.Count() > 1)
 {
-    <div class="btn-group" role="group">
+    <div class="btn-group pe-1" role="group">
         <button id="btnCultures" type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <span class="oi oi-globe"></span>
         </button>
-        <div class="dropdown-menu" aria-labelledby="btnCultures">
+        <div class="dropdown-menu @MenuAlignment" aria-labelledby="btnCultures">
             @foreach (var culture in _supportedCultures)
             {
                 <a class="dropdown-item @(CultureInfo.CurrentUICulture.Name == culture.Name ? "active" : String.Empty)" href="#" @onclick="@(async e => await SetCultureAsync(culture.Name))">@culture.DisplayName</a>
@@ -23,10 +23,15 @@
 
 @code{
     private IEnumerable<Culture> _supportedCultures;
+    [Parameter]
+    public string DropdownAlignment { get; set; } = string.Empty; // Empty or Left or Right
+    private string MenuAlignment = string.Empty;
 
     protected override void OnParametersSet()
     {
-		var languages = PageState.Languages;
+        MenuAlignment = DropdownAlignment.ToLower() == "right" ? "dropdown-menu-end" : string.Empty;
+
+        var languages = PageState.Languages;
         _supportedCultures = languages.Select(l => new Culture { Name = l.Code, DisplayName = l.Name });
     }
 

@@ -8,27 +8,28 @@
 
 @if (_files != null)
 {
-    <div class="container">
-        <div class="row mb-1 align-items-center">
-            <div class="col-sm-2">
-                <label class="control-label">@Localizer["Folder"] </label>
-            </div>            
-            <div class="col-sm-6">
+    <div class="row">
+        <div class="col-md mb-1">
+            <ActionLink Action="Edit" Text="Add Folder" Class="btn btn-secondary" ResourceKey="AddFolder" />
+        </div>
+        <div class="col-md-8 mb-1">
+            <div class="input-group">
+                <span class="input-group-text">@Localizer["Folder"]:</span>
                 <select class="form-select" @onchange="(e => FolderChanged(e))">
                     @foreach (Folder folder in _folders)
                     {
                         <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
                     }
                 </select>
-            </div>            
-            <div class="col-sm-4">
                 <ActionLink Action="Edit" Text="Edit Folder" Class="btn btn-secondary" Parameters="@($"id=" + _folderId.ToString())" ResourceKey="EditFolder" />&nbsp;
-                <ActionLink Action="Edit" Text="Add Folder" Class="btn btn-secondary" ResourceKey="AddFolder" />&nbsp;
-                <ActionLink Action="Add" Text="Upload Files" Parameters="@($"id=" + _folderId.ToString())" ResourceKey="UploadFiles" />
             </div>
         </div>
+        <div class="col-md mb-1 text-end">
+            <ActionLink Action="Add" Text="Upload Files" Parameters="@($"id=" + _folderId.ToString())" ResourceKey="UploadFiles" />
+        </div>
     </div>
-    <Pager Items="@_files">
+
+    <Pager Items="@_files" SearchProperties="Name">
         <Header>
         <th style="width: 1px;">&nbsp;</th>
         <th style="width: 1px;">&nbsp;</th>

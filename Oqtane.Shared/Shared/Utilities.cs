@@ -1,8 +1,6 @@
 using Oqtane.Models;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -389,13 +387,20 @@ namespace Oqtane.Shared
         }
 
         public static string UrlCombine(params string[] segments)
-{
-            segments = segments.Where(item => !string.IsNullOrEmpty(item) && item != "/" && item != "\\").ToArray();
-            for (int i = 1; i < segments.Length; i++)
+        {
+            var url = new List<string>();
+            for (int i = 0; i < segments.Length; i++)
             {
                 segments[i] = segments[i].Replace("\\", "/");
+                if (!string.IsNullOrEmpty(segments[i]) && segments[i] != "/")
+                {
+                    foreach (var segment in segments[i].Split('/', StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        url.Add(segment);
+                    }
+                }
             }
-            return string.Join("/", segments);
+            return string.Join("/", url);
         }
 
         public static bool IsPathValid(this Folder folder)

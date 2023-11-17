@@ -390,7 +390,7 @@
   <data name="RoleClaimType.Text" xml:space="preserve">
     <value>Role Claim:</value>
   </data>
-    <data name="ProfileClaimTypes.HelpText" xml:space="preserve">
+  <data name="ProfileClaimTypes.HelpText" xml:space="preserve">
     <value>Optionally provide a comma delimited list of user profile claims provided by the identity provider, as well as mappings to your user profile definition. For example if the identity provider includes a 'given_name' claim and you have a 'FirstName' user profile definition you should specify 'given_name:FirstName'.</value>
   </data>
   <data name="ProfileClaimTypes.Text" xml:space="preserve">
@@ -401,5 +401,56 @@
   </data>
   <data name="Name" xml:space="preserve">
     <value>Name</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="ImportUsers.Text" xml:space="preserve">
+    <value>Import Users</value>
+  </data>
+  <data name="AuthFlow.Code" xml:space="preserve">
+    <value>code</value>
+  </data>
+  <data name="AuthFlow.CodeIdToken" xml:space="preserve">
+    <value>code id_token</value>
+  </data>
+  <data name="AuthFlow.CodeIdTokenToken" xml:space="preserve">
+    <value>code id_token token</value>
+  </data>
+  <data name="AuthFlow.CodeToken" xml:space="preserve">
+    <value>code token</value>
+  </data>
+  <data name="AuthFlow.IdToken" xml:space="preserve">
+    <value>id_token</value>
+  </data>
+  <data name="AuthFlow.IdTokenToken" xml:space="preserve">
+    <value>id_token token</value>
+  </data>
+  <data name="AuthFlow.None" xml:space="preserve">
+    <value>none</value>
+  </data>
+  <data name="AuthFlow.Token" xml:space="preserve">
+    <value>token</value>
+  </data>
+  <data name="AuthResponseType" xml:space="preserve">
+    <value>Authorization Response Type</value>
+  </data>
+  <data name="VerifyUsers.HelpText" xml:space="preserve">
+    <value>Do you want existing users to perform an additional email verification step to link their external login? If you disable this option, existing users will be linked automatically.</value>
+  </data>
+  <data name="VerifyUsers.Text" xml:space="preserve">
+    <value>Verify Existing Users?</value>
+  </data>
+  <data name="AlwaysRemember.HelpText" xml:space="preserve">
+    <value>Enabling this option will set a permanent cookie in conjunction with the Cookie Expiration Timespan, which will automatically sign in users the next time they visit the site. By default the site will use session cookies.</value>
+  </data>
+  <data name="AlwaysRemember.Text" xml:space="preserve">
+    <value>Always Remember User?</value>
+  </data>
+  <data name="CookieExpiration.HelpText" xml:space="preserve">
+    <value>You can choose to use a custom authentication cookie expiration timespan for each site (e.g. '08:00:00' for 8 hours). The default is 14 days if not specified.</value>
+  </data>
+  <data name="CookieExpiration.Text" xml:space="preserve">
+    <value>Cookie Expiration Timespan:</value>
   </data>
 </root>
