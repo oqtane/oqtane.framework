@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>Oqtane.Client</id>
@@ -19,6 +19,7 @@
   <files>
     <file src="..\Oqtane.Client\bin\Release\net8.0\Oqtane.Client.dll" target="lib\net8.0" /> 
     <file src="..\Oqtane.Client\bin\Release\net8.0\Oqtane.Client.pdb" target="lib\net8.0" /> 
+    <file src="..\Oqtane.Server\bin\Release\net8.0\Oqtane.Licensing.Client.Oqtane.dll" target="lib\net8.0" /> 
     <file src="icon.png" target="" />
   </files>
 </package>
