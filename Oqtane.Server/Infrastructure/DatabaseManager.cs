@@ -215,39 +215,14 @@ namespace Oqtane.Infrastructure
 
             try
             {
-                bool installPackages = false;
-
-                // iterate database packages in installation folder
-                var packagesFolder = new DirectoryInfo(Path.Combine(_environment.ContentRootPath, Constants.PackagesFolder));
-                foreach (var package in packagesFolder.GetFiles("*.nupkg.bak"))
-                {
-                    // determine if package needs to be upgraded or installed
-                    bool upgrade = System.IO.File.Exists(package.FullName.Replace(".nupkg.bak",".log"));
-                    if (upgrade || package.Name.StartsWith(Utilities.GetAssemblyName(install.DatabaseType)))
-                    {
-                        var packageName = Path.Combine(package.DirectoryName, package.Name);
-                        packageName = packageName.Substring(0, packageName.IndexOf(".bak"));
-                        package.MoveTo(packageName, true);
-                        installPackages = true;
-                    }
-                }
-                if (installPackages)
-                {
-                    using (var scope = _serviceScopeFactory.CreateScope())
-                    {
-                        var installationManager = scope.ServiceProvider.GetRequiredService<IInstallationManager>();
-                        installationManager.InstallPackages();
-                    }
-                }
-
                 // load the installation database type (if necessary)
-                if (Type.GetType(install.DatabaseType) == null)
-                {
-                    var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
-                    var assembliesFolder = new DirectoryInfo(assemblyPath);
-                    var assemblyFile = new FileInfo($"{assembliesFolder}/{Utilities.GetAssemblyName(install.DatabaseType)}.dll");
-                    AssemblyLoadContext.Default.LoadOqtaneAssembly(assemblyFile);
-                }
+                //if (Type.GetType(install.DatabaseType) == null)
+                //{
+                //    var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
+                //    var assembliesFolder = new DirectoryInfo(assemblyPath);
+                //    var assemblyFile = new FileInfo($"{assembliesFolder}/{Utilities.GetAssemblyName(install.DatabaseType)}.dll");
+                //    AssemblyLoadContext.Default.LoadOqtaneAssembly(assemblyFile);
+                //}
 
                 result.Success = true;
             }
