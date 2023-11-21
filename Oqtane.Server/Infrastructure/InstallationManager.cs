@@ -52,39 +52,22 @@ namespace Oqtane.Infrastructure
                 Directory.CreateDirectory(sourceFolder);
             }
 
-            // move packages to secure /Packages folder
-            foreach (var folderName in "Modules,Themes,Packages".Split(","))
+            // move core framework distribution packages to secure /Packages folder
+            string folder = Path.Combine(webRootPath, "Packages");
+            if (Directory.Exists(folder))
             {
-                string folder = Path.Combine(webRootPath, folderName);
-                if (Directory.Exists(folder))
+                foreach (var file in Directory.GetFiles(folder, "*.nupkg"))
                 {
-                    foreach (var file in Directory.GetFiles(folder, "*.nupkg*"))
+                    var destinationFile = Path.Combine(sourceFolder, Path.GetFileName(file));
+                    if (File.Exists(destinationFile))
                     {
-                        var destinationFile = Path.Combine(sourceFolder, Path.GetFileName(file));
-                        if (File.Exists(destinationFile))
-                        {
-                            File.Delete(destinationFile);
-                        }
-
-                        if (destinationFile.ToLower().EndsWith(".nupkg.bak"))
-                        {
-                            // leave a copy in the current folder as it is distributed with the core framework
-                            File.Copy(file, destinationFile);
-                        }
-                        else
-                        {
-                            // move to destination
-                            File.Move(file, destinationFile);
-                        }
+                        File.Delete(destinationFile);
                     }
-                }
-                else
-                {
-                    Directory.CreateDirectory(folder);
+                    File.Move(file, destinationFile);
                 }
             }
 
-            // iterate through Nuget packages in source folder
+            // install Nuget packages in secure Packages folder
             foreach (string packagename in Directory.GetFiles(sourceFolder, "*.nupkg"))
             {
                 try

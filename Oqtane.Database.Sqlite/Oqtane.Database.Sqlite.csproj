@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <Target Name="CopyPackage" AfterTargets="Pack">
-    <Copy SourceFiles="$(OutputPath)..\$(PackageName)" DestinationFiles="..\Oqtane.Server\wwwroot\Packages\$(MSBuildProjectName).nupkg.bak" />
+    <Copy SourceFiles="$(OutputPath)..\$(PackageName)" DestinationFiles="..\Oqtane.Server\wwwroot\Packages\$(MSBuildProjectName).nupkg" />
   </Target>
 
 </Project>
