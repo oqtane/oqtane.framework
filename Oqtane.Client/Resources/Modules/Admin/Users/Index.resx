@@ -409,31 +409,34 @@
     <value>Import Users</value>
   </data>
   <data name="AuthFlow.Code" xml:space="preserve">
-    <value>code</value>
+    <value>Authorization Code</value>
   </data>
   <data name="AuthFlow.CodeIdToken" xml:space="preserve">
-    <value>code id_token</value>
+    <value>Authorization Code + ID Token</value>
   </data>
   <data name="AuthFlow.CodeIdTokenToken" xml:space="preserve">
-    <value>code id_token token</value>
+    <value>Authorization Code + ID Token + Access Token</value>
   </data>
   <data name="AuthFlow.CodeToken" xml:space="preserve">
-    <value>code token</value>
+    <value>Authorization Code + Access Token</value>
   </data>
   <data name="AuthFlow.IdToken" xml:space="preserve">
-    <value>id_token</value>
+    <value>ID Token</value>
   </data>
   <data name="AuthFlow.IdTokenToken" xml:space="preserve">
-    <value>id_token token</value>
+    <value>ID Token + Access Token</value>
   </data>
   <data name="AuthFlow.None" xml:space="preserve">
-    <value>none</value>
+    <value>None</value>
   </data>
   <data name="AuthFlow.Token" xml:space="preserve">
-    <value>token</value>
+    <value>Access Token</value>
   </data>
-  <data name="AuthResponseType" xml:space="preserve">
-    <value>Authorization Response Type</value>
+  <data name="AuthResponseType.Text" xml:space="preserve">
+    <value>Authorization Response Type:</value>
+  </data>
+  <data name="AuthResponseType.HelpText" xml:space="preserve">
+    <value>Specify the authorization response type. The default is Authorization Code which is considered to be the most secure option based on the latest OAuth specification.</value>
   </data>
   <data name="VerifyUsers.HelpText" xml:space="preserve">
     <value>Do you want existing users to perform an additional email verification step to link their external login? If you disable this option, existing users will be linked automatically.</value>
