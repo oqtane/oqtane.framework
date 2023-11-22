@@ -266,21 +266,24 @@ else
 									<input id="parameters" class="form-control" @bind="@_parameters" />
 								</div>
 							</div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="authresponsetype" HelpText="Specify the authorization response type" ResourceKey="AuthResponseType">Authorization Response Type</Label>
-                                <div class="col-sm-9">
-                                    <select id="authresponsetype" class="form-select" @bind="@_authresponsetype" required>
-                                        <option value="code">@Localizer["AuthFlow.Code"]</option>
-                                        <option value="code id_token">@Localizer["AuthFlow.CodeIdToken"]</option>
-                                        <option value="code id_token token">@Localizer["AuthFlow.CodeIdTokenToken"]</option>
-                                        <option value="code token">@Localizer["AuthFlow.CodeToken"]</option>
-                                        <option value="id_token">@Localizer["AuthFlow.IdToken"]</option>
-                                        <option value="id_token token">@Localizer["AuthFlow.IdTokenToken"]</option>
-                                        <option value="token">@Localizer["AuthFlow.Token"]</option>
-                                        <option value="none">@Localizer["AuthFlow.None"]</option>
-                                    </select>
+							@if (_providertype == AuthenticationProviderTypes.OpenIDConnect)
+                            {
+                                <div class="row mb-1 align-items-center">
+                                    <Label Class="col-sm-3" For="authresponsetype" HelpText="Specify the authorization response type. The default is Authorization Code which is considered to be the most secure option based on the latest OAuth specification." ResourceKey="AuthResponseType">Authorization Response Type:</Label>
+                                    <div class="col-sm-9">
+                                        <select id="authresponsetype" class="form-select" @bind="@_authresponsetype" required>
+                                            <option value="code">@Localizer["AuthFlow.Code"]</option>
+                                            <option value="code id_token">@Localizer["AuthFlow.CodeIdToken"]</option>
+                                            <option value="code id_token token">@Localizer["AuthFlow.CodeIdTokenToken"]</option>
+                                            <option value="code token">@Localizer["AuthFlow.CodeToken"]</option>
+                                            <option value="id_token">@Localizer["AuthFlow.IdToken"]</option>
+                                            <option value="id_token token">@Localizer["AuthFlow.IdTokenToken"]</option>
+                                            <option value="token">@Localizer["AuthFlow.Token"]</option>
+                                            <option value="none">@Localizer["AuthFlow.None"]</option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
+                            }
                             <div class="row mb-1 align-items-center">
 								<Label Class="col-sm-3" For="pkce" HelpText="Indicate if the provider supports Proof Key for Code Exchange (PKCE)" ResourceKey="PKCE">Use PKCE?</Label>
 								<div class="col-sm-9">
