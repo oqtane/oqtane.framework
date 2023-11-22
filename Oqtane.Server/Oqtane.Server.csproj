@@ -18,6 +18,7 @@
     <IsPackable>true</IsPackable>
     <DefineConstants>$(DefineConstants);OQTANE;OQTANE3</DefineConstants>
     <PreserveCompilationContext>true</PreserveCompilationContext>
+    <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="wwwroot\Modules\Templates\**" />
