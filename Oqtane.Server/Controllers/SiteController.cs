@@ -192,7 +192,7 @@ namespace Oqtane.Controllers
         public Site Put(int id, [FromBody] Site site)
         {
             var current = _sites.GetSite(site.SiteId, false);
-            if (ModelState.IsValid && site.SiteId == _alias.SiteId && site.TenantId == _alias.TenantId && current != null)
+            if (ModelState.IsValid && site.SiteId == _alias.SiteId && site.TenantId == _alias.TenantId && site.SiteId == id && current != null)
             {
                 site = _sites.UpdateSite(site);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, site.SiteId, SyncEventActions.Update);
