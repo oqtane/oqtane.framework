@@ -127,7 +127,7 @@
     <value>Error Downloading Module</value>
   </data>
   <data name="Confirm.Module.Delete" xml:space="preserve">
-    <value>Are You Sure You Wish To Delete The {0} Module?</value>
+    <value>Are You Sure You Wish To Uninstall The {0} Module?</value>
   </data>
   <data name="Error.Module.Load" xml:space="preserve">
     <value>Error Loading Modules</value>
@@ -142,10 +142,10 @@
     <value>Install Module</value>
   </data>
   <data name="DeleteModule.Header" xml:space="preserve">
-    <value>Delete Module</value>
+    <value>Uninstall Module</value>
   </data>
   <data name="DeleteModule.Text" xml:space="preserve">
-    <value>Delete</value>
+    <value>Uninstall</value>
   </data>
   <data name="InUse" xml:space="preserve">
     <value>In Use?</value>

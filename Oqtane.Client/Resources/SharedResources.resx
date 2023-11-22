@@ -432,4 +432,7 @@
   <data name="ProfileRequired" xml:space="preserve">
     <value>{0} Is Required</value>
   </data>
+  <data name="Uninstall" xml:space="preserve">
+    <value>Uninstall</value>
+  </data>
 </root>
