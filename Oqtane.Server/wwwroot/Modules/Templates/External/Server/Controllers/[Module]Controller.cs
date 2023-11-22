@@ -81,7 +81,7 @@ namespace [Owner].Module.[Module].Controllers
         [Authorize(Policy = PolicyNames.EditModule)]
         public Models.[Module] Put(int id, [FromBody] Models.[Module] [Module])
         {
-            if (ModelState.IsValid && IsAuthorizedEntityId(EntityNames.Module, [Module].ModuleId) && _[Module]Repository.Get[Module]([Module].[Module]Id, false) != null)
+            if (ModelState.IsValid && [Module].[Module]Id == id && IsAuthorizedEntityId(EntityNames.Module, [Module].ModuleId) && _[Module]Repository.Get[Module]([Module].[Module]Id, false) != null)
             {
                 [Module] = _[Module]Repository.Update[Module]([Module]);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "[Module] Updated {[Module]}", [Module]);
