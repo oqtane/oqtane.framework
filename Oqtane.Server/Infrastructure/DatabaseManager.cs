@@ -105,12 +105,6 @@ namespace Oqtane.Infrastructure
                     IsNewTenant = false
                 };
 
-                // on upgrade install the associated Nuget package
-                if (!string.IsNullOrEmpty(install.ConnectionString))
-                {
-                    InstallDatabase(install);
-                }
-
                 var installation = IsInstalled();
                 if (!installation.Success)
                 {
@@ -209,32 +203,6 @@ namespace Oqtane.Infrastructure
             return result;
         }
 
-        private Installation InstallDatabase(InstallConfig install)
-        {
-            var result = new Installation {Success = false, Message = string.Empty};
-
-            try
-            {
-                // load the installation database type (if necessary)
-                //if (Type.GetType(install.DatabaseType) == null)
-                //{
-                //    var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
-                //    var assembliesFolder = new DirectoryInfo(assemblyPath);
-                //    var assemblyFile = new FileInfo($"{assembliesFolder}/{Utilities.GetAssemblyName(install.DatabaseType)}.dll");
-                //    AssemblyLoadContext.Default.LoadOqtaneAssembly(assemblyFile);
-                //}
-
-                result.Success = true;
-            }
-            catch (Exception ex)
-            {
-                result.Message = ex.ToString();
-                _filelogger.LogError(Utilities.LogMessage(this, result.Message));
-            }
-
-            return result;
-        }
-
         private Installation CreateDatabase(InstallConfig install)
         {
             var result = new Installation { Success = false, Message = string.Empty };
@@ -243,8 +211,6 @@ namespace Oqtane.Infrastructure
             {
                 try
                 {
-                    InstallDatabase(install);
-
                     var databaseType = install.DatabaseType;
 
                     // get database type
