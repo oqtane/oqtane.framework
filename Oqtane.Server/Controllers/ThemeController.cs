@@ -71,7 +71,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Admin)]
         public void Put(int id, [FromBody] Theme theme)
         {
-            if (ModelState.IsValid && theme.SiteId == _alias.SiteId && _themes.GetTheme(theme.ThemeId,theme.SiteId) != null)
+            if (ModelState.IsValid && theme.SiteId == _alias.SiteId && theme.ThemeId == id && _themes.GetTheme(theme.ThemeId,theme.SiteId) != null)
             {
                 _themes.UpdateTheme(theme);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Theme, theme.ThemeId, SyncEventActions.Update);

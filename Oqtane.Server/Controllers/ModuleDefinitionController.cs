@@ -167,7 +167,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Admin)]
         public void Put(int id, [FromBody] ModuleDefinition moduleDefinition)
         {
-            if (ModelState.IsValid && moduleDefinition.SiteId == _alias.SiteId && _moduleDefinitions.GetModuleDefinition(moduleDefinition.ModuleDefinitionId, moduleDefinition.SiteId) != null)
+            if (ModelState.IsValid && moduleDefinition.SiteId == _alias.SiteId && moduleDefinition.ModuleDefinitionId == id && _moduleDefinitions.GetModuleDefinition(moduleDefinition.ModuleDefinitionId, moduleDefinition.SiteId) != null)
             {
                 _moduleDefinitions.UpdateModuleDefinition(moduleDefinition);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.ModuleDefinition, moduleDefinition.ModuleDefinitionId, SyncEventActions.Update);

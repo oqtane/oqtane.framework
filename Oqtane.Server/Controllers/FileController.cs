@@ -207,7 +207,7 @@ namespace Oqtane.Controllers
         public Models.File Put(int id, [FromBody] Models.File file)
         {
             var File = _files.GetFile(file.FileId, false);
-            if (ModelState.IsValid && file.Folder.SiteId == _alias.SiteId && File != null // ensure file exists
+            if (ModelState.IsValid && file.Folder.SiteId == _alias.SiteId && file.FileId == id && File != null // ensure file exists
                 && _userPermissions.IsAuthorized(User, file.Folder.SiteId, EntityNames.Folder, File.FolderId, PermissionNames.Edit) // ensure user had edit rights to original folder
                 && _userPermissions.IsAuthorized(User, file.Folder.SiteId, EntityNames.Folder, file.FolderId, PermissionNames.Edit)) // ensure user has edit rights to new folder
             {

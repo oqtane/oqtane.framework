@@ -109,7 +109,7 @@ namespace Oqtane.Controllers
         public PageModule Put(int id, [FromBody] PageModule pageModule)
         {
             var page = _pages.GetPage(pageModule.PageId);
-            if (ModelState.IsValid && page != null && page.SiteId == _alias.SiteId && _pageModules.GetPageModule(pageModule.PageModuleId, false) != null && _userPermissions.IsAuthorized(User, page.SiteId, EntityNames.Page, pageModule.PageId, PermissionNames.Edit))
+            if (ModelState.IsValid && page != null && page.SiteId == _alias.SiteId && pageModule.PageModuleId == id && _pageModules.GetPageModule(pageModule.PageModuleId, false) != null && _userPermissions.IsAuthorized(User, page.SiteId, EntityNames.Page, pageModule.PageId, PermissionNames.Edit))
             {
                 pageModule = _pageModules.UpdatePageModule(pageModule);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.PageModule, pageModule.PageModuleId, SyncEventActions.Update);

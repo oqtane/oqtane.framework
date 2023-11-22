@@ -118,7 +118,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Admin)]
         public UrlMapping Put(int id, [FromBody] UrlMapping urlMapping)
         {
-            if (ModelState.IsValid && urlMapping.SiteId == _alias.SiteId && _urlMappings.GetUrlMapping(urlMapping.UrlMappingId, false) != null)
+            if (ModelState.IsValid && urlMapping.SiteId == _alias.SiteId && urlMapping.UrlMappingId == id && _urlMappings.GetUrlMapping(urlMapping.UrlMappingId, false) != null)
             {
                 urlMapping = _urlMappings.UpdateUrlMapping(urlMapping);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.UrlMapping, urlMapping.UrlMappingId, SyncEventActions.Update);

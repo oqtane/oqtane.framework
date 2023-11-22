@@ -173,7 +173,7 @@ namespace Oqtane.Controllers
         [Authorize]
         public async Task<User> Put(int id, [FromBody] User user)
         {
-            if (ModelState.IsValid && user.SiteId == _tenantManager.GetAlias().SiteId && _users.GetUser(user.UserId, false) != null
+            if (ModelState.IsValid && user.SiteId == _tenantManager.GetAlias().SiteId && user.UserId == id && _users.GetUser(user.UserId, false) != null
                 && (_userPermissions.IsAuthorized(User, user.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) || User.Identity.Name == user.Username))
             {
                 user = await _userManager.UpdateUser(user);

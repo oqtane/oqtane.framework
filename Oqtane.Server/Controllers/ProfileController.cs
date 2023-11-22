@@ -94,7 +94,7 @@ namespace Oqtane.Controllers
         [Authorize(Policy = $"{EntityNames.Profile}:{PermissionNames.Write}:{RoleNames.Admin}")]
         public Profile Put(int id, [FromBody] Profile profile)
         {
-            if (ModelState.IsValid && profile.SiteId == _alias.SiteId && _profiles.GetProfile(profile.ProfileId, false) != null)
+            if (ModelState.IsValid && profile.SiteId == _alias.SiteId && profile.ProfileId == id && _profiles.GetProfile(profile.ProfileId, false) != null)
             {
                 profile = _profiles.UpdateProfile(profile);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Profile, profile.ProfileId, SyncEventActions.Update);

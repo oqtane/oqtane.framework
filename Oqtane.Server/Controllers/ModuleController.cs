@@ -154,7 +154,7 @@ namespace Oqtane.Controllers
         {
             var _module = _modules.GetModule(module.ModuleId, false);
 
-            if (ModelState.IsValid && module.SiteId == _alias.SiteId && _module != null && _userPermissions.IsAuthorized(User, module.SiteId, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
+            if (ModelState.IsValid && module.SiteId == _alias.SiteId && module.ModuleId == id && _module != null && _userPermissions.IsAuthorized(User, module.SiteId, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
             {
                 module = _modules.UpdateModule(module);
 

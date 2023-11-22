@@ -76,7 +76,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Host)]
         public Alias Put(int id, [FromBody] Alias alias)
         {
-            if (ModelState.IsValid && _aliases.GetAlias(alias.AliasId, false) != null)
+            if (ModelState.IsValid && alias.AliasId == id && _aliases.GetAlias(alias.AliasId, false) != null)
             {
                 alias = _aliases.UpdateAlias(alias);
                 _syncManager.AddSyncEvent(alias.TenantId, EntityNames.Alias, alias.AliasId, SyncEventActions.Update);
