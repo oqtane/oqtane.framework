@@ -50,7 +50,6 @@ namespace Oqtane.Extensions
                     options.SaveTokens = false;
                     options.GetClaimsFromUserInfoEndpoint = true;
                     options.CallbackPath = string.IsNullOrEmpty(alias.Path) ? "/signin-" + AuthenticationProviderTypes.OpenIDConnect : "/" + alias.Path + "/signin-" + AuthenticationProviderTypes.OpenIDConnect;
-                    options.ResponseType = sitesettings.GetValue("ExternalLogin:AuthResponseType", "code"); // authorization code flow
                     options.ResponseMode = OpenIdConnectResponseMode.FormPost; // recommended as most secure
 
                     // cookie config is required to avoid Correlation Failed errors
@@ -62,6 +61,7 @@ namespace Oqtane.Extensions
                     options.MetadataAddress = sitesettings.GetValue("ExternalLogin:MetadataUrl", "");
                     options.ClientId = sitesettings.GetValue("ExternalLogin:ClientId", "");
                     options.ClientSecret = sitesettings.GetValue("ExternalLogin:ClientSecret", "");
+                    options.ResponseType = sitesettings.GetValue("ExternalLogin:AuthResponseType", "code"); // default is authorization code flow
                     options.UsePkce = bool.Parse(sitesettings.GetValue("ExternalLogin:PKCE", "false"));
                     if (!string.IsNullOrEmpty(sitesettings.GetValue("ExternalLogin:RoleClaimType", "")))
                     {
@@ -289,6 +289,14 @@ namespace Oqtane.Extensions
             var _logger = httpContext.RequestServices.GetRequiredService<ILogManager>();
             ClaimsIdentity identity = new ClaimsIdentity(Constants.AuthenticationScheme);
             // use identity.Label as a temporary location to store validation status information
+
+            // review claims option (for testing)
+            if (bool.Parse(httpContext.GetSiteSettings().GetValue("ExternalLogin:ReviewClaims", "false")))
+            {
+                _logger.Log(LogLevel.Information, "ExternalLogin", Enums.LogFunction.Security, "Provider Returned The Following Claims: {Claims}", claims);
+                identity.Label = ExternalLoginStatus.ReviewClaims;
+                return identity;
+            }
 
             var providerType = httpContext.GetSiteSettings().GetValue("ExternalLogin:ProviderType", "");
             var providerName = httpContext.GetSiteSettings().GetValue("ExternalLogin:ProviderName", "");
