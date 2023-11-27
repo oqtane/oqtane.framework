@@ -377,7 +377,7 @@ namespace Oqtane.Infrastructure
                         }
                         catch (Exception ex)
                         {
-                            result.Message = "An Error Occurred Migrating A Tenant Database. This Is Usually Related To A Tenant Database Not Being In A Supported State. " + ex.ToString();
+                            result.Message = "An Error Occurred Migrating The Database For Tenant " + tenant.Name + ". This Is Usually Related To Database Permissions, Connection String Mappings, Or The Database Not Being In A Supported State. " + ex.ToString();
                             _filelogger.LogError(Utilities.LogMessage(this, result.Message));
                         }
 

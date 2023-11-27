@@ -225,4 +225,7 @@
   <data name="ExternalLoginStatus.RemoteFailure" xml:space="preserve">
     <value>Your External Login Failed. Please Contact Your Administrator For Further Instructions.</value>
   </data>
+  <data name="ExternalLoginStatus.ReviewClaims" xml:space="preserve">
+    <value>The Review Claims Option Was Enabled In External Login Settings. Please Visit The Event Log To View The Claims Returned By The Provider.</value>
+  </data>
 </root>

@@ -9,5 +9,6 @@ namespace Oqtane.Shared {
         public const string VerificationRequired = "VerificationRequired";
         public const string AccessDenied = "AccessDenied";
         public const string RemoteFailure = "RemoteFailure";
+        public const string ReviewClaims = "ReviewClaims";
     }
 }

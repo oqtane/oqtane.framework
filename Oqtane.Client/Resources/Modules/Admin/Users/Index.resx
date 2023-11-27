@@ -456,4 +456,10 @@
   <data name="CookieExpiration.Text" xml:space="preserve">
     <value>Cookie Expiration Timespan:</value>
   </data>
+  <data name="ReviewClaims.Text" xml:space="preserve">
+    <value>Review Claims?</value>
+  </data>
+    <data name="ReviewClaims.HelpText" xml:space="preserve">
+    <value>This option should only be used for testing. It allows the full list of Claims returned by the Provider to be recorded in the Event Log. Please note that external login is restricted when this option is enabled.</value>
+  </data>
 </root>
