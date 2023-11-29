@@ -147,6 +147,9 @@
   <data name="Message.User.NoLogIn" xml:space="preserve">
     <value>Current User Is Not Logged In</value>
   </data>
+  <data name="Message.User.NoEmail" xml:space="preserve">
+    <value>You Must Provide An Email Address For Your User Account</value>
+  </data>
   <data name="Error.Profile.Load" xml:space="preserve">
     <value>Error Loading User Profile</value>
   </data>

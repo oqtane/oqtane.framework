@@ -204,8 +204,8 @@
   <data name="ExternalLoginStatus.DuplicateEmail" xml:space="preserve">
     <value>Multiple User Accounts Already Exist With The Email Address Of Your External Login. Please Contact Your Administrator For Further Instructions.</value>
   </data>
-  <data name="ExternalLoginStatus.InvalidEmail" xml:space="preserve">
-    <value>The External Login Provider Did Not Provide A Valid Email Address For Your Account. Please Contact Your Administrator For Further Instructions.</value>
+  <data name="ExternalLoginStatus.MissingClaims" xml:space="preserve">
+    <value>The External Login Provider Did Not Provide All Of The Required Information. Please Contact Your Administrator For Further Instructions.</value>
   </data>
   <data name="ExternalLoginStatus.ProviderKeyMismatch" xml:space="preserve">
     <value>An Error Occurred Verifying Your External Login. Please Contact Your Administrator For Further Instructions.</value>

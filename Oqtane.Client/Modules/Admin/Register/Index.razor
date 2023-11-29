@@ -1,4 +1,5 @@
 @namespace Oqtane.Modules.Admin.Register
+@using System.Net
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
@@ -88,9 +89,9 @@ else
     }
 
     protected override void OnParametersSet()
-	{
-		_togglepassword = SharedLocalizer["ShowPassword"];     
-	}
+    {
+        _togglepassword = SharedLocalizer["ShowPassword"];     
+    }
 
     private async Task Register()
     {
@@ -120,7 +121,14 @@ else
                         if (user != null)
                         {
                             await logger.LogInformation("User Created {Username} {Email}", _username, _email);
-                            AddModuleMessage(Localizer["Info.User.AccountCreate"], MessageType.Info);
+                            if (PageState.QueryString.ContainsKey("returnurl"))
+                            {
+                                NavigationManager.NavigateTo(WebUtility.UrlDecode(PageState.QueryString["returnurl"]));
+                            }
+                            else // legacy behavior
+                            {
+                                AddModuleMessage(Localizer["Info.User.AccountCreate"], MessageType.Info);
+                            }
                         }
                         else
                         {

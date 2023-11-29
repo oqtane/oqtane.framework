@@ -179,7 +179,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.Lockout.AllowedForNewUsers = false;
 
                 // SignIn settings
-                options.SignIn.RequireConfirmedEmail = true;
+                options.SignIn.RequireConfirmedEmail = true; 
                 options.SignIn.RequireConfirmedPhoneNumber = false;
 
                 // User settings

@@ -247,7 +247,7 @@
     <value>Domain Filter:</value>
   </data>
   <data name="EmailClaimType.HelpText" xml:space="preserve">
-    <value>The name of the email address claim provided by the identity provider</value>
+    <value>Optionally specify the type name of the email address claim provided by the identity provider. The typical value is 'email'.</value>
   </data>
   <data name="EmailClaimType.Text" xml:space="preserve">
     <value>Email Claim:</value>
@@ -274,7 +274,7 @@
     <value>Use PKCE?</value>
   </data>
   <data name="ProviderName.HelpText" xml:space="preserve">
-    <value>The external login provider name which will be displayed on the login page</value>
+    <value>Specify a friendly name for the external login provider which will be displayed on the Login page</value>
   </data>
   <data name="ProviderName.Text" xml:space="preserve">
     <value>Provider Name:</value>
@@ -373,7 +373,7 @@
     <value>Last Login</value>
   </data>
   <data name="IdentifierClaimType.HelpText" xml:space="preserve">
-    <value>The name of the unique user identifier claim provided by the identity provider</value>
+    <value>Specify the type name of the unique user identifier claim provided by the identity provider. The default value is 'sub'.</value>
   </data>
   <data name="IdentifierClaimType.Text" xml:space="preserve">
     <value>Identifier Claim:</value>
@@ -385,13 +385,13 @@
     <value>Parameters:</value>
   </data>
   <data name="RoleClaimType.HelpText" xml:space="preserve">
-    <value>Optionally provide the name of the role claim provided by the identity provider. These roles will be used in addition to any internal user roles assigned within the site.</value>
+    <value>Optionally provide the type name of the role claim provided by the identity provider. These roles will be used in addition to any internal user roles assigned within the site.</value>
   </data>
   <data name="RoleClaimType.Text" xml:space="preserve">
     <value>Role Claim:</value>
   </data>
   <data name="ProfileClaimTypes.HelpText" xml:space="preserve">
-    <value>Optionally provide a comma delimited list of user profile claims provided by the identity provider, as well as mappings to your user profile definition. For example if the identity provider includes a 'given_name' claim and you have a 'FirstName' user profile definition you should specify 'given_name:FirstName'.</value>
+    <value>Optionally provide a comma delimited list of user profile claim type names provided by the identity provider, as well as mappings to your user profile definition. For example if the identity provider includes a 'given_name' claim and you have a 'FirstName' user profile definition you should specify 'given_name:FirstName'.</value>
   </data>
   <data name="ProfileClaimTypes.Text" xml:space="preserve">
     <value>User Profile Claims:</value>
@@ -460,6 +460,12 @@
     <value>Review Claims?</value>
   </data>
     <data name="ReviewClaims.HelpText" xml:space="preserve">
-    <value>This option should only be used for testing. It allows the full list of Claims returned by the Provider to be recorded in the Event Log. Please note that external login is restricted when this option is enabled.</value>
+    <value>This option will record the full list of Claims returned by the Provider in the Event Log. It should only be used for testing purposes. External Login will be restricted when this option is enabled.</value>
+  </data>
+  <data name="NameClaimType.HelpText" xml:space="preserve">
+    <value>Optionally specify the type name of the user's name claim provided by the identity provider. The typical value is 'name'.</value>
+  </data>
+    <data name="NameClaimType.Text" xml:space="preserve">
+    <value>Name Claim:</value>
   </data>
 </root>

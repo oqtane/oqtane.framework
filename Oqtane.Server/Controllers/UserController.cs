@@ -176,12 +176,13 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && user.SiteId == _tenantManager.GetAlias().SiteId && user.UserId == id && _users.GetUser(user.UserId, false) != null
                 && (_userPermissions.IsAuthorized(User, user.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) || User.Identity.Name == user.Username))
             {
+                user.EmailConfirmed = User.IsInRole(RoleNames.Admin);
                 user = await _userManager.UpdateUser(user);
             }
             else
             {
                 user.Password = ""; // remove sensitive information
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Post Attempt {User}", user);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Put Attempt {User}", user);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 user = null;
             }
