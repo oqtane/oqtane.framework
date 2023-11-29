@@ -45,13 +45,20 @@ namespace Oqtane.Repository
                 Tenant tenant = _tenantManager.GetTenant();
                 if (tenant != null)
                 {
-                    _connectionString = _config.GetConnectionString(tenant.DBConnectionString)
-                        .Replace($"|{Constants.DataDirectory}|", AppDomain.CurrentDomain.GetData(Constants.DataDirectory)?.ToString());
-                    _databaseType = tenant.DBType;
+                    _connectionString = _config.GetConnectionString(tenant.DBConnectionString);
+                    if (_connectionString != null)
+                    {
+                        _connectionString = _connectionString.Replace($"|{Constants.DataDirectory}|", AppDomain.CurrentDomain.GetData(Constants.DataDirectory)?.ToString());
+                        _databaseType = tenant.DBType;
+                    }
+                    else
+                    {
+                        // tenant connection string does not exist in appsettings.json
+                    }
                 }
             }
 
-            if (!String.IsNullOrEmpty(_databaseType))
+            if (!string.IsNullOrEmpty(_databaseType))
             {
                 var type = Type.GetType(_databaseType);
                 ActiveDatabase = Activator.CreateInstance(type) as IDatabase;
