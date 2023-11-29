@@ -38,10 +38,10 @@
 					<div class="form-group mt-2">
 						@if (!_alwaysremember)
 						{
-						<div class="form-check">
-							<input id="remember" type="checkbox" class="form-check-input" @bind="@_remember" />
-							<Label Class="control-label" For="remember" HelpText="Specify if you would like to be signed back in automatically the next time you visit this site" ResourceKey="Remember">Remember Me?</Label>
-						</div>
+						    <div class="form-check">
+							    <input id="remember" type="checkbox" class="form-check-input" @bind="@_remember" />
+							    <Label Class="control-label" For="remember" HelpText="Specify if you would like to be signed back in automatically the next time you visit this site" ResourceKey="Remember">Remember Me?</Label>
+						    </div>
 						}
 					</div>
 					<button type="button" class="btn btn-primary" @onclick="Login">@SharedLocalizer["Login"]</button>
@@ -99,6 +99,7 @@
         {
             _allowexternallogin = (SettingService.GetSetting(PageState.Site.Settings, "ExternalLogin:ProviderType", "") != "") ? true : false;
             _allowsitelogin = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AllowSiteLogin", "true"));
+            _alwaysremember = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AlwaysRemember", "false"));
 
             _togglepassword = SharedLocalizer["ShowPassword"];
 
@@ -155,10 +156,6 @@
                     AddModuleMessage(Localizer["ExternalLoginStatus." + PageState.QueryString["status"]], MessageType.Info);
                 }
             }
-            if (PageState.Site.Settings.TryGetValue("LoginOptions:AlwaysRemember", out string alwaysRememberStr))
-            {
-                _alwaysremember = Convert.ToBoolean(alwaysRememberStr);
-            }
         }
         catch (Exception ex)
         {
@@ -194,13 +191,7 @@
 
                 if (!twofactor)
                 { 
-                    bool alwaysRemember = false;
-                    if (PageState.Site.Settings.TryGetValue("LoginOptions:AlwaysRemember", out string alwaysRememberStr))
-                    {
-                        alwaysRemember = Convert.ToBoolean(alwaysRememberStr);
-                    }
-                    bool remember = alwaysRemember || _remember;
-                    _remember = remember;
+                    _remember = _alwaysremember || _remember;
                     user = await UserService.LoginUserAsync(user, hybrid, _remember);
                 }
                 else
