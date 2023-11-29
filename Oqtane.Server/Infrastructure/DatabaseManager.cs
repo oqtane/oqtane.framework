@@ -398,7 +398,7 @@ namespace Oqtane.Infrastructure
                             }
                             catch (Exception ex)
                             {
-                                result.Message = "An Error Occurred Executing Upgrade Logic. " + ex.ToString();
+                                result.Message = "An Error Occurred Executing Upgrade Logic On Tenant " + tenant.Name + ". " + ex.ToString();
                                 _filelogger.LogError(Utilities.LogMessage(this, result.Message));
                             }
                         }
@@ -468,7 +468,7 @@ namespace Oqtane.Infrastructure
                                                 }
                                                 catch (Exception ex)
                                                 {
-                                                    result.Message = "An Error Occurred Installing " + moduleDefinition.Name + " Version " + versions[i] + " - " + ex.ToString();
+                                                    result.Message = "An Error Occurred Installing " + moduleDefinition.Name + " Version " + versions[i] + " On Tenant " + tenant.Name + " - " + ex.ToString();
                                                 }
                                             }
                                         }
