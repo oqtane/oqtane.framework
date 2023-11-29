@@ -435,4 +435,7 @@
   <data name="Uninstall" xml:space="preserve">
     <value>Uninstall</value>
   </data>
+  <data name="Test" xml:space="preserve">
+    <value>Test</value>
+  </data>
 </root>

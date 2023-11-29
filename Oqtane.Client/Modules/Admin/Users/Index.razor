@@ -195,7 +195,7 @@ else
 						@if (_providertype != "")
 						{
 							<div class="row mb-1 align-items-center">
-								<Label Class="col-sm-3" For="providername" HelpText="The external login provider name which will be displayed on the login page" ResourceKey="ProviderName">Provider Name:</Label>
+								<Label Class="col-sm-3" For="providername" HelpText="Specify a friendly name for the external login provider which will be displayed on the Login page" ResourceKey="ProviderName">Provider Name:</Label>
 								<div class="col-sm-9">
 									<input id="providername" class="form-control" @bind="@_providername" />
 								</div>
@@ -300,41 +300,50 @@ else
 								</div>
 							</div>
                             <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="reviewclaims" HelpText="This option should only be used for testing. It allows the full list of Claims returned by the Provider to be recorded in the Event Log. Please note that external login is restricted when this option is enabled." ResourceKey="ReviewClaims">Review Claims?</Label>
+                                <Label Class="col-sm-3" For="reviewclaims" HelpText="This option will record the full list of Claims returned by the Provider in the Event Log. It should only be used for testing purposes. External Login will be restricted when this option is enabled." ResourceKey="ReviewClaims">Review Claims?</Label>
                                 <div class="col-sm-9">
-                                    <select id="reviewclaims" class="form-select" @bind="@_reviewclaims" required>
-                                        <option value="true">@SharedLocalizer["Yes"]</option>
-                                        <option value="false">@SharedLocalizer["No"]</option>
-                                    </select>
+                                    <div class="input-group">
+                                        <select id="reviewclaims" class="form-select" @bind="@_reviewclaims" required>
+                                            <option value="true">@SharedLocalizer["Yes"]</option>
+                                            <option value="false">@SharedLocalizer["No"]</option>
+                                        </select>
+                                        @if (_reviewclaims == "true")
+                                        {
+                                            <a href="@_externalloginurl" target="_blank" class="btn btn-secondary">@SharedLocalizer["Test"]</a>
+                                        }
+                                    </div>
                                 </div>
                             </div>
                             <div class="row mb-1 align-items-center">
-								<Label Class="col-sm-3" For="identifierclaimtype" HelpText="The name of the unique user identifier claim provided by the provider" ResourceKey="IdentifierClaimType">Identifier Claim:</Label>
+                                <Label Class="col-sm-3" For="identifierclaimtype" HelpText="Specify the type name of the unique user identifier claim provided by the provider. The default value is 'sub'." ResourceKey="IdentifierClaimType">Identifier Claim:</Label>
 								<div class="col-sm-9">
 									<input id="identifierclaimtype" class="form-control" @bind="@_identifierclaimtype" />
 								</div>
 							</div>
-							<div class="row mb-1 align-items-center">
-								<Label Class="col-sm-3" For="emailclaimtype" HelpText="The name of the email address claim provided by the provider" ResourceKey="EmailClaimType">Email Claim:</Label>
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="nameclaimtype" HelpText="Optionally specify the type name of the user's name claim provided by the provider. The typical value is 'name'." ResourceKey="NameClaimType">Name Claim:</Label>
+                                <div class="col-sm-9">
+                                    <input id="nameclaimtype" class="form-control" @bind="@_nameclaimtype" />
+                                </div>
+                            </div>
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="emailclaimtype" HelpText="Optionally specify the type name of the email address claim provided by the provider. The typical value is 'email'," ResourceKey="EmailClaimType">Email Claim:</Label>
 								<div class="col-sm-9">
 									<input id="emailclaimtype" class="form-control" @bind="@_emailclaimtype" />
 								</div>
 							</div>
-							@if (_providertype == AuthenticationProviderTypes.OpenIDConnect)
-							{
-								<div class="row mb-1 align-items-center">
-									<Label Class="col-sm-3" For="roleclaimtype" HelpText="The name of the role claim provided by the provider" ResourceKey="RoleClaimType">Role Claim:</Label>
-									<div class="col-sm-9">
-										<input id="roleclaimtype" class="form-control" @bind="@_roleclaimtype" />
-									</div>
+							<div class="row mb-1 align-items-center">
+								<Label Class="col-sm-3" For="roleclaimtype" HelpText="The name of the role claim provided by the provider" ResourceKey="RoleClaimType">Role Claim:</Label>
+								<div class="col-sm-9">
+									<input id="roleclaimtype" class="form-control" @bind="@_roleclaimtype" />
 								</div>
-								<div class="row mb-1 align-items-center">
-									<Label Class="col-sm-3" For="profileclaimtypes" HelpText="A comma delimited list of user profile claims provided by the provider, as well as mappings to your user profile definition. For example if the provider includes a 'given_name' claim and you have a 'FirstName' user profile definition you should specify 'given_name:FirstName'." ResourceKey="ProfileClaimTypes">User Profile Claims:</Label>
-									<div class="col-sm-9">
-										<input id="profileclaimtypes" class="form-control" @bind="@_profileclaimtypes" />
-									</div>
+							</div>
+							<div class="row mb-1 align-items-center">
+								<Label Class="col-sm-3" For="profileclaimtypes" HelpText="A comma delimited list of user profile claims provided by the provider, as well as mappings to your user profile definition. For example if the provider includes a 'given_name' claim and you have a 'FirstName' user profile definition you should specify 'given_name:FirstName'." ResourceKey="ProfileClaimTypes">User Profile Claims:</Label>
+								<div class="col-sm-9">
+									<input id="profileclaimtypes" class="form-control" @bind="@_profileclaimtypes" />
 								</div>
-							}
+							</div>
 							<div class="row mb-1 align-items-center">
 								<Label Class="col-sm-3" For="domainfilter" HelpText="Provide any email domain filter criteria (separated by commas). Domains to exclude should be prefixed with an exclamation point (!). For example 'microsoft.com,!hotmail.com' would include microsoft.com email addresses but not hotmail.com email addresses." ResourceKey="DomainFilter">Domain Filter:</Label>
 								<div class="col-sm-9">
@@ -443,7 +452,9 @@ else
     private string _pkce;
     private string _redirecturl;
     private string _reviewclaims;
+    private string _externalloginurl;
     private string _identifierclaimtype;
+    private string _nameclaimtype;
     private string _emailclaimtype;
     private string _roleclaimtype;
     private string _profileclaimtypes;
@@ -505,7 +516,9 @@ else
             _pkce = SettingService.GetSetting(settings, "ExternalLogin:PKCE", "false");
             _redirecturl = PageState.Uri.Scheme + "://" + PageState.Alias.Name + "/signin-" + _providertype;
             _reviewclaims = SettingService.GetSetting(settings, "ExternalLogin:ReviewClaims", "false");
+            _externalloginurl = Utilities.TenantUrl(PageState.Alias, "/pages/external");
             _identifierclaimtype = SettingService.GetSetting(settings, "ExternalLogin:IdentifierClaimType", "sub");
+            _nameclaimtype = SettingService.GetSetting(settings, "ExternalLogin:NameClaimType", "name");
             _emailclaimtype = SettingService.GetSetting(settings, "ExternalLogin:EmailClaimType", "email");
             _roleclaimtype = SettingService.GetSetting(settings, "ExternalLogin:RoleClaimType", "");
             _profileclaimtypes = SettingService.GetSetting(settings, "ExternalLogin:ProfileClaimTypes", "");
@@ -598,7 +611,8 @@ else
 				settings = SettingService.SetSetting(settings, "ExternalLogin:PKCE", _pkce, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:ReviewClaims", _reviewclaims, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:IdentifierClaimType", _identifierclaimtype, true);
-				settings = SettingService.SetSetting(settings, "ExternalLogin:EmailClaimType", _emailclaimtype, true);
+                settings = SettingService.SetSetting(settings, "ExternalLogin:NameClaimType", _nameclaimtype, true);
+                settings = SettingService.SetSetting(settings, "ExternalLogin:EmailClaimType", _emailclaimtype, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:RoleClaimType", _roleclaimtype, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:ProfileClaimTypes", _profileclaimtypes, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:DomainFilter", _domainfilter, true);

@@ -1,4 +1,5 @@
 @namespace Oqtane.Modules.Admin.UserProfile
+@using System.Net
 @using System.Text.RegularExpressions;
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
@@ -337,6 +338,11 @@
                 email = PageState.User.Email;
                 displayname = PageState.User.DisplayName;
 
+                if (string.IsNullOrEmpty(email))
+                {
+                    AddModuleMessage(Localizer["Message.User.NoEmail"], MessageType.Warning);
+                }
+
                 // get user folder
                 var folder = await FolderService.GetFolderAsync(ModuleState.SiteId, PageState.User.FolderPath);
                 if (folder != null)
@@ -427,8 +433,15 @@
                             await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
                             await logger.LogInformation("User Profile Saved");
 
-                            AddModuleMessage(Localizer["Success.Profile.Update"], MessageType.Success);
-                            StateHasChanged();
+                            if (PageState.QueryString.ContainsKey("returnurl"))
+                            {
+                                NavigationManager.NavigateTo(WebUtility.UrlDecode(PageState.QueryString["returnurl"]));
+                            }
+                            else // legacy behavior
+                            {
+                                AddModuleMessage(Localizer["Success.Profile.Update"], MessageType.Success);
+                                StateHasChanged();
+                            }
                         }
                         else
                         {
