@@ -78,7 +78,7 @@ else
 				<div class="row mb-1 align-items-center">
 					<Label Class="col-sm-3" For="retention" HelpText="Number of days of visitor activity to retain" ResourceKey="Retention">Retention (Days): </Label>
 					<div class="col-sm-9">
-						<input id="retention" class="form-control" @bind="@_retention" />
+                        <input id="retention" class="form-control" type="number" min="0" step="1" @bind="@_retention" />
 					</div>
 				</div>
 				<div class="row mb-1 align-items-center">
@@ -104,7 +104,7 @@ else
 	private List<Visitor> _visitors;
 	private string _tracking;
 	private string _filter = "";
-	private string _retention = "";
+	private int _retention = 30;
 	private string _correlation = "true";
 
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
@@ -129,7 +129,7 @@ else
 		_tracking = PageState.Site.VisitorTracking.ToString();
 		var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
 		_filter = SettingService.GetSetting(settings, "VisitorFilter", Constants.DefaultVisitorFilter);
-		_retention = SettingService.GetSetting(settings, "VisitorRetention", "30");
+		_retention = int.Parse(SettingService.GetSetting(settings, "VisitorRetention", "30"));
 		_correlation = SettingService.GetSetting(settings, "VisitorCorrelation", "true");
 	}
 
@@ -180,7 +180,7 @@ else
 
 			var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
 			settings = SettingService.SetSetting(settings, "VisitorFilter", _filter, true);
-			settings = SettingService.SetSetting(settings, "VisitorRetention", _retention, true);
+			settings = SettingService.SetSetting(settings, "VisitorRetention", _retention.ToString(), true);
 			settings = SettingService.SetSetting(settings, "VisitorCorrelation", _correlation, true);
             await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
 

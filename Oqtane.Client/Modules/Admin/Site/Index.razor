@@ -207,7 +207,7 @@
                 <div class="row mb-1 align-items-center">
 					<Label Class="col-sm-3" For="retention" HelpText="Number of days of notifications to retain" ResourceKey="Retention">Retention (Days): </Label>
 					<div class="col-sm-9">
-						<input id="retention" class="form-control" @bind="@_retention" />
+                        <input id="retention" class="form-control" type="number" min="0" step="1" @bind="@_retention" />
 					</div>
                 </div>
                 <button type="button" class="btn btn-secondary" @onclick="SendEmail">@Localizer["Smtp.TestConfig"]</button>
@@ -377,7 +377,7 @@
     private string _smtpsender = string.Empty;
     private string _smtprelay = "False";
     private string _smtpenabled = "True";
-    private string _retention = string.Empty;
+    private int _retention = 30;
     private string _pwaisenabled;
     private int _pwaappiconfileid = -1;
     private FileManager _pwaappiconfilemanager;
@@ -460,7 +460,7 @@
                 _smtpsender = SettingService.GetSetting(settings, "SMTPSender", string.Empty);
                 _smtprelay = SettingService.GetSetting(settings, "SMTPRelay", "False");
                 _smtpenabled = SettingService.GetSetting(settings, "SMTPEnabled", "True");
-                _retention = SettingService.GetSetting(settings, "NotificationRetention", "30");
+                _retention = int.Parse(SettingService.GetSetting(settings, "NotificationRetention", "30"));
 
                 // aliases
                 await GetAliases();
@@ -621,7 +621,7 @@
 						settings = SettingService.SetSetting(settings, "SMTPRelay", _smtprelay, true);
                         settings = SettingService.SetSetting(settings, "SMTPEnabled", _smtpenabled, true);
                         settings = SettingService.SetSetting(settings, "SiteGuid", _siteguid, true);
-                        settings = SettingService.SetSetting(settings, "NotificationRetention", _retention, true);
+                        settings = SettingService.SetSetting(settings, "NotificationRetention", _retention.ToString(), true);
 						await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 
 						await logger.LogInformation("Site Settings Saved {Site}", site);

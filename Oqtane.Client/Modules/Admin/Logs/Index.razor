@@ -81,7 +81,7 @@ else
 				<div class="row mb-1 align-items-center">
 					<Label Class="col-sm-3" For="retention" HelpText="Number of days of events to retain" ResourceKey="Retention">Retention (Days): </Label>
 					<div class="col-sm-9">
-						<input id="retention" class="form-control" @bind="@_retention" />
+                        <input id="retention" type="number" min="0" step="1" class="form-control" @bind="@_retention" />
 					</div>
 				</div>
 			</div>
@@ -97,7 +97,7 @@ else
 	private string _rows = "10";
 	private int _page = 1;
 	private List<Log> _logs;
-	private string _retention = "";
+	private int _retention = 30;
 
 	public override string UrlParametersTemplate => "/{level}/{function}/{rows}/{page}";
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
@@ -126,7 +126,7 @@ else
             await GetLogs();
 
 			var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-			_retention = SettingService.GetSetting(settings, "LogRetention", "30");
+			_retention = int.Parse( SettingService.GetSetting(settings, "LogRetention", "30"));
         }
         catch (Exception ex)
         {
@@ -218,7 +218,7 @@ else
 		try
 		{
 			var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-			settings = SettingService.SetSetting(settings, "LogRetention", _retention, true);
+			settings = SettingService.SetSetting(settings, "LogRetention", _retention.ToString(), true);
             await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
 
 			AddModuleMessage(Localizer["Success.SaveSiteSettings"], MessageType.Success);
