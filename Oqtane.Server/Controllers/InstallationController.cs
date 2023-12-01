@@ -30,11 +30,12 @@ namespace Oqtane.Controllers
         private readonly IMemoryCache _cache;
         private readonly IHttpContextAccessor _accessor;
         private readonly IAliasRepository _aliases;
+        private readonly ISiteRepository _sites;
         private readonly ILogger<InstallationController> _filelogger;
         private readonly ITenantManager _tenantManager;
         private readonly IServerStateManager _serverState;
 
-        public InstallationController(IConfigManager configManager, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager, IMemoryCache cache, IHttpContextAccessor accessor, IAliasRepository aliases, ILogger<InstallationController> filelogger, ITenantManager tenantManager, IServerStateManager serverState)
+        public InstallationController(IConfigManager configManager, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager, IMemoryCache cache, IHttpContextAccessor accessor, IAliasRepository aliases, ISiteRepository sites, ILogger<InstallationController> filelogger, ITenantManager tenantManager, IServerStateManager serverState)
         {
             _configManager = configManager;
             _installationManager = installationManager;
@@ -43,6 +44,7 @@ namespace Oqtane.Controllers
             _cache = cache;
             _accessor = accessor;
             _aliases = aliases;
+            _sites = sites;
             _filelogger = filelogger;
             _tenantManager = tenantManager;
             _serverState = serverState;
@@ -105,14 +107,32 @@ namespace Oqtane.Controllers
         [HttpGet("list")]
         public List<string> List()
         {
-            return GetAssemblyList().Select(item => item.HashedName).ToList();
+            var alias = _tenantManager.GetAlias();
+            var site = _sites.GetSite(alias.SiteId);
+            if (site != null && site.Runtime == "WebAssembly")
+            {
+                return GetAssemblyList().Select(item => item.HashedName).ToList();
+            }
+            else
+            {
+                return new List<string>();
+            }
         }
 
         // GET api/<controller>/load?list=x,y
         [HttpGet("load")]
         public IActionResult Load(string list = "*")
         {
-            return File(GetAssemblies(list), System.Net.Mime.MediaTypeNames.Application.Octet, "oqtane.dll");
+            var alias = _tenantManager.GetAlias();
+            var site = _sites.GetSite(alias.SiteId);
+            if (site != null && site.Runtime == "WebAssembly")
+            {
+                return File(GetAssemblies(list), System.Net.Mime.MediaTypeNames.Application.Octet, "oqtane.dll");
+            }
+            else
+            {
+                return File(GetEmptyZip(), System.Net.Mime.MediaTypeNames.Application.Octet, "oqtane.dll");
+            }
         }
 
         private List<ClientAssembly> GetAssemblyList()
@@ -235,6 +255,18 @@ namespace Oqtane.Controllers
                 }
 
                 return memoryStream.ToArray();
+            }
+        }
+
+        private byte[] GetEmptyZip()
+        {
+            using (var stream = new MemoryStream())
+            {
+                using (var zip = new ZipArchive(stream, ZipArchiveMode.Create))
+                {
+                }
+
+                return stream.ToArray();
             }
         }
 
