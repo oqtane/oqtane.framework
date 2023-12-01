@@ -45,7 +45,7 @@
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="retention" HelpText="Number of log entries to retain for this job" ResourceKey="RetentionLog">Retention Log (Items): </Label>
             <div class="col-sm-9">
-                <input id="retention" class="form-control" @bind="@_retentionHistory" maxlength="4" required />
+                <input id="retention" type="number" min="0" step ="1" class="form-control" @bind="@_retentionHistory" maxlength="4" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
