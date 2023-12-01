@@ -107,166 +107,153 @@ namespace Oqtane.Controllers
         [HttpGet("list")]
         public List<string> List()
         {
+            return GetAssemblyList().Select(item => item.HashedName).ToList();
+        }
+
+        private List<ClientAssembly> GetAssemblyList()
+        {
             var alias = _tenantManager.GetAlias();
-            var site = _sites.GetSite(alias.SiteId);
-            if (site != null && site.Runtime == "WebAssembly")
+
+            return _cache.GetOrCreate($"assemblieslist:{alias.SiteKey}", entry =>
             {
-                return GetAssemblyList().Select(item => item.HashedName).ToList();
-            }
-            else
-            {
-                return new List<string>();
-            }
+                var assemblyList = new List<ClientAssembly>();
+
+                var site = _sites.GetSite(alias.SiteId);
+                if (site != null && site.Runtime == "WebAssembly")
+                {
+                    var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+
+                    // testmode setting is used for validating that the API is downloading the appropriate assemblies to the client
+                    bool hashfilename = true;
+                    if (_configManager.GetSetting($"{SettingKeys.TestModeKey}", "false") == "true")
+                    {
+                        hashfilename = false;
+                    }
+
+                    // get site assemblies which should be downloaded to client
+                    var assemblies = _serverState.GetServerState(alias.SiteKey).Assemblies;
+
+                    // populate assembly list
+                    foreach (var assembly in assemblies)
+                    {
+                        if (assembly != Constants.ClientId)
+                        {
+                            var filepath = Path.Combine(binFolder, assembly) + ".dll";
+                            if (System.IO.File.Exists(filepath))
+                            {
+                                assemblyList.Add(new ClientAssembly(Path.Combine(binFolder, assembly + ".dll"), hashfilename));
+                            }
+                        }
+                    }
+
+                    // insert satellite assemblies at beginning of list
+                    foreach (var culture in _localizationManager.GetInstalledCultures())
+                    {
+                        if (culture != Constants.DefaultCulture)
+                        {
+                            var assembliesFolderPath = Path.Combine(binFolder, culture);
+                            if (Directory.Exists(assembliesFolderPath))
+                            {
+                                foreach (var assembly in assemblies)
+                                {
+                                    var filepath = Path.Combine(assembliesFolderPath, assembly) + ".resources.dll";
+                                    if (System.IO.File.Exists(filepath))
+                                    {
+                                        assemblyList.Insert(0, new ClientAssembly(Path.Combine(assembliesFolderPath, assembly + ".resources.dll"), hashfilename));
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                _filelogger.LogError(Utilities.LogMessage(this, $"The Satellite Assembly Folder For {culture} Does Not Exist"));
+                            }
+                        }
+                    }
+                }
+                return assemblyList;
+            });
         }
 
         // GET api/<controller>/load?list=x,y
         [HttpGet("load")]
         public IActionResult Load(string list = "*")
         {
-            var alias = _tenantManager.GetAlias();
-            var site = _sites.GetSite(alias.SiteId);
-            if (site != null && site.Runtime == "WebAssembly")
-            {
-                return File(GetAssemblies(list), System.Net.Mime.MediaTypeNames.Application.Octet, "oqtane.dll");
-            }
-            else
-            {
-                return File(GetEmptyZip(), System.Net.Mime.MediaTypeNames.Application.Octet, "oqtane.dll");
-            }
-        }
-
-        private List<ClientAssembly> GetAssemblyList()
-        {
-            var siteKey = _tenantManager.GetAlias().SiteKey;
-
-            return _cache.GetOrCreate($"assemblieslist:{siteKey}", entry =>
-            {
-                var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-                var assemblyList = new List<ClientAssembly>();
-
-                // testmode setting is used for validating that the API is downloading the appropriate assemblies to the client
-                bool hashfilename = true;
-                if (_configManager.GetSetting($"{SettingKeys.TestModeKey}", "false") == "true")
-                {
-                    hashfilename = false;
-                }
-
-                // get site assemblies which should be downloaded to client
-                var assemblies = _serverState.GetServerState(siteKey).Assemblies;
-
-                // populate assembly list
-                foreach (var assembly in assemblies)
-                {
-                    if (assembly != Constants.ClientId)
-                    {
-                        var filepath = Path.Combine(binFolder, assembly) + ".dll";
-                        if (System.IO.File.Exists(filepath))
-                        {
-                            assemblyList.Add(new ClientAssembly(Path.Combine(binFolder, assembly + ".dll"), hashfilename));
-                        }
-                    }
-                }
-
-                // insert satellite assemblies at beginning of list
-                foreach (var culture in _localizationManager.GetInstalledCultures())
-                {
-                    if (culture != Constants.DefaultCulture)
-                    {
-                        var assembliesFolderPath = Path.Combine(binFolder, culture);
-                        if (Directory.Exists(assembliesFolderPath))
-                        {
-                            foreach (var assembly in assemblies)
-                            {
-                                var filepath = Path.Combine(assembliesFolderPath, assembly) + ".resources.dll";
-                                if (System.IO.File.Exists(filepath))
-                                {
-                                    assemblyList.Insert(0, new ClientAssembly(Path.Combine(assembliesFolderPath, assembly + ".resources.dll"), hashfilename));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            _filelogger.LogError(Utilities.LogMessage(this, $"The Satellite Assembly Folder For {culture} Does Not Exist"));
-                        }
-                    }
-                }
-
-                return assemblyList;
-            });
+            return File(GetAssemblies(list), System.Net.Mime.MediaTypeNames.Application.Octet, "oqtane.dll");
         }
 
         private byte[] GetAssemblies(string list)
         {
-            var siteKey = _tenantManager.GetAlias().SiteKey;
+            var alias = _tenantManager.GetAlias();
 
             if (list == "*")
             {
-                return _cache.GetOrCreate($"assemblies:{siteKey}", entry =>
+                return _cache.GetOrCreate($"assemblies:{alias.SiteKey}", entry =>
                 {
-                    return GetZIP(list);
+                    return GetZIP(list, alias);
                 });
             }
             else
             {
-                return GetZIP(list);
+                return GetZIP(list, alias);
             }
         }
 
-        private byte[] GetZIP(string list)
+        private byte[] GetZIP(string list, Alias alias)
         {
-            var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-
-            // get list of assemblies which should be downloaded to client
-            List<ClientAssembly> assemblies = GetAssemblyList();
-            if (list != "*")
+            var site = _sites.GetSite(alias.SiteId);
+            if (site != null && site.Runtime == "WebAssembly")
             {
-                var filter = list.Split(',').ToList();
-                assemblies.RemoveAll(item => !filter.Contains(item.HashedName));
-            }
+                var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
-            // create zip file containing assemblies and debug symbols
-            using (var memoryStream = new MemoryStream())
-            {
-                using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+                // get list of assemblies which should be downloaded to client
+                List<ClientAssembly> assemblies = GetAssemblyList();
+                if (list != "*")
                 {
-                    foreach (var assembly in assemblies)
+                    var filter = list.Split(',').ToList();
+                    assemblies.RemoveAll(item => !filter.Contains(item.HashedName));
+                }
+
+                // create zip file containing assemblies and debug symbols
+                using (var memoryStream = new MemoryStream())
+                {
+                    using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
                     {
-                        if (Path.GetFileNameWithoutExtension(assembly.FilePath) != Constants.ClientId)
+                        foreach (var assembly in assemblies)
                         {
-                            if (System.IO.File.Exists(assembly.FilePath))
+                            if (Path.GetFileNameWithoutExtension(assembly.FilePath) != Constants.ClientId)
                             {
-                                using (var filestream = new FileStream(assembly.FilePath, FileMode.Open, FileAccess.Read))
-                                using (var entrystream = archive.CreateEntry(assembly.HashedName).Open())
+                                if (System.IO.File.Exists(assembly.FilePath))
                                 {
-                                    filestream.CopyTo(entrystream);
+                                    using (var filestream = new FileStream(assembly.FilePath, FileMode.Open, FileAccess.Read))
+                                    using (var entrystream = archive.CreateEntry(assembly.HashedName).Open())
+                                    {
+                                        filestream.CopyTo(entrystream);
+                                    }
                                 }
-                            }
-                            var pdb = assembly.FilePath.Replace(".dll", ".pdb");
-                            if (System.IO.File.Exists(pdb))
-                            {
-                                using (var filestream = new FileStream(pdb, FileMode.Open, FileAccess.Read))
-                                using (var entrystream = archive.CreateEntry(assembly.HashedName.Replace(".dll", ".pdb")).Open())
+                                var pdb = assembly.FilePath.Replace(".dll", ".pdb");
+                                if (System.IO.File.Exists(pdb))
                                 {
-                                    filestream.CopyTo(entrystream);
+                                    using (var filestream = new FileStream(pdb, FileMode.Open, FileAccess.Read))
+                                    using (var entrystream = archive.CreateEntry(assembly.HashedName.Replace(".dll", ".pdb")).Open())
+                                    {
+                                        filestream.CopyTo(entrystream);
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
-                return memoryStream.ToArray();
+                    return memoryStream.ToArray();
+                }
             }
-        }
-
-        private byte[] GetEmptyZip()
-        {
-            using (var stream = new MemoryStream())
+            else
             {
-                using (var zip = new ZipArchive(stream, ZipArchiveMode.Create))
+                // return empty zip
+                using (var memoryStream = new MemoryStream())
                 {
+                    using (var zip = new ZipArchive(memoryStream, ZipArchiveMode.Create)) {}
+                    return memoryStream.ToArray();
                 }
-
-                return stream.ToArray();
             }
         }
 
