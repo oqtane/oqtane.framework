@@ -74,7 +74,7 @@
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="logo" HelpText="Specify a logo for the site" ResourceKey="Logo">Logo: </Label>
                     <div class="col-sm-9">
-                        <FileManager FileId="@_logofileid" Filter="@Constants.ImageFiles" @ref="_logofilemanager" />
+                        <FileManager FileId="@_logofileid" Filter="@_ImageFiles" @ref="_logofilemanager" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
@@ -115,6 +115,22 @@
                                 <option value="@container.TypeName">@container.Name</option>
                             }
                         </select>
+                    </div>
+                </div>
+            </div>
+        </Section>
+        <Section Name="FileExtensions" Heading="File Extensions" ResourceKey="FileExtensions">
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="imageExt" HelpText="Enter a comma separated list of image file extensions" ResourceKey="ImageExtensions">Image Extensions: </Label>
+                    <div class="col-sm-9">
+                        <input id="imageExt" spellcheck="false" class="form-control" @bind="@_ImageFiles" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="uploadableFileExt" HelpText="Enter a comma separated list of uploadable file extensions" ResourceKey="UploadableFileExtensions">Uploadable File Extensions: </Label>
+                    <div class="col-sm-9">
+                        <input id="uploadableFileExt" spellcheck="false"  class="form-control" @bind="@_UploadableFiles" />
                     </div>
                 </div>
             </div>
@@ -377,6 +393,8 @@
     private string _smtpsender = string.Empty;
     private string _smtprelay = "False";
     private string _smtpenabled = "True";
+    private string _ImageFiles = string.Empty;
+    private string _UploadableFiles = string.Empty;
     private int _retention = 30;
     private string _pwaisenabled;
     private int _pwaappiconfileid = -1;
@@ -461,6 +479,10 @@
                 _smtprelay = SettingService.GetSetting(settings, "SMTPRelay", "False");
                 _smtpenabled = SettingService.GetSetting(settings, "SMTPEnabled", "True");
                 _retention = int.Parse(SettingService.GetSetting(settings, "NotificationRetention", "30"));
+
+                //File Extensions
+                _ImageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
+                _UploadableFiles = SettingService.GetSetting(settings, "UploadableFiles", Constants.UploadableFiles);
 
                 // aliases
                 await GetAliases();
@@ -622,6 +644,11 @@
                         settings = SettingService.SetSetting(settings, "SMTPEnabled", _smtpenabled, true);
                         settings = SettingService.SetSetting(settings, "SiteGuid", _siteguid, true);
                         settings = SettingService.SetSetting(settings, "NotificationRetention", _retention.ToString(), true);
+
+                        //File Extensions
+                        settings = SettingService.SetSetting(settings, "ImageFiles", _ImageFiles, true);
+                        settings = SettingService.SetSetting(settings, "UploadableFiles", _UploadableFiles, true);
+
 						await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 
 						await logger.LogInformation("Site Settings Saved {Site}", site);

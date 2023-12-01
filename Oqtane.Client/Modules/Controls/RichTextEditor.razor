@@ -1,5 +1,6 @@
 @namespace Oqtane.Modules.Controls
 @inherits ModuleControlBase
+@inject ISettingService SettingService
 @inject IStringLocalizer<RichTextEditor> Localizer 
 
 <div class="row" style="margin-bottom: 50px;">
@@ -8,7 +9,7 @@
             <TabPanel Name="Rich" Heading="Rich Text Editor" ResourceKey="RichTextEditor">
 				@if (_richfilemanager)
 				{
-					<FileManager @ref="_fileManager" Filter="@Constants.ImageFiles" />
+                    <FileManager @ref="_fileManager" Filter="@_ImageFiles" />
 					<ModuleMessage Message="@_message" Type="MessageType.Warning"></ModuleMessage>
 					<br />
 				}
@@ -73,7 +74,7 @@
 				<TabPanel Name="Raw" Heading="Raw HTML Editor" ResourceKey="HtmlEditor">
 					@if (_rawfilemanager)
 					{
-						<FileManager @ref="_fileManager" Filter="@Constants.ImageFiles" />
+                        <FileManager @ref="_fileManager" Filter="@_ImageFiles" />
 						<ModuleMessage Message="@_message" Type="MessageType.Warning"></ModuleMessage>
 						<br />
 					}
@@ -104,51 +105,58 @@
 </div>
 
 @code {
-	private ElementReference _editorElement;
-	private ElementReference _toolBar;
-	private bool _richfilemanager = false;
-	private FileManager _fileManager;
-	private string _richhtml = string.Empty;
-	private string _originalrichhtml = string.Empty;
-	private bool _rawfilemanager = false;
-	private string _rawhtml = string.Empty;
-	private string _originalrawhtml = string.Empty;
-	private string _message = string.Empty;
+    private ElementReference _editorElement;
+    private ElementReference _toolBar;
+    private bool _richfilemanager = false;
+    private FileManager _fileManager;
+    private string _richhtml = string.Empty;
+    private string _originalrichhtml = string.Empty;
+    private bool _rawfilemanager = false;
+    private string _rawhtml = string.Empty;
+    private string _originalrawhtml = string.Empty;
+    private string _message = string.Empty;
+    private string _ImageFiles = string.Empty;
 
-	[Parameter]
-	public string Content { get; set; }
+    [Parameter]
+    public string Content { get; set; }
 
-	[Parameter]
-	public bool ReadOnly { get; set; } = false;
+    [Parameter]
+    public bool ReadOnly { get; set; } = false;
 
-	[Parameter]
-	public string Placeholder { get; set; } = "Enter Your Content...";
+    [Parameter]
+    public string Placeholder { get; set; } = "Enter Your Content...";
 
-	[Parameter]
-	public bool AllowFileManagement { get; set; } = true;
+    [Parameter]
+    public bool AllowFileManagement { get; set; } = true;
 
-	[Parameter]
-	public bool AllowRawHtml { get; set; } = true;  
-	
-	// parameters only applicable to rich text editor
-	[Parameter]
-	public RenderFragment ToolbarContent { get; set; }
+    [Parameter]
+    public bool AllowRawHtml { get; set; } = true;  
 
-	[Parameter]
-	public string Theme { get; set; } = "snow";
+    // parameters only applicable to rich text editor
+    [Parameter]
+    public RenderFragment ToolbarContent { get; set; }
 
-	[Parameter]
-	public string DebugLevel { get; set; } = "info";
+    [Parameter]
+    public string Theme { get; set; } = "snow";
 
-	public override List<Resource> Resources => new List<Resource>()
+    [Parameter]
+    public string DebugLevel { get; set; } = "info";
+
+    public override List<Resource> Resources => new List<Resource>()
     {
         new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill.min.js" },
         new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-blot-formatter.min.js" },
         new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-interop.js" }
     };
 
-	protected override void OnParametersSet()
-	{
+    protected override async Task OnInitializedAsync()
+    {
+        var settings = await SettingService.GetSiteSettingsAsync(SiteState.Alias.SiteId);
+        _ImageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
+    }
+
+    protected override void OnParametersSet()
+    {
 		_richhtml = Content;
 		_rawhtml = Content;
 		_originalrawhtml = _rawhtml; // preserve for comparison later
