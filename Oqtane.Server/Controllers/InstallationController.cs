@@ -119,7 +119,7 @@ namespace Oqtane.Controllers
                 var assemblyList = new List<ClientAssembly>();
 
                 var site = _sites.GetSite(alias.SiteId);
-                if (site != null && site.Runtime == "WebAssembly")
+                if (site != null && (site.Runtime == "WebAssembly" || site.HybridEnabled))
                 {
                     var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
@@ -201,7 +201,7 @@ namespace Oqtane.Controllers
         private byte[] GetZIP(string list, Alias alias)
         {
             var site = _sites.GetSite(alias.SiteId);
-            if (site != null && site.Runtime == "WebAssembly")
+            if (site != null && (site.Runtime == "WebAssembly" || site.HybridEnabled))
             {
                 var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 

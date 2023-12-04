@@ -311,7 +311,7 @@
             <Section Name="Hosting" Heading="Hosting Model" ResourceKey="Hosting">
                 <div class="container">
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="runtime" HelpText="The Blazor runtime hosting model" ResourceKey="Runtime">Runtime: </Label>
+                        <Label Class="col-sm-3" For="runtime" HelpText="The Blazor runtime hosting model for the site" ResourceKey="Runtime">Runtime: </Label>
                         <div class="col-sm-9">
                             <select id="runtime" class="form-select" @bind="@_runtime" required>
                                 <option value="Server">@SharedLocalizer["BlazorServer"]</option>
@@ -325,6 +325,15 @@
                             <select id="prerender" class="form-select" @bind="@_prerender" required>
                                 <option value="Prerendered">@SharedLocalizer["Yes"]</option>
                                 <option value="">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="hybridenabled" HelpText="Specifies if the site can be integrated with an external .NET MAUI hybrid application" ResourceKey="HybridEnabled">Hybrid Enabled? </Label>
+                        <div class="col-sm-9">
+                            <select id="hybridenabled" class="form-select" @bind="@_hybridenabled" required>
+                                <option value="True">@SharedLocalizer["Yes"]</option>
+                                <option value="False">@SharedLocalizer["No"]</option>
                             </select>
                         </div>
                     </div>
@@ -407,6 +416,7 @@
     private string _defaultalias;
     private string _runtime = "";
     private string _prerender = "";
+    private string _hybridenabled = "";
     private string _tenant = string.Empty;
     private string _database = string.Empty;
     private string _connectionstring = string.Empty;
@@ -490,6 +500,7 @@
                 // hosting model
                 _runtime = site.Runtime;
                 _prerender = site.RenderMode.Replace(_runtime, "");
+                _hybridenabled = site.HybridEnabled.ToString();
 
                 // database
                 if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
@@ -599,34 +610,35 @@
                         }
 
                         // PWA
-						if (site.PwaIsEnabled.ToString() != _pwaisenabled)
-						{
-							site.PwaIsEnabled = Boolean.Parse(_pwaisenabled);
-							reload = true; // needs to be reloaded on server
-						}
-						int? pwaappiconfileid = _pwaappiconfilemanager.GetFileId();
-						if (pwaappiconfileid == -1) pwaappiconfileid = null;
-						if (site.PwaAppIconFileId != pwaappiconfileid)
-						{
-							site.PwaAppIconFileId = pwaappiconfileid;
-							reload = true; // needs to be reloaded on server
-						}
-						int? pwasplashiconfileid = _pwasplashiconfilemanager.GetFileId();
-						if (pwasplashiconfileid == -1) pwasplashiconfileid = null;
-						if (site.PwaSplashIconFileId != pwasplashiconfileid)
-						{
-							site.PwaSplashIconFileId = pwasplashiconfileid;
-							reload = true; // needs to be reloaded on server
-						}
+                        if (site.PwaIsEnabled.ToString() != _pwaisenabled)
+                        {
+                            site.PwaIsEnabled = Boolean.Parse(_pwaisenabled);
+                            reload = true; // needs to be reloaded on server
+                        }
+                        int? pwaappiconfileid = _pwaappiconfilemanager.GetFileId();
+                        if (pwaappiconfileid == -1) pwaappiconfileid = null;
+                        if (site.PwaAppIconFileId != pwaappiconfileid)
+                        {
+                            site.PwaAppIconFileId = pwaappiconfileid;
+                            reload = true; // needs to be reloaded on server
+                        }
+                        int? pwasplashiconfileid = _pwasplashiconfilemanager.GetFileId();
+                        if (pwasplashiconfileid == -1) pwasplashiconfileid = null;
+                        if (site.PwaSplashIconFileId != pwasplashiconfileid)
+                        {
+                            site.PwaSplashIconFileId = pwasplashiconfileid;
+                            reload = true; // needs to be reloaded on server
+                        }
 
                         // hosting model
                         if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
                         {
-                            if (site.Runtime != _runtime || site.RenderMode != _runtime + _prerender)
+                            if (site.Runtime != _runtime || site.RenderMode != _runtime + _prerender || site.HybridEnabled != bool.Parse(_hybridenabled))
                             {
                                 site.Runtime = _runtime;
                                 site.RenderMode = _runtime + _prerender;
-                                reload = true; // needs to be reloaded on server
+                                site.HybridEnabled = bool.Parse(_hybridenabled);
+                                reload = true; // needs to be reloaded on serve
                             }
                         }
 
