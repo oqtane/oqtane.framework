@@ -261,7 +261,12 @@ namespace Oqtane.Modules
         // UI methods
         public void AddModuleMessage(string message, MessageType type)
         {
-            ModuleInstance.AddModuleMessage(message, type);
+            AddModuleMessage(message, type, "top");
+        }
+
+        public void AddModuleMessage(string message, MessageType type, string position)
+        {
+            ModuleInstance.AddModuleMessage(message, type, position);
         }
 
         public void ClearModuleMessage()
