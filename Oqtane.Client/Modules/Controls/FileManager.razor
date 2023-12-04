@@ -344,7 +344,7 @@
         _message = string.Empty;
         var interop = new Interop(JSRuntime);
         var uploads = await interop.GetFiles(_fileinputid);
-
+        
         if (uploads.Length > 0)
         {
             string restricted = "";

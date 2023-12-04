@@ -81,6 +81,7 @@
     {
         validated = true;
         var interop = new Interop(JSRuntime);
+
         if (await interop.FormValid(form))
         {
             if (_url == string.Empty || _folderId == -1)

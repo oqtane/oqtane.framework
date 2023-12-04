@@ -646,8 +646,8 @@
                         settings = SettingService.SetSetting(settings, "NotificationRetention", _retention.ToString(), true);
 
                         //File Extensions
-                        settings = SettingService.SetSetting(settings, "ImageFiles", _ImageFiles, true);
-                        settings = SettingService.SetSetting(settings, "UploadableFiles", _UploadableFiles, true);
+                        settings = SettingService.SetSetting(settings, "ImageFiles", _ImageFiles, false);
+                        settings = SettingService.SetSetting(settings, "UploadableFiles", _UploadableFiles, false);
 
 						await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 
