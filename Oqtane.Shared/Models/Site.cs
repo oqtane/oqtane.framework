@@ -79,6 +79,11 @@ namespace Oqtane.Models
         public string RenderMode { get; set; }
 
         /// <summary>
+        /// Indicates if a site can be integrated with an external .NET MAUI hybrid application
+        /// </summary>
+        public bool HybridEnabled { get; set; }
+
+        /// <summary>
         /// Keeps track of site configuration changes and is used by the ISiteMigration interface
         /// </summary>
         public string Version { get; set; }

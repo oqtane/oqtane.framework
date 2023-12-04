@@ -283,7 +283,7 @@
     <value>Prerender? </value>
   </data>
   <data name="Runtime.HelpText" xml:space="preserve">
-    <value>The Blazor runtime hosting model</value>
+    <value>The Blazor runtime hosting model for the site</value>
   </data>
   <data name="Runtime.Text" xml:space="preserve">
     <value>Runtime: </value>
@@ -416,5 +416,11 @@
   </data>
   <data name="UploadableFileExtensions.Text" xml:space="preserve">
     <value>Uploadable File Extensions:</value>
+  </data>
+  <data name="HybridEnabled.HelpText" xml:space="preserve">
+    <value>Specifies if the site can be integrated with an external .NET MAUI hybrid application</value>
+  </data>
+  <data name="HybridEnabled.Text" xml:space="preserve">
+    <value>Hybrid Enabled?</value>
   </data>
 </root>

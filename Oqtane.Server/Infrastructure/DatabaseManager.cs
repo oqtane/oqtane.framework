@@ -555,6 +555,7 @@ namespace Oqtane.Infrastructure
                                 SiteTemplateType = install.SiteTemplate,
                                 Runtime = (!string.IsNullOrEmpty(install.Runtime)) ? install.Runtime : _configManager.GetSection("Runtime").Value,
                                 RenderMode = (!string.IsNullOrEmpty(install.RenderMode)) ? install.RenderMode : _configManager.GetSection("RenderMode").Value,
+                                HybridEnabled = false
                             };
                             site = sites.AddSite(site);
 
