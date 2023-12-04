@@ -402,4 +402,19 @@
   <data name="Retention.Text" xml:space="preserve">
     <value>Retention (Days):</value>
   </data>
+  <data name="FileExtensions.Heading" xml:space="preserve">
+    <value>File Extensions</value>
+  </data>
+  <data name="ImageExtensions.HelpText" xml:space="preserve">
+    <value>Enter a comma separated list of image file extensions</value>
+  </data>
+  <data name="ImageExtensions.Text" xml:space="preserve">
+    <value>Image Extensions:</value>
+  </data>
+  <data name="UploadableFileExtensions.HelpText" xml:space="preserve">
+    <value>Enter a comma separated list of uploadable file extensions</value>
+  </data>
+  <data name="UploadableFileExtensions.Text" xml:space="preserve">
+    <value>Uploadable File Extensions:</value>
+  </data>
 </root>

@@ -86,6 +86,16 @@ namespace Oqtane.Controllers
                     .Where(item => !item.IsPrivate || User.IsInRole(RoleNames.Admin))
                     .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
 
+                // Populate ImageFile extentions with setting or constant value
+                site.ImageFiles = site.Settings.ContainsKey("ImageFiles")
+                    ? site.Settings["ImageFiles"]?.ToString() ?? Constants.ImageFiles
+                    : Constants.ImageFiles;
+
+                // Populate UploadableFile extensions with setting or constant value
+                site.UploadableFiles = site.Settings.ContainsKey("UploadableFiles")
+                ? site.Settings["UploadableFiles"]?.ToString() ?? Constants.UploadableFiles
+                : Constants.UploadableFiles;
+
                 // pages
                 List<Setting> settings = _settings.GetSettings(EntityNames.Page).ToList();
                 site.Pages = new List<Page>();

@@ -3,6 +3,7 @@
 @inherits ModuleControlBase
 @inject IFolderService FolderService
 @inject IFileService FileService
+@inject ISettingService SettingService
 @inject IStringLocalizer<FileManager> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -343,6 +344,7 @@
         _message = string.Empty;
         var interop = new Interop(JSRuntime);
         var uploads = await interop.GetFiles(_fileinputid);
+        
         if (uploads.Length > 0)
         {
             string restricted = "";
@@ -350,7 +352,7 @@
             {
                 var filename = upload.Split(':')[0];
                 var extension = (filename.LastIndexOf(".") != -1) ? filename.Substring(filename.LastIndexOf(".") + 1) : "";
-                if (!Constants.UploadableFiles.Split(',').Contains(extension.ToLower()))
+                if (!PageState.Site.UploadableFiles.Split(',').Contains(extension.ToLower()))
                 {
                     restricted += (restricted == "" ? "" : ",") + extension;
                 }
