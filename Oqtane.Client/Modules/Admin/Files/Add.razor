@@ -64,16 +64,12 @@
     private List<Folder> _folders;
     private int _folderId = -1;
     private string _name = "";
-    private string _UploadableFiles = string.Empty;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnInitializedAsync()
     {
         _folders = await FolderService.GetFoldersAsync(ModuleState.SiteId);
-        var settings = await SettingService.GetSiteSettingsAsync(SiteState.Alias.SiteId);
-        var _ImageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
-        _UploadableFiles = _ImageFiles + "," + SettingService.GetSetting(settings, "UploadableFiles", Constants.UploadableFiles);
 
         if (PageState.QueryString.ContainsKey("id"))
         {
@@ -98,7 +94,7 @@
                 _name = _url.Substring(_url.LastIndexOf("/", StringComparison.Ordinal) + 1);
             }
 
-            if (!_UploadableFiles.Split(',').Contains(Path.GetExtension(_name).ToLower().Replace(".", "")))
+            if (!PageState.Site.UploadableFiles.Split(',').Contains(Path.GetExtension(_name).ToLower().Replace(".", "")))
             {
                 AddModuleMessage(Localizer["Message.Download.InvalidExtension"], MessageType.Warning);
                 return;

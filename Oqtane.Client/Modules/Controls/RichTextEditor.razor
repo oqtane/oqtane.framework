@@ -9,7 +9,7 @@
             <TabPanel Name="Rich" Heading="Rich Text Editor" ResourceKey="RichTextEditor">
 				@if (_richfilemanager)
 				{
-                    <FileManager @ref="_fileManager" Filter="@_ImageFiles" />
+                    <FileManager @ref="_fileManager" Filter="@PageState.Site.ImageFiles" />
 					<ModuleMessage Message="@_message" Type="MessageType.Warning"></ModuleMessage>
 					<br />
 				}
@@ -74,7 +74,7 @@
 				<TabPanel Name="Raw" Heading="Raw HTML Editor" ResourceKey="HtmlEditor">
 					@if (_rawfilemanager)
 					{
-                        <FileManager @ref="_fileManager" Filter="@_ImageFiles" />
+                        <FileManager @ref="_fileManager" Filter="@PageState.Site.ImageFiles" />
 						<ModuleMessage Message="@_message" Type="MessageType.Warning"></ModuleMessage>
 						<br />
 					}
@@ -115,7 +115,6 @@
     private string _rawhtml = string.Empty;
     private string _originalrawhtml = string.Empty;
     private string _message = string.Empty;
-    private string _ImageFiles = string.Empty;
 
     [Parameter]
     public string Content { get; set; }
@@ -148,12 +147,6 @@
         new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-blot-formatter.min.js" },
         new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-interop.js" }
     };
-
-    protected override async Task OnInitializedAsync()
-    {
-        var settings = await SettingService.GetSiteSettingsAsync(SiteState.Alias.SiteId);
-        _ImageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
-    }
 
     protected override void OnParametersSet()
     {

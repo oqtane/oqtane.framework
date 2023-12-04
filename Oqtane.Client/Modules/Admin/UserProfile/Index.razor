@@ -77,7 +77,7 @@
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="@photofileid.ToString()" HelpText="A photo of yourself" ResourceKey="Photo"></Label>
                     <div class="col-sm-9">
-                        <FileManager FileId="@photofileid" Filter="@_ImageFiles" ShowFolders="false" ShowFiles="true" UploadMultiple="false" FolderId="@folderid" @ref="filemanager" />
+                        <FileManager FileId="@photofileid" Filter="@PageState.Site.ImageFiles" ShowFolders="false" ShowFiles="true" UploadMultiple="false" FolderId="@folderid" @ref="filemanager" />
                     </div>
                 </div>
             </div>

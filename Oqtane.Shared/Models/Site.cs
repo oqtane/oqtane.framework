@@ -98,6 +98,18 @@ namespace Oqtane.Models
         /// </summary>
         public string BodyContent { get; set; }
 
+        /// <summary>
+        /// The ImageFile extensions
+        /// </summary>
+        [NotMapped]
+        public string ImageFiles { get; set; }
+
+        /// <summary>
+        /// The UploadableFile extensions
+        /// </summary>
+        [NotMapped]
+        public string UploadableFiles { get; set; }
+
         [NotMapped]
         public Dictionary<string, string> Settings { get; set; }
 
