@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -12,7 +13,7 @@ namespace Oqtane.Repository
         {
             _db = context;
         }
-            
+
         public IEnumerable<Language> GetLanguages(int siteId)
         {
             return _db.Language.Where(l => l.SiteId == siteId);
@@ -33,6 +34,25 @@ namespace Oqtane.Repository
             _db.SaveChanges();
 
             return language;
+        }
+
+        public void UpdateLanguage(Language language)
+        {
+            if (language.LanguageId != 0)
+            {
+                _db.Entry(language).State = EntityState.Modified;
+            }
+            if (language.IsDefault)
+            {
+                // Ensure all other languages are not set to default
+                _db.Language
+                    .Where(l => l.SiteId == language.SiteId &&
+                                l.LanguageId != language.LanguageId)
+                    .ToList()
+                    .ForEach(l => l.IsDefault = false);
+            }
+
+            _db.SaveChanges();
         }
 
         public Language GetLanguage(int languageId)

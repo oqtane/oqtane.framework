@@ -17,6 +17,7 @@ else
     <Pager Items="@_languages" SearchProperties="Name,Code">
         <Header>
             <th style="width: 1px;">&nbsp;</th>
+            <th style="width: 1px;">&nbsp;</th>
             <th>@SharedLocalizer["Name"]</th>
             <th>@Localizer["Code"]</th>
             <th>@Localizer["Default"]</th>
@@ -27,6 +28,12 @@ else
 			}
         </Header>
         <Row>
+            <td>
+            @if (!context.IsDefault)
+            {
+                <ActionLink Action="Edit" Text="Edit" Parameters="@($"id=" + context.LanguageId.ToString())" ResourceKey="EditLanguage" />                    
+            }
+            </td>
             <td><ActionDialog Header="Delete Language" Message="@string.Format(Localizer["Confirm.Language.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteLanguage(context))" Disabled="@((context.IsDefault && _languages.Count > 2) || context.Code == Constants.DefaultCulture)" ResourceKey="DeleteLanguage" /></td>
             <td>@context.Name</td>
             <td>@context.Code</td>
