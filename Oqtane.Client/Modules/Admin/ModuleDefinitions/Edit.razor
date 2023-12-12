@@ -8,6 +8,8 @@
 @inject NavigationManager NavigationManager
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject IPageModuleService PageModuleService
+@inject IModuleService ModuleService
 
 @if (_initialized)
 {
@@ -131,6 +133,20 @@
 			<button type="button" class="btn btn-success" @onclick="SaveModuleDefinition">@SharedLocalizer["Save"]</button>
 			<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 		</TabPanel>
+        <TabPanel Name="OnPages" ResourceKey="OnPages" Heading="Pages">
+                <Pager Items="@_groupedModules">
+                <Header>
+                <th style="width: 1px;">&nbsp;</th>
+                <th>@SharedLocalizer["Name"]</th>
+                <th>@Localizer["Count"]</th>
+                </Header>
+                <Row>
+                    <td><button type="button" class="btn btn-secondary" @onclick="@(async () => NavigationManager.NavigateTo(Browse(context)))">@Localizer["Browse"]</button></td>
+                    <td>@(string.IsNullOrEmpty(context.Title) ? @context.Name : @context.Title )</td>
+                    <td>@context.Count</td>
+                </Row>
+                </Pager>
+        </TabPanel>
         <TabPanel Name="Translations" ResourceKey="Translations" Heading="Translations">
 			@if (_languages != null && _languages.Count > 0)
 			{
@@ -240,6 +256,7 @@
     private DateTime _createdon;
     private string _modifiedby;
     private DateTime _modifiedon;
+    private List<GroupedModule> _groupedModules;
 
 #pragma warning disable 649
     private PermissionGrid _permissionGrid;
@@ -291,6 +308,19 @@
                     _languages = _languages.OrderBy(item => item.Name).ToList();
                 }
 
+                // Group modules by PageId
+                _groupedModules = PageState.Modules
+                .Where(md => md.ModuleDefinition.ModuleDefinitionId == _moduleDefinitionId)
+                .GroupBy(md => md.PageId)
+                .Select(group => new GroupedModule
+                    {
+                        Name = PageState.Pages.FirstOrDefault(pg => pg.PageId == group.Key)?.Name,
+                        Title = PageState.Pages.FirstOrDefault(pg => pg.PageId == group.Key)?.Title,
+                        PagePath = PageState.Pages.FirstOrDefault(pg => pg.PageId == group.Key)?.Path,
+                        PageUrl = PageState.Pages.FirstOrDefault(pg => pg.PageId == group.Key)?.Url,
+                        Count = group.Count()
+                    })
+                .ToList();
                 _initialized = true;
             }
         }
@@ -438,6 +468,16 @@
             await logger.LogError(ex, "Error Downloading Package {PackageId} {Version}", _packagename, _version);
             AddModuleMessage(Localizer["Error.Validate"], MessageType.Error);
         }
+    }
+    private string Browse(GroupedModule page) => string.IsNullOrEmpty(page.PageUrl) ? NavigateUrl(page.PagePath) : page.PageUrl;
+
+    private class GroupedModule
+    {
+        public string Name { get; set; }
+        public string Title { get; set; }
+        public string PagePath { get; set; }
+        public string PageUrl { get; set; }
+        public int Count { get; set; }
     }
 
 }
