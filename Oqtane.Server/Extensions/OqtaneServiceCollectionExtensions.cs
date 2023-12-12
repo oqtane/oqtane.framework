@@ -124,7 +124,7 @@ namespace Microsoft.Extensions.DependencyInjection
             // note that ConfigureApplicationCookie internally uses an ApplicationScheme of "Identity.Application"
             services.ConfigureApplicationCookie(options =>
             {
-                options.Cookie.HttpOnly = false;
+                options.Cookie.HttpOnly = true;
                 options.Cookie.SameSite = SameSiteMode.Strict;
                 options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
                 options.Events.OnRedirectToLogin = context =>
