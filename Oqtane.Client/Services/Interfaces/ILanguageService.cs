@@ -1,6 +1,6 @@
-using Oqtane.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Oqtane.Models;
 
 namespace Oqtane.Services
 {
@@ -38,6 +38,13 @@ namespace Oqtane.Services
         /// <param name="language"></param>
         /// <returns></returns>
         Task<Language> AddLanguageAsync(Language language);
+
+        /// <summary>
+        /// Edits the given language
+        /// </summary>
+        /// <param name="language"></param>
+        /// <returns></returns>
+        Task EditLanguageAsync(Language language);
 
         /// <summary>
         /// Deletes the given language
