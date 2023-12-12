@@ -28,16 +28,21 @@ namespace Oqtane.Themes.Controls
 
             var returnurl = WebUtility.UrlEncode(PageState.Route.PathAndQuery);
 
-            if (allowexternallogin && !allowsitelogin)
+            // Check if not already actioned Login
+            if(!NavigationManager.Uri.ToString().Contains("login?returnurl=%2F"))
             {
-                // external login
-                NavigationManager.NavigateTo(Utilities.TenantUrl(PageState.Alias, "/pages/external?returnurl=" + returnurl), true);
+                if (allowexternallogin && !allowsitelogin)
+                {
+                    // external login
+                    NavigationManager.NavigateTo(Utilities.TenantUrl(PageState.Alias, "/pages/external?returnurl=" + returnurl), true);
+                }
+                else
+                {
+                    // local login
+                    NavigationManager.NavigateTo(NavigateUrl("login", "?returnurl=" + returnurl));
+                }
             }
-            else
-            {
-                // local login
-                NavigationManager.NavigateTo(NavigateUrl("login", "?returnurl=" + returnurl));
-            }
+
         }
 
         protected async Task LogoutUser()
