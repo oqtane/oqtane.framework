@@ -184,34 +184,26 @@ namespace Oqtane.Extensions
                     JsonNode items = JsonNode.Parse(jsonclaims)!;
                     foreach (var item in items.AsArray())
                     {
+                        name = "";
+                        email = "";
+
                         // id claim is required
                         if (!string.IsNullOrEmpty(idClaimType) && item[idClaimType] != null)
                         {
                             id = item[idClaimType].ToString();
 
                             // name claim is optional
-                            if (!string.IsNullOrEmpty(nameClaimType))
+                            if (!string.IsNullOrEmpty(nameClaimType) && item[nameClaimType] != null)
                             {
-                                if (item[nameClaimType] != null)
-                                {
-                                    name = item[nameClaimType].ToString();
-                                }
-                                else
-                                {
-                                    id = ""; // name claim was specified but was not provided
-                                }
+                                name = item[nameClaimType].ToString();
                             }
 
                             // email claim is optional
-                            if (!string.IsNullOrEmpty(emailClaimType))
+                            if (!string.IsNullOrEmpty(emailClaimType) && item[emailClaimType] != null)
                             {
-                                if (item[emailClaimType] != null && EmailValid(item[emailClaimType].ToString(), context.HttpContext.GetSiteSettings().GetValue("ExternalLogin:DomainFilter", "")))
+                                if (EmailValid(item[emailClaimType].ToString(), context.HttpContext.GetSiteSettings().GetValue("ExternalLogin:DomainFilter", "")))
                                 {
                                     email = item[emailClaimType].ToString().ToLower();
-                                }
-                                else
-                                {
-                                    id = ""; // email claim was specified but was not provided or is invalid
                                 }
                             }
                         }
@@ -282,28 +274,21 @@ namespace Oqtane.Extensions
             var nameClaimType = context.HttpContext.GetSiteSettings().GetValue("ExternalLogin:NameClaimType", "");
             var emailClaimType = context.HttpContext.GetSiteSettings().GetValue("ExternalLogin:EmailClaimType", "");
 
-            // parse claim values
-            id = context.Principal.FindFirstValue(idClaimType); // required
-            if (!string.IsNullOrEmpty(nameClaimType))
+            // parse claim values - id claim is required
+            id = context.Principal.FindFirstValue(idClaimType);
+
+            // name claim is optional
+            if (!string.IsNullOrEmpty(nameClaimType) && context.Principal.FindFirstValue(nameClaimType) != null)
             {
-                if (context.Principal.FindFirstValue(nameClaimType) != null)
-                {
-                    name = context.Principal.FindFirstValue(nameClaimType);
-                }
-                else
-                {
-                    id = ""; // name claim was specified but was not provided
-                }
+                name = context.Principal.FindFirstValue(nameClaimType);
             }
-            if (!string.IsNullOrEmpty(emailClaimType))
+
+            // email claim is optional
+            if (!string.IsNullOrEmpty(emailClaimType) && context.Principal.FindFirstValue(emailClaimType) != null)
             {
-                if (context.Principal.FindFirstValue(emailClaimType) != null && EmailValid(context.Principal.FindFirstValue(emailClaimType), context.HttpContext.GetSiteSettings().GetValue("ExternalLogin:DomainFilter", "")))
+                if (EmailValid(context.Principal.FindFirstValue(emailClaimType), context.HttpContext.GetSiteSettings().GetValue("ExternalLogin:DomainFilter", "")))
                 {
                     email = context.Principal.FindFirstValue(emailClaimType);
-                }
-                else
-                {
-                    id = ""; // email claim was specified but was not provided or is invalid
                 }
             }
 
