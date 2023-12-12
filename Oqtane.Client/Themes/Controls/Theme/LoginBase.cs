@@ -26,23 +26,26 @@ namespace Oqtane.Themes.Controls
             var allowexternallogin = (SettingService.GetSetting(PageState.Site.Settings, "ExternalLogin:ProviderType", "") != "") ? true : false;
             var allowsitelogin = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AllowSiteLogin", "true"));
 
-            var returnurl = WebUtility.UrlEncode(PageState.Route.PathAndQuery);
-
-            // Check if not already actioned Login
-            if(!NavigationManager.Uri.ToString().Contains("login?returnurl=%2F"))
+            var returnurl = "";
+            if (!PageState.QueryString.ContainsKey("returnurl"))
             {
-                if (allowexternallogin && !allowsitelogin)
-                {
-                    // external login
-                    NavigationManager.NavigateTo(Utilities.TenantUrl(PageState.Alias, "/pages/external?returnurl=" + returnurl), true);
-                }
-                else
-                {
-                    // local login
-                    NavigationManager.NavigateTo(NavigateUrl("login", "?returnurl=" + returnurl));
-                }
+                returnurl = WebUtility.UrlEncode(PageState.Route.PathAndQuery); // remember current url
+            }
+            else
+            {
+                returnurl = PageState.QueryString["returnurl"]; // use existing value
             }
 
+            if (allowexternallogin && !allowsitelogin)
+            {
+                // external login
+                NavigationManager.NavigateTo(Utilities.TenantUrl(PageState.Alias, "/pages/external?returnurl=" + returnurl), true);
+            }
+            else
+            {
+                // local login
+                NavigationManager.NavigateTo(NavigateUrl("login", "?returnurl=" + returnurl));
+            }
         }
 
         protected async Task LogoutUser()
