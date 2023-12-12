@@ -84,6 +84,14 @@
                             }
                         }
                     }
+                    @if (!string.IsNullOrEmpty(_message))
+                    {
+                        <div class="row mt-1">
+                            <div class="col">
+                                <ModuleMessage Message="@_message" Type="@_messagetype" />
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
             @if (_image != string.Empty)
@@ -93,14 +101,6 @@
                 </div>
             }
         </div>
-        @if (!string.IsNullOrEmpty(_message))
-        {
-            <div class="row mt-1">
-                <div class="col">
-                    <ModuleMessage Message="@_message" Type="@_messagetype" />
-                </div>
-            </div>
-        }
     </div>
 }
 
