@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Repository;
 using Oqtane.Shared;
+using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 
 namespace Oqtane.Infrastructure
 {
@@ -59,6 +60,22 @@ namespace Oqtane.Infrastructure
                         {
                             context.Request.Path = path.Replace("/" + alias.Path, "");
                         }
+                    }
+
+                    // handle sitemap.xml root request (does not support subfolder aliases)
+                    if (context.Request.Path.StartsWithSegments("/sitemap.xml"))
+                    {
+                        context.Request.Path = "/pages" + context.Request.Path;
+                    }
+
+                    // handle robots.txt root request (does not support subfolder aliases)
+                    if (context.Request.Path.StartsWithSegments("/robots.txt"))
+                    {
+                        // allow all and specify site map
+                        var robots = $"User-agent: *\n\nSitemap: {context.Request.Scheme}://{alias.Name}/pages/sitemap.xml";
+                        context.Response.ContentType = "text/plain";
+                        await context.Response.WriteAsync(robots);
+                        return;
                     }
                 }
             }
