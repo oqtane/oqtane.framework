@@ -310,16 +310,16 @@
 
                 // Group modules by PageId
                 _groupedModules = PageState.Modules
-                .Where(md => md.ModuleDefinition.ModuleDefinitionId == _moduleDefinitionId)
+                .Where(md => md.ModuleDefinition.ModuleDefinitionId == _moduleDefinitionId && md.IsDeleted == false)
                 .GroupBy(md => md.PageId)
                 .Select(group => new GroupedModule
                     {
-                        Name = PageState.Pages.FirstOrDefault(pg => pg.PageId == group.Key)?.Name,
-                        Title = PageState.Pages.FirstOrDefault(pg => pg.PageId == group.Key)?.Title,
-                        PagePath = PageState.Pages.FirstOrDefault(pg => pg.PageId == group.Key)?.Path,
-                        PageUrl = PageState.Pages.FirstOrDefault(pg => pg.PageId == group.Key)?.Url,
+                        Name = PageState.Pages.FirstOrDefault(pg => pg.PageId == group.Key && pg.IsDeleted == false)?.Name,
+                        Title = PageState.Pages.FirstOrDefault(pg => pg.PageId == group.Key && pg.IsDeleted == false)?.Title,
+                        PagePath = PageState.Pages.FirstOrDefault(pg => pg.PageId == group.Key && pg.IsDeleted == false)?.Path,
+                        PageUrl = PageState.Pages.FirstOrDefault(pg => pg.PageId == group.Key && pg.IsDeleted == false)?.Url,
                         Count = group.Count()
-                    })
+                    }).Where(gm => gm.Name != null)
                 .ToList();
                 _initialized = true;
             }
