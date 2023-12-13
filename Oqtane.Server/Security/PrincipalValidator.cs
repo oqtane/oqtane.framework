@@ -28,7 +28,7 @@ namespace Oqtane.Security
                         var claims = context.Principal.Claims;
 
                         // check if principal has roles and matches current site
-                        if (!claims.Any(item => item.Type == ClaimTypes.Role) || claims.Any(item => item.Type == "sitekey" && item.Value == alias.SiteKey))
+                        if (!claims.Any(item => item.Type == ClaimTypes.Role) || claims.Any(item => item.Type == "sitekey" && item.Value != alias.SiteKey))
                         {
                             var userRepository = context.HttpContext.RequestServices.GetService(typeof(IUserRepository)) as IUserRepository;
                             var userRoleRepository = context.HttpContext.RequestServices.GetService(typeof(IUserRoleRepository)) as IUserRoleRepository;
