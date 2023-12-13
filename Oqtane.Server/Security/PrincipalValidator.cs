@@ -8,6 +8,7 @@ using Oqtane.Models;
 using System.Collections.Generic;
 using Oqtane.Extensions;
 using Oqtane.Shared;
+using System.IO;
 
 namespace Oqtane.Security
 {
@@ -17,9 +18,11 @@ namespace Oqtane.Security
         {
             if (context != null && context.Principal.Identity.IsAuthenticated && context.Principal.Identity.Name != null)
             {
-                // check if framework is installed
                 var config = context.HttpContext.RequestServices.GetService(typeof(IConfigManager)) as IConfigManager;
-                if (config.IsInstalled())
+                string path = context.Request.Path.ToString().ToLower();
+
+                // check if framework is installed
+                if (config.IsInstalled() && !path.StartsWith("/_")) // ignore Blazor framework requests
                 {
                     // get current site
                     var alias = context.HttpContext.GetAlias();
@@ -28,12 +31,11 @@ namespace Oqtane.Security
                         var claims = context.Principal.Claims;
 
                         // check if principal has roles and matches current site
-                        if (!claims.Any(item => item.Type == ClaimTypes.Role) || claims.Any(item => item.Type == "sitekey" && item.Value != alias.SiteKey))
+                        if (!claims.Any(item => item.Type == ClaimTypes.Role) || !claims.Any(item => item.Type == "sitekey" && item.Value == alias.SiteKey))
                         {
                             var userRepository = context.HttpContext.RequestServices.GetService(typeof(IUserRepository)) as IUserRepository;
                             var userRoleRepository = context.HttpContext.RequestServices.GetService(typeof(IUserRoleRepository)) as IUserRoleRepository;
                             var _logger = context.HttpContext.RequestServices.GetService(typeof(ILogManager)) as ILogManager;
-                            string path = context.Request.Path.ToString().ToLower();
 
                             User user = userRepository.GetUser(context.Principal.Identity.Name);
                             if (user != null)
