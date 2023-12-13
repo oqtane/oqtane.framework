@@ -243,9 +243,6 @@
   <data name="Browse" xml:space="preserve">
     <value>Browse</value>
   </data>
-  <data name="Count" xml:space="preserve">
-    <value>Module Count</value>
-  </data>
   <data name="Pages.Heading" xml:space="preserve">
     <value>Pages</value>
   </data>
