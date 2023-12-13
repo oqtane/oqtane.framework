@@ -58,21 +58,21 @@ namespace Oqtane.Infrastructure
                     {
                         if (path.StartsWith("/" + alias.Path) && (Constants.ReservedRoutes.Any(item => path.Contains("/" + item + "/"))))
                         {
-                            context.Request.Path = path.Replace("/" + alias.Path, "");
+                            context.Request.Path = path.Substring(alias.Path.Length + 1);
                         }
                     }
 
-                    // handle sitemap.xml root request (does not support subfolder aliases)
-                    if (context.Request.Path.StartsWithSegments("/sitemap.xml"))
+                    // handle sitemap.xml request
+                    if (context.Request.Path.ToString().Contains("/sitemap.xml") && !context.Request.Path.ToString().Contains("/pages"))
                     {
-                        context.Request.Path = "/pages" + context.Request.Path;
+                        context.Request.Path = "/pages/sitemap.xml";
                     }
 
                     // handle robots.txt root request (does not support subfolder aliases)
-                    if (context.Request.Path.StartsWithSegments("/robots.txt"))
+                    if (context.Request.Path.StartsWithSegments("/robots.txt") && string.IsNullOrEmpty(alias.Path))
                     {
-                        // allow all and specify site map
-                        var robots = $"User-agent: *\n\nSitemap: {context.Request.Scheme}://{alias.Name}/pages/sitemap.xml";
+                        // allow all user agents and specify site map
+                        var robots = $"User-agent: *\n\nSitemap: {context.Request.Scheme}://{alias.Name}/sitemap.xml";
                         context.Response.ContentType = "text/plain";
                         await context.Response.WriteAsync(robots);
                         return;

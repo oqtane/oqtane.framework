@@ -161,6 +161,12 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && notification.SiteId == _alias.SiteId && IsAuthorized(notification.FromUserId))
             {
+                if (!User.IsInRole(RoleNames.Admin))
+                {
+                    // content must be HTML encoded for non-admins to prevent HTML injection
+                    notification.Subject = WebUtility.HtmlEncode(notification.Subject);
+                    notification.Body = WebUtility.HtmlEncode(notification.Body);
+                }
                 notification = _notifications.AddNotification(notification);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Notification, notification.NotificationId, SyncEventActions.Create);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Notification Added {NotificationId}", notification.NotificationId);
@@ -181,6 +187,12 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && notification.SiteId == _alias.SiteId && notification.NotificationId == id && _notifications.GetNotification(notification.NotificationId, false) != null && (IsAuthorized(notification.FromUserId) || IsAuthorized(notification.ToUserId)))
             {
+                if (!User.IsInRole(RoleNames.Admin))
+                {
+                    // content must be HTML encoded for non-admins to prevent HTML injection
+                    notification.Subject = WebUtility.HtmlEncode(notification.Subject);
+                    notification.Body = WebUtility.HtmlEncode(notification.Body);
+                }
                 notification = _notifications.UpdateNotification(notification);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Notification, notification.NotificationId, SyncEventActions.Update);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Notification Updated {NotificationId}", notification.NotificationId);

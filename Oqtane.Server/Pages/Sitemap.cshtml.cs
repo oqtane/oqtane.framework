@@ -53,7 +53,8 @@ namespace Oqtane.Pages
             {
                 if (_userPermissions.IsAuthorized(null, PermissionNames.View, page.PermissionList) && page.IsNavigation)
                 {
-                    sitemap.Add(new Sitemap { Url = _alias.Protocol + _alias.Name + Utilities.NavigateUrl(_alias.Path, page.Path, ""), ModifiedOn = DateTime.UtcNow });
+                    var rooturl = _alias.Protocol + (string.IsNullOrEmpty(_alias.Path) ? _alias.Name : _alias.Name.Substring(0, _alias.Name.IndexOf("/")));
+                    sitemap.Add(new Sitemap { Url = rooturl + Utilities.NavigateUrl(_alias.Path, page.Path, ""), ModifiedOn = DateTime.UtcNow });
 
                     foreach (var pageModule in pageModules.Where(item => item.PageId == page.PageId))
                     {
@@ -72,7 +73,7 @@ namespace Oqtane.Pages
                                         var urls = ((ISitemap)moduleobject).GetUrls(_alias.Path, page.Path, pageModule.Module);
                                         foreach (var url in urls)
                                         {
-                                            sitemap.Add(new Sitemap { Url = _alias.Protocol + _alias.Name + url.Url, ModifiedOn = DateTime.UtcNow });
+                                            sitemap.Add(new Sitemap { Url = rooturl + url.Url, ModifiedOn = DateTime.UtcNow });
                                         }
                                     }
                                     catch (Exception ex)

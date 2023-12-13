@@ -88,8 +88,8 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        // force user to provide email address (email may be missing if using external login)
-        if (PageState.User != null && string.IsNullOrEmpty(PageState.User.Email) && PageState.Route.PagePath != "profile")
+        // force authenticated user to provide email address (email may be missing if using external login)
+        if (PageState.User != null && PageState.User.IsAuthenticated && string.IsNullOrEmpty(PageState.User.Email) && PageState.Route.PagePath != "profile")
         {
             NavigationManager.NavigateTo(Utilities.NavigateUrl(PageState.Alias.Path, "profile", "returnurl=" + WebUtility.UrlEncode(PageState.Route.PathAndQuery)));
             return;
