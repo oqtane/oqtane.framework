@@ -162,7 +162,8 @@
         if (PageState == null || refresh || PageState.Alias.SiteId != SiteState.Alias.SiteId)
         {
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            if (authState.User.Identity.IsAuthenticated)
+            // verify user is authenticated for current site
+            if (authState.User.Identity.IsAuthenticated && authState.User.Claims.Any(item => item.Type == "sitekey" && item.Value == SiteState.Alias.SiteKey))
             {
                 user = await UserService.GetUserAsync(authState.User.Identity.Name, SiteState.Alias.SiteId);
                 if (user != null)
