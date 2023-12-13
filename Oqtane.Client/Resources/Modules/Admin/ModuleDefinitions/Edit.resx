@@ -246,7 +246,7 @@
   <data name="Count" xml:space="preserve">
     <value>Module Count</value>
   </data>
-  <data name="OnPages.Heading" xml:space="preserve">
-    <value>On Pages</value>
+  <data name="Pages.Heading" xml:space="preserve">
+    <value>Pages</value>
   </data>
 </root>
