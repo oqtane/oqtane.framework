@@ -14,10 +14,6 @@
     <RepositoryUrl>https://github.com/oqtane/oqtane.framework</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
-    <PackageName>$(MSBuildProjectName).$(Version).nupkg</PackageName>
-    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -36,8 +32,16 @@
     <ProjectReference Include="..\Oqtane.Server\Oqtane.Server.csproj" />
   </ItemGroup>
 
-  <Target Name="CopyPackage" AfterTargets="Pack">
-    <Copy SourceFiles="$(OutputPath)..\$(PackageName)" DestinationFiles="..\Oqtane.Server\wwwroot\Packages\$(MSBuildProjectName).nupkg" />
+  <ItemGroup>
+    <ProviderFiles
+      Include="$(OutputPath)Oqtane.Database.SqlServer.dll;$(OutputPath)Oqtane.Database.SqlServer.pdb;$(OutputPath)Microsoft.EntityFrameworkCore.SqlServer.dll"
+      Exclude=""
+      DestinationPath="..\Oqtane.Server\bin\$(Configuration)\net8.0\%(Filename)%(Extension)">
+    </ProviderFiles>
+  </ItemGroup>
+
+  <Target Name="PublishProvider" AfterTargets="PostBuildEvent" Inputs="@(ProviderFiles)" Outputs="@(ProviderFiles->'%(DestinationPath)')">
+    <Copy SourceFiles="@(ProviderFiles)" DestinationFiles="@(ProviderFiles->'%(DestinationPath)')" />
   </Target>
 
 </Project>

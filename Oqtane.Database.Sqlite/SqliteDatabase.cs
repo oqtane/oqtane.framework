@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Databases;
-using Oqtane.Shared;
 
 namespace Oqtane.Database.Sqlite
 {
