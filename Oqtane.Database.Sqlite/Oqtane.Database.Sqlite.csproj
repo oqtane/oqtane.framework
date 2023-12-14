@@ -24,6 +24,14 @@
     <OutputPath>bin</OutputPath>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;EF1001;AD0001</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702;EF1001;AD0001</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0" />
   </ItemGroup>
@@ -33,10 +41,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProviderFiles
-      Include="$(OutputPath)Oqtane.Database.Sqlite.dll;$(OutputPath)Oqtane.Database.Sqlite.pdb;$(OutputPath)Microsoft.EntityFrameworkCore.Sqlite.dll"
-      Exclude=""
-      DestinationPath="..\Oqtane.Server\bin\$(Configuration)\net8.0\%(Filename)%(Extension)">
+    <ProviderFiles Include="$(OutputPath)Oqtane.Database.Sqlite.dll;$(OutputPath)Oqtane.Database.Sqlite.pdb;$(OutputPath)Microsoft.EntityFrameworkCore.Sqlite.dll" Exclude="" DestinationPath="..\Oqtane.Server\bin\$(Configuration)\net8.0\%(Filename)%(Extension)">
     </ProviderFiles>
   </ItemGroup>
 

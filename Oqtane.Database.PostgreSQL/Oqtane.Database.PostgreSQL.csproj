@@ -23,6 +23,14 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>bin</OutputPath>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;EF1001;AD0001</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702;EF1001;AD0001</NoWarn>
+  </PropertyGroup>
   
   <ItemGroup>
     <PackageReference Include="EFCore.NamingConventions" Version="8.0.0-rc.2" />
@@ -35,10 +43,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProviderFiles
-      Include="$(OutputPath)Oqtane.Database.PostgreSQL.dll;$(OutputPath)Oqtane.Database.PostgreSQL.pdb;$(OutputPath)EFCore.NamingConventions.dll;$(OutputPath)Npgsql.EntityFrameworkCore.PostgreSQL.dll;$(OutputPath)Npgsql.dll"
-      Exclude=""
-      DestinationPath="..\Oqtane.Server\bin\$(Configuration)\net8.0\%(Filename)%(Extension)">
+    <ProviderFiles Include="$(OutputPath)Oqtane.Database.PostgreSQL.dll;$(OutputPath)Oqtane.Database.PostgreSQL.pdb;$(OutputPath)EFCore.NamingConventions.dll;$(OutputPath)Npgsql.EntityFrameworkCore.PostgreSQL.dll;$(OutputPath)Npgsql.dll" Exclude="" DestinationPath="..\Oqtane.Server\bin\$(Configuration)\net8.0\%(Filename)%(Extension)">
     </ProviderFiles>
   </ItemGroup>
 
