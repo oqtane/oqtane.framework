@@ -23,6 +23,14 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>bin</OutputPath>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;EF1001;AD0001</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702;EF1001;AD0001</NoWarn>
+  </PropertyGroup>
   
   <ItemGroup>
     <PackageReference Include="MySql.EntityFrameworkCore" Version="8.0.0-preview" />
@@ -34,10 +42,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProviderFiles
-      Include="$(OutputPath)Oqtane.Database.MySQL.dll;$(OutputPath)Oqtane.Database.MySQL.pdb;$(OutputPath)MySql.EntityFrameworkCore.dll;$(OutputPath)MySql.Data.dll"
-      Exclude=""
-      DestinationPath="..\Oqtane.Server\bin\$(Configuration)\net8.0\%(Filename)%(Extension)">
+    <ProviderFiles Include="$(OutputPath)Oqtane.Database.MySQL.dll;$(OutputPath)Oqtane.Database.MySQL.pdb;$(OutputPath)MySql.EntityFrameworkCore.dll;$(OutputPath)MySql.Data.dll" Exclude="" DestinationPath="..\Oqtane.Server\bin\$(Configuration)\net8.0\%(Filename)%(Extension)">
     </ProviderFiles>
   </ItemGroup>
 
