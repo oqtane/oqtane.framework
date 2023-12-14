@@ -46,25 +46,10 @@ namespace Oqtane.Infrastructure
             string errors = "";
             string binPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
 
-            string sourceFolder = Path.Combine(contentRootPath, "Packages");
+            string sourceFolder = Path.Combine(contentRootPath, Constants.PackagesFolder);
             if (!Directory.Exists(sourceFolder))
             {
                 Directory.CreateDirectory(sourceFolder);
-            }
-
-            // move core framework distribution packages to secure /Packages folder
-            string folder = Path.Combine(webRootPath, "Packages");
-            if (Directory.Exists(folder))
-            {
-                foreach (var file in Directory.GetFiles(folder, "*.nupkg"))
-                {
-                    var destinationFile = Path.Combine(sourceFolder, Path.GetFileName(file));
-                    if (File.Exists(destinationFile))
-                    {
-                        File.Delete(destinationFile);
-                    }
-                    File.Move(file, destinationFile);
-                }
             }
 
             // install Nuget packages in secure Packages folder

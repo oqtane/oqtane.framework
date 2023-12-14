@@ -1,11 +1,9 @@
 using System;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal;
 using Oqtane.Migrations.Framework;
 using Oqtane.Models;
-using Oqtane.Shared;
 
 // ReSharper disable ClassNeverInstantiated.Global
 
