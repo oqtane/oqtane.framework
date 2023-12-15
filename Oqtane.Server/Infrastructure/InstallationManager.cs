@@ -13,7 +13,6 @@ using System.Xml;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Oqtane.Controllers;
 using Oqtane.Shared;
 // ReSharper disable AssignNullToNotNullAttribute
 
@@ -41,6 +40,7 @@ namespace Oqtane.Infrastructure
             }
         }
 
+        // method must be static as it is called in ConfigureServices during Startup
         public static string InstallPackages(string webRootPath, string contentRootPath)
         {
             string errors = "";
@@ -52,8 +52,13 @@ namespace Oqtane.Infrastructure
                 Directory.CreateDirectory(sourceFolder);
             }
 
+            // read assembly log
+            var assemblyLogPath = Path.Combine(sourceFolder, "assemblies.log");
+            var assemblies = GetAssemblyLog(assemblyLogPath);
+
             // install Nuget packages in secure Packages folder
-            foreach (string packagename in Directory.GetFiles(sourceFolder, "*.nupkg"))
+            var packages = Directory.GetFiles(sourceFolder, "*.nupkg");
+            foreach (string packagename in packages)
             {
                 try
                 {
@@ -122,9 +127,28 @@ namespace Oqtane.Infrastructure
                                     // ContentRootPath sometimes produces inconsistent path casing - so can't use string.Replace()
                                     filename = Regex.Replace(filename, Regex.Escape(contentRootPath), "", RegexOptions.IgnoreCase);
                                     assets.Add(filename);
-                                    if (!manifest && Path.GetExtension(filename) == ".log")
+
+                                    // packages can include a manifest (rather than relying on the framework to dynamically create one)
+                                    if (!manifest && filename.EndsWith(name + ".log"))
                                     {
                                         manifest = true;
+                                    }
+
+                                    // register assembly
+                                    if (Path.GetExtension(filename) == ".dll")
+                                    {
+                                        // if package version was not installed previously
+                                        if (!File.Exists(Path.Combine(sourceFolder, name + ".log")))
+                                        {
+                                            if (assemblies.ContainsKey(Path.GetFileName(filename)))
+                                            {
+                                                assemblies[Path.GetFileName(filename)] += 1;
+                                            }
+                                            else
+                                            {
+                                                assemblies.Add(Path.GetFileName(filename), 1);
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -153,6 +177,12 @@ namespace Oqtane.Infrastructure
 
                 // remove package
                 File.Delete(packagename);
+            }
+
+            if (packages.Length != 0)
+            {
+                // save assembly log
+                SetAssemblyLog(assemblyLogPath, assemblies);
             }
 
             return errors;
@@ -200,6 +230,10 @@ namespace Oqtane.Infrastructure
         {
             if (!string.IsNullOrEmpty(PackageName))
             {
+                // read assembly log
+                var assemblyLogPath = Path.Combine(Path.Combine(_environment.ContentRootPath, Constants.PackagesFolder), "assemblies.log");
+                var assemblies = GetAssemblyLog(assemblyLogPath);
+
                 // get manifest with highest version
                 string packagename = "";
                 string[] packages = Directory.GetFiles(Path.Combine(_environment.ContentRootPath, Constants.PackagesFolder), PackageName + "*.log");
@@ -217,17 +251,31 @@ namespace Oqtane.Infrastructure
                     {
                         // legacy support for assets that were stored as absolute paths
                         string filepath = asset.StartsWith("\\") ? Path.Combine(_environment.ContentRootPath, asset.Substring(1)) : asset;
-                        if (File.Exists(filepath))
+
+                        // delete assets
+                        if (Path.GetExtension(filepath) == ".dll")
                         {
-                            // do not remove licensing assemblies - this is a temporary fix until a more robust dependency management solution is available
-                            if (!filepath.Contains("Oqtane.Licensing."))
+                            // use assembly log to determine if assembly is used in other packages
+                            if (assemblies.ContainsKey(Path.GetFileName(filepath)))
                             {
-                                File.Delete(filepath);
-                                if (!Directory.EnumerateFiles(Path.GetDirectoryName(filepath)).Any())
+                                if (assemblies[Path.GetFileName(filepath)] == 1)
                                 {
-                                    Directory.Delete(Path.GetDirectoryName(filepath), true);
+                                    DeleteFile(filepath);
+                                    assemblies.Remove(Path.GetFileName(filepath));
+                                }
+                                else
+                                {
+                                    assemblies[Path.GetFileName(filepath)] -= 1;
                                 }
                             }
+                            else // does not exist in assembly log
+                            {
+                                DeleteFile(filepath);
+                            }
+                        }
+                        else // not an assembly
+                        {
+                            DeleteFile(filepath);
                         }
                     }
 
@@ -237,11 +285,84 @@ namespace Oqtane.Infrastructure
                         File.Delete(asset);
                     }
 
+                    // save assembly log
+                    SetAssemblyLog(assemblyLogPath, assemblies);
+
                     return true;
                 }
             }
 
             return false;
+        }
+
+        private void DeleteFile(string filepath)
+        {
+            if (File.Exists(filepath))
+            {
+                File.Delete(filepath);
+                if (!Directory.EnumerateFiles(Path.GetDirectoryName(filepath)).Any())
+                {
+                    Directory.Delete(Path.GetDirectoryName(filepath), true);
+                }
+            }
+        }
+
+        public int RegisterAssemblies()
+        {
+            var assemblyLogPath = GetAssemblyLogPath();
+            var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+
+            var assemblies = GetAssemblyLog(assemblyLogPath);
+
+            // remove assemblies that no longer exist
+            foreach (var dll in assemblies)
+            {
+                if (!File.Exists(Path.Combine(binFolder, dll.Key)))
+                {
+                    assemblies.Remove(dll.Key);
+                }
+            }
+            // add assemblies which are not registered
+            foreach (var dll in Directory.GetFiles(binFolder, "*.dll"))
+            {
+                if (!assemblies.ContainsKey(Path.GetFileName(dll)))
+                {
+                    assemblies.Add(Path.GetFileName(dll), 1);
+                }
+            }
+
+            SetAssemblyLog(assemblyLogPath, assemblies);
+
+            return assemblies.Count;
+        }
+
+        private string GetAssemblyLogPath()
+        {
+            string packagesFolder = Path.Combine(_environment.ContentRootPath, Constants.PackagesFolder);
+            if (!Directory.Exists(packagesFolder))
+            {
+                Directory.CreateDirectory(packagesFolder);
+            }
+            return Path.Combine(packagesFolder, "assemblies.log");
+        }
+
+        private static Dictionary<string, int> GetAssemblyLog(string assemblyLogPath)
+        {
+            Dictionary<string, int> assemblies = new Dictionary<string, int>();
+            if (File.Exists(assemblyLogPath))
+            {
+                assemblies = JsonSerializer.Deserialize<Dictionary<string, int>>(File.ReadAllText(assemblyLogPath));
+            }
+            return assemblies;
+        }
+
+        private static void SetAssemblyLog(string assemblyLogPath, Dictionary<string, int> assemblies)
+        {
+            if (File.Exists(assemblyLogPath))
+            {
+                File.Delete(assemblyLogPath);
+            }
+            File.WriteAllText(assemblyLogPath, JsonSerializer.Serialize(assemblies, new JsonSerializerOptions { WriteIndented = true }));
         }
 
         public async Task UpgradeFramework()
