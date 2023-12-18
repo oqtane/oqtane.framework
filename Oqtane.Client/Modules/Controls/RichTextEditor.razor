@@ -1,3 +1,4 @@
+@using System.Text.RegularExpressions
 @namespace Oqtane.Modules.Controls
 @inherits ModuleControlBase
 @inject ISettingService SettingService
@@ -5,7 +6,7 @@
 
 <div class="row" style="margin-bottom: 50px;">
     <div class="col">
-        <TabStrip>
+        <TabStrip ActiveTab="@_activeTab">
             <TabPanel Name="Rich" Heading="Rich Text Editor" ResourceKey="RichTextEditor">
 				@if (_richfilemanager)
 				{
@@ -105,6 +106,7 @@
 </div>
 
 @code {
+    private string _activeTab = "Rich";
     private ElementReference _editorElement;
     private ElementReference _toolBar;
     private bool _richfilemanager = false;
@@ -150,31 +152,37 @@
 
     protected override void OnParametersSet()
     {
-		_richhtml = Content;
-		_rawhtml = Content;
-		_originalrawhtml = _rawhtml; // preserve for comparison later
-	}
+        _richhtml = Content;
+        _rawhtml = Content;
+        _originalrawhtml = _rawhtml; // preserve for comparison later
+    }
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		await base.OnAfterRenderAsync(firstRender);
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
 
-		var interop = new RichTextEditorInterop(JSRuntime);
+        var interop = new RichTextEditorInterop(JSRuntime);
 
-		if (firstRender)
-		{
-			await interop.CreateEditor(
-				_editorElement,
-				_toolBar,
-				ReadOnly,
-				Placeholder,
-				Theme,
-				DebugLevel);
+        if (firstRender)
+        {
+            await interop.CreateEditor(
+                _editorElement,
+                _toolBar,
+                ReadOnly,
+                Placeholder,
+                Theme,
+                DebugLevel);
 
-			await interop.LoadEditorContent(_editorElement, _richhtml);
+            await interop.LoadEditorContent(_editorElement, _richhtml);
 
-			// preserve a copy of the rich text content (Quill sanitizes content so we need to retrieve it from the editor)
-			_originalrichhtml = await interop.GetHtml(_editorElement);
+            // preserve a copy of the rich text content (Quill sanitizes content so we need to retrieve it from the editor)
+            _originalrichhtml = await interop.GetHtml(_editorElement);
+            if (_originalrichhtml != _originalrawhtml)
+            {
+                _activeTab = "Raw";
+                StateHasChanged();
+            }
+
 		}
 	}
 

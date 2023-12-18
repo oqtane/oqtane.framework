@@ -17,6 +17,9 @@ namespace Oqtane.Security
     {
         public string GenerateToken(Alias alias, ClaimsIdentity identity, string secret, string issuer, string audience, int lifetime)
         {
+            // ensure secret is 256 bits
+            if (secret.Length < 32) secret = (secret + "????????????????????????????????").Substring(0, 32);
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(secret);
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -35,6 +38,9 @@ namespace Oqtane.Security
         {
             if (!string.IsNullOrEmpty(token))
             {
+                // ensure secret is 256 bits
+                if (secret.Length < 32) secret = (secret + "????????????????????????????????").Substring(0, 32);
+
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.ASCII.GetBytes(secret);
                 try
