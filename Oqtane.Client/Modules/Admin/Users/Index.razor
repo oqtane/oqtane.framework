@@ -372,10 +372,10 @@ else
 					</Section>
 					<Section Name="Token" Heading="Token Settings" ResourceKey="TokenSettings">
 						<div class="row mb-1 align-items-center">
-							<Label Class="col-sm-3" For="secret" HelpText="If you want to want to provide API access, please specify a secret which will be used to encrypt your tokens. The secret should be 16 characters or more to ensure optimal security. Please note that if you change this secret, all existing tokens will become invalid and will need to be regenerated." ResourceKey="Secret">Secret:</Label>
+							<Label Class="col-sm-3" For="jwtsecret" HelpText="If you want to want to provide API access, please specify a secret which will be used to encrypt your tokens. The secret should be 16 characters or more to ensure optimal security. Please note that if you change this secret, all existing tokens will become invalid and will need to be regenerated." ResourceKey="Secret">Secret:</Label>
 							<div class="col-sm-9">
 								<div class="input-group">
-									<input type="@_secrettype" id="secret" class="form-control" @bind="@_secret" />
+									<input type="@_secrettype" id="jwtsecret" class="form-control" @bind="@_secret" />
 									<button type="button" class="btn btn-secondary" @onclick="@ToggleSecret">@_togglesecret</button>
 								</div>
 							</div>
@@ -619,7 +619,6 @@ else
 				settings = SettingService.SetSetting(settings, "ExternalLogin:CreateUsers", _createusers, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:VerifyUsers", _verifyusers, true);
 
-				if (!string.IsNullOrEmpty(_secret) && _secret.Length < 16) _secret = (_secret + "????????????????").Substring(0, 16);
 				settings = SettingService.SetSetting(settings, "JwtOptions:Secret", _secret, true);
 				settings = SettingService.SetSetting(settings, "JwtOptions:Issuer", _issuer, true);
 				settings = SettingService.SetSetting(settings, "JwtOptions:Audience", _audience, true);
