@@ -7,6 +7,7 @@ namespace Oqtane.Infrastructure
         Alias GetAlias();
         Tenant GetTenant();
         void SetAlias(Alias alias);
+        void SetAlias(int tenantId, int siteId);
         void SetTenant(int tenantId);
     }
 }
