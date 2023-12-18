@@ -10,12 +10,6 @@ app {
     flex-direction: column;
 }
 
-/* App Logo */
-.app-logo .img-fluid {
-    max-height: 90px;
-    padding: 0 5px 0 5px;
-}
-
 /* Admin Modal */
 .app-admin-modal .modal {
     position: fixed; /* Stay in place */
