@@ -490,9 +490,11 @@
                 _smtpenabled = SettingService.GetSetting(settings, "SMTPEnabled", "True");
                 _retention = int.Parse(SettingService.GetSetting(settings, "NotificationRetention", "30"));
 
-                //File Extensions
+                // file extensions
                 _ImageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
+                _ImageFiles = (string.IsNullOrEmpty(_ImageFiles)) ? Constants.ImageFiles : _ImageFiles;
                 _UploadableFiles = SettingService.GetSetting(settings, "UploadableFiles", Constants.UploadableFiles);
+                _UploadableFiles = (string.IsNullOrEmpty(_UploadableFiles)) ? Constants.UploadableFiles : _UploadableFiles;
 
                 // aliases
                 await GetAliases();
@@ -657,7 +659,7 @@
                         settings = SettingService.SetSetting(settings, "SiteGuid", _siteguid, true);
                         settings = SettingService.SetSetting(settings, "NotificationRetention", _retention.ToString(), true);
 
-                        // File Extensions
+                        // file extensions
                         settings = SettingService.SetSetting(settings, "ImageFiles", (_ImageFiles != Constants.ImageFiles) ? _ImageFiles : "", false);
                         settings = SettingService.SetSetting(settings, "UploadableFiles", (_UploadableFiles != Constants.UploadableFiles) ? _UploadableFiles : "", false);
 
