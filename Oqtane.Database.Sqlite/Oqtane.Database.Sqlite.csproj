@@ -41,12 +41,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProviderFiles Include="$(OutputPath)Oqtane.Database.Sqlite.dll;$(OutputPath)Oqtane.Database.Sqlite.pdb;$(OutputPath)Microsoft.EntityFrameworkCore.Sqlite.dll" Exclude="" DestinationPath="..\Oqtane.Server\bin\$(Configuration)\net8.0\%(Filename)%(Extension)">
-    </ProviderFiles>
+    <SqliteFiles Include="$(OutputPath)Oqtane.Database.Sqlite.dll;$(OutputPath)Oqtane.Database.Sqlite.pdb;$(OutputPath)Microsoft.EntityFrameworkCore.Sqlite.dll" DestinationPath="..\Oqtane.Server\bin\$(Configuration)\net8.0\%(Filename)%(Extension)" />
   </ItemGroup>
 
-  <Target Name="PublishProvider" AfterTargets="PostBuildEvent" Inputs="@(ProviderFiles)" Outputs="@(ProviderFiles->'%(DestinationPath)')">
-    <Copy SourceFiles="@(ProviderFiles)" DestinationFiles="@(ProviderFiles->'%(DestinationPath)')" />
+  <Target Name="PublishProvider" AfterTargets="PostBuildEvent" Inputs="@(SqliteFiles)" Outputs="@(SqliteFiles->'%(DestinationPath)')">
+    <Copy SourceFiles="@(SqliteFiles)" DestinationFiles="@(SqliteFiles->'%(DestinationPath)')" />
   </Target>
 
 </Project>

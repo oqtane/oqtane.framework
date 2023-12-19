@@ -43,12 +43,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProviderFiles Include="$(OutputPath)Oqtane.Database.PostgreSQL.dll;$(OutputPath)Oqtane.Database.PostgreSQL.pdb;$(OutputPath)EFCore.NamingConventions.dll;$(OutputPath)Npgsql.EntityFrameworkCore.PostgreSQL.dll;$(OutputPath)Npgsql.dll" Exclude="" DestinationPath="..\Oqtane.Server\bin\$(Configuration)\net8.0\%(Filename)%(Extension)">
-    </ProviderFiles>
+    <PostgreSQLFiles Include="$(OutputPath)Oqtane.Database.PostgreSQL.dll;$(OutputPath)Oqtane.Database.PostgreSQL.pdb;$(OutputPath)EFCore.NamingConventions.dll;$(OutputPath)Npgsql.EntityFrameworkCore.PostgreSQL.dll;$(OutputPath)Npgsql.dll" DestinationPath="..\Oqtane.Server\bin\$(Configuration)\net8.0\%(Filename)%(Extension)" />
   </ItemGroup>
 
-  <Target Name="PublishProvider" AfterTargets="PostBuildEvent" Inputs="@(ProviderFiles)" Outputs="@(ProviderFiles->'%(DestinationPath)')">
-    <Copy SourceFiles="@(ProviderFiles)" DestinationFiles="@(ProviderFiles->'%(DestinationPath)')" />
+  <Target Name="PublishProvider" AfterTargets="PostBuildEvent" Inputs="@(PostgreSQLFiles)" Outputs="@(PostgreSQLFiles->'%(DestinationPath)')">
+    <Copy SourceFiles="@(PostgreSQLFiles)" DestinationFiles="@(PostgreSQLFiles->'%(DestinationPath)')" />
   </Target>
   
 </Project>
