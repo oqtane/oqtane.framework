@@ -4,6 +4,12 @@ body {
     padding-top: 7rem;
 }
 
+/* App Logo */
+.app-logo .img-fluid {
+    max-height: 90px;
+    padding: 0 5px 0 5px;
+}
+
 .table > :not(caption) > * > * {
     box-shadow: none;
 }
