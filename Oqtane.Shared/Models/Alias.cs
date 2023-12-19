@@ -46,7 +46,7 @@ namespace Oqtane.Models
         {
             get
             {
-                if (Name.Contains("/"))
+                if (Name != null && Name.Contains("/"))
                 {
                     return Name.Substring(Name.IndexOf("/") + 1);
                 }
@@ -58,7 +58,7 @@ namespace Oqtane.Models
         }
 
         /// <summary>
-        /// Unique key used for identifying a site within a runtime process (ie. cache, etc...)
+        /// Unique key used for identifying a site within a runtime process (ie. cache, file system, etc...)
         /// </summary>
         [NotMapped]
         public string SiteKey
