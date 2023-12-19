@@ -26,13 +26,14 @@ namespace Oqtane.Infrastructure
         {
             Alias alias = null;
 
-            if (_siteState?.Alias != null && _siteState.Alias.AliasId != -1)
+            // does not support mock Alias objects (GetTenant should be used to retrieve a TenantId)
+            if (_siteState?.Alias != null && _siteState.Alias.AliasId != -1) 
             {
                 alias = _siteState.Alias;
             }
             else
             {
-                // if there is http context
+                // if there is HttpContext
                 var httpcontext = _httpContextAccessor.HttpContext;
                 if (httpcontext != null)
                 {
@@ -78,20 +79,19 @@ namespace Oqtane.Infrastructure
             return null;
         }
 
+        // background processes can set the alias using the SiteState service
         public void SetAlias(Alias alias)
         {
-            // background processes can set the alias using the SiteState service
             _siteState.Alias = alias;
         }
+
         public void SetAlias(int tenantId, int siteId)
         {
-            // background processes can set the alias using the SiteState service
-            _siteState.Alias = new Alias { TenantId = tenantId, AliasId = -1, SiteId = siteId };
+            _siteState.Alias = _aliasRepository.GetAliases().ToList().FirstOrDefault(item => item.TenantId == tenantId && item.SiteId == siteId);
         }
 
         public void SetTenant(int tenantId)
         {
-            // background processes can set the alias using the SiteState service
             _siteState.Alias = new Alias { TenantId = tenantId, AliasId = -1, SiteId = -1 };
         }
     }
