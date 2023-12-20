@@ -673,6 +673,10 @@
 						}
 						else
 						{
+                            if (logofileid != -1 && logofileid != _logofileid)
+                            {
+                                NavigationManager.Refresh();
+                            }
 							AddModuleMessage(Localizer["Success.Settings.SaveSite"], MessageType.Success);
                             await ScrollToPageTop();
                         }
