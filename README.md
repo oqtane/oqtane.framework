@@ -1,6 +1,6 @@
 # Latest Release
 
-[5.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v5.0.0) was released on Nov 16, 2023 and is a major release targeted at .NET 8. This release includes 45 pull requests by 4 different contributors, pushing the total number of project commits all-time to over 4300. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
+[5.0.1](https://github.com/oqtane/oqtane.framework/releases/tag/v5.0.1) was released on Dec 21, 2023 and is a major release targeted at .NET 8. This release includes 67 pull requests by 6 different contributors, pushing the total number of project commits all-time to over 4400. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Foqtane%2Foqtane.framework%2Fmaster%2Fazuredeploy.json)
 
@@ -52,6 +52,9 @@ Backlog (TBD)
 
 5.1.0 (Q1 2024)
 - [ ] Full Stack Blazor (Static Server-Side Rendering)
+
+[5.0.1](https://github.com/oqtane/oqtane.framework/releases/tag/v5.0.1) (Dec 21, 2023)
+- [x] Stabilization improvements
 
 [5.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v5.0.0) (Nov 16, 2023)
 - [x] Migration to .NET 8
