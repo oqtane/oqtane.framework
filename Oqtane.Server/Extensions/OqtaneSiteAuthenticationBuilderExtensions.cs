@@ -205,6 +205,10 @@ namespace Oqtane.Extensions
                                 {
                                     email = item[emailClaimType].ToString().ToLower();
                                 }
+                                else
+                                {
+                                    id = ""; // if email is not valid we will assume id is not valid
+                                }
                             }
                         }
                         if (!string.IsNullOrEmpty(id))
@@ -289,6 +293,10 @@ namespace Oqtane.Extensions
                 if (EmailValid(context.Principal.FindFirstValue(emailClaimType), context.HttpContext.GetSiteSettings().GetValue("ExternalLogin:DomainFilter", "")))
                 {
                     email = context.Principal.FindFirstValue(emailClaimType);
+                }
+                else
+                {
+                    id = ""; // if email is not valid we will assume id is not valid
                 }
             }
 
@@ -610,23 +618,27 @@ namespace Oqtane.Extensions
 
         private static bool EmailValid(string email, string domainfilter)
         {
-            if (!string.IsNullOrEmpty(email) && email.Contains("@") && email.Contains("."))
+            if (!string.IsNullOrEmpty(email))
             {
-                var domains = domainfilter.ToLower().Split(',', StringSplitOptions.RemoveEmptyEntries);
-                foreach (var domain in domains)
+                if (email.Contains("@") && email.Contains("."))
                 {
-                    if (domain.StartsWith("!"))
+                    var domains = domainfilter.ToLower().Split(',', StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var domain in domains)
                     {
-                        if (email.ToLower().Contains(domain.Substring(1))) return false;
+                        if (domain.StartsWith("!"))
+                        {
+                            if (email.ToLower().Contains(domain.Substring(1))) return false;
+                        }
+                        else
+                        {
+                            if (!email.ToLower().Contains(domain)) return false;
+                        }
                     }
-                    else
-                    {
-                        if (!email.ToLower().Contains(domain)) return false;
-                    }
+                    return true;
                 }
-                return true;
-            }
-            return false;
+                return false;
+            }            
+            return (string.IsNullOrEmpty(domainfilter)); // email is optional unless domain filter is specified
         }
     }
 }
