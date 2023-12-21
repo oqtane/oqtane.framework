@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Oqtane.Documentation;
@@ -10,7 +9,7 @@ namespace Oqtane.Services
 {
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class LanguageService : ServiceBase, ILanguageService
-    {        
+    {
         public LanguageService(HttpClient http, SiteState siteState) : base(http, siteState) { }
 
         private string Apiurl => CreateApiUrl("Language");
@@ -33,6 +32,11 @@ namespace Oqtane.Services
         public async Task<Language> AddLanguageAsync(Language language)
         {
             return await PostJsonAsync<Language>(Apiurl, language);
+        }
+
+        public async Task EditLanguageAsync(Language language)
+        {
+            await PutJsonAsync<Language>(Apiurl, language);
         }
 
         public async Task DeleteLanguageAsync(int languageId)

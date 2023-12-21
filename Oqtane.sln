@@ -16,6 +16,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oqtane.Database.MySQL", "Oqtane.Database.MySQL\Oqtane.Database.MySQL.csproj", "{17082878-FA9B-4F08-BC9A-467C23560AEB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oqtane.Database.PostgreSQL", "Oqtane.Database.PostgreSQL\Oqtane.Database.PostgreSQL.csproj", "{C54A9201-2EA6-499A-BEE8-9E7EE80B9FEE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oqtane.Database.Sqlite", "Oqtane.Database.Sqlite\Oqtane.Database.Sqlite.csproj", "{61754121-6D69-4B99-B28F-03C8854732DB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oqtane.Database.SqlServer", "Oqtane.Database.SqlServer\Oqtane.Database.SqlServer.csproj", "{C1BD386B-0832-41D2-8E37-410127318556}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +42,22 @@ Global
 		{19D67A9D-3F2E-41BD-80E6-0B50CA83C3AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19D67A9D-3F2E-41BD-80E6-0B50CA83C3AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19D67A9D-3F2E-41BD-80E6-0B50CA83C3AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17082878-FA9B-4F08-BC9A-467C23560AEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17082878-FA9B-4F08-BC9A-467C23560AEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17082878-FA9B-4F08-BC9A-467C23560AEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17082878-FA9B-4F08-BC9A-467C23560AEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C54A9201-2EA6-499A-BEE8-9E7EE80B9FEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C54A9201-2EA6-499A-BEE8-9E7EE80B9FEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C54A9201-2EA6-499A-BEE8-9E7EE80B9FEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C54A9201-2EA6-499A-BEE8-9E7EE80B9FEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61754121-6D69-4B99-B28F-03C8854732DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61754121-6D69-4B99-B28F-03C8854732DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61754121-6D69-4B99-B28F-03C8854732DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61754121-6D69-4B99-B28F-03C8854732DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1BD386B-0832-41D2-8E37-410127318556}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1BD386B-0832-41D2-8E37-410127318556}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1BD386B-0832-41D2-8E37-410127318556}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1BD386B-0832-41D2-8E37-410127318556}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

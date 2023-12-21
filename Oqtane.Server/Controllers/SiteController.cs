@@ -86,6 +86,12 @@ namespace Oqtane.Controllers
                     .Where(item => !item.IsPrivate || User.IsInRole(RoleNames.Admin))
                     .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
 
+                // populate File Extensions 
+                site.ImageFiles = site.Settings.ContainsKey("ImageFiles") && !string.IsNullOrEmpty(site.Settings["ImageFiles"])
+                    ? site.Settings["ImageFiles"] : Constants.ImageFiles;
+                site.UploadableFiles = site.Settings.ContainsKey("UploadableFiles") && !string.IsNullOrEmpty(site.Settings["UploadableFiles"])
+                ? site.Settings["UploadableFiles"] : Constants.UploadableFiles;
+
                 // pages
                 List<Setting> settings = _settings.GetSettings(EntityNames.Page).ToList();
                 site.Pages = new List<Page>();
@@ -192,7 +198,7 @@ namespace Oqtane.Controllers
         public Site Put(int id, [FromBody] Site site)
         {
             var current = _sites.GetSite(site.SiteId, false);
-            if (ModelState.IsValid && site.SiteId == _alias.SiteId && site.TenantId == _alias.TenantId && current != null)
+            if (ModelState.IsValid && site.SiteId == _alias.SiteId && site.TenantId == _alias.TenantId && site.SiteId == id && current != null)
             {
                 site = _sites.UpdateSite(site);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, site.SiteId, SyncEventActions.Update);

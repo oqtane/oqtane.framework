@@ -505,7 +505,7 @@ namespace Oqtane.Pages
                 {
                     if (resource.Url.StartsWith("~"))
                     {
-                        resource.Url = resource.Url.Replace("~", "/Themes/" + name + "/").Replace("//", "/");
+                        resource.Url = resource.Url.Replace("~", "/Themes/" + Utilities.GetTypeName(name) + "/").Replace("//", "/");
                     }
                     if (!resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
                     {

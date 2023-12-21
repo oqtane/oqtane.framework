@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Npgsql;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Oqtane.Databases;
-using Oqtane.Shared;
 
 namespace Oqtane.Database.PostgreSQL
 {

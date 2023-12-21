@@ -105,11 +105,18 @@
         Route route = new Route(_absoluteUri, SiteState.Alias.Path);
         int moduleid = (int.TryParse(route.ModuleId, out moduleid)) ? moduleid : -1;
         var action = (!string.IsNullOrEmpty(route.Action)) ? route.Action : Constants.DefaultAction; 
+
         var querystring = Utilities.ParseQueryString(route.Query);
         var returnurl = "";
         if (querystring.ContainsKey("returnurl"))
         {
             returnurl = WebUtility.UrlDecode(querystring["returnurl"]);
+            if (!returnurl.StartsWith("/"))
+            {
+                // urls which are not relative are vulnerable to open redirects or XSS
+                returnurl = "";
+                querystring["returnurl"] = "";
+            }
         }
 
         // reload the client application from the server if there is a forced reload
@@ -155,7 +162,8 @@
         if (PageState == null || refresh || PageState.Alias.SiteId != SiteState.Alias.SiteId)
         {
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            if (authState.User.Identity.IsAuthenticated)
+            // verify user is authenticated for current site
+            if (authState.User.Identity.IsAuthenticated && authState.User.Claims.Any(item => item.Type == "sitekey" && item.Value == SiteState.Alias.SiteKey))
             {
                 user = await UserService.GetUserAsync(authState.User.Identity.Name, SiteState.Alias.SiteId);
                 if (user != null)

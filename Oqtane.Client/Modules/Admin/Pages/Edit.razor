@@ -447,13 +447,15 @@
     private void ThemeChanged(ChangeEventArgs e)
     {
         _themetype = (string)e.Value;
+        _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
+        _containertype = _containers.First().TypeName;
+        ThemeSettings();
+        StateHasChanged();
+        
+        // if theme chosen is different than default site theme, display warning message to user
         if (ThemeService.GetTheme(PageState.Site.Themes, _themetype)?.ThemeName != ThemeService.GetTheme(PageState.Site.Themes, PageState.Site.DefaultThemeType)?.ThemeName)
         {
             AddModuleMessage(Localizer["ThemeChanged.Message"], MessageType.Warning);
-            _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
-            _containertype = _containers.First().TypeName;
-            ThemeSettings();
-            StateHasChanged();
         }
     }
 

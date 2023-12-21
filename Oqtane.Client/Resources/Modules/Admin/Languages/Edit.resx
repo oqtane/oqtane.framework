@@ -117,133 +117,37 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Name.Text" xml:space="preserve">
-    <value>Name: </value>
-  </data>
-  <data name="Description.Text" xml:space="preserve">
-    <value>Description: </value>
-  </data>
-  <data name="Error.Module.Load" xml:space="preserve">
-    <value>Error Loading Module</value>
-  </data>
-  <data name="Error.Module.Save" xml:space="preserve">
-    <value>Error Saving Module</value>
+  <data name="Error.Language.Edit" xml:space="preserve">
+    <value>Error Updating Language</value>
   </data>
   <data name="Name.HelpText" xml:space="preserve">
-    <value>The name of the module</value>
+    <value>Name Of The Langauage</value>
   </data>
-  <data name="Description.HelpText" xml:space="preserve">
-    <value>The description of the module</value>
+  <data name="IsDefault.HelpText" xml:space="preserve">
+    <value>Indicates Whether Or Not This Language Is The Default For The Site</value>
   </data>
-  <data name="Categories.HelpText" xml:space="preserve">
-    <value>Comma delimited list of module categories</value>
+  <data name="Name.Text" xml:space="preserve">
+    <value>Name:</value>
   </data>
-  <data name="InternalName.HelpText" xml:space="preserve">
-    <value>The internal name of the module</value>
+  <data name="IsDefault.Text" xml:space="preserve">
+    <value>Default?</value>
   </data>
-  <data name="Version.HelpText" xml:space="preserve">
-    <value>The version of the module</value>
+  <data name="Success.Language.Download" xml:space="preserve">
+    <value>Translation Package Saved Successfully. You Must &lt;a href={0}&gt;Restart&lt;/a&gt; To Complete The Installation.</value>
   </data>
-  <data name="Owner.HelpText" xml:space="preserve">
-    <value>The owner or creator of the module</value>
+  <data name="LanguageUpload.HelpText" xml:space="preserve">
+    <value>Upload one or more translation packages.</value>
   </data>
-  <data name="ReferenceUrl.HelpText" xml:space="preserve">
-    <value>The reference url of the module</value>
+  <data name="LanguageUpload.Text" xml:space="preserve">
+    <value>Translation</value>
   </data>
-  <data name="Contact.HelpText" xml:space="preserve">
-    <value>The contact for the module</value>
+  <data name="Manage.Heading" xml:space="preserve">
+    <value>Manage</value>
   </data>
-  <data name="License.HelpText" xml:space="preserve">
-    <value>The module license terms</value>
+  <data name="Upload.Heading" xml:space="preserve">
+    <value>Upload</value>
   </data>
-  <data name="Runtimes.HelpText" xml:space="preserve">
-    <value>The Blazor runtimes which this module supports</value>
-  </data>
-  <data name="Categories.Text" xml:space="preserve">
-    <value>Categories: </value>
-  </data>
-  <data name="InternalName.Text" xml:space="preserve">
-    <value>Internal Name: </value>
-  </data>
-  <data name="Version.Text" xml:space="preserve">
-    <value>Version: </value>
-  </data>
-  <data name="Owner.Text" xml:space="preserve">
-    <value>Owner: </value>
-  </data>
-  <data name="ReferenceUrl.Text" xml:space="preserve">
-    <value>Reference Url: </value>
-  </data>
-  <data name="Contact.Text" xml:space="preserve">
-    <value>Contact: </value>
-  </data>
-  <data name="License.Text" xml:space="preserve">
-    <value>License: </value>
-  </data>
-  <data name="Runtimes.Text" xml:space="preserve">
-    <value>Runtimes: </value>
-  </data>
-  <data name="Definition.Heading" xml:space="preserve">
-    <value>Definition</value>
-  </data>
-  <data name="Information.Heading" xml:space="preserve">
-    <value>Information</value>
-  </data>
-  <data name="Permissions.Heading" xml:space="preserve">
-    <value>Permissions</value>
-  </data>
-  <data name="Information.Text" xml:space="preserve">
-    <value>Information</value>
-  </data>
-  <data name="PackageName.HelpText" xml:space="preserve">
-    <value>The unique name of the package from which this module was installed. This value must be specified within the module's IModule interface specification.</value>
-  </data>
-  <data name="PackageName.Text" xml:space="preserve">
-    <value>Package Name:</value>
-  </data>
-  <data name="Error.Translation.Download" xml:space="preserve">
-    <value>Error Downloading Translation</value>
-  </data>
-  <data name="Search.PackageNameMissing" xml:space="preserve">
-    <value>A Package Name Was Not Provided For The Module</value>
-  </data>
-  <data name="Search.NoResults" xml:space="preserve">
-    <value>No Translations Exist For This Module Or Package Service Is Disabled</value>
-  </data>
-  <data name="Success.Translation.Download" xml:space="preserve">
-    <value>Translation Package Saved Successfully. You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Complete The Installation.</value>
-  </data>
-  <data name="Translations.Heading" xml:space="preserve">
-    <value>Translations</value>
-  </data>
-  <data name="Message.DuplicateName" xml:space="preserve">
-    <value>A Module With The Name Specified Already Exists</value>
-  </data>
-  <data name="IsEnabled.HelpText" xml:space="preserve">
-    <value>Is module enabled for this site?</value>
-  </data>
-  <data name="IsEnabled.Text" xml:space="preserve">
-    <value>Enabled?</value>
-  </data>
-  <data name="View License" xml:space="preserve">
-    <value>View License</value>
-  </data>
-  <data name="Error.Validate" xml:space="preserve">
-    <value>Error Validating Package</value>
-  </data>
-  <data name="Message.Download" xml:space="preserve">
-    <value>Package Version Has Been Verified. Please Select The Download Button To Obtain The Package.</value>
-  </data>
-  <data name="Message.Validate" xml:space="preserve">
-    <value>This Package Version Has Not Been Registered In The Oqtane Marketplace Or You Do Not Have The Right To Use It From This Installation</value>
-  </data>
-  <data name="Validate" xml:space="preserve">
-    <value>Validate</value>
-  </data>
-  <data name="Browse" xml:space="preserve">
-    <value>Browse</value>
-  </data>
-  <data name="Pages.Heading" xml:space="preserve">
-    <value>Pages</value>
+  <data name="Error.Language.Load" xml:space="preserve">
+    <value>Error Loading Language</value>
   </data>
 </root>

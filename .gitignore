@@ -16,7 +16,7 @@ _ReSharper.Caches
 Oqtane.Server/appsettings.json
 Oqtane.Server/Data
 
-/Oqtane.Server/Properties/PublishProfiles/FolderProfile.pubxml
+Oqtane.Server/Properties/PublishProfiles/FolderProfile.pubxml
 Oqtane.Server/Content
 Oqtane.Server/Packages
 Oqtane.Server/wwwroot/Content

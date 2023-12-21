@@ -67,7 +67,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Host)]
         public Job Put(int id, [FromBody] Job job)
         {
-            if (ModelState.IsValid && _jobs.GetJob(job.JobId, false) != null)
+            if (ModelState.IsValid && job.JobId == id && _jobs.GetJob(job.JobId, false) != null)
             {
                 job = _jobs.UpdateJob(job);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Job Updated {Job}", job);

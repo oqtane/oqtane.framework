@@ -79,6 +79,11 @@ namespace Oqtane.Models
         public string RenderMode { get; set; }
 
         /// <summary>
+        /// Indicates if a site can be integrated with an external .NET MAUI hybrid application
+        /// </summary>
+        public bool HybridEnabled { get; set; }
+
+        /// <summary>
         /// Keeps track of site configuration changes and is used by the ISiteMigration interface
         /// </summary>
         public string Version { get; set; }
@@ -97,6 +102,18 @@ namespace Oqtane.Models
         /// Content to be included in the body of the page
         /// </summary>
         public string BodyContent { get; set; }
+
+        /// <summary>
+        /// The ImageFile extensions
+        /// </summary>
+        [NotMapped]
+        public string ImageFiles { get; set; }
+
+        /// <summary>
+        /// The UploadableFile extensions
+        /// </summary>
+        [NotMapped]
+        public string UploadableFiles { get; set; }
 
         [NotMapped]
         public Dictionary<string, string> Settings { get; set; }

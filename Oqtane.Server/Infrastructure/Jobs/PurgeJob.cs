@@ -32,6 +32,7 @@ namespace Oqtane.Infrastructure
             var logRepository = provider.GetRequiredService<ILogRepository>();
             var visitorRepository = provider.GetRequiredService<IVisitorRepository>();
             var notificationRepository = provider.GetRequiredService<INotificationRepository>();
+            var installationManager = provider.GetRequiredService<IInstallationManager>();
 
             // iterate through sites for current tenant
             List<Site> sites = siteRepository.GetSites().ToList();
@@ -94,6 +95,17 @@ namespace Oqtane.Infrastructure
                 {
                     log += $"Error Purging Notifications - {ex.Message}<br />";
                 }
+            }
+
+            // register assemblies
+            try
+            {
+                var assemblies = installationManager.RegisterAssemblies();
+                log += assemblies.ToString() + " Assemblies Registered<br />";
+            }
+            catch (Exception ex)
+            {
+                log += $"Error Registering Assemblies - {ex.Message}<br />";
             }
 
             return log;

@@ -195,7 +195,7 @@ else
 						@if (_providertype != "")
 						{
 							<div class="row mb-1 align-items-center">
-								<Label Class="col-sm-3" For="providername" HelpText="The external login provider name which will be displayed on the login page" ResourceKey="ProviderName">Provider Name:</Label>
+								<Label Class="col-sm-3" For="providername" HelpText="Specify a friendly name for the external login provider which will be displayed on the Login page" ResourceKey="ProviderName">Provider Name:</Label>
 								<div class="col-sm-9">
 									<input id="providername" class="form-control" @bind="@_providername" />
 								</div>
@@ -254,7 +254,25 @@ else
 									</div>
 								</div>
 							</div>
-							<div class="row mb-1 align-items-center">
+                            @if (_providertype == AuthenticationProviderTypes.OpenIDConnect)
+                            {
+                                <div class="row mb-1 align-items-center">
+                                    <Label Class="col-sm-3" For="authresponsetype" HelpText="Specify the authorization response type. The default is Authorization Code which is considered to be the most secure option based on the latest OAuth specification." ResourceKey="AuthResponseType">Authorization Response Type:</Label>
+                                    <div class="col-sm-9">
+                                        <select id="authresponsetype" class="form-select" @bind="@_authresponsetype" required>
+                                            <option value="code">@Localizer["AuthFlow.Code"]</option>
+                                            <option value="code id_token">@Localizer["AuthFlow.CodeIdToken"]</option>
+                                            <option value="code id_token token">@Localizer["AuthFlow.CodeIdTokenToken"]</option>
+                                            <option value="code token">@Localizer["AuthFlow.CodeToken"]</option>
+                                            <option value="id_token">@Localizer["AuthFlow.IdToken"]</option>
+                                            <option value="id_token token">@Localizer["AuthFlow.IdTokenToken"]</option>
+                                            <option value="token">@Localizer["AuthFlow.Token"]</option>
+                                            <option value="none">@Localizer["AuthFlow.None"]</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            }
+                            <div class="row mb-1 align-items-center">
 								<Label Class="col-sm-3" For="scopes" HelpText="A list of Scopes to request from the provider (separated by commas). If none are specified, standard Scopes will be used by default." ResourceKey="Scopes">Scopes:</Label>
 								<div class="col-sm-9">
 									<input id="scopes" class="form-control" @bind="@_scopes" />
@@ -266,21 +284,6 @@ else
 									<input id="parameters" class="form-control" @bind="@_parameters" />
 								</div>
 							</div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="authresponsetype" HelpText="Specify the authorization response type" ResourceKey="AuthResponseType">Authorization Response Type</Label>
-                                <div class="col-sm-9">
-                                    <select id="authresponsetype" class="form-select" @bind="@_authresponsetype" required>
-                                        <option value="code">@Localizer["AuthFlow.Code"]</option>
-                                        <option value="code id_token">@Localizer["AuthFlow.CodeIdToken"]</option>
-                                        <option value="code id_token token">@Localizer["AuthFlow.CodeIdTokenToken"]</option>
-                                        <option value="code token">@Localizer["AuthFlow.CodeToken"]</option>
-                                        <option value="id_token">@Localizer["AuthFlow.IdToken"]</option>
-                                        <option value="id_token token">@Localizer["AuthFlow.IdTokenToken"]</option>
-                                        <option value="token">@Localizer["AuthFlow.Token"]</option>
-                                        <option value="none">@Localizer["AuthFlow.None"]</option>
-                                    </select>
-                                </div>
-                            </div>
                             <div class="row mb-1 align-items-center">
 								<Label Class="col-sm-3" For="pkce" HelpText="Indicate if the provider supports Proof Key for Code Exchange (PKCE)" ResourceKey="PKCE">Use PKCE?</Label>
 								<div class="col-sm-9">
@@ -296,33 +299,51 @@ else
 									<input id="redirecturl" class="form-control" @bind="@_redirecturl" readonly />
 								</div>
 							</div>
-							<div class="row mb-1 align-items-center">
-								<Label Class="col-sm-3" For="identifierclaimtype" HelpText="The name of the unique user identifier claim provided by the provider" ResourceKey="IdentifierClaimType">Identifier Claim:</Label>
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="reviewclaims" HelpText="This option will record the full list of Claims returned by the Provider in the Event Log. It should only be used for testing purposes. External Login will be restricted when this option is enabled." ResourceKey="ReviewClaims">Review Claims?</Label>
+                                <div class="col-sm-9">
+                                    <div class="input-group">
+                                        <select id="reviewclaims" class="form-select" @bind="@_reviewclaims" required>
+                                            <option value="true">@SharedLocalizer["Yes"]</option>
+                                            <option value="false">@SharedLocalizer["No"]</option>
+                                        </select>
+                                        @if (_reviewclaims == "true")
+                                        {
+                                            <a href="@_externalloginurl" target="_blank" class="btn btn-secondary">@SharedLocalizer["Test"]</a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="identifierclaimtype" HelpText="Specify the type name of the unique user identifier claim provided by the provider. The default value is 'sub'." ResourceKey="IdentifierClaimType">Identifier Claim:</Label>
 								<div class="col-sm-9">
 									<input id="identifierclaimtype" class="form-control" @bind="@_identifierclaimtype" />
 								</div>
 							</div>
-							<div class="row mb-1 align-items-center">
-								<Label Class="col-sm-3" For="emailclaimtype" HelpText="The name of the email address claim provided by the provider" ResourceKey="EmailClaimType">Email Claim:</Label>
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="nameclaimtype" HelpText="Optionally specify the type name of the user's name claim provided by the provider. The typical value is 'name'." ResourceKey="NameClaimType">Name Claim:</Label>
+                                <div class="col-sm-9">
+                                    <input id="nameclaimtype" class="form-control" @bind="@_nameclaimtype" />
+                                </div>
+                            </div>
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="emailclaimtype" HelpText="Optionally specify the type name of the email address claim provided by the provider. The typical value is 'email'," ResourceKey="EmailClaimType">Email Claim:</Label>
 								<div class="col-sm-9">
 									<input id="emailclaimtype" class="form-control" @bind="@_emailclaimtype" />
 								</div>
 							</div>
-							@if (_providertype == AuthenticationProviderTypes.OpenIDConnect)
-							{
-								<div class="row mb-1 align-items-center">
-									<Label Class="col-sm-3" For="roleclaimtype" HelpText="The name of the role claim provided by the provider" ResourceKey="RoleClaimType">Role Claim:</Label>
-									<div class="col-sm-9">
-										<input id="roleclaimtype" class="form-control" @bind="@_roleclaimtype" />
-									</div>
+							<div class="row mb-1 align-items-center">
+								<Label Class="col-sm-3" For="roleclaimtype" HelpText="The name of the role claim provided by the provider" ResourceKey="RoleClaimType">Role Claim:</Label>
+								<div class="col-sm-9">
+									<input id="roleclaimtype" class="form-control" @bind="@_roleclaimtype" />
 								</div>
-								<div class="row mb-1 align-items-center">
-									<Label Class="col-sm-3" For="profileclaimtypes" HelpText="A comma delimited list of user profile claims provided by the provider, as well as mappings to your user profile definition. For example if the provider includes a 'given_name' claim and you have a 'FirstName' user profile definition you should specify 'given_name:FirstName'." ResourceKey="ProfileClaimTypes">User Profile Claims:</Label>
-									<div class="col-sm-9">
-										<input id="profileclaimtypes" class="form-control" @bind="@_profileclaimtypes" />
-									</div>
+							</div>
+							<div class="row mb-1 align-items-center">
+								<Label Class="col-sm-3" For="profileclaimtypes" HelpText="A comma delimited list of user profile claims provided by the provider, as well as mappings to your user profile definition. For example if the provider includes a 'given_name' claim and you have a 'FirstName' user profile definition you should specify 'given_name:FirstName'." ResourceKey="ProfileClaimTypes">User Profile Claims:</Label>
+								<div class="col-sm-9">
+									<input id="profileclaimtypes" class="form-control" @bind="@_profileclaimtypes" />
 								</div>
-							}
+							</div>
 							<div class="row mb-1 align-items-center">
 								<Label Class="col-sm-3" For="domainfilter" HelpText="Provide any email domain filter criteria (separated by commas). Domains to exclude should be prefixed with an exclamation point (!). For example 'microsoft.com,!hotmail.com' would include microsoft.com email addresses but not hotmail.com email addresses." ResourceKey="DomainFilter">Domain Filter:</Label>
 								<div class="col-sm-9">
@@ -351,10 +372,10 @@ else
 					</Section>
 					<Section Name="Token" Heading="Token Settings" ResourceKey="TokenSettings">
 						<div class="row mb-1 align-items-center">
-							<Label Class="col-sm-3" For="secret" HelpText="If you want to want to provide API access, please specify a secret which will be used to encrypt your tokens. The secret should be 16 characters or more to ensure optimal security. Please note that if you change this secret, all existing tokens will become invalid and will need to be regenerated." ResourceKey="Secret">Secret:</Label>
+							<Label Class="col-sm-3" For="jwtsecret" HelpText="If you want to want to provide API access, please specify a secret which will be used to encrypt your tokens. The secret should be 16 characters or more to ensure optimal security. Please note that if you change this secret, all existing tokens will become invalid and will need to be regenerated." ResourceKey="Secret">Secret:</Label>
 							<div class="col-sm-9">
 								<div class="input-group">
-									<input type="@_secrettype" id="secret" class="form-control" @bind="@_secret" />
+									<input type="@_secrettype" id="jwtsecret" class="form-control" @bind="@_secret" />
 									<button type="button" class="btn btn-secondary" @onclick="@ToggleSecret">@_togglesecret</button>
 								</div>
 							</div>
@@ -425,12 +446,15 @@ else
     private string _clientsecret;
     private string _clientsecrettype = "password";
     private string _toggleclientsecret = string.Empty;
+    private string _authresponsetype;
     private string _scopes;
     private string _parameters;
     private string _pkce;
-    private string _authresponsetype;
     private string _redirecturl;
+    private string _reviewclaims;
+    private string _externalloginurl;
     private string _identifierclaimtype;
+    private string _nameclaimtype;
     private string _emailclaimtype;
     private string _roleclaimtype;
     private string _profileclaimtypes;
@@ -486,12 +510,15 @@ else
             _clientid = SettingService.GetSetting(settings, "ExternalLogin:ClientId", "");
             _clientsecret = SettingService.GetSetting(settings, "ExternalLogin:ClientSecret", "");
             _toggleclientsecret = SharedLocalizer["ShowPassword"];
+            _authresponsetype = SettingService.GetSetting(settings, "ExternalLogin:AuthResponseType", "code");
             _scopes = SettingService.GetSetting(settings, "ExternalLogin:Scopes", "");
             _parameters = SettingService.GetSetting(settings, "ExternalLogin:Parameters", "");
             _pkce = SettingService.GetSetting(settings, "ExternalLogin:PKCE", "false");
-            _authresponsetype = SettingService.GetSetting(settings, "ExternalLogin:AuthResponseType", "code");
             _redirecturl = PageState.Uri.Scheme + "://" + PageState.Alias.Name + "/signin-" + _providertype;
+            _reviewclaims = SettingService.GetSetting(settings, "ExternalLogin:ReviewClaims", "false");
+            _externalloginurl = Utilities.TenantUrl(PageState.Alias, "/pages/external");
             _identifierclaimtype = SettingService.GetSetting(settings, "ExternalLogin:IdentifierClaimType", "sub");
+            _nameclaimtype = SettingService.GetSetting(settings, "ExternalLogin:NameClaimType", "name");
             _emailclaimtype = SettingService.GetSetting(settings, "ExternalLogin:EmailClaimType", "email");
             _roleclaimtype = SettingService.GetSetting(settings, "ExternalLogin:RoleClaimType", "");
             _profileclaimtypes = SettingService.GetSetting(settings, "ExternalLogin:ProfileClaimTypes", "");
@@ -578,19 +605,20 @@ else
 				settings = SettingService.SetSetting(settings, "ExternalLogin:UserInfoUrl", _userinfourl, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:ClientId", _clientid, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:ClientSecret", _clientsecret, true);
-				settings = SettingService.SetSetting(settings, "ExternalLogin:Scopes", _scopes, true);
+                settings = SettingService.SetSetting(settings, "ExternalLogin:AuthResponseType", _authresponsetype, true);
+                settings = SettingService.SetSetting(settings, "ExternalLogin:Scopes", _scopes, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:Parameters", _parameters, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:PKCE", _pkce, true);
-                settings = SettingService.SetSetting(settings, "ExternalLogin:AuthResponseType", _authresponsetype, true);
-				settings = SettingService.SetSetting(settings, "ExternalLogin:IdentifierClaimType", _identifierclaimtype, true);
-				settings = SettingService.SetSetting(settings, "ExternalLogin:EmailClaimType", _emailclaimtype, true);
+                settings = SettingService.SetSetting(settings, "ExternalLogin:ReviewClaims", _reviewclaims, true);
+                settings = SettingService.SetSetting(settings, "ExternalLogin:IdentifierClaimType", _identifierclaimtype, true);
+                settings = SettingService.SetSetting(settings, "ExternalLogin:NameClaimType", _nameclaimtype, true);
+                settings = SettingService.SetSetting(settings, "ExternalLogin:EmailClaimType", _emailclaimtype, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:RoleClaimType", _roleclaimtype, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:ProfileClaimTypes", _profileclaimtypes, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:DomainFilter", _domainfilter, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:CreateUsers", _createusers, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:VerifyUsers", _verifyusers, true);
 
-				if (!string.IsNullOrEmpty(_secret) && _secret.Length < 16) _secret = (_secret + "????????????????").Substring(0, 16);
 				settings = SettingService.SetSetting(settings, "JwtOptions:Secret", _secret, true);
 				settings = SettingService.SetSetting(settings, "JwtOptions:Issuer", _issuer, true);
 				settings = SettingService.SetSetting(settings, "JwtOptions:Audience", _audience, true);

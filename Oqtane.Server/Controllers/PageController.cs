@@ -269,7 +269,7 @@ namespace Oqtane.Controllers
             // get current page
             var currentPage = _pages.GetPage(page.PageId, false);
 
-            if (ModelState.IsValid && page.SiteId == _alias.SiteId && currentPage != null && _userPermissions.IsAuthorized(User, page.SiteId, EntityNames.Page, page.PageId, PermissionNames.Edit))
+            if (ModelState.IsValid && page.SiteId == _alias.SiteId && page.PageId == id && currentPage != null && _userPermissions.IsAuthorized(User, page.SiteId, EntityNames.Page, page.PageId, PermissionNames.Edit))
             {
                 // get current page permissions
                 var currentPermissions = _permissionRepository.GetPermissions(page.SiteId, EntityNames.Page, page.PageId).ToList();

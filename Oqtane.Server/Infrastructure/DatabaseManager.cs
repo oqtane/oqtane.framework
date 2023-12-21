@@ -105,12 +105,6 @@ namespace Oqtane.Infrastructure
                     IsNewTenant = false
                 };
 
-                // on upgrade install the associated Nuget package
-                if (!string.IsNullOrEmpty(install.ConnectionString))
-                {
-                    InstallDatabase(install);
-                }
-
                 var installation = IsInstalled();
                 if (!installation.Success)
                 {
@@ -209,57 +203,6 @@ namespace Oqtane.Infrastructure
             return result;
         }
 
-        private Installation InstallDatabase(InstallConfig install)
-        {
-            var result = new Installation {Success = false, Message = string.Empty};
-
-            try
-            {
-                bool installPackages = false;
-
-                // iterate database packages in installation folder
-                var packagesFolder = new DirectoryInfo(Path.Combine(_environment.ContentRootPath, Constants.PackagesFolder));
-                foreach (var package in packagesFolder.GetFiles("*.nupkg.bak"))
-                {
-                    // determine if package needs to be upgraded or installed
-                    bool upgrade = System.IO.File.Exists(package.FullName.Replace(".nupkg.bak",".log"));
-                    if (upgrade || package.Name.StartsWith(Utilities.GetAssemblyName(install.DatabaseType)))
-                    {
-                        var packageName = Path.Combine(package.DirectoryName, package.Name);
-                        packageName = packageName.Substring(0, packageName.IndexOf(".bak"));
-                        package.MoveTo(packageName, true);
-                        installPackages = true;
-                    }
-                }
-                if (installPackages)
-                {
-                    using (var scope = _serviceScopeFactory.CreateScope())
-                    {
-                        var installationManager = scope.ServiceProvider.GetRequiredService<IInstallationManager>();
-                        installationManager.InstallPackages();
-                    }
-                }
-
-                // load the installation database type (if necessary)
-                if (Type.GetType(install.DatabaseType) == null)
-                {
-                    var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
-                    var assembliesFolder = new DirectoryInfo(assemblyPath);
-                    var assemblyFile = new FileInfo($"{assembliesFolder}/{Utilities.GetAssemblyName(install.DatabaseType)}.dll");
-                    AssemblyLoadContext.Default.LoadOqtaneAssembly(assemblyFile);
-                }
-
-                result.Success = true;
-            }
-            catch (Exception ex)
-            {
-                result.Message = ex.ToString();
-                _filelogger.LogError(Utilities.LogMessage(this, result.Message));
-            }
-
-            return result;
-        }
-
         private Installation CreateDatabase(InstallConfig install)
         {
             var result = new Installation { Success = false, Message = string.Empty };
@@ -268,8 +211,6 @@ namespace Oqtane.Infrastructure
             {
                 try
                 {
-                    InstallDatabase(install);
-
                     var databaseType = install.DatabaseType;
 
                     // get database type
@@ -436,7 +377,7 @@ namespace Oqtane.Infrastructure
                         }
                         catch (Exception ex)
                         {
-                            result.Message = "An Error Occurred Migrating A Tenant Database. This Is Usually Related To A Tenant Database Not Being In A Supported State. " + ex.ToString();
+                            result.Message = "An Error Occurred Migrating The Database For Tenant " + tenant.Name + ". This Is Usually Related To Database Permissions, Connection String Mappings, Or The Database Not Being In A Supported State. " + ex.ToString();
                             _filelogger.LogError(Utilities.LogMessage(this, result.Message));
                         }
 
@@ -457,7 +398,7 @@ namespace Oqtane.Infrastructure
                             }
                             catch (Exception ex)
                             {
-                                result.Message = "An Error Occurred Executing Upgrade Logic. " + ex.ToString();
+                                result.Message = "An Error Occurred Executing Upgrade Logic On Tenant " + tenant.Name + ". " + ex.ToString();
                                 _filelogger.LogError(Utilities.LogMessage(this, result.Message));
                             }
                         }
@@ -527,7 +468,7 @@ namespace Oqtane.Infrastructure
                                                 }
                                                 catch (Exception ex)
                                                 {
-                                                    result.Message = "An Error Occurred Installing " + moduleDefinition.Name + " Version " + versions[i] + " - " + ex.ToString();
+                                                    result.Message = "An Error Occurred Installing " + moduleDefinition.Name + " Version " + versions[i] + " On Tenant " + tenant.Name + " - " + ex.ToString();
                                                 }
                                             }
                                         }
@@ -614,6 +555,7 @@ namespace Oqtane.Infrastructure
                                 SiteTemplateType = install.SiteTemplate,
                                 Runtime = (!string.IsNullOrEmpty(install.Runtime)) ? install.Runtime : _configManager.GetSection("Runtime").Value,
                                 RenderMode = (!string.IsNullOrEmpty(install.RenderMode)) ? install.RenderMode : _configManager.GetSection("RenderMode").Value,
+                                HybridEnabled = false
                             };
                             site = sites.AddSite(site);
 

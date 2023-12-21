@@ -1,12 +1,10 @@
 using System.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using MySql.Data.MySqlClient;
 using MySql.EntityFrameworkCore.Metadata;
 using Oqtane.Databases;
-using Oqtane.Shared;
 
 namespace Oqtane.Database.MySQL
 {

@@ -93,7 +93,15 @@ namespace Oqtane.Repository
         public int ExecuteNonQuery(string connectionString, string databaseType, string query)
         {
             var db = GetActiveDatabase(databaseType);
-            return db.ExecuteNonQuery(GetConnectionString(connectionString), query);
+            var connectionstring = GetConnectionString(connectionString);
+            if (connectionstring != null)
+            {
+                return db.ExecuteNonQuery(GetConnectionString(connectionString), query);
+            }
+            else
+            {
+                return 0;
+            }
         }
 
         public string GetScriptFromAssembly(Assembly assembly, string fileName)
