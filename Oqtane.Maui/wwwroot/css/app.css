@@ -323,7 +323,7 @@ app {
         margin-top: 0;
     }
 
-    #blazor-error-ui .error-message {
+    #blazor-error-ui .message {
         max-width: 100%;
     }
 }
