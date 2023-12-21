@@ -256,7 +256,7 @@ app {
         display: block;
         margin: 20px auto;
         width: 200px;
-        padding: 15px 20px;
+        padding: 15px 0;
         font-size: 1.2em;
         background-color: #2a9fd6;
         color: white;
