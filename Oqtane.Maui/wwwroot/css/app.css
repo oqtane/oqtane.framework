@@ -306,3 +306,24 @@ app {
             border-radius: 0px;
         }
 }
+
+@media (max-height: 420px) {
+    #blazor-error-ui .reload {
+        position: fixed;
+        bottom: 0;
+    }
+}
+
+@media (max-height: 520px) {
+    #blazor-error-ui .image {
+        display: none;
+    }
+
+    #blazor-error-ui .heading {
+        margin-top: 0;
+    }
+
+    #blazor-error-ui .error-message {
+        max-width: 100%;
+    }
+}
