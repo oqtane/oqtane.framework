@@ -581,7 +581,8 @@
                             site.LogoFileId = logofileid;
                             if (logofileid != _logofileid)
                             {
-                                reload = true;
+                                _logofileid = logofileid;
+                                refresh = true;
                             }
                         }
                         int? faviconFieldId = _faviconfilemanager.GetFileId();
