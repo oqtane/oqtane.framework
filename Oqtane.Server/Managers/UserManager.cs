@@ -106,7 +106,7 @@ namespace Oqtane.Managers
             {
                 if (string.IsNullOrEmpty(user.Password))
                 {
-                    // create random interal password based on random date and punctuation ie. Jan-23-1981+14:43:12!
+                    // generate password based on random date and punctuation ie. Jan-23-1981+14:43:12!
                     Random rnd = new Random();
                     var date = DateTime.UtcNow.AddDays(-rnd.Next(50 * 365)).AddHours(rnd.Next(0, 24)).AddMinutes(rnd.Next(0, 60)).AddSeconds(rnd.Next(0, 60));
                     user.Password = date.ToString("MMM-dd-yyyy+HH:mm:ss", CultureInfo.InvariantCulture) + (char)rnd.Next(33, 47);
@@ -152,7 +152,7 @@ namespace Oqtane.Managers
                 {
                     string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
                     string url = alias.Protocol + alias.Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
-                    string body = "Dear " + user.DisplayName + ",\n\nIn Order To Complete The Registration Of Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
+                    string body = "Dear " + user.DisplayName + ",\n\nIn Order To Verify The Email Address Associated To Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
                     var notification = new Notification(user.SiteId, User, "User Account Verification", body);
                     _notifications.AddNotification(notification);
                 }
@@ -205,8 +205,22 @@ namespace Oqtane.Managers
                     if (user.Email != identityuser.Email)
                     {
                         await _identityUserManager.SetEmailAsync(identityuser, user.Email);
-                        var emailConfirmationToken = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
-                        await _identityUserManager.ConfirmEmailAsync(identityuser, emailConfirmationToken);
+
+                        // if email address changed and user is not administrator, email verification is required for new email address
+                        if (!user.EmailConfirmed)
+                        {
+                            var alias = _tenantManager.GetAlias();
+                            string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
+                            string url = alias.Protocol + alias.Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
+                            string body = "Dear " + user.DisplayName + ",\n\nIn Order To Verify The Email Address Associated To Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
+                            var notification = new Notification(user.SiteId, user, "User Account Verification", body);
+                            _notifications.AddNotification(notification);
+                        }
+                        else
+                        {
+                            var emailConfirmationToken = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
+                            await _identityUserManager.ConfirmEmailAsync(identityuser, emailConfirmationToken);
+                        }
                     }
 
                     user = _users.UpdateUser(user);
@@ -308,7 +322,7 @@ namespace Oqtane.Managers
                             user = _users.GetUser(identityuser.UserName);
                             if (user != null)
                             {
-                                if (identityuser.EmailConfirmed)
+                                if (await _identityUserManager.IsEmailConfirmedAsync(identityuser))
                                 {
                                     user.IsAuthenticated = true;
                                     user.LastLoginOn = DateTime.UtcNow;
@@ -323,7 +337,7 @@ namespace Oqtane.Managers
                                 }
                                 else
                                 {
-                                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Not Verified {Username}", user.Username);
+                                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Email Address Not Verified {Username}", user.Username);
                                 }
                             }
                         }

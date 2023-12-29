@@ -204,8 +204,8 @@
   <data name="ExternalLoginStatus.DuplicateEmail" xml:space="preserve">
     <value>Multiple User Accounts Already Exist With The Email Address Of Your External Login. Please Contact Your Administrator For Further Instructions.</value>
   </data>
-  <data name="ExternalLoginStatus.InvalidEmail" xml:space="preserve">
-    <value>The External Login Provider Did Not Provide A Valid Email Address For Your Account. Please Contact Your Administrator For Further Instructions.</value>
+  <data name="ExternalLoginStatus.MissingClaims" xml:space="preserve">
+    <value>The External Login Provider Did Not Provide All Of The Required Information. Please Contact Your Administrator For Further Instructions.</value>
   </data>
   <data name="ExternalLoginStatus.ProviderKeyMismatch" xml:space="preserve">
     <value>An Error Occurred Verifying Your External Login. Please Contact Your Administrator For Further Instructions.</value>
@@ -224,5 +224,8 @@
   </data>
   <data name="ExternalLoginStatus.RemoteFailure" xml:space="preserve">
     <value>Your External Login Failed. Please Contact Your Administrator For Further Instructions.</value>
+  </data>
+  <data name="ExternalLoginStatus.ReviewClaims" xml:space="preserve">
+    <value>The Review Claims Option Was Enabled In External Login Settings. Please Visit The Event Log To View The Claims Returned By The Provider.</value>
   </data>
 </root>

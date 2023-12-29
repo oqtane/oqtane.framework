@@ -71,6 +71,9 @@ namespace Oqtane
                     {
                         options.DetailedErrors = true;
                     }
+                })
+                .AddHubOptions(options => {
+                    options.MaximumReceiveMessageSize = null; // no limit (for large amnounts of data ie. textarea components)
                 });
 
             // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )

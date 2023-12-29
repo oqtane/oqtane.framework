@@ -9,6 +9,8 @@ namespace Oqtane.Repository
 
         Language AddLanguage(Language language);
 
+        void UpdateLanguage(Language language);
+
         Language GetLanguage(int languageId);
 
         void DeleteLanguage(int languageId);

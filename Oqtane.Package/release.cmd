@@ -1,8 +1,6 @@
 del "*.nupkg"
 del "*.zip"
-dotnet clean -c Release ..\Oqtane.Databases.sln
 dotnet clean -c Release ..\Oqtane.sln 
-dotnet build -c Release ..\Oqtane.Databases.sln
 dotnet build -c Release ..\Oqtane.sln
 nuget.exe pack Oqtane.Client.nuspec
 nuget.exe pack Oqtane.Server.nuspec

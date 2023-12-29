@@ -1,27 +1,30 @@
 @namespace Oqtane.Modules.Controls
 @inherits LocalizableComponent
 
-<div class="d-flex mt-2">
-    <div>
-        <a data-bs-toggle="collapse" class="app-link-unstyled" href="#@Name" aria-expanded="@_expanded" aria-controls="@Name" @onclick:preventDefault="true">
-            <h5>@_heading</h5>
-        </a>
+@if (IsVisible)
+{
+    <div class="d-flex mt-2">
+        <div>
+            <a data-bs-toggle="collapse" class="app-link-unstyled" href="#@Name" aria-expanded="@_expanded" aria-controls="@Name" @onclick:preventDefault="true">
+                <h5>@_heading</h5>
+            </a>
+        </div>
+        <div class="ms-auto">
+            <a data-bs-toggle="collapse" class="app-link-unstyled float-right" href="#@Name" aria-expanded="@_expanded" aria-controls="@Name" @onclick:preventDefault="true">
+                <i class="oi oi-chevron-bottom"></i>&nbsp;
+            </a>
+        </div>
     </div>
-    <div class="ms-auto">
-        <a data-bs-toggle="collapse" class="app-link-unstyled float-right" href="#@Name" aria-expanded="@_expanded" aria-controls="@Name" @onclick:preventDefault="true">
-            <i class="oi oi-chevron-bottom"></i>&nbsp;
-        </a>
+    <div class="d-flex">
+        <hr class="app-rule" />
     </div>
-</div>
-<div class="d-flex">
-    <hr class="app-rule" />
-</div>
-<div class="collapse @_show" id="@Name">
-    @if (ChildContent != null)
-    {
-        @ChildContent
-    }
-</div>
+    <div class="collapse @_show" id="@Name">
+        @if (ChildContent != null)
+        {
+            @ChildContent
+        }
+    </div>
+}
 
 @code {
     private string _heading = string.Empty;
@@ -39,6 +42,9 @@
 
     [Parameter]
     public string Expanded { get; set; } // optional - will default to false if not provided
+
+    [Parameter]
+    public bool IsVisible { get; set; } = true;
 
     protected override void OnParametersSet()
     {

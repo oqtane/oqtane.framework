@@ -1,13 +1,9 @@
 using System;
-using System.Text;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Oqtane.Migrations.Framework;
 using Oqtane.Models;
-using Oqtane.Shared;
 
 // ReSharper disable ClassNeverInstantiated.Global
 

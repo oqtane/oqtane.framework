@@ -247,7 +247,7 @@
     <value>Domain Filter:</value>
   </data>
   <data name="EmailClaimType.HelpText" xml:space="preserve">
-    <value>The name of the email address claim provided by the identity provider</value>
+    <value>Optionally specify the type name of the email address claim provided by the identity provider. The typical value is 'email'.</value>
   </data>
   <data name="EmailClaimType.Text" xml:space="preserve">
     <value>Email Claim:</value>
@@ -274,7 +274,7 @@
     <value>Use PKCE?</value>
   </data>
   <data name="ProviderName.HelpText" xml:space="preserve">
-    <value>The external login provider name which will be displayed on the login page</value>
+    <value>Specify a friendly name for the external login provider which will be displayed on the Login page</value>
   </data>
   <data name="ProviderName.Text" xml:space="preserve">
     <value>Provider Name:</value>
@@ -373,7 +373,7 @@
     <value>Last Login</value>
   </data>
   <data name="IdentifierClaimType.HelpText" xml:space="preserve">
-    <value>The name of the unique user identifier claim provided by the identity provider</value>
+    <value>Specify the type name of the unique user identifier claim provided by the identity provider. The default value is 'sub'.</value>
   </data>
   <data name="IdentifierClaimType.Text" xml:space="preserve">
     <value>Identifier Claim:</value>
@@ -385,13 +385,13 @@
     <value>Parameters:</value>
   </data>
   <data name="RoleClaimType.HelpText" xml:space="preserve">
-    <value>Optionally provide the name of the role claim provided by the identity provider. These roles will be used in addition to any internal user roles assigned within the site.</value>
+    <value>Optionally provide the type name of the role claim provided by the identity provider. These roles will be used in addition to any internal user roles assigned within the site.</value>
   </data>
   <data name="RoleClaimType.Text" xml:space="preserve">
     <value>Role Claim:</value>
   </data>
   <data name="ProfileClaimTypes.HelpText" xml:space="preserve">
-    <value>Optionally provide a comma delimited list of user profile claims provided by the identity provider, as well as mappings to your user profile definition. For example if the identity provider includes a 'given_name' claim and you have a 'FirstName' user profile definition you should specify 'given_name:FirstName'.</value>
+    <value>Optionally provide a comma delimited list of user profile claim type names provided by the identity provider, as well as mappings to your user profile definition. For example if the identity provider includes a 'given_name' claim and you have a 'FirstName' user profile definition you should specify 'given_name:FirstName'.</value>
   </data>
   <data name="ProfileClaimTypes.Text" xml:space="preserve">
     <value>User Profile Claims:</value>
@@ -409,31 +409,34 @@
     <value>Import Users</value>
   </data>
   <data name="AuthFlow.Code" xml:space="preserve">
-    <value>code</value>
+    <value>Authorization Code</value>
   </data>
   <data name="AuthFlow.CodeIdToken" xml:space="preserve">
-    <value>code id_token</value>
+    <value>Authorization Code + ID Token</value>
   </data>
   <data name="AuthFlow.CodeIdTokenToken" xml:space="preserve">
-    <value>code id_token token</value>
+    <value>Authorization Code + ID Token + Access Token</value>
   </data>
   <data name="AuthFlow.CodeToken" xml:space="preserve">
-    <value>code token</value>
+    <value>Authorization Code + Access Token</value>
   </data>
   <data name="AuthFlow.IdToken" xml:space="preserve">
-    <value>id_token</value>
+    <value>ID Token</value>
   </data>
   <data name="AuthFlow.IdTokenToken" xml:space="preserve">
-    <value>id_token token</value>
+    <value>ID Token + Access Token</value>
   </data>
   <data name="AuthFlow.None" xml:space="preserve">
-    <value>none</value>
+    <value>None</value>
   </data>
   <data name="AuthFlow.Token" xml:space="preserve">
-    <value>token</value>
+    <value>Access Token</value>
   </data>
-  <data name="AuthResponseType" xml:space="preserve">
-    <value>Authorization Response Type</value>
+  <data name="AuthResponseType.Text" xml:space="preserve">
+    <value>Authorization Response Type:</value>
+  </data>
+  <data name="AuthResponseType.HelpText" xml:space="preserve">
+    <value>Specify the authorization response type. The default is Authorization Code which is considered to be the most secure option based on the latest OAuth specification.</value>
   </data>
   <data name="VerifyUsers.HelpText" xml:space="preserve">
     <value>Do you want existing users to perform an additional email verification step to link their external login? If you disable this option, existing users will be linked automatically.</value>
@@ -452,5 +455,17 @@
   </data>
   <data name="CookieExpiration.Text" xml:space="preserve">
     <value>Cookie Expiration Timespan:</value>
+  </data>
+  <data name="ReviewClaims.Text" xml:space="preserve">
+    <value>Review Claims?</value>
+  </data>
+    <data name="ReviewClaims.HelpText" xml:space="preserve">
+    <value>This option will record the full list of Claims returned by the Provider in the Event Log. It should only be used for testing purposes. External Login will be restricted when this option is enabled.</value>
+  </data>
+  <data name="NameClaimType.HelpText" xml:space="preserve">
+    <value>Optionally specify the type name of the user's name claim provided by the identity provider. The typical value is 'name'.</value>
+  </data>
+    <data name="NameClaimType.Text" xml:space="preserve">
+    <value>Name Claim:</value>
   </data>
 </root>

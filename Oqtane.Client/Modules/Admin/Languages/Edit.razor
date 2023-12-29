@@ -1,0 +1,110 @@
+@namespace Oqtane.Modules.Admin.Languages
+@inherits ModuleBase
+@using System.Globalization
+@using Microsoft.AspNetCore.Localization
+@inject NavigationManager NavigationManager
+@inject ILocalizationService LocalizationService
+@inject ILanguageService LanguageService
+@inject IPackageService PackageService
+@inject IStringLocalizer<Edit> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+@if (_code == null)
+{
+    <p><em>@SharedLocalizer["Loading"]</em></p>
+}
+else
+{
+    <TabStrip>
+        <TabPanel Name="Manage" ResourceKey="Manage" Heading="Manage">
+            <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+                <div class="container">
+				    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="name" HelpText="Name Of The Language" ResourceKey="Name">Name:</Label>
+                        <div class="col-sm-9">
+                            <input id="code" class="form-control" @bind="@_code" readonly/>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="default" HelpText="Indicates Whether Or Not This Language Is The Default For The Site" ResourceKey="IsDefault">Default?</Label>
+                        <div class="col-sm-9">
+                            <select id="default" class="form-select" @bind="@_default" required>
+                                <option value="True">@SharedLocalizer["Yes"]</option>
+                                <option value="False">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-success" @onclick="SaveLanguage">@SharedLocalizer["Save"]</button>
+			    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+            </form>
+        </TabPanel>
+    </TabStrip>
+}
+
+@code {
+    private ElementReference form;
+    private bool validated = false;
+    private int _languageId = -1;
+    private string _code = string.Empty;
+    private string _cultureName = string.Empty;
+    private string _default = "False";
+    private List<Language> _languages;
+
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _languageId = Int32.Parse(PageState.QueryString["id"]);
+        _languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId, Constants.ClientId);
+        Language language = _languages.Where(x => x.LanguageId == _languageId).FirstOrDefault();
+        if (language != null)
+        {
+            _code = language.Code;
+            _cultureName = language.Name;
+            _default = language.IsDefault.ToString();
+            if (language.SiteId == null) 
+            {
+                language.SiteId = PageState.Site.SiteId;
+            }
+        };
+    }
+
+	private async Task SaveLanguage()
+	{
+        Language language = _languages.Where(x => x.LanguageId == _languageId).FirstOrDefault();
+        if (language != null)
+        {
+            language.IsDefault = Boolean.Parse(_default);
+			try
+			{
+				await LanguageService.EditLanguageAsync(language);
+
+				if (language.IsDefault)
+				{
+					await SetCultureAsync(language.Code);
+				}
+
+				await logger.LogInformation("Language Edited {Language}", language);
+
+				NavigationManager.NavigateTo(NavigateUrl());
+			}
+			catch (Exception ex)
+			{
+				await logger.LogError(ex, "Error Editing Language {Language} {Error}", language, ex.Message);
+				AddModuleMessage(Localizer["Error.Language.Edit"], MessageType.Error);
+			}
+        };
+	}
+
+    private async Task SetCultureAsync(string culture)
+    {
+        if (culture != CultureInfo.CurrentUICulture.Name)
+        {
+            var interop = new Interop(JSRuntime);
+            var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
+            await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360);
+        }
+    }
+
+}

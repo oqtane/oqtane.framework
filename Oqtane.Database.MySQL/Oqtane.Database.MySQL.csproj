@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Version>5.0.0</Version>
+    <Version>5.0.1</Version>
     <Product>Oqtane</Product>
     <Authors>Shaun Walker</Authors>
     <Company>.NET Foundation</Company>
@@ -10,14 +10,10 @@
     <Copyright>.NET Foundation</Copyright>
     <PackageProjectUrl>https://www.oqtane.org</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/oqtane/oqtane.framework/blob/dev/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v5.0.0</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v5.0.1</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/oqtane/oqtane.framework</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
-    <PackageName>$(MSBuildProjectName).$(Version).nupkg</PackageName>
-    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -26,6 +22,14 @@
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>bin</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;EF1001;AD0001</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702;EF1001;AD0001</NoWarn>
   </PropertyGroup>
   
   <ItemGroup>
@@ -37,7 +41,12 @@
     <ProjectReference Include="..\Oqtane.Server\Oqtane.Server.csproj" />
   </ItemGroup>
 
-  <Target Name="CopyPackage" AfterTargets="Pack">
-    <Copy SourceFiles="$(OutputPath)..\$(PackageName)" DestinationFiles="..\Oqtane.Server\wwwroot\Packages\$(MSBuildProjectName).nupkg.bak" />
+  <ItemGroup>
+    <MySQLFiles Include="$(OutputPath)Oqtane.Database.MySQL.dll;$(OutputPath)Oqtane.Database.MySQL.pdb;$(OutputPath)MySql.EntityFrameworkCore.dll;$(OutputPath)MySql.Data.dll" DestinationPath="..\Oqtane.Server\bin\$(Configuration)\net8.0\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <Target Name="PublishProvider" AfterTargets="PostBuildEvent" Inputs="@(MySQLFiles)" Outputs="@(MySQLFiles->'%(DestinationPath)')">
+    <Copy SourceFiles="@(MySQLFiles)" DestinationFiles="@(MySQLFiles->'%(DestinationPath)')" />
   </Target>
+  
 </Project>

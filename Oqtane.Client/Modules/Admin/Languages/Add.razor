@@ -131,8 +131,6 @@ else
             var interop = new Interop(JSRuntime);
             var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
             await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360);
-
-            NavigationManager.NavigateTo(NavigationManager.Uri, true);
         }
     }
 

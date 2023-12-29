@@ -283,7 +283,7 @@
     <value>Prerender? </value>
   </data>
   <data name="Runtime.HelpText" xml:space="preserve">
-    <value>The Blazor runtime hosting model</value>
+    <value>The Blazor runtime hosting model for the site</value>
   </data>
   <data name="Runtime.Text" xml:space="preserve">
     <value>Runtime: </value>
@@ -401,5 +401,26 @@
   </data>
   <data name="Retention.Text" xml:space="preserve">
     <value>Retention (Days):</value>
+  </data>
+  <data name="FileExtensions.Heading" xml:space="preserve">
+    <value>File Extensions</value>
+  </data>
+  <data name="ImageExtensions.HelpText" xml:space="preserve">
+    <value>Enter a comma separated list of image file extensions</value>
+  </data>
+  <data name="ImageExtensions.Text" xml:space="preserve">
+    <value>Image Extensions:</value>
+  </data>
+  <data name="UploadableFileExtensions.HelpText" xml:space="preserve">
+    <value>Enter a comma separated list of uploadable file extensions</value>
+  </data>
+  <data name="UploadableFileExtensions.Text" xml:space="preserve">
+    <value>Uploadable File Extensions:</value>
+  </data>
+  <data name="HybridEnabled.HelpText" xml:space="preserve">
+    <value>Specifies if the site can be integrated with an external .NET MAUI hybrid application</value>
+  </data>
+  <data name="HybridEnabled.Text" xml:space="preserve">
+    <value>Hybrid Enabled?</value>
   </data>
 </root>

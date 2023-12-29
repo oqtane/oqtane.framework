@@ -4,6 +4,7 @@
 @inject NavigationManager NavigationManager
 @inject IFileService FileService
 @inject IFolderService FolderService
+@inject ISettingService SettingService
 @inject IStringLocalizer<Add> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -80,6 +81,7 @@
     {
         validated = true;
         var interop = new Interop(JSRuntime);
+
         if (await interop.FormValid(form))
         {
             if (_url == string.Empty || _folderId == -1)
@@ -93,7 +95,7 @@
                 _name = _url.Substring(_url.LastIndexOf("/", StringComparison.Ordinal) + 1);
             }
 
-            if (!Constants.UploadableFiles.Split(',').Contains(Path.GetExtension(_name).ToLower().Replace(".", "")))
+            if (!PageState.Site.UploadableFiles.Split(',').Contains(Path.GetExtension(_name).ToLower().Replace(".", "")))
             {
                 AddModuleMessage(Localizer["Message.Download.InvalidExtension"], MessageType.Warning);
                 return;

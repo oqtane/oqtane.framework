@@ -124,7 +124,7 @@
     <value>Error Downloading Theme</value>
   </data>
   <data name="Confirm.Theme.Delete" xml:space="preserve">
-    <value>Are You Sure You Wish To Delete The {0} Theme?</value>
+    <value>Are You Sure You Wish To Uninstall The {0} Theme?</value>
   </data>
   <data name="Error.Theme.Load" xml:space="preserve">
     <value>Error Loading Themes</value>
@@ -136,10 +136,10 @@
     <value>Error Deleting Theme</value>
   </data>
   <data name="DeleteTheme.Header" xml:space="preserve">
-    <value>Delete Theme</value>
+    <value>Uninstall Theme</value>
   </data>
   <data name="DeleteTheme.Text" xml:space="preserve">
-    <value>Delete</value>
+    <value>Uninstall</value>
   </data>
   <data name="CreateTheme.Text" xml:space="preserve">
     <value>Create Theme</value>

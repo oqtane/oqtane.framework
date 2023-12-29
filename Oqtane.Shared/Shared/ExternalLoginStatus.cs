@@ -1,7 +1,7 @@
 namespace Oqtane.Shared {
     public class ExternalLoginStatus {
         public const string Success = "Success";
-        public const string InvalidEmail = "InvalidEmail";
+        public const string MissingClaims = "MissingClaims"; 
         public const string DuplicateEmail = "DuplicateEmail";
         public const string UserNotCreated = "UserNotCreated";
         public const string UserDoesNotExist = "UserDoesNotExist";
@@ -9,5 +9,6 @@ namespace Oqtane.Shared {
         public const string VerificationRequired = "VerificationRequired";
         public const string AccessDenied = "AccessDenied";
         public const string RemoteFailure = "RemoteFailure";
+        public const string ReviewClaims = "ReviewClaims";
     }
 }

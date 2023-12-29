@@ -1,79 +1,86 @@
+@using System.Text.RegularExpressions
 @namespace Oqtane.Modules.Controls
 @inherits ModuleControlBase
+@inject ISettingService SettingService
 @inject IStringLocalizer<RichTextEditor> Localizer 
 
 <div class="row" style="margin-bottom: 50px;">
     <div class="col">
         <TabStrip>
-            <TabPanel Name="Rich" Heading="Rich Text Editor" ResourceKey="RichTextEditor">
-				@if (_richfilemanager)
-				{
-					<FileManager @ref="_fileManager" Filter="@Constants.ImageFiles" />
-					<ModuleMessage Message="@_message" Type="MessageType.Warning"></ModuleMessage>
-					<br />
-				}
-				<div class="d-flex justify-content-center mb-2">
-					@if (AllowRawHtml)
-					{
-						<button type="button" class="btn btn-secondary" @onclick="RefreshRichText">@Localizer["SynchronizeContent"]</button>@((MarkupString)"&nbsp;&nbsp;")
-					}
-					@if (AllowFileManagement)
-					{
-						<button type="button" class="btn btn-primary" @onclick="InsertRichImage">@Localizer["InsertImage"]</button>
-					}
-					@if (_richfilemanager)
-					{
-						@((MarkupString)"&nbsp;&nbsp;")
-						<button type="button" class="btn btn-secondary" @onclick="CloseRichFileManager">@Localizer["Close"]</button>
-					}
-				</div>
-				<div class="row">
-					<div class="col">
-						<div @ref="@_toolBar">
-							@if (ToolbarContent != null)
-							{
-								@ToolbarContent
-							}
-							else
-							{
-								<select class="ql-header">
-									<option selected=""></option>
-									<option value="1"></option>
-									<option value="2"></option>
-									<option value="3"></option>
-									<option value="4"></option>
-									<option value="5"></option>
-								</select>
-								<span class="ql-formats">
-									<button class="ql-bold"></button>
-									<button class="ql-italic"></button>
-									<button class="ql-underline"></button>
-									<button class="ql-strike"></button>
-								</span>
-								<span class="ql-formats">
-									<select class="ql-color"></select>
-									<select class="ql-background"></select>
-								</span>
-								<span class="ql-formats">
-									<button class="ql-list" value="ordered"></button>
-									<button class="ql-list" value="bullet"></button>
-								</span>
-								<span class="ql-formats">
-									<button class="ql-link"></button>
-								</span>
-							}
-						</div>
-						<div @ref="@_editorElement">
-						</div>
-					</div>
-				</div>
-			</TabPanel>
+			@if (AllowRichText)
+            {
+                <TabPanel Name="Rich" Heading="Rich Text Editor" ResourceKey="RichTextEditor">
+                    @if (_richfilemanager)
+                    {
+                        <FileManager @ref="_fileManager" Filter="@PageState.Site.ImageFiles" />
+                        <ModuleMessage Message="@_message" Type="MessageType.Warning"></ModuleMessage>
+                        <br />
+                    }
+                    <div class="d-flex justify-content-center mb-2">
+                        @if (AllowRawHtml)
+                        {
+                            <button type="button" class="btn btn-secondary" @onclick="RefreshRichText">@Localizer["SynchronizeContent"]</button>
+
+                            @((MarkupString)"&nbsp;&nbsp;")
+                        }
+                        @if (AllowFileManagement)
+                        {
+                            <button type="button" class="btn btn-primary" @onclick="InsertRichImage">@Localizer["InsertImage"]</button>
+                        }
+                        @if (_richfilemanager)
+                        {
+                            @((MarkupString)"&nbsp;&nbsp;")
+                            <button type="button" class="btn btn-secondary" @onclick="CloseRichFileManager">@Localizer["Close"]</button>
+                        }
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div @ref="@_toolBar">
+                                @if (ToolbarContent != null)
+                                {
+                                    @ToolbarContent
+                                }
+                                else
+                                {
+                                    <select class="ql-header">
+                                        <option selected=""></option>
+                                        <option value="1"></option>
+                                        <option value="2"></option>
+                                        <option value="3"></option>
+                                        <option value="4"></option>
+                                        <option value="5"></option>
+                                    </select>
+                                    <span class="ql-formats">
+                                        <button class="ql-bold"></button>
+                                        <button class="ql-italic"></button>
+                                        <button class="ql-underline"></button>
+                                        <button class="ql-strike"></button>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <select class="ql-color"></select>
+                                        <select class="ql-background"></select>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <button class="ql-list" value="ordered"></button>
+                                        <button class="ql-list" value="bullet"></button>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <button class="ql-link"></button>
+                                    </span>
+                                }
+                            </div>
+                            <div @ref="@_editorElement">
+                            </div>
+                        </div>
+                    </div>
+                </TabPanel>
+            }
 			@if (AllowRawHtml)
 			{
 				<TabPanel Name="Raw" Heading="Raw HTML Editor" ResourceKey="HtmlEditor">
 					@if (_rawfilemanager)
 					{
-						<FileManager @ref="_fileManager" Filter="@Constants.ImageFiles" />
+                        <FileManager @ref="_fileManager" Filter="@PageState.Site.ImageFiles" />
 						<ModuleMessage Message="@_message" Type="MessageType.Warning"></ModuleMessage>
 						<br />
 					}
@@ -104,119 +111,130 @@
 </div>
 
 @code {
-	private ElementReference _editorElement;
-	private ElementReference _toolBar;
-	private bool _richfilemanager = false;
-	private FileManager _fileManager;
-	private string _richhtml = string.Empty;
-	private string _originalrichhtml = string.Empty;
-	private bool _rawfilemanager = false;
-	private string _rawhtml = string.Empty;
-	private string _originalrawhtml = string.Empty;
-	private string _message = string.Empty;
+    private ElementReference _editorElement;
+    private ElementReference _toolBar;
+    private bool _richfilemanager = false;
+    private FileManager _fileManager;
+    private string _richhtml = string.Empty;
+    private string _originalrichhtml = string.Empty;
+    private bool _rawfilemanager = false;
+    private string _rawhtml = string.Empty;
+    private string _originalrawhtml = string.Empty;
+    private string _message = string.Empty;
 
-	[Parameter]
-	public string Content { get; set; }
+    [Parameter]
+    public string Content { get; set; }
 
-	[Parameter]
-	public bool ReadOnly { get; set; } = false;
+    [Parameter]
+    public bool ReadOnly { get; set; } = false;
 
-	[Parameter]
-	public string Placeholder { get; set; } = "Enter Your Content...";
+    [Parameter]
+    public string Placeholder { get; set; } = "Enter Your Content...";
 
-	[Parameter]
-	public bool AllowFileManagement { get; set; } = true;
+    [Parameter]
+    public bool AllowFileManagement { get; set; } = true;
 
-	[Parameter]
-	public bool AllowRawHtml { get; set; } = true;  
-	
-	// parameters only applicable to rich text editor
-	[Parameter]
-	public RenderFragment ToolbarContent { get; set; }
+    [Parameter]
+    public bool AllowRichText { get; set; } = true;  
 
-	[Parameter]
-	public string Theme { get; set; } = "snow";
+    [Parameter]
+    public bool AllowRawHtml { get; set; } = true;  
 
-	[Parameter]
-	public string DebugLevel { get; set; } = "info";
+    // parameters only applicable to rich text editor
+    [Parameter]
+    public RenderFragment ToolbarContent { get; set; }
 
-	public override List<Resource> Resources => new List<Resource>()
+    [Parameter]
+    public string Theme { get; set; } = "snow";
+
+    [Parameter]
+    public string DebugLevel { get; set; } = "info";
+
+    public override List<Resource> Resources => new List<Resource>()
     {
         new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill.min.js" },
         new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-blot-formatter.min.js" },
         new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-interop.js" }
     };
 
-	protected override void OnParametersSet()
-	{
-		_richhtml = Content;
-		_rawhtml = Content;
-		_originalrawhtml = _rawhtml; // preserve for comparison later
-	}
+    protected override void OnParametersSet()
+    {
+        _richhtml = Content;
+        _rawhtml = Content;
+        _originalrawhtml = _rawhtml; // preserve for comparison later
+    }
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		await base.OnAfterRenderAsync(firstRender);
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
 
-		var interop = new RichTextEditorInterop(JSRuntime);
+        var interop = new RichTextEditorInterop(JSRuntime);
 
-		if (firstRender)
-		{
-			await interop.CreateEditor(
-				_editorElement,
-				_toolBar,
-				ReadOnly,
-				Placeholder,
-				Theme,
-				DebugLevel);
+        if (firstRender)
+        {
+            await interop.CreateEditor(
+                _editorElement,
+                _toolBar,
+                ReadOnly,
+                Placeholder,
+                Theme,
+                DebugLevel);
 
-			await interop.LoadEditorContent(_editorElement, _richhtml);
+            await interop.LoadEditorContent(_editorElement, _richhtml);
 
-			// preserve a copy of the rich text content (Quill sanitizes content so we need to retrieve it from the editor)
-			_originalrichhtml = await interop.GetHtml(_editorElement);
-		}
-	}
+            if (AllowRichText)
+            {
+                // preserve a copy of the rich text content (Quill sanitizes content so we need to retrieve it from the editor)
+                _originalrichhtml = await interop.GetHtml(_editorElement);
+            }
+        }
+    }
 
-	public void CloseRichFileManager()
-	{
-		_richfilemanager = false;
-		_message = string.Empty;
-		StateHasChanged();
-	}
+    public void CloseRichFileManager()
+    {
+        _richfilemanager = false;
+        _message = string.Empty;
+        StateHasChanged();
+    }
 
-	public void CloseRawFileManager()
-	{
-		_rawfilemanager = false;
-		_message = string.Empty;
-		StateHasChanged();
-	}
+    public void CloseRawFileManager()
+    {
+        _rawfilemanager = false;
+        _message = string.Empty;
+        StateHasChanged();
+    }
 
-	public void RefreshRichText()
-	{
-		_richhtml = _rawhtml;
-		StateHasChanged();
-	}
+    public void RefreshRichText()
+    {
+        _richhtml = _rawhtml;
+        StateHasChanged();
+    }
 
-	public async Task RefreshRawHtml()
-	{
-		var interop = new RichTextEditorInterop(JSRuntime);
-		_rawhtml = await interop.GetHtml(_editorElement);
-		StateHasChanged();
-	}
+    public async Task RefreshRawHtml()
+    {
+        var interop = new RichTextEditorInterop(JSRuntime);
+        _rawhtml = await interop.GetHtml(_editorElement);
+        StateHasChanged();
+    }
 
-	public async Task<string> GetHtml()
-	{
-		// evaluate raw html content as first priority
-		if (_rawhtml != _originalrawhtml)
-		{
-			return _rawhtml;
-		}
-		else
-		{
-			// return rich text content if it has changed
-			var interop = new RichTextEditorInterop(JSRuntime);
-			var richhtml = await interop.GetHtml(_editorElement);
-			if (richhtml != _originalrichhtml)
+    public async Task<string> GetHtml()
+    {
+        // evaluate raw html content as first priority
+        if (_rawhtml != _originalrawhtml)
+        {
+            return _rawhtml;
+        }
+        else
+        {
+            var richhtml = "";
+            if (AllowRichText)
+            {
+                // return rich text content if it has changed
+                var interop = new RichTextEditorInterop(JSRuntime);
+                richhtml = await interop.GetHtml(_editorElement);
+            }
+            // rich text value will only be blank if AllowRichText is disabled or the JS Interop method failed
+            if (richhtml != _originalrichhtml && !string.IsNullOrEmpty(richhtml) && !string.IsNullOrEmpty(_originalrichhtml))
 			{
 				return richhtml;
 			}

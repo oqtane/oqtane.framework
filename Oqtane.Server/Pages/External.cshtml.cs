@@ -19,7 +19,7 @@ namespace Oqtane.Pages
             var providertype = HttpContext.GetSiteSettings().GetValue("ExternalLogin:ProviderType", "");
             if (providertype != "")
             {
-                    return new ChallengeResult(providertype, new AuthenticationProperties { RedirectUri = returnurl + (returnurl.Contains("?") ? "&" : "?") + "reload=post" });
+                return new ChallengeResult(providertype, new AuthenticationProperties { RedirectUri = returnurl + (returnurl.Contains("?") ? "&" : "?") + "reload=post" });
             }
             else
             {

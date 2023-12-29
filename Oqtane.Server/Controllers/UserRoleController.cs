@@ -149,7 +149,7 @@ namespace Oqtane.Controllers
         public UserRole Put(int id, [FromBody] UserRole userRole)
         {
             var role = _roles.GetRole(userRole.RoleId);
-            if (ModelState.IsValid && role != null && SiteValid(role.SiteId) && RoleValid(role.Name) && _userRoles.GetUserRole(userRole.UserRoleId, false) != null)
+            if (ModelState.IsValid && role != null && SiteValid(role.SiteId) && RoleValid(role.Name) && userRole.UserRoleId == id && _userRoles.GetUserRole(userRole.UserRoleId, false) != null)
             {
                 userRole = _userRoles.UpdateUserRole(userRole);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.UserRole, userRole.UserRoleId, SyncEventActions.Update);
