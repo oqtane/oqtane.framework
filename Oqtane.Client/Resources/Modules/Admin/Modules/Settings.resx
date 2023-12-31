@@ -165,4 +165,16 @@
   <data name="Pane.Text" xml:space="preserve">
     <value>Pane:</value>
   </data>
+  <data name="EffectiveDate.HelpText" xml:space="preserve">
+    <value>The date that this module is active</value>
+  </data>
+  <data name="EffectiveDate.Text" xml:space="preserve">
+    <value>Effective Date: </value>
+  </data>
+  <data name="ExpiryDate.HelpText" xml:space="preserve">
+    <value>The date that this module expires</value>
+  </data>
+  <data name="ExpiryDate.Text" xml:space="preserve">
+    <value>Expiry Date: </value>
+  </data>
 </root>

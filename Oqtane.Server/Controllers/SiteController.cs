@@ -13,6 +13,8 @@ using System.Globalization;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Extensions;
 using System;
+using Oqtane.UI;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Oqtane.Controllers
 {
@@ -92,59 +94,71 @@ namespace Oqtane.Controllers
                 site.UploadableFiles = site.Settings.ContainsKey("UploadableFiles") && !string.IsNullOrEmpty(site.Settings["UploadableFiles"])
                 ? site.Settings["UploadableFiles"] : Constants.UploadableFiles;
 
+                var modelsUser = _userPermissions.GetUser(User);
+                var isAdminOrHost = modelsUser.Roles.Contains(RoleNames.Host) || modelsUser.Roles.Contains(RoleNames.Admin);
+
                 // pages
                 List<Setting> settings = _settings.GetSettings(EntityNames.Page).ToList();
                 site.Pages = new List<Page>();
-                foreach (Page page in _pages.GetPages(site.SiteId))
+                foreach (Page page in _pages.GetPages(site.SiteId).Where(p => !p.IsDeleted && _userPermissions.IsAuthorized(User, PermissionNames.View, p.PermissionList)))
                 {
-                    if (!page.IsDeleted && _userPermissions.IsAuthorized(User, PermissionNames.View, page.PermissionList))
+                    if (isAdminOrHost || IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate))
                     {
-                        page.Settings = settings.Where(item => item.EntityId == page.PageId)
+                        page.Settings = settings
+                            .Where(item => item.EntityId == page.PageId)
                             .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, page.PermissionList))
                             .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
+
                         site.Pages.Add(page);
                     }
                 }
+
                 site.Pages = GetPagesHierarchy(site.Pages);
 
                 // modules
                 List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(site.SiteId).ToList();
                 settings = _settings.GetSettings(EntityNames.Module).ToList();
                 site.Modules = new List<Module>();
-                foreach (PageModule pagemodule in _pageModules.GetPageModules(site.SiteId))
+                foreach (PageModule pagemodule in _pageModules.GetPageModules(site.SiteId).Where(pm => !pm.IsDeleted && _userPermissions.IsAuthorized(User, PermissionNames.View, pm.Module.PermissionList)))
                 {
-                    if (!pagemodule.IsDeleted && _userPermissions.IsAuthorized(User, PermissionNames.View, pagemodule.Module.PermissionList))
+                    if (isAdminOrHost || IsPageModuleVisible(pagemodule.EffectiveDate, pagemodule.ExpiryDate))
                     {
-                        Module module = new Module();
-                        module.SiteId = pagemodule.Module.SiteId;
-                        module.ModuleDefinitionName = pagemodule.Module.ModuleDefinitionName;
-                        module.AllPages = pagemodule.Module.AllPages;
-                        module.PermissionList = pagemodule.Module.PermissionList;
-                        module.CreatedBy = pagemodule.Module.CreatedBy;
-                        module.CreatedOn = pagemodule.Module.CreatedOn;
-                        module.ModifiedBy = pagemodule.Module.ModifiedBy;
-                        module.ModifiedOn = pagemodule.Module.ModifiedOn;
-                        module.DeletedBy = pagemodule.DeletedBy;
-                        module.DeletedOn = pagemodule.DeletedOn;
-                        module.IsDeleted = pagemodule.IsDeleted;
+                        Module module = new Module
+                        {
+                            SiteId = pagemodule.Module.SiteId,
+                            ModuleDefinitionName = pagemodule.Module.ModuleDefinitionName,
+                            AllPages = pagemodule.Module.AllPages,
+                            PermissionList = pagemodule.Module.PermissionList,
+                            CreatedBy = pagemodule.Module.CreatedBy,
+                            CreatedOn = pagemodule.Module.CreatedOn,
+                            ModifiedBy = pagemodule.Module.ModifiedBy,
+                            ModifiedOn = pagemodule.Module.ModifiedOn,
+                            DeletedBy = pagemodule.DeletedBy,
+                            DeletedOn = pagemodule.DeletedOn,
+                            IsDeleted = pagemodule.IsDeleted,
 
-                        module.PageModuleId = pagemodule.PageModuleId;
-                        module.ModuleId = pagemodule.ModuleId;
-                        module.PageId = pagemodule.PageId;
-                        module.Title = pagemodule.Title;
-                        module.Pane = pagemodule.Pane;
-                        module.Order = pagemodule.Order;
-                        module.ContainerType = pagemodule.ContainerType;
+                            PageModuleId = pagemodule.PageModuleId,
+                            ModuleId = pagemodule.ModuleId,
+                            PageId = pagemodule.PageId,
+                            Title = pagemodule.Title,
+                            Pane = pagemodule.Pane,
+                            Order = pagemodule.Order,
+                            ContainerType = pagemodule.ContainerType,
+                            EffectiveDate = pagemodule.EffectiveDate,
+                            ExpiryDate = pagemodule.ExpiryDate,
 
-                        module.ModuleDefinition = _moduleDefinitions.FilterModuleDefinition(moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName));
+                            ModuleDefinition = _moduleDefinitions.FilterModuleDefinition(moduledefinitions.Find(item => item.ModuleDefinitionName == pagemodule.Module.ModuleDefinitionName)),
 
-                        module.Settings = settings.Where(item => item.EntityId == pagemodule.ModuleId)
+                            Settings = settings
+                            .Where(item => item.EntityId == pagemodule.ModuleId)
                             .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, pagemodule.Module.PermissionList))
-                            .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
+                            .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue)
+                        };
 
                         site.Modules.Add(module);
                     }
                 }
+
                 site.Modules = site.Modules.OrderBy(item => item.PageId).ThenBy(item => item.Pane).ThenBy(item => item.Order).ToList();
 
                 // languages
@@ -276,6 +290,31 @@ namespace Oqtane.Controllers
                 }
             }
             return hierarchy;
+        }
+        private bool IsPageModuleVisible(DateTime? effectiveDate, DateTime? expiryDate)
+        {
+            DateTime currentUtcTime = DateTime.UtcNow;
+
+            // Check if either effectiveDate or expiryDate is provided
+            if (effectiveDate.HasValue && expiryDate.HasValue)
+            {
+                return currentUtcTime >= effectiveDate.Value && currentUtcTime <= expiryDate.Value;
+            }
+            // Check if only effectiveDate is provided
+            else if (effectiveDate.HasValue)
+            {
+                return currentUtcTime >= effectiveDate.Value;
+            }
+            // Check if only expiryDate is provided
+            else if (expiryDate.HasValue)
+            {
+                return currentUtcTime <= expiryDate.Value;
+            }
+            // If neither effectiveDate nor expiryDate is provided, consider the page/module visible
+            else
+            {
+                return true;
+            }
         }
     }
 }

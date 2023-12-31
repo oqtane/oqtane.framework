@@ -135,6 +135,18 @@
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="effectiveDate" HelpText="The date that this page is active" ResourceKey="EffectiveDate">Effective Date: </Label>
+                            <div class="col-sm-9">
+                                <input type="date" id="effectiveDate" class="form-control" @bind="@_effectivedate" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="expiryDate" HelpText="The date that this page expires" ResourceKey="ExpiryDate">Expiry Date: </Label>
+                            <div class="col-sm-9">
+                                <input type="date" id="expiryDate" class="form-control" @bind="@_expirydate" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content" ResourceKey="Personalizable">Personalizable? </Label>
                             <div class="col-sm-9">
                                 <select id="personalizable" class="form-select" @bind="@_ispersonalizable" required>
@@ -322,6 +334,8 @@
     protected Page _parent = null;
     protected Dictionary<string, string> _icons;
     private string _iconresources = "";
+    private DateTime? _effectivedate = null;
+    private DateTime? _expirydate = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -370,6 +384,8 @@
                 }
                 _url = _page.Url;
                 _icon = _page.Icon;
+                _effectivedate = _page.EffectiveDate;
+                _expirydate = _page.ExpiryDate;
                 _ispersonalizable = _page.IsPersonalizable.ToString();
 
                 // appearance
@@ -487,6 +503,11 @@
         {
             try
             {
+                if (!ValidateEffectiveExpiryDates(_effectivedate, _expirydate))
+                {
+                    AddModuleMessage(SharedLocalizer["Message.EffectiveExpiryDateError"], MessageType.Warning);
+                    return;
+                }
                 if (!string.IsNullOrEmpty(_themetype) && _containertype != "-")
                 {
                     string currentPath = _page.Path;
@@ -563,6 +584,8 @@
                     _page.IsClickable = (_isclickable == null ? true : Boolean.Parse(_isclickable));
                     _page.Url = _url;
                     _page.Icon = _icon ?? string.Empty;
+                    _page.EffectiveDate = _effectivedate;
+                    _page.ExpiryDate = _expirydate;
                     _page.IsPersonalizable = (_ispersonalizable != null && Boolean.Parse(_ispersonalizable));
 
                     // appearance
@@ -665,5 +688,34 @@
     private void IconChanged(string NewIcon)
     {
         _icon = NewIcon;
+    }
+    private bool ValidateEffectiveExpiryDates(DateTime? effectiveDate, DateTime? expiryDate)
+    {
+        // Check if both dates are null, in which case the validation passes
+        if (effectiveDate == DateTime.MinValue && expiryDate == DateTime.MinValue)
+        {
+            return true;
+        }
+
+        // Check if EffectiveDate is not null and ExpiryDate is null
+        if (effectiveDate != DateTime.MinValue && expiryDate == DateTime.MinValue)
+        {
+            return true;
+        }
+
+        // Check if EffectiveDate is null and ExpiryDate is not null
+        if (effectiveDate == DateTime.MinValue && expiryDate != DateTime.MinValue)
+        {
+            return true;
+        }
+
+        // Check if ExpiryDate is not null and EffectiveDate is after ExpiryDate
+        if (expiryDate != DateTime.MinValue && effectiveDate != DateTime.MinValue && effectiveDate > expiryDate)
+        {
+            return false;
+        }
+
+        // If none of the above conditions are met, validation passes
+        return true;
     }
 }

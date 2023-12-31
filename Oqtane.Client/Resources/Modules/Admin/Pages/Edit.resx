@@ -285,4 +285,16 @@
   <data name="ThemeChanged.Message" xml:space="preserve">
     <value>Please Note That Overriding The Default Site Theme With An Unrelated Page Theme May Result In Compatibility Issues For Your Site</value>
   </data>
+  <data name="EffectiveDate.HelpText" xml:space="preserve">
+    <value>The date that this page is active</value>
+  </data>
+  <data name="EffectiveDate.Text" xml:space="preserve">
+    <value>Effective Date: </value>
+  </data>
+  <data name="ExpiryDate.HelpText" xml:space="preserve">
+    <value>The date that this page expires</value>
+  </data>
+  <data name="ExpiryDate.Text" xml:space="preserve">
+    <value>Expiry Date: </value>
+  </data>
 </root>
