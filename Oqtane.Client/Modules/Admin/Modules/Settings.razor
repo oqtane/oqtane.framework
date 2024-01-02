@@ -169,8 +169,8 @@
         createdon = ModuleState.CreatedOn;
         modifiedby = ModuleState.ModifiedBy;
         modifiedon = ModuleState.ModifiedOn;
-        _effectivedate = ModuleState.EffectiveDate;
-        _expirydate = ModuleState.ExpiryDate;
+        _effectivedate = Utilities.UtcAsLocalDate(ModuleState.EffectiveDate);
+        _expirydate = Utilities.UtcAsLocalDate(ModuleState.ExpiryDate);
 
         if (ModuleState.ModuleDefinition != null)
         {
@@ -232,7 +232,7 @@
 
             if (!string.IsNullOrEmpty(_title))
             {
-                if (!ValidateEffectiveExpiryDates(_effectivedate, _expirydate))
+                if (!Utilities.ValidateEffectiveExpiryDates(_effectivedate, _expirydate))
                 {
                     AddModuleMessage(SharedLocalizer["Message.EffectiveExpiryDateError"], MessageType.Warning);
                     return;
@@ -241,8 +241,8 @@
                 pagemodule.PageId = int.Parse(_pageId);
                 pagemodule.Title = _title;
                 pagemodule.Pane = _pane;
-                pagemodule.EffectiveDate = _effectivedate;
-                pagemodule.ExpiryDate = _expirydate;
+                pagemodule.EffectiveDate = Utilities.LocalDateAndTimeAsUtc(_effectivedate);
+                pagemodule.ExpiryDate = Utilities.LocalDateAndTimeAsUtc(_expirydate);
                 pagemodule.ContainerType = (_containerType != "-") ? _containerType : string.Empty;
                 if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Page.DefaultContainerType)
 				{
@@ -291,34 +291,5 @@
         {
             AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
-    }
-    private bool ValidateEffectiveExpiryDates(DateTime? effectiveDate, DateTime? expiryDate)
-    {
-        // Check if both dates are null, in which case the validation passes
-        if (effectiveDate == DateTime.MinValue && expiryDate == DateTime.MinValue)
-        {
-            return true;
-        }
-
-        // Check if EffectiveDate is not null and ExpiryDate is null
-        if (effectiveDate != DateTime.MinValue && expiryDate == DateTime.MinValue)
-        {
-            return true;
-        }
-
-        // Check if EffectiveDate is null and ExpiryDate is not null
-        if (effectiveDate == DateTime.MinValue && expiryDate != DateTime.MinValue)
-        {
-            return true;
-        }
-
-        // Check if ExpiryDate is not null and EffectiveDate is after ExpiryDate
-        if (expiryDate != DateTime.MinValue && effectiveDate != DateTime.MinValue && effectiveDate > expiryDate)
-        {
-            return false;
-        }
-
-        // If none of the above conditions are met, validation passes
-        return true;
     }
 }

@@ -572,7 +572,35 @@ namespace Oqtane.Shared
 
             return (localDateTime?.Date, localTime);
         }
+        public static bool ValidateEffectiveExpiryDates(DateTime? effectiveDate, DateTime? expiryDate)
+        {
+            // Check if both dates are null, in which case the validation passes
+            if (effectiveDate == DateTime.MinValue && expiryDate == DateTime.MinValue)
+            {
+                return true;
+            }
 
+            // Check if EffectiveDate is not null and ExpiryDate is null
+            if (effectiveDate != DateTime.MinValue && expiryDate == DateTime.MinValue)
+            {
+                return true;
+            }
+
+            // Check if EffectiveDate is null and ExpiryDate is not null
+            if (effectiveDate == DateTime.MinValue && expiryDate != DateTime.MinValue)
+            {
+                return true;
+            }
+
+            // Check if ExpiryDate is not null and EffectiveDate is after ExpiryDate
+            if (expiryDate != DateTime.MinValue && effectiveDate != DateTime.MinValue && effectiveDate > expiryDate)
+            {
+                return false;
+            }
+
+            // If none of the above conditions are met, validation passes
+            return true;
+        }
         [Obsolete("ContentUrl(Alias alias, int fileId) is deprecated. Use FileUrl(Alias alias, int fileId) instead.", false)]
         public static string ContentUrl(Alias alias, int fileId)
         {

@@ -384,8 +384,8 @@
                 }
                 _url = _page.Url;
                 _icon = _page.Icon;
-                _effectivedate = _page.EffectiveDate;
-                _expirydate = _page.ExpiryDate;
+                _effectivedate = Utilities.UtcAsLocalDate(_page.EffectiveDate);
+                _expirydate = Utilities.UtcAsLocalDate(_page.ExpiryDate);
                 _ispersonalizable = _page.IsPersonalizable.ToString();
 
                 // appearance
@@ -503,7 +503,7 @@
         {
             try
             {
-                if (!ValidateEffectiveExpiryDates(_effectivedate, _expirydate))
+                if (!Utilities.ValidateEffectiveExpiryDates(_effectivedate, _expirydate))
                 {
                     AddModuleMessage(SharedLocalizer["Message.EffectiveExpiryDateError"], MessageType.Warning);
                     return;
@@ -584,8 +584,8 @@
                     _page.IsClickable = (_isclickable == null ? true : Boolean.Parse(_isclickable));
                     _page.Url = _url;
                     _page.Icon = _icon ?? string.Empty;
-                    _page.EffectiveDate = _effectivedate;
-                    _page.ExpiryDate = _expirydate;
+                    _page.EffectiveDate = Utilities.LocalDateAndTimeAsUtc(_effectivedate);
+                    _page.ExpiryDate = Utilities.LocalDateAndTimeAsUtc(_expirydate);
                     _page.IsPersonalizable = (_ispersonalizable != null && Boolean.Parse(_ispersonalizable));
 
                     // appearance
@@ -688,34 +688,5 @@
     private void IconChanged(string NewIcon)
     {
         _icon = NewIcon;
-    }
-    private bool ValidateEffectiveExpiryDates(DateTime? effectiveDate, DateTime? expiryDate)
-    {
-        // Check if both dates are null, in which case the validation passes
-        if (effectiveDate == DateTime.MinValue && expiryDate == DateTime.MinValue)
-        {
-            return true;
-        }
-
-        // Check if EffectiveDate is not null and ExpiryDate is null
-        if (effectiveDate != DateTime.MinValue && expiryDate == DateTime.MinValue)
-        {
-            return true;
-        }
-
-        // Check if EffectiveDate is null and ExpiryDate is not null
-        if (effectiveDate == DateTime.MinValue && expiryDate != DateTime.MinValue)
-        {
-            return true;
-        }
-
-        // Check if ExpiryDate is not null and EffectiveDate is after ExpiryDate
-        if (expiryDate != DateTime.MinValue && effectiveDate != DateTime.MinValue && effectiveDate > expiryDate)
-        {
-            return false;
-        }
-
-        // If none of the above conditions are met, validation passes
-        return true;
     }
 }

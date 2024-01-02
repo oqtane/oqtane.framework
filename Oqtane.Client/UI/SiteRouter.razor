@@ -262,7 +262,7 @@
             bool isAdminOrHost = false;
             if(user != null)
             {
-                isAdminOrHost = user.Roles.Contains(RoleNames.Host) || user.Roles.Contains(RoleNames.Admin);
+                isAdminOrHost = UserSecurity.IsAuthorized(user, RoleNames.Admin) || UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList);
             }
 
             if (page != null && (isAdminOrHost || IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate)))
@@ -270,7 +270,7 @@
                 // check if user is authorized to view page
                 if (UserSecurity.IsAuthorized(user, PermissionNames.View, page.PermissionList))
                 {
-                    if (isAdminOrHost || IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate))
+                    if (isAdminOrHost || Utilities.ValidateEffectiveExpiryDates(page.EffectiveDate, page.ExpiryDate))
                     {
                         // load additional metadata for current page
                         page = ProcessPage(page, site, user, SiteState.Alias);

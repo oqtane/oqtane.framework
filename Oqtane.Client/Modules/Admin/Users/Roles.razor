@@ -60,8 +60,8 @@ else
             </Header>
             <Row>
                 <td>@context.Role.Name</td>
-                <td>@context.EffectiveDate</td>
-                <td>@context.ExpiryDate</td>
+                <td>@Utilities.UtcAsLocalDate(context.EffectiveDate)</td>
+                <td>@Utilities.UtcAsLocalDate(context.ExpiryDate)</td>
                 <td>
                     <ActionDialog Header="Remove Role" Message="@string.Format(Localizer["Confirm.User.RemoveRole"], context.Role.Name)" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteUserRole(context.UserRoleId))" Disabled="@(context.Role.IsAutoAssigned || (context.Role.Name == RoleNames.Host && userid == PageState.User.UserId))" ResourceKey="DeleteUserRole" />
                 </td>
@@ -113,6 +113,7 @@ else
         try
         {
             userroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, userid);
+
         }
         catch (Exception ex)
         {
@@ -127,7 +128,7 @@ else
         {
             if (roleid != -1)
             {
-                if (!ValidateEffectiveExpiryDates(_effectivedate,_expirydate))
+                if (!Utilities.ValidateEffectiveExpiryDates(_effectivedate, _expirydate))
                 {
                     AddModuleMessage(SharedLocalizer["Message.EffectiveExpiryDateError"], MessageType.Warning);
                     return;
@@ -144,8 +145,8 @@ else
                     userrole = new UserRole();
                     userrole.UserId = userid;
                     userrole.RoleId = roleid;
-                    userrole.EffectiveDate = _effectivedate;
-                    userrole.ExpiryDate = _expirydate;
+                    userrole.EffectiveDate = Utilities.UtcAsLocalDate(_effectivedate);
+                    userrole.ExpiryDate = Utilities.UtcAsLocalDate(_expirydate);
                     await UserRoleService.AddUserRoleAsync(userrole);
                 }
 
@@ -181,35 +182,5 @@ else
             await logger.LogError(ex, "Error Removing User From Role {UserRoleId} {Error}", UserRoleId, ex.Message);
             AddModuleMessage(Localizer["Error.User.RemoveRole"], MessageType.Error);
         }
-    }
-
-    private bool ValidateEffectiveExpiryDates(DateTime? effectiveDate, DateTime? expiryDate)
-    {
-        // Check if both dates are null, in which case the validation passes
-        if (effectiveDate == DateTime.MinValue && expiryDate == DateTime.MinValue)
-        {
-            return true;
-        }
-
-        // Check if EffectiveDate is not null and ExpiryDate is null
-        if (effectiveDate != DateTime.MinValue && expiryDate == DateTime.MinValue)
-        {
-            return true;
-        }
-
-        // Check if EffectiveDate is null and ExpiryDate is not null
-        if (effectiveDate == DateTime.MinValue && expiryDate != DateTime.MinValue)
-        {
-            return true;
-        }
-
-        // Check if ExpiryDate is not null and EffectiveDate is after ExpiryDate
-        if (expiryDate != DateTime.MinValue && effectiveDate != DateTime.MinValue && effectiveDate > expiryDate)
-        {
-            return false;
-        }
-
-        // If none of the above conditions are met, validation passes
-        return true;
     }
 }

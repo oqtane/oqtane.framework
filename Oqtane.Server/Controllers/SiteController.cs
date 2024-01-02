@@ -94,21 +94,16 @@ namespace Oqtane.Controllers
                 site.UploadableFiles = site.Settings.ContainsKey("UploadableFiles") && !string.IsNullOrEmpty(site.Settings["UploadableFiles"])
                 ? site.Settings["UploadableFiles"] : Constants.UploadableFiles;
 
-                var modelsUser = _userPermissions.GetUser(User);
-                var isAdminOrHost = modelsUser.Roles.Contains(RoleNames.Host) || modelsUser.Roles.Contains(RoleNames.Admin);
-
                 // pages
                 List<Setting> settings = _settings.GetSettings(EntityNames.Page).ToList();
                 site.Pages = new List<Page>();
-                foreach (Page page in _pages.GetPages(site.SiteId).Where(p => !p.IsDeleted && _userPermissions.IsAuthorized(User, PermissionNames.View, p.PermissionList)))
+                foreach (Page page in _pages.GetPages(site.SiteId))
                 {
-                    if (isAdminOrHost || IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate))
+                    if (!page.IsDeleted && _userPermissions.IsAuthorized(User, PermissionNames.View, page.PermissionList))
                     {
-                        page.Settings = settings
-                            .Where(item => item.EntityId == page.PageId)
+                        page.Settings = settings.Where(item => item.EntityId == page.PageId)
                             .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, page.PermissionList))
                             .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
-
                         site.Pages.Add(page);
                     }
                 }
@@ -121,7 +116,7 @@ namespace Oqtane.Controllers
                 site.Modules = new List<Module>();
                 foreach (PageModule pagemodule in _pageModules.GetPageModules(site.SiteId).Where(pm => !pm.IsDeleted && _userPermissions.IsAuthorized(User, PermissionNames.View, pm.Module.PermissionList)))
                 {
-                    if (isAdminOrHost || IsPageModuleVisible(pagemodule.EffectiveDate, pagemodule.ExpiryDate))
+                    if (!pagemodule.IsDeleted && _userPermissions.IsAuthorized(User, PermissionNames.View, pagemodule.Module.PermissionList))
                     {
                         Module module = new Module
                         {
@@ -290,31 +285,6 @@ namespace Oqtane.Controllers
                 }
             }
             return hierarchy;
-        }
-        private bool IsPageModuleVisible(DateTime? effectiveDate, DateTime? expiryDate)
-        {
-            DateTime currentUtcTime = DateTime.UtcNow;
-
-            // Check if either effectiveDate or expiryDate is provided
-            if (effectiveDate.HasValue && expiryDate.HasValue)
-            {
-                return currentUtcTime >= effectiveDate.Value && currentUtcTime <= expiryDate.Value;
-            }
-            // Check if only effectiveDate is provided
-            else if (effectiveDate.HasValue)
-            {
-                return currentUtcTime >= effectiveDate.Value;
-            }
-            // Check if only expiryDate is provided
-            else if (expiryDate.HasValue)
-            {
-                return currentUtcTime <= expiryDate.Value;
-            }
-            // If neither effectiveDate nor expiryDate is provided, consider the page/module visible
-            else
-            {
-                return true;
-            }
         }
     }
 }
