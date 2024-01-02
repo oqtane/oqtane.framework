@@ -579,6 +579,11 @@
                         if (logofileid != -1)
                         {
                             site.LogoFileId = logofileid;
+                            if (logofileid != _logofileid)
+                            {
+                                _logofileid = logofileid;
+                                refresh = true; // needs to be refreshed on client
+                            }
                         }
                         int? faviconFieldId = _faviconfilemanager.GetFileId();
                         if (faviconFieldId == -1) faviconFieldId = null;
