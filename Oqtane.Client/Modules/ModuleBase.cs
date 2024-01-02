@@ -266,6 +266,7 @@ namespace Oqtane.Modules
 
         public void AddModuleMessage(string message, MessageType type, string position)
         {
+            ClearModuleMessage();
             ModuleInstance.AddModuleMessage(message, type, position);
         }
 
