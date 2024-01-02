@@ -213,3 +213,18 @@ app {
     right: 0.75rem;
     top: 0.5rem;
 }
+
+/* Oqtane Control Styles */
+
+/* Pager */
+.app-pager-pointer {
+    cursor: pointer;
+}
+
+.app-sort-th {
+    cursor: pointer;
+}
+
+.app-fas {
+    margin-left: 5px;
+}
