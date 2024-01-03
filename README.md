@@ -4,7 +4,7 @@
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Foqtane%2Foqtane.framework%2Fmaster%2Fazuredeploy.json)
 
-[![Visit Marketplace](https://github.com/oqtane/oqtane.framework/blob/master/Oqtane.Server/wwwroot/icon.png)](https://www.oqtane.net/)
+[![Visit Marketplace](https://github.githubassets.com/images/icons/emoji/unicode/1f3ea.png)](https://www.oqtane.net/)
 
 # Oqtane Framework
 
