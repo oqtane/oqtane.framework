@@ -99,7 +99,7 @@ namespace Oqtane.Controllers
                 site.Pages = new List<Page>();
                 foreach (Page page in _pages.GetPages(site.SiteId))
                 {
-                    if (!page.IsDeleted && _userPermissions.IsAuthorized(User, PermissionNames.View, page.PermissionList))
+                    if (!page.IsDeleted && _userPermissions.IsAuthorized(User, PermissionNames.View, page.PermissionList) && (Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate) || _userPermissions.IsAuthorized(User, PermissionNames.Edit, page.PermissionList)))
                     {
                         page.Settings = settings.Where(item => item.EntityId == page.PageId)
                             .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, page.PermissionList))
@@ -116,7 +116,7 @@ namespace Oqtane.Controllers
                 site.Modules = new List<Module>();
                 foreach (PageModule pagemodule in _pageModules.GetPageModules(site.SiteId).Where(pm => !pm.IsDeleted && _userPermissions.IsAuthorized(User, PermissionNames.View, pm.Module.PermissionList)))
                 {
-                    if (!pagemodule.IsDeleted && _userPermissions.IsAuthorized(User, PermissionNames.View, pagemodule.Module.PermissionList))
+                    if(Utilities.IsPageModuleVisible(pagemodule.EffectiveDate, pagemodule.ExpiryDate) || _userPermissions.IsAuthorized(User, PermissionNames.Edit, pagemodule.Module.PermissionList))
                     {
                         Module module = new Module
                         {

@@ -258,20 +258,14 @@
                     }
                 }
             }
-            
-            bool isAdminOrHost = false;
-            if(user != null)
-            {
-                isAdminOrHost = UserSecurity.IsAuthorized(user, RoleNames.Admin) || UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList);
-            }
 
-            if (page != null && (isAdminOrHost || IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate)))
+            if (page != null)
             {
                 // check if user is authorized to view page
-                if (UserSecurity.IsAuthorized(user, PermissionNames.View, page.PermissionList))
+                if ((Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate) || UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList)) || UserSecurity.IsAuthorized(user, PermissionNames.View, page.PermissionList))
                 {
-                    if (isAdminOrHost || Utilities.ValidateEffectiveExpiryDates(page.EffectiveDate, page.ExpiryDate))
-                    {
+                    // if (UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList) || Utilities.ValidateEffectiveExpiryDates(page.EffectiveDate, page.ExpiryDate))
+                    // {
                         // load additional metadata for current page
                         page = ProcessPage(page, site, user, SiteState.Alias);
 
@@ -302,7 +296,7 @@
 
                         OnStateChange?.Invoke(_pagestate);
                         await ScrollToFragment(_pagestate.Uri);
-                    }
+                    // }
                 }
             }
             else // page not found
@@ -316,7 +310,7 @@
                 }
                 else // not mapped
                 {
-                    if (user == null && IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate))
+                    if (user == null && Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate))
                     {
                         // redirect to login page if user not logged in as they may need to be authenticated
                         NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "login", "?returnurl=" + WebUtility.UrlEncode(route.PathAndQuery)));
@@ -585,31 +579,6 @@
 				var interop = new Interop(JSRuntime);
 				await interop.ScrollToId(id);
 			}
-        }
-    }
-    private bool IsPageModuleVisible(DateTime? effectiveDate, DateTime? expiryDate)
-    {
-        DateTime currentUtcTime = DateTime.UtcNow;
-
-        // Check if either effectiveDate or expiryDate is provided
-        if (effectiveDate.HasValue && expiryDate.HasValue)
-        {
-            return currentUtcTime >= effectiveDate.Value && currentUtcTime <= expiryDate.Value;
-        }
-        // Check if only effectiveDate is provided
-        else if (effectiveDate.HasValue)
-        {
-            return currentUtcTime >= effectiveDate.Value;
-        }
-        // Check if only expiryDate is provided
-        else if (expiryDate.HasValue)
-        {
-            return currentUtcTime <= expiryDate.Value;
-        }
-        // If neither effectiveDate nor expiryDate is provided, consider the page/module visible
-        else
-        {
-            return true;
         }
     }
 }

@@ -572,34 +572,54 @@ namespace Oqtane.Shared
 
             return (localDateTime?.Date, localTime);
         }
+        public static bool IsPageModuleVisible(DateTime? effectiveDate, DateTime? expiryDate)
+        {
+            DateTime currentUtcTime = DateTime.UtcNow;
+
+            if (effectiveDate.HasValue && expiryDate.HasValue)
+            {
+                return currentUtcTime >= effectiveDate.Value && currentUtcTime <= expiryDate.Value;
+            }
+            else if (effectiveDate.HasValue)
+            {
+                return currentUtcTime >= effectiveDate.Value;
+            }
+            else if (expiryDate.HasValue)
+            {
+                // Include equality check here
+                return currentUtcTime <= expiryDate.Value;
+            }
+            else
+            {
+                return true;
+            }
+        }
         public static bool ValidateEffectiveExpiryDates(DateTime? effectiveDate, DateTime? expiryDate)
         {
-            // Check if both dates are null, in which case the validation passes
-            if (effectiveDate == DateTime.MinValue && expiryDate == DateTime.MinValue)
+            // Treat DateTime.MinValue as null
+            effectiveDate ??= DateTime.MinValue;
+            expiryDate ??= DateTime.MinValue;
+
+            // Check if both effectiveDate and expiryDate have values
+            if (effectiveDate != DateTime.MinValue && expiryDate != DateTime.MinValue)
+            {
+                return effectiveDate <= expiryDate;
+            }
+            // Check if only effectiveDate has a value
+            else if (effectiveDate != DateTime.MinValue)
             {
                 return true;
             }
-
-            // Check if EffectiveDate is not null and ExpiryDate is null
-            if (effectiveDate != DateTime.MinValue && expiryDate == DateTime.MinValue)
+            // Check if only expiryDate has a value
+            else if (expiryDate != DateTime.MinValue)
             {
                 return true;
             }
-
-            // Check if EffectiveDate is null and ExpiryDate is not null
-            if (effectiveDate == DateTime.MinValue && expiryDate != DateTime.MinValue)
+            // If neither effectiveDate nor expiryDate has a value, consider the page/module visible
+            else
             {
                 return true;
             }
-
-            // Check if ExpiryDate is not null and EffectiveDate is after ExpiryDate
-            if (expiryDate != DateTime.MinValue && effectiveDate != DateTime.MinValue && effectiveDate > expiryDate)
-            {
-                return false;
-            }
-
-            // If none of the above conditions are met, validation passes
-            return true;
         }
         [Obsolete("ContentUrl(Alias alias, int fileId) is deprecated. Use FileUrl(Alias alias, int fileId) instead.", false)]
         public static string ContentUrl(Alias alias, int fileId)
