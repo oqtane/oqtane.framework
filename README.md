@@ -4,8 +4,6 @@
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Foqtane%2Foqtane.framework%2Fmaster%2Fazuredeploy.json)
 [![Visit Marketplace](https://github.githubassets.com/images/icons/emoji/unicode/1f3ea.png)](https://www.oqtane.net/)
-[Visit the Oqtane Marketplace](https://www.oqtane.net/)
-
 
 # Oqtane Framework
 
@@ -41,6 +39,11 @@ Please note that this project is owned by the .NET Foundation and is governed by
 **Video Series**
 
 - If you are getting started with Oqtane, a [series of videos](https://www.youtube.com/watch?v=JPfUZPlRRCE&list=PLYhXmd7yV0elLNLfQwZBUlM7ZSMYPTZ_f) are available which explain how to install the product, interact with the user interface, and develop custom modules.
+
+# Oqtane Marketplace
+
+Explore and enhance your Oqtane experience by visiting the Oqtane Marketplace. Discover a variety of modules, themes, and extensions contributed by the community. [Visit Oqtane Marketplace](https://www.oqtane.net)
+
 
 # Documentation
 There is a separate [Documentation repository](https://github.com/oqtane/oqtane.docs) which contains a variety of types of documentation for Oqtane, including API documentation that is auto generated using Docfx. The contents of the repository is published to Githib Pages and is available at [https://docs.oqtane.org](https://docs.oqtane.org/)
