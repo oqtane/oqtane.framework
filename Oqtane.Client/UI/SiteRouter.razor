@@ -508,6 +508,7 @@
                 }
 
                 module.PaneModuleIndex = paneindex[module.Pane.ToLower()];
+                module.Action = action;
 
                 // container fallback
                 if (string.IsNullOrEmpty(module.ContainerType))

@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 using Oqtane.Models;
 
 namespace Oqtane.UI
@@ -37,6 +35,13 @@ namespace Oqtane.UI
         public List<Language> Languages
         {
             get { return Site.Languages; }
+        }
+
+
+        // determines if the PageState matches the ModuleState for component rendering purposes
+        public bool RenderModuleInstance(Module ModuleState)
+        {
+            return Page.PageId == ModuleState.PageId && (ModuleId == -1 || ModuleId == ModuleState.ModuleId) && Action == ModuleState.Action;
         }
     }
 }
