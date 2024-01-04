@@ -216,19 +216,27 @@ namespace Oqtane.Infrastructure
                     // get database type
                     var type = Type.GetType(databaseType);
 
-                    // create database object from type
-                    var database = Activator.CreateInstance(type) as IDatabase;
-
-                    // create data directory if does not exist
-                    var dataDirectory = AppDomain.CurrentDomain.GetData(Constants.DataDirectory)?.ToString();
-                    if (!Directory.Exists(dataDirectory)) Directory.CreateDirectory(dataDirectory ?? String.Empty);
-
-                    var dbOptions = new DbContextOptionsBuilder().UseOqtaneDatabase(database, NormalizeConnectionString(install.ConnectionString)).Options;
-                    using (var dbc = new DbContext(dbOptions))
+                    if (type != null)
                     {
-                        // create empty database if it does not exist
-                        dbc.Database.EnsureCreated();
-                        result.Success = true;
+                        // create database object from type
+                        var database = Activator.CreateInstance(type) as IDatabase;
+
+                        // create data directory if does not exist
+                        var dataDirectory = AppDomain.CurrentDomain.GetData(Constants.DataDirectory)?.ToString();
+                        if (!Directory.Exists(dataDirectory)) Directory.CreateDirectory(dataDirectory ?? String.Empty);
+
+                        var dbOptions = new DbContextOptionsBuilder().UseOqtaneDatabase(database, NormalizeConnectionString(install.ConnectionString)).Options;
+                        using (var dbc = new DbContext(dbOptions))
+                        {
+                            // create empty database if it does not exist
+                            dbc.Database.EnsureCreated();
+                            result.Success = true;
+                        }
+                    }
+                    else
+                    {
+                        result.Message = $"The Database Provider {databaseType} Does Not Exist. If This Is A Development Environment Please Ensure You Have Performed A Full Compilation Of All Projects In The Oqtane Solution Prior To Running The Application.";
+                        _filelogger.LogError(Utilities.LogMessage(this, result.Message));
                     }
                 }
                 catch (Exception ex)
