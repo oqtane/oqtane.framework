@@ -2,7 +2,7 @@
 @namespace Oqtane.UI
 @inject SiteState SiteState
 
-@if (_visible)
+@if (ComponentType != null && _visible)
 {
     <a id="@ModuleState.PageModuleId.ToString()"></a>
     <CascadingValue Value="@ModuleState">
@@ -17,12 +17,11 @@
 		    <DynamicComponent Type="@ComponentType"></DynamicComponent>
 		}
 	</CascadingValue>
-    
 }
 
 @code {
-	private bool _visible = true;
-	private bool _useadminborder = false;
+    private bool _visible = true;
+    private bool _useadminborder = false;
     public Type ComponentType { get; set; }
 
     [CascadingParameter]
@@ -31,12 +30,12 @@
     [Parameter]
     public Module ModuleState { get; set; }
 
-	protected override void OnInitialized()
-	{
-		((INotifyPropertyChanged)SiteState.Properties).PropertyChanged += PropertyChanged;
-	}
-	
-	protected override void OnParametersSet()
+    protected override void OnInitialized()
+    {
+        ((INotifyPropertyChanged)SiteState.Properties).PropertyChanged += PropertyChanged;
+    }
+
+    protected override void OnParametersSet()
     {
         string container = ModuleState.ContainerType;
         if (PageState.ModuleId != -1 && PageState.Route.Action != "" && ModuleState.UseAdminContainer)
@@ -53,7 +52,10 @@
             _useadminborder = false;
         }
 
-        ComponentType = Type.GetType(container) ?? Type.GetType(Constants.DefaultContainer);
+        if (PageState.RenderModuleInstance(ModuleState))
+        {
+            ComponentType = Type.GetType(container) ?? Type.GetType(Constants.DefaultContainer);
+        }
     }
 
 	private void PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -72,6 +74,4 @@
 	{
 		((INotifyPropertyChanged)SiteState.Properties).PropertyChanged -= PropertyChanged;
 	}
-
-
 }
