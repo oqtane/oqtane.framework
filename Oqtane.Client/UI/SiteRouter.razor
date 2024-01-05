@@ -262,41 +262,48 @@
             if (page != null)
             {
                 // check if user is authorized to view page
-                if ((Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate) || UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList)) || UserSecurity.IsAuthorized(user, PermissionNames.View, page.PermissionList))
+                if (UserSecurity.IsAuthorized(user, PermissionNames.View, page.PermissionList) && (Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate) || UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList)))
+                //if ((Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate) || UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList)) || UserSecurity.IsAuthorized(user, PermissionNames.View, page.PermissionList))
                 {
-                    // if (UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList) || Utilities.ValidateEffectiveExpiryDates(page.EffectiveDate, page.ExpiryDate))
-                    // {
-                        // load additional metadata for current page
-                        page = ProcessPage(page, site, user, SiteState.Alias);
+                    // load additional metadata for current page
+                    page = ProcessPage(page, site, user, SiteState.Alias);
 
-                        // load additional metadata for modules
-                        (page, site.Modules) = ProcessModules(page, site.Modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType, SiteState.Alias);
+                    // load additional metadata for modules
+                    (page, site.Modules) = ProcessModules(page, site.Modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType, SiteState.Alias);
 
-                        // populate page state (which acts as a client-side cache for subsequent requests)
-                        _pagestate = new PageState
-                        {
-                            Alias = SiteState.Alias,
-                            Site = site,
-                            Page = page,
-                            User = user,
-                            Uri = new Uri(_absoluteUri, UriKind.Absolute),
-                            Route = route,
-                            QueryString = querystring,
-                            UrlParameters = route.UrlParameters,
-                            ModuleId = moduleid,
-                            Action = action,
-                            EditMode = editmode,
-                            LastSyncDate = lastsyncdate,
-                            Runtime = runtime,
-						    VisitorId = VisitorId,
-						    RemoteIPAddress = SiteState.RemoteIPAddress,
-						    ReturnUrl = returnurl,
-                            IsInternalNavigation = _isInternalNavigation
-                        };
+                    // populate page state (which acts as a client-side cache for subsequent requests)
+                    _pagestate = new PageState
+                    {
+                        Alias = SiteState.Alias,
+                        Site = site,
+                        Page = page,
+                        User = user,
+                        Uri = new Uri(_absoluteUri, UriKind.Absolute),
+                        Route = route,
+                        QueryString = querystring,
+                        UrlParameters = route.UrlParameters,
+                        ModuleId = moduleid,
+                        Action = action,
+                        EditMode = editmode,
+                        LastSyncDate = lastsyncdate,
+                        Runtime = runtime,
+						VisitorId = VisitorId,
+						RemoteIPAddress = SiteState.RemoteIPAddress,
+						ReturnUrl = returnurl,
+                        IsInternalNavigation = _isInternalNavigation
+                    };
 
-                        OnStateChange?.Invoke(_pagestate);
-                        await ScrollToFragment(_pagestate.Uri);
-                    // }
+                    OnStateChange?.Invoke(_pagestate);
+                    await ScrollToFragment(_pagestate.Uri);
+                }
+                else
+                {
+                    // Need to redirect 404 as page doesnot exist in a Permission or Timeframe
+                    if (route.PagePath != "404")
+                    {
+                        // redirect to 404 page
+                        NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "404", ""));
+                    }
                 }
             }
             else // page not found
