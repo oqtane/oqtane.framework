@@ -263,7 +263,6 @@
             {
                 // check if user is authorized to view page
                 if (UserSecurity.IsAuthorized(user, PermissionNames.View, page.PermissionList) && (Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate) || UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList)))
-                //if ((Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate) || UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList)) || UserSecurity.IsAuthorized(user, PermissionNames.View, page.PermissionList))
                 {
                     // load additional metadata for current page
                     page = ProcessPage(page, site, user, SiteState.Alias);
