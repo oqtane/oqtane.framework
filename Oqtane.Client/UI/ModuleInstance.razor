@@ -48,10 +48,15 @@ else
 
     private ModuleMessage ModuleMessage { get; set; }
 
+    protected override bool ShouldRender()
+    {
+        return PageState.RenderId == ModuleState.RenderId;
+    }
+
     protected override void OnParametersSet()
     {
         _message = "";
-        if (PageState.RenderModuleInstance(ModuleState))
+        if (ShouldRender())
         {
             if (!string.IsNullOrEmpty(ModuleState.ModuleType))
             {

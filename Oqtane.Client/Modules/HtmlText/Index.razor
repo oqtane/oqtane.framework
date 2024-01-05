@@ -21,7 +21,7 @@
     {
         try
         {
-            if (PageState.RenderModuleInstance(ModuleState))
+            if (ShouldRender())
             {
                 var htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId);
                 if (htmltext != null)
