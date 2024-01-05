@@ -23,6 +23,7 @@ namespace Oqtane.UI
         public string RemoteIPAddress { get; set; }
         public string ReturnUrl { get; set; }
         public bool IsInternalNavigation { get; set; }
+        public Guid RenderId { get; set; }
 
         public List<Page> Pages
         {
@@ -35,13 +36,6 @@ namespace Oqtane.UI
         public List<Language> Languages
         {
             get { return Site.Languages; }
-        }
-
-
-        // determines if the PageState matches the ModuleState for component rendering purposes
-        public bool RenderModuleInstance(Module ModuleState)
-        {
-            return Page.PageId == ModuleState.PageId && (ModuleId == -1 || ModuleId == ModuleState.ModuleId) && Action == ModuleState.Action;
         }
     }
 }

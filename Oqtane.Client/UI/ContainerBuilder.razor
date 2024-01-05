@@ -30,6 +30,11 @@
     [Parameter]
     public Module ModuleState { get; set; }
 
+    protected override bool ShouldRender()
+    {
+        return PageState.RenderId == ModuleState.RenderId;
+    }
+
     protected override void OnInitialized()
     {
         ((INotifyPropertyChanged)SiteState.Properties).PropertyChanged += PropertyChanged;
@@ -52,7 +57,7 @@
             _useadminborder = false;
         }
 
-        if (PageState.RenderModuleInstance(ModuleState))
+        if (ShouldRender())
         {
             ComponentType = Type.GetType(container) ?? Type.GetType(Constants.DefaultContainer);
         }

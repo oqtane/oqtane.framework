@@ -86,7 +86,7 @@ namespace Oqtane.Models
         [NotMapped]
         public int PaneModuleCount { get; set; }
         [NotMapped]
-        public string Action { get; set; }
+        public Guid RenderId { get; set; }
 
         #endregion
 

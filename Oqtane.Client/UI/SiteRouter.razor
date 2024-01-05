@@ -289,7 +289,8 @@
 						VisitorId = VisitorId,
 						RemoteIPAddress = SiteState.RemoteIPAddress,
 						ReturnUrl = returnurl,
-                        IsInternalNavigation = _isInternalNavigation
+                        IsInternalNavigation = _isInternalNavigation,
+                        RenderId = Guid.NewGuid()
                     };
 
                     OnStateChange?.Invoke(_pagestate);
@@ -508,7 +509,6 @@
                 }
 
                 module.PaneModuleIndex = paneindex[module.Pane.ToLower()];
-                module.Action = action;
 
                 // container fallback
                 if (string.IsNullOrEmpty(module.ContainerType))
