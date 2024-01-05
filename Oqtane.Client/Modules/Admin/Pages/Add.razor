@@ -120,6 +120,18 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="effectiveDate" HelpText="The date that this page is active" ResourceKey="EffectiveDate">Effective Date: </Label>
+                        <div class="col-sm-9">
+                            <input type="date" id="effectiveDate" class="form-control" @bind="@_effectivedate" />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="expiryDate" HelpText="The date that this page expires" ResourceKey="ExpiryDate">Expiry Date: </Label>
+                        <div class="col-sm-9">
+                            <input type="date" id="expiryDate" class="form-control" @bind="@_expirydate" />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content" ResourceKey="Personalizable">Personalizable? </Label>
                         <div class="col-sm-9">
                             <select id="personalizable" class="form-select" @bind="@_ispersonalizable" required>
@@ -233,6 +245,8 @@
     protected Page _parent = null;
     protected Dictionary<string, string> _icons;
     private string _iconresources = "";
+    private DateTime? _effectivedate = null;
+    private DateTime? _expirydate = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -265,6 +279,8 @@
                         _children.Add(p);
                     }
                 }
+                _effectivedate = Utilities.UtcAsLocalDate(PageState.Page.EffectiveDate);
+                _expirydate = Utilities.UtcAsLocalDate(PageState.Page.ExpiryDate);
                 ThemeSettings();
                 _initialized = true;
             }
@@ -274,18 +290,18 @@
                 AddModuleMessage(Localizer["Error.Page.Load"], MessageType.Error);
             }
         }
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Loading Page {Error}", ex.Message);
-			AddModuleMessage(Localizer["Error.Page.Load"], MessageType.Error);
-		}
-	}
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Page {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Page.Load"], MessageType.Error);
+        }
+    }
 
-	private async void ParentChanged(ChangeEventArgs e)
-	{
-		try
-		{
-			_parentid = (string)e.Value;
+    private async void ParentChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            _parentid = (string)e.Value;
             _children = new List<Page>();
             foreach (Page p in PageState.Pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == int.Parse(_parentid))))
             {
@@ -295,13 +311,13 @@
                 }
             }
             StateHasChanged();
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Loading Child Pages For Parent {PageId} {Error}", _parentid, ex.Message);
-			AddModuleMessage(Localizer["Error.ChildPage.Load"], MessageType.Error);
-		}
-	}
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Child Pages For Parent {PageId} {Error}", _parentid, ex.Message);
+            AddModuleMessage(Localizer["Error.ChildPage.Load"], MessageType.Error);
+        }
+    }
 
     private void ThemeChanged(ChangeEventArgs e)
     {
@@ -318,109 +334,116 @@
         }
     }
 
-	private void ThemeSettings()
-	{
-		_themeSettingsType = null;
+    private void ThemeSettings()
+    {
+        _themeSettingsType = null;
         var theme = PageState.Site.Themes.FirstOrDefault(item => item.Themes.Any(themecontrol => themecontrol.TypeName.Equals(_themetype)));
-		if (theme != null && !string.IsNullOrEmpty(theme.ThemeSettingsType))
-		{
-			_themeSettingsType = Type.GetType(theme.ThemeSettingsType);
-			if (_themeSettingsType != null)
-			{
-				ThemeSettingsComponent = builder =>
-				{
-					builder.OpenComponent(0, _themeSettingsType);
-					builder.AddComponentReferenceCapture(1, inst => { _themeSettings = Convert.ChangeType(inst, _themeSettingsType); });
-					builder.CloseComponent();
-				};
-			}
-			_refresh = true;
-		}
-	}
+        if (theme != null && !string.IsNullOrEmpty(theme.ThemeSettingsType))
+        {
+            _themeSettingsType = Type.GetType(theme.ThemeSettingsType);
+            if (_themeSettingsType != null)
+            {
+                ThemeSettingsComponent = builder =>
+                {
+                    builder.OpenComponent(0, _themeSettingsType);
+                    builder.AddComponentReferenceCapture(1, inst => { _themeSettings = Convert.ChangeType(inst, _themeSettingsType); });
+                    builder.CloseComponent();
+                };
+            }
+            _refresh = true;
+        }
+    }
 
-	private async Task SavePage()
-	{
-		validated = true;
-		var interop = new Interop(JSRuntime);
-		if (await interop.FormValid(form))
-		{
-			Page page = null;
-			try
-			{
+    private async Task SavePage()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
+        {
+            Page page = null;
+            try
+            {
+                if (!Utilities.ValidateEffectiveExpiryDates(_effectivedate, _expirydate))
+                {
+                    AddModuleMessage(SharedLocalizer["Message.EffectiveExpiryDateError"], MessageType.Warning);
+                    return;
+                }
                 if (!string.IsNullOrEmpty(_themetype) && !string.IsNullOrEmpty(_containertype))
-				{
-					page = new Page();
-					page.SiteId = PageState.Page.SiteId;
-					page.Name = _name;
+                {
+                    page = new Page();
+                    page.SiteId = PageState.Page.SiteId;
+                    page.Name = _name;
 
-					if (string.IsNullOrEmpty(_path))
-					{
-						_path = _name;
-					}
-					if (_path.Contains("/"))
-					{
-						if (_path.EndsWith("/") && _path != "/")
-						{
-							_path = _path.Substring(0, _path.Length - 1);
-						}
-						_path = _path.Substring(_path.LastIndexOf("/") + 1);
-					}
+                    if (string.IsNullOrEmpty(_path))
+                    {
+                        _path = _name;
+                    }
+                    if (_path.Contains("/"))
+                    {
+                        if (_path.EndsWith("/") && _path != "/")
+                        {
+                            _path = _path.Substring(0, _path.Length - 1);
+                        }
+                        _path = _path.Substring(_path.LastIndexOf("/") + 1);
+                    }
 
-					if (_parentid == "-1")
-					{
-						page.ParentId = null;
-						page.Path = Utilities.GetFriendlyUrl(_path);
-					}
-					else
-					{
-						page.ParentId = Int32.Parse(_parentid);
-						var parent = PageState.Pages.Where(item => item.PageId == page.ParentId).FirstOrDefault();
-						if (parent.Path == string.Empty)
-						{
-							page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
-						}
-						else
-						{
-							page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(_path);
-						}
-					}
+                    if (_parentid == "-1")
+                    {
+                        page.ParentId = null;
+                        page.Path = Utilities.GetFriendlyUrl(_path);
+                    }
+                    else
+                    {
+                        page.ParentId = Int32.Parse(_parentid);
+                        var parent = PageState.Pages.Where(item => item.PageId == page.ParentId).FirstOrDefault();
+                        if (parent.Path == string.Empty)
+                        {
+                            page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
+                        }
+                        else
+                        {
+                            page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(_path);
+                        }
+                    }
 
-					var _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
-					if (_pages.Any(item => item.Path == page.Path))
-					{
-						AddModuleMessage(string.Format(Localizer["Message.Page.Exists"], _path), MessageType.Warning);
-						return;
-					}
+                    var _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
+                    if (_pages.Any(item => item.Path == page.Path))
+                    {
+                        AddModuleMessage(string.Format(Localizer["Message.Page.Exists"], _path), MessageType.Warning);
+                        return;
+                    }
 
-					if (page.ParentId == null && Constants.ReservedRoutes.Contains(page.Name.ToLower()))
-					{
-						AddModuleMessage(string.Format(Localizer["Message.Page.Reserved"], page.Name), MessageType.Warning);
-						return;
-					}
+                    if (page.ParentId == null && Constants.ReservedRoutes.Contains(page.Name.ToLower()))
+                    {
+                        AddModuleMessage(string.Format(Localizer["Message.Page.Reserved"], page.Name), MessageType.Warning);
+                        return;
+                    }
 
-					Page child;
-					switch (_insert)
-					{
-						case "<<":
-							page.Order = 0;
-							break;
-						case "<":
-							child = PageState.Pages.Where(item => item.PageId == _childid).FirstOrDefault();
-							page.Order = child.Order - 1;
-							break;
-						case ">":
-							child = PageState.Pages.Where(item => item.PageId == _childid).FirstOrDefault();
-							page.Order = child.Order + 1;
-							break;
-						case ">>":
-							page.Order = int.MaxValue;
-							break;
-					}
+                    Page child;
+                    switch (_insert)
+                    {
+                        case "<<":
+                            page.Order = 0;
+                            break;
+                        case "<":
+                            child = PageState.Pages.Where(item => item.PageId == _childid).FirstOrDefault();
+                            page.Order = child.Order - 1;
+                            break;
+                        case ">":
+                            child = PageState.Pages.Where(item => item.PageId == _childid).FirstOrDefault();
+                            page.Order = child.Order + 1;
+                            break;
+                        case ">>":
+                            page.Order = int.MaxValue;
+                            break;
+                    }
 
-					page.IsNavigation = (_isnavigation == null ? true : Boolean.Parse(_isnavigation));
-					page.IsClickable = (_isclickable == null ? true : Boolean.Parse(_isclickable));
+                    page.IsNavigation = (_isnavigation == null ? true : Boolean.Parse(_isnavigation));
+                    page.IsClickable = (_isclickable == null ? true : Boolean.Parse(_isclickable));
                     page.Url = _url;
                     page.IsPersonalizable = (_ispersonalizable == null ? false : Boolean.Parse(_ispersonalizable));
+                    page.EffectiveDate = Utilities.LocalDateAndTimeAsUtc(_effectivedate);
+                    page.ExpiryDate = Utilities.LocalDateAndTimeAsUtc(_expirydate);
                     page.UserId = null;
 
                     // appearance

@@ -82,6 +82,14 @@ namespace Oqtane.Models
         public bool IsNavigation { get; set; }
         public bool IsClickable { get; set; }
         public int? UserId { get; set; }
+        /// <summary>
+        /// Start of when this assignment is valid. See also <see cref="ExpiryDate"/>
+        /// </summary>
+        public DateTime? EffectiveDate { get; set; }
+        /// <summary>
+        /// End of when this assignment is valid. See also <see cref="EffectiveDate"/>
+        /// </summary>
+        public DateTime? ExpiryDate { get; set; }
         public bool IsPersonalizable { get; set; }
 
         #region IDeletable Properties

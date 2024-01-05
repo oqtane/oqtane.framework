@@ -438,4 +438,7 @@
   <data name="Test" xml:space="preserve">
     <value>Test</value>
   </data>
+  <data name="Message.EffectiveExpiryDateError" xml:space="preserve">
+    <value>Effective Date cannot be after Expiry Date.</value>
+  </data>
 </root>

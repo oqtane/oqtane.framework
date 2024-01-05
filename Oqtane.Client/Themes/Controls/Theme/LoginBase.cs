@@ -56,10 +56,11 @@ namespace Oqtane.Themes.Controls
             var url = route.PathAndQuery;
 
             // verify if anonymous users can access page
-            if (!UserSecurity.IsAuthorized(null, PermissionNames.View, PageState.Page.PermissionList))
+            if (!UserSecurity.IsAuthorized(null, PermissionNames.View, PageState.Page.PermissionList) || !Utilities.IsPageModuleVisible(PageState.Page.EffectiveDate, PageState.Page.ExpiryDate))
             {
                 url = PageState.Alias.Path;
             }
+
 
             if (PageState.Runtime == Shared.Runtime.Hybrid)
             {

@@ -255,4 +255,16 @@
   <data name="Theme.Heading" xml:space="preserve">
     <value>Theme Settings</value>
   </data>
+  <data name="EffectiveDate.HelpText" xml:space="preserve">
+    <value>The date that this page is active</value>
+  </data>
+  <data name="EffectiveDate.Text" xml:space="preserve">
+    <value>Effective Date: </value>
+  </data>
+  <data name="ExpiryDate.HelpText" xml:space="preserve">
+    <value>The date that this page expires</value>
+  </data>
+  <data name="ExpiryDate.Text" xml:space="preserve">
+    <value>Expiry Date: </value>
+  </data>
 </root>
