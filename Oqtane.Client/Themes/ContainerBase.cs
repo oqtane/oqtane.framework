@@ -10,7 +10,7 @@ namespace Oqtane.Themes
 
         protected override bool ShouldRender()
         {
-            return PageState.RenderId == ModuleState.RenderId;
+            return PageState?.RenderId == ModuleState?.RenderId;
         }
     }
 }
