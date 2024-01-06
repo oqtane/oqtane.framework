@@ -115,7 +115,7 @@ namespace Oqtane.Modules
 
         protected override bool ShouldRender()
         {
-            return PageState.RenderId == ModuleState.RenderId;
+            return PageState != null && ModuleState != null && PageState.RenderId == ModuleState.RenderId;
         }
 
         // path method
