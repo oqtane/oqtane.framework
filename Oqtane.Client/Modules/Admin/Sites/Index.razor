@@ -48,11 +48,25 @@ else
 
     private void Edit(string name)
     {
-        NavigationManager.NavigateTo(PageState.Uri.Scheme + "://" + name + "/admin/site", true);
+        if (PageState.Alias.Name == name)
+        {
+            NavigationManager.NavigateTo("/admin/site");
+        }
+        else
+        {
+            NavigationManager.NavigateTo(PageState.Uri.Scheme + "://" + name + "/admin/site", true);
+        }
     }
 
     private void Browse(string name)
     {
-        NavigationManager.NavigateTo(PageState.Uri.Scheme + "://" + name, true);
+        if (PageState.Alias.Name == name)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            NavigationManager.NavigateTo(PageState.Uri.Scheme + "://" + name, true);
+        }
     }
 }
