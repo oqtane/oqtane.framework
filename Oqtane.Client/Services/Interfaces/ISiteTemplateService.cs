@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Oqtane.Services
 {
     /// <summary>
-    /// Service to retreive <see cref="SiteTemplate"/> entries
+    /// Service to retrieve <see cref="SiteTemplate"/> entries
     /// </summary>
     public interface ISiteTemplateService
     {
