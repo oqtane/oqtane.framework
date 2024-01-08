@@ -23,7 +23,7 @@ Please note that this project is owned by the .NET Foundation and is governed by
 
 - Install the latest edition (v17.8 or higher) of [Visual Studio 2022](https://visualstudio.microsoft.com/downloads) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you wish to use LocalDB for development ( not a requirement as Oqtane supports SQLite, mySQL, and PostgreSQL ) you must also install the **Data storage and processing**.  
 
-- clone the Oqtane dev branch source code to your local system.
+- Clone the Oqtane dev branch source code to your local system.
 
 - Open the **Oqtane.sln** solution file.
 
