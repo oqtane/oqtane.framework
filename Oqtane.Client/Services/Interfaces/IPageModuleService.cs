@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace Oqtane.Services
 {
     /// <summary>
-    /// Service to store and retreive a <see cref="PageModule"/>
+    /// Service to store and retrieve a <see cref="PageModule"/>
     /// </summary>
     public interface IPageModuleService
     {
