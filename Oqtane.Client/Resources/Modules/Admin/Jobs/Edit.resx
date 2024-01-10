@@ -192,4 +192,7 @@
   <data name="Once" xml:space="preserve">
     <value>Execute Once</value>
   </data>
+  <data name="Message.StartEndDateError" xml:space="preserve">
+    <value>Start Date cannot be after End Date.</value>
+  </data>
 </root>
