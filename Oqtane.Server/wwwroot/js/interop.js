@@ -344,7 +344,7 @@ Oqtane.Interop = {
                 };
                 request.upload.onerror = function() {
                     if (progressinfo !== null && progressbar !== null) {
-                        progressinfo.innerHTML = file.name + ' Error: ' + xhr.status;
+                        progressinfo.innerHTML = file.name + ' Error: ' + request.status;
                         progressbar.value = 0;
                     }
                 };
