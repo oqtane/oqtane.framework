@@ -162,27 +162,31 @@
         _richhtml = Content;
         _rawhtml = Content;
         _originalrawhtml = _rawhtml; // preserve for comparison later
+        _originalrichhtml = "";
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        var interop = new RichTextEditorInterop(JSRuntime);
-
-        if (firstRender)
+        if (AllowRichText)
         {
-            await interop.CreateEditor(
-                _editorElement,
-                _toolBar,
-                ReadOnly,
-                Placeholder,
-                Theme,
-                DebugLevel);
+            var interop = new RichTextEditorInterop(JSRuntime);
+
+            if (firstRender)
+            {
+                await interop.CreateEditor(
+                    _editorElement,
+                    _toolBar,
+                    ReadOnly,
+                    Placeholder,
+                    Theme,
+                    DebugLevel);
+            }
 
             await interop.LoadEditorContent(_editorElement, _richhtml);
 
-            if (AllowRichText)
+            if (string.IsNullOrEmpty(_originalrichhtml))
             {
                 // preserve a copy of the rich text content (Quill sanitizes content so we need to retrieve it from the editor)
                 _originalrichhtml = await interop.GetHtml(_editorElement);
