@@ -36,7 +36,7 @@
                     <Label Class="col-sm-3" For="password" HelpText="If you wish to change your password you can enter it here. Please choose a sufficiently secure password." ResourceKey="Password"></Label>
                     <div class="col-sm-9">
                         <div class="input-group">
-                            <input id="password" type="@_passwordtype" class="form-control" @bind="@_password" autocomplete="new-password" />
+                            <input id="password" name="password " type="@_passwordtype" class="form-control" @bind="@_password" autocomplete="new-password" />
                             <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
                         </div>
                     </div>
@@ -65,13 +65,13 @@
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="email" HelpText="Your email address where you wish to receive notifications" ResourceKey="Email"></Label>
                     <div class="col-sm-9">
-                        <input id="email" class="form-control" @bind="@email" />
+                        <input id="email" class="form-control" @bind="@email" autocomplete="email" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="displayname" HelpText="Your full name" ResourceKey="DisplayName"></Label>
                     <div class="col-sm-9">
-                        <input id="displayname" class="form-control" @bind="@displayname" />
+                        <input id="displayname" class="form-control" @bind="@displayname" autocomplete="name" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
@@ -123,24 +123,52 @@
                                     {
                                         @if (p.Rows == 1)
                                         {
-                                            @if (p.IsRequired)
+                                            if (!string.IsNullOrEmpty(p.Autocomplete))
                                             {
-                                                <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                                @if (p.IsRequired)
+                                                {
+                                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete" />
+                                                }
+                                                else
+                                                {
+                                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete" />
+                                                }
                                             }
                                             else
                                             {
-                                                <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                                @if (p.IsRequired)
+                                                {
+                                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                                }
+                                                else
+                                                {
+                                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                                }
                                             }
                                         }
                                         else
                                         {
-                                            @if (p.IsRequired)
+                                            if (!string.IsNullOrEmpty(p.Autocomplete))
                                             {
-                                                <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))"></textarea>
+                                                @if (p.IsRequired)
+                                                {
+                                                    <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete"></textarea>
+                                                }
+                                                else
+                                                {
+                                                    <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete"></textarea>
+                                                }
                                             }
                                             else
                                             {
-                                                <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))"></textarea>
+                                                @if (p.IsRequired)
+                                                {
+                                                    <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))"></textarea>
+                                                }
+                                                else
+                                                {
+                                                    <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))"></textarea>
+                                                }
                                             }
                                         }
                                     }
@@ -360,10 +388,10 @@
                     photofileid = -1;
                     photo = null;
                 }
-                var sitesettings = await SettingService.GetSiteSettingsAsync(SiteState.Alias.SiteId);
-                _ImageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
 
                 settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
+                var sitesettings = await SettingService.GetSiteSettingsAsync(SiteState.Alias.SiteId);
+                _ImageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
 
                 await LoadNotificationsAsync();
 
@@ -549,7 +577,7 @@
         try
         {
             ModuleInstance.ShowProgressIndicator();
-            foreach(var Notification in notifications)
+            foreach (var Notification in notifications)
             {
                 if (!Notification.IsDeleted)
                 {
@@ -561,12 +589,12 @@
                     await NotificationService.DeleteNotificationAsync(Notification.NotificationId);
                 }
                 await logger.LogInformation("Notification Deleted {Notification}", Notification);
-            } 
+            }
             await logger.LogInformation("Notifications Permanently Deleted");
             await LoadNotificationsAsync();
             ModuleInstance.HideProgressIndicator();
 
-            StateHasChanged();            
+            StateHasChanged();
         }
         catch (Exception ex)
         {
@@ -574,21 +602,20 @@
             AddModuleMessage(ex.Message, MessageType.Error);
             ModuleInstance.HideProgressIndicator();
         }
-    
+
     }
 
     private void TogglePassword()
-	{
-		if (_passwordtype == "password")
-		{
-			_passwordtype = "text";
-			_togglepassword = SharedLocalizer["HidePassword"];
-		}
-		else
-		{
-			_passwordtype = "password";
-			_togglepassword = SharedLocalizer["ShowPassword"];
-		}
-	}
-
+    {
+        if (_passwordtype == "password")
+        {
+            _passwordtype = "text";
+            _togglepassword = SharedLocalizer["HidePassword"];
+        }
+        else
+        {
+            _passwordtype = "password";
+            _togglepassword = SharedLocalizer["ShowPassword"];
+        }
+    }
 }
