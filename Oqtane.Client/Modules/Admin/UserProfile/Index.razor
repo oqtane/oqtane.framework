@@ -36,7 +36,7 @@
                     <Label Class="col-sm-3" For="password" HelpText="If you wish to change your password you can enter it here. Please choose a sufficiently secure password." ResourceKey="Password"></Label>
                     <div class="col-sm-9">
                         <div class="input-group">
-                            <input id="password" name="password " type="@_passwordtype" class="form-control" @bind="@_password" autocomplete="new-password" />
+                            <input id="password" type="@_passwordtype" class="form-control" @bind="@_password" autocomplete="new-password" />
                             <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
                         </div>
                     </div>
