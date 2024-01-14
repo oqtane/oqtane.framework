@@ -195,4 +195,10 @@
   <data name="Rows.Text" xml:space="preserve">
     <value>Rows: </value>
   </data>
+    <data name="Autocomplete.HelpText" xml:space="preserve">
+    <value>Autocomplete setting for the property</value>
+  </data>
+  <data name="Autocomplete.Text" xml:space="preserve">
+    <value>Autocomplete: </value>
+  </data>
 </root>
