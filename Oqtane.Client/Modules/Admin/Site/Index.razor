@@ -812,46 +812,43 @@
 		}
 	}
 
-	    private async Task SaveAlias()
-    {
-        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-        {
-            if (!string.IsNullOrEmpty(_aliasname))
-            {
-                // Remove 'http://' and 'https://' from the alias name
-                string cleanedAliasName = _aliasname.Replace("http://", "").Replace("https://", "");
-
-                var aliases = await AliasService.GetAliasesAsync();
-                // Check if the cleaned alias name exists in the database
-                var alias = aliases.Where(item => item.Name == cleanedAliasName).FirstOrDefault();
-                bool unique = (alias == null || alias.AliasId == _aliasid);
-                if (unique)
-                {
-                    if (_aliasid == 0)
-                    {
-                        alias = new Alias { SiteId = PageState.Site.SiteId, TenantId = PageState.Site.TenantId, Name = cleanedAliasName, IsDefault = bool.Parse(_defaultalias) };
-                        await AliasService.AddAliasAsync(alias);
-                    }
-                    else
-                    {
-                        alias = _aliases.Single(item => item.AliasId == _aliasid);
-                        alias.Name = cleanedAliasName;
-                        alias.IsDefault = bool.Parse(_defaultalias);
-                        await AliasService.UpdateAliasAsync(alias);
-                    }
-                }
-                else // duplicate alias
-                {
-                    AddModuleMessage(Localizer["Message.Aliases.Taken"], MessageType.Warning);
-                    await ScrollToPageTop();
-                }
+private async Task SaveAlias()
+{
+	if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+	{
+		if (!string.IsNullOrEmpty(_aliasname))
+		{
+            _aliasname = _aliasname.Replace("http://", "").Replace("https://", "");
+            var aliases = await AliasService.GetAliasesAsync();
+			var alias = aliases.Where(item => item.Name == _aliasname).FirstOrDefault();
+			bool unique = (alias == null || alias.AliasId == _aliasid);
+			if (unique)
+			{
+				if (_aliasid == 0)
+				{
+					alias = new Alias { SiteId = PageState.Site.SiteId, TenantId = PageState.Site.TenantId, Name = _aliasname, IsDefault = bool.Parse(_defaultalias) };
+					await AliasService.AddAliasAsync(alias);
+				}
+				else
+				{
+					alias = _aliases.Single(item => item.AliasId == _aliasid);
+					alias.Name = _aliasname;
+					alias.IsDefault = bool.Parse(_defaultalias);
+					await AliasService.UpdateAliasAsync(alias);
+				}
+			}
+			else // duplicate alias
+			{
+				AddModuleMessage(Localizer["Message.Aliases.Taken"], MessageType.Warning);
+                await ScrollToPageTop();
             }
-            await GetAliases();
-            _aliasid = -1;
-            _aliasname = "";
-            StateHasChanged();
-        }
-    }
+		}
+		await GetAliases();
+		_aliasid = -1;
+		_aliasname = "";
+		StateHasChanged();
+	}
+}
 
 	private async Task CancelAlias()
 	{
