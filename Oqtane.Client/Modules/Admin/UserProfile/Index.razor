@@ -103,21 +103,40 @@
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="@p.Name" HelpText="@p.Description">@p.Title</Label>
                                     <div class="col-sm-9">
-                                        @if (!string.IsNullOrEmpty(p.Options))
+                                    @if (!string.IsNullOrEmpty(p.Options))
                                     {
-                                        <select id="@p.Name" class="form-select" @onchange="@(e => ProfileChanged(e, p.Name))">
-                                            @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                                            {
-                                                @if (GetProfileValue(p.Name, "") == option || (GetProfileValue(p.Name, "") == "" && p.DefaultValue == option))
+                                        @if (!string.IsNullOrEmpty(p.Autocomplete))
+                                        {
+                                            <select id="@p.Name" class="form-select" @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete">
+                                                @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                                                 {
-                                                    <option value="@option" selected>@option</option>
+                                                    @if (GetProfileValue(p.Name, "") == option || (GetProfileValue(p.Name, "") == "" && p.DefaultValue == option))
+                                                    {
+                                                        <option value="@option" selected>@option</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@option">@option</option>
+                                                    }
                                                 }
-                                                else
+                                            </select>
+                                        }
+                                        else
+                                        {
+                                            <select id="@p.Name" class="form-select" @onchange="@(e => ProfileChanged(e, p.Name))">
+                                                @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                                                 {
-                                                    <option value="@option">@option</option>
+                                                    @if (GetProfileValue(p.Name, "") == option || (GetProfileValue(p.Name, "") == "" && p.DefaultValue == option))
+                                                    {
+                                                        <option value="@option" selected>@option</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@option">@option</option>
+                                                    }
                                                 }
-                                            }
-                                        </select>
+                                            </select>
+                                        }
                                     }
                                     else
                                     {
