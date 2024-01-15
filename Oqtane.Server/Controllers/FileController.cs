@@ -360,7 +360,7 @@ namespace Oqtane.Controllers
         [HttpPost("upload")]
         public async Task UploadFile(string folder, IFormFile formfile)
         {
-            if (formfile.Length <= 0)
+            if (formfile == null || formfile.Length <= 0)
             {
                 return;
             }
