@@ -77,9 +77,9 @@
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="autocomplete" HelpText="Autocomplete setting for the property" ResourceKey="Autocomplete">Autocomplete: </Label>
+            <Label Class="col-sm-3" For="autocomplete" HelpText="The HTML autocomplete attribute allows you to specify browser behavior for automated assistance in filling out form field values, with a character limit of 30 to ensure concise and effective usage." ResourceKey="Autocomplete">Autocomplete: </Label>
             <div class="col-sm-9">
-                <input id="autocomplete" class="form-control" @bind="@_autocomplete" maxlength="50" />
+                <input id="autocomplete" class="form-control" @bind="@_autocomplete" maxlength="30" />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
