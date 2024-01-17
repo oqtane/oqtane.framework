@@ -260,7 +260,8 @@
 			{
 				var interop = new RichTextEditorInterop(JSRuntime);
 				await interop.InsertImage(_editorElement, file.Url, ((!string.IsNullOrEmpty(file.Description)) ? file.Description : file.Name));
-				_richfilemanager = false;
+                _richhtml = await interop.GetHtml(_editorElement);
+                _richfilemanager = false;
 			}
 			else
 			{
