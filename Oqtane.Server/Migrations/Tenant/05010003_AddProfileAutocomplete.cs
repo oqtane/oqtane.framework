@@ -17,7 +17,7 @@ namespace Oqtane.Migrations.Tenant
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             var profileEntityBuilder = new ProfileEntityBuilder(migrationBuilder, ActiveDatabase);
-            profileEntityBuilder.AddStringColumn("Autocomplete", 200, true);
+            profileEntityBuilder.AddStringColumn("Autocomplete", 50, true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
