@@ -13,13 +13,13 @@
     <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
         <div class="container">
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="owner" HelpText="Enter the name of the organization who is developing this module. It should not contain spaces or punctuation." ResourceKey="OwnerName">Owner Name: </Label>
+                <Label Class="col-sm-3" For="owner" HelpText="Enter the name of the organization who is developing this module. It should not contain spaces or punctuation or the word oqtane." ResourceKey="OwnerName">Owner Name: </Label>
                 <div class="col-sm-9">
                     <input id="owner" class="form-control" @bind="@_owner" required />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="module" HelpText="Enter a name for this module. It should not contain spaces or punctuation." ResourceKey="ModuleName">Module Name: </Label>
+                <Label Class="col-sm-3" For="module" HelpText="Enter a name for this module. It should not contain spaces or punctuation or the word oqtane." ResourceKey="ModuleName">Module Name: </Label>
                 <div class="col-sm-9">
                     <input id="module" class="form-control" @bind="@_module" required />
                 </div>
