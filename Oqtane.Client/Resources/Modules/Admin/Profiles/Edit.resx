@@ -195,4 +195,10 @@
   <data name="Rows.Text" xml:space="preserve">
     <value>Rows: </value>
   </data>
+    <data name="Autocomplete.HelpText" xml:space="preserve">
+    <value>The HTML autocomplete attribute allows you to specify browser behavior for automated assistance in filling out form field values, with a character limit of 30 to ensure concise and effective usage.</value>
+  </data>
+  <data name="Autocomplete.Text" xml:space="preserve">
+    <value>Autocomplete: </value>
+  </data>
 </root>
