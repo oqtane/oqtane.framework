@@ -19,7 +19,6 @@
   <files>
     <file src="..\Oqtane.Shared\bin\Release\net8.0\Oqtane.Shared.dll" target="lib\net8.0" /> 
     <file src="..\Oqtane.Shared\bin\Release\net8.0\Oqtane.Shared.pdb" target="lib\net8.0" /> 
-    <file src="..\Oqtane.Server\bin\Release\net8.0\Oqtane.Licensing.Shared.Oqtane.dll" target="lib\net8.0" /> 
     <file src="icon.png" target="" />
   </files>
 </package>

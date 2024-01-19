@@ -19,7 +19,6 @@
   <files>
     <file src="..\Oqtane.Client\bin\Release\net8.0\Oqtane.Client.dll" target="lib\net8.0" /> 
     <file src="..\Oqtane.Client\bin\Release\net8.0\Oqtane.Client.pdb" target="lib\net8.0" /> 
-    <file src="..\Oqtane.Server\bin\Release\net8.0\Oqtane.Licensing.Client.Oqtane.dll" target="lib\net8.0" /> 
     <file src="icon.png" target="" />
   </files>
 </package>
