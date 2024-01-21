@@ -665,8 +665,13 @@
                         settings = SettingService.SetSetting(settings, "NotificationRetention", _retention.ToString(), true);
 
                         // file extensions
-                        settings = SettingService.SetSetting(settings, "ImageFiles", (_ImageFiles != Constants.ImageFiles) ? _ImageFiles.Replace(" ", "") : "", false);
-                        settings = SettingService.SetSetting(settings, "UploadableFiles", (_UploadableFiles != Constants.UploadableFiles) ? _UploadableFiles.Replace(" ", "") : "", false);
+                        // Check if _ImageFiles is null or empty, then use the constant
+                        settings = SettingService.SetSetting(settings, "ImageFiles",
+                            string.IsNullOrWhiteSpace(_ImageFiles) ? Constants.ImageFiles : _ImageFiles.Replace(" ", ""), false);
+
+                        // Check if _UploadableFiles is null or empty, then use the constant
+                        settings = SettingService.SetSetting(settings, "UploadableFiles",
+                            string.IsNullOrWhiteSpace(_UploadableFiles) ? Constants.UploadableFiles : _UploadableFiles.Replace(" ", ""), false);
 
 						await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 
