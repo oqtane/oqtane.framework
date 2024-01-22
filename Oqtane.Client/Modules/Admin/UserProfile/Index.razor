@@ -409,8 +409,9 @@
                 }
 
                 settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-                var sitesettings = await SettingService.GetSiteSettingsAsync(SiteState.Alias.SiteId);
+                var sitesettings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
                 _ImageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
+                _ImageFiles = (string.IsNullOrEmpty(_ImageFiles)) ? Constants.ImageFiles : _ImageFiles;
 
                 await LoadNotificationsAsync();
 
