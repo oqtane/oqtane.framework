@@ -92,7 +92,7 @@ namespace Oqtane.Controllers
                 site.ImageFiles = site.Settings.ContainsKey("ImageFiles") && !string.IsNullOrEmpty(site.Settings["ImageFiles"])
                     ? site.Settings["ImageFiles"] : Constants.ImageFiles;
                 site.UploadableFiles = site.Settings.ContainsKey("UploadableFiles") && !string.IsNullOrEmpty(site.Settings["UploadableFiles"])
-                ? site.Settings["UploadableFiles"] : Constants.UploadableFiles;
+                    ? site.ImageFiles + site.Settings["UploadableFiles"] : Constants.UploadableFiles;
 
                 // pages
                 List<Setting> settings = _settings.GetSettings(EntityNames.Page).ToList();

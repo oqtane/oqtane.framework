@@ -288,7 +288,9 @@ namespace Oqtane.Controllers
                 folder = _folders.GetFolder(FolderId);
             }
 
-            var _UploadableFiles = (_settingRepository.GetSetting(EntityNames.Site, _alias.SiteId, "UploadableFiles")?.SettingValue ?? Constants.UploadableFiles) ?? Constants.UploadableFiles;
+            string uploadableImageFilesSetting = _settingRepository.GetSetting(EntityNames.Site, _alias.SiteId, "ImageFiles")?.SettingValue ?? Constants.ImageFiles;
+            string uploadableFilesSetting = _settingRepository.GetSetting(EntityNames.Site, _alias.SiteId, "UploadableFiles")?.SettingValue ?? Constants.UploadableFiles;
+            string _UploadableFiles = uploadableImageFilesSetting + uploadableFilesSetting ?? Constants.UploadableFiles;
 
             if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Edit, folder.PermissionList))
             {
@@ -366,8 +368,9 @@ namespace Oqtane.Controllers
             }
 
             // Get the UploadableFiles extensions
-            string uploadfilesSetting = _settingRepository.GetSetting(EntityNames.Site, _alias.SiteId, "UploadableFiles")?.SettingValue;
-            string _UploadableFiles = uploadfilesSetting ?? Constants.UploadableFiles;          
+            string uploadableImageFilesSetting = _settingRepository.GetSetting(EntityNames.Site, _alias.SiteId, "ImageFiles")?.SettingValue ?? Constants.ImageFiles;
+            string uploadableFilesSetting = _settingRepository.GetSetting(EntityNames.Site, _alias.SiteId, "UploadableFiles")?.SettingValue ?? Constants.UploadableFiles;
+            string _UploadableFiles = uploadableImageFilesSetting + uploadableFilesSetting ?? Constants.UploadableFiles;
 
             // ensure filename is valid
             string token = ".part_";
