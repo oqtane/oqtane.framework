@@ -614,7 +614,7 @@ namespace Oqtane.Controllers
             var file = _files.GetFile(id);
 
             var _ImageFiles = _settingRepository.GetSetting(EntityNames.Site, _alias.SiteId, "ImageFiles")?.SettingValue;
-            _ImageFiles = (string.IsNullOrEmpty(_ImageFiles)) ? Constants.UploadableFiles : _ImageFiles;
+            _ImageFiles = (string.IsNullOrEmpty(_ImageFiles)) ? Constants.ImageFiles : _ImageFiles;
 
             if (file != null && file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.PermissionList))
             {
@@ -784,7 +784,7 @@ namespace Oqtane.Controllers
             var file = _files.GetFile(folderid, filename);
 
             var _ImageFiles = _settingRepository.GetSetting(EntityNames.Site, _alias.SiteId, "ImageFiles")?.SettingValue;
-            _ImageFiles = (string.IsNullOrEmpty(_ImageFiles)) ? Constants.UploadableFiles : _ImageFiles;
+            _ImageFiles = (string.IsNullOrEmpty(_ImageFiles)) ? Constants.ImageFiles : _ImageFiles;
 
             int size = 0;
             var folder = _folders.GetFolder(folderid, false);
