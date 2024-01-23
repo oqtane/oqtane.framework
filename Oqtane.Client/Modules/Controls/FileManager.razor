@@ -4,6 +4,7 @@
 @inject IFolderService FolderService
 @inject IFileService FileService
 @inject ISettingService SettingService
+@inject IUserService UserService
 @inject IStringLocalizer<FileManager> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -344,7 +345,7 @@
         _message = string.Empty;
         var interop = new Interop(JSRuntime);
         var uploads = await interop.GetFiles(_fileinputid);
-        
+
         if (uploads.Length > 0)
         {
             string restricted = "";
@@ -370,7 +371,12 @@
                     // upload the files
                     var posturl = Utilities.TenantUrl(PageState.Alias, "/api/file/upload");
                     var folder = (Folder == Constants.PackagesFolder) ? Folder : FolderId.ToString();
-                    await interop.UploadFiles(posturl, folder, _guid, SiteState.AntiForgeryToken);
+                    var jwt = "";
+                    if (PageState.Runtime == Shared.Runtime.Hybrid)
+                    {
+                        jwt = await UserService.GetTokenAsync();
+                    }
+                    await interop.UploadFiles(posturl, folder, _guid, SiteState.AntiForgeryToken, jwt);
 
                     // uploading is asynchronous so we need to poll to determine if uploads are completed
                     var success = true;

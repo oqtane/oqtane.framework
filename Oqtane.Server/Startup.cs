@@ -131,6 +131,16 @@ namespace Oqtane
                 .WithSiteIdentity()
                 .WithSiteAuthentication();
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy(Constants.MauiUserAgent,
+                    policy =>
+                    {
+                        policy.WithOrigins("https://0.0.0.0", "http://0.0.0.0", "app://0.0.0.0")
+                            .AllowAnyHeader().AllowCredentials();
+                    });
+            });
+
             services.AddMvc(options =>
             {
                 options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
@@ -176,6 +186,7 @@ namespace Oqtane
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseCors(Constants.MauiUserAgent);
             app.UseTenantResolution();
             app.UseJwtAuthorization();
             app.UseBlazorFrameworkFiles();
