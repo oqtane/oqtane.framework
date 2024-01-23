@@ -20,6 +20,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Formats.Png;
 using System.Net.Http;
+using Microsoft.AspNetCore.Cors;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
