@@ -186,13 +186,14 @@ namespace Oqtane
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCors(Constants.MauiUserAgent);
             app.UseTenantResolution();
             app.UseJwtAuthorization();
             app.UseBlazorFrameworkFiles();
             app.UseRouting();
+            app.UseCors(Constants.MauiUserAgent);
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseAntiforgery();
 
             if (_useSwagger)
             {
