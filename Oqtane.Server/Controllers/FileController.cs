@@ -358,6 +358,7 @@ namespace Oqtane.Controllers
         }
 
         // POST api/<controller>/upload
+        [EnableCors(Constants.MauiUserAgent)]
         [HttpPost("upload")]
         public async Task UploadFile(string folder, IFormFile formfile)
         {
