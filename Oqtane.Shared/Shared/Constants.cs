@@ -77,6 +77,7 @@ namespace Oqtane.Shared
 
         public static readonly string MauiUserAgent = "MAUI";
         public static readonly string MauiAliasPath = "Alias-Path";
+        public const string MauiCorsPolicy = "MauiCorsPolicy"; // must be a constant to be used with an attribute
 
         public static readonly string VisitorCookiePrefix = "APP_VISITOR_";
 

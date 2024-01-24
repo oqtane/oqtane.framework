@@ -20,6 +20,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Formats.Png;
 using System.Net.Http;
+using Microsoft.AspNetCore.Cors;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
@@ -358,6 +359,7 @@ namespace Oqtane.Controllers
         }
 
         // POST api/<controller>/upload
+        [EnableCors(Constants.MauiCorsPolicy)]
         [HttpPost("upload")]
         public async Task UploadFile(string folder, IFormFile formfile)
         {
