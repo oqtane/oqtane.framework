@@ -133,7 +133,7 @@ namespace Oqtane
 
             services.AddCors(options =>
             {
-                options.AddPolicy(Constants.MauiUserAgent,
+                options.AddPolicy(Constants.MauiCorsPolicy,
                     policy =>
                     {
                         policy.WithOrigins("https://0.0.0.0", "http://0.0.0.0", "app://0.0.0.0")
@@ -186,11 +186,11 @@ namespace Oqtane
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCors(Constants.MauiUserAgent);
             app.UseTenantResolution();
             app.UseJwtAuthorization();
             app.UseBlazorFrameworkFiles();
             app.UseRouting();
+            app.UseCors();
             app.UseAuthentication();
             app.UseAuthorization();
 
