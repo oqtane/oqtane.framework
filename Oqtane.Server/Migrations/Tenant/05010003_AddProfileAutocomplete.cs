@@ -7,7 +7,7 @@ using Oqtane.Repository;
 namespace Oqtane.Migrations.Tenant
 {
     [DbContext(typeof(TenantDBContext))]
-    [Migration("Tenant.05.00.01.03")]
+    [Migration("Tenant.05.01.00.03")]
     public class AddProfileAutocomplete : MultiDatabaseMigration
     {
         public AddProfileAutocomplete(IDatabase database) : base(database)
