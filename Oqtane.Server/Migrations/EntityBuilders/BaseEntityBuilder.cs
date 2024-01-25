@@ -47,7 +47,7 @@ namespace Oqtane.Migrations.EntityBuilders
 
         private string RewriteName(string name)
         {
-            return RewriteName(name, false);
+            return ActiveDatabase.RewriteName(name);
         }
 
         private string RewriteName(string name, bool isQuery)
