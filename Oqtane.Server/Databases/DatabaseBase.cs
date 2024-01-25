@@ -66,6 +66,11 @@ namespace Oqtane.Databases
             return name;
         }
 
+        public virtual string RewriteName(string name, bool isQuery)
+        {
+            return name;
+        }
+
         public virtual string RewriteValue(string value, string type)
         {
             return value;
