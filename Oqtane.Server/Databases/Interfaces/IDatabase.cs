@@ -28,6 +28,8 @@ namespace Oqtane.Databases.Interfaces
 
         public string RewriteName(string name);
 
+        public string RewriteName(string name, bool isQuery);
+
         public string RewriteValue(string value, string type);
 
         public void UpdateIdentityStoreTableNames(ModelBuilder builder);
