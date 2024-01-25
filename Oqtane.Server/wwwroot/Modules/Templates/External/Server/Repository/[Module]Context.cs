@@ -15,5 +15,12 @@ namespace [Owner].Module.[Module].Repository
         {
             // ContextBase handles multi-tenant database connections
         }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<Models.[Module]>().ToTable(ActiveDatabase.RewriteName("[Owner][Module]"));
+        }
     }
 }

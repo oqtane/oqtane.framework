@@ -15,17 +15,20 @@
 }
 
 @code {
-	private string content = "";
+    private string content = "";
 
-	protected override async Task OnParametersSetAsync()
-	{
-		try
+    protected override async Task OnParametersSetAsync()
+    {
+        try
         {
-            var htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId);
-            if (htmltext != null)
+            if (ShouldRender())
             {
-                content = htmltext.Content;
-                content = Utilities.FormatContent(content, PageState.Alias, "render");
+                var htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId);
+                if (htmltext != null)
+                {
+                    content = htmltext.Content;
+                    content = Utilities.FormatContent(content, PageState.Alias, "render");
+                }
             }
         }
         catch (Exception ex)

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components;
 using Oqtane.Models;
 
 namespace Oqtane.Themes
@@ -8,5 +8,9 @@ namespace Oqtane.Themes
         [CascadingParameter]
         protected Module ModuleState { get; set; }
 
+        protected override bool ShouldRender()
+        {
+            return PageState?.RenderId == ModuleState?.RenderId;
+        }
     }
 }

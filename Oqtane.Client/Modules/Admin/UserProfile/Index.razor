@@ -103,44 +103,91 @@
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="@p.Name" HelpText="@p.Description">@p.Title</Label>
                                     <div class="col-sm-9">
-                                        @if (!string.IsNullOrEmpty(p.Options))
+                                    @if (!string.IsNullOrEmpty(p.Options))
                                     {
-                                        <select id="@p.Name" class="form-select" @onchange="@(e => ProfileChanged(e, p.Name))">
-                                            @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                                            {
-                                                @if (GetProfileValue(p.Name, "") == option || (GetProfileValue(p.Name, "") == "" && p.DefaultValue == option))
+                                        @if (!string.IsNullOrEmpty(p.Autocomplete))
+                                        {
+                                            <select id="@p.Name" class="form-select" @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete">
+                                                @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                                                 {
-                                                    <option value="@option" selected>@option</option>
+                                                    @if (GetProfileValue(p.Name, "") == option || (GetProfileValue(p.Name, "") == "" && p.DefaultValue == option))
+                                                    {
+                                                        <option value="@option" selected>@option</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@option">@option</option>
+                                                    }
                                                 }
-                                                else
+                                            </select>
+                                        }
+                                        else
+                                        {
+                                            <select id="@p.Name" class="form-select" @onchange="@(e => ProfileChanged(e, p.Name))">
+                                                @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                                                 {
-                                                    <option value="@option">@option</option>
+                                                    @if (GetProfileValue(p.Name, "") == option || (GetProfileValue(p.Name, "") == "" && p.DefaultValue == option))
+                                                    {
+                                                        <option value="@option" selected>@option</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@option">@option</option>
+                                                    }
                                                 }
-                                            }
-                                        </select>
+                                            </select>
+                                        }
                                     }
                                     else
                                     {
                                         @if (p.Rows == 1)
                                         {
-                                            @if (p.IsRequired)
+                                            if (!string.IsNullOrEmpty(p.Autocomplete))
                                             {
-                                                <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                                @if (p.IsRequired)
+                                                {
+                                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete" />
+                                                }
+                                                else
+                                                {
+                                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete" />
+                                                }
                                             }
                                             else
                                             {
-                                                <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                                @if (p.IsRequired)
+                                                {
+                                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                                }
+                                                else
+                                                {
+                                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                                }
                                             }
                                         }
                                         else
                                         {
-                                            @if (p.IsRequired)
+                                            if (!string.IsNullOrEmpty(p.Autocomplete))
                                             {
-                                                <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))"></textarea>
+                                                @if (p.IsRequired)
+                                                {
+                                                    <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete"></textarea>
+                                                }
+                                                else
+                                                {
+                                                    <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete"></textarea>
+                                                }
                                             }
                                             else
                                             {
-                                                <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))"></textarea>
+                                                @if (p.IsRequired)
+                                                {
+                                                    <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))"></textarea>
+                                                }
+                                                else
+                                                {
+                                                    <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))"></textarea>
+                                                }
                                             }
                                         }
                                     }
@@ -360,10 +407,11 @@
                     photofileid = -1;
                     photo = null;
                 }
-                var sitesettings = await SettingService.GetSiteSettingsAsync(SiteState.Alias.SiteId);
-                _ImageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
 
                 settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
+                var sitesettings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+                _ImageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
+                _ImageFiles = (string.IsNullOrEmpty(_ImageFiles)) ? Constants.ImageFiles : _ImageFiles;
 
                 await LoadNotificationsAsync();
 
@@ -561,12 +609,12 @@
                     await NotificationService.DeleteNotificationAsync(Notification.NotificationId);
                 }
                 await logger.LogInformation("Notification Deleted {Notification}", Notification);
-            } 
+            }
             await logger.LogInformation("Notifications Permanently Deleted");
             await LoadNotificationsAsync();
             ModuleInstance.HideProgressIndicator();
 
-            StateHasChanged();            
+            StateHasChanged();
         }
         catch (Exception ex)
         {
@@ -574,21 +622,19 @@
             AddModuleMessage(ex.Message, MessageType.Error);
             ModuleInstance.HideProgressIndicator();
         }
-    
     }
 
     private void TogglePassword()
-	{
-		if (_passwordtype == "password")
-		{
-			_passwordtype = "text";
-			_togglepassword = SharedLocalizer["HidePassword"];
-		}
-		else
-		{
-			_passwordtype = "password";
-			_togglepassword = SharedLocalizer["ShowPassword"];
-		}
-	}
-
+    {
+        if (_passwordtype == "password")
+        {
+            _passwordtype = "text";
+            _togglepassword = SharedLocalizer["HidePassword"];
+        }
+        else
+        {
+            _passwordtype = "password";
+            _togglepassword = SharedLocalizer["ShowPassword"];
+        }
+    }
 }

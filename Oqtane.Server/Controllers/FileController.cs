@@ -20,6 +20,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Formats.Png;
 using System.Net.Http;
+using Microsoft.AspNetCore.Cors;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
@@ -288,7 +289,8 @@ namespace Oqtane.Controllers
                 folder = _folders.GetFolder(FolderId);
             }
 
-            var _UploadableFiles = (_settingRepository.GetSetting(EntityNames.Site, _alias.SiteId, "UploadableFiles")?.SettingValue ?? Constants.UploadableFiles) ?? Constants.UploadableFiles;
+            var _UploadableFiles = _settingRepository.GetSetting(EntityNames.Site, _alias.SiteId, "UploadableFiles")?.SettingValue;
+            _UploadableFiles = (string.IsNullOrEmpty(_UploadableFiles)) ? Constants.UploadableFiles : _UploadableFiles;
 
             if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Edit, folder.PermissionList))
             {
@@ -357,17 +359,18 @@ namespace Oqtane.Controllers
         }
 
         // POST api/<controller>/upload
+        [EnableCors(Constants.MauiCorsPolicy)]
         [HttpPost("upload")]
         public async Task UploadFile(string folder, IFormFile formfile)
         {
-            if (formfile.Length <= 0)
+            if (formfile == null || formfile.Length <= 0)
             {
                 return;
             }
 
             // Get the UploadableFiles extensions
-            string uploadfilesSetting = _settingRepository.GetSetting(EntityNames.Site, _alias.SiteId, "UploadableFiles")?.SettingValue;
-            string _UploadableFiles = uploadfilesSetting ?? Constants.UploadableFiles;          
+            string _UploadableFiles = _settingRepository.GetSetting(EntityNames.Site, _alias.SiteId, "UploadableFiles")?.SettingValue;
+            _UploadableFiles = (string.IsNullOrEmpty(_UploadableFiles)) ? Constants.UploadableFiles : _UploadableFiles;
 
             // ensure filename is valid
             string token = ".part_";
@@ -612,7 +615,9 @@ namespace Oqtane.Controllers
         {
             var file = _files.GetFile(id);
 
-            var _ImageFiles = (_settingRepository.GetSetting(EntityNames.Site, _alias.SiteId, "ImageFiles")?.SettingValue ?? Constants.ImageFiles) ?? Constants.ImageFiles;
+            var _ImageFiles = _settingRepository.GetSetting(EntityNames.Site, _alias.SiteId, "ImageFiles")?.SettingValue;
+            _ImageFiles = (string.IsNullOrEmpty(_ImageFiles)) ? Constants.ImageFiles : _ImageFiles;
+
             if (file != null && file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.PermissionList))
             {
                 if (_ImageFiles.Split(',').Contains(file.Extension.ToLower()))
@@ -779,7 +784,9 @@ namespace Oqtane.Controllers
         private Models.File CreateFile(string filename, int folderid, string filepath)
         {
             var file = _files.GetFile(folderid, filename);
-            var _ImageFiles = (_settingRepository.GetSetting(EntityNames.Site, _alias.SiteId, "ImageFiles")?.SettingValue ?? Constants.ImageFiles) ?? Constants.ImageFiles;
+
+            var _ImageFiles = _settingRepository.GetSetting(EntityNames.Site, _alias.SiteId, "ImageFiles")?.SettingValue;
+            _ImageFiles = (string.IsNullOrEmpty(_ImageFiles)) ? Constants.ImageFiles : _ImageFiles;
 
             int size = 0;
             var folder = _folders.GetFolder(folderid, false);

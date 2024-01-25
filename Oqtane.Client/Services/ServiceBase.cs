@@ -242,7 +242,7 @@ namespace Oqtane.Services
 
         private async Task Log(string uri, string method, string status, string message, params object[] args)
         {
-            if (_siteState.Alias != null && !uri.StartsWith(CreateApiUrl("Log")))
+            if (_siteState?.Alias != null && !uri.StartsWith(CreateApiUrl("Log")))
             {
                 var log = new Log();
                 log.SiteId = _siteState.Alias.SiteId;

@@ -5,7 +5,7 @@
 
 @if (CurrentException is null)
 {
-    if (_messagePosition == "top")
+    if (_message != "" && _messagePosition == "top")
     {
         <ModuleMessage Message="@_message" Type="@_messageType" />
     }
@@ -17,7 +17,7 @@
             <div class="app-progress-indicator"></div>
         }
     }
-    if (_messagePosition == "bottom")
+    if (_message != "" && _messagePosition == "bottom")
     {
         <ModuleMessage Message="@_message" Type="@_messageType" />
     }
@@ -48,27 +48,35 @@ else
 
     private ModuleMessage ModuleMessage { get; set; }
 
+    protected override bool ShouldRender()
+    {
+        return PageState?.RenderId == ModuleState?.RenderId;
+    }
+
     protected override void OnParametersSet()
     {
         _message = "";
-        if (!string.IsNullOrEmpty(ModuleState.ModuleType))
+        if (ShouldRender())
         {
-            ModuleType = Type.GetType(ModuleState.ModuleType);
-            if (ModuleType != null)
+            if (!string.IsNullOrEmpty(ModuleState.ModuleType))
             {
-                ModuleParameters = new Dictionary<string, object> { { "ModuleInstance", this } };
-                return;
+                ModuleType = Type.GetType(ModuleState.ModuleType);
+                if (ModuleType != null)
+                {
+                    ModuleParameters = new Dictionary<string, object> { { "ModuleInstance", this } };
+                    return;
+                }
+                // module does not exist with typename specified
+                _message = string.Format(Localizer["Error.Module.InvalidName"], Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0));
+                _messageType = MessageType.Error;
+                _messagePosition = "top";
             }
-            // module does not exist with typename specified
-            _message = string.Format(Localizer["Error.Module.InvalidName"], Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0));
-            _messageType = MessageType.Error;
-            _messagePosition = "top";
-        }
-        else
-        {
-            _message = string.Format(Localizer["Error.Module.InvalidType"], ModuleState.ModuleDefinitionName);
-            _messageType = MessageType.Error;
-            _messagePosition = "top";
+            else
+            {
+                _message = string.Format(Localizer["Error.Module.InvalidType"], ModuleState.ModuleDefinitionName);
+                _messageType = MessageType.Error;
+                _messagePosition = "top";
+            }
         }
     }
 

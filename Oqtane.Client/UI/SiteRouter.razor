@@ -262,7 +262,7 @@
             if (page != null)
             {
                 // check if user is authorized to view page
-                if (UserSecurity.IsAuthorized(user, PermissionNames.View, page.PermissionList))
+                if (UserSecurity.IsAuthorized(user, PermissionNames.View, page.PermissionList) && (Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate) || UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList)))
                 {
                     // load additional metadata for current page
                     page = ProcessPage(page, site, user, SiteState.Alias);
@@ -289,11 +289,21 @@
 						VisitorId = VisitorId,
 						RemoteIPAddress = SiteState.RemoteIPAddress,
 						ReturnUrl = returnurl,
-                        IsInternalNavigation = _isInternalNavigation
+                        IsInternalNavigation = _isInternalNavigation,
+                        RenderId = Guid.NewGuid()
                     };
 
                     OnStateChange?.Invoke(_pagestate);
                     await ScrollToFragment(_pagestate.Uri);
+                }
+                else
+                {
+                    // Need to redirect 404 as page doesnot exist in a Permission or Timeframe
+                    if (route.PagePath != "404")
+                    {
+                        // redirect to 404 page
+                        NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "404", ""));
+                    }
                 }
             }
             else // page not found
@@ -307,7 +317,7 @@
                 }
                 else // not mapped
                 {
-                    if (user == null)
+                    if (user == null && Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate))
                     {
                         // redirect to login page if user not logged in as they may need to be authenticated
                         NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "login", "?returnurl=" + WebUtility.UrlEncode(route.PathAndQuery)));

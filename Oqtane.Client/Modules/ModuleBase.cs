@@ -113,6 +113,11 @@ namespace Oqtane.Modules
             }
         }
 
+        protected override bool ShouldRender()
+        {
+            return PageState?.RenderId == ModuleState?.RenderId;
+        }
+
         // path method
 
         public string ModulePath()
@@ -266,6 +271,7 @@ namespace Oqtane.Modules
 
         public void AddModuleMessage(string message, MessageType type, string position)
         {
+            ClearModuleMessage();
             ModuleInstance.AddModuleMessage(message, type, position);
         }
 

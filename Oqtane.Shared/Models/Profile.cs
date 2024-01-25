@@ -78,5 +78,11 @@ namespace Oqtane.Models
         /// Optional number of rows (textarea)
         /// </summary>
         public int Rows { get; set; }
+
+        /// <summary>
+        /// Autocomplete setting for the property.
+        /// If set, enable autocomplete for the corresponding input field.
+        /// </summary>
+        public string Autocomplete { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -194,5 +194,11 @@
   </data>
   <data name="Rows.Text" xml:space="preserve">
     <value>Rows: </value>
+  </data>
+    <data name="Autocomplete.HelpText" xml:space="preserve">
+    <value>The HTML autocomplete attribute allows you to specify browser behavior for automated user assistance in filling out form field values. Allowable values are blank (default), 'on', 'off', or any value from the standardized taxonomy defined for this attribute.</value>
+  </data>
+  <data name="Autocomplete.Text" xml:space="preserve">
+    <value>Autocomplete: </value>
   </data>
 </root>

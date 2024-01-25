@@ -75,16 +75,24 @@ namespace Oqtane.Models
         [NotMapped]
         public string ContainerType { get; set; }
 
+        [NotMapped]
+        public DateTime? EffectiveDate { get; set; }
+
+        [NotMapped]
+        public DateTime? ExpiryDate { get; set; }
+
         #endregion
 
         #region SiteRouter properties
-        
+
         [NotMapped]
         public string ModuleType { get; set; }
         [NotMapped]
         public int PaneModuleIndex { get; set; }
         [NotMapped]
         public int PaneModuleCount { get; set; }
+        [NotMapped]
+        public Guid RenderId { get; set; }
 
         #endregion
 

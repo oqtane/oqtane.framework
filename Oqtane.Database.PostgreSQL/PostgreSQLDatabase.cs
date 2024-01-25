@@ -87,6 +87,11 @@ namespace Oqtane.Database.PostgreSQL
             return _rewriter.RewriteName(name);
         }
 
+        public override string RewriteName(string name, bool isQuery)
+        {
+            return _rewriter.RewriteName(name);
+        }
+
         public override string RewriteValue(string value, string type)
         {
             if (type == "bool")

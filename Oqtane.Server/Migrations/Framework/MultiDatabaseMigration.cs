@@ -14,7 +14,12 @@ namespace Oqtane.Migrations
 
         protected string RewriteName(string name)
         {
-            return ActiveDatabase.RewriteName(name);
+            return ActiveDatabase.RewriteName(name, false);
+        }
+
+        protected string RewriteName(string name, bool isQuery)
+        {
+            return ActiveDatabase.RewriteName(name, isQuery);
         }
     }
 }

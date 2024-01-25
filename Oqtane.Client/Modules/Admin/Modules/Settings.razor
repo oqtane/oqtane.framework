@@ -49,6 +49,18 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="effectiveDate" HelpText="The date that this module is active" ResourceKey="EffectiveDate">Effective Date: </Label>
+                        <div class="col-sm-9">
+                            <input type="date" id="effectiveDate" class="form-control" @bind="@_effectivedate" />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="expiryDate" HelpText="The date that this module expires" ResourceKey="ExpiryDate">Expiry Date: </Label>
+                        <div class="col-sm-9">
+                            <input type="date" id="expiryDate" class="form-control" @bind="@_expirydate" />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="allpages" HelpText="Indicate if this module should be displayed on all pages" ResourceKey="DisplayOnAllPages">Display On All Pages? </Label>
                         <div class="col-sm-9">
                             <select id="allpages" class="form-select" @bind="@_allPages" required>
@@ -114,7 +126,7 @@
     <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
 </form>
 
-@code {
+    @code {
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
     public override string Title => "Module Settings";
 
@@ -141,7 +153,8 @@
     private DateTime createdon;
     private string modifiedby;
     private DateTime modifiedon;
-
+    private DateTime? _effectivedate = null;
+    private DateTime? _expirydate = null;
     protected override void OnInitialized()
     {
         _module = ModuleState.ModuleDefinition.Name;
@@ -156,6 +169,8 @@
         createdon = ModuleState.CreatedOn;
         modifiedby = ModuleState.ModifiedBy;
         modifiedon = ModuleState.ModifiedOn;
+        _effectivedate = Utilities.UtcAsLocalDate(ModuleState.EffectiveDate);
+        _expirydate = Utilities.UtcAsLocalDate(ModuleState.ExpiryDate);
 
         if (ModuleState.ModuleDefinition != null)
         {
@@ -214,12 +229,20 @@
         var interop = new Interop(JSRuntime);
         if (await interop.FormValid(form))
         {
+
             if (!string.IsNullOrEmpty(_title))
             {
+                if (!Utilities.ValidateEffectiveExpiryDates(_effectivedate, _expirydate))
+                {
+                    AddModuleMessage(SharedLocalizer["Message.EffectiveExpiryDateError"], MessageType.Warning);
+                    return;
+                }                
                 var pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
                 pagemodule.PageId = int.Parse(_pageId);
                 pagemodule.Title = _title;
                 pagemodule.Pane = _pane;
+                pagemodule.EffectiveDate = Utilities.LocalDateAndTimeAsUtc(_effectivedate);
+                pagemodule.ExpiryDate = Utilities.LocalDateAndTimeAsUtc(_expirydate);
                 pagemodule.ContainerType = (_containerType != "-") ? _containerType : string.Empty;
                 if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Page.DefaultContainerType)
 				{
@@ -269,5 +292,4 @@
             AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
     }
-
 }

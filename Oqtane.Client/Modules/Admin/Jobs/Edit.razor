@@ -31,7 +31,7 @@
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="runs-every" HelpText="Select how often you want the job to run" ResourceKey="RunsEvery">Runs Every: </Label>
             <div class="col-sm-9">
-                <input id="runs-every" class="form-control" @bind="@_interval" maxlength="4" required />
+                <input id="runs-every" class="form-control mb-1" @bind="@_interval" maxlength="4" required />
                 <select id="runs-every" class="form-select" @bind="@_frequency" required>
                     <option value="m">@Localizer["Minute(s)"]</option>
                     <option value="H">@Localizer["Hour(s)"]</option>
@@ -154,6 +154,11 @@
 
 	private async Task SaveJob()
 	{
+        if (!Utilities.ValidateEffectiveExpiryDates(_startDate, _endDate))
+        {
+            AddModuleMessage(Localizer["Message.StartEndDateError"], MessageType.Warning);
+            return;
+        }
 		validated = true;
 		var interop = new Interop(JSRuntime);
 		if (await interop.FormValid(form))

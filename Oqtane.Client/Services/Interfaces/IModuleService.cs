@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Oqtane.Services
 {
     /// <summary>
-    /// Service to retreive and store modules (<see cref="Module"/>)
+    /// Service to retrieve and store modules (<see cref="Module"/>)
     /// </summary>
     public interface IModuleService
     {

@@ -50,6 +50,11 @@ namespace Oqtane.Migrations.EntityBuilders
             return ActiveDatabase.RewriteName(name);
         }
 
+        private string RewriteName(string name, bool isQuery)
+        {
+            return ActiveDatabase.RewriteName(name, isQuery);
+        }
+
         private string RewriteValue(string value, string type)
         {
             return ActiveDatabase.RewriteValue(value, type);
@@ -394,7 +399,7 @@ namespace Oqtane.Migrations.EntityBuilders
 
         public void UpdateColumn(string columnName, string value, string type, string condition)
         {
-            var updateSql = $"UPDATE {RewriteSqlEntityTableName(EntityTableName)} SET {RewriteName(columnName)} = {RewriteValue(value, type)} ";
+            var updateSql = $"UPDATE {RewriteSqlEntityTableName(EntityTableName)} SET {RewriteName(columnName, true)} = {RewriteValue(value, type)} ";
             if (!string.IsNullOrEmpty(condition))
             {
                 updateSql += $"WHERE {condition}";

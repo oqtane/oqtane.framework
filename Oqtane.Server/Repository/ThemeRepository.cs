@@ -200,7 +200,7 @@ namespace Oqtane.Repository
                         // build list of scripts for site
                         if (theme.Resources != null)
                         {
-                            foreach (var resource in theme.Resources.Where(item => item.Level == ResourceLevel.Site))
+                            foreach (var resource in theme.Resources.Where(item => item.ResourceType == ResourceType.Script && item.Level == ResourceLevel.Site))
                             {
                                 if (!serverState.Scripts.Contains(resource))
                                 {

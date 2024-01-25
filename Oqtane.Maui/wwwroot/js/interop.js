@@ -27,14 +27,8 @@ Oqtane.Interop = {
             document.title = title;
         }
     },
-    includeMeta: function (id, attribute, name, content, key) {
-        var meta;
-        if (id !== "" && key === "id") {
-            meta = document.getElementById(id);
-        }
-        else {
-            meta = document.querySelector("meta[" + attribute + "=\"" + CSS.escape(name) + "\"]");
-        }
+    includeMeta: function (id, attribute, name, content) {
+        var meta = document.querySelector("meta[" + attribute + "=\"" + CSS.escape(name) + "\"]");
         if (meta === null) {
             meta = document.createElement("meta");
             meta.setAttribute(attribute, name);
@@ -119,12 +113,25 @@ Oqtane.Interop = {
             this.includeLink(links[i].id, links[i].rel, links[i].href, links[i].type, links[i].integrity, links[i].crossorigin, links[i].insertbefore);
         }
     },
-    includeScript: function (id, src, integrity, crossorigin, content, location) {
-        var script = document.querySelector("script[src=\"" + CSS.escape(src) + "\"]");
+    includeScript: function (id, src, integrity, crossorigin, type, content, location) {
+        var script;
+        if (src !== "") {
+            script = document.querySelector("script[src=\"" + CSS.escape(src) + "\"]");
+        }
+        else {
+            script = document.getElementById(id);
+        }
+        if (script !== null) {
+            script.remove();
+            script = null;
+        }
         if (script === null) {
             script = document.createElement("script");
             if (id !== "") {
                 script.id = id;
+            }
+            if (type !== "") {
+                script.type = type;
             }
             if (src !== "") {
                 script.src = src;
@@ -141,42 +148,21 @@ Oqtane.Interop = {
             script.async = false;
             this.addScript(script, location)
                 .then(() => {
-                    console.log(src + ' loaded');
+                    if (src !== "") {
+                        console.log(src + ' loaded');
+                    }
+                    else {
+                        console.log(id + ' loaded');
+                    }
                 })
                 .catch(() => {
-                    console.error(src + ' failed');
+                    if (src !== "") {
+                        console.error(src + ' failed');
+                    }
+                    else {
+                        console.error(id + ' failed');
+                    }
                 });
-        }
-        else {
-            if (script.id !== id) {
-                script.setAttribute('id', id);
-            }
-            if (src !== "") {
-                if (script.src !== this.getAbsoluteUrl(src)) {
-                    script.removeAttribute('integrity');
-                    script.removeAttribute('crossorigin');
-                    script.src = src;
-                }
-                if (integrity !== "") {
-                    if (script.integrity !== integrity) {
-                        script.setAttribute('integrity', integrity);
-                    }
-                } else {
-                    script.removeAttribute('integrity');
-                }
-                if (crossorigin !== "") {
-                    if (script.crossOrigin !== crossorigin) {
-                        script.setAttribute('crossorigin', crossorigin);
-                    }
-                } else {
-                    script.removeAttribute('crossorigin');
-                }
-            }
-            else {
-                if (script.innerHTML !== content) {
-                    script.innerHTML = content;
-                }
-            }
         }
     },
     addScript: function (script, location) {
@@ -228,6 +214,10 @@ Oqtane.Interop = {
                                 }
                                 if (path === scripts[s].href && scripts[s].es6module === true) {
                                     element.type = "module";
+                                }
+                                if (path === scripts[s].href && scripts[s].location === 'body') {
+                                    document.body.appendChild(element);
+                                    return false;  // return false to bypass default DOM insertion mechanism
                                 }
                             }
                         }
@@ -289,19 +279,21 @@ Oqtane.Interop = {
         var fileinput = document.getElementById(id);
         if (fileinput !== null) {
             for (var i = 0; i < fileinput.files.length; i++) {
-                files.push(fileinput.files[i].name);
+                files.push(fileinput.files[i].name + ":" + fileinput.files[i].size);
             }
         }
         return files;
     },
-    uploadFiles: function (posturl, folder, id, antiforgerytoken) {
-        var fileinput = document.getElementById(id + 'FileInput');
+    uploadFiles: function (posturl, folder, id, antiforgerytoken, jwt) {
+        var fileinput = document.getElementById('FileInput_' + id);
         var files = fileinput.files;
-        var progressinfo = document.getElementById(id + 'ProgressInfo');
-        var progressbar = document.getElementById(id + 'ProgressBar');
+        var progressinfo = document.getElementById('ProgressInfo_' + id);
+        var progressbar = document.getElementById('ProgressBar_' + id);
 
-        progressinfo.setAttribute("style", "display: inline;");
-        progressbar.setAttribute("style", "width: 200px; display: inline;");
+        if (progressinfo !== null && progressbar !== null) {
+            progressinfo.setAttribute("style", "display: inline;");
+            progressbar.setAttribute("style", "width: 100%; display: inline;");
+        }
 
         for (var i = 0; i < files.length; i++) {
             var FileChunk = [];
@@ -331,22 +323,34 @@ Oqtane.Interop = {
                 data.append('formfile', Chunk, FileName);
                 var request = new XMLHttpRequest();
                 request.open('POST', posturl, true);
+                if (jwt !== "") {
+                    request.setRequestHeader('Authorization', 'Bearer ' + jwt);
+                    request.withCredentials = true;
+                }
                 request.upload.onloadstart = function (e) {
-                    progressinfo.innerHTML = file.name + ' 0%';
-                    progressbar.value = 0;
+                    if (progressinfo !== null && progressbar !== null) {
+                        progressinfo.innerHTML = file.name + ' 0%';
+                        progressbar.value = 0;
+                    }
                 };
                 request.upload.onprogress = function (e) {
-                    var percent = Math.ceil((e.loaded / e.total) * 100);
-                    progressinfo.innerHTML = file.name + '[' + PartCount + '] ' + percent + '%';
-                    progressbar.value = (percent / 100);
+                    if (progressinfo !== null && progressbar !== null) {
+                        var percent = Math.ceil((e.loaded / e.total) * 100);
+                        progressinfo.innerHTML = file.name + '[' + PartCount + '] ' + percent + '%';
+                        progressbar.value = (percent / 100);
+                    }
                 };
                 request.upload.onloadend = function (e) {
-                    progressinfo.innerHTML = file.name + ' 100%';
-                    progressbar.value = 1;
+                    if (progressinfo !== null && progressbar !== null) {
+                        progressinfo.innerHTML = file.name + ' 100%';
+                        progressbar.value = 1;
+                    }
                 };
-                request.upload.onerror = function () {
-                    progressinfo.innerHTML = file.name + ' Error: ' + xhr.status;
-                    progressbar.value = 0;
+                request.upload.onerror = function() {
+                    if (progressinfo !== null && progressbar !== null) {
+                        progressinfo.innerHTML = file.name + ' Error: ' + request.statusText;
+                        progressbar.value = 0;
+                    }
                 };
                 request.send(data);
             }
@@ -356,10 +360,15 @@ Oqtane.Interop = {
             }
         }
     },
-    refreshBrowser: function (reload, wait) {
-        setInterval(function () {
-            window.location.reload(reload);
-        }, wait * 1000);
+    refreshBrowser: function (verify, wait) {
+        async function attemptReload (verify) {
+            if (verify) {
+                await fetch('');
+            }
+            window.location.reload();
+        }
+        attemptReload(verify);
+        setInterval(attemptReload, wait * 1000);
     },
     redirectBrowser: function (url, wait) {
         setInterval(function () {

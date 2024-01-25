@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Oqtane.Services
 {
     /// <summary>
-    /// Service to store and retreive <see cref="Site"/> entries
+    /// Service to store and retrieve <see cref="Site"/> entries
     /// </summary>
     public interface ISiteService
     {
