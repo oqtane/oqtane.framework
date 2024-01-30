@@ -50,6 +50,7 @@ body {
 .app-menu .nav-item {
     font-size: 0.9rem;
     padding-bottom: 0.5rem;
+    white-space: nowrap;
 }
 
 .app-menu .nav-item a {
@@ -98,7 +99,7 @@ div.app-moduleactions a.dropdown-toggle, div.app-moduleactions div.dropdown-menu
 @media (max-width: 767px) {
 
     .app-menu {
-        width: 100%
+        width: 100% ;
     }
 
     .navbar {
