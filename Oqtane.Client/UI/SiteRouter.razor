@@ -13,6 +13,7 @@
 @inject ILogService LogService
 @inject IJSRuntime JSRuntime
 @implements IHandleAfterRender
+@implements IDisposable
 
 @if (!string.IsNullOrEmpty(_error))
 {
