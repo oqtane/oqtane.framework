@@ -50,6 +50,8 @@ namespace Oqtane.Security
 
         protected virtual bool ShouldValidate(AuthorizationFilterContext context)
         {
+            return false;
+
             // ignore antiforgery validation if a bearer token was provided
             if (context.HttpContext.Request.Headers.ContainsKey("Authorization"))
             {
