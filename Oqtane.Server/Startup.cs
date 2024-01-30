@@ -17,6 +17,9 @@ using Oqtane.Security;
 using Oqtane.Shared;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Logging;
+using Oqtane.Components;
+using Oqtane.UI;
+using OqtaneSSR.Extensions;
 
 namespace Oqtane
 {
@@ -36,6 +39,7 @@ namespace Oqtane
                 .AddJsonFile("appsettings.json", false, true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, true)
                 .AddEnvironmentVariables();
+
             Configuration = builder.Build();
 
             _installedCultures = localizationManager.GetInstalledCultures();
@@ -64,17 +68,17 @@ namespace Oqtane
             services.AddOptions<List<Database>>().Bind(Configuration.GetSection(SettingKeys.AvailableDatabasesSection));
             services.Configure<HostOptions>(opts => opts.ShutdownTimeout = TimeSpan.FromSeconds(10)); // increase from default of 5 seconds
 
-            services.AddServerSideBlazor()
-                .AddCircuitOptions(options =>
-                {
-                    if (_env.IsDevelopment())
-                    {
-                        options.DetailedErrors = true;
-                    }
-                })
-                .AddHubOptions(options => {
-                    options.MaximumReceiveMessageSize = null; // no limit (for large amnounts of data ie. textarea components)
-                });
+            //services.AddServerSideBlazor()
+            //    .AddCircuitOptions(options =>
+            //    {
+            //        if (_env.IsDevelopment())
+            //        {
+            //            options.DetailedErrors = true;
+            //        }
+            //    })
+            //    .AddHubOptions(options => {
+            //        options.MaximumReceiveMessageSize = null; // no limit (for large amnounts of data ie. textarea components)
+            //    });
 
             // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )
             services.AddHttpClients();
@@ -148,6 +152,10 @@ namespace Oqtane
             .AddOqtaneApplicationParts() // register any Controllers from custom modules
             .ConfigureOqtaneMvc(); // any additional configuration from IStartup classes
 
+            services.AddRazorComponents()
+               .AddInteractiveServerComponents()
+               .AddInteractiveWebAssemblyComponents();
+
             services.AddSwaggerGen(options =>
             {
                 options.CustomSchemaIds(type => type.ToString()); // Handle SchemaId already used for different type
@@ -200,11 +208,30 @@ namespace Oqtane
                 app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/" + Constants.Version + "/swagger.json", Constants.PackageId + " " + Constants.Version); });
             }
 
+            //app.UseEndpoints(endpoints =>
+            //{
+            //    endpoints.MapBlazorHub();
+            //    endpoints.MapControllers();
+            //    endpoints.MapFallbackToPage("/_Host");
+            //});
+
+            app.UseAntiforgery();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapBlazorHub();
                 endpoints.MapControllers();
-                endpoints.MapFallbackToPage("/_Host");
+            });
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapRazorComponents<App>()
+                    .AddInteractiveServerRenderMode()
+                    .AddInteractiveWebAssemblyRenderMode()
+                    .AddAdditionalAssemblies(typeof(SiteRouter).Assembly);
+            });
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapFallback();
             });
 
             // create a global sync event to identify server application startup

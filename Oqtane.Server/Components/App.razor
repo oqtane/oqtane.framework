@@ -1,0 +1,386 @@
+@namespace Oqtane.Components
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Http.Extensions
+@using Oqtane.Client
+@using Oqtane.Client.Utilities
+@using Oqtane.Repository
+@using Oqtane.Infrastructure
+@using Oqtane.Security
+@using Oqtane.Models
+@using Oqtane.Shared
+@using Oqtane.Themes
+@using System.Net
+@using Microsoft.AspNetCore.Localization
+@inject IConfigManager ConfigManager;
+@inject ITenantManager TenantManager;
+@inject ILocalizationManager LocalizationManager;
+@inject ISiteRepository SiteRepository;
+@inject IPageRepository PageRepository;
+@inject IThemeRepository ThemeRepository;
+@inject ILanguageRepository LanguageRepository;
+@inject IServerStateManager ServerStateManager;
+
+<!DOCTYPE html>
+<html lang="@_language">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="/" />
+    <script src="js/app.js"></script>
+    <script src="js/loadjs.min.js"></script>
+    <link rel="stylesheet" href="css/app.css" />
+    @if (!string.IsNullOrEmpty(_PWAScript))
+    {
+        <link id="app-manifest" rel="manifest" />
+    }
+    @((MarkupString)_styleSheets)
+    <link id="app-stylesheet-page" />
+    <link id="app-stylesheet-module" />
+    <Head @rendermode="@RenderModes.GetRenderMode(_interactiveRenderMode)" />
+    @((MarkupString)_headResources)
+</head>
+<body>
+    @if (string.IsNullOrEmpty(_message))
+    {
+        <Routes AntiForgeryToken="" Runtime="Server" RenderMode="PreRendered" VisitorId="-1" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="" @rendermode="@RenderModes.GetRenderMode(_interactiveRenderMode)" />
+
+        <script src="js/interop.js"></script>
+        <script src="_framework/blazor.web.js"></script>
+
+        @if (!string.IsNullOrEmpty(_reconnectScript))
+        {
+            @((MarkupString)_reconnectScript)
+        }
+        @if (!string.IsNullOrEmpty(_PWAScript))
+        {
+            @((MarkupString)_PWAScript)
+        }
+        @((MarkupString)_bodyResources)
+    }
+    else
+    {
+        <div class="app-alert">@_message</div>
+    }
+</body>
+</html>
+
+@code {
+    private string _interactiveRenderMode = "InteractiveServer";
+    private string _language = "en";
+    private string _remoteIPAddress = "";
+    private string _headResources = "";
+    private string _bodyResources = "";
+    private string _styleSheets = "";
+    private string _PWAScript = "";
+    private string _reconnectScript = "";
+    private string _message = "";
+
+    //  CascadingParameter is required to access HttpContext
+    [CascadingParameter]
+    HttpContext Context { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _remoteIPAddress = Context.Connection.RemoteIpAddress?.ToString() ?? "";
+
+        // if framework is installed
+        if (ConfigManager.IsInstalled())
+        {
+            var alias = TenantManager.GetAlias();
+            if (alias != null)
+            {
+                var url = WebUtility.UrlDecode(Context.Request.GetEncodedUrl());
+
+                // redirect non-default alias unless you are trying to access site settings
+                // if (!alias.IsDefault && !url.Contains("admin/site"))
+                // {
+                //     var aliases = AliasRepository.GetAliases().Where(item => item.TenantId == alias.TenantId && item.SiteId == alias.SiteId);
+                //     if (aliases.Where(item => item.IsDefault).FirstOrDefault() != null)
+                //     {
+                //         return RedirectPermanent(url.Replace(alias.Name, aliases.Where(item => item.IsDefault).FirstOrDefault().Name));
+                //     }
+                //     else // no default specified - use first alias
+                //     {
+                //         if (alias.Name.Trim() != aliases.First().Name.Trim())
+                //         {
+                //             return RedirectPermanent(url.Replace(alias.Name, aliases.First().Name));
+                //         }
+                //     }
+                // }
+
+                var site = SiteRepository.GetSite(alias.SiteId);
+                if (site != null && (!site.IsDeleted || url.Contains("admin/site")) && site.Runtime != "Hybrid")
+                {
+                    // if (!string.IsNullOrEmpty(site.Runtime))
+                    // {
+                    //     Runtime = site.Runtime;
+                    // }
+                    // if (!string.IsNullOrEmpty(site.RenderMode))
+                    // {
+                    //     RenderMode = site.RenderMode;
+                    // }
+
+                    Route route = new Route(url, alias.Path);
+                    var page = PageRepository.GetPage(route.PagePath, site.SiteId);
+                    if (page == null && route.PagePath == "" && site.HomePageId != null)
+                    {
+                        page = PageRepository.GetPage(site.HomePageId.Value);
+                    }
+
+                    // if (page == null || page.IsDeleted)
+                    // {
+                    //     // page not found - look for url mapping
+                    //     var urlMapping = _urlMappings.GetUrlMapping(site.SiteId, route.PagePath);
+                    //     if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
+                    //     {
+                    //         url = (urlMapping.MappedUrl.StartsWith("http")) ? urlMapping.MappedUrl : route.SiteUrl + "/" + urlMapping.MappedUrl;
+                    //         return RedirectPermanent(url);
+                    //     }
+                    //     else
+                    //     {
+                    //         if (route.PagePath != "404")
+                    //         {
+                    //             return RedirectPermanent(route.SiteUrl + "/404");
+                    //         }
+                    //     }
+                    // }
+
+                    // if (site.VisitorTracking)
+                    // {
+                    //     TrackVisitor(site.SiteId);
+                    // }
+
+                    // get jwt token for downstream APIs
+                    // if (User.Identity.IsAuthenticated)
+                    // {
+                    //     var sitesettings = HttpContext.GetSiteSettings();
+                    //     var secret = sitesettings.GetValue("JwtOptions:Secret", "");
+                    //     if (!string.IsNullOrEmpty(secret))
+                    //     {
+                    //         AuthorizationToken = _jwtManager.GenerateToken(alias, (ClaimsIdentity)User.Identity, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""), int.Parse(sitesettings.GetValue("JwtOptions:Lifetime", "20")));
+                    //     }
+                    // }
+
+                    // stylesheets
+                    var themes = ThemeRepository.GetThemes().ToList();
+                    var resources = new List<Resource>();
+                    if (string.IsNullOrEmpty(page.ThemeType))
+                    {
+                        page.ThemeType = site.DefaultThemeType;
+                    }
+                    var theme = themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == page.ThemeType));
+                    if (theme?.Resources != null)
+                    {
+                        resources.AddRange(theme.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet).ToList());
+                    }
+                    var type = Type.GetType(page.ThemeType);
+                    if (type != null)
+                    {
+                        var obj = Activator.CreateInstance(type) as IThemeControl;
+                        if (obj?.Resources != null)
+                        {
+                            resources.AddRange(obj.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet).ToList());
+                        }
+                    }
+                    ManageStyleSheets(resources, alias, theme.ThemeName);
+
+                    // scripts
+                    if (_interactiveRenderMode == "InteractiveServer")
+                    {
+                        _reconnectScript = CreateReconnectScript();
+                    }
+                    if (site.PwaIsEnabled && site.PwaAppIconFileId != null && site.PwaSplashIconFileId != null)
+                    {
+                        _PWAScript = CreatePWAScript(alias, site, route);
+                    }
+                    _headResources += ParseScripts(site.HeadContent);
+                    _bodyResources += ParseScripts(site.BodyContent);
+                    var scripts = ServerStateManager.GetServerState(alias.SiteKey).Scripts;
+                    foreach (var script in scripts)
+                    {
+                        AddScript(script, alias);
+                    }
+
+                    // set culture if not specified
+                    string culture = Context.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName];
+                    if (culture == null)
+                    {
+                        // get default language for site
+                        var languages = LanguageRepository.GetLanguages(alias.SiteId);
+                        if (languages.Any())
+                        {
+                            // use default language if specified otherwise use first language in collection
+                            culture = (languages.Where(l => l.IsDefault).SingleOrDefault() ?? languages.First()).Code;
+                        }
+                        else
+                        {
+                            culture = LocalizationManager.GetDefaultCulture();
+                        }
+                        SetLocalizationCookie(culture);
+                    }
+
+                    // set language for page
+                    if (!string.IsNullOrEmpty(culture))
+                    {
+                        // localization cookie value in form of c=en|uic=en
+                        _language = culture.Split('|')[0];
+                        _language = _language.Replace("c=", "");
+                    }
+                }
+                else
+                {
+                    _message = "Site Is Disabled";
+                }
+            }
+            else
+            {
+                _message = "Site Not Configured Correctly - No Matching Alias Exists For Host Name";
+            }
+        }
+    }
+
+    private string CreatePWAScript(Alias alias, Site site, Route route)
+    {
+        return
+        "<script>" + Environment.NewLine +
+        "    // PWA Manifest" + Environment.NewLine +
+        "    setTimeout(() => {" + Environment.NewLine +
+        "        var manifest = {" + Environment.NewLine +
+        "            \"name\": \"" + site.Name + "\"," + Environment.NewLine +
+        "            \"short_name\": \"" + site.Name + "\"," + Environment.NewLine +
+        "            \"start_url\": \"" + route.SiteUrl + "/\"," + Environment.NewLine +
+        "            \"display\": \"standalone\"," + Environment.NewLine +
+        "            \"background_color\": \"#fff\"," + Environment.NewLine +
+        "            \"description\": \"" + site.Name + "\"," + Environment.NewLine +
+        "            \"icons\": [{" + Environment.NewLine +
+        "                \"src\": \"" + route.RootUrl + Utilities.FileUrl(alias, site.PwaAppIconFileId.Value) + "\"," + Environment.NewLine +
+        "                \"sizes\": \"192x192\"," + Environment.NewLine +
+        "                \"type\": \"image/png\"" + Environment.NewLine +
+        "                }, {" + Environment.NewLine +
+        "                \"src\": \"" + route.RootUrl + Utilities.FileUrl(alias, site.PwaSplashIconFileId.Value) + "\"," + Environment.NewLine +
+        "                \"sizes\": \"512x512\"," + Environment.NewLine +
+        "                \"type\": \"image/png\"" + Environment.NewLine +
+        "            }]" + Environment.NewLine +
+        "       };" + Environment.NewLine +
+        "       const serialized = JSON.stringify(manifest);" + Environment.NewLine +
+        "       const blob = new Blob([serialized], {type: 'application/javascript'});" + Environment.NewLine +
+        "       const url = URL.createObjectURL(blob);" + Environment.NewLine +
+        "       document.getElementById('app-manifest').setAttribute('href', url);" + Environment.NewLine +
+        "    }, 1000);" + Environment.NewLine +
+        "</script>" + Environment.NewLine +
+        "<script>" + Environment.NewLine +
+        "    // PWA Service Worker" + Environment.NewLine +
+        "    if ('serviceWorker' in navigator) {" + Environment.NewLine +
+        "        navigator.serviceWorker.register('/service-worker.js').then(function(registration) {" + Environment.NewLine +
+        "            console.log('ServiceWorker Registration Successful');" + Environment.NewLine +
+        "        }).catch (function(err) {" + Environment.NewLine +
+        "            console.log('ServiceWorker Registration Failed ', err);" + Environment.NewLine +
+        "        });" + Environment.NewLine +
+        "    };" + Environment.NewLine +
+        "</script>";
+    }
+
+    private string CreateReconnectScript()
+    {
+        return
+        "<script>" + Environment.NewLine +
+        "    // Blazor Server Reconnect" + Environment.NewLine +
+        "    new MutationObserver((mutations, observer) => {" + Environment.NewLine +
+        "        if (document.querySelector('#components-reconnect-modal h5 a')) {" + Environment.NewLine +
+        "            async function attemptReload() {" + Environment.NewLine +
+        "                await fetch('');" + Environment.NewLine +
+        "                location.reload();" + Environment.NewLine +
+        "            }" + Environment.NewLine +
+        "            observer.disconnect();" + Environment.NewLine +
+        "            attemptReload();" + Environment.NewLine +
+        "            setInterval(attemptReload, 5000);" + Environment.NewLine +
+        "        }" + Environment.NewLine +
+        "    }).observe(document.body, { childList: true, subtree: true });" + Environment.NewLine +
+        "</script>";
+    }
+
+    private string ParseScripts(string content)
+    {
+        // iterate scripts
+        var scripts = "";
+        if (!string.IsNullOrEmpty(content))
+        {
+            var index = content.IndexOf("<script");
+            while (index >= 0)
+            {
+                scripts += content.Substring(index, content.IndexOf("</script>", index) + 9 - index);
+                index = content.IndexOf("<script", index + 1);
+            }
+        }
+        return scripts;
+    }
+
+    private void AddScript(Resource resource, Alias alias)
+    {
+        var script = CreateScript(resource, alias);
+        if (resource.Location == Shared.ResourceLocation.Head)
+        {
+            if (!_headResources.Contains(script))
+            {
+                _headResources += script + Environment.NewLine;
+            }
+        }
+        else
+        {
+            if (!_bodyResources.Contains(script))
+            {
+                _bodyResources += script + Environment.NewLine;
+            }
+        }
+    }
+
+    private string CreateScript(Resource resource, Alias alias)
+    {
+        if (!string.IsNullOrEmpty(resource.Url))
+        {
+            var url = (resource.Url.Contains("://")) ? resource.Url : alias.BaseUrl + resource.Url;
+            return "<script src=\"" + url + "\"" +
+                ((!string.IsNullOrEmpty(resource.Integrity)) ? " integrity=\"" + resource.Integrity + "\"" : "") +
+                ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
+                "></script>";
+        }
+        else
+        {
+            // inline script
+            return "<script>" + resource.Content + "</script>";
+        }
+    }
+
+    private void SetLocalizationCookie(string culture)
+    {
+        Context.Response.Cookies.Append(
+            CookieRequestCultureProvider.DefaultCookieName,
+            CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)));
+    }
+
+    private void ManageStyleSheets(List<Resource> resources, Alias alias, string name)
+    {
+        if (resources != null)
+        {
+            int count = 0;
+            foreach (var resource in resources)
+            {
+                if (resource.Url.StartsWith("~"))
+                {
+                    resource.Url = resource.Url.Replace("~", "/Themes/" + Utilities.GetTypeName(name) + "/").Replace("//", "/");
+                }
+                if (!resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
+                {
+                    resource.Url = alias.BaseUrl + resource.Url;
+                }
+
+                if (!_styleSheets.Contains(resource.Url, StringComparison.OrdinalIgnoreCase))
+                {
+                    count++;
+                    string id = "id=\"app-stylesheet-" + ResourceLevel.Page.ToString().ToLower() + "-" + DateTime.UtcNow.ToString("yyyyMMddHHmmssfff") + "-" + count.ToString("00") + "\" ";
+                    _styleSheets += "<link " + id + "rel=\"stylesheet\" href=\"" + resource.Url + "\"" + (!string.IsNullOrEmpty(resource.Integrity) ? " integrity=\"" + resource.Integrity + "\"" : "") + (!string.IsNullOrEmpty(resource.CrossOrigin) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") + " type=\"text/css\"/>" + Environment.NewLine;
+                }
+            }
+        }
+    }
+}
