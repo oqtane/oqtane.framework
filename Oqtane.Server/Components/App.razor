@@ -23,6 +23,7 @@
 @inject IServerStateManager ServerStateManager;
 @inject ILocalizationManager LocalizationManager;
 @inject IAliasRepository AliasRepository;
+@inject IUrlMappingRepository UrlMappingRepository;
 
 <!DOCTYPE html>
 <html lang="@_language">
@@ -113,7 +114,10 @@
             {
                 var url = WebUtility.UrlDecode(Context.Request.GetEncodedUrl());
 
-                HandleDefaultAliasRedirect(alias, url);
+                if (!alias.IsDefault)
+                {
+                    HandleDefaultAliasRedirect(alias, url);
+                }
 
                 var site = SiteRepository.GetSite(alias.SiteId);
                 if (site != null && (!site.IsDeleted || url.Contains("admin/site")) && site.Runtime != "Hybrid")
@@ -134,23 +138,10 @@
                         page = PageRepository.GetPage(site.HomePageId.Value);
                     }
 
-                    // if (page == null || page.IsDeleted)
-                    // {
-                    //     // page not found - look for url mapping
-                    //     var urlMapping = _urlMappings.GetUrlMapping(site.SiteId, route.PagePath);
-                    //     if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
-                    //     {
-                    //         url = (urlMapping.MappedUrl.StartsWith("http")) ? urlMapping.MappedUrl : route.SiteUrl + "/" + urlMapping.MappedUrl;
-                    //         return RedirectPermanent(url);
-                    //     }
-                    //     else
-                    //     {
-                    //         if (route.PagePath != "404")
-                    //         {
-                    //             return RedirectPermanent(route.SiteUrl + "/404");
-                    //         }
-                    //     }
-                    // }
+                    if (page == null || page.IsDeleted)
+                    {
+                        HandlePageNotFound(site, page, route);
+                    }
 
                     // if (site.VisitorTracking)
                     // {
@@ -248,29 +239,45 @@
 
     private void HandleDefaultAliasRedirect(Alias alias, string url)
     {
-        // redirect non-default alias
-        if (!alias.IsDefault)
+        // get aliases for site and tenant
+        var aliases = AliasRepository.GetAliases().Where(item => item.TenantId == alias.TenantId && item.SiteId == alias.SiteId);
+        // get first default alias
+        var defaultAlias = aliases.Where(item => item.IsDefault).FirstOrDefault();
+        if (defaultAlias != null)
         {
-            // get aliases for site and tenant
-            var aliases = AliasRepository.GetAliases().Where(item => item.TenantId == alias.TenantId && item.SiteId == alias.SiteId);
-            // get first default alias
-            var defaultAlias = aliases.Where(item => item.IsDefault).FirstOrDefault();
-            if (defaultAlias != null)
+            // redirect to default alias
+            NavigationManager.NavigateTo(url.Replace(alias.Name, defaultAlias.Name), true);
+        }
+        else // no default alias specified - use first alias
+        {
+            defaultAlias = aliases.FirstOrDefault();
+            if (defaultAlias != null && alias.Name.Trim() != defaultAlias.Name.Trim())
             {
-                // redirect to default alias
+                // redirect to first alias
                 NavigationManager.NavigateTo(url.Replace(alias.Name, defaultAlias.Name), true);
-            }
-            else // no default alias specified - use first alias
-            {
-                defaultAlias = aliases.FirstOrDefault();
-                if (defaultAlias != null && alias.Name.Trim() != defaultAlias.Name.Trim())
-                {
-                    // redirect to first alias
-                    NavigationManager.NavigateTo(url.Replace(alias.Name, defaultAlias.Name), true);
-                }
             }
         }
     }
+
+    private void HandlePageNotFound(Site site, Page page, Route route)
+    {
+        // page not found - look for url mapping
+        var urlMapping = UrlMappingRepository.GetUrlMapping(site.SiteId, route.PagePath);
+        if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
+        {
+            // redirect to mapped url
+            var url = (urlMapping.MappedUrl.StartsWith("http")) ? urlMapping.MappedUrl : route.SiteUrl + "/" + urlMapping.MappedUrl;
+            NavigationManager.NavigateTo(url, true);
+        }
+        else // no url mapping exists
+        {
+            if (route.PagePath != "404")
+            {
+                // redirect to 404 page
+                NavigationManager.NavigateTo(route.SiteUrl + "/404", true);
+            }
+        }
+     }
 
     private string CreatePWAScript(Alias alias, Site site, Route route)
     {
