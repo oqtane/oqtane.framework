@@ -62,11 +62,11 @@
     {
         @if (_renderMode == RenderModes.StaticServer)
         {
-            <Routes AntiForgeryToken="@_antiForgeryToken" RenderMode="@_renderMode" VisitorId="@_visitorId" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="@_authorizationToken" />
+            <Routes AntiForgeryToken="@_antiForgeryToken" Runtime="Web" RenderMode="@_renderMode" VisitorId="@_visitorId" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="@_authorizationToken" />
         }
         else
         {
-            <Routes AntiForgeryToken="@_antiForgeryToken" RenderMode="@_renderMode" VisitorId="@_visitorId" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="@_authorizationToken" @rendermode="@RenderMode.GetInteractiveRenderMode((_renderMode), _prerender)" />
+            <Routes AntiForgeryToken="@_antiForgeryToken" Runtime="Web" RenderMode="@_renderMode" VisitorId="@_visitorId" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="@_authorizationToken" @rendermode="@RenderMode.GetInteractiveRenderMode((_renderMode), _prerender)" />
         }
 
         <script src="js/interop.js"></script>

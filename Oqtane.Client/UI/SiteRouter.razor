@@ -285,7 +285,7 @@
                         Action = action,
                         EditMode = editmode,
                         LastSyncDate = lastsyncdate,
-                        Runtime = Shared.Runtime.Hybrid,
+                        Runtime = (Shared.Runtime)Enum.Parse(typeof(Shared.Runtime), Runtime),
                         RenderMode = RenderMode,
 						VisitorId = VisitorId,
 						RemoteIPAddress = SiteState.RemoteIPAddress,
