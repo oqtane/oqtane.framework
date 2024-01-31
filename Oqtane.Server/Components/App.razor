@@ -1,7 +1,12 @@
 @namespace Oqtane.Components
+@using System.Net
+@using System.Security.Claims
 @using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Http.Extensions
 @using Microsoft.AspNetCore.Antiforgery
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.Net.Http.Headers
+@using Microsoft.Extensions.Primitives
 @using Oqtane.Client
 @using Oqtane.Client.Utilities
 @using Oqtane.Repository
@@ -10,20 +15,20 @@
 @using Oqtane.Models
 @using Oqtane.Shared
 @using Oqtane.Themes
-@using System.Net
-@using Microsoft.AspNetCore.Localization
 @inject NavigationManager NavigationManager
-@inject IAntiforgery Antiforgery;
-@inject IConfigManager ConfigManager;
-@inject ITenantManager TenantManager;
-@inject ISiteRepository SiteRepository;
-@inject IPageRepository PageRepository;
-@inject IThemeRepository ThemeRepository;
-@inject ILanguageRepository LanguageRepository;
-@inject IServerStateManager ServerStateManager;
-@inject ILocalizationManager LocalizationManager;
-@inject IAliasRepository AliasRepository;
-@inject IUrlMappingRepository UrlMappingRepository;
+@inject IAntiforgery Antiforgery
+@inject IConfigManager ConfigManager
+@inject ITenantManager TenantManager
+@inject ISiteRepository SiteRepository
+@inject IPageRepository PageRepository
+@inject IThemeRepository ThemeRepository
+@inject ILanguageRepository LanguageRepository
+@inject IServerStateManager ServerStateManager
+@inject ILocalizationManager LocalizationManager
+@inject IAliasRepository AliasRepository
+@inject IUrlMappingRepository UrlMappingRepository
+@inject ISettingRepository SettingRepository
+@inject IVisitorRepository VisitorRepository
 
 <!DOCTYPE html>
 <html lang="@_language">
@@ -56,11 +61,11 @@
     {
         @if (_renderMode == "Interactive")
         {
-            <Routes AntiForgeryToken="@_antiForgeryToken" Runtime="Server" RenderMode="PreRendered" VisitorId="-1" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="" @rendermode="@RenderModes.GetInteractiveRenderMode((_renderMode + _interactiveRenderMode), _prerender)" />
+            <Routes AntiForgeryToken="@_antiForgeryToken" Runtime="Server" RenderMode="PreRendered" VisitorId="@_visitorId" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="" @rendermode="@RenderModes.GetInteractiveRenderMode((_renderMode + _interactiveRenderMode), _prerender)" />
         }
         else
         {
-            <Routes AntiForgeryToken="@_antiForgeryToken" Runtime="Server" RenderMode="PreRendered" VisitorId="-1" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="" />
+            <Routes AntiForgeryToken="@_antiForgeryToken" Runtime="Server" RenderMode="PreRendered" VisitorId="@_visitorId" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="" />
         }
 
         <script src="js/interop.js"></script>
@@ -96,6 +101,7 @@
     private string _PWAScript = "";
     private string _reconnectScript = "";
     private string _message = "";
+    private int _visitorId = -1;
 
     //  CascadingParameter is required to access HttpContext
     [CascadingParameter]
@@ -143,10 +149,10 @@
                         HandlePageNotFound(site, page, route);
                     }
 
-                    // if (site.VisitorTracking)
-                    // {
-                    //     TrackVisitor(site.SiteId);
-                    // }
+                    if (site.VisitorTracking)
+                    {
+                        TrackVisitor(site.SiteId);
+                    }
 
                     // get jwt token for downstream APIs
                     // if (User.Identity.IsAuthenticated)
@@ -277,7 +283,138 @@
                 NavigationManager.NavigateTo(route.SiteUrl + "/404", true);
             }
         }
-     }
+    }
+
+    private void TrackVisitor(int SiteId)
+    {
+        try
+        {
+            // get request attributes
+            string useragent = (Context.Request.Headers[HeaderNames.UserAgent] != StringValues.Empty) ? Context.Request.Headers[HeaderNames.UserAgent] : "(none)";
+            useragent = (useragent.Length > 256) ? useragent.Substring(0, 256) : useragent;
+            string language = (Context.Request.Headers[HeaderNames.AcceptLanguage] != StringValues.Empty) ? Context.Request.Headers[HeaderNames.AcceptLanguage] : "";
+            language = (language.Contains(",")) ? language.Substring(0, language.IndexOf(",")) : language;
+            language = (language.Contains(";")) ? language.Substring(0, language.IndexOf(";")) : language;
+            language = (language.Trim().Length == 0) ? "??" : language;
+
+            // filter
+            string filter = Constants.DefaultVisitorFilter;
+            var settings = SettingRepository.GetSettings(EntityNames.Site, SiteId);
+            if (settings.Any(item => item.SettingName == "VisitorFilter"))
+            {
+                filter = settings.First(item => item.SettingName == "VisitorFilter").SettingValue;
+            }
+            foreach (string term in filter.ToLower().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray())
+            {
+                if (_remoteIPAddress.ToLower().Contains(term) || useragent.ToLower().Contains(term) || language.ToLower().Contains(term))
+                {
+                    return;
+                }
+            }
+
+            // get other request attributes
+            string url = Context.Request.GetEncodedUrl();
+            string referrer = (Context.Request.Headers[HeaderNames.Referer] != StringValues.Empty) ? Context.Request.Headers[HeaderNames.Referer] : "";
+            int? userid = null;
+            if (Context.User.HasClaim(item => item.Type == ClaimTypes.NameIdentifier))
+            {
+                userid = int.Parse(Context.User.Claims.First(item => item.Type == ClaimTypes.NameIdentifier).Value);
+            }
+
+            // check if cookie already exists
+            Visitor visitor = null;
+            bool addcookie = false;
+            var VisitorCookie = Constants.VisitorCookiePrefix + SiteId.ToString();
+            if (!int.TryParse(Context.Request.Cookies[VisitorCookie], out _visitorId))
+            {
+                // if enabled use IP Address correlation
+                _visitorId = -1;
+                bool correlate = true;
+                if (settings.Any(item => item.SettingName == "VisitorCorrelation"))
+                {
+                    correlate = bool.Parse(settings.First(item => item.SettingName == "VisitorCorrelation").SettingValue);
+                }
+                if (correlate)
+                {
+                    visitor = VisitorRepository.GetVisitor(SiteId, _remoteIPAddress);
+                    if (visitor != null)
+                    {
+                        _visitorId = visitor.VisitorId;
+                        addcookie = true;
+                    }
+                }
+            }
+
+            if (_visitorId == -1)
+            {
+                // create new visitor
+                visitor = new Visitor();
+                visitor.SiteId = SiteId;
+                visitor.IPAddress = _remoteIPAddress;
+                visitor.UserAgent = useragent;
+                visitor.Language = language;
+                visitor.Url = url;
+                visitor.Referrer = referrer;
+                visitor.UserId = userid;
+                visitor.Visits = 1;
+                visitor.CreatedOn = DateTime.UtcNow;
+                visitor.VisitedOn = DateTime.UtcNow;
+                visitor = VisitorRepository.AddVisitor(visitor);
+                _visitorId = visitor.VisitorId;
+                addcookie = true;
+            }
+            else
+            {
+                if (visitor == null)
+                {
+                    // get visitor if it was not previously loaded
+                    visitor = VisitorRepository.GetVisitor(_visitorId);
+                }
+                if (visitor != null)
+                {
+                    // update visitor
+                    visitor.IPAddress = _remoteIPAddress;
+                    visitor.UserAgent = useragent;
+                    visitor.Language = language;
+                    visitor.Url = url;
+                    if (!string.IsNullOrEmpty(referrer))
+                    {
+                        visitor.Referrer = referrer;
+                    }
+                    if (userid != null)
+                    {
+                        visitor.UserId = userid;
+                    }
+                    visitor.Visits += 1;
+                    visitor.VisitedOn = DateTime.UtcNow;
+                    VisitorRepository.UpdateVisitor(visitor);
+                }
+                else
+                {
+                    // remove cookie if VisitorId does not exist
+                    Context.Response.Cookies.Delete(VisitorCookie);
+                }
+            }
+
+            // append cookie
+            if (addcookie)
+            {
+                Context.Response.Cookies.Append(
+                    VisitorCookie,
+                    _visitorId.ToString(),
+                    new CookieOptions()
+                        {
+                            Expires = DateTimeOffset.UtcNow.AddYears(1),
+                            IsEssential = true
+                        }
+                );
+            }
+        }
+        catch
+        {
+            // error tracking visitor
+        }
+    }
 
     private string CreatePWAScript(Alias alias, Site site, Route route)
     {
