@@ -40,13 +40,27 @@
     @((MarkupString)_styleSheets)
     <link id="app-stylesheet-page" />
     <link id="app-stylesheet-module" />
-    <Head @rendermode="@RenderModes.GetRenderMode(_interactiveRenderMode)" />
+    @if (_renderMode == "Interactive")
+    {
+        <Head @rendermode="@RenderModes.GetInteractiveRenderMode((_renderMode + _interactiveRenderMode), _prerender)" />
+    }
+    else
+    {
+        <Head />        
+    }
     @((MarkupString)_headResources)
 </head>
 <body>
     @if (string.IsNullOrEmpty(_message))
     {
-        <Routes AntiForgeryToken="@_antiForgeryToken" Runtime="Server" RenderMode="PreRendered" VisitorId="-1" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="" @rendermode="@RenderModes.GetRenderMode(_interactiveRenderMode)" />
+        @if (_renderMode == "Interactive")
+        {
+            <Routes AntiForgeryToken="@_antiForgeryToken" Runtime="Server" RenderMode="PreRendered" VisitorId="-1" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="" @rendermode="@RenderModes.GetInteractiveRenderMode((_renderMode + _interactiveRenderMode), _prerender)" />
+        }
+        else
+        {
+            <Routes AntiForgeryToken="@_antiForgeryToken" Runtime="Server" RenderMode="PreRendered" VisitorId="-1" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="" />
+        }
 
         <script src="js/interop.js"></script>
         <script src="_framework/blazor.web.js"></script>
@@ -69,7 +83,9 @@
 </html>
 
 @code {
-    private string _interactiveRenderMode = "InteractiveServer";
+    private string _renderMode = "Interactive";
+    private string _interactiveRenderMode = "Server";
+    private bool _prerender = true;
     private string _language = "en";
     private string _antiForgeryToken = "";
     private string _remoteIPAddress = "";
@@ -102,14 +118,14 @@
                 var site = SiteRepository.GetSite(alias.SiteId);
                 if (site != null && (!site.IsDeleted || url.Contains("admin/site")) && site.Runtime != "Hybrid")
                 {
-                    // if (!string.IsNullOrEmpty(site.Runtime))
-                    // {
-                    //     Runtime = site.Runtime;
-                    // }
-                    // if (!string.IsNullOrEmpty(site.RenderMode))
-                    // {
-                    //     RenderMode = site.RenderMode;
-                    // }
+                    if (!string.IsNullOrEmpty(site.Runtime))
+                    {
+                        _interactiveRenderMode = site.Runtime;
+                    }
+                    if (!string.IsNullOrEmpty(site.RenderMode))
+                    {
+                        _prerender = (site.RenderMode.Replace(site.Runtime, "")) == "Prerendered";
+                    }
 
                     Route route = new Route(url, alias.Path);
                     var page = PageRepository.GetPage(route.PagePath, site.SiteId);
