@@ -15,6 +15,7 @@
 @using Oqtane.Models
 @using Oqtane.Shared
 @using Oqtane.Themes
+@using Oqtane.Extensions
 @inject NavigationManager NavigationManager
 @inject IAntiforgery Antiforgery
 @inject IConfigManager ConfigManager
@@ -27,7 +28,6 @@
 @inject ILocalizationManager LocalizationManager
 @inject IAliasRepository AliasRepository
 @inject IUrlMappingRepository UrlMappingRepository
-@inject ISettingRepository SettingRepository
 @inject IVisitorRepository VisitorRepository
 
 <!DOCTYPE html>
@@ -299,10 +299,10 @@
 
             // filter
             string filter = Constants.DefaultVisitorFilter;
-            var settings = SettingRepository.GetSettings(EntityNames.Site, SiteId);
-            if (settings.Any(item => item.SettingName == "VisitorFilter"))
+            var settings = Context.GetSiteSettings();
+            if (settings.ContainsKey("VisitorFilter") && !string.IsNullOrEmpty(settings["VisitorFilter"]))
             {
-                filter = settings.First(item => item.SettingName == "VisitorFilter").SettingValue;
+                filter = settings["VisitorFilter"];
             }
             foreach (string term in filter.ToLower().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray())
             {
@@ -330,9 +330,9 @@
                 // if enabled use IP Address correlation
                 _visitorId = -1;
                 bool correlate = true;
-                if (settings.Any(item => item.SettingName == "VisitorCorrelation"))
+                if (settings.ContainsKey("VisitorCorrelation") && !string.IsNullOrEmpty(settings["VisitorCorrelation"]))
                 {
-                    correlate = bool.Parse(settings.First(item => item.SettingName == "VisitorCorrelation").SettingValue);
+                    correlate = bool.Parse(settings["VisitorCorrelation"]);
                 }
                 if (correlate)
                 {
