@@ -5,16 +5,16 @@ namespace Oqtane.Client.Utilities
 {
     public static class RenderModes
     {
-        public static IComponentRenderMode GetRenderMode(string renderMode)
+        public static IComponentRenderMode GetInteractiveRenderMode(string interactiveRenderMode, bool prerender)
         {
-            switch (renderMode)
+            switch (interactiveRenderMode)
             {
                 case "InteractiveServer":
-                    return RenderMode.InteractiveServer;
+                    return new InteractiveServerRenderMode(prerender);
                 case "InteractiveWebAssembly":
-                    return RenderMode.InteractiveWebAssembly;
+                    return new InteractiveWebAssemblyRenderMode(prerender);
                 case "InteractiveAuto":
-                    return RenderMode.InteractiveAuto;
+                    return new InteractiveAutoRenderMode(prerender);
             }
             return null;
         }
