@@ -12,15 +12,17 @@
 @using Oqtane.Themes
 @using System.Net
 @using Microsoft.AspNetCore.Localization
+@inject NavigationManager NavigationManager
 @inject IAntiforgery Antiforgery;
 @inject IConfigManager ConfigManager;
 @inject ITenantManager TenantManager;
-@inject ILocalizationManager LocalizationManager;
 @inject ISiteRepository SiteRepository;
 @inject IPageRepository PageRepository;
 @inject IThemeRepository ThemeRepository;
 @inject ILanguageRepository LanguageRepository;
 @inject IServerStateManager ServerStateManager;
+@inject ILocalizationManager LocalizationManager;
+@inject IAliasRepository AliasRepository;
 
 <!DOCTYPE html>
 <html lang="@_language">
@@ -95,22 +97,7 @@
             {
                 var url = WebUtility.UrlDecode(Context.Request.GetEncodedUrl());
 
-                // redirect non-default alias unless you are trying to access site settings
-                // if (!alias.IsDefault && !url.Contains("admin/site"))
-                // {
-                //     var aliases = AliasRepository.GetAliases().Where(item => item.TenantId == alias.TenantId && item.SiteId == alias.SiteId);
-                //     if (aliases.Where(item => item.IsDefault).FirstOrDefault() != null)
-                //     {
-                //         return RedirectPermanent(url.Replace(alias.Name, aliases.Where(item => item.IsDefault).FirstOrDefault().Name));
-                //     }
-                //     else // no default specified - use first alias
-                //     {
-                //         if (alias.Name.Trim() != aliases.First().Name.Trim())
-                //         {
-                //             return RedirectPermanent(url.Replace(alias.Name, aliases.First().Name));
-                //         }
-                //     }
-                // }
+                HandleDefaultAliasRedirect(alias, url);
 
                 var site = SiteRepository.GetSite(alias.SiteId);
                 if (site != null && (!site.IsDeleted || url.Contains("admin/site")) && site.Runtime != "Hybrid")
@@ -239,6 +226,32 @@
             else
             {
                 _message = "Site Not Configured Correctly - No Matching Alias Exists For Host Name";
+            }
+        }
+    }
+
+    private void HandleDefaultAliasRedirect(Alias alias, string url)
+    {
+        // redirect non-default alias
+        if (!alias.IsDefault)
+        {
+            // get aliases for site and tenant
+            var aliases = AliasRepository.GetAliases().Where(item => item.TenantId == alias.TenantId && item.SiteId == alias.SiteId);
+            // get first default alias
+            var defaultAlias = aliases.Where(item => item.IsDefault).FirstOrDefault();
+            if (defaultAlias != null)
+            {
+                // redirect to default alias
+                NavigationManager.NavigateTo(url.Replace(alias.Name, defaultAlias.Name), true);
+            }
+            else // no default alias specified - use first alias
+            {
+                defaultAlias = aliases.FirstOrDefault();
+                if (defaultAlias != null && alias.Name.Trim() != defaultAlias.Name.Trim())
+                {
+                    // redirect to first alias
+                    NavigationManager.NavigateTo(url.Replace(alias.Name, defaultAlias.Name), true);
+                }
             }
         }
     }
