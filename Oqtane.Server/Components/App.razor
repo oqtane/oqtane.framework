@@ -8,7 +8,7 @@
 @using Microsoft.Net.Http.Headers
 @using Microsoft.Extensions.Primitives
 @using Oqtane.Client
-@using Oqtane.Client.Utilities
+@using Oqtane.UI
 @using Oqtane.Repository
 @using Oqtane.Infrastructure
 @using Oqtane.Security
@@ -47,26 +47,26 @@
     @((MarkupString)_styleSheets)
     <link id="app-stylesheet-page" />
     <link id="app-stylesheet-module" />
-    @if (_renderMode == "Interactive")
+    @if (_renderMode == RenderModes.StaticServer)
     {
-        <Head @rendermode="@RenderModes.GetInteractiveRenderMode((_renderMode + _interactiveRenderMode), _prerender.Contains("Prerendered"))" />
+        <Head />
     }
     else
     {
-        <Head />        
+        <Head @rendermode="@RenderMode.GetInteractiveRenderMode((_renderMode), _prerender)" />
     }
     @((MarkupString)_headResources)
 </head>
 <body>
     @if (string.IsNullOrEmpty(_message))
     {
-        @if (_renderMode == "Interactive")
+        @if (_renderMode == RenderModes.StaticServer)
         {
-            <Routes AntiForgeryToken="@_antiForgeryToken" Runtime="@_interactiveRenderMode" RenderMode="@_prerender" VisitorId="@_visitorId" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="@_authorizationToken" @rendermode="@RenderModes.GetInteractiveRenderMode((_renderMode + _interactiveRenderMode), _prerender.Contains("Prerendered"))" />
+            <Routes AntiForgeryToken="@_antiForgeryToken" RenderMode="@_renderMode" VisitorId="@_visitorId" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="@_authorizationToken" />
         }
         else
         {
-            <Routes AntiForgeryToken="@_antiForgeryToken" Runtime="@_interactiveRenderMode" RenderMode="@_prerender" VisitorId="@_visitorId" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="@_authorizationToken" />
+            <Routes AntiForgeryToken="@_antiForgeryToken" RenderMode="@_renderMode" VisitorId="@_visitorId" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="@_authorizationToken" @rendermode="@RenderMode.GetInteractiveRenderMode((_renderMode), _prerender)" />
         }
 
         <script src="js/interop.js"></script>
@@ -90,9 +90,8 @@
 </html>
 
 @code {
-    private string _renderMode = "Interactive";
-    private string _interactiveRenderMode = "Server";
-    private string _prerender = "Prerendered";
+    private string _renderMode = RenderModes.InteractiveServer;
+    private bool _prerender = true;
     private int _visitorId = -1;
     private string _remoteIPAddress = "";
     private string _authorizationToken = "";
@@ -128,16 +127,10 @@
                 }
 
                 var site = SiteRepository.GetSite(alias.SiteId);
-                if (site != null && (!site.IsDeleted || url.Contains("admin/site")) && site.Runtime != "Hybrid")
+                if (site != null && (!site.IsDeleted || url.Contains("admin/site")) && !site.Hybrid)
                 {
-                    if (!string.IsNullOrEmpty(site.Runtime))
-                    {
-                        _interactiveRenderMode = site.Runtime;
-                    }
-                    if (!string.IsNullOrEmpty(site.RenderMode))
-                    {
-                        _prerender = site.RenderMode;
-                    }
+                    _renderMode = site.RenderMode;
+                    _prerender = site.Prerender;
 
                     Route route = new Route(url, alias.Path);
                     var page = PageRepository.GetPage(route.PagePath, site.SiteId);
@@ -186,7 +179,7 @@
                     ManageStyleSheets(resources, alias, theme.ThemeName);
 
                     // scripts
-                    if (_interactiveRenderMode == "InteractiveServer")
+                    if (_renderMode == RenderModes.InteractiveServer)
                     {
                         _reconnectScript = CreateReconnectScript();
                     }

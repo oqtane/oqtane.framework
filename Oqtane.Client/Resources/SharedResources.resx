@@ -312,14 +312,14 @@
   <data name="Not Specified" xml:space="preserve">
     <value>Not Specified</value>
   </data>
-  <data name="BlazorServer" xml:space="preserve">
-    <value>Blazor Server</value>
+  <data name="InteractiveServer" xml:space="preserve">
+    <value>Interactive Server Rendering</value>
   </data>
-  <data name="BlazorWebAssembly" xml:space="preserve">
-    <value>Blazor WebAssembly</value>
+  <data name="InteractiveWebAssembly" xml:space="preserve">
+    <value>Interactive WebAssembly Rendering</value>
   </data>
-  <data name="BlazorHybrid" xml:space="preserve">
-    <value>Blazor Hybrid</value>
+  <data name="StaticServer" xml:space="preserve">
+    <value>Static Server Rendering</value>
   </data>
   <data name="Settings" xml:space="preserve">
     <value>Settings</value>
@@ -440,5 +440,8 @@
   </data>
   <data name="Message.EffectiveExpiryDateError" xml:space="preserve">
     <value>Effective Date cannot be after Expiry Date.</value>
+  </data>
+  <data name="InteractiveAuto" xml:space="preserve">
+    <value>Interactive Auto Rendering</value>
   </data>
 </root>

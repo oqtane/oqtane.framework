@@ -71,20 +71,13 @@ else
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="runtime" HelpText="The runtime hosting model" ResourceKey="Runtime">Runtime: </Label>
+                <Label Class="col-sm-3" For="rendermode" HelpText="The default render mode for the site" ResourceKey="Rendermode">Render Mode: </Label>
                 <div class="col-sm-9">
-                    <select id="runtime" class="form-select" @bind="@_runtime" required>
-                        <option value="Server">@SharedLocalizer["BlazorServer"]</option>
-                        <option value="WebAssembly">@SharedLocalizer["BlazorWebAssembly"]</option>
-					</select>
-                </div>
-            </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="prerender" HelpText="Specifies if the site should be prerendered (for search crawlers, etc...)" ResourceKey="Prerender">Prerender? </Label>
-                <div class="col-sm-9">
-                    <select id="prerender" class="form-select" @bind="@_prerender" required>
-                        <option value="Prerendered">@SharedLocalizer["Yes"]</option>
-                        <option value="">@SharedLocalizer["No"]</option>
+                    <select id="rendermode" class="form-select" @bind="@_rendermode" required>
+                        <option value="@RenderModes.StaticServer">@SharedLocalizer[@RenderModes.StaticServer]</option>
+                        <option value="@RenderModes.InteractiveServer">@SharedLocalizer[@RenderModes.InteractiveServer]</option>
+                        <option value="@RenderModes.InteractiveWebAssembly">@SharedLocalizer[@RenderModes.InteractiveWebAssembly]</option>
+                        <option value="@RenderModes.InteractiveAuto">@SharedLocalizer[@RenderModes.InteractiveAuto]</option>
                     </select>
                 </div>
             </div>
@@ -201,8 +194,7 @@ else
     private string _themetype = "-";
     private string _containertype = "-";
     private string _sitetemplatetype = "-";
-    private string _runtime = "Server";
-    private string _prerender = "Prerendered";
+    private string _rendermode = RenderModes.InteractiveServer;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
@@ -399,8 +391,7 @@ else
                         config.DefaultContainer = _containertype;
                         config.DefaultAdminContainer = "";
                         config.SiteTemplate = _sitetemplatetype;
-                        config.Runtime = _runtime;
-                        config.RenderMode = _runtime + _prerender;
+                        config.RenderMode = _rendermode;
 
                         ShowProgressIndicator();
 

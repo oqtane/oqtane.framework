@@ -8,6 +8,7 @@ using Oqtane.Repository;
 namespace Oqtane.Migrations.Tenant
 {
     [DbContext(typeof(TenantDBContext))]
+    // note that the following migration was actually for version 5.0.2 (ie. "Tenant.05.00.02.02")
     [Migration("Tenant.05.01.00.02")]
     public class AddPageModuleEffectiveExpiryDate : MultiDatabaseMigration
     {

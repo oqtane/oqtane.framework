@@ -311,27 +311,32 @@
             <Section Name="Hosting" Heading="Hosting Model" ResourceKey="Hosting">
                 <div class="container">
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="runtime" HelpText="The Blazor runtime hosting model for the site" ResourceKey="Runtime">Runtime: </Label>
+                        <Label Class="col-sm-3" For="rendermode" HelpText="The default render mode for the site" ResourceKey="Rendermode">Render Mode: </Label>
                         <div class="col-sm-9">
-                            <select id="runtime" class="form-select" @bind="@_runtime" required>
-                                <option value="Server">@SharedLocalizer["BlazorServer"]</option>
-                                <option value="WebAssembly">@SharedLocalizer["BlazorWebAssembly"]</option>
+                            <select id="rendermode" class="form-select" @bind="@_rendermode" required>
+                                <option value="@RenderModes.StaticServer">@SharedLocalizer[@RenderModes.StaticServer]</option>
+                                <option value="@RenderModes.InteractiveServer">@SharedLocalizer[@RenderModes.InteractiveServer]</option>
+                                <option value="@RenderModes.InteractiveWebAssembly">@SharedLocalizer[@RenderModes.InteractiveWebAssembly]</option>
+                                <option value="@RenderModes.InteractiveAuto">@SharedLocalizer[@RenderModes.InteractiveAuto]</option>
                             </select>
                         </div>
                     </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="prerender" HelpText="Specifies if the site should be prerendered (for search crawlers, etc...)" ResourceKey="Prerender">Prerender? </Label>
-                        <div class="col-sm-9">
-                            <select id="prerender" class="form-select" @bind="@_prerender" required>
-                                <option value="Prerendered">@SharedLocalizer["Yes"]</option>
-                                <option value="">@SharedLocalizer["No"]</option>
-                            </select>
+                    @if (_rendermode != "Static")
+                    {
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="prerender" HelpText="Specifies if the site supports prerendering" ResourceKey="Prerender">Prerender? </Label>
+                            <div class="col-sm-9">
+                                <select id="prerender" class="form-select" @bind="@_prerender" required>
+                                    <option value="True">@SharedLocalizer["Yes"]</option>
+                                    <option value="False">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
+                    }
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="hybridenabled" HelpText="Specifies if the site can be integrated with an external .NET MAUI hybrid application" ResourceKey="HybridEnabled">Hybrid Enabled? </Label>
+                        <Label Class="col-sm-3" For="hybrid" HelpText="Specifies if the site can be integrated with an external .NET MAUI hybrid application" ResourceKey="Hybrid">Hybrid? </Label>
                         <div class="col-sm-9">
-                            <select id="hybridenabled" class="form-select" @bind="@_hybridenabled" required>
+                            <select id="hybrid" class="form-select" @bind="@_hybrid" required>
                                 <option value="True">@SharedLocalizer["Yes"]</option>
                                 <option value="False">@SharedLocalizer["No"]</option>
                             </select>
@@ -414,9 +419,9 @@
     private int _aliasid = -1;
     private string _aliasname;
     private string _defaultalias;
-    private string _runtime = "";
-    private string _prerender = "";
-    private string _hybridenabled = "";
+    private string _rendermode = RenderModes.InteractiveServer;
+    private string _prerender = "True";
+    private string _hybrid = "False";
     private string _tenant = string.Empty;
     private string _database = string.Empty;
     private string _connectionstring = string.Empty;
@@ -500,9 +505,9 @@
                 await GetAliases();
 
                 // hosting model
-                _runtime = site.Runtime;
-                _prerender = site.RenderMode.Replace(_runtime, "");
-                _hybridenabled = site.HybridEnabled.ToString();
+                _rendermode = site.RenderMode;
+                _prerender = site.Prerender.ToString();
+                _hybrid = site.Hybrid.ToString();
 
                 // database
                 if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
@@ -640,11 +645,11 @@
                         // hosting model
                         if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
                         {
-                            if (site.Runtime != _runtime || site.RenderMode != _runtime + _prerender || site.HybridEnabled != bool.Parse(_hybridenabled))
+                            if (site.RenderMode != _rendermode || site.Prerender != bool.Parse(_prerender) || site.Hybrid != bool.Parse(_hybrid))
                             {
-                                site.Runtime = _runtime;
-                                site.RenderMode = _runtime + _prerender;
-                                site.HybridEnabled = bool.Parse(_hybridenabled);
+                                site.RenderMode = _rendermode;
+                                site.Prerender = bool.Parse(_prerender);
+                                site.Hybrid = bool.Parse(_hybrid);
                                 reload = true; // needs to be reloaded on serve
                             }
                         }

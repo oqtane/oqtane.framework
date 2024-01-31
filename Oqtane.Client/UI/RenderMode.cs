@@ -1,19 +1,20 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components;
+using Oqtane.Shared;
 
-namespace Oqtane.Client.Utilities
+namespace Oqtane.UI
 {
-    public static class RenderModes
+    public static class RenderMode
     {
         public static IComponentRenderMode GetInteractiveRenderMode(string interactiveRenderMode, bool prerender)
         {
             switch (interactiveRenderMode)
             {
-                case "InteractiveServer":
+                case RenderModes.InteractiveServer:
                     return new InteractiveServerRenderMode(prerender);
-                case "InteractiveWebAssembly":
+                case RenderModes.InteractiveWebAssembly:
                     return new InteractiveWebAssemblyRenderMode(prerender);
-                case "InteractiveAuto":
+                case RenderModes.InteractiveAuto:
                     return new InteractiveAutoRenderMode(prerender);
             }
             return null;

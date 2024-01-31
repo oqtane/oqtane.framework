@@ -16,7 +16,7 @@
             <div style="@_display">
                 <CascadingAuthenticationState>
                     <CascadingValue Value="@PageState">
-                        <SiteRouter Runtime="@Runtime" RenderMode="@RenderMode" VisitorId="@VisitorId" OnStateChange="@ChangeState" />
+                        <SiteRouter Runtime="Web" RenderMode="@RenderMode" VisitorId="@VisitorId" OnStateChange="@ChangeState" />
                     </CascadingValue>
                 </CascadingAuthenticationState>
             </div>
@@ -33,9 +33,6 @@
 @code {
     [Parameter]
     public string AntiForgeryToken { get; set; }
-
-    [Parameter]
-    public string Runtime { get; set; }
 
     [Parameter]
     public string RenderMode { get; set; }

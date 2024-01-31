@@ -100,7 +100,6 @@
         var editmode = false;
         var refresh = false;
         var lastsyncdate = DateTime.MinValue;
-        var runtime = (Shared.Runtime)Enum.Parse(typeof(Shared.Runtime), Runtime);
         _error = "";
 
         Route route = new Route(_absoluteUri, SiteState.Alias.Path);
@@ -286,7 +285,8 @@
                         Action = action,
                         EditMode = editmode,
                         LastSyncDate = lastsyncdate,
-                        Runtime = runtime,
+                        Runtime = Shared.Runtime.Hybrid,
+                        RenderMode = RenderMode,
 						VisitorId = VisitorId,
 						RemoteIPAddress = SiteState.RemoteIPAddress,
 						ReturnUrl = returnurl,
@@ -425,7 +425,7 @@
             {
                 var typename = Constants.ErrorModule;
 
-                if (module.ModuleDefinition != null && (module.ModuleDefinition.Runtimes == "" || module.ModuleDefinition.Runtimes.Contains(Runtime)))
+                if (module.ModuleDefinition != null && (module.ModuleDefinition.Runtimes == "" || module.ModuleDefinition.Runtimes.Contains(RenderMode)))
                 {
                     typename = module.ModuleDefinition.ControlTypeTemplate;
 
