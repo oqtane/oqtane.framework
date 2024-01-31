@@ -127,7 +127,7 @@
                 }
 
                 var site = SiteRepository.GetSite(alias.SiteId);
-                if (site != null && (!site.IsDeleted || url.Contains("admin/site")) && !site.Hybrid)
+                if (site != null && (!site.IsDeleted || url.Contains("admin/site")))
                 {
                     _renderMode = site.RenderMode;
                     _prerender = site.Prerender;

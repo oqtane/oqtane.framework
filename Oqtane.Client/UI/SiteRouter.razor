@@ -220,6 +220,12 @@
 
         if (site != null)
         {
+            if (Runtime == "Hybrid" && !site.Hybrid)
+            {
+                _error = "Hybrid Integration Is Not Enabled For This Site";
+                return;
+            }
+
             if (PageState == null || refresh || PageState.Page.Path != route.PagePath)
             {
                 page = site.Pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
