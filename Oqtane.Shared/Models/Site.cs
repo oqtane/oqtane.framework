@@ -69,19 +69,19 @@ namespace Oqtane.Models
         public string SiteGuid { get; set; }
 
         /// <summary>
-        /// The hosting model for the site (ie. Server or WebAssembly ).
-        /// </summary>
-        public string Runtime { get; set; }
-
-        /// <summary>
-        /// The render mode for the site (ie. Server, ServerPrerendered, WebAssembly, WebAssemblyPrerendered ).
+        /// The default render mode for the site (ie. Static,InteractiveServer,InteractiveWebAssembly,InteractiveAuto)
         /// </summary>
         public string RenderMode { get; set; }
 
         /// <summary>
+        /// If the site supports prerendering (only applies to Interactive rendering)
+        /// </summary>
+        public bool Prerender { get; set; }
+
+        /// <summary>
         /// Indicates if a site can be integrated with an external .NET MAUI hybrid application
         /// </summary>
-        public bool HybridEnabled { get; set; }
+        public bool Hybrid { get; set; }
 
         /// <summary>
         /// Keeps track of site configuration changes and is used by the ISiteMigration interface

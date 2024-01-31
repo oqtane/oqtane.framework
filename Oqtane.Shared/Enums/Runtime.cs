@@ -2,8 +2,7 @@ namespace Oqtane.Shared
 {
     public enum Runtime
     {
-        Server,
-        WebAssembly,
+        Web,
         Hybrid
     }
 }

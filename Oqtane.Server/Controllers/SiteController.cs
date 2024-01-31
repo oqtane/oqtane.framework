@@ -212,7 +212,7 @@ namespace Oqtane.Controllers
                 site = _sites.UpdateSite(site);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, site.SiteId, SyncEventActions.Update);
                 string action = SyncEventActions.Refresh;
-                if (current.Runtime != site.Runtime || current.RenderMode != site.RenderMode)
+                if (current.RenderMode != site.RenderMode)
                 {
                     action = SyncEventActions.Reload;
                 }
