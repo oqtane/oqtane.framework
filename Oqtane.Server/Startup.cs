@@ -206,7 +206,6 @@ namespace Oqtane
                 app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/" + Constants.Version + "/swagger.json", Constants.PackageId + " " + Constants.Version); });
             }
 
-            //app.UseAntiforgery();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
@@ -219,6 +218,7 @@ namespace Oqtane
                     .AddInteractiveWebAssemblyRenderMode();
             });
 
+            // simulate the fallback routing approach of traditional Blazor - allowing the custom SiteRouter to handle all routing concerns
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapFallback();
