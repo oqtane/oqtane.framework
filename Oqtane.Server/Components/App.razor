@@ -1,6 +1,7 @@
 @namespace Oqtane.Components
 @using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Http.Extensions
+@using Microsoft.AspNetCore.Antiforgery
 @using Oqtane.Client
 @using Oqtane.Client.Utilities
 @using Oqtane.Repository
@@ -11,6 +12,7 @@
 @using Oqtane.Themes
 @using System.Net
 @using Microsoft.AspNetCore.Localization
+@inject IAntiforgery Antiforgery;
 @inject IConfigManager ConfigManager;
 @inject ITenantManager TenantManager;
 @inject ILocalizationManager LocalizationManager;
@@ -42,7 +44,7 @@
 <body>
     @if (string.IsNullOrEmpty(_message))
     {
-        <Routes AntiForgeryToken="" Runtime="Server" RenderMode="PreRendered" VisitorId="-1" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="" @rendermode="@RenderModes.GetRenderMode(_interactiveRenderMode)" />
+        <Routes AntiForgeryToken="@_antiForgeryToken" Runtime="Server" RenderMode="PreRendered" VisitorId="-1" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="" @rendermode="@RenderModes.GetRenderMode(_interactiveRenderMode)" />
 
         <script src="js/interop.js"></script>
         <script src="_framework/blazor.web.js"></script>
@@ -67,6 +69,7 @@
 @code {
     private string _interactiveRenderMode = "InteractiveServer";
     private string _language = "en";
+    private string _antiForgeryToken = "";
     private string _remoteIPAddress = "";
     private string _headResources = "";
     private string _bodyResources = "";
@@ -81,6 +84,7 @@
 
     protected override void OnInitialized()
     {
+        _antiForgeryToken = Antiforgery.GetAndStoreTokens(Context).RequestToken;
         _remoteIPAddress = Context.Connection.RemoteIpAddress?.ToString() ?? "";
 
         // if framework is installed
