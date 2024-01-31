@@ -128,6 +128,7 @@ namespace Oqtane
                 options.AddPolicy(Constants.MauiCorsPolicy,
                     policy =>
                     {
+                        // allow .NET MAUI client cross origin calls
                         policy.WithOrigins("https://0.0.0.0", "http://0.0.0.0", "app://0.0.0.0")
                             .AllowAnyHeader().AllowCredentials();
                     });
