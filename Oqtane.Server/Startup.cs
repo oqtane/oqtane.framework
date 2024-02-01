@@ -144,6 +144,8 @@ namespace Oqtane
             .AddOqtaneApplicationParts() // register any Controllers from custom modules
             .ConfigureOqtaneMvc(); // any additional configuration from IStartup classes
 
+            services.AddRazorPages();
+
             services.AddRazorComponents()
                .AddInteractiveServerComponents(options =>
                {
@@ -211,11 +213,6 @@ namespace Oqtane
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
-            });
-
-            app.UseEndpoints(endpoints =>
-            {
                 endpoints.MapRazorComponents<App>()
                     .AddInteractiveServerRenderMode()
                     .AddInteractiveWebAssemblyRenderMode();
@@ -224,6 +221,8 @@ namespace Oqtane
             // simulate the fallback routing approach of traditional Blazor - allowing the custom SiteRouter to handle all routing concerns
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapControllers();
+                endpoints.MapRazorPages();
                 endpoints.MapFallback();
             });
 
