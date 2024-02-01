@@ -314,15 +314,24 @@
                         <Label Class="col-sm-3" For="rendermode" HelpText="The default render mode for the site" ResourceKey="Rendermode">Render Mode: </Label>
                         <div class="col-sm-9">
                             <select id="rendermode" class="form-select" @bind="@_rendermode" required>
-                                <option value="@RenderModes.StaticServer">@SharedLocalizer[@RenderModes.StaticServer]</option>
-                                <option value="@RenderModes.InteractiveServer">@SharedLocalizer[@RenderModes.InteractiveServer]</option>
-                                <option value="@RenderModes.InteractiveWebAssembly">@SharedLocalizer[@RenderModes.InteractiveWebAssembly]</option>
-                                <option value="@RenderModes.InteractiveAuto">@SharedLocalizer[@RenderModes.InteractiveAuto]</option>
+                                <option value="@RenderModes.Interactive">@(SharedLocalizer["RenderMode" + @RenderModes.Interactive])</option>
+                                <option value="@RenderModes.Static">@(SharedLocalizer["RenderMode" + @RenderModes.Static])</option>
+                                <option value="@RenderModes.Headless">@(SharedLocalizer["RenderMode" + @RenderModes.Headless])</option>
                             </select>
                         </div>
                     </div>
-                    @if (_rendermode != RenderModes.StaticServer)
+                    @if (_rendermode == RenderModes.Interactive)
                     {
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="runtime" HelpText="The interactive render mode for the site" ResourceKey="Runtime">Interactivity: </Label>
+                            <div class="col-sm-9">
+                                <select id="runtime" class="form-select" @bind="@_runtime" required>
+                                    <option value="@Runtimes.Server">@(SharedLocalizer["Runtime" + @Runtimes.Server])</option>
+                                    <option value="@Runtimes.WebAssembly">@(SharedLocalizer["Runtime" + @Runtimes.WebAssembly])</option>
+                                    <option value="@Runtimes.Auto">@(SharedLocalizer["Runtime" + @Runtimes.Auto])</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="prerender" HelpText="Specifies if the site supports prerendering" ResourceKey="Prerender">Prerender? </Label>
                             <div class="col-sm-9">
@@ -419,7 +428,8 @@
     private int _aliasid = -1;
     private string _aliasname;
     private string _defaultalias;
-    private string _rendermode = RenderModes.InteractiveServer;
+    private string _rendermode = RenderModes.Interactive;
+    private string _runtime = Runtimes.Server;
     private string _prerender = "True";
     private string _hybrid = "False";
     private string _tenant = string.Empty;
@@ -506,6 +516,7 @@
 
                 // hosting model
                 _rendermode = site.RenderMode;
+                _runtime = site.Runtime;
                 _prerender = site.Prerender.ToString();
                 _hybrid = site.Hybrid.ToString();
 
@@ -645,9 +656,10 @@
                         // hosting model
                         if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
                         {
-                            if (site.RenderMode != _rendermode || site.Prerender != bool.Parse(_prerender) || site.Hybrid != bool.Parse(_hybrid))
+                            if (site.RenderMode != _rendermode || site.Runtime != _runtime || site.Prerender != bool.Parse(_prerender) || site.Hybrid != bool.Parse(_hybrid))
                             {
                                 site.RenderMode = _rendermode;
+                                site.Runtime = _runtime;
                                 site.Prerender = bool.Parse(_prerender);
                                 site.Hybrid = bool.Parse(_hybrid);
                                 reload = true; // needs to be reloaded on serve

@@ -246,4 +246,10 @@
   <data name="EnterConnectionString" xml:space="preserve">
     <value>Enter Connection String</value>
   </data>
+  <data name="Runtime.HelpText" xml:space="preserve">
+    <value>The interactive render mode for the site</value>
+  </data>
+  <data name="Runtime.Text" xml:space="preserve">
+    <value>Interactivity:</value>
+  </data>
 </root>

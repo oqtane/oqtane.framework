@@ -63,6 +63,9 @@ namespace Oqtane.Infrastructure
                     case "3.3.0":
                         Upgrade_3_3_0(tenant, scope);
                         break;
+                    case "5.1.0":
+                        Upgrade_5_1_0(tenant, scope);
+                        break;
                 }
             }
         }
@@ -111,7 +114,11 @@ namespace Oqtane.Infrastructure
                 _configManager.RemoveSetting("Localization:SupportedCultures", true);
                 if (_configManager.GetSetting("RenderMode", "") == "")
                 {
-                    _configManager.AddOrUpdateSetting("RenderMode", "ServerPrerendered", true);
+                    _configManager.AddOrUpdateSetting("RenderMode", RenderModes.Interactive, true);
+                }
+                if (_configManager.GetSetting("Runtime", "") == "")
+                {
+                    _configManager.AddOrUpdateSetting("Runtime", Runtimes.Server, true);
                 }
             }
         }
@@ -347,6 +354,18 @@ namespace Oqtane.Infrastructure
             catch (Exception ex)
             {
                 Debug.WriteLine($"Oqtane Error: Error In 3.3.0 Upgrade Logic - {ex}");
+            }
+        }
+
+        private void Upgrade_5_1_0(Tenant tenant, IServiceScope scope)
+        {
+            if (tenant.Name == TenantNames.Master)
+            {
+                var rendermode = _configManager.GetSetting("RenderMode", "");
+                if (rendermode.Contains("Prerendered"))
+                {
+                    _configManager.AddOrUpdateSetting("RenderMode", rendermode.Replace("Prerendered", ""), true);
+                }
             }
         }
     }

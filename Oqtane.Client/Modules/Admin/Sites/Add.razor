@@ -74,13 +74,25 @@ else
                 <Label Class="col-sm-3" For="rendermode" HelpText="The default render mode for the site" ResourceKey="Rendermode">Render Mode: </Label>
                 <div class="col-sm-9">
                     <select id="rendermode" class="form-select" @bind="@_rendermode" required>
-                        <option value="@RenderModes.StaticServer">@SharedLocalizer[@RenderModes.StaticServer]</option>
-                        <option value="@RenderModes.InteractiveServer">@SharedLocalizer[@RenderModes.InteractiveServer]</option>
-                        <option value="@RenderModes.InteractiveWebAssembly">@SharedLocalizer[@RenderModes.InteractiveWebAssembly]</option>
-                        <option value="@RenderModes.InteractiveAuto">@SharedLocalizer[@RenderModes.InteractiveAuto]</option>
+                        <option value="@RenderModes.Interactive">@(SharedLocalizer["RenderMode" + @RenderModes.Interactive])</option>
+                        <option value="@RenderModes.Static">@(SharedLocalizer["RenderMode" + @RenderModes.Static])</option>
+                        <option value="@RenderModes.Headless">@(SharedLocalizer["RenderMode" + @RenderModes.Headless])</option>
                     </select>
                 </div>
             </div>
+            @if (_rendermode == RenderModes.Interactive)
+            {
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="runtime" HelpText="The interactive render mode for the site" ResourceKey="Runtime">Interactivity: </Label>
+                    <div class="col-sm-9">
+                        <select id="runtime" class="form-select" @bind="@_runtime" required>
+                            <option value="@Runtimes.Server">@(SharedLocalizer["Runtime" + @Runtimes.Server])</option>
+                            <option value="@Runtimes.WebAssembly">@(SharedLocalizer["Runtime" + @Runtimes.WebAssembly])</option>
+                            <option value="@Runtimes.Auto">@(SharedLocalizer["Runtime" + @Runtimes.Auto])</option>
+                        </select>
+                    </div>
+                </div>
+            }
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="tenant" HelpText="Select the database for the site" ResourceKey="Tenant">Database: </Label>
                 <div class="col-sm-9">
@@ -194,7 +206,8 @@ else
     private string _themetype = "-";
     private string _containertype = "-";
     private string _sitetemplatetype = "-";
-    private string _rendermode = RenderModes.InteractiveServer;
+    private string _rendermode = RenderModes.Interactive;
+    private string _runtime = Runtimes.Server;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
@@ -220,137 +233,137 @@ else
             _sitetemplatetype = Constants.DefaultSiteTemplate;
         }
 
-		_databases = await DatabaseService.GetDatabasesAsync();
-		if (_databases.Exists(item => item.IsDefault))
-		{
-			_databaseName = _databases.Find(item => item.IsDefault).Name;
-		}
-		else
-		{
-			_databaseName = "LocalDB";
-		}
-		LoadDatabaseConfigComponent();
-	}
+        _databases = await DatabaseService.GetDatabasesAsync();
+        if (_databases.Exists(item => item.IsDefault))
+        {
+            _databaseName = _databases.Find(item => item.IsDefault).Name;
+        }
+        else
+        {
+            _databaseName = "LocalDB";
+        }
+        LoadDatabaseConfigComponent();
+    }
 
-	private void DatabaseChanged(ChangeEventArgs eventArgs)
-	{
-		try
-		{
-			_databaseName = (string)eventArgs.Value;
-			_showConnectionString = false;
-			LoadDatabaseConfigComponent();
-		}
-		catch
-		{
-			AddModuleMessage(Localizer["Error.Database.LoadConfig"], MessageType.Error);
-		}
-	}
+    private void DatabaseChanged(ChangeEventArgs eventArgs)
+    {
+        try
+        {
+            _databaseName = (string)eventArgs.Value;
+            _showConnectionString = false;
+            LoadDatabaseConfigComponent();
+        }
+        catch
+        {
+            AddModuleMessage(Localizer["Error.Database.LoadConfig"], MessageType.Error);
+        }
+    }
 
-	private void LoadDatabaseConfigComponent()
-	{
-		var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
-		if (database != null)
-		{
-			_databaseConfigType = Type.GetType(database.ControlType);
-			DatabaseConfigComponent = builder =>
-			{
-				builder.OpenComponent(0, _databaseConfigType);
-				builder.AddComponentReferenceCapture(1, inst => { _databaseConfig = Convert.ChangeType(inst, _databaseConfigType); });
-				builder.CloseComponent();
-			};
-		}
-	}
+    private void LoadDatabaseConfigComponent()
+    {
+        var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
+        if (database != null)
+        {
+            _databaseConfigType = Type.GetType(database.ControlType);
+            DatabaseConfigComponent = builder =>
+            {
+                builder.OpenComponent(0, _databaseConfigType);
+                builder.AddComponentReferenceCapture(1, inst => { _databaseConfig = Convert.ChangeType(inst, _databaseConfigType); });
+                builder.CloseComponent();
+            };
+        }
+    }
 
-	private void TenantChanged(ChangeEventArgs e)
-	{
-		_tenantid = (string)e.Value;
-		if (string.IsNullOrEmpty(_tenantName))
-		{
-			_tenantName = _name;
-		}
-		StateHasChanged();
-	}
+    private void TenantChanged(ChangeEventArgs e)
+    {
+        _tenantid = (string)e.Value;
+        if (string.IsNullOrEmpty(_tenantName))
+        {
+            _tenantName = _name;
+        }
+        StateHasChanged();
+    }
 
-	private async void ThemeChanged(ChangeEventArgs e)
-	{
-		try
-		{
-			_themetype = (string)e.Value;
-			if (_themetype != "-")
-			{
-				_containers = ThemeService.GetContainerControls(_themeList, _themetype);
+    private async void ThemeChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            _themetype = (string)e.Value;
+            if (_themetype != "-")
+            {
+                _containers = ThemeService.GetContainerControls(_themeList, _themetype);
                 _containertype = _containers.First().TypeName;
             }
-			else
-			{
-				_containers = new List<ThemeControl>();
+            else
+            {
+                _containers = new List<ThemeControl>();
                 _containertype = "-";
             }
-			StateHasChanged();
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Loading Containers For Theme {ThemeType} {Error}", _themetype, ex.Message);
-			AddModuleMessage(Localizer["Error.Theme.LoadContainers"], MessageType.Error);
-		}
-	}
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Containers For Theme {ThemeType} {Error}", _themetype, ex.Message);
+            AddModuleMessage(Localizer["Error.Theme.LoadContainers"], MessageType.Error);
+        }
+    }
 
-	private async Task SaveSite()
-	{
-		validated = true;
-		var interop = new Interop(JSRuntime);
-		if (await interop.FormValid(form))
-		{
-			if (_tenantid != "-" && _name != string.Empty && _urls != string.Empty && _themetype != "-" && _containertype != "-" && _sitetemplatetype != "-")
-			{
-				_urls = Regex.Replace(_urls, @"\r\n?|\n", ",");
-				var duplicates = new List<string>();
-				var aliases = await AliasService.GetAliasesAsync();
-				foreach (string name in _urls.Split(',', StringSplitOptions.RemoveEmptyEntries))
-				{
-					if (aliases.Exists(item => item.Name == name))
-					{
-						duplicates.Add(name);
-					}
-				}
+    private async Task SaveSite()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
+        {
+            if (_tenantid != "-" && _name != string.Empty && _urls != string.Empty && _themetype != "-" && _containertype != "-" && _sitetemplatetype != "-")
+            {
+                _urls = Regex.Replace(_urls, @"\r\n?|\n", ",");
+                var duplicates = new List<string>();
+                var aliases = await AliasService.GetAliasesAsync();
+                foreach (string name in _urls.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    if (aliases.Exists(item => item.Name == name))
+                    {
+                        duplicates.Add(name);
+                    }
+                }
 
-				if (duplicates.Count == 0)
-				{
-					InstallConfig config = new InstallConfig();
+                if (duplicates.Count == 0)
+                {
+                    InstallConfig config = new InstallConfig();
 
-					if (_tenantid == "+")
-					{
-						if (!string.IsNullOrEmpty(_tenantName) && !_tenants.Exists(item => item.Name == _tenantName))
-						{
-							// validate host credentials
-							var user = new User();
-							user.SiteId = PageState.Site.SiteId;
-							user.Username = _hostusername;
-							user.Password = _hostpassword;
-							user.LastIPAddress = PageState.RemoteIPAddress;
-							user = await UserService.LoginUserAsync(user, false, false);
+                    if (_tenantid == "+")
+                    {
+                        if (!string.IsNullOrEmpty(_tenantName) && !_tenants.Exists(item => item.Name == _tenantName))
+                        {
+                            // validate host credentials
+                            var user = new User();
+                            user.SiteId = PageState.Site.SiteId;
+                            user.Username = _hostusername;
+                            user.Password = _hostpassword;
+                            user.LastIPAddress = PageState.RemoteIPAddress;
+                            user = await UserService.LoginUserAsync(user, false, false);
                             if (user.IsAuthenticated)
                             {
-								var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
-								var connectionString = String.Empty;
-								if (_showConnectionString)
-								{
-									connectionString = _connectionString;
-								}
-								else
-								{
-									if (_databaseConfig is IDatabaseConfigControl databaseConfigControl)
-									{
-										connectionString = databaseConfigControl.GetConnectionString();
-									}
-								}
+                                var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
+                                var connectionString = String.Empty;
+                                if (_showConnectionString)
+                                {
+                                    connectionString = _connectionString;
+                                }
+                                else
+                                {
+                                    if (_databaseConfig is IDatabaseConfigControl databaseConfigControl)
+                                    {
+                                        connectionString = databaseConfigControl.GetConnectionString();
+                                    }
+                                }
 
                                 if (connectionString != "")
                                 {
                                     config.TenantName = _tenantName;
                                     config.DatabaseType = database.DBType;
                                     config.ConnectionString = connectionString;
-									config.HostUsername = _hostusername;
+                                    config.HostUsername = _hostusername;
                                     config.HostPassword = _hostpassword;
                                     config.HostEmail = user.Email;
                                     config.HostName = user.DisplayName;
@@ -392,6 +405,7 @@ else
                         config.DefaultAdminContainer = "";
                         config.SiteTemplate = _sitetemplatetype;
                         config.RenderMode = _rendermode;
+                        config.Runtime = _runtime;
 
                         ShowProgressIndicator();
 

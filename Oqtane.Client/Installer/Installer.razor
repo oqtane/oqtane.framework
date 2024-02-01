@@ -261,8 +261,9 @@
 					SiteName = Constants.DefaultSite,
 					Register = _register,
                     SiteTemplate = _template,
-                    RenderMode = RenderModes.InteractiveServer
-				};
+                    RenderMode = RenderModes.Interactive,
+                    Runtime = Runtimes.Server
+                };
 
 				var installation = await InstallationService.Install(config);
 				if (installation.Success)
