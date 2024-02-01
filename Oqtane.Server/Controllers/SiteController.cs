@@ -13,8 +13,6 @@ using System.Globalization;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Extensions;
 using System;
-using Oqtane.UI;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Oqtane.Controllers
 {
@@ -212,7 +210,7 @@ namespace Oqtane.Controllers
                 site = _sites.UpdateSite(site);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, site.SiteId, SyncEventActions.Update);
                 string action = SyncEventActions.Refresh;
-                if (current.RenderMode != site.RenderMode)
+                if (current.RenderMode != site.RenderMode || current.Runtime != site.Runtime)
                 {
                     action = SyncEventActions.Reload;
                 }

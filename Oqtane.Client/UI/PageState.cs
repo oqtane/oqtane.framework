@@ -18,8 +18,8 @@ namespace Oqtane.UI
         public string Action { get; set; }
         public bool EditMode { get; set; }
         public DateTime LastSyncDate { get; set; }
-        public Shared.Runtime Runtime { get; set; }
         public string RenderMode { get; set; }
+        public Shared.Runtime Runtime { get; set; }
         public int VisitorId { get; set; }
         public string RemoteIPAddress { get; set; }
         public string ReturnUrl { get; set; }

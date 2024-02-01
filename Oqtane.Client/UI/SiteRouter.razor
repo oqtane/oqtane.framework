@@ -30,10 +30,10 @@
     private string _error = "";    
 
     [Parameter]
-    public string Runtime { get; set; }
+    public string RenderMode { get; set; }
 
     [Parameter]
-    public string RenderMode { get; set; }
+    public string Runtime { get; set; }
 
     [Parameter]
     public int VisitorId { get; set; }
@@ -291,8 +291,8 @@
                         Action = action,
                         EditMode = editmode,
                         LastSyncDate = lastsyncdate,
-                        Runtime = (Shared.Runtime)Enum.Parse(typeof(Shared.Runtime), Runtime),
                         RenderMode = RenderMode,
+                        Runtime = (Shared.Runtime)Enum.Parse(typeof(Shared.Runtime), Runtime),
 						VisitorId = VisitorId,
 						RemoteIPAddress = SiteState.RemoteIPAddress,
 						ReturnUrl = returnurl,

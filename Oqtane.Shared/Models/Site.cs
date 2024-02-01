@@ -69,12 +69,17 @@ namespace Oqtane.Models
         public string SiteGuid { get; set; }
 
         /// <summary>
-        /// The default render mode for the site (ie. Static,InteractiveServer,InteractiveWebAssembly,InteractiveAuto)
+        /// The default render mode for the site ie. Static,Interactive,Headless
         /// </summary>
         public string RenderMode { get; set; }
 
         /// <summary>
-        /// If the site supports prerendering (only applies to Interactive rendering)
+        /// The interactive render mode for the site ie. Server,WebAssembly,Auto (only applies to Interactive rendermode)
+        /// </summary>
+        public string Runtime { get; set; }
+
+        /// <summary>
+        /// If the site supports prerendering (only applies to Interactive rendermode)
         /// </summary>
         public bool Prerender { get; set; }
 

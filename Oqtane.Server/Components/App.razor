@@ -47,26 +47,26 @@
     @((MarkupString)_styleSheets)
     <link id="app-stylesheet-page" />
     <link id="app-stylesheet-module" />
-    @if (_renderMode == RenderModes.StaticServer)
+    @if (_renderMode == RenderModes.Static)
     {
         <Head />
     }
     else
     {
-        <Head @rendermode="@RenderMode.GetInteractiveRenderMode((_renderMode), _prerender)" />
+        <Head @rendermode="@RenderMode.GetInteractiveRenderMode((_runtime), _prerender)" />
     }
     @((MarkupString)_headResources)
 </head>
 <body>
     @if (string.IsNullOrEmpty(_message))
     {
-        @if (_renderMode == RenderModes.StaticServer)
+        @if (_renderMode == RenderModes.Static)
         {
-            <Routes AntiForgeryToken="@_antiForgeryToken" Runtime="Web" RenderMode="@_renderMode" VisitorId="@_visitorId" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="@_authorizationToken" />
+            <Routes AntiForgeryToken="@_antiForgeryToken" RenderMode="@_renderMode" Runtime="@_runtime" VisitorId="@_visitorId" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="@_authorizationToken" />
         }
         else
         {
-            <Routes AntiForgeryToken="@_antiForgeryToken" Runtime="Web" RenderMode="@_renderMode" VisitorId="@_visitorId" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="@_authorizationToken" @rendermode="@RenderMode.GetInteractiveRenderMode((_renderMode), _prerender)" />
+            <Routes AntiForgeryToken="@_antiForgeryToken" RenderMode="@_renderMode" Runtime="@_runtime" VisitorId="@_visitorId" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="@_authorizationToken" @rendermode="@RenderMode.GetInteractiveRenderMode((_runtime), _prerender)" />
         }
 
         <script src="js/interop.js"></script>
@@ -90,7 +90,8 @@
 </html>
 
 @code {
-    private string _renderMode = RenderModes.InteractiveServer;
+    private string _renderMode = RenderModes.Interactive;
+    private string _runtime = Runtimes.Server;
     private bool _prerender = true;
     private int _visitorId = -1;
     private string _remoteIPAddress = "";
@@ -127,9 +128,10 @@
                 }
 
                 var site = SiteRepository.GetSite(alias.SiteId);
-                if (site != null && (!site.IsDeleted || url.Contains("admin/site")))
+                if (site != null && (!site.IsDeleted || url.Contains("admin/site")) && site.RenderMode != RenderModes.Headless)
                 {
                     _renderMode = site.RenderMode;
+                    _runtime = site.Runtime;
                     _prerender = site.Prerender;
 
                     Route route = new Route(url, alias.Path);
@@ -179,7 +181,7 @@
                     ManageStyleSheets(resources, alias, theme.ThemeName);
 
                     // scripts
-                    if (_renderMode == RenderModes.InteractiveServer)
+                    if (_renderMode == RenderModes.Interactive && _runtime == Runtimes.Server)
                     {
                         _reconnectScript = CreateReconnectScript();
                     }
