@@ -431,7 +431,7 @@
             {
                 var typename = Constants.ErrorModule;
 
-                if (module.ModuleDefinition != null && (module.ModuleDefinition.Runtimes == "" || module.ModuleDefinition.Runtimes.Contains(RenderMode)))
+                if (module.ModuleDefinition != null && (module.ModuleDefinition.Runtimes == "" || module.ModuleDefinition.Runtimes.Contains(Runtime)))
                 {
                     typename = module.ModuleDefinition.ControlTypeTemplate;
 
