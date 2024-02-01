@@ -14,9 +14,6 @@ namespace Oqtane.Shared
         public const string DataDirectory = "DataDirectory";
         public const string DefaultDBType = "Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer";
 
-        public const string PageComponent = "Oqtane.UI.ThemeBuilder, Oqtane.Client";
-        public const string ContainerComponent = "Oqtane.UI.ContainerBuilder, Oqtane.Client";
-
         public const string DefaultTheme = "Oqtane.Themes.OqtaneTheme.Default, Oqtane.Client";
         public const string DefaultContainer = "Oqtane.Themes.OqtaneTheme.Container, Oqtane.Client";
         public const string DefaultAdminContainer = "Oqtane.Themes.AdminContainer, Oqtane.Client";
@@ -35,7 +32,6 @@ namespace Oqtane.Shared
         public const string AdminDashboardModule = "Oqtane.Modules.Admin.Dashboard, Oqtane.Client";
         public const string PageManagementModule = "Oqtane.Modules.Admin.Pages, Oqtane.Client";
         public const string ErrorModule = "Oqtane.Modules.Admin.Error.{Action}, Oqtane.Client";
-        public const string ModuleMessageComponent = "Oqtane.Modules.Controls.ModuleMessage, Oqtane.Client";
 
         public const string DefaultSiteTemplate = "Oqtane.SiteTemplates.DefaultSiteTemplate, Oqtane.Server";
 

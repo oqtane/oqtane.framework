@@ -123,7 +123,7 @@ else
 
     private void CreateComponent(RenderTreeBuilder builder, Module module, int key)
     {
-        builder.OpenComponent(0, Type.GetType(Constants.ContainerComponent));
+        builder.OpenComponent(0, typeof(ContainerBuilder));
         builder.AddAttribute(1, "ModuleState", module);
         if (key != -1)
         {
