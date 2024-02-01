@@ -10,6 +10,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddOqtaneAuthorization(this IServiceCollection services)
         {
             services.AddAuthorizationCore();
+            services.AddCascadingAuthenticationState();
             services.AddScoped<IdentityAuthenticationStateProvider>();
             services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<IdentityAuthenticationStateProvider>());
 
