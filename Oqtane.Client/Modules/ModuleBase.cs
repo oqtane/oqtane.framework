@@ -50,6 +50,8 @@ namespace Oqtane.Modules
 
         public virtual List<Resource> Resources { get; set; }
 
+        public virtual string RenderMode { get { return RenderModes.Interactive; } }
+
         // url parameters
         public virtual string UrlParametersTemplate { get; set; }
 
