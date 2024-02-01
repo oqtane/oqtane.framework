@@ -108,6 +108,9 @@ namespace Oqtane
 
             services.ConfigureOqtaneIdentityOptions(Configuration);
 
+            services.AddCascadingAuthenticationState();
+            services.AddAuthorization();
+
             services.AddAuthentication(options =>
             {
                 options.DefaultScheme = Constants.AuthenticationScheme;

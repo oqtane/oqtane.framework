@@ -14,11 +14,9 @@
         @if (string.IsNullOrEmpty(_installation.Message))
         {
             <div style="@_display">
-                <CascadingAuthenticationState>
-                    <CascadingValue Value="@PageState">
-                        <SiteRouter RenderMode="@RenderMode" Runtime="@Runtime" VisitorId="@VisitorId" OnStateChange="@ChangeState" />
-                    </CascadingValue>
-                </CascadingAuthenticationState>
+                <CascadingValue Value="@PageState">
+                    <SiteRouter RenderMode="@RenderMode" Runtime="@Runtime" VisitorId="@VisitorId" OnStateChange="@ChangeState" />
+                </CascadingValue>
             </div>
         }
         else
