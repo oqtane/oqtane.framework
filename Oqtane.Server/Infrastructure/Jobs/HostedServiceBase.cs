@@ -316,7 +316,11 @@ namespace Oqtane.Infrastructure
 
         public void Dispose()
         {
-            _cancellationTokenSource.Cancel();
+            // Dispose method to cancel the CancellationTokenSource
+            if (_cancellationTokenSource != null)
+            {
+                _cancellationTokenSource.Cancel();
+            }
         }
     }
 }
