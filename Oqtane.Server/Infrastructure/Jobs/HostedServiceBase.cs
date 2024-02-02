@@ -316,8 +316,8 @@ namespace Oqtane.Infrastructure
 
         public void Dispose()
         {
-            // Dispose method to cancel the CancellationTokenSource
-            if (_cancellationTokenSource != null)
+            // Dispose method to cancel the CancellationTokenSource, ensuring it is not already canceled
+            if (_cancellationTokenSource != null && !_cancellationTokenSource.Token.IsCancellationRequested)
             {
                 _cancellationTokenSource.Cancel();
             }
