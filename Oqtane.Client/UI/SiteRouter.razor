@@ -220,7 +220,7 @@
 
         if (site != null)
         {
-            if (Runtime == "Hybrid" && !site.Hybrid)
+            if (Runtime == Runtimes.Hybrid && !site.Hybrid)
             {
                 _error = "Hybrid Integration Is Not Enabled For This Site";
                 return;
