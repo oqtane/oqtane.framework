@@ -44,7 +44,7 @@ public static class MauiProgram
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
         // register auth services
-        builder.Services.AddOqtaneAuthorization();
+        builder.Services.AddOqtaneAuthentication();
 
         // register scoped core services
         builder.Services.AddOqtaneScopedServices();
