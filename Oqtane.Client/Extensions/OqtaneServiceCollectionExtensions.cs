@@ -7,7 +7,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class OqtaneServiceCollectionExtensions
     {
-        public static IServiceCollection AddOqtaneAuthorization(this IServiceCollection services)
+        public static IServiceCollection AddOqtaneAuthentication(this IServiceCollection services)
         {
             services.AddAuthorizationCore();
             services.AddCascadingAuthenticationState();
