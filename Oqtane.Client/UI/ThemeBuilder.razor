@@ -57,8 +57,7 @@
 
         DynamicComponent = builder =>
         {
-            var themeType = Type.GetType(PageState.Page.ThemeType);
-            builder.OpenComponent(0, themeType);
+            builder.OpenComponent(0, Type.GetType(PageState.Page.ThemeType));
             builder.CloseComponent();
         };
     }
