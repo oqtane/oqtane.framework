@@ -45,6 +45,10 @@
 
 	public void Dispose()
 	{
-		((INotifyPropertyChanged)SiteState.Properties).PropertyChanged -= PropertyChanged;
+		// Unsubscribe from PropertyChanged event during component disposal to prevent memory leaks
+		if (SiteState.Properties != null)
+		{
+			((INotifyPropertyChanged)SiteState.Properties).PropertyChanged -= PropertyChanged;
+		}
 	}
 }
