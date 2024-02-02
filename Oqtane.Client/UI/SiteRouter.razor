@@ -324,7 +324,7 @@
                 }
                 else // not mapped
                 {
-                    if (user == null && Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate))
+                    if (user == null)
                     {
                         // redirect to login page if user not logged in as they may need to be authenticated
                         NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "login", "?returnurl=" + WebUtility.UrlEncode(route.PathAndQuery)));
