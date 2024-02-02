@@ -74,7 +74,11 @@ namespace Oqtane.Infrastructure
         }
         public void Dispose()
         {
-            _syncManager.EntityChanged -= EntityChanged;
+            // Unsubscribe from the EntityChanged event during component disposal to avoid handling events after the component is disposed
+            if (_syncManager != null)
+            {
+                _syncManager.EntityChanged -= EntityChanged;
+            }
         }
     }
 }
