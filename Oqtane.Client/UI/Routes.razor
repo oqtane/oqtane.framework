@@ -52,13 +52,18 @@
     HttpContext HttpContext { get; set; }
 
     private bool _initialized = false;
-    private string _display = "display: none;";
+    private string _display = "";
     private Installation _installation = new Installation { Success = false, Message = "" };
 
     private PageState PageState { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
+        if (RenderMode == RenderModes.Interactive)
+        {
+            _display = "display: none;";
+        }
+
         SiteState.RemoteIPAddress = RemoteIPAddress;
         SiteState.AntiForgeryToken = AntiForgeryToken;
         SiteState.AuthorizationToken = AuthorizationToken;
@@ -76,7 +81,7 @@
     {
         if (firstRender)
         {
-            // prevents flash on initial page load
+            // prevents flash on initial interactive page load
             _display = "";
             StateHasChanged();
         }
