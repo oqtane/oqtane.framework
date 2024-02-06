@@ -90,7 +90,7 @@ div.app-moduleactions a.dropdown-toggle, div.app-moduleactions div.dropdown-menu
   mix-blend-mode: difference;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 991.98px) {
 
     .app-menu {
         width: 100%;
