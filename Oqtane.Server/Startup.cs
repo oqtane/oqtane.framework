@@ -68,15 +68,15 @@ namespace Oqtane
             services.AddOptions<List<Database>>().Bind(Configuration.GetSection(SettingKeys.AvailableDatabasesSection));
             services.Configure<HostOptions>(opts => opts.ShutdownTimeout = TimeSpan.FromSeconds(10)); // increase from default of 5 seconds
 
-            // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )
-            services.AddHttpClients();
-
             // register scoped core services
             services.AddScoped<IAuthorizationHandler, PermissionHandler>()
                 .AddOqtaneScopedServices()
                 .AddOqtaneServerScopedServices();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )
+            services.AddHttpClients();
 
             // register singleton scoped core services
             services.AddSingleton(Configuration)
@@ -199,7 +199,6 @@ namespace Oqtane
             app.UseStaticFiles();
             app.UseTenantResolution();
             app.UseJwtAuthorization();
-            app.UseBlazorFrameworkFiles();
             app.UseRouting();
             app.UseCors();
             app.UseAuthentication();
