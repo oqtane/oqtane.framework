@@ -3,6 +3,7 @@
 @inject IInstallationService InstallationService
 @inject IJSRuntime JSRuntime
 @inject SiteState SiteState
+@attribute [StreamRendering]
 
 @if (_initialized)
 {
@@ -69,13 +70,11 @@
         SiteState.AuthorizationToken = AuthorizationToken;
         SiteState.IsPrerendering = (HttpContext != null) ? true : false;
 
-        _installation = new Installation { Success = true };
-        SiteState.Alias = new Alias { AliasId = 1, SiteId = 1, TenantId = 1, Name = "localhost:44357", IsDefault = true, BaseUrl = "", Protocol = "http://" };
-        // _installation = await InstallationService.IsInstalled();
-        // if (_installation.Alias != null)
-        // {
-        //     SiteState.Alias = _installation.Alias;
-        // }
+        _installation = await InstallationService.IsInstalled();
+        if (_installation.Alias != null)
+        {
+            SiteState.Alias = _installation.Alias;
+        }
         _initialized = true;
     }
 
