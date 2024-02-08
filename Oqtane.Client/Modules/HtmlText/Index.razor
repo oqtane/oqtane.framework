@@ -17,6 +17,8 @@
 @code {
     private string content = "";
 
+    public override string RenderMode => RenderModes.Static;
+
     protected override async Task OnParametersSetAsync()
     {
         try
