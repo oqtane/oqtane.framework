@@ -21,30 +21,65 @@ namespace Oqtane.Themes.Controls
         [Inject] public IJSRuntime jsRuntime { get; set; }
         [Inject] public IServiceProvider ServiceProvider { get; set; }
 
-        protected void LoginUser()
+        private bool allowexternallogin;
+        private bool allowsitelogin;
+        protected string loginurl;
+        protected string logouturl;
+        protected string returnurl;
+
+        protected override void OnParametersSet()
         {
-            var allowexternallogin = (SettingService.GetSetting(PageState.Site.Settings, "ExternalLogin:ProviderType", "") != "") ? true : false;
-            var allowsitelogin = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AllowSiteLogin", "true"));
+            allowexternallogin = (SettingService.GetSetting(PageState.Site.Settings, "ExternalLogin:ProviderType", "") != "") ? true : false;
+            allowsitelogin = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AllowSiteLogin", "true"));
 
-            var returnurl = "";
-            if (!PageState.QueryString.ContainsKey("returnurl"))
-            {
-                returnurl = WebUtility.UrlEncode(PageState.Route.PathAndQuery); // remember current url
-            }
-            else
-            {
-                returnurl = PageState.QueryString["returnurl"]; // use existing value
-            }
-
+            // set login url
             if (allowexternallogin && !allowsitelogin)
             {
                 // external login
-                NavigationManager.NavigateTo(Utilities.TenantUrl(PageState.Alias, "/pages/external?returnurl=" + returnurl), true);
+                loginurl = Utilities.TenantUrl(PageState.Alias, "/pages/external");
             }
             else
             {
                 // local login
-                NavigationManager.NavigateTo(NavigateUrl("login", "?returnurl=" + returnurl));
+                loginurl = NavigateUrl("login");
+            }
+
+            if (!PageState.QueryString.ContainsKey("returnurl"))
+            {
+                // remember current url
+                loginurl += "?returnurl=" + WebUtility.UrlEncode(PageState.Route.PathAndQuery);
+            }
+            else
+            {
+                // use existing value
+                loginurl = "?returnurl=" + PageState.QueryString["returnurl"];
+            }
+
+            // set logout url
+            logouturl = Utilities.TenantUrl(PageState.Alias, "/pages/logout/");
+
+            // verify anonymous users can access current page
+            if (UserSecurity.IsAuthorized(null, PermissionNames.View, PageState.Page.PermissionList) && Utilities.IsPageModuleVisible(PageState.Page.EffectiveDate, PageState.Page.ExpiryDate))
+            {
+                returnurl = PageState.Route.PathAndQuery;
+            }
+            else
+            {
+                returnurl = PageState.Alias.Path;
+            }
+        }
+
+        protected void LoginUser()
+        {
+            if (allowexternallogin && !allowsitelogin)
+            {
+                // external login
+                NavigationManager.NavigateTo(loginurl, true);
+            }
+            else
+            {
+                // local login
+                NavigationManager.NavigateTo(loginurl);
             }
         }
 
@@ -52,30 +87,20 @@ namespace Oqtane.Themes.Controls
         {
             await LoggingService.Log(PageState.Alias, PageState.Page.PageId, null, PageState.User?.UserId, GetType().AssemblyQualifiedName, "Logout", LogFunction.Security, LogLevel.Information, null, "User Logout For Username {Username}", PageState.User?.Username);
 
-            Route route = new Route(PageState.Uri.AbsoluteUri, PageState.Alias.Path);
-            var url = route.PathAndQuery;
-
-            // verify if anonymous users can access page
-            if (!UserSecurity.IsAuthorized(null, PermissionNames.View, PageState.Page.PermissionList) || !Utilities.IsPageModuleVisible(PageState.Page.EffectiveDate, PageState.Page.ExpiryDate))
-            {
-                url = PageState.Alias.Path;
-            }
-
-
-            if (PageState.Runtime == Shared.Runtime.Hybrid)
+            if (PageState.Runtime == Runtime.Hybrid)
             {
                 // hybrid apps utilize an interactive logout
                 await UserService.LogoutUserAsync(PageState.User);
                 var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
                 authstateprovider.NotifyAuthenticationChanged();
-                NavigationManager.NavigateTo(url, true);
+                NavigationManager.NavigateTo(returnurl, true);
             }
-            else
+            else // this condition is only valid for legacy Login button inheriting from LoginBase
             {
                 // post to the Logout page to complete the logout process
-                var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, returnurl = url };
+                var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, returnurl = returnurl };
                 var interop = new Interop(jsRuntime);
-                await interop.SubmitForm(Utilities.TenantUrl(PageState.Alias, "/pages/logout/"), fields);
+                await interop.SubmitForm(logouturl, fields);
             }
         }
     }

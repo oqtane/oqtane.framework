@@ -10,7 +10,10 @@
         {
             @((MarkupString)"&nbsp;&nbsp;")<NavLink href="@NavigateUrl("admin/log")">View Details</NavLink>
         }
-        <button type="button" class="btn-close" aria-label="Close" @onclick="DismissModal"></button>
+        <form method="post" @onsubmit="DismissModal" @formname="@($"ModuleMessageForm{ModuleState.PageModuleId}")" data-enhance>
+            <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+            <button type="submit" class="btn-close" aria-label="Close"></button>
+        </form>
     </div>
 }
 
@@ -58,6 +61,5 @@
     private void DismissModal()
     {
         _message = "";
-        StateHasChanged();
     }
 }

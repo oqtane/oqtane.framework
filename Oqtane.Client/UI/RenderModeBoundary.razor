@@ -1,0 +1,149 @@
+@namespace Oqtane.UI
+@inject SiteState SiteStateService
+@inject IStringLocalizer<ModuleInstance> Localizer
+@inject ILogService LoggingService
+@inherits ErrorBoundary
+
+@if (CurrentException is null)
+{
+    @if (ModuleType != null)
+    {
+        <CascadingValue Value="@PageState">
+            <CascadingValue Value="@ModuleState">
+                @if (!string.IsNullOrEmpty(_messageContent) && _messagePosition == "top")
+                {
+                    <ModuleMessage Message="@_messageContent" Type="@_messageType" />
+                }
+                <DynamicComponent Type="@ModuleType" Parameters="@ModuleParameters"></DynamicComponent>
+                @if (_progressIndicator)
+                {
+                    <div class="app-progress-indicator"></div>
+                }
+                @if (!string.IsNullOrEmpty(_messageContent) && _messagePosition == "bottom")
+                {
+                    <ModuleMessage Message="@_messageContent" Type="@_messageType" />
+                }
+            </CascadingValue>
+        </CascadingValue>
+    }
+}
+else
+{
+    @if (!string.IsNullOrEmpty(_error))
+    {
+        <ModuleMessage Message="@_error" Type="@MessageType.Error" />
+    }
+}
+
+@code {
+    private Type ModuleType { get; set; }
+    private IDictionary<string, object> ModuleParameters { get; set; }
+
+    private string _messageContent;
+    private MessageType _messageType;
+    private string _messagePosition;
+    private bool _progressIndicator = false;
+    private string _error;
+
+    [Parameter]
+    public SiteState SiteState { get; set; }
+
+    [Parameter]
+    public PageState PageState { get; set; }
+
+    [Parameter]
+    public Module ModuleState { get; set; }
+
+    RenderFragment DynamicComponent { get; set; }
+
+    protected override bool ShouldRender()
+    {
+        return PageState?.RenderId == ModuleState?.RenderId;
+    }
+
+    protected override void OnParametersSet()
+    {
+        _messageContent = "";
+
+        if (ShouldRender())
+        {
+            if (!string.IsNullOrEmpty(ModuleState.ModuleType))
+            {
+                ModuleType = Type.GetType(ModuleState.ModuleType);
+                if (ModuleType != null)
+                {
+                    // repopulate the SiteState service based on the values passed in the SiteState parameter (this is how state is marshalled across the render mode boundary)
+                    SiteStateService.Alias = SiteState.Alias;
+                    SiteStateService.AntiForgeryToken = SiteState.AntiForgeryToken;
+                    SiteStateService.AuthorizationToken = SiteState.AuthorizationToken;
+                    SiteStateService.RemoteIPAddress = SiteState.RemoteIPAddress;
+                    SiteStateService.IsPrerendering = SiteState.IsPrerendering;
+
+                    ModuleParameters = new Dictionary<string, object> { { "RenderModeBoundary", this } };
+                }
+                else
+                {
+                    // module does not exist with typename specified
+                    _messageContent = string.Format(Localizer["Error.Module.InvalidName"], Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0));
+                    _messageType = MessageType.Error;
+                    _messagePosition = "top";
+                }
+            }
+            else
+            {
+                _messageContent = string.Format(Localizer["Error.Module.InvalidType"], ModuleState.ModuleDefinitionName);
+                _messageType = MessageType.Error;
+                _messagePosition = "top";
+            }
+        }
+    }
+
+    public void AddModuleMessage(string message, MessageType type)
+    {
+        AddModuleMessage(message, type, "top");
+    }
+
+    public void AddModuleMessage(string message, MessageType type, string position)
+    {
+        _messageContent = message;
+        _messageType = type;
+        _messagePosition = position;
+        _progressIndicator = false;
+        StateHasChanged();
+    }
+
+    public void ShowProgressIndicator()
+    {
+        _progressIndicator = true;
+        StateHasChanged();
+    }
+
+    public void HideProgressIndicator()
+    {
+        _progressIndicator = false;
+        StateHasChanged();
+    }
+
+    private void DismissMessage()
+    {
+        _messageContent = "";
+    }
+
+    protected override async Task OnErrorAsync(Exception exception)
+    {
+        // retrieve friendly localized error
+        _error = Localizer["Error.Module.Exception"];
+        // log error
+        string category = GetType().AssemblyQualifiedName;
+        string feature = Utilities.GetTypeNameLastSegment(category, 1);
+        await LoggingService.Log(null, ModuleState.PageId, ModuleState.ModuleId, PageState.User?.UserId, category, feature, LogFunction.Other, LogLevel.Error, exception, "An Unexpected Error Has Occurred In {ModuleDefinitionName}: {Error}", ModuleState.ModuleDefinitionName, exception.Message);
+        await base.OnErrorAsync(exception);
+        return;
+    }
+
+    public new void Recover()
+    {
+        _error = "";
+        base.Recover();
+    }
+}
