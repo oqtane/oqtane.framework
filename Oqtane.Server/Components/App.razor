@@ -53,7 +53,7 @@
     }
     else
     {
-        <Head @rendermode="@RenderMode.GetInteractiveRenderMode((_runtime), _prerender)" />
+        <Head @rendermode="@RenderMode.GetInteractiveRenderMode(_runtime, _prerender)" />
     }
     @((MarkupString)_headResources)
 </head>
@@ -66,7 +66,7 @@
         }
         else
         {
-            <Routes AntiForgeryToken="@_antiForgeryToken" RenderMode="@_renderMode" Runtime="@_runtime" VisitorId="@_visitorId" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="@_authorizationToken" @rendermode="@RenderMode.GetInteractiveRenderMode((_runtime), _prerender)" />
+            <Routes AntiForgeryToken="@_antiForgeryToken" RenderMode="@_renderMode" Runtime="@_runtime" VisitorId="@_visitorId" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="@_authorizationToken" @rendermode="@RenderMode.GetInteractiveRenderMode(_runtime, _prerender)" />
         }
 
         <script src="js/interop.js"></script>

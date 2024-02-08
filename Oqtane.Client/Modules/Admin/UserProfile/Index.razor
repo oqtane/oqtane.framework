@@ -596,7 +596,7 @@
     {
         try
         {
-            ModuleInstance.ShowProgressIndicator();
+            ShowProgressIndicator();
             foreach(var Notification in notifications)
             {
                 if (!Notification.IsDeleted)
@@ -612,7 +612,7 @@
             }
             await logger.LogInformation("Notifications Permanently Deleted");
             await LoadNotificationsAsync();
-            ModuleInstance.HideProgressIndicator();
+            HideProgressIndicator();
 
             StateHasChanged();
         }
@@ -620,7 +620,7 @@
         {
             await logger.LogError(ex, "Error Deleting Notifications {Error}", ex.Message);
             AddModuleMessage(ex.Message, MessageType.Error);
-            ModuleInstance.HideProgressIndicator();
+            HideProgressIndicator();
         }
     }
 
