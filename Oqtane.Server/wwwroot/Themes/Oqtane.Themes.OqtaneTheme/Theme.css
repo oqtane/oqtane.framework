@@ -47,6 +47,12 @@ body {
     margin-right: 10px;
 }
 
+.controls-group {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+}
+
 .app-menu .nav-item {
     font-size: 0.9rem;
     padding-bottom: 0.5rem;
