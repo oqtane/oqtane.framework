@@ -11,13 +11,13 @@ namespace Oqtane.UI
             switch (runtime)
             {
                 case Runtimes.Server:
-                    return new InteractiveServerRenderMode(prerender);
+                    return new InteractiveServerRenderMode(prerender: prerender);
                 case Runtimes.WebAssembly:
-                    return new InteractiveWebAssemblyRenderMode(prerender);
+                    return new InteractiveWebAssemblyRenderMode(prerender: prerender);
                 case Runtimes.Auto:
-                    return new InteractiveAutoRenderMode(prerender);
+                    return new InteractiveAutoRenderMode(prerender: prerender);
             }
-            return new InteractiveServerRenderMode(prerender); // default to interactiver server
+            return new InteractiveServerRenderMode(prerender: prerender); // default to interactiver server
         }
     }
 }
