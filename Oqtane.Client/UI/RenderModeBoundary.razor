@@ -54,8 +54,6 @@ else
     [Parameter]
     public Module ModuleState { get; set; }
 
-    RenderFragment DynamicComponent { get; set; }
-
     protected override bool ShouldRender()
     {
         return PageState?.RenderId == ModuleState?.RenderId;
