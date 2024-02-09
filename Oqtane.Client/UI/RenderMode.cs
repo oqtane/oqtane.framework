@@ -17,7 +17,7 @@ namespace Oqtane.UI
                 case Runtimes.Auto:
                     return new InteractiveAutoRenderMode(prerender);
             }
-            return null;
+            return new InteractiveServerRenderMode(prerender); // default to interactiver server
         }
     }
 }

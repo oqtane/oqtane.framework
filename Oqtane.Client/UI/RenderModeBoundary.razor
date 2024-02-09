@@ -1,5 +1,5 @@
 @namespace Oqtane.UI
-@inject SiteState SiteStateService
+@inject SiteState ComponentSiteState // can refer to either a static or interactive SiteState - it depends on the render mode
 @inject IStringLocalizer<ModuleInstance> Localizer
 @inject ILogService LoggingService
 @inherits ErrorBoundary
@@ -71,11 +71,11 @@ else
                 if (ModuleType != null)
                 {
                     // repopulate the SiteState service based on the values passed in the SiteState parameter (this is how state is marshalled across the render mode boundary)
-                    SiteStateService.Alias = SiteState.Alias;
-                    SiteStateService.AntiForgeryToken = SiteState.AntiForgeryToken;
-                    SiteStateService.AuthorizationToken = SiteState.AuthorizationToken;
-                    SiteStateService.RemoteIPAddress = SiteState.RemoteIPAddress;
-                    SiteStateService.IsPrerendering = SiteState.IsPrerendering;
+                    ComponentSiteState.Alias = SiteState.Alias;
+                    ComponentSiteState.AntiForgeryToken = SiteState.AntiForgeryToken;
+                    ComponentSiteState.AuthorizationToken = SiteState.AuthorizationToken;
+                    ComponentSiteState.RemoteIPAddress = SiteState.RemoteIPAddress;
+                    ComponentSiteState.IsPrerendering = SiteState.IsPrerendering;
 
                     ModuleParameters = new Dictionary<string, object> { { "RenderModeBoundary", this } };
                 }
