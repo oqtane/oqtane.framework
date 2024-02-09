@@ -424,7 +424,7 @@
     <value>Hybrid Enabled?</value>
   </data>
   <data name="Runtime.HelpText" xml:space="preserve">
-    <value>The interactive render mode for the site</value>
+    <value>The interactive render mode for modules</value>
   </data>
   <data name="Runtime.Text" xml:space="preserve">
     <value>Interactivity:</value>

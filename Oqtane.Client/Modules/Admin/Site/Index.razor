@@ -320,18 +320,18 @@
                             </select>
                         </div>
                     </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="runtime" HelpText="The interactive render mode for modules" ResourceKey="Runtime">Interactivity: </Label>
+                        <div class="col-sm-9">
+                            <select id="runtime" class="form-select" @bind="@_runtime" required>
+                                <option value="@Runtimes.Server">@(SharedLocalizer["Runtime" + @Runtimes.Server])</option>
+                                <option value="@Runtimes.WebAssembly">@(SharedLocalizer["Runtime" + @Runtimes.WebAssembly])</option>
+                                <option value="@Runtimes.Auto">@(SharedLocalizer["Runtime" + @Runtimes.Auto])</option>
+                            </select>
+                        </div>
+                    </div>
                     @if (_rendermode == RenderModes.Interactive)
                     {
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="runtime" HelpText="The interactive render mode for the site" ResourceKey="Runtime">Interactivity: </Label>
-                            <div class="col-sm-9">
-                                <select id="runtime" class="form-select" @bind="@_runtime" required>
-                                    <option value="@Runtimes.Server">@(SharedLocalizer["Runtime" + @Runtimes.Server])</option>
-                                    <option value="@Runtimes.WebAssembly">@(SharedLocalizer["Runtime" + @Runtimes.WebAssembly])</option>
-                                    <option value="@Runtimes.Auto">@(SharedLocalizer["Runtime" + @Runtimes.Auto])</option>
-                                </select>
-                            </div>
-                        </div>
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="prerender" HelpText="Specifies if the site supports prerendering" ResourceKey="Prerender">Prerender? </Label>
                             <div class="col-sm-9">
