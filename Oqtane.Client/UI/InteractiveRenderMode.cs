@@ -4,7 +4,7 @@ using Oqtane.Shared;
 
 namespace Oqtane.UI
 {
-    public static class RenderMode
+    public static class InteractiveRenderMode
     {
         public static IComponentRenderMode GetInteractiveRenderMode(string runtime, bool prerender)
         {

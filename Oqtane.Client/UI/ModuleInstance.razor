@@ -9,7 +9,7 @@
 else
 {
     <div>Render Mode: @ModuleState.RenderMode</div><br />
-    <RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" @rendermode="@RenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, PageState.Site.Prerender)" />
+    <RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, PageState.Site.Prerender)" />
 }
 
 @code {

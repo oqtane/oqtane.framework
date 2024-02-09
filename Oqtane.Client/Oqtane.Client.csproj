@@ -18,6 +18,7 @@
     <RootNamespace>Oqtane</RootNamespace>
     <IsPackable>true</IsPackable>
     <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
+    <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
   </PropertyGroup>
   
   <ItemGroup>
