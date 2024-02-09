@@ -313,10 +313,10 @@
     <value>Not Specified</value>
   </data>
   <data name="RuntimeServer" xml:space="preserve">
-    <value>Server Rendering</value>
+    <value>Server</value>
   </data>
   <data name="RuntimeWebAssembly" xml:space="preserve">
-    <value>WebAssembly Rendering</value>
+    <value>WebAssembly</value>
   </data>
   <data name="StaticServer" xml:space="preserve">
     <value>Static Server Rendering</value>
@@ -442,13 +442,13 @@
     <value>Effective Date cannot be after Expiry Date.</value>
   </data>
   <data name="RuntimeAuto" xml:space="preserve">
-    <value>Auto Rendering</value>
+    <value>Auto Mode</value>
   </data>
   <data name="RenderModeHeadless" xml:space="preserve">
     <value>Headless API (No Rendering)</value>
   </data>
   <data name="RenderModeInteractive" xml:space="preserve">
-    <value>Global Interactivity</value>
+    <value>Global Interactive Rendering</value>
   </data>
   <data name="RenderModeStatic" xml:space="preserve">
     <value>Static Server Rendering</value>
