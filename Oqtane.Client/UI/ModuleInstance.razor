@@ -1,14 +1,14 @@
 @namespace Oqtane.UI
 @inject SiteState SiteState
 
-<div>@ModuleState.RenderMode</div>
+<div>Render Mode: @ModuleState.RenderMode</div><br />
 @if (PageState.Site.RenderMode == RenderModes.Interactive || ModuleState.RenderMode == RenderModes.Static)
 {
-	<RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState"></RenderModeBoundary>
+	<RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" />
 }
 else
 {
-	<RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" @rendermode="@RenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, PageState.Site.Prerender)"></RenderModeBoundary>
+	<RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" @rendermode="@RenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, PageState.Site.Prerender)" />
 }
 
 @code {
