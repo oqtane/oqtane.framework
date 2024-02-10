@@ -106,7 +106,7 @@ div.app-moduleactions a.dropdown-toggle, div.app-moduleactions div.dropdown-menu
     z-index: 1000;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767.98px) {
 
     .app-menu {
         width: 100%
