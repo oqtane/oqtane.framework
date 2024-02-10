@@ -228,3 +228,7 @@ app {
 .app-fas {
     margin-left: 5px;
 }
+
+.app-form-button {
+    display: inline-block;
+}
