@@ -115,6 +115,10 @@ nav .controls-group {
     align-items: center;
 }
 
+    nav .controls-group .app-profile, .controls-group .app-login {
+        margin-right: 5px;
+    }
+
 .content {
     padding-top: 1.1rem;
 }
