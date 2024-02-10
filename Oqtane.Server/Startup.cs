@@ -151,7 +151,7 @@ namespace Oqtane
                {
                    if (_env.IsDevelopment())
                    {
-                       options.DetailedErrors = false;
+                       options.DetailedErrors = true;
                    }
                }).AddHubOptions(options =>
                {
@@ -178,13 +178,13 @@ namespace Oqtane
 
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
                 app.UseWebAssemblyDebugging();
                 app.UseForwardedHeaders();
             }
             else
             {
                 app.UseForwardedHeaders();
+                app.UseExceptionHandler("/Error", createScopeForErrors: true);
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
@@ -212,16 +212,21 @@ namespace Oqtane
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapControllers();
+                endpoints.MapRazorPages();
+            });
+
+            app.UseEndpoints(endpoints =>
+            {
                 endpoints.MapRazorComponents<App>()
                     .AddInteractiveServerRenderMode()
-                    .AddInteractiveWebAssemblyRenderMode();
+                    .AddInteractiveWebAssemblyRenderMode()
+                    .AddAdditionalAssemblies(typeof(SiteRouter).Assembly);
             });
 
             // simulate the fallback routing approach of traditional Blazor - allowing the custom SiteRouter to handle all routing concerns
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
-                endpoints.MapRazorPages();
                 endpoints.MapFallback();
             });
 
