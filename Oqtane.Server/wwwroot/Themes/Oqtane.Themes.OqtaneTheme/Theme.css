@@ -54,6 +54,10 @@ nav .controls-group {
     flex-wrap: nowrap;
 }
 
+    nav .controls-group .app-profile, .controls-group .app-login {
+        margin-right: 5px;
+    }
+
 .app-menu .nav-item {
     font-size: 0.9rem;
     padding-bottom: 0.5rem;
