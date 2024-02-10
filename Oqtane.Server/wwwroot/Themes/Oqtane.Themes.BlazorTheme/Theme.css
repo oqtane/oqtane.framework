@@ -108,6 +108,13 @@
     color: white;
 }
 
+nav .controls-group {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
 .content {
     padding-top: 1.1rem;
 }
