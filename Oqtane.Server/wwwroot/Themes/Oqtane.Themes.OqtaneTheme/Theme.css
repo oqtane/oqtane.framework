@@ -47,7 +47,7 @@ body {
     margin-right: 10px;
 }
 
-nav.controls-group {
+nav .controls-group {
     display: flex;
     justify-content: flex-end;
     align-items: center;
