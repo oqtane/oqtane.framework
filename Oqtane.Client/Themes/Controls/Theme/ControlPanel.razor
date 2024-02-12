@@ -38,7 +38,7 @@
 
 @if (_canViewAdminDashboard || UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
 {
-    <button type="button" class="btn @ButtonClass ms-1" data-bs-toggle="offcanvas" data-bs-target="#offcanvasControlPanel" aria-controls="offcanvasControlPanel" @onclick="ClearMessage">
+    <button type="button" class="btn @ButtonClass ms-1" data-bs-toggle="offcanvas" data-bs-target="#offcanvasControlPanel" aria-controls="offcanvasControlPanel">
         <span class="oi oi-cog"></span>
     </button>
 
@@ -53,7 +53,10 @@
 				{
 					<div class="row d-flex">
 						<div class="col">
-							<button type="button" data-bs-dismiss="offcanvas" class="btn btn-primary col-12" @onclick=@(async () => Navigate("Admin"))>@Localizer["AdminDash"]</button>
+                            <form method="post" class="app-form-button col-12" @formname="ControlPanelForm" @onsubmit="AdminDashboard">
+                                <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                                <button type="submit" class="btn btn-primary col-12" data-bs-dismiss="offcanvas">@Localizer["AdminDash"]</button>
+                            </form>
 						</div>
 					</div>
 					<hr class="app-rule" />
@@ -238,6 +241,8 @@
 	</div>
 }
 
+
+
 @code{
     [Parameter]
     public string ButtonClass { get; set; } = "btn-outline-secondary";
@@ -256,6 +261,9 @@
 
     [Parameter]
     public string LanguageDropdownAlignment { get; set; } = string.Empty; // Empty or Left or Right
+
+    [SupplyParameterFromForm(FormName = "ControlPanelForm")]
+    public string action { get; set; }
 
     private bool _canViewAdminDashboard = false;
     private bool _showEditMode = false;
@@ -311,6 +319,11 @@
                 _ = UpdateSettingsAsync();
             }
         }
+    }
+
+    private void AdminDashboard()
+    {
+        Navigate("Admin");
     }
 
     protected override async Task OnParametersSetAsync()
