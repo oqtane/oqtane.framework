@@ -3,12 +3,10 @@
 
 @if (PageState.Site.RenderMode == RenderModes.Interactive || ModuleState.RenderMode == RenderModes.Static)
 {
-    <div>Render Mode: @PageState.Site.RenderMode</div><br />
 	<RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" />
 }
 else
 {
-    <div>Render Mode: @ModuleState.RenderMode</div><br />
     <RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" @rendermode="@InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, PageState.Site.Prerender)" />
 }
 
