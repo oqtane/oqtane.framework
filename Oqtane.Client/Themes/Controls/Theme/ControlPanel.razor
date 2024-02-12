@@ -22,18 +22,21 @@
 
 @if (_showEditMode || (PageState.Page.IsPersonalizable && PageState.User != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Registered)))
 {
-    if (PageState.EditMode)
-    {
-        <button type="button" class="btn @ButtonClass active" data-bs-toggle="button" aria-pressed="true" autocomplete="off" @onclick="(async () => await ToggleEditMode(PageState.EditMode))">
-            <span class="oi oi-pencil"></span>
-        </button>
-    }
-    else
-    {
-        <button type="button" class="btn @ButtonClass" data-bs-toggle="button" aria-pressed="false" autocomplete="off" @onclick="(async () => await ToggleEditMode(PageState.EditMode))">
-            <span class="oi oi-pencil"></span>
-        </button>
-    }
+    <form method="post" class="app-form-button" @formname="EditModeForm" @onsubmit="EditMode">
+        <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+        @if (PageState.EditMode)
+        {
+            <button type="submit" class="btn @ButtonClass active" aria-pressed="true" autocomplete="off">
+                <span class="oi oi-pencil"></span>
+            </button>
+        }
+        else
+        {
+            <button type="submit" class="btn @ButtonClass" aria-pressed="false" autocomplete="off">
+                <span class="oi oi-pencil"></span>
+            </button>
+        }
+    </form>
 }
 
 @if (_canViewAdminDashboard || UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
@@ -53,7 +56,7 @@
 				{
 					<div class="row d-flex">
 						<div class="col">
-                            <form method="post" class="app-form-button col-12" @formname="ControlPanelForm" @onsubmit="AdminDashboard">
+                            <form method="post" class="app-form-button col-12" @formname="AdminDashboardForm" @onsubmit="AdminDashboard">
                                 <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                                 <button type="submit" class="btn btn-primary col-12" data-bs-dismiss="offcanvas">@Localizer["AdminDash"]</button>
                             </form>
@@ -321,6 +324,11 @@
     private void AdminDashboard()
     {
         Navigate("Admin");
+    }
+
+    private async Task EditMode()
+    {
+        await ToggleEditMode(PageState.EditMode);
     }
 
     protected override async Task OnParametersSetAsync()
