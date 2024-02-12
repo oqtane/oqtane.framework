@@ -17,7 +17,7 @@ namespace [Owner].Theme.[Theme]
             Resources = new List<Resource>()
             {
 		        // obtained from https://cdnjs.com/libraries
-                new Resource { ResourceType = ResourceType.Stylesheet, Url = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.rtl.min.css", Integrity = "sha512-weOvppLcPYEPmC4uewvFOgCaKchw0D988+kEjSWrGHeHqqV9AwWj1M6e8PZAVDBn2WDStDpLm9oAIvoZcQqPZg==", CrossOrigin = "anonymous" },
+                new Resource { ResourceType = ResourceType.Stylesheet, Url = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css", Integrity = "sha512-ZuRTqfQ3jNAKvJskDAU/hxbX1w25g41bANOVd1Co6GahIe2XjM6uVZ9dh0Nt3KFCOA061amfF2VeL60aJXdwwQ==", CrossOrigin = "anonymous" },
                 new Resource { ResourceType = ResourceType.Stylesheet, Url = "~/Theme.css" },
                 new Resource { ResourceType = ResourceType.Script, Url = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js", Integrity = "sha512-WW8/jxkELe2CAiE4LvQfwm1rajOS8PHasCCx+knHG0gBHt8EXxS6T6tJRTGuDQVnluuAvMxWF4j8SNFDKceLFg==", CrossOrigin = "anonymous" }
             }
