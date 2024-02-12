@@ -18,7 +18,7 @@ namespace Oqtane.Themes.OqtaneTheme
             {
                 new Resource { ResourceType = ResourceType.Stylesheet, Url = "https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.2/cyborg/bootstrap.min.css", Integrity = "sha512-RfNxVfFNFgqk9MXO4TCKXYXn9hgc+keHCg3xFFGbnp2q7Cifda+YYzMTDHwsQtNx4DuqIMgfvZead7XOtB9CDQ==", CrossOrigin = "anonymous" },
                 new Resource { ResourceType = ResourceType.Stylesheet, Url = "~/Theme.css" },
-                new Resource { ResourceType = ResourceType.Script, Url = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js", Integrity = "sha512-WW8/jxkELe2CAiE4LvQfwm1rajOS8PHasCCx+knHG0gBHt8EXxS6T6tJRTGuDQVnluuAvMxWF4j8SNFDKceLFg==", CrossOrigin = "anonymous" }
+                new Resource { ResourceType = ResourceType.Script, Url = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js", Integrity = "sha512-X/YkDZyjTf4wyc2Vy16YGCPHwAY8rZJY+POgokZjQB2mhIRFJCckEGc6YyX9eNsPfn0PzThEuNs+uaomE5CO6A==", CrossOrigin = "anonymous" }
             }
         };
     }
