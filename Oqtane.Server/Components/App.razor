@@ -167,7 +167,7 @@
                     var theme = themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == page.ThemeType));
                     if (theme?.Resources != null)
                     {
-                        resources.AddRange(theme.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet).ToList());
+                        resources.AddRange(theme.Resources);
                     }
                     var type = Type.GetType(page.ThemeType);
                     if (type != null)
@@ -175,10 +175,14 @@
                         var obj = Activator.CreateInstance(type) as IThemeControl;
                         if (obj?.Resources != null)
                         {
-                            resources.AddRange(obj.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet).ToList());
+                            resources.AddRange(obj.Resources);
                         }
                     }
                     ManageStyleSheets(resources, alias, theme.ThemeName);
+                    if (_renderMode == RenderModes.Static)
+                    {
+                        ManageScripts(resources, alias);
+                    }
 
                     // scripts
                     if (_renderMode == RenderModes.Interactive && _runtime == Runtimes.Server)
@@ -534,7 +538,7 @@
         if (resources != null)
         {
             int count = 0;
-            foreach (var resource in resources)
+            foreach (var resource in resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
             {
                 if (resource.Url.StartsWith("~"))
                 {
@@ -554,4 +558,17 @@
             }
         }
     }
+
+    private void ManageScripts(List<Resource> resources, Alias alias)
+    {
+        if (resources != null)
+        {
+            foreach (var resource in resources.Where(item => item.ResourceType == ResourceType.Script))
+            {
+                AddScript(resource, alias);
+            }
+        }
+
+    }
+
 }
