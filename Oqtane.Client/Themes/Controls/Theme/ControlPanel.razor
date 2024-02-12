@@ -262,9 +262,6 @@
     [Parameter]
     public string LanguageDropdownAlignment { get; set; } = string.Empty; // Empty or Left or Right
 
-    [SupplyParameterFromForm(FormName = "ControlPanelForm")]
-    public string action { get; set; }
-
     private bool _canViewAdminDashboard = false;
     private bool _showEditMode = false;
     private bool _deleteConfirmation = false;
