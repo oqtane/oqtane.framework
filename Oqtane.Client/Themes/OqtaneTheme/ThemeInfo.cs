@@ -16,9 +16,9 @@ namespace Oqtane.Themes.OqtaneTheme
             ContainerSettingsType = "Oqtane.Themes.OqtaneTheme.ContainerSettings, Oqtane.Client",
             Resources = new List<Resource>()
             {
-                new Resource { ResourceType = ResourceType.Stylesheet, Url = "https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.0/cyborg/bootstrap.min.css", Integrity = "sha512-jwIqEv8o/kTBMJVtbNCBrDqhBojl0YSUam+EFpLjVOC86Ci6t4ZciTnIkelFNOik+dEQVymKGcQLiaJZNAfWRg==", CrossOrigin = "anonymous" },
+                new Resource { ResourceType = ResourceType.Stylesheet, Url = "https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.0/cyborg/bootstrap.rtl.min.css", Integrity = "sha512-weOvppLcPYEPmC4uewvFOgCaKchw0D988+kEjSWrGHeHqqV9AwWj1M6e8PZAVDBn2WDStDpLm9oAIvoZcQqPZg==", CrossOrigin = "anonymous" },
                 new Resource { ResourceType = ResourceType.Stylesheet, Url = "~/Theme.css" },
-                new Resource { ResourceType = ResourceType.Script, Url = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js", Integrity = "sha512-VK2zcvntEufaimc+efOYi622VN5ZacdnufnmX7zIhCPmjhKnOi9ZDMtg1/ug5l183f19gG1/cBstPO4D8N/Img==", CrossOrigin = "anonymous" }
+                new Resource { ResourceType = ResourceType.Script, Url = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js", Integrity = "sha512-WW8/jxkELe2CAiE4LvQfwm1rajOS8PHasCCx+knHG0gBHt8EXxS6T6tJRTGuDQVnluuAvMxWF4j8SNFDKceLFg==", CrossOrigin = "anonymous" }
             }
         };
     }
