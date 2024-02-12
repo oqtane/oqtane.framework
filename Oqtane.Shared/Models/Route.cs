@@ -10,6 +10,11 @@ namespace Oqtane.Models
     public class Route
     {
         /// <summary>
+        /// parameterless constructor to prevent deserialization exceptions
+        /// </summary>
+        public Route() { }
+
+        /// <summary>
         /// default constructor
         /// the route parameter can be obtained from NavigationManager.Uri on client or HttpContext.Request.GetEncodedUrl() on server
         /// the aliaspath parameter can be obtained from PageState.Alias.Path on client or TenantManager.GetAlias().Path on server
