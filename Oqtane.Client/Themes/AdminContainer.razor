@@ -8,7 +8,10 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title"><ModuleTitle /></h5>
-                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseModal"></button>
+                    <form method="post" class="app-form-button" @formname="AdminContainerForm" @onsubmit="@CloseModal">
+                        <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                        <button type="submit" class="btn-close" aria-label="Close"></button>
+                    </form>
                 </div>
                 <div class="modal-body">
                     <ModuleInstance />
