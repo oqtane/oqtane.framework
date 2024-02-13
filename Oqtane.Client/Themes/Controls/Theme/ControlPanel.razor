@@ -118,119 +118,122 @@
 						</div>
 					}
 
-					<div class="row">
-						<div class="col text-center">
-							<label for="Module" class="control-label">@Localizer["Module.Manage"]</label>
-							<select class="form-select" @bind="@ModuleType">
-								<option value="new">@Localizer["Module.AddNew"]</option>
-								<option value="existing">@Localizer["Module.AddExisting"]</option>
-							</select>
-							@if (ModuleType == "new")
-							{
-								@if (_moduleDefinitions != null)
-								{
-									<select class="form-select mt-1" @onchange="(e => CategoryChanged(e))">
-										@foreach (var category in _categories)
-										{
-											if (category == Category)
-											{
-												<option value="@category" selected>@category @Localizer["Modules"]</option>
-											}
-											else
-											{
-												<option value="@category">@category @Localizer["Modules"]</option>
-											}
-										}
-									</select>
-                                    <select class="form-select mt-1" @onchange="(e => ModuleChanged(e))">
-										@if (ModuleDefinitionName == "-")
-										{
-											<option value="-" selected>&lt;@Localizer["Module.Select"]&gt;</option>
-										}
-										else
-										{
-											<option value="-">&lt;@Localizer["Module.Select"]&gt;</option>
-										}
-										@foreach (var moduledefinition in _moduleDefinitions)
-										{
-											if (moduledefinition.IsEnabled && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Utilize, moduledefinition.PermissionList))
-											{
-												if (moduledefinition.Runtimes == "" || moduledefinition.Runtimes.Contains(PageState.Runtime.ToString()))
-												{
-													<option value="@moduledefinition.ModuleDefinitionName">@moduledefinition.Name</option>
-												}
-											}
-										}
-									</select>
-								}
-							}
-							else
-							{
-                                <select class="form-select mt-1" @onchange="(e => PageChanged(e))">
-									<option value="-">&lt;@Localizer["Page.Select"]&gt;</option>
-									@foreach (Page p in _pages)
-									{
-										<option value="@p.PageId">@p.Name</option>
-									}
-								</select>
-                                <select class="form-select mt-1" @bind="@ModuleId">
-									<option value="-">&lt;@Localizer["Module.Select"]&gt;</option>
-									@foreach (Module module in _modules)
-									{
-										<option value="@module.ModuleId">@module.Title</option>
-									}
-								</select>
-							}
-						</div>
-					</div>
-					<div class="row">
-						<div class="col text-center">
-							<label for="Title" class="control-label">@Localizer["Title"]</label>
-							<input type="text" name="Title" class="form-control" @bind="@Title" />
-						</div>
-					</div>
-					<div class="row">
-						<div class="col text-center">
-							<label for="Pane" class="control-label">@Localizer["Pane"]</label>
-							<select class="form-select" @bind="@Pane">
-								@foreach (string pane in PageState.Page.Panes)
-								{
-									<option value="@pane">@pane Pane</option>
-								}
-							</select>
-						</div>
-					</div>
-                    <div class="row">
-                        <div class="col text-center">
-                            <label for="Insert" class="control-label">@Localizer["Location"]</label>
-                            <select class="form-select" @bind="@Location">
-                                <option value="@int.MinValue">@Localizer["LocationTop"]</option>
-                                <option value="@int.MaxValue">@Localizer["LocationBottom"]</option>
-                            </select>
+                    <form method="post" class="app-form-button col-12" @formname="AddModuleForm" @onsubmit="@AddModule">
+                        <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                        <div class="row">
+						    <div class="col text-center">
+							    <label for="Module" class="control-label">@Localizer["Module.Manage"]</label>
+							    <select name="moduletype" class="form-select" @bind="@_moduleType">
+								    <option value="new">@Localizer["Module.AddNew"]</option>
+								    <option value="existing">@Localizer["Module.AddExisting"]</option>
+							    </select>
+							    @if (_moduleType == "new")
+							    {
+								    @if (_moduleDefinitions != null)
+								    {
+									    <select name="category" class="form-select mt-1" @onchange="(e => CategoryChanged(e))">
+										    @foreach (var category in _categories)
+										    {
+											    if (category == _category)
+											    {
+												    <option value="@category" selected>@category @Localizer["Modules"]</option>
+											    }
+											    else
+											    {
+												    <option value="@category">@category @Localizer["Modules"]</option>
+											    }
+										    }
+									    </select>
+                                        <select name="moduledefinitionname" class="form-select mt-1" @onchange="(e => ModuleDefinitionChanged(e))">
+										    @if (_moduleDefinitionName == "-")
+										    {
+											    <option value="-" selected>&lt;@Localizer["Module.Select"]&gt;</option>
+										    }
+										    else
+										    {
+											    <option value="-">&lt;@Localizer["Module.Select"]&gt;</option>
+										    }
+										    @foreach (var moduledefinition in _moduleDefinitions)
+										    {
+											    if (moduledefinition.IsEnabled && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Utilize, moduledefinition.PermissionList))
+											    {
+												    if (moduledefinition.Runtimes == "" || moduledefinition.Runtimes.Contains(PageState.Runtime.ToString()))
+												    {
+													    <option value="@moduledefinition.ModuleDefinitionName">@moduledefinition.Name</option>
+												    }
+											    }
+										    }
+									    </select>
+								    }
+							    }
+							    else
+							    {
+                                    <select name="pageid" class="form-select mt-1" @onchange="(e => PageChanged(e))">
+									    <option value="-">&lt;@Localizer["Page.Select"]&gt;</option>
+									    @foreach (Page p in _pages)
+									    {
+										    <option value="@p.PageId">@p.Name</option>
+									    }
+								    </select>
+                                    <select name="moduleid" class="form-select mt-1" @bind="@_moduleId">
+									    <option value="-">&lt;@Localizer["Module.Select"]&gt;</option>
+									    @foreach (Module module in _modules)
+									    {
+										    <option value="@module.ModuleId">@module.Title</option>
+									    }
+								    </select>
+							    }
+						    </div>
+					    </div>
+					    <div class="row">
+						    <div class="col text-center">
+							    <label for="Title" class="control-label">@Localizer["Title"]</label>
+							    <input type="text" name="title" class="form-control" @bind="@_title" />
+						    </div>
+					    </div>
+					    <div class="row">
+						    <div class="col text-center">
+							    <label for="Pane" class="control-label">@Localizer["Pane"]</label>
+							    <select name="pane" class="form-select" @bind="@_pane">
+								    @foreach (string pane in PageState.Page.Panes)
+								    {
+									    <option value="@pane">@pane Pane</option>
+								    }
+							    </select>
+						    </div>
+					    </div>
+                        <div class="row">
+                            <div class="col text-center">
+                                <label for="Insert" class="control-label">@Localizer["Location"]</label>
+                                <select name="location" class="form-select" @bind="@_location">
+                                    <option value="@int.MinValue">@Localizer["LocationTop"]</option>
+                                    <option value="@int.MaxValue">@Localizer["LocationBottom"]</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-					<div class="row">
-						<div class="col text-center">
-							<label for="Container" class="control-label">@Localizer["Container"]</label>
-							<select class="form-select" @bind="@ContainerType">
-								@foreach (var container in _containers)
-								{
-									<option value="@container.TypeName">@container.Name</option>
-								}
-							</select>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col text-center">
-							<label for="visibility" class="control-label">@Localizer["Visibility"]</label>
-							<select class="form-select" @bind="@Visibility">
-								<option value="view">@Localizer["VisibilityView"]</option>
-								<option value="edit">@Localizer["VisibilityEdit"]</option>
-							</select>
-						</div>
-					</div>
-					<button type="button" class="btn btn-primary col-12 mt-4" @onclick="@AddModule">@Localizer["Page.Module.Add"]</button>
-					@((MarkupString)Message)
+					    <div class="row">
+						    <div class="col text-center">
+							    <label for="Container" class="control-label">@Localizer["Container"]</label>
+							    <select name="container" class="form-select" @bind="@_container">
+								    @foreach (var container in _containers)
+								    {
+									    <option value="@container.TypeName">@container.Name</option>
+								    }
+							    </select>
+						    </div>
+					    </div>
+					    <div class="row">
+						    <div class="col text-center">
+							    <label for="visibility" class="control-label">@Localizer["Visibility"]</label>
+							    <select name="visibility" class="form-select" @bind="@_visibility">
+								    <option value="view">@Localizer["VisibilityView"]</option>
+								    <option value="edit">@Localizer["VisibilityEdit"]</option>
+							    </select>
+						    </div>
+					    </div>
+                        <button type="submit" class="btn btn-primary col-12 mt-4">@Localizer["Page.Module.Add"]</button>
+                    </form>
+					@((MarkupString)_message)
                     <hr class="app-rule" />
                 }
 
@@ -243,8 +246,6 @@
 		</div>
 	</div>
 }
-
-
 
 @code{
     [Parameter]
@@ -274,52 +275,33 @@
     private List<Page> _pages = new List<Page>();
     private List<Module> _modules = new List<Module>();
     private List<ThemeControl> _containers = new List<ThemeControl>();
+
+    [SupplyParameterFromForm] public string ModuleType { get => ""; set => _moduleType = value; }
+    [SupplyParameterFromForm] public string Category { get => ""; set => _category = value; }
+    [SupplyParameterFromForm] public string ModuleDefinitionName { get => ""; set => _moduleDefinitionName = value; }
+    [SupplyParameterFromForm] public string PageId { get => ""; set => _pageId = value; }
+    [SupplyParameterFromForm] public string ModuleId { get => ""; set => _moduleId = value; }
+    [SupplyParameterFromForm] public string Title { get => ""; set => _title = value; }
+    [SupplyParameterFromForm] public string Pane { get => ""; set => _pane = value; }
+    [SupplyParameterFromForm] public int Location { get => -1; set => _location = value; }
+    [SupplyParameterFromForm] public string Container { get => ""; set => _container = value; }
+    [SupplyParameterFromForm] public string Visibility { get => ""; set => _visibility = value; }
+
+    protected string _moduleType = "new";
     private string _category = "Common";
+    protected string _moduleDefinitionName = "-";
+    protected string _pageId = "-";
+    protected string _moduleId = "-";
+    protected string _title = "";
     private string _pane = "";
+    protected int _location = int.MaxValue;
+    protected string _container = "";
+    protected string _visibility = "view";
 
-    protected string PageId { get; private set; } = "-";
-    protected string ModuleId { get; private set; } = "-";
-    protected string ModuleType { get; private set; } = "new";
-    protected string ModuleDefinitionName { get; private set; } = "-";
-
-    protected string Title { get; private set; } = "";
-    protected string ContainerType { get; private set; } = "";
-    protected int Location { get; private set; } = int.MaxValue;
-    protected string Visibility { get; private set; } = "view";
-    protected string Message { get; private set; } = "";
+    protected string _message { get; private set; } = "";
 
     private string settingCategory = "CP-category";
     private string settingPane = "CP-pane";
-
-    protected string Category
-    {
-        get => _category;
-        private set
-        {
-            if (_category != value)
-            {
-                _category = value;
-                _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(Category)).ToList();
-                ModuleDefinitionName = "-";
-                Message = "";
-                StateHasChanged();
-                _ = UpdateSettingsAsync();
-            }
-        }
-    }
-
-    protected string Pane
-    {
-        get => _pane;
-        private set
-        {
-            if (_pane != value)
-            {
-                _pane = value;
-                _ = UpdateSettingsAsync();
-            }
-        }
-    }
 
     private void AdminDashboard()
     {
@@ -351,9 +333,9 @@
 
             var themes = await ThemeService.GetThemesAsync();
             _containers = ThemeService.GetContainerControls(themes, PageState.Page.ThemeType);
-            ContainerType = PageState.Site.DefaultContainerType;
+            _container = PageState.Site.DefaultContainerType;
             _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
-            _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(Category)).ToList();
+            _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(_category)).ToList();
             _categories = _allModuleDefinitions.SelectMany(m => m.Categories.Split(',')).Distinct().ToList();
         }
         else
@@ -387,35 +369,38 @@
 
     private void CategoryChanged(ChangeEventArgs e)
     {
-        Category = (string)e.Value;
+        _category = (string)e.Value;
+        _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(Category)).ToList();
+        _moduleDefinitionName = "-";
+        _message = "";
     }
 
-    private void ModuleChanged(ChangeEventArgs e)
+    private void ModuleDefinitionChanged(ChangeEventArgs e)
     {
-        ModuleDefinitionName = (string)e.Value;
-        if (ModuleDefinitionName != "-")
+        _moduleDefinitionName = (string)e.Value;
+        if (_moduleDefinitionName != "-")
         {
-            var moduleDefinition = _moduleDefinitions.FirstOrDefault(item => item.ModuleDefinitionName == ModuleDefinitionName);
-            Message = "<div class=\"alert alert-info mt-2 text-center\" role=\"alert\">" + moduleDefinition.Description + "</div>";
+            var moduleDefinition = _moduleDefinitions.FirstOrDefault(item => item.ModuleDefinitionName == _moduleDefinitionName);
+            _message = "<div class=\"alert alert-info mt-2 text-center\" role=\"alert\">" + moduleDefinition.Description + "</div>";
         }
         else
         {
-            Message = "";
+            _message = "";
         }
         StateHasChanged();
     }
 
     private void PageChanged(ChangeEventArgs e)
     {
-        PageId = (string)e.Value;
-        if (PageId != "-")
+        _pageId = (string)e.Value;
+        if (_pageId != "-")
         {
             _modules = PageState.Modules
-                .Where(module => module.PageId == int.Parse(PageId) &&
+                .Where(module => module.PageId == int.Parse(_pageId) &&
                 UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.PermissionList))
                 .ToList();
         }
-        ModuleId = "-";
+        _moduleId = "-";
         StateHasChanged();
     }
 
@@ -423,18 +408,18 @@
     {
         if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
         {
-            if ((ModuleType == "new" && ModuleDefinitionName != "-") || (ModuleType != "new" && ModuleId != "-"))
+            if ((_moduleType == "new" && _moduleDefinitionName != "-") || (_moduleType != "new" && _moduleId != "-"))
             {
-                if (ModuleType == "new")
+                if (_moduleType == "new")
                 {
                     Module module = new Module();
                     module.SiteId = PageState.Site.SiteId;
                     module.PageId = PageState.Page.PageId;
-                    module.ModuleDefinitionName = ModuleDefinitionName;
+                    module.ModuleDefinitionName = _moduleDefinitionName;
                     module.AllPages = false;
 
                     var permissions = new List<Permission>();
-                    if (Visibility == "view")
+                    if (_visibility == "view")
                     {
                         // set module view permissions to page view permissions
                         permissions = SetPermissions(permissions, module.SiteId, PermissionNames.View, PermissionNames.View);
@@ -455,24 +440,24 @@
                 var pageModule = new PageModule
                 {
                     PageId = PageState.Page.PageId,
-                    ModuleId = int.Parse(ModuleId),
-                    Title = Title
+                    ModuleId = int.Parse(_moduleId),
+                    Title = _title
                 };
                 if (pageModule.Title == "")
                 {
-                    if (ModuleType == "new")
+                    if (_moduleType == "new")
                     {
-                        pageModule.Title = _moduleDefinitions.FirstOrDefault(item => item.ModuleDefinitionName == ModuleDefinitionName)?.Name;
+                        pageModule.Title = _moduleDefinitions.FirstOrDefault(item => item.ModuleDefinitionName == _moduleDefinitionName)?.Name;
                     }
                     else
                     {
-                        pageModule.Title = _modules.FirstOrDefault(item => item.ModuleId == int.Parse(ModuleId))?.Title;
+                        pageModule.Title = _modules.FirstOrDefault(item => item.ModuleId == int.Parse(_moduleId))?.Title;
                     }
                 }
 
-                pageModule.Pane = Pane;
-                pageModule.Order = Location;
-                pageModule.ContainerType = ContainerType;
+                pageModule.Pane = _pane;
+                pageModule.Order = _location;
+                pageModule.ContainerType = _container;
 
                 if (pageModule.ContainerType == PageState.Site.DefaultContainerType)
                 {
@@ -481,19 +466,20 @@
 
                 await PageModuleService.AddPageModuleAsync(pageModule);
                 await PageModuleService.UpdatePageModuleOrderAsync(pageModule.PageId, pageModule.Pane);
+                await UpdateSettingsAsync();
 
-                Message = $"<div class=\"alert alert-success mt-2 text-center\" role=\"alert\">{Localizer["Success.Page.ModuleAdd"]}</div>";
-                Title = "";
+                _message = $"<div class=\"alert alert-success mt-2 text-center\" role=\"alert\">{Localizer["Success.Page.ModuleAdd"]}</div>";
+                _title = "";
                 NavigationManager.NavigateTo(NavigateUrl());
             }
             else
             {
-                Message = $"<div class=\"alert alert-warning mt-2 text-center\" role=\"alert\">{Localizer["Message.Require.ModuleSelect"]}</div>";
+                _message = $"<div class=\"alert alert-warning mt-2 text-center\" role=\"alert\">{Localizer["Message.Require.ModuleSelect"]}</div>";
             }
         }
         else
         {
-            Message = $"<div class=\"alert alert-error mt-2 text-center\" role=\"alert\">{Localizer["Error.Authorize.No"]}</div>";
+            _message = $"<div class=\"alert alert-error mt-2 text-center\" role=\"alert\">{Localizer["Error.Authorize.No"]}</div>";
         }
     }
 
@@ -712,8 +698,6 @@
 
     private void ClearMessage()
     {
-
-        Message = "";
-
+        _message = "";
     }
 }
