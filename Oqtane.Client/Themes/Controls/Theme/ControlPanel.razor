@@ -56,7 +56,7 @@
 				{
 					<div class="row d-flex">
 						<div class="col">
-                            <form method="post" class="app-form-button col-12" @formname="AdminDashboardForm" @onsubmit="AdminDashboard">
+                            <form method="post" class="app-form-button col-12" @formname="AdminDashboardForm" @onsubmit="@(async () => Navigate("Admin"))">
                                 <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                                 <button type="submit" class="btn btn-primary col-12" data-bs-dismiss="offcanvas">@Localizer["AdminDash"]</button>
                             </form>
@@ -75,23 +75,38 @@
 						<div class="col d-flex justify-content-between">
                             @if (PageState.Page.UserId == null)
                             {
-                                <button type="button" class="btn btn-secondary col me-1" data-bs-dismiss="offcanvas" @onclick=@(async () => Navigate("Add"))>@SharedLocalizer["Add"]</button>
+                                <form method="post" class="app-form-button col-4 me-1" @formname="AddPageForm" @onsubmit="@(async () => Navigate("Add"))">
+                                    <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                                    <button type="submit" class="btn btn-primary col-12" data-bs-dismiss="offcanvas">@SharedLocalizer["Add"]</button>
+                                </form>
                             }
-							<button type="button" class="btn btn-secondary col" data-bs-dismiss="offcanvas" @onclick=@(async () => Navigate("Edit"))>@SharedLocalizer["Edit"]</button>
-							<button type="button" class="btn btn-danger col ms-1" @onclick="ConfirmDelete">@SharedLocalizer["Delete"]</button>
+                            <form method="post" class="app-form-button col-4" @formname="EditPageForm" @onsubmit="@(async () => Navigate("Edit"))">
+                                <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                                <button type="submit" class="btn btn-secondary col-12" data-bs-dismiss="offcanvas">@SharedLocalizer["Edit"]</button>
+                            </form>
+                            <form method="post" class="app-form-button col-4 ms-1" @formname="DeletePageForm" @onsubmit="ConfirmDelete">
+                                <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                                <button type="submit" class="btn btn-danger col-12" data-bs-dismiss="offcanvas">@SharedLocalizer["Delete"]</button>
+                            </form>
 						</div>
 					</div>
 					<div class="row d-flex">
 						<div class="col">
-							@if (UserSecurity.ContainsRole(PageState.Page.PermissionList, PermissionNames.View, RoleNames.Everyone))
+                            @if (UserSecurity.ContainsRole(PageState.Page.PermissionList, PermissionNames.View, RoleNames.Everyone))
 							{
-								<button type="button" class="btn btn-secondary col-12" @onclick=@(async () => Publish("unpublish"))>@Localizer["Page.Unpublish"]</button>
-							}
+                                <form method="post" class="app-form-button col-12" @formname="UnpublishForm" @onsubmit="@(async () => Publish("unpublish"))">
+                                    <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                                    <button type="submit" class="btn btn-secondary col-12" data-bs-dismiss="offcanvas">@Localizer["Page.Unpublish"]</button>
+                                </form>
+                            }
 							else
 							{
-								<button type="button" class="btn btn-secondary col-12" @onclick=@(async () => Publish("publish"))>@Localizer["Page.Publish"]</button>
+                                <form method="post" class="app-form-button col-12" @formname="PublishForm" @onsubmit="@(async () => Publish("publish"))">
+                                    <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                                    <button type="submit" class="btn btn-secondary col-12" data-bs-dismiss="offcanvas">@Localizer["Page.Publish"]</button>
+                                </form>
 							}
-						</div>
+                        </div>
 					</div>
 					<hr class="app-rule" />
 
@@ -236,10 +251,12 @@
 					@((MarkupString)_message)
                     <hr class="app-rule" />
                 }
-
                 <div class="row d-flex">
                     <div class="col">
-                        <button type="button" data-bs-dismiss="offcanvas" class="btn btn-secondary col-12" @onclick=@(async () => await LogoutUser())>@Localizer["Logout"]</button>
+                        <form method="post" class="app-form-button col-12" @formname="LogoutForm" @onsubmit="LogoutUser">
+                            <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                            <button type="submit" class="btn btn-secondary col-12" data-bs-dismiss="offcanvas">@Localizer["Logout"]</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -302,11 +319,6 @@
 
     private string settingCategory = "CP-category";
     private string settingPane = "CP-pane";
-
-    private void AdminDashboard()
-    {
-        Navigate("Admin");
-    }
 
     private async Task EditMode()
     {
