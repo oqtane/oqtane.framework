@@ -7,17 +7,21 @@ using Oqtane.Models;
 using Oqtane.Security;
 using Oqtane.Services;
 using Oqtane.Shared;
+using Oqtane.UI;
 
 // ReSharper disable UnassignedGetOnlyAutoProperty
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace Oqtane.Themes.Controls
 {
-    public class ModuleActionsBase : ContainerBase
+    public class ModuleActionsBase : ComponentBase
     {
         [Inject] public NavigationManager NavigationManager { get; set; }
         [Inject] public IPageModuleService PageModuleService { get; set; }
         [Inject] public IModuleService ModuleService { get; set; }
+
+        [Parameter] public PageState PageState { get; set; }
+        [Parameter] public Module ModuleState { get; set; }
 
         public List<ActionViewModel> Actions;
 
@@ -88,7 +92,7 @@ namespace Oqtane.Themes.Controls
         private async Task<string> EditUrlAsync(string url, int moduleId, string import)
         {
             await Task.Yield();
-            return EditUrl(moduleId, import);
+            return Utilities.EditUrl(PageState.Alias.Path, PageState.Page.Path, moduleId, import, "");
         }
 
         protected async Task ModuleAction(ActionViewModel action)
@@ -97,7 +101,7 @@ namespace Oqtane.Themes.Controls
             {
                 PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
 
-                string url = NavigateUrl(true);
+                string url = Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, "refresh");
 
                 if (action.Action != null)
                 {
@@ -130,7 +134,7 @@ namespace Oqtane.Themes.Controls
         private async Task<string> Settings(string url, PageModule pagemodule)
         {
             await Task.Yield();
-            url = EditUrl(pagemodule.ModuleId, "Settings");
+            url = Utilities.EditUrl(PageState.Alias.Path, PageState.Page.Path, pagemodule.ModuleId, "Settings", "");
             return url;
         }
 
