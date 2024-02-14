@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using Microsoft.JSInterop;
 using System.Linq;
 using System.Dynamic;
+using System.Net.Http.Headers;
 
 namespace Oqtane.Modules
 {
@@ -489,5 +490,8 @@ namespace Oqtane.Modules
         {
             return Utilities.FileUrl(PageState.Alias, fileid, asAttachment);
         }
+
+        // Referencing ModuleInstance methods from ModuleBase is deprecated. Use the ModuleBase methods instead
+        public ModuleInstance ModuleInstance { get { return new ModuleInstance(); } }
     }
 }
