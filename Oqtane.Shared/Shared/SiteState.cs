@@ -1,3 +1,6 @@
+using System.Net;
+using System.Xml.Linq;
+using System;
 using Oqtane.Models;
 
 namespace Oqtane.Shared
@@ -25,6 +28,15 @@ namespace Oqtane.Shared
             {
                 Properties.HeadContent += content;
             }
+        }
+
+        public void Clone(SiteState siteState)
+        {
+            Alias = siteState.Alias;
+            AntiForgeryToken = siteState.AntiForgeryToken;
+            AuthorizationToken = siteState.AuthorizationToken;
+            RemoteIPAddress = siteState.RemoteIPAddress;
+            IsPrerendering = siteState.IsPrerendering;
         }
     }
 }

@@ -71,11 +71,7 @@ else
                 if (ModuleType != null)
                 {
                     // repopulate the SiteState service based on the values passed in the SiteState parameter (this is how state is marshalled across the render mode boundary)
-                    ComponentSiteState.Alias = SiteState.Alias;
-                    ComponentSiteState.AntiForgeryToken = SiteState.AntiForgeryToken;
-                    ComponentSiteState.AuthorizationToken = SiteState.AuthorizationToken;
-                    ComponentSiteState.RemoteIPAddress = SiteState.RemoteIPAddress;
-                    ComponentSiteState.IsPrerendering = SiteState.IsPrerendering;
+                    ComponentSiteState.Clone(SiteState);
 
                     DynamicComponent = builder =>
                     {
