@@ -27,6 +27,7 @@
 	private List<Page> _pages;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
+    public override string RenderMode => RenderModes.Static;
 
 	protected override void OnInitialized()
 	{

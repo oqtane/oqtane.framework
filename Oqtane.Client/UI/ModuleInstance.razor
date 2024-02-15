@@ -1,7 +1,7 @@
 @namespace Oqtane.UI
 @inject SiteState SiteState
 
-@if (PageState.Site.RenderMode == RenderModes.Interactive || ModuleState.RenderMode == RenderModes.Static)
+@if (PageState.RenderMode == RenderModes.Interactive || ModuleState.RenderMode == RenderModes.Static)
 {
 	<RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" />
 }
