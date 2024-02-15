@@ -23,7 +23,11 @@ namespace Oqtane.Infrastructure
             var config = context.RequestServices.GetService(typeof(IConfigManager)) as IConfigManager;
             string path = context.Request.Path.ToString();
 
-            if (config.IsInstalled() && !path.StartsWith("/_")) // ignore Blazor framework requests
+            // note that in order to support Alias subfolders we used to ignore Blazor framework requests...
+            // but this does not work in static rendering as the web UI request originates from /_blazor
+            //if (config.IsInstalled() && !path.StartsWith("/_"))
+
+            if (config.IsInstalled()) 
             {
                 // get alias (note that this also sets SiteState.Alias)
                 var tenantManager = context.RequestServices.GetService(typeof(ITenantManager)) as ITenantManager;
