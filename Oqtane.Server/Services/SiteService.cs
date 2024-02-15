@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Http;
 using Oqtane.Enums;
 using Oqtane.Shared;
 using System.Globalization;
-using System.Net;
 using Oqtane.Extensions;
 
 namespace Oqtane.Services
