@@ -68,7 +68,41 @@ namespace Microsoft.Extensions.DependencyInjection
 
         internal static IServiceCollection AddOqtaneServerScopedServices(this IServiceCollection services)
         {
+            services.AddScoped<Oqtane.Shared.SiteState>();
+            services.AddScoped<IInstallationService, InstallationService>();
+            services.AddScoped<IModuleDefinitionService, ModuleDefinitionService>();
+            services.AddScoped<IThemeService, ThemeService>();
+            services.AddScoped<IAliasService, AliasService>();
+            services.AddScoped<ITenantService, TenantService>();
+            services.AddScoped<ISiteService, ServerSiteService>();
+            services.AddScoped<IPageService, PageService>();
+            services.AddScoped<IModuleService, ModuleService>();
+            services.AddScoped<IPageModuleService, PageModuleService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IProfileService, ProfileService>();
+            services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IUserRoleService, UserRoleService>();
+            services.AddScoped<ISettingService, SettingService>();
+            services.AddScoped<IPackageService, PackageService>();
+            services.AddScoped<ILogService, LogService>();
+            services.AddScoped<IJobService, JobService>();
+            services.AddScoped<IJobLogService, JobLogService>();
+            services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IFolderService, FolderService>();
+            services.AddScoped<IFileService, FileService>();
+            services.AddScoped<ISiteTemplateService, SiteTemplateService>();
+            services.AddScoped<ISqlService, SqlService>();
+            services.AddScoped<ISystemService, SystemService>();
+            services.AddScoped<ILocalizationService, LocalizationService>();
+            services.AddScoped<ILanguageService, LanguageService>();
+            services.AddScoped<IDatabaseService, DatabaseService>();
+            services.AddScoped<IUrlMappingService, UrlMappingService>();
+            services.AddScoped<IVisitorService, VisitorService>();
+            services.AddScoped<ISyncService, SyncService>();
+
+            // alternative used within infrastructure classes
             services.AddScoped<Oqtane.Infrastructure.SiteState>();
+
             return services;
         }
 

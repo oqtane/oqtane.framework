@@ -44,7 +44,7 @@ namespace Oqtane.Client
             builder.Services.AddOqtaneAuthentication();
 
             // register scoped core services
-            builder.Services.AddOqtaneScopedServices();
+            builder.Services.AddOqtaneClientScopedServices();
 
             var serviceProvider = builder.Services.BuildServiceProvider();
 
