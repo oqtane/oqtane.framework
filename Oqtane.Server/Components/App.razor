@@ -537,6 +537,7 @@
     {
         if (resources != null)
         {
+            string batch = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
             int count = 0;
             foreach (var resource in resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
             {
@@ -552,7 +553,7 @@
                 if (!_styleSheets.Contains(resource.Url, StringComparison.OrdinalIgnoreCase))
                 {
                     count++;
-                    string id = "id=\"app-stylesheet-" + ResourceLevel.Page.ToString().ToLower() + "-" + DateTime.UtcNow.ToString("yyyyMMddHHmmssfff") + "-" + count.ToString("00") + "\" ";
+                    string id = "id=\"app-stylesheet-" + ResourceLevel.Page.ToString().ToLower() + "-" + batch + "-" + count.ToString("00") + "\" ";
                     _styleSheets += "<link " + id + "rel=\"stylesheet\" href=\"" + resource.Url + "\"" + (!string.IsNullOrEmpty(resource.Integrity) ? " integrity=\"" + resource.Integrity + "\"" : "") + (!string.IsNullOrEmpty(resource.CrossOrigin) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") + " type=\"text/css\"/>" + Environment.NewLine;
                 }
             }
@@ -568,7 +569,5 @@
                 AddScript(resource, alias);
             }
         }
-
     }
-
 }

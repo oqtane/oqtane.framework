@@ -4,7 +4,7 @@
 
 @if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList) && PageState.Action == Constants.DefaultAction)
 {
-    @if (PageState.Site.RenderMode == RenderModes.Interactive)
+    @if (PageState.RenderMode == RenderModes.Interactive)
     {
         <ModuleActionsInteractive PageState="@PageState" ModuleState="@ModuleState" />
     }
