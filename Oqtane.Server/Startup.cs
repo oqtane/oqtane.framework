@@ -70,7 +70,6 @@ namespace Oqtane
 
             // register scoped core services
             services.AddScoped<IAuthorizationHandler, PermissionHandler>()
-                .AddOqtaneScopedServices()
                 .AddOqtaneServerScopedServices();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
