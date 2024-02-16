@@ -21,7 +21,6 @@
 @inject IConfigManager ConfigManager
 @inject ITenantManager TenantManager
 @inject ISiteService SiteService
-@inject IPageRepository PageRepository
 @inject IThemeRepository ThemeRepository
 @inject ILanguageRepository LanguageRepository
 @inject IServerStateManager ServerStateManager
@@ -140,12 +139,19 @@
                     _prerender = site.Prerender;
 
                     Route route = new Route(url, alias.Path);
-                    var page = PageRepository.GetPage(route.PagePath, site.SiteId);
-                    if (page == null && route.PagePath == "" && site.HomePageId != null)
+                    var page = site.Pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
+                    if (page == null && route.PagePath == "") // naked path refers to site home page
                     {
-                        page = PageRepository.GetPage(site.HomePageId.Value);
+                        if (site.HomePageId != null)
+                        {
+                            page = site.Pages.FirstOrDefault(item => item.PageId == site.HomePageId);
+                        }
+                        if (page == null)
+                        {
+                            // fallback to use the first page in the collection
+                            page = site.Pages.FirstOrDefault();
+                        }
                     }
-
                     if (page == null || page.IsDeleted)
                     {
                         HandlePageNotFound(site, page, route);
@@ -233,10 +239,6 @@
                     }
 
                     // create initial PageState 
-                    // page needs to be populated 
-                    // site.modules need to be populated
-                    // user needs to be populated
-
                     _pageState = new PageState
                     {
                         Alias = alias,
