@@ -185,11 +185,8 @@
                         }
                     }
                     ManageStyleSheets(resources, alias, theme.ThemeName);
-                    if (_renderMode == RenderModes.Static)
-                    {
-                        ManageScripts(resources, alias);
-                    }
-
+                    ManageScripts(resources, alias);
+                    
                     // scripts
                     if (_renderMode == RenderModes.Interactive && _runtime == Runtimes.Server)
                     {
