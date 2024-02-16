@@ -169,6 +169,8 @@
                         page.ThemeType = site.DefaultThemeType;
                     }
                     var theme = themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == page.ThemeType));
+                    if (theme == null)
+                        theme = themes.First();
                     if (theme?.Resources != null)
                     {
                         resources.AddRange(theme.Resources);
