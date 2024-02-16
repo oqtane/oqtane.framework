@@ -17,6 +17,7 @@
     <RootNamespace>Oqtane</RootNamespace>
     <IsPackable>true</IsPackable>
     <DefineConstants>$(DefineConstants);OQTANE;OQTANE3</DefineConstants>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
     <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
   </PropertyGroup>
   <ItemGroup>
