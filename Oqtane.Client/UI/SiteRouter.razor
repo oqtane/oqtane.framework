@@ -50,7 +50,7 @@
 
         DynamicComponent = builder =>
         {
-            if (PageState != null)
+            if (PageState != null && !PageState.Refresh)
             {
                 builder.OpenComponent(0, typeof(ThemeBuilder));
                 builder.CloseComponent();
