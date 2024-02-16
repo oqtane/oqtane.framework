@@ -53,30 +53,6 @@
         {
             headcontent = AddHeadContent(headcontent, PageState.Page.HeadContent);
         }
-        if (PageState.RenderMode == RenderModes.Static)
-        {
-            string batch = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
-            int count = 0;
-            foreach (Resource resource in PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet && item.Level == ResourceLevel.Module))
-            {
-                // if (resource.Url.StartsWith("~"))
-                // {
-                //     resource.Url = resource.Url.Replace("~", "/Themes/" + Utilities.GetTypeName(name) + "/").Replace("//", "/");
-                // }
-                if (!resource.Url.Contains("://") && PageState.Alias.BaseUrl != "" && !resource.Url.StartsWith(PageState.Alias.BaseUrl))
-                {
-                    resource.Url = PageState.Alias.BaseUrl + resource.Url;
-                }
-
-                if (!headcontent.Contains(resource.Url, StringComparison.OrdinalIgnoreCase))
-                {
-                    count++;
-                    string id = "id=\"app-stylesheet-" + resource.Level.ToString().ToLower() + "-" + batch + "-" + count.ToString("00") + "\" ";
-                    headcontent += "<link " + id + "rel=\"stylesheet\" href=\"" + resource.Url + "\"" + (!string.IsNullOrEmpty(resource.Integrity) ? " integrity=\"" + resource.Integrity + "\"" : "") + (!string.IsNullOrEmpty(resource.CrossOrigin) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") + " type=\"text/css\"/>" + Environment.NewLine;
-                }
-            }
-
-        }
         SiteState.Properties.HeadContent = headcontent;
 
         DynamicComponent = builder =>
