@@ -16,8 +16,8 @@
         @if (string.IsNullOrEmpty(_installation.Message))
         {
             <div style="@_display">
-                <CascadingValue Value="@PageState">
-                    <SiteRouter RenderMode="@RenderMode" Runtime="@Runtime" VisitorId="@VisitorId" OnStateChange="@ChangeState" />
+                <CascadingValue Value="@_pageState">
+                    <SiteRouter RenderMode="@RenderMode" Runtime="@Runtime" OnStateChange="@ChangeState" />
                 </CascadingValue>
             </div>
         }
@@ -32,7 +32,7 @@
 
 @code {
     [Parameter]
-    public string AntiForgeryToken { get; set; }
+    public PageState PageState { get; set; } = null;
 
     [Parameter]
     public string RenderMode { get; set; }
@@ -41,13 +41,10 @@
     public string Runtime { get; set; }
 
     [Parameter]
-    public int VisitorId { get; set; }
+    public string AntiForgeryToken { get; set; } = "";
 
     [Parameter]
-    public string RemoteIPAddress { get; set; }
-
-    [Parameter]
-    public string AuthorizationToken { get; set; }
+    public string AuthorizationToken { get; set; } = "";
 
     [CascadingParameter]
     HttpContext HttpContext { get; set; }
@@ -56,18 +53,23 @@
     private string _display = "";
     private Installation _installation = new Installation { Success = false, Message = "" };
 
-    private PageState PageState { get; set; }
+    private PageState _pageState { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
+        if (PageState != null)
+        {
+            _pageState = PageState;            
+        }
+
         if (RenderMode == RenderModes.Interactive)
         {
             _display = "display: none;";
         }
 
-        SiteState.RemoteIPAddress = RemoteIPAddress;
         SiteState.AntiForgeryToken = AntiForgeryToken;
         SiteState.AuthorizationToken = AuthorizationToken;
+        SiteState.RemoteIPAddress = (_pageState != null) ? _pageState.RemoteIPAddress : "";
         SiteState.IsPrerendering = (HttpContext != null) ? true : false;
 
         _installation = await InstallationService.IsInstalled();
@@ -90,7 +92,7 @@
 
     private void ChangeState(PageState pageState)
     {
-        PageState = pageState;
+        _pageState = pageState;
         StateHasChanged();
     }
 }

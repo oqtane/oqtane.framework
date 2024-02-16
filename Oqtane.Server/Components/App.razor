@@ -20,7 +20,7 @@
 @inject IAntiforgery Antiforgery
 @inject IConfigManager ConfigManager
 @inject ITenantManager TenantManager
-@inject ISiteRepository SiteRepository
+@inject ISiteService SiteService
 @inject IPageRepository PageRepository
 @inject IThemeRepository ThemeRepository
 @inject ILanguageRepository LanguageRepository
@@ -31,63 +31,66 @@
 @inject IVisitorRepository VisitorRepository
 @inject IJwtManager JwtManager
 
-<!DOCTYPE html>
-<html lang="@_language">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <base href="/" />
-    <script src="js/app.js"></script>
-    <script src="js/loadjs.min.js"></script>
-    <link rel="stylesheet" href="css/app.css" />
-    @if (!string.IsNullOrEmpty(_PWAScript))
-    {
-        <link id="app-manifest" rel="manifest" />
-    }
-    @((MarkupString)_styleSheets)
-    <link id="app-stylesheet-page" />
-    <link id="app-stylesheet-module" />
-    @if (_renderMode == RenderModes.Static)
-    {
-        <Head />
-    }
-    else
-    {
-        <Head @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(_runtime, _prerender)" />
-    }
-    @((MarkupString)_headResources)
-</head>
-<body>
-    @if (string.IsNullOrEmpty(_message))
-    {
+@if (_pageState != null)
+{
+    <!DOCTYPE html>
+    <html lang="@_language">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="/" />
+        <script src="js/app.js"></script>
+        <script src="js/loadjs.min.js"></script>
+        <link rel="stylesheet" href="css/app.css" />
+        @if (!string.IsNullOrEmpty(_PWAScript))
+        {
+            <link id="app-manifest" rel="manifest" />
+        }
+        @((MarkupString)_styleSheets)
+        <link id="app-stylesheet-page" />
+        <link id="app-stylesheet-module" />
         @if (_renderMode == RenderModes.Static)
         {
-            <Routes AntiForgeryToken="@_antiForgeryToken" RenderMode="@_renderMode" Runtime="@_runtime" VisitorId="@_visitorId" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="@_authorizationToken" />
+            <Head />
         }
         else
         {
-            <Routes AntiForgeryToken="@_antiForgeryToken" RenderMode="@_renderMode" Runtime="@_runtime" VisitorId="@_visitorId" RemoteIPAddress="@_remoteIPAddress" AuthorizationToken="@_authorizationToken" @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(_runtime, _prerender)" />
+            <Head @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(_runtime, _prerender)" />
         }
-
-        <script src="js/interop.js"></script>
-        <script src="_framework/blazor.web.js"></script>
-
-        @if (!string.IsNullOrEmpty(_reconnectScript))
+        @((MarkupString)_headResources)
+    </head>
+    <body>
+        @if (string.IsNullOrEmpty(_message))
         {
-            @((MarkupString)_reconnectScript)
+            @if (_renderMode == RenderModes.Static)
+            {
+                <Routes PageState="@_pageState" RenderMode="@_renderMode" Runtime="@_runtime" AntiForgeryToken="@_antiForgeryToken" AuthorizationToken="@_authorizationToken" />
+            }
+            else
+            {
+                <Routes PageState="@_pageState" RenderMode="@_renderMode" Runtime="@_runtime" AntiForgeryToken="@_antiForgeryToken" AuthorizationToken="@_authorizationToken" @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(_runtime, _prerender)" />
+            }
+
+            <script src="js/interop.js"></script>
+            <script src="_framework/blazor.web.js"></script>
+
+            @if (!string.IsNullOrEmpty(_reconnectScript))
+            {
+                @((MarkupString)_reconnectScript)
+            }
+            @if (!string.IsNullOrEmpty(_PWAScript))
+            {
+                @((MarkupString)_PWAScript)
+            }
+            @((MarkupString)_bodyResources)
         }
-        @if (!string.IsNullOrEmpty(_PWAScript))
+        else
         {
-            @((MarkupString)_PWAScript)
+            <div class="app-alert">@_message</div>
         }
-        @((MarkupString)_bodyResources)
-    }
-    else
-    {
-        <div class="app-alert">@_message</div>
-    }
-</body>
-</html>
+    </body>
+    </html>
+}
 
 @code {
     private string _renderMode = RenderModes.Interactive;
@@ -104,12 +107,13 @@
     private string _PWAScript = "";
     private string _reconnectScript = "";
     private string _message = "";
+    private PageState _pageState;
 
     //  CascadingParameter is required to access HttpContext
     [CascadingParameter]
     HttpContext Context { get; set; }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         _antiForgeryToken = Antiforgery.GetAndStoreTokens(Context).RequestToken;
         _remoteIPAddress = Context.Connection.RemoteIpAddress?.ToString() ?? "";
@@ -127,7 +131,7 @@
                     HandleDefaultAliasRedirect(alias, url);
                 }
 
-                var site = SiteRepository.GetSite(alias.SiteId);
+                var site = await SiteService.GetSiteAsync(alias.SiteId);
                 if (site != null && (!site.IsDeleted || url.Contains("admin/site")) && site.RenderMode != RenderModes.Headless)
                 {
                     _renderMode = site.RenderMode;
@@ -226,6 +230,31 @@
                         _language = culture.Split('|')[0];
                         _language = _language.Replace("c=", "");
                     }
+
+                    // create initial PageState 
+                    _pageState = new PageState
+                    {
+                        Alias = alias,
+                        Site = site,
+                        Page = page,
+                        User = null,
+                        Uri = new Uri(url, UriKind.Absolute),
+                        Route = route,
+                        QueryString = Utilities.ParseQueryString(route.Query),
+                        UrlParameters = route.UrlParameters,
+                        ModuleId = -1,
+                        Action = "",
+                        EditMode = false,
+                        LastSyncDate = DateTime.MinValue,
+                        RenderMode = _renderMode,
+                        Runtime = (Shared.Runtime)Enum.Parse(typeof(Shared.Runtime), _runtime),
+                        VisitorId = _visitorId,
+                        RemoteIPAddress = _remoteIPAddress,
+                        ReturnUrl = "",
+                        IsInternalNavigation = false,
+                        RenderId = Guid.NewGuid(),
+                        Refresh = true
+                    };
                 }
                 else
                 {

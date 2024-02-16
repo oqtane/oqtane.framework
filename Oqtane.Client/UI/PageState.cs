@@ -25,6 +25,7 @@ namespace Oqtane.UI
         public string ReturnUrl { get; set; }
         public bool IsInternalNavigation { get; set; }
         public Guid RenderId { get; set; }
+        public bool Refresh {  get; set; }
 
         public List<Page> Pages
         {
