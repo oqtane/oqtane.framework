@@ -27,11 +27,11 @@ namespace Oqtane.Services
         private readonly ILanguageRepository _languages;
         private readonly IUserPermissions _userPermissions;
         private readonly ISettingRepository _settings;
+        private readonly ITenantManager _tenantManager;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly IMemoryCache _cache;
         private readonly IHttpContextAccessor _accessor;
-        private readonly Alias _alias;
 
         public ServerSiteService(ISiteRepository sites, IPageRepository pages, IThemeRepository themes, IPageModuleRepository pageModules, IModuleDefinitionRepository moduleDefinitions, ILanguageRepository languages, IUserPermissions userPermissions, ISettingRepository settings, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger, IMemoryCache cache, IHttpContextAccessor accessor)
         {
@@ -43,11 +43,11 @@ namespace Oqtane.Services
             _languages = languages;
             _userPermissions = userPermissions;
             _settings = settings;
+            _tenantManager = tenantManager;
             _syncManager = syncManager;
             _logger = logger;
             _cache = cache;
             _accessor = accessor;
-            _alias = tenantManager.GetAlias();
         }
 
         public async Task<List<Site>> GetSitesAsync()
@@ -80,8 +80,9 @@ namespace Oqtane.Services
 
         private Site GetSite(int siteid)
         {
+            var alias = _tenantManager.GetAlias();
             var site = _sites.GetSite(siteid);
-            if (site != null && site.SiteId == _alias.SiteId)
+            if (site != null && site.SiteId == alias.SiteId)
             {
                 // site settings
                 site.Settings = _settings.GetSettings(EntityNames.Site, site.SiteId)
@@ -179,8 +180,9 @@ namespace Oqtane.Services
         {
             if (_accessor.HttpContext.User.IsInRole(RoleNames.Host))
             {
+                var alias = _tenantManager.GetAlias();
                 site = _sites.AddSite(site);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, site.SiteId, SyncEventActions.Create);
+                _syncManager.AddSyncEvent(alias.TenantId, EntityNames.Site, site.SiteId, SyncEventActions.Create);
                 _logger.Log(site.SiteId, LogLevel.Information, this, LogFunction.Create, "Site Added {Site}", site);
             }
             else
@@ -194,17 +196,18 @@ namespace Oqtane.Services
         {
             if (_accessor.HttpContext.User.IsInRole(RoleNames.Admin))
             {
+                var alias = _tenantManager.GetAlias();
                 var current = _sites.GetSite(site.SiteId, false);
-                if (site.SiteId == _alias.SiteId && site.TenantId == _alias.TenantId && current != null)
+                if (site.SiteId == alias.SiteId && site.TenantId == alias.TenantId && current != null)
                 {
                     site = _sites.UpdateSite(site);
-                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, site.SiteId, SyncEventActions.Update);
+                    _syncManager.AddSyncEvent(alias.TenantId, EntityNames.Site, site.SiteId, SyncEventActions.Update);
                     string action = SyncEventActions.Refresh;
                     if (current.RenderMode != site.RenderMode || current.Runtime != site.Runtime)
                     {
                         action = SyncEventActions.Reload;
                     }
-                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, site.SiteId, action);
+                    _syncManager.AddSyncEvent(alias.TenantId, EntityNames.Site, site.SiteId, action);
                     _logger.Log(site.SiteId, LogLevel.Information, this, LogFunction.Update, "Site Updated {Site}", site);
                 }
                 else
@@ -224,11 +227,12 @@ namespace Oqtane.Services
         {
             if (_accessor.HttpContext.User.IsInRole(RoleNames.Host))
             {
+                var alias = _tenantManager.GetAlias();
                 var site = _sites.GetSite(siteId);
-                if (site != null && site.SiteId == _alias.SiteId)
+                if (site != null && site.SiteId == alias.SiteId)
                 {
                     _sites.DeleteSite(siteId);
-                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, site.SiteId, SyncEventActions.Delete);
+                    _syncManager.AddSyncEvent(alias.TenantId, EntityNames.Site, site.SiteId, SyncEventActions.Delete);
                     _logger.Log(siteId, LogLevel.Information, this, LogFunction.Delete, "Site Deleted {SiteId}", siteId);
                 }
                 else
