@@ -184,12 +184,12 @@
                         }
                     }
                     ManageStyleSheets(resources, alias, theme.ThemeName);
+
+                    // scripts
                     if (_renderMode == RenderModes.Static)
                     {
                         ManageScripts(resources, alias);
                     }
-
-                    // scripts
                     if (_renderMode == RenderModes.Interactive && _runtime == Runtimes.Server)
                     {
                         _reconnectScript = CreateReconnectScript();
@@ -233,6 +233,10 @@
                     }
 
                     // create initial PageState 
+                    // page needs to be populated 
+                    // site.modules need to be populated
+                    // user needs to be populated
+
                     _pageState = new PageState
                     {
                         Alias = alias,
