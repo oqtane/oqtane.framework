@@ -52,7 +52,7 @@ namespace Oqtane.Themes.Controls
             else
             {
                 // use existing value
-                loginurl = "?returnurl=" + PageState.QueryString["returnurl"];
+                loginurl += "?returnurl=" + PageState.QueryString["returnurl"];
             }
 
             // set logout url
