@@ -228,4 +228,7 @@
   <data name="ExternalLoginStatus.ReviewClaims" xml:space="preserve">
     <value>The Review Claims Option Was Enabled In External Login Settings. Please Visit The Event Log To View The Claims Returned By The Provider.</value>
   </data>
+  <data name="Register" xml:space="preserve">
+    <value>Register as new user?</value>
+  </data>
 </root>

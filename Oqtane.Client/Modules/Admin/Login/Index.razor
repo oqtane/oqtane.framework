@@ -47,8 +47,13 @@
 					<button type="button" class="btn btn-primary" @onclick="Login">@SharedLocalizer["Login"]</button>
 					<button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
 					<br /><br />
-					<button type="button" class="btn btn-secondary" @onclick="Forgot">@Localizer["ForgotPassword"]</button>		
-				}
+                    <button type="button" class="btn btn-secondary" @onclick="Forgot">@Localizer["ForgotPassword"]</button>
+                        @if (PageState.Site.AllowRegistration)
+                        {
+                            <br /><br />
+                            <NavLink  href="@NavigateUrl("register")">@Localizer["Register"]</NavLink>
+                        }
+                    }
 				</div>
 			</form>
 		}
