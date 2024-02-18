@@ -4,12 +4,12 @@
 @inject ILogService LoggingService
 @inherits ErrorBoundary
 
-@if (CurrentException is null)
-{
-    @if (ModuleType != null)
-    {
-        <CascadingValue Value="@PageState">
-            <CascadingValue Value="@ModuleState">
+<CascadingValue Value="@PageState">
+    <CascadingValue Value="@ModuleState">
+        @if (CurrentException is null)
+        {
+            @if (ModuleType != null)
+            {
                 @if (!string.IsNullOrEmpty(_messageContent) && _messagePosition == "top")
                 {
                     <ModuleMessage Message="@_messageContent" Type="@_messageType" />
@@ -23,17 +23,17 @@
                 {
                     <ModuleMessage Message="@_messageContent" Type="@_messageType" />
                 }
-            </CascadingValue>
-        </CascadingValue>
-    }
-}
-else
-{
-    @if (!string.IsNullOrEmpty(_error))
-    {
-        <ModuleMessage Message="@_error" Type="@MessageType.Error" />
-    }
-}
+            }
+        }
+        else
+        {
+            @if (!string.IsNullOrEmpty(_error))
+            {
+                <ModuleMessage Message="@_error" Type="@MessageType.Error" />
+            }
+        }
+    </CascadingValue>
+</CascadingValue>
 
 @code {
     private Type ModuleType { get; set; }
