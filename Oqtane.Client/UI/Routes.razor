@@ -3,7 +3,8 @@
 @inject IInstallationService InstallationService
 @inject IJSRuntime JSRuntime
 @inject SiteState SiteState
-@attribute [StreamRendering]
+@* the following StreamRendering attribute is required - if it is removed the framework will not render a UI on static rendering *@
+@attribute [StreamRendering] 
 
 @if (_initialized)
 {
