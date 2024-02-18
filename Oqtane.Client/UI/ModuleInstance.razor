@@ -12,13 +12,15 @@ else
 
 @code {
     // this component is on the static side of the render mode boundary
-    // it passes state as serializable parameters across the boundary so that the state can be used by downstream interactive components 
+    // it passes state as serializable parameters across the boundary 
+    // this enables the state to be used by downstream interactive components
 
     [CascadingParameter]
     protected PageState PageState { get; set; }
 
     [CascadingParameter]
     private Module ModuleState { get; set; }
+
 
     [Obsolete("AddModuleMessage is deprecated. Use ModuleBase.AddModuleMessage instead.", false)]
     public void AddModuleMessage(string message, MessageType type)
