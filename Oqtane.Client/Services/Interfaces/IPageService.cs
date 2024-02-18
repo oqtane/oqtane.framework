@@ -10,7 +10,7 @@ namespace Oqtane.Services
     public interface IPageService
     {
         /// <summary>
-        /// Retuns a list of pages
+        /// Returns a list of pages
         /// </summary>
         /// <param name="siteId"></param>
         /// <returns></returns>
