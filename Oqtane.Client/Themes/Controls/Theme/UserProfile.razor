@@ -31,7 +31,16 @@
 
     protected override void OnParametersSet()
     {
-        _returnurl = WebUtility.UrlEncode(PageState.Route.PathAndQuery);
+		if (!PageState.QueryString.ContainsKey("returnurl"))
+		{
+			// remember current url
+			_returnurl += WebUtility.UrlEncode(PageState.Route.PathAndQuery);
+		}
+		else
+		{
+			// use existing value
+			_returnurl += PageState.QueryString["returnurl"];
+		}
     }
 }
 
