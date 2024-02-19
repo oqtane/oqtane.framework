@@ -18,7 +18,6 @@ namespace Oqtane.Modules
         private Logger _logger;
         private string _urlparametersstate;
         private Dictionary<string, string> _urlparameters;
-        private string _scripts = "";
 
         protected Logger logger => _logger ?? (_logger = new Logger(this));
 
@@ -67,79 +66,8 @@ namespace Oqtane.Modules
                 return _urlparameters;
             }
         }
-        public string Scripts
-        {
-            get
-            {
-                return _scripts;
-            }
-        }
 
         // base lifecycle method for handling JSInterop script registration
-
-        protected override void OnParametersSet()
-        {
-            //if (ModuleState.RenderMode == RenderModes.Static)
-            //{
-            //    _scripts = "";
-            //    var script = "";
-            //    List<Resource> resources = null;
-            //    var type = GetType();
-            //    if (type.BaseType == typeof(ModuleBase))
-            //    {
-            //        if (PageState.Page.Resources != null)
-            //        {
-            //            resources = PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Script && item.Level != ResourceLevel.Site && item.Namespace == type.Namespace).ToList();
-            //        }
-            //    }
-            //    else // modulecontrolbase
-            //    {
-            //        if (Resources != null)
-            //        {
-            //            resources = Resources.Where(item => item.ResourceType == ResourceType.Script).ToList();
-            //        }
-            //    }
-            //    if (resources != null && resources.Any())
-            //    {
-            //        var scripts = "";
-            //        var inline = 0;
-            //        foreach (Resource resource in resources)
-            //        {
-            //            if (!string.IsNullOrEmpty(resource.Url))
-            //            {
-            //                var url = (resource.Url.Contains("://")) ? resource.Url : PageState.Alias.BaseUrl + resource.Url;
-            //                script += "{" + $"href:'{url}', bundle:'{resource.Bundle ?? ""}', integrity:'{resource.Integrity ?? ""}', crossorigin:'{resource.CrossOrigin ?? ""}', es6module:{resource.ES6Module.ToString().ToLower()}, location:'{resource.Location.ToString().ToLower()}'" + "};";
-            //                if (scripts.Contains(url))
-            //                {
-            //                    scripts += ((scripts != "") ? ",\n" : "") + script;
-            //                }
-            //            }
-            //            else
-            //            {
-            //                inline += 1;
-            //                script = $"includeScript('{GetType().Namespace.ToLower() + inline.ToString()}', '', '', '', '{resource.Content}', '{resource.Location.ToString().ToLower()}');\n";
-            //                if (_scripts.Contains(script))
-            //                {
-            //                    _scripts += script;
-            //                }
-            //            }
-            //        }
-            //        if (string.IsNullOrEmpty(scripts))
-            //        {
-            //            script = "const args = [" + scripts + "];\n";
-            //            script += "includeScripts.apply(this, args);\n";
-            //            if (_scripts.Contains(script))
-            //            {
-            //                _scripts += script;
-            //            }
-            //        }
-            //    }
-            //    if (!string.IsNullOrEmpty(_scripts))
-            //    {
-            //        _scripts = "<script>\n" + _scripts + "</script>\n";
-            //    }
-            //}
-        }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
