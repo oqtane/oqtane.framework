@@ -50,11 +50,11 @@
         <link id="app-stylesheet-module" />
         @if (_renderMode == RenderModes.Static)
         {
-            <Head />
+            <Head RenderMode="@_renderMode" Runtime="@_runtime" />
         }
         else
         {
-            <Head @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(_runtime, _prerender)" />
+            <Head RenderMode="@_renderMode" Runtime="@_runtime" @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(_runtime, _prerender)" />
         }
         @((MarkupString)_headResources)
     </head>

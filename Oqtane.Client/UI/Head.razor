@@ -19,6 +19,12 @@
     private string _title = "";
     private string _content = "";
 
+    [Parameter]
+    public string RenderMode { get; set; }
+
+    [Parameter]
+    public string Runtime { get; set; }
+
     protected override void OnInitialized()
     {
         ((INotifyPropertyChanged)SiteState.Properties).PropertyChanged += PropertyChanged;
@@ -49,15 +55,15 @@
 
     private string RemoveScripts(string headcontent)
     {
-        // if (!string.IsNullOrEmpty(headcontent))
-        // {
-        //     var index = headcontent.IndexOf("<script");
-        //     while (index >= 0)
-        //     {
-        //         headcontent = headcontent.Remove(index, headcontent.IndexOf("</script>") + 9 - index);
-        //         index = headcontent.IndexOf("<script");
-        //     }
-        // }
+        if (!string.IsNullOrEmpty(headcontent) && RenderMode == RenderModes.Interactive)
+        {
+            var index = headcontent.IndexOf("<script");
+            while (index >= 0)
+            {
+                headcontent = headcontent.Remove(index, headcontent.IndexOf("</script>") + 9 - index);
+                index = headcontent.IndexOf("<script");
+            }
+        }
         return headcontent;
     }
 
