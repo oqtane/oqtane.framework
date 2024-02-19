@@ -171,27 +171,9 @@
                     // initial stylesheets (to prevent FOUC in interactive rendering)
                     if (_renderMode == RenderModes.Interactive)
                     {
-                        var themes = ThemeRepository.GetThemes().ToList();
-                        var resources = new List<Resource>();
-                        if (string.IsNullOrEmpty(page.ThemeType))
-                        {
-                            page.ThemeType = site.DefaultThemeType;
-                        }
-                        var theme = themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == page.ThemeType));
-                        if (theme?.Resources != null)
-                        {
-                            resources.AddRange(theme.Resources);
-                        }
-                        var type = Type.GetType(page.ThemeType);
-                        if (type != null)
-                        {
-                            var obj = Activator.CreateInstance(type) as IThemeControl;
-                            if (obj?.Resources != null)
-                            {
-                                resources.AddRange(obj.Resources);
-                            }
-                        }
-                        ManageStyleSheets(resources, alias, theme.ThemeName);
+                        var themeType = (string.IsNullOrEmpty(page.ThemeType)) ? site.DefaultThemeType : page.ThemeType;
+                        var theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == themeType));
+                        ManageStyleSheets(GetStyleSheetResources(site, page, theme), alias, theme.ThemeName);
                     }
 
                     // scripts
@@ -216,11 +198,10 @@
                     if (culture == null)
                     {
                         // get default language for site
-                        var languages = LanguageRepository.GetLanguages(alias.SiteId);
-                        if (languages.Any())
+                        if (site.Languages.Any())
                         {
                             // use default language if specified otherwise use first language in collection
-                            culture = (languages.Where(l => l.IsDefault).SingleOrDefault() ?? languages.First()).Code;
+                            culture = (site.Languages.Where(l => l.IsDefault).SingleOrDefault() ?? site.Languages.First()).Code;
                         }
                         else
                         {
@@ -594,6 +575,25 @@
                 }
             }
         }
+    }
+
+    private List<Resource> GetStyleSheetResources(Site site, Page page, Theme theme)
+    {
+        var resources = new List<Resource>();
+        if (theme?.Resources != null)
+        {
+            resources.AddRange(theme.Resources);
+        }
+        var type = Type.GetType(page.ThemeType);
+        if (type != null)
+        {
+            var obj = Activator.CreateInstance(type) as IThemeControl;
+            if (obj?.Resources != null)
+            {
+                resources.AddRange(obj.Resources);
+            }
+        }
+        return resources;
     }
 
     private void ManageScripts(List<Resource> resources, Alias alias)
