@@ -53,6 +53,15 @@
         {
             headcontent = AddHeadContent(headcontent, PageState.Page.HeadContent);
         }
+
+        // stylesheets and scripts on static rendering
+        if (PageState.RenderMode == RenderModes.Static)
+        {
+            headcontent = AddHeadContent(headcontent, ManageStyleSheets(PageState.Page.Resources, PageState.Alias));
+            headcontent = AddHeadContent(headcontent, ManageScripts(PageState.Page.Resources, PageState.Alias));
+        }
+
+        // send to Head component
         SiteState.Properties.HeadContent = headcontent;
 
         DynamicComponent = builder =>
@@ -191,6 +200,69 @@
         if (scripts.Any())
         {
             await interop.IncludeScripts(scripts.ToArray());
+        }
+    }
+
+    private string ManageStyleSheets(List<Resource> resources, Alias alias)
+    {
+        var stylesheets = "";
+        if (resources != null)
+        {
+            string batch = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
+            int count = 0;
+            foreach (var resource in resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
+            {
+                if (resource.Url.StartsWith("~"))
+                {
+                    resource.Url = resource.Url.Replace("~", "/Themes/" + Utilities.GetTypeName(resource.Namespace) + "/").Replace("//", "/");
+                }
+                if (!resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
+                {
+                    resource.Url = alias.BaseUrl + resource.Url;
+                }
+
+                if (!stylesheets.Contains(resource.Url, StringComparison.OrdinalIgnoreCase))
+                {
+                    count++;
+                    string id = "id=\"app-stylesheet-" + ResourceLevel.Page.ToString().ToLower() + "-" + batch + "-" + count.ToString("00") + "\" ";
+                    stylesheets += "<link " + id + "rel=\"stylesheet\" href=\"" + resource.Url + "\"" + (!string.IsNullOrEmpty(resource.Integrity) ? " integrity=\"" + resource.Integrity + "\"" : "") + (!string.IsNullOrEmpty(resource.CrossOrigin) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") + " type=\"text/css\"/>" + Environment.NewLine;
+                }
+            }
+        }
+        return stylesheets;
+    }
+
+    private string ManageScripts(List<Resource> resources, Alias alias)
+    {
+        var scripts = "";
+        if (resources != null)
+        {
+            foreach (var resource in resources.Where(item => item.ResourceType == ResourceType.Script && item.Location == ResourceLocation.Head))
+            {
+                var script = CreateScript(resource, alias);
+                if (!scripts.Contains(script, StringComparison.OrdinalIgnoreCase))
+                {
+                    scripts += script + Environment.NewLine;
+                }
+            }
+        }
+        return scripts;
+    }
+
+    private string CreateScript(Resource resource, Alias alias)
+    {
+        if (!string.IsNullOrEmpty(resource.Url))
+        {
+            var url = (resource.Url.Contains("://")) ? resource.Url : alias.BaseUrl + resource.Url;
+            return "<script src=\"" + url + "\"" +
+                ((!string.IsNullOrEmpty(resource.Integrity)) ? " integrity=\"" + resource.Integrity + "\"" : "") +
+                ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
+                "></script>";
+        }
+        else
+        {
+            // inline script
+            return "<script>" + resource.Content + "</script>";
         }
     }
 }
