@@ -171,9 +171,7 @@
                     // initial stylesheets (to prevent FOUC in interactive rendering)
                     if (_renderMode == RenderModes.Interactive)
                     {
-                        var themeType = (string.IsNullOrEmpty(page.ThemeType)) ? site.DefaultThemeType : page.ThemeType;
-                        var theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == themeType));
-                        ManageStyleSheets(GetStyleSheetResources(site, page, theme), alias, theme.ThemeName);
+                        ManageStyleSheets(alias, site, page);
                     }
 
                     // scripts
@@ -550,8 +548,12 @@
             CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)));
     }
 
-    private void ManageStyleSheets(List<Resource> resources, Alias alias, string name)
+    private void ManageStyleSheets(Alias alias, Site site, Page page)
     {
+        var themeType = (string.IsNullOrEmpty(page.ThemeType)) ? site.DefaultThemeType : page.ThemeType;
+        var theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == themeType));
+        var resources = GetStyleSheetResources(page, theme);
+
         if (resources != null)
         {
             string batch = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
@@ -560,7 +562,7 @@
             {
                 if (resource.Url.StartsWith("~"))
                 {
-                    resource.Url = resource.Url.Replace("~", "/Themes/" + Utilities.GetTypeName(name) + "/").Replace("//", "/");
+                    resource.Url = resource.Url.Replace("~", "/Themes/" + Utilities.GetTypeName(theme.ThemeName) + "/").Replace("//", "/");
                 }
                 if (!resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
                 {
@@ -577,7 +579,7 @@
         }
     }
 
-    private List<Resource> GetStyleSheetResources(Site site, Page page, Theme theme)
+    private List<Resource> GetStyleSheetResources(Page page, Theme theme)
     {
         var resources = new List<Resource>();
         if (theme?.Resources != null)
