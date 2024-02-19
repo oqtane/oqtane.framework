@@ -49,15 +49,15 @@
 
     private string RemoveScripts(string headcontent)
     {
-        if (!string.IsNullOrEmpty(headcontent))
-        {
-            var index = headcontent.IndexOf("<script");
-            while (index >= 0)
-            {
-                headcontent = headcontent.Remove(index, headcontent.IndexOf("</script>") + 9 - index);
-                index = headcontent.IndexOf("<script");
-            }
-        }
+        // if (!string.IsNullOrEmpty(headcontent))
+        // {
+        //     var index = headcontent.IndexOf("<script");
+        //     while (index >= 0)
+        //     {
+        //         headcontent = headcontent.Remove(index, headcontent.IndexOf("</script>") + 9 - index);
+        //         index = headcontent.IndexOf("<script");
+        //     }
+        // }
         return headcontent;
     }
 
