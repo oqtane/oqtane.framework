@@ -168,34 +168,33 @@
                         CreateJwtToken(alias);
                     }
 
-                    // stylesheets
-                    var themes = ThemeRepository.GetThemes().ToList();
-                    var resources = new List<Resource>();
-                    if (string.IsNullOrEmpty(page.ThemeType))
+                    // initial stylesheets (to prevent FOUC in interactive rendering)
+                    if (_renderMode == RenderModes.Interactive)
                     {
-                        page.ThemeType = site.DefaultThemeType;
-                    }
-                    var theme = themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == page.ThemeType));
-                    if (theme?.Resources != null)
-                    {
-                        resources.AddRange(theme.Resources);
-                    }
-                    var type = Type.GetType(page.ThemeType);
-                    if (type != null)
-                    {
-                        var obj = Activator.CreateInstance(type) as IThemeControl;
-                        if (obj?.Resources != null)
+                        var themes = ThemeRepository.GetThemes().ToList();
+                        var resources = new List<Resource>();
+                        if (string.IsNullOrEmpty(page.ThemeType))
                         {
-                            resources.AddRange(obj.Resources);
+                            page.ThemeType = site.DefaultThemeType;
                         }
+                        var theme = themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == page.ThemeType));
+                        if (theme?.Resources != null)
+                        {
+                            resources.AddRange(theme.Resources);
+                        }
+                        var type = Type.GetType(page.ThemeType);
+                        if (type != null)
+                        {
+                            var obj = Activator.CreateInstance(type) as IThemeControl;
+                            if (obj?.Resources != null)
+                            {
+                                resources.AddRange(obj.Resources);
+                            }
+                        }
+                        ManageStyleSheets(resources, alias, theme.ThemeName);
                     }
-                    ManageStyleSheets(resources, alias, theme.ThemeName);
 
                     // scripts
-                    if (_renderMode == RenderModes.Static)
-                    {
-                        ManageScripts(resources, alias);
-                    }
                     if (_renderMode == RenderModes.Interactive && _runtime == Runtimes.Server)
                     {
                         _reconnectScript = CreateReconnectScript();
