@@ -53,15 +53,6 @@
         {
             headcontent = AddHeadContent(headcontent, PageState.Page.HeadContent);
         }
-
-        // stylesheets and scripts on static rendering
-        if (PageState.RenderMode == RenderModes.Static)
-        {
-            headcontent = AddHeadContent(headcontent, ManageStyleSheets(PageState.Page.Resources, PageState.Alias));
-            headcontent = AddHeadContent(headcontent, ManageScripts(PageState.Page.Resources, PageState.Alias));
-        }
-
-        // send to Head component
         SiteState.Properties.HeadContent = headcontent;
 
         DynamicComponent = builder =>
