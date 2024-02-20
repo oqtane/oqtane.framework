@@ -2,7 +2,7 @@ namespace Oqtane.Shared
 {
     public enum ResourceLevel
     {
-        App,
+        Undefined,
         Site,
         Page,
         Module
