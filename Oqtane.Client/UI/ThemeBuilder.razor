@@ -64,9 +64,15 @@
         // send to Head component
         SiteState.Properties.HeadContent = headcontent;
 
+        var typeString = PageState.Page.ThemeType;
+        if (string.IsNullOrEmpty(typeString))
+            typeString = PageState.Site.DefaultThemeType;
+        if (string.IsNullOrEmpty(typeString))
+            typeString = "Oqtane.Themes.OqtaneTheme.Default, Oqtane.Client";
+
         DynamicComponent = builder =>
         {
-            builder.OpenComponent(0, Type.GetType(PageState.Page.ThemeType));
+            builder.OpenComponent(0, Type.GetType(typeString));
             builder.CloseComponent();
         };
     }
