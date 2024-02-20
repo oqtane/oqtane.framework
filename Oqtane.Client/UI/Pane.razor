@@ -67,7 +67,7 @@ else
                 // pane matches current pane
                 if (Name.ToLower() == pane.ToLower())
                 {
-                    if (module.ModuleId == PageState.ModuleId && PageState.Action != Constants.DefaultAction)
+                    if (PageState.ModuleId == module.ModuleId && PageState.Action != Constants.DefaultAction)
                     {
                         var moduleType = Type.GetType(module.ModuleType);
                         if (moduleType != null)
