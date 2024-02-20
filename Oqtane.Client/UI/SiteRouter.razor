@@ -101,8 +101,8 @@
         _error = "";
 
         Route route = new Route(_absoluteUri, SiteState.Alias.Path);
-        int moduleid = (int.TryParse(route.ModuleId, out moduleid)) ? moduleid : -1;
-        var action = (!string.IsNullOrEmpty(route.Action)) ? route.Action : Constants.DefaultAction; 
+        int moduleid = int.Parse(route.ModuleId);
+        var action = route.Action; 
 
         var querystring = Utilities.ParseQueryString(route.Query);
         var returnurl = "";

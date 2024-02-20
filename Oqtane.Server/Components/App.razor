@@ -168,13 +168,15 @@
                         CreateJwtToken(alias);
                     }
 
-                    // initial stylesheets (to prevent FOUC in interactive rendering)
-                    if (_renderMode == RenderModes.Interactive)
-                    {
-                        ManageStyleSheets(alias, site, page);
-                    }
+                    // include stylesheets to prevent FOUC
+                    var resources = GetPageResources(alias, site, page, int.Parse(route.ModuleId), route.Action);
+                    ManageStyleSheets(resources);
 
                     // scripts
+                    if (_renderMode == RenderModes.Static)
+                    {
+                        ManageScripts(resources, alias);
+                    }
                     if (_renderMode == RenderModes.Interactive && _runtime == Runtimes.Server)
                     {
                         _reconnectScript = CreateReconnectScript();
@@ -548,54 +550,106 @@
             CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)));
     }
 
-    private void ManageStyleSheets(Alias alias, Site site, Page page)
+    private List<Resource> GetPageResources(Alias alias, Site site, Page page, int moduleid, string action)
     {
+        var resources = new List<Resource>();
+
         var themeType = (string.IsNullOrEmpty(page.ThemeType)) ? site.DefaultThemeType : page.ThemeType;
         var theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == themeType));
-        var resources = GetStyleSheetResources(page, theme);
+        if (theme != null)
+        {
+            resources = AddResources(resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName));
+        }
+        var type = Type.GetType(themeType);
+        if (type != null)
+        {
+            var obj = Activator.CreateInstance(type) as IThemeControl;
+            if (obj != null)
+            {
+                resources = AddResources(resources, obj.Resources, ResourceLevel.Page, alias, "Themes", type.Namespace);
+            }
+        }
 
+        foreach (Module module in site.Modules)
+        {
+            if (module.PageId == page.PageId || module.ModuleId == moduleid)
+            {
+                var typename = "";
+                if (module.ModuleDefinition != null)
+                {
+                    typename = module.ModuleDefinition.ControlTypeTemplate;
+                    resources = AddResources(resources, module.ModuleDefinition.Resources, ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName));
+                }
+                if (Constants.DefaultModuleActions.Contains(action, StringComparer.OrdinalIgnoreCase))
+                {
+                    typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, action);
+                }
+                else
+                {
+                    typename = typename.Replace(Constants.ActionToken, action);
+                }
+                Type moduletype = Type.GetType(typename, false, true); // case insensitive
+                if (moduletype != null && moduletype.GetInterfaces().Contains(typeof(IModuleControl)))
+                {
+                    module.ModuleType = Utilities.GetFullTypeName(moduletype.AssemblyQualifiedName); // get actual type name
+                }
+                if (moduletype != null && module.ModuleType != "")
+                {
+                    var obj = Activator.CreateInstance(moduletype) as IModuleControl;
+                    if (obj != null)
+                    {
+                        resources = AddResources(resources, obj.Resources, ResourceLevel.Module, alias, "Modules", type.Namespace);
+                    }
+                }
+            }
+        }
+
+        return resources;
+    }
+
+    private List<Resource> AddResources(List<Resource> pageresources, List<Resource> resources, ResourceLevel level, Alias alias, string type, string name)
+    {
+        if (resources != null)
+        {
+            foreach (var resource in resources)
+            {
+                if (resource.Level != ResourceLevel.Site)
+                {
+                    if (resource.Url.StartsWith("~"))
+                    {
+                        resource.Url = resource.Url.Replace("~", "/" + type + "/" + name + "/").Replace("//", "/");
+                    }
+                    if (!resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
+                    {
+                        resource.Url = alias.BaseUrl + resource.Url;
+                    }
+
+                    // ensure resource does not exist already
+                    if (!pageresources.Exists(item => item.Url.ToLower() == resource.Url.ToLower()))
+                    {
+                        resource.Level = level;
+                        resource.Namespace = name;
+                        pageresources.Add(resource);
+                    }
+                }
+            }
+        }
+        return pageresources;
+    }
+
+    private void ManageStyleSheets(List<Resource> resources)
+    {
         if (resources != null)
         {
             string batch = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
             int count = 0;
             foreach (var resource in resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
             {
-                if (resource.Url.StartsWith("~"))
-                {
-                    resource.Url = resource.Url.Replace("~", "/Themes/" + Utilities.GetTypeName(theme.ThemeName) + "/").Replace("//", "/");
-                }
-                if (!resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
-                {
-                    resource.Url = alias.BaseUrl + resource.Url;
-                }
-
-                if (!_styleSheets.Contains(resource.Url, StringComparison.OrdinalIgnoreCase))
-                {
-                    count++;
-                    string id = "id=\"app-stylesheet-" + ResourceLevel.Page.ToString().ToLower() + "-" + batch + "-" + count.ToString("00") + "\" ";
-                    _styleSheets += "<link " + id + "rel=\"stylesheet\" href=\"" + resource.Url + "\"" + (!string.IsNullOrEmpty(resource.Integrity) ? " integrity=\"" + resource.Integrity + "\"" : "") + (!string.IsNullOrEmpty(resource.CrossOrigin) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") + " type=\"text/css\"/>" + Environment.NewLine;
-                }
+                count++;
+                string id = "id=\"app-stylesheet-" + ResourceLevel.Page.ToString().ToLower() + "-" + batch + "-" + count.ToString("00") + "\" ";
+                _styleSheets += "<link " + id + "rel=\"stylesheet\" href=\"" + resource.Url + "\"" + (!string.IsNullOrEmpty(resource.Integrity) ? " integrity=\"" + resource.Integrity + "\"" : "") + (!string.IsNullOrEmpty(resource.CrossOrigin) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") + " type=\"text/css\"/>" + Environment.NewLine;
             }
         }
-    }
-
-    private List<Resource> GetStyleSheetResources(Page page, Theme theme)
-    {
-        var resources = new List<Resource>();
-        if (theme?.Resources != null)
-        {
-            resources.AddRange(theme.Resources);
-        }
-        var type = Type.GetType(page.ThemeType);
-        if (type != null)
-        {
-            var obj = Activator.CreateInstance(type) as IThemeControl;
-            if (obj?.Resources != null)
-            {
-                resources.AddRange(obj.Resources);
-            }
-        }
-        return resources;
     }
 
     private void ManageScripts(List<Resource> resources, Alias alias)
