@@ -567,9 +567,19 @@
                     // ensure resource does not exist already
                     if (!pageresources.Exists(item => item.Url.ToLower() == resource.Url.ToLower()))
                     {
-                        resource.Level = level;
-                        resource.Namespace = name;
-                        pageresources.Add(resource);
+                        pageresources.Add(new Resource
+                        {
+                            ResourceType = resource.ResourceType,
+                            Url = resource.Url,
+                            Integrity = resource.Integrity,
+                            CrossOrigin = resource.CrossOrigin,
+                            Bundle = resource.Bundle,
+                            Location = resource.Location,
+                            ES6Module = resource.ES6Module,
+                            Content = resource.Content,
+                            Level = level,
+                            Namespace = name
+                        });
                     }
                 }
 			}

@@ -23,7 +23,6 @@
 @inject ISiteService SiteService
 @inject IThemeRepository ThemeRepository
 @inject ILanguageRepository LanguageRepository
-@inject IServerStateManager ServerStateManager
 @inject ILocalizationManager LocalizationManager
 @inject IAliasRepository AliasRepository
 @inject IUrlMappingRepository UrlMappingRepository
@@ -187,11 +186,6 @@
                     }
                     _headResources += ParseScripts(site.HeadContent);
                     _bodyResources += ParseScripts(site.BodyContent);
-                    var scripts = ServerStateManager.GetServerState(alias.SiteKey).Scripts;
-                    foreach (var script in scripts)
-                    {
-                        AddScript(script, alias);
-                    }
 
                     // set culture if not specified
                     string culture = Context.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName];
@@ -604,6 +598,16 @@
             }
         }
 
+        // site level resources for modules in site
+        var modules = site.Modules.GroupBy(item => item.ModuleDefinition.ModuleDefinitionName).Select(group => group.First()).ToList();
+        foreach (var module in modules)
+        {
+            if (module.ModuleDefinition.Resources != null)
+            {
+                resources = AddResources(resources, module.ModuleDefinition.Resources.Where(item => item.Level == ResourceLevel.Site).ToList(), ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName));
+            }
+        }
+
         return resources;
     }
 
@@ -613,24 +617,31 @@
         {
             foreach (var resource in resources)
             {
-                if (resource.Level != ResourceLevel.Site)
+                if (resource.Url.StartsWith("~"))
                 {
-                    if (resource.Url.StartsWith("~"))
-                    {
-                        resource.Url = resource.Url.Replace("~", "/" + type + "/" + name + "/").Replace("//", "/");
-                    }
-                    if (!resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
-                    {
-                        resource.Url = alias.BaseUrl + resource.Url;
-                    }
+                    resource.Url = resource.Url.Replace("~", "/" + type + "/" + name + "/").Replace("//", "/");
+                }
+                if (!resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
+                {
+                    resource.Url = alias.BaseUrl + resource.Url;
+                }
 
-                    // ensure resource does not exist already
-                    if (!pageresources.Exists(item => item.Url.ToLower() == resource.Url.ToLower()))
+                // ensure resource does not exist already
+                if (!pageresources.Exists(item => item.Url.ToLower() == resource.Url.ToLower()))
+                {
+                    pageresources.Add(new Resource
                     {
-                        resource.Level = level;
-                        resource.Namespace = name;
-                        pageresources.Add(resource);
-                    }
+                        ResourceType = resource.ResourceType,
+                        Url = resource.Url,
+                        Integrity = resource.Integrity,
+                        CrossOrigin = resource.CrossOrigin,
+                        Bundle = resource.Bundle,
+                        Location = resource.Location,
+                        ES6Module = resource.ES6Module,
+                        Content = resource.Content,
+                        Level = level,
+                        Namespace = name
+                    });
                 }
             }
         }
