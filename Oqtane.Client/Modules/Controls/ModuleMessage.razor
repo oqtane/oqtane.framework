@@ -1,4 +1,5 @@
 @namespace Oqtane.Modules.Controls
+@using System.Globalization
 @inherits ModuleControlBase
 @inject NavigationManager NavigationManager
 
@@ -10,7 +11,7 @@
         {
             @((MarkupString)"&nbsp;&nbsp;")<NavLink href="@NavigateUrl("admin/log")">View Details</NavLink>
         }
-        <form method="post" @onsubmit="DismissModal" @formname="@($"ModuleMessageForm{ModuleState.PageModuleId}")" data-enhance>
+        <form method="post" @onsubmit="DismissModal" @formname="@($"ModuleMessageForm{DateTime.UtcNow.ToString("yyyyMMddHHmmssfff", CultureInfo.InvariantCulture)}")" data-enhance>
             <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
             <button type="submit" class="btn-close" aria-label="Close"></button>
         </form>
