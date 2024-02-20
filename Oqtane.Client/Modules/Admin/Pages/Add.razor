@@ -201,7 +201,7 @@
             @if (_themeSettingsType != null)
             {
                 <TabPanel Name="ThemeSettings" Heading=@Localizer["Theme.Heading"] ResourceKey="ThemeSettings">
-                    @ThemeSettingsComponent
+                    @_themeSettingsComponent
                 </TabPanel>
             }
         </TabStrip>
@@ -240,7 +240,7 @@
     private PermissionGrid _permissionGrid;
     private Type _themeSettingsType;
     private object _themeSettings;
-    private RenderFragment ThemeSettingsComponent { get; set; }
+    private RenderFragment _themeSettingsComponent { get; set; }
     private bool _refresh = false;
     protected Page _parent = null;
     protected Dictionary<string, string> _icons;
@@ -337,13 +337,14 @@
     private void ThemeSettings()
     {
         _themeSettingsType = null;
+        _themeSettingsComponent = null;
         var theme = PageState.Site.Themes.FirstOrDefault(item => item.Themes.Any(themecontrol => themecontrol.TypeName.Equals(_themetype)));
         if (theme != null && !string.IsNullOrEmpty(theme.ThemeSettingsType))
         {
             _themeSettingsType = Type.GetType(theme.ThemeSettingsType);
             if (_themeSettingsType != null)
             {
-                ThemeSettingsComponent = builder =>
+                _themeSettingsComponent = builder =>
                 {
                     builder.OpenComponent(0, _themeSettingsType);
                     builder.AddComponentReferenceCapture(1, inst => { _themeSettings = Convert.ChangeType(inst, _themeSettingsType); });
