@@ -144,6 +144,7 @@
             string integrity = "";
             string crossorigin = "";
             string type = "";
+            var dataAttributes = new Dictionary<string, string>();
             foreach (var attribute in attributes)
             {
                 if (attribute.Contains("="))
@@ -166,6 +167,12 @@
                         case "type":
                             type = value[1];
                             break;
+                        default:
+                            if(!string.IsNullOrWhiteSpace(value[0]) && value[0].StartsWith("data-"))
+                            {
+                                dataAttributes.Add(value[0], value[1]);
+                            }
+                            break;
                     }
                 }
             }
@@ -173,7 +180,7 @@
             if (!string.IsNullOrEmpty(src))
             {
                 src = (src.Contains("://")) ? src : PageState.Alias.BaseUrl + src;
-                scripts.Add(new { href = src, bundle = "", integrity = integrity, crossorigin = crossorigin, es6module = (type == "module"), location = location.ToString().ToLower() });
+                scripts.Add(new { href = src, bundle = "", integrity = integrity, crossorigin = crossorigin, es6module = (type == "module"), location = location.ToString().ToLower(), dataAttributes = dataAttributes });
             }
             else
             {
