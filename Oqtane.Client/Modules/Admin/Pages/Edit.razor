@@ -631,11 +631,11 @@
                     await logger.LogInformation("Page Saved {Page}", _page);
                     if (!string.IsNullOrEmpty(PageState.ReturnUrl))
                     {
-                        NavigationManager.NavigateTo(PageState.ReturnUrl);
+                        NavigationManager.NavigateTo(PageState.ReturnUrl, true);
                     }
                     else
                     {
-                        NavigationManager.NavigateTo(NavigateUrl());
+                        NavigationManager.NavigateTo(NavigateUrl(), true);
                     }
                 }
                 else
