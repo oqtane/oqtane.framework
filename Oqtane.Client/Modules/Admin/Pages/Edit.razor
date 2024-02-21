@@ -499,7 +499,6 @@
     private async Task SavePage()
     {
         validated = true;
-        var refresh = false;
         var interop = new Interop(JSRuntime);
         if (await interop.FormValid(form))
         {
@@ -512,10 +511,10 @@
                 }
                 if (!string.IsNullOrEmpty(_themetype) && _containertype != "-")
                 {
-					// check if a page refresh is needed
+					// ensure page refreshes if these have been changed
 					if (_page.Name != _name || _page.Icon != _icon || _page.Title != _title)
 					{
-						refresh = true;
+						_refresh = true;
 					}
 
                     string currentPath = _page.Path;
@@ -638,7 +637,7 @@
                     await logger.LogInformation("Page Saved {Page}", _page);
 					if (!string.IsNullOrEmpty(PageState.ReturnUrl))
 					{
-						if (refresh)
+						if (_refresh)
 						{
 							NavigationManager.NavigateTo(PageState.ReturnUrl, true);
 						}
@@ -649,7 +648,7 @@
 					}
 					else
 					{
-						if (refresh)
+						if (_refresh)
 						{
 							NavigationManager.NavigateTo(NavigateUrl(), true);
 						}
