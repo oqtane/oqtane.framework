@@ -579,9 +579,6 @@
                     var site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
                     if (site != null)
                     {
-                        bool refresh = false;
-                        bool reload = false;
-
                         site.Name = _name;
                         site.HomePageId = (_homepageid != "-" ? int.Parse(_homepageid) : null);
                         site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
@@ -595,7 +592,6 @@
                             if (logofileid != _logofileid)
                             {
                                 _logofileid = logofileid;
-                                refresh = true; // needs to be refreshed on client
                             }
                         }
                         int? faviconFieldId = _faviconfilemanager.GetFileId();
@@ -603,17 +599,14 @@
                         if (site.FaviconFileId != faviconFieldId)
                         {
                             site.FaviconFileId = faviconFieldId;
-                            reload = true; // needs to be reloaded on server
                         }
                         if (site.DefaultThemeType != _themetype)
                         {
                             site.DefaultThemeType = _themetype;
-                            refresh = true; // needs to be refreshed on client
                         }
                         if (site.DefaultContainerType != _containertype)
                         {
                             site.DefaultContainerType = _containertype;
-                            refresh = true; // needs to be refreshed on client
                         }
                         site.AdminContainerType = _admincontainertype;
 
@@ -621,33 +614,28 @@
                         if (site.HeadContent != _headcontent)
                         {
                             site.HeadContent = _headcontent;
-                            reload = true;
                         }
                         if (site.BodyContent != _bodycontent)
                         {
                             site.BodyContent = _bodycontent;
-                            reload = true;
                         }
 
                         // PWA
                         if (site.PwaIsEnabled.ToString() != _pwaisenabled)
                         {
                             site.PwaIsEnabled = Boolean.Parse(_pwaisenabled);
-                            reload = true; // needs to be reloaded on server
                         }
                         int? pwaappiconfileid = _pwaappiconfilemanager.GetFileId();
                         if (pwaappiconfileid == -1) pwaappiconfileid = null;
                         if (site.PwaAppIconFileId != pwaappiconfileid)
                         {
                             site.PwaAppIconFileId = pwaappiconfileid;
-                            reload = true; // needs to be reloaded on server
                         }
                         int? pwasplashiconfileid = _pwasplashiconfilemanager.GetFileId();
                         if (pwasplashiconfileid == -1) pwasplashiconfileid = null;
                         if (site.PwaSplashIconFileId != pwasplashiconfileid)
                         {
                             site.PwaSplashIconFileId = pwasplashiconfileid;
-                            reload = true; // needs to be reloaded on server
                         }
 
                         // hosting model
@@ -659,7 +647,6 @@
                                 site.Runtime = _runtime;
                                 site.Prerender = bool.Parse(_prerender);
                                 site.Hybrid = bool.Parse(_hybrid);
-                                reload = true; // needs to be reloaded on serve
                             }
                         }
 
@@ -686,15 +673,7 @@
 
 						await logger.LogInformation("Site Settings Saved {Site}", site);
 
-						if (refresh || reload)
-						{
-							NavigationManager.NavigateTo(NavigateUrl(true), reload); // refresh/reload
-						}
-						else
-						{
-							AddModuleMessage(Localizer["Success.Settings.SaveSite"], MessageType.Success);
-                            await ScrollToPageTop();
-                        }
+					    NavigationManager.NavigateTo(NavigateUrl(), true); // reload
 					}
 				}
 				else
