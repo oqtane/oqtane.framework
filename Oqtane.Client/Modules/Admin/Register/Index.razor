@@ -60,6 +60,11 @@
                 <br />
                 <button type="button" class="btn btn-primary" @onclick="Register">@Localizer["Register"]</button>
                 <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
+                @if (_allowsitelogin)
+                {
+                    <br /><br />
+                    <NavLink href="@NavigateUrl("login")">@Localizer["Login"]</NavLink>
+                }
             </form>
         </NotAuthorized>
     </AuthorizeView>
@@ -80,12 +85,14 @@ else
     private string _confirm = string.Empty;
     private string _email = string.Empty;
     private string _displayname = string.Empty;
+    private bool _allowsitelogin = true;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
     protected override async Task OnInitializedAsync()
     {
-        _passwordrequirements = await UserService.GetPasswordRequirementsAsync(PageState.Site.SiteId);
+        _passwordrequirements = await UserService.GetPasswordRequirementsAsync(PageState.Site.SiteId); 
+        _allowsitelogin = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AllowSiteLogin", "true"));
     }
 
     protected override void OnParametersSet()
