@@ -21,17 +21,15 @@
 @inject IConfigManager ConfigManager
 @inject ITenantManager TenantManager
 @inject ISiteService SiteService
-@inject IPageRepository PageRepository
 @inject IThemeRepository ThemeRepository
 @inject ILanguageRepository LanguageRepository
-@inject IServerStateManager ServerStateManager
 @inject ILocalizationManager LocalizationManager
 @inject IAliasRepository AliasRepository
 @inject IUrlMappingRepository UrlMappingRepository
 @inject IVisitorRepository VisitorRepository
 @inject IJwtManager JwtManager
 
-@if (_pageState != null)
+@if (_initialized)
 {
     <!DOCTYPE html>
     <html lang="@_language">
@@ -51,11 +49,11 @@
         <link id="app-stylesheet-module" />
         @if (_renderMode == RenderModes.Static)
         {
-            <Head />
+            <Head RenderMode="@_renderMode" Runtime="@_runtime" />
         }
         else
         {
-            <Head @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(_runtime, _prerender)" />
+            <Head RenderMode="@_renderMode" Runtime="@_runtime" @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(_runtime, _prerender)" />
         }
         @((MarkupString)_headResources)
     </head>
@@ -93,6 +91,7 @@
 }
 
 @code {
+    private bool _initialized = false;
     private string _renderMode = RenderModes.Interactive;
     private string _runtime = Runtimes.Server;
     private bool _prerender = true;
@@ -139,12 +138,19 @@
                     _prerender = site.Prerender;
 
                     Route route = new Route(url, alias.Path);
-                    var page = PageRepository.GetPage(route.PagePath, site.SiteId);
-                    if (page == null && route.PagePath == "" && site.HomePageId != null)
+                    var page = site.Pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
+                    if (page == null && route.PagePath == "") // naked path refers to site home page
                     {
-                        page = PageRepository.GetPage(site.HomePageId.Value);
+                        if (site.HomePageId != null)
+                        {
+                            page = site.Pages.FirstOrDefault(item => item.PageId == site.HomePageId);
+                        }
+                        if (page == null)
+                        {
+                            // fallback to use the first page in the collection
+                            page = site.Pages.FirstOrDefault();
+                        }
                     }
-
                     if (page == null || page.IsDeleted)
                     {
                         HandlePageNotFound(site, page, route);
@@ -161,34 +167,15 @@
                         CreateJwtToken(alias);
                     }
 
-                    // stylesheets
-                    var themes = ThemeRepository.GetThemes().ToList();
-                    var resources = new List<Resource>();
-                    if (string.IsNullOrEmpty(page.ThemeType))
-                    {
-                        page.ThemeType = site.DefaultThemeType;
-                    }
-                    var theme = themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == page.ThemeType));
-                    if (theme?.Resources != null)
-                    {
-                        resources.AddRange(theme.Resources);
-                    }
-                    var type = Type.GetType(page.ThemeType);
-                    if (type != null)
-                    {
-                        var obj = Activator.CreateInstance(type) as IThemeControl;
-                        if (obj?.Resources != null)
-                        {
-                            resources.AddRange(obj.Resources);
-                        }
-                    }
-                    ManageStyleSheets(resources, alias, theme.ThemeName);
+                    // include stylesheets to prevent FOUC
+                    var resources = GetPageResources(alias, site, page, int.Parse(route.ModuleId), route.Action);
+                    ManageStyleSheets(resources);
+
+                    // scripts
                     if (_renderMode == RenderModes.Static)
                     {
                         ManageScripts(resources, alias);
                     }
-
-                    // scripts
                     if (_renderMode == RenderModes.Interactive && _runtime == Runtimes.Server)
                     {
                         _reconnectScript = CreateReconnectScript();
@@ -199,22 +186,16 @@
                     }
                     _headResources += ParseScripts(site.HeadContent);
                     _bodyResources += ParseScripts(site.BodyContent);
-                    var scripts = ServerStateManager.GetServerState(alias.SiteKey).Scripts;
-                    foreach (var script in scripts)
-                    {
-                        AddScript(script, alias);
-                    }
 
                     // set culture if not specified
                     string culture = Context.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName];
                     if (culture == null)
                     {
                         // get default language for site
-                        var languages = LanguageRepository.GetLanguages(alias.SiteId);
-                        if (languages.Any())
+                        if (site.Languages.Any())
                         {
                             // use default language if specified otherwise use first language in collection
-                            culture = (languages.Where(l => l.IsDefault).SingleOrDefault() ?? languages.First()).Code;
+                            culture = (site.Languages.Where(l => l.IsDefault).SingleOrDefault() ?? site.Languages.First()).Code;
                         }
                         else
                         {
@@ -266,6 +247,7 @@
                 _message = "Site Not Configured Correctly - No Matching Alias Exists For Host Name";
             }
         }
+        _initialized = true;
     }
 
     private void HandleDefaultAliasRedirect(Alias alias, string url)
@@ -562,7 +544,111 @@
             CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)));
     }
 
-    private void ManageStyleSheets(List<Resource> resources, Alias alias, string name)
+    private List<Resource> GetPageResources(Alias alias, Site site, Page page, int moduleid, string action)
+    {
+        var resources = new List<Resource>();
+
+        var themeType = (string.IsNullOrEmpty(page.ThemeType)) ? site.DefaultThemeType : page.ThemeType;
+        var theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == themeType));
+        if (theme != null)
+        {
+            resources = AddResources(resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName));
+        }
+        var type = Type.GetType(themeType);
+        if (type != null)
+        {
+            var obj = Activator.CreateInstance(type) as IThemeControl;
+            if (obj != null)
+            {
+                resources = AddResources(resources, obj.Resources, ResourceLevel.Page, alias, "Themes", type.Namespace);
+            }
+        }
+
+        foreach (Module module in site.Modules)
+        {
+            if (module.PageId == page.PageId || module.ModuleId == moduleid)
+            {
+                var typename = "";
+                if (module.ModuleDefinition != null)
+                {
+                    typename = module.ModuleDefinition.ControlTypeTemplate;
+                    resources = AddResources(resources, module.ModuleDefinition.Resources, ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName));
+                }
+                if (Constants.DefaultModuleActions.Contains(action, StringComparer.OrdinalIgnoreCase))
+                {
+                    typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, action);
+                }
+                else
+                {
+                    typename = typename.Replace(Constants.ActionToken, action);
+                }
+                Type moduletype = Type.GetType(typename, false, true); // case insensitive
+                if (moduletype != null && moduletype.GetInterfaces().Contains(typeof(IModuleControl)))
+                {
+                    module.ModuleType = Utilities.GetFullTypeName(moduletype.AssemblyQualifiedName); // get actual type name
+                }
+                if (moduletype != null && module.ModuleType != "")
+                {
+                    var obj = Activator.CreateInstance(moduletype) as IModuleControl;
+                    if (obj != null)
+                    {
+                        resources = AddResources(resources, obj.Resources, ResourceLevel.Module, alias, "Modules", type.Namespace);
+                    }
+                }
+            }
+        }
+
+        // site level resources for modules in site
+        var modules = site.Modules.GroupBy(item => item.ModuleDefinition.ModuleDefinitionName).Select(group => group.First()).ToList();
+        foreach (var module in modules)
+        {
+            if (module.ModuleDefinition.Resources != null)
+            {
+                resources = AddResources(resources, module.ModuleDefinition.Resources.Where(item => item.Level == ResourceLevel.Site).ToList(), ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName));
+            }
+        }
+
+        return resources;
+    }
+
+    private List<Resource> AddResources(List<Resource> pageresources, List<Resource> resources, ResourceLevel level, Alias alias, string type, string name)
+    {
+        if (resources != null)
+        {
+            foreach (var resource in resources)
+            {
+                if (resource.Url.StartsWith("~"))
+                {
+                    resource.Url = resource.Url.Replace("~", "/" + type + "/" + name + "/").Replace("//", "/");
+                }
+                if (!resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
+                {
+                    resource.Url = alias.BaseUrl + resource.Url;
+                }
+
+                // ensure resource does not exist already
+                if (!pageresources.Exists(item => item.Url.ToLower() == resource.Url.ToLower()))
+                {
+                    pageresources.Add(new Resource
+                    {
+                        ResourceType = resource.ResourceType,
+                        Url = resource.Url,
+                        Integrity = resource.Integrity,
+                        CrossOrigin = resource.CrossOrigin,
+                        Bundle = resource.Bundle,
+                        Location = resource.Location,
+                        ES6Module = resource.ES6Module,
+                        Content = resource.Content,
+                        Level = level,
+                        Namespace = name
+                    });
+                }
+            }
+        }
+        return pageresources;
+    }
+
+    private void ManageStyleSheets(List<Resource> resources)
     {
         if (resources != null)
         {
@@ -570,21 +656,9 @@
             int count = 0;
             foreach (var resource in resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
             {
-                if (resource.Url.StartsWith("~"))
-                {
-                    resource.Url = resource.Url.Replace("~", "/Themes/" + Utilities.GetTypeName(name) + "/").Replace("//", "/");
-                }
-                if (!resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
-                {
-                    resource.Url = alias.BaseUrl + resource.Url;
-                }
-
-                if (!_styleSheets.Contains(resource.Url, StringComparison.OrdinalIgnoreCase))
-                {
-                    count++;
-                    string id = "id=\"app-stylesheet-" + ResourceLevel.Page.ToString().ToLower() + "-" + batch + "-" + count.ToString("00") + "\" ";
-                    _styleSheets += "<link " + id + "rel=\"stylesheet\" href=\"" + resource.Url + "\"" + (!string.IsNullOrEmpty(resource.Integrity) ? " integrity=\"" + resource.Integrity + "\"" : "") + (!string.IsNullOrEmpty(resource.CrossOrigin) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") + " type=\"text/css\"/>" + Environment.NewLine;
-                }
+                count++;
+                string id = "id=\"app-stylesheet-" + ResourceLevel.Page.ToString().ToLower() + "-" + batch + "-" + count.ToString("00") + "\" ";
+                _styleSheets += "<link " + id + "rel=\"stylesheet\" href=\"" + resource.Url + "\"" + (!string.IsNullOrEmpty(resource.Integrity) ? " integrity=\"" + resource.Integrity + "\"" : "") + (!string.IsNullOrEmpty(resource.CrossOrigin) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") + " type=\"text/css\"/>" + Environment.NewLine;
             }
         }
     }

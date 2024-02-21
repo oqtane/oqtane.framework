@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using Microsoft.JSInterop;
 using System.Linq;
 using System.Dynamic;
-using System.Net.Http.Headers;
 
 namespace Oqtane.Modules
 {
@@ -90,7 +89,7 @@ namespace Oqtane.Modules
                         resources = Resources.Where(item => item.ResourceType == ResourceType.Script).ToList();
                     }
                 }
-                if (resources != null &&resources.Any())
+                if (resources != null && resources.Any())
                 {
                     var interop = new Interop(JSRuntime);
                     var scripts = new List<object>();

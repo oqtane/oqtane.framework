@@ -53,30 +53,6 @@
         {
             headcontent = AddHeadContent(headcontent, PageState.Page.HeadContent);
         }
-        if (PageState.RenderMode == RenderModes.Static)
-        {
-            string batch = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
-            int count = 0;
-            foreach (Resource resource in PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet && item.Level == ResourceLevel.Module))
-            {
-                // if (resource.Url.StartsWith("~"))
-                // {
-                //     resource.Url = resource.Url.Replace("~", "/Themes/" + Utilities.GetTypeName(name) + "/").Replace("//", "/");
-                // }
-                if (!resource.Url.Contains("://") && PageState.Alias.BaseUrl != "" && !resource.Url.StartsWith(PageState.Alias.BaseUrl))
-                {
-                    resource.Url = PageState.Alias.BaseUrl + resource.Url;
-                }
-
-                if (!headcontent.Contains(resource.Url, StringComparison.OrdinalIgnoreCase))
-                {
-                    count++;
-                    string id = "id=\"app-stylesheet-" + resource.Level.ToString().ToLower() + "-" + batch + "-" + count.ToString("00") + "\" ";
-                    headcontent += "<link " + id + "rel=\"stylesheet\" href=\"" + resource.Url + "\"" + (!string.IsNullOrEmpty(resource.Integrity) ? " integrity=\"" + resource.Integrity + "\"" : "") + (!string.IsNullOrEmpty(resource.CrossOrigin) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") + " type=\"text/css\"/>" + Environment.NewLine;
-                }
-            }
-
-        }
         SiteState.Properties.HeadContent = headcontent;
 
         DynamicComponent = builder =>
@@ -96,7 +72,7 @@
             while (index >= 0)
             {
                 var element = content.Substring(index, content.IndexOf(">", index) - index + 1);
-                if (!string.IsNullOrEmpty(element) && !element.ToLower().StartsWith("<script") && !element.ToLower().StartsWith("</script"))
+                if (!string.IsNullOrEmpty(element) && (PageState.RenderMode == RenderModes.Static || (!element.ToLower().StartsWith("<script") && !element.ToLower().StartsWith("</script"))))
                 {
                     if (!headcontent.Contains(element))
                     {
@@ -168,6 +144,7 @@
             string integrity = "";
             string crossorigin = "";
             string type = "";
+            var dataAttributes = new Dictionary<string, string>();
             foreach (var attribute in attributes)
             {
                 if (attribute.Contains("="))
@@ -190,6 +167,12 @@
                         case "type":
                             type = value[1];
                             break;
+                        default:
+                            if(!string.IsNullOrWhiteSpace(value[0]) && value[0].StartsWith("data-"))
+                            {
+                                dataAttributes.Add(value[0], value[1]);
+                            }
+                            break;
                     }
                 }
             }
@@ -197,7 +180,7 @@
             if (!string.IsNullOrEmpty(src))
             {
                 src = (src.Contains("://")) ? src : PageState.Alias.BaseUrl + src;
-                scripts.Add(new { href = src, bundle = "", integrity = integrity, crossorigin = crossorigin, es6module = (type == "module"), location = location.ToString().ToLower() });
+                scripts.Add(new { href = src, bundle = "", integrity = integrity, crossorigin = crossorigin, es6module = (type == "module"), location = location.ToString().ToLower(), dataAttributes = dataAttributes });
             }
             else
             {
@@ -215,6 +198,69 @@
         if (scripts.Any())
         {
             await interop.IncludeScripts(scripts.ToArray());
+        }
+    }
+
+    private string ManageStyleSheets(List<Resource> resources, Alias alias)
+    {
+        var stylesheets = "";
+        if (resources != null)
+        {
+            string batch = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
+            int count = 0;
+            foreach (var resource in resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
+            {
+                if (resource.Url.StartsWith("~"))
+                {
+                    resource.Url = resource.Url.Replace("~", "/Themes/" + Utilities.GetTypeName(resource.Namespace) + "/").Replace("//", "/");
+                }
+                if (!resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
+                {
+                    resource.Url = alias.BaseUrl + resource.Url;
+                }
+
+                if (!stylesheets.Contains(resource.Url, StringComparison.OrdinalIgnoreCase))
+                {
+                    count++;
+                    string id = "id=\"app-stylesheet-" + ResourceLevel.Page.ToString().ToLower() + "-" + batch + "-" + count.ToString("00") + "\" ";
+                    stylesheets += "<link " + id + "rel=\"stylesheet\" href=\"" + resource.Url + "\"" + (!string.IsNullOrEmpty(resource.Integrity) ? " integrity=\"" + resource.Integrity + "\"" : "") + (!string.IsNullOrEmpty(resource.CrossOrigin) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") + " type=\"text/css\"/>" + Environment.NewLine;
+                }
+            }
+        }
+        return stylesheets;
+    }
+
+    private string ManageScripts(List<Resource> resources, Alias alias)
+    {
+        var scripts = "";
+        if (resources != null)
+        {
+            foreach (var resource in resources.Where(item => item.ResourceType == ResourceType.Script && item.Location == ResourceLocation.Head))
+            {
+                var script = CreateScript(resource, alias);
+                if (!scripts.Contains(script, StringComparison.OrdinalIgnoreCase))
+                {
+                    scripts += script + Environment.NewLine;
+                }
+            }
+        }
+        return scripts;
+    }
+
+    private string CreateScript(Resource resource, Alias alias)
+    {
+        if (!string.IsNullOrEmpty(resource.Url))
+        {
+            var url = (resource.Url.Contains("://")) ? resource.Url : alias.BaseUrl + resource.Url;
+            return "<script src=\"" + url + "\"" +
+                ((!string.IsNullOrEmpty(resource.Integrity)) ? " integrity=\"" + resource.Integrity + "\"" : "") +
+                ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
+                "></script>";
+        }
+        else
+        {
+            // inline script
+            return "<script>" + resource.Content + "</script>";
         }
     }
 }

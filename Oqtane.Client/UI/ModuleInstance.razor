@@ -1,18 +1,18 @@
 @namespace Oqtane.UI
 @inject SiteState SiteState
 
-@if (PageState.RenderMode == RenderModes.Interactive || ModuleState.RenderMode == RenderModes.Static)
+@if (PageState.RenderMode == RenderModes.Interactive || ModuleState.RenderMode == RenderModes.Interactive)
 {
-	<RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" />
+	<StreamRenderingDisabled ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" />
 }
 else
 {
-    <RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" @rendermode="@InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, PageState.Site.Prerender)" />
+    <StreamRenderingEnabled ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" />
 }
 
 @code {
     // this component is on the static side of the render mode boundary
-    // it passes state as serializable parameters across the boundary so that the state can be used by downstream interactive components 
+    // it passes state as serializable parameters across the boundary 
 
     [CascadingParameter]
     protected PageState PageState { get; set; }
@@ -20,7 +20,8 @@ else
     [CascadingParameter]
     private Module ModuleState { get; set; }
 
-    [Obsolete("AddModuleMessage is deprecated. Use ModuleBase.AddModuleMessage instead.", false)]
+
+    [Obsolete("AddModuleMessage is deprecated. Use AddModuleMessage in ModuleBase instead.", false)]
     public void AddModuleMessage(string message, MessageType type)
     {
     }
@@ -30,12 +31,12 @@ else
     {
     }
 
-    [Obsolete("ShowProgressIndicator is deprecated. Use ModuleBase.ShowProgressIndicator instead.", false)]
+    [Obsolete("ShowProgressIndicator is deprecated. Use ShowProgressIndicator in ModuleBase instead.", false)]
     public void ShowProgressIndicator()
     {
     }
 
-    [Obsolete("HideProgressIndicator is deprecated. Use ModuleBase.HideProgressIndicator instead.", false)]
+    [Obsolete("HideProgressIndicator is deprecated. Use HideProgressIndicator in ModuleBase instead.", false)]
     public void HideProgressIndicator()
     {
     }

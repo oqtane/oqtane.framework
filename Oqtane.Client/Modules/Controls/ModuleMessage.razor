@@ -6,26 +6,38 @@
 {
     <div class="@_classname alert-dismissible fade show mb-3" role="alert">
         @((MarkupString)_message)
-        @if (Type == MessageType.Error && PageState != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+        @if (PageState != null)
         {
-            @((MarkupString)"&nbsp;&nbsp;")<NavLink href="@NavigateUrl("admin/log")">View Details</NavLink>
+            @if (Type == MessageType.Error && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+            {
+                <NavLink class="ms-2" href="@NavigateUrl("admin/log")">View Details</NavLink>
+            }
+            <form method="post" @onsubmit="DismissModal" @formname="@_formname" data-enhance>
+                <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                <button type="submit" class="btn-close" aria-label="Close"></button>
+            </form>
         }
-        <form method="post" @onsubmit="DismissModal" @formname="@($"ModuleMessageForm{ModuleState.PageModuleId}")" data-enhance>
-            <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
-            <button type="submit" class="btn-close" aria-label="Close"></button>
-        </form>
     </div>
 }
 
 @code {
     private string _message = string.Empty;
     private string _classname = string.Empty;
+    private string _formname = "ModuleMessageForm";
 
     [Parameter]
     public string Message { get; set; }
 
     [Parameter]
     public MessageType Type { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (ModuleState != null)
+        {
+            _formname += ModuleState.PageModuleId.ToString();
+        }
+    }
 
     protected override void OnParametersSet()
     {

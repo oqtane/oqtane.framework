@@ -197,7 +197,7 @@
     }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767.98px) {
     .app-logo {
         height: 80px;
         display: flex;

@@ -177,4 +177,7 @@
   <data name="Username.Text" xml:space="preserve">
     <value>Username:</value>
   </data>
+  <data name="Login" xml:space="preserve">
+    <value>Already have account? Login now.</value>
+  </data>
 </root>

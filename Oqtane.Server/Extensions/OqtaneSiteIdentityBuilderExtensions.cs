@@ -21,8 +21,9 @@ namespace Oqtane.Extensions
                 options.Password.RequireNonAlphanumeric = bool.Parse(sitesettings.GetValue("IdentityOptions:Password:RequireNonAlphanumeric", options.Password.RequireNonAlphanumeric.ToString()));
 
                 // lockout options
-                options.Lockout.MaxFailedAccessAttempts = int.Parse(sitesettings.GetValue("IdentityOptions:Password:MaxFailedAccessAttempts", options.Lockout.MaxFailedAccessAttempts.ToString()));
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.Parse(sitesettings.GetValue("IdentityOptions:Password:DefaultLockoutTimeSpan", options.Lockout.DefaultLockoutTimeSpan.ToString()));
+                options.Lockout.MaxFailedAccessAttempts = int.Parse(sitesettings.GetValue("IdentityOptions:Lockout:MaxFailedAccessAttempts", options.Lockout.MaxFailedAccessAttempts.ToString()));
+                options.Lockout.DefaultLockoutTimeSpan = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow) + TimeSpan.Parse(sitesettings.GetValue("IdentityOptions:Lockout:DefaultLockoutTimeSpan", options.Lockout.DefaultLockoutTimeSpan.ToString()));
+                options.Lockout.AllowedForNewUsers = options.Lockout.MaxFailedAccessAttempts > 0;
             });
 
             return builder;

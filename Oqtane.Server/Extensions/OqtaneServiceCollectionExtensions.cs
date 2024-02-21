@@ -19,6 +19,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Oqtane.Infrastructure;
+using Oqtane.Infrastructure.Interfaces;
 using Oqtane.Managers;
 using Oqtane.Models;
 using Oqtane.Modules;
@@ -149,6 +150,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
             // obsolete - replaced by ITenantManager
             services.AddTransient<ITenantResolver, TenantResolver>();
+
+            services.AddTransient<ITokenReplace, TokenReplace>();
 
             return services;
         }
