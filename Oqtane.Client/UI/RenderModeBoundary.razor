@@ -36,6 +36,9 @@
 </CascadingValue>
 
 @code {
+    // this component is on the interactive side of the render mode boundary
+    // it receives state as serializable parameters so that the state can be made available to downstream components
+
     private Type ModuleType { get; set; }
     RenderFragment DynamicComponent { get; set; }
 

@@ -1,19 +1,18 @@
 @namespace Oqtane.UI
 @inject SiteState SiteState
 
-@if (PageState.RenderMode == RenderModes.Interactive || ModuleState.RenderMode == RenderModes.Static)
+@if (PageState.RenderMode == RenderModes.Interactive || ModuleState.RenderMode == RenderModes.Interactive)
 {
-	<RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" />
+	<StreamRenderingDisabled ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" />
 }
 else
 {
-    <RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" @rendermode="@InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, PageState.Site.Prerender)" />
+    <StreamRenderingEnabled ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" />
 }
 
 @code {
     // this component is on the static side of the render mode boundary
     // it passes state as serializable parameters across the boundary 
-    // this enables the state to be used by downstream interactive components
 
     [CascadingParameter]
     protected PageState PageState { get; set; }
