@@ -582,7 +582,13 @@
                         bool refresh = false;
                         bool reload = false;
 
+						// title
+						if (site.Name != _name)
+						{
+							refresh = true; // needs to be refreshed on client
+						}
                         site.Name = _name;
+
                         site.HomePageId = (_homepageid != "-" ? int.Parse(_homepageid) : null);
                         site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
 
