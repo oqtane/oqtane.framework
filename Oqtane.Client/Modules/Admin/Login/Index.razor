@@ -89,8 +89,6 @@
     private bool _alwaysremember = false;
     private string _code = string.Empty;
 
-    private string _returnUrl = string.Empty;
-
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
     public override List<Resource> Resources => new List<Resource>()
@@ -107,11 +105,6 @@
             _alwaysremember = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AlwaysRemember", "false"));
 
             _togglepassword = SharedLocalizer["ShowPassword"];
-
-            if (PageState.QueryString.ContainsKey("returnurl"))
-            {
-                _returnUrl = PageState.QueryString["returnurl"];
-            }
 
             if (PageState.QueryString.ContainsKey("name"))
             {
@@ -213,12 +206,12 @@
                         // hybrid apps utilize an interactive login
                         var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
                         authstateprovider.NotifyAuthenticationChanged();
-                        NavigationManager.NavigateTo(NavigateUrl(WebUtility.UrlDecode(_returnUrl), true));
+                        NavigationManager.NavigateTo(NavigateUrl(PageState.ReturnUrl, true));
                     }
                     else
                     {
                         // post back to the Login page so that the cookies are set correctly
-                        var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, username = _username, password = _password, remember = _remember, returnurl = _returnUrl };
+                        var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, username = _username, password = _password, remember = _remember, returnurl = WebUtility.UrlEncode(PageState.ReturnUrl) };
                         string url = Utilities.TenantUrl(PageState.Alias, "/pages/login/");
                         await interop.SubmitForm(url, fields);
                     }
@@ -260,7 +253,7 @@
 
     private void Cancel()
     {
-        NavigationManager.NavigateTo(WebUtility.UrlDecode(_returnUrl));
+        NavigationManager.NavigateTo(PageState.ReturnUrl);
     }
 
     private async Task Forgot()
@@ -328,7 +321,7 @@
 
     private void ExternalLogin()
     {
-        NavigationManager.NavigateTo(Utilities.TenantUrl(PageState.Alias, "/pages/external?returnurl=" + _returnUrl), true);
+        NavigationManager.NavigateTo(Utilities.TenantUrl(PageState.Alias, "/pages/external?returnurl=" + WebUtility.UrlEncode(PageState.ReturnUrl)), true);
     }
 
 }
