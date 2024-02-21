@@ -19,7 +19,6 @@ else
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th style="width: 1px;">&nbsp;</th>
             <th>@SharedLocalizer["Name"]</th>
             <th>@SharedLocalizer["Status"]</th>
             <th>@Localizer["Frequency"]</th>
@@ -28,7 +27,6 @@ else
         </Header>
         <Row>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.JobId.ToString())" ResourceKey="EditJob" /></td>
-            <td><ActionDialog Header="Delete Job" Message="Are You Sure You Wish To Delete This Job?" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteJob(context))" ResourceKey="DeleteJob" /></td>
             <td><ActionLink Action="Log" Class="btn btn-secondary" Parameters="@($"id=" + context.JobId.ToString())" ResourceKey="JobLog" /></td>
             <td>@context.Name</td>
             <td>@DisplayStatus(context.IsEnabled, context.IsExecuting)</td>
@@ -110,22 +108,6 @@ else
 				break;
 		}
         return result;
-    }
-
-    private async Task DeleteJob(Job job)
-    {
-        try
-        {
-            await JobService.DeleteJobAsync(job.JobId);
-            await logger.LogInformation("Job Deleted {Job}", job);
-			_jobs = await JobService.GetJobsAsync();
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Deleting Job {Job} {Error}", job, ex.Message);
-            AddModuleMessage(Localizer["Error.Job.Delete"], MessageType.Error);
-        }
     }
 
     private async Task StartJob(int jobId)
