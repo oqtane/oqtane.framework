@@ -128,9 +128,9 @@ else
                         if (user != null)
                         {
                             await logger.LogInformation("User Created {Username} {Email}", _username, _email);
-                            if (PageState.QueryString.ContainsKey("returnurl"))
+                            if (!string.IsNullOrEmpty(PageState.ReturnUrl))
                             {
-                                NavigationManager.NavigateTo(WebUtility.UrlDecode(PageState.QueryString["returnurl"]));
+                                NavigationManager.NavigateTo(PageState.ReturnUrl);
                             }
                             else // legacy behavior
                             {
@@ -167,7 +167,7 @@ else
 
     private void Cancel()
     {
-        NavigationManager.NavigateTo(NavigateUrl(string.Empty));
+        NavigationManager.NavigateTo(PageState.ReturnUrl);
     }
 
     private void TogglePassword()
