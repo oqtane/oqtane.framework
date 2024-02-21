@@ -499,6 +499,7 @@
     private async Task SavePage()
     {
         validated = true;
+        var refresh = false;
         var interop = new Interop(JSRuntime);
         if (await interop.FormValid(form))
         {
@@ -511,6 +512,12 @@
                 }
                 if (!string.IsNullOrEmpty(_themetype) && _containertype != "-")
                 {
+					// check if a page refresh is needed
+					if (_page.Name != _name || _page.Icon != _icon || _page.Title != _title)
+					{
+						refresh = true;
+					}
+
                     string currentPath = _page.Path;
 
                     _page.Name = _name;
@@ -629,13 +636,27 @@
                     }
 
                     await logger.LogInformation("Page Saved {Page}", _page);
-                    if (!string.IsNullOrEmpty(PageState.ReturnUrl))
-                    {
-                        NavigationManager.NavigateTo(PageState.ReturnUrl);
-                    }
-                    else
-                    {
-                        NavigationManager.NavigateTo(NavigateUrl());
+					if (!string.IsNullOrEmpty(PageState.ReturnUrl))
+					{
+						if (refresh)
+						{
+							NavigationManager.NavigateTo(PageState.ReturnUrl, true);
+						}
+						else
+						{
+							NavigationManager.NavigateTo(PageState.ReturnUrl);
+						}
+					}
+					else
+					{
+						if (refresh)
+						{
+							NavigationManager.NavigateTo(NavigateUrl(), true);
+						}
+						else
+						{
+						NavigationManager.NavigateTo(NavigateUrl());
+						}
                     }
                 }
                 else
