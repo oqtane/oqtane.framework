@@ -8,7 +8,7 @@
 {
     if (Disabled)
     {
-		<button type="button" class="@_classname" style="@_style" disabled>@((MarkupString)_iconSpan) @_text</button>
+        <NavLink class="@($"{_classname} disabled")" href="@_url" style="@_style">@((MarkupString)_iconSpan) @_text</NavLink>
 	}
 	else
 	{
