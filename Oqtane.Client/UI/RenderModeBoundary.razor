@@ -10,6 +10,7 @@
         {
             @if (ModuleType != null)
             {
+                @((MarkupString)$"<!-- Render Mode: {ModuleState.RenderMode} -->")
                 @if (!string.IsNullOrEmpty(_messageContent) && _messagePosition == "top")
                 {
                     <ModuleMessage Message="@_messageContent" Type="@_messageType" />
