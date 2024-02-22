@@ -107,10 +107,10 @@ namespace Oqtane.Repository
                     {
                         var site = GetSite(alias.SiteId);
 
-                        // initialize theme Assemblies and Scripts
+                        // initialize theme Assemblies
                         site.Themes = _themeRepository.GetThemes().ToList();
 
-                        // initialize module Assemblies and Scripts
+                        // initialize module Assemblies
                         var moduleDefinitions = _moduleDefinitionRepository.GetModuleDefinitions(alias.SiteId);
 
                         // execute migrations
