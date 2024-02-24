@@ -23,11 +23,19 @@
     public string RenderMode { get; set; }
 
     [Parameter]
+    public string Platform { get; set; }
+
+    [Parameter]
     public string Runtime { get; set; }
 
     protected override void OnInitialized()
     {
         ((INotifyPropertyChanged)SiteState.Properties).PropertyChanged += PropertyChanged;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        SiteState.Platform = Platform;
     }
 
     private void PropertyChanged(object sender, PropertyChangedEventArgs e)

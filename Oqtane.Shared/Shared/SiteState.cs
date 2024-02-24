@@ -13,6 +13,7 @@ namespace Oqtane.Shared
         public string AuthorizationToken { get; set; } // passed from server for use in service calls on client
         public string RemoteIPAddress { get; set; } // passed from server as cannot be reliably retrieved on client
         public bool IsPrerendering { get; set; }
+        public string Platform { get; set; } //updated by Maui to retrieve platform in client
 
         private dynamic _properties;
         public dynamic Properties => _properties ?? (_properties = new PropertyDictionary());
