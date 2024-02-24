@@ -13,10 +13,10 @@
             {
                 _attributes.Add("target", _target);
             }
-            if (PageState.RenderMode == RenderModes.Static && PageState.Page.ThemeType != (string.IsNullOrEmpty(childPage.ThemeType) ? PageState.Site.DefaultThemeType : childPage.ThemeType))
+            @*if (PageState.RenderMode == RenderModes.Static && PageState.Page.ThemeType != (string.IsNullOrEmpty(childPage.ThemeType) ? PageState.Site.DefaultThemeType : childPage.ThemeType))
             {
                 _attributes.Add("data-enhance-nav", "false");
-            }
+            }*@
             if (childPage.PageId == PageState.Page.PageId)
             {
                 <a class="nav-link active px-3" @attributes="_attributes">
@@ -50,10 +50,10 @@ else
             {
                 _attributes.Add("target", _target);
             }
-            if (PageState.RenderMode == RenderModes.Static && PageState.Page.ThemeType != (string.IsNullOrEmpty(childPage.ThemeType) ? PageState.Site.DefaultThemeType : childPage.ThemeType))
+            @*if (PageState.RenderMode == RenderModes.Static && PageState.Page.ThemeType != (string.IsNullOrEmpty(childPage.ThemeType) ? PageState.Site.DefaultThemeType : childPage.ThemeType))
             {
                 _attributes.Add("data-enhance-nav", "false");
-            }
+            }*@
             if (!Pages.Any(e => e.ParentId == childPage.PageId))
             {
                 if (childPage.PageId == PageState.Page.PageId)
