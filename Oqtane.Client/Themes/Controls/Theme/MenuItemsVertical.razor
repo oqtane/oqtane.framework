@@ -12,7 +12,7 @@
         {
             _attributes.Add("target", _target);
         }
-        if (!string.IsNullOrEmpty(childPage.ThemeType))
+        if (PageState.RenderMode == RenderModes.Static)
         {
             _attributes.Add("data-enhance-nav", "false");
         }
@@ -56,7 +56,7 @@ else
             {
                 _attributes.Add("target", _target);
             }
-            if (!string.IsNullOrEmpty(childPage.ThemeType))
+            if (PageState.RenderMode == RenderModes.Static)
             {
                 _attributes.Add("data-enhance-nav", "false");
             }
