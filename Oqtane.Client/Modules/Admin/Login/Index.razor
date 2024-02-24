@@ -166,7 +166,8 @@
     {
         if (firstRender && PageState.User == null && _allowsitelogin)
         {
-            await username.FocusAsync();
+            if(!string.IsNullOrEmpty(username.Id))
+                await username.FocusAsync();
         }
 
         // redirect logged in user to specified page

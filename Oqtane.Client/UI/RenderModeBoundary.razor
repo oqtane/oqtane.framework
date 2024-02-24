@@ -10,6 +10,7 @@
         {
             @if (ModuleType != null)
             {
+                @((MarkupString)$"<!-- Render Mode: {ModuleState.RenderMode} -->")
                 <ModuleMessage @ref="moduleMessageTop" Message="@_messageContent" Type="@_messageType" Visible="@(!string.IsNullOrEmpty(_messageContent) && _messagePosition == "top")" />
                 @DynamicComponent
                 @if (_progressIndicator)
