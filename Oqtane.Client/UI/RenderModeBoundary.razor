@@ -134,8 +134,15 @@
         var messageTopVisible = !string.IsNullOrEmpty(_messageContent) && _messagePosition == "top";
         var messageBottomVisible = !string.IsNullOrEmpty(_messageContent) && _messagePosition == "bottom";
 
-        moduleMessageTop.RefreshMessage(_messageContent, _messageType, messageTopVisible);
-        moduleMessageBottom.RefreshMessage(_messageContent, _messageType, messageBottomVisible);
+        if (moduleMessageTop != null)
+        {
+            moduleMessageTop.RefreshMessage(_messageContent, _messageType, messageTopVisible);
+        }
+
+        if (moduleMessageBottom != null)
+        {
+            moduleMessageBottom.RefreshMessage(_messageContent, _messageType, messageBottomVisible);
+        }
     }
 
     protected override async Task OnErrorAsync(Exception exception)

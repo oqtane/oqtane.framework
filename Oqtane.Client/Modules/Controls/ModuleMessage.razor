@@ -31,7 +31,7 @@
     public MessageType Type { get; set; }
 
     [Parameter]
-    public bool Visible{ get; set; }
+    public bool Visible { get; set; } = true;
 
     public void RefreshMessage(string message, MessageType type, bool visible)
     {
