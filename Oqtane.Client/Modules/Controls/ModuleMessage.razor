@@ -2,10 +2,10 @@
 @inherits ModuleControlBase
 @inject NavigationManager NavigationManager
 
-@if (!string.IsNullOrEmpty(_message))
+@if (Visible)
 {
     <div class="@_classname alert-dismissible fade show mb-3" role="alert">
-        @((MarkupString)_message)
+        @((MarkupString)Message)
         @if (PageState != null)
         {
             @if (Type == MessageType.Error && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
@@ -21,7 +21,6 @@
 }
 
 @code {
-    private string _message = string.Empty;
     private string _classname = string.Empty;
     private string _formname = "ModuleMessageForm";
 
@@ -30,6 +29,20 @@
 
     [Parameter]
     public MessageType Type { get; set; }
+
+    [Parameter]
+    public bool Visible{ get; set; }
+
+    public void RefreshMessage(string message, MessageType type, bool visible)
+    {
+        Message = message;
+        Type = type;
+        Visible = visible;
+
+        UpdateClassName();
+
+        StateHasChanged();
+    }
 
     protected override void OnInitialized()
     {
@@ -41,8 +54,12 @@
 
     protected override void OnParametersSet()
     {
-        _message = Message;
-        if (!string.IsNullOrEmpty(_message))
+        UpdateClassName();
+    }
+
+    private void UpdateClassName()
+    {
+        if (!string.IsNullOrEmpty(Message))
         {
             _classname = GetMessageType(Type);
         }
@@ -72,6 +89,6 @@
 
     private void DismissModal()
     {
-        _message = "";
+        Message = "";
     }
 }
