@@ -179,9 +179,12 @@
                                 <Label Class="col-sm-3" For="container" HelpText="Select the default container for the page" ResourceKey="DefaultContainer">Default Container: </Label>
                                 <div class="col-sm-9">
                                     <select id="container" class="form-select" @bind="@_containertype" required>
-                                        @foreach (var container in _containers)
+                                        @if (_containers != null)
                                         {
-                                            <option value="@container.TypeName">@container.Name</option>
+                                            foreach (var container in _containers)
+                                            {
+                                                <option value="@container.TypeName">@container.Name</option>
+                                            }
                                         }
                                     </select>
                                 </div>
