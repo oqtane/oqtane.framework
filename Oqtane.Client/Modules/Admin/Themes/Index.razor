@@ -86,6 +86,7 @@ else
             if (_themes == null)
             {
                 await logger.LogError(ex, "Error Loading Themes {Error}", ex.Message);
+                AddModuleMessage(Localizer["Error.Theme.Load"], MessageType.Error);
             }
         }
     }

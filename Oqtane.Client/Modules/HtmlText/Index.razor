@@ -36,6 +36,7 @@
         catch (Exception ex)
         {
 			await logger.LogError(ex, "Error Loading Content {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Content.Load"], MessageType.Error);
         }
     }
 }
