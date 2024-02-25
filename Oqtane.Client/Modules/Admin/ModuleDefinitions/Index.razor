@@ -120,6 +120,7 @@ else
             if (_moduleDefinitions == null)
             {
                 await logger.LogError(ex, "Error Loading Modules {Error}", ex.Message);
+                AddModuleMessage(Localizer["Error.Module.Load"], MessageType.Error);
             }
         }
     }

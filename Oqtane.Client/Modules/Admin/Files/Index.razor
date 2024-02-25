@@ -75,6 +75,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Files {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.File.Load"], MessageType.Error);
         }
     }
 
