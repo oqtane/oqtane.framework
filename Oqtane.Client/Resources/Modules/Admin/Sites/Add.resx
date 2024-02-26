@@ -241,7 +241,7 @@
     <value>Enter Connection String</value>
   </data>
   <data name="Runtime.HelpText" xml:space="preserve">
-    <value>The interactive render mode for modules</value>
+    <value>The render mode for UI components which require interactivity</value>
   </data>
   <data name="Runtime.Text" xml:space="preserve">
     <value>Interactivity:</value>
