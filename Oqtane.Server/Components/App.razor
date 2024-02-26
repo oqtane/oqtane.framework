@@ -62,11 +62,11 @@
         {
             @if (_renderMode == RenderModes.Static)
             {
-                <Routes PageState="@_pageState" RenderMode="@_renderMode" Runtime="@_runtime" AntiForgeryToken="@_antiForgeryToken" AuthorizationToken="@_authorizationToken" />
+                <Routes PageState="@_pageState" RenderMode="@_renderMode" Runtime="@_runtime" AntiForgeryToken="@_antiForgeryToken" AuthorizationToken="@_authorizationToken" Platform="@_platform" />
             }
             else
             {
-                <Routes PageState="@_pageState" RenderMode="@_renderMode" Runtime="@_runtime" AntiForgeryToken="@_antiForgeryToken" AuthorizationToken="@_authorizationToken" @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(_runtime, _prerender)" />
+                <Routes PageState="@_pageState" RenderMode="@_renderMode" Runtime="@_runtime" AntiForgeryToken="@_antiForgeryToken" AuthorizationToken="@_authorizationToken" Platform="@_platform" @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(_runtime, _prerender)" />
             }
 
             <script src="js/interop.js"></script>
@@ -96,10 +96,11 @@
     private string _runtime = Runtimes.Server;
     private bool _prerender = true;
     private int _visitorId = -1;
+    private string _antiForgeryToken = "";
     private string _remoteIPAddress = "";
+    private string _platform = "";
     private string _authorizationToken = "";
     private string _language = "en";
-    private string _antiForgeryToken = "";
     private string _headResources = "";
     private string _bodyResources = "";
     private string _styleSheets = "";
@@ -116,6 +117,7 @@
     {
         _antiForgeryToken = Antiforgery.GetAndStoreTokens(Context).RequestToken;
         _remoteIPAddress = Context.Connection.RemoteIpAddress?.ToString() ?? "";
+        _platform = System.Runtime.InteropServices.RuntimeInformation.OSDescription;
 
         // if framework is installed
         if (ConfigManager.IsInstalled())

@@ -47,6 +47,9 @@
     [Parameter]
     public string AuthorizationToken { get; set; } = "";
 
+    [Parameter]
+    public string Platform { get; set; } = "";
+
     [CascadingParameter]
     HttpContext HttpContext { get; set; }
 
@@ -71,6 +74,7 @@
         SiteState.AntiForgeryToken = AntiForgeryToken;
         SiteState.AuthorizationToken = AuthorizationToken;
         SiteState.RemoteIPAddress = (_pageState != null) ? _pageState.RemoteIPAddress : "";
+        SiteState.Platform = Platform;
         SiteState.IsPrerendering = (HttpContext != null) ? true : false;
 
         _installation = await InstallationService.IsInstalled();
