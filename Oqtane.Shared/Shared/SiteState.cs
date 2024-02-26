@@ -38,6 +38,7 @@ namespace Oqtane.Shared
             AuthorizationToken = siteState.AuthorizationToken;
             RemoteIPAddress = siteState.RemoteIPAddress;
             IsPrerendering = siteState.IsPrerendering;
+            Platform = siteState.Platform;
         }
     }
 }
