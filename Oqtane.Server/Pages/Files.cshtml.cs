@@ -92,7 +92,7 @@ namespace Oqtane.Pages
                         {
                             if (download)
                             {
-                                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.File, file.FileId, "Download");
+                                _syncManager.AddSyncEvent(_alias, EntityNames.File, file.FileId, "Download");
                                 return PhysicalFile(filepath, file.GetMimeType(), file.Name);
                             }
                             else

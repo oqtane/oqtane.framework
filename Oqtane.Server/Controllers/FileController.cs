@@ -176,7 +176,7 @@ namespace Oqtane.Controllers
                     {
                         file = CreateFile(file.Name, folder.FolderId, filepath);
                         file = _files.AddFile(file);
-                        _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.File, file.FileId, SyncEventActions.Create);
+                        _syncManager.AddSyncEvent(_alias, EntityNames.File, file.FileId, SyncEventActions.Create);
                         _logger.Log(LogLevel.Information, this, LogFunction.Create, "File Added {File}", file);
                     }
                     else
@@ -234,7 +234,7 @@ namespace Oqtane.Controllers
                 }
 
                 file = _files.UpdateFile(file);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.File, file.FileId, SyncEventActions.Update);
+                _syncManager.AddSyncEvent(_alias, EntityNames.File, file.FileId, SyncEventActions.Update);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "File Updated {File}", file);
             }
             else
@@ -266,7 +266,7 @@ namespace Oqtane.Controllers
                 }
 
                 _files.DeleteFile(id);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.File, file.FileId, SyncEventActions.Delete);
+                _syncManager.AddSyncEvent(_alias, EntityNames.File, file.FileId, SyncEventActions.Delete);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "File Deleted {File}", file);
             }
             else
@@ -341,7 +341,7 @@ namespace Oqtane.Controllers
                     if (file != null)
                     {
                         file = _files.AddFile(file);
-                        _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.File, file.FileId, SyncEventActions.Create);
+                        _syncManager.AddSyncEvent(_alias, EntityNames.File, file.FileId, SyncEventActions.Create);
                     }
                 }
                 catch (Exception ex)
@@ -429,7 +429,7 @@ namespace Oqtane.Controllers
                             file = _files.UpdateFile(file);
                         }
                         _logger.Log(LogLevel.Information, this, LogFunction.Create, "File Upload Succeeded {File}", Path.Combine(folderPath, upload));
-                        _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.File, file.FileId, SyncEventActions.Create);
+                        _syncManager.AddSyncEvent(_alias, EntityNames.File, file.FileId, SyncEventActions.Create);
                     }
                 }
             }
@@ -586,7 +586,7 @@ namespace Oqtane.Controllers
                 {
                     if (asAttachment)
                     {
-                        _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.File, file.FileId, "Download");
+                        _syncManager.AddSyncEvent(_alias, EntityNames.File, file.FileId, "Download");
                         return PhysicalFile(filepath, file.GetMimeType(), file.Name);
                     }
                     else

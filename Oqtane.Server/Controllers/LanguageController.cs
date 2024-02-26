@@ -109,8 +109,8 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && language.SiteId == _alias.SiteId)
             {
                 _languages.UpdateLanguage(language);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Language, language.LanguageId, SyncEventActions.Update);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Language, language.LanguageId, SyncEventActions.Update);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Language Updated {Language}", language);
             }
             else
@@ -127,8 +127,8 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && language.SiteId == _alias.SiteId)
             {
                 language = _languages.AddLanguage(language);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Language, language.LanguageId, SyncEventActions.Create);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Language, language.LanguageId, SyncEventActions.Create);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Language Added {Language}", language);
             }
             else
@@ -148,8 +148,8 @@ namespace Oqtane.Controllers
             if (language != null && language.SiteId == _alias.SiteId)
             {
                 _languages.DeleteLanguage(id);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Language, language.LanguageId, SyncEventActions.Delete);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Language, language.LanguageId, SyncEventActions.Delete);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Language Deleted {LanguageId}", id);
             }
             else

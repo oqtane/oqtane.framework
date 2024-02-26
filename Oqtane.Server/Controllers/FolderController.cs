@@ -173,7 +173,7 @@ namespace Oqtane.Controllers
                             folder.Path = folder.Path + "/";
                         }
                         folder = _folders.AddFolder(folder);
-                        _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Folder, folder.FolderId, SyncEventActions.Create);
+                        _syncManager.AddSyncEvent(_alias, EntityNames.Folder, folder.FolderId, SyncEventActions.Create);
                         _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Added {Folder}", folder);
                     }
                     else
@@ -225,7 +225,7 @@ namespace Oqtane.Controllers
                     }
 
                     folder = _folders.UpdateFolder(folder);
-                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Folder, folder.FolderId, SyncEventActions.Update);
+                    _syncManager.AddSyncEvent(_alias, EntityNames.Folder, folder.FolderId, SyncEventActions.Update);
                     _logger.Log(LogLevel.Information, this, LogFunction.Update, "Folder Updated {Folder}", folder);
                 }
                 else
@@ -259,7 +259,7 @@ namespace Oqtane.Controllers
                     {
                         folder.Order = order;
                         _folders.UpdateFolder(folder);
-                        _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Folder, folder.FolderId, SyncEventActions.Update);
+                        _syncManager.AddSyncEvent(_alias, EntityNames.Folder, folder.FolderId, SyncEventActions.Update);
                     }
                     order += 2;
                 }
@@ -285,7 +285,7 @@ namespace Oqtane.Controllers
                     Directory.Delete(_folders.GetFolderPath(folder));
                 }
                 _folders.DeleteFolder(id);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Folder, folder.FolderId, SyncEventActions.Delete);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Folder, folder.FolderId, SyncEventActions.Delete);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Folder Deleted {FolderId}", id);
             }
             else

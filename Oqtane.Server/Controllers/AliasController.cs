@@ -59,7 +59,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 alias = _aliases.AddAlias(alias);
-                _syncManager.AddSyncEvent(alias.TenantId, EntityNames.Alias, alias.AliasId, SyncEventActions.Create);
+                _syncManager.AddSyncEvent(alias, EntityNames.Alias, alias.AliasId, SyncEventActions.Create);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Alias Added {Alias}", alias);
             }
             else
@@ -79,7 +79,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && alias.AliasId == id && _aliases.GetAlias(alias.AliasId, false) != null)
             {
                 alias = _aliases.UpdateAlias(alias);
-                _syncManager.AddSyncEvent(alias.TenantId, EntityNames.Alias, alias.AliasId, SyncEventActions.Update);
+                _syncManager.AddSyncEvent(alias, EntityNames.Alias, alias.AliasId, SyncEventActions.Update);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Alias Updated {Alias}", alias);
             }
             else
@@ -100,7 +100,7 @@ namespace Oqtane.Controllers
             if (alias != null)
             {
                 _aliases.DeleteAlias(id);
-                _syncManager.AddSyncEvent(alias.TenantId, EntityNames.Alias, alias.AliasId, SyncEventActions.Delete);
+                _syncManager.AddSyncEvent(alias, EntityNames.Alias, alias.AliasId, SyncEventActions.Delete);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Alias Deleted {AliasId}", id);
 
                 var aliases = _aliases.GetAliases();

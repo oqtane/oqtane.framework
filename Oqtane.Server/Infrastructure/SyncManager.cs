@@ -22,9 +22,14 @@ namespace Oqtane.Infrastructure
             return SyncEvents.Where(item => (item.TenantId == tenantId || item.TenantId == -1) && item.ModifiedOn >= lastSyncDate).ToList();
         }
 
-        public void AddSyncEvent(int tenantId, string entityName, int entityId, string action)
+        public void AddSyncEvent(Alias alias, string entityName, int entityId, string action)
         {
-            var syncevent = new SyncEvent { TenantId = tenantId, EntityName = entityName, EntityId = entityId, Action = action, ModifiedOn = DateTime.UtcNow };
+            AddSyncEvent(alias.TenantId, alias.SiteId, entityName, entityId, action);
+        }
+
+        public void AddSyncEvent(int tenantId, int siteId, string entityName, int entityId, string action)
+        {
+            var syncevent = new SyncEvent { TenantId = tenantId, SiteId = siteId, EntityName = entityName, EntityId = entityId, Action = action, ModifiedOn = DateTime.UtcNow };
 
             // client actions for PageState management
             if (action == SyncEventActions.Refresh || action == SyncEventActions.Reload)
@@ -38,6 +43,13 @@ namespace Oqtane.Infrastructure
 
             // raise event
             EntityChanged?.Invoke(this, syncevent);
+        }
+
+
+        // deprecated
+        public void AddSyncEvent(int tenantId, string entityName, int entityId, string action)
+        {
+            AddSyncEvent(tenantId, -1, entityName, entityId, action);
         }
     }
 }
