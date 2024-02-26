@@ -144,7 +144,7 @@ namespace Oqtane.Infrastructure
                 Order = 33,
                 Path = "admin/urlmappings",
                 Icon = Icons.LinkBroken,
-                IsNavigation = true,
+                IsNavigation = false,
                 IsPersonalizable = false,
                 PermissionList = new List<Permission>
                 {
@@ -173,7 +173,7 @@ namespace Oqtane.Infrastructure
                 Order = 35,
                 Path = "admin/visitors",
                 Icon = Icons.Eye,
-                IsNavigation = true,
+                IsNavigation = false,
                 IsPersonalizable = false,
                 PermissionList = new List<Permission>
                 {
