@@ -2,7 +2,7 @@
 @inherits ModuleControlBase
 @inject NavigationManager NavigationManager
 
-@if (Visible)
+@if (Visible && !string.IsNullOrEmpty(Message))
 {
     <div class="@_classname alert-dismissible fade show mb-3" role="alert">
         @((MarkupString)Message)
