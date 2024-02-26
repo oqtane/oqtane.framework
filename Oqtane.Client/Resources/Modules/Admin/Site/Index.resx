@@ -274,7 +274,7 @@
     <value>Select Theme</value>
   </data>
   <data name="Hosting.Heading" xml:space="preserve">
-    <value>Hosting Model</value>
+    <value>Blazor Settings</value>
   </data>
   <data name="Prerender.HelpText" xml:space="preserve">
     <value>Specifies if interactive components should prerender their output</value>
@@ -325,7 +325,7 @@
     <value>Default Alias: </value>
   </data>
   <data name="Aliases.Heading" xml:space="preserve">
-    <value>Urls</value>
+    <value>Site Urls</value>
   </data>
   <data name="AliasName" xml:space="preserve">
     <value>Url</value>

@@ -313,10 +313,10 @@
     <value>Not Specified</value>
   </data>
   <data name="RuntimeServer" xml:space="preserve">
-    <value>Server</value>
+    <value>Server (SignalR)</value>
   </data>
   <data name="RuntimeWebAssembly" xml:space="preserve">
-    <value>WebAssembly</value>
+    <value>Client (WebAssembly)</value>
   </data>
   <data name="StaticServer" xml:space="preserve">
     <value>Static Server Rendering</value>
@@ -442,10 +442,10 @@
     <value>Effective Date cannot be after Expiry Date.</value>
   </data>
   <data name="RuntimeAuto" xml:space="preserve">
-    <value>Auto Mode</value>
+    <value>Auto</value>
   </data>
   <data name="RenderModeHeadless" xml:space="preserve">
-    <value>Headless</value>
+    <value>Headless (API Only)</value>
   </data>
   <data name="RenderModeInteractive" xml:space="preserve">
     <value>Interactive</value>
