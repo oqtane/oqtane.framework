@@ -21,8 +21,13 @@ namespace Oqtane.Infrastructure.EventSubscribers
             {
                 _cache.Remove($"site:{syncEvent.TenantId}:{syncEvent.EntityId}*", true);
             }
+            // when user is modified (ie. roles) a a site reload event is raised and the site cache item for the user needs to be refreshed
+            if (syncEvent.EntityName == EntityNames.User && syncEvent.Action == SyncEventActions.Reload)
+            {
+                _cache.Remove($"site:{syncEvent.TenantId}:{syncEvent.SiteId}:{syncEvent.EntityId}", true);
+            }
 
-            // when a site entity is updated the hosting model may have changed, so the client assemblies cache items need to be refreshed
+            // when a site entity is updated, the hosting model may have changed so the client assemblies cache items need to be refreshed
             if (syncEvent.EntityName == EntityNames.Site && syncEvent.Action == SyncEventActions.Update)
             {
                 _cache.Remove($"assemblieslist:{syncEvent.TenantId}:{syncEvent.EntityId}");
