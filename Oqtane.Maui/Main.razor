@@ -21,6 +21,7 @@ else
         Parameters = new Dictionary<string, object>();
         Parameters.Add(new KeyValuePair<string, object>("RenderMode", RenderModes.Interactive));
         Parameters.Add(new KeyValuePair<string, object>("Runtime", Runtimes.Hybrid));
+        Parameters.Add(new KeyValuePair<string, object>("Platform", DeviceInfo.Current.Platform.ToString()));
 
         if (MauiConstants.UseAppSettings)
         {
