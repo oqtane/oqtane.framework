@@ -30,7 +30,7 @@ namespace Oqtane.Pages
                 var user = _userManager.GetUser(HttpContext.User.Identity.Name, alias.SiteId);
                 if (user != null)
                 {
-                    _syncManager.AddSyncEvent(alias.TenantId, EntityNames.User, user.UserId, SyncEventActions.Reload);
+                    _syncManager.AddSyncEvent(alias, EntityNames.User, user.UserId, SyncEventActions.Reload);
                 }
 
                 await HttpContext.SignOutAsync(Constants.AuthenticationScheme);

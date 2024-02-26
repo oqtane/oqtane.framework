@@ -136,8 +136,8 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, module.SiteId, EntityNames.Page, module.PageId, PermissionNames.Edit))
             {
                 module = _modules.AddModule(module);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Module, module.ModuleId, SyncEventActions.Create);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Module, module.ModuleId, SyncEventActions.Create);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Module Added {Module}", module);
             }
             else
@@ -187,8 +187,8 @@ namespace Oqtane.Controllers
                     }
                 }
 
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Module, module.ModuleId, SyncEventActions.Update);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Module, module.ModuleId, SyncEventActions.Update);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Updated {Module}", module);
             }
             else
@@ -209,8 +209,8 @@ namespace Oqtane.Controllers
             if (module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, module.SiteId, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
             {
                 _modules.DeleteModule(id);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Module, module.ModuleId, SyncEventActions.Delete);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Module, module.ModuleId, SyncEventActions.Delete);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Deleted {ModuleId}", id);
             }
             else

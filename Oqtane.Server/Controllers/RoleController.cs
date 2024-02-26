@@ -81,7 +81,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && role.SiteId == _alias.SiteId)
             {
                 role = _roles.AddRole(role);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Role, role.RoleId, SyncEventActions.Create);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Role, role.RoleId, SyncEventActions.Create);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Role Added {Role}", role);
             }
             else
@@ -101,7 +101,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && role.SiteId == _alias.SiteId && role.RoleId == id && _roles.GetRole(role.RoleId, false) != null)
             {
                 role = _roles.UpdateRole(role);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Role, role.RoleId, SyncEventActions.Update);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Role, role.RoleId, SyncEventActions.Update);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Role Updated {Role}", role);
             }
             else
@@ -122,7 +122,7 @@ namespace Oqtane.Controllers
             if (role != null && !role.IsSystem && role.SiteId == _alias.SiteId)
             {
                 _roles.DeleteRole(id);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Role, role.RoleId, SyncEventActions.Delete);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Role, role.RoleId, SyncEventActions.Delete);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Role Deleted {RoleId}", id);
             }
             else

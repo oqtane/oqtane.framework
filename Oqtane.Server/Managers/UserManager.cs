@@ -144,7 +144,7 @@ namespace Oqtane.Managers
                 user.LastLoginOn = null;
                 user.LastIPAddress = "";
                 User = _users.AddUser(user);
-                _syncManager.AddSyncEvent(alias.TenantId, EntityNames.User, User.UserId, SyncEventActions.Create);
+                _syncManager.AddSyncEvent(alias, EntityNames.User, User.UserId, SyncEventActions.Create);
             }
             else
             {
@@ -241,8 +241,8 @@ namespace Oqtane.Managers
                     }
 
                     user = _users.UpdateUser(user);
-                    _syncManager.AddSyncEvent(_tenantManager.GetAlias().TenantId, EntityNames.User, user.UserId, SyncEventActions.Update);
-                    _syncManager.AddSyncEvent(_tenantManager.GetAlias().TenantId, EntityNames.User, user.UserId, SyncEventActions.Reload);
+                    _syncManager.AddSyncEvent(_tenantManager.GetAlias(), EntityNames.User, user.UserId, SyncEventActions.Update);
+                    _syncManager.AddSyncEvent(_tenantManager.GetAlias(), EntityNames.User, user.UserId, SyncEventActions.Reload);
                     user.Password = ""; // remove sensitive information
                     _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", user);
                 }
@@ -291,8 +291,8 @@ namespace Oqtane.Managers
                     {
                         // delete user
                         _users.DeleteUser(userid);
-                        _syncManager.AddSyncEvent(_tenantManager.GetAlias().TenantId, EntityNames.User, userid, SyncEventActions.Delete);
-                        _syncManager.AddSyncEvent(_tenantManager.GetAlias().TenantId, EntityNames.User, userid, SyncEventActions.Reload);
+                        _syncManager.AddSyncEvent(_tenantManager.GetAlias(), EntityNames.User, userid, SyncEventActions.Delete);
+                        _syncManager.AddSyncEvent(_tenantManager.GetAlias(), EntityNames.User, userid, SyncEventActions.Reload);
                         _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Deleted {UserId}", userid, result.ToString());
                     }
                     else

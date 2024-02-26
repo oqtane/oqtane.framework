@@ -78,7 +78,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && theme.SiteId == _alias.SiteId && theme.ThemeId == id && _themes.GetTheme(theme.ThemeId,theme.SiteId) != null)
             {
                 _themes.UpdateTheme(theme);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Theme, theme.ThemeId, SyncEventActions.Update);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Theme, theme.ThemeId, SyncEventActions.Update);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Theme Updated {Theme}", theme);
             }
             else
@@ -122,8 +122,8 @@ namespace Oqtane.Controllers
 
                 // remove theme
                 _themes.DeleteTheme(theme.ThemeId);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Theme, theme.ThemeId, SyncEventActions.Delete);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, theme.SiteId, SyncEventActions.Refresh);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Theme, theme.ThemeId, SyncEventActions.Delete);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Site, theme.SiteId, SyncEventActions.Refresh);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Theme Removed For {ThemeName}", theme.ThemeName);
             }
             else

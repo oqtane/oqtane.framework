@@ -184,9 +184,8 @@ namespace Oqtane.Services
         {
             if (_accessor.HttpContext.User.IsInRole(RoleNames.Host))
             {
-                var alias = _tenantManager.GetAlias();
                 site = _sites.AddSite(site);
-                _syncManager.AddSyncEvent(alias.TenantId, EntityNames.Site, site.SiteId, SyncEventActions.Create);
+                _syncManager.AddSyncEvent(_tenantManager.GetAlias(), EntityNames.Site, site.SiteId, SyncEventActions.Create);
                 _logger.Log(site.SiteId, LogLevel.Information, this, LogFunction.Create, "Site Added {Site}", site);
             }
             else
@@ -205,13 +204,13 @@ namespace Oqtane.Services
                 if (site.SiteId == alias.SiteId && site.TenantId == alias.TenantId && current != null)
                 {
                     site = _sites.UpdateSite(site);
-                    _syncManager.AddSyncEvent(alias.TenantId, EntityNames.Site, site.SiteId, SyncEventActions.Update);
+                    _syncManager.AddSyncEvent(alias, EntityNames.Site, site.SiteId, SyncEventActions.Update);
                     string action = SyncEventActions.Refresh;
                     if (current.RenderMode != site.RenderMode || current.Runtime != site.Runtime)
                     {
                         action = SyncEventActions.Reload;
                     }
-                    _syncManager.AddSyncEvent(alias.TenantId, EntityNames.Site, site.SiteId, action);
+                    _syncManager.AddSyncEvent(alias, EntityNames.Site, site.SiteId, action);
                     _logger.Log(site.SiteId, LogLevel.Information, this, LogFunction.Update, "Site Updated {Site}", site);
                 }
                 else
@@ -236,7 +235,7 @@ namespace Oqtane.Services
                 if (site != null && site.SiteId == alias.SiteId)
                 {
                     _sites.DeleteSite(siteId);
-                    _syncManager.AddSyncEvent(alias.TenantId, EntityNames.Site, site.SiteId, SyncEventActions.Delete);
+                    _syncManager.AddSyncEvent(alias, EntityNames.Site, site.SiteId, SyncEventActions.Delete);
                     _logger.Log(siteId, LogLevel.Information, this, LogFunction.Delete, "Site Deleted {SiteId}", siteId);
                 }
                 else

@@ -130,8 +130,8 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && role != null && SiteValid(role.SiteId) && RoleValid(role.Name))
             {
                 userRole = _userRoles.AddUserRole(userRole);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.UserRole, userRole.UserRoleId, SyncEventActions.Create);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.User, userRole.UserId, SyncEventActions.Reload);
+                _syncManager.AddSyncEvent(_alias, EntityNames.UserRole, userRole.UserRoleId, SyncEventActions.Create);
+                _syncManager.AddSyncEvent(_alias, EntityNames.User, userRole.UserId, SyncEventActions.Reload);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "User Role Added {UserRole}", userRole);
             }
             else
@@ -152,8 +152,8 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && role != null && SiteValid(role.SiteId) && RoleValid(role.Name) && userRole.UserRoleId == id && _userRoles.GetUserRole(userRole.UserRoleId, false) != null)
             {
                 userRole = _userRoles.UpdateUserRole(userRole);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.UserRole, userRole.UserRoleId, SyncEventActions.Update);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.User, userRole.UserId, SyncEventActions.Reload);
+                _syncManager.AddSyncEvent(_alias, EntityNames.UserRole, userRole.UserRoleId, SyncEventActions.Update);
+                _syncManager.AddSyncEvent(_alias, EntityNames.User, userRole.UserId, SyncEventActions.Reload);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Role Updated {UserRole}", userRole);
             }
             else
@@ -174,8 +174,8 @@ namespace Oqtane.Controllers
             if (userRole != null && SiteValid(userRole.Role.SiteId) && RoleValid(userRole.Role.Name))
             {
                 _userRoles.DeleteUserRole(id);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.UserRole, userRole.UserRoleId, SyncEventActions.Delete);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.User, userRole.UserId, SyncEventActions.Reload);
+                _syncManager.AddSyncEvent(_alias, EntityNames.UserRole, userRole.UserRoleId, SyncEventActions.Delete);
+                _syncManager.AddSyncEvent(_alias, EntityNames.User, userRole.UserId, SyncEventActions.Reload);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Role Deleted {UserRole}", userRole);
 
                 if (userRole.Role.Name == RoleNames.Host)
