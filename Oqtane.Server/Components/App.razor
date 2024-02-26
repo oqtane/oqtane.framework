@@ -37,8 +37,6 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="/" />
-        <script src="js/app.js"></script>
-        <script src="js/loadjs.min.js"></script>
         <link rel="stylesheet" href="css/app.css" />
         @if (!string.IsNullOrEmpty(_PWAScript))
         {
@@ -69,6 +67,8 @@
                 <Routes PageState="@_pageState" RenderMode="@_renderMode" Runtime="@_runtime" AntiForgeryToken="@_antiForgeryToken" AuthorizationToken="@_authorizationToken" Platform="@_platform" @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(_runtime, _prerender)" />
             }
 
+            <script src="js/app.js"></script>
+            <script src="js/loadjs.min.js"></script>
             <script src="js/interop.js"></script>
             <script src="_framework/blazor.web.js"></script>
 
