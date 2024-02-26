@@ -65,15 +65,19 @@ namespace Oqtane.Services
             Site site = null;
             if (!_accessor.HttpContext.User.Identity.IsAuthenticated)
             {
-                site = _cache.GetOrCreate($"site:{_accessor.HttpContext.GetAlias().SiteKey}", entry => 
+                site = _cache.GetOrCreate($"site:{_accessor.HttpContext.GetAlias().SiteKey}", entry =>
                 {
                     entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                     return GetSite(siteId);
-                });
+                }, true);
             }
-            else
+            else // authenticated - cached per user
             {
-                site = GetSite(siteId);
+                site = _cache.GetOrCreate($"site:{_accessor.HttpContext.GetAlias().SiteKey}:{_accessor.HttpContext.User.UserId}", entry =>
+                {
+                    entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                    return GetSite(siteId);
+                }, true);
             }
             return await Task.Run(() => site);
         }
