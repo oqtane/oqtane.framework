@@ -51,13 +51,56 @@ namespace Oqtane.Repository
             _logger = logger;
         }
 
-        public IEnumerable<Site> GetSites()
-        {
-            return _db.Site.OrderBy(item => item.Name);
-        }
+        // asynchronous methods
         public async Task<IEnumerable<Site>> GetSitesAsync()
         {
             return await _db.Site.OrderBy(item => item.Name).ToListAsync();
+        }
+
+        public async Task<Site> AddSiteAsync(Site site)
+        {
+            site.SiteGuid = Guid.NewGuid().ToString();
+            _db.Site.Add(site);
+            await _db.SaveChangesAsync();
+            CreateSite(site);
+            return site;
+        }
+
+        public async Task<Site> UpdateSiteAsync(Site site)
+        {
+            _db.Entry(site).State = EntityState.Modified;
+            await _db.SaveChangesAsync();
+            return site;
+        }
+
+        public async Task<Site> GetSiteAsync(int siteId)
+        {
+            return await GetSiteAsync(siteId, true);
+        }
+
+        public async Task<Site> GetSiteAsync(int siteId, bool tracking)
+        {
+            if (tracking)
+            {
+                return await _db.Site.FindAsync(siteId);
+            }
+            else
+            {
+                return await _db.Site.AsNoTracking().FirstOrDefaultAsync(item => item.SiteId == siteId);
+            }
+        }
+
+        public async Task DeleteSiteAsync(int siteId)
+        {
+            var site = await _db.Site.FindAsync(siteId);
+            _db.Site.Remove(site);
+            _db.SaveChanges();
+        }
+
+        // synchronous methods
+        public IEnumerable<Site> GetSites()
+        {
+            return _db.Site.OrderBy(item => item.Name);
         }
 
         public Site AddSite(Site site)
@@ -68,14 +111,6 @@ namespace Oqtane.Repository
             CreateSite(site);
             return site;
         }
-        public async Task<Site> AddSiteAsync(Site site)
-        {
-            site.SiteGuid = Guid.NewGuid().ToString();
-            _db.Site.Add(site);
-            await _db.SaveChangesAsync();
-            CreateSite(site);
-            return site;
-        }
 
         public Site UpdateSite(Site site)
         {
@@ -83,20 +118,10 @@ namespace Oqtane.Repository
             _db.SaveChanges();
             return site;
         }
-        public async Task<Site> UpdateSiteAsync(Site site)
-        {
-            _db.Entry(site).State = EntityState.Modified;
-            await _db.SaveChangesAsync();
-            return site;
-        }
 
         public Site GetSite(int siteId)
         {
             return GetSite(siteId, true);
-        }
-        public async Task<Site> GetSiteAsync(int siteId)
-        {
-            return await GetSiteAsync(siteId, true);
         }
 
         public Site GetSite(int siteId, bool tracking)
@@ -110,17 +135,6 @@ namespace Oqtane.Repository
                 return _db.Site.AsNoTracking().FirstOrDefault(item => item.SiteId == siteId);
             }
         }
-        public async Task<Site> GetSiteAsync(int siteId, bool tracking)
-        {
-            if (tracking)
-            {
-                return await _db.Site.FindAsync(siteId);
-            }
-            else
-            {
-                return await _db.Site.AsNoTracking().FirstOrDefaultAsync(item => item.SiteId == siteId);
-            }
-        }
 
         public void DeleteSite(int siteId)
         {
@@ -128,12 +142,7 @@ namespace Oqtane.Repository
             _db.Site.Remove(site);
             _db.SaveChanges();
         }
-        public async Task DeleteSiteAsync(int siteId)
-        {
-            var site = await _db.Site.FindAsync(siteId);
-            _db.Site.Remove(site);
-            _db.SaveChanges();
-        }
+
 
         public void InitializeSite(Alias alias)
         {
