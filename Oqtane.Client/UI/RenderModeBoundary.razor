@@ -11,13 +11,13 @@
             @if (ModuleType != null)
             {
                 @((MarkupString)$"<!-- rendermode: {ModuleState.RenderMode} -->")
-                <ModuleMessage @ref="moduleMessageTop" Message="@_messageContent" Type="@_messageType" Visible="@(!string.IsNullOrEmpty(_messageContent) && _messagePosition == "top")" />
+                <ModuleMessage @ref="moduleMessageTop" Message="@_messageContent" Type="@_messageType" />
                 @DynamicComponent
                 @if (_progressIndicator)
                 {
                     <div class="app-progress-indicator"></div>
                 }
-                <ModuleMessage @ref="moduleMessageBottom" Message="@_messageContent" Type="@_messageType" Visible="@(!string.IsNullOrEmpty(_messageContent) && _messagePosition == "bottom")" />
+                <ModuleMessage @ref="moduleMessageBottom" Message="@_messageContent" Type="@_messageType" />
             }
         }
         else
@@ -131,17 +131,17 @@
 
     private void Refresh()
     {
-        var messageTopVisible = !string.IsNullOrEmpty(_messageContent) && _messagePosition == "top";
-        var messageBottomVisible = !string.IsNullOrEmpty(_messageContent) && _messagePosition == "bottom";
+        var updateTop = string.IsNullOrEmpty(_messageContent) || _messagePosition == "top";
+        var updateBottom = string.IsNullOrEmpty(_messageContent) || _messagePosition == "bottom";
 
-        if (moduleMessageTop != null)
+        if (updateTop && moduleMessageTop != null)
         {
-            moduleMessageTop.RefreshMessage(_messageContent, _messageType, messageTopVisible);
+            moduleMessageTop.RefreshMessage(_messageContent, _messageType);
         }
 
-        if (moduleMessageBottom != null)
+        if (updateBottom && moduleMessageBottom != null)
         {
-            moduleMessageBottom.RefreshMessage(_messageContent, _messageType, messageBottomVisible);
+            moduleMessageBottom.RefreshMessage(_messageContent, _messageType);
         }
     }
 
