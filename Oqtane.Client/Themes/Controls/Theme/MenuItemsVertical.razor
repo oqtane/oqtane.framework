@@ -12,10 +12,6 @@
         {
             _attributes.Add("target", _target);
         }
-        @*if (PageState.RenderMode == RenderModes.Static && PageState.Page.ThemeType != (string.IsNullOrEmpty(childPage.ThemeType) ? PageState.Site.DefaultThemeType : childPage.ThemeType))
-        {
-            _attributes.Add("data-enhance-nav", "false");
-        }*@
         if (childPage.PageId == PageState.Page.PageId)
         {
             <li class="nav-item px-3" style="margin-left: @(childPage.Level * 15)px;">
@@ -56,10 +52,6 @@ else
             {
                 _attributes.Add("target", _target);
             }
-            @*if (PageState.RenderMode == RenderModes.Static && PageState.Page.ThemeType != (string.IsNullOrEmpty(childPage.ThemeType) ? PageState.Site.DefaultThemeType : childPage.ThemeType))
-            {
-                _attributes.Add("data-enhance-nav", "false");
-            }*@
             if (childPage.PageId == PageState.Page.PageId)
             {
                 <li class="nav-item px-3" style="margin-left: @(childPage.Level * 15)px;">
