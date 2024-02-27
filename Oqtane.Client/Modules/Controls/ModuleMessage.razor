@@ -2,7 +2,7 @@
 @inherits ModuleControlBase
 @inject NavigationManager NavigationManager
 
-@if (Visible && !string.IsNullOrEmpty(Message))
+@if (!string.IsNullOrEmpty(Message))
 {
     <div class="@_classname alert-dismissible fade show mb-3" role="alert">
         @((MarkupString)Message)
@@ -30,14 +30,10 @@
     [Parameter]
     public MessageType Type { get; set; }
 
-    [Parameter]
-    public bool Visible { get; set; } = true;
-
-    public void RefreshMessage(string message, MessageType type, bool visible)
+    public void RefreshMessage(string message, MessageType type)
     {
         Message = message;
         Type = type;
-        Visible = visible;
 
         UpdateClassName();
 
