@@ -660,7 +660,7 @@
             {
                 count++;
                 string id = "id=\"app-stylesheet-" + ResourceLevel.Page.ToString().ToLower() + "-" + batch + "-" + count.ToString("00") + "\" ";
-                _styleSheets += "<link " + id + "rel=\"stylesheet\" href=\"" + resource.Url + "\"" + (!string.IsNullOrEmpty(resource.Integrity) ? " integrity=\"" + resource.Integrity + "\"" : "") + (!string.IsNullOrEmpty(resource.CrossOrigin) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") + " type=\"text/css\"/>" + Environment.NewLine;
+                _styleSheets += "<link " + id + "rel=\"stylesheet\"" + (!string.IsNullOrEmpty(resource.Integrity) ? " integrity=\"" + resource.Integrity + "\"" : "") + (!string.IsNullOrEmpty(resource.CrossOrigin) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") + " href=\"" + resource.Url + "\" type=\"text/css\"/>" + Environment.NewLine;
             }
         }
     }
