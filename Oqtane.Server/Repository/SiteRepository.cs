@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -52,14 +53,26 @@ namespace Oqtane.Repository
 
         public IEnumerable<Site> GetSites()
         {
-            return _db.Site;
+            return _db.Site.OrderBy(item => item.Name);
+        }
+        public async Task<IEnumerable<Site>> GetSitesAsync()
+        {
+            return await _db.Site.OrderBy(item => item.Name).ToListAsync();
         }
 
         public Site AddSite(Site site)
         {
-            site.SiteGuid = System.Guid.NewGuid().ToString();
+            site.SiteGuid = Guid.NewGuid().ToString();
             _db.Site.Add(site);
             _db.SaveChanges();
+            CreateSite(site);
+            return site;
+        }
+        public async Task<Site> AddSiteAsync(Site site)
+        {
+            site.SiteGuid = Guid.NewGuid().ToString();
+            _db.Site.Add(site);
+            await _db.SaveChangesAsync();
             CreateSite(site);
             return site;
         }
@@ -70,10 +83,20 @@ namespace Oqtane.Repository
             _db.SaveChanges();
             return site;
         }
+        public async Task<Site> UpdateSiteAsync(Site site)
+        {
+            _db.Entry(site).State = EntityState.Modified;
+            await _db.SaveChangesAsync();
+            return site;
+        }
 
         public Site GetSite(int siteId)
         {
             return GetSite(siteId, true);
+        }
+        public async Task<Site> GetSiteAsync(int siteId)
+        {
+            return await GetSiteAsync(siteId, true);
         }
 
         public Site GetSite(int siteId, bool tracking)
@@ -87,10 +110,27 @@ namespace Oqtane.Repository
                 return _db.Site.AsNoTracking().FirstOrDefault(item => item.SiteId == siteId);
             }
         }
+        public async Task<Site> GetSiteAsync(int siteId, bool tracking)
+        {
+            if (tracking)
+            {
+                return await _db.Site.FindAsync(siteId);
+            }
+            else
+            {
+                return await _db.Site.AsNoTracking().FirstOrDefaultAsync(item => item.SiteId == siteId);
+            }
+        }
 
         public void DeleteSite(int siteId)
         {
             var site = _db.Site.Find(siteId);
+            _db.Site.Remove(site);
+            _db.SaveChanges();
+        }
+        public async Task DeleteSiteAsync(int siteId)
+        {
+            var site = await _db.Site.FindAsync(siteId);
             _db.Site.Remove(site);
             _db.SaveChanges();
         }
