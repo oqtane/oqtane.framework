@@ -55,12 +55,32 @@ namespace Oqtane.Shared
             return (urlparameters, querystring, anchor);
         }
 
+        private static (string Path, string Parameters) ParsePath(string path, string parameters)
+        {
+            if (!string.IsNullOrEmpty(path))
+            {
+                if (path.Contains('?'))
+                {
+                    parameters = "?" + path.Split('?').Last();
+                    path = path.Split('?').First();
+                }
+                if (path.Contains('#'))
+                {
+                    parameters = "#" + path.Split('#').Last();
+                    path = path.Split('#').First();
+                }
+            }
+            return (path, parameters);
+        }
+
         public static string NavigateUrl(string alias, string path, string parameters)
         {
             string urlparameters;
             string querystring;
             string anchor;
 
+            // parse path (in case parameters are embedded in path)
+            (path, parameters) = ParsePath(path, parameters);
             // parse parameters
             (urlparameters, querystring, anchor) = ParseParameters(parameters);
             if (!string.IsNullOrEmpty(urlparameters))
