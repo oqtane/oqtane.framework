@@ -556,6 +556,12 @@
         {
             resources = AddResources(resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName));
         }
+        else
+        {
+            // fallback to default Oqtane theme
+            theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == Constants.DefaultTheme));
+            resources = AddResources(resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName));
+        }
         var type = Type.GetType(themeType);
         if (type != null)
         {
@@ -594,7 +600,7 @@
                     var obj = Activator.CreateInstance(moduletype) as IModuleControl;
                     if (obj != null)
                     {
-                        resources = AddResources(resources, obj.Resources, ResourceLevel.Module, alias, "Modules", type.Namespace);
+                        resources = AddResources(resources, obj.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace);
                     }
                 }
             }
