@@ -256,8 +256,9 @@
             {
                 _pageId = Int32.Parse(PageState.QueryString["id"]);
                 _parent = await PageService.GetPageAsync(_pageId);
-                if (_parent != null)
+                if (_parent != null && !UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
                 {
+                    // non-admins are authorized to create child pages of current page
                     _parentid = _parent.PageId.ToString();
                 }
             }
@@ -375,36 +376,56 @@
                     page.SiteId = PageState.Page.SiteId;
                     page.Name = _name;
 
-                    if (string.IsNullOrEmpty(_path))
+                    // path can be a link to an external url
+                    if (!_path.Contains("://"))
                     {
-                        _path = _name;
-                    }
-                    if (_path.Contains("/"))
-                    {
-                        if (_path.EndsWith("/") && _path != "/")
+                        if (string.IsNullOrEmpty(_path))
                         {
-                            _path = _path.Substring(0, _path.Length - 1);
+                            _path = _name;
                         }
-                        _path = _path.Substring(_path.LastIndexOf("/") + 1);
+
+                        var fragment = (_path.Contains("?")) ? _path.Substring(_path.IndexOf("?")) : "";
+                        fragment = (_path.Contains("#")) ? _path.Substring(_path.IndexOf("#")) : "";
+                        _path = (!string.IsNullOrEmpty(fragment)) ? _path.Replace(fragment, "") : _path;
+
+                        if (_path.Contains("/"))
+                        {
+                            if (_path.EndsWith("/") && _path != "/")
+                            {
+                                _path = _path.Substring(0, _path.Length - 1);
+                            }
+                            _path = _path.Substring(_path.LastIndexOf("/") + 1);
+                        }
+                        if (_parentid == "-1")
+                        {
+                            page.Path = Utilities.GetFriendlyUrl(_path);
+                        }
+                        else
+                        {
+                            Page parent = PageState.Pages.FirstOrDefault(item => item.PageId == page.ParentId);
+                            if (parent.Path == string.Empty)
+                            {
+                                page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
+                            }
+                            else
+                            {
+                                page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(_path);
+                            }
+                        }
+                        page.Path += fragment;
+                    }
+                    else
+                    {
+                        page.Path = _path;
                     }
 
                     if (_parentid == "-1")
                     {
                         page.ParentId = null;
-                        page.Path = Utilities.GetFriendlyUrl(_path);
                     }
                     else
                     {
                         page.ParentId = Int32.Parse(_parentid);
-                        var parent = PageState.Pages.Where(item => item.PageId == page.ParentId).FirstOrDefault();
-                        if (parent.Path == string.Empty)
-                        {
-                            page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
-                        }
-                        else
-                        {
-                            page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(_path);
-                        }
                     }
 
                     var _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
@@ -450,23 +471,23 @@
                     // appearance
                     page.Title = _title;
                     page.Icon = (_icon == null ? string.Empty : _icon);
-					page.ThemeType = _themetype;
-					if (!string.IsNullOrEmpty(page.ThemeType) && page.ThemeType == PageState.Site.DefaultThemeType)
-					{
-						page.ThemeType = string.Empty;
-					}
-					page.DefaultContainerType = _containertype;
-					if (!string.IsNullOrEmpty(page.DefaultContainerType) && page.DefaultContainerType == PageState.Site.DefaultContainerType)
-					{
-						page.DefaultContainerType = string.Empty;
-					}
+                    page.ThemeType = _themetype;
+                    if (!string.IsNullOrEmpty(page.ThemeType) && page.ThemeType == PageState.Site.DefaultThemeType)
+                    {
+                        page.ThemeType = string.Empty;
+                    }
+                    page.DefaultContainerType = _containertype;
+                    if (!string.IsNullOrEmpty(page.DefaultContainerType) && page.DefaultContainerType == PageState.Site.DefaultContainerType)
+                    {
+                        page.DefaultContainerType = string.Empty;
+                    }
 
                     // page content
                     page.HeadContent = _headcontent;
                     page.BodyContent = _bodycontent;
 
                     // permissions
-					page.PermissionList = _permissionGrid.GetPermissionList();
+                    page.PermissionList = _permissionGrid.GetPermissionList();
 
                     page = await PageService.AddPageAsync(page);
                     await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, page.ParentId);
@@ -474,11 +495,18 @@
                     await logger.LogInformation("Page Added {Page}", page);
                     if (!string.IsNullOrEmpty(PageState.ReturnUrl))
                     {
-                        NavigationManager.NavigateTo(page.Path); // redirect to new page
+                        NavigationManager.NavigateTo(PageState.ReturnUrl, true);
                     }
                     else
                     {
-                        NavigationManager.NavigateTo(NavigateUrl()); // redirect to page management
+                        if (!page.Path.Contains("://"))
+                        {
+                            NavigationManager.NavigateTo(page.Path); // redirect to new page created
+                        }
+                        else
+                        {
+                            NavigationManager.NavigateTo(NavigateUrl("admin/pages"));
+                        }
                     }
                 }
                 else
