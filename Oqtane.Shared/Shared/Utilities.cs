@@ -20,88 +20,83 @@ namespace Oqtane.Shared
             return $"{type.Namespace}, {assemblyName}";
         }
 
-        public static (string UrlParameters, string Querystring, string Anchor) ParseParameters(string parameters)
+        public static (string UrlParameters, string Querystring, string Fragment) ParseParameters(string url)
         {
+            // /path/urlparameters
             // /urlparameters /urlparameters?Id=1 /urlparameters#5 /urlparameters?Id=1#5 /urlparameters?reload#5
-
             // Id=1 Id=1#5 reload#5 reload
-
             // #5
 
-            var urlparameters = string.Empty;
-            var querystring = string.Empty;
-            var anchor = string.Empty;
+            if (!url.StartsWith("/")) // paths always start with "/"
+            {
+                url = ((!url.StartsWith("#")) ? "/?" : "/") + url;
+            }
+            url = ((!url.Contains("://")) ? Constants.PackageRegistryUrl : "") + url;
 
-            if (parameters.Contains('#'))
-            {
-                anchor = parameters.Split('#').Last();
-                parameters = parameters.Replace("#" + anchor, "");
-            }
+            var uri = new Uri(url);
+            var querystring = uri.Query.Replace("?", "");
+            var fragment = uri.Fragment.Replace("#", "");
+            var urlparameters = uri.LocalPath;
+            urlparameters = (urlparameters == "/") ? "" : urlparameters;
 
-            if (parameters.Contains('?'))
+            if (urlparameters.Contains(Constants.UrlParametersDelimiter))
             {
-                urlparameters = parameters.Split('?').First();
-                querystring = parameters.Replace(urlparameters + "?", "");
-            }
-            else if (parameters.Contains('/'))
-            {
-                urlparameters = parameters;
-            }
-            else
-            {
-                querystring = parameters;
+                urlparameters = urlparameters.Substring(urlparameters.IndexOf(Constants.UrlParametersDelimiter) + 1);
             }
 
-            return (urlparameters, querystring, anchor);
+            return (urlparameters, querystring, fragment);
         }
 
-        private static (string Path, string Parameters) ParsePath(string path, string parameters)
+        public static (string Path, string Parameters) ParsePath(string url)
         {
-            if (!string.IsNullOrEmpty(path))
+            url = (!url.StartsWith("/") ? "/" : "") + url;
+
+            (string path, string querystring, string fragment) = ParseParameters(url);
+
+            var uriBuilder = new UriBuilder
             {
-                if (path.Contains('?'))
-                {
-                    parameters = "?" + path.Split('?').Last();
-                    path = path.Split('?').First();
-                }
-                if (path.Contains('#'))
-                {
-                    parameters = "#" + path.Split('#').Last();
-                    path = path.Split('#').First();
-                }
-            }
-            return (path, parameters);
+                Path = path,
+                Query = querystring,
+                Fragment = fragment
+            };
+
+            return (uriBuilder.Path, uriBuilder.Uri.Query + uriBuilder.Uri.Fragment);
         }
 
         public static string NavigateUrl(string alias, string path, string parameters)
         {
-            string urlparameters;
-            string querystring;
-            string anchor;
-
-            // parse path (in case parameters are embedded in path)
-            (path, parameters) = ParsePath(path, parameters);
-            // parse parameters
-            (urlparameters, querystring, anchor) = ParseParameters(parameters);
-            if (!string.IsNullOrEmpty(urlparameters))
+            if (!string.IsNullOrEmpty(parameters))
             {
-                if (urlparameters.StartsWith("/")) urlparameters = urlparameters.Remove(0, 1);
-                path += $"/{Constants.UrlParametersDelimiter}/{urlparameters}";
+                // parse path
+                (path, _) = ParsePath(path);
+
+                // parse parameters
+                (string urlparameters, string querystring, string fragment) = ParseParameters(parameters);
+
+                // add urlparameters to path
+                if (!string.IsNullOrEmpty(urlparameters))
+                {
+                    if (urlparameters.StartsWith("/")) urlparameters = urlparameters.Remove(0, 1);
+                    path += $"/{Constants.UrlParametersDelimiter}/{urlparameters}";
+                }
+
+                // build url
+                var uriBuilder = new UriBuilder
+                {
+                    Path = !string.IsNullOrEmpty(alias)
+                        ? (!string.IsNullOrEmpty(path)) ? $"{alias}{path}": $"{alias}"
+                        : $"{path}",
+                    Query = querystring,
+                    Fragment = fragment
+                };
+                path = uriBuilder.Uri.PathAndQuery;
+            }
+            else
+            {
+                path = ((!string.IsNullOrEmpty(alias)) ? alias + "/" : "") + path;
             }
 
-            // build url
-            var uriBuilder = new UriBuilder
-            {
-                Path = !string.IsNullOrEmpty(alias)
-                    ? (!string.IsNullOrEmpty(path))
-                        ? $"{alias}/{path}"
-                        : $"{alias}"
-                    : $"{path}",
-                Query = querystring,
-            };
-
-            anchor = string.IsNullOrEmpty(anchor) ? "" : "#" + anchor;
-            return uriBuilder.Uri.PathAndQuery + anchor;
+            return path;
         }
 
         public static string EditUrl(string alias, string path, int moduleid, string action, string parameters)
