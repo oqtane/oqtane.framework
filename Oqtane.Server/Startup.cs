@@ -199,6 +199,7 @@ namespace Oqtane
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseExceptionMiddleWare();
             app.UseTenantResolution();
             app.UseJwtAuthorization();
             app.UseRouting();
