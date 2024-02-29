@@ -299,9 +299,12 @@
                         RenderId = Guid.NewGuid(),
                         Refresh = false
                     };
-
                     OnStateChange?.Invoke(_pagestate);
-                    await ScrollToFragment(_pagestate.Uri);
+
+                    if (PageState.RenderMode == RenderModes.Interactive)
+                    {
+                        await ScrollToFragment(_pagestate.Uri);
+                    }
                 }
                 else
                 {

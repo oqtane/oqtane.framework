@@ -185,9 +185,12 @@
                     <div class="col text-center">
                         <label for="Container" class="control-label">@Localizer["Container"]</label>
                         <select class="form-select" @bind="@_containerType">
-                            @foreach (var container in _containers)
+                            @if (_containers != null)
                             {
-                                <option value="@container.TypeName">@container.Name</option>
+                                foreach (var container in _containers)
+                                {
+                                    <option value="@container.TypeName">@container.Name</option>
+                                }
                             }
                         </select>
                     </div>
@@ -284,8 +287,7 @@
                 }
             }
 
-            var themes = await ThemeService.GetThemesAsync();
-            _containers = ThemeService.GetContainerControls(themes, PageState.Page.ThemeType);
+            _containers = ThemeService.GetContainerControls(PageState.Site.Themes, PageState.Page.ThemeType);
             _containerType = PageState.Site.DefaultContainerType;
             _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
             _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(_category)).ToList();
