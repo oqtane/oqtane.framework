@@ -50,5 +50,25 @@ namespace Oqtane.Extensions
                 return "";
             }
         }
+
+        public static int TenantId(this ClaimsPrincipal claimsPrincipal)
+        {
+            var sitekey = SiteKey(claimsPrincipal);
+            if (!string.IsNullOrEmpty(sitekey) && sitekey.Contains(":"))
+            {
+                return int.Parse(sitekey.Split(':')[0]);
+            }
+            return -1;
+        }
+
+        public static int SiteId(this ClaimsPrincipal claimsPrincipal)
+        {
+            var sitekey = SiteKey(claimsPrincipal);
+            if (!string.IsNullOrEmpty(sitekey) && sitekey.Contains(":"))
+            {
+                return int.Parse(sitekey.Split(':')[1]);
+            }
+            return -1;
+        }
     }
 }
