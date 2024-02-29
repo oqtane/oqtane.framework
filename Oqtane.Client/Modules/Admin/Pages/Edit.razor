@@ -526,9 +526,7 @@
                             _path = _name;
                         }
 
-                        var fragment = (_path.Contains("?")) ? _path.Substring(_path.IndexOf("?")) : "";
-                        fragment = (_path.Contains("#")) ? _path.Substring(_path.IndexOf("#")) : "";
-                        _path = (!string.IsNullOrEmpty(fragment)) ? _path.Replace(fragment, "") : _path;
+                       (_path, string parameters) = Utilities.ParsePath(_path);
 
                         if (_path.Contains("/"))
                         {
@@ -554,7 +552,7 @@
                                 _page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(_path);
                             }
                         }
-                        _page.Path += fragment;
+                        _page.Path += parameters;
                     }
                     else
                     {
