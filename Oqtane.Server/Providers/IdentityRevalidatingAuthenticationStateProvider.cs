@@ -4,49 +4,43 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
 using Oqtane.Infrastructure;
 using Oqtane.Extensions;
+using Oqtane.Managers;
 
 namespace Oqtane.Providers
 {
-    internal sealed class IdentityRevalidatingAuthenticationStateProvider(
-             ILoggerFactory loggerFactory,
-             IServiceScopeFactory scopeFactory,
-             IOptions<IdentityOptions> options)
-         : RevalidatingServerAuthenticationStateProvider(loggerFactory)
+    public class IdentityRevalidatingAuthenticationStateProvider(ILoggerFactory loggerFactory, IServiceScopeFactory scopeFactory, IOptions<IdentityOptions> options) : RevalidatingServerAuthenticationStateProvider(loggerFactory)
     {
-        protected override TimeSpan RevalidationInterval => TimeSpan.FromMinutes(30);
+        // defines how often the authentication state should be asynchronously validated
+        // note that there is no property within IdentityOptions which allows this to be customized 
+        protected override TimeSpan RevalidationInterval
+        {
+            get
+            {
+                // suppresses the unused compiler warning for options
+                var revalidationInterval = TimeSpan.FromMinutes(30); // default Identity value
+                return (options != null) ? revalidationInterval : revalidationInterval;
+            }
+        }
 
-        protected override async Task<bool> ValidateAuthenticationStateAsync(AuthenticationState authenticationState, CancellationToken cancellationToken)
+        protected override async Task<bool> ValidateAuthenticationStateAsync(AuthenticationState authState, CancellationToken cancellationToken)
         {
             await using var scope = scopeFactory.CreateAsyncScope();
             var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
-            tenantManager.SetTenant(authenticationState.User.TenantId());
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-            return await ValidateSecurityStampAsync(userManager, authenticationState.User);
-        }
-
-        private async Task<bool> ValidateSecurityStampAsync(UserManager<IdentityUser> userManager, ClaimsPrincipal principal)
-        {
-            var user = await userManager.FindByNameAsync(principal.Identity.Name);
-            if (user is null)
+            tenantManager.SetTenant(authState.User.TenantId());
+            var userManager = scope.ServiceProvider.GetRequiredService<IUserManager>();
+            var user = userManager.GetUser(authState.User.Identity.Name, authState.User.SiteId());
+            if (user == null || user.IsDeleted)
             {
                 return false;
             }
-            else if (!userManager.SupportsUserSecurityStamp)
-            {
-                return true;
-            }
             else
             {
-                var principalStamp = principal.FindFirstValue(options.Value.ClaimsIdentity.SecurityStampClaimType);
-                var userStamp = await userManager.GetSecurityStampAsync(user);
-                //return principalStamp == userStamp; // security stamps need to be persisted in principal - they are stored in AspNetUsers
-                return true; 
+                return true;
             }
         }
     }
