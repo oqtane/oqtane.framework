@@ -44,5 +44,9 @@ namespace Oqtane.Extensions
 
         public static IApplicationBuilder UseJwtAuthorization(this IApplicationBuilder builder)
           => builder.UseMiddleware<JwtMiddleware>();
+
+        public static IApplicationBuilder UseExceptionMiddleWare(this IApplicationBuilder builder)
+          => builder.UseMiddleware<ExceptionMiddleware>();
+
     }
 }
