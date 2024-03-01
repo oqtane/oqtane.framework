@@ -157,23 +157,23 @@
             editmode = true; // querystring can set edit mode
         }
 
-        // get user
-        if (PageState == null || PageState.Refresh || refresh || PageState.Alias.SiteId != SiteState.Alias.SiteId)
+        // verify user is authenticated for current site
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity.IsAuthenticated && authState.User.Claims.Any(item => item.Type == "sitekey" && item.Value == SiteState.Alias.SiteKey))
         {
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            // verify user is authenticated for current site
-            if (authState.User.Identity.IsAuthenticated && authState.User.Claims.Any(item => item.Type == "sitekey" && item.Value == SiteState.Alias.SiteKey))
+            if (PageState == null || PageState.Refresh || refresh || PageState.Alias.SiteId != SiteState.Alias.SiteId)
             {
+                // get user
                 user = await UserService.GetUserAsync(authState.User.Identity.Name, SiteState.Alias.SiteId);
                 if (user != null)
                 {
                     user.IsAuthenticated = authState.User.Identity.IsAuthenticated;
                 }
             }
-        }
-        else
-        {
-            user = PageState.User;
+            else 
+            {
+                user = PageState.User;
+            }
         }
 
         // process any sync events
