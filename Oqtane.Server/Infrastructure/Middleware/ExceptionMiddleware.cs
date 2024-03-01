@@ -1,11 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Oqtane.Enums;
-using Oqtane.Models;
+using Oqtane.Extensions;
 using Oqtane.Shared;
 
 namespace Oqtane.Infrastructure
@@ -27,18 +26,18 @@ namespace Oqtane.Infrastructure
             }
             catch (Exception exception)
             {
-                var _logger = provider.GetRequiredService<ILogManager>();
                 var endPoint = context.GetEndpoint()?.DisplayName;
-                var contextAlias = context.Items.FirstOrDefault(i => i.Key.ToString() == "Alias");
-                Alias alias;
-                int siteId = -1;
-                var defaultVal = default(KeyValuePair<int, string>);
-                if (!contextAlias.Equals(defaultVal))
+                var alias = context.GetAlias();
+                if (alias != null)
                 {
-                    alias = contextAlias.Value as Alias;
-                    siteId = alias.SiteId;
+                    var _logger = provider.GetRequiredService<ILogManager>();
+                    _logger.Log(alias.SiteId, Shared.LogLevel.Error, this, LogFunction.Other, exception, "Unhandled Exception: {Error} For Endpoint: {Endpoint}", exception.Message, endPoint);
                 }
-                _logger.Log(siteId, LogLevel.Error, endPoint, LogFunction.Other, exception, exception.Message, context.User?.Identity.Name);
+                else
+                {
+                    var _filelogger = provider.GetRequiredService<ILogger<ExceptionMiddleware>>();
+                    _filelogger.LogError(Utilities.LogMessage(this, $"Endpoint: {endPoint} Unhandled Exception: {exception}"));
+                }
             }
         }
     }
