@@ -400,7 +400,7 @@
                         }
                         else
                         {
-                            Page parent = PageState.Pages.FirstOrDefault(item => item.PageId == page.ParentId);
+                            Page parent = PageState.Pages.FirstOrDefault(item => item.PageId == Int32.Parse(_parentid));
                             if (parent.Path == string.Empty)
                             {
                                 page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
