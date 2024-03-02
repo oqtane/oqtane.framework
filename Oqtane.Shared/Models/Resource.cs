@@ -63,6 +63,11 @@ namespace Oqtane.Models
         public string Content { get; set; }
 
         /// <summary>
+        /// For Scripts this defines the render mode (default is all render modes) - not applicable to Stylesheets
+        /// </summary>
+        public string RenderMode { get; set; }
+
+        /// <summary>
         /// The namespace of the component that declared the resource - only used in SiteRouter
         /// </summary>
         public string Namespace { get; set; }
