@@ -62,15 +62,18 @@ namespace Oqtane.Themes
                     var inline = 0;
                     foreach (Resource resource in resources)
                     {
-                        if (!string.IsNullOrEmpty(resource.Url))
+                        if (string.IsNullOrEmpty(resource.RenderMode) || resource.RenderMode == RenderModes.Interactive)
                         {
-                            var url = (resource.Url.Contains("://")) ? resource.Url : PageState.Alias.BaseUrl + resource.Url;
-                            scripts.Add(new { href = url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", es6module = resource.ES6Module, location = resource.Location.ToString().ToLower() });
-                        }
-                        else
-                        {
-                            inline += 1;
-                            await interop.IncludeScript(GetType().Namespace.ToLower() + inline.ToString(), "", "", "", resource.Content, resource.Location.ToString().ToLower());
+                            if (!string.IsNullOrEmpty(resource.Url))
+                            {
+                                var url = (resource.Url.Contains("://")) ? resource.Url : PageState.Alias.BaseUrl + resource.Url;
+                                scripts.Add(new { href = url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", es6module = resource.ES6Module, location = resource.Location.ToString().ToLower() });
+                            }
+                            else
+                            {
+                                inline += 1;
+                                await interop.IncludeScript(GetType().Namespace.ToLower() + inline.ToString(), "", "", "", resource.Content, resource.Location.ToString().ToLower());
+                            }
                         }
                     }
                     if (scripts.Any())
