@@ -274,7 +274,7 @@
     <value>Select Theme</value>
   </data>
   <data name="Hosting.Heading" xml:space="preserve">
-    <value>Blazor Settings</value>
+    <value>UI Component Settings</value>
   </data>
   <data name="Prerender.HelpText" xml:space="preserve">
     <value>Specifies if interactive components should prerender their output</value>
