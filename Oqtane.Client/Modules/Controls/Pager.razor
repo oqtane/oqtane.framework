@@ -8,13 +8,13 @@
 {
     @if (!string.IsNullOrEmpty(SearchProperties))
     {
-        @* <form autocomplete="off"> *@
+        <form autocomplete="off">
             <div class="input-group my-3">
-                <input type="text" autocomplete="off" id="search" class="form-control" placeholder=@string.Format(Localizer["SearchPlaceholder"], FormatSearchProperties()) @bind="@_search" />
+            <input type="text" id="pagersearch" class="form-control" placeholder=@string.Format(Localizer["SearchPlaceholder"], FormatSearchProperties()) @bind="@_search" />
                 <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>
                 <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
             </div>
-        @* </form> *@
+        </form>
     }
 
     @if ((Toolbar == "Top" || Toolbar == "Both") && _pages > 0 && Items.Count() > _maxItems)
