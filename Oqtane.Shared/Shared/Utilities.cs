@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using File = Oqtane.Models.File;
@@ -245,12 +246,12 @@ namespace Oqtane.Shared
             return name;
         }
 
-        public static string GetFriendlyUrl(string text)
+        public static string GetFriendlyUrl(string url)
         {
             string result = "";
-            if (text != null)
+            if (url != null)
             {
-                var normalizedString = text.ToLowerInvariant().Normalize(NormalizationForm.FormD);
+                var normalizedString = WebUtility.UrlDecode(url).ToLowerInvariant().Normalize(NormalizationForm.FormD);
                 var stringBuilder = new StringBuilder();
                 var stringLength = normalizedString.Length;
                 var prevdash = false;
