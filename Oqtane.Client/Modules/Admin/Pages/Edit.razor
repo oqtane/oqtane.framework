@@ -518,6 +518,15 @@
 
                     _page.Name = _name;
 
+                    if (_parentid == "-1")
+                    {
+                        _page.ParentId = null;
+                    }
+                    else
+                    {
+                        _page.ParentId = Int32.Parse(_parentid);
+                    }
+
                     // path can be a link to an external url
                     if (!_path.Contains("://"))
                     {
@@ -542,7 +551,7 @@
                         }
                         else
                         {
-                            Page parent = PageState.Pages.FirstOrDefault(item => item.PageId == Int32.Parse(_parentid));
+                            Page parent = PageState.Pages.FirstOrDefault(item => item.PageId == _page.ParentId);
                             if (parent.Path == string.Empty)
                             {
                                 _page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
@@ -557,15 +566,6 @@
                     else
                     {
                         _page.Path = _path;
-                    }
-
-                    if (_parentid == "-1")
-                    {
-                        _page.ParentId = null;
-                    }
-                    else
-                    {
-                        _page.ParentId = Int32.Parse(_parentid);
                     }
 
                     var _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);

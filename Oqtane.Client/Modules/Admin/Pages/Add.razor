@@ -256,9 +256,8 @@
             {
                 _pageId = Int32.Parse(PageState.QueryString["id"]);
                 _parent = await PageService.GetPageAsync(_pageId);
-                if (_parent != null && !UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
+                if (_parent != null)
                 {
-                    // non-admins are authorized to create child pages of current page
                     _parentid = _parent.PageId.ToString();
                 }
             }
@@ -376,6 +375,15 @@
                     page.SiteId = PageState.Page.SiteId;
                     page.Name = _name;
 
+                    if (_parentid == "-1")
+                    {
+                        page.ParentId = null;
+                    }
+                    else
+                    {
+                        page.ParentId = Int32.Parse(_parentid);
+                    }
+                    
                     // path can be a link to an external url
                     if (!_path.Contains("://"))
                     {
@@ -400,7 +408,7 @@
                         }
                         else
                         {
-                            Page parent = PageState.Pages.FirstOrDefault(item => item.PageId == Int32.Parse(_parentid));
+                            Page parent = PageState.Pages.FirstOrDefault(item => item.PageId == page.ParentId);
                             if (parent.Path == string.Empty)
                             {
                                 page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
@@ -415,15 +423,6 @@
                     else
                     {
                         page.Path = _path;
-                    }
-
-                    if (_parentid == "-1")
-                    {
-                        page.ParentId = null;
-                    }
-                    else
-                    {
-                        page.ParentId = Int32.Parse(_parentid);
                     }
 
                     var _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
