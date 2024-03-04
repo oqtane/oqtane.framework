@@ -12,6 +12,9 @@
     <Authorizing>
         <text>...</text>
     </Authorizing>
+    <Authorized>
+        <ModuleMessage Message="@Localizer["Info.SignedIn"]" Type="MessageType.Info" />
+    </Authorized>
     <NotAuthorized>
 		@if (!twofactor)
 		{
@@ -166,12 +169,14 @@
     {
         if (firstRender && PageState.User == null && _allowsitelogin)
         {
-            if(!string.IsNullOrEmpty(username.Id))
+            if (!string.IsNullOrEmpty(username.Id)) // ensure username is visible in UI
+            {
                 await username.FocusAsync();
+            }
         }
 
         // redirect logged in user to specified page
-        if (PageState.User != null)
+        if (PageState.User != null && !UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
         {
             NavigationManager.NavigateTo(PageState.ReturnUrl);
         }
