@@ -297,7 +297,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
                 }
 
-                // dynamically register module server scoped services (using conventions)
+                // dynamically register module server transient services (using conventions)
                 implementationTypes = assembly.GetInterfaces<IServerService>();
                 foreach (var implementationType in implementationTypes)
                 {
@@ -310,7 +310,7 @@ namespace Microsoft.Extensions.DependencyInjection
                         var serviceType = Type.GetType(serviceName);
                         if (serviceType != null)
                         {
-                            services.AddScoped(serviceType, implementationType);
+                            services.AddTransient(serviceType, implementationType);
                         }
                     }
                 }
