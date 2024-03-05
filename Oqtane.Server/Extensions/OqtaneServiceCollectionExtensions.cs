@@ -75,7 +75,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IThemeService, ThemeService>();
             services.AddScoped<IAliasService, AliasService>();
             services.AddScoped<ITenantService, TenantService>();
-            services.AddScoped<ISiteService, ServerSiteService>();
             services.AddScoped<IPageService, PageService>();
             services.AddScoped<IModuleService, ModuleService>();
             services.AddScoped<IPageModuleService, PageModuleService>();
@@ -110,6 +109,7 @@ namespace Microsoft.Extensions.DependencyInjection
         internal static IServiceCollection AddOqtaneTransientServices(this IServiceCollection services)
         {
             // repositories
+            services.AddTransient<ISiteService, ServerSiteService>();
             services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
             services.AddTransient<IThemeRepository, ThemeRepository>();
             services.AddTransient<IAliasRepository, AliasRepository>();
