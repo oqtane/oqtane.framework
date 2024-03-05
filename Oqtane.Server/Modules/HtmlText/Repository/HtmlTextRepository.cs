@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Infrastructure;
 using System;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace Oqtane.Modules.HtmlText.Repository
 {
@@ -49,6 +51,36 @@ namespace Oqtane.Modules.HtmlText.Repository
             if (htmlText != null) _db.HtmlText.Remove(htmlText);
             ClearCache(htmlText.ModuleId);
             _db.SaveChanges();
+        }
+
+        public async Task<IEnumerable<Models.HtmlText>> GetHtmlTextsAsync(int moduleId)
+        {
+            return await _cache.GetOrCreateAsync($"HtmlText:{_siteState.Alias.SiteKey}:{moduleId}", async entry =>
+            {
+                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                return await _db.HtmlText.Where(item => item.ModuleId == moduleId).ToListAsync();
+            });
+        }
+
+        public async Task<Models.HtmlText> GetHtmlTextAsync(int htmlTextId)
+        {
+            return await _db.HtmlText.FindAsync(htmlTextId);
+        }
+
+        public async Task<Models.HtmlText> AddHtmlTextAsync(Models.HtmlText htmlText)
+        {
+            _db.HtmlText.Add(htmlText);
+            await _db.SaveChangesAsync();
+            ClearCache(htmlText.ModuleId);
+            return htmlText;
+        }
+
+        public async Task DeleteHtmlTextAsync(int htmlTextId)
+        {
+            Models.HtmlText htmlText = _db.HtmlText.FirstOrDefault(item => item.HtmlTextId == htmlTextId);
+            _db.HtmlText.Remove(htmlText);
+            ClearCache(htmlText.ModuleId);
+            await _db.SaveChangesAsync();
         }
 
         private void ClearCache(int moduleId)

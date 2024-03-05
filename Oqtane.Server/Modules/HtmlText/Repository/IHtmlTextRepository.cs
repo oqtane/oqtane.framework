@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Oqtane.Documentation;
-using Oqtane.Modules.HtmlText.Models;
 
 namespace Oqtane.Modules.HtmlText.Repository
 {
@@ -11,5 +11,10 @@ namespace Oqtane.Modules.HtmlText.Repository
         Models.HtmlText GetHtmlText(int htmlTextId);
         Models.HtmlText AddHtmlText(Models.HtmlText htmlText);
         void DeleteHtmlText(int htmlTextId);
+
+        Task<IEnumerable<Models.HtmlText>> GetHtmlTextsAsync(int moduleId);
+        Task<Models.HtmlText> GetHtmlTextAsync(int htmlTextId);
+        Task<Models.HtmlText> AddHtmlTextAsync(Models.HtmlText htmlText);
+        Task DeleteHtmlTextAsync(int htmlTextId);
     }
 }
