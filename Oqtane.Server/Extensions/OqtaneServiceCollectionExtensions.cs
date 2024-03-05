@@ -292,8 +292,26 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     if (implementationType.AssemblyQualifiedName != null)
                     {
-                        var serviceType = Type.GetType(implementationType.AssemblyQualifiedName.Replace(implementationType.Name, $"I{implementationType.Name}"));
+                        var serviceType = Type.GetType(implementationType.AssemblyQualifiedName.Replace(implementationType.Name, $"I{implementationType.Name}")); var serviceName = implementationType.AssemblyQualifiedName.Replace(implementationType.Name, $"I{implementationType.Name}");
                         services.AddScoped(serviceType ?? implementationType, implementationType);
+                    }
+                }
+
+                // dynamically register module server scoped services (using conventions)
+                implementationTypes = assembly.GetInterfaces<IServerService>();
+                foreach (var implementationType in implementationTypes)
+                {
+                    if (implementationType.AssemblyQualifiedName != null && implementationType.AssemblyQualifiedName.Contains("Services.Server"))
+                    {
+                        // module server services reference a common interface which is located in the client assembly
+                        var serviceName = implementationType.AssemblyQualifiedName
+                            // convert implementation type name to interface name and change Server assembly to Client
+                            .Replace(".Services.Server", ".Services.I").Replace(".Server,", ".Client,");
+                        var serviceType = Type.GetType(serviceName);
+                        if (serviceType != null)
+                        {
+                            services.AddScoped(serviceType, implementationType);
+                        }
                     }
                 }
 

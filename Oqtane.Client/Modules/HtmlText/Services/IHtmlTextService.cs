@@ -13,7 +13,7 @@ namespace Oqtane.Modules.HtmlText.Services
 
         Task<Models.HtmlText> GetHtmlTextAsync(int htmlTextId, int moduleId);
 
-        Task AddHtmlTextAsync(Models.HtmlText htmltext);
+        Task<Models.HtmlText> AddHtmlTextAsync(Models.HtmlText htmltext);
 
         Task DeleteHtmlTextAsync(int htmlTextId, int moduleId);
     }

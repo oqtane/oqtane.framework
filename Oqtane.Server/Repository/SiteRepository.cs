@@ -92,9 +92,9 @@ namespace Oqtane.Repository
 
         public async Task DeleteSiteAsync(int siteId)
         {
-            var site = await _db.Site.FindAsync(siteId);
+            var site = _db.Site.Find(siteId);
             _db.Site.Remove(site);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
         }
 
         // synchronous methods

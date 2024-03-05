@@ -220,6 +220,16 @@ namespace Oqtane.Client
                         services.AddScoped(serviceType ?? implementationType, implementationType);
                     }
                 }
+
+                implementationTypes = assembly.GetInterfaces<IClientService>();
+                foreach (var implementationType in implementationTypes)
+                {
+                    if (implementationType.AssemblyQualifiedName != null)
+                    {
+                        var serviceType = Type.GetType(implementationType.AssemblyQualifiedName.Replace(implementationType.Name, $"I{implementationType.Name}"));
+                        services.AddScoped(serviceType ?? implementationType, implementationType);
+                    }
+                }
             }
             catch
             {
