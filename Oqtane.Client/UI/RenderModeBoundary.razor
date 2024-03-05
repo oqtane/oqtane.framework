@@ -115,13 +115,13 @@
     public void ShowProgressIndicator()
     {
         _progressIndicator = true;
-        Refresh();
+        StateHasChanged();
     }
 
     public void HideProgressIndicator()
     {
         _progressIndicator = false;
-        Refresh();
+        StateHasChanged();
     }
 
     private void DismissMessage()
