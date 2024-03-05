@@ -297,24 +297,6 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
                 }
 
-                // dynamically register module server transient services (using conventions)
-                implementationTypes = assembly.GetInterfaces<IServerService>();
-                foreach (var implementationType in implementationTypes)
-                {
-                    if (implementationType.AssemblyQualifiedName != null && implementationType.AssemblyQualifiedName.Contains("Services.Server"))
-                    {
-                        // module server services reference a common interface which is located in the client assembly
-                        var serviceName = implementationType.AssemblyQualifiedName
-                            // convert implementation type name to interface name and change Server assembly to Client
-                            .Replace(".Services.Server", ".Services.I").Replace(".Server,", ".Client,");
-                        var serviceType = Type.GetType(serviceName);
-                        if (serviceType != null)
-                        {
-                            services.AddTransient(serviceType, implementationType);
-                        }
-                    }
-                }
-
                 // dynamically register module transient services (ie. server DBContext, repository classes)
                 implementationTypes = assembly.GetInterfaces<ITransientService>();
                 foreach (var implementationType in implementationTypes)
@@ -322,6 +304,14 @@ namespace Microsoft.Extensions.DependencyInjection
                     if (implementationType.AssemblyQualifiedName != null)
                     {
                         var serviceType = Type.GetType(implementationType.AssemblyQualifiedName.Replace(implementationType.Name, $"I{implementationType.Name}"));
+                        if (serviceType == null && implementationType.AssemblyQualifiedName.Contains("Services.Server"))
+                        {
+                            // module server services reference a common interface which is located in the client assembly
+                            var serviceName = implementationType.AssemblyQualifiedName
+                                // convert implementation type name to interface name and change Server assembly to Client
+                                .Replace(".Services.Server", ".Services.I").Replace(".Server,", ".Client,");
+                            serviceType = Type.GetType(serviceName);
+                        }
                         services.AddTransient(serviceType ?? implementationType, implementationType);
                     }
                 }

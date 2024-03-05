@@ -12,7 +12,7 @@ using Oqtane.Shared;
 namespace Oqtane.Modules.HtmlText.Services
 {
     [PrivateApi("Mark HtmlText classes as private, since it's not very useful in the public docs")]
-    public class ServerHtmlTextService : IHtmlTextService, IServerService
+    public class ServerHtmlTextService : IHtmlTextService, ITransientService
     {
         private readonly IHtmlTextRepository _htmlText;
         private readonly IUserPermissions _userPermissions;
