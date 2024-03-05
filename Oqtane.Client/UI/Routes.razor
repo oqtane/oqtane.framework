@@ -16,7 +16,7 @@
     {
         @if (string.IsNullOrEmpty(_installation.Message))
         {
-            if (PageState.RenderMode == RenderModes.Static)
+            if (PageState?.RenderMode == RenderModes.Static)
             {
                 <CascadingValue Value="@_pageState">
                     <SiteRouter RenderMode="@RenderMode" Runtime="@Runtime" OnStateChange="@ChangeState" />
