@@ -21,7 +21,6 @@ using Microsoft.OpenApi.Models;
 using Oqtane.Infrastructure;
 using Oqtane.Infrastructure.Interfaces;
 using Oqtane.Managers;
-using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Repository;
 using Oqtane.Security;
@@ -45,7 +44,6 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddDbContext<MasterDBContext>(options => { }, ServiceLifetime.Transient);
             services.AddDbContext<TenantDBContext>(options => { }, ServiceLifetime.Transient);
-
             return services;
         }
 
@@ -313,6 +311,19 @@ namespace Microsoft.Extensions.DependencyInjection
                             serviceType = Type.GetType(serviceName);
                         }
                         services.AddTransient(serviceType ?? implementationType, implementationType);
+
+                        if (implementationType.BaseType == typeof(DBContextBase))
+                        {
+                            if (implementationType.Name == "HtmlTextContext")
+                            {
+                                services.AddDbContextFactory<Oqtane.Modules.HtmlText.Repository.HtmlTextContext>(opt => { }, ServiceLifetime.Scoped);
+                            }
+                            // need a way to call AddDbContextFactory dynamically passing the implementationType
+                            //typeof(IServiceCollection)
+                            //    .GetMethod("AddDbContextFactory")
+                            //    .MakeGenericMethod(implementationType)
+                            //    .Invoke(services, new object[] { new DbContextOptionsBuilder(), ServiceLifetime.Scoped });
+                        }
                     }
                 }
 
