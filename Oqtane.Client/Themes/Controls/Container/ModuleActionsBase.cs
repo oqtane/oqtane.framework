@@ -101,7 +101,7 @@ namespace Oqtane.Themes.Controls
             {
                 PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
 
-                string url = Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, "refresh");
+                string url = Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, "edit=true&refresh");
 
                 if (action.Action != null)
                 {
