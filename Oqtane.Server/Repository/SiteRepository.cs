@@ -18,6 +18,7 @@ namespace Oqtane.Repository
     public class SiteRepository : ISiteRepository
     {
         private readonly TenantDBContext _db;
+        private readonly IDbContextFactory<TenantDBContext> _factory;
         private readonly IRoleRepository _roleRepository;
         private readonly IProfileRepository _profileRepository;
         private readonly IFolderRepository _folderRepository;
@@ -32,11 +33,12 @@ namespace Oqtane.Repository
         private readonly ILogManager _logger;
         private static readonly object _lock = new object();
 
-        public SiteRepository(TenantDBContext context, IRoleRepository roleRepository, IProfileRepository profileRepository, IFolderRepository folderRepository, IPageRepository pageRepository,
+        public SiteRepository(TenantDBContext context, IDbContextFactory<TenantDBContext> factory, IRoleRepository roleRepository, IProfileRepository profileRepository, IFolderRepository folderRepository, IPageRepository pageRepository,
             IModuleRepository moduleRepository, IPageModuleRepository pageModuleRepository, IModuleDefinitionRepository moduleDefinitionRepository, IThemeRepository themeRepository, IServiceProvider serviceProvider,
             IConfigurationRoot config, IServerStateManager serverState, ILogManager logger)
         {
             _db = context;
+            _factory = factory;
             _roleRepository = roleRepository;
             _profileRepository = profileRepository;
             _folderRepository = folderRepository;
@@ -54,22 +56,25 @@ namespace Oqtane.Repository
         // asynchronous methods
         public async Task<IEnumerable<Site>> GetSitesAsync()
         {
-            return await _db.Site.OrderBy(item => item.Name).ToListAsync();
+            using var ctx = _factory.CreateDbContext();
+            return await ctx.Site.OrderBy(item => item.Name).ToListAsync();
         }
 
         public async Task<Site> AddSiteAsync(Site site)
         {
             site.SiteGuid = Guid.NewGuid().ToString();
-            _db.Site.Add(site);
-            await _db.SaveChangesAsync();
+            using var ctx = _factory.CreateDbContext();
+            ctx.Site.Add(site);
+            await ctx.SaveChangesAsync();
             CreateSite(site);
             return site;
         }
 
         public async Task<Site> UpdateSiteAsync(Site site)
         {
-            _db.Entry(site).State = EntityState.Modified;
-            await _db.SaveChangesAsync();
+            using var ctx = _factory.CreateDbContext();
+            ctx.Entry(site).State = EntityState.Modified;
+            await ctx.SaveChangesAsync();
             return site;
         }
 
@@ -80,21 +85,23 @@ namespace Oqtane.Repository
 
         public async Task<Site> GetSiteAsync(int siteId, bool tracking)
         {
+            using var ctx = _factory.CreateDbContext();
             if (tracking)
             {
-                return await _db.Site.FindAsync(siteId);
+                return await ctx.Site.FindAsync(siteId);
             }
             else
             {
-                return await _db.Site.AsNoTracking().FirstOrDefaultAsync(item => item.SiteId == siteId);
+                return await ctx.Site.AsNoTracking().FirstOrDefaultAsync(item => item.SiteId == siteId);
             }
         }
 
         public async Task DeleteSiteAsync(int siteId)
         {
-            var site = _db.Site.Find(siteId);
-            _db.Site.Remove(site);
-            await _db.SaveChangesAsync();
+            using var ctx = _factory.CreateDbContext();
+            var site = ctx.Site.Find(siteId);
+            ctx.Site.Remove(site);
+            await ctx.SaveChangesAsync();
         }
 
         // synchronous methods

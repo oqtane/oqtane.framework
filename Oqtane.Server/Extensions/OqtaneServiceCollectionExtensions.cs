@@ -44,6 +44,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddDbContext<MasterDBContext>(options => { }, ServiceLifetime.Transient);
             services.AddDbContext<TenantDBContext>(options => { }, ServiceLifetime.Transient);
+            services.AddDbContextFactory<TenantDBContext>(opt => { }, ServiceLifetime.Transient);
             return services;
         }
 
@@ -316,7 +317,7 @@ namespace Microsoft.Extensions.DependencyInjection
                         {
                             if (implementationType.Name == "HtmlTextContext")
                             {
-                                services.AddDbContextFactory<Oqtane.Modules.HtmlText.Repository.HtmlTextContext>(opt => { }, ServiceLifetime.Scoped);
+                                services.AddDbContextFactory<Oqtane.Modules.HtmlText.Repository.HtmlTextContext>(opt => { }, ServiceLifetime.Transient);
                             }
                             // need a way to call AddDbContextFactory dynamically passing the implementationType
                             //typeof(IServiceCollection)
