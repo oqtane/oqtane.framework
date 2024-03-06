@@ -13,12 +13,14 @@ namespace Oqtane.Modules.HtmlText.Repository
     public class HtmlTextRepository : IHtmlTextRepository, ITransientService
     {
         private readonly HtmlTextContext _db;
+        private readonly IDbContextFactory<HtmlTextContext> _factory;
         private readonly IMemoryCache _cache;
         private readonly SiteState _siteState;
 
-        public HtmlTextRepository(HtmlTextContext context, IMemoryCache cache, SiteState siteState)
+        public HtmlTextRepository(HtmlTextContext context, IDbContextFactory<HtmlTextContext> factory, IMemoryCache cache, SiteState siteState)
         {
             _db = context;
+            _factory = factory;
             _cache = cache;
             _siteState = siteState;
         }
@@ -58,29 +60,33 @@ namespace Oqtane.Modules.HtmlText.Repository
             return await _cache.GetOrCreateAsync($"HtmlText:{_siteState.Alias.SiteKey}:{moduleId}", async entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                return await _db.HtmlText.Where(item => item.ModuleId == moduleId).ToListAsync();
+                using var ctx = _factory.CreateDbContext();
+                return await ctx.HtmlText.Where(item => item.ModuleId == moduleId).ToListAsync();
             });
         }
 
         public async Task<Models.HtmlText> GetHtmlTextAsync(int htmlTextId)
         {
-            return await _db.HtmlText.FindAsync(htmlTextId);
+            using var ctx = _factory.CreateDbContext();
+            return await ctx.HtmlText.FindAsync(htmlTextId);
         }
 
         public async Task<Models.HtmlText> AddHtmlTextAsync(Models.HtmlText htmlText)
         {
-            _db.HtmlText.Add(htmlText);
-            await _db.SaveChangesAsync();
+            using var ctx = _factory.CreateDbContext();
+            ctx.HtmlText.Add(htmlText);
+            await ctx.SaveChangesAsync();
             ClearCache(htmlText.ModuleId);
             return htmlText;
         }
 
         public async Task DeleteHtmlTextAsync(int htmlTextId)
         {
-            Models.HtmlText htmlText = _db.HtmlText.FirstOrDefault(item => item.HtmlTextId == htmlTextId);
-            _db.HtmlText.Remove(htmlText);
+            using var ctx = _factory.CreateDbContext();
+            Models.HtmlText htmlText = ctx.HtmlText.FirstOrDefault(item => item.HtmlTextId == htmlTextId);
+            ctx.HtmlText.Remove(htmlText);
             ClearCache(htmlText.ModuleId);
-            await _db.SaveChangesAsync();
+            await ctx.SaveChangesAsync();
         }
 
         private void ClearCache(int moduleId)
