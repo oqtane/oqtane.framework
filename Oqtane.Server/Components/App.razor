@@ -580,9 +580,31 @@
                 var typename = "";
                 if (module.ModuleDefinition != null)
                 {
-                    typename = module.ModuleDefinition.ControlTypeTemplate;
                     resources = AddResources(resources, module.ModuleDefinition.Resources, ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName));
+
+                    // handle default action
+                    if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
+                    {
+                        action = module.ModuleDefinition.DefaultAction;
+                    }
+
+                    // get typename template
+                    typename = module.ModuleDefinition.ControlTypeTemplate;
+                    if (module.ModuleDefinition.ControlTypeRoutes != "")
+                    {
+                        // process custom action routes
+                        foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(';', StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            if (route.StartsWith(action + "="))
+                            {
+                                typename = route.Replace(action + "=", "");
+                                break;
+                            }
+                        }
+                    }
                 }
+
+                // create typename
                 if (Constants.DefaultModuleActions.Contains(action, StringComparer.OrdinalIgnoreCase))
                 {
                     typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, action);
@@ -591,6 +613,9 @@
                 {
                     typename = typename.Replace(Constants.ActionToken, action);
                 }
+
+                // ensure component exists and implements IModuleControl
+                module.ModuleType = "";
                 Type moduletype = Type.GetType(typename, false, true); // case insensitive
                 if (moduletype != null && moduletype.GetInterfaces().Contains(typeof(IModuleControl)))
                 {
@@ -602,6 +627,16 @@
                     if (obj != null)
                     {
                         resources = AddResources(resources, obj.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace);
+                        if (action.ToLower() == "settings" && module.ModuleDefinition != null)
+                        {
+                            // settings components are embedded within a framework settings module
+                            moduletype = Type.GetType(module.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, action), false, true);
+                            if (moduletype != null)
+                            {
+                                obj = Activator.CreateInstance(moduletype) as IModuleControl;
+                                resources = AddResources(resources, obj.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace);
+                            }
+                        }
                     }
                 }
             }
