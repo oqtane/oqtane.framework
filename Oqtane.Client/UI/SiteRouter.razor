@@ -434,7 +434,7 @@
 
                 if (module.ModuleDefinition != null && (module.ModuleDefinition.Runtimes == "" || module.ModuleDefinition.Runtimes.Contains(Runtime)))
                 {
-                    typename = module.ModuleDefinition.ControlTypeTemplate;
+                    page.Resources = ManagePageResources(page.Resources, module.ModuleDefinition.Resources, ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName));
 
                     // handle default action
                     if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
@@ -442,24 +442,23 @@
                         action = module.ModuleDefinition.DefaultAction;
                     }
 
-                    // check if the module defines custom action routes
+                    // get typename template
+                    typename = module.ModuleDefinition.ControlTypeTemplate;
                     if (module.ModuleDefinition.ControlTypeRoutes != "")
                     {
+                        // process custom action routes
                         foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(';', StringSplitOptions.RemoveEmptyEntries))
                         {
                             if (route.StartsWith(action + "="))
                             {
                                 typename = route.Replace(action + "=", "");
+                                break;
                             }
                         }
                     }
-
-                    // get module resources
-                    page.Resources = ManagePageResources(page.Resources, module.ModuleDefinition.Resources, ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName));
                 }
 
-                // ensure component exists and implements IModuleControl
-                module.ModuleType = "";
+                // create typename
                 if (Constants.DefaultModuleActions.Contains(action, StringComparer.OrdinalIgnoreCase))
                 {
                     typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, action);
@@ -468,13 +467,15 @@
                 {
                     typename = typename.Replace(Constants.ActionToken, action);
                 }
+
+                // ensure component exists and implements IModuleControl
+                module.ModuleType = "";
                 Type moduletype = Type.GetType(typename, false, true); // case insensitive
                 if (moduletype != null && moduletype.GetInterfaces().Contains(typeof(IModuleControl)))
                 {
                     module.ModuleType = Utilities.GetFullTypeName(moduletype.AssemblyQualifiedName); // get actual type name
                 }
 
-                // get additional metadata from IModuleControl interface
                 if (moduletype != null && module.ModuleType != "")
                 {
                     // retrieve module component resources
