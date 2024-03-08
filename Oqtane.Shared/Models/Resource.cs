@@ -68,6 +68,11 @@ namespace Oqtane.Models
         public string RenderMode { get; set; }
 
         /// <summary>
+        /// Indicates that a script should be reloaded on every page transition - not applicable to Stylesheets
+        /// </summary>
+        public bool Reload { get; set; }
+
+        /// <summary>
         /// The namespace of the component that declared the resource - only used in SiteRouter
         /// </summary>
         public string Namespace { get; set; }
