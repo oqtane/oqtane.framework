@@ -312,19 +312,6 @@ namespace Microsoft.Extensions.DependencyInjection
                             serviceType = Type.GetType(serviceName);
                         }
                         services.AddTransient(serviceType ?? implementationType, implementationType);
-
-                        if (implementationType.BaseType == typeof(DBContextBase))
-                        {
-                            if (implementationType.Name == "HtmlTextContext")
-                            {
-                                services.AddDbContextFactory<Oqtane.Modules.HtmlText.Repository.HtmlTextContext>(opt => { }, ServiceLifetime.Transient);
-                            }
-                            // need a way to call AddDbContextFactory dynamically passing the implementationType
-                            //typeof(IServiceCollection)
-                            //    .GetMethod("AddDbContextFactory")
-                            //    .MakeGenericMethod(implementationType)
-                            //    .Invoke(services, new object[] { new DbContextOptionsBuilder(), ServiceLifetime.Scoped });
-                        }
                     }
                 }
 
