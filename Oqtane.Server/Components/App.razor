@@ -682,21 +682,6 @@
                 if (!pageresources.Exists(item => item.Url.ToLower() == resource.Url.ToLower()))
                 {
                     pageresources.Add(resource.Clone(level, name));
-                    // pageresources.Add(new Resource
-                    // {
-                    //     ResourceType = resource.ResourceType,
-                    //     Url = resource.Url,
-                    //     Integrity = resource.Integrity,
-                    //     CrossOrigin = resource.CrossOrigin,
-                    //     Bundle = resource.Bundle,
-                    //     Location = resource.Location,
-                    //     ES6Module = resource.ES6Module,
-                    //     Content = resource.Content,
-                    //     RenderMode = resource.RenderMode,
-                    //     Reload = resource.Reload,
-                    //     Level = level,
-                    //     Namespace = name
-                    // });
                 }
             }
         }
