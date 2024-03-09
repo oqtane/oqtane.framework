@@ -271,7 +271,7 @@
     protected override async Task OnParametersSetAsync()
     {
         // repopulate the SiteState service based on the values passed in the SiteState parameter (this is how state is marshalled across the render mode boundary)
-        ComponentSiteState.Clone(SiteState);
+        ComponentSiteState.Hydrate(SiteState);
 
         _canViewAdminDashboard = CanViewAdminDashboard();
         if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
