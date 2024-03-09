@@ -1,6 +1,3 @@
-using System.Net;
-using System.Xml.Linq;
-using System;
 using Oqtane.Models;
 
 namespace Oqtane.Shared
@@ -31,7 +28,7 @@ namespace Oqtane.Shared
             }
         }
 
-        public void Clone(SiteState siteState)
+        public void Hydrate(SiteState siteState)
         {
             Alias = siteState.Alias;
             AntiForgeryToken = siteState.AntiForgeryToken;

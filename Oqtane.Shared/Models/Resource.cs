@@ -77,6 +77,24 @@ namespace Oqtane.Models
         /// </summary>
         public string Namespace { get; set; }
 
+        public Resource Clone(ResourceLevel level, string name)
+        {
+            var resource = new Resource();
+            resource.ResourceType = ResourceType;
+            resource.Url = Url;
+            resource.Integrity = Integrity;
+            resource.CrossOrigin = CrossOrigin;
+            resource.Bundle = Bundle;
+            resource.Location = Location;
+            resource.ES6Module = ES6Module;
+            resource.Content = Content;
+            resource.RenderMode = RenderMode;
+            resource.Reload = Reload;
+            resource.Level = level;
+            resource.Namespace = name;
+            return resource;
+        }
+
         [Obsolete("ResourceDeclaration is deprecated", false)]
         public ResourceDeclaration Declaration { get; set; }
     }
