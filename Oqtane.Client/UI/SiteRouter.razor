@@ -418,8 +418,10 @@
     {
         var paneindex = new Dictionary<string, int>();
 
-        foreach (Module module in modules)
+        foreach (Module module in modules.Where(item => item.PageId == page.PageId || item.ModuleId == moduleid))
         {
+            var typename = Constants.ErrorModule;
+
             // initialize module control properties
             module.SecurityAccessLevel = SecurityAccessLevel.Host;
             module.ControlTitle = "";
@@ -428,113 +430,108 @@
             module.PaneModuleIndex = -1;
             module.PaneModuleCount = 0;
 
-            if (module.PageId == page.PageId || module.ModuleId == moduleid)
+            if (module.ModuleDefinition != null && (module.ModuleDefinition.Runtimes == "" || module.ModuleDefinition.Runtimes.Contains(Runtime)))
             {
-                var typename = Constants.ErrorModule;
+                page.Resources = ManagePageResources(page.Resources, module.ModuleDefinition.Resources, ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName));
 
-                if (module.ModuleDefinition != null && (module.ModuleDefinition.Runtimes == "" || module.ModuleDefinition.Runtimes.Contains(Runtime)))
+                // handle default action
+                if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
                 {
-                    page.Resources = ManagePageResources(page.Resources, module.ModuleDefinition.Resources, ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName));
+                    action = module.ModuleDefinition.DefaultAction;
+                }
 
-                    // handle default action
-                    if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
+                // get typename template
+                typename = module.ModuleDefinition.ControlTypeTemplate;
+                if (module.ModuleDefinition.ControlTypeRoutes != "")
+                {
+                    // process custom action routes
+                    foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(';', StringSplitOptions.RemoveEmptyEntries))
                     {
-                        action = module.ModuleDefinition.DefaultAction;
-                    }
-
-                    // get typename template
-                    typename = module.ModuleDefinition.ControlTypeTemplate;
-                    if (module.ModuleDefinition.ControlTypeRoutes != "")
-                    {
-                        // process custom action routes
-                        foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(';', StringSplitOptions.RemoveEmptyEntries))
+                        if (route.StartsWith(action + "="))
                         {
-                            if (route.StartsWith(action + "="))
-                            {
-                                typename = route.Replace(action + "=", "");
-                                break;
-                            }
+                            typename = route.Replace(action + "=", "");
+                            break;
                         }
                     }
                 }
+            }
 
-                // create typename
-                if (Constants.DefaultModuleActions.Contains(action, StringComparer.OrdinalIgnoreCase))
-                {
-                    typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, action);
-                }
-                else
-                {
-                    typename = typename.Replace(Constants.ActionToken, action);
-                }
+            // create typename
+            if (Constants.DefaultModuleActions.Contains(action, StringComparer.OrdinalIgnoreCase))
+            {
+                typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, action);
+            }
+            else
+            {
+                typename = typename.Replace(Constants.ActionToken, action);
+            }
 
-                // ensure component exists and implements IModuleControl
-                module.ModuleType = "";
-                Type moduletype = Type.GetType(typename, false, true); // case insensitive
-                if (moduletype != null && moduletype.GetInterfaces().Contains(typeof(IModuleControl)))
-                {
-                    module.ModuleType = Utilities.GetFullTypeName(moduletype.AssemblyQualifiedName); // get actual type name
-                }
+            // ensure component exists and implements IModuleControl
+            module.ModuleType = "";
+            Type moduletype = Type.GetType(typename, false, true); // case insensitive
+            if (moduletype != null && moduletype.GetInterfaces().Contains(typeof(IModuleControl)))
+            {
+                module.ModuleType = Utilities.GetFullTypeName(moduletype.AssemblyQualifiedName); // get actual type name
+            }
 
-                if (moduletype != null && module.ModuleType != "")
-                {
-                    // retrieve module component resources
-                    var moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
-                    module.RenderMode = moduleobject.RenderMode;
+            if (moduletype != null && module.ModuleType != "")
+            {
+                // retrieve module component resources
+                var moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
+                module.RenderMode = moduleobject.RenderMode;
 
-                    page.Resources = ManagePageResources(page.Resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules",  moduletype.Namespace);
-                    if (action.ToLower() == "settings" && module.ModuleDefinition != null)
+                page.Resources = ManagePageResources(page.Resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules",  moduletype.Namespace);
+                if (action.ToLower() == "settings" && module.ModuleDefinition != null)
+                {
+                    // settings components are embedded within a framework settings module
+                    moduletype = Type.GetType(module.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, action), false, true);
+                    if (moduletype != null)
                     {
-                        // settings components are embedded within a framework settings module
-                        moduletype = Type.GetType(module.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, action), false, true);
-                        if (moduletype != null)
-                        {
-                            moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
-                            page.Resources = ManagePageResources(page.Resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace);
-                        }
-                    }
-
-                    // additional metadata needed for admin components
-                    if (module.ModuleId == moduleid && action != "")
-                    {
-                        module.ControlTitle = moduleobject.Title;
-                        module.SecurityAccessLevel = moduleobject.SecurityAccessLevel;
-                        module.Actions = moduleobject.Actions;
-                        module.UseAdminContainer = moduleobject.UseAdminContainer;
+                        moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
+                        page.Resources = ManagePageResources(page.Resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace);
                     }
                 }
 
-                // validate that module's pane exists in current page
-                if (page.Panes.FindIndex(item => item.Equals(module.Pane, StringComparison.OrdinalIgnoreCase)) == -1)
+                // additional metadata needed for admin components
+                if (module.ModuleId == moduleid && action != "")
                 {
-                    // fallback to default pane if it exists
-                    if (page.Panes.FindIndex(item => item.Equals(PaneNames.Default, StringComparison.OrdinalIgnoreCase)) != -1)
-                    {
-                        module.Pane = PaneNames.Default;
-                    }
-                    else // otherwise admin pane (legacy)
-                    {
-                        module.Pane = PaneNames.Admin;						
-                    }
+                    module.ControlTitle = moduleobject.Title;
+                    module.SecurityAccessLevel = moduleobject.SecurityAccessLevel;
+                    module.Actions = moduleobject.Actions;
+                    module.UseAdminContainer = moduleobject.UseAdminContainer;
                 }
+            }
 
-                // calculate module position within pane
-                if (paneindex.ContainsKey(module.Pane.ToLower()))
+            // validate that module's pane exists in current page
+            if (page.Panes.FindIndex(item => item.Equals(module.Pane, StringComparison.OrdinalIgnoreCase)) == -1)
+            {
+                // fallback to default pane if it exists
+                if (page.Panes.FindIndex(item => item.Equals(PaneNames.Default, StringComparison.OrdinalIgnoreCase)) != -1)
                 {
-                    paneindex[module.Pane.ToLower()] += 1;
+                    module.Pane = PaneNames.Default;
                 }
-                else
+                else // otherwise admin pane (legacy)
                 {
-                    paneindex.Add(module.Pane.ToLower(), 0);
+                    module.Pane = PaneNames.Admin;						
                 }
+            }
 
-                module.PaneModuleIndex = paneindex[module.Pane.ToLower()];
+            // calculate module position within pane
+            if (paneindex.ContainsKey(module.Pane.ToLower()))
+            {
+                paneindex[module.Pane.ToLower()] += 1;
+            }
+            else
+            {
+                paneindex.Add(module.Pane.ToLower(), 0);
+            }
 
-                // container fallback
-                if (string.IsNullOrEmpty(module.ContainerType))
-                {
-                    module.ContainerType = defaultcontainertype;
-                }
+            module.PaneModuleIndex = paneindex[module.Pane.ToLower()];
+
+            // container fallback
+            if (string.IsNullOrEmpty(module.ContainerType))
+            {
+                module.ContainerType = defaultcontainertype;
             }
         }
 
