@@ -581,69 +581,66 @@
             }
         }
 
-        foreach (Module module in site.Modules)
+        foreach (Module module in site.Modules.Where(item => item.PageId == page.PageId || item.ModuleId == moduleid))
         {
-            if (module.PageId == page.PageId || module.ModuleId == moduleid)
+            var typename = "";
+            if (module.ModuleDefinition != null)
             {
-                var typename = "";
-                if (module.ModuleDefinition != null)
+                resources = AddResources(resources, module.ModuleDefinition.Resources, ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName));
+
+                // handle default action
+                if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
                 {
-                    resources = AddResources(resources, module.ModuleDefinition.Resources, ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName));
+                    action = module.ModuleDefinition.DefaultAction;
+                }
 
-                    // handle default action
-                    if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
+                // get typename template
+                typename = module.ModuleDefinition.ControlTypeTemplate;
+                if (module.ModuleDefinition.ControlTypeRoutes != "")
+                {
+                    // process custom action routes
+                    foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(';', StringSplitOptions.RemoveEmptyEntries))
                     {
-                        action = module.ModuleDefinition.DefaultAction;
-                    }
-
-                    // get typename template
-                    typename = module.ModuleDefinition.ControlTypeTemplate;
-                    if (module.ModuleDefinition.ControlTypeRoutes != "")
-                    {
-                        // process custom action routes
-                        foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(';', StringSplitOptions.RemoveEmptyEntries))
+                        if (route.StartsWith(action + "="))
                         {
-                            if (route.StartsWith(action + "="))
-                            {
-                                typename = route.Replace(action + "=", "");
-                                break;
-                            }
+                            typename = route.Replace(action + "=", "");
+                            break;
                         }
                     }
                 }
+            }
 
-                // create typename
-                if (Constants.DefaultModuleActions.Contains(action, StringComparer.OrdinalIgnoreCase))
-                {
-                    typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, action);
-                }
-                else
-                {
-                    typename = typename.Replace(Constants.ActionToken, action);
-                }
+            // create typename
+            if (Constants.DefaultModuleActions.Contains(action, StringComparer.OrdinalIgnoreCase))
+            {
+                typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, action);
+            }
+            else
+            {
+                typename = typename.Replace(Constants.ActionToken, action);
+            }
 
-                // ensure component exists and implements IModuleControl
-                module.ModuleType = "";
-                Type moduletype = Type.GetType(typename, false, true); // case insensitive
-                if (moduletype != null && moduletype.GetInterfaces().Contains(typeof(IModuleControl)))
+            // ensure component exists and implements IModuleControl
+            module.ModuleType = "";
+            Type moduletype = Type.GetType(typename, false, true); // case insensitive
+            if (moduletype != null && moduletype.GetInterfaces().Contains(typeof(IModuleControl)))
+            {
+                module.ModuleType = Utilities.GetFullTypeName(moduletype.AssemblyQualifiedName); // get actual type name
+            }
+            if (moduletype != null && module.ModuleType != "")
+            {
+                var obj = Activator.CreateInstance(moduletype) as IModuleControl;
+                if (obj != null)
                 {
-                    module.ModuleType = Utilities.GetFullTypeName(moduletype.AssemblyQualifiedName); // get actual type name
-                }
-                if (moduletype != null && module.ModuleType != "")
-                {
-                    var obj = Activator.CreateInstance(moduletype) as IModuleControl;
-                    if (obj != null)
+                    resources = AddResources(resources, obj.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace);
+                    if (action.ToLower() == "settings" && module.ModuleDefinition != null)
                     {
-                        resources = AddResources(resources, obj.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace);
-                        if (action.ToLower() == "settings" && module.ModuleDefinition != null)
+                        // settings components are embedded within a framework settings module
+                        moduletype = Type.GetType(module.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, action), false, true);
+                        if (moduletype != null)
                         {
-                            // settings components are embedded within a framework settings module
-                            moduletype = Type.GetType(module.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, action), false, true);
-                            if (moduletype != null)
-                            {
-                                obj = Activator.CreateInstance(moduletype) as IModuleControl;
-                                resources = AddResources(resources, obj.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace);
-                            }
+                            obj = Activator.CreateInstance(moduletype) as IModuleControl;
+                            resources = AddResources(resources, obj.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace);
                         }
                     }
                 }
