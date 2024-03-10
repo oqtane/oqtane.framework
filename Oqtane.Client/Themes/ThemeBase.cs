@@ -45,7 +45,7 @@ namespace Oqtane.Themes
                 {
                     if (PageState.Page.Resources != null)
                     {
-                        resources = PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Script && item.Level != ResourceLevel.Site && item.Namespace == type.Namespace).ToList();
+                        resources = PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Script && item.Level == ResourceLevel.Page && item.Namespace == type.Namespace).ToList();
                     }
                 }
                 else // themecontrolbase, containerbase
