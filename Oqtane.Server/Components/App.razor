@@ -648,10 +648,10 @@
         }
 
         // site level resources for modules in site
-        var modules = site.Modules.GroupBy(item => item.ModuleDefinition.ModuleDefinitionName).Select(group => group.First()).ToList();
+        var modules = site.Modules.GroupBy(item => item.ModuleDefinition?.ModuleDefinitionName).Select(group => group.First()).ToList();
         foreach (var module in modules)
         {
-            if (module.ModuleDefinition.Resources != null)
+            if (module.ModuleDefinition?.Resources != null)
             {
                 resources = AddResources(resources, module.ModuleDefinition.Resources.Where(item => item.Level == ResourceLevel.Site).ToList(), ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName));
             }

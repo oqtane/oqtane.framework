@@ -15,7 +15,6 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 using System.Net;
-using Oqtane.Modules;
 using Oqtane.Infrastructure.Interfaces;
 
 namespace Oqtane.Controllers
@@ -24,9 +23,6 @@ namespace Oqtane.Controllers
     public class ModuleDefinitionController : Controller
     {
         private readonly IModuleDefinitionRepository _moduleDefinitions;
-        private readonly IModuleRepository _modules;
-        private readonly IPageModuleRepository _pagemodules;
-        private readonly IPermissionRepository _permissions;
         private readonly ITenantRepository _tenants;
         private readonly ISqlRepository _sql;
         private readonly IUserPermissions _userPermissions;
@@ -38,12 +34,9 @@ namespace Oqtane.Controllers
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, IModuleRepository module, IPageModuleRepository pageModule, IPermissionRepository permission, ITenantRepository tenants, ISqlRepository sql, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, IServiceProvider serviceProvider, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
+        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, ITenantRepository tenants, ISqlRepository sql, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, IServiceProvider serviceProvider, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
         {
             _moduleDefinitions = moduleDefinitions;
-            _modules = module;
-            _pagemodules = pageModule;
-            _permissions = permission;
             _tenants = tenants;
             _sql = sql;
             _userPermissions = userPermissions;
@@ -250,26 +243,6 @@ namespace Oqtane.Controllers
                 {
                     Directory.Delete(assetpath, true);
                     _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Static Resources Folder Removed For {ModuleDefinitionName}", moduledefinition.ModuleDefinitionName);
-                }
-
-                // remove PageModule and Module
-                List<Models.Module> modulesToRemove =  _modules.GetModules(moduledefinition.SiteId).Where(m => m.ModuleDefinitionName == moduledefinition.ModuleDefinitionName).ToList();
-                foreach (Models.Module moduleToRemove in modulesToRemove)
-                {
-                    // Get the PageModule items associated with the Module item to be removed
-                    List<PageModule> pageModulesToRemove = _pagemodules.GetPageModules(moduledefinition.SiteId).Where(pm => pm.ModuleId == moduleToRemove.ModuleId).ToList();
-
-                    foreach(PageModule pageModule in pageModulesToRemove)
-                    {
-                        // Remove the PageModule item
-                        _pagemodules.DeletePageModule(pageModule.PageModuleId);
-                    }
-
-                    // Remove Permissions
-                    _permissions.DeletePermissions(moduledefinition.SiteId, EntityNames.Module, moduleToRemove.ModuleId);
-
-                    // Remove the Module item
-                    _modules.DeleteModule(moduleToRemove.ModuleId);
                 }
 
                 // remove module definition
