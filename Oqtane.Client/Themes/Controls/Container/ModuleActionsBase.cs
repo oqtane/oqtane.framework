@@ -8,6 +8,7 @@ using Oqtane.Security;
 using Oqtane.Services;
 using Oqtane.Shared;
 using Oqtane.UI;
+using System.Net;
 
 // ReSharper disable UnassignedGetOnlyAutoProperty
 // ReSharper disable MemberCanBePrivate.Global
@@ -134,7 +135,8 @@ namespace Oqtane.Themes.Controls
         private async Task<string> Settings(string url, PageModule pagemodule)
         {
             await Task.Yield();
-            url = Utilities.EditUrl(PageState.Alias.Path, PageState.Page.Path, pagemodule.ModuleId, "Settings", "");
+            var returnurl = Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, "edit=true");
+            url = Utilities.EditUrl(PageState.Alias.Path, PageState.Page.Path, pagemodule.ModuleId, "Settings", "returnurl=" + WebUtility.UrlEncode(returnurl));
             return url;
         }
 

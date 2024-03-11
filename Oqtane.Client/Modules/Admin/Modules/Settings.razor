@@ -120,7 +120,7 @@
     </TabStrip>
     <br />
     <button type="button" class="btn btn-success" @onclick="SaveModule">@SharedLocalizer["Save"]</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+    <NavLink class="btn btn-secondary" href="@PageState.ReturnUrl">@SharedLocalizer["Cancel"]</NavLink>
     <br />
     <br />
     <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
@@ -155,6 +155,7 @@
     private DateTime modifiedon;
     private DateTime? _effectivedate = null;
     private DateTime? _expirydate = null;
+
     protected override void OnInitialized()
     {
         _module = ModuleState.ModuleDefinition.Name;
@@ -280,7 +281,7 @@
                     await containerSettingsControl.UpdateSettings();
                 }
 
-                NavigationManager.NavigateTo(NavigateUrl());
+                NavigationManager.NavigateTo(PageState.ReturnUrl);
             }
             else
             {
