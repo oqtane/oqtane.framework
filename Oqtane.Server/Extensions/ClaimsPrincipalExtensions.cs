@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Security.Claims;
+using Oqtane.Shared;
 
 namespace Oqtane.Extensions
 {
@@ -69,6 +70,18 @@ namespace Oqtane.Extensions
                 return int.Parse(sitekey.Split(':')[1]);
             }
             return -1;
+        }
+
+        public static bool IsOnlyInRole(this ClaimsPrincipal claimsPrincipal, string role)
+        {
+            var identity = claimsPrincipal.Identities.FirstOrDefault(item => item.AuthenticationType == Constants.AuthenticationScheme);
+            if (identity != null)
+            {
+                // check if user has role claim specified and no other role claims
+                return identity.Claims.Any(item => item.Type == ClaimTypes.Role && item.Value == role) &&
+                    !identity.Claims.Any(item => item.Type == ClaimTypes.Role && item.Value != role);
+            }
+            return false;
         }
     }
 }

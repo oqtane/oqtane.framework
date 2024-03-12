@@ -64,19 +64,32 @@ namespace Oqtane.Services
         {
             if (!_accessor.HttpContext.User.Identity.IsAuthenticated)
             {
+                // unauthenticated
                 return await _cache.GetOrCreateAsync($"site:{_accessor.HttpContext.GetAlias().SiteKey}", async entry =>
                 {
                     entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                     return await GetSite(siteId);
                 }, true);
             }
-            else // authenticated - cached per user
+            else // authenticated
             {
-                return await _cache.GetOrCreateAsync($"site:{_accessor.HttpContext.GetAlias().SiteKey}:{_accessor.HttpContext.User.UserId}", async entry =>
+                // is only in registered users role - cache by role
+                if (_accessor.HttpContext.User.IsOnlyInRole(RoleNames.Registered))
                 {
-                    entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                    return await GetSite(siteId);
-                }, true);
+                    return await _cache.GetOrCreateAsync($"site:{_accessor.HttpContext.GetAlias().SiteKey}:{RoleNames.Registered}", async entry =>
+                    {
+                        entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                        return await GetSite(siteId);
+                    }, true);
+                }
+                else // cache by user
+                {
+                    return await _cache.GetOrCreateAsync($"site:{_accessor.HttpContext.GetAlias().SiteKey}:{_accessor.HttpContext.User.UserId}", async entry =>
+                    {
+                        entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                        return await GetSite(siteId);
+                    }, true);
+                }
             }
         }
 
