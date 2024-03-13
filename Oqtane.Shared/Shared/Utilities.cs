@@ -28,11 +28,14 @@ namespace Oqtane.Shared
             // Id=1 Id=1#5 reload#5 reload
             // #5
 
-            if (!url.StartsWith("/")) // paths always start with "/"
+            if (!url.Contains("://"))
             {
-                url = ((!url.StartsWith("#")) ? "/?" : "/") + url;
+                if (!url.StartsWith("/")) // urlparameters always start with "/"
+                {
+                    url = ((!url.StartsWith("#")) ? "?" : "/") + url;
+                }
+                url = Constants.PackageRegistryUrl + url; // create absolute url
             }
-            url = ((!url.Contains("://")) ? Constants.PackageRegistryUrl : "") + url;
 
             var uri = new Uri(url);
             var querystring = uri.Query.Replace("?", "");
@@ -50,7 +53,7 @@ namespace Oqtane.Shared
 
         public static (string Path, string Parameters) ParsePath(string url)
         {
-            url = (!url.StartsWith("/") ? "/" : "") + url;
+            url = ((!url.StartsWith("/") && !url.Contains("://")) ? "/" : "") + url;
 
             (string path, string querystring, string fragment) = ParseParameters(url);
 
