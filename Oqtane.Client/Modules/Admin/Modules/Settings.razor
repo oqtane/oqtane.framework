@@ -246,21 +246,21 @@
                 pagemodule.ExpiryDate = Utilities.LocalDateAndTimeAsUtc(_expirydate);
                 pagemodule.ContainerType = (_containerType != "-") ? _containerType : string.Empty;
                 if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Page.DefaultContainerType)
-				{
-					pagemodule.ContainerType = string.Empty;
-				}
-				if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Site.DefaultContainerType)
-				{
-					pagemodule.ContainerType = string.Empty;
-				}
-				await PageModuleService.UpdatePageModuleAsync(pagemodule);
-				await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
+                {
+                    pagemodule.ContainerType = string.Empty;
+                }
+                if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Site.DefaultContainerType)
+                {
+                    pagemodule.ContainerType = string.Empty;
+                }
+                await PageModuleService.UpdatePageModuleAsync(pagemodule);
+                await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
 
-				var module = ModuleState;
-				module.AllPages = bool.Parse(_allPages);
-				module.PageModuleId = ModuleState.PageModuleId;
-				module.PermissionList = _permissionGrid.GetPermissionList();
-				await ModuleService.UpdateModuleAsync(module);
+                var module = ModuleState;
+                module.AllPages = bool.Parse(_allPages);
+                module.PageModuleId = ModuleState.PageModuleId;
+                module.PermissionList = _permissionGrid.GetPermissionList();
+                await ModuleService.UpdateModuleAsync(module);
 
                 if (_moduleSettingsType != null)
                 {
@@ -281,7 +281,7 @@
                     await containerSettingsControl.UpdateSettings();
                 }
 
-                NavigationManager.NavigateTo(PageState.ReturnUrl);
+                NavigationManager.NavigateTo(PageState.ReturnUrl, true);
             }
             else
             {
