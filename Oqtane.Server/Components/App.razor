@@ -21,6 +21,7 @@
 @inject IConfigManager ConfigManager
 @inject ITenantManager TenantManager
 @inject ISiteService SiteService
+@inject IPageRepository PageRepository
 @inject IThemeRepository ThemeRepository
 @inject ILanguageRepository LanguageRepository
 @inject ILocalizationManager LocalizationManager
@@ -152,6 +153,11 @@
                             // fallback to use the first page in the collection
                             page = site.Pages.FirstOrDefault();
                         }
+                    }
+                    if (page == null)
+                    {
+                        // personalized pages need to be retrieved using path
+                        page = PageRepository.GetPage(route.PagePath, site.SiteId);
                     }
                     if (page == null || page.IsDeleted)
                     {
