@@ -9,7 +9,7 @@
         <TabStrip>
 			@if (AllowRichText)
             {
-                <TabPanel Name="Rich" Heading="Rich Text Editor" ResourceKey="RichTextEditor">
+                <TabPanel Name="Rich" Heading="Rich Text Editor" ResourceKey="RichTextEditor" OnActivePanel="OnRichTextPanelActive">
                     @if (_richfilemanager)
                     {
                         <FileManager @ref="_fileManager" Filter="@PageState.Site.ImageFiles" />
@@ -77,7 +77,7 @@
             }
 			@if (AllowRawHtml)
 			{
-				<TabPanel Name="Raw" Heading="Raw HTML Editor" ResourceKey="HtmlEditor">
+                <TabPanel Name="Raw" Heading="Raw HTML Editor" ResourceKey="HtmlEditor" OnActivePanel="async () => await OnRawTextPanelActive()">
 					@if (_rawfilemanager)
 					{
                         <FileManager @ref="_fileManager" Filter="@PageState.Site.ImageFiles" />
@@ -239,65 +239,75 @@
             }
             // rich text value will only be blank if AllowRichText is disabled or the JS Interop method failed
             if (richhtml != _originalrichhtml && !string.IsNullOrEmpty(richhtml) && !string.IsNullOrEmpty(_originalrichhtml))
-			{
-				return richhtml;
-			}
-			else
-			{
-				// return original raw html content
-				return _originalrawhtml;
-			}
-		}
-	}
+            {
+                return richhtml;
+            }
+            else
+            {
+                // return original raw html content
+                return _originalrawhtml;
+            }
+        }
+    }
 
-	public async Task InsertRichImage()
-	{
-		_message = string.Empty;
-		if (_richfilemanager)
-		{
-			var file = _fileManager.GetFile();
-			if (file != null)
-			{
-				var interop = new RichTextEditorInterop(JSRuntime);
-				await interop.InsertImage(_editorElement, file.Url, ((!string.IsNullOrEmpty(file.Description)) ? file.Description : file.Name));
+    public async Task InsertRichImage()
+    {
+        _message = string.Empty;
+        if (_richfilemanager)
+        {
+            var file = _fileManager.GetFile();
+            if (file != null)
+            {
+                var interop = new RichTextEditorInterop(JSRuntime);
+                await interop.InsertImage(_editorElement, file.Url, ((!string.IsNullOrEmpty(file.Description)) ? file.Description : file.Name));
                 _richhtml = await interop.GetHtml(_editorElement);
                 _richfilemanager = false;
-			}
-			else
-			{
-				_message = Localizer["Message.Require.Image"];
-			}
-		}
-		else
-		{
-			_richfilemanager = true;
-		}
-		StateHasChanged();
-	}
+            }
+            else
+            {
+                _message = Localizer["Message.Require.Image"];
+            }
+        }
+        else
+        {
+            _richfilemanager = true;
+        }
+        StateHasChanged();
+    }
 
-	public async Task InsertRawImage()
-	{
-		_message = string.Empty;
-		if (_rawfilemanager)
-		{
-			var file = _fileManager.GetFile();
-			if (file != null)
-			{
-				var interop = new Interop(JSRuntime);
-				int pos = await interop.GetCaretPosition("rawhtmleditor");
-				var image = "<img src=\"" + file.Url + "\" alt=\"" + ((!string.IsNullOrEmpty(file.Description)) ? file.Description : file.Name) + "\" class=\"img-fluid\">";
-				_rawhtml = _rawhtml.Substring(0, pos) + image + _rawhtml.Substring(pos);
-				_rawfilemanager = false;
-			}
-			else
-			{
-				_message = Localizer["Message.Require.Image"];
-			}
-		}
-		else
-		{
-			_rawfilemanager = true;
-		}
-		StateHasChanged();
-	}
+    public async Task InsertRawImage()
+    {
+        _message = string.Empty;
+        if (_rawfilemanager)
+        {
+            var file = _fileManager.GetFile();
+            if (file != null)
+            {
+                var interop = new Interop(JSRuntime);
+                int pos = await interop.GetCaretPosition("rawhtmleditor");
+                var image = "<img src=\"" + file.Url + "\" alt=\"" + ((!string.IsNullOrEmpty(file.Description)) ? file.Description : file.Name) + "\" class=\"img-fluid\">";
+                _rawhtml = _rawhtml.Substring(0, pos) + image + _rawhtml.Substring(pos);
+                _rawfilemanager = false;
+            }
+            else
+            {
+                _message = Localizer["Message.Require.Image"];
+            }
+        }
+        else
+        {
+            _rawfilemanager = true;
+        }
+        StateHasChanged();
+    }
+
+    private void OnRichTextPanelActive()
+    {
+        RefreshRichText();
+    }
+
+    private async Task OnRawTextPanelActive()
+    {
+        await RefreshRawHtml();
+    }
 }
