@@ -1,11 +1,14 @@
 using System.Linq;
 using System.Security.Claims;
+using Oqtane.Models;
 using Oqtane.Shared;
 
 namespace Oqtane.Extensions
 {
     public static class ClaimsPrincipalExtensions
     {
+        // extension methods cannot be properties - the methods below must include a () suffix when referenced
+
         public static string Username(this ClaimsPrincipal claimsPrincipal)
         {
             if (claimsPrincipal.HasClaim(item => item.Type == ClaimTypes.Name))

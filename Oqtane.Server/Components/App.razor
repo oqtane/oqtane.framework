@@ -326,11 +326,8 @@
             // get other request attributes
             string url = Context.Request.GetEncodedUrl();
             string referrer = (Context.Request.Headers[HeaderNames.Referer] != StringValues.Empty) ? Context.Request.Headers[HeaderNames.Referer] : "";
-            int? userid = null;
-            if (Context.User.HasClaim(item => item.Type == ClaimTypes.NameIdentifier))
-            {
-                userid = int.Parse(Context.User.Claims.First(item => item.Type == ClaimTypes.NameIdentifier).Value);
-            }
+            int? userid = Context.User.UserId();
+            userid = (userid == -1) ? null : userid;
 
             // check if cookie already exists
             Visitor visitor = null;
