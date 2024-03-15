@@ -84,7 +84,7 @@ namespace Oqtane.Services
                 }
                 else // cache by user
                 {
-                    return await _cache.GetOrCreateAsync($"site:{_accessor.HttpContext.GetAlias().SiteKey}:{_accessor.HttpContext.User.UserId}", async entry =>
+                    return await _cache.GetOrCreateAsync($"site:{_accessor.HttpContext.GetAlias().SiteKey}:{_accessor.HttpContext.User.UserId()}", async entry =>
                     {
                         entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                         return await GetSite(siteId);
