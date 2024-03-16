@@ -8,33 +8,24 @@
 
 @if (_initialized)
 {
-    @if (!_installation.Success)
+    @if (!_installed)
     {
         <Installer />
     }
     else
     {
-        @if (string.IsNullOrEmpty(_installation.Message))
+        if (RenderMode == RenderModes.Static)
         {
-            if (PageState?.RenderMode == RenderModes.Static)
-            {
-                <CascadingValue Value="@_pageState">
-                    <SiteRouter RenderMode="@RenderMode" Runtime="@Runtime" OnStateChange="@ChangeState" />
-                </CascadingValue>
-            }
-            else
-            {
-                <div style="@_display">
-                    <CascadingValue Value="@_pageState">
-                        <SiteRouter RenderMode="@RenderMode" Runtime="@Runtime" OnStateChange="@ChangeState" />
-                    </CascadingValue>
-                </div>
-            }
+            <CascadingValue Value="@_pageState">
+                <SiteRouter RenderMode="@RenderMode" Runtime="@Runtime" OnStateChange="@ChangeState" />
+            </CascadingValue>
         }
         else
         {
-            <div class="app-alert">
-                @_installation.Message
+            <div style="@_display">
+                <CascadingValue Value="@_pageState">
+                    <SiteRouter RenderMode="@RenderMode" Runtime="@Runtime" OnStateChange="@ChangeState" />
+                </CascadingValue>
             </div>
         }
     }
@@ -63,28 +54,36 @@
     HttpContext HttpContext { get; set; }
 
     private bool _initialized = false;
+    private bool _installed = false;
     private string _display = "display: none;";
-    private Installation _installation = new Installation { Success = false, Message = "" };
 
     private PageState _pageState { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        if (PageState != null)
-        {
-            _pageState = PageState;            
-        }
-
         SiteState.AntiForgeryToken = AntiForgeryToken;
         SiteState.AuthorizationToken = AuthorizationToken;
         SiteState.RemoteIPAddress = (_pageState != null) ? _pageState.RemoteIPAddress : "";
         SiteState.Platform = Platform;
         SiteState.IsPrerendering = (HttpContext != null) ? true : false;
 
-        _installation = await InstallationService.IsInstalled();
-        if (_installation.Alias != null)
+        if (Runtime == Runtimes.Hybrid)
         {
-            SiteState.Alias = _installation.Alias;
+             var installation = await InstallationService.IsInstalled();
+            _installed = installation.Success;
+            if (installation.Alias != null)
+            {
+                SiteState.Alias = installation.Alias;
+            }
+        }
+        else
+        {
+            if (PageState != null)
+            {
+                _pageState = PageState;
+                SiteState.Alias = PageState.Alias;
+                _installed = true;
+            }
         }
         _initialized = true;
     }
