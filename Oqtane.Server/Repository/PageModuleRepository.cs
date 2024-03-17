@@ -10,15 +10,15 @@ namespace Oqtane.Repository
 {
     public class PageModuleRepository : IPageModuleRepository
     {
-        private TenantDBContext _db;
+        private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
         private readonly IModuleDefinitionRepository _moduleDefinitions;
         private readonly IModuleRepository _modules;
         private readonly IPermissionRepository _permissions;
         private readonly ISettingRepository _settings;
 
-        public PageModuleRepository(TenantDBContext context, IModuleDefinitionRepository moduleDefinitions, IModuleRepository modules, IPermissionRepository permissions, ISettingRepository settings)
+        public PageModuleRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IModuleDefinitionRepository moduleDefinitions, IModuleRepository modules, IPermissionRepository permissions, ISettingRepository settings)
         {
-            _db = context;
+            _dbContextFactory = dbContextFactory;
             _moduleDefinitions = moduleDefinitions;
             _modules = modules;
             _permissions = permissions;
@@ -27,33 +27,43 @@ namespace Oqtane.Repository
 
     public IEnumerable<PageModule> GetPageModules(int siteId)
         {
-            var pagemodules = _db.PageModule
+            using(var db = _dbContextFactory.CreateDbContext())
+            {
+                var pagemodules = db.PageModule
                 .Include(item => item.Module) // eager load modules
                 .Where(item => item.Module.SiteId == siteId).ToList();
-            if (pagemodules.Any())
-            {
-                var moduledefinitions = _moduleDefinitions.GetModuleDefinitions(siteId).ToList();
-                var permissions = _permissions.GetPermissions(siteId, EntityNames.Module).ToList();
-                for (int index = 0; index < pagemodules.Count; index++)
+                if (pagemodules.Any())
                 {
-                    pagemodules[index] = GetPageModule(pagemodules[index], moduledefinitions, permissions);
+                    var moduledefinitions = _moduleDefinitions.GetModuleDefinitions(siteId).ToList();
+                    var permissions = _permissions.GetPermissions(siteId, EntityNames.Module).ToList();
+                    for (int index = 0; index < pagemodules.Count; index++)
+                    {
+                        pagemodules[index] = GetPageModule(pagemodules[index], moduledefinitions, permissions);
+                    }
                 }
+                return pagemodules;
             }
-            return pagemodules;
+            
         }
 
         public PageModule AddPageModule(PageModule pageModule)
         {
-            _db.PageModule.Add(pageModule);
-            _db.SaveChanges();
-            return pageModule;
+            using (var db = _dbContextFactory.CreateDbContext())
+            {
+                db.PageModule.Add(pageModule);
+                db.SaveChanges();
+                return pageModule;
+            }
         }
 
         public PageModule UpdatePageModule(PageModule pageModule)
         {
-            _db.Entry(pageModule).State = EntityState.Modified;
-            _db.SaveChanges();
-            return pageModule;
+            using (var db = _dbContextFactory.CreateDbContext())
+            {
+                db.Entry(pageModule).State = EntityState.Modified;
+                db.SaveChanges();
+                return pageModule;
+            }
         }
 
         public PageModule GetPageModule(int pageModuleId)
@@ -63,52 +73,61 @@ namespace Oqtane.Repository
 
         public PageModule GetPageModule(int pageModuleId, bool tracking)
         {
-            PageModule pagemodule;
-            if (tracking)
+            using (var db = _dbContextFactory.CreateDbContext())
             {
-                pagemodule = _db.PageModule.Include(item => item.Module) // eager load modules
-                    .FirstOrDefault(item => item.PageModuleId == pageModuleId);
+                PageModule pagemodule;
+                if (tracking)
+                {
+                    pagemodule = db.PageModule.Include(item => item.Module) // eager load modules
+                        .FirstOrDefault(item => item.PageModuleId == pageModuleId);
+                }
+                else
+                {
+                    pagemodule = db.PageModule.AsNoTracking().Include(item => item.Module) // eager load modules
+                        .FirstOrDefault(item => item.PageModuleId == pageModuleId);
+                }
+                if (pagemodule != null)
+                {
+                    var moduledefinitions = _moduleDefinitions.GetModuleDefinitions(pagemodule.Module.SiteId).ToList();
+                    var permissions = _permissions.GetPermissions(pagemodule.Module.SiteId, EntityNames.Module).ToList();
+                    pagemodule = GetPageModule(pagemodule, moduledefinitions, permissions);
+                }
+                return pagemodule;
             }
-            else
-            {
-                pagemodule = _db.PageModule.AsNoTracking().Include(item => item.Module) // eager load modules
-                    .FirstOrDefault(item => item.PageModuleId == pageModuleId);
-            }
-            if (pagemodule != null)
-            {
-                var moduledefinitions = _moduleDefinitions.GetModuleDefinitions(pagemodule.Module.SiteId).ToList();
-                var permissions = _permissions.GetPermissions(pagemodule.Module.SiteId, EntityNames.Module).ToList();
-                pagemodule = GetPageModule(pagemodule, moduledefinitions, permissions);
-            }
-            return pagemodule;
         }
 
         public PageModule GetPageModule(int pageId, int moduleId)
         {
-            PageModule pagemodule = _db.PageModule.Include(item => item.Module) // eager load modules
-                .SingleOrDefault(item => item.PageId == pageId && item.ModuleId == moduleId);
-            if (pagemodule != null)
+            using (var db = _dbContextFactory.CreateDbContext())
             {
-                var moduledefinitions = _moduleDefinitions.GetModuleDefinitions(pagemodule.Module.SiteId).ToList();
-                var permissions = _permissions.GetPermissions(pagemodule.Module.SiteId, EntityNames.Module).ToList();
-                pagemodule = GetPageModule(pagemodule, moduledefinitions, permissions);
+                PageModule pagemodule = db.PageModule.Include(item => item.Module) // eager load modules
+                .SingleOrDefault(item => item.PageId == pageId && item.ModuleId == moduleId);
+                if (pagemodule != null)
+                {
+                    var moduledefinitions = _moduleDefinitions.GetModuleDefinitions(pagemodule.Module.SiteId).ToList();
+                    var permissions = _permissions.GetPermissions(pagemodule.Module.SiteId, EntityNames.Module).ToList();
+                    pagemodule = GetPageModule(pagemodule, moduledefinitions, permissions);
+                }
+                return pagemodule;
             }
-            return pagemodule;
         }
 
         public void DeletePageModule(int pageModuleId)
         {
-            PageModule pageModule = _db.PageModule.Include(item => item.Module) // eager load modules
-                .SingleOrDefault(item => item.PageModuleId == pageModuleId);
-            _settings.DeleteSettings(EntityNames.PageModule, pageModuleId);
-            _db.PageModule.Remove(pageModule);
-            _db.SaveChanges();
-
-            // check if there are any remaining module instances in the site
-            var pageModules = GetPageModules(pageModule.Module.SiteId);
-            if (!pageModules.Any(item => item.ModuleId == pageModule.ModuleId))
+            using (var db = _dbContextFactory.CreateDbContext())
             {
-                _modules.DeleteModule(pageModule.ModuleId);
+                PageModule pageModule = db.PageModule.Include(item => item.Module) // eager load modules
+                .SingleOrDefault(item => item.PageModuleId == pageModuleId);
+                _settings.DeleteSettings(EntityNames.PageModule, pageModuleId);
+                db.PageModule.Remove(pageModule);
+                db.SaveChanges();
+
+                // check if there are any remaining module instances in the site
+                var pageModules = GetPageModules(pageModule.Module.SiteId);
+                if (!pageModules.Any(item => item.ModuleId == pageModule.ModuleId))
+                {
+                    _modules.DeleteModule(pageModule.ModuleId);
+                }
             }
         }
 
