@@ -10,7 +10,7 @@ namespace Oqtane.Repository
 {
     public class PageModuleRepository : IPageModuleRepository
     {
-        private IDbContextFactory<TenantDBContext> _dbContextFactory;
+        private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
         private readonly IModuleDefinitionRepository _moduleDefinitions;
         private readonly IModuleRepository _modules;
         private readonly IPermissionRepository _permissions;
