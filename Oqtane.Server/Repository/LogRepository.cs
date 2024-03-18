@@ -1,17 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
 {
     public class LogRepository : ILogRepository
     {
-        private TenantDBContext _db;
+        private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
+        private readonly TenantDBContext _queryContext;
 
-        public LogRepository(TenantDBContext context)
+        public LogRepository(IDbContextFactory<TenantDBContext> dbContextFactory)
         {
-            _db = context;
+            _dbContextFactory = dbContextFactory;
+            _queryContext = _dbContextFactory.CreateDbContext();
         }
 
         public IEnumerable<Log> GetLogs(int siteId, string level, string function, int rows)
@@ -20,48 +23,51 @@ namespace Oqtane.Repository
             {
                 if (function == null)
                 {
-                    return _db.Log.Where(item => item.SiteId == siteId).
+                    return _queryContext.Log.Where(item => item.SiteId == siteId).
                         OrderByDescending(item => item.LogDate).Take(rows);
                 }
 
-                return _db.Log.Where(item => item.SiteId == siteId && item.Function == function).
+                return _queryContext.Log.Where(item => item.SiteId == siteId && item.Function == function).
                     OrderByDescending(item => item.LogDate).Take(rows);
             }
 
             if (function == null)
             {
-                return _db.Log.Where(item => item.SiteId == siteId && item.Level == level)
+                return _queryContext.Log.Where(item => item.SiteId == siteId && item.Level == level)
                     .OrderByDescending(item => item.LogDate).Take(rows);
             }
 
-            return _db.Log.Where(item => item.SiteId == siteId && item.Level == level && item.Function == function)
+            return _queryContext.Log.Where(item => item.SiteId == siteId && item.Level == level && item.Function == function)
                 .OrderByDescending(item => item.LogDate).Take(rows);
         }
 
         public Log GetLog(int logId)
         {
-            return _db.Log.Find(logId);
+            using var db = _dbContextFactory.CreateDbContext();
+            return db.Log.Find(logId);
         }
 
         public void AddLog(Log log)
         {
-            _db.Log.Add(log);
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            db.Log.Add(log);
+            db.SaveChanges();
         }
 
         public int DeleteLogs(int siteId, int age)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             // delete logs in batches of 100 records
-            int count = 0;
+            var count = 0;
             var purgedate = DateTime.UtcNow.AddDays(-age);
-            var logs = _db.Log.Where(item => item.SiteId == siteId && item.Level != "Error" && item.LogDate < purgedate)
+            var logs = db.Log.Where(item => item.SiteId == siteId && item.Level != "Error" && item.LogDate < purgedate)
                 .OrderBy(item => item.LogDate).Take(100).ToList();
             while (logs.Count > 0)
             {
                 count += logs.Count;
-                _db.Log.RemoveRange(logs);
-                _db.SaveChanges();
-                logs = _db.Log.Where(item => item.SiteId == siteId && item.Level != "Error" && item.LogDate < purgedate)
+                db.Log.RemoveRange(logs);
+                db.SaveChanges();
+                logs = db.Log.Where(item => item.SiteId == siteId && item.Level != "Error" && item.LogDate < purgedate)
                     .OrderBy(item => item.LogDate).Take(100).ToList();
             }
             return count;

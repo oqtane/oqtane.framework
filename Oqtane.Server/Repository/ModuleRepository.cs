@@ -14,15 +14,17 @@ namespace Oqtane.Repository
 {
     public class ModuleRepository : IModuleRepository
     {
-        private TenantDBContext _db;
+        private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
+        private readonly TenantDBContext _queryContext;
         private readonly IPermissionRepository _permissions;
         private readonly ISettingRepository _settings;
         private readonly IModuleDefinitionRepository _moduleDefinitions;
         private readonly IServiceProvider _serviceProvider;
 
-        public ModuleRepository(TenantDBContext context, IPermissionRepository permissions, ISettingRepository settings, IModuleDefinitionRepository moduleDefinitions, IServiceProvider serviceProvider)
+        public ModuleRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IPermissionRepository permissions, ISettingRepository settings, IModuleDefinitionRepository moduleDefinitions, IServiceProvider serviceProvider)
         {
-            _db = context;
+            _dbContextFactory = dbContextFactory;
+            _queryContext = _dbContextFactory.CreateDbContext();
             _permissions = permissions;
             _settings = settings;
             _moduleDefinitions = moduleDefinitions;
@@ -31,21 +33,23 @@ namespace Oqtane.Repository
 
         public IEnumerable<Module> GetModules(int siteId)
         {
-            return _db.Module.Where(item => item.SiteId == siteId).ToList();
+            return _queryContext.Module.Where(item => item.SiteId == siteId);
         }
 
         public Module AddModule(Module module)
         {
-            _db.Module.Add(module);
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            db.Module.Add(module);
+            db.SaveChanges();
             _permissions.UpdatePermissions(module.SiteId, EntityNames.Module, module.ModuleId, module.PermissionList);
             return module;
         }
 
         public Module UpdateModule(Module module)
         {
-            _db.Entry(module).State = EntityState.Modified;
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            db.Entry(module).State = EntityState.Modified;
+            db.SaveChanges();
             _permissions.UpdatePermissions(module.SiteId, EntityNames.Module, module.ModuleId, module.PermissionList);
             return module;
         }
@@ -57,14 +61,15 @@ namespace Oqtane.Repository
 
         public Module GetModule(int moduleId, bool tracking)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             Module module;
             if (tracking)
             {
-                module = _db.Module.Find(moduleId);
+                module = db.Module.Find(moduleId);
             }
             else
             {
-                module = _db.Module.AsNoTracking().FirstOrDefault(item => item.ModuleId == moduleId);
+                module = db.Module.AsNoTracking().FirstOrDefault(item => item.ModuleId == moduleId);
             }
             if (module != null)
             {
@@ -75,11 +80,12 @@ namespace Oqtane.Repository
 
         public void DeleteModule(int moduleId)
         {
-            Module module = _db.Module.Find(moduleId);
+            using var db = _dbContextFactory.CreateDbContext();
+            var module = db.Module.Find(moduleId);
             _permissions.DeletePermissions(module.SiteId, EntityNames.Module, moduleId);
             _settings.DeleteSettings(EntityNames.Module, moduleId);
-            _db.Module.Remove(module);
-            _db.SaveChanges();
+            db.Module.Remove(module);
+            db.SaveChanges();
         }
 
         public string ExportModule(int moduleId)

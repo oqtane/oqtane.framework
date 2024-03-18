@@ -8,18 +8,20 @@ namespace Oqtane.Repository
 {
     public class UserRoleRepository : IUserRoleRepository
     {
-        private TenantDBContext _db;
+        private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
+        private readonly TenantDBContext _queryContext;
         private readonly IRoleRepository _roles;
 
-        public UserRoleRepository(TenantDBContext context, IRoleRepository roles)
+        public UserRoleRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IRoleRepository roles)
         {
-            _db = context;
+            _dbContextFactory = dbContextFactory;
+            _queryContext = _dbContextFactory.CreateDbContext();
             _roles = roles;
         }
 
         public IEnumerable<UserRole> GetUserRoles(int siteId)
         {
-            return _db.UserRole
+            return _queryContext.UserRole
                 .Include(item => item.Role) // eager load roles
                 .Include(item => item.User) // eager load users
                 .Where(item => item.Role.SiteId == siteId || item.Role.SiteId == null);
@@ -27,7 +29,7 @@ namespace Oqtane.Repository
 
         public IEnumerable<UserRole> GetUserRoles(int userId, int siteId)
         {
-            return _db.UserRole.Where(item => item.UserId == userId)
+            return _queryContext.UserRole.Where(item => item.UserId == userId)
                 .Include(item => item.Role) // eager load roles
                 .Include(item => item.User) // eager load users
                 .Where(item => item.Role.SiteId == siteId || item.Role.SiteId == null || siteId == -1);
@@ -35,8 +37,9 @@ namespace Oqtane.Repository
 
         public UserRole AddUserRole(UserRole userRole)
         {
-            _db.UserRole.Add(userRole);
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            db.UserRole.Add(userRole);
+            db.SaveChanges();
 
             // host roles can only exist at global level - remove any site specific user roles
             var role = _roles.GetRole(userRole.RoleId);
@@ -50,8 +53,9 @@ namespace Oqtane.Repository
 
         public UserRole UpdateUserRole(UserRole userRole)
         {
-            _db.Entry(userRole).State = EntityState.Modified;
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            db.Entry(userRole).State = EntityState.Modified;
+            db.SaveChanges();
             return userRole;
         }
 
@@ -62,16 +66,17 @@ namespace Oqtane.Repository
 
         public UserRole GetUserRole(int userRoleId, bool tracking)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             if (tracking)
             {
-                return _db.UserRole
+                return db.UserRole
                     .Include(item => item.Role) // eager load roles
                     .Include(item => item.User) // eager load users
                     .FirstOrDefault(item => item.UserRoleId == userRoleId);
             }
             else
             {
-                return _db.UserRole.AsNoTracking()
+                return db.UserRole.AsNoTracking()
                     .Include(item => item.Role) // eager load roles
                     .Include(item => item.User) // eager load users
                     .FirstOrDefault(item => item.UserRoleId == userRoleId);
@@ -85,16 +90,17 @@ namespace Oqtane.Repository
 
         public UserRole GetUserRole(int userId, int roleId, bool tracking)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             if (tracking)
             {
-                return _db.UserRole
+                return db.UserRole
                     .Include(item => item.Role) // eager load roles
                     .Include(item => item.User) // eager load users
                     .FirstOrDefault(item => item.UserId == userId && item.RoleId == roleId);
             }
             else
             {
-                return _db.UserRole.AsNoTracking()
+                return db.UserRole.AsNoTracking()
                     .Include(item => item.Role) // eager load roles
                     .Include(item => item.User) // eager load users
                     .FirstOrDefault(item => item.UserId == userId && item.RoleId == roleId);
@@ -103,18 +109,20 @@ namespace Oqtane.Repository
 
         public void DeleteUserRole(int userRoleId)
         {
-            UserRole userRole = _db.UserRole.Find(userRoleId);
-            _db.UserRole.Remove(userRole);
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            var userRole = db.UserRole.Find(userRoleId);
+            db.UserRole.Remove(userRole);
+            db.SaveChanges();
         }
 
         public void DeleteUserRoles(int userId)
         {
-            foreach (UserRole userRole in _db.UserRole.Where(item => item.UserId == userId && item.Role.SiteId != null))
+            using var db = _dbContextFactory.CreateDbContext();
+            foreach (var userRole in db.UserRole.Where(item => item.UserId == userId && item.Role.SiteId != null))
             {
-                _db.UserRole.Remove(userRole);
+                db.UserRole.Remove(userRole);
             }
-            _db.SaveChanges();
+            db.SaveChanges();
         }
     }
 }
