@@ -58,7 +58,8 @@ namespace Oqtane.Repository
 
         public File AddFile(File file)
         {
-            using var db = _dbContextFactory.CreateDbContext(); file.IsDeleted = false;
+            using var db = _dbContextFactory.CreateDbContext();
+            file.IsDeleted = false;
             db.File.Add(file);
             db.SaveChanges();
             file.Folder = _folderRepository.GetFolder(file.FolderId);
@@ -84,7 +85,8 @@ namespace Oqtane.Repository
 
         public File GetFile(int fileId, bool tracking)
         {
-            using var db = _dbContextFactory.CreateDbContext(); File file;
+            using var db = _dbContextFactory.CreateDbContext();
+            File file;
             if (tracking)
             {
                 file = db.File.Include(item => item.Folder).FirstOrDefault(item => item.FileId == fileId);
@@ -103,7 +105,8 @@ namespace Oqtane.Repository
 
         public File GetFile(int folderId, string fileName)
         {
-            using var db = _dbContextFactory.CreateDbContext(); var file = db.File.AsNoTracking()
+            using var db = _dbContextFactory.CreateDbContext();
+            var file = db.File.AsNoTracking()
             .Include(item => item.Folder)
             .FirstOrDefault(item => item.FolderId == folderId &&
                 item.Name.ToLower() == fileName);
