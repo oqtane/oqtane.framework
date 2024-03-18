@@ -117,6 +117,35 @@
     margin: .5rem;
 }
 
+/* Oqtane Quill Rich Text Editor Toolbar */
+.ql-editor, .ql-toolbar, .ql-picker-options, .ql-picker-label {
+    background-color: var(--bs-body-bg) !important;
+    color: var(--bs-body-color) !important;
+}
+
+    ql-toolbar button:hover .ql-stroke, .ql-toolbar button:hover .ql-stroke, .ql-toolbar button:focus .ql-stroke, .ql-toolbar button:focus .ql-stroke, .ql-toolbar button.ql-active .ql-stroke, .ql-toolbar button.ql-active .ql-stroke, .ql-toolbar .ql-picker-label:hover .ql-stroke, .ql-toolbar .ql-picker-label:hover .ql-stroke, .ql-toolbar .ql-picker-label.ql-active .ql-stroke, .ql-toolbar .ql-picker-label.ql-active .ql-stroke, .ql-toolbar .ql-picker-item:hover .ql-stroke, .ql-toolbar .ql-picker-item:hover .ql-stroke, .ql-toolbar .ql-picker-item.ql-selected .ql-stroke, .ql-toolbar .ql-picker-item.ql-selected .ql-stroke, .ql-toolbar button:hover .ql-stroke-miter, .ql-toolbar button:hover .ql-stroke-miter, .ql-toolbar button:focus .ql-stroke-miter, .ql-toolbar button:focus .ql-stroke-miter, .ql-toolbar button.ql-active .ql-stroke-miter, .ql-toolbar button.ql-active .ql-stroke-miter, .ql-toolbar .ql-picker-label:hover .ql-stroke-miter, .ql-toolbar .ql-picker-label:hover .ql-stroke-miter, .ql-toolbar .ql-picker-label.ql-active .ql-stroke-miter, .ql-toolbar .ql-picker-label.ql-active .ql-stroke-miter, .ql-toolbar .ql-picker-item:hover .ql-stroke-miter, .ql-toolbar .ql-picker-item:hover .ql-stroke-miter, .ql-toolbar .ql-picker-item.ql-selected .ql-stroke-miter, .ql-toolbar .ql-picker-item.ql-selected .ql-stroke-miter {
+        stroke: var(--bs-link-hover-color) !important;
+    }
+
+    ql-toolbar button .ql-stroke, .ql-toolbar button .ql-stroke, .ql-toolbar button:focus .ql-stroke, .ql-toolbar button:focus .ql-stroke, .ql-toolbar button.ql-active .ql-stroke, .ql-toolbar button.ql-active .ql-stroke, .ql-toolbar .ql-picker-label .ql-stroke, .ql-toolbar .ql-picker-label .ql-stroke, .ql-toolbar .ql-picker-label.ql-active .ql-stroke, .ql-toolbar .ql-picker-label.ql-active .ql-stroke, .ql-toolbar .ql-picker-item .ql-stroke, .ql-toolbar .ql-picker-item .ql-stroke, .ql-toolbar .ql-picker-item.ql-selected .ql-stroke, .ql-toolbar .ql-picker-item.ql-selected .ql-stroke, .ql-toolbar button .ql-stroke-miter, .ql-toolbar button .ql-stroke-miter, .ql-toolbar button:focus .ql-stroke-miter, .ql-toolbar button:focus .ql-stroke-miter, .ql-toolbar button.ql-active .ql-stroke-miter, .ql-toolbar button.ql-active .ql-stroke-miter, .ql-toolbar .ql-picker-label .ql-stroke-miter, .ql-toolbar .ql-picker-label .ql-stroke-miter, .ql-toolbar .ql-picker-label.ql-active .ql-stroke-miter, .ql-toolbar .ql-picker-label.ql-active .ql-stroke-miter, .ql-toolbar .ql-picker-item .ql-stroke-miter, .ql-toolbar .ql-picker-item .ql-stroke-miter, .ql-toolbar .ql-picker-item.ql-selected .ql-stroke-miter, .ql-toolbar .ql-picker-item.ql-selected .ql-stroke-miter {
+        stroke: var(--bs-body-color) !important;
+    }
+
+    /* Oqtane Quill Rich Text Editor WYSIWYG Content */
+    .ql-editor a {
+        color: var(--bs-link-color) !important;
+    }
+
+        .ql-editor a:hover {
+            color: var(--bs-link-hover-color) !important;
+        }
+
+        
+        .ql-editor a.btn, .ql-editor a.btn:hover {
+            text-decoration: unset !important;
+            color: var(--bs-btn-color) !important;
+        }
+
 @media (max-width: 767.98px) {
     .main .top-row {
         display: none;
