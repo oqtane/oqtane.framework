@@ -11,14 +11,14 @@ namespace Oqtane.Repository
 {
     public class FolderRepository : IFolderRepository
     {
-        private TenantDBContext _db;
+        private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
         private readonly IPermissionRepository _permissions;
         private readonly IWebHostEnvironment _environment;
         private readonly ITenantManager _tenants;
 
-        public FolderRepository(TenantDBContext context, IPermissionRepository permissions,IWebHostEnvironment environment, ITenantManager tenants)
+        public FolderRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IPermissionRepository permissions,IWebHostEnvironment environment, ITenantManager tenants)
         {
-            _db = context;
+            _dbContextFactory = dbContextFactory;
             _permissions = permissions;
             _environment = environment;
             _tenants = tenants;
@@ -26,9 +26,10 @@ namespace Oqtane.Repository
 
         public IEnumerable<Folder> GetFolders(int siteId)
         {
-            IEnumerable<Permission> permissions = _permissions.GetPermissions(siteId, EntityNames.Folder).ToList();
-            IEnumerable<Folder> folders = _db.Folder.Where(item => item.SiteId == siteId);
-            foreach(Folder folder in folders)
+            using var db = _dbContextFactory.CreateDbContext();
+            var permissions = _permissions.GetPermissions(siteId, EntityNames.Folder).ToList();
+            var folders = db.Folder.Where(item => item.SiteId == siteId).ToList();
+            foreach (var folder in folders)
             {
                 folder.PermissionList = permissions.Where(item => item.EntityId == folder.FolderId).ToList();
             }
@@ -37,17 +38,19 @@ namespace Oqtane.Repository
 
         public Folder AddFolder(Folder folder)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             folder.IsDeleted = false;
-            _db.Folder.Add(folder);
-            _db.SaveChanges();
+            db.Folder.Add(folder);
+            db.SaveChanges();
             _permissions.UpdatePermissions(folder.SiteId, EntityNames.Folder, folder.FolderId, folder.PermissionList);
             return folder;
         }
 
         public Folder UpdateFolder(Folder folder)
         {
-            _db.Entry(folder).State = EntityState.Modified;
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            db.Entry(folder).State = EntityState.Modified;
+            db.SaveChanges();
             _permissions.UpdatePermissions(folder.SiteId, EntityNames.Folder, folder.FolderId, folder.PermissionList);
             return folder;
         }
@@ -59,14 +62,15 @@ namespace Oqtane.Repository
 
         public Folder GetFolder(int folderId, bool tracking)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             Folder folder;
             if (tracking)
             {
-                folder = _db.Folder.Find(folderId);
+                folder = db.Folder.Find(folderId);
             }
             else
             {
-                folder = _db.Folder.AsNoTracking().Where(item => item.FolderId == folderId).FirstOrDefault();
+                folder = db.Folder.AsNoTracking().Where(item => item.FolderId == folderId).FirstOrDefault();
             }
             if (folder != null)
             {
@@ -77,7 +81,8 @@ namespace Oqtane.Repository
 
         public Folder GetFolder(int siteId, string path)
         {
-            Folder folder = _db.Folder.Where(item => item.SiteId == siteId && item.Path == path).FirstOrDefault();
+            using var db = _dbContextFactory.CreateDbContext();
+            var folder = db.Folder.Where(item => item.SiteId == siteId && item.Path == path).FirstOrDefault();
             if (folder != null)
             {
                 folder.PermissionList = _permissions.GetPermissions(folder.SiteId, EntityNames.Folder, folder.FolderId)?.ToList();
@@ -87,15 +92,17 @@ namespace Oqtane.Repository
 
         public void DeleteFolder(int folderId)
         {
-            Folder folder = _db.Folder.Find(folderId);
+            using var db = _dbContextFactory.CreateDbContext();
+            var folder = db.Folder.Find(folderId);
             _permissions.DeletePermissions(folder.SiteId, EntityNames.Folder, folderId);
-            _db.Folder.Remove(folder);
-            _db.SaveChanges();
+            db.Folder.Remove(folder);
+            db.SaveChanges();
         }
 
         public string GetFolderPath(int folderId)
         {
-            Folder folder = _db.Folder.Find(folderId);
+            using var db = _dbContextFactory.CreateDbContext();
+            var folder = db.Folder.Find(folderId);
             return GetFolderPath(folder);
         }
 

@@ -8,62 +8,68 @@ namespace Oqtane.Repository
 {
     public class UrlMappingRepository : IUrlMappingRepository
     {
-        private TenantDBContext _db;
+        private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
         private readonly ISiteRepository _sites;
 
-        public UrlMappingRepository(TenantDBContext context, ISiteRepository sites)
+        public UrlMappingRepository(IDbContextFactory<TenantDBContext> dbContextFactory, ISiteRepository sites)
         {
-            _db = context;
+            _dbContextFactory = dbContextFactory;
             _sites = sites;
         }
 
         public IEnumerable<UrlMapping> GetUrlMappings(int siteId, bool isMapped)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             if (isMapped)
             {
-                return _db.UrlMapping.Where(item => item.SiteId == siteId && !string.IsNullOrEmpty(item.MappedUrl)).Take(200);
+                return db.UrlMapping.Where(item => item.SiteId == siteId && !string.IsNullOrEmpty(item.MappedUrl)).Take(200).ToList();
             }
             else
             {
-                return _db.UrlMapping.Where(item => item.SiteId == siteId && string.IsNullOrEmpty(item.MappedUrl)).Take(200);
+                return db.UrlMapping.Where(item => item.SiteId == siteId && string.IsNullOrEmpty(item.MappedUrl)).Take(200).ToList();
             }
         }
 
         public UrlMapping AddUrlMapping(UrlMapping urlMapping)
         {
-            _db.UrlMapping.Add(urlMapping);
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            db.UrlMapping.Add(urlMapping);
+            db.SaveChanges();
             return urlMapping;
         }
 
         public UrlMapping UpdateUrlMapping(UrlMapping urlMapping)
         {
-            _db.Entry(urlMapping).State = EntityState.Modified;
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            db.Entry(urlMapping).State = EntityState.Modified;
+            db.SaveChanges();
             return urlMapping;
         }
 
         public UrlMapping GetUrlMapping(int urlMappingId)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             return GetUrlMapping(urlMappingId, true);
         }
 
         public UrlMapping GetUrlMapping(int urlMappingId, bool tracking)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             if (tracking)
             {
-                return _db.UrlMapping.Find(urlMappingId);
+                return db.UrlMapping.Find(urlMappingId);
             }
             else
             {
-                return _db.UrlMapping.AsNoTracking().FirstOrDefault(item => item.UrlMappingId == urlMappingId);
+                return db.UrlMapping.AsNoTracking().FirstOrDefault(item => item.UrlMappingId == urlMappingId);
             }
         }
 
         public UrlMapping GetUrlMapping(int siteId, string url)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             url = (url.Length > 750) ? url.Substring(0, 750) : url;
-            var urlMapping = _db.UrlMapping.Where(item => item.SiteId == siteId && item.Url == url).FirstOrDefault();
+            var urlMapping = db.UrlMapping.Where(item => item.SiteId == siteId && item.Url == url).FirstOrDefault();
             if (urlMapping == null)
             {
                 var site = _sites.GetSite(siteId);
@@ -90,9 +96,10 @@ namespace Oqtane.Repository
 
         public void DeleteUrlMapping(int urlMappingId)
         {
-            UrlMapping urlMapping = _db.UrlMapping.Find(urlMappingId);
-            _db.UrlMapping.Remove(urlMapping);
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            UrlMapping urlMapping = db.UrlMapping.Find(urlMappingId);
+            db.UrlMapping.Remove(urlMapping);
+            db.SaveChanges();
         }
     }
 }

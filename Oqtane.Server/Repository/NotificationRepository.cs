@@ -8,25 +8,26 @@ namespace Oqtane.Repository
 {
     public class NotificationRepository : INotificationRepository
     {
-        private TenantDBContext _db;
+        private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
 
-        public NotificationRepository(TenantDBContext context)
+        public NotificationRepository(IDbContextFactory<TenantDBContext> dbContextFactory)
         {
-            _db = context;
+            _dbContextFactory = dbContextFactory;
         }
             
         public IEnumerable<Notification> GetNotifications(int siteId, int fromUserId, int toUserId)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             if (toUserId == -1 && fromUserId == -1)
             {
-                return _db.Notification
+                return db.Notification
                     .Where(item => item.SiteId == siteId)
                     .Where(item => item.IsDelivered == false && item.IsDeleted == false)
                     .Where(item => item.SendOn == null || item.SendOn < System.DateTime.UtcNow)
                     .ToList();
             }
 
-            return _db.Notification
+            return db.Notification
                 .Where(item => item.SiteId == siteId)
                 .Where(item => item.ToUserId == toUserId || toUserId == -1)
                 .Where(item => item.FromUserId == fromUserId || fromUserId == -1)
@@ -35,9 +36,10 @@ namespace Oqtane.Repository
 
         public IEnumerable<Notification> GetNotifications(int siteId, int fromUserId, int toUserId, int count, bool isRead)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             if (toUserId == -1 && fromUserId == -1)
             {
-                return _db.Notification
+                return db.Notification
                     .Where(item => item.SiteId == siteId)
                     .Where(item => item.IsDelivered == false && item.IsDeleted == false)
                     .Where(item => item.SendOn == null || item.SendOn < System.DateTime.UtcNow)
@@ -47,7 +49,7 @@ namespace Oqtane.Repository
                     .Take(count);
             }
 
-            return _db.Notification
+            return db.Notification
                 .Where(item => item.SiteId == siteId)
                 .Where(item => item.ToUserId == toUserId || toUserId == -1)
                 .Where(item => item.FromUserId == fromUserId || fromUserId == -1)
@@ -59,9 +61,10 @@ namespace Oqtane.Repository
 
         public int GetNotificationCount(int siteId, int fromUserId, int toUserId, bool isRead)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             if (toUserId == -1 && fromUserId == -1)
             {
-                return _db.Notification
+                return db.Notification
                     .Where(item => item.SiteId == siteId)
                     .Where(item => item.IsDelivered == false && item.IsDeleted == false)
                     .Where(item => item.SendOn == null || item.SendOn < System.DateTime.UtcNow)
@@ -71,7 +74,7 @@ namespace Oqtane.Repository
 
             }
 
-            return _db.Notification
+            return db.Notification
                 .Where(item => item.SiteId == siteId)
                 .Where(item => item.ToUserId == toUserId || toUserId == -1)
                 .Where(item => item.FromUserId == fromUserId || fromUserId == -1)
@@ -83,15 +86,17 @@ namespace Oqtane.Repository
 
         public Notification AddNotification(Notification notification)
         {
-            _db.Notification.Add(notification);
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            db.Notification.Add(notification);
+            db.SaveChanges();
             return notification;
         }
 
         public Notification UpdateNotification(Notification notification)
         {
-            _db.Entry(notification).State = EntityState.Modified;
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            db.Entry(notification).State = EntityState.Modified;
+            db.SaveChanges();
             return notification;
         }
         public Notification GetNotification(int notificationId)
@@ -101,36 +106,39 @@ namespace Oqtane.Repository
 
         public Notification GetNotification(int notificationId, bool tracking)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             if (tracking)
             {
-                return _db.Notification.Find(notificationId);
+                return db.Notification.Find(notificationId);
             }
             else
             {
-                return _db.Notification.AsNoTracking().FirstOrDefault(item => item.NotificationId == notificationId);
+                return db.Notification.AsNoTracking().FirstOrDefault(item => item.NotificationId == notificationId);
             }
         }
 
         public void DeleteNotification(int notificationId)
         {
-            Notification notification = _db.Notification.Find(notificationId);
-            _db.Notification.Remove(notification);
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            var notification = db.Notification.Find(notificationId);
+            db.Notification.Remove(notification);
+            db.SaveChanges();
         }
 
         public int DeleteNotifications(int siteId, int age)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             // delete notifications in batches of 100 records
-            int count = 0;
+            var count = 0;
             var purgedate = DateTime.UtcNow.AddDays(-age);
-            var notifications = _db.Notification.Where(item => item.SiteId == siteId && item.FromUserId == null && item.IsDelivered && item.DeliveredOn < purgedate)
+            var notifications = db.Notification.Where(item => item.SiteId == siteId && item.FromUserId == null && item.IsDelivered && item.DeliveredOn < purgedate)
                 .OrderBy(item => item.DeliveredOn).Take(100).ToList();
             while (notifications.Count > 0)
             {
                 count += notifications.Count;
-                _db.Notification.RemoveRange(notifications);
-                _db.SaveChanges();
-                notifications = _db.Notification.Where(item => item.SiteId == siteId && item.FromUserId == null && item.IsDelivered && item.DeliveredOn < purgedate)
+                db.Notification.RemoveRange(notifications);
+                db.SaveChanges();
+                notifications = db.Notification.Where(item => item.SiteId == siteId && item.FromUserId == null && item.IsDelivered && item.DeliveredOn < purgedate)
                 .OrderBy(item => item.DeliveredOn).Take(100).ToList();
             }
             return count;

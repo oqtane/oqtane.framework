@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
@@ -10,14 +11,14 @@ namespace Oqtane.Repository
 {
     public class SettingRepository : ISettingRepository
     {
-        private TenantDBContext _tenant;
+        private readonly IDbContextFactory<TenantDBContext> _tenantContextFactory;
         private MasterDBContext _master;
         private readonly ITenantManager _tenantManager;
         private readonly IMemoryCache _cache;
 
-        public SettingRepository(TenantDBContext tenant, MasterDBContext master, ITenantManager tenantManager, IMemoryCache cache)
+        public SettingRepository(IDbContextFactory<TenantDBContext> tenantContextFactory, MasterDBContext master, ITenantManager tenantManager, IMemoryCache cache)
         {
-            _tenant = tenant;
+            _tenantContextFactory = tenantContextFactory;
             _master = master;
             _tenantManager = tenantManager;
             _cache = cache;
@@ -31,7 +32,8 @@ namespace Oqtane.Repository
             }
             else
             {
-                return _tenant.Setting.Where(item => item.EntityName == entityName);
+                using var db = _tenantContextFactory.CreateDbContext();
+                return db.Setting.Where(item => item.EntityName == entityName).ToList();
             }
         }
 
@@ -43,6 +45,7 @@ namespace Oqtane.Repository
 
         public Setting AddSetting(Setting setting)
         {
+            using var tenant = _tenantContextFactory.CreateDbContext();
             if (IsMaster(setting.EntityName))
             {
                 _master.Setting.Add(setting);
@@ -50,8 +53,8 @@ namespace Oqtane.Repository
             }
             else
             {
-                _tenant.Setting.Add(setting);
-                _tenant.SaveChanges();
+                tenant.Setting.Add(setting);
+                tenant.SaveChanges();
             }
             ManageCache(setting.EntityName);
             return setting;
@@ -59,6 +62,7 @@ namespace Oqtane.Repository
 
         public Setting UpdateSetting(Setting setting)
         {
+            using var tenant = _tenantContextFactory.CreateDbContext();
             if (IsMaster(setting.EntityName))
             {
                 _master.Entry(setting).State = EntityState.Modified;
@@ -66,8 +70,8 @@ namespace Oqtane.Repository
             }
             else
             {
-                _tenant.Entry(setting).State = EntityState.Modified;
-                _tenant.SaveChanges();
+                tenant.Entry(setting).State = EntityState.Modified;
+                tenant.SaveChanges();
             }
             ManageCache(setting.EntityName);
             return setting;
@@ -75,30 +79,33 @@ namespace Oqtane.Repository
 
         public Setting GetSetting(string entityName, int settingId)
         {
+            using var tenant = _tenantContextFactory.CreateDbContext();
             if (IsMaster(entityName))
             {
                 return _master.Setting.Find(settingId);
             }
             else
             {
-                return _tenant.Setting.Find(settingId);
+                return tenant.Setting.Find(settingId);
             }
         }
 
         public Setting GetSetting(string entityName, int entityId, string settingName)
         {
+            using var tenant = _tenantContextFactory.CreateDbContext();
             if (IsMaster(entityName))
             {
                 return _master.Setting.Where(item => item.EntityName == entityName && item.EntityId == entityId && item.SettingName == settingName).FirstOrDefault();
             }
             else
             {
-                return _tenant.Setting.Where(item => item.EntityName == entityName && item.EntityId == entityId && item.SettingName == settingName).FirstOrDefault();
+                return tenant.Setting.Where(item => item.EntityName == entityName && item.EntityId == entityId && item.SettingName == settingName).FirstOrDefault();
             }
         }
 
         public void DeleteSetting(string entityName, int settingId)
         {
+            using var tenant = _tenantContextFactory.CreateDbContext();
             if (IsMaster(entityName))
             {
                 Setting setting = _master.Setting.Find(settingId);
@@ -107,15 +114,16 @@ namespace Oqtane.Repository
             }
             else
             {
-                Setting setting = _tenant.Setting.Find(settingId);
-                _tenant.Setting.Remove(setting);
-                _tenant.SaveChanges();
+                Setting setting = tenant.Setting.Find(settingId);
+                tenant.Setting.Remove(setting);
+                tenant.SaveChanges();
             }
             ManageCache(entityName);
         }
 
         public void DeleteSettings(string entityName, int entityId)
         {
+            using var tenant = _tenantContextFactory.CreateDbContext();
             if (IsMaster(entityName))
             {
                 IEnumerable<Setting> settings = _master.Setting
@@ -129,14 +137,14 @@ namespace Oqtane.Repository
             }
             else
             {
-                IEnumerable<Setting> settings = _tenant.Setting
+                IEnumerable<Setting> settings = tenant.Setting
                     .Where(item => item.EntityName == entityName)
                     .Where(item => item.EntityId == entityId);
                 foreach (Setting setting in settings)
                 {
-                    _tenant.Setting.Remove(setting);
+                    tenant.Setting.Remove(setting);
                 }
-                _tenant.SaveChanges();
+                tenant.SaveChanges();
             }
             ManageCache(entityName);
         }

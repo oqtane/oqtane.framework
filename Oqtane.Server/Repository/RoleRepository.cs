@@ -7,11 +7,11 @@ namespace Oqtane.Repository
 {
     public class RoleRepository : IRoleRepository
     {
-        private TenantDBContext _db;
+        private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
 
-        public RoleRepository(TenantDBContext context)
+        public RoleRepository(IDbContextFactory<TenantDBContext> dbContextFactory)
         {
-            _db = context;
+            _dbContextFactory = dbContextFactory;
         }
             
         public IEnumerable<Role> GetRoles(int siteId)
@@ -21,29 +21,32 @@ namespace Oqtane.Repository
 
         public IEnumerable<Role> GetRoles(int siteId, bool includeGlobalRoles)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             if (includeGlobalRoles)
             {
-                return _db.Role.Where(item => item.SiteId == siteId || item.SiteId == null);
+                return db.Role.Where(item => item.SiteId == siteId || item.SiteId == null).ToList();
             }
             else
             {
-                return _db.Role.Where(item => item.SiteId == siteId);
+                return db.Role.Where(item => item.SiteId == siteId).ToList();
             }
         }
 
         public Role AddRole(Role role)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             role.Description = role.Description.Substring(0, (role.Description.Length > 256) ? 256 : role.Description.Length);
-            _db.Role.Add(role);
-            _db.SaveChanges();
+            db.Role.Add(role);
+            db.SaveChanges();
             return role;
         }
 
         public Role UpdateRole(Role role)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             role.Description = role.Description.Substring(0, (role.Description.Length > 256) ? 256 : role.Description.Length);
-            _db.Entry(role).State = EntityState.Modified;
-            _db.SaveChanges();
+            db.Entry(role).State = EntityState.Modified;
+            db.SaveChanges();
             return role;
         }
 
@@ -54,21 +57,23 @@ namespace Oqtane.Repository
 
         public Role GetRole(int roleId, bool tracking)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             if (tracking)
             {
-                return _db.Role.Find(roleId);
+                return db.Role.Find(roleId);
             }
             else
             {
-                return _db.Role.AsNoTracking().FirstOrDefault(item => item.RoleId == roleId);
+                return db.Role.AsNoTracking().FirstOrDefault(item => item.RoleId == roleId);
             }
         }
 
         public void DeleteRole(int roleId)
         {
-            Role role = _db.Role.Find(roleId);
-            _db.Role.Remove(role);
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            Role role = db.Role.Find(roleId);
+            db.Role.Remove(role);
+            db.SaveChanges();
         }
     }
 }
