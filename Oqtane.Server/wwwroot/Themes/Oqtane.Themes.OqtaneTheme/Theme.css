@@ -97,37 +97,46 @@ div.app-moduleactions a.dropdown-toggle, div.app-moduleactions div.dropdown-menu
 }
 
 /* Oqtane Quill Rich Text Editor */
-.ql-editor, .ql-header .ql-picker-options {
+/* Global styles */
+.ql-header .ql-picker-options,
+.ql-toolbar,
+.ql-editor,
+.ql-tooltip {
     background-color: var(--bs-body-bg) !important;
     color: var(--bs-body-color) !important;
 }
 
-.ql-header .ql-picker-options {
-    color: var(--bs-heading-color) !important;
-}
-
-    .ql-header .ql-picker-options .ql-picker-item:first-child {
-        color: var(--bs-body-color) !important;
+    /* Header picker item styles */
+    .ql-header .ql-picker-options .ql-picker-item:not(:first-child) {
+        color: var(--bs-heading-color) !important;
     }
 
-.ql-editor a {
-    color: var(--bs-link-color) !important;
-}
+        /* Link styles */
+        .ql-header .ql-picker-options .ql-picker-item:not(:first-child).ql-editor a,
+        .ql-editor a {
+            color: var(--bs-link-color) !important;
+        }
 
-    .ql-editor a:hover {
-        color: var(--bs-link-hover-color) !important;
-    }
+            /* Hover styles */
+            .ql-header .ql-picker-options .ql-picker-item:hover,
+            .ql-editor a:hover {
+                color: var(--bs-link-hover-color) !important;
+            }
 
-    .ql-editor a.btn, .ql-editor a.btn:hover {
-        text-decoration: unset !important;
-        color: var(--bs-btn-color) !important;
-    }
+            /* Button link styles */
+            .ql-editor a.btn,
+            .ql-editor a.btn:hover {
+                text-decoration: unset !important;
+                color: var(--bs-btn-color) !important;
+            }
 
+/* Tooltip styles */
 .ql-tooltip {
     background-color: var(--bs-modal-bg) !important;
     color: var(--bs-body-color) !important;
 }
 
+    /* Tooltip link styles */
     .ql-tooltip a {
         color: var(--bs-link-color) !important;
     }
