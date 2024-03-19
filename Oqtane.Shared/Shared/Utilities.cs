@@ -97,7 +97,7 @@ namespace Oqtane.Shared
             }
             else
             {
-                path = ((!string.IsNullOrEmpty(alias)) ? alias + "/" : "") + path;
+                path = ((!string.IsNullOrEmpty(alias)) ? alias + (!path.StartsWith("/") ? "/" : "") : "") + path;
             }
 
             return path;
