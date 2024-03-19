@@ -198,7 +198,8 @@
                 ModuleSettingsComponent = builder =>
                 {
                     builder.OpenComponent(0, _moduleSettingsType);
-                    builder.AddComponentReferenceCapture(1, inst => { _moduleSettings = Convert.ChangeType(inst, _moduleSettingsType); });
+                    builder.AddAttribute(1, "RenderModeBoundary", RenderModeBoundary);
+                    builder.AddComponentReferenceCapture(2, inst => { _moduleSettings = Convert.ChangeType(inst, _moduleSettingsType); });
                     builder.CloseComponent();
                 };
             }
