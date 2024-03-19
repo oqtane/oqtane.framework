@@ -12,7 +12,6 @@ namespace Oqtane.Repository
     public class FolderRepository : IFolderRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
-        private readonly TenantDBContext _queryContext;
         private readonly IPermissionRepository _permissions;
         private readonly IWebHostEnvironment _environment;
         private readonly ITenantManager _tenants;
@@ -20,7 +19,6 @@ namespace Oqtane.Repository
         public FolderRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IPermissionRepository permissions,IWebHostEnvironment environment, ITenantManager tenants)
         {
             _dbContextFactory = dbContextFactory;
-            _queryContext = _dbContextFactory.CreateDbContext();
             _permissions = permissions;
             _environment = environment;
             _tenants = tenants;
@@ -28,8 +26,9 @@ namespace Oqtane.Repository
 
         public IEnumerable<Folder> GetFolders(int siteId)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             var permissions = _permissions.GetPermissions(siteId, EntityNames.Folder).ToList();
-            var folders = _queryContext.Folder.Where(item => item.SiteId == siteId);
+            var folders = db.Folder.Where(item => item.SiteId == siteId).ToList();
             foreach (var folder in folders)
             {
                 folder.PermissionList = permissions.Where(item => item.EntityId == folder.FolderId).ToList();

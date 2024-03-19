@@ -15,7 +15,6 @@ namespace Oqtane.Repository
     public class ModuleRepository : IModuleRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
-        private readonly TenantDBContext _queryContext;
         private readonly IPermissionRepository _permissions;
         private readonly ISettingRepository _settings;
         private readonly IModuleDefinitionRepository _moduleDefinitions;
@@ -24,7 +23,6 @@ namespace Oqtane.Repository
         public ModuleRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IPermissionRepository permissions, ISettingRepository settings, IModuleDefinitionRepository moduleDefinitions, IServiceProvider serviceProvider)
         {
             _dbContextFactory = dbContextFactory;
-            _queryContext = _dbContextFactory.CreateDbContext();
             _permissions = permissions;
             _settings = settings;
             _moduleDefinitions = moduleDefinitions;
@@ -33,7 +31,8 @@ namespace Oqtane.Repository
 
         public IEnumerable<Module> GetModules(int siteId)
         {
-            return _queryContext.Module.Where(item => item.SiteId == siteId);
+            using var db = _dbContextFactory.CreateDbContext();
+            return db.Module.Where(item => item.SiteId == siteId).ToList();
         }
 
         public Module AddModule(Module module)

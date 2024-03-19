@@ -8,12 +8,10 @@ namespace Oqtane.Repository
     public class RoleRepository : IRoleRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
-        private readonly TenantDBContext _queryContext;
 
         public RoleRepository(IDbContextFactory<TenantDBContext> dbContextFactory)
         {
             _dbContextFactory = dbContextFactory;
-            _queryContext = _dbContextFactory.CreateDbContext();
         }
             
         public IEnumerable<Role> GetRoles(int siteId)
@@ -23,13 +21,14 @@ namespace Oqtane.Repository
 
         public IEnumerable<Role> GetRoles(int siteId, bool includeGlobalRoles)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             if (includeGlobalRoles)
             {
-                return _queryContext.Role.Where(item => item.SiteId == siteId || item.SiteId == null);
+                return db.Role.Where(item => item.SiteId == siteId || item.SiteId == null).ToList();
             }
             else
             {
-                return _queryContext.Role.Where(item => item.SiteId == siteId);
+                return db.Role.Where(item => item.SiteId == siteId).ToList();
             }
         }
 

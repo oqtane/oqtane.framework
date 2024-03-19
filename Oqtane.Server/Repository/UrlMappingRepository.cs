@@ -9,25 +9,24 @@ namespace Oqtane.Repository
     public class UrlMappingRepository : IUrlMappingRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
-        private readonly TenantDBContext _queryContext;
         private readonly ISiteRepository _sites;
 
         public UrlMappingRepository(IDbContextFactory<TenantDBContext> dbContextFactory, ISiteRepository sites)
         {
             _dbContextFactory = dbContextFactory;
-            _queryContext = _dbContextFactory.CreateDbContext();
             _sites = sites;
         }
 
         public IEnumerable<UrlMapping> GetUrlMappings(int siteId, bool isMapped)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             if (isMapped)
             {
-                return _queryContext.UrlMapping.Where(item => item.SiteId == siteId && !string.IsNullOrEmpty(item.MappedUrl)).Take(200);
+                return db.UrlMapping.Where(item => item.SiteId == siteId && !string.IsNullOrEmpty(item.MappedUrl)).Take(200).ToList();
             }
             else
             {
-                return _queryContext.UrlMapping.Where(item => item.SiteId == siteId && string.IsNullOrEmpty(item.MappedUrl)).Take(200);
+                return db.UrlMapping.Where(item => item.SiteId == siteId && string.IsNullOrEmpty(item.MappedUrl)).Take(200).ToList();
             }
         }
 

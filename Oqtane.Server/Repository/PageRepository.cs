@@ -10,7 +10,6 @@ namespace Oqtane.Repository
     public class PageRepository : IPageRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
-        private readonly TenantDBContext _queryContext;
         private readonly IPageModuleRepository _pageModules;
         private readonly IPermissionRepository _permissions;
         private readonly ISettingRepository _settings;
@@ -18,7 +17,6 @@ namespace Oqtane.Repository
         public PageRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IPageModuleRepository pageModules, IPermissionRepository permissions, ISettingRepository settings)
         {
             _dbContextFactory = dbContextFactory;
-            _queryContext = _dbContextFactory.CreateDbContext();
             _pageModules = pageModules;
             _permissions = permissions;
             _settings = settings;
@@ -26,8 +24,9 @@ namespace Oqtane.Repository
 
         public IEnumerable<Page> GetPages(int siteId)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             var permissions = _permissions.GetPermissions(siteId, EntityNames.Page).ToList();
-            var pages = _queryContext.Page.Where(item => item.SiteId == siteId && item.UserId == null);
+            var pages = db.Page.Where(item => item.SiteId == siteId && item.UserId == null).ToList();
             foreach (var page in pages)
             {
                 page.PermissionList = permissions.Where(item => item.EntityId == page.PageId).ToList();

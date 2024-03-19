@@ -12,7 +12,6 @@ namespace Oqtane.Repository
     public class SettingRepository : ISettingRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _tenantContextFactory;
-        private readonly TenantDBContext _tenantQueryContext;
         private MasterDBContext _master;
         private readonly ITenantManager _tenantManager;
         private readonly IMemoryCache _cache;
@@ -20,7 +19,6 @@ namespace Oqtane.Repository
         public SettingRepository(IDbContextFactory<TenantDBContext> tenantContextFactory, MasterDBContext master, ITenantManager tenantManager, IMemoryCache cache)
         {
             _tenantContextFactory = tenantContextFactory;
-            _tenantQueryContext = tenantContextFactory.CreateDbContext();
             _master = master;
             _tenantManager = tenantManager;
             _cache = cache;
@@ -34,7 +32,8 @@ namespace Oqtane.Repository
             }
             else
             {
-                return _tenantQueryContext.Setting.Where(item => item.EntityName == entityName);
+                using var db = _tenantContextFactory.CreateDbContext();
+                return db.Setting.Where(item => item.EntityName == entityName).ToList();
             }
         }
 

@@ -8,17 +8,16 @@ namespace Oqtane.Repository
     public class ProfileRepository : IProfileRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
-        private readonly TenantDBContext _queryContext;
 
         public ProfileRepository(IDbContextFactory<TenantDBContext> dbContextFactory)
         {
             _dbContextFactory = dbContextFactory;
-            _queryContext = _dbContextFactory.CreateDbContext();
         }
             
         public IEnumerable<Profile> GetProfiles(int siteId)
         {
-            return _queryContext.Profile.Where(item => item.SiteId == siteId || item.SiteId == null);
+            using var db = _dbContextFactory.CreateDbContext();
+            return db.Profile.Where(item => item.SiteId == siteId || item.SiteId == null).ToList();
         }
 
         public Profile AddProfile(Profile profile)

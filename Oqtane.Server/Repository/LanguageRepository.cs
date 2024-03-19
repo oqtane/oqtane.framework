@@ -8,17 +8,16 @@ namespace Oqtane.Repository
     public class LanguageRepository : ILanguageRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
-        private readonly TenantDBContext _queryContext;
 
         public LanguageRepository(IDbContextFactory<TenantDBContext> dbContextFactory)
         {
             _dbContextFactory = dbContextFactory;
-            _queryContext = _dbContextFactory.CreateDbContext();
         }
 
         public IEnumerable<Language> GetLanguages(int siteId)
         {
-            return _queryContext.Language.Where(l => l.SiteId == siteId);
+            using var db = _dbContextFactory.CreateDbContext();
+            return db.Language.Where(l => l.SiteId == siteId).ToList();
         }
 
         public Language AddLanguage(Language language)

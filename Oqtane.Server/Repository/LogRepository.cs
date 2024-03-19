@@ -9,36 +9,35 @@ namespace Oqtane.Repository
     public class LogRepository : ILogRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
-        private readonly TenantDBContext _queryContext;
 
         public LogRepository(IDbContextFactory<TenantDBContext> dbContextFactory)
         {
             _dbContextFactory = dbContextFactory;
-            _queryContext = _dbContextFactory.CreateDbContext();
         }
 
         public IEnumerable<Log> GetLogs(int siteId, string level, string function, int rows)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             if (level == null)
             {
                 if (function == null)
                 {
-                    return _queryContext.Log.Where(item => item.SiteId == siteId).
-                        OrderByDescending(item => item.LogDate).Take(rows);
+                    return db.Log.Where(item => item.SiteId == siteId).
+                        OrderByDescending(item => item.LogDate).Take(rows).ToList();
                 }
 
-                return _queryContext.Log.Where(item => item.SiteId == siteId && item.Function == function).
-                    OrderByDescending(item => item.LogDate).Take(rows);
+                return db.Log.Where(item => item.SiteId == siteId && item.Function == function).
+                    OrderByDescending(item => item.LogDate).Take(rows).ToList();
             }
 
             if (function == null)
             {
-                return _queryContext.Log.Where(item => item.SiteId == siteId && item.Level == level)
-                    .OrderByDescending(item => item.LogDate).Take(rows);
+                return db.Log.Where(item => item.SiteId == siteId && item.Level == level)
+                    .OrderByDescending(item => item.LogDate).Take(rows).ToList();
             }
 
-            return _queryContext.Log.Where(item => item.SiteId == siteId && item.Level == level && item.Function == function)
-                .OrderByDescending(item => item.LogDate).Take(rows);
+            return db.Log.Where(item => item.SiteId == siteId && item.Level == level && item.Function == function)
+                .OrderByDescending(item => item.LogDate).Take(rows).ToList();
         }
 
         public Log GetLog(int logId)

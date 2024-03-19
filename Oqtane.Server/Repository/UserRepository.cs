@@ -9,7 +9,6 @@ namespace Oqtane.Repository
     public class UserRepository : IUserRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
-        private readonly TenantDBContext _queryContext;
         private readonly IFolderRepository _folders;
         private readonly IRoleRepository _roles;
         private readonly IUserRoleRepository _userroles;
@@ -17,7 +16,6 @@ namespace Oqtane.Repository
         public UserRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IFolderRepository folders, IRoleRepository roles, IUserRoleRepository userroles)
         {
             _dbContextFactory = dbContextFactory;
-            _queryContext = _dbContextFactory.CreateDbContext();
             _folders = folders;
             _roles = roles;
             _userroles = userroles;
@@ -25,7 +23,8 @@ namespace Oqtane.Repository
             
         public IEnumerable<User> GetUsers()
         {
-            return _queryContext.User;
+            using var db = _dbContextFactory.CreateDbContext();
+            return db.User.ToList();
         }
 
         public User AddUser(User user)

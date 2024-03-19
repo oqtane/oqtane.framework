@@ -9,19 +9,18 @@ namespace Oqtane.Repository
     public class VisitorRepository : IVisitorRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
-        private readonly TenantDBContext _queryContext;
 
         public VisitorRepository(IDbContextFactory<TenantDBContext> dbContextFactory)
         {
             _dbContextFactory = dbContextFactory;
-            _queryContext = _dbContextFactory.CreateDbContext();
         }
             
         public IEnumerable<Visitor> GetVisitors(int siteId, DateTime fromDate)
         {
-            return _queryContext.Visitor.AsNoTracking()
+            using var db = _dbContextFactory.CreateDbContext();
+            return db.Visitor.AsNoTracking()
                 .Include(item => item.User) // eager load users
-                .Where(item => item.SiteId == siteId && item.VisitedOn >= fromDate);
+                .Where(item => item.SiteId == siteId && item.VisitedOn >= fromDate).ToList();
         }
 
         public Visitor AddVisitor(Visitor visitor)

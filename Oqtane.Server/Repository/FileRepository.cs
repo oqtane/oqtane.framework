@@ -13,7 +13,6 @@ namespace Oqtane.Repository
     public class FileRepository : IFileRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
-        private readonly TenantDBContext _queryContext;
         private readonly IPermissionRepository _permissions;
         private readonly IFolderRepository _folderRepository;
         private readonly ITenantManager _tenants;
@@ -21,7 +20,6 @@ namespace Oqtane.Repository
         public FileRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IPermissionRepository permissions, IFolderRepository folderRepository, ITenantManager tenants)
         {
             _dbContextFactory = dbContextFactory;
-            _queryContext = dbContextFactory.CreateDbContext();
             _permissions = permissions;
             _folderRepository = folderRepository;
             _tenants = tenants;
@@ -34,20 +32,21 @@ namespace Oqtane.Repository
 
         public IEnumerable<File> GetFiles(int folderId, bool tracking)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             var folder = _folderRepository.GetFolder(folderId, false);
-            IEnumerable<Permission> permissions = _permissions.GetPermissions(folder.SiteId, EntityNames.Folder, folderId).ToList();
+            var permissions = _permissions.GetPermissions(folder.SiteId, EntityNames.Folder, folderId).ToList();
 
             IEnumerable<File> files;
             if (tracking)
             {
-                files = _queryContext.File.Where(item => item.FolderId == folderId).Include(item => item.Folder);
+                files = db.File.Where(item => item.FolderId == folderId).Include(item => item.Folder).ToList();
             }
             else
             {
-                files = _queryContext.File.AsNoTracking().Where(item => item.FolderId == folderId).Include(item => item.Folder);
+                files = db.File.AsNoTracking().Where(item => item.FolderId == folderId).Include(item => item.Folder).ToList();
             }
 
-            foreach (File file in files)
+            foreach (var file in files)
             {
                 file.Folder.PermissionList = permissions.ToList();
                 var alias = _tenants.GetAlias();

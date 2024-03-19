@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Enums;
@@ -18,7 +19,6 @@ namespace Oqtane.Repository
     public class SiteRepository : ISiteRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _factory;
-        private readonly TenantDBContext _queryContext;
         private readonly IRoleRepository _roleRepository;
         private readonly IProfileRepository _profileRepository;
         private readonly IFolderRepository _folderRepository;
@@ -38,7 +38,6 @@ namespace Oqtane.Repository
             IConfigurationRoot config, IServerStateManager serverState, ILogManager logger)
         {
             _factory = factory;
-            _queryContext = _factory.CreateDbContext();
             _roleRepository = roleRepository;
             _profileRepository = profileRepository;
             _folderRepository = folderRepository;
@@ -107,7 +106,8 @@ namespace Oqtane.Repository
         // synchronous methods
         public IEnumerable<Site> GetSites()
         {
-            return _queryContext.Site.OrderBy(item => item.Name);
+            using var db = _factory.CreateDbContext();
+            return db.Site.OrderBy(item => item.Name).ToList();
         }
 
         public Site AddSite(Site site)
