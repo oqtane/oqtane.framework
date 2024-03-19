@@ -99,9 +99,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IVisitorService, VisitorService>();
             services.AddScoped<ISyncService, SyncService>();
 
-            // alternative used within infrastructure classes
-            services.AddScoped<Oqtane.Infrastructure.SiteState>();
-
             return services;
         }
 
