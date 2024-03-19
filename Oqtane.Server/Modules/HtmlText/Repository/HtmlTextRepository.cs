@@ -2,10 +2,10 @@ using System.Linq;
 using Oqtane.Documentation;
 using System.Collections.Generic;
 using Microsoft.Extensions.Caching.Memory;
-using Oqtane.Infrastructure;
 using System;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using Oqtane.Shared;
 
 namespace Oqtane.Modules.HtmlText.Repository
 {
