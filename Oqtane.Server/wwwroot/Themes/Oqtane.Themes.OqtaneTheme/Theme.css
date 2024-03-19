@@ -106,6 +106,10 @@ div.app-moduleactions a.dropdown-toggle, div.app-moduleactions div.dropdown-menu
     color: var(--bs-heading-color) !important;
 }
 
+    .ql-header .ql-picker-options .ql-picker-item:first-child {
+        color: var(--bs-body-color) !important;
+    }
+
 .ql-editor a {
     color: var(--bs-link-color) !important;
 }
