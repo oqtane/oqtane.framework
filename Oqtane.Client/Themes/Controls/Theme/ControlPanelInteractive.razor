@@ -545,7 +545,7 @@
             url = PageState.Alias.Path;
         }
 
-        if (PageState.Runtime == Shared.Runtime.Hybrid)
+        if (PageState.Runtime == Shared.Runtime.Hybrid && PageState.User != null)
         {
             // hybrid apps utilize an interactive logout
             await UserService.LogoutUserAsync(PageState.User);
@@ -564,8 +564,8 @@
 
     private void LoadSettingsAsync()
     {
-        _category = SettingService.GetSetting(PageState.User.Settings, settingCategory, "Common");
-        var pane = SettingService.GetSetting(PageState.User.Settings, settingPane, "");
+        _category = SettingService.GetSetting(PageState.User?.Settings, settingCategory, "Common");
+        var pane = SettingService.GetSetting(PageState.User?.Settings, settingPane, "");
         if (PageState.Page.Panes.Contains(pane))
         {
             _pane = pane;
@@ -585,10 +585,13 @@
 
     private async Task UpdateSettingsAsync()
     {
-        Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-        settings = SettingService.SetSetting(settings, settingCategory, _category);
-        settings = SettingService.SetSetting(settings, settingPane, _pane);
-        await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
+        if (PageState.User != null)
+        {
+            Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
+            settings = SettingService.SetSetting(settings, settingCategory, _category);
+            settings = SettingService.SetSetting(settings, settingPane, _pane);
+            await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
+        }
     }
 
     private void ClearMessage()
