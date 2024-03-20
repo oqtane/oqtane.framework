@@ -2,6 +2,7 @@
 @inherits ThemeControlBase
 @inject NavigationManager NavigationManager
 @inject IPageService PageService
+@inject ISettingService SettingService
 
 @if (ShowLanguageSwitcher)
 {
@@ -99,7 +100,7 @@
         return false;
     }
 
-    private async Task ToggleEditMode(bool EditMode)
+    private async Task ToggleEditMode(bool editMode)
     {
         Page page = null;
         if (PageState.Page.IsPersonalizable && PageState.User != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Registered))
@@ -109,13 +110,18 @@
 
         if (_showEditMode)
         {
-            if (EditMode)
+            PageState.EditMode = !editMode;
+
+            if(PageState.User != null) //keep edit mode for authenticated users.
             {
-                PageState.EditMode = false;
-            }
-            else
-            {
-                PageState.EditMode = true;
+
+                var viewMode = PageState.EditMode ? ViewMode.Edit.ToString() : ViewMode.View.ToString();
+                var userSettings = new Dictionary<string, string>
+                {
+                    { UserSetting.ViewMode, viewMode }
+                };
+
+                await SettingService.UpdateUserSettingsAsync(userSettings, PageState.User.UserId);
             }
 
             // preserve other querystring parameters

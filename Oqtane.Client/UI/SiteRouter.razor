@@ -1,5 +1,6 @@
 @using System.Diagnostics.CodeAnalysis
 @using System.Net
+@using Microsoft.AspNetCore.Http
 @namespace Oqtane.UI
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject SiteState SiteState
@@ -11,7 +12,9 @@
 @inject IUserService UserService
 @inject IUrlMappingService UrlMappingService
 @inject ILogService LogService
+@inject ISettingService SettingService
 @inject IJSRuntime JSRuntime
+@inject IHttpContextAccessor HttpContextAccessor
 @implements IHandleAfterRender
 @implements IDisposable
 
@@ -27,7 +30,8 @@
     private bool _isInternalNavigation = false;
     private bool _navigationInterceptionEnabled;
     private PageState _pagestate;
-    private string _error = "";    
+    private string _error = "";
+    private bool _pageChanged;
 
     [Parameter]
     public string RenderMode { get; set; }
@@ -56,6 +60,17 @@
                 builder.CloseComponent();
             }
         };
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var route = new Route(_absoluteUri, SiteState.Alias.Path);
+        var lastViewPage = HttpContextAccessor.HttpContext.Request.Cookies[UserSetting.LastViewPage] ?? string.Empty;
+        if (lastViewPage != route.PagePath)
+        {
+            HttpContextAccessor.HttpContext.Response.Cookies.Append(UserSetting.LastViewPage, route.PagePath);
+            _pageChanged = true;
+        }
     }
 
     public void Dispose()
@@ -142,21 +157,6 @@
             refresh = true;
         }
 
-        if (PageState != null)
-        {
-            editmode = PageState.EditMode;
-            lastsyncdate = PageState.LastSyncDate;
-            visitorId = PageState.VisitorId;
-        }
-        if (PageState?.Page.Path != route.PagePath)
-        {
-            editmode = false; // reset edit mode when navigating to different page
-        }
-        if (querystring.ContainsKey("edit") && querystring["edit"] == "true")
-        {
-            editmode = true; // querystring can set edit mode
-        }
-
         // verify user is authenticated for current site
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         if (authState.User.Identity.IsAuthenticated && authState.User.Claims.Any(item => item.Type == "sitekey" && item.Value == SiteState.Alias.SiteKey))
@@ -170,9 +170,49 @@
                     user.IsAuthenticated = authState.User.Identity.IsAuthenticated;
                 }
             }
-            else 
+            else
             {
                 user = PageState.User;
+            }
+        }
+
+        if (PageState != null)
+        {
+            editmode = PageState.EditMode;
+            lastsyncdate = PageState.LastSyncDate;
+            visitorId = PageState.VisitorId;
+        }
+
+        
+        if (PageState?.Page.Path != route.PagePath || _pageChanged)
+        {
+            editmode = false; // reset edit mode when navigating to different page
+
+            if (user != null) //keep edit mode for authenticated users.
+            {
+                var userSettings = new Dictionary<string, string>
+                {
+                    { UserSetting.ViewMode, ViewMode.View.ToString() }
+                };
+
+                await SettingService.UpdateUserSettingsAsync(userSettings, user.UserId);
+            }
+        }
+        else
+        {
+            if (querystring.ContainsKey("edit") && querystring["edit"] == "true")
+            {
+                editmode = true; // querystring can set edit mode
+            }
+
+            //check edit mode for authenticated users.
+            if (!editmode && user != null)
+            {
+                Enum.TryParse<ViewMode>(user.Settings.GetValueOrDefault(UserSetting.ViewMode, ViewMode.View.ToString()), true, out ViewMode viewMode);
+                if (viewMode == ViewMode.Edit)
+                {
+                    editmode = true;
+                }
             }
         }
 
