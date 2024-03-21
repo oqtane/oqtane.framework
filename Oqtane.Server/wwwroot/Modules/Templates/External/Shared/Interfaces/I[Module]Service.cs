@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using [Owner].Module.[Module].Models;
 
 namespace [Owner].Module.[Module].Services
 {
