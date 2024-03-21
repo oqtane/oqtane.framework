@@ -545,13 +545,16 @@
             url = PageState.Alias.Path;
         }
 
-        if (PageState.Runtime == Shared.Runtime.Hybrid && PageState.User != null)
+        if (PageState.Runtime == Shared.Runtime.Hybrid)
         {
-            // hybrid apps utilize an interactive logout
-            await UserService.LogoutUserAsync(PageState.User);
-            var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
-            authstateprovider.NotifyAuthenticationChanged();
-            NavigationManager.NavigateTo(url, true);
+            if (PageState.User != null)
+            {
+                // hybrid apps utilize an interactive logout
+                await UserService.LogoutUserAsync(PageState.User);
+                var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
+                authstateprovider.NotifyAuthenticationChanged();
+                NavigationManager.NavigateTo(url, true);
+            }
         }
         else
         {
