@@ -14,7 +14,6 @@
 @inject ILogService LogService
 @inject ISettingService SettingService
 @inject IJSRuntime JSRuntime
-@inject IHttpContextAccessor HttpContextAccessor
 @implements IHandleAfterRender
 @implements IDisposable
 
@@ -60,17 +59,6 @@
                 builder.CloseComponent();
             }
         };
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        var route = new Route(_absoluteUri, SiteState.Alias.Path);
-        var lastViewPage = HttpContextAccessor.HttpContext.Request.Cookies[UserSetting.LastViewPage] ?? string.Empty;
-        if (lastViewPage != route.PagePath)
-        {
-            HttpContextAccessor.HttpContext.Response.Cookies.Append(UserSetting.LastViewPage, route.PagePath);
-            _pageChanged = true;
-        }
     }
 
     public void Dispose()
@@ -183,19 +171,24 @@
             visitorId = PageState.VisitorId;
         }
 
-        
-        if (PageState?.Page.Path != route.PagePath || _pageChanged)
+        bool? pageChanged = null;
+        if(user != null && PageState?.Page != null)
+        {
+            var userSettings = await SettingService.GetUserSettingsAsync(user.UserId);
+            if(userSettings.ContainsKey(UserSetting.LastViewPageId))
+            {
+                int.TryParse(userSettings.GetValueOrDefault(UserSetting.LastViewPageId), out int lastViewPageId);
+                pageChanged = lastViewPageId != PageState.Page.PageId;
+            }
+        }
+
+        if (PageState?.Page.Path != route.PagePath || pageChanged.GetValueOrDefault(false))
         {
             editmode = false; // reset edit mode when navigating to different page
 
-            if (user != null) //keep edit mode for authenticated users.
+            if (user != null)
             {
-                var userSettings = new Dictionary<string, string>
-                {
-                    { UserSetting.ViewMode, ViewMode.View.ToString() }
-                };
-
-                await SettingService.UpdateUserSettingsAsync(userSettings, user.UserId);
+                await SettingService.DeleteSettingAsync(EntityNames.User, user.UserId, UserSetting.LastViewPageId);
             }
         }
         else
@@ -208,11 +201,7 @@
             //check edit mode for authenticated users.
             if (!editmode && user != null)
             {
-                Enum.TryParse<ViewMode>(user.Settings.GetValueOrDefault(UserSetting.ViewMode, ViewMode.View.ToString()), true, out ViewMode viewMode);
-                if (viewMode == ViewMode.Edit)
-                {
-                    editmode = true;
-                }
+                editmode = pageChanged.HasValue && !pageChanged.Value;
             }
         }
 

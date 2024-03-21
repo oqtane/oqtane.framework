@@ -8,8 +8,6 @@ namespace Oqtane.Models
 {
     public class UserSetting
     {
-        public const string ViewMode = "Page:ViewMode";
-
-        public const string LastViewPage = "LastViewed";
+        public const string LastViewPageId = "Page:LastViewed";
     }
 }

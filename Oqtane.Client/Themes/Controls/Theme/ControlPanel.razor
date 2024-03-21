@@ -114,14 +114,19 @@
 
             if(PageState.User != null) //keep edit mode for authenticated users.
             {
-
-                var viewMode = PageState.EditMode ? ViewMode.Edit.ToString() : ViewMode.View.ToString();
-                var userSettings = new Dictionary<string, string>
+                if(PageState.EditMode)
                 {
-                    { UserSetting.ViewMode, viewMode }
-                };
+                    var userSettings = new Dictionary<string, string>
+                    {
+                        { UserSetting.LastViewPageId, PageState.Page.PageId.ToString() }
+                    };
 
-                await SettingService.UpdateUserSettingsAsync(userSettings, PageState.User.UserId);
+                    await SettingService.UpdateUserSettingsAsync(userSettings, PageState.User.UserId);
+                }
+                else
+                {
+                    await SettingService.DeleteSettingAsync(EntityNames.User, PageState.User.UserId, UserSetting.LastViewPageId);
+                }
             }
 
             // preserve other querystring parameters
