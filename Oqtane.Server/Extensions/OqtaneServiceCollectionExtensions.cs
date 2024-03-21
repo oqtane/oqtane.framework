@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -230,17 +229,14 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             if (!services.Any(x => x.ServiceType == typeof(HttpClient)))
             {
-                services.AddScoped(s =>
+                services.AddScoped(provider =>
                 {
-                    // creating the URI helper needs to wait until the JS Runtime is initialized, so defer it.
-                    var navigationManager = s.GetRequiredService<NavigationManager>();
                     var client = new HttpClient(new HttpClientHandler { UseCookies = false });
-                    client.BaseAddress = new Uri(navigationManager.Uri);
-
-                    // set the cookies to allow HttpClient API calls to be authenticated
-                    var httpContextAccessor = s.GetRequiredService<IHttpContextAccessor>();
+                    var httpContextAccessor = provider.GetRequiredService<IHttpContextAccessor>();
                     if (httpContextAccessor.HttpContext != null)
                     {
+                        client.BaseAddress = new Uri(httpContextAccessor.HttpContext.Request.Scheme + "://" + httpContextAccessor.HttpContext.Request.Host);
+                        // set the cookies to allow HttpClient API calls to be authenticated
                         foreach (var cookie in httpContextAccessor.HttpContext.Request.Cookies)
                         {
                             client.DefaultRequestHeaders.Add("Cookie", cookie.Key + "=" + cookie.Value);
@@ -250,6 +246,20 @@ namespace Microsoft.Extensions.DependencyInjection
                     return client;
                 });
             }
+
+            services.AddHttpClient("oqtane", (provider, client) =>
+            {
+                var httpContextAccessor = provider.GetRequiredService<IHttpContextAccessor>();
+                if (httpContextAccessor.HttpContext != null)
+                {
+                    client.BaseAddress = new Uri(httpContextAccessor.HttpContext.Request.Scheme + "://" + httpContextAccessor.HttpContext.Request.Host);
+                    // set the cookies to allow HttpClient API calls to be authenticated
+                    foreach (var cookie in httpContextAccessor.HttpContext.Request.Cookies)
+                    {
+                        client.DefaultRequestHeaders.Add("Cookie", cookie.Key + "=" + cookie.Value);
+                    }
+                }
+            });
 
             // IHttpClientFactory for calling remote services via RemoteServiceBase
             services.AddHttpClient();

@@ -253,10 +253,7 @@ else
 
     private void Confirm()
     {
-        if (PageState.RenderMode == RenderModes.Interactive || ModuleState.RenderMode == RenderModes.Interactive)
-        {
-            DisplayModal();
-        }
         OnClick();
+        DisplayModal();
     }
 }
