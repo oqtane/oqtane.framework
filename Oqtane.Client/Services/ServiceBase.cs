@@ -16,6 +16,7 @@ namespace Oqtane.Services
     {
         private readonly HttpClient _httpClient;
         private readonly SiteState _siteState;
+        private readonly IHttpClientFactory _factory;
 
         protected ServiceBase(HttpClient httpClient, SiteState siteState)
         {
@@ -23,13 +24,31 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
+        protected ServiceBase(IHttpClientFactory factory, SiteState siteState)
+        {
+            _factory = factory;
+            _siteState = siteState;
+        }
+
         public HttpClient GetHttpClient()
         {
-            if (!_httpClient.DefaultRequestHeaders.Contains(Constants.AntiForgeryTokenHeaderName) && _siteState != null && !string.IsNullOrEmpty(_siteState.AntiForgeryToken))
+            if (_factory != null)
             {
-                _httpClient.DefaultRequestHeaders.Add(Constants.AntiForgeryTokenHeaderName, _siteState.AntiForgeryToken);
+                var client = _factory.CreateClient("oqtane");
+                if (!client.DefaultRequestHeaders.Contains(Constants.AntiForgeryTokenHeaderName) && _siteState != null && !string.IsNullOrEmpty(_siteState.AntiForgeryToken))
+                {
+                    client.DefaultRequestHeaders.Add(Constants.AntiForgeryTokenHeaderName, _siteState.AntiForgeryToken);
+                }
+                return client;
             }
-            return _httpClient;
+            else
+            {
+                if (!_httpClient.DefaultRequestHeaders.Contains(Constants.AntiForgeryTokenHeaderName) && _siteState != null && !string.IsNullOrEmpty(_siteState.AntiForgeryToken))
+                {
+                    _httpClient.DefaultRequestHeaders.Add(Constants.AntiForgeryTokenHeaderName, _siteState.AntiForgeryToken);
+                }
+                return _httpClient;
+            }
         }
 
         // should be used with new constructor
