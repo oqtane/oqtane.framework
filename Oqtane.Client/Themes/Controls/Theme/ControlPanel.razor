@@ -112,21 +112,11 @@
         {
             PageState.EditMode = !editMode;
 
-            if(PageState.User != null) //keep edit mode for authenticated users.
+            if (PageState.User != null) 
             {
-                if(PageState.EditMode)
-                {
-                    var userSettings = new Dictionary<string, string>
-                    {
-                        { UserSetting.LastViewPageId, PageState.Page.PageId.ToString() }
-                    };
-
-                    await SettingService.UpdateUserSettingsAsync(userSettings, PageState.User.UserId);
-                }
-                else
-                {
-                    await SettingService.DeleteSettingAsync(EntityNames.User, PageState.User.UserId, UserSetting.LastViewPageId);
-                }
+                // preserve edit mode for authenticated users
+                var userSettings = new Dictionary<string, string> { { "CP-editmode", (PageState.EditMode) ? PageState.Page.PageId.ToString() : "-1" } };
+                await SettingService.UpdateUserSettingsAsync(userSettings, PageState.User.UserId);
             }
 
             // preserve other querystring parameters

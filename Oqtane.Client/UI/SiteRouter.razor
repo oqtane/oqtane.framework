@@ -148,18 +148,11 @@
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         if (authState.User.Identity.IsAuthenticated && authState.User.Claims.Any(item => item.Type == "sitekey" && item.Value == SiteState.Alias.SiteKey))
         {
-            if (PageState == null || PageState.Refresh || refresh || PageState.Alias.SiteId != SiteState.Alias.SiteId)
+            // get user
+            user = await UserService.GetUserAsync(authState.User.Identity.Name, SiteState.Alias.SiteId);
+            if (user != null)
             {
-                // get user
-                user = await UserService.GetUserAsync(authState.User.Identity.Name, SiteState.Alias.SiteId);
-                if (user != null)
-                {
-                    user.IsAuthenticated = authState.User.Identity.IsAuthenticated;
-                }
-            }
-            else
-            {
-                user = PageState.User;
+                user.IsAuthenticated = authState.User.Identity.IsAuthenticated;
             }
         }
 
@@ -168,40 +161,6 @@
             editmode = PageState.EditMode;
             lastsyncdate = PageState.LastSyncDate;
             visitorId = PageState.VisitorId;
-        }
-
-        bool? pageChanged = null;
-        if(user != null && PageState?.Page != null)
-        {
-            var userSettings = await SettingService.GetUserSettingsAsync(user.UserId);
-            if(userSettings.ContainsKey(UserSetting.LastViewPageId))
-            {
-                int.TryParse(userSettings.GetValueOrDefault(UserSetting.LastViewPageId), out int lastViewPageId);
-                pageChanged = lastViewPageId != PageState.Page.PageId;
-            }
-        }
-
-        if (PageState?.Page.Path != route.PagePath || pageChanged.GetValueOrDefault(false))
-        {
-            editmode = false; // reset edit mode when navigating to different page
-
-            if (user != null)
-            {
-                await SettingService.DeleteSettingAsync(EntityNames.User, user.UserId, UserSetting.LastViewPageId);
-            }
-        }
-        else
-        {
-            if (querystring.ContainsKey("edit") && querystring["edit"] == "true")
-            {
-                editmode = true; // querystring can set edit mode
-            }
-
-            //check edit mode for authenticated users.
-            if (!editmode && user != null)
-            {
-                editmode = pageChanged.HasValue && !pageChanged.Value;
-            }
         }
 
         // process any sync events
@@ -298,6 +257,24 @@
                 // check if user is authorized to view page
                 if (UserSecurity.IsAuthorized(user, PermissionNames.View, page.PermissionList) && (Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate) || UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList)))
                 {
+                    // edit mode
+                    if (user != null)
+                    {
+                        if (querystring.ContainsKey("editmode") && querystring["edit"] == "true")
+                        {
+                            editmode = true;
+                        }
+                        else
+                        {
+                            editmode = (page.PageId == ((user.Settings.ContainsKey("CP-editmode")) ? int.Parse(user.Settings["CP-editmode"]) : -1));
+                            if (!editmode)
+                            {
+                                var userSettings = new Dictionary<string, string> { { "CP-editmode", "-1" } };
+                                await SettingService.UpdateUserSettingsAsync(userSettings, user.UserId);
+                            }
+                        }
+                    }
+                        
                     // load additional metadata for current page
                     page = ProcessPage(page, site, user, SiteState.Alias);
 
