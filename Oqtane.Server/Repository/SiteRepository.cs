@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Enums;
@@ -55,25 +54,25 @@ namespace Oqtane.Repository
         // asynchronous methods
         public async Task<IEnumerable<Site>> GetSitesAsync()
         {
-            using var ctx = _factory.CreateDbContext();
-            return await ctx.Site.OrderBy(item => item.Name).ToListAsync();
+            using var db = _factory.CreateDbContext();
+            return await db.Site.OrderBy(item => item.Name).ToListAsync();
         }
 
         public async Task<Site> AddSiteAsync(Site site)
         {
             site.SiteGuid = Guid.NewGuid().ToString();
-            using var ctx = _factory.CreateDbContext();
-            ctx.Site.Add(site);
-            await ctx.SaveChangesAsync();
+            using var db = _factory.CreateDbContext();
+            db.Site.Add(site);
+            await db.SaveChangesAsync();
             CreateSite(site);
             return site;
         }
 
         public async Task<Site> UpdateSiteAsync(Site site)
         {
-            using var ctx = _factory.CreateDbContext();
-            ctx.Entry(site).State = EntityState.Modified;
-            await ctx.SaveChangesAsync();
+            using var db = _factory.CreateDbContext();
+            db.Entry(site).State = EntityState.Modified;
+            await db.SaveChangesAsync();
             return site;
         }
 
@@ -84,23 +83,23 @@ namespace Oqtane.Repository
 
         public async Task<Site> GetSiteAsync(int siteId, bool tracking)
         {
-            using var ctx = _factory.CreateDbContext();
+            using var db = _factory.CreateDbContext();
             if (tracking)
             {
-                return await ctx.Site.FindAsync(siteId);
+                return await db.Site.FindAsync(siteId);
             }
             else
             {
-                return await ctx.Site.AsNoTracking().FirstOrDefaultAsync(item => item.SiteId == siteId);
+                return await db.Site.AsNoTracking().FirstOrDefaultAsync(item => item.SiteId == siteId);
             }
         }
 
         public async Task DeleteSiteAsync(int siteId)
         {
-            using var ctx = _factory.CreateDbContext();
-            var site = ctx.Site.Find(siteId);
-            ctx.Site.Remove(site);
-            await ctx.SaveChangesAsync();
+            using var db = _factory.CreateDbContext();
+            var site = db.Site.Find(siteId);
+            db.Site.Remove(site);
+            await db.SaveChangesAsync();
         }
 
         // synchronous methods
@@ -112,19 +111,19 @@ namespace Oqtane.Repository
 
         public Site AddSite(Site site)
         {
-            using var ctx = _factory.CreateDbContext();
+            using var db = _factory.CreateDbContext();
             site.SiteGuid = Guid.NewGuid().ToString();
-            ctx.Site.Add(site);
-            ctx.SaveChanges();
+            db.Site.Add(site);
+            db.SaveChanges();
             CreateSite(site);
             return site;
         }
 
         public Site UpdateSite(Site site)
         {
-            using var ctx = _factory.CreateDbContext();
-            ctx.Entry(site).State = EntityState.Modified;
-            ctx.SaveChanges();
+            using var db = _factory.CreateDbContext();
+            db.Entry(site).State = EntityState.Modified;
+            db.SaveChanges();
             return site;
         }
 
@@ -135,23 +134,23 @@ namespace Oqtane.Repository
 
         public Site GetSite(int siteId, bool tracking)
         {
-            using var ctx = _factory.CreateDbContext();
+            using var db = _factory.CreateDbContext();
             if (tracking)
             {
-                return ctx.Site.Find(siteId);
+                return db.Site.Find(siteId);
             }
             else
             {
-                return ctx.Site.AsNoTracking().FirstOrDefault(item => item.SiteId == siteId);
+                return db.Site.AsNoTracking().FirstOrDefault(item => item.SiteId == siteId);
             }
         }
 
         public void DeleteSite(int siteId)
         {
-            using var ctx = _factory.CreateDbContext();
-            var site = ctx.Site.Find(siteId);
-            ctx.Site.Remove(site);
-            ctx.SaveChanges();
+            using var db = _factory.CreateDbContext();
+            var site = db.Site.Find(siteId);
+            db.Site.Remove(site);
+            db.SaveChanges();
         }
 
 
