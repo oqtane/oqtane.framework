@@ -11,6 +11,7 @@ using Oqtane.Shared;
 namespace Oqtane.Pages
 {
     [Authorize]
+    [IgnoreAntiforgeryToken]
     public class LogoutModel : PageModel
     {
         private readonly IUserManager _userManager;
