@@ -247,6 +247,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 });
             }
 
+            // register a named IHttpClientFactory
             services.AddHttpClient("oqtane", (provider, client) =>
             {
                 var httpContextAccessor = provider.GetRequiredService<IHttpContextAccessor>();
@@ -261,7 +262,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 }
             });
 
-            // IHttpClientFactory for calling remote services via RemoteServiceBase
+            // IHttpClientFactory for calling remote services via RemoteServiceBase (not named = default)
             services.AddHttpClient();
 
             return services;
