@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Modules.HtmlText.Repository;
 using Microsoft.AspNetCore.Http;
 using Oqtane.Shared;
 using Oqtane.Enums;
@@ -9,7 +8,6 @@ using Oqtane.Controllers;
 using System.Net;
 using Oqtane.Documentation;
 using System.Collections.Generic;
-using System.Linq;
 using Oqtane.Modules.HtmlText.Services;
 using System.Threading.Tasks;
 
@@ -84,9 +82,7 @@ namespace Oqtane.Modules.HtmlText.Controllers
         {
             if (ModelState.IsValid && IsAuthorizedEntityId(EntityNames.Module, htmlText.ModuleId))
             {
-                htmlText = await _htmlTextService.AddHtmlTextAsync(htmlText);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Html/Text Added {HtmlText}", htmlText);
-                return htmlText;
+                return await _htmlTextService.AddHtmlTextAsync(htmlText);
             }
             else
             {
@@ -104,7 +100,6 @@ namespace Oqtane.Modules.HtmlText.Controllers
             if (IsAuthorizedEntityId(EntityNames.Module, moduleId))
             {
                 await _htmlTextService.DeleteHtmlTextAsync(id, moduleId);
-                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Html/Text Deleted {HtmlTextId}", id);
             }
             else
             {
