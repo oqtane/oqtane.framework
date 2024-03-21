@@ -26,7 +26,7 @@ else
             </Header>
             <Row>
                 <td><ActionLink Action="Edit" Parameters="@($"id=" + context.[Module]Id.ToString())" ResourceKey="Edit"  /></td>
-                <td><ActionDialog Header="Delete [Module]" Message="Are You Sure You Wish To Delete This [Module]?" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" ResourceKey="Delete"  /></td>
+                <td><ActionDialog Header="Delete [Module]" Message="Are You Sure You Wish To Delete This [Module]?" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" ResourceKey="Delete"  Id="@context.[Module]Id.ToString()" /></td>
                 <td>@context.Name</td>
             </Row>
         </Pager>
@@ -38,6 +38,9 @@ else
 }
 
 @code {
+    // uncomment the following line to use Static render mode for this component
+    // public override string RenderMode => RenderModes.Static;
+
     public override List<Resource> Resources => new List<Resource>()
     {
         new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" },
