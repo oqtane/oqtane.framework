@@ -97,10 +97,13 @@
     {
         base.OnParametersSet();
 
-        _text = Action;
         if (!string.IsNullOrEmpty(Text))
         {
             _text = Localize(nameof(Text), _text);
+        }
+        else
+        {
+            _text = Localize(nameof(Action), Action);
         }
 
         if (IconOnly && !string.IsNullOrEmpty(IconName))
