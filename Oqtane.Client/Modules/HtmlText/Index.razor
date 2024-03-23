@@ -4,15 +4,14 @@
 @inject IHtmlTextService HtmlTextService
 @inject IStringLocalizer<Index> Localizer
 
-@((MarkupString)content)
-
 @if (PageState.EditMode)
 {
-    <br />
-    <ActionLink Action="Edit" EditMode="true" ResourceKey="Edit" />
-    <br />
-    <br />
+    <div class="text-center mb-2">
+        <ActionLink Action="Edit" EditMode="true" ResourceKey="Edit" />
+    </div>
 }
+
+@((MarkupString)content)
 
 @code {
     private string content = "";
