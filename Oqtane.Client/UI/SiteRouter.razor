@@ -163,33 +163,24 @@
             visitorId = PageState.VisitorId;
         }
 
-        // process any sync events
-        var sync = await SyncService.GetSyncEventsAsync(lastsyncdate);
-        lastsyncdate = sync.SyncDate;
-        if (sync.SyncEvents.Any())
+        if (PageState.RenderMode == RenderModes.Interactive)
         {
-            // reload client application if server was restarted
-            if (sync.SyncEvents.Exists(item => item.Action == SyncEventActions.Reload && item.EntityName == EntityNames.Host))
+            // process any sync events (for synchrozing the client application with the server)
+            var sync = await SyncService.GetSyncEventsAsync(lastsyncdate);
+            lastsyncdate = sync.SyncDate;
+            if (sync.SyncEvents.Any())
             {
-                NavigationManager.NavigateTo(_absoluteUri, true);
-                return;
-            }
-            // reload client application if site runtime/rendermode was modified
-            if (sync.SyncEvents.Exists(item => item.Action == SyncEventActions.Reload && item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId))
-            {
-                NavigationManager.NavigateTo(_absoluteUri, true);
-                return;
-            }
-            // reload client application if current user auth information has changed
-            if (user != null && sync.SyncEvents.Exists(item => item.Action == SyncEventActions.Reload && item.EntityName == EntityNames.User && item.EntityId == user.UserId))
-            {
-                NavigationManager.NavigateTo(_absoluteUri, true);
-                return;
-            }
-            // refresh PageState when site information has changed
-            if (sync.SyncEvents.Exists(item => item.Action == SyncEventActions.Refresh && item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId))
-            {
-                refresh = true;
+                // reload client application if server was restarted
+                if (sync.SyncEvents.Exists(item => item.Action == SyncEventActions.Reload && item.EntityName == EntityNames.Host))
+                {
+                    NavigationManager.NavigateTo(_absoluteUri, true);
+                    return;
+                }
+                // refresh PageState when site information has changed
+                if (sync.SyncEvents.Exists(item => item.Action == SyncEventActions.Refresh && item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId))
+                {
+                    refresh = true;
+                }
             }
         }
 
