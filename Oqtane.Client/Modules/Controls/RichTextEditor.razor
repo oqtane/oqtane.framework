@@ -6,7 +6,7 @@
 
 <div class="row" style="margin-bottom: 50px;">
     <div class="col">
-        <TabStrip>
+        <TabStrip ActiveTab="@_activetab">
 			@if (AllowRichText)
             {
                 <TabPanel Name="Rich" Heading="Rich Text Editor" ResourceKey="RichTextEditor">
@@ -114,6 +114,7 @@
     private string _rawhtml = string.Empty;
     private string _originalrawhtml = string.Empty;
     private string _message = string.Empty;
+    private string _activetab = "Rich";
 
     [Parameter]
     public string Content { get; set; }
@@ -156,6 +157,12 @@
         _rawhtml = Content;
         _originalrawhtml = _rawhtml; // preserve for comparison later
         _originalrichhtml = "";
+
+        // Quill wraps content in <p> tags which can be used as a signal to set the active tab
+        if (!string.IsNullOrEmpty(Content) && !Content.StartsWith("<p>") && AllowRawHtml)
+        {
+            _activetab = "Raw";
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
