@@ -13,6 +13,13 @@
 
 @((MarkupString)content)
 
+@if (PageState.EditMode && content.Length > 1000)
+{
+    <div class="text-center mt-2">
+        <ActionLink Action="Edit" EditMode="true" ResourceKey="Edit" />
+    </div>
+}
+
 @code {
     private string content = "";
 
