@@ -13,7 +13,7 @@
 
 @((MarkupString)content)
 
-@if (PageState.EditMode && content.Length > 1000)
+@if (PageState.EditMode && content.Length > 3000)
 {
     <div class="text-center mt-2">
         <ActionLink Action="Edit" EditMode="true" ResourceKey="Edit" />
