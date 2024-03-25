@@ -68,11 +68,6 @@
                 <Routes PageState="@_pageState" RenderMode="@_renderMode" Runtime="@_runtime" AntiForgeryToken="@_antiForgeryToken" AuthorizationToken="@_authorizationToken" Platform="@_platform" @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(_runtime, _prerender)" />
             }
 
-            <script src="js/app.js"></script>
-            <script src="js/loadjs.min.js"></script>
-            <script src="js/interop.js"></script>
-            <script src="_framework/blazor.web.js"></script>
-
             @if (!string.IsNullOrEmpty(_reconnectScript))
             {
                 @((MarkupString)_reconnectScript)
@@ -82,6 +77,11 @@
                 @((MarkupString)_PWAScript)
             }
             @((MarkupString)_bodyResources)
+
+            <script src="js/app.js"></script>
+            <script src="js/loadjs.min.js"></script>
+            <script src="js/interop.js"></script>
+            <script src="_framework/blazor.web.js"></script>
         }
         else
         {
