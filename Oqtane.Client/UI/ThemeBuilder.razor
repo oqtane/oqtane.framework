@@ -34,14 +34,14 @@
         var headcontent = "";
 
         // favicon
-        var favicon = "favicon.ico";
-        var favicontype = "x-icon";
         if (PageState.Site.FaviconFileId != null)
         {
-            favicon = Utilities.FileUrl(PageState.Alias, PageState.Site.FaviconFileId.Value);
-            favicontype = favicon.Substring(favicon.LastIndexOf(".") + 1);
+            headcontent += $"<link id=\"app-favicon\" rel=\"icon\" href=\"{Utilities.FileUrl(PageState.Alias, PageState.Site.FaviconFileId.Value)}\" />\n";
         }
-        headcontent += $"<link id=\"app-favicon\" rel=\"shortcut icon\" type=\"image/{favicontype}\" href=\"{favicon}\" />\n";
+        else
+        {
+            headcontent += $"<link id=\"app-favicon\" rel=\"icon\" type=\"image/x-icon\" href=\"favicon.ico\" />\n";
+        }
 
         // head content
         AddHeadContent(headcontent, PageState.Site.HeadContent);
