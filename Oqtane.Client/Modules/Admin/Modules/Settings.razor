@@ -218,7 +218,8 @@
                 ContainerSettingsComponent = builder =>
                 {
                     builder.OpenComponent(0, _containerSettingsType);
-                    builder.AddComponentReferenceCapture(1, inst => { _containerSettings = Convert.ChangeType(inst, _containerSettingsType); });
+                    builder.AddAttribute(1, "RenderModeBoundary", RenderModeBoundary);
+                    builder.AddComponentReferenceCapture(2, inst => { _containerSettings = Convert.ChangeType(inst, _containerSettingsType); });
                     builder.CloseComponent();
                 };
             }
