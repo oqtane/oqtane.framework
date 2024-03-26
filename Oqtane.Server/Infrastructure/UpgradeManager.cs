@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace Oqtane.Infrastructure
 {
@@ -365,7 +366,24 @@ namespace Oqtane.Infrastructure
                 {
                     _configManager.AddOrUpdateSetting("RenderMode", rendermode.Replace("Prerendered", ""), true);
                 }
+
+                try
+                {
+                    // delete legacy Views assemblies which will cause startup errors due to missing HostModel
+                    // note that the following files will be deleted however the framework has already started up so a restart will be required
+                    var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                    var filepath = Path.Combine(binFolder, "Oqtane.Server.Views.dll");
+                    if (System.IO.File.Exists(filepath)) System.IO.File.Delete(filepath);
+                    filepath = Path.Combine(binFolder, "Oqtane.Server.Views.pdb");
+                    if (System.IO.File.Exists(filepath)) System.IO.File.Delete(filepath);
+                }
+                catch (Exception ex)
+                {
+                    // error deleting file
+                    Debug.WriteLine($"Oqtane Error: Error In 5.1.0 Upgrade Logic - {ex}");
+                }
             }
+
         }
     }
 }
