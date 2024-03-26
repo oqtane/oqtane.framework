@@ -491,7 +491,9 @@
                 _themeSettingsComponent = builder =>
                 {
                     builder.OpenComponent(0, _themeSettingsType);
-                    builder.AddComponentReferenceCapture(1, inst => { _themeSettings = Convert.ChangeType(inst, _themeSettingsType); });
+                    builder.AddAttribute(1, "RenderModeBoundary", RenderModeBoundary);
+                    builder.AddComponentReferenceCapture(2, inst => { _themeSettings = Convert.ChangeType(inst, _themeSettingsType); });
+                    
                     builder.CloseComponent();
                 };
             }
