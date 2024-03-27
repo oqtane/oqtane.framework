@@ -1,6 +1,10 @@
+@namespace Oqtane.UI
 @using System.ComponentModel
 @using Oqtane.Shared
 @inject SiteState SiteState
+@implements IDisposable
+@* the following StreamRendering attribute is required - if it is removed the framework will not render the content in static rendering *@
+@attribute [StreamRendering]
 
 @if (!string.IsNullOrEmpty(_title))
 {
@@ -14,6 +18,12 @@
 @code {
     private string _title = "";
     private string _content = "";
+
+    [Parameter]
+    public string RenderMode { get; set; }
+
+    [Parameter]
+    public string Runtime { get; set; }
 
     protected override void OnInitialized()
     {
@@ -45,7 +55,7 @@
 
     private string RemoveScripts(string headcontent)
     {
-        if (!string.IsNullOrEmpty(headcontent))
+        if (!string.IsNullOrEmpty(headcontent) && RenderMode == RenderModes.Interactive)
         {
             var index = headcontent.IndexOf("<script");
             while (index >= 0)

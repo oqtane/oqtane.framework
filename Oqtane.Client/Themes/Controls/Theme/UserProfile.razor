@@ -11,12 +11,12 @@
             <text>...</text>
         </Authorizing>
         <Authorized>
-            <button type="button" class="btn btn-primary" @onclick="UpdateProfile">@context.User.Identity.Name</button>
+            <a href="@NavigateUrl("profile", "returnurl=" + _returnurl)" class="btn btn-primary">@context.User.Identity.Name</a>
         </Authorized>
         <NotAuthorized>
             @if (ShowRegister && PageState.Site.AllowRegistration)
             {
-                <button type="button" class="btn btn-primary" @onclick="RegisterUser">@Localizer["Register"]</button>
+                <a href="@NavigateUrl("register", "returnurl=" + _returnurl)" class="btn btn-primary">@Localizer["Register"]</a>
             }
         </NotAuthorized>
     </AuthorizeView>
@@ -31,17 +31,16 @@
 
     protected override void OnParametersSet()
     {
-        _returnurl = WebUtility.UrlEncode(PageState.Route.PathAndQuery);
-    }
-
-    private void RegisterUser()
-    {
-        NavigationManager.NavigateTo(NavigateUrl("register", "returnurl=" + _returnurl));
-    }
-
-    private void UpdateProfile()
-    {
-        NavigationManager.NavigateTo(NavigateUrl("profile", "returnurl=" + _returnurl));
+		if (!PageState.QueryString.ContainsKey("returnurl"))
+		{
+			// remember current url
+			_returnurl = WebUtility.UrlEncode(PageState.Route.PathAndQuery);
+		}
+		else
+		{
+			// use existing value
+			_returnurl = PageState.QueryString["returnurl"];
+		}
     }
 }
 

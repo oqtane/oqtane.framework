@@ -7,64 +7,69 @@ namespace Oqtane.Repository
 {
     public class LanguageRepository : ILanguageRepository
     {
-        private TenantDBContext _db;
+        private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
 
-        public LanguageRepository(TenantDBContext context)
+        public LanguageRepository(IDbContextFactory<TenantDBContext> dbContextFactory)
         {
-            _db = context;
+            _dbContextFactory = dbContextFactory;
         }
 
         public IEnumerable<Language> GetLanguages(int siteId)
         {
-            return _db.Language.Where(l => l.SiteId == siteId);
+            using var db = _dbContextFactory.CreateDbContext();
+            return db.Language.Where(l => l.SiteId == siteId).ToList();
         }
 
         public Language AddLanguage(Language language)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             if (language.IsDefault)
             {
                 // Ensure all other languages are not set to default
-                _db.Language
+                db.Language
                     .Where(l => l.SiteId == language.SiteId)
                     .ToList()
                     .ForEach(l => l.IsDefault = false);
             }
 
-            _db.Language.Add(language);
-            _db.SaveChanges();
+            db.Language.Add(language);
+            db.SaveChanges();
 
             return language;
         }
 
         public void UpdateLanguage(Language language)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             if (language.LanguageId != 0)
             {
-                _db.Entry(language).State = EntityState.Modified;
+                db.Entry(language).State = EntityState.Modified;
             }
             if (language.IsDefault)
             {
                 // Ensure all other languages are not set to default
-                _db.Language
+                db.Language
                     .Where(l => l.SiteId == language.SiteId &&
                                 l.LanguageId != language.LanguageId)
                     .ToList()
                     .ForEach(l => l.IsDefault = false);
             }
 
-            _db.SaveChanges();
+            db.SaveChanges();
         }
 
         public Language GetLanguage(int languageId)
         {
-            return _db.Language.Find(languageId);
+            using var db = _dbContextFactory.CreateDbContext();
+            return db.Language.Find(languageId);
         }
 
         public void DeleteLanguage(int languageId)
         {
-            var language = _db.Language.Find(languageId);
-            _db.Language.Remove(language);
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            var language = db.Language.Find(languageId);
+            db.Language.Remove(language);
+            db.SaveChanges();
         }
     }
 }

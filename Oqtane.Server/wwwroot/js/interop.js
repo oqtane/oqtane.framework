@@ -206,18 +206,25 @@ Oqtane.Interop = {
                         returnPromise: true,
                         before: function (path, element) {
                             for (let s = 0; s < scripts.length; s++) {
-                                if (path === scripts[s].href && scripts[s].integrity !== '') {
-                                    element.integrity = scripts[s].integrity;
-                                }
-                                if (path === scripts[s].href && scripts[s].crossorigin !== '') {
-                                    element.crossOrigin = scripts[s].crossorigin;
-                                }
-                                if (path === scripts[s].href && scripts[s].es6module === true) {
-                                    element.type = "module";
-                                }
-                                if (path === scripts[s].href && scripts[s].location === 'body') {
-                                    document.body.appendChild(element);
-                                    return false;  // return false to bypass default DOM insertion mechanism
+                                if (path === scripts[s].href) {
+                                    if (scripts[s].integrity !== '') {
+                                        element.integrity = scripts[s].integrity;
+                                    }
+                                    if (scripts[s].crossorigin !== '') {
+                                        element.crossOrigin = scripts[s].crossorigin;
+                                    }
+                                    if (scripts[s].es6module === true) {
+                                        element.type = "module";
+                                    }
+                                    if (typeof scripts[s].dataAttributes !== "undefined" && scripts[s].dataAttributes !== null) {
+                                        for (var key in scripts[s].dataAttributes) {
+                                            element.setAttribute(key, scripts[s].dataAttributes[key]);
+                                        }
+                                    }
+                                    if (scripts[s].location === 'body') {
+                                        document.body.appendChild(element);
+                                        return false;  // return false to bypass default DOM insertion mechanism
+                                    }
                                 }
                             }
                         }

@@ -1,10 +1,8 @@
 using System;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Models;
@@ -16,12 +14,10 @@ namespace Oqtane.Providers
     public class IdentityAuthenticationStateProvider : AuthenticationStateProvider
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly NavigationManager _navigationManager;
  
-        public IdentityAuthenticationStateProvider(IServiceProvider serviceProvider, NavigationManager navigationManager)
+        public IdentityAuthenticationStateProvider(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-            _navigationManager = navigationManager;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()

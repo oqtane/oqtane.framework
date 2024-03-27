@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
@@ -9,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace Oqtane.Infrastructure
 {
@@ -63,6 +63,9 @@ namespace Oqtane.Infrastructure
                     case "3.3.0":
                         Upgrade_3_3_0(tenant, scope);
                         break;
+                    case "5.1.0":
+                        Upgrade_5_1_0(tenant, scope);
+                        break;
                 }
             }
         }
@@ -111,7 +114,11 @@ namespace Oqtane.Infrastructure
                 _configManager.RemoveSetting("Localization:SupportedCultures", true);
                 if (_configManager.GetSetting("RenderMode", "") == "")
                 {
-                    _configManager.AddOrUpdateSetting("RenderMode", "ServerPrerendered", true);
+                    _configManager.AddOrUpdateSetting("RenderMode", RenderModes.Interactive, true);
+                }
+                if (_configManager.GetSetting("Runtime", "") == "")
+                {
+                    _configManager.AddOrUpdateSetting("Runtime", Runtimes.Server, true);
                 }
             }
         }
@@ -138,7 +145,7 @@ namespace Oqtane.Infrastructure
                 Order = 33,
                 Path = "admin/urlmappings",
                 Icon = Icons.LinkBroken,
-                IsNavigation = true,
+                IsNavigation = false,
                 IsPersonalizable = false,
                 PermissionList = new List<Permission>
                 {
@@ -167,7 +174,7 @@ namespace Oqtane.Infrastructure
                 Order = 35,
                 Path = "admin/visitors",
                 Icon = Icons.Eye,
-                IsNavigation = true,
+                IsNavigation = false,
                 IsPersonalizable = false,
                 PermissionList = new List<Permission>
                 {
@@ -348,6 +355,35 @@ namespace Oqtane.Infrastructure
             {
                 Debug.WriteLine($"Oqtane Error: Error In 3.3.0 Upgrade Logic - {ex}");
             }
+        }
+
+        private void Upgrade_5_1_0(Tenant tenant, IServiceScope scope)
+        {
+            if (tenant.Name == TenantNames.Master)
+            {
+                var rendermode = _configManager.GetSetting("RenderMode", "");
+                if (rendermode.Contains("Prerendered"))
+                {
+                    _configManager.AddOrUpdateSetting("RenderMode", rendermode.Replace("Prerendered", ""), true);
+                }
+
+                try
+                {
+                    // delete legacy Views assemblies which will cause startup errors due to missing HostModel
+                    // note that the following files will be deleted however the framework has already started up so a restart will be required
+                    var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                    var filepath = Path.Combine(binFolder, "Oqtane.Server.Views.dll");
+                    if (System.IO.File.Exists(filepath)) System.IO.File.Delete(filepath);
+                    filepath = Path.Combine(binFolder, "Oqtane.Server.Views.pdb");
+                    if (System.IO.File.Exists(filepath)) System.IO.File.Delete(filepath);
+                }
+                catch (Exception ex)
+                {
+                    // error deleting file
+                    Debug.WriteLine($"Oqtane Error: Error In 5.1.0 Upgrade Logic - {ex}");
+                }
+            }
+
         }
     }
 }

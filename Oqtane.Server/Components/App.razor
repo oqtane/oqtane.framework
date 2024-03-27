@@ -1,0 +1,722 @@
+@namespace Oqtane.Components
+@using System.Net
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Http.Extensions
+@using Microsoft.AspNetCore.Antiforgery
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.Net.Http.Headers
+@using Microsoft.Extensions.Primitives
+@using Oqtane.Client
+@using Oqtane.UI
+@using Oqtane.Repository
+@using Oqtane.Infrastructure
+@using Oqtane.Security
+@using Oqtane.Models
+@using Oqtane.Shared
+@using Oqtane.Themes
+@using Oqtane.Extensions
+@inject NavigationManager NavigationManager
+@inject IAntiforgery Antiforgery
+@inject IConfigManager ConfigManager
+@inject ITenantManager TenantManager
+@inject ISiteService SiteService
+@inject IPageRepository PageRepository
+@inject IThemeRepository ThemeRepository
+@inject ILanguageRepository LanguageRepository
+@inject ILocalizationManager LocalizationManager
+@inject IAliasRepository AliasRepository
+@inject IUrlMappingRepository UrlMappingRepository
+@inject IVisitorRepository VisitorRepository
+@inject IJwtManager JwtManager
+
+@if (_initialized)
+{
+    <!DOCTYPE html>
+    <html lang="@_language">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="/" />
+        <link rel="stylesheet" href="css/app.css" />
+        @if (!string.IsNullOrEmpty(_PWAScript))
+        {
+            <link id="app-manifest" rel="manifest" />
+        }
+        @((MarkupString)_styleSheets)
+        <link id="app-stylesheet-page" />
+        <link id="app-stylesheet-module" />
+        @if (_renderMode == RenderModes.Static)
+        {
+            <Head RenderMode="@_renderMode" Runtime="@_runtime" />
+        }
+        else
+        {
+            <Head RenderMode="@_renderMode" Runtime="@_runtime" @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(_runtime, _prerender)" />
+        }
+        @((MarkupString)_headResources)
+    </head>
+    <body>
+        @if (string.IsNullOrEmpty(_message))
+        {
+            @if (_renderMode == RenderModes.Static)
+            {
+                <Routes PageState="@_pageState" RenderMode="@_renderMode" Runtime="@_runtime" AntiForgeryToken="@_antiForgeryToken" AuthorizationToken="@_authorizationToken" Platform="@_platform" />
+            }
+            else
+            {
+                <Routes PageState="@_pageState" RenderMode="@_renderMode" Runtime="@_runtime" AntiForgeryToken="@_antiForgeryToken" AuthorizationToken="@_authorizationToken" Platform="@_platform" @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(_runtime, _prerender)" />
+            }
+
+            @if (!string.IsNullOrEmpty(_reconnectScript))
+            {
+                @((MarkupString)_reconnectScript)
+            }
+            @if (!string.IsNullOrEmpty(_PWAScript))
+            {
+                @((MarkupString)_PWAScript)
+            }
+            @((MarkupString)_bodyResources)
+
+            <script src="js/app.js"></script>
+            <script src="js/loadjs.min.js"></script>
+            <script src="js/interop.js"></script>
+            <script src="_framework/blazor.web.js"></script>
+        }
+        else
+        {
+            <div class="app-alert">@_message</div>
+        }
+    </body>
+    </html>
+}
+
+@code {
+    private bool _initialized = false;
+    private string _renderMode = RenderModes.Interactive;
+    private string _runtime = Runtimes.Server;
+    private bool _prerender = true;
+    private int _visitorId = -1;
+    private string _antiForgeryToken = "";
+    private string _remoteIPAddress = "";
+    private string _platform = "";
+    private string _authorizationToken = "";
+    private string _language = "en";
+    private string _headResources = "";
+    private string _bodyResources = "";
+    private string _styleSheets = "";
+    private string _PWAScript = "";
+    private string _reconnectScript = "";
+    private string _message = "";
+    private PageState _pageState;
+
+    //  CascadingParameter is required to access HttpContext
+    [CascadingParameter]
+    HttpContext Context { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _antiForgeryToken = Antiforgery.GetAndStoreTokens(Context).RequestToken;
+        _remoteIPAddress = Context.Connection.RemoteIpAddress?.ToString() ?? "";
+        _platform = System.Runtime.InteropServices.RuntimeInformation.OSDescription;
+
+        // if framework is installed
+        if (ConfigManager.IsInstalled())
+        {
+            var alias = TenantManager.GetAlias();
+            if (alias != null)
+            {
+                var url = WebUtility.UrlDecode(Context.Request.GetEncodedUrl());
+
+                if (!alias.IsDefault)
+                {
+                    HandleDefaultAliasRedirect(alias, url);
+                }
+
+                var site = await SiteService.GetSiteAsync(alias.SiteId);
+                if (site != null && (!site.IsDeleted || url.Contains("admin/site")) && site.RenderMode != RenderModes.Headless)
+                {
+                    _renderMode = site.RenderMode;
+                    _runtime = site.Runtime;
+                    _prerender = site.Prerender;
+
+                    Route route = new Route(url, alias.Path);
+                    var page = site.Pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
+                    if (page == null && route.PagePath == "") // naked path refers to site home page
+                    {
+                        if (site.HomePageId != null)
+                        {
+                            page = site.Pages.FirstOrDefault(item => item.PageId == site.HomePageId);
+                        }
+                        if (page == null)
+                        {
+                            // fallback to use the first page in the collection
+                            page = site.Pages.FirstOrDefault();
+                        }
+                    }
+                    if (page == null)
+                    {
+                        // personalized pages need to be retrieved using path
+                        page = PageRepository.GetPage(route.PagePath, site.SiteId);
+                    }
+                    if (page == null || page.IsDeleted)
+                    {
+                        HandlePageNotFound(site, page, route);
+                    }
+
+                    if (site.VisitorTracking)
+                    {
+                        TrackVisitor(site.SiteId);
+                    }
+
+                    // get jwt token for downstream APIs
+                    if (Context.User.Identity.IsAuthenticated)
+                    {
+                        CreateJwtToken(alias);
+                    }
+
+                    // include stylesheets to prevent FOUC
+                    var resources = GetPageResources(alias, site, page, int.Parse(route.ModuleId), route.Action);
+                    ManageStyleSheets(resources);
+
+                    // scripts
+                    if (_renderMode == RenderModes.Static)
+                    {
+                        ManageScripts(resources, alias);
+                    }
+                    if (_renderMode == RenderModes.Interactive && _runtime == Runtimes.Server)
+                    {
+                        _reconnectScript = CreateReconnectScript();
+                    }
+                    if (site.PwaIsEnabled && site.PwaAppIconFileId != null && site.PwaSplashIconFileId != null)
+                    {
+                        _PWAScript = CreatePWAScript(alias, site, route);
+                    }
+                    _headResources += ParseScripts(site.HeadContent);
+                    _bodyResources += ParseScripts(site.BodyContent);
+
+                    // set culture if not specified
+                    string culture = Context.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName];
+                    if (culture == null)
+                    {
+                        // get default language for site
+                        if (site.Languages.Any())
+                        {
+                            // use default language if specified otherwise use first language in collection
+                            culture = (site.Languages.Where(l => l.IsDefault).SingleOrDefault() ?? site.Languages.First()).Code;
+                        }
+                        else
+                        {
+                            culture = LocalizationManager.GetDefaultCulture();
+                        }
+                        SetLocalizationCookie(culture);
+                    }
+
+                    // set language for page
+                    if (!string.IsNullOrEmpty(culture))
+                    {
+                        // localization cookie value in form of c=en|uic=en
+                        _language = culture.Split('|')[0];
+                        _language = _language.Replace("c=", "");
+                    }
+
+                    // create initial PageState 
+                    _pageState = new PageState
+                    {
+                        Alias = alias,
+                        Site = site,
+                        Page = page,
+                        User = null,
+                        Uri = new Uri(url, UriKind.Absolute),
+                        Route = route,
+                        QueryString = Utilities.ParseQueryString(route.Query),
+                        UrlParameters = route.UrlParameters,
+                        ModuleId = -1,
+                        Action = "",
+                        EditMode = false,
+                        LastSyncDate = DateTime.MinValue,
+                        RenderMode = _renderMode,
+                        Runtime = (Shared.Runtime)Enum.Parse(typeof(Shared.Runtime), _runtime),
+                        VisitorId = _visitorId,
+                        RemoteIPAddress = _remoteIPAddress,
+                        ReturnUrl = "",
+                        IsInternalNavigation = false,
+                        RenderId = Guid.NewGuid(),
+                        Refresh = true
+                    };
+                }
+                else
+                {
+                    _message = "Site Is Disabled";
+                }
+            }
+            else
+            {
+                _message = "Site Not Configured Correctly - No Matching Alias Exists For Host Name";
+            }
+        }
+        _initialized = true;
+    }
+
+    private void HandleDefaultAliasRedirect(Alias alias, string url)
+    {
+        // get aliases for site and tenant
+        var aliases = AliasRepository.GetAliases().Where(item => item.TenantId == alias.TenantId && item.SiteId == alias.SiteId);
+        // get first default alias
+        var defaultAlias = aliases.Where(item => item.IsDefault).FirstOrDefault();
+        if (defaultAlias != null)
+        {
+            // redirect to default alias
+            NavigationManager.NavigateTo(url.Replace(alias.Name, defaultAlias.Name), true);
+        }
+        else // no default alias specified - use first alias
+        {
+            defaultAlias = aliases.FirstOrDefault();
+            if (defaultAlias != null && alias.Name.Trim() != defaultAlias.Name.Trim())
+            {
+                // redirect to first alias
+                NavigationManager.NavigateTo(url.Replace(alias.Name, defaultAlias.Name), true);
+            }
+        }
+    }
+
+    private void HandlePageNotFound(Site site, Page page, Route route)
+    {
+        // page not found - look for url mapping
+        var urlMapping = UrlMappingRepository.GetUrlMapping(site.SiteId, route.PagePath);
+        if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
+        {
+            // redirect to mapped url
+            var url = (urlMapping.MappedUrl.StartsWith("http")) ? urlMapping.MappedUrl : route.SiteUrl + "/" + urlMapping.MappedUrl;
+            NavigationManager.NavigateTo(url, true);
+        }
+        else // no url mapping exists
+        {
+            if (route.PagePath != "404")
+            {
+                // redirect to 404 page
+                NavigationManager.NavigateTo(route.SiteUrl + "/404", true);
+            }
+        }
+    }
+
+    private void TrackVisitor(int SiteId)
+    {
+        try
+        {
+            // get request attributes
+            string useragent = (Context.Request.Headers[HeaderNames.UserAgent] != StringValues.Empty) ? Context.Request.Headers[HeaderNames.UserAgent] : "(none)";
+            useragent = (useragent.Length > 256) ? useragent.Substring(0, 256) : useragent;
+            string language = (Context.Request.Headers[HeaderNames.AcceptLanguage] != StringValues.Empty) ? Context.Request.Headers[HeaderNames.AcceptLanguage] : "";
+            language = (language.Contains(",")) ? language.Substring(0, language.IndexOf(",")) : language;
+            language = (language.Contains(";")) ? language.Substring(0, language.IndexOf(";")) : language;
+            language = (language.Trim().Length == 0) ? "??" : language;
+
+            // filter
+            var settings = Context.GetSiteSettings();
+            var filter = settings.GetValue("VisitorFilter", Constants.DefaultVisitorFilter);
+            foreach (string term in filter.ToLower().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray())
+            {
+                if (_remoteIPAddress.ToLower().Contains(term) || useragent.ToLower().Contains(term) || language.ToLower().Contains(term))
+                {
+                    return;
+                }
+            }
+
+            // get other request attributes
+            string url = Context.Request.GetEncodedUrl();
+            string referrer = (Context.Request.Headers[HeaderNames.Referer] != StringValues.Empty) ? Context.Request.Headers[HeaderNames.Referer] : "";
+            int? userid = Context.User.UserId();
+            userid = (userid == -1) ? null : userid;
+
+            // check if cookie already exists
+            Visitor visitor = null;
+            bool addcookie = false;
+            var VisitorCookie = Constants.VisitorCookiePrefix + SiteId.ToString();
+            if (!int.TryParse(Context.Request.Cookies[VisitorCookie], out _visitorId))
+            {
+                // if enabled use IP Address correlation
+                _visitorId = -1;
+                var correlate = bool.Parse(settings.GetValue("VisitorCorrelation", "true"));
+                if (correlate)
+                {
+                    visitor = VisitorRepository.GetVisitor(SiteId, _remoteIPAddress);
+                    if (visitor != null)
+                    {
+                        _visitorId = visitor.VisitorId;
+                        addcookie = true;
+                    }
+                }
+            }
+
+            if (_visitorId == -1)
+            {
+                // create new visitor
+                visitor = new Visitor();
+                visitor.SiteId = SiteId;
+                visitor.IPAddress = _remoteIPAddress;
+                visitor.UserAgent = useragent;
+                visitor.Language = language;
+                visitor.Url = url;
+                visitor.Referrer = referrer;
+                visitor.UserId = userid;
+                visitor.Visits = 1;
+                visitor.CreatedOn = DateTime.UtcNow;
+                visitor.VisitedOn = DateTime.UtcNow;
+                visitor = VisitorRepository.AddVisitor(visitor);
+                _visitorId = visitor.VisitorId;
+                addcookie = true;
+            }
+            else
+            {
+                if (visitor == null)
+                {
+                    // get visitor if it was not previously loaded
+                    visitor = VisitorRepository.GetVisitor(_visitorId);
+                }
+                if (visitor != null)
+                {
+                    // update visitor
+                    visitor.IPAddress = _remoteIPAddress;
+                    visitor.UserAgent = useragent;
+                    visitor.Language = language;
+                    visitor.Url = url;
+                    if (!string.IsNullOrEmpty(referrer))
+                    {
+                        visitor.Referrer = referrer;
+                    }
+                    if (userid != null)
+                    {
+                        visitor.UserId = userid;
+                    }
+                    visitor.Visits += 1;
+                    visitor.VisitedOn = DateTime.UtcNow;
+                    VisitorRepository.UpdateVisitor(visitor);
+                }
+                else
+                {
+                    // remove cookie if VisitorId does not exist
+                    Context.Response.Cookies.Delete(VisitorCookie);
+                }
+            }
+
+            // append cookie
+            if (addcookie)
+            {
+                Context.Response.Cookies.Append(
+                    VisitorCookie,
+                    _visitorId.ToString(),
+                    new CookieOptions()
+                        {
+                            Expires = DateTimeOffset.UtcNow.AddYears(1),
+                            IsEssential = true
+                        }
+                );
+            }
+        }
+        catch
+        {
+            // error tracking visitor
+        }
+    }
+
+    private void CreateJwtToken(Alias alias)
+    {
+        var sitesettings = Context.GetSiteSettings();
+        var secret = sitesettings.GetValue("JwtOptions:Secret", "");
+        if (!string.IsNullOrEmpty(secret))
+        {
+            _authorizationToken = JwtManager.GenerateToken(alias, (ClaimsIdentity)Context.User.Identity, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""), int.Parse(sitesettings.GetValue("JwtOptions:Lifetime", "20")));
+        }
+    }
+
+    private string CreatePWAScript(Alias alias, Site site, Route route)
+    {
+        return
+        "<script>" + Environment.NewLine +
+        "    // PWA Manifest" + Environment.NewLine +
+        "    setTimeout(() => {" + Environment.NewLine +
+        "        var manifest = {" + Environment.NewLine +
+        "            \"name\": \"" + site.Name + "\"," + Environment.NewLine +
+        "            \"short_name\": \"" + site.Name + "\"," + Environment.NewLine +
+        "            \"start_url\": \"" + route.SiteUrl + "/\"," + Environment.NewLine +
+        "            \"display\": \"standalone\"," + Environment.NewLine +
+        "            \"background_color\": \"#fff\"," + Environment.NewLine +
+        "            \"description\": \"" + site.Name + "\"," + Environment.NewLine +
+        "            \"icons\": [{" + Environment.NewLine +
+        "                \"src\": \"" + route.RootUrl + Utilities.FileUrl(alias, site.PwaAppIconFileId.Value) + "\"," + Environment.NewLine +
+        "                \"sizes\": \"192x192\"," + Environment.NewLine +
+        "                \"type\": \"image/png\"" + Environment.NewLine +
+        "                }, {" + Environment.NewLine +
+        "                \"src\": \"" + route.RootUrl + Utilities.FileUrl(alias, site.PwaSplashIconFileId.Value) + "\"," + Environment.NewLine +
+        "                \"sizes\": \"512x512\"," + Environment.NewLine +
+        "                \"type\": \"image/png\"" + Environment.NewLine +
+        "            }]" + Environment.NewLine +
+        "       };" + Environment.NewLine +
+        "       const serialized = JSON.stringify(manifest);" + Environment.NewLine +
+        "       const blob = new Blob([serialized], {type: 'application/javascript'});" + Environment.NewLine +
+        "       const url = URL.createObjectURL(blob);" + Environment.NewLine +
+        "       document.getElementById('app-manifest').setAttribute('href', url);" + Environment.NewLine +
+        "    }, 1000);" + Environment.NewLine +
+        "</script>" + Environment.NewLine +
+        "<script>" + Environment.NewLine +
+        "    // PWA Service Worker" + Environment.NewLine +
+        "    if ('serviceWorker' in navigator) {" + Environment.NewLine +
+        "        navigator.serviceWorker.register('/service-worker.js').then(function(registration) {" + Environment.NewLine +
+        "            console.log('ServiceWorker Registration Successful');" + Environment.NewLine +
+        "        }).catch (function(err) {" + Environment.NewLine +
+        "            console.log('ServiceWorker Registration Failed ', err);" + Environment.NewLine +
+        "        });" + Environment.NewLine +
+        "    };" + Environment.NewLine +
+        "</script>";
+    }
+
+    private string CreateReconnectScript()
+    {
+        return
+        "<script>" + Environment.NewLine +
+        "    // Blazor Server Reconnect" + Environment.NewLine +
+        "    new MutationObserver((mutations, observer) => {" + Environment.NewLine +
+        "        if (document.querySelector('#components-reconnect-modal h5 a')) {" + Environment.NewLine +
+        "            async function attemptReload() {" + Environment.NewLine +
+        "                await fetch('');" + Environment.NewLine +
+        "                location.reload();" + Environment.NewLine +
+        "            }" + Environment.NewLine +
+        "            observer.disconnect();" + Environment.NewLine +
+        "            attemptReload();" + Environment.NewLine +
+        "            setInterval(attemptReload, 5000);" + Environment.NewLine +
+        "        }" + Environment.NewLine +
+        "    }).observe(document.body, { childList: true, subtree: true });" + Environment.NewLine +
+        "</script>";
+    }
+
+    private string ParseScripts(string content)
+    {
+        // iterate scripts
+        var scripts = "";
+        if (!string.IsNullOrEmpty(content))
+        {
+            var index = content.IndexOf("<script");
+            while (index >= 0)
+            {
+                scripts += content.Substring(index, content.IndexOf("</script>", index) + 9 - index);
+                index = content.IndexOf("<script", index + 1);
+            }
+        }
+        return scripts;
+    }
+
+    private void AddScript(Resource resource, Alias alias)
+    {
+        var script = CreateScript(resource, alias);
+        if (resource.Location == Shared.ResourceLocation.Head)
+        {
+            if (!_headResources.Contains(script))
+            {
+                _headResources += script + Environment.NewLine;
+            }
+        }
+        else
+        {
+            if (!_bodyResources.Contains(script))
+            {
+                _bodyResources += script + Environment.NewLine;
+            }
+        }
+    }
+
+    private string CreateScript(Resource resource, Alias alias)
+    {
+        if (!string.IsNullOrEmpty(resource.Url))
+        {
+            if (!resource.Reload)
+            {
+                var url = (resource.Url.Contains("://")) ? resource.Url : alias.BaseUrl + resource.Url;
+                return "<script" +
+                    ((!string.IsNullOrEmpty(resource.Integrity)) ? " integrity=\"" + resource.Integrity + "\"" : "") +
+                    ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
+                    ((resource.ES6Module) ? " type=\"module\"" : "") +
+                    " src =\"" + url + "\"></script>"; // src at end of element due to enhanced navigation patch algorithm
+            }
+            else
+            {
+                // use custom element which can execute script on every page transition
+                return "<page-script src=\"" + resource.Url + "\"></page-script>";
+            }
+        }
+        else
+        {
+            // inline script
+            return "<script>" + resource.Content + "</script>";
+        }
+    }
+
+    private void SetLocalizationCookie(string culture)
+    {
+        Context.Response.Cookies.Append(
+            CookieRequestCultureProvider.DefaultCookieName,
+            CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)));
+    }
+
+    private List<Resource> GetPageResources(Alias alias, Site site, Page page, int moduleid, string action)
+    {
+        var resources = new List<Resource>();
+
+        var themeType = (string.IsNullOrEmpty(page.ThemeType)) ? site.DefaultThemeType : page.ThemeType;
+        var theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == themeType));
+        if (theme != null)
+        {
+            resources = AddResources(resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName));
+        }
+        else
+        {
+            // fallback to default Oqtane theme
+            theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == Constants.DefaultTheme));
+            resources = AddResources(resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName));
+        }
+        var type = Type.GetType(themeType);
+        if (type != null)
+        {
+            var obj = Activator.CreateInstance(type) as IThemeControl;
+            if (obj != null)
+            {
+                resources = AddResources(resources, obj.Resources, ResourceLevel.Page, alias, "Themes", type.Namespace);
+            }
+        }
+
+        foreach (Module module in site.Modules.Where(item => item.PageId == page.PageId || item.ModuleId == moduleid))
+        {
+            var typename = "";
+            if (module.ModuleDefinition != null)
+            {
+                resources = AddResources(resources, module.ModuleDefinition.Resources, ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName));
+
+                // handle default action
+                if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
+                {
+                    action = module.ModuleDefinition.DefaultAction;
+                }
+
+                // get typename template
+                typename = module.ModuleDefinition.ControlTypeTemplate;
+                if (module.ModuleDefinition.ControlTypeRoutes != "")
+                {
+                    // process custom action routes
+                    foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(';', StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        if (route.StartsWith(action + "="))
+                        {
+                            typename = route.Replace(action + "=", "");
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // create typename
+            if (Constants.DefaultModuleActions.Contains(action, StringComparer.OrdinalIgnoreCase))
+            {
+                typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, action);
+            }
+            else
+            {
+                typename = typename.Replace(Constants.ActionToken, action);
+            }
+
+            // ensure component exists and implements IModuleControl
+            module.ModuleType = "";
+            Type moduletype = Type.GetType(typename, false, true); // case insensitive
+            if (moduletype != null && moduletype.GetInterfaces().Contains(typeof(IModuleControl)))
+            {
+                module.ModuleType = Utilities.GetFullTypeName(moduletype.AssemblyQualifiedName); // get actual type name
+            }
+            if (moduletype != null && module.ModuleType != "")
+            {
+                var obj = Activator.CreateInstance(moduletype) as IModuleControl;
+                if (obj != null)
+                {
+                    resources = AddResources(resources, obj.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace);
+                    if (action.ToLower() == "settings" && module.ModuleDefinition != null)
+                    {
+                        // settings components are embedded within a framework settings module
+                        moduletype = Type.GetType(module.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, action), false, true);
+                        if (moduletype != null)
+                        {
+                            obj = Activator.CreateInstance(moduletype) as IModuleControl;
+                            resources = AddResources(resources, obj.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace);
+                        }
+                    }
+                }
+            }
+        }
+
+        // site level resources for modules in site
+        var modules = site.Modules.GroupBy(item => item.ModuleDefinition?.ModuleDefinitionName).Select(group => group.First()).ToList();
+        foreach (var module in modules)
+        {
+            if (module.ModuleDefinition?.Resources != null)
+            {
+                resources = AddResources(resources, module.ModuleDefinition.Resources.Where(item => item.Level == ResourceLevel.Site).ToList(), ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName));
+            }
+        }
+
+        return resources;
+    }
+
+    private List<Resource> AddResources(List<Resource> pageresources, List<Resource> resources, ResourceLevel level, Alias alias, string type, string name)
+    {
+        if (resources != null)
+        {
+            foreach (var resource in resources)
+            {
+                if (resource.Url.StartsWith("~"))
+                {
+                    resource.Url = resource.Url.Replace("~", "/" + type + "/" + name + "/").Replace("//", "/");
+                }
+                if (!resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
+                {
+                    resource.Url = alias.BaseUrl + resource.Url;
+                }
+
+                // ensure resource does not exist already
+                if (!pageresources.Exists(item => item.Url.ToLower() == resource.Url.ToLower()))
+                {
+                    pageresources.Add(resource.Clone(level, name));
+                }
+            }
+        }
+        return pageresources;
+    }
+
+    private void ManageStyleSheets(List<Resource> resources)
+    {
+        if (resources != null)
+        {
+            string batch = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
+            int count = 0;
+            foreach (var resource in resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
+            {
+                count++;
+                string id = "id=\"app-stylesheet-" + ResourceLevel.Page.ToString().ToLower() + "-" + batch + "-" + count.ToString("00") + "\" ";
+                _styleSheets += "<link " + id + "rel=\"stylesheet\"" + 
+                    (!string.IsNullOrEmpty(resource.Integrity) ? " integrity=\"" + resource.Integrity + "\"" : "") + 
+                    (!string.IsNullOrEmpty(resource.CrossOrigin) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") + 
+                    " href=\"" + resource.Url + "\" type=\"text/css\"/>" + Environment.NewLine; // href at end of element due to enhanced navigation patch algorithm
+            }
+        }
+    }
+
+    private void ManageScripts(List<Resource> resources, Alias alias)
+    {
+        if (resources != null)
+        {
+            foreach (var resource in resources.Where(item => item.ResourceType == ResourceType.Script))
+            {
+                if (string.IsNullOrEmpty(resource.RenderMode) || resource.RenderMode == RenderModes.Static)
+                {
+                    AddScript(resource, alias);
+                }
+            }
+        }
+    }
+}

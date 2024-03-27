@@ -15,7 +15,7 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 using System.Net;
-using Oqtane.Modules;
+using Oqtane.Infrastructure.Interfaces;
 
 namespace Oqtane.Controllers
 {
@@ -23,9 +23,6 @@ namespace Oqtane.Controllers
     public class ModuleDefinitionController : Controller
     {
         private readonly IModuleDefinitionRepository _moduleDefinitions;
-        private readonly IModuleRepository _modules;
-        private readonly IPageModuleRepository _pagemodules;
-        private readonly IPermissionRepository _permissions;
         private readonly ITenantRepository _tenants;
         private readonly ISqlRepository _sql;
         private readonly IUserPermissions _userPermissions;
@@ -37,12 +34,9 @@ namespace Oqtane.Controllers
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, IModuleRepository module, IPageModuleRepository pageModule, IPermissionRepository permission, ITenantRepository tenants, ISqlRepository sql, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, IServiceProvider serviceProvider, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
+        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, ITenantRepository tenants, ISqlRepository sql, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, IServiceProvider serviceProvider, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
         {
             _moduleDefinitions = moduleDefinitions;
-            _modules = module;
-            _pagemodules = pageModule;
-            _permissions = permission;
             _tenants = tenants;
             _sql = sql;
             _userPermissions = userPermissions;
@@ -170,7 +164,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && moduleDefinition.SiteId == _alias.SiteId && moduleDefinition.ModuleDefinitionId == id && _moduleDefinitions.GetModuleDefinition(moduleDefinition.ModuleDefinitionId, moduleDefinition.SiteId) != null)
             {
                 _moduleDefinitions.UpdateModuleDefinition(moduleDefinition);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.ModuleDefinition, moduleDefinition.ModuleDefinitionId, SyncEventActions.Update);
+                _syncManager.AddSyncEvent(_alias, EntityNames.ModuleDefinition, moduleDefinition.ModuleDefinitionId, SyncEventActions.Update);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Definition Updated {ModuleDefinition}", moduleDefinition);
             }
             else
@@ -251,30 +245,10 @@ namespace Oqtane.Controllers
                     _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Static Resources Folder Removed For {ModuleDefinitionName}", moduledefinition.ModuleDefinitionName);
                 }
 
-                // remove PageModule and Module
-                List<Models.Module> modulesToRemove =  _modules.GetModules(moduledefinition.SiteId).Where(m => m.ModuleDefinitionName == moduledefinition.ModuleDefinitionName).ToList();
-                foreach (Models.Module moduleToRemove in modulesToRemove)
-                {
-                    // Get the PageModule items associated with the Module item to be removed
-                    List<PageModule> pageModulesToRemove = _pagemodules.GetPageModules(moduledefinition.SiteId).Where(pm => pm.ModuleId == moduleToRemove.ModuleId).ToList();
-
-                    foreach(PageModule pageModule in pageModulesToRemove)
-                    {
-                        // Remove the PageModule item
-                        _pagemodules.DeletePageModule(pageModule.PageModuleId);
-                    }
-
-                    // Remove Permissions
-                    _permissions.DeletePermissions(moduledefinition.SiteId, EntityNames.Module, moduleToRemove.ModuleId);
-
-                    // Remove the Module item
-                    _modules.DeleteModule(moduleToRemove.ModuleId);
-                }
-
                 // remove module definition
                 _moduleDefinitions.DeleteModuleDefinition(id);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, SyncEventActions.Delete);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, moduledefinition.SiteId, SyncEventActions.Refresh);
+                _syncManager.AddSyncEvent(_alias, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, SyncEventActions.Delete);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Site, moduledefinition.SiteId, SyncEventActions.Refresh);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Definition {ModuleDefinitionName} Deleted", moduledefinition.Name);
             }
             else
@@ -319,58 +293,85 @@ namespace Oqtane.Controllers
 
         private void ProcessTemplatesRecursively(DirectoryInfo current, string rootPath, string rootFolder, string templatePath, ModuleDefinition moduleDefinition)
         {
+            var tokenReplace = InitializeTokenReplace(rootPath, rootFolder, moduleDefinition);
+
             // process folder
-            string folderPath = Utilities.PathCombine(rootPath, current.FullName.Replace(templatePath, ""));
-            folderPath = folderPath.Replace("[Owner]", moduleDefinition.Owner);
-            folderPath = folderPath.Replace("[Module]", moduleDefinition.Name);
+            var folderPath = Utilities.PathCombine(rootPath, current.FullName.Replace(templatePath, ""));
+            folderPath = tokenReplace.ReplaceTokens(folderPath);
             if (!Directory.Exists(folderPath))
             {
                 Directory.CreateDirectory(folderPath);
             }
 
-            FileInfo[] files = current.GetFiles("*.*");
+            tokenReplace.AddSource("Folder", folderPath);
+            var files = current.GetFiles("*.*");
             if (files != null)
             {
                 foreach (FileInfo file in files)
                 {
                     // process file
-                    string filePath = Path.Combine(folderPath, file.Name);
-                    filePath = filePath.Replace("[Owner]", moduleDefinition.Owner);
-                    filePath = filePath.Replace("[Module]", moduleDefinition.Name);
+                    var filePath = Path.Combine(folderPath, file.Name);
+                    filePath = tokenReplace.ReplaceTokens(filePath);
+                    tokenReplace.AddSource("File", Path.GetFileName(filePath));
 
-                    string text = System.IO.File.ReadAllText(file.FullName);
-                    text = text.Replace("[Owner]", moduleDefinition.Owner);
-                    text = text.Replace("[Module]", moduleDefinition.Name);
-                    text = text.Replace("[Description]", moduleDefinition.Description);
-                    text = text.Replace("[RootPath]", rootPath);
-                    text = text.Replace("[RootFolder]", rootFolder);
-                    text = text.Replace("[ServerManagerType]", moduleDefinition.ServerManagerType);
-                    text = text.Replace("[Folder]", folderPath);
-                    text = text.Replace("[File]", Path.GetFileName(filePath));
-                    if (moduleDefinition.Version == "local")
-                    {
-                        text = text.Replace("[FrameworkVersion]", Constants.Version);
-                        text = text.Replace("[ClientReference]", $"<Reference Include=\"Oqtane.Client\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net8.0\\Oqtane.Client.dll</HintPath></Reference>");
-                        text = text.Replace("[ServerReference]", $"<Reference Include=\"Oqtane.Server\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net8.0\\Oqtane.Server.dll</HintPath></Reference>");
-                        text = text.Replace("[SharedReference]", $"<Reference Include=\"Oqtane.Shared\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net8.0\\Oqtane.Shared.dll</HintPath></Reference>");
-                    }
-                    else
-                    {
-                        text = text.Replace("[FrameworkVersion]", moduleDefinition.Version);
-                        text = text.Replace("[ClientReference]", "<PackageReference Include=\"Oqtane.Client\" Version=\"" + moduleDefinition.Version + "\" />");
-                        text = text.Replace("[ServerReference]", "<PackageReference Include=\"Oqtane.Server\" Version=\"" + moduleDefinition.Version + "\" />");
-                        text = text.Replace("[SharedReference]", "<PackageReference Include=\"Oqtane.Shared\" Version=\"" + moduleDefinition.Version + "\" />");
-                    }
+                    var text = System.IO.File.ReadAllText(file.FullName);
+                    text = tokenReplace.ReplaceTokens(text);
                     System.IO.File.WriteAllText(filePath, text);
                 }
 
-                DirectoryInfo[] folders = current.GetDirectories();
+                var folders = current.GetDirectories();
 
                 foreach (DirectoryInfo folder in folders.Reverse())
                 {
                     ProcessTemplatesRecursively(folder, rootPath, rootFolder, templatePath, moduleDefinition);
                 }
             }
+        }
+
+        private ITokenReplace InitializeTokenReplace(string rootPath, string rootFolder, ModuleDefinition moduleDefinition)
+        {
+            var tokenReplace = _serviceProvider.GetService<ITokenReplace>();
+            tokenReplace.AddSource(() =>
+            {
+                return new Dictionary<string, object>
+                {
+                    { "RootPath", rootPath },
+                    { "RootFolder", rootFolder },
+                    { "Owner", moduleDefinition.Owner },
+                    { "Module", moduleDefinition.Name },
+                    { "Description", moduleDefinition.Description },
+                    { "ServerManagerType", moduleDefinition.ServerManagerType }
+                };
+            });
+
+            if (moduleDefinition.Version == "local")
+            {
+                tokenReplace.AddSource(() =>
+                {
+                    return new Dictionary<string, object>()
+                            {
+                                { "FrameworkVersion", Constants.Version },
+                                { "ClientReference", $"<Reference Include=\"Oqtane.Client\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net8.0\\Oqtane.Client.dll</HintPath></Reference>" },
+                                { "ServerReference", $"<Reference Include=\"Oqtane.Server\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net8.0\\Oqtane.Server.dll</HintPath></Reference>" },
+                                { "SharedReference", $"<Reference Include=\"Oqtane.Shared\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net8.0\\Oqtane.Shared.dll</HintPath></Reference>" },
+                            };
+                });
+            }
+            else
+            {
+                tokenReplace.AddSource(() =>
+                {
+                    return new Dictionary<string, object>()
+                            {
+                                { "FrameworkVersion", moduleDefinition.Version },
+                                { "ClientReference", $"<PackageReference Include=\"Oqtane.Client\" Version=\"{moduleDefinition.Version}\" />" },
+                                { "ServerReference", $"<PackageReference Include=\"Oqtane.Client\" Version=\"{moduleDefinition.Version}\" />" },
+                                { "SharedReference", $"<PackageReference Include=\"Oqtane.Client\" Version=\"{moduleDefinition.Version}\" />" },
+                            };
+                });
+            }
+
+            return tokenReplace;
         }
     }
 }

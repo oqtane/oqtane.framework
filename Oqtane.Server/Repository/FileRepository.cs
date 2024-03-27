@@ -12,14 +12,14 @@ namespace Oqtane.Repository
 {
     public class FileRepository : IFileRepository
     {
-        private TenantDBContext _db;
+        private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
         private readonly IPermissionRepository _permissions;
         private readonly IFolderRepository _folderRepository;
         private readonly ITenantManager _tenants;
 
-        public FileRepository(TenantDBContext context, IPermissionRepository permissions, IFolderRepository folderRepository, ITenantManager tenants)
+        public FileRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IPermissionRepository permissions, IFolderRepository folderRepository, ITenantManager tenants)
         {
-            _db = context;
+            _dbContextFactory = dbContextFactory;
             _permissions = permissions;
             _folderRepository = folderRepository;
             _tenants = tenants;
@@ -32,19 +32,21 @@ namespace Oqtane.Repository
 
         public IEnumerable<File> GetFiles(int folderId, bool tracking)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             var folder = _folderRepository.GetFolder(folderId, false);
-            IEnumerable<Permission> permissions = _permissions.GetPermissions(folder.SiteId, EntityNames.Folder, folderId).ToList();
+            var permissions = _permissions.GetPermissions(folder.SiteId, EntityNames.Folder, folderId).ToList();
 
             IEnumerable<File> files;
             if (tracking)
             {
-                files = _db.File.Where(item => item.FolderId == folderId).Include(item => item.Folder);
+                files = db.File.Where(item => item.FolderId == folderId).Include(item => item.Folder).ToList();
             }
             else
             {
-                files = _db.File.AsNoTracking().Where(item => item.FolderId == folderId).Include(item => item.Folder);
+                files = db.File.AsNoTracking().Where(item => item.FolderId == folderId).Include(item => item.Folder).ToList();
             }
-            foreach (File file in files)
+
+            foreach (var file in files)
             {
                 file.Folder.PermissionList = permissions.ToList();
                 var alias = _tenants.GetAlias();
@@ -55,9 +57,10 @@ namespace Oqtane.Repository
 
         public File AddFile(File file)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             file.IsDeleted = false;
-            _db.File.Add(file);
-            _db.SaveChanges();
+            db.File.Add(file);
+            db.SaveChanges();
             file.Folder = _folderRepository.GetFolder(file.FolderId);
             file.Url = GetFileUrl(file, _tenants.GetAlias());
             return file;
@@ -65,8 +68,9 @@ namespace Oqtane.Repository
 
         public File UpdateFile(File file)
         {
-            _db.Entry(file).State = EntityState.Modified;
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            db.Entry(file).State = EntityState.Modified;
+            db.SaveChanges();
             file.Folder = _folderRepository.GetFolder(file.FolderId);
             file.Url = GetFileUrl(file, _tenants.GetAlias());
             return file;
@@ -80,14 +84,15 @@ namespace Oqtane.Repository
 
         public File GetFile(int fileId, bool tracking)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             File file;
             if (tracking)
             {
-                file = _db.File.Include(item => item.Folder).FirstOrDefault(item => item.FileId == fileId);
+                file = db.File.Include(item => item.Folder).FirstOrDefault(item => item.FileId == fileId);
             }
             else
             {
-                file = _db.File.AsNoTracking().Include(item => item.Folder).FirstOrDefault(item => item.FileId == fileId);
+                file = db.File.AsNoTracking().Include(item => item.Folder).FirstOrDefault(item => item.FileId == fileId);
             }
             if (file != null)
             {
@@ -99,10 +104,11 @@ namespace Oqtane.Repository
 
         public File GetFile(int folderId, string fileName)
         {
-            var file = _db.File.AsNoTracking()
-                .Include(item => item.Folder)
-                .FirstOrDefault(item => item.FolderId == folderId &&
-                    item.Name.ToLower() == fileName);
+            using var db = _dbContextFactory.CreateDbContext();
+            var file = db.File.AsNoTracking()
+            .Include(item => item.Folder)
+            .FirstOrDefault(item => item.FolderId == folderId &&
+                item.Name.ToLower() == fileName);
 
             if (file != null)
             {
@@ -115,7 +121,8 @@ namespace Oqtane.Repository
 
         public File GetFile(int siteId, string folderPath, string fileName)
         {
-            var file = _db.File.AsNoTracking()
+            using var db = _dbContextFactory.CreateDbContext();
+            var file = db.File.AsNoTracking()
                 .Include(item => item.Folder)
                 .FirstOrDefault(item => item.Folder.SiteId == siteId &&
                     item.Folder.Path.ToLower() == folderPath &&
@@ -123,7 +130,7 @@ namespace Oqtane.Repository
 
             if (file != null)
             {
-                IEnumerable<Permission> permissions = _permissions.GetPermissions(file.Folder.SiteId, EntityNames.Folder, file.FolderId).ToList();
+                var permissions = _permissions.GetPermissions(file.Folder.SiteId, EntityNames.Folder, file.FolderId).ToList();
                 file.Folder.PermissionList = permissions.ToList();
                 file.Url = GetFileUrl(file, _tenants.GetAlias());
             }
@@ -133,21 +140,24 @@ namespace Oqtane.Repository
 
         public void DeleteFile(int fileId)
         {
-            File file = _db.File.Find(fileId);
-            _db.File.Remove(file);
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            var file = db.File.Find(fileId);
+            db.File.Remove(file);
+            db.SaveChanges();
         }
 
         public string GetFilePath(int fileId)
         {
-            var file = _db.File.Find(fileId);
+            using var db = _dbContextFactory.CreateDbContext();
+            var file = db.File.Find(fileId);
             return GetFilePath(file);
         }
 
         public string GetFilePath(File file)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             if (file == null) return null;
-            var folder = file.Folder ?? _db.Folder.AsNoTracking().FirstOrDefault(item => item.FolderId == file.FolderId);
+            var folder = file.Folder ?? db.Folder.AsNoTracking().FirstOrDefault(item => item.FolderId == file.FolderId);
             var filepath = Path.Combine(_folderRepository.GetFolderPath(folder), file.Name);
             return filepath;
         }

@@ -5,10 +5,17 @@
 {
     foreach (var childPage in GetChildPages())
     {
+        var _attributes = new Dictionary<string, object>();
+        _attributes.Add("href", GetUrl(childPage));
+        var _target = GetTarget(childPage);
+        if (!string.IsNullOrEmpty(_target))
+        {
+            _attributes.Add("target", _target);
+        }
         if (childPage.PageId == PageState.Page.PageId)
         {
             <li class="nav-item px-3" style="margin-left: @(childPage.Level * 15)px;">
-                <a class="nav-link active" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
+                <a class="nav-link active" @attributes="_attributes">
                     <span class="w-100" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
                         <span class="@childPage.Icon" aria-hidden="true" />
                         @childPage.Name <span class="visually-hidden-focusable">(current)</span>
@@ -19,7 +26,7 @@
         else
         {
             <li class="nav-item px-3" style="margin-left: @(childPage.Level * 15)px;">
-                <a class="nav-link" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
+                <a class="nav-link" @attributes="_attributes">
                     <span class="w-100" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
                         <span class="@childPage.Icon" aria-hidden="true" />
                         @childPage.Name
@@ -38,10 +45,17 @@ else
     <ul class="nav flex-column">
         @foreach (var childPage in GetChildPages())
         {
+            var _attributes = new Dictionary<string, object>();
+            _attributes.Add("href", GetUrl(childPage));
+            var _target = GetTarget(childPage);
+            if (!string.IsNullOrEmpty(_target))
+            {
+                _attributes.Add("target", _target);
+            }
             if (childPage.PageId == PageState.Page.PageId)
             {
                 <li class="nav-item px-3" style="margin-left: @(childPage.Level * 15)px;">
-                    <a class="nav-link active" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
+                    <a class="nav-link active" @attributes="_attributes">
                         <span class="w-100" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
                             <span class="@childPage.Icon" aria-hidden="true" />
                             @childPage.Name <span class="visually-hidden-focusable">(current)</span>
@@ -52,7 +66,7 @@ else
             else
             {
                 <li class="nav-item px-3" style="margin-left: @(childPage.Level * 15)px;">
-                    <a class="nav-link" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
+                    <a class="nav-link" @attributes="_attributes">
                         <span class="w-100" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
                             <span class="@childPage.Icon" aria-hidden="true" />
                             @childPage.Name

@@ -67,7 +67,7 @@ else
                 // pane matches current pane
                 if (Name.ToLower() == pane.ToLower())
                 {
-                    if (module.ModuleId == PageState.ModuleId && PageState.Action != Constants.DefaultAction)
+                    if (PageState.ModuleId == module.ModuleId && PageState.Action != Constants.DefaultAction)
                     {
                         var moduleType = Type.GetType(module.ModuleType);
                         if (moduleType != null)
@@ -123,7 +123,7 @@ else
 
     private void CreateComponent(RenderTreeBuilder builder, Module module, int key)
     {
-        builder.OpenComponent(0, Type.GetType(Constants.ContainerComponent));
+        builder.OpenComponent(0, typeof(ContainerBuilder));
         builder.AddAttribute(1, "ModuleState", module);
         if (key != -1)
         {

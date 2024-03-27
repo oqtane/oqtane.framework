@@ -30,5 +30,10 @@ namespace Oqtane.Modules
         /// Identifies all resources in a module
         /// </summary>
         List<Resource> Resources { get; }
+
+        /// <summary>
+        /// Specifies the required render mode for the module control ie. Static,Interactive
+        /// </summary>
+        string RenderMode { get; }
     }
 }

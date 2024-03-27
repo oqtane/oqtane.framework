@@ -6,9 +6,16 @@
     <div class="dropdown-menu" aria-labelledby="@($"navbarDropdown{ParentPage.PageId}")">
         @foreach (var childPage in GetChildPages())
         {
+            var _attributes = new Dictionary<string, object>();
+            _attributes.Add("href", GetUrl(childPage));
+            var _target = GetTarget(childPage);
+            if (!string.IsNullOrEmpty(_target))
+            {
+                _attributes.Add("target", _target);
+            }
             if (childPage.PageId == PageState.Page.PageId)
             {
-                <a class="nav-link active px-3" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
+                <a class="nav-link active px-3" @attributes="_attributes">
                     <span class="w-100" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
                         <span class="@childPage.Icon" aria-hidden="true" />
                         @childPage.Name <span class="visually-hidden-focusable">(current)</span>
@@ -17,7 +24,7 @@
             }
             else
             {
-                <a class="nav-link px-3" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
+                <a class="nav-link px-3" @attributes="_attributes">
                     <span class="w-100" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
                         <span class="@childPage.Icon" aria-hidden="true" />
                         @childPage.Name
@@ -32,12 +39,19 @@ else
     <ul class="navbar-nav mr-auto">
         @foreach (var childPage in GetChildPages())
         {
+            var _attributes = new Dictionary<string, object>();
+            _attributes.Add("href", GetUrl(childPage));
+            var _target = GetTarget(childPage);
+            if (!string.IsNullOrEmpty(_target))
+            {
+                _attributes.Add("target", _target);
+            }
             if (!Pages.Any(e => e.ParentId == childPage.PageId))
             {
                 if (childPage.PageId == PageState.Page.PageId)
                 {
                     <li class="nav-item">
-                        <a class="nav-link active" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
+                        <a class="nav-link active" @attributes="_attributes">
                             <span class="w-100" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
                                 <span class="@childPage.Icon" aria-hidden="true" />
                                 @childPage.Name <span class="visually-hidden-focusable">(current)</span>
@@ -48,7 +62,7 @@ else
                 else
                 {
                     <li class="nav-item">
-                        <a class="nav-link" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
+                        <a class="nav-link" @attributes="_attributes">
                             <span class="w-100" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
                                 <span class="@childPage.Icon" aria-hidden="true" />
                                 @childPage.Name
@@ -62,7 +76,7 @@ else
                 if (childPage.PageId == PageState.Page.PageId)
                 {
                     <li class="nav-item dropdown active">
-                        <a class="nav-link dropdown-toggle" href="@GetUrl(childPage)" target="@GetTarget(childPage)" id="@($"navbarDropdown{childPage.PageId}")" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" id="@($"navbarDropdown{childPage.PageId}")" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @attributes="_attributes">
                             <span class="@childPage.Icon" aria-hidden="true" />
                             @childPage.Name <span class="visually-hidden-focusable">(current)</span>
                         </a>
@@ -72,7 +86,7 @@ else
                 else
                 {
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="@GetUrl(childPage)" target="@GetTarget(childPage)" id="@($"navbarDropdown{childPage.PageId}")" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" id="@($"navbarDropdown{childPage.PageId}")" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @attributes="_attributes">
                             <span class="@childPage.Icon" aria-hidden="true" />
                             @childPage.Name
                         </a>

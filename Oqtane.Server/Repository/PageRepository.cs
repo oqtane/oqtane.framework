@@ -9,14 +9,14 @@ namespace Oqtane.Repository
 {
     public class PageRepository : IPageRepository
     {
-        private TenantDBContext _db;
+        private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
         private readonly IPageModuleRepository _pageModules;
         private readonly IPermissionRepository _permissions;
         private readonly ISettingRepository _settings;
 
-        public PageRepository(TenantDBContext context, IPageModuleRepository pageModules, IPermissionRepository permissions, ISettingRepository settings)
+        public PageRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IPageModuleRepository pageModules, IPermissionRepository permissions, ISettingRepository settings)
         {
-            _db = context;
+            _dbContextFactory = dbContextFactory;
             _pageModules = pageModules;
             _permissions = permissions;
             _settings = settings;
@@ -24,9 +24,10 @@ namespace Oqtane.Repository
 
         public IEnumerable<Page> GetPages(int siteId)
         {
-            IEnumerable<Permission> permissions = _permissions.GetPermissions(siteId, EntityNames.Page).ToList();
-            IEnumerable<Page> pages = _db.Page.Where(item => item.SiteId == siteId && item.UserId == null);
-            foreach(Page page in pages)
+            using var db = _dbContextFactory.CreateDbContext();
+            var permissions = _permissions.GetPermissions(siteId, EntityNames.Page).ToList();
+            var pages = db.Page.Where(item => item.SiteId == siteId && item.UserId == null).ToList();
+            foreach (var page in pages)
             {
                 page.PermissionList = permissions.Where(item => item.EntityId == page.PageId).ToList();
             }
@@ -35,16 +36,18 @@ namespace Oqtane.Repository
 
         public Page AddPage(Page page)
         {
-            _db.Page.Add(page);
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            db.Page.Add(page);
+            db.SaveChanges();
             _permissions.UpdatePermissions(page.SiteId, EntityNames.Page, page.PageId, page.PermissionList);
             return page;
         }
 
         public Page UpdatePage(Page page)
         {
-            _db.Entry(page).State = EntityState.Modified;
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            db.Entry(page).State = EntityState.Modified;
+            db.SaveChanges();
             _permissions.UpdatePermissions(page.SiteId, EntityNames.Page, page.PageId, page.PermissionList);
             return page;
         }
@@ -56,15 +59,16 @@ namespace Oqtane.Repository
 
         public Page GetPage(int pageId, bool tracking)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             Page page;
             if (tracking)
             {
-                page = _db.Page.Find(pageId);
+                page = db.Page.Find(pageId);
 
             }
             else
             {
-                page = _db.Page.AsNoTracking().FirstOrDefault(item => item.PageId == pageId);
+                page = db.Page.AsNoTracking().FirstOrDefault(item => item.PageId == pageId);
             }
             if (page != null)
             {
@@ -75,7 +79,8 @@ namespace Oqtane.Repository
 
         public Page GetPage(string path, int siteId)
         {
-            Page page = _db.Page.FirstOrDefault(item => item.Path == path && item.SiteId == siteId);
+            using var db = _dbContextFactory.CreateDbContext();
+            var page = db.Page.FirstOrDefault(item => item.Path == path && item.SiteId == siteId);
             if (page != null)
             {
                 page.PermissionList = _permissions.GetPermissions(page.SiteId, EntityNames.Page, page.PageId)?.ToList();
@@ -85,18 +90,19 @@ namespace Oqtane.Repository
 
         public void DeletePage(int pageId)
         {
-            Page page = _db.Page.Find(pageId);
+            using var db = _dbContextFactory.CreateDbContext();
+            var page = db.Page.Find(pageId);
             _permissions.DeletePermissions(page.SiteId, EntityNames.Page, pageId);
             _settings.DeleteSettings(EntityNames.Page, pageId);
             // remove page modules for page
-            var pageModules = _db.PageModule.Where(item => item.PageId == pageId).ToList();
+            var pageModules = db.PageModule.Where(item => item.PageId == pageId).ToList();
             foreach (var pageModule in pageModules)
             {
                 _pageModules.DeletePageModule(pageModule.PageModuleId);
             }
             // must occur after page modules are deleted because of cascading delete relationship
-            _db.Page.Remove(page);
-            _db.SaveChanges();
+            db.Page.Remove(page);
+            db.SaveChanges();
         }
     }
 }

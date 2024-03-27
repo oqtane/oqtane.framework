@@ -260,8 +260,10 @@
 					IsNewTenant = true,
 					SiteName = Constants.DefaultSite,
 					Register = _register,
-                    SiteTemplate = _template
-				};
+                    SiteTemplate = _template,
+                    RenderMode = RenderModes.Static,
+                    Runtime = Runtimes.Server
+                };
 
 				var installation = await InstallationService.Install(config);
 				if (installation.Success)

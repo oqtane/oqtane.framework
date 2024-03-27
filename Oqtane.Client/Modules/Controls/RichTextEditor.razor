@@ -6,7 +6,7 @@
 
 <div class="row" style="margin-bottom: 50px;">
     <div class="col">
-        <TabStrip>
+        <TabStrip ActiveTab="@_activetab">
 			@if (AllowRichText)
             {
                 <TabPanel Name="Rich" Heading="Rich Text Editor" ResourceKey="RichTextEditor">
@@ -17,12 +17,6 @@
                         <br />
                     }
                     <div class="d-flex justify-content-center mb-2">
-                        @if (AllowRawHtml)
-                        {
-                            <button type="button" class="btn btn-secondary" @onclick="RefreshRichText">@Localizer["SynchronizeContent"]</button>
-
-                            @((MarkupString)"&nbsp;&nbsp;")
-                        }
                         @if (AllowFileManagement)
                         {
                             <button type="button" class="btn btn-primary" @onclick="InsertRichImage">@Localizer["InsertImage"]</button>
@@ -85,7 +79,6 @@
 						<br />
 					}
 					<div class="d-flex justify-content-center mb-2">
-						<button type="button" class="btn btn-secondary" @onclick="RefreshRawHtml">@Localizer["SynchronizeContent"]</button>&nbsp;&nbsp;
 						@if (AllowFileManagement)
 						{
 							<button type="button" class="btn btn-primary" @onclick="InsertRawImage">@Localizer["InsertImage"]</button>
@@ -121,6 +114,7 @@
     private string _rawhtml = string.Empty;
     private string _originalrawhtml = string.Empty;
     private string _message = string.Empty;
+    private string _activetab = "Rich";
 
     [Parameter]
     public string Content { get; set; }
@@ -163,6 +157,12 @@
         _rawhtml = Content;
         _originalrawhtml = _rawhtml; // preserve for comparison later
         _originalrichhtml = "";
+
+        // Quill wraps content in <p> tags which can be used as a signal to set the active tab
+        if (!string.IsNullOrEmpty(Content) && !Content.StartsWith("<p>") && AllowRawHtml)
+        {
+            _activetab = "Raw";
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -205,19 +205,6 @@
     {
         _rawfilemanager = false;
         _message = string.Empty;
-        StateHasChanged();
-    }
-
-    public void RefreshRichText()
-    {
-        _richhtml = _rawhtml;
-        StateHasChanged();
-    }
-
-    public async Task RefreshRawHtml()
-    {
-        var interop = new RichTextEditorInterop(JSRuntime);
-        _rawhtml = await interop.GetHtml(_editorElement);
         StateHasChanged();
     }
 

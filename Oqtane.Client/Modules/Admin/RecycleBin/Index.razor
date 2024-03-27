@@ -140,7 +140,7 @@ else
     {
         try
         {
-            ModuleInstance.ShowProgressIndicator();
+            ShowProgressIndicator();
             foreach (Page page in _pages.Where(item => item.IsDeleted))
             {
                 await PageService.DeletePageAsync(page.PageId);
@@ -149,7 +149,7 @@ else
 
             await logger.LogInformation("Pages Permanently Deleted");
             await Load();
-            ModuleInstance.HideProgressIndicator();
+            HideProgressIndicator();
             StateHasChanged();
             NavigationManager.NavigateTo(NavigateUrl());
         }
@@ -157,7 +157,7 @@ else
         {
             await logger.LogError(ex, "Error Permanently Deleting Pages {Error}", ex.Message);
             AddModuleMessage(ex.Message, MessageType.Error);
-            ModuleInstance.HideProgressIndicator();
+            HideProgressIndicator();
         }
     }
 
@@ -199,21 +199,21 @@ else
     {
         try
         {
-            ModuleInstance.ShowProgressIndicator();
+            ShowProgressIndicator();
             foreach (Module module in _modules.Where(item => item.IsDeleted).ToList())
             {
                 await PageModuleService.DeletePageModuleAsync(module.PageModuleId);
             }
             await logger.LogInformation("Modules Permanently Deleted");
             await Load();
-            ModuleInstance.HideProgressIndicator();
+            HideProgressIndicator();
             StateHasChanged();
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Permanently Deleting Modules {Error}", ex.Message);
             AddModuleMessage(Localizer["Error.Modules.Delete"], MessageType.Error);
-            ModuleInstance.HideProgressIndicator();
+            HideProgressIndicator();
         }
     }
     private void OnPageChangePage(int page)

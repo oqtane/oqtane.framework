@@ -483,9 +483,9 @@
                             await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
                             await logger.LogInformation("User Profile Saved");
 
-                            if (PageState.QueryString.ContainsKey("returnurl"))
+                            if (!string.IsNullOrEmpty(PageState.ReturnUrl))
                             {
-                                NavigationManager.NavigateTo(WebUtility.UrlDecode(PageState.QueryString["returnurl"]));
+                                NavigationManager.NavigateTo(PageState.ReturnUrl);
                             }
                             else // legacy behavior
                             {
@@ -551,7 +551,7 @@
 
     private void Cancel()
     {
-        NavigationManager.NavigateTo(NavigateUrl(string.Empty));
+        NavigationManager.NavigateTo(PageState.ReturnUrl);
     }
 
     private void ProfileChanged(ChangeEventArgs e, string SettingName)
@@ -596,7 +596,7 @@
     {
         try
         {
-            ModuleInstance.ShowProgressIndicator();
+            ShowProgressIndicator();
             foreach(var Notification in notifications)
             {
                 if (!Notification.IsDeleted)
@@ -612,7 +612,7 @@
             }
             await logger.LogInformation("Notifications Permanently Deleted");
             await LoadNotificationsAsync();
-            ModuleInstance.HideProgressIndicator();
+            HideProgressIndicator();
 
             StateHasChanged();
         }
@@ -620,7 +620,7 @@
         {
             await logger.LogError(ex, "Error Deleting Notifications {Error}", ex.Message);
             AddModuleMessage(ex.Message, MessageType.Error);
-            ModuleInstance.HideProgressIndicator();
+            HideProgressIndicator();
         }
     }
 

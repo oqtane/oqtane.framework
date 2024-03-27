@@ -10,6 +10,11 @@ namespace Oqtane.Models
     public class Route
     {
         /// <summary>
+        /// parameterless constructor to prevent deserialization exceptions
+        /// </summary>
+        public Route() { }
+
+        /// <summary>
         /// default constructor
         /// the route parameter can be obtained from NavigationManager.Uri on client or HttpContext.Request.GetEncodedUrl() on server
         /// the aliaspath parameter can be obtained from PageState.Alias.Path on client or TenantManager.GetAlias().Path on server
@@ -27,8 +32,8 @@ namespace Oqtane.Models
             PathAndQuery = uri.PathAndQuery;
             AliasPath = aliaspath;
             PagePath = AbsolutePath;
-            ModuleId = "";
-            Action = "";
+            ModuleId = "-1";
+            Action = Constants.DefaultAction;
             UrlParameters = "";
 
             if (AliasPath.Length != 0 && PagePath.StartsWith("/" + AliasPath))
@@ -44,7 +49,7 @@ namespace Oqtane.Models
             pos = PagePath.IndexOf("/" + Constants.ModuleDelimiter + "/");
             if (pos != -1)
             {
-                ModuleId = PagePath.Substring(pos + 3);
+                ModuleId = PagePath.Substring(pos + 3); 
                 PagePath = PagePath.Substring(0, pos);
             }
             if (ModuleId.Length != 0)
@@ -52,8 +57,10 @@ namespace Oqtane.Models
                 pos = ModuleId.IndexOf("/");
                 if (pos != -1)
                 {
-                    Action = ModuleId.Substring(pos + 1); 
+                    Action = ModuleId.Substring(pos + 1);
+                    Action = (!string.IsNullOrEmpty(Action)) ? Action : Constants.DefaultAction;
                     ModuleId = ModuleId.Substring(0, pos);
+                    ModuleId = (int.TryParse(ModuleId, out _)) ? ModuleId : "-1";
                 }
             }
             if (PagePath.StartsWith("/"))

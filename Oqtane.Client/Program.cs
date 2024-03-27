@@ -41,10 +41,10 @@ namespace Oqtane.Client
             builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
             // register auth services
-            builder.Services.AddOqtaneAuthorization();
+            builder.Services.AddOqtaneAuthentication();
 
             // register scoped core services
-            builder.Services.AddOqtaneScopedServices();
+            builder.Services.AddOqtaneClientScopedServices();
 
             var serviceProvider = builder.Services.BuildServiceProvider();
 
@@ -212,6 +212,16 @@ namespace Oqtane.Client
             try
             {
                 var implementationTypes = assembly.GetInterfaces<IService>();
+                foreach (var implementationType in implementationTypes)
+                {
+                    if (implementationType.AssemblyQualifiedName != null)
+                    {
+                        var serviceType = Type.GetType(implementationType.AssemblyQualifiedName.Replace(implementationType.Name, $"I{implementationType.Name}"));
+                        services.AddScoped(serviceType ?? implementationType, implementationType);
+                    }
+                }
+
+                implementationTypes = assembly.GetInterfaces<IClientService>();
                 foreach (var implementationType in implementationTypes)
                 {
                     if (implementationType.AssemblyQualifiedName != null)

@@ -1,5 +1,6 @@
 @using System.Diagnostics.CodeAnalysis
 @using System.Net
+@using Microsoft.AspNetCore.Http
 @namespace Oqtane.UI
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject SiteState SiteState
@@ -11,8 +12,10 @@
 @inject IUserService UserService
 @inject IUrlMappingService UrlMappingService
 @inject ILogService LogService
+@inject ISettingService SettingService
 @inject IJSRuntime JSRuntime
 @implements IHandleAfterRender
+@implements IDisposable
 
 @if (!string.IsNullOrEmpty(_error))
 {
@@ -26,16 +29,13 @@
     private bool _isInternalNavigation = false;
     private bool _navigationInterceptionEnabled;
     private PageState _pagestate;
-    private string _error = "";    
-
-    [Parameter]
-    public string Runtime { get; set; }
+    private string _error = "";
 
     [Parameter]
     public string RenderMode { get; set; }
 
     [Parameter]
-    public int VisitorId { get; set; }
+    public string Runtime { get; set; }
 
     [CascadingParameter]
     PageState PageState { get; set; }
@@ -52,9 +52,9 @@
 
         DynamicComponent = builder =>
         {
-            if (PageState != null)
+            if (PageState != null && !PageState.Refresh)
             {
-                builder.OpenComponent(0, Type.GetType(Constants.PageComponent));
+                builder.OpenComponent(0, typeof(ThemeBuilder));
                 builder.CloseComponent();
             }
         };
@@ -67,7 +67,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        if (PageState == null)
+        if (PageState == null || PageState.Refresh)
         {
             await Refresh();
         }
@@ -99,12 +99,12 @@
         var editmode = false;
         var refresh = false;
         var lastsyncdate = DateTime.MinValue;
-        var runtime = (Shared.Runtime)Enum.Parse(typeof(Shared.Runtime), Runtime);
+        var visitorId = -1;
         _error = "";
 
         Route route = new Route(_absoluteUri, SiteState.Alias.Path);
-        int moduleid = (int.TryParse(route.ModuleId, out moduleid)) ? moduleid : -1;
-        var action = (!string.IsNullOrEmpty(route.Action)) ? route.Action : Constants.DefaultAction; 
+        int moduleid = int.Parse(route.ModuleId);
+        var action = route.Action; 
 
         var querystring = Utilities.ParseQueryString(route.Query);
         var returnurl = "";
@@ -144,66 +144,43 @@
             refresh = true;
         }
 
+        // verify user is authenticated for current site
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity.IsAuthenticated && authState.User.Claims.Any(item => item.Type == "sitekey" && item.Value == SiteState.Alias.SiteKey))
+        {
+            // get user
+            user = await UserService.GetUserAsync(authState.User.Identity.Name, SiteState.Alias.SiteId);
+            if (user != null)
+            {
+                user.IsAuthenticated = authState.User.Identity.IsAuthenticated;
+            }
+        }
+
         if (PageState != null)
         {
             editmode = PageState.EditMode;
             lastsyncdate = PageState.LastSyncDate;
-        }
-        if (PageState?.Page.Path != route.PagePath)
-        {
-            editmode = false; // reset edit mode when navigating to different page
-        }
-        if (querystring.ContainsKey("edit") && querystring["edit"] == "true")
-        {
-            editmode = true; // querystring can set edit mode
+            visitorId = PageState.VisitorId;
         }
 
-        // get user
-        if (PageState == null || refresh || PageState.Alias.SiteId != SiteState.Alias.SiteId)
+        if (PageState.RenderMode == RenderModes.Interactive)
         {
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            // verify user is authenticated for current site
-            if (authState.User.Identity.IsAuthenticated && authState.User.Claims.Any(item => item.Type == "sitekey" && item.Value == SiteState.Alias.SiteKey))
+            // process any sync events (for synchrozing the client application with the server)
+            var sync = await SyncService.GetSyncEventsAsync(lastsyncdate);
+            lastsyncdate = sync.SyncDate;
+            if (sync.SyncEvents.Any())
             {
-                user = await UserService.GetUserAsync(authState.User.Identity.Name, SiteState.Alias.SiteId);
-                if (user != null)
+                // reload client application if server was restarted
+                if (sync.SyncEvents.Exists(item => item.Action == SyncEventActions.Reload && item.EntityName == EntityNames.Host))
                 {
-                    user.IsAuthenticated = authState.User.Identity.IsAuthenticated;
+                    NavigationManager.NavigateTo(_absoluteUri, true);
+                    return;
                 }
-            }
-        }
-        else
-        {
-            user = PageState.User;
-        }
-
-        // process any sync events
-        var sync = await SyncService.GetSyncEventsAsync(lastsyncdate);
-        lastsyncdate = sync.SyncDate;
-        if (sync.SyncEvents.Any())
-        {
-            // reload client application if server was restarted
-            if (sync.SyncEvents.Exists(item => item.Action == SyncEventActions.Reload && item.EntityName == EntityNames.Host))
-            {
-                NavigationManager.NavigateTo(_absoluteUri, true);
-                return;
-            }
-            // reload client application if site runtime/rendermode was modified
-            if (sync.SyncEvents.Exists(item => item.Action == SyncEventActions.Reload && item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId))
-            {
-                NavigationManager.NavigateTo(_absoluteUri, true);
-                return;
-            }
-            // reload client application if current user auth information has changed
-            if (user != null && sync.SyncEvents.Exists(item => item.Action == SyncEventActions.Reload && item.EntityName == EntityNames.User && item.EntityId == user.UserId))
-            {
-                NavigationManager.NavigateTo(_absoluteUri, true);
-                return;
-            }
-            // refresh PageState when site information has changed
-            if (sync.SyncEvents.Exists(item => item.Action == SyncEventActions.Refresh && item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId))
-            {
-                refresh = true;
+                // refresh PageState when site information has changed
+                if (sync.SyncEvents.Exists(item => item.Action == SyncEventActions.Refresh && item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId))
+                {
+                    refresh = true;
+                }
             }
         }
 
@@ -220,6 +197,12 @@
 
         if (site != null)
         {
+            if (Runtime == Runtimes.Hybrid && !site.Hybrid)
+            {
+                _error = "Hybrid Integration Is Not Enabled For This Site";
+                return;
+            }
+
             if (PageState == null || refresh || PageState.Page.Path != route.PagePath)
             {
                 page = site.Pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
@@ -255,6 +238,7 @@
                     {
                         // redirect to the personalized page
                         NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, personalized.Path, ""), false);
+                        return;
                     }
                 }
             }
@@ -264,6 +248,24 @@
                 // check if user is authorized to view page
                 if (UserSecurity.IsAuthorized(user, PermissionNames.View, page.PermissionList) && (Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate) || UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList)))
                 {
+                    // edit mode
+                    if (user != null)
+                    {
+                        if (querystring.ContainsKey("editmode") && querystring["edit"] == "true")
+                        {
+                            editmode = true;
+                        }
+                        else
+                        {
+                            editmode = (page.PageId == ((user.Settings.ContainsKey("CP-editmode")) ? int.Parse(user.Settings["CP-editmode"]) : -1));
+                            if (!editmode)
+                            {
+                                var userSettings = new Dictionary<string, string> { { "CP-editmode", "-1" } };
+                                await SettingService.UpdateUserSettingsAsync(userSettings, user.UserId);
+                            }
+                        }
+                    }
+                        
                     // load additional metadata for current page
                     page = ProcessPage(page, site, user, SiteState.Alias);
 
@@ -285,16 +287,21 @@
                         Action = action,
                         EditMode = editmode,
                         LastSyncDate = lastsyncdate,
-                        Runtime = runtime,
-						VisitorId = VisitorId,
+                        RenderMode = RenderMode,
+                        Runtime = (Shared.Runtime)Enum.Parse(typeof(Shared.Runtime), Runtime),
+						VisitorId = visitorId,
 						RemoteIPAddress = SiteState.RemoteIPAddress,
 						ReturnUrl = returnurl,
                         IsInternalNavigation = _isInternalNavigation,
-                        RenderId = Guid.NewGuid()
+                        RenderId = Guid.NewGuid(),
+                        Refresh = false
                     };
-
                     OnStateChange?.Invoke(_pagestate);
-                    await ScrollToFragment(_pagestate.Uri);
+
+                    if (PageState.RenderMode == RenderModes.Interactive)
+                    {
+                        await ScrollToFragment(_pagestate.Uri);
+                    }
                 }
                 else
                 {
@@ -317,7 +324,7 @@
                 }
                 else // not mapped
                 {
-                    if (user == null && Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate))
+                    if (user == null)
                     {
                         // redirect to login page if user not logged in as they may need to be authenticated
                         NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "login", "?returnurl=" + WebUtility.UrlEncode(route.PathAndQuery)));
@@ -357,17 +364,15 @@
                 page.ThemeType = site.DefaultThemeType;
             }
             var theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == page.ThemeType));
-            Type themetype = Type.GetType(page.ThemeType);
-            if (themetype == null || theme == null)
+            if (theme == null)
             {
                 // fallback to default Oqtane theme
                 page.ThemeType = Constants.DefaultTheme;
-                themetype = Type.GetType(Constants.DefaultTheme);
                 theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == page.ThemeType));
             }
-
+            Type themetype = Type.GetType(page.ThemeType);
             string panes = "";
-            if (themetype != null && theme != null)
+            if (themetype != null)
             {
                 // get resources for theme (ITheme)
                 page.Resources = ManagePageResources(page.Resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName));
@@ -410,8 +415,10 @@
     {
         var paneindex = new Dictionary<string, int>();
 
-        foreach (Module module in modules)
+        foreach (Module module in modules.Where(item => item.PageId == page.PageId || item.ModuleId == moduleid))
         {
+            var typename = Constants.ErrorModule;
+
             // initialize module control properties
             module.SecurityAccessLevel = SecurityAccessLevel.Host;
             module.ControlTitle = "";
@@ -420,110 +427,108 @@
             module.PaneModuleIndex = -1;
             module.PaneModuleCount = 0;
 
-            if (module.PageId == page.PageId || module.ModuleId == moduleid)
+            if (module.ModuleDefinition != null && (module.ModuleDefinition.Runtimes == "" || module.ModuleDefinition.Runtimes.Contains(Runtime)))
             {
-                var typename = Constants.ErrorModule;
+                page.Resources = ManagePageResources(page.Resources, module.ModuleDefinition.Resources, ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName));
 
-                if (module.ModuleDefinition != null && (module.ModuleDefinition.Runtimes == "" || module.ModuleDefinition.Runtimes.Contains(Runtime)))
+                // handle default action
+                if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
                 {
-                    typename = module.ModuleDefinition.ControlTypeTemplate;
+                    action = module.ModuleDefinition.DefaultAction;
+                }
 
-                    // handle default action
-                    if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
+                // get typename template
+                typename = module.ModuleDefinition.ControlTypeTemplate;
+                if (module.ModuleDefinition.ControlTypeRoutes != "")
+                {
+                    // process custom action routes
+                    foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(';', StringSplitOptions.RemoveEmptyEntries))
                     {
-                        action = module.ModuleDefinition.DefaultAction;
-                    }
-
-                    // check if the module defines custom action routes
-                    if (module.ModuleDefinition.ControlTypeRoutes != "")
-                    {
-                        foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(';', StringSplitOptions.RemoveEmptyEntries))
+                        if (route.StartsWith(action + "="))
                         {
-                            if (route.StartsWith(action + "="))
-                            {
-                                typename = route.Replace(action + "=", "");
-                            }
+                            typename = route.Replace(action + "=", "");
+                            break;
                         }
                     }
+                }
+            }
 
-                    // get module resources
-                    page.Resources = ManagePageResources(page.Resources, module.ModuleDefinition.Resources, ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName));
-                }
+            // create typename
+            if (Constants.DefaultModuleActions.Contains(action, StringComparer.OrdinalIgnoreCase))
+            {
+                typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, action);
+            }
+            else
+            {
+                typename = typename.Replace(Constants.ActionToken, action);
+            }
 
-                // ensure component exists and implements IModuleControl
-                module.ModuleType = "";
-                if (Constants.DefaultModuleActions.Contains(action, StringComparer.OrdinalIgnoreCase))
-                {
-                    typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, action);
-                }
-                else
-                {
-                    typename = typename.Replace(Constants.ActionToken, action);
-                }
-                Type moduletype = Type.GetType(typename, false, true); // case insensitive
-                if (moduletype != null && moduletype.GetInterfaces().Contains(typeof(IModuleControl)))
-                {
-                    module.ModuleType = Utilities.GetFullTypeName(moduletype.AssemblyQualifiedName); // get actual type name
-                }
+            // ensure component exists and implements IModuleControl
+            module.ModuleType = "";
+            Type moduletype = Type.GetType(typename, false, true); // case insensitive
+            if (moduletype != null && moduletype.GetInterfaces().Contains(typeof(IModuleControl)))
+            {
+                module.ModuleType = Utilities.GetFullTypeName(moduletype.AssemblyQualifiedName); // get actual type name
+            }
 
-                // get additional metadata from IModuleControl interface
-                if (moduletype != null && module.ModuleType != "")
+            if (moduletype != null && module.ModuleType != "")
+            {
+                // retrieve module component resources
+                var moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
+                module.RenderMode = moduleobject.RenderMode;
+
+                page.Resources = ManagePageResources(page.Resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules",  moduletype.Namespace);
+                if (action.ToLower() == "settings" && module.ModuleDefinition != null)
                 {
-                    // retrieve module component resources
-                    var moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
-                    page.Resources = ManagePageResources(page.Resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules",  moduletype.Namespace);
-                    if (action.ToLower() == "settings" && module.ModuleDefinition != null)
+                    // settings components are embedded within a framework settings module
+                    moduletype = Type.GetType(module.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, action), false, true);
+                    if (moduletype != null)
                     {
-                        // settings components are embedded within a framework settings module
-                        moduletype = Type.GetType(module.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, action), false, true);
-                        if (moduletype != null)
-                        {
-                            moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
-                            page.Resources = ManagePageResources(page.Resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace);
-                        }
-                    }
-
-                    // additional metadata needed for admin components
-                    if (module.ModuleId == moduleid && action != "")
-                    {
-                        module.ControlTitle = moduleobject.Title;
-                        module.SecurityAccessLevel = moduleobject.SecurityAccessLevel;
-                        module.Actions = moduleobject.Actions;
-                        module.UseAdminContainer = moduleobject.UseAdminContainer;
+                        moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
+                        page.Resources = ManagePageResources(page.Resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace);
                     }
                 }
 
-                // validate that module's pane exists in current page
-                if (page.Panes.FindIndex(item => item.Equals(module.Pane, StringComparison.OrdinalIgnoreCase)) == -1)
+                // additional metadata needed for admin components
+                if (module.ModuleId == moduleid && action != "")
                 {
-                    // fallback to default pane if it exists
-                    if (page.Panes.FindIndex(item => item.Equals(PaneNames.Default, StringComparison.OrdinalIgnoreCase)) != -1)
-                    {
-                        module.Pane = PaneNames.Default;
-                    }
-                    else // otherwise admin pane (legacy)
-                    {
-                        module.Pane = PaneNames.Admin;						
-                    }
+                    module.ControlTitle = moduleobject.Title;
+                    module.SecurityAccessLevel = moduleobject.SecurityAccessLevel;
+                    module.Actions = moduleobject.Actions;
+                    module.UseAdminContainer = moduleobject.UseAdminContainer;
                 }
+            }
 
-                // calculate module position within pane
-                if (paneindex.ContainsKey(module.Pane.ToLower()))
+            // validate that module's pane exists in current page
+            if (page.Panes.FindIndex(item => item.Equals(module.Pane, StringComparison.OrdinalIgnoreCase)) == -1)
+            {
+                // fallback to default pane if it exists
+                if (page.Panes.FindIndex(item => item.Equals(PaneNames.Default, StringComparison.OrdinalIgnoreCase)) != -1)
                 {
-                    paneindex[module.Pane.ToLower()] += 1;
+                    module.Pane = PaneNames.Default;
                 }
-                else
+                else // otherwise admin pane (legacy)
                 {
-                    paneindex.Add(module.Pane.ToLower(), 0);
+                    module.Pane = PaneNames.Admin;						
                 }
+            }
 
-                module.PaneModuleIndex = paneindex[module.Pane.ToLower()];
+            // calculate module position within pane
+            if (paneindex.ContainsKey(module.Pane.ToLower()))
+            {
+                paneindex[module.Pane.ToLower()] += 1;
+            }
+            else
+            {
+                paneindex.Add(module.Pane.ToLower(), 0);
+            }
 
-                // container fallback
-                if (string.IsNullOrEmpty(module.ContainerType))
-                {
-                    module.ContainerType = defaultcontainertype;
-                }
+            module.PaneModuleIndex = paneindex[module.Pane.ToLower()];
+
+            // container fallback
+            if (string.IsNullOrEmpty(module.ContainerType))
+            {
+                module.ContainerType = defaultcontainertype;
             }
         }
 
@@ -558,9 +563,7 @@
                     // ensure resource does not exist already
                     if (!pageresources.Exists(item => item.Url.ToLower() == resource.Url.ToLower()))
                     {
-                        resource.Level = level;
-                        resource.Namespace = name;
-                        pageresources.Add(resource);
+                        pageresources.Add(resource.Clone(level, name));
                     }
                 }
 			}

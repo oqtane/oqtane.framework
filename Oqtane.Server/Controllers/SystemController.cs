@@ -46,8 +46,8 @@ namespace Oqtane.Controllers
                     break;
                 case "configuration":
                     systeminfo.Add("InstallationId", _configManager.GetInstallationId());
-                    systeminfo.Add("Runtime", _configManager.GetSetting("Runtime", "Server"));
-                    systeminfo.Add("RenderMode", _configManager.GetSetting("RenderMode", "ServerPrerendered"));
+                    systeminfo.Add("RenderMode", _configManager.GetSetting("RenderMode", RenderModes.Interactive));
+                    systeminfo.Add("Runtime", _configManager.GetSetting("Runtime", Runtimes.Server));
                     systeminfo.Add("DetailedErrors", _configManager.GetSetting("DetailedErrors", "false"));
                     systeminfo.Add("Logging:LogLevel:Default", _configManager.GetSetting("Logging:LogLevel:Default", "Information"));
                     systeminfo.Add("Logging:LogLevel:Notify", _configManager.GetSetting("Logging:LogLevel:Notify", "Error"));

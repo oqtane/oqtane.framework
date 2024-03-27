@@ -8,64 +8,71 @@ namespace Oqtane.Repository
 {
     public class VisitorRepository : IVisitorRepository
     {
-        private TenantDBContext _db;
+        private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
 
-        public VisitorRepository(TenantDBContext context)
+        public VisitorRepository(IDbContextFactory<TenantDBContext> dbContextFactory)
         {
-            _db = context;
+            _dbContextFactory = dbContextFactory;
         }
             
         public IEnumerable<Visitor> GetVisitors(int siteId, DateTime fromDate)
         {
-            return _db.Visitor.AsNoTracking()
+            using var db = _dbContextFactory.CreateDbContext();
+            return db.Visitor.AsNoTracking()
                 .Include(item => item.User) // eager load users
-                .Where(item => item.SiteId == siteId && item.VisitedOn >= fromDate);
+                .Where(item => item.SiteId == siteId && item.VisitedOn >= fromDate).ToList();
         }
 
         public Visitor AddVisitor(Visitor visitor)
         {
-            _db.Visitor.Add(visitor);
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            db.Visitor.Add(visitor);
+            db.SaveChanges();
             return visitor;
         }
 
         public Visitor UpdateVisitor(Visitor visitor)
         {
-            _db.Entry(visitor).State = EntityState.Modified;
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            db.Entry(visitor).State = EntityState.Modified;
+            db.SaveChanges();
             return visitor;
         }
 
         public Visitor GetVisitor(int visitorId)
         {
-            return _db.Visitor.Find(visitorId);
+            using var db = _dbContextFactory.CreateDbContext();
+            return db.Visitor.Find(visitorId);
         }
 
         public Visitor GetVisitor(int siteId, string IPAddress)
         {
-            return _db.Visitor.FirstOrDefault(item => item.SiteId == siteId && item.IPAddress == IPAddress);
+            using var db = _dbContextFactory.CreateDbContext();
+            return db.Visitor.FirstOrDefault(item => item.SiteId == siteId && item.IPAddress == IPAddress);
         }
 
         public void DeleteVisitor(int visitorId)
         {
-            Visitor visitor = _db.Visitor.Find(visitorId);
-            _db.Visitor.Remove(visitor);
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            var visitor = db.Visitor.Find(visitorId);
+            db.Visitor.Remove(visitor);
+            db.SaveChanges();
         }
 
         public int DeleteVisitors(int siteId, int age)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             // delete visitors in batches of 100 records
-            int count = 0;
+            var count = 0;
             var purgedate = DateTime.UtcNow.AddDays(-age);
-            var visitors = _db.Visitor.Where(item => item.SiteId == siteId && item.Visits < 2 && item.VisitedOn < purgedate)
+            var visitors = db.Visitor.Where(item => item.SiteId == siteId && item.Visits < 2 && item.VisitedOn < purgedate)
                 .OrderBy(item => item.VisitedOn).Take(100).ToList();
             while (visitors.Count > 0)
             {
                 count += visitors.Count;
-                _db.Visitor.RemoveRange(visitors);
-                _db.SaveChanges();
-                visitors = _db.Visitor.Where(item => item.SiteId == siteId && item.Visits < 2 && item.VisitedOn < purgedate)
+                db.Visitor.RemoveRange(visitors);
+                db.SaveChanges();
+                visitors = db.Visitor.Where(item => item.SiteId == siteId && item.Visits < 2 && item.VisitedOn < purgedate)
                     .OrderBy(item => item.VisitedOn).Take(100).ToList();
             }
             return count;

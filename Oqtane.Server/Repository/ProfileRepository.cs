@@ -7,29 +7,32 @@ namespace Oqtane.Repository
 {
     public class ProfileRepository : IProfileRepository
     {
-        private TenantDBContext _db;
+        private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
 
-        public ProfileRepository(TenantDBContext context)
+        public ProfileRepository(IDbContextFactory<TenantDBContext> dbContextFactory)
         {
-            _db = context;
+            _dbContextFactory = dbContextFactory;
         }
             
         public IEnumerable<Profile> GetProfiles(int siteId)
         {
-            return _db.Profile.Where(item => item.SiteId == siteId || item.SiteId == null);
+            using var db = _dbContextFactory.CreateDbContext();
+            return db.Profile.Where(item => item.SiteId == siteId || item.SiteId == null).ToList();
         }
 
         public Profile AddProfile(Profile profile)
         {
-            _db.Profile.Add(profile);
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            db.Profile.Add(profile);
+            db.SaveChanges();
             return profile;
         }
 
         public Profile UpdateProfile(Profile profile)
         {
-            _db.Entry(profile).State = EntityState.Modified;
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            db.Entry(profile).State = EntityState.Modified;
+            db.SaveChanges();
             return profile;
         }
 
@@ -40,21 +43,23 @@ namespace Oqtane.Repository
 
         public Profile GetProfile(int profileId, bool tracking)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             if (tracking)
             {
-                return _db.Profile.Find(profileId);
+                return db.Profile.Find(profileId);
             }
             else
             {
-                return _db.Profile.AsNoTracking().FirstOrDefault(item => item.ProfileId == profileId);
+                return db.Profile.AsNoTracking().FirstOrDefault(item => item.ProfileId == profileId);
             }
         }
 
         public void DeleteProfile(int profileId)
         {
-            Profile profile = _db.Profile.Find(profileId);
-            _db.Profile.Remove(profile);
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            var profile = db.Profile.Find(profileId);
+            db.Profile.Remove(profile);
+            db.SaveChanges();
         }
     }
 }

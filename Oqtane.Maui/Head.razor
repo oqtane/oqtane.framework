@@ -1,6 +1,16 @@
-<DynamicComponent Type="@ComponentType"></DynamicComponent>
+@using Oqtane.Shared;
+
+<DynamicComponent Type="@ComponentType" Parameters="@Parameters"></DynamicComponent>
 
 @code {
-	Type ComponentType = Type.GetType("Oqtane.Head, Oqtane.Client");
+    Type ComponentType = Type.GetType("Oqtane.UI.Head, Oqtane.Client");
+    private IDictionary<string, object> Parameters { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Parameters = new Dictionary<string, object>();
+        Parameters.Add(new KeyValuePair<string, object>("RenderMode", RenderModes.Interactive));
+        Parameters.Add(new KeyValuePair<string, object>("Runtime", Runtimes.Hybrid));
+    }
 }
 

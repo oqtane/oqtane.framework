@@ -101,7 +101,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && urlMapping.SiteId == _alias.SiteId)
             {
                 urlMapping = _urlMappings.AddUrlMapping(urlMapping);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.UrlMapping, urlMapping.UrlMappingId, SyncEventActions.Create);
+                _syncManager.AddSyncEvent(_alias, EntityNames.UrlMapping, urlMapping.UrlMappingId, SyncEventActions.Create);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "UrlMapping Added {UrlMapping}", urlMapping);
             }
             else
@@ -121,7 +121,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && urlMapping.SiteId == _alias.SiteId && urlMapping.UrlMappingId == id && _urlMappings.GetUrlMapping(urlMapping.UrlMappingId, false) != null)
             {
                 urlMapping = _urlMappings.UpdateUrlMapping(urlMapping);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.UrlMapping, urlMapping.UrlMappingId, SyncEventActions.Update);
+                _syncManager.AddSyncEvent(_alias, EntityNames.UrlMapping, urlMapping.UrlMappingId, SyncEventActions.Update);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "UrlMapping Updated {UrlMapping}", urlMapping);
             }
             else
@@ -142,7 +142,7 @@ namespace Oqtane.Controllers
             if (urlMapping != null && urlMapping.SiteId == _alias.SiteId)
             {
                 _urlMappings.DeleteUrlMapping(id);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.UrlMapping, urlMapping.UrlMappingId, SyncEventActions.Delete);
+                _syncManager.AddSyncEvent(_alias, EntityNames.UrlMapping, urlMapping.UrlMappingId, SyncEventActions.Delete);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "UrlMapping Deleted {UrlMappingId}", id);
             }
             else

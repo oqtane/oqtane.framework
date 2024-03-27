@@ -9,12 +9,23 @@
             <text>...</text>
         </Authorizing>
         <Authorized>
-            <button type="button" class="btn btn-primary" @onclick="LogoutUser">@Localizer["Logout"]</button>
+            @if (PageState.Runtime == Runtime.Hybrid)
+            {
+                <button type="button" class="btn btn-primary" @onclick="LogoutUser">@Localizer["Logout"]</button>
+            }
+            else
+            {
+                <form method="post" class="app-form-inline" action="@logouturl" @formname="LogoutForm">
+                    <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                    <input type="hidden" name="returnurl" value="@returnurl" />
+                    <button type="submit" class="btn btn-primary">@Localizer["Logout"]</button>
+                </form>
+            }
         </Authorized>
         <NotAuthorized>
             @if (ShowLogin)
             {
-                <button type="button" class="btn btn-primary" @onclick="LoginUser">@SharedLocalizer["Login"]</button>
+                <a href="@loginurl" class="btn btn-primary">@SharedLocalizer["Login"]</a>
             }
         </NotAuthorized>
     </AuthorizeView>

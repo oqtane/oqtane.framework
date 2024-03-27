@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Oqtane.Documentation;
@@ -9,7 +8,7 @@ using Oqtane.Shared;
 namespace Oqtane.Modules.HtmlText.Services
 {
     [PrivateApi("Mark HtmlText classes as private, since it's not very useful in the public docs")]
-    public class HtmlTextService : ServiceBase, IHtmlTextService, IService
+    public class HtmlTextService : ServiceBase, IHtmlTextService, IClientService
     {        
         public HtmlTextService(HttpClient http, SiteState siteState) : base(http, siteState) {}
 
@@ -30,9 +29,9 @@ namespace Oqtane.Modules.HtmlText.Services
             return await GetJsonAsync<Models.HtmlText>(CreateAuthorizationPolicyUrl($"{ApiUrl}/{htmlTextId}/{moduleId}", EntityNames.Module, moduleId));
         }
 
-        public async Task AddHtmlTextAsync(Models.HtmlText htmlText)
+        public async Task<Models.HtmlText> AddHtmlTextAsync(Models.HtmlText htmlText)
         {
-            await PostJsonAsync(CreateAuthorizationPolicyUrl($"{ApiUrl}", EntityNames.Module, htmlText.ModuleId), htmlText);
+            return await PostJsonAsync(CreateAuthorizationPolicyUrl($"{ApiUrl}", EntityNames.Module, htmlText.ModuleId), htmlText);
         }
 
         public async Task DeleteHtmlTextAsync(int htmlTextId, int moduleId)

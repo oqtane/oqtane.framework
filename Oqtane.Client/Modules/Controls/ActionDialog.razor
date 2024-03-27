@@ -2,47 +2,102 @@
 @using System.Text.Json
 @inherits LocalizableComponent
 @inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject NavigationManager NavigationManager
 
-@if (_visible)
+@if (PageState.RenderMode == RenderModes.Interactive || ModuleState.RenderMode == RenderModes.Interactive)
 {
-    <div class="app-actiondialog">
-        <div class="modal" tabindex="-1" role="dialog">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">@Header</h5>
-                        <button type="button" class="btn-close" aria-label="Close" @onclick="DisplayModal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>@Message</p>
-                    </div>
-                    <div class="modal-footer">
-                        @if (!string.IsNullOrEmpty(Action))
-                        {
-                            <button type="button" class="@Class" @onclick="Confirm">@((MarkupString)_iconSpan) @Text</button>
-                        }
-                        <button type="button" class="btn btn-secondary" @onclick="DisplayModal">@SharedLocalizer["Cancel"]</button>
+    @if (_visible)
+    {
+        <div class="app-actiondialog">
+            <div class="modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">@Header</h5>
+                            <button type="button" class="btn-close" aria-label="Close" @onclick="DisplayModal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>@Message</p>
+                        </div>
+                        <div class="modal-footer">
+                            @if (!string.IsNullOrEmpty(Action))
+                            {
+                                <button type="button" class="@Class" @onclick="Confirm">@((MarkupString)_iconSpan) @Text</button>
+                            }
+                            <button type="button" class="btn btn-secondary" @onclick="DisplayModal">@SharedLocalizer["Cancel"]</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-}
-@if (_authorized)
-{
-    if (Disabled)
-    {
-        <button type="button" class="@Class" disabled>@((MarkupString)_iconSpan) @Text</button>
     }
-    else
+    @if (_authorized)
     {
-        <button type="button" class="@Class" @onclick="DisplayModal">@((MarkupString)_iconSpan) @Text</button>
+        if (Disabled)
+        {
+            <button type="button" class="@Class" disabled>@((MarkupString)_iconSpan) @Text</button>
+        }
+        else
+        {
+            <button type="button" class="@Class" @onclick="DisplayModal">@((MarkupString)_iconSpan) @Text</button>
+        }
+    }
+}
+else
+{
+    @if (_visible)
+    {
+        <div class="app-actiondialog">
+            <div class="modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">@Header</h5>
+                            <form method="post" @formname="@($"ActionDialogCloseForm{Id}")" @onsubmit="DisplayModal" data-enhance>
+                                <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                                <button type="submit" class="btn-close" aria-label="Close"></button>
+                            </form>
+                        </div>
+                        <div class="modal-body">
+                            <p>@Message</p>
+                        </div>
+                        <div class="modal-footer">
+                            @if (!string.IsNullOrEmpty(Action))
+                            {
+                                <form method="post" @formname="@($"ActionDialogConfirmForm{Id}")" @onsubmit="Confirm" data-enhance>
+                                    <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                                    <button type="submit" class="@Class">@((MarkupString)_iconSpan) @Text</button>
+                                </form>
+                            }
+                            <form method="post" @formname="@($"ActionDialogCancelForm{Id}")" @onsubmit="DisplayModal" data-enhance>
+                                <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                                <button type="submit" class="btn btn-secondary">@SharedLocalizer["Cancel"]</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    @if (_authorized)
+    {
+        if (Disabled)
+        {
+            <button type="button" class="@Class" disabled>@((MarkupString)_iconSpan) @Text</button>
+        }
+        else
+        {
+            <form method="post" @formname="@($"ActionDialogActionForm{Id}")" @onsubmit="DisplayModal" data-enhance>
+                <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                <button type="submit" class="@Class">@((MarkupString)_iconSpan) @Text</button>
+            </form>
+        }
     }
 }
 
 @code {
     private bool _visible = false;
-	private List<Permission> _permissions;
+    private List<Permission> _permissions;
     private bool _editmode = false;
     private bool _authorized = false;
     private string _iconSpan = string.Empty;
@@ -62,11 +117,11 @@
     [Parameter]
     public SecurityAccessLevel? Security { get; set; } // optional - can be used to explicitly specify SecurityAccessLevel
 
-	[Parameter]
-	public string Permissions { get; set; } // deprecated - use PermissionList instead
+    [Parameter]
+    public string Permissions { get; set; } // deprecated - use PermissionList instead
 
-	[Parameter]
-	public List<Permission> PermissionList { get; set; } // optional - can be used to specify permissions
+    [Parameter]
+    public List<Permission> PermissionList { get; set; } // optional - can be used to specify permissions
 
     [Parameter]
     public string Class { get; set; } // optional
@@ -83,15 +138,18 @@
     [Parameter]
     public string IconName { get; set; } // optional - specifies an icon for the link - default is no icon
 
-	protected override void OnInitialized()
-	{
-		if (!string.IsNullOrEmpty(Permissions))
-		{
-			PermissionList = JsonSerializer.Deserialize<List<Permission>>(Permissions);
-		}
-	}
-	
-	protected override void OnParametersSet()
+    [Parameter]
+    public string Id { get; set; } // optional - specifies a unique id for the compoment - required when there are multiple component instances on a page in static rendering
+
+    protected override void OnInitialized()
+    {
+        if (!string.IsNullOrEmpty(Permissions))
+        {
+            PermissionList = JsonSerializer.Deserialize<List<Permission>>(Permissions);
+        }
+    }
+
+    protected override void OnParametersSet()
     {
         base.OnParametersSet();
 
@@ -122,8 +180,13 @@
         Header = Localize(nameof(Header), Header);
         Message = Localize(nameof(Message), Message);
 
-		_permissions = (PermissionList == null) ? ModuleState.PermissionList : PermissionList;
+        _permissions = (PermissionList == null) ? ModuleState.PermissionList : PermissionList;
         _authorized = IsAuthorized();
+
+        if (PageState.QueryString.ContainsKey("dialog"))
+        {
+            _visible = (PageState.QueryString["dialog"] == Id); 
+        }
     }
 
     private bool IsAuthorized()
@@ -175,12 +238,22 @@
     private void DisplayModal()
     {
         _visible = !_visible;
-        StateHasChanged();
+        if (PageState.RenderMode == RenderModes.Interactive || ModuleState.RenderMode == RenderModes.Interactive)
+        {
+            StateHasChanged();
+        }
+        else
+        {
+            var parameters = new Dictionary<string, string>(PageState.QueryString);
+            if (parameters.ContainsKey("dialog")) parameters.Remove("dialog");
+            if (_visible) parameters.Add("dialog", Id);
+            NavigationManager.NavigateTo(PageState.Route.AbsolutePath + Utilities.CreateQueryString(parameters));
+        }
     }
 
     private void Confirm()
     {
-        DisplayModal();
         OnClick();
+        DisplayModal();
     }
 }

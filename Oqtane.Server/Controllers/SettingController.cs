@@ -302,14 +302,14 @@ namespace Oqtane.Controllers
 
         private void AddSyncEvent(string EntityName, int SettingId, string Action)
         {
-            _syncManager.AddSyncEvent(_alias.TenantId, EntityName + "Setting", SettingId, Action);
+            _syncManager.AddSyncEvent(_alias, EntityName + "Setting", SettingId, Action);
 
             switch (EntityName)
             {
                 case EntityNames.Module:
                 case EntityNames.Page:
                 case EntityNames.Site:
-                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
+                    _syncManager.AddSyncEvent(_alias, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
                     break;
             }
         }

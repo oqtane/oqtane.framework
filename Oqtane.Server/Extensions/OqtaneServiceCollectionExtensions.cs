@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -19,8 +18,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Oqtane.Infrastructure;
+using Oqtane.Infrastructure.Interfaces;
 using Oqtane.Managers;
-using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Repository;
 using Oqtane.Security;
@@ -44,7 +43,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddDbContext<MasterDBContext>(options => { }, ServiceLifetime.Transient);
             services.AddDbContext<TenantDBContext>(options => { }, ServiceLifetime.Transient);
-
+            services.AddDbContextFactory<TenantDBContext>(opt => { }, ServiceLifetime.Transient);
             return services;
         }
 
@@ -68,13 +67,44 @@ namespace Microsoft.Extensions.DependencyInjection
 
         internal static IServiceCollection AddOqtaneServerScopedServices(this IServiceCollection services)
         {
-            services.AddScoped<Oqtane.Infrastructure.SiteState>();
+            services.AddScoped<Oqtane.Shared.SiteState>();
+            services.AddScoped<IInstallationService, InstallationService>();
+            services.AddScoped<IModuleDefinitionService, ModuleDefinitionService>();
+            services.AddScoped<IThemeService, ThemeService>();
+            services.AddScoped<IAliasService, AliasService>();
+            services.AddScoped<ITenantService, TenantService>();
+            services.AddScoped<IPageService, PageService>();
+            services.AddScoped<IModuleService, ModuleService>();
+            services.AddScoped<IPageModuleService, PageModuleService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IProfileService, ProfileService>();
+            services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IUserRoleService, UserRoleService>();
+            services.AddScoped<ISettingService, SettingService>();
+            services.AddScoped<IPackageService, PackageService>();
+            services.AddScoped<ILogService, LogService>();
+            services.AddScoped<IJobService, JobService>();
+            services.AddScoped<IJobLogService, JobLogService>();
+            services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IFolderService, FolderService>();
+            services.AddScoped<IFileService, FileService>();
+            services.AddScoped<ISiteTemplateService, SiteTemplateService>();
+            services.AddScoped<ISqlService, SqlService>();
+            services.AddScoped<ISystemService, SystemService>();
+            services.AddScoped<ILocalizationService, LocalizationService>();
+            services.AddScoped<ILanguageService, LanguageService>();
+            services.AddScoped<IDatabaseService, DatabaseService>();
+            services.AddScoped<IUrlMappingService, UrlMappingService>();
+            services.AddScoped<IVisitorService, VisitorService>();
+            services.AddScoped<ISyncService, SyncService>();
+
             return services;
         }
 
         internal static IServiceCollection AddOqtaneTransientServices(this IServiceCollection services)
         {
             // repositories
+            services.AddTransient<ISiteService, ServerSiteService>();
             services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
             services.AddTransient<IThemeRepository, ThemeRepository>();
             services.AddTransient<IAliasRepository, AliasRepository>();
@@ -115,6 +145,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
             // obsolete - replaced by ITenantManager
             services.AddTransient<ITenantResolver, TenantResolver>();
+
+            services.AddTransient<ITokenReplace, TokenReplace>();
 
             return services;
         }
@@ -197,17 +229,14 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             if (!services.Any(x => x.ServiceType == typeof(HttpClient)))
             {
-                services.AddScoped(s =>
+                services.AddScoped(provider =>
                 {
-                    // creating the URI helper needs to wait until the JS Runtime is initialized, so defer it.
-                    var navigationManager = s.GetRequiredService<NavigationManager>();
                     var client = new HttpClient(new HttpClientHandler { UseCookies = false });
-                    client.BaseAddress = new Uri(navigationManager.Uri);
-
-                    // set the cookies to allow HttpClient API calls to be authenticated
-                    var httpContextAccessor = s.GetRequiredService<IHttpContextAccessor>();
+                    var httpContextAccessor = provider.GetRequiredService<IHttpContextAccessor>();
                     if (httpContextAccessor.HttpContext != null)
                     {
+                        client.BaseAddress = new Uri(httpContextAccessor.HttpContext.Request.Scheme + "://" + httpContextAccessor.HttpContext.Request.Host);
+                        // set the cookies to allow HttpClient API calls to be authenticated
                         foreach (var cookie in httpContextAccessor.HttpContext.Request.Cookies)
                         {
                             client.DefaultRequestHeaders.Add("Cookie", cookie.Key + "=" + cookie.Value);
@@ -218,7 +247,22 @@ namespace Microsoft.Extensions.DependencyInjection
                 });
             }
 
-            // IHttpClientFactory for calling remote services via RemoteServiceBase
+            // register a named IHttpClientFactory
+            services.AddHttpClient("oqtane", (provider, client) =>
+            {
+                var httpContextAccessor = provider.GetRequiredService<IHttpContextAccessor>();
+                if (httpContextAccessor.HttpContext != null)
+                {
+                    client.BaseAddress = new Uri(httpContextAccessor.HttpContext.Request.Scheme + "://" + httpContextAccessor.HttpContext.Request.Host);
+                    // set the cookies to allow HttpClient API calls to be authenticated
+                    foreach (var cookie in httpContextAccessor.HttpContext.Request.Cookies)
+                    {
+                        client.DefaultRequestHeaders.Add("Cookie", cookie.Key + "=" + cookie.Value);
+                    }
+                }
+            });
+
+            // IHttpClientFactory for calling remote services via RemoteServiceBase (not named = default)
             services.AddHttpClient();
 
             return services;

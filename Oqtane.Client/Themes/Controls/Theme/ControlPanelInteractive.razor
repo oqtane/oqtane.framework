@@ -1,0 +1,604 @@
+@using System.Net
+@namespace Oqtane.Themes.Controls
+@inject NavigationManager NavigationManager
+@inject SiteState ComponentSiteState
+@inject IUserService UserService
+@inject IModuleDefinitionService ModuleDefinitionService
+@inject IThemeService ThemeService
+@inject IModuleService ModuleService
+@inject IPageService PageService
+@inject IPageModuleService PageModuleService
+@inject ILogService logger
+@inject ISettingService SettingService
+@inject IJSRuntime jsRuntime
+@inject IServiceProvider ServiceProvider
+@inject ILogService LoggingService
+@inject IStringLocalizer<ControlPanelInteractive> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+<button type="button" class="btn @ButtonClass ms-1" data-bs-toggle="offcanvas" data-bs-target="#offcanvasControlPanel" aria-controls="offcanvasControlPanel" @onclick="ClearMessage">
+    <span class="oi oi-cog"></span>
+</button>
+
+<div class="@ContainerClass" tabindex="-1" data-bs-scroll="true" data-bs-backdrop="true" id="offcanvasControlPanel" aria-labelledby="offcanvasScrollingLabel">
+    <div class="@HeaderClass">
+        <h5 id="offcanvasScrollingLabel" class="offcanvas-title">@Localizer["ControlPanel"]</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" @onclick="ClearMessage"></button>
+    </div>
+    <div class="@BodyClass">
+        <div class="container-fluid">
+            @if (_canViewAdminDashboard)
+            {
+                <div class="row d-flex">
+                    <div class="col">
+                        <button type="button" data-bs-dismiss="offcanvas" class="btn btn-primary col-12" @onclick=@(async () => Navigate("Admin"))>@Localizer["AdminDash"]</button>
+                    </div>
+                </div>
+                <hr class="app-rule" />
+            }
+            @if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
+            {
+                <div class="row">
+                    <div class="col text-center">
+                        <label class="control-label">@Localizer["Page.Manage"] </label>
+                    </div>
+                </div>
+                <div class="row d-flex mb-2">
+                    <div class="col d-flex justify-content-between">
+                        @if (PageState.Page.UserId == null)
+                        {
+                            <button type="button" class="btn btn-secondary col me-1" data-bs-dismiss="offcanvas" @onclick=@(async () => Navigate("Add"))>@SharedLocalizer["Add"]</button>
+                        }
+                        <button type="button" class="btn btn-secondary col" data-bs-dismiss="offcanvas" @onclick=@(async () => Navigate("Edit"))>@SharedLocalizer["Edit"]</button>
+                        <button type="button" class="btn btn-danger col ms-1" @onclick="ConfirmDelete">@SharedLocalizer["Delete"]</button>
+                    </div>
+                </div>
+                <div class="row d-flex">
+                    <div class="col">
+                        @if (UserSecurity.ContainsRole(PageState.Page.PermissionList, PermissionNames.View, RoleNames.Everyone))
+                        {
+                            <button type="button" class="btn btn-secondary col-12" @onclick=@(async () => Publish("unpublish"))>@Localizer["Page.Unpublish"]</button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-secondary col-12" @onclick=@(async () => Publish("publish"))>@Localizer["Page.Publish"]</button>
+                        }
+                    </div>
+                </div>
+                <hr class="app-rule" />
+
+                @if (_deleteConfirmation)
+                {
+                    <div class="app-admin-modal">
+                        <div class="modal" tabindex="-1" role="dialog">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">@Localizer["Page.Delete"]</h5>
+                                        <button type="button" class="btn-close" aria-label="Close" @onclick="ConfirmDelete"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>@Localizer["Confirm.Page.Delete"]</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-danger" @onclick="DeletePage">@SharedLocalizer["Delete"]</button>
+                                        <button type="button" class="btn btn-secondary" @onclick="ConfirmDelete">@SharedLocalizer["Cancel"]</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <div class="row">
+                    <div class="col text-center">
+                        <label for="Module" class="control-label">@Localizer["Module.Manage"]</label>
+                        <select class="form-select" @bind="@_moduleType">
+                            <option value="new">@Localizer["Module.AddNew"]</option>
+                            <option value="existing">@Localizer["Module.AddExisting"]</option>
+                        </select>
+                        @if (_moduleType == "new")
+                        {
+                            @if (_moduleDefinitions != null)
+                            {
+                                <select class="form-select mt-1" @onchange="(e => CategoryChanged(e))">
+                                    @foreach (var category in _categories)
+                                    {
+                                        if (category == _category)
+                                        {
+                                            <option value="@category" selected>@category @Localizer["Modules"]</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@category">@category @Localizer["Modules"]</option>
+                                        }
+                                    }
+                                </select>
+                                <select class="form-select mt-1" @onchange="(e => ModuleChanged(e))">
+                                    @if (_moduleDefinitionName == "-")
+                                    {
+                                        <option value="-" selected>&lt;@Localizer["Module.Select"]&gt;</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="-">&lt;@Localizer["Module.Select"]&gt;</option>
+                                    }
+                                    @foreach (var moduledefinition in _moduleDefinitions)
+                                    {
+                                        if (moduledefinition.IsEnabled && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Utilize, moduledefinition.PermissionList))
+                                        {
+                                            if (moduledefinition.Runtimes == "" || moduledefinition.Runtimes.Contains(PageState.Runtime.ToString()))
+                                            {
+                                                <option value="@moduledefinition.ModuleDefinitionName">@moduledefinition.Name</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                            }
+                        }
+                        else
+                        {
+                            <select class="form-select mt-1" @onchange="(e => PageChanged(e))">
+                                <option value="-">&lt;@Localizer["Page.Select"]&gt;</option>
+                                @foreach (Page p in _pages)
+                                {
+                                    <option value="@p.PageId">@p.Name</option>
+                                }
+                            </select>
+                            <select class="form-select mt-1" @bind="@_moduleId">
+                                <option value="-">&lt;@Localizer["Module.Select"]&gt;</option>
+                                @foreach (Module module in _modules)
+                                {
+                                    <option value="@module.ModuleId">@module.Title</option>
+                                }
+                            </select>
+                        }
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col text-center">
+                        <label for="Title" class="control-label">@Localizer["Title"]</label>
+                        <input type="text" name="Title" class="form-control" @bind="@_title" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col text-center">
+                        <label for="Pane" class="control-label">@Localizer["Pane"]</label>
+                        <select class="form-select" @bind="@_pane">
+                            @foreach (string pane in PageState.Page.Panes)
+                            {
+                                <option value="@pane">@pane Pane</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col text-center">
+                        <label for="Insert" class="control-label">@Localizer["Location"]</label>
+                        <select class="form-select" @bind="@_location">
+                            <option value="@int.MinValue">@Localizer["LocationTop"]</option>
+                            <option value="@int.MaxValue">@Localizer["LocationBottom"]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col text-center">
+                        <label for="Container" class="control-label">@Localizer["Container"]</label>
+                        <select class="form-select" @bind="@_containerType">
+                            @if (_containers != null)
+                            {
+                                foreach (var container in _containers)
+                                {
+                                    <option value="@container.TypeName">@container.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col text-center">
+                        <label for="visibility" class="control-label">@Localizer["Visibility"]</label>
+                        <select class="form-select" @bind="@_visibility">
+                            <option value="view">@Localizer["VisibilityView"]</option>
+                            <option value="edit">@Localizer["VisibilityEdit"]</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary col-12 mt-4" @onclick="@AddModule">@Localizer["Page.Module.Add"]</button>
+                @((MarkupString)_message)
+                <hr class="app-rule" />
+            }
+
+            <div class="row d-flex">
+                <div class="col">
+                    <button type="button" data-bs-dismiss="offcanvas" class="btn btn-secondary col-12" @onclick=@(async () => await LogoutUser())>@Localizer["Logout"]</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public SiteState SiteState { get; set; }
+
+    [Parameter]
+    public PageState PageState { get; set; }
+
+    [Parameter]
+    public string ButtonClass { get; set; }
+
+    [Parameter]
+    public string ContainerClass { get; set; }
+
+    [Parameter]
+    public string HeaderClass { get; set; }
+
+    [Parameter]
+    public string BodyClass { get; set; }
+
+    [Parameter]
+    public bool ShowLanguageSwitcher { get; set; }
+
+    [Parameter]
+    public string LanguageDropdownAlignment { get; set; }
+
+    private bool _canViewAdminDashboard = false;
+    private bool _deleteConfirmation = false;
+    private List<string> _categories = new List<string>();
+    private List<ModuleDefinition> _allModuleDefinitions;
+    private List<ModuleDefinition> _moduleDefinitions;
+    private List<Page> _pages = new List<Page>();
+    private List<Module> _modules = new List<Module>();
+    private List<ThemeControl> _containers = new List<ThemeControl>();
+
+    private string _category = "Common";
+    private string _pane = "";
+    protected string _pageId { get; private set; } = "-";
+    protected string _moduleId { get; private set; } = "-";
+    protected string _moduleType { get; private set; } = "new";
+    protected string _moduleDefinitionName { get; private set; } = "-";
+
+    protected string _title { get; private set; } = "";
+    protected string _containerType { get; private set; } = "";
+    protected int _location { get; private set; } = int.MaxValue;
+    protected string _visibility { get; private set; } = "view";
+    protected string _message { get; private set; } = "";
+
+    private string settingCategory = "CP-category";
+    private string settingPane = "CP-pane";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // repopulate the SiteState service based on the values passed in the SiteState parameter (this is how state is marshalled across the render mode boundary)
+        ComponentSiteState.Hydrate(SiteState);
+
+        _canViewAdminDashboard = CanViewAdminDashboard();
+        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
+        {
+            LoadSettingsAsync();
+
+            _pages?.Clear();
+            foreach (Page p in PageState.Pages)
+            {
+                if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
+                {
+                    _pages.Add(p);
+                }
+            }
+
+            _containers = ThemeService.GetContainerControls(PageState.Site.Themes, PageState.Page.ThemeType);
+            _containerType = PageState.Site.DefaultContainerType;
+            _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
+            _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(_category)).ToList();
+            _categories = _allModuleDefinitions.SelectMany(m => m.Categories.Split(',')).Distinct().ToList();
+        }
+    }
+
+    private bool CanViewAdminDashboard()
+    {
+        var admin = PageState.Pages.FirstOrDefault(item => item.Path == "admin");
+        if (admin != null)
+        {
+            foreach (var page in PageState.Pages.Where(item => item.ParentId == admin?.PageId))
+            {
+                if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, page.PermissionList))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void CategoryChanged(ChangeEventArgs e)
+    {
+        _category = (string)e.Value;
+        _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(_category)).ToList();
+        _moduleDefinitionName = "-";
+        _message = "";
+    }
+
+    private void ModuleChanged(ChangeEventArgs e)
+    {
+        _moduleDefinitionName = (string)e.Value;
+        if (_moduleDefinitionName != "-")
+        {
+            var moduleDefinition = _moduleDefinitions.FirstOrDefault(item => item.ModuleDefinitionName == _moduleDefinitionName);
+            _message = "<div class=\"alert alert-info mt-2 text-center\" role=\"alert\">" + moduleDefinition.Description + "</div>";
+        }
+        else
+        {
+            _message = "";
+        }
+        StateHasChanged();
+    }
+
+    private void PageChanged(ChangeEventArgs e)
+    {
+        _pageId = (string)e.Value;
+        if (_pageId != "-")
+        {
+            _modules = PageState.Modules
+                .Where(module => module.PageId == int.Parse(_pageId) &&
+                UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.PermissionList))
+                .ToList();
+        }
+        _moduleId = "-";
+        StateHasChanged();
+    }
+
+    private async Task AddModule()
+    {
+        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
+        {
+            if ((_moduleType == "new" && _moduleDefinitionName != "-") || (_moduleType != "new" && _moduleId != "-"))
+            {
+                if (_moduleType == "new")
+                {
+                    Module module = new Module();
+                    module.SiteId = PageState.Site.SiteId;
+                    module.PageId = PageState.Page.PageId;
+                    module.ModuleDefinitionName = _moduleDefinitionName;
+                    module.AllPages = false;
+
+                    var permissions = new List<Permission>();
+                    if (_visibility == "view")
+                    {
+                        // set module view permissions to page view permissions
+                        permissions = SetPermissions(permissions, module.SiteId, PermissionNames.View, PermissionNames.View);
+                    }
+                    else
+                    {
+                        // set module view permissions to page edit permissions
+                        permissions = SetPermissions(permissions, module.SiteId, PermissionNames.View, PermissionNames.Edit);
+                    }
+                    // set module edit permissions to page edit permissions
+                    permissions = SetPermissions(permissions, module.SiteId, PermissionNames.Edit, PermissionNames.Edit);
+                    module.PermissionList = permissions;
+
+                    module = await ModuleService.AddModuleAsync(module);
+                    _moduleId = module.ModuleId.ToString();
+                }
+
+                var pageModule = new PageModule
+                    {
+                        PageId = PageState.Page.PageId,
+                        ModuleId = int.Parse(_moduleId),
+                        Title = _title
+                    };
+                if (pageModule.Title == "")
+                {
+                    if (_moduleType == "new")
+                    {
+                        pageModule.Title = _moduleDefinitions.FirstOrDefault(item => item.ModuleDefinitionName == _moduleDefinitionName)?.Name;
+                    }
+                    else
+                    {
+                        pageModule.Title = _modules.FirstOrDefault(item => item.ModuleId == int.Parse(_moduleId))?.Title;
+                    }
+                }
+
+                pageModule.Pane = _pane;
+                pageModule.Order = _location;
+                pageModule.ContainerType = _containerType;
+
+                if (pageModule.ContainerType == PageState.Site.DefaultContainerType)
+                {
+                    pageModule.ContainerType = "";
+                }
+
+                await PageModuleService.AddPageModuleAsync(pageModule);
+                await PageModuleService.UpdatePageModuleOrderAsync(pageModule.PageId, pageModule.Pane);
+                await UpdateSettingsAsync();
+
+                _message = $"<div class=\"alert alert-success mt-2 text-center\" role=\"alert\">{Localizer["Success.Page.ModuleAdd"]}</div>";
+                _title = "";
+                NavigationManager.NavigateTo(Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, ""));
+            }
+            else
+            {
+                _message = $"<div class=\"alert alert-warning mt-2 text-center\" role=\"alert\">{Localizer["Message.Require.ModuleSelect"]}</div>";
+            }
+        }
+        else
+        {
+            _message = $"<div class=\"alert alert-error mt-2 text-center\" role=\"alert\">{Localizer["Error.Authorize.No"]}</div>";
+        }
+    }
+
+    private List<Permission> SetPermissions(List<Permission> permissions, int siteId, string modulePermission, string pagePermission)
+    {
+        foreach (var permission in PageState.Page.PermissionList.Where(item => item.PermissionName == pagePermission))
+        {
+            permissions.Add(new Permission { SiteId = siteId, EntityName = EntityNames.Module, PermissionName = modulePermission, RoleId = permission.RoleId, UserId = permission.UserId, IsAuthorized = permission.IsAuthorized });
+        }
+        return permissions;
+    }
+
+    private void Navigate(string location)
+    {
+        Module module;
+        switch (location)
+        {
+            case "Admin":
+                // get admin dashboard moduleid
+                module = PageState.Modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.AdminDashboardModule);
+                if (module != null)
+                {
+                    NavigationManager.NavigateTo(Utilities.EditUrl(PageState.Alias.Path, "admin", module.ModuleId, "Index", "returnurl=" + WebUtility.UrlEncode(PageState.Route.PathAndQuery)));
+                }
+                break;
+            case "Add":
+            case "Edit":
+                string url = "";
+                // get page management moduleid
+                module = PageState.Modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.PageManagementModule);
+                if (module != null)
+                {
+                    url = Utilities.EditUrl(PageState.Alias.Path, "admin/pages", module.ModuleId, location, $"id={PageState.Page.PageId}&returnurl={WebUtility.UrlEncode(PageState.Route.PathAndQuery)}");
+                    NavigationManager.NavigateTo(url);
+                }
+                break;
+        }
+    }
+
+    private async void Publish(string action)
+    {
+        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
+        {
+            var permissions = PageState.Page.PermissionList;
+            switch (action)
+            {
+                case "publish":
+                    if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Everyone))
+                    {
+                        permissions.Add(new Permission(PageState.Site.SiteId, EntityNames.Page, PageState.Page.PageId, PermissionNames.View, RoleNames.Everyone, null, true));
+                    }
+                    if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Registered))
+                    {
+                        permissions.Add(new Permission(PageState.Site.SiteId, EntityNames.Page, PageState.Page.PageId, PermissionNames.View, RoleNames.Registered, null, true));
+                    }
+                    break;
+                case "unpublish":
+                    if (permissions.Any(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Everyone))
+                    {
+                        permissions.RemoveAll(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Everyone);
+                    }
+
+                    if (permissions.Any(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Registered))
+                    {
+                        permissions.RemoveAll(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Registered);
+                    }
+                    break;
+            }
+            PageState.Page.PermissionList = permissions;
+            await PageService.UpdatePageAsync(PageState.Page);
+            NavigationManager.NavigateTo(Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, "refresh"));
+        }
+    }
+
+    private void ConfirmDelete()
+    {
+        _deleteConfirmation = !_deleteConfirmation;
+        StateHasChanged();
+    }
+
+    private async Task DeletePage()
+    {
+        ConfirmDelete();
+
+        var page = PageState.Page;
+        try
+        {
+            if (page.UserId == null)
+            {
+                page.IsDeleted = true;
+                await PageService.UpdatePageAsync(page);
+                await logger.Log(page.PageId, null, PageState.User?.UserId, GetType().AssemblyQualifiedName, "ControlPanel", LogFunction.Delete, LogLevel.Information, null, "Page Deleted {Page}", page);
+                NavigationManager.NavigateTo(Utilities.NavigateUrl(PageState.Alias.Path, "", ""));
+            }
+            else // personalized page
+            {
+                await PageService.DeletePageAsync(page.PageId);
+                await logger.Log(page.PageId, null, PageState.User?.UserId, GetType().AssemblyQualifiedName, "ControlPanel", LogFunction.Delete, LogLevel.Information, null, "Page Deleted {Page}", page);
+                NavigationManager.NavigateTo(Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, ""));
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.Log(page.PageId, null, PageState.User?.UserId, GetType().AssemblyQualifiedName, "ControlPanel", LogFunction.Delete, LogLevel.Information, ex, "Page Deleted {Page} {Error}", page, ex.Message);
+        }
+    }
+
+    // the following code is duplicated from LoginBase
+    private async Task LogoutUser()
+    {
+        await LoggingService.Log(PageState.Alias, PageState.Page.PageId, null, PageState.User?.UserId, GetType().AssemblyQualifiedName, "Logout", LogFunction.Security, LogLevel.Information, null, "User Logout For Username {Username}", PageState.User?.Username);
+
+        Route route = new Route(PageState.Uri.AbsoluteUri, PageState.Alias.Path);
+        var url = route.PathAndQuery;
+
+        // verify if anonymous users can access page
+        if (!UserSecurity.IsAuthorized(null, PermissionNames.View, PageState.Page.PermissionList))
+        {
+            url = PageState.Alias.Path;
+        }
+
+        if (PageState.Runtime == Shared.Runtime.Hybrid)
+        {
+            if (PageState.User != null)
+            {
+                // hybrid apps utilize an interactive logout
+                await UserService.LogoutUserAsync(PageState.User);
+                var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
+                authstateprovider.NotifyAuthenticationChanged();
+                NavigationManager.NavigateTo(url, true);
+            }
+        }
+        else
+        {
+            // post to the Logout page to complete the logout process
+            var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, returnurl = url };
+            var interop = new Interop(jsRuntime);
+            await interop.SubmitForm(Utilities.TenantUrl(PageState.Alias, "/pages/logout/"), fields);
+        }
+    }
+
+    private void LoadSettingsAsync()
+    {
+        _category = SettingService.GetSetting(PageState.User?.Settings, settingCategory, "Common");
+        var pane = SettingService.GetSetting(PageState.User?.Settings, settingPane, "");
+        if (PageState.Page.Panes.Contains(pane))
+        {
+            _pane = pane;
+        }
+        else
+        {
+            if (PageState.Page.Panes.FindIndex(item => item.Equals(PaneNames.Default, StringComparison.OrdinalIgnoreCase)) != -1)
+            {
+                _pane = PaneNames.Default;
+            }
+            else
+            {
+                _pane = PaneNames.Admin;
+            }
+        }
+    }
+
+    private async Task UpdateSettingsAsync()
+    {
+        if (PageState.User != null)
+        {
+            Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
+            settings = SettingService.SetSetting(settings, settingCategory, _category);
+            settings = SettingService.SetSetting(settings, settingPane, _pane);
+            await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
+        }
+    }
+
+    private void ClearMessage()
+    {
+        _message = "";
+    }
+}

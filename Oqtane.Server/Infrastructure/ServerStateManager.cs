@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Oqtane.Models;
 
 namespace Oqtane.Infrastructure
 {
@@ -22,7 +21,6 @@ namespace Oqtane.Infrastructure
                 serverState = new ServerState();
                 serverState.SiteKey = siteKey;
                 serverState.Assemblies = new List<string>();
-                serverState.Scripts = new List<Resource>();
                 serverState.IsInitialized = false;
                 _serverStates.Add(serverState);
             }

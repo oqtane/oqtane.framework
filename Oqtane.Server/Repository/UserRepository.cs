@@ -8,14 +8,14 @@ namespace Oqtane.Repository
 {
     public class UserRepository : IUserRepository
     {
-        private TenantDBContext _db;
+        private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
         private readonly IFolderRepository _folders;
         private readonly IRoleRepository _roles;
         private readonly IUserRoleRepository _userroles;
 
-        public UserRepository(TenantDBContext context, IFolderRepository folders, IRoleRepository roles, IUserRoleRepository userroles)
+        public UserRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IFolderRepository folders, IRoleRepository roles, IUserRoleRepository userroles)
         {
-            _db = context;
+            _dbContextFactory = dbContextFactory;
             _folders = folders;
             _roles = roles;
             _userroles = userroles;
@@ -23,25 +23,27 @@ namespace Oqtane.Repository
             
         public IEnumerable<User> GetUsers()
         {
-            return _db.User;
+            using var db = _dbContextFactory.CreateDbContext();
+            return db.User.ToList();
         }
 
         public User AddUser(User user)
         {
-            if (_db.User.AsNoTracking().FirstOrDefault(item => item.Username == user.Username) == null)
+            using var db = _dbContextFactory.CreateDbContext();
+            if (db.User.AsNoTracking().FirstOrDefault(item => item.Username == user.Username) == null)
             {
-                _db.User.Add(user);
-                _db.SaveChanges();
+                db.User.Add(user);
+                db.SaveChanges();
             }
             else
             {
                 int siteId = user.SiteId;
-                user = _db.User.AsNoTracking().First(item => item.Username == user.Username);
+                user = db.User.AsNoTracking().First(item => item.Username == user.Username);
                 user.SiteId = siteId;
             }
 
             // add folder for user
-            Folder folder = _folders.GetFolder(user.SiteId, "Users/");
+            var folder = _folders.GetFolder(user.SiteId, "Users/");
             if (folder != null)
             {
                 _folders.AddFolder(new Folder
@@ -65,10 +67,10 @@ namespace Oqtane.Repository
             }
 
             // add auto assigned roles to user for site
-            List<Role> roles = _roles.GetRoles(user.SiteId).Where(item => item.IsAutoAssigned).ToList();
-            foreach (Role role in roles)
+            var roles = _roles.GetRoles(user.SiteId).Where(item => item.IsAutoAssigned).ToList();
+            foreach (var role in roles)
             {
-                UserRole userrole = new UserRole();
+                var userrole = new UserRole();
                 userrole.UserId = user.UserId;
                 userrole.RoleId = role.RoleId;
                 userrole.EffectiveDate = null;
@@ -81,8 +83,9 @@ namespace Oqtane.Repository
 
         public User UpdateUser(User user)
         {
-            _db.Entry(user).State = EntityState.Modified;
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            db.Entry(user).State = EntityState.Modified;
+            db.SaveChanges();
             return user;
         }
 
@@ -93,13 +96,14 @@ namespace Oqtane.Repository
 
         public User GetUser(int userId, bool tracking)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             if (tracking)
             {
-                return _db.User.Find(userId);
+                return db.User.Find(userId);
             }
             else
             {
-                return _db.User.AsNoTracking().FirstOrDefault(item => item.UserId == userId);
+                return db.User.AsNoTracking().FirstOrDefault(item => item.UserId == userId);
             }
         }
 
@@ -110,23 +114,25 @@ namespace Oqtane.Repository
 
         public User GetUser(string username, string email)
         {
+            using var db = _dbContextFactory.CreateDbContext();
             User user = null;
             if (!string.IsNullOrEmpty(username))
             {
-                user = _db.User.Where(item => item.Username == username).FirstOrDefault();
+                user = db.User.Where(item => item.Username == username).FirstOrDefault();
             }
             if (user == null && !string.IsNullOrEmpty(email))
             {
-                user = _db.User.Where(item => item.Email == email).FirstOrDefault();
+                user = db.User.Where(item => item.Email == email).FirstOrDefault();
             }
             return user;
         }
 
         public void DeleteUser(int userId)
         {
-            User user = _db.User.Find(userId);
-            _db.User.Remove(user);
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            var user = db.User.Find(userId);
+            db.User.Remove(user);
+            db.SaveChanges();
         }
     }
 }

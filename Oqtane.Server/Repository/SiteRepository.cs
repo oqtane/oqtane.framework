@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +17,7 @@ namespace Oqtane.Repository
 {
     public class SiteRepository : ISiteRepository
     {
-        private readonly TenantDBContext _db;
+        private readonly IDbContextFactory<TenantDBContext> _factory;
         private readonly IRoleRepository _roleRepository;
         private readonly IProfileRepository _profileRepository;
         private readonly IFolderRepository _folderRepository;
@@ -31,11 +32,11 @@ namespace Oqtane.Repository
         private readonly ILogManager _logger;
         private static readonly object _lock = new object();
 
-        public SiteRepository(TenantDBContext context, IRoleRepository roleRepository, IProfileRepository profileRepository, IFolderRepository folderRepository, IPageRepository pageRepository,
+        public SiteRepository(IDbContextFactory<TenantDBContext> factory, IRoleRepository roleRepository, IProfileRepository profileRepository, IFolderRepository folderRepository, IPageRepository pageRepository,
             IModuleRepository moduleRepository, IPageModuleRepository pageModuleRepository, IModuleDefinitionRepository moduleDefinitionRepository, IThemeRepository themeRepository, IServiceProvider serviceProvider,
             IConfigurationRoot config, IServerStateManager serverState, ILogManager logger)
         {
-            _db = context;
+            _factory = factory;
             _roleRepository = roleRepository;
             _profileRepository = profileRepository;
             _folderRepository = folderRepository;
@@ -50,24 +51,79 @@ namespace Oqtane.Repository
             _logger = logger;
         }
 
+        // asynchronous methods
+        public async Task<IEnumerable<Site>> GetSitesAsync()
+        {
+            using var db = _factory.CreateDbContext();
+            return await db.Site.OrderBy(item => item.Name).ToListAsync();
+        }
+
+        public async Task<Site> AddSiteAsync(Site site)
+        {
+            site.SiteGuid = Guid.NewGuid().ToString();
+            using var db = _factory.CreateDbContext();
+            db.Site.Add(site);
+            await db.SaveChangesAsync();
+            CreateSite(site);
+            return site;
+        }
+
+        public async Task<Site> UpdateSiteAsync(Site site)
+        {
+            using var db = _factory.CreateDbContext();
+            db.Entry(site).State = EntityState.Modified;
+            await db.SaveChangesAsync();
+            return site;
+        }
+
+        public async Task<Site> GetSiteAsync(int siteId)
+        {
+            return await GetSiteAsync(siteId, true);
+        }
+
+        public async Task<Site> GetSiteAsync(int siteId, bool tracking)
+        {
+            using var db = _factory.CreateDbContext();
+            if (tracking)
+            {
+                return await db.Site.FindAsync(siteId);
+            }
+            else
+            {
+                return await db.Site.AsNoTracking().FirstOrDefaultAsync(item => item.SiteId == siteId);
+            }
+        }
+
+        public async Task DeleteSiteAsync(int siteId)
+        {
+            using var db = _factory.CreateDbContext();
+            var site = db.Site.Find(siteId);
+            db.Site.Remove(site);
+            await db.SaveChangesAsync();
+        }
+
+        // synchronous methods
         public IEnumerable<Site> GetSites()
         {
-            return _db.Site;
+            using var db = _factory.CreateDbContext();
+            return db.Site.OrderBy(item => item.Name).ToList();
         }
 
         public Site AddSite(Site site)
         {
-            site.SiteGuid = System.Guid.NewGuid().ToString();
-            _db.Site.Add(site);
-            _db.SaveChanges();
+            using var db = _factory.CreateDbContext();
+            site.SiteGuid = Guid.NewGuid().ToString();
+            db.Site.Add(site);
+            db.SaveChanges();
             CreateSite(site);
             return site;
         }
 
         public Site UpdateSite(Site site)
         {
-            _db.Entry(site).State = EntityState.Modified;
-            _db.SaveChanges();
+            using var db = _factory.CreateDbContext();
+            db.Entry(site).State = EntityState.Modified;
+            db.SaveChanges();
             return site;
         }
 
@@ -78,22 +134,25 @@ namespace Oqtane.Repository
 
         public Site GetSite(int siteId, bool tracking)
         {
+            using var db = _factory.CreateDbContext();
             if (tracking)
             {
-                return _db.Site.Find(siteId);
+                return db.Site.Find(siteId);
             }
             else
             {
-                return _db.Site.AsNoTracking().FirstOrDefault(item => item.SiteId == siteId);
+                return db.Site.AsNoTracking().FirstOrDefault(item => item.SiteId == siteId);
             }
         }
 
         public void DeleteSite(int siteId)
         {
-            var site = _db.Site.Find(siteId);
-            _db.Site.Remove(site);
-            _db.SaveChanges();
+            using var db = _factory.CreateDbContext();
+            var site = db.Site.Find(siteId);
+            db.Site.Remove(site);
+            db.SaveChanges();
         }
+
 
         public void InitializeSite(Alias alias)
         {
@@ -107,10 +166,10 @@ namespace Oqtane.Repository
                     {
                         var site = GetSite(alias.SiteId);
 
-                        // initialize theme Assemblies and Scripts
+                        // initialize theme Assemblies
                         site.Themes = _themeRepository.GetThemes().ToList();
 
-                        // initialize module Assemblies and Scripts
+                        // initialize module Assemblies
                         var moduleDefinitions = _moduleDefinitionRepository.GetModuleDefinitions(alias.SiteId);
 
                         // execute migrations
@@ -887,7 +946,7 @@ namespace Oqtane.Repository
                 Order = 15,
                 Path = "admin/urlmappings",
                 Icon = Icons.LinkBroken,
-                IsNavigation = true,
+                IsNavigation = false,
                 IsPersonalizable = false,
                 PermissionList = new List<Permission>
                 {
@@ -916,7 +975,7 @@ namespace Oqtane.Repository
                 Order = 17,
                 Path = "admin/visitors",
                 Icon = Icons.Eye,
-                IsNavigation = true,
+                IsNavigation = false,
                 IsPersonalizable = false,
                 PermissionList = new List<Permission>
                 {

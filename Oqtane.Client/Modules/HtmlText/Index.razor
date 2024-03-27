@@ -4,18 +4,26 @@
 @inject IHtmlTextService HtmlTextService
 @inject IStringLocalizer<Index> Localizer
 
-@((MarkupString)content)
-
 @if (PageState.EditMode)
 {
-    <br />
-    <ActionLink Action="Edit" EditMode="true" ResourceKey="Edit" />
-    <br />
-    <br />
+    <div class="text-center mb-2">
+        <ActionLink Action="Edit" EditMode="true" ResourceKey="Edit" />
+    </div>
+}
+
+@((MarkupString)content)
+
+@if (PageState.EditMode && content.Length > 3000)
+{
+    <div class="text-center mt-2">
+        <ActionLink Action="Edit" EditMode="true" ResourceKey="Edit" />
+    </div>
 }
 
 @code {
     private string content = "";
+
+    public override string RenderMode => RenderModes.Static;
 
     protected override async Task OnParametersSetAsync()
     {

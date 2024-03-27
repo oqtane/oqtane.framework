@@ -37,7 +37,7 @@ namespace Oqtane.Modules
         protected Module ModuleState { get; set; }
 
         [Parameter]
-        public ModuleInstance ModuleInstance { get; set; }
+        public RenderModeBoundary RenderModeBoundary { get; set; }
 
         // optional interface properties
         public virtual SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.View; } set { } } // default security
@@ -49,6 +49,8 @@ namespace Oqtane.Modules
         public virtual bool UseAdminContainer { get { return true; } }
 
         public virtual List<Resource> Resources { get; set; }
+
+        public virtual string RenderMode { get { return RenderModes.Interactive; } } // interactive by default
 
         // url parameters
         public virtual string UrlParametersTemplate { get; set; }
@@ -77,7 +79,7 @@ namespace Oqtane.Modules
                 {
                     if (PageState.Page.Resources != null)
                     {
-                        resources = PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Script && item.Level != ResourceLevel.Site && item.Namespace == type.Namespace).ToList();
+                        resources = PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Script && item.Level == ResourceLevel.Module && item.Namespace == type.Namespace).ToList();
                     }
                 }
                 else // modulecontrolbase
@@ -87,22 +89,25 @@ namespace Oqtane.Modules
                         resources = Resources.Where(item => item.ResourceType == ResourceType.Script).ToList();
                     }
                 }
-                if (resources != null &&resources.Any())
+                if (resources != null && resources.Any())
                 {
                     var interop = new Interop(JSRuntime);
                     var scripts = new List<object>();
                     var inline = 0;
                     foreach (Resource resource in resources)
                     {
-                        if (!string.IsNullOrEmpty(resource.Url))
+                        if (string.IsNullOrEmpty(resource.RenderMode) || resource.RenderMode == RenderModes.Interactive)
                         {
-                            var url = (resource.Url.Contains("://")) ? resource.Url : PageState.Alias.BaseUrl + resource.Url;
-                            scripts.Add(new { href = url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", es6module = resource.ES6Module, location = resource.Location.ToString().ToLower() });
-                        }
-                        else
-                        {
-                            inline += 1;
-                            await interop.IncludeScript(GetType().Namespace.ToLower() + inline.ToString(), "", "", "", resource.Content, resource.Location.ToString().ToLower());
+                            if (!string.IsNullOrEmpty(resource.Url))
+                            {
+                                var url = (resource.Url.Contains("://")) ? resource.Url : PageState.Alias.BaseUrl + resource.Url;
+                                scripts.Add(new { href = url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", es6module = resource.ES6Module, location = resource.Location.ToString().ToLower() });
+                            }
+                            else
+                            {
+                                inline += 1;
+                                await interop.IncludeScript(GetType().Namespace.ToLower() + inline.ToString(), "", "", "", resource.Content, resource.Location.ToString().ToLower());
+                            }
                         }
                     }
                     if (scripts.Any())
@@ -272,22 +277,22 @@ namespace Oqtane.Modules
         public void AddModuleMessage(string message, MessageType type, string position)
         {
             ClearModuleMessage();
-            ModuleInstance.AddModuleMessage(message, type, position);
+            RenderModeBoundary.AddModuleMessage(message, type, position);
         }
 
         public void ClearModuleMessage()
         {
-            ModuleInstance.AddModuleMessage("", MessageType.Undefined);
+            RenderModeBoundary.AddModuleMessage("", MessageType.Undefined);
         }
 
         public void ShowProgressIndicator()
         {
-            ModuleInstance.ShowProgressIndicator();
+            RenderModeBoundary.ShowProgressIndicator();
         }
 
         public void HideProgressIndicator()
         {
-            ModuleInstance.HideProgressIndicator();
+            RenderModeBoundary.HideProgressIndicator();
         }
 
         public void SetModuleTitle(string title)
@@ -487,5 +492,8 @@ namespace Oqtane.Modules
         {
             return Utilities.FileUrl(PageState.Alias, fileid, asAttachment);
         }
+
+        // Referencing ModuleInstance methods from ModuleBase is deprecated. Use the ModuleBase methods instead
+        public ModuleInstance ModuleInstance { get { return new ModuleInstance(); } }
     }
 }

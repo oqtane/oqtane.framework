@@ -4,6 +4,7 @@ namespace Oqtane.Shared
     {
         Server,
         WebAssembly,
+        Auto,
         Hybrid
     }
 }

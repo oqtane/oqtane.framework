@@ -4,8 +4,8 @@ namespace Oqtane.Shared
 {
     public class Constants
     {
-        public static readonly string Version = "5.0.2";
-        public const string ReleaseVersions = "1.0.0,1.0.1,1.0.2,1.0.3,1.0.4,2.0.0,2.0.1,2.0.2,2.1.0,2.2.0,2.3.0,2.3.1,3.0.0,3.0.1,3.0.2,3.0.3,3.1.0,3.1.1,3.1.2,3.1.3,3.1.4,3.2.0,3.2.1,3.3.0,3.3.1,3.4.0,3.4.1,3.4.2,3.4.3,4.0.0,4.0.1,4.0.2,4.0.3,4.0.4,4.0.5,4.0.6,5.0.0,5.0.1,5.0.2";
+        public static readonly string Version = "5.1.0";
+        public const string ReleaseVersions = "1.0.0,1.0.1,1.0.2,1.0.3,1.0.4,2.0.0,2.0.1,2.0.2,2.1.0,2.2.0,2.3.0,2.3.1,3.0.0,3.0.1,3.0.2,3.0.3,3.1.0,3.1.1,3.1.2,3.1.3,3.1.4,3.2.0,3.2.1,3.3.0,3.3.1,3.4.0,3.4.1,3.4.2,3.4.3,4.0.0,4.0.1,4.0.2,4.0.3,4.0.4,4.0.5,4.0.6,5.0.0,5.0.1,5.0.2,5.0.3,5.1.0";
         public const string PackageId = "Oqtane.Framework";
         public const string ClientId = "Oqtane.Client";
         public const string UpdaterPackageId = "Oqtane.Updater";
@@ -13,9 +13,6 @@ namespace Oqtane.Shared
 
         public const string DataDirectory = "DataDirectory";
         public const string DefaultDBType = "Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer";
-
-        public const string PageComponent = "Oqtane.UI.ThemeBuilder, Oqtane.Client";
-        public const string ContainerComponent = "Oqtane.UI.ContainerBuilder, Oqtane.Client";
 
         public const string DefaultTheme = "Oqtane.Themes.OqtaneTheme.Default, Oqtane.Client";
         public const string DefaultContainer = "Oqtane.Themes.OqtaneTheme.Container, Oqtane.Client";
@@ -35,7 +32,6 @@ namespace Oqtane.Shared
         public const string AdminDashboardModule = "Oqtane.Modules.Admin.Dashboard, Oqtane.Client";
         public const string PageManagementModule = "Oqtane.Modules.Admin.Pages, Oqtane.Client";
         public const string ErrorModule = "Oqtane.Modules.Admin.Error.{Action}, Oqtane.Client";
-        public const string ModuleMessageComponent = "Oqtane.Modules.Controls.ModuleMessage, Oqtane.Client";
 
         public const string DefaultSiteTemplate = "Oqtane.SiteTemplates.DefaultSiteTemplate, Oqtane.Server";
 

@@ -1,5 +1,6 @@
 @using System.Text.Json;
 @using System.Text.Json.Nodes;
+@using Oqtane.Shared;
 
 @if (string.IsNullOrEmpty(message))
 {
@@ -11,19 +12,16 @@ else
 }
 
 @code {
-    Type ComponentType = Type.GetType("Oqtane.App, Oqtane.Client");
+    Type ComponentType = Type.GetType("Oqtane.UI.Routes, Oqtane.Client");
     private IDictionary<string, object> Parameters { get; set; }
     private string message = "";
 
     protected override void OnInitialized()
     {
         Parameters = new Dictionary<string, object>();
-        Parameters.Add(new KeyValuePair<string, object>("AntiForgeryToken", ""));
-        Parameters.Add(new KeyValuePair<string, object>("Runtime", "Hybrid"));
-        Parameters.Add(new KeyValuePair<string, object>("RenderMode", "Hybrid"));
-        Parameters.Add(new KeyValuePair<string, object>("VisitorId", -1));
-        Parameters.Add(new KeyValuePair<string, object>("RemoteIPAddress", ""));
-        Parameters.Add(new KeyValuePair<string, object>("AuthorizationToken", ""));
+        Parameters.Add(new KeyValuePair<string, object>("RenderMode", RenderModes.Interactive));
+        Parameters.Add(new KeyValuePair<string, object>("Runtime", Runtimes.Hybrid));
+        Parameters.Add(new KeyValuePair<string, object>("Platform", DeviceInfo.Current.Platform.ToString()));
 
         if (MauiConstants.UseAppSettings)
         {

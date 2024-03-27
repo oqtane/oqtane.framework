@@ -274,19 +274,19 @@
     <value>Select Theme</value>
   </data>
   <data name="Hosting.Heading" xml:space="preserve">
-    <value>Hosting Model</value>
+    <value>UI Component Settings</value>
   </data>
   <data name="Prerender.HelpText" xml:space="preserve">
-    <value>Specifies if the site should be prerendered (for search crawlers, etc...)</value>
+    <value>Specifies if interactive components should prerender their output</value>
   </data>
   <data name="Prerender.Text" xml:space="preserve">
     <value>Prerender? </value>
   </data>
-  <data name="Runtime.HelpText" xml:space="preserve">
-    <value>The Blazor runtime hosting model for the site</value>
+  <data name="RenderMode.HelpText" xml:space="preserve">
+    <value>The default render mode for the site</value>
   </data>
-  <data name="Runtime.Text" xml:space="preserve">
-    <value>Runtime: </value>
+  <data name="RenderMode.Text" xml:space="preserve">
+    <value>Render Mode:</value>
   </data>
   <data name="Browse" xml:space="preserve">
     <value>Browse</value>
@@ -325,7 +325,7 @@
     <value>Default Alias: </value>
   </data>
   <data name="Aliases.Heading" xml:space="preserve">
-    <value>Urls</value>
+    <value>Site Urls</value>
   </data>
   <data name="AliasName" xml:space="preserve">
     <value>Url</value>
@@ -422,5 +422,11 @@
   </data>
   <data name="HybridEnabled.Text" xml:space="preserve">
     <value>Hybrid Enabled?</value>
+  </data>
+  <data name="Runtime.HelpText" xml:space="preserve">
+    <value>The render mode for UI components which require interactivity</value>
+  </data>
+  <data name="Runtime.Text" xml:space="preserve">
+    <value>Interactivity:</value>
   </data>
 </root>

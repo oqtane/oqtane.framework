@@ -1,0 +1,106 @@
+@namespace Oqtane.UI
+@using Microsoft.AspNetCore.Http
+@inject IInstallationService InstallationService
+@inject IJSRuntime JSRuntime
+@inject SiteState SiteState
+@* the following StreamRendering attribute is required - if it is removed the framework will not render the content in static rendering *@
+@attribute [StreamRendering] 
+
+@if (_initialized)
+{
+    @if (!_installed)
+    {
+        <Installer />
+    }
+    else
+    {
+        if (RenderMode == RenderModes.Static)
+        {
+            <CascadingValue Value="@_pageState">
+                <SiteRouter RenderMode="@RenderMode" Runtime="@Runtime" OnStateChange="@ChangeState" />
+            </CascadingValue>
+        }
+        else
+        {
+            <div style="@_display">
+                <CascadingValue Value="@_pageState">
+                    <SiteRouter RenderMode="@RenderMode" Runtime="@Runtime" OnStateChange="@ChangeState" />
+                </CascadingValue>
+            </div>
+        }
+    }
+}
+
+@code {
+    [Parameter]
+    public PageState PageState { get; set; } = null;
+
+    [Parameter]
+    public string RenderMode { get; set; }
+
+    [Parameter]
+    public string Runtime { get; set; }
+
+    [Parameter]
+    public string AntiForgeryToken { get; set; } = "";
+
+    [Parameter]
+    public string AuthorizationToken { get; set; } = "";
+
+    [Parameter]
+    public string Platform { get; set; } = "";
+
+    [CascadingParameter]
+    HttpContext HttpContext { get; set; }
+
+    private bool _initialized = false;
+    private bool _installed = false;
+    private string _display = "display: none;";
+
+    private PageState _pageState { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        SiteState.AntiForgeryToken = AntiForgeryToken;
+        SiteState.AuthorizationToken = AuthorizationToken;
+        SiteState.RemoteIPAddress = (_pageState != null) ? _pageState.RemoteIPAddress : "";
+        SiteState.Platform = Platform;
+        SiteState.IsPrerendering = (HttpContext != null) ? true : false;
+
+        if (Runtime == Runtimes.Hybrid)
+        {
+             var installation = await InstallationService.IsInstalled();
+            _installed = installation.Success;
+            if (installation.Alias != null)
+            {
+                SiteState.Alias = installation.Alias;
+            }
+        }
+        else
+        {
+            if (PageState != null)
+            {
+                _pageState = PageState;
+                SiteState.Alias = PageState.Alias;
+                _installed = true;
+            }
+        }
+        _initialized = true;
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // prevents flash on initial interactive page load
+            _display = "";
+            StateHasChanged();
+        }
+    }
+
+    private void ChangeState(PageState pageState)
+    {
+        _pageState = pageState;
+        StateHasChanged();
+    }
+}

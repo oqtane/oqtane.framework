@@ -2,21 +2,27 @@
 @inherits ModuleControlBase
 @inject NavigationManager NavigationManager
 
-@if (!string.IsNullOrEmpty(_message))
+@if (!string.IsNullOrEmpty(Message))
 {
     <div class="@_classname alert-dismissible fade show mb-3" role="alert">
-        @((MarkupString)_message)
-        @if (Type == MessageType.Error && PageState != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+        @((MarkupString)Message)
+        @if (PageState != null)
         {
-            @((MarkupString)"&nbsp;&nbsp;")<NavLink href="@NavigateUrl("admin/log")">View Details</NavLink>
+            @if (Type == MessageType.Error && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+            {
+                <NavLink class="ms-2" href="@NavigateUrl("admin/log")">View Details</NavLink>
+            }
+            <form method="post" @onsubmit="DismissModal" @formname="@_formname" data-enhance>
+                <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                <button type="submit" class="btn-close" aria-label="Close"></button>
+            </form>
         }
-        <button type="button" class="btn-close" aria-label="Close" @onclick="DismissModal"></button>
     </div>
 }
 
 @code {
-    private string _message = string.Empty;
     private string _classname = string.Empty;
+    private string _formname = "ModuleMessageForm";
 
     [Parameter]
     public string Message { get; set; }
@@ -24,10 +30,32 @@
     [Parameter]
     public MessageType Type { get; set; }
 
+    public void RefreshMessage(string message, MessageType type)
+    {
+        Message = message;
+        Type = type;
+
+        UpdateClassName();
+
+        StateHasChanged();
+    }
+
+    protected override void OnInitialized()
+    {
+        if (ModuleState != null)
+        {
+            _formname += ModuleState.PageModuleId.ToString();
+        }
+    }
+
     protected override void OnParametersSet()
     {
-        _message = Message;
-        if (!string.IsNullOrEmpty(_message))
+        UpdateClassName();
+    }
+
+    private void UpdateClassName()
+    {
+        if (!string.IsNullOrEmpty(Message))
         {
             _classname = GetMessageType(Type);
         }
@@ -57,7 +85,6 @@
 
     private void DismissModal()
     {
-        _message = "";
-        StateHasChanged();
+        Message = "";
     }
 }

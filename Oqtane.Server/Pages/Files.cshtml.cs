@@ -42,97 +42,105 @@ namespace Oqtane.Pages
 
         public IActionResult OnGet(string path)
         {
-            path = path.Replace("\\", "/");
-            var folderpath = "";
-            var filename = "";
-
-            bool download = false;
-            if (Request.Query.ContainsKey("download"))
+            if (!string.IsNullOrEmpty(path))
             {
-                download = true;
-            }
+                path = path.Replace("\\", "/");
+                var folderpath = "";
+                var filename = "";
 
-            var segments = path.Split('/');
-            if (segments.Length > 0)
-            {
-                filename = segments[segments.Length - 1].ToLower();
-                if (segments.Length > 1)
+                bool download = false;
+                if (Request.Query.ContainsKey("download"))
                 {
-                    folderpath = string.Join("/", segments, 0, segments.Length - 1).ToLower() + "/";
+                    download = true;
                 }
-            }
 
-            Models.File file; 
-            if (folderpath == "id/" && int.TryParse(filename, out int fileid))
-            {
-                file = _files.GetFile(fileid, false);
-            }
-            else
-            {
-                file = _files.GetFile(_alias.SiteId, folderpath, filename);
-            }
-
-            if (file != null)
-            {
-                if (file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.PermissionList))
+                var segments = path.Split('/');
+                if (segments.Length > 0)
                 {
-                    // calculate ETag using last modified date and file size
-                    var etag = Convert.ToString(file.ModifiedOn.Ticks ^ file.Size, 16);
-
-                    var header = "";
-                    if (HttpContext.Request.Headers.ContainsKey(HeaderNames.IfNoneMatch))
+                    filename = segments[segments.Length - 1].ToLower();
+                    if (segments.Length > 1)
                     {
-                        header = HttpContext.Request.Headers[HeaderNames.IfNoneMatch].ToString();
+                        folderpath = string.Join("/", segments, 0, segments.Length - 1).ToLower() + "/";
                     }
+                }
 
-                    if (!header.Equals(etag))
+                Models.File file;
+                if (folderpath == "id/" && int.TryParse(filename, out int fileid))
+                {
+                    file = _files.GetFile(fileid, false);
+                }
+                else
+                {
+                    file = _files.GetFile(_alias.SiteId, folderpath, filename);
+                }
+
+                if (file != null)
+                {
+                    if (file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.PermissionList))
                     {
-                        var filepath = _files.GetFilePath(file);
-                        if (System.IO.File.Exists(filepath))
+                        // calculate ETag using last modified date and file size
+                        var etag = Convert.ToString(file.ModifiedOn.Ticks ^ file.Size, 16);
+
+                        var header = "";
+                        if (HttpContext.Request.Headers.ContainsKey(HeaderNames.IfNoneMatch))
                         {
-                            if (download)
+                            header = HttpContext.Request.Headers[HeaderNames.IfNoneMatch].ToString();
+                        }
+
+                        if (!header.Equals(etag))
+                        {
+                            var filepath = _files.GetFilePath(file);
+                            if (System.IO.File.Exists(filepath))
                             {
-                                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.File, file.FileId, "Download");
-                                return PhysicalFile(filepath, file.GetMimeType(), file.Name);
+                                if (download)
+                                {
+                                    _syncManager.AddSyncEvent(_alias, EntityNames.File, file.FileId, "Download");
+                                    return PhysicalFile(filepath, file.GetMimeType(), file.Name);
+                                }
+                                else
+                                {
+                                    HttpContext.Response.Headers.Append(HeaderNames.ETag, etag);
+                                    return PhysicalFile(filepath, file.GetMimeType());
+                                }
                             }
                             else
                             {
-                                HttpContext.Response.Headers.Append(HeaderNames.ETag, etag);
-                                return PhysicalFile(filepath, file.GetMimeType());
+                                _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {FilePath}", filepath);
+                                HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
                             }
                         }
                         else
                         {
-                            _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {FilePath}", filepath);
-                            HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                            HttpContext.Response.StatusCode = (int)HttpStatusCode.NotModified;
+                            return Content(String.Empty);
                         }
                     }
                     else
                     {
-                        HttpContext.Response.StatusCode = (int)HttpStatusCode.NotModified;
-                        return Content(String.Empty);
+                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized File Access Attempt For Site {SiteId} And Path {Path}", _alias.SiteId, path);
+                        HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                     }
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized File Access Attempt {SiteId} {Path}", _alias.SiteId, path);
-                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    // look for url mapping
+                    var urlMapping = _urlMappings.GetUrlMapping(_alias.SiteId, "files/" + folderpath + filename);
+                    if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
+                    {
+                        var url = urlMapping.MappedUrl;
+                        if (!url.StartsWith("http"))
+                        {
+                            var uri = new Uri(HttpContext.Request.GetEncodedUrl());
+                            url = uri.Scheme + "://" + uri.Authority + ((!string.IsNullOrEmpty(_alias.Path)) ? "/" + _alias.Path : "") + "/" + url;
+                        }
+                        return RedirectPermanent(url);
+                    }
                 }
             }
             else
             {
-                // look for url mapping
-                var urlMapping = _urlMappings.GetUrlMapping(_alias.SiteId, "files/" + folderpath + filename);
-                if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
-                {
-                    var url = urlMapping.MappedUrl;
-                    if (!url.StartsWith("http"))
-                    {
-                        var uri = new Uri(HttpContext.Request.GetEncodedUrl());
-                        url = uri.Scheme + "://" + uri.Authority + ((!string.IsNullOrEmpty(_alias.Path)) ? "/" + _alias.Path : "") + "/" + url;
-                    }
-                    return RedirectPermanent(url);
-                }
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized File Access Attempt - Path Not Specified For Site {SiteId}", _alias.SiteId);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
 
             // broken link

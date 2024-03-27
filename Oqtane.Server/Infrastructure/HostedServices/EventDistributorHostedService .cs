@@ -12,7 +12,7 @@ using Oqtane.Shared;
 
 namespace Oqtane.Infrastructure
 {
-    public class EventDistributorHostedService : IHostedService
+    public class EventDistributorHostedService : IHostedService, IDisposable
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ISyncManager _syncManager;

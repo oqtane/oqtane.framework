@@ -179,9 +179,12 @@
                                 <Label Class="col-sm-3" For="container" HelpText="Select the default container for the page" ResourceKey="DefaultContainer">Default Container: </Label>
                                 <div class="col-sm-9">
                                     <select id="container" class="form-select" @bind="@_containertype" required>
-                                        @foreach (var container in _containers)
+                                        @if (_containers != null)
                                         {
-                                            <option value="@container.TypeName">@container.Name</option>
+                                            foreach (var container in _containers)
+                                            {
+                                                <option value="@container.TypeName">@container.Name</option>
+                                            }
                                         }
                                     </select>
                                 </div>
@@ -234,7 +237,7 @@
                 @if (_themeSettingsType != null)
                 {
                     <TabPanel Name="ThemeSettings" Heading="Theme Settings" ResourceKey="ThemeSettings">
-                        @ThemeSettingsComponent
+                        @_themeSettingsComponent
                     </TabPanel>
                     <br />
                 }
@@ -278,7 +281,7 @@
                 @if (_themeSettingsType != null)
                 {
                     <TabPanel Name="ThemeSettings" Heading="Theme Settings" ResourceKey="ThemeSettings">
-                        @ThemeSettingsComponent
+                        @_themeSettingsComponent
                     </TabPanel>
                     <br />
                 }
@@ -317,7 +320,7 @@
     private string _containertype = "-";
     private Type _themeSettingsType;
     private object _themeSettings;
-    private RenderFragment ThemeSettingsComponent { get; set; }
+    private RenderFragment _themeSettingsComponent { get; set; }
     private string _headcontent;
     private string _bodycontent;
     private List<Permission> _permissions = null;
@@ -377,7 +380,7 @@
                 }
                 else
                 {
-                    if (_path.Contains("/"))
+                    if (_path.Contains("/") & !_path.Contains("://"))
                     {
                         _path = _path.Substring(_path.LastIndexOf("/") + 1);
                     }
@@ -467,7 +470,7 @@
         _containertype = _containers.First().TypeName;
         ThemeSettings();
         StateHasChanged();
-        
+
         // if theme chosen is different than default site theme, display warning message to user
         if (ThemeService.GetTheme(PageState.Site.Themes, _themetype)?.ThemeName != ThemeService.GetTheme(PageState.Site.Themes, PageState.Site.DefaultThemeType)?.ThemeName)
         {
@@ -478,16 +481,19 @@
     private void ThemeSettings()
     {
         _themeSettingsType = null;
+        _themeSettingsComponent = null;
         var theme = PageState.Site.Themes.FirstOrDefault(item => item.Themes.Any(themecontrol => themecontrol.TypeName.Equals(_themetype)));
         if (theme != null && !string.IsNullOrEmpty(theme.ThemeSettingsType))
         {
             _themeSettingsType = Type.GetType(theme.ThemeSettingsType);
             if (_themeSettingsType != null)
             {
-                ThemeSettingsComponent = builder =>
+                _themeSettingsComponent = builder =>
                 {
                     builder.OpenComponent(0, _themeSettingsType);
-                    builder.AddComponentReferenceCapture(1, inst => { _themeSettings = Convert.ChangeType(inst, _themeSettingsType); });
+                    builder.AddAttribute(1, "RenderModeBoundary", RenderModeBoundary);
+                    builder.AddComponentReferenceCapture(2, inst => { _themeSettings = Convert.ChangeType(inst, _themeSettingsType); });
+                    
                     builder.CloseComponent();
                 };
             }
@@ -514,36 +520,54 @@
 
                     _page.Name = _name;
 
-                    if (string.IsNullOrEmpty(_path))
-                    {
-                        _path = _name;
-                    }
-                    if (_path.Contains("/"))
-                    {
-                        if (_path.EndsWith("/") && _path != "/")
-                        {
-                            _path = _path.Substring(0, _path.Length - 1);
-                        }
-                        _path = _path.Substring(_path.LastIndexOf("/") + 1);
-                    }
-
                     if (_parentid == "-1")
                     {
                         _page.ParentId = null;
-                        _page.Path = Utilities.GetFriendlyUrl(_path);
                     }
                     else
                     {
                         _page.ParentId = Int32.Parse(_parentid);
-                        Page parent = PageState.Pages.FirstOrDefault(item => item.PageId == _page.ParentId);
-                        if (parent.Path == string.Empty)
+                    }
+
+                    // path can be a link to an external url
+                    if (!_path.Contains("://"))
+                    {
+                        if (string.IsNullOrEmpty(_path))
                         {
-                            _page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
+                            _path = _name;
+                        }
+
+                       (_path, string parameters) = Utilities.ParsePath(_path);
+
+                        if (_path.Contains("/"))
+                        {
+                            if (_path.EndsWith("/") && _path != "/")
+                            {
+                                _path = _path.Substring(0, _path.Length - 1);
+                            }
+                            _path = _path.Substring(_path.LastIndexOf("/") + 1);
+                        }
+                        if (_parentid == "-1")
+                        {
+                            _page.Path = Utilities.GetFriendlyUrl(_path);
                         }
                         else
                         {
-                            _page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(_path);
+                            Page parent = PageState.Pages.FirstOrDefault(item => item.PageId == _page.ParentId);
+                            if (parent.Path == string.Empty)
+                            {
+                                _page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
+                            }
+                            else
+                            {
+                                _page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(_path);
+                            }
                         }
+                        _page.Path += parameters;
+                    }
+                    else
+                    {
+                        _page.Path = _path;
                     }
 
                     var _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
@@ -630,11 +654,18 @@
                     await logger.LogInformation("Page Saved {Page}", _page);
                     if (!string.IsNullOrEmpty(PageState.ReturnUrl))
                     {
-                        NavigationManager.NavigateTo(PageState.ReturnUrl);
+                        NavigationManager.NavigateTo(PageState.ReturnUrl, true);
                     }
                     else
                     {
-                        NavigationManager.NavigateTo(NavigateUrl());
+                        if (!_page.Path.Contains("://"))
+                        {
+                            NavigationManager.NavigateTo(NavigateUrl(), true); // redirect to page being edited
+                        }
+                        else
+                        {
+                            NavigationManager.NavigateTo(NavigateUrl("admin/pages"));
+                        }
                     }
                 }
                 else

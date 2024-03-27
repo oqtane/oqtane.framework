@@ -115,6 +115,8 @@ namespace Oqtane.Models
         public string Actions { get; set; }
         [NotMapped]
         public bool UseAdminContainer { get; set; }
+        [NotMapped]
+        public string RenderMode{ get; set; }
 
         #endregion
 

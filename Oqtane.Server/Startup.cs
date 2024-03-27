@@ -17,6 +17,11 @@ using Oqtane.Security;
 using Oqtane.Shared;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Logging;
+using Oqtane.Components;
+using Oqtane.UI;
+using OqtaneSSR.Extensions;
+using Microsoft.AspNetCore.Components.Authorization;
+using Oqtane.Providers;
 
 namespace Oqtane
 {
@@ -36,6 +41,7 @@ namespace Oqtane
                 .AddJsonFile("appsettings.json", false, true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, true)
                 .AddEnvironmentVariables();
+
             Configuration = builder.Build();
 
             _installedCultures = localizationManager.GetInstalledCultures();
@@ -64,27 +70,14 @@ namespace Oqtane
             services.AddOptions<List<Database>>().Bind(Configuration.GetSection(SettingKeys.AvailableDatabasesSection));
             services.Configure<HostOptions>(opts => opts.ShutdownTimeout = TimeSpan.FromSeconds(10)); // increase from default of 5 seconds
 
-            services.AddServerSideBlazor()
-                .AddCircuitOptions(options =>
-                {
-                    if (_env.IsDevelopment())
-                    {
-                        options.DetailedErrors = true;
-                    }
-                })
-                .AddHubOptions(options => {
-                    options.MaximumReceiveMessageSize = null; // no limit (for large amnounts of data ie. textarea components)
-                });
-
-            // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )
-            services.AddHttpClients();
-
             // register scoped core services
             services.AddScoped<IAuthorizationHandler, PermissionHandler>()
-                .AddOqtaneScopedServices()
                 .AddOqtaneServerScopedServices();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )
+            services.AddHttpClients();
 
             // register singleton scoped core services
             services.AddSingleton(Configuration)
@@ -116,6 +109,10 @@ namespace Oqtane
 
             services.ConfigureOqtaneIdentityOptions(Configuration);
 
+            services.AddCascadingAuthenticationState();
+            services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+            services.AddAuthorization();
+
             services.AddAuthentication(options =>
             {
                 options.DefaultScheme = Constants.AuthenticationScheme;
@@ -136,6 +133,7 @@ namespace Oqtane
                 options.AddPolicy(Constants.MauiCorsPolicy,
                     policy =>
                     {
+                        // allow .NET MAUI client cross origin calls
                         policy.WithOrigins("https://0.0.0.0", "http://0.0.0.0", "app://0.0.0.0")
                             .AllowAnyHeader().AllowCredentials();
                     });
@@ -147,6 +145,21 @@ namespace Oqtane
             })
             .AddOqtaneApplicationParts() // register any Controllers from custom modules
             .ConfigureOqtaneMvc(); // any additional configuration from IStartup classes
+
+            services.AddRazorPages();
+
+            services.AddRazorComponents()
+               .AddInteractiveServerComponents(options =>
+               {
+                   if (_env.IsDevelopment())
+                   {
+                       options.DetailedErrors = true;
+                   }
+               }).AddHubOptions(options =>
+               {
+                   options.MaximumReceiveMessageSize = null; // no limit (for large amnounts of data ie. textarea components)
+               })
+               .AddInteractiveWebAssemblyComponents();
 
             services.AddSwaggerGen(options =>
             {
@@ -167,13 +180,13 @@ namespace Oqtane
 
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
                 app.UseWebAssemblyDebugging();
                 app.UseForwardedHeaders();
             }
             else
             {
                 app.UseForwardedHeaders();
+                app.UseExceptionHandler("/Error", createScopeForErrors: true);
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
@@ -186,9 +199,9 @@ namespace Oqtane
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseExceptionMiddleWare();
             app.UseTenantResolution();
             app.UseJwtAuthorization();
-            app.UseBlazorFrameworkFiles();
             app.UseRouting();
             app.UseCors();
             app.UseAuthentication();
@@ -202,13 +215,26 @@ namespace Oqtane
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapBlazorHub();
                 endpoints.MapControllers();
-                endpoints.MapFallbackToPage("/_Host");
+                endpoints.MapRazorPages();
+            });
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapRazorComponents<App>()
+                    .AddInteractiveServerRenderMode()
+                    .AddInteractiveWebAssemblyRenderMode()
+                    .AddAdditionalAssemblies(typeof(SiteRouter).Assembly);
+            });
+
+            // simulate the fallback routing approach of traditional Blazor - allowing the custom SiteRouter to handle all routing concerns
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapFallback();
             });
 
             // create a global sync event to identify server application startup
-            sync.AddSyncEvent(-1, EntityNames.Host, -1, SyncEventActions.Reload);
+            sync.AddSyncEvent(-1, -1, EntityNames.Host, -1, SyncEventActions.Reload);
         }
     }
 }

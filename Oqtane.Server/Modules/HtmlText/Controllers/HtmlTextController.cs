@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Modules.HtmlText.Repository;
 using Microsoft.AspNetCore.Http;
 using Oqtane.Shared;
 using Oqtane.Enums;
@@ -9,7 +8,8 @@ using Oqtane.Controllers;
 using System.Net;
 using Oqtane.Documentation;
 using System.Collections.Generic;
-using System.Linq;
+using Oqtane.Modules.HtmlText.Services;
+using System.Threading.Tasks;
 
 namespace Oqtane.Modules.HtmlText.Controllers
 {
@@ -17,21 +17,21 @@ namespace Oqtane.Modules.HtmlText.Controllers
     [PrivateApi("Mark HtmlText classes as private, since it's not very useful in the public docs")]
     public class HtmlTextController : ModuleControllerBase
     {
-        private readonly IHtmlTextRepository _htmlText;
+        private readonly IHtmlTextService _htmlTextService;
 
-        public HtmlTextController(IHtmlTextRepository htmlText, ILogManager logger, IHttpContextAccessor accessor) : base(logger, accessor)
+        public HtmlTextController(IHtmlTextService htmlTextService, ILogManager logger, IHttpContextAccessor accessor) : base(logger, accessor)
         {
-            _htmlText = htmlText;
+            _htmlTextService = htmlTextService;
         }
 
         // GET: api/<controller>?moduleid=x
         [HttpGet]
         [Authorize(Roles = RoleNames.Registered)]
-        public IEnumerable<Models.HtmlText> Get(string moduleId)
+        public async Task<IEnumerable<Models.HtmlText>> Get(string moduleId)
         {
             if (int.TryParse(moduleId, out int ModuleId) && IsAuthorizedEntityId(EntityNames.Module, ModuleId))
             {
-                return _htmlText.GetHtmlTexts(ModuleId);
+                return await _htmlTextService.GetHtmlTextsAsync(ModuleId);
             }
             else
             {
@@ -44,19 +44,11 @@ namespace Oqtane.Modules.HtmlText.Controllers
         // GET api/<controller>/5
         [HttpGet("{moduleId}")]
         [Authorize(Policy = PolicyNames.ViewModule)]
-        public Models.HtmlText Get(int moduleId)
+        public async Task<Models.HtmlText> Get(int moduleId)
         {
             if (IsAuthorizedEntityId(EntityNames.Module, moduleId))
             {
-                var htmltexts = _htmlText.GetHtmlTexts(moduleId);
-                if (htmltexts != null && htmltexts.Any())
-                {
-                    return htmltexts.OrderByDescending(item => item.CreatedOn).First();
-                }
-                else
-                {
-                    return null;
-                }
+                return await _htmlTextService.GetHtmlTextAsync(moduleId);
             }
             else
             {
@@ -69,11 +61,11 @@ namespace Oqtane.Modules.HtmlText.Controllers
         // GET api/<controller>/5/6
         [HttpGet("{id}/{moduleId}")]
         [Authorize(Policy = PolicyNames.ViewModule)]
-        public Models.HtmlText Get(int id, int moduleId)
+        public async Task<Models.HtmlText> Get(int id, int moduleId)
         {
             if (IsAuthorizedEntityId(EntityNames.Module, moduleId))
             {
-                return _htmlText.GetHtmlText(id);
+                return await _htmlTextService.GetHtmlTextAsync(id, moduleId);
             }
             else
             {
@@ -86,13 +78,11 @@ namespace Oqtane.Modules.HtmlText.Controllers
         // POST api/<controller>
         [HttpPost]
         [Authorize(Policy = PolicyNames.EditModule)]
-        public Models.HtmlText Post([FromBody] Models.HtmlText htmlText)
+        public async Task<Models.HtmlText> Post([FromBody] Models.HtmlText htmlText)
         {
             if (ModelState.IsValid && IsAuthorizedEntityId(EntityNames.Module, htmlText.ModuleId))
             {
-                htmlText = _htmlText.AddHtmlText(htmlText);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Html/Text Added {HtmlText}", htmlText);
-                return htmlText;
+                return await _htmlTextService.AddHtmlTextAsync(htmlText);
             }
             else
             {
@@ -105,12 +95,11 @@ namespace Oqtane.Modules.HtmlText.Controllers
         // DELETE api/<controller>/5
         [HttpDelete("{id}/{moduleId}")]
         [Authorize(Policy = PolicyNames.EditModule)]
-        public void Delete(int id, int moduleId)
+        public async Task Delete(int id, int moduleId)
         {
             if (IsAuthorizedEntityId(EntityNames.Module, moduleId))
             {
-                _htmlText.DeleteHtmlText(id);
-                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Html/Text Deleted {HtmlTextId}", id);
+                await _htmlTextService.DeleteHtmlTextAsync(id, moduleId);
             }
             else
             {

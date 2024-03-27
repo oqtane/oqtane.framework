@@ -1,10 +1,11 @@
+using System;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Oqtane.Infrastructure
 {
     /// <summary>
-    /// FileLogger should only be used in scenarios where a database is not available or tenant/site cannot be determined ( ie. during startup )
+    /// FileLogger should only be used in scenarios where a database is not available or tenant/site cannot be determined (ie. during startup)
     /// </summary>
     [ProviderAlias("FileLogger")]
     public class FileLoggerProvider : ILoggerProvider
@@ -25,6 +26,7 @@ namespace Oqtane.Infrastructure
 
         public void Dispose()
         {
+            // nothing to dispose
         }
     }
 }

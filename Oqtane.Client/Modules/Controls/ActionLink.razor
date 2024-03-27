@@ -8,7 +8,7 @@
 {
     if (Disabled)
     {
-		<button type="button" class="@_classname" style="@_style" disabled>@((MarkupString)_iconSpan) @_text</button>
+        <NavLink class="@($"{_classname} disabled")" href="@_url" style="@_style">@((MarkupString)_iconSpan) @_text</NavLink>
 	}
 	else
 	{
@@ -97,10 +97,13 @@
     {
         base.OnParametersSet();
 
-        _text = Action;
         if (!string.IsNullOrEmpty(Text))
         {
-            _text = Text;
+            _text = Localize(nameof(Text), _text);
+        }
+        else
+        {
+            _text = Localize(nameof(Action), Action);
         }
 
         if (IconOnly && !string.IsNullOrEmpty(IconName))
@@ -150,7 +153,6 @@
         }
 
 		_permissions = (PermissionList == null) ? ModuleState.PermissionList : PermissionList;
-		_text = Localize(nameof(Text), _text);
 
 		_url = EditUrl(_path, _moduleId, Action, _parameters);
 		if (!string.IsNullOrEmpty(ReturnUrl))
