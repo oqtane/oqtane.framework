@@ -63,6 +63,9 @@ Backlog (TBD)
 - [ ] Folder Providers
 - [ ] Generative AI Integration
 
+5.1.1 (Apr 2024)
+- [ ] Stabilization improvements
+
 [5.1.0](https://github.com/oqtane/oqtane.framework/releases/tag/v5.1.0) (Mar 27, 2024)
 - [x] Migration to the new unified Blazor approach in .NET 8 (ie. blazor.web.js)
 - [x] Static Server Rendering (SSR) support
