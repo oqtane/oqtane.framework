@@ -96,6 +96,44 @@ div.app-moduleactions a.dropdown-toggle, div.app-moduleactions div.dropdown-menu
     z-index: 1000;
 }
 
+/* Oqtane Quill Rich Text Editor */
+.ql-toolbar {
+    background-color: var(--bs-emphasis-color)
+}
+
+.ql-header .ql-picker-options, .ql-editor {
+    background-color: var(--bs-body-bg) !important;
+    color: var(--bs-body-color) !important;
+}
+    .ql-header .ql-picker-options .ql-picker-item:not(:first-child) {
+        color: var(--bs-heading-color) !important;
+    }
+
+        .ql-header .ql-picker-options .ql-picker-item:not(:first-child).ql-editor a,
+        .ql-editor a {
+            color: var(--bs-link-color) !important;
+        }
+
+            .ql-header .ql-picker-options .ql-picker-item:hover,
+            .ql-editor a:hover {
+                color: var(--bs-link-hover-color) !important;
+            }
+
+            .ql-editor a.btn,
+            .ql-editor a.btn:hover {
+                text-decoration: unset !important;
+                color: var(--bs-btn-color) !important;
+            }
+
+.ql-tooltip {
+    background-color: var(--bs-modal-bg) !important;
+    color: var(--bs-body-color) !important;
+}
+
+    .ql-tooltip a {
+        color: var(--bs-link-color) !important;
+    }
+
 @media (max-width: 767.98px) {
 
     .app-menu {
