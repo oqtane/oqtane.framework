@@ -124,12 +124,20 @@
         {
             if (querystring.ContainsKey("reload") && querystring["reload"] == "post")
             {
-                // post back so that the cookies are set correctly - required on any change to the principal 
-                var interop = new Interop(JSRuntime);
-                var fields = new { returnurl = "/" + NavigationManager.ToBaseRelativePath(_absoluteUri) };
-                string url = Utilities.TenantUrl(SiteState.Alias, "/pages/external/");
-                await interop.SubmitForm(url, fields);
-                return;
+                if (PageState.RenderMode == RenderModes.Interactive)
+                {
+                    // post back so that the cookies are set correctly - required on any change to the principal
+                    var interop = new Interop(JSRuntime);
+                    var fields = new { returnurl = "/" + NavigationManager.ToBaseRelativePath(_absoluteUri) };
+                    string url = Utilities.TenantUrl(SiteState.Alias, "/pages/external/");
+                    await interop.SubmitForm(url, fields);
+                    return;
+                }
+                else
+                {
+                    NavigationManager.NavigateTo(_absoluteUri.Replace("?reload=post", "").Replace("&reload=post", ""), true);
+                    return;
+                }
             }
             else
             {
