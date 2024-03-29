@@ -380,7 +380,7 @@
                 }
                 else
                 {
-                    if (_path.Contains("/") & !_path.Contains("://"))
+                    if (_path.Contains("/"))
                     {
                         _path = _path.Substring(_path.LastIndexOf("/") + 1);
                     }
@@ -529,45 +529,34 @@
                         _page.ParentId = Int32.Parse(_parentid);
                     }
 
-                    // path can be a link to an external url
-                    if (!_path.Contains("://"))
+                    if (string.IsNullOrEmpty(_path))
                     {
-                        if (string.IsNullOrEmpty(_path))
-                        {
-                            _path = _name;
-                        }
+                        _path = _name;
+                    }
 
-                       (_path, string parameters) = Utilities.ParsePath(_path);
-
-                        if (_path.Contains("/"))
+                    if (_path.Contains("/"))
+                    {
+                        if (_path.EndsWith("/") && _path != "/")
                         {
-                            if (_path.EndsWith("/") && _path != "/")
-                            {
-                                _path = _path.Substring(0, _path.Length - 1);
-                            }
-                            _path = _path.Substring(_path.LastIndexOf("/") + 1);
+                            _path = _path.Substring(0, _path.Length - 1);
                         }
-                        if (_parentid == "-1")
-                        {
-                            _page.Path = Utilities.GetFriendlyUrl(_path);
-                        }
-                        else
-                        {
-                            Page parent = PageState.Pages.FirstOrDefault(item => item.PageId == _page.ParentId);
-                            if (parent.Path == string.Empty)
-                            {
-                                _page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
-                            }
-                            else
-                            {
-                                _page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(_path);
-                            }
-                        }
-                        _page.Path += parameters;
+                        _path = _path.Substring(_path.LastIndexOf("/") + 1);
+                    }
+                    if (_parentid == "-1")
+                    {
+                        _page.Path = Utilities.GetFriendlyUrl(_path);
                     }
                     else
                     {
-                        _page.Path = _path;
+                        Page parent = PageState.Pages.FirstOrDefault(item => item.PageId == _page.ParentId);
+                        if (parent.Path == string.Empty)
+                        {
+                            _page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
+                        }
+                        else
+                        {
+                            _page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(_path);
+                        }
                     }
 
                     var _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
@@ -658,14 +647,7 @@
                     }
                     else
                     {
-                        if (!_page.Path.Contains("://"))
-                        {
-                            NavigationManager.NavigateTo(NavigateUrl(), true); // redirect to page being edited
-                        }
-                        else
-                        {
-                            NavigationManager.NavigateTo(NavigateUrl("admin/pages"));
-                        }
+                        NavigationManager.NavigateTo(NavigateUrl(), true); // redirect to page being edited
                     }
                 }
                 else
