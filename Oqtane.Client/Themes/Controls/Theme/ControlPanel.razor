@@ -12,7 +12,7 @@
 @if (_showEditMode || (PageState.Page.IsPersonalizable && PageState.User != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Registered)))
 {
     <form method="post" class="app-form-inline" @formname="EditModeForm" @onsubmit="@(async () => await ToggleEditMode(PageState.EditMode))" data-enhance>
-        <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+        <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
         @if (PageState.EditMode)
         {
             <button type="submit" class="btn @ButtonClass active" aria-pressed="true" autocomplete="off">

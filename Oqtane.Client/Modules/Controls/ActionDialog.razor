@@ -54,7 +54,7 @@ else
                         <div class="modal-header">
                             <h5 class="modal-title">@Header</h5>
                             <form method="post" @formname="@($"ActionDialogCloseForm{Id}")" @onsubmit="DisplayModal" data-enhance>
-                                <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                                <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                                 <button type="submit" class="btn-close" aria-label="Close"></button>
                             </form>
                         </div>
@@ -65,12 +65,12 @@ else
                             @if (!string.IsNullOrEmpty(Action))
                             {
                                 <form method="post" @formname="@($"ActionDialogConfirmForm{Id}")" @onsubmit="Confirm" data-enhance>
-                                    <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                                    <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                                     <button type="submit" class="@Class">@((MarkupString)_iconSpan) @Text</button>
                                 </form>
                             }
                             <form method="post" @formname="@($"ActionDialogCancelForm{Id}")" @onsubmit="DisplayModal" data-enhance>
-                                <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                                <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                                 <button type="submit" class="btn btn-secondary">@SharedLocalizer["Cancel"]</button>
                             </form>
                         </div>
@@ -88,7 +88,7 @@ else
         else
         {
             <form method="post" @formname="@($"ActionDialogActionForm{Id}")" @onsubmit="DisplayModal" data-enhance>
-                <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                 <button type="submit" class="@Class">@((MarkupString)_iconSpan) @Text</button>
             </form>
         }

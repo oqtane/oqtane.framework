@@ -73,7 +73,7 @@
         @if (!string.IsNullOrEmpty(SearchProperties))
         {
             <form method="post" autocomplete="off" @formname="PagerForm" @onsubmit="Search" data-enhance>
-                <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                 <div class="input-group my-3">
                     <input type="text" id="pagersearch" name="_search" class="form-control" placeholder=@string.Format(Localizer["SearchPlaceholder"], FormatSearchProperties()) @bind="@_search" />
                     <button type="submit" class="btn btn-primary">@SharedLocalizer["Search"]</button>

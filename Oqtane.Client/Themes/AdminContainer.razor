@@ -9,7 +9,7 @@
                 <div class="modal-header">
                     <h5 class="modal-title"><ModuleTitle /></h5>
                     <form method="post" class="app-form-inline" @formname="AdminContainerForm" @onsubmit="@CloseModal" data-enhance>
-                        <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                        <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                         <button type="submit" class="btn-close" aria-label="Close"></button>
                     </form>
                 </div>
