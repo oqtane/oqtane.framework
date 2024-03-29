@@ -159,7 +159,7 @@
         _originalrichhtml = "";
 
         // Quill wraps content in <p> tags which can be used as a signal to set the active tab
-        if (!string.IsNullOrEmpty(Content) && !Content.StartsWith("<p>") && AllowRawHtml)
+        if (!AllowRichText || (AllowRawHtml && !string.IsNullOrEmpty(Content) && !Content.StartsWith("<p>")))
         {
             _activetab = "Raw";
         }
