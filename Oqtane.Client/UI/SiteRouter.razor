@@ -251,105 +251,97 @@
                 }
             }
 
-            if (page != null)
+            // check if user is authorized to view page
+            if (page != null && UserSecurity.IsAuthorized(user, PermissionNames.View, page.PermissionList) && (Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate) || UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList)))
             {
-                // check if user is authorized to view page
-                if (UserSecurity.IsAuthorized(user, PermissionNames.View, page.PermissionList) && (Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate) || UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList)))
+                // edit mode
+                if (user != null)
                 {
-                    // edit mode
-                    if (user != null)
+                    if (querystring.ContainsKey("editmode") && querystring["edit"] == "true")
                     {
-                        if (querystring.ContainsKey("editmode") && querystring["edit"] == "true")
+                        editmode = true;
+                    }
+                    else
+                    {
+                        editmode = (page.PageId == ((user.Settings.ContainsKey("CP-editmode")) ? int.Parse(user.Settings["CP-editmode"]) : -1));
+                        if (!editmode)
                         {
-                            editmode = true;
-                        }
-                        else
-                        {
-                            editmode = (page.PageId == ((user.Settings.ContainsKey("CP-editmode")) ? int.Parse(user.Settings["CP-editmode"]) : -1));
-                            if (!editmode)
-                            {
-                                var userSettings = new Dictionary<string, string> { { "CP-editmode", "-1" } };
-                                await SettingService.UpdateUserSettingsAsync(userSettings, user.UserId);
-                            }
+                            var userSettings = new Dictionary<string, string> { { "CP-editmode", "-1" } };
+                            await SettingService.UpdateUserSettingsAsync(userSettings, user.UserId);
                         }
                     }
-                        
-                    // load additional metadata for current page
-                    page = ProcessPage(page, site, user, SiteState.Alias);
+                }
 
-                    // load additional metadata for modules
-                    (page, site.Modules) = ProcessModules(page, site.Modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType, SiteState.Alias);
+                // load additional metadata for current page
+                page = ProcessPage(page, site, user, SiteState.Alias);
 
-                    // populate page state (which acts as a client-side cache for subsequent requests)
-                    _pagestate = new PageState
+                // load additional metadata for modules
+                (page, site.Modules) = ProcessModules(page, site.Modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType, SiteState.Alias);
+
+                // populate page state (which acts as a client-side cache for subsequent requests)
+                _pagestate = new PageState
+                {
+                    Alias = SiteState.Alias,
+                    Site = site,
+                    Page = page,
+                    User = user,
+                    Uri = new Uri(_absoluteUri, UriKind.Absolute),
+                    Route = route,
+                    QueryString = querystring,
+                    UrlParameters = route.UrlParameters,
+                    ModuleId = moduleid,
+                    Action = action,
+                    EditMode = editmode,
+                    LastSyncDate = lastsyncdate,
+                    RenderMode = RenderMode,
+                    Runtime = (Shared.Runtime)Enum.Parse(typeof(Shared.Runtime), Runtime),
+					VisitorId = visitorId,
+					RemoteIPAddress = SiteState.RemoteIPAddress,
+					ReturnUrl = returnurl,
+                    IsInternalNavigation = _isInternalNavigation,
+                    RenderId = Guid.NewGuid(),
+                    Refresh = false
+                };
+                OnStateChange?.Invoke(_pagestate);
+
+                if (PageState.RenderMode == RenderModes.Interactive)
+                {
+                    await ScrollToFragment(_pagestate.Uri);
+                }
+            }
+            else
+            {
+                if (page == null)
+                {
+                    // check for url mapping
+                    var urlMapping = await UrlMappingService.GetUrlMappingAsync(site.SiteId, route.PagePath);
+                    if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
                     {
-                        Alias = SiteState.Alias,
-                        Site = site,
-                        Page = page,
-                        User = user,
-                        Uri = new Uri(_absoluteUri, UriKind.Absolute),
-                        Route = route,
-                        QueryString = querystring,
-                        UrlParameters = route.UrlParameters,
-                        ModuleId = moduleid,
-                        Action = action,
-                        EditMode = editmode,
-                        LastSyncDate = lastsyncdate,
-                        RenderMode = RenderMode,
-                        Runtime = (Shared.Runtime)Enum.Parse(typeof(Shared.Runtime), Runtime),
-						VisitorId = visitorId,
-						RemoteIPAddress = SiteState.RemoteIPAddress,
-						ReturnUrl = returnurl,
-                        IsInternalNavigation = _isInternalNavigation,
-                        RenderId = Guid.NewGuid(),
-                        Refresh = false
-                    };
-                    OnStateChange?.Invoke(_pagestate);
-
-                    if (PageState.RenderMode == RenderModes.Interactive)
-                    {
-                        await ScrollToFragment(_pagestate.Uri);
+                        var url = (urlMapping.MappedUrl.StartsWith("http")) ? urlMapping.MappedUrl : route.SiteUrl + "/" + urlMapping.MappedUrl + route.Query;
+                        NavigationManager.NavigateTo(url, false);
+                        return;
                     }
                 }
                 else
-                {
-                    // Need to redirect 404 as page doesnot exist in a Permission or Timeframe
-                    if (route.PagePath != "404")
-                    {
-                        // redirect to 404 page
-                        NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "404", ""));
-                    }
-                }
-            }
-            else // page not found
-            {
-                // look for url mapping
-                var urlMapping = await UrlMappingService.GetUrlMappingAsync(site.SiteId, route.PagePath);
-                if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
-                {
-                    var url = (urlMapping.MappedUrl.StartsWith("http")) ? urlMapping.MappedUrl : route.SiteUrl + "/" + urlMapping.MappedUrl + route.Query;
-                    NavigationManager.NavigateTo(url, false);
-                }
-                else // not mapped
                 {
                     if (user == null)
                     {
                         // redirect to login page if user not logged in as they may need to be authenticated
                         NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "login", "?returnurl=" + WebUtility.UrlEncode(route.PathAndQuery)));
+                        return;
                     }
-                    else
-                    {
-                        if (route.PagePath != "404")
-                        {
-                            // redirect to 404 page
-                            NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "404", ""));
-                        }
-                        else
-                        {
-                            // redirect to home page as a fallback
-                            NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "", ""));
-                        }
-                    }
+                }
+
+                // page not found or user does not have sufficient access
+                if (route.PagePath != "404")
+                {
+                    // redirect to 404 page
+                    NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "404", ""));
+                }
+                else
+                {
+                    // redirect to home page as a fallback
+                    NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "", ""));
                 }
             }
         }
