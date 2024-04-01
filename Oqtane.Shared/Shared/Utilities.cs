@@ -80,8 +80,8 @@ namespace Oqtane.Shared
                 // add urlparameters to path
                 if (!string.IsNullOrEmpty(urlparameters))
                 {
-                    if (urlparameters.StartsWith("/")) urlparameters = urlparameters.Remove(0, 1);
-                    path += $"/{Constants.UrlParametersDelimiter}/{urlparameters}";
+                    if (urlparameters.StartsWith("/")) urlparameters = urlparameters.Substring(1);
+                    path += (path.EndsWith("/") ? "" : "/") + $"{Constants.UrlParametersDelimiter}/{urlparameters}";
                 }
 
                 // build url
