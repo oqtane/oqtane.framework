@@ -94,11 +94,10 @@ namespace Oqtane.Repository
             return base.SaveChangesAsync(cancellationToken);
         }
 
-        [Obsolete("This constructor is obsolete. Use DBContextBase(IDBContextDependencies DBContextDependencies) instead.", false)]
-        public DBContextBase(IWebHostEnvironment env, ITenantManager tenantManager, IHttpContextAccessor httpContextAccessor)
+        public DBContextBase(IDBContextDependencies DBContextDependencies, IWebHostEnvironment env)
         {
-            _tenantManager = tenantManager;
-            _accessor = httpContextAccessor;
+            _tenantManager = DBContextDependencies.TenantManager;
+            _accessor = DBContextDependencies.Accessor;
 
             // anti-pattern used to reference config service in base class without causing breaking change
             _config = new ConfigurationBuilder()
