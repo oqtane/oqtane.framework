@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -19,7 +20,7 @@ using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
-    public class DBContextBase :  IdentityUserContext<IdentityUser>
+    public class DBContextBase : IdentityUserContext<IdentityUser>
     {
         private readonly ITenantManager _tenantManager;
         private readonly IHttpContextAccessor _accessor;
@@ -94,16 +95,18 @@ namespace Oqtane.Repository
         }
 
         [Obsolete("This constructor is obsolete. Use DBContextBase(IDBContextDependencies DBContextDependencies) instead.", false)]
-        public DBContextBase(ITenantManager tenantManager, IHttpContextAccessor httpContextAccessor)
+        public DBContextBase(IWebHostEnvironment env, ITenantManager tenantManager, IHttpContextAccessor httpContextAccessor)
         {
             _tenantManager = tenantManager;
             _accessor = httpContextAccessor;
 
             // anti-pattern used to reference config service in base class without causing breaking change
             _config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", false, false)
-                .Build();
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", false, true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, true)
+                .AddEnvironmentVariables().Build();
+
         }
     }
 }
