@@ -33,7 +33,7 @@ namespace Oqtane.Services
 
         public async Task<Profile> UpdateProfileAsync(Profile profile)
         {
-            return await PutJsonAsync<Profile>($"{Apiurl}/{profile.SiteId}", profile);
+            return await PutJsonAsync<Profile>($"{Apiurl}/{profile.ProfileId}", profile);
         }
         public async Task DeleteProfileAsync(int profileId)
         {
