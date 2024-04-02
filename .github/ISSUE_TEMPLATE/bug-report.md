@@ -8,7 +8,8 @@ assignees: ''
 ---
 
 ### Oqtane Info
-Version - 5.1.0
+
+Version - #.#.#
 Render Mode - Static 
 Interactivity - Server
 Database - SQL Server
