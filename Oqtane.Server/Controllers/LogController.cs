@@ -76,5 +76,20 @@ namespace Oqtane.Controllers
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
+
+        [HttpDelete]
+        [Authorize(Roles = RoleNames.Admin)]
+        public void Delete(string siteId, bool includeErrors)
+        {
+            if (int.TryParse(siteId, out int parsedSiteId) && parsedSiteId == _alias.SiteId)
+            {
+                _logs.DeleteLogs(parsedSiteId, 0, includeErrors);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Log Delete Attempt {SiteId}", siteId);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            }
+        }
     }
 }
