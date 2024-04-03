@@ -79,11 +79,11 @@ namespace Oqtane.Controllers
 
         [HttpDelete]
         [Authorize(Roles = RoleNames.Admin)]
-        public void Delete(string siteId, bool includeErrors)
+        public void Delete(string siteId)
         {
             if (int.TryParse(siteId, out int parsedSiteId) && parsedSiteId == _alias.SiteId)
             {
-                _logs.DeleteLogs(parsedSiteId, 0, includeErrors);
+                _logs.ClearLogs(parsedSiteId);
             }
             else
             {

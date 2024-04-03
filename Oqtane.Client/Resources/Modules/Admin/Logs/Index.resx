@@ -210,7 +210,7 @@
   <data name="Success.SaveSiteSettings" xml:space="preserve">
     <value>Settings Saved Successfully</value>
   </data>
-  <data name="ClearLogs" xml:space="preserve">
+  <data name="ClearLogs.Text" xml:space="preserve">
     <value>Clear Logs</value>
   </data>
   <data name="Confirm.ClearLogs" xml:space="preserve">

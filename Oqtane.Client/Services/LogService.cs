@@ -37,7 +37,7 @@ namespace Oqtane.Services
 
         public async Task ClearLogsAsync(int siteId)
         {
-            await DeleteAsync($"{Apiurl}?siteid={siteId}&includeErrors=true");
+            await DeleteAsync($"{Apiurl}?siteid={siteId}");
         }
 
         public async Task Log(int? pageId, int? moduleId, int? userId, string category, string feature, LogFunction function, LogLevel level, Exception exception, string message, params object[] args)
