@@ -83,7 +83,7 @@ namespace Oqtane.Controllers
         {
             if (int.TryParse(siteId, out int parsedSiteId) && parsedSiteId == _alias.SiteId)
             {
-                _logs.ClearLogs(parsedSiteId);
+                _logs.DeleteLogs(parsedSiteId, 0); // specifying zero for age results in all logs being deleted
             }
             else
             {

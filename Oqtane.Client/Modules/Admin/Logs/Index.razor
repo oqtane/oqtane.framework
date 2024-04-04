@@ -87,7 +87,7 @@ else
 			</div>
 			<br />
             <button type="button" class="btn btn-success" @onclick="SaveSiteSettings">@SharedLocalizer["Save"]</button>
-            <ActionDialog Header="Clear Logs" Message="@Localizer["Confirm.ClearLogs"]" Action="ClearLogs" Class="btn btn-secondary" OnClick="@(async () => await ClearLogs())" ResourceKey="ClearLogs" />
+            <ActionDialog Header="Delete Log Events" Message="Are You Sure You Wish To Delete All Log Events?" Action="DeleteLogs" Class="btn btn-danger" OnClick="@(async () => await DeleteLogs())" ResourceKey="DeleteLogs" />
 		</TabPanel>
 	</TabStrip>
 }
@@ -231,18 +231,18 @@ else
         }
     }
 
-    private async Task ClearLogs()
+    private async Task DeleteLogs()
     {
         try
         {
-            await LogService.ClearLogsAsync(PageState.Site.SiteId);
+            await LogService.DeleteLogsAsync(PageState.Site.SiteId);
             await GetLogs();
             StateHasChanged();
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Clearing Logs {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error.ClearLogs"], MessageType.Error);
+            await logger.LogError(ex, "Error Deleting Logs {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.DeleteLogs"], MessageType.Error);
         }
     }
 
