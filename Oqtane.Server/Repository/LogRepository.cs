@@ -71,5 +71,19 @@ namespace Oqtane.Repository
             }
             return count;
         }
+
+        public void ClearLogs(int siteId)
+        {
+            using var db = _dbContextFactory.CreateDbContext();
+            var getLogsForDelete = () => db.Log.Where(item => item.SiteId == siteId).Take(100).ToList();
+            // delete logs in batches of 100 records
+            var logs = getLogsForDelete();
+            while (logs.Count > 0)
+            {
+                db.Log.RemoveRange(logs);
+                db.SaveChanges();
+                logs = getLogsForDelete();
+            }
+        }
     }
 }

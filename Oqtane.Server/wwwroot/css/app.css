@@ -35,6 +35,9 @@ app {
     }
 
 /* Action Dialog */
+.app-actiondialog{
+    position: absolute;
+}
 .app-actiondialog .modal {
     position: fixed; /* Stay in place */
     z-index: 9999; /* Sit on top */
