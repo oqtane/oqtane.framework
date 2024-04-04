@@ -35,7 +35,7 @@ namespace Oqtane.Services
             return await GetJsonAsync<Log>($"{Apiurl}/{logId}");
         }
 
-        public async Task ClearLogsAsync(int siteId)
+        public async Task DeleteLogsAsync(int siteId)
         {
             await DeleteAsync($"{Apiurl}?siteid={siteId}");
         }
