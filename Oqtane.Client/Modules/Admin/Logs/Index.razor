@@ -87,7 +87,7 @@ else
 			</div>
 			<br />
             <button type="button" class="btn btn-success" @onclick="SaveSiteSettings">@SharedLocalizer["Save"]</button>
-            <ActionDialog Header="Delete Log Events" Message="Are You Sure You Wish To Delete All Log Events?" Action="DeleteLogs" Class="btn btn-danger" OnClick="@(async () => await DeleteLogs())" ResourceKey="DeleteLogs" />
+            <ActionDialog Header="Clear Events" Message="Are You Sure You Wish To Remove All Log Events?" Action="DeleteLogs" Class="btn btn-danger" OnClick="@(async () => await DeleteLogs())" ResourceKey="DeleteLogs" />
 		</TabPanel>
 	</TabStrip>
 }
