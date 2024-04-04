@@ -34,7 +34,7 @@ namespace Oqtane.Services
         /// </summary>
         /// <param name="siteId"></param>
         /// <returns></returns>
-        Task ClearLogsAsync(int siteId);
+        Task DeleteLogsAsync(int siteId);
 
         /// <summary>
         /// Creates a new log entry
