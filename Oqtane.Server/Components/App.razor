@@ -178,12 +178,8 @@
                     // include stylesheets to prevent FOUC
                     var resources = GetPageResources(alias, site, page, int.Parse(route.ModuleId), route.Action);
                     ManageStyleSheets(resources);
+                    ManageScripts(resources, alias);
 
-                    // scripts
-                    if (_renderMode == RenderModes.Static)
-                    {
-                        ManageScripts(resources, alias);
-                    }
                     if (_renderMode == RenderModes.Interactive && _runtime == Runtimes.Server)
                     {
                         _reconnectScript = CreateReconnectScript();
@@ -520,7 +516,8 @@
         {
             if (!_bodyResources.Contains(script))
             {
-                _bodyResources += script + Environment.NewLine;
+                //insert scripts above the built-ins to avoid timing issues.
+                _bodyResources = script + Environment.NewLine + _bodyResources;
             }
         }
     }
