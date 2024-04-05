@@ -157,12 +157,6 @@
         _rawhtml = Content;
         _originalrawhtml = _rawhtml; // preserve for comparison later
         _originalrichhtml = "";
-
-        // Quill wraps content in <p> tags which can be used as a signal to set the active tab
-        if (!AllowRichText || (AllowRawHtml && !string.IsNullOrEmpty(Content) && !Content.StartsWith("<p>")))
-        {
-            _activetab = "Raw";
-        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -184,7 +178,10 @@
                     DebugLevel);
             }
 
-            await interop.LoadEditorContent(_editorElement, _richhtml);
+            if (!_richfilemanager)
+            {
+                await interop.LoadEditorContent(_editorElement, _richhtml);
+            }
 
             if (string.IsNullOrEmpty(_originalrichhtml))
             {
