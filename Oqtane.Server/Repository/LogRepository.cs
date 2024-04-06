@@ -55,20 +55,29 @@ namespace Oqtane.Repository
 
         public int DeleteLogs(int siteId, int age)
         {
+            return DeleteLogs(siteId, age, false);
+        }
+
+        public int DeleteLogs(int siteId, int age, bool includeErrors)
+        {
             using var db = _dbContextFactory.CreateDbContext();
             // delete logs in batches of 100 records
             var count = 0;
             var purgedate = DateTime.UtcNow.AddDays(-age);
-            var logs = db.Log.Where(item => item.SiteId == siteId && item.Level != "Error" && item.LogDate < purgedate)
-                .OrderBy(item => item.LogDate).Take(100).ToList();
+            var getLogsForDelete = () =>
+            {
+                return db.Log.Where(item => item.SiteId == siteId && (includeErrors || item.Level != "Error") && item.LogDate < purgedate)
+                        .OrderBy(item => item.LogDate).Take(100).ToList();
+            };
+            var logs = getLogsForDelete();
             while (logs.Count > 0)
             {
                 count += logs.Count;
                 db.Log.RemoveRange(logs);
                 db.SaveChanges();
-                logs = db.Log.Where(item => item.SiteId == siteId && item.Level != "Error" && item.LogDate < purgedate)
-                    .OrderBy(item => item.LogDate).Take(100).ToList();
+                logs = getLogsForDelete();
             }
+            
             return count;
         }
 

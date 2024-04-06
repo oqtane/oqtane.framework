@@ -53,7 +53,7 @@ namespace Oqtane.Infrastructure
                 }
                 try
                 {
-                    count = logRepository.DeleteLogs(site.SiteId, retention);
+                    count = logRepository.DeleteLogs(site.SiteId, retention, true);
                     log += count.ToString() + " Events Purged<br />";
                 }
                 catch (Exception ex)

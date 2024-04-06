@@ -9,6 +9,7 @@ namespace Oqtane.Repository
         Log GetLog(int logId);
         void AddLog(Log log);
         int DeleteLogs(int siteId, int age);
+        int DeleteLogs(int siteId, int age, bool includeErrors);
         void ClearLogs(int siteId);
     }
 }
