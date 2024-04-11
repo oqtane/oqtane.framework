@@ -146,9 +146,9 @@
 
     public override List<Resource> Resources => new List<Resource>()
     {
-        new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill.min.js" },
-        new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-blot-formatter.min.js" },
-        new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-interop.js" }
+        new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill.min.js", Location = ResourceLocation.Body },
+        new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-blot-formatter.min.js", Location = ResourceLocation.Body },
+        new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-interop.js", Location = ResourceLocation.Body }
     };
 
     protected override void OnParametersSet()
