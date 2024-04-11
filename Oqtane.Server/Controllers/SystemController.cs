@@ -34,6 +34,7 @@ namespace Oqtane.Controllers
                 case "environment":
                     systeminfo.Add("CLRVersion", Environment.Version.ToString());
                     systeminfo.Add("OSVersion", Environment.OSVersion.ToString());
+                    systeminfo.Add("Process", (Environment.Is64BitProcess) ? "64 Bit" : "32 Bit");
                     systeminfo.Add("MachineName", Environment.MachineName);
                     systeminfo.Add("WorkingSet", Environment.WorkingSet.ToString());
                     systeminfo.Add("TickCount", Environment.TickCount64.ToString());
