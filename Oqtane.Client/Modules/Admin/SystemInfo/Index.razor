@@ -27,6 +27,12 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="process" HelpText="Indicates if the current process is 32 bit or 64 bit" ResourceKey="Process">Process: </Label>
+                <div class="col-sm-9">
+                    <input id="process" class="form-control" @bind="@_process" readonly />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="machinename" HelpText="Machine Name" ResourceKey="MachineName">Machine Name: </Label>
                 <div class="col-sm-9">
                     <input id="machinename" class="form-control" @bind="@_machinename" readonly />
@@ -60,12 +66,6 @@
                 <Label Class="col-sm-3" For="servertime" HelpText="Server Date/Time (in UTC)" ResourceKey="ServerTime">Server Date/Time: </Label>
                 <div class="col-sm-9">
                     <input id="servertime" class="form-control" @bind="@_servertime" readonly />
-                </div>
-            </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="tickcount" HelpText="Amount Of Time The Service Has Been Available And Operational" ResourceKey="TickCount">Service Uptime: </Label>
-                <div class="col-sm-9">
-                    <input id="tickcount" class="form-control" @bind="@_tickcount" readonly />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
@@ -165,13 +165,13 @@
 	private string _version = string.Empty;
 	private string _clrversion = string.Empty;
 	private string _osversion = string.Empty;
-	private string _machinename = string.Empty;
+    private string _process = string.Empty;
+    private string _machinename = string.Empty;
 	private string _ipaddress = string.Empty;
 	private string _environment = string.Empty;
 	private string _contentrootpath = string.Empty;
 	private string _webrootpath = string.Empty;
 	private string _servertime = string.Empty;
-	private string _tickcount = string.Empty;
 	private string _workingset = string.Empty;
 	private string _installationid = string.Empty;
 
@@ -192,13 +192,13 @@
 		{
 			_clrversion = systeminfo["CLRVersion"].ToString();
 			_osversion = systeminfo["OSVersion"].ToString();
-			_machinename = systeminfo["MachineName"].ToString();
+            _process = systeminfo["Process"].ToString();
+            _machinename = systeminfo["MachineName"].ToString();
 			_ipaddress = systeminfo["IPAddress"].ToString();
 			_environment = systeminfo["Environment"].ToString();
 			_contentrootpath = systeminfo["ContentRootPath"].ToString();
 			_webrootpath = systeminfo["WebRootPath"].ToString();
 			_servertime = systeminfo["ServerTime"].ToString() + " UTC";
-			_tickcount = TimeSpan.FromMilliseconds(Convert.ToInt64(systeminfo["TickCount"].ToString())).ToString();
 			_workingset = (Convert.ToInt64(systeminfo["WorkingSet"].ToString()) / 1000000).ToString() + " MB";
 		}
 
