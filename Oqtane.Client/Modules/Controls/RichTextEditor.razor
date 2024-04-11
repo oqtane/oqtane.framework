@@ -157,6 +157,11 @@
         _rawhtml = Content;
         _originalrawhtml = _rawhtml; // preserve for comparison later
         _originalrichhtml = "";
+
+        if (!AllowRichText)
+        {
+            _activetab = "Raw";
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
