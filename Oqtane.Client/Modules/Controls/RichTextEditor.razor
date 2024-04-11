@@ -63,8 +63,7 @@
                                     </span>
                                 }
                             </div>
-                            <div @ref="@_editorElement">
-                            </div>
+                            <div @ref="@_editorElement"></div>
                         </div>
                     </div>
                 </TabPanel>
@@ -104,6 +103,7 @@
 </div>
 
 @code {
+    private bool _initialized = false;
     private ElementReference _editorElement;
     private ElementReference _toolBar;
     private bool _richfilemanager = false;
@@ -178,17 +178,22 @@
                     DebugLevel);
             }
 
-            if (!_richfilemanager)
+            if (_initialized)
             {
-                await interop.LoadEditorContent(_editorElement, _richhtml);
-            }
+                if (!_richfilemanager) // do not override the content when the file manager is displayed
+                {
+                    await interop.LoadEditorContent(_editorElement, _richhtml);
+                }
 
-            if (string.IsNullOrEmpty(_originalrichhtml))
-            {
-                // preserve a copy of the rich text content (Quill sanitizes content so we need to retrieve it from the editor)
-                _originalrichhtml = await interop.GetHtml(_editorElement);
+                if (string.IsNullOrEmpty(_originalrichhtml))
+                {
+                    // preserve a copy of the rich text content (Quill sanitizes content so we need to retrieve it from the editor as it may have changed)
+                    _originalrichhtml = await interop.GetHtml(_editorElement);
+                }
             }
         }
+
+        _initialized = true; // ensures that the rich text editor is created before trying to access its methods
     }
 
     public void CloseRichFileManager()
