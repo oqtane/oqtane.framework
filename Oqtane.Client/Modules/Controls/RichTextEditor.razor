@@ -109,12 +109,12 @@
     private bool _richfilemanager = false;
     private FileManager _fileManager;
     private string _richhtml = string.Empty;
-    private string _originalrichhtml = string.Empty;
     private bool _rawfilemanager = false;
     private string _rawhtml = string.Empty;
     private string _originalrawhtml = string.Empty;
     private string _message = string.Empty;
     private string _activetab = "Rich";
+    private bool _contentchanged = false;
 
     [Parameter]
     public string Content { get; set; }
@@ -156,7 +156,7 @@
         _richhtml = Content;
         _rawhtml = Content;
         _originalrawhtml = _rawhtml; // preserve for comparison later
-        _originalrichhtml = "";
+        _contentchanged = true;
 
         if (!AllowRichText)
         {
@@ -181,24 +181,32 @@
                     Placeholder,
                     Theme,
                     DebugLevel);
+
+                await interop.LoadEditorContent(_editorElement, _richhtml);
+
+                _initialized = true;
             }
-
-            if (_initialized)
+            else
             {
-                if (!_richfilemanager) // do not override the content when the file manager is displayed
+                if (_initialized)
                 {
-                    await interop.LoadEditorContent(_editorElement, _richhtml);
-                }
-
-                if (string.IsNullOrEmpty(_originalrichhtml))
-                {
-                    // preserve a copy of the rich text content (Quill sanitizes content so we need to retrieve it from the editor as it may have changed)
-                    _originalrichhtml = await interop.GetHtml(_editorElement);
+                    if (_contentchanged)
+                    {
+                        // reload if content passed to component has changed
+                        await interop.LoadEditorContent(_editorElement, _richhtml);
+                    }
+                    else
+                    {
+                        var richhtml = await interop.GetHtml(_editorElement);
+                        if (richhtml != _richhtml)
+                        {
+                            await interop.LoadEditorContent(_editorElement, richhtml);
+                        }
+                    }
+                    _contentchanged = false;
                 }
             }
         }
-
-        _initialized = true; // ensures that the rich text editor is created before trying to access its methods
     }
 
     public void CloseRichFileManager()
@@ -224,23 +232,17 @@
         }
         else
         {
-            var richhtml = "";
             if (AllowRichText)
             {
-                // return rich text content if it has changed
+                // return rich text content
                 var interop = new RichTextEditorInterop(JSRuntime);
-                richhtml = await interop.GetHtml(_editorElement);
+                return await interop.GetHtml(_editorElement);
             }
-            // rich text value will only be blank if AllowRichText is disabled or the JS Interop method failed
-            if (richhtml != _originalrichhtml && !string.IsNullOrEmpty(richhtml) && !string.IsNullOrEmpty(_originalrichhtml))
-			{
-				return richhtml;
-			}
-			else
-			{
+            else
+            {
 				// return original raw html content
-				return _originalrawhtml;
-			}
+				return _originalrawhtml;                
+            }
 		}
 	}
 
