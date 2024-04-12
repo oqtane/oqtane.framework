@@ -109,6 +109,7 @@
     private bool _richfilemanager = false;
     private FileManager _fileManager;
     private string _richhtml = string.Empty;
+    private string _originalrichhtml = string.Empty;
     private bool _rawfilemanager = false;
     private string _rawhtml = string.Empty;
     private string _originalrawhtml = string.Empty;
@@ -156,6 +157,7 @@
         _richhtml = Content;
         _rawhtml = Content;
         _originalrawhtml = _rawhtml; // preserve for comparison later
+        _originalrichhtml = "";
         _contentchanged = true;
 
         if (!AllowRichText)
@@ -184,6 +186,9 @@
 
                 await interop.LoadEditorContent(_editorElement, _richhtml);
 
+                // preserve a copy of the rich text content (Quill sanitizes content so we need to retrieve it from the editor as it may have changed)
+                _originalrichhtml = await interop.GetHtml(_editorElement);
+                
                 _initialized = true;
             }
             else
@@ -194,6 +199,7 @@
                     {
                         // reload if content passed to component has changed
                         await interop.LoadEditorContent(_editorElement, _richhtml);
+                        _originalrichhtml = await interop.GetHtml(_editorElement);
                     }
                     else
                     {
@@ -232,18 +238,24 @@
         }
         else
         {
+            var richhtml = "";
+            
             if (AllowRichText)
             {
-                // return rich text content
                 var interop = new RichTextEditorInterop(JSRuntime);
-                return await interop.GetHtml(_editorElement);
+                richhtml = await interop.GetHtml(_editorElement);
+            }
+
+            if (richhtml != _originalrichhtml && !string.IsNullOrEmpty(richhtml))
+            {
+                return richhtml;
             }
             else
             {
-				// return original raw html content
-				return _originalrawhtml;                
+                // return original raw html content
+                return _originalrawhtml;
             }
-		}
+ 		}
 	}
 
 	public async Task InsertRichImage()
