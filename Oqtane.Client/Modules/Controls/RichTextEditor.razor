@@ -188,7 +188,7 @@
 
                 // preserve a copy of the rich text content (Quill sanitizes content so we need to retrieve it from the editor as it may have changed)
                 _originalrichhtml = await interop.GetHtml(_editorElement);
-                
+
                 _initialized = true;
             }
             else
@@ -239,7 +239,7 @@
         else
         {
             var richhtml = "";
-            
+
             if (AllowRichText)
             {
                 var interop = new RichTextEditorInterop(JSRuntime);
@@ -248,6 +248,11 @@
 
             if (richhtml != _originalrichhtml && !string.IsNullOrEmpty(richhtml))
             {
+                // convert Quill's empty content to empty string
+                if (richhtml == "<p><br></p>")
+                {
+                    richhtml = string.Empty;
+                }
                 return richhtml;
             }
             else
