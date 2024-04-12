@@ -365,8 +365,8 @@ namespace Oqtane.Controllers
                             {
                                 { "FrameworkVersion", moduleDefinition.Version },
                                 { "ClientReference", $"<PackageReference Include=\"Oqtane.Client\" Version=\"{moduleDefinition.Version}\" />" },
-                                { "ServerReference", $"<PackageReference Include=\"Oqtane.Client\" Version=\"{moduleDefinition.Version}\" />" },
-                                { "SharedReference", $"<PackageReference Include=\"Oqtane.Client\" Version=\"{moduleDefinition.Version}\" />" },
+                                { "ServerReference", $"<PackageReference Include=\"Oqtane.Server\" Version=\"{moduleDefinition.Version}\" />" },
+                                { "SharedReference", $"<PackageReference Include=\"Oqtane.Shared\" Version=\"{moduleDefinition.Version}\" />" },
                             };
                 });
             }
