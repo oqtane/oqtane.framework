@@ -34,6 +34,11 @@ app {
         width: 80%; /* Could be more or less, depending on screen size */
     }
 
+    .app-admin-modal .modal-header {
+        display: flex !important;
+        justify-content: space-between !important;
+    }
+
 /* Action Dialog */
 .app-actiondialog{
     position: absolute;
