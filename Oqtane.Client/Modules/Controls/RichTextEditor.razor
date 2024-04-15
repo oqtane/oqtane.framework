@@ -90,11 +90,11 @@
 					</div>
 					@if (ReadOnly)
 					{
-						<textarea id="rawhtmleditor" class="form-control" placeholder="@Placeholder" @bind="@_rawhtml" rows="10" readonly></textarea>
+                        <textarea id="@_rawhtmlid" class="form-control" placeholder="@Placeholder" @bind="@_rawhtml" rows="10" readonly></textarea>
 					}
 					else
 					{
-						<textarea id="rawhtmleditor" class="form-control" placeholder="@Placeholder" @bind="@_rawhtml" rows="10"></textarea>
+						<textarea id="@_rawhtmlid" class="form-control" placeholder="@Placeholder" @bind="@_rawhtml" rows="10"></textarea>
 					}
 				</TabPanel>
 			}
@@ -104,17 +104,23 @@
 
 @code {
     private bool _initialized = false;
+
+    private RichTextEditorInterop interop;
+    private FileManager _fileManager;
+    private string _activetab = "Rich";
+
     private ElementReference _editorElement;
     private ElementReference _toolBar;
     private bool _richfilemanager = false;
-    private FileManager _fileManager;
     private string _richhtml = string.Empty;
     private string _originalrichhtml = string.Empty;
+
     private bool _rawfilemanager = false;
+    private string _rawhtmlid = "RawHtmlEditor_" + Guid.NewGuid().ToString("N");
     private string _rawhtml = string.Empty;
     private string _originalrawhtml = string.Empty;
+
     private string _message = string.Empty;
-    private string _activetab = "Rich";
     private bool _contentchanged = false;
 
     [Parameter]
@@ -124,7 +130,7 @@
     public bool ReadOnly { get; set; } = false;
 
     [Parameter]
-    public string Placeholder { get; set; } = "Enter Your Content...";
+    public string Placeholder { get; set; }
 
     [Parameter]
     public bool AllowFileManagement { get; set; } = true;
@@ -152,13 +158,22 @@
         new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-interop.js", Location = ResourceLocation.Body }
     };
 
+    protected override void OnInitialized()
+    {
+        interop = new RichTextEditorInterop(JSRuntime);
+        if (string.IsNullOrEmpty(Placeholder))
+        {
+            Placeholder = Localizer["Placeholder"];
+        }
+    }
+
     protected override void OnParametersSet()
     {
         _richhtml = Content;
         _rawhtml = Content;
         _originalrawhtml = _rawhtml; // preserve for comparison later
         _originalrichhtml = "";
-        _contentchanged = true;
+        _contentchanged = true; // identifies when Content parameter has changed
 
         if (!AllowRichText)
         {
@@ -172,8 +187,6 @@
 
         if (AllowRichText)
         {
-            var interop = new RichTextEditorInterop(JSRuntime);
-
             if (firstRender)
             {
                 await interop.CreateEditor(
@@ -186,7 +199,7 @@
 
                 await interop.LoadEditorContent(_editorElement, _richhtml);
 
-                // preserve a copy of the rich text content (Quill sanitizes content so we need to retrieve it from the editor as it may have changed)
+                // preserve a copy of the content (Quill sanitizes content so we need to retrieve it from the editor as it may have been modified)
                 _originalrichhtml = await interop.GetHtml(_editorElement);
 
                 _initialized = true;
@@ -197,21 +210,24 @@
                 {
                     if (_contentchanged)
                     {
-                        // reload if content passed to component has changed
+                        // reload editor if Content passed to component has changed
                         await interop.LoadEditorContent(_editorElement, _richhtml);
                         _originalrichhtml = await interop.GetHtml(_editorElement);
                     }
                     else
                     {
+                        // preserve changed content on re-render event
                         var richhtml = await interop.GetHtml(_editorElement);
                         if (richhtml != _richhtml)
                         {
-                            await interop.LoadEditorContent(_editorElement, richhtml);
+                            _richhtml = richhtml;
+                            await interop.LoadEditorContent(_editorElement, _richhtml);
                         }
                     }
-                    _contentchanged = false;
                 }
             }
+
+            _contentchanged = false;
         }
     }
 
@@ -242,7 +258,6 @@
 
             if (AllowRichText)
             {
-                var interop = new RichTextEditorInterop(JSRuntime);
                 richhtml = await interop.GetHtml(_editorElement);
             }
 
@@ -271,7 +286,6 @@
 			var file = _fileManager.GetFile();
 			if (file != null)
 			{
-				var interop = new RichTextEditorInterop(JSRuntime);
 				await interop.InsertImage(_editorElement, file.Url, ((!string.IsNullOrEmpty(file.Description)) ? file.Description : file.Name));
                 _richhtml = await interop.GetHtml(_editorElement);
                 _richfilemanager = false;
@@ -297,7 +311,7 @@
 			if (file != null)
 			{
 				var interop = new Interop(JSRuntime);
-				int pos = await interop.GetCaretPosition("rawhtmleditor");
+                int pos = await interop.GetCaretPosition(_rawhtmlid);
 				var image = "<img src=\"" + file.Url + "\" alt=\"" + ((!string.IsNullOrEmpty(file.Description)) ? file.Description : file.Name) + "\" class=\"img-fluid\">";
 				_rawhtml = _rawhtml.Substring(0, pos) + image + _rawhtml.Substring(pos);
 				_rawfilemanager = false;
