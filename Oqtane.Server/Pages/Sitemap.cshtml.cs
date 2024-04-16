@@ -63,7 +63,7 @@ namespace Oqtane.Pages
                     {
                         pageurl += (page.Url.StartsWith("/") ? "" : "/") + page.Url;
                     }
-                    sitemap.Add(new Sitemap { Url = rooturl + pageurl, ModifiedOn = DateTime.UtcNow });
+                    sitemap.Add(new Sitemap { Url = pageurl, ModifiedOn = DateTime.UtcNow });
 
                     foreach (var pageModule in pageModules.Where(item => item.PageId == page.PageId))
                     {
