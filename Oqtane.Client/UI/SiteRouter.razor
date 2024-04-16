@@ -171,9 +171,9 @@
             visitorId = PageState.VisitorId;
         }
 
-        if (PageState.RenderMode == RenderModes.Interactive)
+        if (PageState != null && PageState.RenderMode == RenderModes.Interactive)
         {
-            // process any sync events (for synchrozing the client application with the server)
+            // process any sync events (for synchronizing the client application with the server)
             var sync = await SyncService.GetSyncEventsAsync(lastsyncdate);
             lastsyncdate = sync.SyncDate;
             if (sync.SyncEvents.Any())
