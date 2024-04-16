@@ -22,6 +22,7 @@ using Oqtane.UI;
 using OqtaneSSR.Extensions;
 using Microsoft.AspNetCore.Components.Authorization;
 using Oqtane.Providers;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 
 namespace Oqtane
 {
@@ -135,7 +136,7 @@ namespace Oqtane
                     {
                         // allow .NET MAUI client cross origin calls
                         policy.WithOrigins("https://0.0.0.0", "http://0.0.0.0", "app://0.0.0.0")
-                            .AllowAnyHeader().AllowCredentials();
+                            .AllowAnyHeader().AllowAnyMethod().AllowCredentials();
                     });
             });
 
@@ -169,7 +170,7 @@ namespace Oqtane
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISyncManager sync, ILogger<Startup> logger)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISyncManager sync, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider, ILogger<Startup> logger)
         {
             if (!string.IsNullOrEmpty(_configureServicesErrors))
             {
@@ -198,7 +199,16 @@ namespace Oqtane
             app.UseOqtaneLocalization();
 
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                ServeUnknownFileTypes = true,
+                OnPrepareResponse = (ctx) =>
+                {
+                    var policy = corsPolicyProvider.GetPolicyAsync(ctx.Context, Constants.MauiCorsPolicy)
+                        .ConfigureAwait(false).GetAwaiter().GetResult();
+                    corsService.ApplyResult(corsService.EvaluatePolicy(ctx.Context, policy), ctx.Context.Response);
+                }
+            });
             app.UseExceptionMiddleWare();
             app.UseTenantResolution();
             app.UseJwtAuthorization();
