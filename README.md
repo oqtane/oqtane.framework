@@ -1,6 +1,6 @@
 # Latest Release
 
-[5.1.0](https://github.com/oqtane/oqtane.framework/releases/tag/v5.1.0) was released on Mar 27, 2024 and is a major release providing Static Server Rendering support for Blazor in .NET 8. This release includes 263 pull requests by 6 different contributors, pushing the total number of project commits all-time to over 5100. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
+[5.1.1](https://github.com/oqtane/oqtane.framework/releases/tag/v5.1.1) was released on Apr 16, 2024 and is primarily a stabilization release, which includes a variety of improvements to the Static Server-Side Rendering support for Blazor in .NET 8. This release includes 40 pull requests by 6 different contributors, pushing the total number of project commits all-time to over 5200. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Foqtane%2Foqtane.framework%2Fmaster%2Fazuredeploy.json)
 
@@ -18,15 +18,15 @@ Please note that this project is owned by the .NET Foundation and is governed by
 
 **Using Version 5:**
 
-- Install **[.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)**.
+- Install **[.NET 8.0.4 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)**.
 
-- Install the latest edition (v17.8 or higher) of [Visual Studio 2022](https://visualstudio.microsoft.com/downloads) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you wish to use LocalDB for development ( not a requirement as Oqtane supports SQLite, mySQL, and PostgreSQL ) you must also install the **Data storage and processing**.  
+- Install the latest edition (v17.9 or higher) of [Visual Studio 2022](https://visualstudio.microsoft.com/downloads) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you wish to use LocalDB for development ( not a requirement as Oqtane supports SQLite, mySQL, and PostgreSQL ) you must also install the **Data storage and processing**.  
 
 - Clone the Oqtane dev branch source code to your local system.
 
 - Open the **Oqtane.sln** solution file.
 
-- **Important:** Build the solution.
+- **Important:** Rebuild the entire solution before running it.
   
 - Make sure you specify Oqtane.Server as the Startup Project
 
@@ -63,8 +63,8 @@ Backlog (TBD)
 - [ ] Folder Providers
 - [ ] Generative AI Integration
 
-5.1.1 (Apr 2024)
-- [ ] Stabilization improvements
+[5.1.1](https://github.com/oqtane/oqtane.framework/releases/tag/v5.1.1) (Apr 16, 2024)
+- [x] Stabilization improvements
 
 [5.1.0](https://github.com/oqtane/oqtane.framework/releases/tag/v5.1.0) (Mar 27, 2024)
 - [x] Migration to the new unified Blazor approach in .NET 8 (ie. blazor.web.js)
@@ -248,6 +248,8 @@ Backlog (TBD)
 Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology and a Single Page Application (SPA) architecture. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly themes, and extensibility via third party modules.
 
 # Release Announcements
+
+[Oqtane 5.1](https://www.oqtane.org/blog/!/75/announcing-oqtane-5-0-for-net-8)
 
 [Oqtane 5.0](https://www.oqtane.org/blog/!/75/announcing-oqtane-5-0-for-net-8)
 
