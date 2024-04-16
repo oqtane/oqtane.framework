@@ -149,6 +149,7 @@ namespace Oqtane.Shared
                     break;
                 case "render":
                     content = content.Replace(Constants.FileUrl, alias?.BaseUrl + aliasUrl + Constants.FileUrl);
+                    content = content.Replace("[wwwroot]", alias?.BaseUrl + aliasUrl + "/");
                     // legacy
                     content = content.Replace("[siteroot]", UrlCombine("Content", "Tenants", alias.TenantId.ToString(), "Sites", alias.SiteId.ToString()));
                     content = content.Replace(Constants.ContentUrl, alias.Path + Constants.ContentUrl);
