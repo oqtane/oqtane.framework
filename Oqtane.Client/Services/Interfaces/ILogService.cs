@@ -30,6 +30,13 @@ namespace Oqtane.Services
         Task<Log> GetLogAsync(int logId);
 
         /// <summary>
+        /// Clear the entire logs of the given site.
+        /// </summary>
+        /// <param name="siteId"></param>
+        /// <returns></returns>
+        Task DeleteLogsAsync(int siteId);
+
+        /// <summary>
         /// Creates a new log entry
         /// </summary>
         /// <param name="pageId"></param>

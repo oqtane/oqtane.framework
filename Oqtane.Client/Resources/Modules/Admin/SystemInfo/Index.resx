@@ -255,12 +255,6 @@
   <data name="MachineName.Text" xml:space="preserve">
     <value>Machine Name:</value>
   </data>
-  <data name="TickCount.HelpText" xml:space="preserve">
-    <value>Amount Of Time The Service Has Been Available And Operational</value>
-  </data>
-  <data name="TickCount.Text" xml:space="preserve">
-    <value>Service Uptime:</value>
-  </data>
   <data name="WebRootPath.HelpText" xml:space="preserve">
     <value>Server Web Root Path</value>
   </data>
@@ -293,5 +287,11 @@
   </data>
   <data name="Error.ClearLog" xml:space="preserve">
     <value>Ann Error Occurred Clearing The System Log</value>
+  </data>
+  <data name="Process.HelpText" xml:space="preserve">
+    <value>Indicates if the current process is 32 bit or 64 bit</value>
+  </data>
+  <data name="Process.Text" xml:space="preserve">
+    <value>Process: </value>
   </data>
 </root>

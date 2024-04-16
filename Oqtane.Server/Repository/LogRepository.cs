@@ -59,14 +59,14 @@ namespace Oqtane.Repository
             // delete logs in batches of 100 records
             var count = 0;
             var purgedate = DateTime.UtcNow.AddDays(-age);
-            var logs = db.Log.Where(item => item.SiteId == siteId && item.Level != "Error" && item.LogDate < purgedate)
+            var logs = db.Log.Where(item => item.SiteId == siteId && item.LogDate < purgedate)
                 .OrderBy(item => item.LogDate).Take(100).ToList();
             while (logs.Count > 0)
             {
                 count += logs.Count;
                 db.Log.RemoveRange(logs);
                 db.SaveChanges();
-                logs = db.Log.Where(item => item.SiteId == siteId && item.Level != "Error" && item.LogDate < purgedate)
+                logs = db.Log.Where(item => item.SiteId == siteId && item.LogDate < purgedate)
                     .OrderBy(item => item.LogDate).Take(100).ToList();
             }
             return count;

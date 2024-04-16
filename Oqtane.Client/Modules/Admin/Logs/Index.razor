@@ -86,47 +86,48 @@ else
 				</div>
 			</div>
 			<br />
-			<button type="button" class="btn btn-success" @onclick="SaveSiteSettings">@SharedLocalizer["Save"]</button>
+            <button type="button" class="btn btn-success" @onclick="SaveSiteSettings">@SharedLocalizer["Save"]</button>
+            <ActionDialog Header="Clear Events" Message="Are You Sure You Wish To Remove All Log Events?" Action="DeleteLogs" Class="btn btn-danger" OnClick="@(async () => await DeleteLogs())" ResourceKey="DeleteLogs" />
 		</TabPanel>
 	</TabStrip>
 }
 
 @code {
-	private string _level = "-";
-	private string _function = "-";
-	private string _rows = "10";
-	private int _page = 1;
-	private List<Log> _logs;
-	private int _retention = 30;
+    private string _level = "-";
+    private string _function = "-";
+    private string _rows = "10";
+    private int _page = 1;
+    private List<Log> _logs;
+    private int _retention = 30;
 
-	public override string UrlParametersTemplate => "/{level}/{function}/{rows}/{page}";
-	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+    public override string UrlParametersTemplate => "/{level}/{function}/{rows}/{page}";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-	protected override async Task OnParametersSetAsync()
-	{
-		try
-		{
-			if (UrlParameters.ContainsKey("level"))
-			{
-				_level = UrlParameters["level"];
-			}
-			if (UrlParameters.ContainsKey("function"))
-			{
-				_function = UrlParameters["function"];
-			}
-			if (UrlParameters.ContainsKey("rows"))
-			{
-				_rows = UrlParameters["rows"];
-			}
-			if (UrlParameters.ContainsKey("page") && int.TryParse(UrlParameters["page"], out int page))
-			{
-				_page = page;
-			}
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            if (UrlParameters.ContainsKey("level"))
+            {
+                _level = UrlParameters["level"];
+            }
+            if (UrlParameters.ContainsKey("function"))
+            {
+                _function = UrlParameters["function"];
+            }
+            if (UrlParameters.ContainsKey("rows"))
+            {
+                _rows = UrlParameters["rows"];
+            }
+            if (UrlParameters.ContainsKey("page") && int.TryParse(UrlParameters["page"], out int page))
+            {
+                _page = page;
+            }
 
             await GetLogs();
 
-			var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-			_retention = int.Parse( SettingService.GetSetting(settings, "LogRetention", "30"));
+            var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+            _retention = int.Parse( SettingService.GetSetting(settings, "LogRetention", "30"));
         }
         catch (Exception ex)
         {
@@ -213,22 +214,37 @@ else
         return classname;
     }
 
-	private async Task SaveSiteSettings()
-	{
-		try
-		{
-			var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-			settings = SettingService.SetSetting(settings, "LogRetention", _retention.ToString(), true);
+    private async Task SaveSiteSettings()
+    {
+        try
+        {
+            var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+            settings = SettingService.SetSetting(settings, "LogRetention", _retention.ToString(), true);
             await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
 
-			AddModuleMessage(Localizer["Success.SaveSiteSettings"], MessageType.Success);
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Saving Site Settings {Error}", ex.Message);
-			AddModuleMessage(Localizer["Error.SaveSiteSettings"], MessageType.Error);
-		}
-	}
+            AddModuleMessage(Localizer["Success.SaveSiteSettings"], MessageType.Success);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Saving Site Settings {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.SaveSiteSettings"], MessageType.Error);
+        }
+    }
+
+    private async Task DeleteLogs()
+    {
+        try
+        {
+            await LogService.DeleteLogsAsync(PageState.Site.SiteId);
+            await GetLogs();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Logs {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.DeleteLogs"], MessageType.Error);
+        }
+    }
 
 	private void OnPageChange(int page)
 	{

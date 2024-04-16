@@ -1,6 +1,6 @@
 # Latest Release
 
-[5.0.2](https://github.com/oqtane/oqtane.framework/releases/tag/v5.0.2) was released on Jan 25, 2024 and is a stabilization release targeted at .NET 8. This release includes 51 pull requests by 6 different contributors, pushing the total number of project commits all-time to over 4600. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
+[5.1.0](https://github.com/oqtane/oqtane.framework/releases/tag/v5.1.0) was released on Mar 27, 2024 and is a major release providing Static Server Rendering support for Blazor in .NET 8. This release includes 263 pull requests by 6 different contributors, pushing the total number of project commits all-time to over 5100. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Foqtane%2Foqtane.framework%2Fmaster%2Fazuredeploy.json)
 
@@ -63,8 +63,12 @@ Backlog (TBD)
 - [ ] Folder Providers
 - [ ] Generative AI Integration
 
-5.1.0 (Q1 2024)
-- [ ] Full Stack Blazor (Static Server-Side Rendering)
+5.1.1 (Apr 2024)
+- [ ] Stabilization improvements
+
+[5.1.0](https://github.com/oqtane/oqtane.framework/releases/tag/v5.1.0) (Mar 27, 2024)
+- [x] Migration to the new unified Blazor approach in .NET 8 (ie. blazor.web.js)
+- [x] Static Server Rendering (SSR) support
 
 [5.0.2](https://github.com/oqtane/oqtane.framework/releases/tag/v5.0.2) (Jan 25, 2024)
 - [x] Stabilization improvements
