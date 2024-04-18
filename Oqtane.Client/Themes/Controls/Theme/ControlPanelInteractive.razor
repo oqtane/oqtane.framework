@@ -95,7 +95,10 @@
                         <label for="Module" class="control-label">@Localizer["Module.Manage"]</label>
                         <select class="form-select" @bind="@_moduleType">
                             <option value="new">@Localizer["Module.AddNew"]</option>
-                            <option value="existing">@Localizer["Module.AddExisting"]</option>
+                            @if (PageState.Page.UserId == null)
+                            {
+                                <option value="existing">@Localizer["Module.AddExisting"]</option>
+                            }
                         </select>
                         @if (_moduleType == "new")
                         {
