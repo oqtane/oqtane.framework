@@ -122,6 +122,7 @@
 
     private string _message = string.Empty;
     private bool _contentchanged = false;
+    private int _editorIndex;
 
     [Parameter]
     public string Content { get; set; }
@@ -275,18 +276,18 @@
                 // return original raw html content
                 return _originalrawhtml;
             }
- 		}
-	}
+        }
+    }
 
-	public async Task InsertRichImage()
-	{
-		_message = string.Empty;
-		if (_richfilemanager)
-		{
-			var file = _fileManager.GetFile();
+    public async Task InsertRichImage()
+    {
+        _message = string.Empty;
+        if (_richfilemanager)
+        {            
+            var file = _fileManager.GetFile();
 			if (file != null)
 			{
-				await interop.InsertImage(_editorElement, file.Url, ((!string.IsNullOrEmpty(file.Description)) ? file.Description : file.Name));
+                await interop.InsertImage(_editorElement, file.Url, ((!string.IsNullOrEmpty(file.Description)) ? file.Description : file.Name), _editorIndex);
                 _richhtml = await interop.GetHtml(_editorElement);
                 _richfilemanager = false;
 			}
@@ -297,6 +298,7 @@
 		}
 		else
 		{
+            _editorIndex = await interop.GetCurrentCursor(_editorElement);
 			_richfilemanager = true;
 		}
 		StateHasChanged();
