@@ -177,4 +177,7 @@
   <data name="ExpiryDate.Text" xml:space="preserve">
     <value>Expiry Date: </value>
   </data>
+  <data name="Permissions.Text" xml:space="preserve">
+    <value>Permissions</value>
+  </data>
 </root>

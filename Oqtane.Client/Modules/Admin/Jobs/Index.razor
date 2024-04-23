@@ -26,8 +26,8 @@ else
             <th style="width: 1px;">&nbsp;</th>
         </Header>
         <Row>
-            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.JobId.ToString())" ResourceKey="EditJob" /></td>
-            <td><ActionLink Action="Log" Class="btn btn-secondary" Parameters="@($"id=" + context.JobId.ToString())" ResourceKey="JobLog" /></td>
+            <td><ActionLink Action="Edit" Text="Edit"  Parameters="@($"id=" + context.JobId.ToString())" ResourceKey="EditJob" /></td>
+            <td><ActionLink Action="Log" Text="Log" Class="btn btn-secondary" Parameters="@($"id=" + context.JobId.ToString())" ResourceKey="JobLog" /></td>
             <td>@context.Name</td>
             <td>@DisplayStatus(context.IsEnabled, context.IsExecuting)</td>
             <td>@DisplayFrequency(context.Interval, context.Frequency)</td>

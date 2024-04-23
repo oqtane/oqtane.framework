@@ -50,7 +50,7 @@ else
             <th style="width: 1px;">&nbsp;</th>
         </Header>
         <Row>
-            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ModuleDefinitionId.ToString())" ResourceKey="EditModule" /></td>
+            <td><ActionLink Action="Edit" Text="Edit" Parameters="@($"id=" + context.ModuleDefinitionId.ToString())" ResourceKey="EditModule" /></td>
             <td>
                 @if (context.AssemblyName != Constants.ClientId)
                 {

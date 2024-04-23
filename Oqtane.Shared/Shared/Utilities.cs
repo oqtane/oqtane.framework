@@ -44,7 +44,7 @@ namespace Oqtane.Shared
             string querystring = "";
             string fragment = "";
 
-            if (!string.IsNullOrEmpty(path)) path = "/" + path;
+            if (!string.IsNullOrEmpty(path) && !path.StartsWith("/")) path = "/" + path;
 
             if (!string.IsNullOrEmpty(parameters))
             {
