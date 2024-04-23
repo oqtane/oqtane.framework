@@ -174,7 +174,11 @@
         _rawhtml = Content;
         _originalrawhtml = _rawhtml; // preserve for comparison later
         _originalrichhtml = "";
-        _contentchanged = true; // identifies when Content parameter has changed
+
+        if (Content != _originalrawhtml)
+        {
+            _contentchanged = true; // identifies when Content parameter has changed
+        }
 
         if (!AllowRichText)
         {
