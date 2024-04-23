@@ -7,7 +7,7 @@
 }
 else
 {
-    if (ModuleState.Prerender != false)
+    if (ModuleState.Prerender == false)
     {
         <RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" @rendermode="@InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, false)" />
 
