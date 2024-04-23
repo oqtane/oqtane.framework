@@ -1,6 +1,5 @@
 @namespace Oqtane.Themes
 @inherits ContainerBase
-@inject NavigationManager NavigationManager
 
 <div class="app-admin-modal">
     <div class="modal" tabindex="-1" role="dialog">
@@ -8,10 +7,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title"><ModuleTitle /></h5>
-                    <form method="post" class="app-form-inline" @formname="AdminContainerForm" @onsubmit="@CloseModal" data-enhance>
-                        <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
-                        <button type="submit" class="btn-close" aria-label="Close"></button>
-                    </form>
+                    <a href="@_url" class="btn-close" aria-label="Close"></a>
                 </div>
                 <div class="modal-body">
                     <ModuleInstance />
@@ -22,9 +18,11 @@
 </div>
 
 @code {
-	private void CloseModal()
-	{
-		NavigationManager.NavigateTo((!string.IsNullOrEmpty(PageState.ReturnUrl)) ? PageState.ReturnUrl : NavigateUrl());
+    private string _url;
+
+    protected override void OnParametersSet()
+    {
+        _url = (!string.IsNullOrEmpty(PageState.ReturnUrl)) ? PageState.ReturnUrl : NavigateUrl();
     }
 }
 
