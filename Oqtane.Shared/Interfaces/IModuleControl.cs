@@ -39,6 +39,6 @@ namespace Oqtane.Modules
         /// <summary>
         /// Specifies the prerender mode for the moudle control ie: true or false
         /// </summary>
-        bool Prerender { get;  }
+        bool? Prerender { get;  }
     }
 }

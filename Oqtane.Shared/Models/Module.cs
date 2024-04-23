@@ -118,7 +118,7 @@ namespace Oqtane.Models
         [NotMapped]
         public string RenderMode{ get; set; }
         [NotMapped]
-        public bool Prerender { get; set; }
+        public bool? Prerender { get; set; }
 
         #endregion
 
