@@ -7,10 +7,7 @@
 }
 else
 {
-    var rendermode = InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, ModuleState.Prerender ?? PageState.Site.Prerender);
-
-    <RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" @rendermode="rendermode" />
-
+    <RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, ModuleState.Prerender ?? PageState.Site.Prerender)" />
 }
 
 @code {
