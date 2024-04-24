@@ -52,6 +52,8 @@ namespace Oqtane.Modules
 
         public virtual string RenderMode { get { return RenderModes.Interactive; } } // interactive by default
 
+        public virtual bool? Prerender { get { return null; } } // prerender at server by default
+
         // url parameters
         public virtual string UrlParametersTemplate { get; set; }
 

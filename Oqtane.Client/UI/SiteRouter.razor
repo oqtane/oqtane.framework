@@ -476,6 +476,7 @@
                 // retrieve module component resources
                 var moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
                 module.RenderMode = moduleobject.RenderMode;
+                module.Prerender = moduleobject.Prerender;
 
                 page.Resources = ManagePageResources(page.Resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules",  moduletype.Namespace);
                 if (action.ToLower() == "settings" && module.ModuleDefinition != null)

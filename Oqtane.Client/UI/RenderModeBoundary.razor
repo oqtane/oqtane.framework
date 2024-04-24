@@ -10,7 +10,7 @@
         {
             @if (ModuleType != null)
             {
-                @((MarkupString)$"<!-- rendermode: {ModuleState.RenderMode} -->")
+                @((MarkupString)$"<!-- rendermode: {ModuleState.RenderMode} - prerender: {ModuleState.Prerender} -->")
                 <ModuleMessage @ref="moduleMessageTop" Message="@_messageContent" Type="@_messageType" />
                 @DynamicComponent
                 @if (_progressIndicator)
