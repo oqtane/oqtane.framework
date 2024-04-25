@@ -18,7 +18,7 @@
             {
                 @if (PageState.RenderMode == RenderModes.Interactive)
                 {
-                    <a class="dropdown-item @(CultureInfo.CurrentUICulture.Name == culture.Name ? "active" : String.Empty)" href="#" @onclick="@(async e => await SetCultureAsync(culture.Name))">@culture.DisplayName</a>
+                    <a class="dropdown-item @(CultureInfo.CurrentUICulture.Name == culture.Name ? "active" : String.Empty)" href="#" @onclick="@(async e => await SetCultureAsync(culture.Name))" @onclick:preventDefault="true">@culture.DisplayName</a>
                 }
                 else
                 {
