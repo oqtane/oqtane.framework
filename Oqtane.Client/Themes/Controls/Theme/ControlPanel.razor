@@ -6,7 +6,7 @@
 
 @if (ShowLanguageSwitcher)
 {
-    <LanguageSwitcher DropdownAlignment="@LanguageDropdownAlignment" />
+    <LanguageSwitcher ButtonClass="@ButtonClass" DropdownAlignment="@LanguageDropdownAlignment" />
 }
 
 @if (_showEditMode || (PageState.Page.IsPersonalizable && PageState.User != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Registered)))
