@@ -10,7 +10,7 @@
 @if (_supportedCultures?.Count() > 1)
 {
     <div class="btn-group pe-1" role="group">
-        <button id="btnCultures" type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button id="btnCultures" type="button" class="btn @ButtonClass dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <span class="oi oi-globe"></span>
         </button>
         <div class="dropdown-menu @MenuAlignment" aria-labelledby="btnCultures">
@@ -35,6 +35,8 @@
 
     [Parameter]
     public string DropdownAlignment { get; set; } = string.Empty; // Empty or Left or Right
+    [Parameter]
+    public string ButtonClass { get; set; } = "btn-outline-secondary";
 
     [CascadingParameter]
     HttpContext HttpContext { get; set; }
