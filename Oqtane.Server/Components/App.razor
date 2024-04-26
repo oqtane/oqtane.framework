@@ -16,6 +16,7 @@
 @using Oqtane.Shared
 @using Oqtane.Themes
 @using Oqtane.Extensions
+@using System.Globalization
 @inject NavigationManager NavigationManager
 @inject IAntiforgery Antiforgery
 @inject IConfigManager ConfigManager
@@ -176,7 +177,7 @@
                     }
 
                     // include stylesheets to prevent FOUC
-                    var resources = GetPageResources(alias, site, page, int.Parse(route.ModuleId), route.Action);
+                    var resources = GetPageResources(alias, site, page, int.Parse(route.ModuleId, CultureInfo.InvariantCulture), route.Action);
                     ManageStyleSheets(resources);
 
                     // scripts
