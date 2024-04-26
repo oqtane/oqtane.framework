@@ -294,7 +294,7 @@
             _containerType = PageState.Site.DefaultContainerType;
             _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
             _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(_category)).ToList();
-            _categories = _allModuleDefinitions.SelectMany(m => m.Categories.Split(',')).Distinct().ToList();
+            _categories = _allModuleDefinitions.SelectMany(m => m.Categories.Split(',', StringSplitOptions.RemoveEmptyEntries)).Distinct().Where(item => item != "Library").ToList();
         }
     }
 
