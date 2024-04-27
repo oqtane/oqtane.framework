@@ -154,7 +154,7 @@
     <value>Not Authorized</value>
   </data>
   <data name="Message.Require.ModuleSelect" xml:space="preserve">
-    <value>You Must Select A Module And The Copy Mode.</value>
+    <value>You Must Select A Module.</value>
   </data>
   <data name="Module.Manage" xml:space="preserve">
     <value>Module Management:</value>
@@ -206,5 +206,8 @@
   </data>
   <data name="LocationTop" xml:space="preserve">
     <value>Top</value>
+  </data>
+  <data name="Message.Require.ModuleAndCopyModeSelect" xml:space="preserve">
+    <value>You Must Select A Module And The Copy Mode.</value>
   </data>
 </root>

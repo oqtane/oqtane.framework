@@ -433,7 +433,8 @@
             }
             else
             {
-                _message = $"<div class=\"alert alert-warning mt-2 text-center\" role=\"alert\">{Localizer["Message.Require.ModuleSelect"]}</div>";
+                var error = _moduleType == "new" ? Localizer["Message.Require.ModuleSelect"] : Localizer["Message.Require.ModuleAndCopyModeSelect"];
+                _message = $"<div class=\"alert alert-warning mt-2 text-center\" role=\"alert\">{error}</div>";
             }
         }
         else
