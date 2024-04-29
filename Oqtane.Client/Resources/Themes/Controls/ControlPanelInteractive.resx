@@ -210,4 +210,10 @@
   <data name="Message.Require.ModuleAndCopyModeSelect" xml:space="preserve">
     <value>You Must Select A Module And The Copy Mode.</value>
   </data>
+  <data name="Message.Module.NotPortable" xml:space="preserve">
+    <value>The Module's Content Will Not Be Synchronized.</value>
+  </data>
+  <data name="Module.CopyExisting" xml:space="preserve">
+    <value>Copy Existing Module</value>
+  </data>
 </root>

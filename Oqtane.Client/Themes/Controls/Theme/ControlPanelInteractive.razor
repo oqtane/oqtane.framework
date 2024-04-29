@@ -98,7 +98,8 @@
                             <option value="new">@Localizer["Module.AddNew"]</option>
                             @if (PageState.Page.UserId == null)
                             {
-                                <option value="existing">@Localizer["Module.AddExisting"]</option>
+                                <option value="existing.add">@Localizer["Module.AddExisting"]</option>
+                                <option value="existing.copy">@Localizer["Module.CopyExisting"]</option>
                             }
                         </select>
                         @if (_moduleType == "new")
@@ -149,18 +150,14 @@
                                     <option value="@p.PageId">@p.Name</option>
                                 }
                             </select>
-                            <select class="form-select mt-1" @bind="@_moduleId">
+                            <select class="form-select mt-1" @bind="@_moduleId" @bind:after="() => ModuleIdChanged()">
                                 <option value="-">&lt;@Localizer["Module.Select"]&gt;</option>
                                 @foreach (Module module in _modules)
                                 {
                                     <option value="@module.ModuleId">@module.Title</option>
                                 }
                             </select>
-                            <select class="form-select mt-1" @bind="@_copyMode">
-                                <option value="-">&lt;@Localizer["CopyMode.Select"]&gt;</option>
-                                <option value="sync">&lt;@Localizer["CopyMode.Sync"]&gt;</option>
-                                <option value="copy">&lt;@Localizer["CopyMode.Copy"]&gt;</option>
-                            </select>
+                            @((MarkupString)_copyModuleMessage)
                         }
                     </div>
                 </div>
@@ -267,13 +264,13 @@
     protected string _moduleId { get; private set; } = "-";
     protected string _moduleType { get; private set; } = "new";
     protected string _moduleDefinitionName { get; private set; } = "-";
-    protected string _copyMode { get; private set; } = "-";
 
     protected string _title { get; private set; } = "";
     protected string _containerType { get; private set; } = "";
     protected int _location { get; private set; } = int.MaxValue;
     protected string _visibility { get; private set; } = "view";
     protected string _message { get; private set; } = "";
+    protected string _copyModuleMessage { get; private set; } = "";
 
     private string settingCategory = "CP-category";
     private string settingPane = "CP-pane";
@@ -358,13 +355,26 @@
         StateHasChanged();
     }
 
+    private void ModuleIdChanged()
+    {
+        _copyModuleMessage = string.Empty;
+        if(_moduleId != "-")
+        {
+            var module = _modules.FirstOrDefault(item => item.ModuleId == int.Parse(_moduleId));
+            if (module != null && !module.ModuleDefinition.IsPortable)
+            {
+                _copyModuleMessage = $"<div class=\"alert alert-warning mt-2 text-center\" role=\"alert\">{Localizer["Message.Module.NotPortable"]}</div>";
+            }
+        }
+    }
+
     private async Task AddModule()
     {
         if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
         {
-            if ((_moduleType == "new" && _moduleDefinitionName != "-") || (_moduleType != "new" && _moduleId != "-" && _copyMode != "-"))
+            if ((_moduleType == "new" && _moduleDefinitionName != "-") || (_moduleType != "new" && _moduleId != "-"))
             {
-                var newModuleId = int.Parse(_moduleId);
+                var newModuleId = _moduleId != "-" ? int.Parse(_moduleId) : 0;
                 if (_moduleType == "new")
                 {
                     Module module = new Module();
@@ -377,7 +387,7 @@
                     module = await ModuleService.AddModuleAsync(module);
                     newModuleId = module.ModuleId;
                 }
-                else if(_copyMode == "copy")
+                else if (_moduleType == "exsiting.copy")
                 {
                     var module = await ModuleService.GetModuleAsync(int.Parse(_moduleId));
                     module.ModuleId = 0;
@@ -433,8 +443,7 @@
             }
             else
             {
-                var error = _moduleType == "new" ? Localizer["Message.Require.ModuleSelect"] : Localizer["Message.Require.ModuleAndCopyModeSelect"];
-                _message = $"<div class=\"alert alert-warning mt-2 text-center\" role=\"alert\">{error}</div>";
+                _message = $"<div class=\"alert alert-warning mt-2 text-center\" role=\"alert\">{Localizer["Message.Require.ModuleSelect"]}</div>";
             }
         }
         else
