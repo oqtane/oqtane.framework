@@ -154,22 +154,13 @@
     <value>Not Authorized</value>
   </data>
   <data name="Message.Require.ModuleSelect" xml:space="preserve">
-    <value>You Must Select A Module.</value>
+    <value>You Must Select A Module</value>
   </data>
   <data name="Module.Manage" xml:space="preserve">
     <value>Module Management:</value>
   </data>
   <data name="Module.Select" xml:space="preserve">
     <value>Select Module</value>
-  </data>
-  <data name="CopyMode.Select" xml:space="preserve">
-    <value>Select Copy Mode</value>
-  </data>
-  <data name="CopyMode.Sync" xml:space="preserve">
-    <value>Sync</value>
-  </data>
-  <data name="CopyMode.Copy" xml:space="preserve">
-    <value>Copy</value>
   </data>
   <data name="Page.Manage" xml:space="preserve">
     <value>Page Management:</value>
@@ -207,13 +198,7 @@
   <data name="LocationTop" xml:space="preserve">
     <value>Top</value>
   </data>
-  <data name="Message.Require.ModuleAndCopyModeSelect" xml:space="preserve">
-    <value>You Must Select A Module And The Copy Mode.</value>
-  </data>
-  <data name="Message.Module.NotPortable" xml:space="preserve">
-    <value>The Module's Content Will Not Be Synchronized.</value>
-  </data>
   <data name="Module.CopyExisting" xml:space="preserve">
     <value>Copy Existing Module</value>
-  </data>
+  </data>  
 </root>
