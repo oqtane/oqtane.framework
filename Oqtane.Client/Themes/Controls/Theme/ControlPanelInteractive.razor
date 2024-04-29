@@ -15,6 +15,7 @@
 @inject ILogService LoggingService
 @inject IStringLocalizer<ControlPanelInteractive> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject IServiceProvider ServiceProvider
 
 <button type="button" class="btn @ButtonClass ms-1" data-bs-toggle="offcanvas" data-bs-target="#offcanvasControlPanel" aria-controls="offcanvasControlPanel" @onclick="ClearMessage">
     <span class="oi oi-cog"></span>
@@ -97,7 +98,8 @@
                             <option value="new">@Localizer["Module.AddNew"]</option>
                             @if (PageState.Page.UserId == null)
                             {
-                                <option value="existing">@Localizer["Module.AddExisting"]</option>
+                                <option value="existing.add">@Localizer["Module.AddExisting"]</option>
+                                <option value="existing.copy">@Localizer["Module.CopyExisting"]</option>
                             }
                         </select>
                         @if (_moduleType == "new")
@@ -148,13 +150,14 @@
                                     <option value="@p.PageId">@p.Name</option>
                                 }
                             </select>
-                            <select class="form-select mt-1" @bind="@_moduleId">
+                            <select class="form-select mt-1" @bind="@_moduleId" @bind:after="() => ModuleIdChanged()">
                                 <option value="-">&lt;@Localizer["Module.Select"]&gt;</option>
                                 @foreach (Module module in _modules)
                                 {
                                     <option value="@module.ModuleId">@module.Title</option>
                                 }
                             </select>
+                            @((MarkupString)_copyModuleMessage)
                         }
                     </div>
                 </div>
@@ -267,6 +270,7 @@
     protected int _location { get; private set; } = int.MaxValue;
     protected string _visibility { get; private set; } = "view";
     protected string _message { get; private set; } = "";
+    protected string _copyModuleMessage { get; private set; } = "";
 
     private string settingCategory = "CP-category";
     private string settingPane = "CP-pane";
@@ -351,12 +355,26 @@
         StateHasChanged();
     }
 
+    private void ModuleIdChanged()
+    {
+        _copyModuleMessage = string.Empty;
+        if(_moduleId != "-")
+        {
+            var module = _modules.FirstOrDefault(item => item.ModuleId == int.Parse(_moduleId));
+            if (module != null && !module.ModuleDefinition.IsPortable)
+            {
+                _copyModuleMessage = $"<div class=\"alert alert-warning mt-2 text-center\" role=\"alert\">{Localizer["Message.Module.NotPortable"]}</div>";
+            }
+        }
+    }
+
     private async Task AddModule()
     {
         if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
         {
             if ((_moduleType == "new" && _moduleDefinitionName != "-") || (_moduleType != "new" && _moduleId != "-"))
             {
+                var newModuleId = _moduleId != "-" ? int.Parse(_moduleId) : 0;
                 if (_moduleType == "new")
                 {
                     Module module = new Module();
@@ -364,33 +382,37 @@
                     module.PageId = PageState.Page.PageId;
                     module.ModuleDefinitionName = _moduleDefinitionName;
                     module.AllPages = false;
-
-                    var permissions = new List<Permission>();
-                    if (_visibility == "view")
-                    {
-                        // set module view permissions to page view permissions
-                        permissions = SetPermissions(permissions, module.SiteId, PermissionNames.View, PermissionNames.View);
-                    }
-                    else
-                    {
-                        // set module view permissions to page edit permissions
-                        permissions = SetPermissions(permissions, module.SiteId, PermissionNames.View, PermissionNames.Edit);
-                    }
-                    // set module edit permissions to page edit permissions
-                    permissions = SetPermissions(permissions, module.SiteId, PermissionNames.Edit, PermissionNames.Edit);
-                    module.PermissionList = permissions;
+                    module.PermissionList = GenerateDefaultPermissions(module.SiteId);
 
                     module = await ModuleService.AddModuleAsync(module);
-                    _moduleId = module.ModuleId.ToString();
+                    newModuleId = module.ModuleId;
+                }
+                else if (_moduleType == "exsiting.copy")
+                {
+                    var module = await ModuleService.GetModuleAsync(int.Parse(_moduleId));
+                    module.ModuleId = 0;
+                    module.SiteId = PageState.Site.SiteId;
+                    module.PageId = PageState.Page.PageId;
+                    module.AllPages = false;
+                    module.PermissionList = GenerateDefaultPermissions(module.SiteId);
+
+                    module = await ModuleService.AddModuleAsync(module);
+                    var moduleContent = await ModuleService.ExportModuleAsync(int.Parse(_moduleId), PageState.Page.PageId);
+                    if (!string.IsNullOrEmpty(moduleContent))
+                    {
+                        await ModuleService.ImportModuleAsync(module.ModuleId, PageState.Page.PageId, moduleContent);
+                    }
+
+                    newModuleId = module.ModuleId;
                 }
 
                 var pageModule = new PageModule
                     {
                         PageId = PageState.Page.PageId,
-                        ModuleId = int.Parse(_moduleId),
+                        ModuleId = newModuleId,
                         Title = _title
                     };
-                if (pageModule.Title == "")
+                if (string.IsNullOrEmpty(pageModule.Title))
                 {
                     if (_moduleType == "new")
                     {
@@ -428,6 +450,25 @@
         {
             _message = $"<div class=\"alert alert-error mt-2 text-center\" role=\"alert\">{Localizer["Error.Authorize.No"]}</div>";
         }
+    }
+
+    private List<Permission> GenerateDefaultPermissions(int siteId)
+    {
+        var permissions = new List<Permission>();
+        if (_visibility == "view")
+        {
+            // set module view permissions to page view permissions
+            permissions = SetPermissions(permissions, siteId, PermissionNames.View, PermissionNames.View);
+        }
+        else
+        {
+            // set module view permissions to page edit permissions
+            permissions = SetPermissions(permissions, siteId, PermissionNames.View, PermissionNames.Edit);
+        }
+        // set module edit permissions to page edit permissions
+        permissions = SetPermissions(permissions, siteId, PermissionNames.Edit, PermissionNames.Edit);
+
+        return permissions;
     }
 
     private List<Permission> SetPermissions(List<Permission> permissions, int siteId, string modulePermission, string pagePermission)
