@@ -94,12 +94,12 @@
                 <div class="row">
                     <div class="col text-center">
                         <label for="Module" class="control-label">@Localizer["Module.Manage"]</label>
-                        <select class="form-select" @bind="@_moduleType">
+                        <select class="form-select" @onchange="(e => ModuleTypeChanged(e))">
                             <option value="new">@Localizer["Module.AddNew"]</option>
                             @if (PageState.Page.UserId == null)
                             {
-                                <option value="existing.add">@Localizer["Module.AddExisting"]</option>
-                                <option value="existing.copy">@Localizer["Module.CopyExisting"]</option>
+                                <option value="add">@Localizer["Module.AddExisting"]</option>
+                                <option value="copy">@Localizer["Module.CopyExisting"]</option>
                             }
                         </select>
                         @if (_moduleType == "new")
@@ -143,21 +143,20 @@
                         }
                         else
                         {
-                            <select class="form-select mt-1" @onchange="(e => PageChanged(e))">
+                            <select class="form-select mt-1" value="@_pageId" @onchange="(e => PageChanged(e))">
                                 <option value="-">&lt;@Localizer["Page.Select"]&gt;</option>
                                 @foreach (Page p in _pages)
                                 {
                                     <option value="@p.PageId">@p.Name</option>
                                 }
                             </select>
-                            <select class="form-select mt-1" @bind="@_moduleId" @bind:after="() => ModuleIdChanged()">
+                            <select class="form-select mt-1" @bind="@_moduleId">
                                 <option value="-">&lt;@Localizer["Module.Select"]&gt;</option>
                                 @foreach (Module module in _modules)
                                 {
                                     <option value="@module.ModuleId">@module.Title</option>
                                 }
                             </select>
-                            @((MarkupString)_copyModuleMessage)
                         }
                     </div>
                 </div>
@@ -270,7 +269,6 @@
     protected int _location { get; private set; } = int.MaxValue;
     protected string _visibility { get; private set; } = "view";
     protected string _message { get; private set; } = "";
-    protected string _copyModuleMessage { get; private set; } = "";
 
     private string settingCategory = "CP-category";
     private string settingPane = "CP-pane";
@@ -341,6 +339,13 @@
         StateHasChanged();
     }
 
+    private void ModuleTypeChanged(ChangeEventArgs e)
+    {
+        _moduleType = (string)e.Value;
+        _pageId = "-";
+        _moduleId = "-";
+    }
+
     private void PageChanged(ChangeEventArgs e)
     {
         _pageId = (string)e.Value;
@@ -348,24 +353,12 @@
         {
             _modules = PageState.Modules
                 .Where(module => module.PageId == int.Parse(_pageId) &&
-                UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.PermissionList))
+                UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.PermissionList) &&
+                (_moduleType == "add" || module.ModuleDefinition.IsPortable))
                 .ToList();
         }
         _moduleId = "-";
         StateHasChanged();
-    }
-
-    private void ModuleIdChanged()
-    {
-        _copyModuleMessage = string.Empty;
-        if(_moduleId != "-")
-        {
-            var module = _modules.FirstOrDefault(item => item.ModuleId == int.Parse(_moduleId));
-            if (module != null && !module.ModuleDefinition.IsPortable)
-            {
-                _copyModuleMessage = $"<div class=\"alert alert-warning mt-2 text-center\" role=\"alert\">{Localizer["Message.Module.NotPortable"]}</div>";
-            }
-        }
     }
 
     private async Task AddModule()
@@ -387,7 +380,7 @@
                     module = await ModuleService.AddModuleAsync(module);
                     newModuleId = module.ModuleId;
                 }
-                else if (_moduleType == "exsiting.copy")
+                else if (_moduleType == "copy")
                 {
                     var module = await ModuleService.GetModuleAsync(int.Parse(_moduleId));
                     module.ModuleId = 0;
