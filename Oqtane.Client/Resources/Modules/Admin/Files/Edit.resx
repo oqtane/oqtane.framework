@@ -195,4 +195,7 @@
   <data name="Folder Management" xml:space="preserve">
     <value>Folder Management</value>
   </data>
+  <data name="Message.Folder.Duplicate" xml:space="preserve">
+    <value>Folder Name Specified Already Exists In Parent</value>
+  </data>
 </root>
