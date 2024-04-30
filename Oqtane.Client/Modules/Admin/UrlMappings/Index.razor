@@ -37,7 +37,7 @@ else
 					<th>@Localizer["Requested"]</th>
 				</Header>
 				<Row>
-					<td><ActionLink Action="Edit" Parameters="@($"id=" + context.UrlMappingId.ToString())" ResourceKey="Edit" /></td>
+                    <td><ActionLink Action="Edit" Text="Edit" Parameters="@($"id=" + context.UrlMappingId.ToString())" ResourceKey="Edit" /></td>
 					<td><ActionDialog Header="Delete Url Mapping" Message="@string.Format(Localizer["Confirm.DeleteUrlMapping"], context.Url)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUrlMapping(context))" ResourceKey="DeleteUrlMapping" /></td>
 					<td>
 						<a href="@Utilities.TenantUrl(PageState.Alias, context.Url)">@context.Url</a>
