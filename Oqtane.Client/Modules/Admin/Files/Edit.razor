@@ -170,6 +170,7 @@
             try
             {
                 Folder folder;
+
                 if (_folderId != -1)
                 {
                     folder = await FolderService.GetFolderAsync(_folderId);
@@ -179,8 +180,6 @@
                     folder = new Folder();
                 }
 
-                folder.SiteId = PageState.Site.SiteId;
-
                 if (_parentId == -1)
                 {
                     folder.ParentId = null;
@@ -189,7 +188,15 @@
                 {
                     folder.ParentId = _parentId;
                 }
+                
+                // check for duplicate folder names
+                if (_folders.Any(item => item.ParentId == folder.ParentId && item.Name == _name && item.FolderId != _folderId))
+                {
+                    AddModuleMessage(Localizer["Message.Folder.Duplicate"], MessageType.Warning);
+                    return;
+                }
 
+                folder.SiteId = PageState.Site.SiteId;
                 folder.Name = _name;
                 folder.Type = _type;
                 folder.ImageSizes = _imagesizes;
