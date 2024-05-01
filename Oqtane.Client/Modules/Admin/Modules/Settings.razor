@@ -128,7 +128,7 @@
 
     @code {
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
-    public override string Title => "Module Settings";
+    public override string Title => Localizer["ModuleSettings.Title"];
 
     private ElementReference form;
     private bool validated = false;
@@ -144,7 +144,7 @@
     private PermissionGrid _permissionGrid;
     private Type _moduleSettingsType;
     private object _moduleSettings;
-    private string _moduleSettingsTitle = "Module Settings";
+    private string _moduleSettingsTitle;
     private RenderFragment ModuleSettingsComponent { get; set; }
     private Type _containerSettingsType;
     private object _containerSettings;
@@ -160,6 +160,7 @@
     {
         _module = ModuleState.ModuleDefinition.Name;
         _title = ModuleState.Title;
+        _moduleSettingsTitle = Localizer["ModuleSettings.Heading"];
         _pane = ModuleState.Pane;
         _containers = ThemeService.GetContainerControls(PageState.Site.Themes, PageState.Page.ThemeType);
         _containerType = ModuleState.ContainerType;
