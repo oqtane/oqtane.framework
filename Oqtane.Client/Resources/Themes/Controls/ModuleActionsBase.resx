@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -117,75 +117,34 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Page.Text" xml:space="preserve">
-    <value>Page: </value>
+  <data name="DeleteModule" xml:space="preserve">
+    <value>Delete Module</value>
   </data>
-  <data name="Title.HelpText" xml:space="preserve">
-    <value>Enter the title of the module</value>
+  <data name="ExportContent" xml:space="preserve">
+    <value>Export Content</value>
   </data>
-  <data name="Container.HelpText" xml:space="preserve">
-    <value>Select the module's container</value>
+  <data name="ImportContent" xml:space="preserve">
+    <value>Import Content</value>
   </data>
-  <data name="DisplayOnAllPages.HelpText" xml:space="preserve">
-    <value>Indicate if this module should be displayed on all pages</value>
+  <data name="ManageSettings" xml:space="preserve">
+    <value>Manage Settings</value>
   </data>
-  <data name="Page.HelpText" xml:space="preserve">
-    <value>The page that the module is located on</value>
+  <data name="MoveDown" xml:space="preserve">
+    <value>Move Down</value>
   </data>
-  <data name="Title.Text" xml:space="preserve">
-    <value>Title: </value>
+  <data name="MoveToBottom" xml:space="preserve">
+    <value>Move To Bottom</value>
   </data>
-  <data name="Container.Text" xml:space="preserve">
-    <value>Container: </value>
+  <data name="MoveToTop" xml:space="preserve">
+    <value>Move To Top</value>
   </data>
-  <data name="DisplayOnAllPages.Text" xml:space="preserve">
-    <value>Display On All Pages? </value>
+  <data name="MoveUp" xml:space="preserve">
+    <value>MoveUp</value>
   </data>
-  <data name="Settings.Heading" xml:space="preserve">
-    <value>Settings</value>
+  <data name="PublishModule" xml:space="preserve">
+    <value>Publish Module</value>
   </data>
-  <data name="Message.Required.Title" xml:space="preserve">
-    <value>You Must Provide A Title For The Module</value>
-  </data>
-  <data name="Error.Module.Load" xml:space="preserve">
-    <value>A Problem Was Encountered Loading Module {0}. The Module Is Either Invalid Or Does Not Exist.</value>
-  </data>
-  <data name="Module.HelpText" xml:space="preserve">
-    <value>The name of the module</value>
-  </data>
-  <data name="Module.Text" xml:space="preserve">
-    <value>Module:</value>
-  </data>
-  <data name="ModuleSettings.Heading" xml:space="preserve">
-    <value>Module Settings</value>
-  </data>
-  <data name="Pane.HelpText" xml:space="preserve">
-    <value>The pane where the module will be displayed</value>
-  </data>
-  <data name="Pane.Text" xml:space="preserve">
-    <value>Pane:</value>
-  </data>
-  <data name="EffectiveDate.HelpText" xml:space="preserve">
-    <value>The date that this module is active</value>
-  </data>
-  <data name="EffectiveDate.Text" xml:space="preserve">
-    <value>Effective Date: </value>
-  </data>
-  <data name="ExpiryDate.HelpText" xml:space="preserve">
-    <value>The date that this module expires</value>
-  </data>
-  <data name="ExpiryDate.Text" xml:space="preserve">
-    <value>Expiry Date: </value>
-  </data>
-  <data name="Permissions.Text" xml:space="preserve">
-    <value>Permissions</value>
-  </data>
-  <data name="Permissions.Heading" xml:space="preserve">
-    <value>Permissions</value>
-  <data name="ContainerSettings.Heading" xml:space="preserve">
-    <value>Container Settings</value>
-  </data>
-  <data name="ModuleSettings.Title" xml:space="preserve">
-    <value>Module Settings</value>
+  <data name="UnpublishModule" xml:space="preserve">
+    <value>Unpublish Module</value>
   </data>
 </root>
