@@ -551,7 +551,7 @@
         {
             foreach (var resource in resources)
             {
-                if (resource.Level != ResourceLevel.Site)
+                if (resource.ResourceType == ResourceType.Stylesheet || resource.Level != ResourceLevel.Site)
                 {
                     if (resource.Url.StartsWith("~"))
                     {
