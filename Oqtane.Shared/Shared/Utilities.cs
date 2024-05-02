@@ -139,6 +139,9 @@ namespace Oqtane.Shared
 
         public static string FormatContent(string content, Alias alias, string operation)
         {
+            if (string.IsNullOrEmpty(content) || alias == null)
+                return content;
+
             var aliasUrl = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path : "";
             switch (operation)
             {
