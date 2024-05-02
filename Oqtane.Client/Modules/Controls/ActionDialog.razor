@@ -35,11 +35,11 @@
     {
         if (Disabled)
         {
-            <button type="button" class="@Class" disabled>@((MarkupString)_iconSpan) @Text</button>
+            <button type="button" class="@Class" disabled>@((MarkupString)_openIconSpan) @_openText</button>
         }
         else
         {
-            <button type="button" class="@Class" @onclick="DisplayModal">@((MarkupString)_iconSpan) @Text</button>
+            <button type="button" class="@Class" @onclick="DisplayModal">@((MarkupString)_openIconSpan) @_openText</button>
         }
     }
 }
@@ -83,13 +83,13 @@ else
     {
         if (Disabled)
         {
-            <button type="button" class="@Class" disabled>@((MarkupString)_iconSpan) @Text</button>
+            <button type="button" class="@Class" disabled>@((MarkupString)_openIconSpan) @_openText</button>
         }
         else
         {
             <form method="post" @formname="@($"ActionDialogActionForm{Id}")" @onsubmit="DisplayModal" data-enhance>
                 <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
-                <button type="submit" class="@Class">@((MarkupString)_iconSpan) @Text</button>
+                <button type="submit" class="@Class">@((MarkupString)_openIconSpan) @_openText</button>
             </form>
         }
     }
@@ -101,6 +101,8 @@ else
     private bool _editmode = false;
     private bool _authorized = false;
     private string _iconSpan = string.Empty;
+    private string _openIconSpan = string.Empty;
+    private string _openText = string.Empty;
 
     [Parameter]
     public string Header { get; set; } // required
@@ -139,6 +141,9 @@ else
     public string IconName { get; set; } // optional - specifies an icon for the link - default is no icon
 
     [Parameter]
+    public bool IconOnly { get; set; } // optional - specifies only icon in opening link
+
+    [Parameter]
     public string Id { get; set; } // optional - specifies a unique id for the compoment - required when there are multiple component instances on a page in static rendering
 
     protected override void OnInitialized()
@@ -157,6 +162,8 @@ else
         {
             Text = Action;
         }
+        _openText = Text;
+
         if (string.IsNullOrEmpty(Class))
         {
             Class = "btn btn-success";
@@ -169,11 +176,17 @@ else
 
         if (!string.IsNullOrEmpty(IconName))
         {
+            if (IconOnly)
+            {
+                _openText = string.Empty;
+            }
+
             if (!IconName.Contains(" "))
             {
                 IconName = "oi oi-" + IconName;
             }
-            _iconSpan = $"<span class=\"{IconName}\"></span>&nbsp;";
+            _openIconSpan = $"<span class=\"{IconName}\"></span>{(IconOnly ? "" : "&nbsp")}";
+            _iconSpan = $"<span class=\"{IconName}\"></span>&nbsp";
         }
 
         Text = Localize(nameof(Text), Text);
