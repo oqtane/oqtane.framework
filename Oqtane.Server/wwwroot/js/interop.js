@@ -455,5 +455,17 @@ Oqtane.Interop = {
                 }
             }
         }
+    },
+    showControlPanel: function () {
+        var controlPanel = document.getElementById('offcanvasControlPanel');
+        if (controlPanel != null) {
+            bootstrap?.Offcanvas?.getOrCreateInstance(controlPanel)?.show();
+        }    
+    },
+    hideControlPanel: function () {
+        var controlPanel = document.getElementById('offcanvasControlPanel');
+        if (controlPanel != null) {
+            bootstrap?.Offcanvas?.getOrCreateInstance(controlPanel)?.hide();
+        }    
     }
 };

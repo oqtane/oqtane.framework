@@ -432,6 +432,7 @@
 
                 _message = $"<div class=\"alert alert-success mt-2 text-center\" role=\"alert\">{Localizer["Success.Page.ModuleAdd"]}</div>";
                 _title = "";
+                await new Interop(jsRuntime).HideControlPanel();
                 NavigationManager.NavigateTo(Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, ""));
             }
             else

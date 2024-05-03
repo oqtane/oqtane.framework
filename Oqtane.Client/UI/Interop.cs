@@ -388,5 +388,31 @@ namespace Oqtane.UI
                 return Task.CompletedTask;
             }
         }
+
+        public Task ShowControlPanel()
+        {
+            try
+            {
+                _jsRuntime.InvokeVoidAsync("Oqtane.Interop.showControlPanel");
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
+
+        public Task HideControlPanel()
+        {
+            try
+            {
+                _jsRuntime.InvokeVoidAsync("Oqtane.Interop.hideControlPanel");
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
     }
 }
