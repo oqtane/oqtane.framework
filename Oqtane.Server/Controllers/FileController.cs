@@ -760,23 +760,13 @@ namespace Oqtane.Controllers
         {
             if (!Directory.Exists(folderpath))
             {
-                string path = "";
-                var separators = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
-                string[] folders = folderpath.Split(separators, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string folder in folders)
+                try
                 {
-                    path = Utilities.PathCombine(path, folder, Path.DirectorySeparatorChar.ToString());
-                    if (!Directory.Exists(path))
-                    {
-                        try
-                        {
-                            Directory.CreateDirectory(path);
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.Log(LogLevel.Error, this, LogFunction.Create, ex, "Unable To Create Folder {Folder}", path);
-                        }
-                    }
+                    Directory.CreateDirectory(folderpath);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Create, ex, "Unable To Create Folder {Folder}", folderpath);
                 }
             }
         }
