@@ -440,11 +440,13 @@
                 _title = "";
 
                 var redirectUrl = Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, "");
+                var forceLoad = false;
                 if(PageState.Site.RenderMode == RenderModes.Static)
                 {
                     redirectUrl = Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, "controlpanel");
+                    forceLoad = true;
                 }
-                NavigationManager.NavigateTo(redirectUrl, true);
+                NavigationManager.NavigateTo(redirectUrl, forceLoad);
             }
             else
             {
