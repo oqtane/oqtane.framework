@@ -297,6 +297,12 @@
             _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
             _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(_category)).ToList();
             _categories = _allModuleDefinitions.SelectMany(m => m.Categories.Split(',', StringSplitOptions.RemoveEmptyEntries)).Distinct().Where(item => item != "Library").ToList();
+
+            if(PageState.QueryString.ContainsKey("controlpanel"))
+            {
+                var url = Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, "");
+                await new Interop(jsRuntime).ShowControlPanel(url);
+            }
         }
     }
 
@@ -432,8 +438,13 @@
 
                 _message = $"<div class=\"alert alert-success mt-2 text-center\" role=\"alert\">{Localizer["Success.Page.ModuleAdd"]}</div>";
                 _title = "";
-                await new Interop(jsRuntime).HideControlPanel();
-                NavigationManager.NavigateTo(Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, ""));
+
+                var redirectUrl = Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, "");
+                if(PageState.Site.RenderMode == RenderModes.Static)
+                {
+                    redirectUrl = Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, "controlpanel");
+                }
+                NavigationManager.NavigateTo(redirectUrl, true);
             }
             else
             {

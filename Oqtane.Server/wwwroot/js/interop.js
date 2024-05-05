@@ -456,10 +456,17 @@ Oqtane.Interop = {
             }
         }
     },
-    showControlPanel: function () {
+    showControlPanel: function (newState) {
         var controlPanel = document.getElementById('offcanvasControlPanel');
         if (controlPanel != null) {
-            bootstrap?.Offcanvas?.getOrCreateInstance(controlPanel)?.show();
+            setTimeout(() => {
+                bootstrap?.Offcanvas?.getOrCreateInstance(controlPanel)?.show();
+
+                if (newState) {
+                    history.replaceState(null, null, newState);
+                }
+            }, 0);
+            
         }    
     },
     hideControlPanel: function () {

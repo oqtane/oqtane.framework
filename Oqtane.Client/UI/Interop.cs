@@ -389,11 +389,11 @@ namespace Oqtane.UI
             }
         }
 
-        public Task ShowControlPanel()
+        public Task ShowControlPanel(string newState)
         {
             try
             {
-                _jsRuntime.InvokeVoidAsync("Oqtane.Interop.showControlPanel");
+                _jsRuntime.InvokeVoidAsync("Oqtane.Interop.showControlPanel", newState);
                 return Task.CompletedTask;
             }
             catch
