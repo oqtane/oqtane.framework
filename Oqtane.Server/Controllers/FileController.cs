@@ -760,7 +760,7 @@ namespace Oqtane.Controllers
         {
             if (!Directory.Exists(folderpath))
             {
-                string path = "";
+                string path = folderpath.StartsWith(Path.DirectorySeparatorChar) ? Path.DirectorySeparatorChar.ToString() : string.Empty;
                 var separators = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
                 string[] folders = folderpath.Split(separators, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string folder in folders)
