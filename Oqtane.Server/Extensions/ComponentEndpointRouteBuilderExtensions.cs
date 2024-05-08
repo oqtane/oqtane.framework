@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Routing;
 using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Antiforgery;
 
 namespace OqtaneSSR.Extensions
 {
@@ -23,6 +24,7 @@ namespace OqtaneSSR.Extensions
             {
                 routeEndpointBuilder.Metadata.Add(new RootComponentMetadata(typeof(App)));
                 routeEndpointBuilder.Metadata.Add(new ComponentTypeMetadata(typeof(App)));
+                routeEndpointBuilder.Metadata.Add(new RequireAntiforgeryTokenAttribute());
             });
         }
     }
