@@ -139,7 +139,7 @@
                 {
                     _renderMode = site.RenderMode;
                     _runtime = site.Runtime;
-                    _prerender = site.Prerender;
+                    _prerender = site.Prerender && !Context.User.Identity.IsAuthenticated;
 
                     Route route = new Route(url, alias.Path);
                     var page = site.Pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));

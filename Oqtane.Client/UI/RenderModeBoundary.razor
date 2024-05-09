@@ -10,7 +10,6 @@
         {
             @if (ModuleType != null)
             {
-                @((MarkupString)$"<!-- rendermode: {((PageState.RenderMode == RenderModes.Static && ModuleState.RenderMode == RenderModes.Static) ? RenderModes.Static : RenderModes.Interactive + ":" + PageState.Runtime)} - prerender: {ModuleState.Prerender ?? PageState.Site.Prerender} -->")
                 <ModuleMessage @ref="moduleMessageTop" Message="@_messageContent" Type="@_messageType" />
                 @DynamicComponent
                 @if (_progressIndicator)

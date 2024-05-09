@@ -36,7 +36,7 @@
     }
     else
     {
-        <ControlPanelInteractive PageState="@PageState" SiteState="@SiteState" ButtonClass="@ButtonClass" ContainerClass="@ContainerClass" HeaderClass="@HeaderClass" BodyClass="@BodyClass" ShowLanguageSwitcher="@ShowLanguageSwitcher" LanguageDropdownAlignment="@LanguageDropdownAlignment" @rendermode="@InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, PageState.Site.Prerender)" />
+        <ControlPanelInteractive PageState="@PageState" SiteState="@SiteState" ButtonClass="@ButtonClass" ContainerClass="@ContainerClass" HeaderClass="@HeaderClass" BodyClass="@BodyClass" ShowLanguageSwitcher="@ShowLanguageSwitcher" LanguageDropdownAlignment="@LanguageDropdownAlignment" @rendermode="@InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, false)" />
     }
 }
 
