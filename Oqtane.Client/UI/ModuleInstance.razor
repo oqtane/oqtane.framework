@@ -29,7 +29,7 @@
 
     protected override void OnParametersSet()
     {
-        _prerender = ModuleState.Prerender ?? (PageState.Site.Prerender && PageState.User == null);
+        _prerender = ModuleState.Prerender ?? PageState.Site.Prerender;
         _comment = "<!-- rendermode: ";
         if (PageState.RenderMode == RenderModes.Static && ModuleState.RenderMode == RenderModes.Static)
         {
