@@ -453,9 +453,6 @@
   <data name="RenderModeStatic" xml:space="preserve">
     <value>Static</value>
   </data>
-  <data name="Auto" xml:space="preserve">
-    <value>Auto</value>
-  </data>
   <data name="Disabled" xml:space="preserve">
     <value>Disabled</value>
   </data>
