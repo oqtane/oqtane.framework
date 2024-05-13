@@ -226,11 +226,6 @@
                         user.Password = _password;
                         user.Email = email;
                         user.DisplayName = string.IsNullOrWhiteSpace(displayname) ? username : displayname;
-                        user.PhotoFileId = null;
-                        if (user.PhotoFileId == -1)
-                        {
-                            user.PhotoFileId = null;
-                        }
 
                         user.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
 
