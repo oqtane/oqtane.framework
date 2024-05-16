@@ -29,6 +29,7 @@
     {
         try
         {
+            content = "";
             if (ShouldRender())
             {
                 var htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId);
