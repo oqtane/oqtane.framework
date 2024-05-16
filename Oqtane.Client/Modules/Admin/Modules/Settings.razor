@@ -126,9 +126,8 @@
     <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
 </form>
 
-    @code {
+@code {
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
-    public override string Title => Localizer["ModuleSettings.Title"];
 
     private ElementReference form;
     private bool validated = false;
@@ -158,6 +157,7 @@
 
     protected override void OnInitialized()
     {
+        SetModuleTitle(Localizer["ModuleSettings.Title"]);
         _module = ModuleState.ModuleDefinition.Name;
         _title = ModuleState.Title;
         _moduleSettingsTitle = Localizer["ModuleSettings.Heading"];
@@ -173,7 +173,8 @@
         modifiedon = ModuleState.ModifiedOn;
         _effectivedate = Utilities.UtcAsLocalDate(ModuleState.EffectiveDate);
         _expirydate = Utilities.UtcAsLocalDate(ModuleState.ExpiryDate);
-
+        
+        
         if (ModuleState.ModuleDefinition != null)
         {
             _permissionNames = ModuleState.ModuleDefinition?.PermissionNames;
