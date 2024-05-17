@@ -29,7 +29,6 @@
     {
         try
         {
-            content = "";
             if (ShouldRender())
             {
                 var htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId);
@@ -37,6 +36,10 @@
                 {
                     content = htmltext.Content;
                     content = Utilities.FormatContent(content, PageState.Alias, "render");
+                }
+                else
+                {
+                    content = "";
                 }
             }
         }
