@@ -12,10 +12,7 @@
             {
                 <NavLink class="ms-2" href="@NavigateUrl("admin/log")">View Details</NavLink>
             }
-            <form method="post" @onsubmit="DismissModal" @formname="@_formname" data-enhance>
-                <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
-                <button type="submit" class="btn-close" aria-label="Close"></button>
-            </form>
+            <a href="@NavigationManager.Uri" class="btn-close" data-dismiss="alert" aria-label="close"></a>
         }
     </div>
 }
@@ -81,10 +78,5 @@
         }
 
         return classname;
-    }
-
-    private void DismissModal()
-    {
-        Message = "";
     }
 }
