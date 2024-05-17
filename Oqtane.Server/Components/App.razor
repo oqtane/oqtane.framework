@@ -69,20 +69,15 @@
                 <Routes PageState="@_pageState" RenderMode="@_renderMode" Runtime="@_runtime" AntiForgeryToken="@_antiForgeryToken" AuthorizationToken="@_authorizationToken" Platform="@_platform" @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(_runtime, _prerender)" />
             }
 
-            @if (!string.IsNullOrEmpty(_reconnectScript))
-            {
-                @((MarkupString)_reconnectScript)
-            }
-            @if (!string.IsNullOrEmpty(_PWAScript))
-            {
-                @((MarkupString)_PWAScript)
-            }
-            @((MarkupString)_bodyResources)
-
+            <script src="_framework/blazor.web.js"></script>
             <script src="js/app.js"></script>
             <script src="js/loadjs.min.js"></script>
             <script src="js/interop.js"></script>
-            <script src="_framework/blazor.web.js"></script>
+
+            @((MarkupString)_reconnectScript)
+            @((MarkupString)_PWAScript)
+            @((MarkupString)_scrollPositionScript)
+            @((MarkupString)_bodyResources)
         }
         else
         {
@@ -106,8 +101,9 @@
     private string _headResources = "";
     private string _bodyResources = "";
     private string _styleSheets = "";
-    private string _PWAScript = "";
-    private string _reconnectScript = "";
+    private string _reconnectScript = ""; // for Interactive render mode and Blazor Server interactivity only
+    private string _PWAScript = ""; // for PWA apps only
+    private string _scrollPositionScript = ""; // for Static render mode only
     private string _message = "";
     private PageState _pageState;
 
@@ -189,6 +185,11 @@
                     {
                         _PWAScript = CreatePWAScript(alias, site, route);
                     }
+                    @if (_renderMode == RenderModes.Static)
+                    {
+                        _scrollPositionScript = "<page-script src=\"/js/scrollposition.js\"></page-script>";                        
+                    }
+
                     _headResources += ParseScripts(site.HeadContent);
                     _bodyResources += ParseScripts(site.BodyContent);
 
