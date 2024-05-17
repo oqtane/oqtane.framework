@@ -187,7 +187,7 @@
                     }
                     @if (_renderMode == RenderModes.Static)
                     {
-                        _scrollPositionScript = "<page-script src=\"/js/scrollposition.js\"></page-script>";                        
+                        _scrollPositionScript = CreateScrollPositionScript();
                     }
 
                     _headResources += ParseScripts(site.HeadContent);
@@ -485,6 +485,24 @@
         "            setInterval(attemptReload, 5000);" + Environment.NewLine +
         "        }" + Environment.NewLine +
         "    }).observe(document.body, { childList: true, subtree: true });" + Environment.NewLine +
+        "</script>";
+    }
+
+    private string CreateScrollPositionScript()
+    {
+        return
+        "<script>" + Environment.NewLine +
+        "   window.interceptNavigation = () => {" + Environment.NewLine +
+        "       let currentUrl = window.location.href;" + Environment.NewLine +
+        "       Blazor.addEventListener('enhancedload', () => {" + Environment.NewLine +
+        "           let newUrl = window.location.href;" + Environment.NewLine +
+        "           if (currentUrl != newUrl) {" + Environment.NewLine +
+        "               window.scrollTo({ top: 0, left: 0, behavior: 'instant' });" + Environment.NewLine +
+        "           }" + Environment.NewLine +
+        "           currentUrl = newUrl;" + Environment.NewLine +
+        "       });" + Environment.NewLine +
+        "   };" + Environment.NewLine +
+        "   document.onload += window.interceptNavigation();" + Environment.NewLine +
         "</script>";
     }
 
