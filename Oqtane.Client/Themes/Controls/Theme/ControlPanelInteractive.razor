@@ -430,9 +430,16 @@
                 await PageModuleService.UpdatePageModuleOrderAsync(pageModule.PageId, pageModule.Pane);
                 await UpdateSettingsAsync();
 
-                _message = $"<div class=\"alert alert-success mt-2 text-center\" role=\"alert\">{Localizer["Success.Page.ModuleAdd"]}</div>";
-                _title = "";
-                NavigationManager.NavigateTo(Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, ""));
+                if (PageState.RenderMode == RenderModes.Interactive)
+                {
+                    _message = $"<div class=\"alert alert-success mt-2 text-center\" role=\"alert\">{Localizer["Success.Page.ModuleAdd"]}</div>";
+                    _title = "";
+                    NavigationManager.NavigateTo(Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, ""));
+                }
+                else // reload page in static rendering
+                {
+                    NavigationManager.NavigateTo(Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, ""), true);
+                }
             }
             else
             {
