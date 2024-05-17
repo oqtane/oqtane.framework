@@ -644,11 +644,11 @@
                     await logger.LogInformation("Page Saved {Page}", _page);
                     if (!string.IsNullOrEmpty(PageState.ReturnUrl))
                     {
-                        NavigationManager.NavigateTo(PageState.ReturnUrl, true);
+                        NavigationManager.NavigateTo(PageState.ReturnUrl, true); // redirect to page being edited and reload
                     }
                     else
                     {
-                        NavigationManager.NavigateTo(NavigateUrl(), true); // redirect to page being edited
+                        NavigationManager.NavigateTo(NavigateUrl()); // redirect to page management
                     }
                 }
                 else
