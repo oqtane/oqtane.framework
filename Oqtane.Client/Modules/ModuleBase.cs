@@ -278,7 +278,6 @@ namespace Oqtane.Modules
 
         public void AddModuleMessage(string message, MessageType type, string position)
         {
-            ClearModuleMessage();
             RenderModeBoundary.AddModuleMessage(message, type, position);
         }
 

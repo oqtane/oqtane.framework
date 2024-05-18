@@ -12,12 +12,13 @@
             {
                 <NavLink class="ms-2" href="@NavigateUrl("admin/log")">View Details</NavLink>
             }
-            <a href="@NavigationManager.Uri" class="btn-close" data-dismiss="alert" aria-label="close"></a>
+            <button type="button" class="btn-close" data-dismiss="alert" aria-label="close" @onclick="CloseMessage"></button>
         }
     </div>
 }
 
 @code {
+    private string _message = string.Empty;
     private string _classname = string.Empty;
     private string _formname = "ModuleMessageForm";
 
@@ -27,15 +28,8 @@
     [Parameter]
     public MessageType Type { get; set; }
 
-    public void RefreshMessage(string message, MessageType type)
-    {
-        Message = message;
-        Type = type;
-
-        UpdateClassName();
-
-        StateHasChanged();
-    }
+    [Parameter]
+    public RenderModeBoundary Parent { get; set; }
 
     protected override void OnInitialized()
     {
@@ -47,12 +41,8 @@
 
     protected override void OnParametersSet()
     {
-        UpdateClassName();
-    }
-
-    private void UpdateClassName()
-    {
-        if (!string.IsNullOrEmpty(Message))
+        _message = Message;
+        if (!string.IsNullOrEmpty(_message))
         {
             _classname = GetMessageType(Type);
         }
@@ -78,5 +68,16 @@
         }
 
         return classname;
+    }
+    private void CloseMessage(MouseEventArgs e)
+    {
+        if(Parent != null)
+        {
+            Parent.DismissMessage();
+        }
+        else
+        {
+            NavigationManager.NavigateTo(NavigationManager.Uri);
+        }
     }
 }
