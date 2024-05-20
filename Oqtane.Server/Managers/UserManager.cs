@@ -201,56 +201,54 @@ namespace Oqtane.Managers
             IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
             if (identityuser != null)
             {
-                var valid = true;
                 if (!string.IsNullOrEmpty(user.Password))
                 {
                     var validator = new PasswordValidator<IdentityUser>();
                     var result = await validator.ValidateAsync(_identityUserManager, null, user.Password);
-                    valid = result.Succeeded;
-                    if (valid)
+                    if (result.Succeeded)
                     {
                         identityuser.PasswordHash = _identityUserManager.PasswordHasher.HashPassword(identityuser, user.Password);
+                        await _identityUserManager.UpdateAsync(identityuser);
                     }
-                }
-                if (valid)
-                {
-                    if (!string.IsNullOrEmpty(user.Password))
+                    else
                     {
-                        await _identityUserManager.UpdateAsync(identityuser); // requires password to be provided
+                        _logger.Log(user.SiteId, LogLevel.Error, this, LogFunction.Update, "Unable To Update User {Username}. Password Does Not Meet Complexity Requirements.", user.Username);
+                        return null;
                     }
-
-                    if (user.Email != identityuser.Email)
-                    {
-                        await _identityUserManager.SetEmailAsync(identityuser, user.Email);
-
-                        // if email address changed and user is not administrator, email verification is required for new email address
-                        if (!user.EmailConfirmed)
-                        {
-                            var alias = _tenantManager.GetAlias();
-                            string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
-                            string url = alias.Protocol + alias.Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
-                            string body = "Dear " + user.DisplayName + ",\n\nIn Order To Verify The Email Address Associated To Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
-                            var notification = new Notification(user.SiteId, user, "User Account Verification", body);
-                            _notifications.AddNotification(notification);
-                        }
-                        else
-                        {
-                            var emailConfirmationToken = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
-                            await _identityUserManager.ConfirmEmailAsync(identityuser, emailConfirmationToken);
-                        }
-                    }
-
-                    user = _users.UpdateUser(user);
-                    _syncManager.AddSyncEvent(_tenantManager.GetAlias(), EntityNames.User, user.UserId, SyncEventActions.Update);
-                    _syncManager.AddSyncEvent(_tenantManager.GetAlias(), EntityNames.User, user.UserId, SyncEventActions.Reload);
-                    user.Password = ""; // remove sensitive information
-                    _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", user);
                 }
-                else
+
+                if (user.Email != identityuser.Email)
                 {
-                    _logger.Log(user.SiteId, LogLevel.Error, this, LogFunction.Update, "Unable To Update User {Username}. Password Does Not Meet Complexity Requirements.", user.Username);
-                    user = null;
+                    await _identityUserManager.SetEmailAsync(identityuser, user.Email);
+
+                    // if email address changed and it is not confirmed, verification is required for new email address
+                    if (!user.EmailConfirmed)
+                    {
+                        var alias = _tenantManager.GetAlias();
+                        string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
+                        string url = alias.Protocol + alias.Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
+                        string body = "Dear " + user.DisplayName + ",\n\nIn Order To Verify The Email Address Associated To Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
+                        var notification = new Notification(user.SiteId, user, "User Account Verification", body);
+                        _notifications.AddNotification(notification);
+                    }
                 }
+
+                if (user.EmailConfirmed)
+                {
+                    var emailConfirmationToken = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
+                    await _identityUserManager.ConfirmEmailAsync(identityuser, emailConfirmationToken);
+                }
+
+                user = _users.UpdateUser(user);
+                _syncManager.AddSyncEvent(_tenantManager.GetAlias(), EntityNames.User, user.UserId, SyncEventActions.Update);
+                _syncManager.AddSyncEvent(_tenantManager.GetAlias(), EntityNames.User, user.UserId, SyncEventActions.Reload);
+                user.Password = ""; // remove sensitive information
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", user);
+            }
+            else
+            {
+                _logger.Log(user.SiteId, LogLevel.Error, this, LogFunction.Update, "Unable To Update User {Username}. User Does Not Exist.", user.Username);
+                user = null;
             }
 
             return user;
