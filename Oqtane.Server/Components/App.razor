@@ -427,7 +427,7 @@
 
     private string CreatePWAScript(Alias alias, Site site, Route route)
     {
-        return
+        return Environment.NewLine +
         "<script>" + Environment.NewLine +
         "    // PWA Manifest" + Environment.NewLine +
         "    setTimeout(() => {" + Environment.NewLine +
@@ -463,14 +463,14 @@
         "            console.log('ServiceWorker Registration Failed ', err);" + Environment.NewLine +
         "        });" + Environment.NewLine +
         "    };" + Environment.NewLine +
-        "</script>";
+        "</script>" + Environment.NewLine;
     }
 
     private string CreateReconnectScript()
     {
-        return
+        return Environment.NewLine +
         "<script>" + Environment.NewLine +
-        "    // Blazor Server Reconnect" + Environment.NewLine +
+        "    // Interactive Blazor Server Reconnect" + Environment.NewLine +
         "    new MutationObserver((mutations, observer) => {" + Environment.NewLine +
         "        if (document.querySelector('#components-reconnect-modal h5 a')) {" + Environment.NewLine +
         "            async function attemptReload() {" + Environment.NewLine +
@@ -482,14 +482,14 @@
         "            setInterval(attemptReload, 5000);" + Environment.NewLine +
         "        }" + Environment.NewLine +
         "    }).observe(document.body, { childList: true, subtree: true });" + Environment.NewLine +
-        "</script>";
+        "</script>" + Environment.NewLine;
     }
 
     private string CreateScrollPositionScript()
     {
-        return
+        return Environment.NewLine +
         "<script>" + Environment.NewLine +
-        "    // Static Blazor Scroll Position" + Environment.NewLine +
+        "    // Blazor Static Rendering Scroll Position" + Environment.NewLine +
         "    window.interceptNavigation = () => {" + Environment.NewLine +
         "        let currentUrl = window.location.href;" + Environment.NewLine +
         "        Blazor.addEventListener('enhancedload', () => {" + Environment.NewLine +
@@ -501,7 +501,7 @@
         "        });" + Environment.NewLine +
         "    };" + Environment.NewLine +
         "    document.onload += window.interceptNavigation();" + Environment.NewLine +
-        "</script>";
+        "</script>" + Environment.NewLine;
     }
 
     private string ParseScripts(string content)
