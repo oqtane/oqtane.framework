@@ -406,7 +406,7 @@ namespace Oqtane.Repository
                 moduledefinition = moduleobject.ModuleDefinition;
                 moduledefinition.ModuleDefinitionName = moduletype.Namespace + ", " + moduletype.Assembly.GetName().Name;
                 moduledefinition.AssemblyName = assembly.GetName().Name;
-                moduledefinition.Categories = "Library";
+                moduledefinition.Categories = "Headless";
                 moduledefinition.PermissionList = new List<Permission>
                 {
                     new Permission(PermissionNames.Utilize, RoleNames.Host, true)
