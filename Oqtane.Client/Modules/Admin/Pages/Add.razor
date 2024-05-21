@@ -482,11 +482,11 @@
                     await logger.LogInformation("Page Added {Page}", page);
                     if (!string.IsNullOrEmpty(PageState.ReturnUrl))
                     {
-                        NavigationManager.NavigateTo(PageState.ReturnUrl, true);
+                        NavigationManager.NavigateTo(page.Path, true); // redirect to page added and reload
                     }
                     else
                     {
-                        NavigationManager.NavigateTo(page.Path); // redirect to new page created
+                        NavigationManager.NavigateTo(NavigateUrl()); // redirect to page management
                     }
                 }
                 else

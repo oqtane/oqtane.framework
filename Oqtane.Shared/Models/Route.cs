@@ -43,13 +43,19 @@ namespace Oqtane.Models
             int pos = PagePath.IndexOf("/" + Constants.UrlParametersDelimiter + "/");
             if (pos != -1)
             {
-                UrlParameters = PagePath.Substring(pos + 3);
+                if (pos + 3 < PagePath.Length)
+                {
+                    UrlParameters = PagePath.Substring(pos + 3);
+                }
                 PagePath = PagePath.Substring(0, pos);
             }
             pos = PagePath.IndexOf("/" + Constants.ModuleDelimiter + "/");
             if (pos != -1)
             {
-                ModuleId = PagePath.Substring(pos + 3); 
+                if (pos + 3 < PagePath.Length)
+                {
+                    ModuleId = PagePath.Substring(pos + 3);
+                }
                 PagePath = PagePath.Substring(0, pos);
             }
             if (ModuleId.Length != 0)

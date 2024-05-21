@@ -1,21 +1,29 @@
-@namespace Oqtane.Themes.Controls
-@inherits ThemeControlBase
 @using System.Globalization
 @using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.Http
 @using Oqtane.Models
+@namespace Oqtane.Themes.Controls
+@inherits ThemeControlBase
 @inject ILanguageService LanguageService
 @inject NavigationManager NavigationManager
 
 @if (_supportedCultures?.Count() > 1)
 {
     <div class="btn-group pe-1" role="group">
-        <button id="btnCultures" type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button id="btnCultures" type="button" class="btn @ButtonClass dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <span class="oi oi-globe"></span>
         </button>
         <div class="dropdown-menu @MenuAlignment" aria-labelledby="btnCultures">
             @foreach (var culture in _supportedCultures)
             {
-                <a class="dropdown-item @(CultureInfo.CurrentUICulture.Name == culture.Name ? "active" : String.Empty)" href="#" @onclick="@(async e => await SetCultureAsync(culture.Name))">@culture.DisplayName</a>
+                @if (PageState.RenderMode == RenderModes.Interactive)
+                {
+                    <a class="dropdown-item @(CultureInfo.CurrentUICulture.Name == culture.Name ? "active" : String.Empty)" href="#" @onclick="@(async e => await SetCultureAsync(culture.Name))" @onclick:preventDefault="true">@culture.DisplayName</a>
+                }
+                else
+                {
+                    <a class="dropdown-item @(CultureInfo.CurrentUICulture.Name == culture.Name ? "active" : String.Empty)" href="@NavigateUrl(PageState.Page.Path, "culture=" + culture.Name)">@culture.DisplayName</a>
+                }
             }
         </div>
     </div>
@@ -23,9 +31,15 @@
 
 @code{
     private IEnumerable<Culture> _supportedCultures;
+    private string MenuAlignment = string.Empty;
+
     [Parameter]
     public string DropdownAlignment { get; set; } = string.Empty; // Empty or Left or Right
-    private string MenuAlignment = string.Empty;
+    [Parameter]
+    public string ButtonClass { get; set; } = "btn-outline-secondary";
+
+    [CascadingParameter]
+    HttpContext HttpContext { get; set; }
 
     protected override void OnParametersSet()
     {
@@ -33,16 +47,26 @@
 
         var languages = PageState.Languages;
         _supportedCultures = languages.Select(l => new Culture { Name = l.Code, DisplayName = l.Name });
+
+        if (PageState.QueryString.ContainsKey("culture"))
+        {
+            var culture = PageState.QueryString["culture"];
+            if (_supportedCultures.Any(item => item.Name == culture))
+            {
+                var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
+                HttpContext.Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, new CookieOptions { Path = "/", Expires = DateTimeOffset.UtcNow.AddYears(365) });
+            }
+            NavigationManager.NavigateTo(NavigationManager.Uri.Replace($"?culture={culture}", ""), forceLoad: true);
+        }
     }
 
     private async Task SetCultureAsync(string culture)
     {
         if (culture != CultureInfo.CurrentUICulture.Name)
         {
-            var interop = new Interop(JSRuntime);
             var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
+            var interop = new Interop(JSRuntime);
             await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360);
-
             NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
         }
     }

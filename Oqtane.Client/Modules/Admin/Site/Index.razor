@@ -319,7 +319,7 @@
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="rendermode" HelpText="The default render mode for the site" ResourceKey="Rendermode">Render Mode: </Label>
                         <div class="col-sm-9">
-                            <select id="rendermode" class="form-select" @bind="@_rendermode" required>
+                            <select id="rendermode" class="form-select" value="@_rendermode" @onchange="(e => RenderModeChanged(e))" required>
                                 <option value="@RenderModes.Interactive">@(SharedLocalizer["RenderMode" + @RenderModes.Interactive])</option>
                                 <option value="@RenderModes.Static">@(SharedLocalizer["RenderMode" + @RenderModes.Static])</option>
                                 <option value="@RenderModes.Headless">@(SharedLocalizer["RenderMode" + @RenderModes.Headless])</option>
@@ -337,7 +337,7 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="prerender" HelpText="Specifies if interactive components should prerender their output" ResourceKey="Prerender">Prerender? </Label>
+                        <Label Class="col-sm-3" For="prerender" HelpText="Specifies if interactive components should prerender their output on the server" ResourceKey="Prerender">Prerender: </Label>
                         <div class="col-sm-9">
                             <select id="prerender" class="form-select" @bind="@_prerender" required>
                                 <option value="True">@SharedLocalizer["Yes"]</option>
@@ -569,6 +569,23 @@
         {
             await logger.LogError(ex, "Error Loading Containers For Theme {ThemeType} {Error}", _themetype, ex.Message);
             AddModuleMessage(Localizer["Error.Theme.LoadPane"], MessageType.Error);
+        }
+    }
+
+    private void RenderModeChanged(ChangeEventArgs e)
+    {
+        _rendermode = (string)e.Value;
+        switch (_rendermode)
+        {
+            case RenderModes.Interactive:
+                _prerender = "True";
+                break;
+            case RenderModes.Static:
+                _prerender = "False";
+                break;
+            case RenderModes.Headless:
+                _prerender = "False";
+                break;
         }
     }
 

@@ -13,6 +13,7 @@ using Oqtane.Shared;
 using Oqtane.Themes;
 using System.Reflection.Metadata;
 using Oqtane.Migrations.Master;
+using Oqtane.Modules;
 
 namespace Oqtane.Repository
 {
@@ -224,9 +225,11 @@ namespace Oqtane.Repository
         private List<Theme> LoadThemesFromAssembly(List<Theme> themes, Assembly assembly)
         {
             Theme theme;
-            List<Type> themeTypes = new List<Type>();
 
+            Type[] themeTypes = assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(ITheme))).ToArray();
             Type[] themeControlTypes = assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(IThemeControl))).ToArray();
+            Type[] containerControlTypes = assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(IContainerControl))).ToArray();
+
             foreach (Type themeControlType in themeControlTypes)
             {
                 // Check if type should be ignored
@@ -240,16 +243,9 @@ namespace Oqtane.Repository
                 int index = themes.FindIndex(item => item.ThemeName == qualifiedThemeType);
                 if (index == -1)
                 {
-                    // Find all types in the assembly with the same namespace root
-                    themeTypes = assembly.GetTypes()
-                        .Where(item => !item.IsOqtaneIgnore())
-                        .Where(item => item.Namespace != null)
-                        .Where(item => item.Namespace == themeControlType.Namespace || item.Namespace.StartsWith(themeControlType.Namespace + "."))
-                        .ToList();
+                    // determine if this component is part of a theme which implements ITheme
+                    Type themetype = themeTypes.FirstOrDefault(item => item.Namespace == themeControlType.Namespace);
 
-                    // determine if this theme implements ITheme
-                    Type themetype = themeTypes
-                        .FirstOrDefault(item => item.GetInterfaces().Contains(typeof(ITheme)));
                     if (themetype != null)
                     {
                         var themeobject = Activator.CreateInstance(themetype) as ITheme;
@@ -285,6 +281,7 @@ namespace Oqtane.Repository
                 }
                 theme = themes[index];
 
+                // add theme control
                 var themecontrolobject = Activator.CreateInstance(themeControlType) as IThemeControl;
                 theme.Themes.Add(
                     new ThemeControl
@@ -296,14 +293,12 @@ namespace Oqtane.Repository
                     }
                 );
 
-                // containers
-                Type[] containertypes = themeTypes
-                    .Where(item => item.GetInterfaces().Contains(typeof(IContainerControl))).ToArray();
-                foreach (Type containertype in containertypes)
+                if (!theme.Containers.Any())
                 {
-                    var containerobject = Activator.CreateInstance(containertype) as IThemeControl;
-                    if (theme.Containers.FirstOrDefault(item => item.TypeName == containertype.FullName + ", " + themeControlType.Assembly.GetName().Name) == null)
+                    // add container controls
+                    foreach (Type containertype in containerControlTypes.Where(item => item.Namespace == themeControlType.Namespace))
                     {
+                        var containerobject = Activator.CreateInstance(containertype) as IThemeControl;
                         theme.Containers.Add(
                             new ThemeControl
                             {

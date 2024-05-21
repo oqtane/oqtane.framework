@@ -287,7 +287,9 @@ namespace Oqtane.Repository
         {
             ModuleDefinition moduledefinition;
 
+            Type[] moduletypes = assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(IModule))).ToArray();
             Type[] modulecontroltypes = assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(IModuleControl))).ToArray();
+
             foreach (Type modulecontroltype in modulecontroltypes)
             {
                 // Check if type should be ignored
@@ -299,12 +301,9 @@ namespace Oqtane.Repository
                 int index = moduledefinitions.FindIndex(item => item.ModuleDefinitionName == qualifiedModuleType);
                 if (index == -1)
                 {
-                    // determine if this module implements IModule
-                    Type moduletype = assembly
-                        .GetTypes()
-                        .Where(item => item.Namespace != null)
-                        .Where(item => item.Namespace == modulecontroltype.Namespace || item.Namespace.StartsWith(modulecontroltype.Namespace + "."))
-                        .FirstOrDefault(item => item.GetInterfaces().Contains(typeof(IModule)));
+                    // determine if this component is part of a module which implements IModule
+                    Type moduletype = moduletypes.FirstOrDefault(item => item.Namespace == modulecontroltype.Namespace);
+
                     if (moduletype != null)
                     {
                         // get property values from IModule
@@ -397,6 +396,22 @@ namespace Oqtane.Repository
                 }
 
                 moduledefinitions[index] = moduledefinition;
+            }
+
+            // process modules without UI components
+            foreach (var moduletype in moduletypes.Where(m1 => !modulecontroltypes.Any(m2 => m1.Namespace == m2.Namespace)))
+            {
+                // get property values from IModule
+                var moduleobject = Activator.CreateInstance(moduletype) as IModule;
+                moduledefinition = moduleobject.ModuleDefinition;
+                moduledefinition.ModuleDefinitionName = moduletype.Namespace + ", " + moduletype.Assembly.GetName().Name;
+                moduledefinition.AssemblyName = assembly.GetName().Name;
+                moduledefinition.Categories = "Headless";
+                moduledefinition.PermissionList = new List<Permission>
+                {
+                    new Permission(PermissionNames.Utilize, RoleNames.Host, true)
+                };
+                moduledefinitions.Add(moduledefinition);
             }
 
             return moduledefinitions;

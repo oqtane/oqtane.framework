@@ -35,5 +35,10 @@ namespace Oqtane.Modules
         /// Specifies the required render mode for the module control ie. Static,Interactive
         /// </summary>
         string RenderMode { get; }
+
+        /// <summary>
+        /// Specifies the prerender mode for the moudle control ie: true or false
+        /// </summary>
+        bool? Prerender { get;  }
     }
 }

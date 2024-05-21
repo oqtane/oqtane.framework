@@ -7,6 +7,7 @@ using Oqtane.Repository;
 using Oqtane.Shared;
 using Oqtane.Migrations.Framework;
 using Oqtane.Documentation;
+using System.Linq;
 
 // ReSharper disable ConvertToUsingDeclaration
 
@@ -29,10 +30,11 @@ namespace Oqtane.Modules.HtmlText.Manager
         public string ExportModule(Module module)
         {
             string content = "";
-            var htmlText = _htmlText.GetHtmlText(module.ModuleId);
-            if (htmlText != null)
+            var htmltexts = _htmlText.GetHtmlTexts(module.ModuleId);
+            if (htmltexts != null && htmltexts.Any())
             {
-                content = WebUtility.HtmlEncode(htmlText.Content);
+                var htmltext = htmltexts.OrderByDescending(item => item.CreatedOn).First();
+                content = WebUtility.HtmlEncode(htmltext.Content);
             }
             return content;
         }

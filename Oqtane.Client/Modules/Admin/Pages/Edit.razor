@@ -1,5 +1,6 @@
 @namespace Oqtane.Modules.Admin.Pages
 @using Oqtane.Interfaces
+@using System.Globalization
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IPageService PageService
@@ -362,7 +363,7 @@
                     _parent = PageState.Pages.FirstOrDefault(item => item.PageId == _page.ParentId);
                 }
                 _children = new List<Page>();
-                foreach (Page p in PageState.Pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == int.Parse(_parentid))))
+                foreach (Page p in PageState.Pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == int.Parse(_parentid, CultureInfo.InvariantCulture))))
                 {
                     if (p.PageId != _pageId && UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
                     {
@@ -643,11 +644,11 @@
                     await logger.LogInformation("Page Saved {Page}", _page);
                     if (!string.IsNullOrEmpty(PageState.ReturnUrl))
                     {
-                        NavigationManager.NavigateTo(PageState.ReturnUrl, true);
+                        NavigationManager.NavigateTo(PageState.ReturnUrl, true); // redirect to page being edited and reload
                     }
                     else
                     {
-                        NavigationManager.NavigateTo(NavigateUrl(), true); // redirect to page being edited
+                        NavigationManager.NavigateTo(NavigateUrl()); // redirect to page management
                     }
                 }
                 else

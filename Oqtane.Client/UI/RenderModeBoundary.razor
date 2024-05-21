@@ -10,14 +10,19 @@
         {
             @if (ModuleType != null)
             {
-                @((MarkupString)$"<!-- rendermode: {ModuleState.RenderMode} -->")
-                <ModuleMessage @ref="moduleMessageTop" Message="@_messageContent" Type="@_messageType" />
+                @if (!string.IsNullOrEmpty(_messageContent) && _messagePosition == "top")
+                {
+                    <ModuleMessage Message="@_messageContent" Type="@_messageType" Parent="@this" />
+                }
                 @DynamicComponent
                 @if (_progressIndicator)
                 {
                     <div class="app-progress-indicator"></div>
                 }
-                <ModuleMessage @ref="moduleMessageBottom" Message="@_messageContent" Type="@_messageType" />
+                @if (!string.IsNullOrEmpty(_messageContent) && _messagePosition == "bottom")
+                {
+                    <ModuleMessage Message="@_messageContent" Type="@_messageType" Parent="@this" />
+                }
             }
         }
         else
@@ -42,8 +47,6 @@
     private string _messagePosition;
     private bool _progressIndicator = false;
     private string _error;
-    private ModuleMessage moduleMessageTop;
-    private ModuleMessage moduleMessageBottom;
 
     [Parameter]
     public SiteState SiteState { get; set; }
@@ -104,12 +107,17 @@
 
     public void AddModuleMessage(string message, MessageType type, string position)
     {
-        _messageContent = message;
-        _messageType = type;
-        _messagePosition = position;
-        _progressIndicator = false;
+        if(message != _messageContent
+            || type != _messageType
+            || position != _messagePosition)
+        {
+            _messageContent = message;
+            _messageType = type;
+            _messagePosition = position;
+            _progressIndicator = false;
 
-        Refresh();
+            StateHasChanged();
+        }
     }
 
     public void ShowProgressIndicator()
@@ -124,25 +132,10 @@
         StateHasChanged();
     }
 
-    private void DismissMessage()
+    public void DismissMessage()
     {
         _messageContent = "";
-    }
-
-    private void Refresh()
-    {
-        var updateTop = string.IsNullOrEmpty(_messageContent) || _messagePosition == "top";
-        var updateBottom = string.IsNullOrEmpty(_messageContent) || _messagePosition == "bottom";
-
-        if (updateTop && moduleMessageTop != null)
-        {
-            moduleMessageTop.RefreshMessage(_messageContent, _messageType);
-        }
-
-        if (updateBottom && moduleMessageBottom != null)
-        {
-            moduleMessageBottom.RefreshMessage(_messageContent, _messageType);
-        }
+        StateHasChanged();
     }
 
     protected override async Task OnErrorAsync(Exception exception)
