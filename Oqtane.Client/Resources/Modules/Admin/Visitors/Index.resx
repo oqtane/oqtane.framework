@@ -184,12 +184,18 @@
     <value>Number of days of visitor activity to retain</value>
   </data>
   <data name="Retention.Text" xml:space="preserve">
-    <value>Retention (Days):</value>
+    <value>Retention:</value>
   </data>
   <data name="Correlation.HelpText" xml:space="preserve">
     <value>Indicate if new visitors to this site should be correlated based on their IP Address</value>
   </data>
   <data name="Correlation.Text" xml:space="preserve">
     <value>Correlate Visitors?</value>
+  </data>
+  <data name="Duration.HelpText" xml:space="preserve">
+    <value>The duration of a browsing session considered to be a distinct visit (in minutes)</value>
+  </data>
+  <data name="Duration.Text" xml:space="preserve">
+    <value>Session Duration:</value>
   </data>
 </root>
