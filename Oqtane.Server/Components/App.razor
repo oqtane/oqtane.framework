@@ -324,14 +324,26 @@
             int? userid = Context.User.UserId();
             userid = (userid == -1) ? null : userid;
 
-            // check if cookie already exists
+            // get cookie value
+            var visitorCookieName = Constants.VisitorCookiePrefix + SiteId.ToString();
+            var visitorCookieValue = Context.Request.Cookies[visitorCookieName];
+            DateTime expiry = DateTime.MinValue;
+            if (visitorCookieValue.Contains("|"))
+            {
+                var values = visitorCookieValue.Split('|');
+                int.TryParse(values[0], out _visitorId);
+                DateTime.TryParse(values[1], out expiry);
+            }
+            else // legacy cookie format
+            {
+                int.TryParse(visitorCookieValue, out _visitorId);
+            }
+            bool setcookie = false;
             Visitor visitor = null;
-            bool addcookie = false;
-            var VisitorCookie = Constants.VisitorCookiePrefix + SiteId.ToString();
-            if (!int.TryParse(Context.Request.Cookies[VisitorCookie], out _visitorId))
+
+            if (_visitorId <= 0)
             {
                 // if enabled use IP Address correlation
-                _visitorId = -1;
                 var correlate = bool.Parse(settings.GetValue("VisitorCorrelation", "true"));
                 if (correlate)
                 {
@@ -339,12 +351,12 @@
                     if (visitor != null)
                     {
                         _visitorId = visitor.VisitorId;
-                        addcookie = true;
+                        setcookie = true;
                     }
                 }
             }
 
-            if (_visitorId == -1)
+            if (_visitorId <= 0)
             {
                 // create new visitor
                 visitor = new Visitor();
@@ -360,52 +372,59 @@
                 visitor.VisitedOn = DateTime.UtcNow;
                 visitor = VisitorRepository.AddVisitor(visitor);
                 _visitorId = visitor.VisitorId;
-                addcookie = true;
+                setcookie = true;
             }
             else
             {
-                if (visitor == null)
+                // check expiry
+                if (DateTime.UtcNow > expiry)
                 {
-                    // get visitor if it was not previously loaded
-                    visitor = VisitorRepository.GetVisitor(_visitorId);
-                }
-                if (visitor != null)
-                {
-                    // update visitor
-                    visitor.IPAddress = _remoteIPAddress;
-                    visitor.UserAgent = useragent;
-                    visitor.Language = language;
-                    visitor.Url = url;
-                    if (!string.IsNullOrEmpty(referrer))
+                    if (visitor == null)
                     {
-                        visitor.Referrer = referrer;
+                        // get visitor if not previously loaded
+                        visitor = VisitorRepository.GetVisitor(_visitorId);
                     }
-                    if (userid != null)
+                    if (visitor != null)
                     {
-                        visitor.UserId = userid;
+                        // update visitor
+                        visitor.IPAddress = _remoteIPAddress;
+                        visitor.UserAgent = useragent;
+                        visitor.Language = language;
+                        visitor.Url = url;
+                        if (!string.IsNullOrEmpty(referrer))
+                        {
+                            visitor.Referrer = referrer;
+                        }
+                        if (userid != null)
+                        {
+                            visitor.UserId = userid;
+                        }
+                        visitor.Visits += 1;
+                        visitor.VisitedOn = DateTime.UtcNow;
+                        VisitorRepository.UpdateVisitor(visitor);
+                        setcookie = true;
                     }
-                    visitor.Visits += 1;
-                    visitor.VisitedOn = DateTime.UtcNow;
-                    VisitorRepository.UpdateVisitor(visitor);
-                }
-                else
-                {
-                    // remove cookie if VisitorId does not exist
-                    Context.Response.Cookies.Delete(VisitorCookie);
+                    else
+                    {
+                        // remove cookie if visitor does not exist
+                        Context.Response.Cookies.Delete(visitorCookieName);
+                    }
                 }
             }
 
-            // append cookie
-            if (addcookie)
+            // set cookie
+            if (setcookie)
             {
+                expiry = DateTime.UtcNow.AddMinutes(int.Parse(settings.GetValue("VisitorDuration", "5")));
+
                 Context.Response.Cookies.Append(
-                    VisitorCookie,
-                    _visitorId.ToString(),
+                    visitorCookieName,
+                    $"{_visitorId}|{expiry}",
                     new CookieOptions()
-                        {
-                            Expires = DateTimeOffset.UtcNow.AddYears(1),
-                            IsEssential = true
-                        }
+                    {
+                        Expires = DateTimeOffset.UtcNow.AddYears(10),
+                        IsEssential = true
+                    }
                 );
             }
         }
