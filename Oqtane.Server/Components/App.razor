@@ -328,7 +328,7 @@
             var visitorCookieName = Constants.VisitorCookiePrefix + SiteId.ToString();
             var visitorCookieValue = Context.Request.Cookies[visitorCookieName];
             DateTime expiry = DateTime.MinValue;
-            if (visitorCookieValue.Contains("|"))
+            if (visitorCookieValue != null && visitorCookieValue.Contains("|"))
             {
                 var values = visitorCookieValue.Split('|');
                 int.TryParse(values[0], out _visitorId);
