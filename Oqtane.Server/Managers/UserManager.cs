@@ -85,7 +85,10 @@ namespace Oqtane.Managers
             List<UserRole> userroles = _userRoles.GetUserRoles(userId, siteId).ToList();
             foreach (UserRole userrole in userroles)
             {
-                roles += userrole.Role.Name + ";";
+                if (userrole.Role.Name == RoleNames.Host)
+                {
+                    roles += userrole.Role.Name + ";";
+                }
                 if (userrole.Role.Name == RoleNames.Host && !userroles.Any(item => item.Role.Name == RoleNames.Admin))
                 {
                     roles += RoleNames.Admin + ";";
@@ -94,6 +97,11 @@ namespace Oqtane.Managers
                 {
                     roles += RoleNames.Registered + ";";
                 }
+                if (Utilities.IsUserRoleValid(userrole.EffectiveDate, userrole.ExpiryDate))
+                {
+                    roles += userrole.Role.Name + ";";
+                }
+
             }
             if (roles != "") roles = ";" + roles;
             return roles;

@@ -582,6 +582,28 @@ namespace Oqtane.Shared
                 return true;
             }
         }
+        public static bool IsUserRoleValid(DateTime? effectiveDate, DateTime? expiryDate)
+        {
+            DateTime currentUtcTime = DateTime.UtcNow;
+
+            if (effectiveDate.HasValue && expiryDate.HasValue)
+            {
+                return currentUtcTime >= effectiveDate.Value && currentUtcTime <= expiryDate.Value;
+            }
+            else if (effectiveDate.HasValue)
+            {
+                return currentUtcTime >= effectiveDate.Value;
+            }
+            else if (expiryDate.HasValue)
+            {
+                // Include equality check here
+                return currentUtcTime <= expiryDate.Value;
+            }
+            else
+            {
+                return true;
+            }
+        }
         public static bool ValidateEffectiveExpiryDates(DateTime? effectiveDate, DateTime? expiryDate)
         {
             // Treat DateTime.MinValue as null
