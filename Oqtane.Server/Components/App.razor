@@ -216,10 +216,10 @@
                     }
 
                     // create initial PageState 
-                    _pageState = new PageState
+                    _pageState = new PageState(SiteService)
                     {
                         Alias = alias,
-                        Site = site,
+                        SiteId = site.SiteId,
                         Page = page,
                         User = null,
                         Uri = new Uri(url, UriKind.Absolute),

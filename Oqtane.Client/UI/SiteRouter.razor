@@ -280,10 +280,10 @@
                 (page, site.Modules) = ProcessModules(page, site.Modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType, SiteState.Alias);
 
                 // populate page state (which acts as a client-side cache for subsequent requests)
-                _pagestate = new PageState
+                _pagestate = new PageState(SiteService)
                 {
                     Alias = SiteState.Alias,
-                    Site = site,
+                    SiteId = site.SiteId,
                     Page = page,
                     User = user,
                     Uri = new Uri(_absoluteUri, UriKind.Absolute),

@@ -1,13 +1,31 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Oqtane.Models;
+using Oqtane.Services;
 
 namespace Oqtane.UI
 {
     public class PageState
     {
+        private readonly ISiteService _siteService;
+
+        public PageState(ISiteService siteService)
+        {
+            _siteService = siteService;
+        }
+
         public Alias Alias { get; set; }
-        public Site Site { get; set; }
+        public int SiteId { get; set; }
+
+        [JsonIgnore]
+        public Site Site
+        {
+            get
+            {
+                return _siteService.GetSiteAsync(SiteId).Result;
+            }
+        }
         public Page Page { get; set; }
         public User User { get; set; }
         public Uri Uri { get; set; }
@@ -27,14 +45,19 @@ namespace Oqtane.UI
         public Guid RenderId { get; set; }
         public bool Refresh {  get; set; }
 
+        [JsonIgnore]
         public List<Page> Pages
         {
             get { return Site.Pages; }
         }
+
+        [JsonIgnore]
         public List<Module> Modules
         {
             get { return Site.Modules; }
         }
+
+        [JsonIgnore]
         public List<Language> Languages
         {
             get { return Site.Languages; }
