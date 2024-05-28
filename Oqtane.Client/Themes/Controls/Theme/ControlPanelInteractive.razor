@@ -15,6 +15,7 @@
 @inject ILogService LoggingService
 @inject IStringLocalizer<ControlPanelInteractive> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject IServiceProvider ServiceProvider
 
 <button type="button" class="btn @ButtonClass ms-1" data-bs-toggle="offcanvas" data-bs-target="#offcanvasControlPanel" aria-controls="offcanvasControlPanel" @onclick="ClearMessage">
     <span class="oi oi-cog"></span>
@@ -93,9 +94,13 @@
                 <div class="row">
                     <div class="col text-center">
                         <label for="Module" class="control-label">@Localizer["Module.Manage"]</label>
-                        <select class="form-select" @bind="@_moduleType">
+                        <select class="form-select" @onchange="(e => ModuleTypeChanged(e))">
                             <option value="new">@Localizer["Module.AddNew"]</option>
-                            <option value="existing">@Localizer["Module.AddExisting"]</option>
+                            @if (PageState.Page.UserId == null)
+                            {
+                                <option value="add">@Localizer["Module.AddExisting"]</option>
+                                <option value="copy">@Localizer["Module.CopyExisting"]</option>
+                            }
                         </select>
                         @if (_moduleType == "new")
                         {
@@ -138,7 +143,7 @@
                         }
                         else
                         {
-                            <select class="form-select mt-1" @onchange="(e => PageChanged(e))">
+                            <select class="form-select mt-1" value="@_pageId" @onchange="(e => PageChanged(e))">
                                 <option value="-">&lt;@Localizer["Page.Select"]&gt;</option>
                                 @foreach (Page p in _pages)
                                 {
@@ -211,7 +216,7 @@
 
             <div class="row d-flex">
                 <div class="col">
-                    <button type="button" data-bs-dismiss="offcanvas" class="btn btn-secondary col-12" @onclick=@(async () => await LogoutUser())>@Localizer["Logout"]</button>
+                    <button type="button" data-bs-dismiss="offcanvas" class="btn btn-secondary col-12 mt-2" @onclick=@(async () => await LogoutUser())>@Localizer["Logout"]</button>
                 </div>
             </div>
         </div>
@@ -291,7 +296,7 @@
             _containerType = PageState.Site.DefaultContainerType;
             _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
             _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(_category)).ToList();
-            _categories = _allModuleDefinitions.SelectMany(m => m.Categories.Split(',')).Distinct().ToList();
+            _categories = _allModuleDefinitions.SelectMany(m => m.Categories.Split(',', StringSplitOptions.RemoveEmptyEntries)).Distinct().Where(item => item != "Headless").ToList();
         }
     }
 
@@ -334,6 +339,13 @@
         StateHasChanged();
     }
 
+    private void ModuleTypeChanged(ChangeEventArgs e)
+    {
+        _moduleType = (string)e.Value;
+        _pageId = "-";
+        _moduleId = "-";
+    }
+
     private void PageChanged(ChangeEventArgs e)
     {
         _pageId = (string)e.Value;
@@ -341,7 +353,8 @@
         {
             _modules = PageState.Modules
                 .Where(module => module.PageId == int.Parse(_pageId) &&
-                UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.PermissionList))
+                UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.PermissionList) &&
+                (_moduleType == "add" || module.ModuleDefinition.IsPortable))
                 .ToList();
         }
         _moduleId = "-";
@@ -354,6 +367,7 @@
         {
             if ((_moduleType == "new" && _moduleDefinitionName != "-") || (_moduleType != "new" && _moduleId != "-"))
             {
+                var newModuleId = _moduleId != "-" ? int.Parse(_moduleId) : 0;
                 if (_moduleType == "new")
                 {
                     Module module = new Module();
@@ -361,33 +375,37 @@
                     module.PageId = PageState.Page.PageId;
                     module.ModuleDefinitionName = _moduleDefinitionName;
                     module.AllPages = false;
-
-                    var permissions = new List<Permission>();
-                    if (_visibility == "view")
-                    {
-                        // set module view permissions to page view permissions
-                        permissions = SetPermissions(permissions, module.SiteId, PermissionNames.View, PermissionNames.View);
-                    }
-                    else
-                    {
-                        // set module view permissions to page edit permissions
-                        permissions = SetPermissions(permissions, module.SiteId, PermissionNames.View, PermissionNames.Edit);
-                    }
-                    // set module edit permissions to page edit permissions
-                    permissions = SetPermissions(permissions, module.SiteId, PermissionNames.Edit, PermissionNames.Edit);
-                    module.PermissionList = permissions;
+                    module.PermissionList = GenerateDefaultPermissions(module.SiteId);
 
                     module = await ModuleService.AddModuleAsync(module);
-                    _moduleId = module.ModuleId.ToString();
+                    newModuleId = module.ModuleId;
+                }
+                else if (_moduleType == "copy")
+                {
+                    var module = await ModuleService.GetModuleAsync(int.Parse(_moduleId));
+                    module.ModuleId = 0;
+                    module.SiteId = PageState.Site.SiteId;
+                    module.PageId = PageState.Page.PageId;
+                    module.AllPages = false;
+                    module.PermissionList = GenerateDefaultPermissions(module.SiteId);
+
+                    module = await ModuleService.AddModuleAsync(module);
+                    var moduleContent = await ModuleService.ExportModuleAsync(int.Parse(_moduleId), PageState.Page.PageId);
+                    if (!string.IsNullOrEmpty(moduleContent))
+                    {
+                        await ModuleService.ImportModuleAsync(module.ModuleId, PageState.Page.PageId, moduleContent);
+                    }
+
+                    newModuleId = module.ModuleId;
                 }
 
                 var pageModule = new PageModule
                     {
                         PageId = PageState.Page.PageId,
-                        ModuleId = int.Parse(_moduleId),
+                        ModuleId = newModuleId,
                         Title = _title
                     };
-                if (pageModule.Title == "")
+                if (string.IsNullOrEmpty(pageModule.Title))
                 {
                     if (_moduleType == "new")
                     {
@@ -412,9 +430,16 @@
                 await PageModuleService.UpdatePageModuleOrderAsync(pageModule.PageId, pageModule.Pane);
                 await UpdateSettingsAsync();
 
-                _message = $"<div class=\"alert alert-success mt-2 text-center\" role=\"alert\">{Localizer["Success.Page.ModuleAdd"]}</div>";
-                _title = "";
-                NavigationManager.NavigateTo(Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, ""));
+                if (PageState.RenderMode == RenderModes.Interactive)
+                {
+                    _message = $"<div class=\"alert alert-success mt-2 text-center\" role=\"alert\">{Localizer["Success.Page.ModuleAdd"]}</div>";
+                    _title = "";
+                    NavigationManager.NavigateTo(Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, ""));
+                }
+                else // reload page in static rendering
+                {
+                    NavigationManager.NavigateTo(Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, ""), true);
+                }
             }
             else
             {
@@ -425,6 +450,25 @@
         {
             _message = $"<div class=\"alert alert-error mt-2 text-center\" role=\"alert\">{Localizer["Error.Authorize.No"]}</div>";
         }
+    }
+
+    private List<Permission> GenerateDefaultPermissions(int siteId)
+    {
+        var permissions = new List<Permission>();
+        if (_visibility == "view")
+        {
+            // set module view permissions to page view permissions
+            permissions = SetPermissions(permissions, siteId, PermissionNames.View, PermissionNames.View);
+        }
+        else
+        {
+            // set module view permissions to page edit permissions
+            permissions = SetPermissions(permissions, siteId, PermissionNames.View, PermissionNames.Edit);
+        }
+        // set module edit permissions to page edit permissions
+        permissions = SetPermissions(permissions, siteId, PermissionNames.Edit, PermissionNames.Edit);
+
+        return permissions;
     }
 
     private List<Permission> SetPermissions(List<Permission> permissions, int siteId, string modulePermission, string pagePermission)

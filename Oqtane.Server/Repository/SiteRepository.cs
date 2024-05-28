@@ -165,22 +165,23 @@ namespace Oqtane.Repository
                     if (!serverstate.IsInitialized)
                     {
                         var site = GetSite(alias.SiteId);
-
-                        // initialize theme Assemblies
-                        site.Themes = _themeRepository.GetThemes().ToList();
-
-                        // initialize module Assemblies
-                        var moduleDefinitions = _moduleDefinitionRepository.GetModuleDefinitions(alias.SiteId);
-
-                        // execute migrations
-                        var version = ProcessSiteMigrations(alias, site);
-                        version = ProcessPageTemplates(alias, site, moduleDefinitions, version);
-                        if (site.Version != version)
+                        if (site != null)
                         {
-                            site.Version = version;
-                            UpdateSite(site);
-                        }
+                            // initialize theme Assemblies
+                            site.Themes = _themeRepository.GetThemes().ToList();
 
+                            // initialize module Assemblies
+                            var moduleDefinitions = _moduleDefinitionRepository.GetModuleDefinitions(alias.SiteId);
+
+                            // execute migrations
+                            var version = ProcessSiteMigrations(alias, site);
+                            version = ProcessPageTemplates(alias, site, moduleDefinitions, version);
+                            if (site.Version != version)
+                            {
+                                site.Version = version;
+                                UpdateSite(site);
+                            }
+                        }
                         serverstate.IsInitialized = true;
                     }
                 }
@@ -411,7 +412,7 @@ namespace Oqtane.Repository
                         }
                         else
                         {
-                            parent = pages.FirstOrDefault(item => item.Path.ToLower() == pageTemplate.Parent.ToLower());
+                            parent = pages.FirstOrDefault(item => item.Path.ToLower() == ((pageTemplate.Parent == "/") ? "" : pageTemplate.Parent.ToLower()));
                         }
                         page.ParentId = (parent != null) ? parent.PageId : null;
                         page.Path = page.Path.ToLower();
@@ -487,7 +488,11 @@ namespace Oqtane.Repository
                                 pageModule.Order = (pageTemplateModule.Order == 0) ? 1 : pageTemplateModule.Order;
                                 pageModule.ContainerType = pageTemplateModule.ContainerType;
                                 pageModule.IsDeleted = pageTemplateModule.IsDeleted;
-                                pageModule.Module.PermissionList = pageTemplateModule.PermissionList;
+                                pageModule.Module.PermissionList = new List<Permission>();
+                                foreach (var permission in pageTemplateModule.PermissionList)
+                                {
+                                    pageModule.Module.PermissionList.Add(permission.Clone(permission));
+                                }
                                 pageModule.Module.AllPages = false;
                                 pageModule.Module.IsDeleted = false;
                                 try
@@ -539,8 +544,11 @@ namespace Oqtane.Repository
                                         try
                                         {
                                             var module = _moduleRepository.GetModule(pageModule.ModuleId);
-                                            var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
-                                            ((IPortable)moduleobject).ImportModule(module, pageTemplateModule.Content, moduleDefinition.Version);
+                                            if (module != null)
+                                            {
+                                                var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
+                                                ((IPortable)moduleobject).ImportModule(module, pageTemplateModule.Content, moduleDefinition.Version);
+                                            }
                                         }
                                         catch (Exception ex)
                                         {

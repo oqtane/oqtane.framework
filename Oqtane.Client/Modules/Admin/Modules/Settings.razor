@@ -94,7 +94,7 @@
                 </div>
             }
         </TabPanel>
-        <TabPanel Name="Permissions" ResourceKey="Permissions">
+        <TabPanel Name="Permissions" Heading="Permissions" ResourceKey="Permissions">
             @if (_permissions != null)
             {
                 <div class="container">
@@ -126,9 +126,8 @@
     <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
 </form>
 
-    @code {
+@code {
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
-    public override string Title => "Module Settings";
 
     private ElementReference form;
     private bool validated = false;
@@ -144,7 +143,7 @@
     private PermissionGrid _permissionGrid;
     private Type _moduleSettingsType;
     private object _moduleSettings;
-    private string _moduleSettingsTitle = "Module Settings";
+    private string _moduleSettingsTitle;
     private RenderFragment ModuleSettingsComponent { get; set; }
     private Type _containerSettingsType;
     private object _containerSettings;
@@ -158,8 +157,10 @@
 
     protected override void OnInitialized()
     {
+        SetModuleTitle(Localizer["ModuleSettings.Title"]);
         _module = ModuleState.ModuleDefinition.Name;
         _title = ModuleState.Title;
+        _moduleSettingsTitle = Localizer["ModuleSettings.Heading"];
         _pane = ModuleState.Pane;
         _containers = ThemeService.GetContainerControls(PageState.Site.Themes, PageState.Page.ThemeType);
         _containerType = ModuleState.ContainerType;
@@ -172,7 +173,8 @@
         modifiedon = ModuleState.ModifiedOn;
         _effectivedate = Utilities.UtcAsLocalDate(ModuleState.EffectiveDate);
         _expirydate = Utilities.UtcAsLocalDate(ModuleState.ExpiryDate);
-
+        
+        
         if (ModuleState.ModuleDefinition != null)
         {
             _permissionNames = ModuleState.ModuleDefinition?.PermissionNames;

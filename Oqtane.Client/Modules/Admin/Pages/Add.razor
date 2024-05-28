@@ -198,12 +198,6 @@
                     </div>
                 </div>
             </TabPanel>
-            @if (_themeSettingsType != null)
-            {
-                <TabPanel Name="ThemeSettings" Heading=@Localizer["Theme.Heading"] ResourceKey="ThemeSettings">
-                    @_themeSettingsComponent
-                </TabPanel>
-            }
         </TabStrip>
         <br />
         <button type="button" class="btn btn-success" @onclick="SavePage">@SharedLocalizer["Save"]</button>
@@ -238,9 +232,6 @@
     private string _bodycontent;
     private string _permissions = null;
     private PermissionGrid _permissionGrid;
-    private Type _themeSettingsType;
-    private object _themeSettings;
-    private RenderFragment _themeSettingsComponent { get; set; }
     private bool _refresh = false;
     protected Page _parent = null;
     protected Dictionary<string, string> _icons;
@@ -281,7 +272,6 @@
                 }
                 _effectivedate = Utilities.UtcAsLocalDate(PageState.Page.EffectiveDate);
                 _expirydate = Utilities.UtcAsLocalDate(PageState.Page.ExpiryDate);
-                ThemeSettings();
                 _initialized = true;
             }
             else
@@ -324,35 +314,12 @@
         _themetype = (string)e.Value;
         _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
         _containertype = _containers.First().TypeName;
-        ThemeSettings();
         StateHasChanged();
 
         // if theme chosen is different than default site theme, display warning message to user
         if (ThemeService.GetTheme(PageState.Site.Themes, _themetype)?.ThemeName != ThemeService.GetTheme(PageState.Site.Themes, PageState.Site.DefaultThemeType)?.ThemeName)
         {
             AddModuleMessage(Localizer["ThemeChanged.Message"], MessageType.Warning);
-        }
-    }
-
-    private void ThemeSettings()
-    {
-        _themeSettingsType = null;
-        _themeSettingsComponent = null;
-        var theme = PageState.Site.Themes.FirstOrDefault(item => item.Themes.Any(themecontrol => themecontrol.TypeName.Equals(_themetype)));
-        if (theme != null && !string.IsNullOrEmpty(theme.ThemeSettingsType))
-        {
-            _themeSettingsType = Type.GetType(theme.ThemeSettingsType);
-            if (_themeSettingsType != null)
-            {
-                _themeSettingsComponent = builder =>
-                {
-                    builder.OpenComponent(0, _themeSettingsType);
-                    builder.AddAttribute(1, "RenderModeBoundary", RenderModeBoundary);
-                    builder.AddComponentReferenceCapture(2, inst => { _themeSettings = Convert.ChangeType(inst, _themeSettingsType); });
-                    builder.CloseComponent();
-                };
-            }
-            _refresh = true;
         }
     }
 
@@ -482,11 +449,11 @@
                     await logger.LogInformation("Page Added {Page}", page);
                     if (!string.IsNullOrEmpty(PageState.ReturnUrl))
                     {
-                        NavigationManager.NavigateTo(PageState.ReturnUrl, true);
+                        NavigationManager.NavigateTo(page.Path, true); // redirect to page added and reload
                     }
                     else
                     {
-                        NavigationManager.NavigateTo(page.Path); // redirect to new page created
+                        NavigationManager.NavigateTo(NavigateUrl()); // redirect to page management
                     }
                 }
                 else

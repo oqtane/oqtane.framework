@@ -1,13 +1,17 @@
 @namespace Oqtane.UI
 @inject SiteState SiteState
 
-@if (PageState.RenderMode == RenderModes.Interactive || ModuleState.RenderMode == RenderModes.Static)
+@if (_comment != null)
 {
-    <RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" />
-}
-else
-{
-    <RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" @rendermode="@InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, PageState.Site.Prerender)" />
+    @((MarkupString)_comment)
+    @if (PageState.RenderMode == RenderModes.Interactive || ModuleState.RenderMode == RenderModes.Static)
+    {
+        <RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" />
+    }
+    else
+    {
+        <RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, _prerender)" />
+    }
 }
 
 @code {
@@ -19,6 +23,24 @@ else
 
     [CascadingParameter]
     private Module ModuleState { get; set; }
+
+    private bool _prerender;
+    private string _comment;
+
+    protected override void OnParametersSet()
+    {
+        _prerender = ModuleState.Prerender ?? PageState.Site.Prerender;
+        _comment = "<!-- rendermode: ";
+        if (PageState.RenderMode == RenderModes.Static && ModuleState.RenderMode == RenderModes.Static)
+        {
+            _comment += RenderModes.Static;
+        }
+        else
+        {
+            _comment += $"{RenderModes.Interactive}:{PageState.Runtime} - prerender: {_prerender}";
+        }
+        _comment += " -->";
+    }
 
 
     [Obsolete("AddModuleMessage is deprecated. Use AddModuleMessage in ModuleBase instead.", false)]

@@ -8,6 +8,7 @@ using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using System.Net;
 using System;
+using System.Globalization;
 
 namespace Oqtane.Controllers
 {
@@ -33,7 +34,7 @@ namespace Oqtane.Controllers
             int SiteId;
             if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
             {
-                return _visitors.GetVisitors(SiteId, DateTime.Parse(fromdate));
+                return _visitors.GetVisitors(SiteId, DateTime.ParseExact(fromdate, "yyyy-MM-dd", CultureInfo.InvariantCulture));
             }
             else
             {

@@ -16,6 +16,7 @@
 @using Oqtane.Shared
 @using Oqtane.Themes
 @using Oqtane.Extensions
+@using System.Globalization
 @inject NavigationManager NavigationManager
 @inject IAntiforgery Antiforgery
 @inject IConfigManager ConfigManager
@@ -39,7 +40,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="/" />
         <link rel="stylesheet" href="css/app.css" />
-        @if (!string.IsNullOrEmpty(_PWAScript))
+        @if (_scripts.Contains("PWA Manifest"))
         {
             <link id="app-manifest" rel="manifest" />
         }
@@ -68,20 +69,13 @@
                 <Routes PageState="@_pageState" RenderMode="@_renderMode" Runtime="@_runtime" AntiForgeryToken="@_antiForgeryToken" AuthorizationToken="@_authorizationToken" Platform="@_platform" @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(_runtime, _prerender)" />
             }
 
-            @if (!string.IsNullOrEmpty(_reconnectScript))
-            {
-                @((MarkupString)_reconnectScript)
-            }
-            @if (!string.IsNullOrEmpty(_PWAScript))
-            {
-                @((MarkupString)_PWAScript)
-            }
-            @((MarkupString)_bodyResources)
-
+            <script src="_framework/blazor.web.js"></script>
             <script src="js/app.js"></script>
             <script src="js/loadjs.min.js"></script>
             <script src="js/interop.js"></script>
-            <script src="_framework/blazor.web.js"></script>
+
+            @((MarkupString)_scripts)
+            @((MarkupString)_bodyResources)
         }
         else
         {
@@ -105,8 +99,7 @@
     private string _headResources = "";
     private string _bodyResources = "";
     private string _styleSheets = "";
-    private string _PWAScript = "";
-    private string _reconnectScript = "";
+    private string _scripts = "";
     private string _message = "";
     private PageState _pageState;
 
@@ -175,23 +168,25 @@
                         CreateJwtToken(alias);
                     }
 
-                    // include stylesheets to prevent FOUC
-                    var resources = GetPageResources(alias, site, page, int.Parse(route.ModuleId), route.Action);
+                    // includes resources
+                    var resources = GetPageResources(alias, site, page, int.Parse(route.ModuleId, CultureInfo.InvariantCulture), route.Action);
                     ManageStyleSheets(resources);
+                    ManageScripts(resources, alias);
 
-                    // scripts
-                    if (_renderMode == RenderModes.Static)
-                    {
-                        ManageScripts(resources, alias);
-                    }
+                    // generate scripts
                     if (_renderMode == RenderModes.Interactive && _runtime == Runtimes.Server)
                     {
-                        _reconnectScript = CreateReconnectScript();
+                        _scripts += CreateReconnectScript();
                     }
                     if (site.PwaIsEnabled && site.PwaAppIconFileId != null && site.PwaSplashIconFileId != null)
                     {
-                        _PWAScript = CreatePWAScript(alias, site, route);
+                        _scripts += CreatePWAScript(alias, site, route);
                     }
+                    @if (_renderMode == RenderModes.Static)
+                    {
+                        _scripts += CreateScrollPositionScript();
+                    }
+
                     _headResources += ParseScripts(site.HeadContent);
                     _bodyResources += ParseScripts(site.BodyContent);
 
@@ -329,14 +324,26 @@
             int? userid = Context.User.UserId();
             userid = (userid == -1) ? null : userid;
 
-            // check if cookie already exists
+            // get cookie value
+            var visitorCookieName = Constants.VisitorCookiePrefix + SiteId.ToString();
+            var visitorCookieValue = Context.Request.Cookies[visitorCookieName];
+            DateTime expiry = DateTime.MinValue;
+            if (visitorCookieValue != null && visitorCookieValue.Contains("|"))
+            {
+                var values = visitorCookieValue.Split('|');
+                int.TryParse(values[0], out _visitorId);
+                DateTime.TryParse(values[1], out expiry);
+            }
+            else // legacy cookie format
+            {
+                int.TryParse(visitorCookieValue, out _visitorId);
+            }
+            bool setcookie = false;
             Visitor visitor = null;
-            bool addcookie = false;
-            var VisitorCookie = Constants.VisitorCookiePrefix + SiteId.ToString();
-            if (!int.TryParse(Context.Request.Cookies[VisitorCookie], out _visitorId))
+
+            if (_visitorId <= 0)
             {
                 // if enabled use IP Address correlation
-                _visitorId = -1;
                 var correlate = bool.Parse(settings.GetValue("VisitorCorrelation", "true"));
                 if (correlate)
                 {
@@ -344,12 +351,12 @@
                     if (visitor != null)
                     {
                         _visitorId = visitor.VisitorId;
-                        addcookie = true;
+                        setcookie = true;
                     }
                 }
             }
 
-            if (_visitorId == -1)
+            if (_visitorId <= 0)
             {
                 // create new visitor
                 visitor = new Visitor();
@@ -365,52 +372,59 @@
                 visitor.VisitedOn = DateTime.UtcNow;
                 visitor = VisitorRepository.AddVisitor(visitor);
                 _visitorId = visitor.VisitorId;
-                addcookie = true;
+                setcookie = true;
             }
             else
             {
-                if (visitor == null)
+                // check expiry
+                if (DateTime.UtcNow > expiry)
                 {
-                    // get visitor if it was not previously loaded
-                    visitor = VisitorRepository.GetVisitor(_visitorId);
-                }
-                if (visitor != null)
-                {
-                    // update visitor
-                    visitor.IPAddress = _remoteIPAddress;
-                    visitor.UserAgent = useragent;
-                    visitor.Language = language;
-                    visitor.Url = url;
-                    if (!string.IsNullOrEmpty(referrer))
+                    if (visitor == null)
                     {
-                        visitor.Referrer = referrer;
+                        // get visitor if not previously loaded
+                        visitor = VisitorRepository.GetVisitor(_visitorId);
                     }
-                    if (userid != null)
+                    if (visitor != null)
                     {
-                        visitor.UserId = userid;
+                        // update visitor
+                        visitor.IPAddress = _remoteIPAddress;
+                        visitor.UserAgent = useragent;
+                        visitor.Language = language;
+                        visitor.Url = url;
+                        if (!string.IsNullOrEmpty(referrer))
+                        {
+                            visitor.Referrer = referrer;
+                        }
+                        if (userid != null)
+                        {
+                            visitor.UserId = userid;
+                        }
+                        visitor.Visits += 1;
+                        visitor.VisitedOn = DateTime.UtcNow;
+                        VisitorRepository.UpdateVisitor(visitor);
+                        setcookie = true;
                     }
-                    visitor.Visits += 1;
-                    visitor.VisitedOn = DateTime.UtcNow;
-                    VisitorRepository.UpdateVisitor(visitor);
-                }
-                else
-                {
-                    // remove cookie if VisitorId does not exist
-                    Context.Response.Cookies.Delete(VisitorCookie);
+                    else
+                    {
+                        // remove cookie if visitor does not exist
+                        Context.Response.Cookies.Delete(visitorCookieName);
+                    }
                 }
             }
 
-            // append cookie
-            if (addcookie)
+            // set cookie
+            if (setcookie)
             {
+                expiry = DateTime.UtcNow.AddMinutes(int.Parse(settings.GetValue("VisitorDuration", "5")));
+
                 Context.Response.Cookies.Append(
-                    VisitorCookie,
-                    _visitorId.ToString(),
+                    visitorCookieName,
+                    $"{_visitorId}|{expiry}",
                     new CookieOptions()
-                        {
-                            Expires = DateTimeOffset.UtcNow.AddYears(1),
-                            IsEssential = true
-                        }
+                    {
+                        Expires = DateTimeOffset.UtcNow.AddYears(10),
+                        IsEssential = true
+                    }
                 );
             }
         }
@@ -432,7 +446,7 @@
 
     private string CreatePWAScript(Alias alias, Site site, Route route)
     {
-        return
+        return Environment.NewLine +
         "<script>" + Environment.NewLine +
         "    // PWA Manifest" + Environment.NewLine +
         "    setTimeout(() => {" + Environment.NewLine +
@@ -468,14 +482,14 @@
         "            console.log('ServiceWorker Registration Failed ', err);" + Environment.NewLine +
         "        });" + Environment.NewLine +
         "    };" + Environment.NewLine +
-        "</script>";
+        "</script>" + Environment.NewLine;
     }
 
     private string CreateReconnectScript()
     {
-        return
+        return Environment.NewLine +
         "<script>" + Environment.NewLine +
-        "    // Blazor Server Reconnect" + Environment.NewLine +
+        "    // Interactive Blazor Server Reconnect" + Environment.NewLine +
         "    new MutationObserver((mutations, observer) => {" + Environment.NewLine +
         "        if (document.querySelector('#components-reconnect-modal h5 a')) {" + Environment.NewLine +
         "            async function attemptReload() {" + Environment.NewLine +
@@ -487,7 +501,26 @@
         "            setInterval(attemptReload, 5000);" + Environment.NewLine +
         "        }" + Environment.NewLine +
         "    }).observe(document.body, { childList: true, subtree: true });" + Environment.NewLine +
-        "</script>";
+        "</script>" + Environment.NewLine;
+    }
+
+    private string CreateScrollPositionScript()
+    {
+        return Environment.NewLine +
+        "<script>" + Environment.NewLine +
+        "    // Blazor Static Rendering Scroll Position" + Environment.NewLine +
+        "    window.interceptNavigation = () => {" + Environment.NewLine +
+        "        let currentUrl = window.location.href;" + Environment.NewLine +
+        "        Blazor.addEventListener('enhancedload', () => {" + Environment.NewLine +
+        "            let newUrl = window.location.href;" + Environment.NewLine +
+        "            if (currentUrl != newUrl) {" + Environment.NewLine +
+        "                window.scrollTo({ top: 0, left: 0, behavior: 'instant' });" + Environment.NewLine +
+        "            }" + Environment.NewLine +
+        "            currentUrl = newUrl;" + Environment.NewLine +
+        "        });" + Environment.NewLine +
+        "    };" + Environment.NewLine +
+        "    document.onload += window.interceptNavigation();" + Environment.NewLine +
+        "</script>" + Environment.NewLine;
     }
 
     private string ParseScripts(string content)
@@ -536,7 +569,7 @@
                     ((!string.IsNullOrEmpty(resource.Integrity)) ? " integrity=\"" + resource.Integrity + "\"" : "") +
                     ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
                     ((resource.ES6Module) ? " type=\"module\"" : "") +
-                    " src =\"" + url + "\"></script>"; // src at end of element due to enhanced navigation patch algorithm
+                    " src=\"" + url + "\"></script>"; // src at end of element due to enhanced navigation patch algorithm
             }
             else
             {
@@ -566,13 +599,13 @@
         var theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == themeType));
         if (theme != null)
         {
-            resources = AddResources(resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName));
+            resources = AddResources(resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName), site.RenderMode);
         }
         else
         {
             // fallback to default Oqtane theme
             theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == Constants.DefaultTheme));
-            resources = AddResources(resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName));
+            resources = AddResources(resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName), site.RenderMode);
         }
         var type = Type.GetType(themeType);
         if (type != null)
@@ -580,7 +613,7 @@
             var obj = Activator.CreateInstance(type) as IThemeControl;
             if (obj != null)
             {
-                resources = AddResources(resources, obj.Resources, ResourceLevel.Page, alias, "Themes", type.Namespace);
+                resources = AddResources(resources, obj.Resources, ResourceLevel.Page, alias, "Themes", type.Namespace, site.RenderMode);
             }
         }
 
@@ -589,7 +622,7 @@
             var typename = "";
             if (module.ModuleDefinition != null)
             {
-                resources = AddResources(resources, module.ModuleDefinition.Resources, ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName));
+                resources = AddResources(resources, module.ModuleDefinition.Resources, ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName), site.RenderMode);
 
                 // handle default action
                 if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
@@ -635,7 +668,7 @@
                 var obj = Activator.CreateInstance(moduletype) as IModuleControl;
                 if (obj != null)
                 {
-                    resources = AddResources(resources, obj.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace);
+                    resources = AddResources(resources, obj.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, site.RenderMode);
                     if (action.ToLower() == "settings" && module.ModuleDefinition != null)
                     {
                         // settings components are embedded within a framework settings module
@@ -643,7 +676,7 @@
                         if (moduletype != null)
                         {
                             obj = Activator.CreateInstance(moduletype) as IModuleControl;
-                            resources = AddResources(resources, obj.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace);
+                            resources = AddResources(resources, obj.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, site.RenderMode);
                         }
                     }
                 }
@@ -656,32 +689,35 @@
         {
             if (module.ModuleDefinition?.Resources != null)
             {
-                resources = AddResources(resources, module.ModuleDefinition.Resources.Where(item => item.Level == ResourceLevel.Site).ToList(), ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName));
+                resources = AddResources(resources, module.ModuleDefinition.Resources.Where(item => item.ResourceType == ResourceType.Script && item.Level == ResourceLevel.Site).ToList(), ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName), site.RenderMode);
             }
         }
 
         return resources;
     }
 
-    private List<Resource> AddResources(List<Resource> pageresources, List<Resource> resources, ResourceLevel level, Alias alias, string type, string name)
+    private List<Resource> AddResources(List<Resource> pageresources, List<Resource> resources, ResourceLevel level, Alias alias, string type, string name, string rendermode)
     {
         if (resources != null)
         {
             foreach (var resource in resources)
             {
-                if (resource.Url.StartsWith("~"))
+                if (rendermode == RenderModes.Static || resource.ResourceType == ResourceType.Stylesheet || resource.Level == ResourceLevel.Site)
                 {
-                    resource.Url = resource.Url.Replace("~", "/" + type + "/" + name + "/").Replace("//", "/");
-                }
-                if (!resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
-                {
-                    resource.Url = alias.BaseUrl + resource.Url;
-                }
+                    if (resource.Url.StartsWith("~"))
+                    {
+                        resource.Url = resource.Url.Replace("~", "/" + type + "/" + name + "/").Replace("//", "/");
+                    }
+                    if (!resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
+                    {
+                        resource.Url = alias.BaseUrl + resource.Url;
+                    }
 
-                // ensure resource does not exist already
-                if (!pageresources.Exists(item => item.Url.ToLower() == resource.Url.ToLower()))
-                {
-                    pageresources.Add(resource.Clone(level, name));
+                    // ensure resource does not exist already
+                    if (!pageresources.Exists(item => item.Url.ToLower() == resource.Url.ToLower()))
+                    {
+                        pageresources.Add(resource.Clone(level, name));
+                    }
                 }
             }
         }
@@ -692,6 +728,7 @@
     {
         if (resources != null)
         {
+            // include stylesheets to prevent FOUC
             string batch = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
             int count = 0;
             foreach (var resource in resources.Where(item => item.ResourceType == ResourceType.Stylesheet))

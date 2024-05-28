@@ -44,9 +44,10 @@ namespace Oqtane.Shared
             string querystring = "";
             string fragment = "";
 
+            if (!string.IsNullOrEmpty(path) && !path.StartsWith("/")) path = "/" + path;
+
             if (!string.IsNullOrEmpty(parameters))
             {
-                // parse parameters
                 (string urlparameters, querystring, fragment) = ParseParameters(parameters);
                 if (!string.IsNullOrEmpty(urlparameters))
                 {
@@ -138,6 +139,9 @@ namespace Oqtane.Shared
 
         public static string FormatContent(string content, Alias alias, string operation)
         {
+            if (string.IsNullOrEmpty(content) || alias == null)
+                return content;
+
             var aliasUrl = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path : "";
             switch (operation)
             {

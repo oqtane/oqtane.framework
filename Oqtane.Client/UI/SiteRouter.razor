@@ -1,6 +1,7 @@
 @using System.Diagnostics.CodeAnalysis
 @using System.Net
 @using Microsoft.AspNetCore.Http
+@using System.Globalization
 @namespace Oqtane.UI
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject SiteState SiteState
@@ -103,7 +104,7 @@
         _error = "";
 
         Route route = new Route(_absoluteUri, SiteState.Alias.Path);
-        int moduleid = int.Parse(route.ModuleId);
+        int moduleid = int.Parse(route.ModuleId, CultureInfo.InvariantCulture);
         var action = route.Action; 
 
         var querystring = Utilities.ParseQueryString(route.Query);
@@ -263,7 +264,7 @@
                     }
                     else
                     {
-                        editmode = (page.PageId == ((user.Settings.ContainsKey("CP-editmode")) ? int.Parse(user.Settings["CP-editmode"]) : -1));
+                        editmode = (page.PageId == ((user.Settings.ContainsKey("CP-editmode")) ? int.Parse(user.Settings["CP-editmode"], CultureInfo.InvariantCulture) : -1));
                         if (!editmode)
                         {
                             var userSettings = new Dictionary<string, string> { { "CP-editmode", "-1" } };
@@ -476,6 +477,7 @@
                 // retrieve module component resources
                 var moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
                 module.RenderMode = moduleobject.RenderMode;
+                module.Prerender = moduleobject.Prerender;
 
                 page.Resources = ManagePageResources(page.Resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules",  moduletype.Namespace);
                 if (action.ToLower() == "settings" && module.ModuleDefinition != null)
@@ -549,7 +551,7 @@
         {
             foreach (var resource in resources)
             {
-                if (resource.Level != ResourceLevel.Site)
+                if (resource.ResourceType == ResourceType.Stylesheet || resource.Level != ResourceLevel.Site)
                 {
                     if (resource.Url.StartsWith("~"))
                     {

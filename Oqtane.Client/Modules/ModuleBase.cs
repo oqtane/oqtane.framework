@@ -52,6 +52,8 @@ namespace Oqtane.Modules
 
         public virtual string RenderMode { get { return RenderModes.Interactive; } } // interactive by default
 
+        public virtual bool? Prerender { get { return null; } } // allows the Site Prerender property to be overridden
+
         // url parameters
         public virtual string UrlParametersTemplate { get; set; }
 
@@ -276,7 +278,6 @@ namespace Oqtane.Modules
 
         public void AddModuleMessage(string message, MessageType type, string position)
         {
-            ClearModuleMessage();
             RenderModeBoundary.AddModuleMessage(message, type, position);
         }
 

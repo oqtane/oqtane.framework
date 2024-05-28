@@ -159,4 +159,7 @@
   <data name="Url" xml:space="preserve">
     <value>Url</value>
   </data>
+  <data name="Edit.Text" xml:space="preserve">
+    <value>Edit</value>
+  </data>
 </root>

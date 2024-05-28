@@ -216,6 +216,7 @@ namespace Oqtane
             app.UseCors();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseAntiforgery();
 
             if (_useSwagger)
             {
