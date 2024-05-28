@@ -491,18 +491,8 @@ namespace Oqtane.Repository
                                 pageModule.Module.PermissionList = new List<Permission>();
                                 foreach (var permission in pageTemplateModule.PermissionList)
                                 {
-                                    pageModule.Module.PermissionList.Add(new Permission
-                                    {
-                                        SiteId = permission.SiteId,
-                                        EntityName = permission.EntityName,
-                                        EntityId = permission.EntityId,
-                                        PermissionName = permission.PermissionName,
-                                        RoleName = permission.RoleName,
-                                        UserId = permission.UserId,
-                                        IsAuthorized = permission.IsAuthorized
-                                    });
+                                    pageModule.Module.PermissionList.Add(permission.Clone(permission));
                                 }
-                                //pageModule.Module.PermissionList = pageTemplateModule.PermissionList;
                                 pageModule.Module.AllPages = false;
                                 pageModule.Module.IsDeleted = false;
                                 try
