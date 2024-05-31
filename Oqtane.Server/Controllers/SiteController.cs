@@ -81,5 +81,12 @@ namespace Oqtane.Controllers
         {
             await _siteService.DeleteSiteAsync(id);
         }
+
+        // GET api/<controller>/modules/5/6
+        [HttpGet("modules/{siteId}/{pageId}")]
+        public async Task<IEnumerable<Module>> GetModules(int siteId, int pageId)
+        {
+            return await _siteService.GetModulesAsync(siteId, pageId);
+        }
     }
 }

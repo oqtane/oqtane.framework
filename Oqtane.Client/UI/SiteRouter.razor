@@ -96,6 +96,7 @@
     {
         Site site = null;
         Page page = null;
+        List<Module> modules = null;
         User user = null;
         var editmode = false;
         var refresh = false;
@@ -273,11 +274,21 @@
                     }
                 }
 
+                // get modules for current page
+                if (PageState.Modules == null || PageState.Modules.First().PageId != page.PageId)
+                {
+                    modules = await SiteService.GetModulesAsync(site.SiteId, page.PageId);
+                }
+                else
+                {
+                    modules = PageState.Modules;
+                }
+
                 // load additional metadata for current page
                 page = ProcessPage(page, site, user, SiteState.Alias);
 
                 // load additional metadata for modules
-                (page, site.Modules) = ProcessModules(page, site.Modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType, SiteState.Alias);
+                (page, modules) = ProcessModules(page, modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType, SiteState.Alias);
 
                 // populate page state (which acts as a client-side cache for subsequent requests)
                 _pagestate = new PageState
@@ -285,6 +296,7 @@
                     Alias = SiteState.Alias,
                     Site = site,
                     Page = page,
+                    Modules = modules,
                     User = user,
                     Uri = new Uri(_absoluteUri, UriKind.Absolute),
                     Route = route,
