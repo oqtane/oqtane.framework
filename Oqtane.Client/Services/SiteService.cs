@@ -41,6 +41,11 @@ namespace Oqtane.Services
             await DeleteAsync($"{Apiurl}/{siteId}");
         }
 
+        public async Task<List<Module>> GetModulesAsync(int siteId, int pageId)
+        {
+            return await GetJsonAsync<List<Module>>($"{Apiurl}/modules/{siteId}/{pageId}");
+        }
+
         [Obsolete("This method is deprecated.", false)]
         public void SetAlias(Alias alias)
         {

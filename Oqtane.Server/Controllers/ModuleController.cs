@@ -9,7 +9,6 @@ using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Security;
 using System.Net;
-using System.Security.Policy;
 
 namespace Oqtane.Controllers
 {

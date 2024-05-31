@@ -482,27 +482,19 @@
 
     private void Navigate(string location)
     {
-        Module module;
+        int moduleId;
         switch (location)
         {
             case "Admin":
                 // get admin dashboard moduleid
-                module = PageState.Modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.AdminDashboardModule);
-                if (module != null)
-                {
-                    NavigationManager.NavigateTo(Utilities.EditUrl(PageState.Alias.Path, "admin", module.ModuleId, "Index", "returnurl=" + WebUtility.UrlEncode(PageState.Route.PathAndQuery)));
-                }
+                moduleId = int.Parse(PageState.Site.Settings[Constants.AdminDashboardModule]);
+                NavigationManager.NavigateTo(Utilities.EditUrl(PageState.Alias.Path, "admin", moduleId, "Index", "returnurl=" + WebUtility.UrlEncode(PageState.Route.PathAndQuery)));
                 break;
             case "Add":
             case "Edit":
-                string url = "";
                 // get page management moduleid
-                module = PageState.Modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.PageManagementModule);
-                if (module != null)
-                {
-                    url = Utilities.EditUrl(PageState.Alias.Path, "admin/pages", module.ModuleId, location, $"id={PageState.Page.PageId}&returnurl={WebUtility.UrlEncode(PageState.Route.PathAndQuery)}");
-                    NavigationManager.NavigateTo(url);
-                }
+                moduleId = int.Parse(PageState.Site.Settings[Constants.PageManagementModule]);
+                NavigationManager.NavigateTo(Utilities.EditUrl(PageState.Alias.Path, "admin/pages", moduleId, location, $"id={PageState.Page.PageId}&returnurl={WebUtility.UrlEncode(PageState.Route.PathAndQuery)}"));
                 break;
         }
     }
