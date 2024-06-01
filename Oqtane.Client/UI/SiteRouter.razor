@@ -275,7 +275,7 @@
                 }
 
                 // get modules for current page
-                if (PageState.Modules == null || PageState.Modules.First().PageId != page.PageId)
+                if (PageState.Modules == null || (PageState.Modules.Any() && PageState.Modules.First().PageId != page.PageId))
                 {
                     modules = await SiteService.GetModulesAsync(site.SiteId, page.PageId);
                 }
