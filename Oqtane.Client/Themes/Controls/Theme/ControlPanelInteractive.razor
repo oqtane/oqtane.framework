@@ -346,13 +346,13 @@
         _moduleId = "-";
     }
 
-    private void PageChanged(ChangeEventArgs e)
+    private async Task PageChanged(ChangeEventArgs e)
     {
         _pageId = (string)e.Value;
         if (_pageId != "-")
         {
-            _modules = PageState.Modules
-                .Where(module => module.PageId == int.Parse(_pageId) &&
+            _modules = await ModuleService.GetModulesAsync(PageState.Page.SiteId);
+            _modules = _modules.Where(module => module.PageId == int.Parse(_pageId) &&
                 UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.PermissionList) &&
                 (_moduleType == "add" || module.ModuleDefinition.IsPortable))
                 .ToList();

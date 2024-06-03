@@ -415,7 +415,7 @@
                 _permissions = _page.PermissionList;
 
                 // page modules
-                _pageModules = PageState.Modules.Where(m => m.PageId == _page.PageId).ToList();
+                _pageModules = PageState.Modules;
 
                 // audit
                 _createdby = _page.CreatedBy;

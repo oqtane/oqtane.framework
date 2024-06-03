@@ -73,7 +73,7 @@
         }
         else
         {
-            foreach (var module in PageState.Modules.Where(item => item.PageId == PageState.Page.PageId))
+            foreach (var module in PageState.Modules)
             {
                 if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, module.PermissionList))
                 {
