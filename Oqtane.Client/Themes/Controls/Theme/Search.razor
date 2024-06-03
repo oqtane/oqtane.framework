@@ -1,0 +1,57 @@
+@namespace Oqtane.Themes.Controls
+@using System.Net
+@using Microsoft.AspNetCore.Http
+@inherits ThemeControlBase
+@inject IStringLocalizer<Search> Localizer
+@inject NavigationManager NavigationManager
+@inject IHttpContextAccessor HttpContext
+
+@if (_searchResultsPage != null)
+{
+    <span class="app-search @CssClass">
+        <form method="post" class="app-form-inline" @formname="SearchForm" @onsubmit="@PerformSearch" data-enhance>
+            <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+            <input type="text" name="keywords" maxlength="50"
+                   class="form-control d-inline-block pe-5 shadow-none"
+                   @bind-value="_keywords"
+                   placeholder="@Localizer["SearchPlaceHolder"]"
+                   aria-label="Search" />
+            <button type="submit" class="btn btn-search" @onclick="PerformSearch">
+                <span class="oi oi-magnifying-glass align-middle"></span>
+            </button>
+        </form>
+    </span>
+}
+
+
+
+@code {
+    private const string SearchResultPagePath = "search-results";
+
+    private Page _searchResultsPage;
+    private string _keywords = "";
+
+    [Parameter]
+    public string CssClass { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _searchResultsPage = PageState.Pages.FirstOrDefault(i => i.Path == SearchResultPagePath);
+    }
+
+    protected override void OnParametersSet()
+    {
+    }
+
+    private void PerformSearch()
+    {
+        var keywords = HttpContext.HttpContext.Request.Form["keywords"];
+        if (!string.IsNullOrEmpty(keywords) && _searchResultsPage != null)
+        {
+            var url = NavigateUrl(_searchResultsPage.Path, $"s={keywords}");
+            NavigationManager.NavigateTo(url);
+        }
+    }
+}
+
+

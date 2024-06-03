@@ -1,0 +1,46 @@
+@namespace Oqtane.Modules.SearchResults
+@inherits ModuleBase
+@inject ISettingService SettingService
+@implements Oqtane.Interfaces.ISettingsControl
+@inject IStringLocalizer<Settings> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+<div class="container">
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="pageSize" ResourceKey="PageSize" ResourceType="@resourceType">Page Size:</Label>
+        <div class="col-sm-9">
+            <input name="pageSize" id="pageSize" class="form-control" type="number" @bind="_pageSize" />
+        </div>
+    </div>
+</div>
+
+@code {		
+    private string resourceType = "Oqtane.Modules.SearchResults.Settings, Oqtane.Client"; // for localization
+    private string _pageSize;
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            _pageSize = SettingService.GetSetting(ModuleState.Settings, "PageSize", Constants.SearchDefaultPageSize.ToString());
+		}
+        catch (Exception ex)
+        {
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
+    public async Task UpdateSettings()
+    {
+        try
+        {
+			var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+            settings = SettingService.SetSetting(settings, "PageSize", _pageSize);
+			await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+        }
+        catch (Exception ex)
+        {
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+}
