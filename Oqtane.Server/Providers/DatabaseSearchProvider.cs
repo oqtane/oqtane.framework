@@ -18,10 +18,6 @@ namespace Oqtane.Providers
     {
         private readonly ISearchContentRepository _searchContentRepository;
 
-        private const float TitleBoost = 100f;
-        private const float DescriptionBoost = 10f;
-        private const float BodyBoost = 10f;
-        private const float AdditionalContentBoost = 5f;
         private const string IgnoreWords = "the,be,to,of,and,a,i,in,that,have,it,for,not,on,with,he,as,you,do,at,this,but,his,by,from,they,we,say,her,she,or,an,will,my,one,all,would,there,their,what,so,up,out,if,about,who,get,which,go,me,when,make,can,like,time,no,just,him,know,take,people,into,year,your,good,some,could,them,see,other,than,then,now,look,only,come,its,over,think,also,back,after,use,two,how,our,work,first,well,way,even,new,want,because,any,these,give,day,most,us";
         private const int WordMinLength = 3;
         public string Name => Constants.DefaultSearchProviderName;
@@ -54,6 +50,9 @@ namespace Oqtane.Providers
         {
             //remove exist document
             _searchContentRepository.DeleteSearchContent(searchContent.EntityName, searchContent.EntityId);
+
+            //clean the search content to remove html tags
+            CleanSearchContent(searchContent);
 
             _searchContentRepository.AddSearchContent(searchContent);
 
@@ -152,10 +151,7 @@ namespace Oqtane.Providers
             var score = 0f;
             foreach (var keyword in SearchUtils.GetKeywordsList(searchQuery.Keywords))
             {
-                score += Regex.Matches(searchContent.Title, keyword, RegexOptions.IgnoreCase).Count * TitleBoost;
-                score += Regex.Matches(searchContent.Description, keyword, RegexOptions.IgnoreCase).Count * DescriptionBoost;
-                score += Regex.Matches(searchContent.Body, keyword, RegexOptions.IgnoreCase).Count * BodyBoost;
-                score += Regex.Matches(searchContent.AdditionalContent, keyword, RegexOptions.IgnoreCase).Count * AdditionalContentBoost;
+                score += searchContent.Words.Where(i => i.WordSource.Word.StartsWith(keyword)).Sum(i => i.Count);
             }
 
             return score / 100;
@@ -241,37 +237,24 @@ namespace Oqtane.Providers
 
         private static Dictionary<string, int> GetWords(string content, int minLength)
         {
-            content = WebUtility.HtmlDecode(content);
+            content = FormatText(content);
 
             var words = new Dictionary<string, int>();
             var ignoreWords = IgnoreWords.Split(',');
 
-            var page = new HtmlDocument();
-            page.LoadHtml(content);
-
-            var phrases = page.DocumentNode.Descendants().Where(i =>
-                    i.NodeType == HtmlNodeType.Text &&
-                    i.ParentNode.Name != "script" &&
-                    i.ParentNode.Name != "style" &&
-                    !string.IsNullOrEmpty(i.InnerText.Trim())
-                ).Select(i => FormatText(i.InnerText));
-
-            foreach (var phrase in phrases)
+            if (!string.IsNullOrEmpty(content))
             {
-                if (!string.IsNullOrEmpty(phrase))
+                foreach (var word in content.Split(' '))
                 {
-                    foreach (var word in phrase.Split(' '))
+                    if (word.Length >= minLength && !ignoreWords.Contains(word))
                     {
-                        if (word.Length >= minLength && !ignoreWords.Contains(word))
+                        if (!words.ContainsKey(word))
                         {
-                            if (!words.ContainsKey(word))
-                            {
-                                words.Add(word, 1);
-                            }
-                            else
-                            {
-                                words[word] += 1;
-                            }
+                            words.Add(word, 1);
+                        }
+                        else
+                        {
+                            words[word] += 1;
                         }
                     }
                 }
@@ -288,8 +271,38 @@ namespace Oqtane.Providers
                 text = text.Replace(punctuation, ' ');
             }
             text = text.Replace("  ", " ").ToLower().Trim();
-            return text;
 
+            return text;
+        }
+
+        private void CleanSearchContent(SearchContent searchContent)
+        {
+            searchContent.Title = GetCleanContent(searchContent.Title);
+            searchContent.Description = GetCleanContent(searchContent.Description);
+            searchContent.Body = GetCleanContent(searchContent.Body);
+            searchContent.AdditionalContent = GetCleanContent(searchContent.AdditionalContent);
+        }
+
+        private string GetCleanContent(string content)
+        {
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return string.Empty;
+            }
+
+            content = WebUtility.HtmlDecode(content);
+
+            var page = new HtmlDocument();
+            page.LoadHtml(content);
+
+            var phrases = page.DocumentNode.Descendants().Where(i =>
+                    i.NodeType == HtmlNodeType.Text &&
+                    i.ParentNode.Name != "script" &&
+                    i.ParentNode.Name != "style" &&
+                    !string.IsNullOrEmpty(i.InnerText.Trim())
+                ).Select(i => i.InnerText);
+
+            return string.Join(" ", phrases);
         }
     }
 }

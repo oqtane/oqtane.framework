@@ -20,7 +20,7 @@ namespace Oqtane.Shared
                 {
                     if (!string.IsNullOrWhiteSpace(keyword.Trim()))
                     {
-                        keywordsList.Add(keyword.Trim());
+                        keywordsList.Add(keyword.Trim().ToLower());
                     }
                 }
             }

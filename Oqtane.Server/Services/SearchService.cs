@@ -186,7 +186,6 @@ namespace Oqtane.Services
                 {
                     try
                     {
-                        CleanSearchContent(searchContent);
                         searchProvider.SaveSearchContent(searchContent);
                     }
                     catch(Exception ex)
@@ -230,36 +229,6 @@ namespace Oqtane.Services
             }
 
             return string.Empty;
-        }
-
-        private void CleanSearchContent(SearchContent searchContent)
-        {
-            searchContent.Title = GetCleanContent(searchContent.Title);
-            searchContent.Description = GetCleanContent(searchContent.Description);
-            searchContent.Body = GetCleanContent(searchContent.Body);
-            searchContent.AdditionalContent = GetCleanContent(searchContent.AdditionalContent);
-        }
-
-        private string GetCleanContent(string content)
-        {
-            if(string.IsNullOrWhiteSpace(content))
-            {
-                return string.Empty;
-            }
-
-            content = WebUtility.HtmlDecode(content);
-
-            var page = new HtmlDocument();
-            page.LoadHtml(content);
-
-            var phrases = page.DocumentNode.Descendants().Where(i =>
-                    i.NodeType == HtmlNodeType.Text &&
-                    i.ParentNode.Name != "script" &&
-                    i.ParentNode.Name != "style" &&
-                    !string.IsNullOrEmpty(i.InnerText.Trim())
-                ).Select(i => i.InnerText);
-
-            return string.Join(" ", phrases);
         }
     }
 }
