@@ -1,7 +1,7 @@
-@namespace Oqtane.Modules.SearchResults
+@namespace Oqtane.Modules.Admin.SearchResults
 @inherits ModuleBase
-@inject ISettingService SettingService
 @implements Oqtane.Interfaces.ISettingsControl
+@inject ISettingService SettingService
 @inject IStringLocalizer<Settings> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -15,14 +15,16 @@
 </div>
 
 @code {		
-    private string resourceType = "Oqtane.Modules.SearchResults.Settings, Oqtane.Client"; // for localization
+    private const string SearchDefaultPageSize = "10";
+
+    private string resourceType = "Oqtane.Modules.Admin.SearchResults.Settings, Oqtane.Client"; // for localization
     private string _pageSize;
 
     protected override void OnInitialized()
     {
         try
         {
-            _pageSize = SettingService.GetSetting(ModuleState.Settings, "PageSize", Constants.SearchDefaultPageSize.ToString());
+            _pageSize = SettingService.GetSetting(ModuleState.Settings, "PageSize", SearchDefaultPageSize);
 		}
         catch (Exception ex)
         {

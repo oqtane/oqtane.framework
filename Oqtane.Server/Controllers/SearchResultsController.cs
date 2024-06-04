@@ -4,24 +4,22 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Oqtane.Controllers;
 using Oqtane.Documentation;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
-using Oqtane.Modules.SearchResults.Services;
+using Oqtane.Services;
 using Oqtane.Shared;
 
-namespace Oqtane.Modules.SearchResults.Controllers
+namespace Oqtane.Controllers
 {
     [Route(ControllerRoutes.ApiRoute)]
-    [PrivateApi("Mark SearchResults classes as private, since it's not very useful in the public docs")]
     public class SearchResultsController : ModuleControllerBase
     {
-        private readonly ISearchResultsService _searchResultsService;
+        private readonly ISearchService _searchService;
 
-        public SearchResultsController(ISearchResultsService searchResultsService, ILogManager logger, IHttpContextAccessor accessor) : base(logger, accessor)
+        public SearchResultsController(ISearchService searchService, ILogManager logger, IHttpContextAccessor accessor) : base(logger, accessor)
         {
-            _searchResultsService = searchResultsService;
+            _searchService = searchService;
         }
 
         [HttpPost]
@@ -30,9 +28,9 @@ namespace Oqtane.Modules.SearchResults.Controllers
         {
             try
             {
-                return await _searchResultsService.SearchAsync(AuthEntityId(EntityNames.Module), searchQuery);
+                return await _searchService.SearchAsync(searchQuery);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Other, ex, "Fetch search results failed.", searchQuery);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;

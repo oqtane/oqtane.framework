@@ -7,7 +7,7 @@ namespace Oqtane.Services
     {
         string Name { get; }
 
-        bool Visible(SearchDocument searchResult, SearchQuery searchQuery);
+        bool Visible(SearchContent searchResult, SearchQuery searchQuery);
 
         string GetUrl(SearchResult searchResult, SearchQuery searchQuery);
     }

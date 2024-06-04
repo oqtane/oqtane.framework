@@ -11,11 +11,11 @@ namespace Oqtane.Services
     {
         string Name { get; }
 
-        void SaveDocument(SearchDocument document, bool autoCommit = false);
+        void SaveSearchContent(SearchContent searchContent, bool autoCommit = false);
 
-        void DeleteDocument(string id);
+        void DeleteSearchContent(string id);
 
-        Task<SearchResults> SearchAsync(SearchQuery searchQuery, Func<SearchDocument, SearchQuery, bool> validateFunc);
+        Task<SearchResults> SearchAsync(SearchQuery searchQuery, Func<SearchContent, SearchQuery, bool> validateFunc);
         
         bool Optimize();
 

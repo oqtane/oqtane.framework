@@ -14,6 +14,8 @@ namespace Oqtane.Managers.Search
 {
     public class PageSearchIndexManager : SearchIndexManagerBase
     {
+        private const int PageSearchIndexManagerPriority = 100;
+
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<ModuleSearchIndexManager> _logger;
         private readonly IPageRepository _pageRepository;
@@ -29,50 +31,50 @@ namespace Oqtane.Managers.Search
             _pageRepository = pageRepository;
         }
 
-        public override string Name => Constants.PageSearchIndexManagerName;
+        public override string Name => EntityNames.Page;
 
-        public override int Priority => Constants.PageSearchIndexManagerPriority;
+        public override int Priority => PageSearchIndexManagerPriority;
 
-        public override int IndexDocuments(int siteId, DateTime? startTime, Action<IList<SearchDocument>> processSearchDocuments, Action<string> handleError)
+        public override int IndexContent(int siteId, DateTime? startTime, Action<IList<SearchContent>> processSearchContent, Action<string> handleError)
         {
             var startTimeValue = startTime.GetValueOrDefault(DateTime.MinValue);
             var pages = _pageRepository.GetPages(siteId).Where(i => i.ModifiedOn >= startTimeValue);
-            var searchDocuments = new List<SearchDocument>();
+            var searchContentList = new List<SearchContent>();
 
             foreach(var page in pages)
             {
                 try
                 {
-                    if(IsSystemPage(page))
+                    if(SearchUtils.IsSystemPage(page))
                     {
                         continue;
                     }
 
-                    var document = new SearchDocument
+                    var searchContent = new SearchContent
                     {
-                        EntryId = page.PageId,
-                        IndexerName = Name,
+                        EntityName = EntityNames.Page,
+                        EntityId = page.PageId,
                         SiteId = page.SiteId,
-                        LanguageCode = string.Empty,
                         ModifiedTime = page.ModifiedOn,
                         AdditionalContent = string.Empty,
-                        Url = page.Url ?? string.Empty,
+                        Url = $"{(!string.IsNullOrEmpty(page.Path) && !page.Path.StartsWith("/") ? "/" : "")}{page.Path}",
                         Title = !string.IsNullOrEmpty(page.Title) ? page.Title : page.Name,
                         Description = string.Empty,
-                        Body = $"{page.Name} {page.Title}"
+                        Body = $"{page.Name} {page.Title}",
+                        IsActive = !page.IsDeleted && Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate)
                     };
 
-                    if (document.Properties == null)
+                    if (searchContent.Properties == null)
                     {
-                        document.Properties = new List<SearchDocumentProperty>();
+                        searchContent.Properties = new List<SearchContentProperty>();
                     }
 
-                    if (!document.Properties.Any(i => i.Name == Constants.SearchPageIdPropertyName))
+                    if (!searchContent.Properties.Any(i => i.Name == Constants.SearchPageIdPropertyName))
                     {
-                        document.Properties.Add(new SearchDocumentProperty { Name = Constants.SearchPageIdPropertyName, Value = page.PageId.ToString() });
+                        searchContent.Properties.Add(new SearchContentProperty { Name = Constants.SearchPageIdPropertyName, Value = page.PageId.ToString() });
                     }
 
-                    searchDocuments.Add(document);
+                    searchContentList.Add(searchContent);
                 }
                 catch(Exception ex)
                 {
@@ -81,14 +83,9 @@ namespace Oqtane.Managers.Search
                 }
             }
 
-            processSearchDocuments(searchDocuments);
+            processSearchContent(searchContentList);
 
-            return searchDocuments.Count;
-        }
-
-        private bool IsSystemPage(Models.Page page)
-        {
-            return page.Path.Contains("admin") || page.Path == "login" || page.Path == "register" || page.Path == "profile";
+            return searchContentList.Count;
         }
     }
 }

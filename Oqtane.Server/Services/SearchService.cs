@@ -1,23 +1,30 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using HtmlAgilityPack;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Repository;
+using Oqtane.Security;
 using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
     public class SearchService : ISearchService
     {
+        private const string SearchProviderSettingName = "SearchProvider";
+        private const string SearchEnabledSettingName = "SearchEnabled";
+
         private readonly IServiceProvider _serviceProvider;
         private readonly ITenantManager _tenantManager;
         private readonly IAliasRepository _aliasRepository;
         private readonly ISettingRepository _settingRepository;
+        private readonly IPermissionRepository _permissionRepository;
         private readonly ILogger<SearchService> _logger;
         private readonly IMemoryCache _cache;
 
@@ -26,12 +33,14 @@ namespace Oqtane.Services
             ITenantManager tenantManager,
             IAliasRepository aliasRepository,
             ISettingRepository settingRepository,
+            IPermissionRepository permissionRepository,
             ILogger<SearchService> logger,
             IMemoryCache cache)
         {
             _tenantManager = tenantManager;
             _aliasRepository = aliasRepository;
             _settingRepository = settingRepository;
+            _permissionRepository = permissionRepository;
             _serviceProvider = serviceProvider;
             _logger = logger;
             _cache = cache;
@@ -68,8 +77,8 @@ namespace Oqtane.Services
                 {
                     _logger.LogDebug($"Search: Begin Index {searchIndexManager.Name}");
 
-                    var count = searchIndexManager.IndexDocuments(siteId, startTime, SaveIndexDocuments, handleError);
-                    logNote($"Search: Indexer {searchIndexManager.Name} processed {count} documents.<br />");
+                    var count = searchIndexManager.IndexContent(siteId, startTime, SaveSearchContent, handleError);
+                    logNote($"Search: Indexer {searchIndexManager.Name} processed {count} search content.<br />");
 
                     _logger.LogDebug($"Search: End Index {searchIndexManager.Name}");
                 }
@@ -79,7 +88,7 @@ namespace Oqtane.Services
         public async Task<SearchResults> SearchAsync(SearchQuery searchQuery)
         {
             var searchProvider = GetSearchProvider(searchQuery.SiteId);
-            var searchResults = await searchProvider.SearchAsync(searchQuery, HasViewPermission);
+            var searchResults = await searchProvider.SearchAsync(searchQuery, Visible);
 
             //generate the document url if it's not set.
             foreach (var result in searchResults.Results)
@@ -108,7 +117,7 @@ namespace Oqtane.Services
 
         private string GetSearchProviderSetting(int siteId)
         {
-            var setting = _settingRepository.GetSetting(EntityNames.Site, siteId, Constants.SearchProviderSettingName);
+            var setting = _settingRepository.GetSetting(EntityNames.Site, siteId, SearchProviderSettingName);
             if(!string.IsNullOrEmpty(setting?.SettingValue))
             {
                 return setting.SettingValue;
@@ -119,7 +128,7 @@ namespace Oqtane.Services
 
         private bool SearchEnabled(int siteId)
         {
-            var setting = _settingRepository.GetSetting(EntityNames.Site, siteId, Constants.SearchEnabledSettingName);
+            var setting = _settingRepository.GetSetting(EntityNames.Site, siteId, SearchEnabledSettingName);
             if (!string.IsNullOrEmpty(setting?.SettingValue))
             {
                 return bool.TryParse(setting.SettingValue, out bool enabled) && enabled;
@@ -167,21 +176,22 @@ namespace Oqtane.Services
             return managers.ToList();
         }
 
-        private void SaveIndexDocuments(IList<SearchDocument> searchDocuments)
+        private void SaveSearchContent(IList<SearchContent> searchContentList)
         {
-            if(searchDocuments.Any())
+            if(searchContentList.Any())
             {
-                var searchProvider = GetSearchProvider(searchDocuments.First().SiteId);
+                var searchProvider = GetSearchProvider(searchContentList.First().SiteId);
 
-                foreach (var searchDocument in searchDocuments)
+                foreach (var searchContent in searchContentList)
                 {
                     try
                     {
-                        searchProvider.SaveDocument(searchDocument);
+                        CleanSearchContent(searchContent);
+                        searchProvider.SaveSearchContent(searchContent);
                     }
                     catch(Exception ex)
                     {
-                        _logger.LogError(ex, $"Search: Save search document {searchDocument.UniqueKey} failed.");
+                        _logger.LogError(ex, $"Search: Save search content {searchContent.UniqueKey} failed.");
                     }
                 }
 
@@ -190,25 +200,66 @@ namespace Oqtane.Services
             }
         }
 
-        private bool HasViewPermission(SearchDocument searchDocument, SearchQuery searchQuery)
+        private bool Visible(SearchContent searchContent, SearchQuery searchQuery)
         {
-            var searchResultManager = GetSearchResultManagers().FirstOrDefault(i => i.Name == searchDocument.IndexerName);
+            if(!HasViewPermission(searchQuery.SiteId, searchQuery.User, searchContent.EntityName, searchContent.EntityId))
+            {
+                return false;
+            }
+
+            var searchResultManager = GetSearchResultManagers().FirstOrDefault(i => i.Name == searchContent.EntityName);
             if (searchResultManager != null)
             {
-                return searchResultManager.Visible(searchDocument, searchQuery);
+                return searchResultManager.Visible(searchContent, searchQuery);
             }
             return true;
         }
 
+        private bool HasViewPermission(int siteId, User user, string entityName, int entityId)
+        {
+            var permissions = _permissionRepository.GetPermissions(siteId, entityName, entityId).ToList();
+            return UserSecurity.IsAuthorized(user, PermissionNames.View, permissions);
+        }
+
         private string GetDocumentUrl(SearchResult result, SearchQuery searchQuery)
         {
-            var searchResultManager = GetSearchResultManagers().FirstOrDefault(i => i.Name == result.IndexerName);
+            var searchResultManager = GetSearchResultManagers().FirstOrDefault(i => i.Name == result.EntityName);
             if(searchResultManager != null)
             {
                 return searchResultManager.GetUrl(result, searchQuery);
             }
 
             return string.Empty;
+        }
+
+        private void CleanSearchContent(SearchContent searchContent)
+        {
+            searchContent.Title = GetCleanContent(searchContent.Title);
+            searchContent.Description = GetCleanContent(searchContent.Description);
+            searchContent.Body = GetCleanContent(searchContent.Body);
+            searchContent.AdditionalContent = GetCleanContent(searchContent.AdditionalContent);
+        }
+
+        private string GetCleanContent(string content)
+        {
+            if(string.IsNullOrWhiteSpace(content))
+            {
+                return string.Empty;
+            }
+
+            content = WebUtility.HtmlDecode(content);
+
+            var page = new HtmlDocument();
+            page.LoadHtml(content);
+
+            var phrases = page.DocumentNode.Descendants().Where(i =>
+                    i.NodeType == HtmlNodeType.Text &&
+                    i.ParentNode.Name != "script" &&
+                    i.ParentNode.Name != "style" &&
+                    !string.IsNullOrEmpty(i.InnerText.Trim())
+                ).Select(i => i.InnerText);
+
+            return string.Join(" ", phrases);
         }
     }
 }

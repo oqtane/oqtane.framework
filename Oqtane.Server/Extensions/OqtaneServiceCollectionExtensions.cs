@@ -98,6 +98,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IUrlMappingService, UrlMappingService>();
             services.AddScoped<IVisitorService, VisitorService>();
             services.AddScoped<ISyncService, SyncService>();
+            services.AddScoped<ISearchResultsService, SearchResultsService>();
             services.AddScoped<ISearchService, SearchService>();
             services.AddScoped<ISearchProvider, DatabaseSearchProvider>();
 
@@ -134,7 +135,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<ILanguageRepository, LanguageRepository>();
             services.AddTransient<IVisitorRepository, VisitorRepository>();
             services.AddTransient<IUrlMappingRepository, UrlMappingRepository>();
-            services.AddTransient<ISearchDocumentRepository, SearchDocumentRepository>();
+            services.AddTransient<ISearchContentRepository, SearchContentRepository>();
 
             // managers
             services.AddTransient<IDBContextDependencies, DBContextDependencies>();

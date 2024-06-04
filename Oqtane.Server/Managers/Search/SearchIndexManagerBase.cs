@@ -10,6 +10,8 @@ namespace Oqtane.Managers.Search
 {
     public abstract class SearchIndexManagerBase : ISearchIndexManager
     {
+        private const string SearchIndexManagerEnabledSettingFormat = "SearchIndexManager_{0}_Enabled";
+
         private readonly IServiceProvider _serviceProvider;
 
         public SearchIndexManagerBase(IServiceProvider serviceProvider)
@@ -21,11 +23,11 @@ namespace Oqtane.Managers.Search
 
         public abstract string Name { get; }
 
-        public abstract int IndexDocuments(int siteId, DateTime? startDate, Action<IList<SearchDocument>> processSearchDocuments, Action<string> handleError);
+        public abstract int IndexContent(int siteId, DateTime? startDate, Action<IList<SearchContent>> processSearchContent, Action<string> handleError);
 
         public virtual bool IsIndexEnabled(int siteId)
         {
-            var settingName = string.Format(Constants.SearchIndexManagerEnabledSettingFormat, Name);
+            var settingName = string.Format(SearchIndexManagerEnabledSettingFormat, Name);
             var settingRepository = _serviceProvider.GetRequiredService<ISettingRepository>();
             var setting = settingRepository.GetSetting(EntityNames.Site, siteId, settingName);
             return setting == null || setting.SettingValue == "true";

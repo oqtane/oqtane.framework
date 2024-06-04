@@ -1,40 +1,14 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Net;
-using System.Text.RegularExpressions;
 
 namespace Oqtane.Shared
 {
     public sealed class SearchUtils
     {
-        private const string PunctuationMatch = "[~!#\\$%\\^&*\\(\\)-+=\\{\\[\\}\\]\\|;:\\x22'<,>\\.\\?\\\\\\t\\r\\v\\f\\n]";
-        private static readonly Regex _stripWhiteSpaceRegex = new Regex("\\s+", RegexOptions.Compiled);
-        private static readonly Regex _stripTagsRegex = new Regex("<[^<>]*>", RegexOptions.Compiled);
-        private static readonly Regex _afterRegEx = new Regex(PunctuationMatch + "\\s", RegexOptions.Compiled);
-        private static readonly Regex _beforeRegEx = new Regex("\\s" + PunctuationMatch, RegexOptions.Compiled);
+        private static readonly IList<string> _systemPages;
 
-        public static string Clean(string html, bool removePunctuation)
+        static SearchUtils()
         {
-            if (string.IsNullOrWhiteSpace(html))
-            {
-                return string.Empty;
-            }
-
-            if (html.Contains("&lt;"))
-            {
-                html = WebUtility.HtmlDecode(html);
-            }
-
-            html = StripTags(html, true);
-            html = WebUtility.HtmlDecode(html);
-
-            if (removePunctuation)
-            {
-                html = StripPunctuation(html, true);
-                html = StripWhiteSpace(html, true);
-            }
-
-            return html;
+            _systemPages = new List<string> { "login", "register", "profile", "404", "search" };
         }
 
         public static IList<string> GetKeywordsList(string keywords)
@@ -54,42 +28,9 @@ namespace Oqtane.Shared
             return keywordsList;
         }
 
-        private static string StripTags(string html, bool retainSpace)
+        public static bool IsSystemPage(Models.Page page)
         {
-            return _stripTagsRegex.Replace(html, retainSpace ? " " : string.Empty);
-        }
-
-        private static string StripPunctuation(string html, bool retainSpace)
-        {
-            if (string.IsNullOrWhiteSpace(html))
-            {
-                return string.Empty;
-            }
-
-            string retHTML = html + " ";
-
-            var repString = retainSpace ? " " : string.Empty;
-            while (_beforeRegEx.IsMatch(retHTML))
-            {
-                retHTML = _beforeRegEx.Replace(retHTML, repString);
-            }
-
-            while (_afterRegEx.IsMatch(retHTML))
-            {
-                retHTML = _afterRegEx.Replace(retHTML, repString);
-            }
-
-            return retHTML.Trim('"');
-        }
-
-        private static string StripWhiteSpace(string html, bool retainSpace)
-        {
-            if (string.IsNullOrWhiteSpace(html))
-            {
-                return string.Empty;
-            }
-
-            return _stripWhiteSpaceRegex.Replace(html, retainSpace ? " " : string.Empty);
+            return page.Path.Contains("admin") || _systemPages.Contains(page.Path);
         }
     }
 }

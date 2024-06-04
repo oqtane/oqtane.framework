@@ -16,7 +16,7 @@
                    @bind-value="_keywords"
                    placeholder="@Localizer["SearchPlaceHolder"]"
                    aria-label="Search" />
-            <button type="submit" class="btn btn-search" @onclick="PerformSearch">
+            <button type="submit" class="btn btn-search">
                 <span class="oi oi-magnifying-glass align-middle"></span>
             </button>
         </form>
@@ -26,7 +26,7 @@
 
 
 @code {
-    private const string SearchResultPagePath = "search-results";
+    private const string SearchResultPagePath = "search";
 
     private Page _searchResultsPage;
     private string _keywords = "";
@@ -48,7 +48,7 @@
         var keywords = HttpContext.HttpContext.Request.Form["keywords"];
         if (!string.IsNullOrEmpty(keywords) && _searchResultsPage != null)
         {
-            var url = NavigateUrl(_searchResultsPage.Path, $"s={keywords}");
+            var url = NavigateUrl(_searchResultsPage.Path, $"q={keywords}");
             NavigationManager.NavigateTo(url);
         }
     }

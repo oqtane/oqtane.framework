@@ -77,22 +77,10 @@ namespace Oqtane.Shared
 
         public static readonly string VisitorCookiePrefix = "APP_VISITOR_";
 
-        public const string SearchIndexManagerEnabledSettingFormat = "SearchIndexManager_{0}_Enabled";
-        public const string SearchIndexStartTimeSettingName = "SearchIndex_StartTime";
-        public const string SearchResultManagersCacheName = "SearchResultManagers";
-        public const int SearchDefaultPageSize = 10;
+        public const string DefaultSearchProviderName = "Database";
         public const string SearchPageIdPropertyName = "PageId";
         public const string SearchModuleIdPropertyName = "ModuleId";
-        public const string DefaultSearchProviderName = "Database";
-        public const string SearchProviderSettingName = "SearchProvider";
-        public const string SearchEnabledSettingName = "SearchEnabled";
-
-        public const string ModuleSearchIndexManagerName = "Module";
-        public const string PageSearchIndexManagerName = "Page";
-
-        public const int PageSearchIndexManagerPriority = 100;
-        public const int ModuleSearchIndexManagerPriority = 200;
-
+        
         // Obsolete constants
 
         const string RoleObsoleteMessage = "Use the corresponding member from Oqtane.Shared.RoleNames";

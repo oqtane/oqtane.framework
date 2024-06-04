@@ -17,26 +17,34 @@ namespace Oqtane.Migrations.Tenant
 
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            var searchDocumentEntityBuilder = new SearchDocumentEntityBuilder(migrationBuilder, ActiveDatabase);
-            searchDocumentEntityBuilder.Create();
+            var searchContentEntityBuilder = new SearchContentEntityBuilder(migrationBuilder, ActiveDatabase);
+            searchContentEntityBuilder.Create();
 
-            var searchDocumentPropertyEntityBuilder = new SearchDocumentPropertyEntityBuilder(migrationBuilder, ActiveDatabase);
-            searchDocumentPropertyEntityBuilder.Create();
+            var searchContentPropertyEntityBuilder = new SearchContentPropertyEntityBuilder(migrationBuilder, ActiveDatabase);
+            searchContentPropertyEntityBuilder.Create();
 
-            var searchDocumentTagEntityBuilder = new SearchDocumentTagEntityBuilder(migrationBuilder, ActiveDatabase);
-            searchDocumentTagEntityBuilder.Create();
+            var searchContentWordSourceEntityBuilder = new SearchContentWordSourceEntityBuilder(migrationBuilder, ActiveDatabase);
+            searchContentWordSourceEntityBuilder.Create();
+            searchContentWordSourceEntityBuilder.AddIndex("IX_SearchContentWordSource", "Word", true);
+
+            var searchContentWordsEntityBuilder = new SearchContentWordsEntityBuilder(migrationBuilder, ActiveDatabase);
+            searchContentWordsEntityBuilder.Create();
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            var searchDocumentPropertyEntityBuilder = new SearchDocumentPropertyEntityBuilder(migrationBuilder, ActiveDatabase);
-            searchDocumentPropertyEntityBuilder.Drop();
+            var searchContentWordsEntityBuilder = new SearchContentWordsEntityBuilder(migrationBuilder, ActiveDatabase);
+            searchContentWordsEntityBuilder.Drop();
 
-            var searchDocumentTagEntityBuilder = new SearchDocumentTagEntityBuilder(migrationBuilder, ActiveDatabase);
-            searchDocumentTagEntityBuilder.Drop();
+            var searchContentWordSourceEntityBuilder = new SearchContentWordSourceEntityBuilder(migrationBuilder, ActiveDatabase);
+            searchContentWordSourceEntityBuilder.DropIndex("IX_SearchContentWordSource");
+            searchContentWordSourceEntityBuilder.Drop();
 
-            var searchDocumentEntityBuilder = new SearchDocumentEntityBuilder(migrationBuilder, ActiveDatabase);
-            searchDocumentEntityBuilder.Drop();
+            var searchContentPropertyEntityBuilder = new SearchContentPropertyEntityBuilder(migrationBuilder, ActiveDatabase);
+            searchContentPropertyEntityBuilder.Drop();
+
+            var searchContentEntityBuilder = new SearchContentEntityBuilder(migrationBuilder, ActiveDatabase);
+            searchContentEntityBuilder.Drop();
         }
     }
 }

@@ -1,6 +1,6 @@
 namespace Oqtane.Models
 {
-    public class SearchResult : SearchDocument
+    public class SearchResult : SearchContent
     {
         public float Score { get; set; }
 

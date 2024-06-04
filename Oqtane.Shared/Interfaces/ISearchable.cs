@@ -7,8 +7,8 @@ using Oqtane.Models;
 
 namespace Oqtane.Interfaces
 {
-    public interface IModuleSearch
+    public interface ISearchable
     {
-        public IList<SearchDocument> GetSearchDocuments(Module module, DateTime startTime);
+        public IList<SearchContent> GetSearchContentList(Module module, DateTime startTime);
     }
 }

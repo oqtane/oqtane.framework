@@ -138,7 +138,7 @@ namespace Oqtane.SiteTemplates
                 Name = "Search Results",
                 Parent = "",
                 Order = 7,
-                Path = "search-results",
+                Path = "search",
                 Icon = "oi oi-magnifying-glass",
                 IsNavigation = false,
                 IsPersonalizable = false,
@@ -148,7 +148,7 @@ namespace Oqtane.SiteTemplates
                     new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                 },
                 PageTemplateModules = new List<PageTemplateModule> {
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.SearchResults, Oqtane.Client", Title = "Search Results", Pane = PaneNames.Default,
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.SearchResults, Oqtane.Client", Title = "Search Results", Pane = PaneNames.Default,
                         PermissionList = new List<Permission> {
                             new Permission(PermissionNames.View, RoleNames.Everyone, true),
                             new Permission(PermissionNames.View, RoleNames.Admin, true),

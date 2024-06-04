@@ -4,16 +4,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 namespace Oqtane.Models
 {
-    public class SearchDocument : ModelBase
+    public class SearchContent : ModelBase
     {
-        public int SearchDocumentId { get; set; }
+        public int SearchContentId { get; set; }
 
         [NotMapped]
-        public string UniqueKey => $"{IndexerName}:{EntryId}";
+        public string UniqueKey => $"{EntityName}:{EntityId}";
 
-        public int EntryId { get; set; }
+        public string EntityName { get; set; }
 
-        public string IndexerName { get; set; }
+        public int EntityId { get; set; }
 
         public int SiteId { get; set; }
 
@@ -27,15 +27,13 @@ namespace Oqtane.Models
 
         public DateTime ModifiedTime { get; set; }
 
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
 
         public string AdditionalContent { get; set; }
 
-        public string LanguageCode { get; set; }
+        public IList<SearchContentProperty> Properties { get; set; }
 
-        public IList<SearchDocumentTag> Tags { get; set; }
-
-        public IList<SearchDocumentProperty> Properties { get; set; }
+        public IList<SearchContentWords> Words { get; set; }
 
         public override string ToString()
         {

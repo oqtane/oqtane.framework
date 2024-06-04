@@ -15,6 +15,6 @@ namespace Oqtane.Services
 
         bool IsIndexEnabled(int siteId);
 
-        int IndexDocuments(int siteId, DateTime? startTime, Action<IList<SearchDocument>> processSearchDocuments, Action<string> handleError);
+        int IndexContent(int siteId, DateTime? startTime, Action<IList<SearchContent>> processSearchContent, Action<string> handleError);
     }
 }

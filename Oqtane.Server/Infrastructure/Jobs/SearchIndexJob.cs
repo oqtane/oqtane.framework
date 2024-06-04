@@ -11,6 +11,8 @@ namespace Oqtane.Infrastructure
 {
     public class SearchIndexJob : HostedServiceBase
     {
+        private const string SearchIndexStartTimeSettingName = "SearchIndex_StartTime";
+
         public SearchIndexJob(IServiceScopeFactory serviceScopeFactory) : base(serviceScopeFactory)
         {
             Name = "Search Index Job";
@@ -54,7 +56,7 @@ namespace Oqtane.Infrastructure
 
         private DateTime? GetSearchStartTime(int siteId, ISettingRepository settingRepository)
         {
-            var setting = settingRepository.GetSetting(EntityNames.Site, siteId, Constants.SearchIndexStartTimeSettingName);
+            var setting = settingRepository.GetSetting(EntityNames.Site, siteId, SearchIndexStartTimeSettingName);
             if(setting == null)
             {
                 return null;
@@ -65,14 +67,14 @@ namespace Oqtane.Infrastructure
 
         private void UpdateSearchStartTime(int siteId, DateTime startTime, ISettingRepository settingRepository)
         {
-            var setting = settingRepository.GetSetting(EntityNames.Site, siteId, Constants.SearchIndexStartTimeSettingName);
+            var setting = settingRepository.GetSetting(EntityNames.Site, siteId, SearchIndexStartTimeSettingName);
             if (setting == null)
             {
                 setting = new Setting
                 {
                     EntityName = EntityNames.Site,
                     EntityId = siteId,
-                    SettingName = Constants.SearchIndexStartTimeSettingName,
+                    SettingName = SearchIndexStartTimeSettingName,
                     SettingValue = Convert.ToString(startTime),
                 };
 

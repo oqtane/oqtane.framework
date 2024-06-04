@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml;
+using HtmlAgilityPack;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Services;
@@ -13,27 +16,28 @@ namespace Oqtane.Providers
 {
     public class DatabaseSearchProvider : ISearchProvider
     {
-        private readonly ISearchDocumentRepository _searchDocumentRepository;
+        private readonly ISearchContentRepository _searchContentRepository;
 
         private const float TitleBoost = 100f;
         private const float DescriptionBoost = 10f;
         private const float BodyBoost = 10f;
         private const float AdditionalContentBoost = 5f;
-
+        private const string IgnoreWords = "the,be,to,of,and,a,i,in,that,have,it,for,not,on,with,he,as,you,do,at,this,but,his,by,from,they,we,say,her,she,or,an,will,my,one,all,would,there,their,what,so,up,out,if,about,who,get,which,go,me,when,make,can,like,time,no,just,him,know,take,people,into,year,your,good,some,could,them,see,other,than,then,now,look,only,come,its,over,think,also,back,after,use,two,how,our,work,first,well,way,even,new,want,because,any,these,give,day,most,us";
+        private const int WordMinLength = 3;
         public string Name => Constants.DefaultSearchProviderName;
 
-        public DatabaseSearchProvider(ISearchDocumentRepository searchDocumentRepository)
+        public DatabaseSearchProvider(ISearchContentRepository searchContentRepository)
         {
-            _searchDocumentRepository = searchDocumentRepository;
+            _searchContentRepository = searchContentRepository;
         }
 
         public void Commit()
         {
         }
 
-        public void DeleteDocument(string id)
+        public void DeleteSearchContent(string id)
         {
-            _searchDocumentRepository.DeleteSearchDocument(id);
+            _searchContentRepository.DeleteSearchContent(id);
         }
 
         public bool Optimize()
@@ -43,25 +47,28 @@ namespace Oqtane.Providers
 
         public void ResetIndex()
         {
-            _searchDocumentRepository.DeleteAllSearchDocuments();
+            _searchContentRepository.DeleteAllSearchContent();
         }
 
-        public void SaveDocument(SearchDocument document, bool autoCommit = false)
+        public void SaveSearchContent(SearchContent searchContent, bool autoCommit = false)
         {
             //remove exist document
-            _searchDocumentRepository.DeleteSearchDocument(document.IndexerName, document.EntryId);
+            _searchContentRepository.DeleteSearchContent(searchContent.EntityName, searchContent.EntityId);
 
-            _searchDocumentRepository.AddSearchDocument(document);
+            _searchContentRepository.AddSearchContent(searchContent);
+
+            //save the index words
+            AnalyzeSearchContent(searchContent);
         }
 
-        public async Task<SearchResults> SearchAsync(SearchQuery searchQuery, Func<SearchDocument, SearchQuery, bool> validateFunc)
+        public async Task<SearchResults> SearchAsync(SearchQuery searchQuery, Func<SearchContent, SearchQuery, bool> validateFunc)
         {
             var totalResults = 0;
 
-            var documents = await _searchDocumentRepository.GetSearchDocumentsAsync(searchQuery);
+            var searchContentList = await _searchContentRepository.GetSearchContentListAsync(searchQuery);
 
-            //convert the search documents to search results.
-            var results = documents
+            //convert the search content to search results.
+            var results = searchContentList
                 .Where(i => validateFunc(i, searchQuery))
                 .Select(i => ConvertToSearchResult(i, searchQuery));
 
@@ -99,7 +106,7 @@ namespace Oqtane.Providers
             //remove duplicated results based on page id for Page and Module types
             results = results.DistinctBy(i =>
             {
-                if (i.IndexerName == Constants.PageSearchIndexManagerName || i.IndexerName == Constants.ModuleSearchIndexManagerName)
+                if (i.EntityName == EntityNames.Page || i.EntityName == EntityNames.Module)
                 {
                     var pageId = i.Properties.FirstOrDefault(p => p.Name == Constants.SearchPageIdPropertyName)?.Value ?? string.Empty;
                     return !string.IsNullOrEmpty(pageId) ? pageId : i.UniqueKey;
@@ -119,45 +126,44 @@ namespace Oqtane.Providers
             };
         }
 
-        private SearchResult ConvertToSearchResult(SearchDocument searchDocument, SearchQuery searchQuery)
+        private SearchResult ConvertToSearchResult(SearchContent searchContent, SearchQuery searchQuery)
         {
             var searchResult = new SearchResult()
             {
-                SearchDocumentId = searchDocument.SearchDocumentId,
-                SiteId = searchDocument.SiteId,
-                IndexerName = searchDocument.IndexerName,
-                EntryId = searchDocument.EntryId,
-                Title = searchDocument.Title,
-                Description = searchDocument.Description,
-                Body = searchDocument.Body,
-                Url = searchDocument.Url,
-                ModifiedTime = searchDocument.ModifiedTime,
-                Tags = searchDocument.Tags,
-                Properties = searchDocument.Properties,
-                Snippet = BuildSnippet(searchDocument, searchQuery),
-                Score = CalculateScore(searchDocument, searchQuery)
+                SearchContentId = searchContent.SearchContentId,
+                SiteId = searchContent.SiteId,
+                EntityName = searchContent.EntityName,
+                EntityId = searchContent.EntityId,
+                Title = searchContent.Title,
+                Description = searchContent.Description,
+                Body = searchContent.Body,
+                Url = searchContent.Url,
+                ModifiedTime = searchContent.ModifiedTime,
+                Properties = searchContent.Properties,
+                Snippet = BuildSnippet(searchContent, searchQuery),
+                Score = CalculateScore(searchContent, searchQuery)
             };
 
             return searchResult;
         }
 
-        private float CalculateScore(SearchDocument searchDocument, SearchQuery searchQuery)
+        private float CalculateScore(SearchContent searchContent, SearchQuery searchQuery)
         {
             var score = 0f;
             foreach (var keyword in SearchUtils.GetKeywordsList(searchQuery.Keywords))
             {
-                score += Regex.Matches(searchDocument.Title, keyword, RegexOptions.IgnoreCase).Count * TitleBoost;
-                score += Regex.Matches(searchDocument.Description, keyword, RegexOptions.IgnoreCase).Count * DescriptionBoost;
-                score += Regex.Matches(searchDocument.Body, keyword, RegexOptions.IgnoreCase).Count * BodyBoost;
-                score += Regex.Matches(searchDocument.AdditionalContent, keyword, RegexOptions.IgnoreCase).Count * AdditionalContentBoost;
+                score += Regex.Matches(searchContent.Title, keyword, RegexOptions.IgnoreCase).Count * TitleBoost;
+                score += Regex.Matches(searchContent.Description, keyword, RegexOptions.IgnoreCase).Count * DescriptionBoost;
+                score += Regex.Matches(searchContent.Body, keyword, RegexOptions.IgnoreCase).Count * BodyBoost;
+                score += Regex.Matches(searchContent.AdditionalContent, keyword, RegexOptions.IgnoreCase).Count * AdditionalContentBoost;
             }
 
             return score / 100;
         }
 
-        private string BuildSnippet(SearchDocument searchDocument, SearchQuery searchQuery)
+        private string BuildSnippet(SearchContent searchContent, SearchQuery searchQuery)
         {
-            var content = $"{searchDocument.Title} {searchDocument.Description} {searchDocument.Body}";
+            var content = $"{searchContent.Title} {searchContent.Description} {searchContent.Body}";
             var snippet = string.Empty;
             foreach (var keyword in SearchUtils.GetKeywordsList(searchQuery.Keywords))
             {
@@ -197,6 +203,93 @@ namespace Oqtane.Providers
             }
 
             return snippet;
+        }
+
+        private void AnalyzeSearchContent(SearchContent searchContent)
+        {
+            //analyze the search content and save the index words
+            var indexContent = $"{searchContent.Title} {searchContent.Description} {searchContent.Body} {searchContent.AdditionalContent}";
+            var words = GetWords(indexContent, WordMinLength);
+            var existWords = _searchContentRepository.GetWords(searchContent.SearchContentId);
+            foreach (var kvp in words)
+            {
+                var word = existWords.FirstOrDefault(i => i.WordSource.Word == kvp.Key);
+                if (word != null)
+                {
+                    word.Count = kvp.Value;
+                    _searchContentRepository.UpdateSearchContentWords(word);
+                }
+                else
+                {
+                    var wordSource = _searchContentRepository.GetSearchContentWordSource(kvp.Key);
+                    if (wordSource == null)
+                    {
+                        wordSource = _searchContentRepository.AddSearchContentWordSource(new SearchContentWordSource { Word = kvp.Key });
+                    }
+
+                    word = new SearchContentWords
+                    {
+                        SearchContentId = searchContent.SearchContentId,
+                        WordSourceId = wordSource.WordSourceId,
+                        Count = kvp.Value
+                    };
+
+                    _searchContentRepository.AddSearchContentWords(word);
+                }
+            }
+        }
+
+        private static Dictionary<string, int> GetWords(string content, int minLength)
+        {
+            content = WebUtility.HtmlDecode(content);
+
+            var words = new Dictionary<string, int>();
+            var ignoreWords = IgnoreWords.Split(',');
+
+            var page = new HtmlDocument();
+            page.LoadHtml(content);
+
+            var phrases = page.DocumentNode.Descendants().Where(i =>
+                    i.NodeType == HtmlNodeType.Text &&
+                    i.ParentNode.Name != "script" &&
+                    i.ParentNode.Name != "style" &&
+                    !string.IsNullOrEmpty(i.InnerText.Trim())
+                ).Select(i => FormatText(i.InnerText));
+
+            foreach (var phrase in phrases)
+            {
+                if (!string.IsNullOrEmpty(phrase))
+                {
+                    foreach (var word in phrase.Split(' '))
+                    {
+                        if (word.Length >= minLength && !ignoreWords.Contains(word))
+                        {
+                            if (!words.ContainsKey(word))
+                            {
+                                words.Add(word, 1);
+                            }
+                            else
+                            {
+                                words[word] += 1;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return words;
+        }
+
+        private static string FormatText(string text)
+        {
+            text = HtmlEntity.DeEntitize(text);
+            foreach (var punctuation in ".?!,;:-_()[]{}'\"/\\".ToCharArray())
+            {
+                text = text.Replace(punctuation, ' ');
+            }
+            text = text.Replace("  ", " ").ToLower().Trim();
+            return text;
+
         }
     }
 }

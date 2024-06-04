@@ -14,13 +14,11 @@ namespace Oqtane.Models
 
         public string Keywords { get; set; }
 
-        public IList<string> Sources { get; set; } = new List<string>();
+        public IList<string> EntityNames { get; set; } = new List<string>();
 
         public DateTime BeginModifiedTimeUtc { get; set; }
 
         public DateTime EndModifiedTimeUtc { get; set; }
-
-        public IList<string> Tags { get; set; } = new List<string>();
 
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 

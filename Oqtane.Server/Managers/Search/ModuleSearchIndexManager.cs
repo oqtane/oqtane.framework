@@ -12,6 +12,8 @@ namespace Oqtane.Managers.Search
 {
     public class ModuleSearchIndexManager : SearchIndexManagerBase
     {
+        public const int ModuleSearchIndexManagerPriority = 200;
+
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<ModuleSearchIndexManager> _logger;
         private readonly IPageModuleRepository _pageModuleRepostory;
@@ -30,35 +32,41 @@ namespace Oqtane.Managers.Search
             _pageRepository = pageRepository;
         }
 
-        public override string Name => Constants.ModuleSearchIndexManagerName;
+        public override string Name => EntityNames.Module;
 
-        public override int Priority => Constants.ModuleSearchIndexManagerPriority;
+        public override int Priority => ModuleSearchIndexManagerPriority;
 
-        public override int IndexDocuments(int siteId, DateTime? startTime, Action<IList<SearchDocument>> processSearchDocuments, Action<string> handleError)
+        public override int IndexContent(int siteId, DateTime? startTime, Action<IList<SearchContent>> processSearchContent, Action<string> handleError)
         {
             var pageModules = _pageModuleRepostory.GetPageModules(siteId).DistinctBy(i => i.ModuleId);
-            var searchDocuments = new List<SearchDocument>();
+            var searchContentList = new List<SearchContent>();
 
             foreach(var pageModule in pageModules)
             {
+                var page = _pageRepository.GetPage(pageModule.PageId);
+                if(page == null || SearchUtils.IsSystemPage(page))
+                {
+                    continue;
+                }
+
                 var module = pageModule.Module;
                 if (module.ModuleDefinition.ServerManagerType != "")
                 {
                     _logger.LogDebug($"Search: Begin index module {module.ModuleId}.");
                     var type = Type.GetType(module.ModuleDefinition.ServerManagerType);
-                    if (type?.GetInterface("IModuleSearch") != null)
+                    if (type?.GetInterface(nameof(ISearchable)) != null)
                     {
                         try
                         {
-                            var moduleSearch = (IModuleSearch)ActivatorUtilities.CreateInstance(_serviceProvider, type);
-                            var documents = moduleSearch.GetSearchDocuments(module, startTime.GetValueOrDefault(DateTime.MinValue));
-                            if(documents != null)
+                            var moduleSearch = (ISearchable)ActivatorUtilities.CreateInstance(_serviceProvider, type);
+                            var contentList = moduleSearch.GetSearchContentList(module, startTime.GetValueOrDefault(DateTime.MinValue));
+                            if(contentList != null)
                             {
-                                foreach(var document in documents)
+                                foreach(var searchContent in contentList)
                                 {
-                                    SaveModuleMetaData(document, pageModule);
+                                    SaveModuleMetaData(searchContent, pageModule);
 
-                                    searchDocuments.Add(document);
+                                    searchContentList.Add(searchContent);
                                 }
                             }
                             
@@ -73,54 +81,65 @@ namespace Oqtane.Managers.Search
                 }
             }
 
-            processSearchDocuments(searchDocuments);
+            processSearchContent(searchContentList);
 
-            return searchDocuments.Count;
+            return searchContentList.Count;
         }
 
-        private void SaveModuleMetaData(SearchDocument document, PageModule pageModule)
+        private void SaveModuleMetaData(SearchContent searchContent, PageModule pageModule)
         {
-            
-            document.EntryId = pageModule.ModuleId;
-            document.IndexerName = Name;
-            document.SiteId = pageModule.Module.SiteId;
-            document.LanguageCode = string.Empty;
+            searchContent.SiteId = pageModule.Module.SiteId;
 
-            if(document.ModifiedTime == DateTime.MinValue)
+            if(string.IsNullOrEmpty(searchContent.EntityName))
             {
-                document.ModifiedTime = pageModule.ModifiedOn;
+                searchContent.EntityName = EntityNames.Module;
             }
 
-            if (string.IsNullOrEmpty(document.AdditionalContent))
+            if(searchContent.EntityId == 0)
             {
-                document.AdditionalContent = string.Empty;
+                searchContent.EntityId = pageModule.ModuleId;
+            }
+
+            if (searchContent.IsActive)
+            {
+                searchContent.IsActive = !pageModule.Module.IsDeleted;
+            }
+
+            if (searchContent.ModifiedTime == DateTime.MinValue)
+            {
+                searchContent.ModifiedTime = pageModule.ModifiedOn;
+            }
+
+            if (string.IsNullOrEmpty(searchContent.AdditionalContent))
+            {
+                searchContent.AdditionalContent = string.Empty;
             }
 
             var page = _pageRepository.GetPage(pageModule.PageId);
 
-            if (string.IsNullOrEmpty(document.Url) && page != null)
+            if (string.IsNullOrEmpty(searchContent.Url) && page != null)
             {
-                document.Url = page.Url;
+                searchContent.Url = $"{(!string.IsNullOrEmpty(page.Path) && !page.Path.StartsWith("/") ? "/" : "")}{page.Path}";
             }
 
-            if (string.IsNullOrEmpty(document.Title) && page != null)
+            if (string.IsNullOrEmpty(searchContent.Title) && page != null)
             {
-                document.Title = !string.IsNullOrEmpty(page.Title) ? page.Title : page.Name;
+                searchContent.Title = !string.IsNullOrEmpty(page.Title) ? page.Title : page.Name;
             }
 
-            if (document.Properties == null)
+            if (searchContent.Properties == null)
             {
-                document.Properties = new List<SearchDocumentProperty>();
+                searchContent.Properties = new List<SearchContentProperty>();
             }
 
-            if(!document.Properties.Any(i => i.Name == Constants.SearchPageIdPropertyName))
+            if(!searchContent.Properties.Any(i => i.Name == Constants.SearchPageIdPropertyName))
             {
-                document.Properties.Add(new SearchDocumentProperty { Name = Constants.SearchPageIdPropertyName, Value = pageModule.PageId.ToString() });
+                searchContent.Properties.Add(new SearchContentProperty { Name = Constants.SearchPageIdPropertyName, Value = pageModule.PageId.ToString() });
             }
 
-            if (!document.Properties.Any(i => i.Name == Constants.SearchModuleIdPropertyName))
+            if (!searchContent.Properties.Any(i => i.Name == Constants.SearchModuleIdPropertyName))
             {
-                document.Properties.Add(new SearchDocumentProperty { Name = Constants.SearchModuleIdPropertyName, Value = pageModule.ModuleId.ToString() });
+                searchContent.Properties.Add(new SearchContentProperty { Name = Constants.SearchModuleIdPropertyName, Value = pageModule.ModuleId.ToString() });
             }
         }
     }

@@ -1,22 +1,26 @@
-@using Oqtane.Modules.SearchResults.Services
-@namespace Oqtane.Modules.SearchResults
+@using Microsoft.AspNetCore.Http
+@using Oqtane.Services
+@using System.Net
+@namespace Oqtane.Modules.Admin.SearchResults
 @inherits ModuleBase
 @inject ISearchResultsService SearchResultsService
 @inject IStringLocalizer<Index> Localizer
+@inject IHttpContextAccessor HttpContext
 
 <div class="search-result-container">
     <div class="row">
         <div class="col">
-            <div class="input-group mb-3">
-                <span class="input-group-text">@Localizer["SearchPrefix"]</span>
-                <input type="text" class="form-control shadow-none" maxlength="50"
-                       aria-label="Keywords"
-                       placeholder="@Localizer["SearchPlaceholder"]"
-                       @bind="_keywords"
-                       @bind:event="oninput"
-                       @onkeypress="KeywordsChanged">
-                <button class="btn btn-primary shadow-none" type="button" @onclick="@(async () => await Search())">@Localizer["Search"]</button>
-            </div>
+            <form method="post" @formname="SearchInputForm" @onsubmit="@(async () => await Search())" data-enhance>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">@Localizer["SearchPrefix"]</span>
+                    <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                    <input type="text" name="keywords" class="form-control shadow-none" maxlength="50"
+                            aria-label="Keywords"
+                            placeholder="@Localizer["SearchPlaceholder"]"
+                            @bind-value="_keywords">
+                    <button class="btn btn-primary shadow-none" type="submit">@Localizer["Search"]</button>
+                </div>
+            </form>
         </div>
     </div>
     <div class="row">
@@ -35,12 +39,13 @@
                                Format="Grid"
                                PageSize="@_pageSize.ToString()"
                                DisplayPages="@_displayPages.ToString()"
-                               CurrentPage="@_currentPage.ToString()" Columns="1"
-                               Toolbar="Bottom">
+                               CurrentPage="@_currentPage.ToString()"
+                               Columns="1"
+                               Toolbar="Bottom"
+                               Parameters="@($"q={_keywords}")">
                             <Row>
                                 <div class="search-item">
                                     <h4 class="mb-1"><a href="@context.Url">@context.Title</a></h4>
-                                    <div class="font-13 text-success mb-3">@context.Url</div>
                                     <p class="mb-0 text-muted">@((MarkupString)context.Snippet)</p>
                                 </div>
                             </Row>
@@ -59,13 +64,16 @@
     </div>
 </div>
 @code {
+    public override string RenderMode => RenderModes.Static;
+    private const int SearchDefaultPageSize = 10;
+
     private SearchSortDirections _searchSortDirection = SearchSortDirections.Descending; //default sort by
     private SearchSortFields _searchSortField = SearchSortFields.Relevance;
     private string _keywords;
     private bool _loading;
     private SearchResults _searchResults;
     private int _currentPage = 0;
-    private int _pageSize = Constants.SearchDefaultPageSize;
+    private int _pageSize = SearchDefaultPageSize;
     private int _displayPages = 7;
 
     protected override async Task OnInitializedAsync()
@@ -75,18 +83,9 @@
             _pageSize = int.Parse(ModuleState.Settings["PageSize"]);
         }
 
-        if (PageState.QueryString.ContainsKey("s"))
+        if (PageState.QueryString.ContainsKey("q"))
         {
-            _keywords = PageState.QueryString["s"];
-        }
-
-        if (PageState.QueryString.ContainsKey("p"))
-        {
-            _currentPage = Convert.ToInt32(PageState.QueryString["p"]);
-            if (_currentPage < 1)
-            {
-                _currentPage = 1;
-            }
+            _keywords = WebUtility.UrlDecode(PageState.QueryString["q"]);
         }
 
         if (!string.IsNullOrEmpty(_keywords))
@@ -95,19 +94,9 @@
         }
     }
 
-    private async Task KeywordsChanged(KeyboardEventArgs e)
-    {
-        if (e.Code == "Enter" || e.Code == "NumpadEnter")
-        {
-            if (!string.IsNullOrEmpty(_keywords))
-            {
-                await Search();
-            }
-        }
-    }
-
     private async Task Search()
     {
+        _keywords = HttpContext.HttpContext.Request.Form["keywords"];
         if (string.IsNullOrEmpty(_keywords))
         {
             AddModuleMessage(Localizer["MissingKeywords"], MessageType.Warning);
@@ -115,7 +104,6 @@
         else
         {
             ClearModuleMessage();
-
 
             _currentPage = 0;
             await PerformSearch();

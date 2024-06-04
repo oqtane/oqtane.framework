@@ -17,7 +17,7 @@ using System;
 namespace Oqtane.Modules.HtmlText.Manager
 {
     [PrivateApi("Mark HtmlText classes as private, since it's not very useful in the public docs")]
-    public class HtmlTextManager : MigratableModuleBase, IInstallable, IPortable, IModuleSearch
+    public class HtmlTextManager : MigratableModuleBase, IInstallable, IPortable, ISearchable
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IHtmlTextRepository _htmlText;
@@ -48,25 +48,25 @@ namespace Oqtane.Modules.HtmlText.Manager
             return content;
         }
 
-        public IList<SearchDocument> GetSearchDocuments(Module module, DateTime startDate)
+        public IList<SearchContent> GetSearchContentList(Module module, DateTime startDate)
         {
-            var searchDocuments = new List<SearchDocument>();
+            var searchContentList = new List<SearchContent>();
 
             var htmltexts = _htmlText.GetHtmlTexts(module.ModuleId);
             if (htmltexts != null && htmltexts.Any(i => i.CreatedOn >= startDate))
             {
                 var htmltext = htmltexts.OrderByDescending(item => item.CreatedOn).First();
 
-                searchDocuments.Add(new SearchDocument
+                searchContentList.Add(new SearchContent
                 {
                     Title = module.Title,
                     Description = string.Empty,
-                    Body = SearchUtils.Clean(htmltext.Content, true),
+                    Body = htmltext.Content,
                     ModifiedTime = htmltext.ModifiedOn
                 });
             }
 
-            return searchDocuments;
+            return searchContentList;
         }
 
         public void ImportModule(Module module, string content, string version)

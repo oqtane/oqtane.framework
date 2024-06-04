@@ -11,7 +11,7 @@ namespace Oqtane.Managers.Search
 {
     public class ModuleSearchResultManager : ISearchResultManager
     {
-        public string Name => Constants.ModuleSearchIndexManagerName;
+        public string Name => EntityNames.Module;
 
         private readonly IServiceProvider _serviceProvider;
 
@@ -37,24 +37,15 @@ namespace Oqtane.Managers.Search
             return string.Empty;
         }
 
-        public bool Visible(SearchDocument searchResult, SearchQuery searchQuery)
+        public bool Visible(SearchContent searchResult, SearchQuery searchQuery)
         {
             var pageIdValue = searchResult.Properties?.FirstOrDefault(i => i.Name == Constants.SearchPageIdPropertyName)?.Value ?? string.Empty;
-            var moduleIdValue = searchResult.Properties?.FirstOrDefault(i => i.Name == Constants.SearchModuleIdPropertyName)?.Value ?? string.Empty;
-            if (!string.IsNullOrEmpty(pageIdValue) && int.TryParse(pageIdValue, out int pageId)
-                && !string.IsNullOrEmpty(moduleIdValue) && int.TryParse(moduleIdValue, out int moduleId))
+            if (!string.IsNullOrEmpty(pageIdValue) && int.TryParse(pageIdValue, out int pageId))
             {
-                return CanViewPage(pageId, searchQuery.User) && CanViewModule(moduleId, searchQuery.User);
+                return CanViewPage(pageId, searchQuery.User);
             }
 
             return false;
-        }
-
-        private bool CanViewModule(int moduleId, User user)
-        {
-            var moduleRepository = _serviceProvider.GetRequiredService<IModuleRepository>();
-            var module = moduleRepository.GetModule(moduleId);
-            return module != null && !module.IsDeleted && UserSecurity.IsAuthorized(user, PermissionNames.View, module.PermissionList);
         }
 
         private bool CanViewPage(int pageId, User user)
