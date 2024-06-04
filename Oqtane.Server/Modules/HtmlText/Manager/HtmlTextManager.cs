@@ -8,20 +8,29 @@ using Oqtane.Shared;
 using Oqtane.Migrations.Framework;
 using Oqtane.Documentation;
 using System.Linq;
+using Oqtane.Interfaces;
+using System.Collections.Generic;
+using System;
 
 // ReSharper disable ConvertToUsingDeclaration
 
 namespace Oqtane.Modules.HtmlText.Manager
 {
     [PrivateApi("Mark HtmlText classes as private, since it's not very useful in the public docs")]
-    public class HtmlTextManager : MigratableModuleBase, IInstallable, IPortable
+    public class HtmlTextManager : MigratableModuleBase, IInstallable, IPortable, ISearchable
     {
+        private readonly IServiceProvider _serviceProvider;
         private readonly IHtmlTextRepository _htmlText;
         private readonly IDBContextDependencies _DBContextDependencies;
         private readonly ISqlRepository _sqlRepository;
 
-        public HtmlTextManager(IHtmlTextRepository htmlText, IDBContextDependencies DBContextDependencies, ISqlRepository sqlRepository)
+        public HtmlTextManager(
+            IServiceProvider serviceProvider,
+            IHtmlTextRepository htmlText,
+            IDBContextDependencies DBContextDependencies,
+            ISqlRepository sqlRepository)
         {
+            _serviceProvider = serviceProvider;
             _htmlText = htmlText;
             _DBContextDependencies = DBContextDependencies;
             _sqlRepository = sqlRepository;
@@ -37,6 +46,27 @@ namespace Oqtane.Modules.HtmlText.Manager
                 content = WebUtility.HtmlEncode(htmltext.Content);
             }
             return content;
+        }
+
+        public IList<SearchContent> GetSearchContentList(Module module, DateTime startDate)
+        {
+            var searchContentList = new List<SearchContent>();
+
+            var htmltexts = _htmlText.GetHtmlTexts(module.ModuleId);
+            if (htmltexts != null && htmltexts.Any(i => i.CreatedOn >= startDate))
+            {
+                var htmltext = htmltexts.OrderByDescending(item => item.CreatedOn).First();
+
+                searchContentList.Add(new SearchContent
+                {
+                    Title = module.Title,
+                    Description = string.Empty,
+                    Body = htmltext.Content,
+                    ModifiedTime = htmltext.ModifiedOn
+                });
+            }
+
+            return searchContentList;
         }
 
         public void ImportModule(Module module, string content, string version)

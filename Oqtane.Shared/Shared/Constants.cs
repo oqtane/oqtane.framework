@@ -77,6 +77,10 @@ namespace Oqtane.Shared
 
         public static readonly string VisitorCookiePrefix = "APP_VISITOR_";
 
+        public const string DefaultSearchProviderName = "Database";
+        public const string SearchPageIdPropertyName = "PageId";
+        public const string SearchModuleIdPropertyName = "ModuleId";
+        
         // Obsolete constants
 
         const string RoleObsoleteMessage = "Use the corresponding member from Oqtane.Shared.RoleNames";
