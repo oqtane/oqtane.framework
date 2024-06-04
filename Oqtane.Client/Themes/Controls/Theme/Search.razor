@@ -26,17 +26,21 @@
 
 
 @code {
-    private const string SearchResultPagePath = "search";
-
     private Page _searchResultsPage;
     private string _keywords = "";
 
     [Parameter]
     public string CssClass { get; set; }
 
+    [Parameter]
+    public string SearchResultPagePath { get; set; } = "search";
+
     protected override void OnInitialized()
     {
-        _searchResultsPage = PageState.Pages.FirstOrDefault(i => i.Path == SearchResultPagePath);
+        if(!string.IsNullOrEmpty(SearchResultPagePath))
+        {
+            _searchResultsPage = PageState.Pages.FirstOrDefault(i => i.Path == SearchResultPagePath);
+        }
     }
 
     protected override void OnParametersSet()
