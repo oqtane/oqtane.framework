@@ -23,7 +23,7 @@
                     </li>
                 }
             </ul>
-            <div class="tab-content">
+            <div class="tab-content @TabContentClass">
                 <br />
                 @ChildContent
             </div>
@@ -46,6 +46,9 @@
 
 	[Parameter]
 	public string Id { get; set; } // optional - used to uniquely identify an instance of a tab strip component (will be set automatically if no value provided)
+
+    [Parameter]
+    public string TabContentClass { get; set; } // optional - to extend the TabContent div.
 
 	protected override void OnInitialized()
 	{
