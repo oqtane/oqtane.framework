@@ -11,7 +11,7 @@
         @if (!string.IsNullOrEmpty(SearchProperties))
         {
             <form autocomplete="off">
-                <div class="input-group my-3">
+                <div class="input-group my-3 @SearchBoxClass">
                     <input type="text" id="pagersearch" class="form-control" placeholder=@string.Format(Localizer["SearchPlaceholder"], FormatSearchProperties()) @bind="@_search" />
                     <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>
                     <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
@@ -74,7 +74,7 @@
         {
             <form method="post" autocomplete="off" @formname="PagerForm" @onsubmit="Search" data-enhance>
                 <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
-                <div class="input-group my-3">
+                <div class="input-group my-3 @SearchBoxClass">
                     <input type="text" id="pagersearch" name="_search" class="form-control" placeholder=@string.Format(Localizer["SearchPlaceholder"], FormatSearchProperties()) @bind="@_search" />
                     <button type="submit" class="btn btn-primary">@SharedLocalizer["Search"]</button>
                     <a class="btn btn-secondary" href="@PageUrl(1, "")">@SharedLocalizer["Reset"]</a>
@@ -358,6 +358,9 @@
 
     [Parameter]
     public string SearchProperties { get; set; } // comma delimited list of property names to include in search
+
+    [Parameter]
+    public string SearchBoxClass { get; set; } // class for Search box
 
     [Parameter]
     public string Parameters { get; set; } // optional - querystring parameters in the form of "id=x&name=y" used in static render mode
