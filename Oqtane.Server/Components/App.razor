@@ -338,7 +338,7 @@
             {
                 var values = visitorCookieValue.Split('|');
                 int.TryParse(values[0], out _visitorId);
-                DateTime.TryParse(values[1], out expiry);
+                DateTime.TryParseExact(values[1], "M/d/yyyy hh:mm:ss tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out expiry);
             }
             else // legacy cookie format
             {
@@ -425,7 +425,7 @@
 
                 Context.Response.Cookies.Append(
                     visitorCookieName,
-                    $"{_visitorId}|{expiry}",
+                    $"{_visitorId}|{expiry.ToString("M/d/yyyy hh:mm:ss tt", CultureInfo.InvariantCulture)}",
                     new CookieOptions()
                     {
                         Expires = DateTimeOffset.UtcNow.AddYears(10),
