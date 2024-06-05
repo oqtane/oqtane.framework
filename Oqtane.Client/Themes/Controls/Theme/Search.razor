@@ -9,7 +9,7 @@
 @if (_searchResultsPage != null)
 {
     <span class="app-search @CssClass">
-        <form method="post" class="app-form-inline" @formname="SearchForm" @onsubmit="@PerformSearch" data-enhance>
+        <form method="post" class="app-form-inline" @formname="@($"{Position}SearchForm")" @onsubmit="@PerformSearch" data-enhance>
             <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
             <input type="text" name="keywords" maxlength="50"
                    class="form-control d-inline-block pe-5 shadow-none"
@@ -31,6 +31,9 @@
 
     [Parameter]
     public string CssClass { get; set; }
+
+    [Parameter]
+    public string Position { get; set; } = "Main";
 
     [Parameter]
     public string SearchResultPagePath { get; set; } = "search";
