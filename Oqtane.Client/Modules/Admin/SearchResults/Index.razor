@@ -106,6 +106,10 @@
             ClearModuleMessage();
 
             _currentPage = 0;
+            if(PageState.QueryString.ContainsKey("page"))
+            {
+                PageState.QueryString.Remove("page");
+            }
             await PerformSearch();
         }
     }
