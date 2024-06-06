@@ -19,6 +19,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Oqtane.Infrastructure;
 using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Interfaces;
 using Oqtane.Managers;
 using Oqtane.Modules;
 using Oqtane.Providers;
@@ -101,6 +102,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<ISearchResultsService, SearchResultsService>();
             services.AddScoped<ISearchService, SearchService>();
             services.AddScoped<ISearchProvider, DatabaseSearchProvider>();
+            
 
             return services;
         }
@@ -147,6 +149,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<ILogManager, LogManager>();
             services.AddTransient<IUpgradeManager, UpgradeManager>();
             services.AddTransient<IUserManager, UserManager>();
+
+            // providers
+            services.AddTransient<ITextEditorProvider, QuillTextEditorProvider>();
 
             // obsolete - replaced by ITenantManager
             services.AddTransient<ITenantResolver, TenantResolver>();
