@@ -11,7 +11,7 @@ namespace Oqtane.Interfaces
         /// initializes the editor with the initialize content.
         /// </summary>
         /// <param name="content">the initialize content.</param>
-        void Initialize(string content, bool updated); 
+        void Initialize(string content); 
 
         /// <summary>
         /// get content from the editor.

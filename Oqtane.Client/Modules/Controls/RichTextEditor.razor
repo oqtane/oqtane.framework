@@ -9,57 +9,11 @@
 
 <div class="row" style="margin-bottom: 50px;">
     <div class="col">
-        <TabStrip ActiveTab="@_activetab">
-			@if (AllowRichText)
-            {
-                <TabPanel Name="Rich" Heading="Rich Text Editor" ResourceKey="RichTextEditor">
-                    @_textEditorComponent
-                </TabPanel>
-            }
-			@if (AllowRawHtml)
-			{
-				<TabPanel Name="Raw" Heading="Raw HTML Editor" ResourceKey="HtmlEditor">
-					@if (_rawfilemanager)
-					{
-                        <FileManager @ref="_fileManager" Filter="@PageState.Site.ImageFiles" />
-						<ModuleMessage Message="@_message" Type="MessageType.Warning"></ModuleMessage>
-						<br />
-					}
-					<div class="d-flex justify-content-center mb-2">
-						@if (AllowFileManagement)
-						{
-							<button type="button" class="btn btn-primary" @onclick="InsertRawImage">@Localizer["InsertImage"]</button>
-						}
-						@if (_rawfilemanager)
-						{
-							@((MarkupString)"&nbsp;&nbsp;")
-							<button type="button" class="btn btn-secondary" @onclick="CloseRawFileManager">@Localizer["Close"]</button>
-						}
-					</div>
-					@if (ReadOnly)
-					{
-                        <textarea id="@_rawhtmlid" class="form-control" placeholder="@Placeholder" @bind="@_rawhtml" rows="10" readonly></textarea>
-					}
-					else
-					{
-						<textarea id="@_rawhtmlid" class="form-control" placeholder="@Placeholder" @bind="@_rawhtml" rows="10"></textarea>
-					}
-				</TabPanel>
-			}
-        </TabStrip>
+        @_textEditorComponent
     </div>
 </div>
 
 @code {
-    private string _activetab = "Rich";
-
-    private bool _rawfilemanager = false;
-    private FileManager _fileManager;
-    private string _message = string.Empty;
-    private string _rawhtmlid = "RawHtmlEditor_" + Guid.NewGuid().ToString("N");
-    private string _rawhtml = string.Empty;
-    private string _originalrawhtml = string.Empty;
-
     private ITextEditorProvider _textEditorProvider;
     private RenderFragment _textEditorComponent;
     private ITextEditor _textEditor;
@@ -87,36 +41,20 @@
     public RenderFragment ToolbarContent { get; set; }
 
     [Parameter]
-    public string Theme { get; set; } = "snow";
+    public string Theme { get; set; }
 
     [Parameter]
-    public string DebugLevel { get; set; } = "info";
+    public string DebugLevel { get; set; }
 
     public override List<Resource> Resources { get; set; } = new List<Resource>();
 
     protected override async Task OnInitializedAsync()
     {
-        if (string.IsNullOrEmpty(Placeholder))
-        {
-            Placeholder = Localizer["Placeholder"];
-        }
-
-        if(AllowRichText)
-        {
-            _textEditorProvider = await GetTextEditorProvider();
-        }
+        _textEditorProvider = await GetTextEditorProvider();
     }
 
     protected override void OnParametersSet()
     {
-        _rawhtml = Content;
-        _originalrawhtml = _rawhtml; // preserve for comparison later
-
-        if (!AllowRichText)
-        {
-            _activetab = "Raw";
-        }
-
         _textEditorComponent = (builder) =>
         {
             CreateTextEditor(builder);
@@ -127,64 +65,15 @@
     {
         if(_textEditor != null)
         {
-            _textEditor.Initialize(Content, Content != _originalrawhtml);
+            _textEditor.Initialize(Content);
         }
 
         await base.OnAfterRenderAsync(firstRender);
     }
 
-
-    public void CloseRawFileManager()
-    {
-        _rawfilemanager = false;
-        _message = string.Empty;
-        StateHasChanged();
-    }
-
     public async Task<string> GetHtml()
     {
-        // evaluate raw html content as first priority
-        if (_rawhtml != _originalrawhtml)
-        {
-            return _rawhtml;
-        }
-        else
-        {
-            var richhtml = string.Empty;
-            if (AllowRichText && _textEditor != null)
-            {
-                richhtml = await _textEditor.GetContent();
-            }
-
-            return richhtml != null ? richhtml : _originalrawhtml;
-        }
-    }
-
-
-    public async Task InsertRawImage()
-    {
-        _message = string.Empty;
-        if (_rawfilemanager)
-        {
-            var file = _fileManager.GetFile();
-            if (file != null)
-            {
-                var interop = new Interop(JSRuntime);
-                int pos = await interop.GetCaretPosition(_rawhtmlid);
-                var image = "<img src=\"" + file.Url + "\" alt=\"" + ((!string.IsNullOrEmpty(file.Description)) ? file.Description : file.Name) + "\" class=\"img-fluid\">";
-                _rawhtml = _rawhtml.Substring(0, pos) + image + _rawhtml.Substring(pos);
-                _rawfilemanager = false;
-            }
-            else
-            {
-                _message = Localizer["Message.Require.Image"];
-            }
-        }
-        else
-        {
-            _rawfilemanager = true;
-        }
-        StateHasChanged();
+        return await _textEditor.GetContent();
     }
 
     private void CreateTextEditor(RenderTreeBuilder builder)
@@ -200,12 +89,27 @@
                 var attributes = new Dictionary<string, object>
                 {
                     { "AllowFileManagement", AllowFileManagement },
-                    { "ReadOnly", ReadOnly },
-                    { "Placeholder", Placeholder },
-                    { "Theme", Theme },
-                    { "DebugLevel", DebugLevel },
-                    { "ToolbarContent", ToolbarContent }
+                    { "AllowRichText", AllowRichText },
+                    { "AllowRawHtml", AllowRawHtml },
+                    { "ReadOnly", ReadOnly }
                 };
+
+                if(!string.IsNullOrEmpty(Theme))
+                {
+                    attributes.Add("Theme", Theme);
+                }
+                if (!string.IsNullOrEmpty(DebugLevel))
+                {
+                    attributes.Add("DebugLevel", DebugLevel);
+                }
+                if (!string.IsNullOrEmpty(Placeholder))
+                {
+                    attributes.Add("Placeholder", Placeholder);
+                }
+                if(ToolbarContent != null)
+                {
+                    attributes.Add("ToolbarContent", ToolbarContent);
+                }
 
                 var index = 1;
                 foreach(var name in attributes.Keys)
