@@ -117,11 +117,11 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="InsertImage" xml:space="preserve">
-    <value>Insert Image</value>
-  </data>
   <data name="Close" xml:space="preserve">
     <value>Close</value>
+  </data>
+  <data name="InsertImage" xml:space="preserve">
+    <value>Insert Image</value>
   </data>
   <data name="Message.Require.Image" xml:space="preserve">
     <value>You Must Select An Image To Insert</value>
