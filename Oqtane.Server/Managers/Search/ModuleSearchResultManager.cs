@@ -24,7 +24,7 @@ namespace Oqtane.Managers.Search
         public string GetUrl(SearchResult searchResult, SearchQuery searchQuery)
         {
             var pageRepository = _serviceProvider.GetRequiredService<IPageRepository>();
-            var pageIdValue = searchResult.Properties?.FirstOrDefault(i => i.Name == Constants.SearchPageIdPropertyName)?.Value ?? string.Empty;
+            var pageIdValue = searchResult.SearchContentProperties?.FirstOrDefault(i => i.Name == Constants.SearchPageIdPropertyName)?.Value ?? string.Empty;
             if(!string.IsNullOrEmpty(pageIdValue) && int.TryParse(pageIdValue, out int pageId))
             {
                 var page = pageRepository.GetPage(pageId);
@@ -39,7 +39,7 @@ namespace Oqtane.Managers.Search
 
         public bool Visible(SearchContent searchResult, SearchQuery searchQuery)
         {
-            var pageIdValue = searchResult.Properties?.FirstOrDefault(i => i.Name == Constants.SearchPageIdPropertyName)?.Value ?? string.Empty;
+            var pageIdValue = searchResult.SearchContentProperties?.FirstOrDefault(i => i.Name == Constants.SearchPageIdPropertyName)?.Value ?? string.Empty;
             if (!string.IsNullOrEmpty(pageIdValue) && int.TryParse(pageIdValue, out int pageId))
             {
                 return CanViewPage(pageId, searchQuery.User);

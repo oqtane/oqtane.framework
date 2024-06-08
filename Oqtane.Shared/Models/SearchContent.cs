@@ -31,9 +31,9 @@ namespace Oqtane.Models
 
         public string AdditionalContent { get; set; }
 
-        public IList<SearchContentProperty> Properties { get; set; }
+        public IList<SearchContentProperty> SearchContentProperties { get; set; }
 
-        public IList<SearchContentWords> Words { get; set; }
+        public IList<SearchContentWord> SearchContentWords { get; set; }
 
         public override string ToString()
         {

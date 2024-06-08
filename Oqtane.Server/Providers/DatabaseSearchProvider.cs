@@ -4,13 +4,11 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Xml;
 using HtmlAgilityPack;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Services;
 using Oqtane.Shared;
-using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace Oqtane.Providers
 {
@@ -64,7 +62,7 @@ namespace Oqtane.Providers
         {
             var totalResults = 0;
 
-            var searchContentList = await _searchContentRepository.GetSearchContentListAsync(searchQuery);
+            var searchContentList = await _searchContentRepository.GetSearchContentsAsync(searchQuery);
 
             //convert the search content to search results.
             var results = searchContentList
@@ -107,7 +105,7 @@ namespace Oqtane.Providers
             {
                 if (i.EntityName == EntityNames.Page || i.EntityName == EntityNames.Module)
                 {
-                    var pageId = i.Properties.FirstOrDefault(p => p.Name == Constants.SearchPageIdPropertyName)?.Value ?? string.Empty;
+                    var pageId = i.SearchContentProperties.FirstOrDefault(p => p.Name == Constants.SearchPageIdPropertyName)?.Value ?? string.Empty;
                     return !string.IsNullOrEmpty(pageId) ? pageId : i.UniqueKey;
                 }
                 else
@@ -138,7 +136,7 @@ namespace Oqtane.Providers
                 Body = searchContent.Body,
                 Url = searchContent.Url,
                 ModifiedTime = searchContent.ModifiedTime,
-                Properties = searchContent.Properties,
+                SearchContentProperties = searchContent.SearchContentProperties,
                 Snippet = BuildSnippet(searchContent, searchQuery),
                 Score = CalculateScore(searchContent, searchQuery)
             };
@@ -151,7 +149,7 @@ namespace Oqtane.Providers
             var score = 0f;
             foreach (var keyword in SearchUtils.GetKeywordsList(searchQuery.Keywords))
             {
-                score += searchContent.Words.Where(i => i.WordSource.Word.StartsWith(keyword)).Sum(i => i.Count);
+                score += searchContent.SearchContentWords.Where(i => i.SearchWord.Word.StartsWith(keyword)).Sum(i => i.Count);
             }
 
             return score / 100;
@@ -206,31 +204,34 @@ namespace Oqtane.Providers
             //analyze the search content and save the index words
             var indexContent = $"{searchContent.Title} {searchContent.Description} {searchContent.Body} {searchContent.AdditionalContent}";
             var words = GetWords(indexContent, WordMinLength);
-            var existWords = _searchContentRepository.GetWords(searchContent.SearchContentId);
+            var existingSearchContentWords = _searchContentRepository.GetSearchContentWords(searchContent.SearchContentId);
             foreach (var kvp in words)
             {
-                var word = existWords.FirstOrDefault(i => i.WordSource.Word == kvp.Key);
-                if (word != null)
+                var searchContentWord = existingSearchContentWords.FirstOrDefault(i => i.SearchWord.Word == kvp.Key);
+                if (searchContentWord != null)
                 {
-                    word.Count = kvp.Value;
-                    _searchContentRepository.UpdateSearchContentWords(word);
+                    searchContentWord.Count = kvp.Value;
+                    searchContentWord.ModifiedOn = DateTime.UtcNow;
+                    _searchContentRepository.UpdateSearchContentWord(searchContentWord);
                 }
                 else
                 {
-                    var wordSource = _searchContentRepository.GetSearchContentWordSource(kvp.Key);
-                    if (wordSource == null)
+                    var searchWord = _searchContentRepository.GetSearchWord(kvp.Key);
+                    if (searchWord == null)
                     {
-                        wordSource = _searchContentRepository.AddSearchContentWordSource(new SearchContentWordSource { Word = kvp.Key });
+                        searchWord = _searchContentRepository.AddSearchWord(new SearchWord { Word = kvp.Key, CreatedOn = DateTime.UtcNow });
                     }
 
-                    word = new SearchContentWords
+                    searchContentWord = new SearchContentWord
                     {
                         SearchContentId = searchContent.SearchContentId,
-                        WordSourceId = wordSource.WordSourceId,
-                        Count = kvp.Value
+                        SearchWordId = searchWord.SearchWordId,
+                        Count = kvp.Value,
+                        CreatedOn = DateTime.UtcNow,
+                        ModifiedOn = DateTime.UtcNow
                     };
 
-                    _searchContentRepository.AddSearchContentWords(word);
+                    _searchContentRepository.AddSearchContentWord(searchContentWord);
                 }
             }
         }

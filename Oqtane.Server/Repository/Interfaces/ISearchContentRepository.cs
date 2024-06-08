@@ -7,18 +7,18 @@ namespace Oqtane.Repository
 {
     public interface ISearchContentRepository
     {
-        Task<IEnumerable<SearchContent>> GetSearchContentListAsync(SearchQuery searchQuery);
+        Task<IEnumerable<SearchContent>> GetSearchContentsAsync(SearchQuery searchQuery);
         SearchContent AddSearchContent(SearchContent searchContent);
         void DeleteSearchContent(int searchContentId);
         void DeleteSearchContent(string entityName, int entryId);
         void DeleteSearchContent(string uniqueKey);
         void DeleteAllSearchContent();
 
-        SearchContentWordSource GetSearchContentWordSource(string word);
-        SearchContentWordSource AddSearchContentWordSource(SearchContentWordSource wordSource);
+        SearchWord GetSearchWord(string word);
+        SearchWord AddSearchWord(SearchWord searchWord);
 
-        IEnumerable<SearchContentWords> GetWords(int searchContentId);
-        SearchContentWords AddSearchContentWords(SearchContentWords word);
-        SearchContentWords UpdateSearchContentWords(SearchContentWords word);
+        IEnumerable<SearchContentWord> GetSearchContentWords(int searchContentId);
+        SearchContentWord AddSearchContentWord(SearchContentWord searchContentWord);
+        SearchContentWord UpdateSearchContentWord(SearchContentWord searchContentWord);
     }
 }
