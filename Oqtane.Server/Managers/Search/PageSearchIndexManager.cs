@@ -64,14 +64,14 @@ namespace Oqtane.Managers.Search
                         IsActive = !page.IsDeleted && Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate)
                     };
 
-                    if (searchContent.Properties == null)
+                    if (searchContent.SearchContentProperties == null)
                     {
-                        searchContent.Properties = new List<SearchContentProperty>();
+                        searchContent.SearchContentProperties = new List<SearchContentProperty>();
                     }
 
-                    if (!searchContent.Properties.Any(i => i.Name == Constants.SearchPageIdPropertyName))
+                    if (!searchContent.SearchContentProperties.Any(i => i.Name == Constants.SearchPageIdPropertyName))
                     {
-                        searchContent.Properties.Add(new SearchContentProperty { Name = Constants.SearchPageIdPropertyName, Value = page.PageId.ToString() });
+                        searchContent.SearchContentProperties.Add(new SearchContentProperty { Name = Constants.SearchPageIdPropertyName, Value = page.PageId.ToString() });
                     }
 
                     searchContentList.Add(searchContent);

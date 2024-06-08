@@ -23,22 +23,22 @@ namespace Oqtane.Migrations.Tenant
             var searchContentPropertyEntityBuilder = new SearchContentPropertyEntityBuilder(migrationBuilder, ActiveDatabase);
             searchContentPropertyEntityBuilder.Create();
 
-            var searchContentWordSourceEntityBuilder = new SearchContentWordSourceEntityBuilder(migrationBuilder, ActiveDatabase);
-            searchContentWordSourceEntityBuilder.Create();
-            searchContentWordSourceEntityBuilder.AddIndex("IX_SearchContentWordSource", "Word", true);
+            var searchWordEntityBuilder = new SearchWordEntityBuilder(migrationBuilder, ActiveDatabase);
+            searchWordEntityBuilder.Create();
+            searchWordEntityBuilder.AddIndex("IX_SearchWord", "Word", true);
 
-            var searchContentWordsEntityBuilder = new SearchContentWordsEntityBuilder(migrationBuilder, ActiveDatabase);
-            searchContentWordsEntityBuilder.Create();
+            var searchContentWordEntityBuilder = new SearchContentWordEntityBuilder(migrationBuilder, ActiveDatabase);
+            searchContentWordEntityBuilder.Create();
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            var searchContentWordsEntityBuilder = new SearchContentWordsEntityBuilder(migrationBuilder, ActiveDatabase);
-            searchContentWordsEntityBuilder.Drop();
+            var searchContentWordEntityBuilder = new SearchContentWordEntityBuilder(migrationBuilder, ActiveDatabase);
+            searchContentWordEntityBuilder.Drop();
 
-            var searchContentWordSourceEntityBuilder = new SearchContentWordSourceEntityBuilder(migrationBuilder, ActiveDatabase);
-            searchContentWordSourceEntityBuilder.DropIndex("IX_SearchContentWordSource");
-            searchContentWordSourceEntityBuilder.Drop();
+            var searchWordEntityBuilder = new SearchWordEntityBuilder(migrationBuilder, ActiveDatabase);
+            searchWordEntityBuilder.DropIndex("IX_SearchWord");
+            searchWordEntityBuilder.Drop();
 
             var searchContentPropertyEntityBuilder = new SearchContentPropertyEntityBuilder(migrationBuilder, ActiveDatabase);
             searchContentPropertyEntityBuilder.Drop();

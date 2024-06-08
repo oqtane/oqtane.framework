@@ -127,19 +127,19 @@ namespace Oqtane.Managers.Search
                 searchContent.Title = !string.IsNullOrEmpty(page.Title) ? page.Title : page.Name;
             }
 
-            if (searchContent.Properties == null)
+            if (searchContent.SearchContentProperties == null)
             {
-                searchContent.Properties = new List<SearchContentProperty>();
+                searchContent.SearchContentProperties = new List<SearchContentProperty>();
             }
 
-            if(!searchContent.Properties.Any(i => i.Name == Constants.SearchPageIdPropertyName))
+            if(!searchContent.SearchContentProperties.Any(i => i.Name == Constants.SearchPageIdPropertyName))
             {
-                searchContent.Properties.Add(new SearchContentProperty { Name = Constants.SearchPageIdPropertyName, Value = pageModule.PageId.ToString() });
+                searchContent.SearchContentProperties.Add(new SearchContentProperty { Name = Constants.SearchPageIdPropertyName, Value = pageModule.PageId.ToString() });
             }
 
-            if (!searchContent.Properties.Any(i => i.Name == Constants.SearchModuleIdPropertyName))
+            if (!searchContent.SearchContentProperties.Any(i => i.Name == Constants.SearchModuleIdPropertyName))
             {
-                searchContent.Properties.Add(new SearchContentProperty { Name = Constants.SearchModuleIdPropertyName, Value = pageModule.ModuleId.ToString() });
+                searchContent.SearchContentProperties.Add(new SearchContentProperty { Name = Constants.SearchModuleIdPropertyName, Value = pageModule.ModuleId.ToString() });
             }
         }
     }

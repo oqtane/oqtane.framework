@@ -17,13 +17,13 @@ namespace Oqtane.Repository
             _dbContextFactory = dbContextFactory;
         }
 
-        public async Task<IEnumerable<SearchContent>> GetSearchContentListAsync(SearchQuery searchQuery)
+        public async Task<IEnumerable<SearchContent>> GetSearchContentsAsync(SearchQuery searchQuery)
         {
             using var db = _dbContextFactory.CreateDbContext();
             var searchContentList = db.SearchContent.AsNoTracking()
-                .Include(i => i.Properties)
-                .Include(i => i.Words)
-                .ThenInclude(w => w.WordSource)
+                .Include(i => i.SearchContentProperties)
+                .Include(i => i.SearchContentWords)
+                .ThenInclude(w => w.SearchWord)
                 .Where(i => i.SiteId == searchQuery.SiteId && i.IsActive);
 
             if (searchQuery.EntityNames != null && searchQuery.EntityNames.Any())
@@ -45,7 +45,7 @@ namespace Oqtane.Repository
             {
                 foreach (var property in searchQuery.Properties)
                 {
-                    searchContentList = searchContentList.Where(i => i.Properties.Any(p => p.Name == property.Key && p.Value == property.Value));
+                    searchContentList = searchContentList.Where(i => i.SearchContentProperties.Any(p => p.Name == property.Key && p.Value == property.Value));
                 }
             }
 
@@ -54,7 +54,7 @@ namespace Oqtane.Repository
             {
                 foreach (var keyword in SearchUtils.GetKeywordsList(searchQuery.Keywords))
                 {
-                    filteredContentList.AddRange(await searchContentList.Where(i => i.Words.Any(w => w.WordSource.Word.StartsWith(keyword))).ToListAsync());
+                    filteredContentList.AddRange(await searchContentList.Where(i => i.SearchContentWords.Any(w => w.SearchWord.Word.StartsWith(keyword))).ToListAsync());
                 }
             }
 
@@ -66,9 +66,9 @@ namespace Oqtane.Repository
             using var context = _dbContextFactory.CreateDbContext();
             context.SearchContent.Add(searchContent);
 
-            if(searchContent.Properties != null && searchContent.Properties.Any())
+            if(searchContent.SearchContentProperties != null && searchContent.SearchContentProperties.Any())
             {
-                foreach(var property in searchContent.Properties)
+                foreach(var property in searchContent.SearchContentProperties)
                 {
                     property.SearchContentId = searchContent.SearchContentId;
                     context.SearchContentProperty.Add(property);
@@ -117,7 +117,7 @@ namespace Oqtane.Repository
             db.SaveChanges();
         }
 
-        public SearchContentWordSource GetSearchContentWordSource(string word)
+        public SearchWord GetSearchWord(string word)
         {
             if(string.IsNullOrEmpty(word))
             {
@@ -125,45 +125,45 @@ namespace Oqtane.Repository
             }
 
             using var db = _dbContextFactory.CreateDbContext();
-            return db.SearchContentWordSource.FirstOrDefault(i => i.Word == word);
+            return db.SearchWord.FirstOrDefault(i => i.Word == word);
         }
 
-        public SearchContentWordSource AddSearchContentWordSource(SearchContentWordSource wordSource)
+        public SearchWord AddSearchWord(SearchWord searchWord)
         {
                 using var db = _dbContextFactory.CreateDbContext();
 
-                db.SearchContentWordSource.Add(wordSource);
+                db.SearchWord.Add(searchWord);
                 db.SaveChanges();
 
-                return wordSource;
+                return searchWord;
         }
 
-        public IEnumerable<SearchContentWords> GetWords(int searchContentId)
+        public IEnumerable<SearchContentWord> GetSearchContentWords(int searchContentId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.SearchContentWords
-                .Include(i => i.WordSource)
+            return db.SearchContentWord
+                .Include(i => i.SearchWord)
                 .Where(i => i.SearchContentId == searchContentId).ToList();
         }
 
-        public SearchContentWords AddSearchContentWords(SearchContentWords word)
+        public SearchContentWord AddSearchContentWord(SearchContentWord searchContentWord)
         {
                 using var db = _dbContextFactory.CreateDbContext();
                 
-                db.SearchContentWords.Add(word);
+                db.SearchContentWord.Add(searchContentWord);
                 db.SaveChanges();
 
-                return word;
+                return searchContentWord;
         }
 
-        public SearchContentWords UpdateSearchContentWords(SearchContentWords word)
+        public SearchContentWord UpdateSearchContentWord(SearchContentWord searchContentWord)
         {
             using var db = _dbContextFactory.CreateDbContext();
 
-            db.Entry(word).State = EntityState.Modified;
+            db.Entry(searchContentWord).State = EntityState.Modified;
             db.SaveChanges();
 
-            return word;
+            return searchContentWord;
         }
     }
 }
