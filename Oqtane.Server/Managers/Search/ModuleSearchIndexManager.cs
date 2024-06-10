@@ -59,7 +59,7 @@ namespace Oqtane.Managers.Search
                         try
                         {
                             var moduleSearch = (ISearchable)ActivatorUtilities.CreateInstance(_serviceProvider, type);
-                            var contentList = moduleSearch.GetSearchContent(module, startTime.GetValueOrDefault(DateTime.MinValue));
+                            var contentList = moduleSearch.GetSearchContents(module, startTime.GetValueOrDefault(DateTime.MinValue));
                             if(contentList != null)
                             {
                                 foreach(var searchContent in contentList)

@@ -6,6 +6,6 @@ namespace Oqtane.Interfaces
 {
     public interface ISearchable
     {
-        public IList<SearchContent> GetSearchContent(Module module, DateTime startTime);
+        public List<SearchContent> GetSearchContents(Module module, DateTime startTime);
     }
 }
