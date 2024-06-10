@@ -33,6 +33,7 @@ namespace Oqtane.Shared
         public const string PageManagementModule = "Oqtane.Modules.Admin.Pages, Oqtane.Client";
         public const string ErrorModule = "Oqtane.Modules.Admin.Error.{Action}, Oqtane.Client";
 
+        public const string AdminSiteTemplate = "Oqtane.SiteTemplates.AdminSiteTemplate, Oqtane.Server";
         public const string DefaultSiteTemplate = "Oqtane.SiteTemplates.DefaultSiteTemplate, Oqtane.Server";
 
         public static readonly string[] DefaultHostModuleTypes = new[] { "Upgrade", "Themes", "SystemInfo", "Sql", "Sites", "ModuleDefinitions", "Logs", "Jobs", "ModuleCreator" };
