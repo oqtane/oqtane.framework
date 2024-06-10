@@ -607,6 +607,7 @@ namespace Oqtane.Repository
                     }
                 }
             });
+
             pageTemplates.Add(new PageTemplate
             {
                 Name = "Register",
@@ -666,6 +667,7 @@ namespace Oqtane.Repository
                     }
                 }
             });
+
             pageTemplates.Add(new PageTemplate
             {
                 Name = "Profile",
@@ -695,6 +697,31 @@ namespace Oqtane.Repository
                     }
                 }
             });
+
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Search",
+                Parent = "",
+                Path = "search",
+                Icon = "oi oi-magnifying-glass",
+                IsNavigation = false,
+                IsPersonalizable = false,
+                PermissionList = new List<Permission> {
+                    new Permission(PermissionNames.View, RoleNames.Admin, true),
+                    new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                },
+                PageTemplateModules = new List<PageTemplateModule> {
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.SearchResults, Oqtane.Client", Title = "Search", Pane = PaneNames.Default,
+                        PermissionList = new List<Permission> {
+                            new Permission(PermissionNames.View, RoleNames.Admin, true),
+                            new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                            new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                        }
+                    }
+                }
+            });
+
             pageTemplates.Add(new PageTemplate
             {
                 Name = "Not Found",
