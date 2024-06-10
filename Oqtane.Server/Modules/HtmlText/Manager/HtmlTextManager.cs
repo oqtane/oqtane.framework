@@ -48,7 +48,7 @@ namespace Oqtane.Modules.HtmlText.Manager
             return content;
         }
 
-        public IList<SearchContent> GetSearchContent(Module module, DateTime startDate)
+        public List<SearchContent> GetSearchContents(Module module, DateTime startDate)
         {
             var searchContentList = new List<SearchContent>();
 
