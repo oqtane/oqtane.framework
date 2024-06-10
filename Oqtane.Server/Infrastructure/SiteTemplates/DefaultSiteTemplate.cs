@@ -133,30 +133,6 @@ namespace Oqtane.SiteTemplates
                     }
                 }
             });
-            _pageTemplates.Add(new PageTemplate
-            {
-                Name = "Search Results",
-                Parent = "",
-                Order = 7,
-                Path = "search",
-                Icon = "oi oi-magnifying-glass",
-                IsNavigation = false,
-                IsPersonalizable = false,
-                PermissionList = new List<Permission> {
-                    new Permission(PermissionNames.View, RoleNames.Everyone, true),
-                    new Permission(PermissionNames.View, RoleNames.Admin, true),
-                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
-                },
-                PageTemplateModules = new List<PageTemplateModule> {
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.SearchResults, Oqtane.Client", Title = "Search Results", Pane = PaneNames.Default,
-                        PermissionList = new List<Permission> {
-                            new Permission(PermissionNames.View, RoleNames.Everyone, true),
-                            new Permission(PermissionNames.View, RoleNames.Admin, true),
-                            new Permission(PermissionNames.Edit, RoleNames.Admin, true)
-                        }
-                    }
-                }
-            });
 
             if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "images", "logo-white.png")))
             {

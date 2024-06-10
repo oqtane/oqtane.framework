@@ -399,7 +399,7 @@ namespace Oqtane.Infrastructure
             var pageTemplates = new List<PageTemplate>();
             pageTemplates.Add(new PageTemplate
             {
-                Name = "Search Results",
+                Name = "Search",
                 Parent = "",
                 Path = "search",
                 Icon = "oi oi-magnifying-glass",
@@ -411,7 +411,7 @@ namespace Oqtane.Infrastructure
                     new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                 },
                 PageTemplateModules = new List<PageTemplateModule> {
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.SearchResults, Oqtane.Client", Title = "Search Results", Pane = PaneNames.Default,
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.SearchResults, Oqtane.Client", Title = "Search", Pane = PaneNames.Default,
                         PermissionList = new List<Permission> {
                             new Permission(PermissionNames.View, RoleNames.Everyone, true),
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
