@@ -8,7 +8,7 @@ namespace Oqtane.Migrations.EntityBuilders
     public class SearchContentWordEntityBuilder : BaseEntityBuilder<SearchContentWordEntityBuilder>
     {
         private const string _entityTableName = "SearchContentWord";
-        private readonly PrimaryKey<SearchContentWordEntityBuilder> _primaryKey = new("PK_SearchContentWord", x => x.SearchWordId);
+        private readonly PrimaryKey<SearchContentWordEntityBuilder> _primaryKey = new("PK_SearchContentWord", x => x.SearchContentWordId);
         private readonly ForeignKey<SearchContentWordEntityBuilder> _foreignKey1 = new("FK_SearchContentWord_SearchContent", x => x.SearchContentId, "SearchContent", "SearchContentId", ReferentialAction.Cascade);
         private readonly ForeignKey<SearchContentWordEntityBuilder> _foreignKey2 = new("FK_SearchContentWord_SearchWord", x => x.SearchWordId, "SearchWord", "SearchWordId", ReferentialAction.Cascade);
 
