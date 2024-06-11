@@ -1,24 +1,25 @@
-@using Microsoft.AspNetCore.Http
 @using Oqtane.Services
 @using System.Net
 @namespace Oqtane.Modules.Admin.SearchResults
 @inherits ModuleBase
+@inject NavigationManager NavigationManager
 @inject ISearchResultsService SearchResultsService
 @inject IStringLocalizer<Index> Localizer
-@inject IHttpContextAccessor HttpContext
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <div class="search-result-container">
     <div class="row">
         <div class="col">
-            <form method="post" @formname="SearchInputForm" @onsubmit="@(async () => await Search())" data-enhance>
+            <form method="post" @formname="SearchInputForm" @onsubmit="Search" data-enhance>
                 <div class="input-group mb-3">
-                    <span class="input-group-text">@Localizer["SearchPrefix"]</span>
+                    <span class="input-group-text">@Localizer["SearchLabel"]</span>
                     <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                     <input type="text" name="keywords" class="form-control shadow-none" maxlength="50"
                             aria-label="Keywords"
                             placeholder="@Localizer["SearchPlaceholder"]"
-                            @bind-value="_keywords">
-                    <button class="btn btn-primary shadow-none" type="submit">@Localizer["Search"]</button>
+                            @bind="@_keywords">
+                    <button class="btn btn-primary" type="submit">@SharedLocalizer["Search"]</button>
+                    <a class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Reset"]</a>
                 </div>
             </form>
         </div>
@@ -37,9 +38,6 @@
                     {
                         <Pager Items="@_searchResults?.Results"
                                Format="Grid"
-                               PageSize="@_pageSize.ToString()"
-                               DisplayPages="@_displayPages.ToString()"
-                               CurrentPage="@_currentPage.ToString()"
                                Columns="1"
                                Toolbar="Bottom"
                                Parameters="@($"q={_keywords}")">
@@ -65,24 +63,18 @@
 </div>
 @code {
     public override string RenderMode => RenderModes.Static;
-    private const int SearchDefaultPageSize = 10;
 
     private SearchSortDirections _searchSortDirection = SearchSortDirections.Descending; //default sort by
     private SearchSortFields _searchSortField = SearchSortFields.Relevance;
     private string _keywords;
     private bool _loading;
     private SearchResults _searchResults;
-    private int _currentPage = 0;
-    private int _pageSize = SearchDefaultPageSize;
-    private int _displayPages = 7;
+
+    [SupplyParameterFromForm(FormName = "SearchInputForm")]
+    public string KeyWords { get => ""; set => _keywords = value; }
 
     protected override async Task OnInitializedAsync()
     {
-        if (ModuleState.Settings.ContainsKey("PageSize"))
-        {
-            _pageSize = int.Parse(ModuleState.Settings["PageSize"]);
-        }
-
         if (PageState.QueryString.ContainsKey("q"))
         {
             _keywords = WebUtility.UrlDecode(PageState.QueryString["q"]);
@@ -94,20 +86,9 @@
         }
     }
 
-    private async Task Search()
+    private void Search()
     {
-        _keywords = HttpContext.HttpContext.Request.Form["keywords"];
-        if (string.IsNullOrEmpty(_keywords))
-        {
-            AddModuleMessage(Localizer["MissingKeywords"], MessageType.Warning);
-        }
-        else
-        {
-            ClearModuleMessage();
-
-            _currentPage = 0;
-            await PerformSearch();
-        }
+        NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, $"page=1&q={_keywords}"));
     }
 
     private async Task PerformSearch()
