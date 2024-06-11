@@ -13,6 +13,7 @@ namespace Oqtane.Modules.Admin.SearchResults
             Name = "Search Results",
             Description = "Display Search Results",
             Version = Constants.Version,
+            Categories = "Admin",
             Resources = new List<Resource>()
             {
                 new Resource { ResourceType = ResourceType.Stylesheet, Url = "~/Module.css" }
