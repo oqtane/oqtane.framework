@@ -60,7 +60,7 @@ namespace [Owner].Module.[Module].Manager
             }
         }
 
-        public IList<SearchContent> GetSearchContentList(Oqtane.Models.Module module, DateTime startTime)
+        public List<SearchContent> GetSearchContentList(Oqtane.Models.Module module, DateTime startTime)
         {
             var searchContentList = new List<SearchContent>();
 
