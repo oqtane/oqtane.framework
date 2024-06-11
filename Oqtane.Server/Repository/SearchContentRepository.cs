@@ -20,7 +20,7 @@ namespace Oqtane.Repository
         public async Task<IEnumerable<SearchContent>> GetSearchContentsAsync(SearchQuery searchQuery)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            var searchContentList = db.SearchContent.AsNoTracking()
+            var searchContents = db.SearchContent.AsNoTracking()
                 .Include(i => i.SearchContentProperties)
                 .Include(i => i.SearchContentWords)
                 .ThenInclude(w => w.SearchWord)
@@ -28,33 +28,33 @@ namespace Oqtane.Repository
 
             if (searchQuery.EntityNames != null && searchQuery.EntityNames.Any())
             {
-                searchContentList = searchContentList.Where(i => searchQuery.EntityNames.Contains(i.EntityName));
+                searchContents = searchContents.Where(i => searchQuery.EntityNames.Contains(i.EntityName));
             }
 
             if (searchQuery.BeginModifiedTimeUtc != DateTime.MinValue)
             {
-                searchContentList = searchContentList.Where(i => i.ModifiedTime >= searchQuery.BeginModifiedTimeUtc);
+                searchContents = searchContents.Where(i => i.ModifiedTime >= searchQuery.BeginModifiedTimeUtc);
             }
 
             if (searchQuery.EndModifiedTimeUtc != DateTime.MinValue)
             {
-                searchContentList = searchContentList.Where(i => i.ModifiedTime <= searchQuery.EndModifiedTimeUtc);
+                searchContents = searchContents.Where(i => i.ModifiedTime <= searchQuery.EndModifiedTimeUtc);
             }
 
             if (searchQuery.Properties != null && searchQuery.Properties.Any())
             {
                 foreach (var property in searchQuery.Properties)
                 {
-                    searchContentList = searchContentList.Where(i => i.SearchContentProperties.Any(p => p.Name == property.Key && p.Value == property.Value));
+                    searchContents = searchContents.Where(i => i.SearchContentProperties.Any(p => p.Name == property.Key && p.Value == property.Value));
                 }
             }
 
             var filteredContentList = new List<SearchContent>();
             if (!string.IsNullOrEmpty(searchQuery.Keywords))
             {
-                foreach (var keyword in SearchUtils.GetKeywordsList(searchQuery.Keywords))
+                foreach (var keyword in SearchUtils.GetKeywords(searchQuery.Keywords))
                 {
-                    filteredContentList.AddRange(await searchContentList.Where(i => i.SearchContentWords.Any(w => w.SearchWord.Word.StartsWith(keyword))).ToListAsync());
+                    filteredContentList.AddRange(await searchContents.Where(i => i.SearchContentWords.Any(w => w.SearchWord.Word.StartsWith(keyword))).ToListAsync());
                 }
             }
 

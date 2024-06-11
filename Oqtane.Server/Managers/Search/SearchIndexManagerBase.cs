@@ -23,7 +23,7 @@ namespace Oqtane.Managers.Search
 
         public abstract string Name { get; }
 
-        public abstract int IndexContent(int siteId, DateTime? startDate, Action<IList<SearchContent>> processSearchContent, Action<string> handleError);
+        public abstract int IndexContent(int siteId, DateTime? startDate, Action<List<SearchContent>> processSearchContent, Action<string> handleError);
 
         public virtual bool IsIndexEnabled(int siteId)
         {

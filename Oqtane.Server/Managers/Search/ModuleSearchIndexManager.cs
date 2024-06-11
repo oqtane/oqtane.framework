@@ -36,7 +36,7 @@ namespace Oqtane.Managers.Search
 
         public override int Priority => ModuleSearchIndexManagerPriority;
 
-        public override int IndexContent(int siteId, DateTime? startTime, Action<IList<SearchContent>> processSearchContent, Action<string> handleError)
+        public override int IndexContent(int siteId, DateTime? startTime, Action<List<SearchContent>> processSearchContent, Action<string> handleError)
         {
             var pageModules = _pageModuleRepostory.GetPageModules(siteId).DistinctBy(i => i.ModuleId);
             var searchContentList = new List<SearchContent>();

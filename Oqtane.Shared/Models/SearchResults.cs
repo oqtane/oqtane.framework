@@ -4,7 +4,7 @@ namespace Oqtane.Models
 {
     public class SearchResults
     {
-        public IList<SearchResult> Results { get; set; }
+        public List<SearchResult> Results { get; set; }
 
         public int TotalResults { get; set; }
     }
