@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
-using HtmlAgilityPack;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -143,7 +141,7 @@ namespace Oqtane.Services
             _tenantManager.SetAlias(alias);
         }
 
-        private IList<ISearchIndexManager> GetSearchIndexManagers(Action<ISearchIndexManager> initManager)
+        private List<ISearchIndexManager> GetSearchIndexManagers(Action<ISearchIndexManager> initManager)
         {
             var managers = new List<ISearchIndexManager>();
             var managerTypes = AppDomain.CurrentDomain.GetAssemblies()
@@ -160,7 +158,7 @@ namespace Oqtane.Services
             return managers.OrderBy(i => i.Priority).ToList();
         }
 
-        private IList<ISearchResultManager> GetSearchResultManagers()
+        private List<ISearchResultManager> GetSearchResultManagers()
         {
             var managers = new List<ISearchResultManager>();
             var managerTypes = AppDomain.CurrentDomain.GetAssemblies()
@@ -176,7 +174,7 @@ namespace Oqtane.Services
             return managers.ToList();
         }
 
-        private void SaveSearchContent(IList<SearchContent> searchContentList)
+        private void SaveSearchContent(List<SearchContent> searchContentList)
         {
             if(searchContentList.Any())
             {

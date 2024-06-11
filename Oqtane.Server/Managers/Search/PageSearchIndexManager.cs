@@ -1,11 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Reflection.Metadata;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Oqtane.Interfaces;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
@@ -35,7 +31,7 @@ namespace Oqtane.Managers.Search
 
         public override int Priority => PageSearchIndexManagerPriority;
 
-        public override int IndexContent(int siteId, DateTime? startTime, Action<IList<SearchContent>> processSearchContent, Action<string> handleError)
+        public override int IndexContent(int siteId, DateTime? startTime, Action<List<SearchContent>> processSearchContent, Action<string> handleError)
         {
             var startTimeValue = startTime.GetValueOrDefault(DateTime.MinValue);
             var pages = _pageRepository.GetPages(siteId).Where(i => i.ModifiedOn >= startTimeValue);

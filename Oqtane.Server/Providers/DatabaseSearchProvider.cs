@@ -147,7 +147,7 @@ namespace Oqtane.Providers
         private float CalculateScore(SearchContent searchContent, SearchQuery searchQuery)
         {
             var score = 0f;
-            foreach (var keyword in SearchUtils.GetKeywordsList(searchQuery.Keywords))
+            foreach (var keyword in SearchUtils.GetKeywords(searchQuery.Keywords))
             {
                 score += searchContent.SearchContentWords.Where(i => i.SearchWord.Word.StartsWith(keyword)).Sum(i => i.Count);
             }
@@ -159,7 +159,7 @@ namespace Oqtane.Providers
         {
             var content = $"{searchContent.Title} {searchContent.Description} {searchContent.Body}";
             var snippet = string.Empty;
-            foreach (var keyword in SearchUtils.GetKeywordsList(searchQuery.Keywords))
+            foreach (var keyword in SearchUtils.GetKeywords(searchQuery.Keywords))
             {
                 if (!string.IsNullOrWhiteSpace(keyword) && content.Contains(keyword, StringComparison.OrdinalIgnoreCase))
                 {
@@ -191,7 +191,7 @@ namespace Oqtane.Providers
                 snippet = content.Substring(0, searchQuery.BodySnippetLength);
             }
 
-            foreach (var keyword in SearchUtils.GetKeywordsList(searchQuery.Keywords))
+            foreach (var keyword in SearchUtils.GetKeywords(searchQuery.Keywords))
             {
                 snippet = Regex.Replace(snippet, $"({keyword})", $"<b>$1</b>", RegexOptions.IgnoreCase);
             }

@@ -14,7 +14,7 @@ namespace Oqtane.Models
 
         public string Keywords { get; set; }
 
-        public IList<string> EntityNames { get; set; } = new List<string>();
+        public List<string> EntityNames { get; set; } = new List<string>();
 
         public DateTime BeginModifiedTimeUtc { get; set; }
 

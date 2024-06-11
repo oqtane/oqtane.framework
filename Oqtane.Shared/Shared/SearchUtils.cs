@@ -4,14 +4,14 @@ namespace Oqtane.Shared
 {
     public sealed class SearchUtils
     {
-        private static readonly IList<string> _systemPages;
+        private static readonly List<string> _systemPages;
 
         static SearchUtils()
         {
             _systemPages = new List<string> { "login", "register", "profile", "404", "search" };
         }
 
-        public static IList<string> GetKeywordsList(string keywords)
+        public static List<string> GetKeywords(string keywords)
         {
             var keywordsList = new List<string>();
             if(!string.IsNullOrEmpty(keywords))
