@@ -1,14 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Oqtane.Models;
 
 namespace Oqtane.Interfaces
 {
     public interface ISearchable
     {
-        public IList<SearchContent> GetSearchContentList(Module module, DateTime startTime);
+        public List<SearchContent> GetSearchContents(Module module, DateTime startTime);
     }
 }
