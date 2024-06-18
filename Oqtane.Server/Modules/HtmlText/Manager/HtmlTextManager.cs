@@ -48,21 +48,23 @@ namespace Oqtane.Modules.HtmlText.Manager
             return content;
         }
 
-        public List<SearchContent> GetSearchContents(Module module, DateTime startDate)
+        public List<SearchContent> GetSearchContents(PageModule pageModule, DateTime startDate)
         {
             var searchContentList = new List<SearchContent>();
 
-            var htmltexts = _htmlText.GetHtmlTexts(module.ModuleId);
+            var htmltexts = _htmlText.GetHtmlTexts(pageModule.ModuleId);
             if (htmltexts != null && htmltexts.Any(i => i.CreatedOn >= startDate))
             {
                 var htmltext = htmltexts.OrderByDescending(item => item.CreatedOn).First();
 
                 searchContentList.Add(new SearchContent
                 {
-                    Title = module.Title,
+                    UniqueKey = $"HtmlText:{htmltext.HtmlTextId}",
+                    Title = pageModule.Title,
                     Description = string.Empty,
                     Body = htmltext.Content,
-                    ModifiedTime = htmltext.ModifiedOn
+                    ContentAuthoredBy = htmltext.ModifiedBy,
+                    ContentAuthoredOn = htmltext.ModifiedOn
                 });
             }
 

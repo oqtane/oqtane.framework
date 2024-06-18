@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Models;
 using Oqtane.Repository;
@@ -21,7 +22,7 @@ namespace Oqtane.Infrastructure
             IsEnabled = true;
         }
 
-        public override string ExecuteJob(IServiceProvider provider)
+        public override async Task<string> ExecuteJobAsync(IServiceProvider provider)
         {
             // get services
             var siteRepository = provider.GetRequiredService<ISiteRepository>();
@@ -38,12 +39,14 @@ namespace Oqtane.Infrastructure
                 logs.AppendLine($"Search: Begin index site: {site.Name}<br />");
                 var currentTime = DateTime.UtcNow;
 
-                searchService.IndexContent(site.SiteId, startTime, logNote =>
+                await searchService.IndexContent(site.SiteId, startTime, async logNote =>
                 {
                     logs.AppendLine(logNote);
-                }, handleError =>
+                    await Task.CompletedTask;
+                }, async handleError =>
                 {
                     logs.AppendLine(handleError);
+                    await Task.CompletedTask;
                 });
 
                 UpdateSearchStartTime(site.SiteId, currentTime, settingRepository);

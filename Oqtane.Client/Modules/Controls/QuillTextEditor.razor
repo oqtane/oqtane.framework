@@ -202,6 +202,8 @@
                         // reload editor if Content passed to component has changed
                         await interop.LoadEditorContent(_editorElement, _richhtml);
                         _originalrichhtml = await interop.GetHtml(_editorElement);
+
+                        _contentchanged = false;
                     }
                     else
                     {
@@ -215,8 +217,6 @@
                     }
                 }
             }
-
-            _contentchanged = false;
         }
     }
 
@@ -224,10 +224,14 @@
     {
         _richhtml = content;
         _rawhtml = content;
-        _originalrawhtml = _rawhtml; // preserve for comparison later
         _originalrichhtml = "";
         _richhtml = content;
-        _contentchanged = content != _originalrawhtml;
+        if (!_contentchanged)
+        {
+            _contentchanged = content != _originalrawhtml;
+        }
+
+        _originalrawhtml = _rawhtml; // preserve for comparison later
 
         StateHasChanged();
     }

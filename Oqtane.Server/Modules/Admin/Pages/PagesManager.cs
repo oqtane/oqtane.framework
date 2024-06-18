@@ -2,56 +2,48 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using Oqtane.Documentation;
+using Oqtane.Interfaces;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
 
-namespace Oqtane.Managers.Search
+namespace Oqtane.Modules.Admin.Pages
 {
-    public class PageSearchIndexManager : SearchIndexManagerBase
+    [PrivateApi("Mark this as private, since it's not very useful in the public docs")]
+    public class PagesManager : ISearchable
     {
-        private const int PageSearchIndexManagerPriority = 100;
-
-        private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger<ModuleSearchIndexManager> _logger;
         private readonly IPageRepository _pageRepository;
+        private readonly ILogger<PagesManager> _logger;
 
-        public PageSearchIndexManager(
-            IServiceProvider serviceProvider,
-            ILogger<ModuleSearchIndexManager> logger,
-            IPageRepository pageRepository)
-            : base(serviceProvider)
+        public PagesManager(IPageRepository pageRepository, ILogger<PagesManager> logger)
         {
-            _serviceProvider = serviceProvider;
-            _logger = logger;
             _pageRepository = pageRepository;
+            _logger = logger;
         }
 
-        public override string Name => EntityNames.Page;
-
-        public override int Priority => PageSearchIndexManagerPriority;
-
-        public override int IndexContent(int siteId, DateTime? startTime, Action<List<SearchContent>> processSearchContent, Action<string> handleError)
+        public List<SearchContent> GetSearchContents(PageModule pageModule, DateTime startTime)
         {
-            var startTimeValue = startTime.GetValueOrDefault(DateTime.MinValue);
-            var pages = _pageRepository.GetPages(siteId).Where(i => i.ModifiedOn >= startTimeValue);
+            var pages = _pageRepository.GetPages(pageModule.Module.SiteId).Where(i => i.ModifiedOn >= startTime);
             var searchContentList = new List<SearchContent>();
 
-            foreach(var page in pages)
+            foreach (var page in pages)
             {
                 try
                 {
-                    if(SearchUtils.IsSystemPage(page))
+                    if (SearchUtils.IsSystemPage(page))
                     {
                         continue;
                     }
 
                     var searchContent = new SearchContent
                     {
+                        UniqueKey = $"{EntityNames.Page}:{page.PageId}",
                         EntityName = EntityNames.Page,
                         EntityId = page.PageId,
                         SiteId = page.SiteId,
-                        ModifiedTime = page.ModifiedOn,
+                        ContentAuthoredBy = page.ModifiedBy,
+                        ContentAuthoredOn = page.ModifiedOn,
                         AdditionalContent = string.Empty,
                         Url = $"{(!string.IsNullOrEmpty(page.Path) && !page.Path.StartsWith("/") ? "/" : "")}{page.Path}",
                         Title = !string.IsNullOrEmpty(page.Title) ? page.Title : page.Name,
@@ -72,16 +64,13 @@ namespace Oqtane.Managers.Search
 
                     searchContentList.Add(searchContent);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _logger.LogError(ex, $"Search: Index page {page.PageId} failed.");
-                    handleError($"Search: Index page {page.PageId} failed: {ex.Message}");
                 }
             }
 
-            processSearchContent(searchContentList);
-
-            return searchContentList.Count;
+            return searchContentList;
         }
     }
 }

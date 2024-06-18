@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Models;
 using Oqtane.Repository;
@@ -23,7 +24,7 @@ namespace Oqtane.Managers.Search
 
         public abstract string Name { get; }
 
-        public abstract int IndexContent(int siteId, DateTime? startDate, Action<List<SearchContent>> processSearchContent, Action<string> handleError);
+        public abstract Task<int> IndexContent(int siteId, DateTime? startDate, Func<List<SearchContent>, Task> processSearchContent, Func<string, Task> handleError);
 
         public virtual bool IsIndexEnabled(int siteId)
         {

@@ -44,12 +44,12 @@ namespace Oqtane.Services
             _cache = cache;
         }
 
-        public void IndexContent(int siteId, DateTime? startTime, Action<string> logNote, Action<string> handleError)
+        public async Task IndexContent(int siteId, DateTime? startTime, Func<string, Task> logNote, Func<string, Task> handleError)
         {
             var searchEnabled = SearchEnabled(siteId);
             if(!searchEnabled)
             {
-                logNote($"Search: Search is disabled on site {siteId}.<br />");
+                await logNote($"Search: Search is disabled on site {siteId}.<br />");
                 return;
             }
 
@@ -61,7 +61,7 @@ namespace Oqtane.Services
 
             if (startTime == null)
             {
-                searchProvider.ResetIndex();
+                await searchProvider.ResetIndex();
             }
 
             var searchIndexManagers = GetSearchIndexManagers(m => { });
@@ -69,14 +69,14 @@ namespace Oqtane.Services
             {
                 if (!searchIndexManager.IsIndexEnabled(siteId))
                 {
-                    logNote($"Search: Ignore indexer {searchIndexManager.Name} because it's disabled.<br />");
+                    await logNote($"Search: Ignore indexer {searchIndexManager.Name} because it's disabled.<br />");
                 }
                 else
                 {
                     _logger.LogDebug($"Search: Begin Index {searchIndexManager.Name}");
 
                     var count = searchIndexManager.IndexContent(siteId, startTime, SaveSearchContent, handleError);
-                    logNote($"Search: Indexer {searchIndexManager.Name} processed {count} search content.<br />");
+                    await logNote($"Search: Indexer {searchIndexManager.Name} processed {count} search content.<br />");
 
                     _logger.LogDebug($"Search: End Index {searchIndexManager.Name}");
                 }
@@ -174,7 +174,7 @@ namespace Oqtane.Services
             return managers.ToList();
         }
 
-        private void SaveSearchContent(List<SearchContent> searchContentList)
+        private async Task SaveSearchContent(List<SearchContent> searchContentList)
         {
             if(searchContentList.Any())
             {
@@ -184,7 +184,9 @@ namespace Oqtane.Services
                 {
                     try
                     {
-                        searchProvider.SaveSearchContent(searchContent);
+                        searchContent.CreatedOn = DateTime.UtcNow;
+
+                        await searchProvider.SaveSearchContent(searchContent);
                     }
                     catch(Exception ex)
                     {
@@ -193,7 +195,7 @@ namespace Oqtane.Services
                 }
 
                 //commit the index changes
-                searchProvider.Commit();
+                await searchProvider.Commit();
             }
         }
 

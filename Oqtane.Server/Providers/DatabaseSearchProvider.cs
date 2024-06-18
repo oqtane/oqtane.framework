@@ -25,29 +25,34 @@ namespace Oqtane.Providers
             _searchContentRepository = searchContentRepository;
         }
 
-        public void Commit()
+        public async Task Commit()
         {
+            await Task.CompletedTask;
         }
 
-        public void DeleteSearchContent(string id)
+        public async Task DeleteSearchContent(string id)
         {
             _searchContentRepository.DeleteSearchContent(id);
+            await Task.CompletedTask;
         }
 
-        public bool Optimize()
+        public async Task<bool> Optimize()
         {
+            await Task.CompletedTask;
+
             return true;
         }
 
-        public void ResetIndex()
+        public async Task ResetIndex()
         {
+            await Task.CompletedTask;
             _searchContentRepository.DeleteAllSearchContent();
         }
 
-        public void SaveSearchContent(SearchContent searchContent, bool autoCommit = false)
+        public async Task SaveSearchContent(SearchContent searchContent, bool autoCommit = false)
         {
             //remove exist document
-            _searchContentRepository.DeleteSearchContent(searchContent.EntityName, searchContent.EntityId);
+            _searchContentRepository.DeleteSearchContent(searchContent.UniqueKey);
 
             //clean the search content to remove html tags
             CleanSearchContent(searchContent);
@@ -56,6 +61,8 @@ namespace Oqtane.Providers
 
             //save the index words
             AnalyzeSearchContent(searchContent);
+
+            await Task.CompletedTask;
         }
 
         public async Task<SearchResults> SearchAsync(SearchQuery searchQuery, Func<SearchContent, SearchQuery, bool> validateFunc)
@@ -74,13 +81,13 @@ namespace Oqtane.Providers
                 switch (searchQuery.SortField)
                 {
                     case SearchSortFields.Relevance:
-                        results = results.OrderByDescending(i => i.Score).ThenByDescending(i => i.ModifiedTime);
+                        results = results.OrderByDescending(i => i.Score).ThenByDescending(i => i.ContentAuthoredOn);
                         break;
                     case SearchSortFields.Title:
-                        results = results.OrderByDescending(i => i.Title).ThenByDescending(i => i.ModifiedTime);
+                        results = results.OrderByDescending(i => i.Title).ThenByDescending(i => i.ContentAuthoredOn);
                         break;
                     default:
-                        results = results.OrderByDescending(i => i.ModifiedTime);
+                        results = results.OrderByDescending(i => i.ContentAuthoredOn);
                         break;
                 }
             }
@@ -89,13 +96,13 @@ namespace Oqtane.Providers
                 switch (searchQuery.SortField)
                 {
                     case SearchSortFields.Relevance:
-                        results = results.OrderBy(i => i.Score).ThenByDescending(i => i.ModifiedTime);
+                        results = results.OrderBy(i => i.Score).ThenByDescending(i => i.ContentAuthoredOn);
                         break;
                     case SearchSortFields.Title:
-                        results = results.OrderBy(i => i.Title).ThenByDescending(i => i.ModifiedTime);
+                        results = results.OrderBy(i => i.Title).ThenByDescending(i => i.ContentAuthoredOn);
                         break;
                     default:
-                        results = results.OrderBy(i => i.ModifiedTime);
+                        results = results.OrderBy(i => i.ContentAuthoredOn);
                         break;
                 }
             }
@@ -135,7 +142,7 @@ namespace Oqtane.Providers
                 Description = searchContent.Description,
                 Body = searchContent.Body,
                 Url = searchContent.Url,
-                ModifiedTime = searchContent.ModifiedTime,
+                ContentAuthoredOn = searchContent.ContentAuthoredOn,
                 SearchContentProperties = searchContent.SearchContentProperties,
                 Snippet = BuildSnippet(searchContent, searchQuery),
                 Score = CalculateScore(searchContent, searchQuery)
@@ -154,16 +161,38 @@ namespace Oqtane.Providers
 
             return score / 100;
         }
-
         private string BuildSnippet(SearchContent searchContent, SearchQuery searchQuery)
         {
-            var content = $"{searchContent.Title} {searchContent.Description} {searchContent.Body}";
+            var snippet = BuildSnippetFromField(searchQuery, searchContent.Body);
+            if(string.IsNullOrEmpty(snippet))
+            {
+                snippet = BuildSnippetFromField(searchQuery, searchContent.Description);
+            }
+            if (string.IsNullOrEmpty(snippet))
+            {
+                snippet = BuildSnippetFromField(searchQuery, searchContent.Title);
+            }
+            if (string.IsNullOrEmpty(snippet))
+            {
+                snippet = searchContent.Body.Substring(0, searchQuery.BodySnippetLength);
+            }
+
+            foreach (var keyword in SearchUtils.GetKeywords(searchQuery.Keywords))
+            {
+                snippet = Regex.Replace(snippet, $"({keyword})", $"<b>$1</b>", RegexOptions.IgnoreCase);
+            }
+
+            return snippet;
+        }
+
+        private string BuildSnippetFromField(SearchQuery searchQuery, string fieldContent)
+        {
             var snippet = string.Empty;
             foreach (var keyword in SearchUtils.GetKeywords(searchQuery.Keywords))
             {
-                if (!string.IsNullOrWhiteSpace(keyword) && content.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                if (!string.IsNullOrWhiteSpace(keyword) && fieldContent.Contains(keyword, StringComparison.OrdinalIgnoreCase))
                 {
-                    var start = content.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) - 20;
+                    var start = fieldContent.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) - 20;
                     var prefix = "...";
                     var suffix = "...";
                     if (start <= 0)
@@ -173,27 +202,15 @@ namespace Oqtane.Providers
                     }
 
                     var length = searchQuery.BodySnippetLength;
-                    if (start + length >= content.Length)
+                    if (start + length >= fieldContent.Length)
                     {
-                        length = content.Length - start;
+                        length = fieldContent.Length - start;
                         suffix = string.Empty;
                     }
 
-                    snippet = $"{prefix}{content.Substring(start, length)}{suffix}";
+                    snippet = $"{prefix}{fieldContent.Substring(start, length)}{suffix}";
                     break;
-
-
                 }
-            }
-
-            if (string.IsNullOrEmpty(snippet))
-            {
-                snippet = content.Substring(0, searchQuery.BodySnippetLength);
-            }
-
-            foreach (var keyword in SearchUtils.GetKeywords(searchQuery.Keywords))
-            {
-                snippet = Regex.Replace(snippet, $"({keyword})", $"<b>$1</b>", RegexOptions.IgnoreCase);
             }
 
             return snippet;

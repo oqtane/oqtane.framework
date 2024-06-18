@@ -33,12 +33,12 @@ namespace Oqtane.Repository
 
             if (searchQuery.BeginModifiedTimeUtc != DateTime.MinValue)
             {
-                searchContents = searchContents.Where(i => i.ModifiedTime >= searchQuery.BeginModifiedTimeUtc);
+                searchContents = searchContents.Where(i => i.ContentAuthoredOn >= searchQuery.BeginModifiedTimeUtc);
             }
 
             if (searchQuery.EndModifiedTimeUtc != DateTime.MinValue)
             {
-                searchContents = searchContents.Where(i => i.ModifiedTime <= searchQuery.EndModifiedTimeUtc);
+                searchContents = searchContents.Where(i => i.ContentAuthoredOn <= searchQuery.EndModifiedTimeUtc);
             }
 
             if (searchQuery.Properties != null && searchQuery.Properties.Any())
@@ -88,21 +88,10 @@ namespace Oqtane.Repository
             db.SaveChanges();
         }
 
-        public void DeleteSearchContent(string entityName, int entryId)
-        {
-            using var db = _dbContextFactory.CreateDbContext();
-            var searchContent = db.SearchContent.FirstOrDefault(i => i.EntityName == entityName && i.EntityId == entryId);
-            if(searchContent != null)
-            {
-                db.SearchContent.Remove(searchContent);
-                db.SaveChanges();
-            }
-        }
-
         public void DeleteSearchContent(string uniqueKey)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            var searchContent = db.SearchContent.FirstOrDefault(i => (i.EntityName + ":" + i.EntityId) == uniqueKey);
+            var searchContent = db.SearchContent.FirstOrDefault(i => i.UniqueKey == uniqueKey);
             if (searchContent != null)
             {
                 db.SearchContent.Remove(searchContent);

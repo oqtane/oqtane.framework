@@ -4,12 +4,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 namespace Oqtane.Models
 {
-    public class SearchContent : ModelBase
+    public class SearchContent
     {
         public int SearchContentId { get; set; }
 
-        [NotMapped]
-        public string UniqueKey => $"{EntityName}:{EntityId}";
+        public string UniqueKey { get; set; }
 
         public string EntityName { get; set; }
 
@@ -25,7 +24,9 @@ namespace Oqtane.Models
 
         public string Url { get; set; }
 
-        public DateTime ModifiedTime { get; set; }
+        public string ContentAuthoredBy { get; set; }
+
+        public DateTime ContentAuthoredOn { get; set; }
 
         public bool IsActive { get; set; } = true;
 
@@ -34,6 +35,8 @@ namespace Oqtane.Models
         public List<SearchContentProperty> SearchContentProperties { get; set; }
 
         public List<SearchContentWord> SearchContentWords { get; set; }
+
+        public DateTime CreatedOn { get; set; }
 
         public override string ToString()
         {
