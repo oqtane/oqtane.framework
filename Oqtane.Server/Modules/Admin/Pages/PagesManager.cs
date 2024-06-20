@@ -14,11 +14,13 @@ namespace Oqtane.Modules.Admin.Pages
     public class PagesManager : ISearchable
     {
         private readonly IPageRepository _pageRepository;
+        private readonly ISettingRepository _settingRepository;
         private readonly ILogger<PagesManager> _logger;
 
-        public PagesManager(IPageRepository pageRepository, ILogger<PagesManager> logger)
+        public PagesManager(IPageRepository pageRepository, ISettingRepository settingRepository, ILogger<PagesManager> logger)
         {
             _pageRepository = pageRepository;
+            _settingRepository = settingRepository;
             _logger = logger;
         }
 
@@ -49,7 +51,7 @@ namespace Oqtane.Modules.Admin.Pages
                         Title = !string.IsNullOrEmpty(page.Title) ? page.Title : page.Name,
                         Description = string.Empty,
                         Body = $"{page.Name} {page.Title}",
-                        IsActive = !page.IsDeleted && Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate)
+                        IsActive = !page.IsDeleted && Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate) && AllowIndex(page)
                     };
 
                     if (searchContent.SearchContentProperties == null)
@@ -71,6 +73,12 @@ namespace Oqtane.Modules.Admin.Pages
             }
 
             return searchContentList;
+        }
+
+        private bool AllowIndex(Page page)
+        {
+            var setting = _settingRepository.GetSetting(EntityNames.Page, page.PageId, "AllowIndex");
+            return setting == null || !bool.TryParse(setting.SettingValue, out bool allowed) || allowed;
         }
     }
 }

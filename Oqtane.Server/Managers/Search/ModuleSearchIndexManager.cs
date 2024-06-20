@@ -19,18 +19,21 @@ namespace Oqtane.Managers.Search
         private readonly ILogger<ModuleSearchIndexManager> _logger;
         private readonly IPageModuleRepository _pageModuleRepostory;
         private readonly IPageRepository _pageRepository;
+        private readonly ISettingRepository _settingRepository;
 
         public ModuleSearchIndexManager(
             IServiceProvider serviceProvider,
             IPageModuleRepository pageModuleRepostory,
             ILogger<ModuleSearchIndexManager> logger,
-            IPageRepository pageRepository)
+            IPageRepository pageRepository,
+            ISettingRepository settingRepository)
             : base(serviceProvider)
         {
             _serviceProvider = serviceProvider;
             _logger = logger;
             _pageModuleRepostory = pageModuleRepostory;
             _pageRepository = pageRepository;
+            _settingRepository = settingRepository;
         }
 
         public override string Name => EntityNames.Module;
@@ -51,6 +54,7 @@ namespace Oqtane.Managers.Search
                 }
 
                 var module = pageModule.Module;
+                var allowIndex = AllowIndex(page);
                 if (module.ModuleDefinition.ServerManagerType != "")
                 {
                     _logger.LogDebug($"Search: Begin index module {module.ModuleId}.");
@@ -66,6 +70,11 @@ namespace Oqtane.Managers.Search
                                 foreach(var searchContent in contentList)
                                 {
                                     SaveModuleMetaData(searchContent, pageModule);
+
+                                    if(searchContent.IsActive)
+                                    {
+                                        searchContent.IsActive = allowIndex;
+                                    }
 
                                     searchContentList.Add(searchContent);
                                 }
@@ -142,6 +151,12 @@ namespace Oqtane.Managers.Search
             {
                 searchContent.SearchContentProperties.Add(new SearchContentProperty { Name = Constants.SearchModuleIdPropertyName, Value = pageModule.ModuleId.ToString() });
             }
+        }
+
+        private bool AllowIndex(Page page)
+        {
+            var setting = _settingRepository.GetSetting(EntityNames.Page, page.PageId, "AllowIndex");
+            return setting == null || !bool.TryParse(setting.SettingValue, out bool allowed) || allowed;
         }
     }
 }

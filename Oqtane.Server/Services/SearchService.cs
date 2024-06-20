@@ -75,7 +75,7 @@ namespace Oqtane.Services
                 {
                     _logger.LogDebug($"Search: Begin Index {searchIndexManager.Name}");
 
-                    var count = searchIndexManager.IndexContent(siteId, startTime, SaveSearchContent, handleError);
+                    var count = await searchIndexManager.IndexContent(siteId, startTime, SaveSearchContent, handleError);
                     await logNote($"Search: Indexer {searchIndexManager.Name} processed {count} search content.<br />");
 
                     _logger.LogDebug($"Search: End Index {searchIndexManager.Name}");
