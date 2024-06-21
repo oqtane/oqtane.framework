@@ -560,6 +560,28 @@ namespace Oqtane.Shared
 
             return (localDateTime?.Date, localTime);
         }
+        public static bool IsRoleEffective(DateTime? effectiveDate, DateTime? expiryDate)
+        {
+            DateTime currentUtcTime = DateTime.UtcNow;
+
+            if (effectiveDate.HasValue && expiryDate.HasValue)
+            {
+                return currentUtcTime >= effectiveDate.Value && currentUtcTime <= expiryDate.Value;
+            }
+            else if (effectiveDate.HasValue)
+            {
+                return currentUtcTime >= effectiveDate.Value;
+            }
+            else if (expiryDate.HasValue)
+            {
+                // Include equality check here
+                return currentUtcTime <= expiryDate.Value;
+            }
+            else
+            {
+                return true;
+            }
+        }
         public static bool IsPageModuleVisible(DateTime? effectiveDate, DateTime? expiryDate)
         {
             DateTime currentUtcTime = DateTime.UtcNow;

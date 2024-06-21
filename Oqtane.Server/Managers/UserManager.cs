@@ -82,7 +82,7 @@ namespace Oqtane.Managers
         private string GetUserRoles(int userId, int siteId)
         {
             string roles = "";
-            List<UserRole> userroles = _userRoles.GetUserRoles(userId, siteId).ToList();
+            List<UserRole> userroles = _userRoles.GetUserRoles(userId, siteId).Where(item => Utilities.IsRoleEffective(item.EffectiveDate, item.ExpiryDate)).ToList();
             foreach (UserRole userrole in userroles)
             {
                 roles += userrole.Role.Name + ";";
