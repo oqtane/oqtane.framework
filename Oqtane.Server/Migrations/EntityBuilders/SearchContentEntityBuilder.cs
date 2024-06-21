@@ -31,7 +31,6 @@ namespace Oqtane.Migrations.EntityBuilders
             ContentAuthoredBy = AddStringColumn(table, "ContentAuthoredBy", 256);
             ContentAuthoredOn = AddDateTimeColumn(table, "ContentAuthoredOn");
             CreatedOn = AddDateTimeColumn(table, "CreatedOn");
-            IsActive = AddBooleanColumn(table, "IsActive");
             AdditionalContent = AddMaxStringColumn(table, "AdditionalContent");
 
             return this;
@@ -60,8 +59,6 @@ namespace Oqtane.Migrations.EntityBuilders
         public OperationBuilder<AddColumnOperation> ContentAuthoredOn { get; private set; }
 
         public OperationBuilder<AddColumnOperation> CreatedOn { get; private set; }
-
-        public OperationBuilder<AddColumnOperation> IsActive { get; private set; }
 
         public OperationBuilder<AddColumnOperation> AdditionalContent { get; private set; }
     }

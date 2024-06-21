@@ -28,8 +28,6 @@ namespace Oqtane.Models
 
         public DateTime ContentAuthoredOn { get; set; }
 
-        public bool IsActive { get; set; } = true;
-
         public string AdditionalContent { get; set; }
 
         public List<SearchContentProperty> SearchContentProperties { get; set; }
@@ -37,6 +35,9 @@ namespace Oqtane.Models
         public List<SearchContentWord> SearchContentWords { get; set; }
 
         public DateTime CreatedOn { get; set; }
+
+        [NotMapped]
+        public bool IsDeleted { get; set; }
 
         public override string ToString()
         {

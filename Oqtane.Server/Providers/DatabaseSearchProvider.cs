@@ -32,7 +32,7 @@ namespace Oqtane.Providers
 
         public async Task DeleteSearchContent(string id)
         {
-            _searchContentRepository.DeleteSearchContent(id);
+            _searchContentRepository.DeleteSearchContent(id, false);
             await Task.CompletedTask;
         }
 
@@ -52,15 +52,18 @@ namespace Oqtane.Providers
         public async Task SaveSearchContent(SearchContent searchContent, bool autoCommit = false)
         {
             //remove exist document
-            _searchContentRepository.DeleteSearchContent(searchContent.UniqueKey);
+            _searchContentRepository.DeleteSearchContent(searchContent.UniqueKey, searchContent.IsDeleted);
 
-            //clean the search content to remove html tags
-            CleanSearchContent(searchContent);
+            if (!searchContent.IsDeleted)
+            {
+                //clean the search content to remove html tags
+                CleanSearchContent(searchContent);
 
-            _searchContentRepository.AddSearchContent(searchContent);
+                _searchContentRepository.AddSearchContent(searchContent);
 
-            //save the index words
-            AnalyzeSearchContent(searchContent);
+                //save the index words
+                AnalyzeSearchContent(searchContent);
+            }
 
             await Task.CompletedTask;
         }

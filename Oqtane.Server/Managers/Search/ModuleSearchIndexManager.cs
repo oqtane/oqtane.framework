@@ -54,7 +54,6 @@ namespace Oqtane.Managers.Search
                 }
 
                 var module = pageModule.Module;
-                var allowIndex = AllowIndex(page);
                 if (module.ModuleDefinition.ServerManagerType != "")
                 {
                     _logger.LogDebug($"Search: Begin index module {module.ModuleId}.");
@@ -71,9 +70,9 @@ namespace Oqtane.Managers.Search
                                 {
                                     SaveModuleMetaData(searchContent, pageModule);
 
-                                    if(searchContent.IsActive)
+                                    if(!searchContent.IsDeleted)
                                     {
-                                        searchContent.IsActive = allowIndex;
+                                        searchContent.IsDeleted = !AllowIndex(page);
                                     }
 
                                     searchContentList.Add(searchContent);
@@ -110,9 +109,9 @@ namespace Oqtane.Managers.Search
                 searchContent.EntityId = pageModule.ModuleId;
             }
 
-            if (searchContent.IsActive)
+            if (!searchContent.IsDeleted)
             {
-                searchContent.IsActive = !pageModule.Module.IsDeleted;
+                searchContent.IsDeleted = pageModule.Module.IsDeleted;
             }
 
             if (searchContent.ContentAuthoredOn == DateTime.MinValue)

@@ -51,7 +51,7 @@ namespace Oqtane.Modules.Admin.Pages
                         Title = !string.IsNullOrEmpty(page.Title) ? page.Title : page.Name,
                         Description = string.Empty,
                         Body = $"{page.Name} {page.Title}",
-                        IsActive = !page.IsDeleted && Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate) && AllowIndex(page)
+                        IsDeleted = page.IsDeleted || !Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate) || !AllowIndex(page)
                     };
 
                     if (searchContent.SearchContentProperties == null)

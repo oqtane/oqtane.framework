@@ -23,17 +23,20 @@ namespace Oqtane.Modules.HtmlText.Manager
         private readonly IHtmlTextRepository _htmlText;
         private readonly IDBContextDependencies _DBContextDependencies;
         private readonly ISqlRepository _sqlRepository;
+        private readonly IPageRepository _pageRepository;
 
         public HtmlTextManager(
             IServiceProvider serviceProvider,
             IHtmlTextRepository htmlText,
             IDBContextDependencies DBContextDependencies,
-            ISqlRepository sqlRepository)
+            ISqlRepository sqlRepository,
+            IPageRepository pageRepository)
         {
             _serviceProvider = serviceProvider;
             _htmlText = htmlText;
             _DBContextDependencies = DBContextDependencies;
             _sqlRepository = sqlRepository;
+            _pageRepository = pageRepository;
         }
 
         public string ExportModule(Module module)
@@ -53,13 +56,21 @@ namespace Oqtane.Modules.HtmlText.Manager
             var searchContentList = new List<SearchContent>();
 
             var htmltexts = _htmlText.GetHtmlTexts(pageModule.ModuleId);
-            if (htmltexts != null && htmltexts.Any(i => i.CreatedOn >= startDate))
+            var page = _pageRepository.GetPage(pageModule.PageId);
+            if (htmltexts != null
+                && page != null
+                && (htmltexts.Any(i => i.CreatedOn >= startDate)
+                        || pageModule.ModifiedOn >= startDate
+                        || pageModule.Module.ModifiedOn >= startDate
+                        || page.ModifiedOn >= startDate
+                    )
+            )
             {
                 var htmltext = htmltexts.OrderByDescending(item => item.CreatedOn).First();
 
                 searchContentList.Add(new SearchContent
                 {
-                    UniqueKey = $"HtmlText:{htmltext.HtmlTextId}",
+                    UniqueKey = $"{EntityNames.Page}:{pageModule.PageId}_HtmlText:{htmltext.HtmlTextId}",
                     Title = pageModule.Title,
                     Description = string.Empty,
                     Body = htmltext.Content,

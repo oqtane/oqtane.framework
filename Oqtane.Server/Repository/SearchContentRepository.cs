@@ -24,7 +24,7 @@ namespace Oqtane.Repository
                 .Include(i => i.SearchContentProperties)
                 .Include(i => i.SearchContentWords)
                 .ThenInclude(w => w.SearchWord)
-                .Where(i => i.SiteId == searchQuery.SiteId && i.IsActive);
+                .Where(i => i.SiteId == searchQuery.SiteId);
 
             if (searchQuery.EntityNames != null && searchQuery.EntityNames.Any())
             {
@@ -84,17 +84,30 @@ namespace Oqtane.Repository
         {
             using var db = _dbContextFactory.CreateDbContext();
             var searchContent = db.SearchContent.Find(searchContentId);
-            db.SearchContent.Remove(searchContent);
-            db.SaveChanges();
+            if (searchContent != null)
+            {
+                db.SearchContent.Remove(searchContent);
+                db.SaveChanges();
+            }
         }
 
-        public void DeleteSearchContent(string uniqueKey)
+        public void DeleteSearchContent(string uniqueKey, bool recursive)
         {
             using var db = _dbContextFactory.CreateDbContext();
             var searchContent = db.SearchContent.FirstOrDefault(i => i.UniqueKey == uniqueKey);
             if (searchContent != null)
             {
                 db.SearchContent.Remove(searchContent);
+
+                if (recursive)
+                {
+                    var childItems = db.SearchContent.Where(i => i.UniqueKey.StartsWith(uniqueKey));
+                    foreach (var childItem in childItems)
+                    {
+                        db.SearchContent.Remove(childItem);
+                    }
+                }
+
                 db.SaveChanges();
             }
         }
