@@ -62,7 +62,8 @@ namespace Oqtane.Services
 
         public async Task<Site> GetSiteAsync(int siteId)
         {
-            var site = await _cache.GetOrCreateAsync($"site:{_accessor.HttpContext.GetAlias().SiteKey}", async entry =>
+            var alias = _tenantManager.GetAlias();
+            var site = await _cache.GetOrCreateAsync($"site:{alias.SiteKey}", async entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                 return await GetSite(siteId);
@@ -240,7 +241,8 @@ namespace Oqtane.Services
 
         public async Task<List<Module>> GetModulesAsync(int siteId, int pageId)
         {
-            var sitemodules = await _cache.GetOrCreateAsync($"modules:{_accessor.HttpContext.GetAlias().SiteKey}", async entry =>
+            var alias = _tenantManager.GetAlias();
+            var sitemodules = await _cache.GetOrCreateAsync($"modules:{alias.SiteKey}", async entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                 return await GetModulesAsync(siteId);
@@ -259,7 +261,8 @@ namespace Oqtane.Services
 
         public async Task<List<Module>> GetModulesAsync(int siteId)
         {
-            return await _cache.GetOrCreateAsync($"modules:{_accessor.HttpContext.GetAlias().SiteKey}", async entry =>
+            var alias = _tenantManager.GetAlias();
+            return await _cache.GetOrCreateAsync($"modules:{alias.SiteKey}", async entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                 return await GetModules(siteId);
