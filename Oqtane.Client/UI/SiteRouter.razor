@@ -213,7 +213,7 @@
                 return;
             }
 
-            if (PageState == null || refresh || PageState.Page.Path != route.PagePath)
+            if (refresh || PageState == null || PageState.Page.Path != route.PagePath)
             {
                 page = site.Pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
             }
@@ -275,7 +275,7 @@
                 }
 
                 // get modules for current page
-                if (PageState.Modules == null || (PageState.Modules.Any() && PageState.Modules.First().PageId != page.PageId))
+                if (refresh || PageState.Modules == null || !PageState.Modules.Any() || PageState.Modules.First().PageId != page.PageId)
                 {
                     modules = await SiteService.GetModulesAsync(site.SiteId, page.PageId);
                 }
