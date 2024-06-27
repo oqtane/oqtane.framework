@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Oqtane.Interfaces;
@@ -18,25 +19,28 @@ namespace Oqtane.Managers.Search
         private readonly ILogger<ModuleSearchIndexManager> _logger;
         private readonly IPageModuleRepository _pageModuleRepostory;
         private readonly IPageRepository _pageRepository;
+        private readonly ISettingRepository _settingRepository;
 
         public ModuleSearchIndexManager(
             IServiceProvider serviceProvider,
             IPageModuleRepository pageModuleRepostory,
             ILogger<ModuleSearchIndexManager> logger,
-            IPageRepository pageRepository)
+            IPageRepository pageRepository,
+            ISettingRepository settingRepository)
             : base(serviceProvider)
         {
             _serviceProvider = serviceProvider;
             _logger = logger;
             _pageModuleRepostory = pageModuleRepostory;
             _pageRepository = pageRepository;
+            _settingRepository = settingRepository;
         }
 
         public override string Name => EntityNames.Module;
 
         public override int Priority => ModuleSearchIndexManagerPriority;
 
-        public override int IndexContent(int siteId, DateTime? startTime, Action<List<SearchContent>> processSearchContent, Action<string> handleError)
+        public override async Task<int> IndexContent(int siteId, DateTime? startTime, Func<List<SearchContent>, Task> processSearchContent, Func<string, Task> handleError)
         {
             var pageModules = _pageModuleRepostory.GetPageModules(siteId).DistinctBy(i => i.ModuleId);
             var searchContentList = new List<SearchContent>();
@@ -44,7 +48,7 @@ namespace Oqtane.Managers.Search
             foreach(var pageModule in pageModules)
             {
                 var page = _pageRepository.GetPage(pageModule.PageId);
-                if(page == null || SearchUtils.IsSystemPage(page))
+                if(page == null)
                 {
                     continue;
                 }
@@ -59,12 +63,17 @@ namespace Oqtane.Managers.Search
                         try
                         {
                             var moduleSearch = (ISearchable)ActivatorUtilities.CreateInstance(_serviceProvider, type);
-                            var contentList = moduleSearch.GetSearchContents(module, startTime.GetValueOrDefault(DateTime.MinValue));
+                            var contentList = moduleSearch.GetSearchContents(pageModule, startTime.GetValueOrDefault(DateTime.MinValue));
                             if(contentList != null)
                             {
                                 foreach(var searchContent in contentList)
                                 {
                                     SaveModuleMetaData(searchContent, pageModule);
+
+                                    if(!searchContent.IsDeleted)
+                                    {
+                                        searchContent.IsDeleted = !AllowIndex(page);
+                                    }
 
                                     searchContentList.Add(searchContent);
                                 }
@@ -74,14 +83,14 @@ namespace Oqtane.Managers.Search
                         catch(Exception ex)
                         {
                             _logger.LogError(ex, $"Search: Index module {module.ModuleId} failed.");
-                            handleError($"Search: Index module {module.ModuleId} failed: {ex.Message}");
+                            await handleError($"Search: Index module {module.ModuleId} failed: {ex.Message}");
                         }
                     }
                     _logger.LogDebug($"Search: End index module {module.ModuleId}.");
                 }
             }
 
-            processSearchContent(searchContentList);
+            await processSearchContent(searchContentList);
 
             return searchContentList.Count;
         }
@@ -100,14 +109,14 @@ namespace Oqtane.Managers.Search
                 searchContent.EntityId = pageModule.ModuleId;
             }
 
-            if (searchContent.IsActive)
+            if (!searchContent.IsDeleted)
             {
-                searchContent.IsActive = !pageModule.Module.IsDeleted;
+                searchContent.IsDeleted = pageModule.Module.IsDeleted;
             }
 
-            if (searchContent.ModifiedTime == DateTime.MinValue)
+            if (searchContent.ContentAuthoredOn == DateTime.MinValue)
             {
-                searchContent.ModifiedTime = pageModule.ModifiedOn;
+                searchContent.ContentAuthoredOn = pageModule.ModifiedOn;
             }
 
             if (string.IsNullOrEmpty(searchContent.AdditionalContent))
@@ -141,6 +150,12 @@ namespace Oqtane.Managers.Search
             {
                 searchContent.SearchContentProperties.Add(new SearchContentProperty { Name = Constants.SearchModuleIdPropertyName, Value = pageModule.ModuleId.ToString() });
             }
+        }
+
+        private bool AllowIndex(Page page)
+        {
+            var setting = _settingRepository.GetSetting(EntityNames.Page, page.PageId, "AllowIndex");
+            return setting == null || !bool.TryParse(setting.SettingValue, out bool allowed) || allowed;
         }
     }
 }

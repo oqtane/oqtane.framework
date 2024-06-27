@@ -8,7 +8,7 @@ namespace Oqtane.Shared
 
         static SearchUtils()
         {
-            _systemPages = new List<string> { "login", "register", "profile", "404", "search" };
+            _systemPages = new List<string> { "login", "register", "profile", "404", "search", "reset" };
         }
 
         public static List<string> GetKeywords(string keywords)

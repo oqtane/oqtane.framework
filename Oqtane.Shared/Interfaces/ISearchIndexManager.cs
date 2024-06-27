@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Oqtane.Models;
 
 namespace Oqtane.Services
@@ -12,6 +13,6 @@ namespace Oqtane.Services
 
         bool IsIndexEnabled(int siteId);
 
-        int IndexContent(int siteId, DateTime? startTime, Action<List<SearchContent>> processSearchContent, Action<string> handleError);
+        Task<int> IndexContent(int siteId, DateTime? startTime, Func<List<SearchContent>, Task> processSearchContent, Func<string, Task> handleError);
     }
 }

@@ -15,9 +15,9 @@
                     <span class="input-group-text">@Localizer["SearchLabel"]</span>
                     <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                     <input type="text" name="keywords" class="form-control shadow-none" maxlength="50"
-                            aria-label="Keywords"
-                            placeholder="@Localizer["SearchPlaceholder"]"
-                            @bind="@_keywords">
+                           aria-label="Keywords"
+                           placeholder="@Localizer["SearchPlaceholder"]"
+                           @bind="@_keywords">
                     <button class="btn btn-primary" type="submit">@SharedLocalizer["Search"]</button>
                     <a class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Reset"]</a>
                 </div>
@@ -73,16 +73,22 @@
     [SupplyParameterFromForm(FormName = "SearchInputForm")]
     public string KeyWords { get => ""; set => _keywords = value; }
 
+    [SupplyParameterFromForm(FormName = "SearchInputForm")]
+    public string __RequestVerificationToken { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
-        if (PageState.QueryString.ContainsKey("q"))
+        if (string.IsNullOrEmpty(__RequestVerificationToken)) //not submitted
         {
-            _keywords = WebUtility.UrlDecode(PageState.QueryString["q"]);
-        }
+            if (PageState.QueryString.ContainsKey("q"))
+            {
+                _keywords = WebUtility.UrlDecode(PageState.QueryString["q"]);
+            }
 
-        if (!string.IsNullOrEmpty(_keywords))
-        {
-            await PerformSearch();
+            if (!string.IsNullOrEmpty(_keywords))
+            {
+                await PerformSearch();
+            }
         }
     }
 

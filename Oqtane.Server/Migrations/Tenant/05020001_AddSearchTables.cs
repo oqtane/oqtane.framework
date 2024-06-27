@@ -19,6 +19,7 @@ namespace Oqtane.Migrations.Tenant
         {
             var searchContentEntityBuilder = new SearchContentEntityBuilder(migrationBuilder, ActiveDatabase);
             searchContentEntityBuilder.Create();
+            searchContentEntityBuilder.AddIndex("IX_SearchContent_UniqueKey", "UniqueKey", true);
 
             var searchContentPropertyEntityBuilder = new SearchContentPropertyEntityBuilder(migrationBuilder, ActiveDatabase);
             searchContentPropertyEntityBuilder.Create();
@@ -44,6 +45,7 @@ namespace Oqtane.Migrations.Tenant
             searchContentPropertyEntityBuilder.Drop();
 
             var searchContentEntityBuilder = new SearchContentEntityBuilder(migrationBuilder, ActiveDatabase);
+            searchContentEntityBuilder.DropIndex("IX_SearchContent_UniqueKey");
             searchContentEntityBuilder.Drop();
         }
     }
