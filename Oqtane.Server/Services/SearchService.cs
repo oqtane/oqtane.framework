@@ -10,6 +10,7 @@ using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Shared;
+using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 
 namespace Oqtane.Services
 {
@@ -199,17 +200,18 @@ namespace Oqtane.Services
 
         private bool Visible(SearchContent searchContent, SearchQuery searchQuery)
         {
-            if(!HasViewPermission(searchQuery.SiteId, searchQuery.User, searchContent.EntityName, searchContent.EntityId))
+            var visible = true;
+            foreach (var permission in searchContent.Permissions.Split(','))
             {
-                return false;
+                var entityName = permission.Split(":")[0];
+                var entityId = int.Parse(permission.Split(":")[1]);
+                if (!HasViewPermission(searchQuery.SiteId, searchQuery.User, entityName, entityId))
+                {
+                    visible = false;
+                    break;
+                }
             }
-
-            var searchResultManager = GetSearchResultManagers().FirstOrDefault(i => i.Name == searchContent.EntityName);
-            if (searchResultManager != null)
-            {
-                return searchResultManager.Visible(searchContent, searchQuery);
-            }
-            return true;
+            return visible;
         }
 
         private bool HasViewPermission(int siteId, User user, string entityName, int entityId)

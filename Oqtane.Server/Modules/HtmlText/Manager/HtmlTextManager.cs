@@ -62,7 +62,8 @@ namespace Oqtane.Modules.HtmlText.Manager
                     Title = module.Title,
                     Description = string.Empty,
                     Body = htmltext.Content,
-                    ModifiedTime = htmltext.ModifiedOn
+                    ContentModifiedBy = htmltext.ModifiedBy,
+                    ContentModifiedOn = htmltext.ModifiedOn
                 });
             }
 

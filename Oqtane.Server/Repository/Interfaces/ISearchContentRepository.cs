@@ -10,7 +10,7 @@ namespace Oqtane.Repository
         Task<IEnumerable<SearchContent>> GetSearchContentsAsync(SearchQuery searchQuery);
         SearchContent AddSearchContent(SearchContent searchContent);
         void DeleteSearchContent(int searchContentId);
-        void DeleteSearchContent(string entityName, int entryId);
+        void DeleteSearchContent(string entityName, string entryId);
         void DeleteSearchContent(string uniqueKey);
         void DeleteAllSearchContent();
 
