@@ -22,7 +22,7 @@ namespace Oqtane.Models
 
         public string Url { get; set; }
 
-        public string Permissions { get; set; }
+        public string Permissions { get; set; } // comma delimited EntityName:EntityId,EntityName:EntityId
 
         public string ContentModifiedBy { get; set; }
 
