@@ -2,11 +2,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Databases.Interfaces;
-using Oqtane.Models;
 
 namespace Oqtane.Migrations.EntityBuilders
 {
-    public class SearchContentEntityBuilder : AuditableBaseEntityBuilder<SearchContentEntityBuilder>
+    public class SearchContentEntityBuilder : BaseEntityBuilder<SearchContentEntityBuilder>
     {
         private const string _entityTableName = "SearchContent";
         private readonly PrimaryKey<SearchContentEntityBuilder> _primaryKey = new("PK_SearchContent", x => x.SearchContentId);
@@ -20,29 +19,29 @@ namespace Oqtane.Migrations.EntityBuilders
         protected override SearchContentEntityBuilder BuildTable(ColumnsBuilder table)
         {
             SearchContentId = AddAutoIncrementColumn(table, "SearchContentId");
+            SiteId = AddIntegerColumn(table, "SiteId");
             EntityName = AddStringColumn(table, "EntityName", 50);
             EntityId = AddIntegerColumn(table, "EntityId");
-            SiteId = AddIntegerColumn(table, "SiteId");
-            Title = AddStringColumn(table, "Title", 255);
+            Title = AddStringColumn(table, "Title", 200);
             Description = AddMaxStringColumn(table, "Description");
             Body = AddMaxStringColumn(table, "Body");
-            Url = AddStringColumn(table, "Url", 255);
-            ModifiedTime = AddDateTimeColumn(table, "ModifiedTime");
-            IsActive = AddBooleanColumn(table, "IsActive");
+            Url = AddStringColumn(table, "Url", 500);
+            Permissions = AddStringColumn(table, "Permissions", 100);
+            ContentModifiedBy = AddStringColumn(table, "ContentModifiedBy", 256);
+            ContentModifiedOn = AddDateTimeColumn(table, "ContentModifiedOn");
             AdditionalContent = AddMaxStringColumn(table, "AdditionalContent");
-
-            AddAuditableColumns(table);
+            CreatedOn = AddDateTimeColumn(table, "CreatedOn");
 
             return this;
         }
 
         public OperationBuilder<AddColumnOperation> SearchContentId { get; private set; }
 
+        public OperationBuilder<AddColumnOperation> SiteId { get; private set; }
+
         public OperationBuilder<AddColumnOperation> EntityName { get; private set; }
 
         public OperationBuilder<AddColumnOperation> EntityId { get; private set; }
-
-        public OperationBuilder<AddColumnOperation> SiteId { get; private set; }
 
         public OperationBuilder<AddColumnOperation> Title { get; private set; }
 
@@ -52,10 +51,14 @@ namespace Oqtane.Migrations.EntityBuilders
 
         public OperationBuilder<AddColumnOperation> Url { get; private set; }
 
-        public OperationBuilder<AddColumnOperation> ModifiedTime { get; private set; }
+        public OperationBuilder<AddColumnOperation> Permissions { get; private set; }
 
-        public OperationBuilder<AddColumnOperation> IsActive { get; private set; }
+        public OperationBuilder<AddColumnOperation> ContentModifiedBy { get; private set; }
+
+        public OperationBuilder<AddColumnOperation> ContentModifiedOn { get; private set; }
 
         public OperationBuilder<AddColumnOperation> AdditionalContent { get; private set; }
+
+        public OperationBuilder<AddColumnOperation> CreatedOn { get; private set; }
     }
 }

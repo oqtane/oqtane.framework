@@ -48,16 +48,18 @@ namespace Oqtane.Managers.Search
 
                     var searchContent = new SearchContent
                     {
-                        EntityName = EntityNames.Page,
-                        EntityId = page.PageId,
                         SiteId = page.SiteId,
-                        ModifiedTime = page.ModifiedOn,
-                        AdditionalContent = string.Empty,
-                        Url = $"{(!string.IsNullOrEmpty(page.Path) && !page.Path.StartsWith("/") ? "/" : "")}{page.Path}",
+                        EntityName = EntityNames.Page,
+                        EntityId = page.PageId.ToString(),
                         Title = !string.IsNullOrEmpty(page.Title) ? page.Title : page.Name,
                         Description = string.Empty,
                         Body = $"{page.Name} {page.Title}",
-                        IsActive = !page.IsDeleted && Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate)
+                        Url = $"{(!string.IsNullOrEmpty(page.Path) && !page.Path.StartsWith("/") ? "/" : "")}{page.Path}",
+                        Permissions = $"{EntityNames.Page}:{page.PageId}",
+                        ContentModifiedBy = page.ModifiedBy,
+                        ContentModifiedOn = page.ModifiedOn,
+                        AdditionalContent = string.Empty,
+                        CreatedOn = DateTime.UtcNow
                     };
 
                     if (searchContent.SearchContentProperties == null)

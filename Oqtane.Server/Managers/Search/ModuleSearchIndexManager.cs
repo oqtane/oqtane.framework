@@ -95,19 +95,15 @@ namespace Oqtane.Managers.Search
                 searchContent.EntityName = EntityNames.Module;
             }
 
-            if(searchContent.EntityId == 0)
+            if(string.IsNullOrEmpty(searchContent.EntityId))
             {
-                searchContent.EntityId = pageModule.ModuleId;
+                searchContent.EntityId = pageModule.ModuleId.ToString();
             }
 
-            if (searchContent.IsActive)
-            {
-                searchContent.IsActive = !pageModule.Module.IsDeleted;
-            }
 
-            if (searchContent.ModifiedTime == DateTime.MinValue)
+            if (searchContent.ContentModifiedOn == DateTime.MinValue)
             {
-                searchContent.ModifiedTime = pageModule.ModifiedOn;
+                searchContent.ContentModifiedOn = pageModule.ModifiedOn;
             }
 
             if (string.IsNullOrEmpty(searchContent.AdditionalContent))

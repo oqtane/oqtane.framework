@@ -74,13 +74,13 @@ namespace Oqtane.Providers
                 switch (searchQuery.SortField)
                 {
                     case SearchSortFields.Relevance:
-                        results = results.OrderByDescending(i => i.Score).ThenByDescending(i => i.ModifiedTime);
+                        results = results.OrderByDescending(i => i.Score).ThenByDescending(i => i.ContentModifiedOn);
                         break;
                     case SearchSortFields.Title:
-                        results = results.OrderByDescending(i => i.Title).ThenByDescending(i => i.ModifiedTime);
+                        results = results.OrderByDescending(i => i.Title).ThenByDescending(i => i.ContentModifiedOn);
                         break;
                     default:
-                        results = results.OrderByDescending(i => i.ModifiedTime);
+                        results = results.OrderByDescending(i => i.ContentModifiedOn);
                         break;
                 }
             }
@@ -89,13 +89,13 @@ namespace Oqtane.Providers
                 switch (searchQuery.SortField)
                 {
                     case SearchSortFields.Relevance:
-                        results = results.OrderBy(i => i.Score).ThenByDescending(i => i.ModifiedTime);
+                        results = results.OrderBy(i => i.Score).ThenByDescending(i => i.ContentModifiedOn);
                         break;
                     case SearchSortFields.Title:
-                        results = results.OrderBy(i => i.Title).ThenByDescending(i => i.ModifiedTime);
+                        results = results.OrderBy(i => i.Title).ThenByDescending(i => i.ContentModifiedOn);
                         break;
                     default:
-                        results = results.OrderBy(i => i.ModifiedTime);
+                        results = results.OrderBy(i => i.ContentModifiedOn);
                         break;
                 }
             }
@@ -135,7 +135,9 @@ namespace Oqtane.Providers
                 Description = searchContent.Description,
                 Body = searchContent.Body,
                 Url = searchContent.Url,
-                ModifiedTime = searchContent.ModifiedTime,
+                Permissions = searchContent.Permissions,
+                ContentModifiedBy = searchContent.ContentModifiedBy,
+                ContentModifiedOn = searchContent.ContentModifiedOn,
                 SearchContentProperties = searchContent.SearchContentProperties,
                 Snippet = BuildSnippet(searchContent, searchQuery),
                 Score = CalculateScore(searchContent, searchQuery)
