@@ -21,7 +21,7 @@ namespace Oqtane.Migrations.EntityBuilders
             SearchContentId = AddAutoIncrementColumn(table, "SearchContentId");
             SiteId = AddIntegerColumn(table, "SiteId");
             EntityName = AddStringColumn(table, "EntityName", 50);
-            EntityId = AddIntegerColumn(table, "EntityId");
+            EntityId = AddStringColumn(table, "EntityId", 50);
             Title = AddStringColumn(table, "Title", 200);
             Description = AddMaxStringColumn(table, "Description");
             Body = AddMaxStringColumn(table, "Body");
