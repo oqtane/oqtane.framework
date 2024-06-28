@@ -16,9 +16,9 @@ namespace Oqtane.Models
 
         public List<string> EntityNames { get; set; } = new List<string>();
 
-        public DateTime BeginModifiedTimeUtc { get; set; }
+        public DateTime From { get; set; }
 
-        public DateTime EndModifiedTimeUtc { get; set; }
+        public DateTime To { get; set; }
 
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
