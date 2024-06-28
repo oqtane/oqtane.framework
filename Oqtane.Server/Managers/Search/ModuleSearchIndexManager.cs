@@ -50,7 +50,7 @@ namespace Oqtane.Managers.Search
                 }
 
                 var module = pageModule.Module;
-                if (module.ModuleDefinition.ServerManagerType != "")
+                if (module.ModuleDefinition != null && module.ModuleDefinition.ServerManagerType != "")
                 {
                     _logger.LogDebug($"Search: Begin index module {module.ModuleId}.");
                     var type = Type.GetType(module.ModuleDefinition.ServerManagerType);
