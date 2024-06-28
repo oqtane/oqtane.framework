@@ -100,6 +100,10 @@ namespace Oqtane.Managers.Search
                 searchContent.EntityId = pageModule.ModuleId.ToString();
             }
 
+            if (string.IsNullOrEmpty(searchContent.Permissions))
+            {
+                searchContent.Permissions = $"{EntityNames.Module}:{pageModule.ModuleId},{EntityNames.Page}:{pageModule.PageId}";
+            }
 
             if (searchContent.ContentModifiedOn == DateTime.MinValue)
             {
@@ -111,16 +115,17 @@ namespace Oqtane.Managers.Search
                 searchContent.AdditionalContent = string.Empty;
             }
 
-            var page = _pageRepository.GetPage(pageModule.PageId);
-
-            if (string.IsNullOrEmpty(searchContent.Url) && page != null)
+            if (pageModule.Page != null)
             {
-                searchContent.Url = $"{(!string.IsNullOrEmpty(page.Path) && !page.Path.StartsWith("/") ? "/" : "")}{page.Path}";
-            }
+                if (string.IsNullOrEmpty(searchContent.Url))
+                {
+                    searchContent.Url = $"{(!string.IsNullOrEmpty(pageModule.Page.Path) && !pageModule.Page.Path.StartsWith("/") ? "/" : "")}{pageModule.Page.Path}";
+                }
 
-            if (string.IsNullOrEmpty(searchContent.Title) && page != null)
-            {
-                searchContent.Title = !string.IsNullOrEmpty(page.Title) ? page.Title : page.Name;
+                if (string.IsNullOrEmpty(searchContent.Title))
+                {
+                    searchContent.Title = !string.IsNullOrEmpty(pageModule.Page.Title) ? pageModule.Page.Title : pageModule.Page.Name;
+                }
             }
 
             if (searchContent.SearchContentProperties == null)
