@@ -14,5 +14,10 @@ namespace Oqtane.Interfaces
         /// The text editor type full name.
         /// </summary>
         string EditorType { get; }
+
+        /// <summary>
+        /// The text editor settings type full name.
+        /// </summary>
+        string SettingsType { get; }
     }
 }

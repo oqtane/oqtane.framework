@@ -1,6 +1,7 @@
 @namespace Oqtane.Modules.Admin.Site
 @inherits ModuleBase
 @using System.Text.RegularExpressions
+@using Microsoft.Extensions.DependencyInjection
 @inject NavigationManager NavigationManager
 @inject ISiteService SiteService
 @inject ITenantService TenantService
@@ -8,6 +9,7 @@
 @inject IAliasService AliasService
 @inject IThemeService  ThemeService
 @inject ISettingService  SettingService
+@inject IServiceProvider ServiceProvider
 @inject IStringLocalizer<Index> Localizer
 @inject INotificationService NotificationService
 @inject IStringLocalizer<SharedResources> SharedLocalizer
@@ -123,6 +125,28 @@
                         </select>
                     </div>
                 </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="textEditorProvider" HelpText="Select the text editor provider for the site" ResourceKey="TextEditorProvider">Text Editor Provider: </Label>
+                    <div class="col-sm-9">
+                        <select id="textEditorProvider" class="form-select" value="@_textEditorProvider" required @onchange="TextEditorProviderChanged">
+                            @if (_textEditorProviders != null)
+                            {
+                                @foreach (var provider in _textEditorProviders)
+                                {
+                                    <option value="@provider.EditorType">@provider.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                @if (_textEditorProviderSettings != null)
+                {
+                    <div class="row mb-1 align-items-center">
+                        <div class="col-sm-9 offset-sm-3">
+                        @_textEditorProviderSettings
+                        </div>
+                    </div>
+                }
             </div>
         </Section>
         <Section Name="FileExtensions" Heading="File Extensions" ResourceKey="FileExtensions">
@@ -438,6 +462,10 @@
     private string _tenant = string.Empty;
     private string _database = string.Empty;
     private string _connectionstring = string.Empty;
+    private string _textEditorProvider = "";
+    private IEnumerable<ITextEditorProvider> _textEditorProviders;
+    private RenderFragment _textEditorProviderSettings;
+    private ISettingsControl _textEditorProviderSettingsControl;
     private string _createdby;
     private DateTime _createdon;
     private string _modifiedby;
@@ -479,6 +507,7 @@
                 _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
                 _containertype = (!string.IsNullOrEmpty(site.DefaultContainerType)) ? site.DefaultContainerType : Constants.DefaultContainer;
                 _admincontainertype = (!string.IsNullOrEmpty(site.AdminContainerType)) ? site.AdminContainerType : Constants.DefaultAdminContainer;
+                _textEditorProviders = ServiceProvider.GetServices<ITextEditorProvider>();
 
                 // page content
                 _headcontent = site.HeadContent;
@@ -516,6 +545,10 @@
 
                 // aliases
                 await GetAliases();
+
+                //text editor
+                _textEditorProvider = SettingService.GetSetting(settings, "TextEditorProvider", Constants.DefaultTextEditorProvider);
+                LoadTextEditorProviderSettingsControl();
 
                 // hosting model
                 _rendermode = site.RenderMode;
@@ -673,17 +706,17 @@
                             }
                         }
 
-						site = await SiteService.UpdateSiteAsync(site);
+                        site = await SiteService.UpdateSiteAsync(site);
 
                         // SMTP
-						var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
+                        var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
                         settings = SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
-						settings = SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
-						settings = SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
-						settings = SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
-						settings = SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
-						settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
-						settings = SettingService.SetSetting(settings, "SMTPRelay", _smtprelay, true);
+                        settings = SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
+                        settings = SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
+                        settings = SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
+                        settings = SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
+                        settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
+                        settings = SettingService.SetSetting(settings, "SMTPRelay", _smtprelay, true);
                         settings = SettingService.SetSetting(settings, "SMTPEnabled", _smtpenabled, true);
                         settings = SettingService.SetSetting(settings, "SiteGuid", _siteguid, true);
                         settings = SettingService.SetSetting(settings, "NotificationRetention", _retention.ToString(), true);
@@ -692,141 +725,149 @@
                         settings = SettingService.SetSetting(settings, "ImageFiles", (_ImageFiles != Constants.ImageFiles) ? _ImageFiles.Replace(" ", "") : "", false);
                         settings = SettingService.SetSetting(settings, "UploadableFiles", (_UploadableFiles != Constants.UploadableFiles) ? _UploadableFiles.Replace(" ", "") : "", false);
 
-						await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
+                        //text editor
+                        settings = SettingService.SetSetting(settings, "TextEditorProvider", _textEditorProvider);
 
-						await logger.LogInformation("Site Settings Saved {Site}", site);
+                        await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 
-					    NavigationManager.NavigateTo(NavigateUrl(), true); // reload
-					}
-				}
-				else
-				{
-					AddModuleMessage(Localizer["Message.Required.SiteName"], MessageType.Warning);
-				}
-			}
-			catch (Exception ex)
-			{
-				await logger.LogError(ex, "Error Saving Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
-				AddModuleMessage(Localizer["Error.SaveSite"], MessageType.Error);
-			}
-		}
-		else
-		{
-			AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
-		}
-	}
+                        await logger.LogInformation("Site Settings Saved {Site}", site);
 
-	private async Task DeleteSite()
-	{
-		try
-		{
-			var aliases = await AliasService.GetAliasesAsync();
-			if (aliases.Any(item => item.SiteId != PageState.Site.SiteId || item.TenantId != PageState.Site.TenantId))
-			{
-				await SiteService.DeleteSiteAsync(PageState.Site.SiteId);
-				await logger.LogInformation("Site Deleted {SiteId}", PageState.Site.SiteId);
+                        if(_textEditorProviderSettingsControl != null)
+                        {
+                            await _textEditorProviderSettingsControl.UpdateSettings();
+                        }
 
-				foreach (Alias alias in aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Site.TenantId))
-				{
-					await AliasService.DeleteAliasAsync(alias.AliasId);
-				}
+                        NavigationManager.NavigateTo(NavigateUrl(), true); // reload
+                    }
+                }
+                else
+                {
+                    AddModuleMessage(Localizer["Message.Required.SiteName"], MessageType.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Saving Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
+                AddModuleMessage(Localizer["Error.SaveSite"], MessageType.Error);
+            }
+        }
+        else
+        {
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+        }
+    }
 
-				var redirect = aliases.First(item => item.SiteId != PageState.Site.SiteId || item.TenantId != PageState.Site.TenantId);
-				NavigationManager.NavigateTo(PageState.Uri.Scheme + "://" + redirect.Name, true);
-			}
-			else
-			{
-				AddModuleMessage(Localizer["Message.FailAuth.DeleteSite"], MessageType.Warning);
-			}
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Deleting Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
-			AddModuleMessage(Localizer["Error.DeleteSite"], MessageType.Error);
-		}
-	}
+    private async Task DeleteSite()
+    {
+        try
+        {
+            var aliases = await AliasService.GetAliasesAsync();
+            if (aliases.Any(item => item.SiteId != PageState.Site.SiteId || item.TenantId != PageState.Site.TenantId))
+            {
+                await SiteService.DeleteSiteAsync(PageState.Site.SiteId);
+                await logger.LogInformation("Site Deleted {SiteId}", PageState.Site.SiteId);
 
-	private async Task SendEmail()
-	{
-		if (_smtphost != "" && _smtpport != "" && _smtpsender != "")
-		{
-			try
-			{
-				var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-				settings = SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
-				settings = SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
-				settings = SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
-				settings = SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
-				settings = SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
-				settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
-				await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
-				await logger.LogInformation("Site SMTP Settings Saved");
+                foreach (Alias alias in aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Site.TenantId))
+                {
+                    await AliasService.DeleteAliasAsync(alias.AliasId);
+                }
 
-				await NotificationService.AddNotificationAsync(new Notification(PageState.Site.SiteId, PageState.User, PageState.Site.Name + " SMTP Configuration Test", "SMTP Server Is Configured Correctly."));
-				AddModuleMessage(Localizer["Info.Smtp.SaveSettings"], MessageType.Info);
+                var redirect = aliases.First(item => item.SiteId != PageState.Site.SiteId || item.TenantId != PageState.Site.TenantId);
+                NavigationManager.NavigateTo(PageState.Uri.Scheme + "://" + redirect.Name, true);
+            }
+            else
+            {
+                AddModuleMessage(Localizer["Message.FailAuth.DeleteSite"], MessageType.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
+            AddModuleMessage(Localizer["Error.DeleteSite"], MessageType.Error);
+        }
+    }
+
+    private async Task SendEmail()
+    {
+        if (_smtphost != "" && _smtpport != "" && _smtpsender != "")
+        {
+            try
+            {
+                var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+                settings = SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
+                settings = SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
+                settings = SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
+                settings = SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
+                settings = SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
+                settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
+                await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
+                await logger.LogInformation("Site SMTP Settings Saved");
+
+                await NotificationService.AddNotificationAsync(new Notification(PageState.Site.SiteId, PageState.User, PageState.Site.Name + " SMTP Configuration Test", "SMTP Server Is Configured Correctly."));
+                AddModuleMessage(Localizer["Info.Smtp.SaveSettings"], MessageType.Info);
                 await ScrollToPageTop();
             }
-			catch (Exception ex)
-			{
-				await logger.LogError(ex, "Error Testing SMTP Configuration");
-				AddModuleMessage(Localizer["Error.Smtp.TestConfig"], MessageType.Error);
-			}
-		}
-		else
-		{
-			AddModuleMessage(Localizer["Message.Required.Smtp"], MessageType.Warning);
-		}
-	}
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Testing SMTP Configuration");
+                AddModuleMessage(Localizer["Error.Smtp.TestConfig"], MessageType.Error);
+            }
+        }
+        else
+        {
+            AddModuleMessage(Localizer["Message.Required.Smtp"], MessageType.Warning);
+        }
+    }
 
-	private void ToggleSMTPPassword()
-	{
-		if (_smtppasswordtype == "password")
-		{
-			_smtppasswordtype = "text";
-			_togglesmtppassword = SharedLocalizer["HidePassword"];
-		}
-		else
-		{
-			_smtppasswordtype = "password";
-			_togglesmtppassword = SharedLocalizer["ShowPassword"];
-		}
-	}
+    private void ToggleSMTPPassword()
+    {
+        if (_smtppasswordtype == "password")
+        {
+            _smtppasswordtype = "text";
+            _togglesmtppassword = SharedLocalizer["HidePassword"];
+        }
+        else
+        {
+            _smtppasswordtype = "password";
+            _togglesmtppassword = SharedLocalizer["ShowPassword"];
+        }
+    }
 
-	private async Task GetAliases()
-	{
-		if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-		{
-			_aliases = await AliasService.GetAliasesAsync();
-			_aliases = _aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Site.TenantId).OrderBy(item => item.AliasId).ToList();
-		}
-	}
+    private async Task GetAliases()
+    {
+        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+        {
+            _aliases = await AliasService.GetAliasesAsync();
+            _aliases = _aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Site.TenantId).OrderBy(item => item.AliasId).ToList();
+        }
+    }
 
-	private void AddAlias()
-	{
-		_aliases.Add(new Alias { AliasId = 0, Name = "", IsDefault = false });
-		_aliasid = 0;
-		_aliasname = "";
-		_defaultalias = "False";
-		StateHasChanged();
-	}
+    private void AddAlias()
+    {
+        _aliases.Add(new Alias { AliasId = 0, Name = "", IsDefault = false });
+        _aliasid = 0;
+        _aliasname = "";
+        _defaultalias = "False";
+        StateHasChanged();
+    }
 
-	private void EditAlias(Alias alias)
-	{
-		_aliasid = alias.AliasId;
-		_aliasname = alias.Name;
-		_defaultalias = alias.IsDefault.ToString();
-		StateHasChanged();
-	}
+    private void EditAlias(Alias alias)
+    {
+        _aliasid = alias.AliasId;
+        _aliasname = alias.Name;
+        _defaultalias = alias.IsDefault.ToString();
+        StateHasChanged();
+    }
 
-	private async Task DeleteAlias(Alias alias)
-	{
-		if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-		{
-			await AliasService.DeleteAliasAsync(alias.AliasId);
-			await GetAliases();
-			StateHasChanged();
-		}
-	}
+    private async Task DeleteAlias(Alias alias)
+    {
+        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+        {
+            await AliasService.DeleteAliasAsync(alias.AliasId);
+            await GetAliases();
+            StateHasChanged();
+        }
+    }
 
     private async Task SaveAlias()
     {
@@ -878,11 +919,42 @@
         }
     }
 
-	private async Task CancelAlias()
-	{
-		await GetAliases();
-		_aliasid = -1;
-		_aliasname = "";
-		StateHasChanged();
-	}
+    private async Task CancelAlias()
+    {
+        await GetAliases();
+        _aliasid = -1;
+        _aliasname = "";
+        StateHasChanged();
+    }
+
+    private void TextEditorProviderChanged(ChangeEventArgs e)
+    {
+        _textEditorProvider = e.Value.ToString();
+        LoadTextEditorProviderSettingsControl();
+
+        StateHasChanged();
+    }
+
+    private void LoadTextEditorProviderSettingsControl()
+    {
+        var provider = _textEditorProviders.FirstOrDefault(i => i.EditorType == _textEditorProvider);
+        var settingsType = provider != null && !string.IsNullOrEmpty(provider.SettingsType) ? Type.GetType(provider.SettingsType) : null;
+        if (settingsType != null)
+        {
+            _textEditorProviderSettings = builder =>
+            {
+                builder.OpenComponent(0, settingsType);
+                builder.AddComponentReferenceCapture(1, (c) =>
+                {
+                    _textEditorProviderSettingsControl = (ISettingsControl)c;
+                });
+                builder.CloseComponent();
+            };
+        }
+        else
+        {
+            _textEditorProviderSettings = null;
+            _textEditorProviderSettingsControl = null;
+        }
+    }
 }

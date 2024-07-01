@@ -5,6 +5,7 @@
 @using Microsoft.AspNetCore.Http.Extensions
 @using Microsoft.AspNetCore.Antiforgery
 @using Microsoft.AspNetCore.Localization
+@using Microsoft.Extensions.DependencyInjection
 @using Microsoft.Net.Http.Headers
 @using Microsoft.Extensions.Primitives
 @using Oqtane.Client
@@ -30,6 +31,7 @@
 @inject IUrlMappingRepository UrlMappingRepository
 @inject IVisitorRepository VisitorRepository
 @inject IJwtManager JwtManager
+@inject IServiceProvider ServiceProvider
 
 @if (_initialized)
 {
@@ -674,7 +676,7 @@
                 var obj = Activator.CreateInstance(moduletype) as IModuleControl;
                 if (obj != null)
                 {
-                    resources = AddResources(resources, obj.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, site.RenderMode);
+                    resources = AddResources(resources, await obj.GetResources(ServiceProvider, page), ResourceLevel.Module, alias, "Modules", moduletype.Namespace, site.RenderMode);
                     if (action.ToLower() == "settings" && module.ModuleDefinition != null)
                     {
                         // settings components are embedded within a framework settings module
@@ -682,7 +684,7 @@
                         if (moduletype != null)
                         {
                             obj = Activator.CreateInstance(moduletype) as IModuleControl;
-                            resources = AddResources(resources, obj.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, site.RenderMode);
+                            resources = AddResources(resources, await obj.GetResources(ServiceProvider, page), ResourceLevel.Module, alias, "Modules", moduletype.Namespace, site.RenderMode);
                         }
                     }
                 }
