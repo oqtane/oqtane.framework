@@ -77,6 +77,7 @@ namespace Oqtane.Services
                     pages.Add(page);
                 }
             }
+            site.Pages = pages;
 
             return site;
         }
