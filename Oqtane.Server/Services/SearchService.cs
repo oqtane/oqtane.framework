@@ -10,7 +10,6 @@ using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Shared;
-using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 
 namespace Oqtane.Services
 {
