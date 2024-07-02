@@ -49,17 +49,16 @@ namespace Oqtane.Managers.Search
                     continue;
                 }
 
-                var module = pageModule.Module;
-                if (module.ModuleDefinition != null && module.ModuleDefinition.ServerManagerType != "")
+                if (pageModule.Module.ModuleDefinition != null && pageModule.Module.ModuleDefinition.ServerManagerType != "")
                 {
-                    _logger.LogDebug($"Search: Begin index module {module.ModuleId}.");
-                    var type = Type.GetType(module.ModuleDefinition.ServerManagerType);
+                    _logger.LogDebug($"Search: Begin index module {pageModule.ModuleId}.");
+                    var type = Type.GetType(pageModule.Module.ModuleDefinition.ServerManagerType);
                     if (type?.GetInterface(nameof(ISearchable)) != null)
                     {
                         try
                         {
                             var moduleSearch = (ISearchable)ActivatorUtilities.CreateInstance(_serviceProvider, type);
-                            var contentList = moduleSearch.GetSearchContents(module, startTime.GetValueOrDefault(DateTime.MinValue));
+                            var contentList = moduleSearch.GetSearchContents(pageModule, startTime.GetValueOrDefault(DateTime.MinValue));
                             if(contentList != null)
                             {
                                 foreach(var searchContent in contentList)
@@ -73,11 +72,11 @@ namespace Oqtane.Managers.Search
                         }
                         catch(Exception ex)
                         {
-                            _logger.LogError(ex, $"Search: Index module {module.ModuleId} failed.");
-                            handleError($"Search: Index module {module.ModuleId} failed: {ex.Message}");
+                            _logger.LogError(ex, $"Search: Index module {pageModule.ModuleId} failed.");
+                            handleError($"Search: Index module {pageModule.ModuleId} failed: {ex.Message}");
                         }
                     }
-                    _logger.LogDebug($"Search: End index module {module.ModuleId}.");
+                    _logger.LogDebug($"Search: End index module {pageModule.ModuleId}.");
                 }
             }
 
