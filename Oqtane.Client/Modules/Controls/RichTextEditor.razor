@@ -4,6 +4,7 @@
 @namespace Oqtane.Modules.Controls
 @inherits ModuleControlBase
 @inject IServiceProvider ServiceProvider
+@inject ISettingService SettingService
 @inject IStringLocalizer<RichTextEditor> Localizer 
 
 <div class="row" style="margin-bottom: 50px;">
@@ -34,7 +35,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _textEditorProvider = await GetTextEditorType(ServiceProvider, PageState.Site.SiteId);
+        _textEditorProvider = await GetTextEditorType();
     }
 
     protected override void OnParametersSet()
@@ -53,22 +54,6 @@
         }
 
         await base.OnAfterRenderAsync(firstRender);
-    }
-
-    public override async Task<List<Resource>> GetResources(IServiceProvider serviceProvider, Page page)
-    {
-        var type = await GetTextEditorType(serviceProvider, page.SiteId);
-        if (!string.IsNullOrEmpty(type))
-        {
-            var editorType = Type.GetType(type);
-            if (editorType != null && editorType.GetInterfaces().Contains(typeof(IModuleControl)))
-            {
-                var control = Activator.CreateInstance(editorType) as IModuleControl;
-                return await control?.GetResources(serviceProvider, page);
-            }
-        }
-
-        return await base.GetResources(serviceProvider, page);
     }
 
     public async Task<string> GetHtml()
@@ -124,21 +109,20 @@
         }
     }
 
-    private async Task<string> GetTextEditorType(IServiceProvider serviceProvider, int siteId)
+    private async Task<string> GetTextEditorType()
     {
         const string EditorSettingName = "TextEditorProvider";
 
         if(!string.IsNullOrEmpty(Provider))
         {
-            var provider = serviceProvider.GetServices<ITextEditorProvider>().FirstOrDefault(i => i.Name.Equals(Provider, StringComparison.OrdinalIgnoreCase));
+            var provider = ServiceProvider.GetServices<ITextEditorProvider>().FirstOrDefault(i => i.Name.Equals(Provider, StringComparison.OrdinalIgnoreCase));
             if(provider != null)
             {
                 return provider.EditorType;
             }
         }
 
-        var settingService = serviceProvider.GetService<ISettingService>();
-        var settings = await settingService.GetSiteSettingsAsync(siteId);
-        return settingService.GetSetting(settings, EditorSettingName, Constants.DefaultTextEditorProvider);
+        var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+        return SettingService.GetSetting(settings, EditorSettingName, Constants.DefaultTextEditorProvider);
     }
 }

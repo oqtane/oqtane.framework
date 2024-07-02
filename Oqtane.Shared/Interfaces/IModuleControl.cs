@@ -1,8 +1,6 @@
 using Oqtane.Models;
 using Oqtane.Shared;
-using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Oqtane.Modules
 {
@@ -32,17 +30,6 @@ namespace Oqtane.Modules
         /// Identifies all resources in a module
         /// </summary>
         List<Resource> Resources { get; }
-
-        /// <summary>
-        /// The component types which need to register it's own resources.
-        /// </summary>
-        List<string> ResourcesRegistrationTypes { get; }
-
-        /// <summary>
-        /// Identifies all resources in a module including resources from resources registration types.
-        /// </summary>
-        /// <returns></returns>
-        Task<List<Resource>> GetResources(IServiceProvider serviceProvider, Page page);
 
         /// <summary>
         /// Specifies the required render mode for the module control ie. Static,Interactive

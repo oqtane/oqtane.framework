@@ -51,6 +51,12 @@
 
     public override string Title => "Edit Html/Text";
 
+    public override List<Resource> Resources => new List<Resource>()
+    {
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill.bubble.css" },
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill.snow.css" }
+    };
+
     private RichTextEditor RichTextEditorHtml;
     private string _content = null;
     private string _createdby;
@@ -59,8 +65,6 @@
     private DateTime _modifiedon;
     private List<Models.HtmlText> _htmltexts;
     private string _view = "";
-
-    public override List<string> ResourcesRegistrationTypes => new List<string> { typeof(RichTextEditor).FullName };
 
     protected override async Task OnInitializedAsync()
     {

@@ -2,7 +2,9 @@
 @inherits ModuleControlBase
 @implements ITextEditor
 @inject ISettingService SettingService
+@inject NavigationManager NavigationManager
 @inject IStringLocalizer<QuillJSTextEditor> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <div class="quill-text-editor">
     <TabStrip ActiveTab="@_activetab">
@@ -97,15 +99,69 @@
                 }
             </TabPanel>
         }
+        @if (_hasAdminPermission)
+        {
+            <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings" ResourceType="@resourceType">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="AllowFileManagement" ResourceKey="AllowFileManagement" ResourceType="@resourceType" HelpText="Specify If Editors Can Upload and Select Files">Allow File Management: </Label>
+                    <div class="col-sm-9">
+                        <input type="checkbox" id="AllowFileManagement" class="form-check-input" @bind="_allowFileManagementSetting" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="AllowRawHtml" ResourceKey="AllowRawHtml" ResourceType="@resourceType" HelpText="Specify If Editors Can Enter Raw HTML">Allow Raw HTML: </Label>
+                    <div class="col-sm-9">
+                        <input type="checkbox" id="AllowRawHtml" class="form-check-input" @bind="_allowRawHtmlSetting" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="AllowRichText" ResourceKey="AllowRichText" ResourceType="@resourceType" HelpText="Specify If Editors Can Use Rich Text Editor">Allow Rich Text: </Label>
+                    <div class="col-sm-9">
+                        <input type="checkbox" id="AllowRichText" class="form-check-input" @bind="_allowRichTextSetting" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="Theme" ResourceKey="Theme" ResourceType="@resourceType" HelpText="Specify the Rich Text Editor's Theme">Theme: </Label>
+                    <div class="col-sm-9">
+                        <input type="text" id="Theme" class="form-control" @bind="_themeSetting" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="DebugLevel" ResourceKey="DebugLevel" ResourceType="@resourceType" HelpText="Specify the Debug Level">Debug Level: </Label>
+                    <div class="col-sm-9">
+                        <select id="DebugLevel" class="form-select" @bind="_debugLevelSetting">
+                            @foreach (var level in _debugLevels)
+                            {
+                                <option value="@level">@level</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="ToolbarContent" ResourceKey="ToolbarContent" ResourceType="@resourceType" HelpText="Specify the Toolbar Content">Toolbar Content: </Label>
+                    <div class="col-sm-9">
+                        <textarea id="ToolbarContent" class="form-control" @bind="_toolbarContentSetting" rows="5" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <div class="col-sm-9 offset-sm-3">
+                        <button type="button" class="btn btn-success" @onclick="@(async () => await UpdateSettings())">@SharedLocalizer["Save"]</button>
+                    </div>
+                </div>
+            </TabPanel>
+        }
     </TabStrip>
 </div>
 
 @code {
+    private string resourceType = "Oqtane.Modules.Controls.QuillJSTextEditor, Oqtane.Client";
+
     private bool _initialized = false;
 
     private QuillEditorInterop interop;
     private FileManager _fileManager;
     private string _activetab = "Rich";
+    private bool _hasAdminPermission;
 
     private bool _allowFileManagement = false;
     private bool _allowRawHtml = false;
@@ -113,6 +169,15 @@
     private string _theme = "snow";
     private string _debugLevel = "info";
     private string _toolbarContent = string.Empty;
+
+    //adjust settings variables won't affect UI
+    private bool _allowFileManagementSetting = false;
+    private bool _allowRawHtmlSetting = false;
+    private bool _allowRichTextSetting = false;
+    private string _themeSetting = "snow";
+    private string _debugLevelSetting = "info";
+    private string _toolbarContentSetting = string.Empty;
+
     private bool _settingsLoaded;
 
     private ElementReference _editorElement;
@@ -130,6 +195,8 @@
     private bool _contentchanged = false;
     private int _editorIndex;
 
+    private List<string> _debugLevels = new List<string> { "info", "log", "warn", "error" };
+
     [Parameter]
     public bool ReadOnly { get; set; }
 
@@ -140,9 +207,7 @@
     {
         new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill.min.js", Location = ResourceLocation.Body },
         new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-blot-formatter.min.js", Location = ResourceLocation.Body },
-        new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-interop.js", Location = ResourceLocation.Body },
-        new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill.bubble.css" },
-        new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill.snow.css" }
+        new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-interop.js", Location = ResourceLocation.Body }
     };
 
     protected override async Task OnInitializedAsync()
@@ -367,14 +432,37 @@
         try
         {
             var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-            _allowFileManagement = SettingService.GetSetting(settings, "QuillTextEditor_AllowFileManagement", "true") == "true";
-            _allowRawHtml = SettingService.GetSetting(settings, "QuillTextEditor_AllowRawHtml", "true") == "true";
-            _allowRichText = SettingService.GetSetting(settings, "QuillTextEditor_AllowRichText", "true") == "true";
-            _theme = SettingService.GetSetting(settings, "QuillTextEditor_Theme", "snow");
-            _debugLevel = SettingService.GetSetting(settings, "QuillTextEditor_DebugLevel", "info");
-            _toolbarContent = SettingService.GetSetting(settings, "QuillTextEditor_ToolbarContent", string.Empty);
+            _allowFileManagementSetting = _allowFileManagement = SettingService.GetSetting(settings, "QuillTextEditor_AllowFileManagement", "true") == "true";
+            _allowRawHtmlSetting = _allowRawHtml = SettingService.GetSetting(settings, "QuillTextEditor_AllowRawHtml", "true") == "true";
+            _allowRichTextSetting = _allowRichText = SettingService.GetSetting(settings, "QuillTextEditor_AllowRichText", "true") == "true";
+            _themeSetting = _theme = SettingService.GetSetting(settings, "QuillTextEditor_Theme", "snow");
+            _debugLevelSetting = _debugLevel = SettingService.GetSetting(settings, "QuillTextEditor_DebugLevel", "info");
+            _toolbarContentSetting = _toolbarContent = SettingService.GetSetting(settings, "QuillTextEditor_ToolbarContent", string.Empty);
+
+            _hasAdminPermission = UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin);
 
             _settingsLoaded = true;
+        }
+        catch (Exception ex)
+        {
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
+    private async Task UpdateSettings()
+    {
+        try
+        {
+            var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+            settings = SettingService.SetSetting(settings, "QuillTextEditor_AllowFileManagement", _allowFileManagementSetting.ToString().ToLower());
+            settings = SettingService.SetSetting(settings, "QuillTextEditor_AllowRawHtml", _allowRawHtmlSetting.ToString().ToLower());
+            settings = SettingService.SetSetting(settings, "QuillTextEditor_AllowRichText", _allowRichTextSetting.ToString().ToLower());
+            settings = SettingService.SetSetting(settings, "QuillTextEditor_Theme", _themeSetting);
+            settings = SettingService.SetSetting(settings, "QuillTextEditor_DebugLevel", _debugLevelSetting);
+            settings = SettingService.SetSetting(settings, "QuillTextEditor_ToolbarContent", _toolbarContentSetting);
+            await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
+
+            NavigationManager.NavigateTo(NavigationManager.Uri);
         }
         catch (Exception ex)
         {

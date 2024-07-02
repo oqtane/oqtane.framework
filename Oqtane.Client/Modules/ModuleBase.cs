@@ -50,8 +50,6 @@ namespace Oqtane.Modules
 
         public virtual List<Resource> Resources { get; set; }
 
-        public virtual List<string> ResourcesRegistrationTypes { get; }
-
         public virtual string RenderMode { get { return RenderModes.Interactive; } } // interactive by default
 
         public virtual bool? Prerender { get { return null; } } // allows the Site Prerender property to be overridden
@@ -72,21 +70,6 @@ namespace Oqtane.Modules
         }
 
         // base lifecycle method for handling JSInterop script registration
-
-        public virtual async Task<List<Resource>> GetResources(IServiceProvider serviceProvider, Page page)
-        {
-            var resources = Resources ?? new List<Resource>();
-
-            if(ResourcesRegistrationTypes != null)
-            {
-                foreach(var type in ResourcesRegistrationTypes)
-                {
-                    resources.AddRange(await LoadResourcesFromType(serviceProvider, page, type));
-                }
-            }
-
-            return resources;
-        }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -497,25 +480,6 @@ namespace Oqtane.Modules
             {
                 await _moduleBase.Log(null, LogLevel.Critical, "", exception, message, args);
             }
-        }
-
-        private async Task<List<Resource>> LoadResourcesFromType(IServiceProvider serviceProvider, Page page, string typeName)
-        {
-            try
-            {
-                var type = Type.GetType(typeName, false, true);
-                if (type != null && type.GetInterfaces().Contains(typeof(IModuleControl)))
-                {
-                    var control = Activator.CreateInstance(type) as IModuleControl;
-                    return await control?.GetResources(serviceProvider, page);
-                }
-            }
-            catch(Exception ex)
-            {
-                //await Log(null, LogLevel.Error, string.Empty, ex, "Load Resources From Type {Type} Failed. {Message}", typeName, ex.Message);
-            }
-
-            return null;
         }
 
         [Obsolete("ContentUrl(int fileId) is deprecated. Use FileUrl(int fileId) instead.", false)]

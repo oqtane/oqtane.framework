@@ -128,7 +128,7 @@
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="textEditorProvider" HelpText="Select the text editor provider for the site" ResourceKey="TextEditorProvider">Text Editor Provider: </Label>
                     <div class="col-sm-9">
-                        <select id="textEditorProvider" class="form-select" value="@_textEditorProvider" required @onchange="TextEditorProviderChanged">
+                        <select id="textEditorProvider" class="form-select" @bind="@_textEditorProvider" required>
                             @if (_textEditorProviders != null)
                             {
                                 @foreach (var provider in _textEditorProviders)
@@ -139,14 +139,6 @@
                         </select>
                     </div>
                 </div>
-                @if (_textEditorProviderSettings != null)
-                {
-                    <div class="row mb-1 align-items-center">
-                        <div class="col-sm-9 offset-sm-3">
-                        @_textEditorProviderSettings
-                        </div>
-                    </div>
-                }
             </div>
         </Section>
         <Section Name="FileExtensions" Heading="File Extensions" ResourceKey="FileExtensions">
@@ -464,8 +456,6 @@
     private string _connectionstring = string.Empty;
     private string _textEditorProvider = "";
     private IEnumerable<ITextEditorProvider> _textEditorProviders;
-    private RenderFragment _textEditorProviderSettings;
-    private ISettingsControl _textEditorProviderSettingsControl;
     private string _createdby;
     private DateTime _createdon;
     private string _modifiedby;
@@ -548,7 +538,6 @@
 
                 //text editor
                 _textEditorProvider = SettingService.GetSetting(settings, "TextEditorProvider", Constants.DefaultTextEditorProvider);
-                LoadTextEditorProviderSettingsControl();
 
                 // hosting model
                 _rendermode = site.RenderMode;
@@ -731,11 +720,6 @@
                         await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 
                         await logger.LogInformation("Site Settings Saved {Site}", site);
-
-                        if(_textEditorProviderSettingsControl != null)
-                        {
-                            await _textEditorProviderSettingsControl.UpdateSettings();
-                        }
 
                         NavigationManager.NavigateTo(NavigateUrl(), true); // reload
                     }
@@ -925,36 +909,5 @@
         _aliasid = -1;
         _aliasname = "";
         StateHasChanged();
-    }
-
-    private void TextEditorProviderChanged(ChangeEventArgs e)
-    {
-        _textEditorProvider = e.Value.ToString();
-        LoadTextEditorProviderSettingsControl();
-
-        StateHasChanged();
-    }
-
-    private void LoadTextEditorProviderSettingsControl()
-    {
-        var provider = _textEditorProviders.FirstOrDefault(i => i.EditorType == _textEditorProvider);
-        var settingsType = provider != null && !string.IsNullOrEmpty(provider.SettingsType) ? Type.GetType(provider.SettingsType) : null;
-        if (settingsType != null)
-        {
-            _textEditorProviderSettings = builder =>
-            {
-                builder.OpenComponent(0, settingsType);
-                builder.AddComponentReferenceCapture(1, (c) =>
-                {
-                    _textEditorProviderSettingsControl = (ISettingsControl)c;
-                });
-                builder.CloseComponent();
-            };
-        }
-        else
-        {
-            _textEditorProviderSettings = null;
-            _textEditorProviderSettingsControl = null;
-        }
     }
 }
