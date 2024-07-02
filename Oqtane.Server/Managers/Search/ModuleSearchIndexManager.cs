@@ -43,8 +43,7 @@ namespace Oqtane.Managers.Search
 
             foreach(var pageModule in pageModules)
             {
-                var page = _pageRepository.GetPage(pageModule.PageId);
-                if(page == null || SearchUtils.IsSystemPage(page))
+                if(pageModule.Page == null || SearchUtils.IsSystemPage(pageModule.Page))
                 {
                     continue;
                 }
