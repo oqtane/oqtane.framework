@@ -7,6 +7,7 @@ using Oqtane.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using Oqtane.Shared;
 
 namespace Oqtane.Security
 {
@@ -27,10 +28,11 @@ namespace Oqtane.Security
     {
         private readonly IPermissionRepository _permissions;
         private readonly IHttpContextAccessor _accessor;
-
-        public UserPermissions(IPermissionRepository permissions, IHttpContextAccessor accessor)
+        private readonly IUserRoleRepository _userRoleRepository;
+        public UserPermissions(IPermissionRepository permissions, IUserRoleRepository userRoleRepository, IHttpContextAccessor accessor)
         {
             _permissions = permissions;
+            _userRoleRepository = userRoleRepository;
             _accessor = accessor;
         }
 
@@ -69,15 +71,29 @@ namespace Oqtane.Security
 
             user.IsAuthenticated = principal.Identity.IsAuthenticated;
             if (user.IsAuthenticated)
-            {
+            {                
                 user.Username = principal.Identity.Name;
                 if (principal.Claims.Any(item => item.Type == ClaimTypes.NameIdentifier))
                 {
                     user.UserId = int.Parse(principal.Claims.First(item => item.Type == ClaimTypes.NameIdentifier).Value);
                 }
+                
+                var userroles = _userRoleRepository.GetUserRoles(user.UserId, principal.SiteId());
                 foreach (var claim in principal.Claims.Where(item => item.Type == ClaimTypes.Role))
                 {
-                    user.Roles += claim.Value + ";";
+                    //var isEffective = _userRoleRepository.GetUserRole(user.UserId, userroles.First(item => item.Role.Name == claim.Value).RoleId);
+                    var matchedRole = userroles.FirstOrDefault(item => item.Role.Name == claim.Value);
+                    if (matchedRole != null)
+                    {
+                        if (Utilities.IsRoleEffective(matchedRole.EffectiveDate, matchedRole.ExpiryDate))
+                        {
+                            user.Roles += claim.Value + ";";
+                        }
+                    }
+                    else
+                    {
+                        user.Roles += claim.Value + ";";
+                    }
                 }
                 if (user.Roles != "") user.Roles = ";" + user.Roles;
             }

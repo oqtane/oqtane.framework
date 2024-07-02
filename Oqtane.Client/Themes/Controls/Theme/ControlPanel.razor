@@ -91,7 +91,7 @@
         {
             foreach (var page in PageState.Pages.Where(item => item.ParentId == admin?.PageId))
             {
-                if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, page.PermissionList))
+                if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, page.PermissionList))
                 {
                     return true;
                 }
