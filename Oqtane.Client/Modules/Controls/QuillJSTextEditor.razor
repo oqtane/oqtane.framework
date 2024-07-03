@@ -242,11 +242,11 @@
     {
         await base.OnAfterRenderAsync(firstRender);
 
+        await LoadSettings();
         if (_allowRichText)
         {
             if (firstRender)
             {
-                await LoadSettings();
                 await interop.CreateEditor(
                     _editorElement,
                     _toolBar,
