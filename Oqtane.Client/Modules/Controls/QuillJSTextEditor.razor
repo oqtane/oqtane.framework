@@ -244,8 +244,9 @@
 
         if (_allowRichText)
         {
-            if (_settingsLoaded && !_initialized)
+            if (firstRender)
             {
+                await LoadSettings();
                 await interop.CreateEditor(
                     _editorElement,
                     _toolBar,
@@ -445,17 +446,20 @@
     {
         try
         {
-            var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-            _allowFileManagementSetting = _allowFileManagement = SettingService.GetSetting(settings, "QuillTextEditor_AllowFileManagement", "true") == "true";
-            _allowRawHtmlSetting = _allowRawHtml = SettingService.GetSetting(settings, "QuillTextEditor_AllowRawHtml", "true") == "true";
-            _allowRichTextSetting = _allowRichText = SettingService.GetSetting(settings, "QuillTextEditor_AllowRichText", "true") == "true";
-            _themeSetting = _theme = SettingService.GetSetting(settings, "QuillTextEditor_Theme", "snow");
-            _debugLevelSetting = _debugLevel = SettingService.GetSetting(settings, "QuillTextEditor_DebugLevel", "info");
-            _toolbarContentSetting = _toolbarContent = SettingService.GetSetting(settings, "QuillTextEditor_ToolbarContent", string.Empty);
+            if (!_settingsLoaded)
+            {
+                var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+                _allowFileManagementSetting = _allowFileManagement = SettingService.GetSetting(settings, "QuillTextEditor_AllowFileManagement", "true") == "true";
+                _allowRawHtmlSetting = _allowRawHtml = SettingService.GetSetting(settings, "QuillTextEditor_AllowRawHtml", "true") == "true";
+                _allowRichTextSetting = _allowRichText = SettingService.GetSetting(settings, "QuillTextEditor_AllowRichText", "true") == "true";
+                _themeSetting = _theme = SettingService.GetSetting(settings, "QuillTextEditor_Theme", "snow");
+                _debugLevelSetting = _debugLevel = SettingService.GetSetting(settings, "QuillTextEditor_DebugLevel", "info");
+                _toolbarContentSetting = _toolbarContent = SettingService.GetSetting(settings, "QuillTextEditor_ToolbarContent", string.Empty);
 
-            _hasAdminPermission = UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin);
+                _hasAdminPermission = UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin);
 
-            _settingsLoaded = true;
+                _settingsLoaded = true;
+            }
         }
         catch (Exception ex)
         {
@@ -476,7 +480,7 @@
             settings = SettingService.SetSetting(settings, "QuillTextEditor_ToolbarContent", _toolbarContentSetting);
             await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
 
-            NavigationManager.NavigateTo(NavigationManager.Uri);
+            NavigationManager.NavigateTo(NavigationManager.Uri, true);
         }
         catch (Exception ex)
         {
