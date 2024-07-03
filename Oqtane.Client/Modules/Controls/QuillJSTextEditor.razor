@@ -6,7 +6,7 @@
 @inject IStringLocalizer<QuillJSTextEditor> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<div class="quill-text-editor">
+<div class="quill-text-editor @(_settingsVisible ? "d-none" : "d-block")">
     <TabStrip ActiveTab="@_activetab">
         @if (_allowRichText)
         {
@@ -63,6 +63,12 @@
                                     <button class="ql-link"></button>
                                 </span>
                             }
+                            @if (_hasAdminPermission)
+                            {
+                                <span class="ql-formats">
+                                    <button class="ql-settings" @onclick="OpenSettings"></button>
+                                </span>
+                            }
                         </div>
                         <div @ref="@_editorElement"></div>
                     </div>
@@ -88,6 +94,10 @@
                         @((MarkupString)"&nbsp;&nbsp;")
                         <button type="button" class="btn btn-secondary" @onclick="CloseRawFileManager">@Localizer["Close"]</button>
                     }
+                    else if(_hasAdminPermission)
+                    {
+                        <button type="button" class="btn btn-primary ms-1" @onclick="OpenSettings">@Localizer["Settings"]</button>
+                    }
                 </div>
                 @if (ReadOnly)
                 {
@@ -99,58 +109,55 @@
                 }
             </TabPanel>
         }
-        @if (_hasAdminPermission)
-        {
-            <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings" ResourceType="@resourceType">
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="AllowFileManagement" ResourceKey="AllowFileManagement" ResourceType="@resourceType" HelpText="Specify If Editors Can Upload and Select Files">Allow File Management: </Label>
-                    <div class="col-sm-9">
-                        <input type="checkbox" id="AllowFileManagement" class="form-check-input" @bind="_allowFileManagementSetting" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="AllowRawHtml" ResourceKey="AllowRawHtml" ResourceType="@resourceType" HelpText="Specify If Editors Can Enter Raw HTML">Allow Raw HTML: </Label>
-                    <div class="col-sm-9">
-                        <input type="checkbox" id="AllowRawHtml" class="form-check-input" @bind="_allowRawHtmlSetting" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="AllowRichText" ResourceKey="AllowRichText" ResourceType="@resourceType" HelpText="Specify If Editors Can Use Rich Text Editor">Allow Rich Text: </Label>
-                    <div class="col-sm-9">
-                        <input type="checkbox" id="AllowRichText" class="form-check-input" @bind="_allowRichTextSetting" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="Theme" ResourceKey="Theme" ResourceType="@resourceType" HelpText="Specify the Rich Text Editor's Theme">Theme: </Label>
-                    <div class="col-sm-9">
-                        <input type="text" id="Theme" class="form-control" @bind="_themeSetting" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="DebugLevel" ResourceKey="DebugLevel" ResourceType="@resourceType" HelpText="Specify the Debug Level">Debug Level: </Label>
-                    <div class="col-sm-9">
-                        <select id="DebugLevel" class="form-select" @bind="_debugLevelSetting">
-                            @foreach (var level in _debugLevels)
-                            {
-                                <option value="@level">@level</option>
-                            }
-                        </select>
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="ToolbarContent" ResourceKey="ToolbarContent" ResourceType="@resourceType" HelpText="Specify the Toolbar Content">Toolbar Content: </Label>
-                    <div class="col-sm-9">
-                        <textarea id="ToolbarContent" class="form-control" @bind="_toolbarContentSetting" rows="5" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <div class="col-sm-9 offset-sm-3">
-                        <button type="button" class="btn btn-success" @onclick="@(async () => await UpdateSettings())">@SharedLocalizer["Save"]</button>
-                    </div>
-                </div>
-            </TabPanel>
-        }
     </TabStrip>
+</div>
+<div class="quill-text-editor-settings @(_settingsVisible ? "d-block" : "d-none")">
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="AllowFileManagement" ResourceKey="AllowFileManagement" ResourceType="@resourceType" HelpText="Specify If Editors Can Upload and Select Files">Allow File Management: </Label>
+        <div class="col-sm-9">
+            <input type="checkbox" id="AllowFileManagement" class="form-check-input" @bind="_allowFileManagementSetting" />
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="AllowRawHtml" ResourceKey="AllowRawHtml" ResourceType="@resourceType" HelpText="Specify If Editors Can Enter Raw HTML">Allow Raw HTML: </Label>
+        <div class="col-sm-9">
+            <input type="checkbox" id="AllowRawHtml" class="form-check-input" @bind="_allowRawHtmlSetting" />
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="AllowRichText" ResourceKey="AllowRichText" ResourceType="@resourceType" HelpText="Specify If Editors Can Use Rich Text Editor">Allow Rich Text: </Label>
+        <div class="col-sm-9">
+            <input type="checkbox" id="AllowRichText" class="form-check-input" @bind="_allowRichTextSetting" />
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="Theme" ResourceKey="Theme" ResourceType="@resourceType" HelpText="Specify the Rich Text Editor's Theme">Theme: </Label>
+        <div class="col-sm-9">
+            <input type="text" id="Theme" class="form-control" @bind="_themeSetting" />
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="DebugLevel" ResourceKey="DebugLevel" ResourceType="@resourceType" HelpText="Specify the Debug Level">Debug Level: </Label>
+        <div class="col-sm-9">
+            <select id="DebugLevel" class="form-select" @bind="_debugLevelSetting">
+                @foreach (var level in _debugLevels)
+                {
+                    <option value="@level">@level</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="ToolbarContent" ResourceKey="ToolbarContent" ResourceType="@resourceType" HelpText="Specify the Toolbar Content">Toolbar Content: </Label>
+        <div class="col-sm-9">
+            <textarea id="ToolbarContent" class="form-control" @bind="_toolbarContentSetting" rows="5" />
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <div class="col-sm-9 offset-sm-3">
+            <button type="button" class="btn btn-success" @onclick="@(async () => await UpdateSettings())">@SharedLocalizer["Save"]</button>
+        </div>
+    </div>
 </div>
 
 @code {
@@ -177,6 +184,7 @@
     private string _themeSetting = "snow";
     private string _debugLevelSetting = "info";
     private string _toolbarContentSetting = string.Empty;
+    private bool _settingsVisible;
 
     private bool _settingsLoaded;
 
@@ -424,6 +432,12 @@
         {
             _rawfilemanager = true;
         }
+        StateHasChanged();
+    }
+
+    private void OpenSettings()
+    {
+        _settingsVisible = true;
         StateHasChanged();
     }
 
