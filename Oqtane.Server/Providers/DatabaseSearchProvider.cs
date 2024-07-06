@@ -46,16 +46,19 @@ namespace Oqtane.Providers
 
         public void SaveSearchContent(SearchContent searchContent, bool autoCommit = false)
         {
-            //remove exist document
+            //remove existing search content
             _searchContentRepository.DeleteSearchContent(searchContent.EntityName, searchContent.EntityId);
 
-            //clean the search content to remove html tags
-            CleanSearchContent(searchContent);
+            if (!searchContent.IsDeleted)
+            {
+                //clean the search content to remove html tags
+                CleanSearchContent(searchContent);
 
-            _searchContentRepository.AddSearchContent(searchContent);
+                _searchContentRepository.AddSearchContent(searchContent);
 
-            //save the index words
-            AnalyzeSearchContent(searchContent);
+                //save the index words
+                AnalyzeSearchContent(searchContent);
+            }
         }
 
         public async Task<SearchResults> SearchAsync(SearchQuery searchQuery, Func<SearchContent, SearchQuery, bool> validateFunc)

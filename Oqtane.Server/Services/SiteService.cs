@@ -72,11 +72,12 @@ namespace Oqtane.Services
             var pages = new List<Page>();
             foreach (Page page in site.Pages)
             {
-                if (!page.IsDeleted && _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.View, page.PermissionList) && (Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate) || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, page.PermissionList)))
+                if (!page.IsDeleted && _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.View, page.PermissionList) && (Utilities.IsEffectiveOrExpired(page.EffectiveDate, page.ExpiryDate) || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, page.PermissionList)))
                 {
                     pages.Add(page);
                 }
             }
+            site.Pages = pages;
 
             return site;
         }
@@ -251,7 +252,7 @@ namespace Oqtane.Services
             var modules = new List<Module>();
             foreach (Module module in sitemodules.Where(item => (item.PageId == pageId || pageId == -1) && !item.IsDeleted && _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.View, item.PermissionList)))
             {
-                if (Utilities.IsPageModuleVisible(module.EffectiveDate, module.ExpiryDate) || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, module.PermissionList))
+                if (Utilities.IsEffectiveOrExpired(module.EffectiveDate, module.ExpiryDate) || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, module.PermissionList))
                 {
                     modules.Add(module);
                 }

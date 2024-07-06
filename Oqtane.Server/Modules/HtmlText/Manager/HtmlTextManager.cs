@@ -11,6 +11,7 @@ using System.Linq;
 using Oqtane.Interfaces;
 using System.Collections.Generic;
 using System;
+using System.Threading.Tasks;
 
 // ReSharper disable ConvertToUsingDeclaration
 
@@ -48,23 +49,27 @@ namespace Oqtane.Modules.HtmlText.Manager
             return content;
         }
 
-        public List<SearchContent> GetSearchContents(Module module, DateTime startDate)
+        public async Task<List<SearchContent>> GetSearchContentsAsync(PageModule pageModule, DateTime lastIndexedOn)
         {
+            await Task.CompletedTask;
+
             var searchContentList = new List<SearchContent>();
 
-            var htmltexts = _htmlText.GetHtmlTexts(module.ModuleId);
-            if (htmltexts != null && htmltexts.Any(i => i.CreatedOn >= startDate))
+            var htmltexts = _htmlText.GetHtmlTexts(pageModule.ModuleId);
+            if (htmltexts != null && htmltexts.Any())
             {
                 var htmltext = htmltexts.OrderByDescending(item => item.CreatedOn).First();
-
-                searchContentList.Add(new SearchContent
+                if (htmltext.CreatedOn >= lastIndexedOn)
                 {
-                    Title = module.Title,
-                    Description = string.Empty,
-                    Body = htmltext.Content,
-                    ContentModifiedBy = htmltext.ModifiedBy,
-                    ContentModifiedOn = htmltext.ModifiedOn
-                });
+                    searchContentList.Add(new SearchContent
+                    {
+                        Title = pageModule.Module.Title,
+                        Description = string.Empty,
+                        Body = htmltext.Content,
+                        ContentModifiedBy = htmltext.ModifiedBy,
+                        ContentModifiedOn = htmltext.ModifiedOn
+                    });
+                }
             }
 
             return searchContentList;

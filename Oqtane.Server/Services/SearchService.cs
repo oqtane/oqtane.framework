@@ -10,7 +10,6 @@ using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Shared;
-using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 
 namespace Oqtane.Services
 {
@@ -43,45 +42,6 @@ namespace Oqtane.Services
             _serviceProvider = serviceProvider;
             _logger = logger;
             _cache = cache;
-        }
-
-        public void IndexContent(int siteId, DateTime? startTime, Action<string> logNote, Action<string> handleError)
-        {
-            var searchEnabled = SearchEnabled(siteId);
-            if(!searchEnabled)
-            {
-                logNote($"Search: Search is disabled on site {siteId}.<br />");
-                return;
-            }
-
-            _logger.LogDebug($"Search: Start Index Content of {siteId}, Start Time: {startTime.GetValueOrDefault(DateTime.MinValue)}");
-
-            var searchProvider = GetSearchProvider(siteId);
-
-            SetTenant(siteId);
-
-            if (startTime == null)
-            {
-                searchProvider.ResetIndex();
-            }
-
-            var searchIndexManagers = GetSearchIndexManagers(m => { });
-            foreach (var searchIndexManager in searchIndexManagers)
-            {
-                if (!searchIndexManager.IsIndexEnabled(siteId))
-                {
-                    logNote($"Search: Ignore indexer {searchIndexManager.Name} because it's disabled.<br />");
-                }
-                else
-                {
-                    _logger.LogDebug($"Search: Begin Index {searchIndexManager.Name}");
-
-                    var count = searchIndexManager.IndexContent(siteId, startTime, SaveSearchContent, handleError);
-                    logNote($"Search: Indexer {searchIndexManager.Name} processed {count} search content.<br />");
-
-                    _logger.LogDebug($"Search: End Index {searchIndexManager.Name}");
-                }
-            }
         }
 
         public async Task<SearchResults> SearchAsync(SearchQuery searchQuery)
@@ -142,23 +102,6 @@ namespace Oqtane.Services
             _tenantManager.SetAlias(alias);
         }
 
-        private List<ISearchIndexManager> GetSearchIndexManagers(Action<ISearchIndexManager> initManager)
-        {
-            var managers = new List<ISearchIndexManager>();
-            var managerTypes = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(s => s.GetTypes())
-                .Where(p => typeof(ISearchIndexManager).IsAssignableFrom(p) && !p.IsInterface && !p.IsAbstract);
-
-            foreach (var type in managerTypes)
-            {
-                var manager = (ISearchIndexManager)ActivatorUtilities.CreateInstance(_serviceProvider, type);
-                initManager(manager);
-                managers.Add(manager);
-            }
-
-            return managers.OrderBy(i => i.Priority).ToList();
-        }
-
         private List<ISearchResultManager> GetSearchResultManagers()
         {
             var managers = new List<ISearchResultManager>();
@@ -175,13 +118,13 @@ namespace Oqtane.Services
             return managers.ToList();
         }
 
-        private void SaveSearchContent(List<SearchContent> searchContentList)
+        public async Task SaveSearchContentAsync(List<SearchContent> searchContents)
         {
-            if(searchContentList.Any())
+            if(searchContents.Any())
             {
-                var searchProvider = GetSearchProvider(searchContentList.First().SiteId);
+                var searchProvider = GetSearchProvider(searchContents.First().SiteId);
 
-                foreach (var searchContent in searchContentList)
+                foreach (var searchContent in searchContents)
                 {
                     try
                     {
@@ -192,6 +135,8 @@ namespace Oqtane.Services
                         _logger.LogError(ex, $"Search: Save search content {searchContent.UniqueKey} failed.");
                     }
                 }
+
+                await Task.CompletedTask;
 
                 //commit the index changes
                 searchProvider.Commit();

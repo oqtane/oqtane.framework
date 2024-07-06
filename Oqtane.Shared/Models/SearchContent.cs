@@ -37,10 +37,13 @@ namespace Oqtane.Models
         public List<SearchContentWord> SearchContentWords { get; set; }
 
         [NotMapped]
-        public string UniqueKey => $"{EntityName}:{EntityId}";
+        public string UniqueKey => $"{TenantId}:{SiteId}:{EntityName}:{EntityId}";
 
         [NotMapped]
         public int TenantId { get; set; }
+
+        [NotMapped]
+        public bool IsDeleted { get; set; }
 
         // constructors
         public SearchContent() { }
