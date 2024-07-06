@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width">
     <title>Upgrade Framework</title>
     <base href="/" />
-    <link rel="stylesheet" href="http://www.oqtane.net/css/app.css">
+    <link rel="stylesheet" href="https://www.oqtane.net/css/app.css">
 </head>
 <body onload="forceWait()">
     <div>
