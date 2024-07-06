@@ -54,7 +54,7 @@ namespace Oqtane.Managers.Search
             var page = pageRepository.GetPage(pageId);
 
             return page != null && !page.IsDeleted && UserSecurity.IsAuthorized(user, PermissionNames.View, page.PermissionList)
-                    && (Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate) || UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList));
+                    && (Utilities.IsEffectiveOrExpired(page.EffectiveDate, page.ExpiryDate) || UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList));
         }
     }
 }

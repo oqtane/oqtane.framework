@@ -42,6 +42,9 @@ namespace Oqtane.Models
         [NotMapped]
         public int TenantId { get; set; }
 
+        [NotMapped]
+        public bool IsDeleted { get; set; }
+
         // constructors
         public SearchContent() { }
 
