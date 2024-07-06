@@ -429,4 +429,10 @@
   <data name="Runtime.Text" xml:space="preserve">
     <value>Interactivity:</value>
   </data>
+  <data name="TextEditorProvider.HelpText" xml:space="preserve">
+    <value>Select the text editor provider for the site</value>
+  </data>
+  <data name="TextEditorProvider.Text" xml:space="preserve">
+    <value>Text Editor Provider:</value>
+  </data>
 </root>

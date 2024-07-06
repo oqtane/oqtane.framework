@@ -14,7 +14,7 @@
 </div>
 
 @code {
-    private ITextEditorProvider _textEditorProvider;
+    private string _textEditorProvider;
     private RenderFragment _textEditorComponent;
     private ITextEditor _textEditor;
 
@@ -28,29 +28,14 @@
     public string Placeholder { get; set; }
 
     [Parameter]
-    public bool AllowFileManagement { get; set; } = true;
+    public string Provider { get; set; }
 
-    [Parameter]
-    public bool AllowRichText { get; set; } = true;  
-
-    [Parameter]
-    public bool AllowRawHtml { get; set; } = true;  
-
-    // parameters only applicable to rich text editor
-    [Parameter]
-    public RenderFragment ToolbarContent { get; set; }
-
-    [Parameter]
-    public string Theme { get; set; }
-
-    [Parameter]
-    public string DebugLevel { get; set; }
-
-    public override List<Resource> Resources { get; set; } = new List<Resource>();
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object> AdditionalAttributes { get; set; } = new Dictionary<string, object>();
 
     protected override async Task OnInitializedAsync()
     {
-        _textEditorProvider = await GetTextEditorProvider();
+        _textEditorProvider = await GetTextEditorType();
     }
 
     protected override void OnParametersSet()
@@ -78,37 +63,32 @@
 
     private void CreateTextEditor(RenderTreeBuilder builder)
     {
-        if(_textEditorProvider != null)
+        if(!string.IsNullOrEmpty(_textEditorProvider))
         {
-            var editorType = Type.GetType(_textEditorProvider.EditorType);
+            var editorType = Type.GetType(_textEditorProvider);
             if (editorType != null)
             {
                 builder.OpenComponent(0, editorType);
 
-                //set editor parameters if available.
                 var attributes = new Dictionary<string, object>
                 {
-                    { "AllowFileManagement", AllowFileManagement },
-                    { "AllowRichText", AllowRichText },
-                    { "AllowRawHtml", AllowRawHtml },
+                    { "Placeholder", Placeholder },
                     { "ReadOnly", ReadOnly }
                 };
 
-                if(!string.IsNullOrEmpty(Theme))
+                if (AdditionalAttributes != null)
                 {
-                    attributes.Add("Theme", Theme);
-                }
-                if (!string.IsNullOrEmpty(DebugLevel))
-                {
-                    attributes.Add("DebugLevel", DebugLevel);
-                }
-                if (!string.IsNullOrEmpty(Placeholder))
-                {
-                    attributes.Add("Placeholder", Placeholder);
-                }
-                if(ToolbarContent != null)
-                {
-                    attributes.Add("ToolbarContent", ToolbarContent);
+                    foreach(var key in AdditionalAttributes.Keys)
+                    {
+                        if(!attributes.ContainsKey(key))
+                        {
+                            attributes.Add(key, AdditionalAttributes[key]);
+                        }
+                        else
+                        {
+                            attributes[key] = AdditionalAttributes[key];
+                        }
+                    }
                 }
 
                 var index = 1;
@@ -129,26 +109,20 @@
         }
     }
 
-    private async Task<ITextEditorProvider> GetTextEditorProvider()
+    private async Task<string> GetTextEditorType()
     {
-        const string DefaultEditorName = "Quill";
+        const string EditorSettingName = "TextEditorProvider";
 
-        var editorName = await GetTextEditorName(DefaultEditorName);
-        var editorProviders = ServiceProvider.GetServices<ITextEditorProvider>();
-        var editorProvider = editorProviders.FirstOrDefault(i => i.Name == editorName);
-        if(editorProvider == null)
+        if(!string.IsNullOrEmpty(Provider))
         {
-            editorProvider = editorProviders.FirstOrDefault(i => i.Name == DefaultEditorName);
+            var provider = ServiceProvider.GetServices<ITextEditorProvider>().FirstOrDefault(i => i.Name.Equals(Provider, StringComparison.OrdinalIgnoreCase));
+            if(provider != null)
+            {
+                return provider.EditorType;
+            }
         }
 
-        return editorProvider;
-    }
-
-    private async Task<string> GetTextEditorName(string defaultName)
-    {
-        const string EditorSettingName = "TextEditor";
-
         var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-        return SettingService.GetSetting(settings, EditorSettingName, defaultName);
+        return SettingService.GetSetting(settings, EditorSettingName, Constants.DefaultTextEditorProvider);
     }
 }

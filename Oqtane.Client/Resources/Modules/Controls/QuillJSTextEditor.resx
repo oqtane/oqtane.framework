@@ -117,8 +117,32 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AllowFileManagement.HelpText" xml:space="preserve">
+    <value>Specify If Editors Can Upload and Select Files</value>
+  </data>
+  <data name="AllowFileManagement.Text" xml:space="preserve">
+    <value>Allow File Management:</value>
+  </data>
+  <data name="AllowRawHtml.HelpText" xml:space="preserve">
+    <value>Specify If Editors Can Enter Raw HTML</value>
+  </data>
+  <data name="AllowRawHtml.Text" xml:space="preserve">
+    <value>Allow Raw HTML:</value>
+  </data>
+  <data name="AllowRichText.HelpText" xml:space="preserve">
+    <value>Specify If Editors Can Use Rich Text Editor</value>
+  </data>
+  <data name="AllowRichText.Text" xml:space="preserve">
+    <value>Allow Rich Text: </value>
+  </data>
   <data name="Close" xml:space="preserve">
     <value>Close</value>
+  </data>
+  <data name="DebugLevel.HelpText" xml:space="preserve">
+    <value>Specify the Debug Level</value>
+  </data>
+  <data name="DebugLevel.Text" xml:space="preserve">
+    <value>Debug Level:</value>
   </data>
   <data name="InsertImage" xml:space="preserve">
     <value>Insert Image</value>
@@ -128,5 +152,20 @@
   </data>
   <data name="Placeholder" xml:space="preserve">
     <value>Enter Your Content...</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Theme.HelpText" xml:space="preserve">
+    <value>Specify the Rich Text Editor's Theme</value>
+  </data>
+  <data name="Theme.Text" xml:space="preserve">
+    <value>Theme:</value>
+  </data>
+  <data name="ToolbarContent.HelpText" xml:space="preserve">
+    <value>Specify the Toolbar Content</value>
+  </data>
+  <data name="ToolbarContent.Text" xml:space="preserve">
+    <value>Toolbar Content:</value>
   </data>
 </root>

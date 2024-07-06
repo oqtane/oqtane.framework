@@ -249,3 +249,9 @@ app {
 .app-search input + button .oi{
     top: 0;
 }
+
+/* Text Editor */
+.text-area-editor > textarea {
+    width: 100%;
+    min-height: 250px;
+}

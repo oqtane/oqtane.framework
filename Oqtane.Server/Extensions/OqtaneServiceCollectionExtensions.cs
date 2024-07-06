@@ -151,7 +151,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IUserManager, UserManager>();
 
             // providers
-            services.AddTransient<ITextEditorProvider, QuillTextEditorProvider>();
+            services.AddTransient<ITextEditorProvider, QuillJSTextEditorProvider>();
+            services.AddTransient<ITextEditorProvider, TextAreaTextEditorProvider>();
 
             // obsolete - replaced by ITenantManager
             services.AddTransient<ITenantResolver, TenantResolver>();

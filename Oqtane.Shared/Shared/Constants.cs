@@ -83,6 +83,7 @@ namespace Oqtane.Shared
         public const string SearchModuleIdPropertyName = "ModuleId";
 
         public static readonly string[] InternalPagePaths = { "login", "register", "reset", "404" };
+        public const string DefaultTextEditorProvider = "Oqtane.Modules.Controls.QuillJSTextEditor, Oqtane.Client";
 
         // Obsolete constants
 
