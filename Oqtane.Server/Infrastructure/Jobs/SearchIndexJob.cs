@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Oqtane.Interfaces;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Services;
@@ -11,7 +13,7 @@ namespace Oqtane.Infrastructure
 {
     public class SearchIndexJob : HostedServiceBase
     {
-        private const string SearchIndexStartTimeSettingName = "SearchIndex_StartTime";
+        private const string SearchLastIndexedOnSetting = "Search_LastIndexedOn";
 
         public SearchIndexJob(IServiceScopeFactory serviceScopeFactory) : base(serviceScopeFactory)
         {
@@ -21,68 +23,231 @@ namespace Oqtane.Infrastructure
             IsEnabled = true;
         }
 
-        public override string ExecuteJob(IServiceProvider provider)
+        public override async Task<string> ExecuteJobAsync(IServiceProvider provider)
         {
+            string log = "";
+
             // get services
             var siteRepository = provider.GetRequiredService<ISiteRepository>();
             var settingRepository = provider.GetRequiredService<ISettingRepository>();
-            var logRepository = provider.GetRequiredService<ILogRepository>();
+            var tenantManager = provider.GetRequiredService<ITenantManager>();
+            var pageRepository = provider.GetRequiredService<IPageRepository>();
+            var pageModuleRepository = provider.GetRequiredService<IPageModuleRepository>();
             var searchService = provider.GetRequiredService<ISearchService>();
 
             var sites = siteRepository.GetSites().ToList();
-            var logs = new StringBuilder();
-
             foreach (var site in sites)
             {
-                var startTime = GetSearchStartTime(site.SiteId, settingRepository);
-                logs.AppendLine($"Search: Begin index site: {site.Name}<br />");
+                log += $"Indexing Site: {site.Name}<br />";
+
+                // initialize
                 var currentTime = DateTime.UtcNow;
+                var lastIndexedOn = GetSearchLastIndexedOn(settingRepository, site.SiteId);
+                var tenantId = tenantManager.GetTenant().TenantId;
+                tenantManager.SetAlias(tenantId, site.SiteId);
+                var pages = pageRepository.GetPages(site.SiteId);
+                var pageModules = pageModuleRepository.GetPageModules(site.SiteId);
+                var searchContents = new List<SearchContent>();
 
-                searchService.IndexContent(site.SiteId, startTime, logNote =>
+                // index pages
+                foreach (var page in pages)
                 {
-                    logs.AppendLine(logNote);
-                }, handleError =>
-                {
-                    logs.AppendLine(handleError);
-                });
+                    if (Constants.InternalPagePaths.Contains(page.Path))
+                    {
+                        continue;
+                    }
 
-                UpdateSearchStartTime(site.SiteId, currentTime, settingRepository);
+                    bool changed = false;
+                    bool removed = false;
 
-                logs.AppendLine($"Search: End index site: {site.Name}<br />");
+                    if (page.ModifiedOn >= lastIndexedOn)
+                    {
+                        changed = true;
+                        removed = page.IsDeleted || !Utilities.IsEffectiveOrExpired(page.EffectiveDate, page.ExpiryDate);
+
+                        var searchContent = new SearchContent
+                        {
+                            SiteId = page.SiteId,
+                            EntityName = EntityNames.Page,
+                            EntityId = page.PageId.ToString(),
+                            Title = !string.IsNullOrEmpty(page.Title) ? page.Title : page.Name,
+                            Description = string.Empty,
+                            Body = $"{page.Name} {page.Title}",
+                            Url = $"{(!string.IsNullOrEmpty(page.Path) && !page.Path.StartsWith("/") ? "/" : "")}{page.Path}",
+                            Permissions = $"{EntityNames.Page}:{page.PageId}",
+                            ContentModifiedBy = page.ModifiedBy,
+                            ContentModifiedOn = page.ModifiedOn,
+                            AdditionalContent = string.Empty,
+                            CreatedOn = DateTime.UtcNow,
+                            IsDeleted = removed,
+                            TenantId = tenantId
+                        };
+                        searchContents.Add(searchContent);
+                    }
+
+                    // index modules
+                    foreach (var pageModule in pageModules.Where(item => item.PageId == page.PageId))
+                    {
+                        if (pageModule.ModifiedOn >= lastIndexedOn)
+                        {
+                            changed = true;
+                        }
+
+                        var searchable = false;
+                        if (pageModule.Module.ModuleDefinition != null && pageModule.Module.ModuleDefinition.ServerManagerType != "")
+                        {
+                            Type type = Type.GetType(pageModule.Module.ModuleDefinition.ServerManagerType);
+                            if (type?.GetInterface(nameof(ISearchable)) != null)
+                            {
+                                try
+                                {
+                                    searchable = true;
+
+                                    // determine if reindexing is necessary
+                                    var lastindexedon = (changed) ? DateTime.MinValue : lastIndexedOn;
+
+                                    // index module content
+                                    var serverManager = (ISearchable)ActivatorUtilities.CreateInstance(provider, type);
+                                    var searchcontents = await serverManager.GetSearchContentsAsync(pageModule, lastindexedon);
+                                    if (searchcontents != null)
+                                    {
+                                        foreach (var searchContent in searchcontents)
+                                        {
+                                            SaveModuleMetaData(searchContent, pageModule, tenantId, removed);
+                                            searchContents.Add(searchContent);
+                                        }
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    log += ex.Message + "<br />";
+                                }
+                            }
+                        }
+
+                        if (!searchable && changed)
+                        {
+                            // module does not implement ISearchable
+                            var searchContent = new SearchContent
+                            {
+                                SiteId = page.SiteId,
+                                EntityName = EntityNames.Module,
+                                EntityId = pageModule.ModuleId.ToString(),
+                                Title = pageModule.Title,
+                                Description = string.Empty,
+                                Body = $"{pageModule.Title}",
+                                Url = $"{(!string.IsNullOrEmpty(page.Path) && !page.Path.StartsWith("/") ? "/" : "")}{page.Path}",
+                                Permissions = $"{EntityNames.Module}:{pageModule.ModuleId},{EntityNames.Page}:{pageModule.PageId}",
+                                ContentModifiedBy = pageModule.ModifiedBy,
+                                ContentModifiedOn = pageModule.ModifiedOn,
+                                AdditionalContent = string.Empty,
+                                CreatedOn = DateTime.UtcNow,
+                                IsDeleted = (removed || pageModule.IsDeleted || !Utilities.IsEffectiveOrExpired(pageModule.EffectiveDate, pageModule.ExpiryDate)),
+                                TenantId = tenantId
+                            };
+                            searchContents.Add(searchContent);
+                        }
+                    }
+                }
+
+                // save search content
+                await searchService.SaveSearchContentAsync(searchContents);
+                log += $"Index Date: {lastIndexedOn}<br />";
+                log += $"Items Indexed: {searchContents.Count}<br />";
+
+                // update last indexed on
+                SaveSearchLastIndexedOn(settingRepository, site.SiteId, currentTime);
             }
 
-            return logs.ToString();
+            return log;
         }
 
-        private DateTime? GetSearchStartTime(int siteId, ISettingRepository settingRepository)
+
+        private void SaveModuleMetaData(SearchContent searchContent, PageModule pageModule, int tenantId, bool removed)
         {
-            var setting = settingRepository.GetSetting(EntityNames.Site, siteId, SearchIndexStartTimeSettingName);
-            if(setting == null)
+            searchContent.SiteId = pageModule.Module.SiteId;
+            searchContent.TenantId = tenantId;
+
+            if (string.IsNullOrEmpty(searchContent.EntityName))
             {
-                return null;
+                searchContent.EntityName = EntityNames.Module;
             }
 
-            return Convert.ToDateTime(setting.SettingValue);
+            if (string.IsNullOrEmpty(searchContent.EntityId))
+            {
+                searchContent.EntityId = pageModule.ModuleId.ToString();
+            }
+
+            if (string.IsNullOrEmpty(searchContent.Permissions))
+            {
+                searchContent.Permissions = $"{EntityNames.Module}:{pageModule.ModuleId},{EntityNames.Page}:{pageModule.PageId}";
+            }
+
+            if (string.IsNullOrEmpty(searchContent.ContentModifiedBy))
+            {
+                searchContent.ContentModifiedBy = pageModule.ModifiedBy;
+            }
+
+            if (searchContent.ContentModifiedOn == DateTime.MinValue)
+            {
+                searchContent.ContentModifiedOn = pageModule.ModifiedOn;
+            }
+
+            if (string.IsNullOrEmpty(searchContent.AdditionalContent))
+            {
+                searchContent.AdditionalContent = string.Empty;
+            }
+
+            if (pageModule.Page != null)
+            {
+                if (string.IsNullOrEmpty(searchContent.Url))
+                {
+                    searchContent.Url = $"{(!string.IsNullOrEmpty(pageModule.Page.Path) && !pageModule.Page.Path.StartsWith("/") ? "/" : "")}{pageModule.Page.Path}";
+                }
+
+                if (string.IsNullOrEmpty(searchContent.Title))
+                {
+                    searchContent.Title = !string.IsNullOrEmpty(pageModule.Page.Title) ? pageModule.Page.Title : pageModule.Page.Name;
+                }
+            }
+
+            if (removed || pageModule.IsDeleted || !Utilities.IsEffectiveOrExpired(pageModule.EffectiveDate, pageModule.ExpiryDate))
+            {
+                searchContent.IsDeleted = true;
+            }
+
         }
 
-        private void UpdateSearchStartTime(int siteId, DateTime startTime, ISettingRepository settingRepository)
+        private DateTime GetSearchLastIndexedOn(ISettingRepository settingRepository, int siteId)
         {
-            var setting = settingRepository.GetSetting(EntityNames.Site, siteId, SearchIndexStartTimeSettingName);
+            var setting = settingRepository.GetSetting(EntityNames.Site, siteId, SearchLastIndexedOnSetting);
+            if (setting != null)
+            {
+                return Convert.ToDateTime(setting.SettingValue);
+            }
+            else
+            {
+                return DateTime.MinValue;
+            }
+        }
+
+        private void SaveSearchLastIndexedOn(ISettingRepository settingRepository, int siteId, DateTime lastIndexedOn)
+        {
+            var setting = settingRepository.GetSetting(EntityNames.Site, siteId, SearchLastIndexedOnSetting);
             if (setting == null)
             {
                 setting = new Setting
                 {
                     EntityName = EntityNames.Site,
                     EntityId = siteId,
-                    SettingName = SearchIndexStartTimeSettingName,
-                    SettingValue = Convert.ToString(startTime),
+                    SettingName = SearchLastIndexedOnSetting,
+                    SettingValue = Convert.ToString(lastIndexedOn),
                 };
-
                 settingRepository.AddSetting(setting);
             }
             else
             {
-                setting.SettingValue = Convert.ToString(startTime);
+                setting.SettingValue = Convert.ToString(lastIndexedOn);
                 settingRepository.UpdateSetting(setting);
             }
         }
