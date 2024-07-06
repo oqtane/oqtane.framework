@@ -46,6 +46,14 @@ namespace Oqtane.Services
         /// <returns></returns>
         Task DeleteSiteAsync(int siteId);
 
+        /// <summary>
+        /// Returns a list of modules
+        /// </summary>
+        /// <param name="siteId"></param>
+        /// <param name="pageId"></param>
+        /// <returns></returns>
+        Task<List<Module>> GetModulesAsync(int siteId, int pageId);
+
         [PrivateApi]
         [Obsolete("This method is deprecated.", false)]
         void SetAlias(Alias alias);

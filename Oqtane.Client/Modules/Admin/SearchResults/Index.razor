@@ -1,0 +1,116 @@
+@using Oqtane.Services
+@using System.Net
+@namespace Oqtane.Modules.Admin.SearchResults
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject ISearchResultsService SearchResultsService
+@inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+<div class="search-result-container">
+    <div class="row">
+        <div class="col">
+            <form method="post" @formname="SearchInputForm" @onsubmit="Search" data-enhance>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">@Localizer["SearchLabel"]</span>
+                    <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                    <input type="text" name="keywords" class="form-control shadow-none" maxlength="50"
+                            aria-label="Keywords"
+                            placeholder="@Localizer["SearchPlaceholder"]"
+                            @bind="@_keywords">
+                    <button class="btn btn-primary" type="submit">@SharedLocalizer["Search"]</button>
+                    <a class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Reset"]</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12  mb-3">
+            @if (_loading)
+            {
+                <div class="app-progress-indicator"></div>
+            }
+            else
+            {
+                @if (_searchResults != null && _searchResults.Results != null)
+                {
+                    if (_searchResults.Results.Any())
+                    {
+                        <Pager Items="@_searchResults?.Results"
+                               Format="Grid"
+                               Columns="1"
+                               Toolbar="Bottom"
+                               Parameters="@($"q={_keywords}")">
+                            <Row>
+                                <div class="search-item">
+                                    <h4 class="mb-1"><a href="@context.Url">@context.Title</a></h4>
+                                    <p class="mb-0 text-muted">@((MarkupString)context.Snippet)</p>
+                                </div>
+                            </Row>
+                        </Pager>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info show mt-3" role="alert">
+                            @Localizer["NoResult"]
+                        </div>
+                    }
+                }
+                <div class="clearfix"></div>
+            }
+        </div>
+    </div>
+</div>
+@code {
+    public override string RenderMode => RenderModes.Static;
+
+    private SearchSortDirections _searchSortDirection = SearchSortDirections.Descending; //default sort by
+    private SearchSortFields _searchSortField = SearchSortFields.Relevance;
+    private string _keywords;
+    private bool _loading;
+    private SearchResults _searchResults;
+
+    [SupplyParameterFromForm(FormName = "SearchInputForm")]
+    public string KeyWords { get => ""; set => _keywords = value; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (PageState.QueryString.ContainsKey("q"))
+        {
+            _keywords = WebUtility.UrlDecode(PageState.QueryString["q"]);
+        }
+
+        if (!string.IsNullOrEmpty(_keywords))
+        {
+            await PerformSearch();
+        }
+    }
+
+    private void Search()
+    {
+        NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, $"page=1&q={_keywords}"));
+    }
+
+    private async Task PerformSearch()
+    {
+        _loading = true;
+        StateHasChanged();
+
+        var searchQuery = new SearchQuery
+            {
+                SiteId = PageState.Site.SiteId,
+                Alias = PageState.Alias,
+                User = PageState.User,
+                Keywords = _keywords,
+                SortDirection = _searchSortDirection,
+                SortField = _searchSortField,
+                PageIndex = 0,
+                PageSize = int.MaxValue
+            };
+
+        _searchResults = await SearchResultsService.SearchAsync(ModuleState.ModuleId, searchQuery);
+
+        _loading = false;
+        StateHasChanged();
+    }
+}

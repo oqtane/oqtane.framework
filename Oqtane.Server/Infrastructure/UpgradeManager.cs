@@ -66,6 +66,9 @@ namespace Oqtane.Infrastructure
                     case "5.1.0":
                         Upgrade_5_1_0(tenant, scope);
                         break;
+                    case "5.2.0":
+                        Upgrade_5_2_0(tenant, scope);
+                        break;
                 }
             }
         }
@@ -384,6 +387,49 @@ namespace Oqtane.Infrastructure
                 }
             }
 
+        }
+
+        private void Upgrade_5_2_0(Tenant tenant, IServiceScope scope)
+        {
+            CreateSearchResultsPages(tenant, scope);
+        }
+
+        private void CreateSearchResultsPages(Tenant tenant, IServiceScope scope)
+        {
+            var pageTemplates = new List<PageTemplate>();
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Search",
+                Parent = "",
+                Path = "search",
+                Icon = "oi oi-magnifying-glass",
+                IsNavigation = false,
+                IsPersonalizable = false,
+                PermissionList = new List<Permission> {
+                    new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                    new Permission(PermissionNames.View, RoleNames.Admin, true),
+                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                },
+                PageTemplateModules = new List<PageTemplateModule> {
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.SearchResults, Oqtane.Client", Title = "Search", Pane = PaneNames.Default,
+                        PermissionList = new List<Permission> {
+                            new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                            new Permission(PermissionNames.View, RoleNames.Admin, true),
+                            new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                        }
+                    }
+                }
+            });
+
+            var pages = scope.ServiceProvider.GetRequiredService<IPageRepository>();
+            var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
+            foreach (var site in sites.GetSites().ToList())
+            {
+                if (!pages.GetPages(site.SiteId).ToList().Where(item => item.Path == "search").Any())
+                {
+                    sites.CreatePages(site, pageTemplates, null);
+                }
+            }
         }
     }
 }

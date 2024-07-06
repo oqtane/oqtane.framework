@@ -3,8 +3,6 @@
 @using Oqtane.Shared
 @inject SiteState SiteState
 @implements IDisposable
-@* the following StreamRendering attribute is required - if it is removed the framework will not render the content in static rendering *@
-@attribute [StreamRendering]
 
 @if (!string.IsNullOrEmpty(_title))
 {

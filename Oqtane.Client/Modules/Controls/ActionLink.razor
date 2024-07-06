@@ -145,7 +145,10 @@
 
         if (!string.IsNullOrEmpty(IconName))
         {
-            if (!IconName.Contains(" "))
+            // Check if IconName starts with "oi oi-"
+            bool startsWithOiOi = IconName.StartsWith("oi oi-");
+
+            if (!startsWithOiOi && !IconName.Contains(" "))
             {
                 IconName = "oi oi-" + IconName;
             }

@@ -126,8 +126,8 @@ namespace Oqtane.Models
         [NotMapped]
         public List<Page> Pages { get; set; }
 
-        [NotMapped]
-        public List<Module> Modules { get; set; }
+        //[NotMapped]
+        //public List<Module> Modules { get; set; }
 
         [NotMapped]
         public List<Language> Languages { get; set; }

@@ -121,15 +121,15 @@
                 var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
                 if (_login != "-")
                 {
-                    settings = SettingService.SetSetting(settings, GetType().Namespace + ":Login", _login, true);
+                    settings = SettingService.SetSetting(settings, GetType().Namespace + ":Login", _login);
                 }
                 if (_register != "-")
                 {
-                    settings = SettingService.SetSetting(settings, GetType().Namespace + ":Register", _register, true);
+                    settings = SettingService.SetSetting(settings, GetType().Namespace + ":Register", _register);
                 }
                 if (_footer != "-")
                 {
-                    settings = SettingService.SetSetting(settings, GetType().Namespace + ":Footer", _footer, true);
+                    settings = SettingService.SetSetting(settings, GetType().Namespace + ":Footer", _footer);
                 }
                 await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
             }

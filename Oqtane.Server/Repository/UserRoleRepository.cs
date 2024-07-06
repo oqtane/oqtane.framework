@@ -23,16 +23,25 @@ namespace Oqtane.Repository
             return db.UserRole
                 .Include(item => item.Role) // eager load roles
                 .Include(item => item.User) // eager load users
-                .Where(item => item.Role.SiteId == siteId || item.Role.SiteId == null).ToList();
+                .Where(item => item.Role.SiteId == siteId || item.Role.SiteId == null || siteId == -1).ToList();
         }
 
         public IEnumerable<UserRole> GetUserRoles(int userId, int siteId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.UserRole.Where(item => item.UserId == userId)
+            return db.UserRole
                 .Include(item => item.Role) // eager load roles
                 .Include(item => item.User) // eager load users
-                .Where(item => item.Role.SiteId == siteId || item.Role.SiteId == null || siteId == -1).ToList();
+                .Where(item => (item.Role.SiteId == siteId || item.Role.SiteId == null || siteId == -1) && item.UserId == userId).ToList();
+        }
+
+        public IEnumerable<UserRole> GetUserRoles(string roleName, int siteId)
+        {
+            using var db = _dbContextFactory.CreateDbContext();
+            return db.UserRole
+                .Include(item => item.Role) // eager load roles
+                .Include(item => item.User) // eager load users
+                .Where(item => (item.Role.SiteId == siteId || item.Role.SiteId == null || siteId == -1) && item.Role.Name == roleName).ToList();
         }
 
         public UserRole AddUserRole(UserRole userRole)

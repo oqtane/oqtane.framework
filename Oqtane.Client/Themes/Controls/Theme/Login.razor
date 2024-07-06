@@ -16,7 +16,7 @@
             else
             {
                 <form method="post" class="app-form-inline" action="@logouturl" @formname="LogoutForm">
-                    <input type="hidden" name="__RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                    <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                     <input type="hidden" name="returnurl" value="@returnurl" />
                     <button type="submit" class="btn btn-primary">@Localizer["Logout"]</button>
                 </form>

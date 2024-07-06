@@ -46,15 +46,27 @@ namespace Oqtane.Pages
         {
             var sitemap = new List<Sitemap>();
 
+            // internal pages which should not be indexed
+            string[] internalPaths = { "login", "register", "reset", "404" };
+
             // build site map
+            var rooturl = _alias.Protocol + (string.IsNullOrEmpty(_alias.Path) ? _alias.Name : _alias.Name.Substring(0, _alias.Name.IndexOf("/")));
             var moduleDefinitions = _moduleDefinitions.GetModuleDefinitions(_alias.SiteId).ToList();
             var pageModules = _pageModules.GetPageModules(_alias.SiteId);
             foreach (var page in _pages.GetPages(_alias.SiteId))
             {
-                if (_userPermissions.IsAuthorized(null, PermissionNames.View, page.PermissionList) && page.IsNavigation)
+                if (_userPermissions.IsAuthorized(null, PermissionNames.View, page.PermissionList) && !internalPaths.Contains(page.Path))
                 {
-                    var rooturl = _alias.Protocol + (string.IsNullOrEmpty(_alias.Path) ? _alias.Name : _alias.Name.Substring(0, _alias.Name.IndexOf("/")));
-                    sitemap.Add(new Sitemap { Url = rooturl + Utilities.NavigateUrl(_alias.Path, page.Path, ""), ModifiedOn = DateTime.UtcNow });
+                    var pageurl = rooturl;
+                    if (string.IsNullOrEmpty(page.Url))
+                    {
+                        pageurl += Utilities.NavigateUrl(_alias.Path, page.Path, "");
+                    }
+                    else
+                    {
+                        pageurl += (page.Url.StartsWith("/") ? "" : "/") + page.Url;
+                    }
+                    sitemap.Add(new Sitemap { Url = pageurl, ModifiedOn = DateTime.UtcNow });
 
                     foreach (var pageModule in pageModules.Where(item => item.PageId == page.PageId))
                     {

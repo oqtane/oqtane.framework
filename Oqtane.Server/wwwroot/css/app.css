@@ -35,6 +35,9 @@ app {
     }
 
 /* Action Dialog */
+.app-actiondialog{
+    position: absolute;
+}
 .app-actiondialog .modal {
     position: fixed; /* Stay in place */
     z-index: 9999; /* Sit on top */
@@ -231,4 +234,18 @@ app {
 
 .app-form-inline {
     display: inline-block;
+}
+.app-search{
+    display: inline-block;
+    position: relative;
+}
+.app-search input + button{
+    background: none;
+    border: none;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+.app-search input + button .oi{
+    top: 0;
 }

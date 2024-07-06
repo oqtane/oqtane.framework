@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Oqtane.Documentation;
 using Oqtane.Shared;
 using System;
+using System.Globalization;
 
 namespace Oqtane.Services
 {
@@ -18,7 +19,7 @@ namespace Oqtane.Services
 
         public async Task<List<Visitor>> GetVisitorsAsync(int siteId, DateTime fromDate)
         {
-            List<Visitor> visitors = await GetJsonAsync<List<Visitor>>($"{Apiurl}?siteid={siteId}&fromdate={fromDate.ToString("dd-MMM-yyyy")}");
+            List<Visitor> visitors = await GetJsonAsync<List<Visitor>>($"{Apiurl}?siteid={siteId}&fromdate={fromDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}");
             return visitors.OrderByDescending(item => item.VisitedOn).ToList();
         }
 

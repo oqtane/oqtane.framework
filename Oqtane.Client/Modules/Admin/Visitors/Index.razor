@@ -43,7 +43,7 @@ else
 					<th>@Localizer["Created"]</th>
 				</Header>
 				<Row>
-					<td><ActionLink Action="Detail" Parameters="@($"id={context.VisitorId}")" ReturnUrl="@(NavigateUrl(PageState.Page.Path, $"type={_type}&days={_days}&page={_page}"))" ResourceKey="Details" /></td>
+                    <td><ActionLink Action="Detail" Text="Detail" Parameters="@($"id={context.VisitorId}")" ReturnUrl="@(NavigateUrl(PageState.Page.Path, $"type={_type}&days={_days}&page={_page}"))" ResourceKey="Details" /></td>
 					<td>@context.IPAddress</td>
 					<td>
 						@if (context.UserId != null)
@@ -69,14 +69,20 @@ else
 						</select>
 					</div>
 				</div>
-				<div class="row mb-1 align-items-center">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="duration" HelpText="The duration of a browsing session considered to be a distinct visit (in minutes)" ResourceKey="Duration">Session Duration: </Label>
+                    <div class="col-sm-9">
+                        <input id="duration" class="form-control" type="number" min="0" step="1" @bind="@_duration" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
 					<Label Class="col-sm-3" For="filter" HelpText="Comma delimited list of terms which may exist in IP addresses, user agents, or languages identifying visitors which should not be tracked" ResourceKey="Filter">Filter: </Label>
 					<div class="col-sm-9">
 						<textarea id="filter" class="form-control" @bind="@_filter" rows="3"></textarea>
 					</div>
 				</div>
 				<div class="row mb-1 align-items-center">
-					<Label Class="col-sm-3" For="retention" HelpText="Number of days of visitor activity to retain" ResourceKey="Retention">Retention (Days): </Label>
+					<Label Class="col-sm-3" For="retention" HelpText="Number of days of visitor activity to retain" ResourceKey="Retention">Retention: </Label>
 					<div class="col-sm-9">
                         <input id="retention" class="form-control" type="number" min="0" step="1" @bind="@_retention" />
 					</div>
@@ -103,7 +109,8 @@ else
 	private int _page = 1;
 	private List<Visitor> _visitors;
 	private string _tracking;
-	private string _filter = "";
+    private int _duration = 5;
+    private string _filter = "";
 	private int _retention = 30;
 	private string _correlation = "true";
 
@@ -128,7 +135,8 @@ else
 
 		_tracking = PageState.Site.VisitorTracking.ToString();
 		var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-		_filter = SettingService.GetSetting(settings, "VisitorFilter", Constants.DefaultVisitorFilter);
+        _duration = int.Parse(SettingService.GetSetting(settings, "VisitorDuration", "5"));
+        _filter = SettingService.GetSetting(settings, "VisitorFilter", Constants.DefaultVisitorFilter);
 		_retention = int.Parse(SettingService.GetSetting(settings, "VisitorRetention", "30"));
 		_correlation = SettingService.GetSetting(settings, "VisitorCorrelation", "true");
 	}
@@ -179,7 +187,8 @@ else
 			await SiteService.UpdateSiteAsync(site);
 
 			var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-			settings = SettingService.SetSetting(settings, "VisitorFilter", _filter, true);
+            settings = SettingService.SetSetting(settings, "VisitorDuration", _duration.ToString(), true);
+            settings = SettingService.SetSetting(settings, "VisitorFilter", _filter, true);
 			settings = SettingService.SetSetting(settings, "VisitorRetention", _retention.ToString(), true);
 			settings = SettingService.SetSetting(settings, "VisitorCorrelation", _correlation, true);
             await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);

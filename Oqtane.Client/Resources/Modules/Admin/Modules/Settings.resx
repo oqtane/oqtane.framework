@@ -156,7 +156,7 @@
   <data name="Module.Text" xml:space="preserve">
     <value>Module:</value>
   </data>
-  <data name="Module Settings" xml:space="preserve">
+  <data name="ModuleSettings.Heading" xml:space="preserve">
     <value>Module Settings</value>
   </data>
   <data name="Pane.HelpText" xml:space="preserve">
@@ -176,5 +176,17 @@
   </data>
   <data name="ExpiryDate.Text" xml:space="preserve">
     <value>Expiry Date: </value>
+  </data>
+  <data name="Permissions.Text" xml:space="preserve">
+    <value>Permissions</value>
+  </data>
+  <data name="Permissions.Heading" xml:space="preserve">
+    <value>Permissions</value>
+  </data>
+  <data name="ContainerSettings.Heading" xml:space="preserve">
+    <value>Container Settings</value>
+  </data>
+  <data name="ModuleSettings.Title" xml:space="preserve">
+    <value>Module Settings</value>
   </data>
 </root>

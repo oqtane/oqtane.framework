@@ -539,6 +539,8 @@ namespace Oqtane.Infrastructure
                             var identityUserManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
                             var tenant = tenants.GetTenants().FirstOrDefault(item => item.Name == install.TenantName);
+                            var rendermode = (!string.IsNullOrEmpty(install.RenderMode)) ? install.RenderMode : _configManager.GetSection("RenderMode").Value;
+                            var runtime = (!string.IsNullOrEmpty(install.Runtime)) ? install.Runtime : _configManager.GetSection("Runtime").Value;
 
                             site = new Site
                             {
@@ -556,9 +558,9 @@ namespace Oqtane.Infrastructure
                                 DefaultContainerType = (!string.IsNullOrEmpty(install.DefaultContainer)) ? install.DefaultContainer : Constants.DefaultContainer,
                                 AdminContainerType = (!string.IsNullOrEmpty(install.DefaultAdminContainer)) ? install.DefaultAdminContainer : Constants.DefaultAdminContainer,
                                 SiteTemplateType = install.SiteTemplate,
-                                RenderMode = (!string.IsNullOrEmpty(install.RenderMode)) ? install.RenderMode : _configManager.GetSection("RenderMode").Value,
-                                Runtime = (!string.IsNullOrEmpty(install.Runtime)) ? install.Runtime : _configManager.GetSection("Runtime").Value,
-                                Prerender = true,
+                                RenderMode = rendermode,
+                                Runtime = runtime,
+                                Prerender = (rendermode == RenderModes.Interactive),
                                 Hybrid = false
                             };
                             site = sites.AddSite(site);

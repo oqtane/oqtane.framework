@@ -117,6 +117,8 @@ namespace Oqtane.Models
         public bool UseAdminContainer { get; set; }
         [NotMapped]
         public string RenderMode{ get; set; }
+        [NotMapped]
+        public bool? Prerender { get; set; }
 
         #endregion
 

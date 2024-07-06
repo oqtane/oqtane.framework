@@ -198,4 +198,7 @@
   <data name="LocationTop" xml:space="preserve">
     <value>Top</value>
   </data>
+  <data name="Module.CopyExisting" xml:space="preserve">
+    <value>Copy Existing Module</value>
+  </data>  
 </root>

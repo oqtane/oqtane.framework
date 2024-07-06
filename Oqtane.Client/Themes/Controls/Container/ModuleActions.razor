@@ -10,6 +10,6 @@
     }
     else
     {
-        <ModuleActionsInteractive PageState="@PageState" ModuleState="@ModuleState" @rendermode="@InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, PageState.Site.Prerender)" />
+        <ModuleActionsInteractive PageState="@PageState" ModuleState="@ModuleState" @rendermode="@InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, false)" />
     }
 }

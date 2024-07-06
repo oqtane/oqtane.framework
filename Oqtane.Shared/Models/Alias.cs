@@ -68,10 +68,10 @@ namespace Oqtane.Models
         }
 
         /// <summary>
-        /// Protocol for the request from which the alias was resolved (ie. http:// or https:// )
+        /// Protocol for the request from which the alias was resolved (ie. http or https )
         /// </summary>
         [NotMapped]
-        public string Protocol { get; set; }
+        public string Protocol { get; set; } = "https"; // default value
 
         /// <summary>
         /// Base Url for static resources (note that this will only be set for remote clients)

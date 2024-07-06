@@ -93,6 +93,7 @@ namespace Oqtane.Infrastructure
             }
 
             var result = new StringBuilder();
+            source = source.Replace("[[", "[$_["); //avoid nested square bracket issue.
             foreach (Match match in this.TokenizerRegex.Matches(source))
             {
                 var key = match.Result("${key}");
@@ -126,7 +127,7 @@ namespace Oqtane.Infrastructure
                     result.Append(match.Result("${text}"));
                 }
             }
-
+            result.Replace("[$_", "["); //restore the changes.
             return result.ToString();
         }
 

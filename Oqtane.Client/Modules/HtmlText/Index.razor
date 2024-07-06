@@ -37,6 +37,10 @@
                     content = htmltext.Content;
                     content = Utilities.FormatContent(content, PageState.Alias, "render");
                 }
+                else
+                {
+                    content = "";
+                }
             }
         }
         catch (Exception ex)

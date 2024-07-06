@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 
 namespace Oqtane.Modules.Controls
 {
-    public class RichTextEditorInterop
+    public class QuillEditorInterop
     {
         private readonly IJSRuntime _jsRuntime;
 
-        public RichTextEditorInterop(IJSRuntime jsRuntime)
+        public QuillEditorInterop(IJSRuntime jsRuntime)
         {
             _jsRuntime = jsRuntime;
         }
@@ -105,13 +105,25 @@ namespace Oqtane.Modules.Controls
             }
         }
 
-        public Task InsertImage(ElementReference quillElement, string imageUrl, string altText)
+        public ValueTask<int> GetCurrentCursor(ElementReference quillElement)
+        {
+            try
+            {
+                return _jsRuntime.InvokeAsync<int>("Oqtane.RichTextEditor.getCurrentCursor", quillElement);
+            }
+            catch
+            {
+                return new ValueTask<int>(Task.FromResult(0));
+            }
+        }
+
+        public Task InsertImage(ElementReference quillElement, string imageUrl, string altText, int editorIndex)
         {
             try
             {
                 _jsRuntime.InvokeAsync<object>(
                     "Oqtane.RichTextEditor.insertQuillImage",
-                    quillElement, imageUrl, altText);
+                    quillElement, imageUrl, altText, editorIndex);
                 return Task.CompletedTask;
             }
             catch

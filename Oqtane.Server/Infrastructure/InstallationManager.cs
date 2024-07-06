@@ -197,6 +197,12 @@ namespace Oqtane.Infrastructure
             string[] segments = entry.FullName.Split('/'); // ZipArchiveEntries always use unix path separator
             string filename = Path.Combine(folder, string.Join(Path.DirectorySeparatorChar, segments, ignoreLeadingSegments, segments.Length - ignoreLeadingSegments));
 
+            // validate path to prevent path traversal
+            if (!Path.GetFullPath(filename).StartsWith(folder + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+            {
+                return "";
+            }
+
             try
             {
                 if (!Directory.Exists(Path.GetDirectoryName(filename)))
@@ -227,6 +233,7 @@ namespace Oqtane.Infrastructure
                 // an error occurred extracting the file
                 filename = "";
             }
+
             return filename;
         }
 

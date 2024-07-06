@@ -277,10 +277,10 @@
     <value>UI Component Settings</value>
   </data>
   <data name="Prerender.HelpText" xml:space="preserve">
-    <value>Specifies if interactive components should prerender their output</value>
+    <value>Specifies if interactive components should prerender their output on the server</value>
   </data>
   <data name="Prerender.Text" xml:space="preserve">
-    <value>Prerender? </value>
+    <value>Prerender: </value>
   </data>
   <data name="RenderMode.HelpText" xml:space="preserve">
     <value>The default render mode for the site</value>

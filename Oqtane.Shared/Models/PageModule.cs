@@ -59,8 +59,12 @@ namespace Oqtane.Models
 
         /// <summary>
         /// The <see cref="Module"/> itself.
-        /// TODO: todoc - unclear if this is always populated
         /// </summary>
         public Module Module { get; set; }
+
+        /// <summary>
+        /// The <see cref="Page"/> itself.
+        /// </summary>
+        public Page Page { get; set; }
     }
 }

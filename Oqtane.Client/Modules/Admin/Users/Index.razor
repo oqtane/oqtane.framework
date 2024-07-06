@@ -32,13 +32,13 @@ else
 				</Header>
 				<Row>
 					<td>
-						<ActionLink Action="Edit" Parameters="@($"id=" + context.UserId.ToString())" Security="SecurityAccessLevel.Edit" ResourceKey="EditUser" />
+                        <ActionLink Action="Edit" Text="Edit" Parameters="@($"id=" + context.UserId.ToString())" Security="SecurityAccessLevel.Edit" ResourceKey="EditUser" />
 					</td>
 					<td>
 						<ActionDialog Header="Delete User" Message="@string.Format(Localizer["Confirm.User.Delete"], context.User.DisplayName)" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteUser(context))" Disabled="@(context.UserId == PageState.User.UserId)" ResourceKey="DeleteUser" />
 					</td>
 					<td>
-						<ActionLink Action="Roles" Parameters="@($"id=" + context.UserId.ToString())" Security="SecurityAccessLevel.Edit" ResourceKey="Roles" />
+                        <ActionLink Action="Roles" Text="Roles" Parameters="@($"id=" + context.UserId.ToString())" Security="SecurityAccessLevel.Edit" ResourceKey="Roles" />
 					</td>
 					<td>@context.User.Username</td>
 					<td>@context.User.DisplayName</td>

@@ -29,7 +29,8 @@ namespace Oqtane.Repository
         {
             using var db = _dbContextFactory.CreateDbContext();
             var pagemodules = db.PageModule
-                .Include(item => item.Module) // eager load modules
+                .Include(item => item.Module) // eager load module
+                .Include(item => item.Page) // eager load page
                 .Where(item => item.Module.SiteId == siteId).ToList();
             if (pagemodules.Any())
             {
@@ -70,12 +71,16 @@ namespace Oqtane.Repository
             PageModule pagemodule;
             if (tracking)
             {
-                pagemodule = db.PageModule.Include(item => item.Module) // eager load modules
+                pagemodule = db.PageModule
+                    .Include(item => item.Module) // eager load module
+                    .Include(item => item.Page) // eager load page
                     .FirstOrDefault(item => item.PageModuleId == pageModuleId);
             }
             else
             {
-                pagemodule = db.PageModule.AsNoTracking().Include(item => item.Module) // eager load modules
+                pagemodule = db.PageModule.AsNoTracking()
+                    .Include(item => item.Module) // eager load module
+                    .Include(item => item.Page) // eager load page
                     .FirstOrDefault(item => item.PageModuleId == pageModuleId);
             }
             if (pagemodule != null)
@@ -90,7 +95,9 @@ namespace Oqtane.Repository
         public PageModule GetPageModule(int pageId, int moduleId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            var pagemodule = db.PageModule.Include(item => item.Module) // eager load modules
+            var pagemodule = db.PageModule
+                .Include(item => item.Module) // eager load module
+                .Include(item => item.Page) // eager load page
                 .SingleOrDefault(item => item.PageId == pageId && item.ModuleId == moduleId);
             if (pagemodule != null)
             {
@@ -104,7 +111,9 @@ namespace Oqtane.Repository
         public void DeletePageModule(int pageModuleId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            var pageModule = db.PageModule.Include(item => item.Module) // eager load modules
+            var pageModule = db.PageModule
+                .Include(item => item.Module) // eager load module
+                .Include(item => item.Page) // eager load page
                 .SingleOrDefault(item => item.PageModuleId == pageModuleId);
             _settings.DeleteSettings(EntityNames.PageModule, pageModuleId);
             db.PageModule.Remove(pageModule);
@@ -140,6 +149,7 @@ namespace Oqtane.Repository
                 }
             }
             pageModule.Module.PermissionList = permissions?.ToList();
+
             return pageModule;
         }
     }

@@ -1,16 +1,18 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using Oqtane.Modules;
 using Oqtane.Models;
 using Oqtane.Infrastructure;
+using Oqtane.Interfaces;
 using Oqtane.Enums;
 using Oqtane.Repository;
 using [Owner].Module.[Module].Repository;
 
 namespace [Owner].Module.[Module].Manager
 {
-    public class [Module]Manager : MigratableModuleBase, IInstallable, IPortable
+    public class [Module]Manager : MigratableModuleBase, IInstallable, IPortable, ISearchable
     {
         private readonly I[Module]Repository _[Module]Repository;
         private readonly IDBContextDependencies _DBContextDependencies;
@@ -57,5 +59,24 @@ namespace [Owner].Module.[Module].Manager
                 }
             }
         }
-    }
+
+        public List<SearchContent> GetSearchContents(Oqtane.Models.Module module, DateTime startTime)
+        {
+            var searchContentList = new List<SearchContent>();
+
+            var [Module]s = _[Module]Repository.Get[Module]s(module.ModuleId);
+            foreach (var [Module] in [Module]s)
+            {
+                searchContentList.Add(new SearchContent
+                {
+                    Title = module.Title,
+                    Description = string.Empty,
+                    Body = [Module].Name,
+                    ModifiedTime = [Module].ModifiedOn
+                });
+            }
+
+            return searchContentList;
+        }
+}
 }

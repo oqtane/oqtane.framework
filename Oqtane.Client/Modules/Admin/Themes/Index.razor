@@ -29,7 +29,7 @@ else
             <th>&nbsp;</th>
         </Header>
         <Row>
-            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ThemeId.ToString())" ResourceKey="EditTheme" /></td>
+            <td><ActionLink Action="Edit" Text="Edit" Parameters="@($"id=" + context.ThemeId.ToString())" ResourceKey="EditTheme" /></td>
             <td>
 				@if (context.AssemblyName != Constants.ClientId)
                     {
@@ -63,7 +63,6 @@ else
                     <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadTheme(context.PackageName, version))>@SharedLocalizer["Upgrade"]</button>
                 }
             </td>
-            <td></td>
         </Row>
     </Pager>
 }
