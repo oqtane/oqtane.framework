@@ -11,7 +11,7 @@ namespace Oqtane.Services
     {
         string Name { get; }
 
-        void SaveSearchContent(SearchContent searchContent, bool autoCommit = false);
+        void SaveSearchContent(SearchContent searchContent, Dictionary<string, string> siteSettings, bool autoCommit = false);
 
         void DeleteSearchContent(string id);
 
