@@ -16,8 +16,11 @@ namespace Oqtane.Providers
     {
         private readonly ISearchContentRepository _searchContentRepository;
 
+        private const string SearchIgnoreWordsSetting = "Search_IgnoreWords";
+        private const string SearchMinimumWordLengthSetting = "Search_MininumWordLength";
         private const string IgnoreWords = "the,be,to,of,and,a,i,in,that,have,it,for,not,on,with,he,as,you,do,at,this,but,his,by,from,they,we,say,her,she,or,an,will,my,one,all,would,there,their,what,so,up,out,if,about,who,get,which,go,me,when,make,can,like,time,no,just,him,know,take,people,into,year,your,good,some,could,them,see,other,than,then,now,look,only,come,its,over,think,also,back,after,use,two,how,our,work,first,well,way,even,new,want,because,any,these,give,day,most,us";
-        private const int WordMinLength = 3;
+        private const int MinimumWordLength = 3;
+
         public string Name => Constants.DefaultSearchProviderName;
 
         public DatabaseSearchProvider(ISearchContentRepository searchContentRepository)
@@ -44,20 +47,20 @@ namespace Oqtane.Providers
             _searchContentRepository.DeleteAllSearchContent();
         }
 
-        public void SaveSearchContent(SearchContent searchContent, bool autoCommit = false)
+        public void SaveSearchContent(SearchContent searchContent, Dictionary<string, string> siteSettings, bool autoCommit = false)
         {
-            //remove existing search content
+            // remove existing search content
             _searchContentRepository.DeleteSearchContent(searchContent.EntityName, searchContent.EntityId);
 
             if (!searchContent.IsDeleted)
             {
-                //clean the search content to remove html tags
+                // clean the search content to remove html tags
                 CleanSearchContent(searchContent);
 
                 _searchContentRepository.AddSearchContent(searchContent);
 
-                //save the index words
-                AnalyzeSearchContent(searchContent);
+                // save the index words
+                AnalyzeSearchContent(searchContent, siteSettings);
             }
         }
 
@@ -67,7 +70,7 @@ namespace Oqtane.Providers
 
             var searchContentList = await _searchContentRepository.GetSearchContentsAsync(searchQuery);
 
-            //convert the search content to search results.
+            // convert the search content to search results
             var results = searchContentList
                 .Where(i => validateFunc(i, searchQuery))
                 .Select(i => ConvertToSearchResult(i, searchQuery));
@@ -103,7 +106,7 @@ namespace Oqtane.Providers
                 }
             }
 
-            //remove duplicated results based on page id for Page and Module types
+            // remove duplicated results based on page id for Page and Module types
             results = results.DistinctBy(i =>
             {
                 if (i.EntityName == EntityNames.Page || i.EntityName == EntityNames.Module)
@@ -204,11 +207,23 @@ namespace Oqtane.Providers
             return snippet;
         }
 
-        private void AnalyzeSearchContent(SearchContent searchContent)
+        private void AnalyzeSearchContent(SearchContent searchContent, Dictionary<string, string> siteSettings)
         {
-            //analyze the search content and save the index words
+            var ignoreWords = IgnoreWords.Split(',');
+            if (siteSettings.ContainsKey(SearchIgnoreWordsSetting) && !string.IsNullOrEmpty(siteSettings[SearchIgnoreWordsSetting]))
+            {
+                ignoreWords = siteSettings[SearchIgnoreWordsSetting].Split(',');
+            }
+            var minimumWordLength = MinimumWordLength;
+            if (siteSettings.ContainsKey(SearchMinimumWordLengthSetting) && !string.IsNullOrEmpty(siteSettings[SearchMinimumWordLengthSetting]))
+            {
+                minimumWordLength = int.Parse(siteSettings[SearchMinimumWordLengthSetting]);
+            }
+
+            // analyze the search content and save the index words
             var indexContent = $"{searchContent.Title} {searchContent.Description} {searchContent.Body} {searchContent.AdditionalContent}";
-            var words = GetWords(indexContent, WordMinLength);
+            var words = GetWords(indexContent, ignoreWords, minimumWordLength);
+
             var existingSearchContentWords = _searchContentRepository.GetSearchContentWords(searchContent.SearchContentId);
             foreach (var kvp in words)
             {
@@ -241,18 +256,17 @@ namespace Oqtane.Providers
             }
         }
 
-        private static Dictionary<string, int> GetWords(string content, int minLength)
+        private static Dictionary<string, int> GetWords(string content, string[] ignoreWords, int minimumWordLength)
         {
             content = FormatText(content);
 
             var words = new Dictionary<string, int>();
-            var ignoreWords = IgnoreWords.Split(',');
 
             if (!string.IsNullOrEmpty(content))
             {
                 foreach (var word in content.Split(' '))
                 {
-                    if (word.Length >= minLength && !ignoreWords.Contains(word))
+                    if (word.Length >= minimumWordLength && !ignoreWords.Contains(word))
                     {
                         if (!words.ContainsKey(word))
                         {

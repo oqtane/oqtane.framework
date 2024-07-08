@@ -118,7 +118,7 @@ namespace Oqtane.Services
             return managers.ToList();
         }
 
-        public async Task SaveSearchContentAsync(List<SearchContent> searchContents)
+        public async Task SaveSearchContentAsync(List<SearchContent> searchContents, Dictionary<string, string> siteSettings)
         {
             if(searchContents.Any())
             {
@@ -128,7 +128,7 @@ namespace Oqtane.Services
                 {
                     try
                     {
-                        searchProvider.SaveSearchContent(searchContent);
+                        searchProvider.SaveSearchContent(searchContent, siteSettings);
                     }
                     catch(Exception ex)
                     {

@@ -170,7 +170,7 @@ namespace Oqtane.Infrastructure
                 }
 
                 // save search content
-                await searchService.SaveSearchContentAsync(searchContents);
+                await searchService.SaveSearchContentAsync(searchContents, siteSettings);
                 log += $"Index Date: {lastIndexedOn}<br />";
                 log += $"Items Indexed: {searchContents.Count}<br />";
 
