@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Oqtane.Extensions;
 using Oqtane.Interfaces;
 using Oqtane.Models;
 using Oqtane.Repository;
@@ -14,6 +15,9 @@ namespace Oqtane.Infrastructure
     public class SearchIndexJob : HostedServiceBase
     {
         private const string SearchLastIndexedOnSetting = "Search_LastIndexedOn";
+        private const string SearchEnabledSetting = "Search_Enabled";
+        private const string SearchIgnorePathsSetting = "Search_IgnorePaths";
+        private const string SearchIgnoreEntitiesSetting = "Search_IgnoreEntities";
 
         public SearchIndexJob(IServiceScopeFactory serviceScopeFactory) : base(serviceScopeFactory)
         {
@@ -41,10 +45,22 @@ namespace Oqtane.Infrastructure
                 log += $"Indexing Site: {site.Name}<br />";
 
                 // initialize
-                var currentTime = DateTime.UtcNow;
-                var lastIndexedOn = GetSearchLastIndexedOn(settingRepository, site.SiteId);
+                var siteSettings = settingRepository.GetSettings(EntityNames.Site, site.SiteId).ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
+
+                if (!Convert.ToBoolean(siteSettings.GetValue(SearchEnabledSetting, "true")))
+                {
+                    log += $"Indexing Disabled<br />";
+                    continue;
+                }
+
                 var tenantId = tenantManager.GetTenant().TenantId;
                 tenantManager.SetAlias(tenantId, site.SiteId);
+
+                var currentTime = DateTime.UtcNow;
+                var lastIndexedOn = Convert.ToDateTime(siteSettings.GetValue(SearchLastIndexedOnSetting, DateTime.MinValue.ToString()));
+                var ignorePaths = siteSettings.GetValue(SearchIgnorePathsSetting, "").Split(',');
+                var ignoreEntities = siteSettings.GetValue(SearchIgnoreEntitiesSetting, "").Split(',');
+
                 var pages = pageRepository.GetPages(site.SiteId);
                 var pageModules = pageModuleRepository.GetPageModules(site.SiteId);
                 var searchContents = new List<SearchContent>();
@@ -52,7 +68,7 @@ namespace Oqtane.Infrastructure
                 // index pages
                 foreach (var page in pages)
                 {
-                    if (Constants.InternalPagePaths.Contains(page.Path))
+                    if (Constants.InternalPagePaths.Contains(page.Path) || ignorePaths.Contains(page.Path))
                     {
                         continue;
                     }
@@ -60,7 +76,7 @@ namespace Oqtane.Infrastructure
                     bool changed = false;
                     bool removed = false;
 
-                    if (page.ModifiedOn >= lastIndexedOn)
+                    if (page.ModifiedOn >= lastIndexedOn && !ignoreEntities.Contains(EntityNames.Page))
                     {
                         changed = true;
                         removed = page.IsDeleted || !Utilities.IsEffectiveOrExpired(page.EffectiveDate, page.ExpiryDate);
@@ -88,7 +104,7 @@ namespace Oqtane.Infrastructure
                     // index modules
                     foreach (var pageModule in pageModules.Where(item => item.PageId == page.PageId))
                     {
-                        if (pageModule.ModifiedOn >= lastIndexedOn)
+                        if (pageModule.ModifiedOn >= lastIndexedOn && !changed)
                         {
                             changed = true;
                         }
@@ -113,8 +129,11 @@ namespace Oqtane.Infrastructure
                                     {
                                         foreach (var searchContent in searchcontents)
                                         {
-                                            SaveModuleMetaData(searchContent, pageModule, tenantId, removed);
-                                            searchContents.Add(searchContent);
+                                            if (!ignoreEntities.Contains(searchContent.EntityName))
+                                            {
+                                                SaveModuleMetaData(searchContent, pageModule, tenantId, removed);
+                                                searchContents.Add(searchContent);
+                                            }
                                         }
                                     }
                                 }
@@ -125,7 +144,7 @@ namespace Oqtane.Infrastructure
                             }
                         }
 
-                        if (!searchable && changed)
+                        if (!searchable && changed && !ignoreEntities.Contains(EntityNames.Module))
                         {
                             // module does not implement ISearchable
                             var searchContent = new SearchContent
@@ -216,19 +235,6 @@ namespace Oqtane.Infrastructure
                 searchContent.IsDeleted = true;
             }
 
-        }
-
-        private DateTime GetSearchLastIndexedOn(ISettingRepository settingRepository, int siteId)
-        {
-            var setting = settingRepository.GetSetting(EntityNames.Site, siteId, SearchLastIndexedOnSetting);
-            if (setting != null)
-            {
-                return Convert.ToDateTime(setting.SettingValue);
-            }
-            else
-            {
-                return DateTime.MinValue;
-            }
         }
 
         private void SaveSearchLastIndexedOn(ISettingRepository settingRepository, int siteId, DateTime lastIndexedOn)
