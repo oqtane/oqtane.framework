@@ -38,13 +38,10 @@
 
     protected void OnChange(ChangeEventArgs e)
     {
-        if (!string.IsNullOrEmpty(e.Value.ToString()))
+        Value = e.Value.ToString();
+        if (ValueChanged.HasDelegate)
         {
-            Value = e.Value.ToString();
-            if (ValueChanged.HasDelegate)
-            {
-                ValueChanged.InvokeAsync(Value);
-            }
+            ValueChanged.InvokeAsync(Value);
         }
     }
 }
