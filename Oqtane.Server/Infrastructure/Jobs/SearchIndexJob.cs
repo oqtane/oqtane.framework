@@ -58,6 +58,8 @@ namespace Oqtane.Infrastructure
 
                 var currentTime = DateTime.UtcNow;
                 var lastIndexedOn = Convert.ToDateTime(siteSettings.GetValue(SearchLastIndexedOnSetting, DateTime.MinValue.ToString()));
+                log += $"Index Date: {lastIndexedOn}<br />";
+
                 var ignorePaths = siteSettings.GetValue(SearchIgnorePathsSetting, "").Split(',');
                 var ignoreEntities = siteSettings.GetValue(SearchIgnoreEntitiesSetting, "").Split(',');
 
@@ -68,7 +70,7 @@ namespace Oqtane.Infrastructure
                 // index pages
                 foreach (var page in pages)
                 {
-                    if (Constants.InternalPagePaths.Contains(page.Path) || ignorePaths.Contains(page.Path))
+                    if (!string.IsNullOrEmpty(page.Path) && (Constants.InternalPagePaths.Contains(page.Path) || ignorePaths.Contains(page.Path)))
                     {
                         continue;
                     }
@@ -169,9 +171,8 @@ namespace Oqtane.Infrastructure
                     }
                 }
 
-                // save search content
-                await searchService.SaveSearchContentAsync(searchContents, siteSettings);
-                log += $"Index Date: {lastIndexedOn}<br />";
+                // save search contents
+                log += await searchService.SaveSearchContentsAsync(searchContents, siteSettings);
                 log += $"Items Indexed: {searchContents.Count}<br />";
 
                 // update last indexed on

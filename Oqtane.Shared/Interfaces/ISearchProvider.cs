@@ -11,16 +11,10 @@ namespace Oqtane.Services
     {
         string Name { get; }
 
-        void SaveSearchContent(SearchContent searchContent, Dictionary<string, string> siteSettings, bool autoCommit = false);
+        Task<List<SearchResult>> GetSearchResultsAsync(SearchQuery searchQuery);
 
-        void DeleteSearchContent(string id);
-
-        Task<SearchResults> SearchAsync(SearchQuery searchQuery, Func<SearchContent, SearchQuery, bool> validateFunc);
+        Task SaveSearchContent(SearchContent searchContent, Dictionary<string, string> siteSettings);
         
-        bool Optimize();
-
-        void Commit();
-
-        void ResetIndex();
+        Task ResetIndex();
     }
 }
