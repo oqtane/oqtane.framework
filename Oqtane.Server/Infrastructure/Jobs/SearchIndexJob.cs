@@ -97,7 +97,7 @@ namespace Oqtane.Infrastructure
                             ContentModifiedOn = page.ModifiedOn,
                             AdditionalContent = string.Empty,
                             CreatedOn = DateTime.UtcNow,
-                            IsDeleted = removed,
+                            IsDeleted = (removed || pageModules.Any(item => item.PageId == page.PageId)),
                             TenantId = tenantId
                         };
                         searchContents.Add(searchContent);
