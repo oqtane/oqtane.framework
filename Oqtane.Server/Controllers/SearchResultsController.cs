@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Oqtane.Documentation;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Services;
@@ -28,7 +27,7 @@ namespace Oqtane.Controllers
         {
             try
             {
-                return await _searchService.SearchAsync(searchQuery);
+                return await _searchService.GetSearchResultsAsync(searchQuery);
             }
             catch (Exception ex)
             {

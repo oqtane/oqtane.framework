@@ -28,105 +28,10 @@ namespace Oqtane.Providers
             _searchContentRepository = searchContentRepository;
         }
 
-        public void Commit()
+        public async Task<List<SearchResult>> GetSearchResultsAsync(SearchQuery searchQuery)
         {
-        }
-
-        public void DeleteSearchContent(string id)
-        {
-            _searchContentRepository.DeleteSearchContent(id);
-        }
-
-        public bool Optimize()
-        {
-            return true;
-        }
-
-        public void ResetIndex()
-        {
-            _searchContentRepository.DeleteAllSearchContent();
-        }
-
-        public void SaveSearchContent(SearchContent searchContent, Dictionary<string, string> siteSettings, bool autoCommit = false)
-        {
-            // remove existing search content
-            _searchContentRepository.DeleteSearchContent(searchContent.EntityName, searchContent.EntityId);
-
-            if (!searchContent.IsDeleted)
-            {
-                // clean the search content to remove html tags
-                CleanSearchContent(searchContent);
-
-                _searchContentRepository.AddSearchContent(searchContent);
-
-                // save the index words
-                AnalyzeSearchContent(searchContent, siteSettings);
-            }
-        }
-
-        public async Task<SearchResults> SearchAsync(SearchQuery searchQuery, Func<SearchContent, SearchQuery, bool> validateFunc)
-        {
-            var totalResults = 0;
-
-            var searchContentList = await _searchContentRepository.GetSearchContentsAsync(searchQuery);
-
-            // convert the search content to search results
-            var results = searchContentList
-                .Where(i => validateFunc(i, searchQuery))
-                .Select(i => ConvertToSearchResult(i, searchQuery));
-
-            if (searchQuery.SortDirection == SearchSortDirections.Descending)
-            {
-                switch (searchQuery.SortField)
-                {
-                    case SearchSortFields.Relevance:
-                        results = results.OrderByDescending(i => i.Score).ThenByDescending(i => i.ContentModifiedOn);
-                        break;
-                    case SearchSortFields.Title:
-                        results = results.OrderByDescending(i => i.Title).ThenByDescending(i => i.ContentModifiedOn);
-                        break;
-                    default:
-                        results = results.OrderByDescending(i => i.ContentModifiedOn);
-                        break;
-                }
-            }
-            else
-            {
-                switch (searchQuery.SortField)
-                {
-                    case SearchSortFields.Relevance:
-                        results = results.OrderBy(i => i.Score).ThenByDescending(i => i.ContentModifiedOn);
-                        break;
-                    case SearchSortFields.Title:
-                        results = results.OrderBy(i => i.Title).ThenByDescending(i => i.ContentModifiedOn);
-                        break;
-                    default:
-                        results = results.OrderBy(i => i.ContentModifiedOn);
-                        break;
-                }
-            }
-
-            // remove duplicated results based on page id for Page and Module types
-            results = results.DistinctBy(i =>
-            {
-                if (i.EntityName == EntityNames.Page || i.EntityName == EntityNames.Module)
-                {
-                    var pageId = i.SearchContentProperties.FirstOrDefault(p => p.Name == Constants.SearchPageIdPropertyName)?.Value ?? string.Empty;
-                    return !string.IsNullOrEmpty(pageId) ? pageId : i.UniqueKey;
-                }
-                else
-                {
-                    return i.UniqueKey;
-                }
-            });
-
-            totalResults = results.Count();
-
-            return new SearchResults
-            {
-                Results = results.Skip(searchQuery.PageIndex * searchQuery.PageSize).Take(searchQuery.PageSize).ToList(),
-                TotalResults = totalResults
-            };
+            var searchContents = await _searchContentRepository.GetSearchContentsAsync(searchQuery);
+            return searchContents.Select(item => ConvertToSearchResult(item, searchQuery)).ToList();
         }
 
         private SearchResult ConvertToSearchResult(SearchContent searchContent, SearchQuery searchQuery)
@@ -150,17 +55,6 @@ namespace Oqtane.Providers
             };
 
             return searchResult;
-        }
-
-        private float CalculateScore(SearchContent searchContent, SearchQuery searchQuery)
-        {
-            var score = 0f;
-            foreach (var keyword in SearchUtils.GetKeywords(searchQuery.Keywords))
-            {
-                score += searchContent.SearchContentWords.Where(i => i.SearchWord.Word.StartsWith(keyword)).Sum(i => i.Count);
-            }
-
-            return score / 100;
         }
 
         private string BuildSnippet(SearchContent searchContent, SearchQuery searchQuery)
@@ -189,8 +83,6 @@ namespace Oqtane.Providers
 
                     snippet = $"{prefix}{content.Substring(start, length)}{suffix}";
                     break;
-
-
                 }
             }
 
@@ -205,6 +97,36 @@ namespace Oqtane.Providers
             }
 
             return snippet;
+        }
+
+        private float CalculateScore(SearchContent searchContent, SearchQuery searchQuery)
+        {
+            var score = 0f;
+            foreach (var keyword in SearchUtils.GetKeywords(searchQuery.Keywords))
+            {
+                score += searchContent.SearchContentWords.Where(i => i.SearchWord.Word.StartsWith(keyword)).Sum(i => i.Count);
+            }
+
+            return score / 100;
+        }
+
+        public Task SaveSearchContent(SearchContent searchContent, Dictionary<string, string> siteSettings)
+        {
+            // remove existing search content
+            _searchContentRepository.DeleteSearchContent(searchContent.EntityName, searchContent.EntityId);
+
+            if (!searchContent.IsDeleted)
+            {
+                // clean the search content to remove html tags
+                CleanSearchContent(searchContent);
+
+                _searchContentRepository.AddSearchContent(searchContent);
+
+                // save the index words
+                AnalyzeSearchContent(searchContent, siteSettings);
+            }
+
+            return Task.CompletedTask;
         }
 
         private void AnalyzeSearchContent(SearchContent searchContent, Dictionary<string, string> siteSettings)
@@ -323,6 +245,12 @@ namespace Oqtane.Providers
                 ).Select(i => i.InnerText);
 
             return string.Join(" ", phrases);
+        }
+
+        public Task ResetIndex()
+        {
+            _searchContentRepository.DeleteAllSearchContent();
+            return Task.CompletedTask;
         }
     }
 }

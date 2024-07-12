@@ -6,8 +6,8 @@ namespace Oqtane.Services
 {
     public interface ISearchService
     {
-        Task SaveSearchContentAsync(List<SearchContent> searchContents, Dictionary<string, string> siteSettings);
+        Task<SearchResults> GetSearchResultsAsync(SearchQuery searchQuery);
 
-        Task<SearchResults> SearchAsync(SearchQuery searchQuery);
+        Task<string> SaveSearchContentsAsync(List<SearchContent> searchContents, Dictionary<string, string> siteSettings);
     }
 }
