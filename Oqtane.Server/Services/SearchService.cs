@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Security;
@@ -18,18 +17,15 @@ namespace Oqtane.Services
         private readonly IServiceProvider _serviceProvider;
         private readonly ISettingRepository _settingRepository;
         private readonly IPermissionRepository _permissionRepository;
-        private readonly ILogger<SearchService> _logger;
 
         public SearchService(
             IServiceProvider serviceProvider,
             ISettingRepository settingRepository,
-            IPermissionRepository permissionRepository,
-            ILogger<SearchService> logger)
+            IPermissionRepository permissionRepository)
         {
             _settingRepository = settingRepository;
             _permissionRepository = permissionRepository;
             _serviceProvider = serviceProvider;
-            _logger = logger;
         }
 
         public async Task<SearchResults> GetSearchResultsAsync(SearchQuery searchQuery)

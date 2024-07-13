@@ -45,7 +45,7 @@ namespace Oqtane.Providers
                 Title = searchContent.Title,
                 Description = searchContent.Description,
                 Body = searchContent.Body,
-                Url = searchContent.Url,
+                Url = Utilities.TenantUrl(searchQuery.Alias, searchContent.Url),
                 Permissions = searchContent.Permissions,
                 ContentModifiedBy = searchContent.ContentModifiedBy,
                 ContentModifiedOn = searchContent.ContentModifiedOn,
