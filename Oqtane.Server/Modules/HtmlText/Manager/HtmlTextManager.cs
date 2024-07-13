@@ -53,7 +53,7 @@ namespace Oqtane.Modules.HtmlText.Manager
         {
             await Task.CompletedTask;
 
-            var searchContentList = new List<SearchContent>();
+            var searchContents = new List<SearchContent>();
 
             var htmltexts = _htmlText.GetHtmlTexts(pageModule.ModuleId);
             if (htmltexts != null && htmltexts.Any())
@@ -61,7 +61,7 @@ namespace Oqtane.Modules.HtmlText.Manager
                 var htmltext = htmltexts.OrderByDescending(item => item.CreatedOn).First();
                 if (htmltext.CreatedOn >= lastIndexedOn)
                 {
-                    searchContentList.Add(new SearchContent
+                    searchContents.Add(new SearchContent
                     {
                         Title = pageModule.Module.Title,
                         Description = string.Empty,
@@ -72,7 +72,7 @@ namespace Oqtane.Modules.HtmlText.Manager
                 }
             }
 
-            return searchContentList;
+            return searchContents;
         }
 
         public void ImportModule(Module module, string content, string version)

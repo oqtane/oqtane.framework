@@ -90,7 +90,7 @@ namespace Oqtane.Infrastructure
                             EntityId = page.PageId.ToString(),
                             Title = !string.IsNullOrEmpty(page.Title) ? page.Title : page.Name,
                             Description = string.Empty,
-                            Body = $"{page.Name} {page.Title}",
+                            Body = string.Empty,
                             Url = $"{(!string.IsNullOrEmpty(page.Path) && !page.Path.StartsWith("/") ? "/" : "")}{page.Path}",
                             Permissions = $"{EntityNames.Page}:{page.PageId}",
                             ContentModifiedBy = page.ModifiedBy,
@@ -141,7 +141,7 @@ namespace Oqtane.Infrastructure
                                 }
                                 catch (Exception ex)
                                 {
-                                    log += ex.Message + "<br />";
+                                    log += $"Error Indexing Module {pageModule.Module.ModuleDefinition.Name} - {ex.Message}<br />";
                                 }
                             }
                         }
@@ -156,7 +156,7 @@ namespace Oqtane.Infrastructure
                                 EntityId = pageModule.ModuleId.ToString(),
                                 Title = pageModule.Title,
                                 Description = string.Empty,
-                                Body = $"{pageModule.Title}",
+                                Body = string.Empty,
                                 Url = $"{(!string.IsNullOrEmpty(page.Path) && !page.Path.StartsWith("/") ? "/" : "")}{page.Path}",
                                 Permissions = $"{EntityNames.Module}:{pageModule.ModuleId},{EntityNames.Page}:{pageModule.PageId}",
                                 ContentModifiedBy = pageModule.ModifiedBy,
