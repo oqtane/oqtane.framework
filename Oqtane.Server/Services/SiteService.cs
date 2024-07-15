@@ -69,6 +69,7 @@ namespace Oqtane.Services
                 return await GetSite(siteId);
             });
 
+            // trim pages based on user permissions
             var pages = new List<Page>();
             foreach (Page page in site.Pages)
             {
@@ -77,6 +78,9 @@ namespace Oqtane.Services
                     pages.Add(page);
                 }
             }
+
+            // clone object so that cache is not mutated
+            site = site.Clone(site);
             site.Pages = pages;
 
             return site;
