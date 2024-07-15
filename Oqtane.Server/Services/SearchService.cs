@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Models;
 using Oqtane.Repository;
@@ -16,16 +17,20 @@ namespace Oqtane.Services
 
         private readonly IServiceProvider _serviceProvider;
         private readonly ISettingRepository _settingRepository;
-        private readonly IPermissionRepository _permissionRepository;
+        private readonly IUserPermissions _userPermissions;
+        private readonly IHttpContextAccessor _accessor;
+
 
         public SearchService(
             IServiceProvider serviceProvider,
             ISettingRepository settingRepository,
-            IPermissionRepository permissionRepository)
+            IUserPermissions userPermissions,
+            IHttpContextAccessor accessor)
         {
             _settingRepository = settingRepository;
-            _permissionRepository = permissionRepository;
             _serviceProvider = serviceProvider;
+            _userPermissions = userPermissions;
+            _accessor = accessor;
         }
 
         public async Task<SearchResults> GetSearchResultsAsync(SearchQuery searchQuery)
@@ -35,9 +40,12 @@ namespace Oqtane.Services
 
             var totalResults = 0;
 
-            // trim results based on permissions
-            var results = searchResults.Where(i => IsVisible(i, searchQuery));
+            // trim results
+            var results = searchResults.Where(i => HasViewPermission(i, searchQuery))
+                .OrderBy(i => i.Url).ThenByDescending(i => i.Score)
+                .DistinctBy(i => i.Url);
 
+            // sort results
             if (searchQuery.SortDirection == SearchSortDirections.Descending)
             {
                 switch (searchQuery.SortField)
@@ -69,20 +77,6 @@ namespace Oqtane.Services
                 }
             }
 
-            // remove duplicated results based on page id for Page and Module types
-            results = results.DistinctBy(i =>
-            {
-                if (i.EntityName == EntityNames.Page || i.EntityName == EntityNames.Module)
-                {
-                    var pageId = i.SearchContentProperties.FirstOrDefault(p => p.Name == Constants.SearchPageIdPropertyName)?.Value ?? string.Empty;
-                    return !string.IsNullOrEmpty(pageId) ? pageId : i.UniqueKey;
-                }
-                else
-                {
-                    return i.UniqueKey;
-                }
-            });
-
             totalResults = results.Count();
 
             return new SearchResults
@@ -92,26 +86,20 @@ namespace Oqtane.Services
             };
         }
 
-        private bool IsVisible(SearchContent searchContent, SearchQuery searchQuery)
+        private bool HasViewPermission(SearchContent searchContent, SearchQuery searchQuery)
         {
             var visible = true;
             foreach (var permission in searchContent.Permissions.Split(','))
             {
                 var entityName = permission.Split(":")[0];
                 var entityId = int.Parse(permission.Split(":")[1]);
-                if (!HasViewPermission(searchQuery.SiteId, searchQuery.User, entityName, entityId))
+                if (!_userPermissions.IsAuthorized(_accessor.HttpContext.User, searchQuery.SiteId, entityName, entityId, PermissionNames.View))
                 {
                     visible = false;
                     break;
                 }
             }
             return visible;
-        }
-
-        private bool HasViewPermission(int siteId, User user, string entityName, int entityId)
-        {
-            var permissions = _permissionRepository.GetPermissions(siteId, entityName, entityId).ToList();
-            return UserSecurity.IsAuthorized(user, PermissionNames.View, permissions);
         }
 
         public async Task<string> SaveSearchContentsAsync(List<SearchContent> searchContents, Dictionary<string, string> siteSettings)

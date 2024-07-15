@@ -10,8 +10,6 @@ namespace Oqtane.Models
 
         public Alias Alias { get; set; }
 
-        public User User { get; set; }
-
         public string Keywords { get; set; }
 
         public List<string> EntityNames { get; set; } = new List<string>();
