@@ -78,9 +78,7 @@ namespace Oqtane.Shared
 
         public static readonly string VisitorCookiePrefix = "APP_VISITOR_";
 
-        public const string DefaultSearchProviderName = "Database";
-        public const string SearchPageIdPropertyName = "PageId";
-        public const string SearchModuleIdPropertyName = "ModuleId";
+        public const string DefaultSearchProviderName = "DatabaseSearchProvider";
 
         public static readonly string[] InternalPagePaths = { "login", "register", "reset", "404" };
         public const string DefaultTextEditorProvider = "Oqtane.Modules.Controls.QuillJSTextEditor, Oqtane.Client";
