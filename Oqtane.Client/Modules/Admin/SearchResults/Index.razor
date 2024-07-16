@@ -107,7 +107,7 @@
                 PageSize = int.MaxValue
             };
 
-        _searchResults = await SearchResultsService.SearchAsync(ModuleState.ModuleId, searchQuery);
+        _searchResults = await SearchResultsService.GetSearchResultsAsync(searchQuery);
 
         _loading = false;
         StateHasChanged();
