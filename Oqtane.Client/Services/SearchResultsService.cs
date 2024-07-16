@@ -15,9 +15,9 @@ namespace Oqtane.Services
 
         private string ApiUrl => CreateApiUrl("SearchResults");
 
-        public async Task<SearchResults> SearchAsync(int moduleId, SearchQuery searchQuery)
+        public async Task<SearchResults> GetSearchResultsAsync(SearchQuery searchQuery)
         {
-            return await PostJsonAsync<SearchQuery, SearchResults>(CreateAuthorizationPolicyUrl(ApiUrl, EntityNames.Module, moduleId), searchQuery);
+            return await PostJsonAsync<SearchQuery, SearchResults>(ApiUrl, searchQuery);
         }
     }
 }

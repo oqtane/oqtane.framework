@@ -1,38 +1,40 @@
-using System;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
+using Oqtane.Models;
 using Oqtane.Services;
 using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
     [Route(ControllerRoutes.ApiRoute)]
-    public class SearchResultsController : ModuleControllerBase
+    public class SearchResultsController : Controller
     {
         private readonly ISearchService _searchService;
+        private readonly ILogManager _logger;
+        private readonly Alias _alias;
 
-        public SearchResultsController(ISearchService searchService, ILogManager logger, IHttpContextAccessor accessor) : base(logger, accessor)
+        public SearchResultsController(ISearchService searchService, ILogManager logger, ITenantManager tenantManager) 
         {
             _searchService = searchService;
+            _logger = logger;
+            _alias = tenantManager.GetAlias();
         }
 
         [HttpPost]
-        [Authorize(Policy = PolicyNames.ViewModule)]
-        public async Task<Models.SearchResults> Post([FromBody] Models.SearchQuery searchQuery)
+        public async Task<SearchResults> Post([FromBody] SearchQuery searchQuery)
         {
-            try
+            if (ModelState.IsValid && searchQuery.SiteId == _alias.SiteId)
             {
                 return await _searchService.GetSearchResultsAsync(searchQuery);
             }
-            catch (Exception ex)
+            else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Other, ex, "Fetch search results failed.", searchQuery);
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Search Results Post Attempt {SearchQuery}", searchQuery);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
         }
