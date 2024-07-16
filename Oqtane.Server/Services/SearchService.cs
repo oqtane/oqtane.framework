@@ -20,7 +20,6 @@ namespace Oqtane.Services
         private readonly IUserPermissions _userPermissions;
         private readonly IHttpContextAccessor _accessor;
 
-
         public SearchService(
             IServiceProvider serviceProvider,
             ISettingRepository settingRepository,

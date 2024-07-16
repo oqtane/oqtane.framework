@@ -4,6 +4,7 @@
 @using Microsoft.Extensions.DependencyInjection
 @inject NavigationManager NavigationManager
 @inject ISiteService SiteService
+@inject IPageService PageService
 @inject ITenantService TenantService
 @inject IDatabaseService DatabaseService
 @inject IAliasService AliasService
@@ -29,7 +30,7 @@
                 <div class="col-sm-9">
                     <select id="homepage" class="form-select" @bind="@_homepageid" required>
                         <option value="-">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
-                        @foreach (Page page in PageState.Pages)
+                        @foreach (Page page in _pages)
                         {
 							if (UserSecurity.ContainsRole(page.PermissionList, PermissionNames.View, RoleNames.Everyone))
 							{
@@ -410,6 +411,7 @@
     private bool _initialized = false;
     private List<ThemeControl> _themes = new List<ThemeControl>();
     private List<ThemeControl> _containers = new List<ThemeControl>();
+    private List<Page> _pages;
     private string _name = string.Empty;
     private string _homepageid = "-";
     private string _isdeleted;
@@ -472,6 +474,8 @@
             Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
             if (site != null)
             {
+                _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
+
                 _name = site.Name;
                 if (site.HomePageId != null)
                 {
