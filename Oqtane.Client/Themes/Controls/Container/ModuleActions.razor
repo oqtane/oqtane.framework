@@ -6,10 +6,26 @@
 {
     @if (PageState.RenderMode == RenderModes.Interactive)
     {
-        <ModuleActionsInteractive PageState="@PageState" ModuleState="@ModuleState" />
+        <ModuleActionsInteractive PageState="@_moduleActionsPageState" ModuleState="@ModuleState" />
     }
     else
     {
-        <ModuleActionsInteractive PageState="@PageState" ModuleState="@ModuleState" @rendermode="@InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, false)" />
+        <ModuleActionsInteractive PageState="@_moduleActionsPageState" ModuleState="@ModuleState" @rendermode="@InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, false)" />
+    }
+}
+
+@code {
+    private ModuleActionsPageState _moduleActionsPageState;
+
+    protected override void OnParametersSet()
+    {
+        // trim PageState to mitigate page bloat caused by Blazor serializing/encrypting state when crossing render mode boundaries
+        _moduleActionsPageState = new ModuleActionsPageState
+        {
+            Alias = PageState.Alias,
+            Page = PageState.Page,
+            User = PageState.User,
+            EditMode = PageState.EditMode
+        };
     }
 }

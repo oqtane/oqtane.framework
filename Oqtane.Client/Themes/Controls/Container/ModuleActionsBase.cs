@@ -7,9 +7,7 @@ using Oqtane.Models;
 using Oqtane.Security;
 using Oqtane.Services;
 using Oqtane.Shared;
-using Oqtane.UI;
 using System.Net;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using Microsoft.Extensions.Localization;
 
 // ReSharper disable UnassignedGetOnlyAutoProperty
@@ -24,7 +22,7 @@ namespace Oqtane.Themes.Controls
         [Inject] public IModuleService ModuleService { get; set; }
         [Inject] public IStringLocalizer<ModuleActionsBase> Localizer { get; set; }
 
-        [Parameter] public PageState PageState { get; set; }
+        [Parameter] public ModuleActionsPageState PageState { get; set; }
         [Parameter] public Module ModuleState { get; set; }
 
         public List<ActionViewModel> Actions;

@@ -5,11 +5,11 @@
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-@if (PageState.Pages != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
+@if (_pages != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
 {
     <ActionLink Action="Add" Text="Add Page" ResourceKey="AddPage" />
 
-    <Pager Items="@PageState.Pages.Where(item => !item.IsDeleted)" SearchProperties="Name">
+    <Pager Items="@_pages.Where(item => !item.IsDeleted)" SearchProperties="Name">
         <Header>
         <th style="width: 1px;">&nbsp;</th>
         <th style="width: 1px;">&nbsp;</th>
@@ -27,6 +27,21 @@
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+
+    private List<Page> _pages;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Pages {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Page.Load"], MessageType.Error);
+        }
+    }
 
     private async Task DeletePage(Page page)
     {

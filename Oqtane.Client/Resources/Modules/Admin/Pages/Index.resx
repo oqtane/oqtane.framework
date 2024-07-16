@@ -138,4 +138,7 @@
   <data name="EditPage.Text" xml:space="preserve">
     <value>Edit</value>
   </data>
+  <data name="Error.Page.Load" xml:space="preserve">
+    <value>Error Loading Pages</value>
+  </data>
 </root>

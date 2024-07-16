@@ -10,6 +10,7 @@
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject IPageModuleService PageModuleService
 @inject IModuleService ModuleService
+@inject IPageService PageService
 
 @if (_initialized)
 {
@@ -313,8 +314,9 @@
                     .Select(md => md.PageId)
                     .Distinct();
 
-                // Filter and retrieve the corresponding pages
-                _pagesWithModules = PageState.Pages
+                // retrieve the pages which contain the module
+                var pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
+                _pagesWithModules = pages
                     .Where(pg => distinctPageIds.Contains(pg.PageId) && pg.IsDeleted == false)
                     .ToList();
 
