@@ -80,11 +80,14 @@
                                 }
                                 else
                                 {
-                                    foreach (Page p in _pages)
+                                    if (_pages != null)
                                     {
-                                        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, p.PermissionList))
+                                        foreach (Page p in _pages)
                                         {
-                                            <option value="@p.PageId">@(new string('-', p.Level * 2))@(p.Name)</option>
+                                            if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, p.PermissionList))
+                                            {
+                                                <option value="@p.PageId">@(new string('-', p.Level * 2))@(p.Name)</option>
+                                            }
                                         }
                                     }
                                 }
