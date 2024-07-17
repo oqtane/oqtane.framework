@@ -9,6 +9,7 @@ using Oqtane.Interfaces;
 using Oqtane.Enums;
 using Oqtane.Repository;
 using [Owner].Module.[Module].Repository;
+using System.Threading.Tasks;
 
 namespace [Owner].Module.[Module].Manager
 {
@@ -60,23 +61,25 @@ namespace [Owner].Module.[Module].Manager
             }
         }
 
-        public List<SearchContent> GetSearchContents(Oqtane.Models.Module module, DateTime startTime)
+        public Task<List<SearchContent>> GetSearchContentsAsync(PageModule pageModule, DateTime lastIndexedOn)
         {
-            var searchContentList = new List<SearchContent>();
+           var searchContentList = new List<SearchContent>();
 
-            var [Module]s = _[Module]Repository.Get[Module]s(module.ModuleId);
-            foreach (var [Module] in [Module]s)
-            {
-                searchContentList.Add(new SearchContent
-                {
-                    Title = module.Title,
-                    Description = string.Empty,
-                    Body = [Module].Name,
-                    ModifiedTime = [Module].ModifiedOn
-                });
-            }
+           foreach (var [Module] in _[Module]Repository.Get[Module]s(pageModule.ModuleId))
+           {
+               if ([Module].ModifiedOn >= lastIndexedOn)
+               {
+                   searchContentList.Add(new SearchContent
+                   {
+                       Title = pageModule.Module.Title,
+                       Body = [Module].Name,
+                       ContentModifiedBy = [Module].ModifiedBy,
+                       ContentModifiedOn = [Module].ModifiedOn
+                   });
+               }
+           }
 
-            return searchContentList;
+           return Task.FromResult(searchContentList);
         }
-}
+    }
 }
