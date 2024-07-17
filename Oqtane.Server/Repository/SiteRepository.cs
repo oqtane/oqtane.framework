@@ -542,7 +542,7 @@ namespace Oqtane.Repository
                                 if (pageTemplateModule.Content != "" && moduleDefinition.ServerManagerType != "")
                                 {
                                     Type moduletype = Type.GetType(moduleDefinition.ServerManagerType);
-                                    if (moduletype != null && moduletype.GetInterface("IPortable") != null)
+                                    if (moduletype != null && moduletype.GetInterface(nameof(IPortable)) != null)
                                     {
                                         try
                                         {

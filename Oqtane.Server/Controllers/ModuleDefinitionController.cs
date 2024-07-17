@@ -194,7 +194,7 @@ namespace Oqtane.Controllers
                         {
                             try
                             {
-                                if (moduletype.GetInterface("IInstallable") != null)
+                                if (moduletype.GetInterface(nameof(IInstallable)) != null)
                                 {
                                     _tenantManager.SetTenant(tenant.TenantId);
                                     var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);

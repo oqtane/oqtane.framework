@@ -73,7 +73,7 @@ namespace Oqtane.Pages
                             if (moduleDefinition != null && moduleDefinition.ServerManagerType != "")
                             {
                                 Type moduletype = Type.GetType(moduleDefinition.ServerManagerType);
-                                if (moduletype != null && moduletype.GetInterface("ISitemap") != null)
+                                if (moduletype != null && moduletype.GetInterface(nameof(ISitemap)) != null)
                                 {
                                     try
                                     {

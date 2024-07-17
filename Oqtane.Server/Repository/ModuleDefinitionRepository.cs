@@ -340,7 +340,7 @@ namespace Oqtane.Repository
                     if (!string.IsNullOrEmpty(moduledefinition.ServerManagerType))
                     {
                         Type servertype = Type.GetType(moduledefinition.ServerManagerType);
-                        if (servertype != null && servertype.GetInterface("IPortable") != null)
+                        if (servertype != null && servertype.GetInterface(nameof(IPortable)) != null)
                         {
                             moduledefinition.IsPortable = true;
                         }

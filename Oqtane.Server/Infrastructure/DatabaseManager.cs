@@ -452,7 +452,7 @@ namespace Oqtane.Infrastructure
                                             {
                                                 try
                                                 {
-                                                    if (moduleType.GetInterface("IInstallable") != null)
+                                                    if (moduleType.GetInterface(nameof(IInstallable)) != null)
                                                     {
                                                         tenantManager.SetTenant(tenant.TenantId);
                                                         var moduleObject = ActivatorUtilities.CreateInstance(scope.ServiceProvider, moduleType) as IInstallable;
