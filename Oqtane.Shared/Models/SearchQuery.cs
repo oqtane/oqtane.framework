@@ -12,7 +12,9 @@ namespace Oqtane.Models
 
         public string Keywords { get; set; }
 
-        public List<string> EntityNames { get; set; } = new List<string>();
+        public string IncludeEntities { get; set; } = ""; // comma delimited entities to include
+
+        public string ExcludeEntities { get; set; } = ""; // comma delimited entities to exclude
 
         public DateTime From { get; set; }
 

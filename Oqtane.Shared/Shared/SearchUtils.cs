@@ -4,13 +4,6 @@ namespace Oqtane.Shared
 {
     public sealed class SearchUtils
     {
-        private static readonly List<string> _systemPages;
-
-        static SearchUtils()
-        {
-            _systemPages = new List<string> { "login", "register", "profile", "404", "search" };
-        }
-
         public static List<string> GetKeywords(string keywords)
         {
             var keywordsList = new List<string>();
@@ -26,11 +19,6 @@ namespace Oqtane.Shared
             }
 
             return keywordsList;
-        }
-
-        public static bool IsSystemPage(Models.Page page)
-        {
-            return page.Path.Contains("admin") || _systemPages.Contains(page.Path);
         }
     }
 }
