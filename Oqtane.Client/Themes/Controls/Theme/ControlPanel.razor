@@ -32,11 +32,11 @@
 {
     @if (PageState.RenderMode == RenderModes.Interactive)
     {
-        <ControlPanelInteractive PageState="@_controlPanelPageState" SiteState="@SiteState" ButtonClass="@ButtonClass" ContainerClass="@ContainerClass" HeaderClass="@HeaderClass" BodyClass="@BodyClass" ShowLanguageSwitcher="@ShowLanguageSwitcher" LanguageDropdownAlignment="@LanguageDropdownAlignment" CanViewAdminDashboard="@_canViewAdminDashboard" />
+        <ControlPanelInteractive PageState="@_pageState" SiteState="@SiteState" ButtonClass="@ButtonClass" ContainerClass="@ContainerClass" HeaderClass="@HeaderClass" BodyClass="@BodyClass" ShowLanguageSwitcher="@ShowLanguageSwitcher" LanguageDropdownAlignment="@LanguageDropdownAlignment" CanViewAdminDashboard="@_canViewAdminDashboard" />
     }
     else
     {
-        <ControlPanelInteractive PageState="@_controlPanelPageState" SiteState="@SiteState" ButtonClass="@ButtonClass" ContainerClass="@ContainerClass" HeaderClass="@HeaderClass" BodyClass="@BodyClass" ShowLanguageSwitcher="@ShowLanguageSwitcher" LanguageDropdownAlignment="@LanguageDropdownAlignment" CanViewAdminDashboard="@_canViewAdminDashboard" @rendermode="@InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, false)" />
+        <ControlPanelInteractive PageState="@_pageState" SiteState="@SiteState" ButtonClass="@ButtonClass" ContainerClass="@ContainerClass" HeaderClass="@HeaderClass" BodyClass="@BodyClass" ShowLanguageSwitcher="@ShowLanguageSwitcher" LanguageDropdownAlignment="@LanguageDropdownAlignment" CanViewAdminDashboard="@_canViewAdminDashboard" @rendermode="@InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, false)" />
     }
 }
 
@@ -59,7 +59,7 @@
     [Parameter]
     public string LanguageDropdownAlignment { get; set; } = string.Empty; // Empty or Left or Right
 
-    private ControlPanelPageState _controlPanelPageState;
+    private PageState _pageState;
     private bool _canViewAdminDashboard = false;
     private bool _showEditMode = false;
 
@@ -85,14 +85,14 @@
         }
 
         // trim PageState to mitigate page bloat caused by Blazor serializing/encrypting state when crossing render mode boundaries
-        _controlPanelPageState = new ControlPanelPageState
+        _pageState = new PageState
         {
             Alias = PageState.Alias,
             Site = new Site
             {
-                DefaultContainerType = PageState.Site.DefaultContainerType, 
+                DefaultContainerType = PageState.Site.DefaultContainerType,
                 Settings = PageState.Site.Settings,
-                Themes = PageState.Site.Themes                
+                Themes = PageState.Site.Themes
             },
             Page = PageState.Page,
             User = PageState.User,

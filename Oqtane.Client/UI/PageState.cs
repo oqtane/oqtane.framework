@@ -30,11 +30,11 @@ namespace Oqtane.UI
 
         public List<Page> Pages
         {
-            get { return Site.Pages; }
+            get { return Site?.Pages; }
         }
         public List<Language> Languages
         {
-            get { return Site.Languages; }
+            get { return Site?.Languages; }
         }
     }
 }

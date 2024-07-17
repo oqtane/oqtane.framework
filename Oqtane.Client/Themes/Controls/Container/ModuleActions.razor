@@ -6,21 +6,21 @@
 {
     @if (PageState.RenderMode == RenderModes.Interactive)
     {
-        <ModuleActionsInteractive PageState="@_moduleActionsPageState" ModuleState="@ModuleState" />
+        <ModuleActionsInteractive PageState="@_pageState" ModuleState="@ModuleState" />
     }
     else
     {
-        <ModuleActionsInteractive PageState="@_moduleActionsPageState" ModuleState="@ModuleState" @rendermode="@InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, false)" />
+        <ModuleActionsInteractive PageState="@_pageState" ModuleState="@ModuleState" @rendermode="@InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, false)" />
     }
 }
 
 @code {
-    private ModuleActionsPageState _moduleActionsPageState;
+    private PageState _pageState;
 
     protected override void OnParametersSet()
     {
         // trim PageState to mitigate page bloat caused by Blazor serializing/encrypting state when crossing render mode boundaries
-        _moduleActionsPageState = new ModuleActionsPageState
+        _pageState = new PageState
         {
             Alias = PageState.Alias,
             Page = PageState.Page,
