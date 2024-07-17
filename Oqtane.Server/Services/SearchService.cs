@@ -90,12 +90,23 @@ namespace Oqtane.Services
             var visible = true;
             foreach (var permission in searchContent.Permissions.Split(','))
             {
-                var entityName = permission.Split(":")[0];
-                var entityId = int.Parse(permission.Split(":")[1]);
-                if (!_userPermissions.IsAuthorized(_accessor.HttpContext.User, searchQuery.SiteId, entityName, entityId, PermissionNames.View))
+                if (permission.Contains(":")) // permission
                 {
-                    visible = false;
-                    break;
+                    var entityName = permission.Split(":")[0];
+                    var entityId = int.Parse(permission.Split(":")[1]);
+                    if (!_userPermissions.IsAuthorized(_accessor.HttpContext.User, searchQuery.SiteId, entityName, entityId, PermissionNames.View))
+                    {
+                        visible = false;
+                        break;
+                    }
+                }
+                else // role name
+                {
+                    if (!_accessor.HttpContext.User.IsInRole(permission))
+                    {
+                        visible = false;
+                        break;
+                    }
                 }
             }
             return visible;
