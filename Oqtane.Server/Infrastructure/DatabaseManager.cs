@@ -560,7 +560,7 @@ namespace Oqtane.Infrastructure
                                 SiteTemplateType = install.SiteTemplate,
                                 RenderMode = rendermode,
                                 Runtime = runtime,
-                                Prerender = (rendermode == RenderModes.Interactive),
+                                Prerender = true,
                                 Hybrid = false
                             };
                             site = sites.AddSite(site);
