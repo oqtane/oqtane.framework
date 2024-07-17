@@ -150,7 +150,7 @@ namespace Oqtane.SiteTemplates
                 Parent = "",
                 Path = "search",
                 Order = seed + 9,
-                Icon = "oi oi-magnifying-glass",
+                Icon = Icons.MagnifyingGlass,
                 IsNavigation = false,
                 IsPersonalizable = false,
                 PermissionList = new List<Permission> {
@@ -159,7 +159,7 @@ namespace Oqtane.SiteTemplates
                     new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                 },
                 PageTemplateModules = new List<PageTemplateModule> {
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.SearchResults, Oqtane.Client", Title = "Search", Pane = PaneNames.Default,
+                    new PageTemplateModule { ModuleDefinitionName = typeof(Oqtane.Modules.Admin.SearchResults.Index).ToModuleDefinitionName(), Title = "Search", Pane = PaneNames.Default,
                         PermissionList = new List<Permission> {
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
                             new Permission(PermissionNames.View, RoleNames.Everyone, true),
@@ -481,14 +481,43 @@ namespace Oqtane.SiteTemplates
                 }
             });
 
-            // host pages
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Search Settings",
+                Parent = "Admin",
+                Order = 19,
+                Path = "admin/search",
+                Icon = Icons.MagnifyingGlass,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                PermissionList = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, RoleNames.Admin, true),
+                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                },
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Search.Index).ToModuleDefinitionName(), Title = "Search Settings", Pane = PaneNames.Default,
+                        PermissionList = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, RoleNames.Admin, true),
+                            new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                        },
+                        Content = ""
+                    }
+                }
+            });
+
+            // host pages (order starts at 51)
             pageTemplates.Add(new PageTemplate
             {
                 Name = "Event Log",
                 Parent = "Admin",
-                Order = 19,
+                Order = 51,
                 Path = "admin/log",
-                Icon = Icons.MagnifyingGlass,
+                Icon = Icons.List,
                 IsNavigation = false,
                 IsPersonalizable = false,
                 PermissionList = new List<Permission>
@@ -514,7 +543,7 @@ namespace Oqtane.SiteTemplates
             {
                 Name = "Site Management",
                 Parent = "Admin",
-                Order = 21,
+                Order = 53,
                 Path = "admin/sites",
                 Icon = Icons.Globe,
                 IsNavigation = false,
@@ -542,7 +571,7 @@ namespace Oqtane.SiteTemplates
             {
                 Name = "Module Management",
                 Parent = "Admin",
-                Order = 23,
+                Order = 55,
                 Path = "admin/modules",
                 Icon = Icons.Browser,
                 IsNavigation = false,
@@ -570,7 +599,7 @@ namespace Oqtane.SiteTemplates
             {
                 Name = "Theme Management",
                 Parent = "Admin",
-                Order = 25,
+                Order = 57,
                 Path = "admin/themes",
                 Icon = Icons.Brush,
                 IsNavigation = false,
@@ -598,7 +627,7 @@ namespace Oqtane.SiteTemplates
             {
                 Name = "Language Management",
                 Parent = "Admin",
-                Order = 27,
+                Order = 59,
                 Path = "admin/languages",
                 Icon = Icons.Text,
                 IsNavigation = false,
@@ -630,7 +659,7 @@ namespace Oqtane.SiteTemplates
             {
                 Name = "Scheduled Jobs",
                 Parent = "Admin",
-                Order = 29,
+                Order = 61,
                 Path = "admin/jobs",
                 Icon = Icons.Timer,
                 IsNavigation = false,
@@ -658,7 +687,7 @@ namespace Oqtane.SiteTemplates
             {
                 Name = "Sql Management",
                 Parent = "Admin",
-                Order = 31,
+                Order = 63,
                 Path = "admin/sql",
                 Icon = Icons.Spreadsheet,
                 IsNavigation = false,
@@ -686,7 +715,7 @@ namespace Oqtane.SiteTemplates
             {
                 Name = "System Info",
                 Parent = "Admin",
-                Order = 33,
+                Order = 65,
                 Path = "admin/system",
                 Icon = Icons.MedicalCross,
                 IsNavigation = false,
@@ -714,7 +743,7 @@ namespace Oqtane.SiteTemplates
             {
                 Name = "System Update",
                 Parent = "Admin",
-                Order = 35,
+                Order = 67,
                 Path = "admin/update",
                 Icon = Icons.Aperture,
                 IsNavigation = false,

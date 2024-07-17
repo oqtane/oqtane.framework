@@ -139,71 +139,69 @@ namespace Oqtane.Infrastructure
 
         private void Upgrade_3_0_1(Tenant tenant, IServiceScope scope)
         {
-            var pageTemplates = new List<PageTemplate>();
-
-            pageTemplates.Add(new PageTemplate
+            var pageTemplates = new List<PageTemplate>
             {
-                Name = "Url Mappings",
-                Parent = "Admin",
-                Order = 33,
-                Path = "admin/urlmappings",
-                Icon = Icons.LinkBroken,
-                IsNavigation = false,
-                IsPersonalizable = false,
-                PermissionList = new List<Permission>
+                new PageTemplate
                 {
-                    new Permission(PermissionNames.View, RoleNames.Admin, true),
-                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
-                },
-                PageTemplateModules = new List<PageTemplateModule>
-                {
-                    new PageTemplateModule
+                    Update = false,
+                    Name = "Url Mappings",
+                    Parent = "Admin",
+                    Order = 33,
+                    Path = "admin/urlmappings",
+                    Icon = Icons.LinkBroken,
+                    IsNavigation = false,
+                    IsPersonalizable = false,
+                    PermissionList = new List<Permission>
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.UrlMappings.Index).ToModuleDefinitionName(), Title = "Url Mappings", Pane = PaneNames.Default,
-                        PermissionList = new List<Permission>
+                        new Permission(PermissionNames.View, RoleNames.Admin, true),
+                        new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                    },
+                    PageTemplateModules = new List<PageTemplateModule>
+                    {
+                        new PageTemplateModule
                         {
-                            new Permission(PermissionNames.View, RoleNames.Admin, true),
-                            new Permission(PermissionNames.Edit, RoleNames.Admin, true)
-                        },
-                        Content = ""
+                            ModuleDefinitionName = typeof(Oqtane.Modules.Admin.UrlMappings.Index).ToModuleDefinitionName(), Title = "Url Mappings", Pane = PaneNames.Default,
+                            PermissionList = new List<Permission>
+                            {
+                                new Permission(PermissionNames.View, RoleNames.Admin, true),
+                                new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                            },
+                            Content = ""
+                        }
+                    }
+                },
+                new PageTemplate
+                {
+                    Update = false,
+                    Name = "Visitor Management",
+                    Parent = "Admin",
+                    Order = 35,
+                    Path = "admin/visitors",
+                    Icon = Icons.Eye,
+                    IsNavigation = false,
+                    IsPersonalizable = false,
+                    PermissionList = new List<Permission>
+                    {
+                        new Permission(PermissionNames.View, RoleNames.Admin, true),
+                        new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                    },
+                    PageTemplateModules = new List<PageTemplateModule>
+                    {
+                        new PageTemplateModule
+                        {
+                            ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Visitors.Index).ToModuleDefinitionName(), Title = "Visitor Management", Pane = PaneNames.Default,
+                            PermissionList = new List<Permission>
+                            {
+                                new Permission(PermissionNames.View, RoleNames.Admin, true),
+                                new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                            },
+                            Content = ""
+                        }
                     }
                 }
-            });
+            };
 
-            pageTemplates.Add(new PageTemplate
-            {
-                Name = "Visitor Management",
-                Parent = "Admin",
-                Order = 35,
-                Path = "admin/visitors",
-                Icon = Icons.Eye,
-                IsNavigation = false,
-                IsPersonalizable = false,
-                PermissionList = new List<Permission>
-                {
-                    new Permission(PermissionNames.View, RoleNames.Admin, true),
-                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
-                },
-                PageTemplateModules = new List<PageTemplateModule>
-                {
-                    new PageTemplateModule
-                    {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Visitors.Index).ToModuleDefinitionName(), Title = "Visitor Management", Pane = PaneNames.Default,
-                        PermissionList = new List<Permission>
-                        {
-                            new Permission(PermissionNames.View, RoleNames.Admin, true),
-                            new Permission(PermissionNames.Edit, RoleNames.Admin, true)
-                        },
-                        Content = ""
-                    }
-                }
-            });
-
-            var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
-            foreach (Site site in sites.GetSites().ToList())
-            {
-                sites.CreatePages(site, pageTemplates, null);
-            }
+            AddPagesToSites(scope, pageTemplates);
         }
 
         private void Upgrade_3_1_3(Tenant tenant, IServiceScope scope)
@@ -386,49 +384,69 @@ namespace Oqtane.Infrastructure
                     Debug.WriteLine($"Oqtane Error: Error In 5.1.0 Upgrade Logic - {ex}");
                 }
             }
-
         }
 
         private void Upgrade_5_2_0(Tenant tenant, IServiceScope scope)
         {
-            CreateSearchResultsPages(tenant, scope);
-        }
-
-        private void CreateSearchResultsPages(Tenant tenant, IServiceScope scope)
-        {
-            var pageTemplates = new List<PageTemplate>();
-            pageTemplates.Add(new PageTemplate
+            var pageTemplates = new List<PageTemplate>
             {
-                Name = "Search",
-                Parent = "",
-                Path = "search",
-                Icon = "oi oi-magnifying-glass",
-                IsNavigation = false,
-                IsPersonalizable = false,
-                PermissionList = new List<Permission> {
-                    new Permission(PermissionNames.View, RoleNames.Everyone, true),
-                    new Permission(PermissionNames.View, RoleNames.Admin, true),
-                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                new PageTemplate
+                {
+                    Update = false,
+                    Name = "Search",
+                    Parent = "",
+                    Path = "search",
+                    Icon = Icons.MagnifyingGlass,
+                    IsNavigation = false,
+                    IsPersonalizable = false,
+                    PermissionList = new List<Permission> {
+                        new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                        new Permission(PermissionNames.View, RoleNames.Admin, true),
+                        new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                    },
+                    PageTemplateModules = new List<PageTemplateModule> {
+                        new PageTemplateModule { ModuleDefinitionName = typeof(Oqtane.Modules.Admin.SearchResults.Index).ToModuleDefinitionName(), Title = "Search", Pane = PaneNames.Default,
+                            PermissionList = new List<Permission> {
+                                new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                                new Permission(PermissionNames.View, RoleNames.Admin, true),
+                                new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                            }
+                        }
+                    }
                 },
-                PageTemplateModules = new List<PageTemplateModule> {
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.SearchResults, Oqtane.Client", Title = "Search", Pane = PaneNames.Default,
-                        PermissionList = new List<Permission> {
-                            new Permission(PermissionNames.View, RoleNames.Everyone, true),
-                            new Permission(PermissionNames.View, RoleNames.Admin, true),
-                            new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                new PageTemplate
+                {
+                    Update = false,
+                    Name = "Search Settings",
+                    Parent = "",
+                    Path = "admin/search",
+                    Icon = Icons.MagnifyingGlass,
+                    IsNavigation = false,
+                    IsPersonalizable = false,
+                    PermissionList = new List<Permission> {
+                        new Permission(PermissionNames.View, RoleNames.Admin, true),
+                        new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                    },
+                    PageTemplateModules = new List<PageTemplateModule> {
+                        new PageTemplateModule { ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Search.Index).ToModuleDefinitionName(), Title = "Search Settings", Pane = PaneNames.Default,
+                            PermissionList = new List<Permission> {
+                                new Permission(PermissionNames.View, RoleNames.Admin, true),
+                                new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                            }
                         }
                     }
                 }
-            });
+            };
 
-            var pages = scope.ServiceProvider.GetRequiredService<IPageRepository>();
+            AddPagesToSites(scope, pageTemplates);
+        }
+
+        private void AddPagesToSites(IServiceScope scope, List<PageTemplate> pageTemplates)
+        {
             var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
             foreach (var site in sites.GetSites().ToList())
             {
-                if (!pages.GetPages(site.SiteId).ToList().Where(item => item.Path == "search").Any())
-                {
-                    sites.CreatePages(site, pageTemplates, null);
-                }
+                sites.CreatePages(site, pageTemplates, null);
             }
         }
     }
