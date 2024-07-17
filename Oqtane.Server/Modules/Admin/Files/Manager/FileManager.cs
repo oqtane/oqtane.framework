@@ -1,6 +1,5 @@
 using Oqtane.Models;
 using Oqtane.Repository;
-using Oqtane.Documentation;
 using Oqtane.Interfaces;
 using System.Collections.Generic;
 using System;
@@ -22,10 +21,8 @@ namespace Oqtane.Modules.Admin.Files.Manager
             _fileRepository = fileRepository;
         }
 
-        public async Task<List<SearchContent>> GetSearchContentsAsync(PageModule pageModule, DateTime lastIndexedOn)
+        public Task<List<SearchContent>> GetSearchContentsAsync(PageModule pageModule, DateTime lastIndexedOn)
         {
-            await Task.CompletedTask;
-
             var searchContents = new List<SearchContent>();
 
             var folders = _folderRepository.GetFolders(pageModule.Module.SiteId);
@@ -72,11 +69,10 @@ namespace Oqtane.Modules.Admin.Files.Manager
                         };
                         searchContents.Add(searchContent);
                     }
-
                 }
             }
 
-            return searchContents;
+            return Task.FromResult(searchContents);
         }
     }
 }
