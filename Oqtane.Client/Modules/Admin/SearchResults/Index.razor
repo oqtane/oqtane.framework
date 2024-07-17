@@ -37,12 +37,12 @@
                     if (_searchResults.Results.Any())
                     {
                         <Pager Items="@_searchResults?.Results"
-                               Format="Grid"
-                               Columns="1"
-                               Toolbar="Bottom"
-                               Parameters="@($"q={_keywords}")">
+                                Format="Grid"
+                                Columns="1"
+                                Toolbar="Bottom"
+                                Parameters="@($"q={_keywords}")">
                             <Row>
-                                <div class="search-item">
+                                <div class="search-item mb-2">
                                     <h4 class="mb-1"><a href="@context.Url">@context.Title</a></h4>
                                     <p class="mb-0 text-muted">@((MarkupString)context.Snippet)</p>
                                 </div>
@@ -61,6 +61,7 @@
         </div>
     </div>
 </div>
+
 @code {
     public override string RenderMode => RenderModes.Static;
 

@@ -58,7 +58,6 @@ namespace Oqtane.Infrastructure
 
                 var currentTime = DateTime.UtcNow;
                 var lastIndexedOn = Convert.ToDateTime(siteSettings.GetValue(SearchLastIndexedOnSetting, DateTime.MinValue.ToString()));
-                log += $"Index Date: {lastIndexedOn}<br />";
 
                 var ignorePaths = siteSettings.GetValue(SearchIgnorePathsSetting, "").Split(',');
                 var ignoreEntities = siteSettings.GetValue(SearchIgnoreEntitiesSetting, "").Split(',');

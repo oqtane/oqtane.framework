@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Oqtane.Models;
 using Oqtane.Shared;
 
@@ -26,9 +27,14 @@ namespace Oqtane.Repository
                 .ThenInclude(w => w.SearchWord)
                 .Where(i => i.SiteId == searchQuery.SiteId);
 
-            if (searchQuery.EntityNames != null && searchQuery.EntityNames.Any())
+            if (!string.IsNullOrEmpty(searchQuery.IncludeEntities))
             {
-                searchContents = searchContents.Where(i => searchQuery.EntityNames.Contains(i.EntityName));
+                searchContents = searchContents.Where(i => searchQuery.IncludeEntities.Split(',', StringSplitOptions.RemoveEmptyEntries).Contains(i.EntityName));
+            }
+
+            if (!string.IsNullOrEmpty(searchQuery.ExcludeEntities))
+            {
+                searchContents = searchContents.Where(i => !searchQuery.ExcludeEntities.Split(',', StringSplitOptions.RemoveEmptyEntries).Contains(i.EntityName));
             }
 
             if (searchQuery.From != DateTime.MinValue)
