@@ -82,12 +82,12 @@
             settings = SettingService.SetSetting(settings, "Search_MininumWordLength", _minimumWordLength, true);
             settings = SettingService.SetSetting(settings, "Search_IgnoreWords", _ignoreWords, true);
             await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
-            AddModuleMessage(Localizer["Success.SaveSiteSettings"], MessageType.Success);
+            AddModuleMessage(Localizer["Success.Save"], MessageType.Success);
         }
 		catch (Exception ex)
 		{
-            await logger.LogError(ex, "Error Saving Site Settings {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error.SaveSiteSettings"], MessageType.Error);
+            await logger.LogError(ex, "Error Saving Search Settings {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Save"], MessageType.Error);
         }
 	}
 }
