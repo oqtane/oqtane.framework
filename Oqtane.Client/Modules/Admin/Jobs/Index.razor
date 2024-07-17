@@ -10,9 +10,7 @@
 }
 else
 {
-    <ActionLink Action="Log" Class="btn btn-secondary" Text="View Logs" ResourceKey="ViewJobs" />
-    <button type="button" class="btn btn-secondary" @onclick="(async () => await Refresh())">@Localizer["Refresh.Text"]</button>
-    <br />
+    <button type="button" class="btn btn-secondary" @onclick="Refresh">@Localizer["Refresh.Text"]</button>
     <br />
 
     <Pager Items="@_jobs" SearchProperties="Name">
@@ -44,21 +42,29 @@ else
             </td>
         </Row>
     </Pager>
+
+    <br />
+    <ActionLink Action="Log" Class="btn btn-secondary" Text="View All Logs" ResourceKey="ViewLogs" />
 }
 
 @code {
     private List<Job> _jobs;
 
-	public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
-    
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+
     protected override async Task OnInitializedAsync()
     {
-        _jobs = await JobService.GetJobsAsync();
+        await GetJobs();
         if (_jobs.Count == 0)
         {
             AddModuleMessage(string.Format(Localizer["Message.NoJobs"], NavigateUrl("admin/system")), MessageType.Warning);
         }
-	}
+    }
+
+    private async Task GetJobs()
+    {
+        _jobs = await JobService.GetJobsAsync();
+    }
 
 	private string DisplayStatus(bool isEnabled, bool isExecuting)
 	{
@@ -146,7 +152,7 @@ else
 
     private async Task Refresh()
     {
-        _jobs = await JobService.GetJobsAsync();
+        await GetJobs();
         StateHasChanged();
     }
 }

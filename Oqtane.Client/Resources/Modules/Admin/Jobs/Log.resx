@@ -132,4 +132,7 @@
   <data name="Failed" xml:space="preserve">
     <value>Failed</value>
   </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
 </root>
