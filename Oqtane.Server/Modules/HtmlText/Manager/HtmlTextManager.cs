@@ -49,10 +49,8 @@ namespace Oqtane.Modules.HtmlText.Manager
             return content;
         }
 
-        public async Task<List<SearchContent>> GetSearchContentsAsync(PageModule pageModule, DateTime lastIndexedOn)
+        public Task<List<SearchContent>> GetSearchContentsAsync(PageModule pageModule, DateTime lastIndexedOn)
         {
-            await Task.CompletedTask;
-
             var searchContents = new List<SearchContent>();
 
             var htmltexts = _htmlText.GetHtmlTexts(pageModule.ModuleId);
@@ -72,7 +70,7 @@ namespace Oqtane.Modules.HtmlText.Manager
                 }
             }
 
-            return searchContents;
+            return Task.FromResult(searchContents);
         }
 
         public void ImportModule(Module module, string content, string version)
