@@ -182,7 +182,7 @@
     private bool _settingsLoaded;
     private bool _initialized = false;
 
-    private QuillEditorInterop interop;
+    private QuillEditorInterop _interop;
     private FileManager _fileManager;
     private string _activetab = "Rich";
     private bool _allowSettings = false;
@@ -251,7 +251,7 @@
 
     protected override void OnInitialized()
     {
-        interop = new QuillEditorInterop(JSRuntime);
+        _interop = new QuillEditorInterop(JSRuntime);
 
         if (string.IsNullOrEmpty(Placeholder))
         {
@@ -271,6 +271,13 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+		if (firstRender)
+		{
+            // include CSS theme
+            var interop = new Interop(JSRuntime);
+            await interop.IncludeLink("", "stylesheet", $"css/quill/quill.{_theme}.css", "text/css", "", "", "");
+        }
+
         await base.OnAfterRenderAsync(firstRender);
 
         LoadSettings();
@@ -279,7 +286,7 @@
         {
             if (firstRender)
             {
-                await interop.CreateEditor(
+                await _interop.CreateEditor(
                     _editorElement,
                     _toolBar,
                     ReadOnly,
@@ -287,10 +294,10 @@
                     _theme,
                     _debugLevel);
 
-                await interop.LoadEditorContent(_editorElement, _richhtml);
+                await _interop.LoadEditorContent(_editorElement, _richhtml);
 
                 // preserve a copy of the content (Quill sanitizes content so we need to retrieve it from the editor as it may have been modified)
-                _originalrichhtml = await interop.GetHtml(_editorElement);
+                _originalrichhtml = await _interop.GetHtml(_editorElement);
 
                 _initialized = true;
             }
@@ -301,19 +308,19 @@
                     if (_contentchanged)
                     {
                         // reload editor if Content passed to component has changed
-                        await interop.LoadEditorContent(_editorElement, _richhtml);
-                        _originalrichhtml = await interop.GetHtml(_editorElement);
+                        await _interop.LoadEditorContent(_editorElement, _richhtml);
+                        _originalrichhtml = await _interop.GetHtml(_editorElement);
 
                         _contentchanged = false;
                     }
                     else
                     {
                         // preserve changed content on re-render event
-                        var richhtml = await interop.GetHtml(_editorElement);
+                        var richhtml = await _interop.GetHtml(_editorElement);
                         if (richhtml != _richhtml)
                         {
                             _richhtml = richhtml;
-                            await interop.LoadEditorContent(_editorElement, _richhtml);
+                            await _interop.LoadEditorContent(_editorElement, _richhtml);
                         }
                     }
                 }
@@ -350,7 +357,7 @@
 
             if (_allowRichText)
             {
-                richhtml = await interop.GetHtml(_editorElement);
+                richhtml = await _interop.GetHtml(_editorElement);
             }
 
             if (richhtml != _originalrichhtml && !string.IsNullOrEmpty(richhtml))
@@ -397,7 +404,7 @@
 
             if (_allowRichText)
             {
-                richhtml = await interop.GetHtml(_editorElement);
+                richhtml = await _interop.GetHtml(_editorElement);
             }
 
             if (richhtml != _originalrichhtml && !string.IsNullOrEmpty(richhtml))
@@ -425,8 +432,8 @@
             var file = _fileManager.GetFile();
             if (file != null)
             {
-                await interop.InsertImage(_editorElement, file.Url, ((!string.IsNullOrEmpty(file.Description)) ? file.Description : file.Name), _editorIndex);
-                _richhtml = await interop.GetHtml(_editorElement);
+                await _interop.InsertImage(_editorElement, file.Url, ((!string.IsNullOrEmpty(file.Description)) ? file.Description : file.Name), _editorIndex);
+                _richhtml = await _interop.GetHtml(_editorElement);
                 _richfilemanager = false;
             }
             else
@@ -436,7 +443,7 @@
         }
         else
         {
-            _editorIndex = await interop.GetCurrentCursor(_editorElement);
+            _editorIndex = await _interop.GetCurrentCursor(_editorElement);
             _richfilemanager = true;
         }
         StateHasChanged();
