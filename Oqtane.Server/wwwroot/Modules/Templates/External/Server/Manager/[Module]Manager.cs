@@ -71,7 +71,9 @@ namespace [Owner].Module.[Module].Manager
                {
                    searchContentList.Add(new SearchContent
                    {
-                       Title = pageModule.Module.Title,
+                       EntityName = "[Owner][Module]",
+                       EntityId = [Module].[Module]Id.ToString(),
+                       Title = [Module].Name,
                        Body = [Module].Name,
                        ContentModifiedBy = [Module].ModifiedBy,
                        ContentModifiedOn = [Module].ModifiedOn
