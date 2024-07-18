@@ -153,6 +153,9 @@
   <data name="Placeholder" xml:space="preserve">
     <value>Enter Your Content...</value>
   </data>
+  <data name="SaveSettings" xml:space="preserve">
+    <value>Save Settings</value>
+  </data>
   <data name="Settings" xml:space="preserve">
     <value>Settings</value>
   </data>
