@@ -76,13 +76,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (PageState.QueryString.ContainsKey("q"))
+        if (_keywords == null && PageState.QueryString.ContainsKey("q"))
         {
             _keywords = WebUtility.UrlDecode(PageState.QueryString["q"]);
-        }
-
-        if (!string.IsNullOrEmpty(_keywords))
-        {
             await PerformSearch();
         }
     }
@@ -97,18 +93,25 @@
         _loading = true;
         StateHasChanged();
 
-        var searchQuery = new SearchQuery
-            {
-                SiteId = PageState.Site.SiteId,
-                Alias = PageState.Alias,
-                Keywords = _keywords,
-                SortDirection = _searchSortDirection,
-                SortField = _searchSortField,
-                PageIndex = 0,
-                PageSize = int.MaxValue
-            };
+        if (!string.IsNullOrEmpty(_keywords))
+        {
+            var searchQuery = new SearchQuery
+                {
+                    SiteId = PageState.Site.SiteId,
+                    Alias = PageState.Alias,
+                    Keywords = _keywords,
+                    SortDirection = _searchSortDirection,
+                    SortField = _searchSortField,
+                    PageIndex = 0,
+                    PageSize = int.MaxValue
+                };
 
-        _searchResults = await SearchResultsService.GetSearchResultsAsync(searchQuery);
+            _searchResults = await SearchResultsService.GetSearchResultsAsync(searchQuery);
+        }
+        else
+        {
+            AddModuleMessage(Localizer["NoCriteria"], MessageType.Info, "bottom");
+        }
 
         _loading = false;
         StateHasChanged();

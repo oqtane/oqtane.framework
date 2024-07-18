@@ -53,7 +53,7 @@
     private void PerformSearch()
     {
         var keywords = HttpContext.HttpContext.Request.Form["keywords"];
-        if (!string.IsNullOrEmpty(keywords) && _searchResultsPage != null)
+        if (_searchResultsPage != null)
         {
             var url = NavigateUrl(_searchResultsPage.Path, $"q={keywords}");
             NavigationManager.NavigateTo(url);
