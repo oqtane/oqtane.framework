@@ -66,21 +66,17 @@
     {
         if (!string.IsNullOrEmpty(content))
         {
-            // format head content, remove scripts, and filter duplicate elements
-            content = content.Replace("\n", "");
-            var index = content.IndexOf("<");
-            while (index >= 0)
+            if (PageState.RenderMode == RenderModes.Interactive)
             {
-                var element = content.Substring(index, content.IndexOf(">", index) - index + 1);
-                if (!string.IsNullOrEmpty(element) && (PageState.RenderMode == RenderModes.Static || (!element.ToLower().StartsWith("<script") && !element.ToLower().StartsWith("</script"))))
+                // remove scripts
+                var index = content.IndexOf("<script");
+                while (index >= 0)
                 {
-                    if (!headcontent.Contains(element))
-                    {
-                        headcontent += element + "\n";
-                    }
+                    content = content.Remove(index, content.IndexOf("</script>") + 9 - index);
+                    index = content.IndexOf("<script");
                 }
-                index = content.IndexOf("<", index + 1);
             }
+            headcontent += content + "\n";
         }
         return headcontent;
     }
