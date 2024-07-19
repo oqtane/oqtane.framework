@@ -568,20 +568,24 @@
     {
         if (!string.IsNullOrEmpty(resource.Url))
         {
-            if (!resource.Reload)
-            {
+            // if (!resource.Reload)
+            // {
                 var url = (resource.Url.Contains("://")) ? resource.Url : alias.BaseUrl + resource.Url;
+                if (resource.Reload)
+                {
+                    url += "?" + Guid.NewGuid().ToString("N");
+                }
                 return "<script" +
                     ((!string.IsNullOrEmpty(resource.Integrity)) ? " integrity=\"" + resource.Integrity + "\"" : "") +
                     ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
                     ((resource.ES6Module) ? " type=\"module\"" : "") +
                     " src=\"" + url + "\"></script>"; // src at end of element due to enhanced navigation patch algorithm
-            }
-            else
-            {
-                // use custom element which can execute script on every page transition
-                return "<page-script src=\"" + resource.Url + "\"></page-script>";
-            }
+            // }
+            // else
+            // {
+            //     // use custom element which can execute script on every page transition
+            //     return "<page-script src=\"" + resource.Url + "\"></page-script>";
+            // }
         }
         else
         {

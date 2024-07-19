@@ -45,14 +45,14 @@ namespace Oqtane.Services
                 .DistinctBy(i => i.Url);
 
             // sort results
-            if (searchQuery.SortDirection == SearchSortDirections.Descending)
+            if (searchQuery.SortOrder == SearchSortOrder.Descending)
             {
                 switch (searchQuery.SortField)
                 {
-                    case SearchSortFields.Relevance:
+                    case SearchSortField.Relevance:
                         results = results.OrderByDescending(i => i.Score).ThenByDescending(i => i.ContentModifiedOn);
                         break;
-                    case SearchSortFields.Title:
+                    case SearchSortField.Title:
                         results = results.OrderByDescending(i => i.Title).ThenByDescending(i => i.ContentModifiedOn);
                         break;
                     default:
@@ -64,10 +64,10 @@ namespace Oqtane.Services
             {
                 switch (searchQuery.SortField)
                 {
-                    case SearchSortFields.Relevance:
+                    case SearchSortField.Relevance:
                         results = results.OrderBy(i => i.Score).ThenByDescending(i => i.ContentModifiedOn);
                         break;
-                    case SearchSortFields.Title:
+                    case SearchSortField.Title:
                         results = results.OrderBy(i => i.Title).ThenByDescending(i => i.ContentModifiedOn);
                         break;
                     default:
