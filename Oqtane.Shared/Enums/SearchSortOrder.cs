@@ -1,8 +1,6 @@
-using System;
-
 namespace Oqtane.Shared
 {
-    public enum SearchSortDirections
+    public enum SearchSortOrder
     {
         Ascending,
         Descending

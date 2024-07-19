@@ -4,6 +4,7 @@
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject ISearchResultsService SearchResultsService
+@inject ISettingService SettingService
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -65,17 +66,33 @@
 @code {
     public override string RenderMode => RenderModes.Static;
 
-    private SearchSortDirections _searchSortDirection = SearchSortDirections.Descending; //default sort by
-    private SearchSortFields _searchSortField = SearchSortFields.Relevance;
+    private string _includeEntities;
+    private string _excludeEntities;
+    private string _fromDate;
+    private string _toDate;
+    private string _pageSize;
+    private string _sortField;
+    private string _sortOrder;
+    private string _bodyLength;
+    
     private string _keywords;
-    private bool _loading;
     private SearchResults _searchResults;
+    private bool _loading;
 
     [SupplyParameterFromForm(FormName = "SearchInputForm")]
     public string KeyWords { get => ""; set => _keywords = value; }
 
     protected override async Task OnInitializedAsync()
     {
+        _includeEntities = SettingService.GetSetting(ModuleState.Settings, "SearchResults_IncludeEntities", "");
+        _excludeEntities = SettingService.GetSetting(ModuleState.Settings, "SearchResults_ExcludeEntities", "");
+        _fromDate = SettingService.GetSetting(ModuleState.Settings, "SearchResults_FromDate", DateTime.MinValue.ToString());
+        _toDate = SettingService.GetSetting(ModuleState.Settings, "SearchResults_ToDate", DateTime.MaxValue.ToString());
+        _pageSize = SettingService.GetSetting(ModuleState.Settings, "SearchResults_PageSize", int.MaxValue.ToString());
+        _sortField = SettingService.GetSetting(ModuleState.Settings, "SearchResults_SortField", "Relevance");
+        _sortOrder = SettingService.GetSetting(ModuleState.Settings, "SearchResults_SortOrder", "Descending");
+        _bodyLength = SettingService.GetSetting(ModuleState.Settings, "SearchResults_BodyLength", "255");
+
         if (_keywords == null && PageState.QueryString.ContainsKey("q"))
         {
             _keywords = WebUtility.UrlDecode(PageState.QueryString["q"]);
@@ -96,15 +113,20 @@
         if (!string.IsNullOrEmpty(_keywords))
         {
             var searchQuery = new SearchQuery
-                {
-                    SiteId = PageState.Site.SiteId,
-                    Alias = PageState.Alias,
-                    Keywords = _keywords,
-                    SortDirection = _searchSortDirection,
-                    SortField = _searchSortField,
-                    PageIndex = 0,
-                    PageSize = int.MaxValue
-                };
+            {
+                SiteId = PageState.Site.SiteId,
+                Alias = PageState.Alias,
+                Keywords = _keywords,
+                IncludeEntities = _includeEntities,
+                ExcludeEntities = _excludeEntities,
+                FromDate = (!string.IsNullOrEmpty(_fromDate)) ? DateTime.Parse(_fromDate) : DateTime.MinValue,
+                ToDate = (!string.IsNullOrEmpty(_toDate)) ? DateTime.Parse(_toDate) : DateTime.MaxValue,
+                PageSize = (!string.IsNullOrEmpty(_pageSize)) ? int.Parse(_pageSize) : int.MaxValue,
+                PageIndex = 0,
+                SortField = (!string.IsNullOrEmpty(_sortField)) ? (SearchSortField)Enum.Parse(typeof(SearchSortField), _sortField) : SearchSortField.Relevance,
+                SortOrder = (!string.IsNullOrEmpty(_sortOrder)) ? (SearchSortOrder)Enum.Parse(typeof(SearchSortOrder), _sortOrder) : SearchSortOrder.Descending,
+                BodyLength = (!string.IsNullOrEmpty(_bodyLength)) ? int.Parse(_bodyLength) : 255
+            };
 
             _searchResults = await SearchResultsService.GetSearchResultsAsync(searchQuery);
         }

@@ -1,8 +1,6 @@
-using System;
-
 namespace Oqtane.Shared
 {
-    public enum SearchSortFields
+    public enum SearchSortField
     {
         Relevance,
         Title,

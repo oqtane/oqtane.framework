@@ -74,7 +74,7 @@ namespace Oqtane.Providers
                         prefix = string.Empty;
                     }
 
-                    var length = searchQuery.BodySnippetLength;
+                    var length = searchQuery.BodyLength;
                     if (start + length >= content.Length)
                     {
                         length = content.Length - start;
@@ -88,7 +88,7 @@ namespace Oqtane.Providers
 
             if (string.IsNullOrEmpty(snippet))
             {
-                snippet = content.Substring(0, searchQuery.BodySnippetLength);
+                snippet = content.Substring(0, searchQuery.BodyLength);
             }
 
             foreach (var keyword in SearchUtils.GetKeywords(searchQuery.Keywords))

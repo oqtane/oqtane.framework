@@ -16,9 +16,9 @@ namespace Oqtane.Models
 
         public string ExcludeEntities { get; set; } = ""; // comma delimited entities to exclude
 
-        public DateTime From { get; set; }
+        public DateTime FromDate { get; set; }
 
-        public DateTime To { get; set; }
+        public DateTime ToDate { get; set; }
 
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
@@ -26,10 +26,10 @@ namespace Oqtane.Models
 
         public int PageSize { get; set; }
 
-        public SearchSortFields SortField { get; set; }
+        public SearchSortField SortField { get; set; }
 
-        public SearchSortDirections SortDirection { get; set; }
+        public SearchSortOrder SortOrder { get; set; }
 
-        public int BodySnippetLength { get; set;} = 255;
+        public int BodyLength { get; set;} = 255;
     }
 }

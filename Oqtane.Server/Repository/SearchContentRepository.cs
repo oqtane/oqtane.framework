@@ -37,14 +37,14 @@ namespace Oqtane.Repository
                 searchContents = searchContents.Where(i => !searchQuery.ExcludeEntities.Split(',', StringSplitOptions.RemoveEmptyEntries).Contains(i.EntityName));
             }
 
-            if (searchQuery.From != DateTime.MinValue)
+            if (searchQuery.FromDate != DateTime.MinValue)
             {
-                searchContents = searchContents.Where(i => i.ContentModifiedOn >= searchQuery.From);
+                searchContents = searchContents.Where(i => i.ContentModifiedOn >= searchQuery.FromDate);
             }
 
-            if (searchQuery.To != DateTime.MinValue)
+            if (searchQuery.ToDate != DateTime.MaxValue)
             {
-                searchContents = searchContents.Where(i => i.ContentModifiedOn <= searchQuery.To);
+                searchContents = searchContents.Where(i => i.ContentModifiedOn <= searchQuery.ToDate);
             }
 
             if (searchQuery.Properties != null && searchQuery.Properties.Any())
