@@ -580,7 +580,16 @@
             else
             {
                 // use custom element which can execute script on every page transition
-                return "<page-script src=\"" + resource.Url + "\"></page-script>";
+                @if (string.IsNullOrEmpty(resource.Integrity) && string.IsNullOrEmpty(resource.CrossOrigin))
+                {
+                    return "<page-script src=\"" + resource.Url + "\"></page-script>";
+                }
+                else
+                {
+                    // use modulepreload for external resources
+                    return "<link rel=\"modulepreload\" href=\"" + resource.Url + "\" integrity=\"" + resource.Integrity + "\" crossorigin=\"" + resource.CrossOrigin + "\" />\n" +
+                        "<page-script src=\"" + resource.Url + "\"></page-script>";
+                }
             }
         }
         else
