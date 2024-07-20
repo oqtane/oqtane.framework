@@ -61,8 +61,6 @@ namespace Oqtane.Modules.HtmlText.Manager
                 {
                     searchContents.Add(new SearchContent
                     {
-                        Title = pageModule.Module.Title,
-                        Description = string.Empty,
                         Body = htmltext.Content,
                         ContentModifiedBy = htmltext.CreatedBy,
                         ContentModifiedOn = htmltext.CreatedOn

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
+
 namespace Oqtane.Models
 {
     public class SearchContent
@@ -30,6 +31,9 @@ namespace Oqtane.Models
 
         public string AdditionalContent { get; set; }
 
+        [NotMapped]
+        public bool IsDeleted { get; set; }
+
         public DateTime CreatedOn { get; set; }
 
         public List<SearchContentProperty> SearchContentProperties { get; set; }
@@ -37,18 +41,15 @@ namespace Oqtane.Models
         public List<SearchContentWord> SearchContentWords { get; set; }
 
         [NotMapped]
-        public string UniqueKey => $"{TenantId}:{SiteId}:{EntityName}:{EntityId}";
-
-        [NotMapped]
         public int TenantId { get; set; }
 
         [NotMapped]
-        public bool IsDeleted { get; set; }
+        public string UniqueKey => $"{TenantId}:{SiteId}:{EntityName}:{EntityId}";
 
         // constructors
         public SearchContent() { }
 
-        public SearchContent(int siteId, string entityName, string entityId, string title, string description, string body, string url, string permissions, string contentModifiedBy, DateTime contentModifiedOn)
+        public SearchContent(int siteId, string entityName, string entityId, string title, string description, string body, string url, string permissions, string contentModifiedBy, DateTime contentModifiedOn, bool isDeleted)
         {
             SiteId = siteId;
             EntityName = entityName;
@@ -60,8 +61,7 @@ namespace Oqtane.Models
             Permissions = permissions;
             ContentModifiedBy = contentModifiedBy;
             ContentModifiedOn = contentModifiedOn;
-            AdditionalContent = "";
-            CreatedOn = DateTime.UtcNow;
+            IsDeleted = isDeleted;
         }
 
         public override string ToString()
