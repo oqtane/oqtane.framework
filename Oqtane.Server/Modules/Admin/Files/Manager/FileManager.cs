@@ -57,14 +57,11 @@ namespace Oqtane.Modules.Admin.Files.Manager
                             EntityName = EntityNames.File,
                             EntityId = file.FileId.ToString(),
                             Title = path,
-                            Description = string.Empty,
                             Body = body,
                             Url = $"{Constants.FileUrl}{folder.Path}{file.Name}",
                             Permissions = $"{EntityNames.Folder}:{folder.FolderId}",
                             ContentModifiedBy = file.ModifiedBy,
                             ContentModifiedOn = file.ModifiedOn,
-                            AdditionalContent = string.Empty,
-                            CreatedOn = DateTime.UtcNow,
                             IsDeleted = (removed || file.IsDeleted.Value)
                         };
                         searchContents.Add(searchContent);
