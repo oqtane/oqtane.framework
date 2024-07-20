@@ -34,17 +34,17 @@ namespace Oqtane.Models
         [NotMapped]
         public bool IsDeleted { get; set; }
 
-        public DateTime CreatedOn { get; set; }
-
         public List<SearchContentProperty> SearchContentProperties { get; set; }
 
-        public List<SearchContentWord> SearchContentWords { get; set; }
+        public DateTime CreatedOn { get; set; }
 
         [NotMapped]
         public int TenantId { get; set; }
 
         [NotMapped]
         public string UniqueKey => $"{TenantId}:{SiteId}:{EntityName}:{EntityId}";
+
+        public List<SearchContentWord> SearchContentWords { get; set; }
 
         // constructors
         public SearchContent() { }
