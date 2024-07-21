@@ -7,6 +7,7 @@ namespace Oqtane.Extensions
 {
     public static class HttpContextExtensions
     {
+        // this method should only be used in scenarios where HttpContent exists (ie. within Controllers)
         public static Alias GetAlias(this HttpContext context)
         {
             if (context != null && context.Items.ContainsKey(Constants.HttpContextAliasKey))
@@ -16,6 +17,7 @@ namespace Oqtane.Extensions
             return null;
         }
 
+        // this method should only be used in scenarios where HttpContent exists (ie. within Controllers)
         public static Dictionary<string, string> GetSiteSettings(this HttpContext context)
         {
             if (context != null && context.Items.ContainsKey(Constants.HttpContextSiteSettingsKey))
