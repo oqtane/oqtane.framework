@@ -13,7 +13,7 @@ namespace Oqtane.Services
 {
     public class SearchService : ISearchService
     {
-        private const string SearchProviderSettingName = "SearchProvider";
+        private const string SearchProviderSettingName = "Search_SearchProvider";
 
         private readonly IServiceProvider _serviceProvider;
         private readonly ISettingRepository _settingRepository;

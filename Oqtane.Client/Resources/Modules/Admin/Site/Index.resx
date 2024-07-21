@@ -435,10 +435,4 @@
   <data name="Functionality" xml:space="preserve">
     <value>Functionality</value>
   </data>
-  <data name="SearchProvider.HelpText" xml:space="preserve">
-    <value>Specify the search provider for this site</value>
-  </data>
-  <data name="SearchProvider.Text" xml:space="preserve">
-    <value>Search Provider:</value>
-  </data>
 </root>
