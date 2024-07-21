@@ -27,9 +27,9 @@
         </div>
     </div>
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="ignorepaths" HelpText="Comma delimited list of page paths which should be ignored" ResourceKey="IgnorePaths">Ignore Paths: </Label>
+        <Label Class="col-sm-3" For="ignorepages" HelpText="Comma delimited list of pages which should be ignored (based on their path)" ResourceKey="IgnorePages">Ignore Pages: </Label>
         <div class="col-sm-9">
-            <textarea id="ignorepaths" class="form-control" @bind="@_ignorePaths" rows="3"></textarea>
+            <textarea id="ignorepages" class="form-control" @bind="@_ignorePages" rows="3"></textarea>
         </div>
     </div>
     <div class="row mb-1 align-items-center">
@@ -61,7 +61,7 @@
     private string _searchProvider;
     private string _enabled;
     private string _lastIndexedOn;
-    private string _ignorePaths;
+    private string _ignorePages;
     private string _ignoreEntities;
     private string _minimumWordLength;
     private string _ignoreWords;
@@ -72,7 +72,7 @@
         _searchProvider = SettingService.GetSetting(settings, "Search_SearchProvider", Constants.DefaultSearchProviderName);
         _enabled = SettingService.GetSetting(settings, "Search_Enabled", "True");
         _lastIndexedOn = SettingService.GetSetting(settings, "Search_LastIndexedOn", "");
-        _ignorePaths = SettingService.GetSetting(settings, "Search_IgnorePaths", "");
+        _ignorePages = SettingService.GetSetting(settings, "Search_IgnorePages", "");
         _ignoreEntities = SettingService.GetSetting(settings, "Search_IgnoreEntities", "");
         _minimumWordLength = SettingService.GetSetting(settings, "Search_MininumWordLength", "3");
         _ignoreWords = SettingService.GetSetting(settings, "Search_IgnoreWords", "");
@@ -86,7 +86,7 @@
             settings = SettingService.SetSetting(settings, "Search_SearchProvider", _searchProvider);
             settings = SettingService.SetSetting(settings, "Search_Enabled", _enabled, true);
             settings = SettingService.SetSetting(settings, "Search_LastIndexedOn", _lastIndexedOn, true);
-            settings = SettingService.SetSetting(settings, "Search_IgnorePaths", _ignorePaths, true);
+            settings = SettingService.SetSetting(settings, "Search_IgnorePages", _ignorePages, true);
             settings = SettingService.SetSetting(settings, "Search_IgnoreEntities", _ignoreEntities, true);
             settings = SettingService.SetSetting(settings, "Search_MininumWordLength", _minimumWordLength, true);
             settings = SettingService.SetSetting(settings, "Search_IgnoreWords", _ignoreWords, true);

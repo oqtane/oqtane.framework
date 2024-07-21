@@ -129,11 +129,11 @@
   <data name="LastIndexedOn.HelpText" xml:space="preserve">
     <value>The date/time which the site was last indexed on</value>
   </data>
-  <data name="IgnorePaths.Text" xml:space="preserve">
-    <value>Ignore Paths: </value>
+  <data name="IgnorePages.Text" xml:space="preserve">
+    <value>Ignore Pages: </value>
   </data>
-  <data name="IgnorePaths.HelpText" xml:space="preserve">
-    <value>Comma delimited list of page paths which should be ignored</value>
+  <data name="IgnorePages.HelpText" xml:space="preserve">
+    <value>Comma delimited list of pages which should be ignored (based on page path)</value>
   </data>
   <data name="IgnoreEntities.Text" xml:space="preserve">
     <value>Ignore Entities: </value>
