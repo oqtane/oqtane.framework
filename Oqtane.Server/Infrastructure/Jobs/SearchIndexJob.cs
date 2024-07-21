@@ -16,7 +16,7 @@ namespace Oqtane.Infrastructure
     {
         private const string SearchLastIndexedOnSetting = "Search_LastIndexedOn";
         private const string SearchEnabledSetting = "Search_Enabled";
-        private const string SearchIgnorePathsSetting = "Search_IgnorePaths";
+        private const string SearchIgnorePagesSetting = "Search_IgnorePages";
         private const string SearchIgnoreEntitiesSetting = "Search_IgnoreEntities";
 
         public SearchIndexJob(IServiceScopeFactory serviceScopeFactory) : base(serviceScopeFactory)
@@ -59,7 +59,7 @@ namespace Oqtane.Infrastructure
                 var currentTime = DateTime.UtcNow;
                 var lastIndexedOn = Convert.ToDateTime(siteSettings.GetValue(SearchLastIndexedOnSetting, DateTime.MinValue.ToString()));
 
-                var ignorePaths = siteSettings.GetValue(SearchIgnorePathsSetting, "").Split(',');
+                var ignorePages = siteSettings.GetValue(SearchIgnorePagesSetting, "").Split(',');
                 var ignoreEntities = siteSettings.GetValue(SearchIgnoreEntitiesSetting, "").Split(',');
 
                 var pages = pageRepository.GetPages(site.SiteId);
@@ -69,7 +69,7 @@ namespace Oqtane.Infrastructure
                 // index pages
                 foreach (var page in pages)
                 {
-                    if (!string.IsNullOrEmpty(page.Path) && (Constants.InternalPagePaths.Contains(page.Path) || ignorePaths.Contains(page.Path)))
+                    if (!string.IsNullOrEmpty(page.Path) && (Constants.InternalPagePaths.Contains(page.Path) || ignorePages.Contains(page.Path)))
                     {
                         continue;
                     }
