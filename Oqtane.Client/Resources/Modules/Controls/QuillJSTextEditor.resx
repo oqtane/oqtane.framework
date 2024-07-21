@@ -118,22 +118,22 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AllowFileManagement.HelpText" xml:space="preserve">
-    <value>Specify If Editors Can Upload and Select Files</value>
+    <value>Specify if editors can upload and insert images</value>
   </data>
   <data name="AllowFileManagement.Text" xml:space="preserve">
-    <value>File Management?</value>
+    <value>Insert Images?</value>
   </data>
   <data name="AllowRawHtml.HelpText" xml:space="preserve">
-    <value>Specify If Editors Can Enter Raw HTML</value>
+    <value>Specify if editors can use the Raw HTML Editor</value>
   </data>
   <data name="AllowRawHtml.Text" xml:space="preserve">
-    <value>Raw HTML?</value>
+    <value>Raw HTML Editor?</value>
   </data>
   <data name="AllowRichText.HelpText" xml:space="preserve">
-    <value>Specify If Editors Can Use Rich Text Editor</value>
+    <value>Specify if editors can use the Rich Text Editor</value>
   </data>
   <data name="AllowRichText.Text" xml:space="preserve">
-    <value>Rich Text? </value>
+    <value>Rich Text Editor? </value>
   </data>
   <data name="Close" xml:space="preserve">
     <value>Close</value>
@@ -160,13 +160,13 @@
     <value>Settings</value>
   </data>
   <data name="Theme.HelpText" xml:space="preserve">
-    <value>Specify the Rich Text Editor's Theme</value>
+    <value>Specify the Rich Text Editor's theme</value>
   </data>
   <data name="Theme.Text" xml:space="preserve">
     <value>Theme:</value>
   </data>
   <data name="ToolbarContent.HelpText" xml:space="preserve">
-    <value>Specify the Toolbar Content</value>
+    <value>Specify any toolbar content to customize the Rich Text Editor</value>
   </data>
   <data name="ToolbarContent.Text" xml:space="preserve">
     <value>Toolbar Content:</value>
