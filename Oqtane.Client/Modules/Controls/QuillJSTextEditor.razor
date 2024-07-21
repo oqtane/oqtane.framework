@@ -116,16 +116,16 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="AllowFileManagement" ResourceKey="AllowFileManagement" ResourceType="@resourceType" HelpText="Specify If Editors Can Upload and Select Files">Allow File Management: </Label>
+                        <Label Class="col-sm-3" For="AllowRichText" ResourceKey="AllowRichText" ResourceType="@resourceType" HelpText="Specify If Editors Can Use Rich Text Editor">Rich Text? </Label>
                         <div class="col-sm-9">
-                            <select id="AllowFileManagement" class="form-select" @bind="@_allowFileManagementSetting" required>
+                            <select id="AllowRichText" class="form-select" @bind="@_allowRichTextSetting" required>
                                 <option value="True">@SharedLocalizer["Yes"]</option>
                                 <option value="False">@SharedLocalizer["No"]</option>
                             </select>
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="AllowRawHtml" ResourceKey="AllowRawHtml" ResourceType="@resourceType" HelpText="Specify If Editors Can Enter Raw HTML">Allow Raw HTML: </Label>
+                        <Label Class="col-sm-3" For="AllowRawHtml" ResourceKey="AllowRawHtml" ResourceType="@resourceType" HelpText="Specify If Editors Can Enter Raw HTML">Raw HTML? </Label>
                         <div class="col-sm-9">
                             <select id="AllowRawHtml" class="form-select" @bind="@_allowRawHtmlSetting" required>
                                 <option value="True">@SharedLocalizer["Yes"]</option>
@@ -134,9 +134,9 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="AllowRichText" ResourceKey="AllowRichText" ResourceType="@resourceType" HelpText="Specify If Editors Can Use Rich Text Editor">Allow Rich Text: </Label>
+                        <Label Class="col-sm-3" For="AllowFileManagement" ResourceKey="AllowFileManagement" ResourceType="@resourceType" HelpText="Specify If Editors Can Upload and Select Files">File Management? </Label>
                         <div class="col-sm-9">
-                            <select id="AllowRichText" class="form-select" @bind="@_allowRichTextSetting" required>
+                            <select id="AllowFileManagement" class="form-select" @bind="@_allowFileManagementSetting" required>
                                 <option value="True">@SharedLocalizer["Yes"]</option>
                                 <option value="False">@SharedLocalizer["No"]</option>
                             </select>

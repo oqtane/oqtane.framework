@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -121,19 +121,19 @@
     <value>Specify If Editors Can Upload and Select Files</value>
   </data>
   <data name="AllowFileManagement.Text" xml:space="preserve">
-    <value>Allow File Management:</value>
+    <value>File Management?</value>
   </data>
   <data name="AllowRawHtml.HelpText" xml:space="preserve">
     <value>Specify If Editors Can Enter Raw HTML</value>
   </data>
   <data name="AllowRawHtml.Text" xml:space="preserve">
-    <value>Allow Raw HTML:</value>
+    <value>Raw HTML?</value>
   </data>
   <data name="AllowRichText.HelpText" xml:space="preserve">
     <value>Specify If Editors Can Use Rich Text Editor</value>
   </data>
   <data name="AllowRichText.Text" xml:space="preserve">
-    <value>Allow Rich Text: </value>
+    <value>Rich Text? </value>
   </data>
   <data name="Close" xml:space="preserve">
     <value>Close</value>
