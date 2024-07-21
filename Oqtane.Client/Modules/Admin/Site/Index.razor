@@ -126,8 +126,12 @@
                         </select>
                     </div>
                 </div>
+            </div>
+        </Section>
+        <Section Name="Functionality" Heading="Functionality" ResourceKey="Functionality">
+            <div class="container">
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="textEditorProvider" HelpText="Select the text editor provider for the site" ResourceKey="TextEditorProvider">Text Editor Provider: </Label>
+                    <Label Class="col-sm-3" For="textEditorProvider" HelpText="Select the text editor for the site" ResourceKey="TextEditorProvider">Text Editor: </Label>
                     <div class="col-sm-9">
                         <select id="textEditorProvider" class="form-select" @bind="@_textEditorProvider" required>
                             @if (_textEditorProviders != null)
@@ -140,10 +144,6 @@
                         </select>
                     </div>
                 </div>
-            </div>
-        </Section>
-        <Section Name="FileExtensions" Heading="File Extensions" ResourceKey="FileExtensions">
-            <div class="container">
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="imageExt" HelpText="Enter a comma separated list of image file extensions" ResourceKey="ImageExtensions">Image Extensions: </Label>
                     <div class="col-sm-9">
@@ -153,7 +153,7 @@
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="uploadableFileExt" HelpText="Enter a comma separated list of uploadable file extensions" ResourceKey="UploadableFileExtensions">Uploadable File Extensions: </Label>
                     <div class="col-sm-9">
-                        <input id="uploadableFileExt" spellcheck="false"  class="form-control" @bind="@_UploadableFiles" />
+                        <input id="uploadableFileExt" spellcheck="false" class="form-control" @bind="@_UploadableFiles" />
                     </div>
                 </div>
             </div>
