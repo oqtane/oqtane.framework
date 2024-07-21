@@ -77,7 +77,7 @@
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="logo" HelpText="Specify a logo for the site" ResourceKey="Logo">Logo: </Label>
                     <div class="col-sm-9">
-                        <FileManager FileId="@_logofileid" Filter="@_ImageFiles" @ref="_logofilemanager" />
+                        <FileManager FileId="@_logofileid" Filter="@_imageFiles" @ref="_logofilemanager" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
@@ -147,13 +147,19 @@
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="imageExt" HelpText="Enter a comma separated list of image file extensions" ResourceKey="ImageExtensions">Image Extensions: </Label>
                     <div class="col-sm-9">
-                        <input id="imageExt" spellcheck="false" class="form-control" @bind="@_ImageFiles" />
+                        <input id="imageExt" spellcheck="false" class="form-control" @bind="@_imageFiles" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="uploadableFileExt" HelpText="Enter a comma separated list of uploadable file extensions" ResourceKey="UploadableFileExtensions">Uploadable File Extensions: </Label>
                     <div class="col-sm-9">
-                        <input id="uploadableFileExt" spellcheck="false" class="form-control" @bind="@_UploadableFiles" />
+                        <input id="uploadableFileExt" spellcheck="false" class="form-control" @bind="@_uploadableFiles" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="searchProvider" HelpText="Specify the search provider for this site" ResourceKey="SearchProvider">Search Provider: </Label>
+                    <div class="col-sm-9">
+                        <input id="searchProvider" class="form-control" @bind="@_searchProvider" />
                     </div>
                 </div>
             </div>
@@ -412,12 +418,14 @@
     private List<ThemeControl> _themes = new List<ThemeControl>();
     private List<ThemeControl> _containers = new List<ThemeControl>();
     private List<Page> _pages;
+
     private string _name = string.Empty;
     private string _homepageid = "-";
     private string _isdeleted;
     private string _sitemap = "";
     private string _siteguid = "";
     private string _version = "";
+
     private int _logofileid = -1;
     private FileManager _logofilemanager;
     private int _faviconfileid = -1;
@@ -425,8 +433,16 @@
     private string _themetype = "";
     private string _containertype = "";
     private string _admincontainertype = "";
+
+    private IEnumerable<ITextEditorProvider> _textEditorProviders;
+    private string _textEditorProvider = "";
+    private string _imageFiles = string.Empty;
+    private string _uploadableFiles = string.Empty;
+    private string _searchProvider = string.Empty;
+
     private string _headcontent = string.Empty;
     private string _bodycontent = string.Empty;
+
     private string _smtphost = string.Empty;
     private string _smtpport = string.Empty;
     private string _smtpssl = "False";
@@ -437,27 +453,28 @@
     private string _smtpsender = string.Empty;
     private string _smtprelay = "False";
     private string _smtpenabled = "True";
-    private string _ImageFiles = string.Empty;
-    private string _UploadableFiles = string.Empty;
     private int _retention = 30;
+
     private string _pwaisenabled;
     private int _pwaappiconfileid = -1;
     private FileManager _pwaappiconfilemanager;
     private int _pwasplashiconfileid = -1;
     private FileManager _pwasplashiconfilemanager;
+
     private List<Alias> _aliases;
     private int _aliasid = -1;
     private string _aliasname;
     private string _defaultalias;
+
     private string _rendermode = RenderModes.Interactive;
     private string _runtime = Runtimes.Server;
     private string _prerender = "True";
     private string _hybrid = "False";
+
     private string _tenant = string.Empty;
     private string _database = string.Empty;
     private string _connectionstring = string.Empty;
-    private string _textEditorProvider = "";
-    private IEnumerable<ITextEditorProvider> _textEditorProviders;
+
     private string _createdby;
     private DateTime _createdon;
     private string _modifiedby;
@@ -474,6 +491,8 @@
             Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
             if (site != null)
             {
+                var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
+
                 _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
 
                 _name = site.Name;
@@ -501,11 +520,31 @@
                 _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
                 _containertype = (!string.IsNullOrEmpty(site.DefaultContainerType)) ? site.DefaultContainerType : Constants.DefaultContainer;
                 _admincontainertype = (!string.IsNullOrEmpty(site.AdminContainerType)) ? site.AdminContainerType : Constants.DefaultAdminContainer;
+
+                // functionality
                 _textEditorProviders = ServiceProvider.GetServices<ITextEditorProvider>();
+                _textEditorProvider = SettingService.GetSetting(settings, "TextEditorProvider", Constants.DefaultTextEditorProvider);
+                _imageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
+                _imageFiles = (string.IsNullOrEmpty(_imageFiles)) ? Constants.ImageFiles : _imageFiles;
+                _uploadableFiles = SettingService.GetSetting(settings, "UploadableFiles", Constants.UploadableFiles);
+                _uploadableFiles = (string.IsNullOrEmpty(_uploadableFiles)) ? Constants.UploadableFiles : _uploadableFiles;
+                _searchProvider = SettingService.GetSetting(settings, "SearchProvider", Constants.DefaultSearchProviderName);
 
                 // page content
                 _headcontent = site.HeadContent;
                 _bodycontent = site.BodyContent;
+
+                // SMTP
+                _smtphost = SettingService.GetSetting(settings, "SMTPHost", string.Empty);
+                _smtpport = SettingService.GetSetting(settings, "SMTPPort", string.Empty);
+                _smtpssl = SettingService.GetSetting(settings, "SMTPSSL", "False");
+                _smtpusername = SettingService.GetSetting(settings, "SMTPUsername", string.Empty);
+                _smtppassword = SettingService.GetSetting(settings, "SMTPPassword", string.Empty);
+                _togglesmtppassword = SharedLocalizer["ShowPassword"];
+                _smtpsender = SettingService.GetSetting(settings, "SMTPSender", string.Empty);
+                _smtprelay = SettingService.GetSetting(settings, "SMTPRelay", "False");
+                _smtpenabled = SettingService.GetSetting(settings, "SMTPEnabled", "True");
+                _retention = int.Parse(SettingService.GetSetting(settings, "NotificationRetention", "30"));
 
                 // PWA
                 _pwaisenabled = site.PwaIsEnabled.ToString();
@@ -518,30 +557,8 @@
                     _pwasplashiconfileid = site.PwaSplashIconFileId.Value;
                 }
 
-                // SMTP
-                var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
-                _smtphost = SettingService.GetSetting(settings, "SMTPHost", string.Empty);
-                _smtpport = SettingService.GetSetting(settings, "SMTPPort", string.Empty);
-                _smtpssl = SettingService.GetSetting(settings, "SMTPSSL", "False");
-                _smtpusername = SettingService.GetSetting(settings, "SMTPUsername", string.Empty);
-                _smtppassword = SettingService.GetSetting(settings, "SMTPPassword", string.Empty);
-                _togglesmtppassword = SharedLocalizer["ShowPassword"];
-                _smtpsender = SettingService.GetSetting(settings, "SMTPSender", string.Empty);
-                _smtprelay = SettingService.GetSetting(settings, "SMTPRelay", "False");
-                _smtpenabled = SettingService.GetSetting(settings, "SMTPEnabled", "True");
-                _retention = int.Parse(SettingService.GetSetting(settings, "NotificationRetention", "30"));
-
-                // file extensions
-                _ImageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
-                _ImageFiles = (string.IsNullOrEmpty(_ImageFiles)) ? Constants.ImageFiles : _ImageFiles;
-                _UploadableFiles = SettingService.GetSetting(settings, "UploadableFiles", Constants.UploadableFiles);
-                _UploadableFiles = (string.IsNullOrEmpty(_UploadableFiles)) ? Constants.UploadableFiles : _UploadableFiles;
-
                 // aliases
                 await GetAliases();
-
-                //text editor
-                _textEditorProvider = SettingService.GetSetting(settings, "TextEditorProvider", Constants.DefaultTextEditorProvider);
 
                 // hosting model
                 _rendermode = site.RenderMode;
@@ -714,12 +731,11 @@
                         settings = SettingService.SetSetting(settings, "SiteGuid", _siteguid, true);
                         settings = SettingService.SetSetting(settings, "NotificationRetention", _retention.ToString(), true);
 
-                        // file extensions
-                        settings = SettingService.SetSetting(settings, "ImageFiles", (_ImageFiles != Constants.ImageFiles) ? _ImageFiles.Replace(" ", "") : "", false);
-                        settings = SettingService.SetSetting(settings, "UploadableFiles", (_UploadableFiles != Constants.UploadableFiles) ? _UploadableFiles.Replace(" ", "") : "", false);
-
-                        //text editor
+                        // functionality
                         settings = SettingService.SetSetting(settings, "TextEditorProvider", _textEditorProvider);
+                        settings = SettingService.SetSetting(settings, "ImageFiles", (_imageFiles != Constants.ImageFiles) ? _imageFiles.Replace(" ", "") : "", false);
+                        settings = SettingService.SetSetting(settings, "UploadableFiles", (_uploadableFiles != Constants.UploadableFiles) ? _uploadableFiles.Replace(" ", "") : "", false);
+                        settings = SettingService.SetSetting(settings, "SearchProvider", _searchProvider);
 
                         await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 
