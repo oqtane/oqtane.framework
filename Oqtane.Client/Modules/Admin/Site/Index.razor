@@ -156,12 +156,6 @@
                         <input id="uploadableFileExt" spellcheck="false" class="form-control" @bind="@_uploadableFiles" />
                     </div>
                 </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="searchProvider" HelpText="Specify the search provider for this site" ResourceKey="SearchProvider">Search Provider: </Label>
-                    <div class="col-sm-9">
-                        <input id="searchProvider" class="form-control" @bind="@_searchProvider" />
-                    </div>
-                </div>
             </div>
         </Section>
         <Section Name="PageContent" Heading="Page Content" ResourceKey="PageContent">
@@ -438,7 +432,6 @@
     private string _textEditorProvider = "";
     private string _imageFiles = string.Empty;
     private string _uploadableFiles = string.Empty;
-    private string _searchProvider = string.Empty;
 
     private string _headcontent = string.Empty;
     private string _bodycontent = string.Empty;
@@ -528,7 +521,6 @@
                 _imageFiles = (string.IsNullOrEmpty(_imageFiles)) ? Constants.ImageFiles : _imageFiles;
                 _uploadableFiles = SettingService.GetSetting(settings, "UploadableFiles", Constants.UploadableFiles);
                 _uploadableFiles = (string.IsNullOrEmpty(_uploadableFiles)) ? Constants.UploadableFiles : _uploadableFiles;
-                _searchProvider = SettingService.GetSetting(settings, "SearchProvider", Constants.DefaultSearchProviderName);
 
                 // page content
                 _headcontent = site.HeadContent;
@@ -735,7 +727,6 @@
                         settings = SettingService.SetSetting(settings, "TextEditorProvider", _textEditorProvider);
                         settings = SettingService.SetSetting(settings, "ImageFiles", (_imageFiles != Constants.ImageFiles) ? _imageFiles.Replace(" ", "") : "", false);
                         settings = SettingService.SetSetting(settings, "UploadableFiles", (_uploadableFiles != Constants.UploadableFiles) ? _uploadableFiles.Replace(" ", "") : "", false);
-                        settings = SettingService.SetSetting(settings, "SearchProvider", _searchProvider);
 
                         await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 
