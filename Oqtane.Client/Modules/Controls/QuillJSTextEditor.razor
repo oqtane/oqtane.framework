@@ -257,8 +257,6 @@
         {
             Placeholder = Localizer["Placeholder"];
         }
-
-        LoadSettings();
     }
 
     protected override void OnParametersSet()
@@ -267,6 +265,8 @@
         {
             _activetab = "Raw";
         }
+
+        LoadSettings();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -279,8 +279,6 @@
         }
 
         await base.OnAfterRenderAsync(firstRender);
-
-        LoadSettings();
 
         if (_allowRichText)
         {
