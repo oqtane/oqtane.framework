@@ -7,6 +7,8 @@ namespace Oqtane.Interfaces
     /// </summary>
     public interface ITextEditor
     {
+        string Name { get; }
+
         /// <summary>
         /// initializes the editor with the initialize content.
         /// </summary>

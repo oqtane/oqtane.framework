@@ -131,14 +131,14 @@
         <Section Name="Functionality" Heading="Functionality" ResourceKey="Functionality">
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="textEditorProvider" HelpText="Select the text editor for the site" ResourceKey="TextEditorProvider">Text Editor: </Label>
+                    <Label Class="col-sm-3" For="textEditor" HelpText="Select the text editor for the site" ResourceKey="TextEditor">Text Editor: </Label>
                     <div class="col-sm-9">
-                        <select id="textEditorProvider" class="form-select" @bind="@_textEditorProvider" required>
-                            @if (_textEditorProviders != null)
+                        <select id="textEditor" class="form-select" @bind="@_textEditor" required>
+                            @if (_textEditors != null)
                             {
-                                @foreach (var provider in _textEditorProviders)
+                                @foreach (var textEditor in _textEditors)
                                 {
-                                    <option value="@provider.EditorType">@provider.Name</option>
+                                    <option value="@textEditor.Value">@textEditor.Key</option>
                                 }
                             }
                         </select>
@@ -428,8 +428,8 @@
     private string _containertype = "";
     private string _admincontainertype = "";
 
-    private IEnumerable<ITextEditorProvider> _textEditorProviders;
-    private string _textEditorProvider = "";
+    private Dictionary<string, string> _textEditors = new Dictionary<string, string>();
+    private string _textEditor = "";
     private string _imageFiles = string.Empty;
     private string _uploadableFiles = string.Empty;
 
@@ -515,8 +515,12 @@
                 _admincontainertype = (!string.IsNullOrEmpty(site.AdminContainerType)) ? site.AdminContainerType : Constants.DefaultAdminContainer;
 
                 // functionality
-                _textEditorProviders = ServiceProvider.GetServices<ITextEditorProvider>();
-                _textEditorProvider = SettingService.GetSetting(settings, "TextEditorProvider", Constants.DefaultTextEditorProvider);
+                var textEditors = ServiceProvider.GetServices<ITextEditor>();
+                foreach (var textEditor in textEditors)
+                {
+                    _textEditors.Add(textEditor.Name, Utilities.GetFullTypeName(textEditor.GetType().AssemblyQualifiedName));
+                }
+                _textEditor = SettingService.GetSetting(settings, "TextEditor", Constants.DefaultTextEditor);
                 _imageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
                 _imageFiles = (string.IsNullOrEmpty(_imageFiles)) ? Constants.ImageFiles : _imageFiles;
                 _uploadableFiles = SettingService.GetSetting(settings, "UploadableFiles", Constants.UploadableFiles);
@@ -724,7 +728,7 @@
                         settings = SettingService.SetSetting(settings, "NotificationRetention", _retention.ToString(), true);
 
                         // functionality
-                        settings = SettingService.SetSetting(settings, "TextEditorProvider", _textEditorProvider);
+                        settings = SettingService.SetSetting(settings, "TextEditor", _textEditor);
                         settings = SettingService.SetSetting(settings, "ImageFiles", (_imageFiles != Constants.ImageFiles) ? _imageFiles.Replace(" ", "") : "", false);
                         settings = SettingService.SetSetting(settings, "UploadableFiles", (_uploadableFiles != Constants.UploadableFiles) ? _uploadableFiles.Replace(" ", "") : "", false);
 

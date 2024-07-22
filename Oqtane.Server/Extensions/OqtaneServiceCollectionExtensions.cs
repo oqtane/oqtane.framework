@@ -102,7 +102,10 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<ISearchResultsService, SearchResultsService>();
             services.AddScoped<ISearchService, SearchService>();
             services.AddScoped<ISearchProvider, DatabaseSearchProvider>();
-            
+
+            // providers
+            services.AddScoped<ITextEditor, Oqtane.Modules.Controls.QuillJSTextEditor>();
+            services.AddScoped<ITextEditor, Oqtane.Modules.Controls.TextAreaTextEditor>();
 
             return services;
         }
@@ -149,10 +152,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<ILogManager, LogManager>();
             services.AddTransient<IUpgradeManager, UpgradeManager>();
             services.AddTransient<IUserManager, UserManager>();
-
-            // providers
-            services.AddTransient<ITextEditorProvider, QuillJSTextEditorProvider>();
-            services.AddTransient<ITextEditorProvider, TextAreaTextEditorProvider>();
 
             // obsolete - replaced by ITenantManager
             services.AddTransient<ITenantResolver, TenantResolver>();
