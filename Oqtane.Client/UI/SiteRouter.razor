@@ -256,7 +256,7 @@
             }
 
             // check if user is authorized to view page
-            if (page != null && UserSecurity.IsAuthorized(user, PermissionNames.View, page.PermissionList) && (Utilities.IsEffectiveOrExpired(page.EffectiveDate, page.ExpiryDate) || UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList)))
+            if (page != null && UserSecurity.IsAuthorized(user, PermissionNames.View, page.PermissionList) && (Utilities.IsEffectiveAndNotExpired(page.EffectiveDate, page.ExpiryDate) || UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList)))
             {
                 // edit mode
                 if (user != null)

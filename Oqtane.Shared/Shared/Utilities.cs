@@ -560,7 +560,7 @@ namespace Oqtane.Shared
 
             return (localDateTime?.Date, localTime);
         }
-        public static bool IsEffectiveOrExpired(DateTime? effectiveDate, DateTime? expiryDate)
+        public static bool IsEffectiveAndNotExpired(DateTime? effectiveDate, DateTime? expiryDate)
         {
             DateTime currentUtcTime = DateTime.UtcNow;
 
@@ -626,10 +626,10 @@ namespace Oqtane.Shared
             return $"{alias?.BaseUrl}{aliasUrl}{Constants.ContentUrl}{fileId}{method}";
         }
 
-        [Obsolete("IsPageModuleVisible(DateTime?, DateTime?) is deprecated. Use IsEffectiveOrExpired(DateTime?, DateTime?) instead.", false)]
+        [Obsolete("IsPageModuleVisible(DateTime?, DateTime?) is deprecated. Use IsEffectiveAndNotExpired(DateTime?, DateTime?) instead.", false)]
         public static bool IsPageModuleVisible(DateTime? effectiveDate, DateTime? expiryDate)
         {
-            return IsEffectiveOrExpired(effectiveDate, expiryDate);
+            return IsEffectiveAndNotExpired(effectiveDate, expiryDate);
         }
 
     }

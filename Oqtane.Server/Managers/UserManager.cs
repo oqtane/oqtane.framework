@@ -97,7 +97,7 @@ namespace Oqtane.Managers
             List<UserRole> userroles = _userRoles.GetUserRoles(userId, siteId).ToList();
             foreach (UserRole userrole in userroles)
             {
-                if (Utilities.IsEffectiveOrExpired(userrole.EffectiveDate, userrole.ExpiryDate))
+                if (Utilities.IsEffectiveAndNotExpired(userrole.EffectiveDate, userrole.ExpiryDate))
                 {
                     roles += userrole.Role.Name + ";";
                     if (userrole.Role.Name == RoleNames.Host && !userroles.Any(item => item.Role.Name == RoleNames.Admin))
