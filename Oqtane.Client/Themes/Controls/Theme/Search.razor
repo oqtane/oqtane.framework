@@ -4,16 +4,15 @@
 @inherits ThemeControlBase
 @inject IStringLocalizer<Search> Localizer
 @inject NavigationManager NavigationManager
-@inject IHttpContextAccessor HttpContext
 
 @if (_searchResultsPage != null)
 {
     <span class="app-search @CssClass">
-        <form method="post" class="app-form-inline" @formname="@($"{Position}SearchForm")" @onsubmit="@PerformSearch" data-enhance>
+        <form method="post" class="app-form-inline" @formname="@($"SearchForm")" @onsubmit="@PerformSearch" data-enhance>
             <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
             <input type="text" name="keywords" maxlength="50"
                    class="form-control d-inline-block pe-5 shadow-none"
-                   @bind-value="_keywords"
+                   @bind="_keywords"
                    placeholder="@Localizer["SearchPlaceHolder"]"
                    aria-label="Search" />
             <button type="submit" class="btn btn-search">
@@ -33,10 +32,13 @@
     public string CssClass { get; set; }
 
     [Parameter]
-    public string Position { get; set; } = "Main";
-
-    [Parameter]
     public string SearchResultPagePath { get; set; } = "search";
+
+    [CascadingParameter]
+    HttpContext HttpContext { get; set; }
+
+    [SupplyParameterFromForm(FormName = "SearchForm")]
+    public string KeyWords { get => ""; set => _keywords = value; }
 
     protected override void OnInitialized()
     {
@@ -46,16 +48,11 @@
         }
     }
 
-    protected override void OnParametersSet()
-    {
-    }
-
     private void PerformSearch()
     {
-        var keywords = HttpContext.HttpContext.Request.Form["keywords"];
         if (_searchResultsPage != null)
         {
-            var url = NavigateUrl(_searchResultsPage.Path, $"q={keywords}");
+            var url = NavigateUrl(_searchResultsPage.Path, $"q={_keywords}");
             NavigationManager.NavigateTo(url);
         }
     }

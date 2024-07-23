@@ -2,6 +2,7 @@
 @using System.Net
 @using Microsoft.AspNetCore.Http
 @using System.Globalization
+@using System.Security.Claims
 @namespace Oqtane.UI
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject SiteState SiteState
@@ -159,7 +160,8 @@
         if (authState.User.Identity.IsAuthenticated && authState.User.Claims.Any(item => item.Type == "sitekey" && item.Value == SiteState.Alias.SiteKey))
         {
             // get user
-            user = await UserService.GetUserAsync(authState.User.Identity.Name, SiteState.Alias.SiteId);
+            var userid = int.Parse(authState.User.Claims.First(item => item.Type == ClaimTypes.NameIdentifier).Value);
+            user = await UserService.GetUserAsync(userid, SiteState.Alias.SiteId);
             if (user != null)
             {
                 user.IsAuthenticated = authState.User.Identity.IsAuthenticated;
