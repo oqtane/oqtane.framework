@@ -31,7 +31,7 @@ namespace Oqtane.Services
 
         public async Task<User> GetUserAsync(string username, int siteId)
         {
-            return await GetUserAsync(username, "", siteId);
+            return await GetJsonAsync<User>($"{Apiurl}/username/{username}?siteid={siteId}");
         }
 
         public async Task<User> GetUserAsync(string username, string email, int siteId)

@@ -11,7 +11,7 @@
 <div class="search-result-container">
     <div class="row">
         <div class="col">
-            <form method="post" @formname="SearchInputForm" @onsubmit="Search" data-enhance>
+            <form method="post" @formname="SearchResultsForm" @onsubmit="Search" data-enhance>
                 <div class="input-group mb-3">
                     <span class="input-group-text">@Localizer["SearchLabel"]</span>
                     <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
@@ -79,7 +79,7 @@
     private SearchResults _searchResults;
     private bool _loading;
 
-    [SupplyParameterFromForm(FormName = "SearchInputForm")]
+    [SupplyParameterFromForm(FormName = "SearchResultsForm")]
     public string KeyWords { get => ""; set => _keywords = value; }
 
     protected override async Task OnInitializedAsync()

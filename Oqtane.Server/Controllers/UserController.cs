@@ -72,15 +72,13 @@ namespace Oqtane.Controllers
             }
         }
 
-        // GET api/<controller>/name/{name}/{email}?siteid=x
-        [HttpGet("name/{name}/{email}")]
-        public User Get(string name, string email, string siteid)
+        // GET api/<controller>/username/{username}?siteid=x
+        [HttpGet("username/{username}")]
+        public User Get(string username, string siteid)
         {
             if (int.TryParse(siteid, out int SiteId) && SiteId == _tenantManager.GetAlias().SiteId)
             {
-                name = (name == "-") ? "" : name;
-                email = (email == "-") ? "" : email;
-                User user = _userManager.GetUser(name, email, SiteId);
+                User user = _userManager.GetUser(username, SiteId);
                 if (user == null)
                 {
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -95,7 +93,36 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Get Attempt {Username} {Email} {SiteId}", name, email, siteid);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Get Attempt {Username} {SiteId}", username, siteid);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return null;
+            }
+        }
+
+        // GET api/<controller>/name/{username}/{email}?siteid=x
+        [HttpGet("search/{username}/{email}")]
+        public User Get(string username, string email, string siteid)
+        {
+            if (int.TryParse(siteid, out int SiteId) && SiteId == _tenantManager.GetAlias().SiteId)
+            {
+                username = (username == "-") ? "" : username;
+                email = (email == "-") ? "" : email;
+                User user = _userManager.GetUser(username, email, SiteId);
+                if (user == null)
+                {
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                }
+                else
+                {
+                    List<Setting> settings = _settings.GetSettings(EntityNames.User, user.UserId).ToList();
+                    user.Settings = settings.Where(item => !item.IsPrivate || _userPermissions.GetUser(User).UserId == user.UserId)
+                        .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
+                }
+                return Filter(user);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Get Attempt {Username} {Email} {SiteId}", username, email, siteid);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
@@ -340,14 +367,11 @@ namespace Oqtane.Controllers
             if (user.IsAuthenticated)
             {
                 user.Username = User.Identity.Name;
-                if (User.HasClaim(item => item.Type == ClaimTypes.NameIdentifier))
-                {
-                    user.UserId = int.Parse(User.Claims.First(item => item.Type == ClaimTypes.NameIdentifier).Value);
-                }
+                user.UserId = User.UserId();
                 string roles = "";
-                foreach (var claim in User.Claims.Where(item => item.Type == ClaimTypes.Role))
+                foreach (var roleName in User.Roles())
                 {
-                    roles += claim.Value + ";";
+                    roles += roleName + ";";
                 }
                 if (roles != "") roles = ";" + roles;
                 user.Roles = roles;

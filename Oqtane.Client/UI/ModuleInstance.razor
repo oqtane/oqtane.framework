@@ -39,7 +39,7 @@
         }
         _comment += " -->";
 
-        if (PageState.RenderMode != RenderModes.Static || ModuleState.RenderMode != RenderModes.Static)
+        if (PageState.RenderMode == RenderModes.Static && ModuleState.RenderMode == RenderModes.Interactive)
         {
             // trim PageState to mitigate page bloat caused by Blazor serializing/encrypting state when crossing render mode boundaries
             // please note that this performance optimization results in the PageState.Pages property not being available for use in Interactive components

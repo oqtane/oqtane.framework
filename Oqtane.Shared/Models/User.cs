@@ -40,7 +40,7 @@ namespace Oqtane.Models
         public DateTime? LastLoginOn { get; set; }
 
         /// <summary>
-        /// Tracking information of IP used when the user last worked on this site. 
+        /// IP address when the user last logged in to this site. 
         /// </summary>
         public string LastIPAddress { get; set; }
 
