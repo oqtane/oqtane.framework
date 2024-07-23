@@ -263,12 +263,12 @@
 
     protected override void OnParametersSet()
     {
+        LoadSettings();
+
         if (!_allowRichText)
         {
             _activetab = "Raw";
         }
-
-        LoadSettings();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
