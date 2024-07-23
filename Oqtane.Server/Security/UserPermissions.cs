@@ -83,7 +83,7 @@ namespace Oqtane.Security
                     var role = userRoles.FirstOrDefault(item => item.Role.Name == roleName);
                     if (role != null)
                     {
-                        if (Utilities.IsEffectiveOrExpired(role.EffectiveDate,role.ExpiryDate))
+                        if (Utilities.IsEffectiveAndNotExpired(role.EffectiveDate,role.ExpiryDate))
                         {
                             user.Roles += roleName + ";";
                         }

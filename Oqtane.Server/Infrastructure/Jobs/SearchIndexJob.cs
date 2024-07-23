@@ -80,7 +80,7 @@ namespace Oqtane.Infrastructure
                     if (page.ModifiedOn >= lastIndexedOn && !ignoreEntities.Contains(EntityNames.Page))
                     {
                         changed = true;
-                        removed = page.IsDeleted || !Utilities.IsEffectiveOrExpired(page.EffectiveDate, page.ExpiryDate);
+                        removed = page.IsDeleted || !Utilities.IsEffectiveAndNotExpired(page.EffectiveDate, page.ExpiryDate);
 
                         var searchContent = new SearchContent
                         {
@@ -229,7 +229,7 @@ namespace Oqtane.Infrastructure
                 searchContent.AdditionalContent = string.Empty;
             }
 
-            if (removed || pageModule.IsDeleted || !Utilities.IsEffectiveOrExpired(pageModule.EffectiveDate, pageModule.ExpiryDate))
+            if (removed || pageModule.IsDeleted || !Utilities.IsEffectiveAndNotExpired(pageModule.EffectiveDate, pageModule.ExpiryDate))
             {
                 searchContent.IsDeleted = true;
             }
