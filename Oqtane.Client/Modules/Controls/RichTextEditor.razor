@@ -33,9 +33,9 @@
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object> AdditionalAttributes { get; set; } = new Dictionary<string, object>();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        _textEditorType = await GetTextEditorType();
+        _textEditorType = GetTextEditorType();
     }
 
     protected override void OnParametersSet()
@@ -109,7 +109,7 @@
         }
     }
 
-    private async Task<string> GetTextEditorType()
+    private string GetTextEditorType()
     {
         const string EditorSettingName = "TextEditor";
 
@@ -122,7 +122,6 @@
             }
         }
 
-        var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-        return SettingService.GetSetting(settings, EditorSettingName, Constants.DefaultTextEditor);
+        return SettingService.GetSetting(PageState.Site.Settings, EditorSettingName, Constants.DefaultTextEditor);
     }
 }
