@@ -149,7 +149,7 @@ namespace Oqtane.Infrastructure
                                 catch (Exception ex)
                                 {
                                     // error
-                                    log += ex.Message + "<br />";
+                                    log += $"NotificationId: {notification.NotificationId} - {ex.Message}<br />";
                                 }
                             }
                         }
