@@ -7,10 +7,9 @@ using Oqtane.Models;
 using Oqtane.Security;
 using Oqtane.Services;
 using Oqtane.Shared;
-using Oqtane.UI;
 using System.Net;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using Microsoft.Extensions.Localization;
+using Oqtane.UI;
 
 // ReSharper disable UnassignedGetOnlyAutoProperty
 // ReSharper disable MemberCanBePrivate.Global

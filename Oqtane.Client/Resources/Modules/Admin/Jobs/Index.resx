@@ -144,8 +144,8 @@
   <data name="Month" xml:space="preserve">
     <value>Month(s)</value>
   </data>
-  <data name="ViewJobs.Text" xml:space="preserve">
-    <value>View Logs</value>
+  <data name="ViewLogs.Text" xml:space="preserve">
+    <value>View All Logs</value>
   </data>
   <data name="Frequency" xml:space="preserve">
     <value>Frequency</value>

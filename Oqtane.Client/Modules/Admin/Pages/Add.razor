@@ -26,7 +26,7 @@
                             <div class="col-sm-9">
                                 <select id="parent" class="form-select" value="@_parentid" @onchange="(e => ParentChanged(e))" required>
                                     <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
-                                    @foreach (Page page in PageState.Pages)
+                                    @foreach (Page page in _pages)
                                     {
                                         if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, page.PermissionList))
                                         {
@@ -213,6 +213,7 @@
     private bool validated = false;
     private List<ThemeControl> _themes = new List<ThemeControl>();
     private List<ThemeControl> _containers = new List<ThemeControl>();
+    private List<Page> _pages;
     private int _pageId;
     private string _name;
     private string _parentid = "-1";
@@ -243,6 +244,8 @@
     {
         try
         {
+            _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
+
             if (PageState.QueryString.ContainsKey("id"))
             {
                 _pageId = Int32.Parse(PageState.QueryString["id"]);
@@ -263,7 +266,7 @@
                 _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
                 _containertype = PageState.Site.DefaultContainerType;
                 _children = new List<Page>();
-                foreach (Page p in PageState.Pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == int.Parse(_parentid))))
+                foreach (Page p in _pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == int.Parse(_parentid))))
                 {
                     if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
                     {
@@ -293,7 +296,7 @@
         {
             _parentid = (string)e.Value;
             _children = new List<Page>();
-            foreach (Page p in PageState.Pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == int.Parse(_parentid))))
+            foreach (Page p in _pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == int.Parse(_parentid))))
             {
                 if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
                 {
@@ -371,7 +374,7 @@
                     }
                     else
                     {
-                        Page parent = PageState.Pages.FirstOrDefault(item => item.PageId == page.ParentId);
+                        Page parent = _pages.FirstOrDefault(item => item.PageId == page.ParentId);
                         if (parent.Path == string.Empty)
                         {
                             page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
@@ -382,7 +385,6 @@
                         }
                     }
 
-                    var _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
                     if (_pages.Any(item => item.Path == page.Path))
                     {
                         AddModuleMessage(string.Format(Localizer["Message.Page.Exists"], _path), MessageType.Warning);
@@ -402,11 +404,11 @@
                             page.Order = 0;
                             break;
                         case "<":
-                            child = PageState.Pages.Where(item => item.PageId == _childid).FirstOrDefault();
+                            child = _pages.Where(item => item.PageId == _childid).FirstOrDefault();
                             page.Order = child.Order - 1;
                             break;
                         case ">":
-                            child = PageState.Pages.Where(item => item.PageId == _childid).FirstOrDefault();
+                            child = _pages.Where(item => item.PageId == _childid).FirstOrDefault();
                             page.Order = child.Order + 1;
                             break;
                         case ">>":
@@ -449,7 +451,7 @@
                     await logger.LogInformation("Page Added {Page}", page);
                     if (!string.IsNullOrEmpty(PageState.ReturnUrl))
                     {
-                        NavigationManager.NavigateTo(page.Path, true); // redirect to page added and reload
+                        NavigationManager.NavigateTo(NavigateUrl(page.Path), true); // redirect to page added and reload
                     }
                     else
                     {

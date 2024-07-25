@@ -15,9 +15,6 @@
 }
 
 @code {
-    // this component is on the static side of the render mode boundary
-    // it passes state as serializable parameters across the boundary 
-
     [CascadingParameter]
     protected PageState PageState { get; set; }
 
@@ -30,6 +27,7 @@
     protected override void OnParametersSet()
     {
         _prerender = ModuleState.Prerender ?? PageState.Site.Prerender;
+
         _comment = "<!-- rendermode: ";
         if (PageState.RenderMode == RenderModes.Static && ModuleState.RenderMode == RenderModes.Static)
         {
@@ -40,6 +38,13 @@
             _comment += $"{RenderModes.Interactive}:{PageState.Runtime} - prerender: {_prerender}";
         }
         _comment += " -->";
+
+        if (PageState.RenderMode == RenderModes.Static && ModuleState.RenderMode == RenderModes.Interactive)
+        {
+            // trim PageState to mitigate page bloat caused by Blazor serializing/encrypting state when crossing render mode boundaries
+            // please note that this performance optimization results in the PageState.Pages property not being available for use in Interactive components
+            PageState.Site.Pages = new List<Page>();
+        }
     }
 
 

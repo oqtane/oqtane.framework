@@ -33,14 +33,10 @@ namespace Oqtane.Extensions
             }
         }
 
-        public static string Roles(this ClaimsPrincipal claimsPrincipal)
+        public static string[] Roles(this ClaimsPrincipal claimsPrincipal)
         {
-            var roles = "";
-            foreach (var claim in claimsPrincipal.Claims.Where(item => item.Type == ClaimTypes.Role))
-            {
-                roles += ((roles == "") ? "" : ";") + claim.Value;
-            }
-            return roles;
+            return claimsPrincipal.Claims.Where(item => item.Type == ClaimTypes.Role)
+                .Select(item => item.Value).ToArray();
         }
 
         public static string SiteKey(this ClaimsPrincipal claimsPrincipal)

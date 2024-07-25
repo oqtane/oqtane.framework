@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -117,16 +117,64 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AllowFileManagement.HelpText" xml:space="preserve">
-    <value>Specify If Editors Can Upload and Select Files</value>
+  <data name="Ascending" xml:space="preserve">
+    <value>Ascending</value>
   </data>
-  <data name="AllowFileManagement.Text" xml:space="preserve">
-    <value>Allow File Management: </value>
+  <data name="BodyLength.HelpText" xml:space="preserve">
+    <value>The number of characters displayed for each search result summary. The default is 255 characters.</value>
   </data>
-  <data name="AllowRawHtml.HelpText" xml:space="preserve">
-    <value>Specify If Editors Can Enter Raw HTML</value>
+  <data name="BodyLength.Text" xml:space="preserve">
+    <value>Body Size:</value>
   </data>
-  <data name="AllowRawHtml.Text" xml:space="preserve">
-    <value>Allow Raw HTML:</value>
+  <data name="DateRange.HelpText" xml:space="preserve">
+    <value>Enter the date range for search results. The default includes all content.</value>
+  </data>
+  <data name="DateRange.Text" xml:space="preserve">
+    <value>Date Range:</value>
+  </data>
+  <data name="Descending" xml:space="preserve">
+    <value>Descending</value>
+  </data>
+  <data name="ExcludeEntities.HelpText" xml:space="preserve">
+    <value>Comma delimited list of entities to exclude from search results. By default no entities will be excluded.</value>
+  </data>
+  <data name="ExcludeEntities.Text" xml:space="preserve">
+    <value>Exlude Entities:</value>
+  </data>
+  <data name="IncludeEntities.HelpText" xml:space="preserve">
+    <value>Comma delimited list of entities to include in the search results. By default all entities will be included.</value>
+  </data>
+  <data name="IncludeEntities.Text" xml:space="preserve">
+    <value>Include Entities:</value>
+  </data>
+  <data name="LastModified" xml:space="preserve">
+    <value>LastModified</value>
+  </data>
+  <data name="PageSize.HelpText" xml:space="preserve">
+    <value>The maximum number of search results to retrieve. The default is unlimited.</value>
+  </data>
+  <data name="PageSize.Text" xml:space="preserve">
+    <value>Page Size:</value>
+  </data>
+  <data name="Relevance" xml:space="preserve">
+    <value>Relevance</value>
+  </data>
+  <data name="SortField.HelpText" xml:space="preserve">
+    <value>Specify the default sort field</value>
+  </data>
+  <data name="SortField.Text" xml:space="preserve">
+    <value>Sort By:</value>
+  </data>
+  <data name="SortOrder.HelpText" xml:space="preserve">
+    <value>Specify the default sort order</value>
+  </data>
+  <data name="SortOrder.Text" xml:space="preserve">
+    <value>Sort Order:</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="To" xml:space="preserve">
+    <value>To</value>
   </data>
 </root>

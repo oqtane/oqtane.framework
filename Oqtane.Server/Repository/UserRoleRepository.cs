@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
 
@@ -10,11 +13,15 @@ namespace Oqtane.Repository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
         private readonly IRoleRepository _roles;
+        private readonly ITenantManager _tenantManager;
+        private readonly IMemoryCache _cache;
 
-        public UserRoleRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IRoleRepository roles)
+        public UserRoleRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IRoleRepository roles, ITenantManager tenantManager, IMemoryCache cache)
         {
             _dbContextFactory = dbContextFactory;
             _roles = roles;
+            _tenantManager = tenantManager;
+            _cache = cache;
         }
 
         public IEnumerable<UserRole> GetUserRoles(int siteId)
@@ -23,16 +30,30 @@ namespace Oqtane.Repository
             return db.UserRole
                 .Include(item => item.Role) // eager load roles
                 .Include(item => item.User) // eager load users
-                .Where(item => item.Role.SiteId == siteId || item.Role.SiteId == null).ToList();
+                .Where(item => item.Role.SiteId == siteId || item.Role.SiteId == null || siteId == -1).ToList();
         }
 
         public IEnumerable<UserRole> GetUserRoles(int userId, int siteId)
         {
+            var alias = _tenantManager.GetAlias();
+            return _cache.GetOrCreate($"userroles:{userId}:{alias.SiteKey}", entry =>
+            {
+                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                using var db = _dbContextFactory.CreateDbContext();
+                return db.UserRole
+                    .Include(item => item.Role) // eager load roles
+                    .Include(item => item.User) // eager load users
+                    .Where(item => (item.Role.SiteId == siteId || item.Role.SiteId == null || siteId == -1) && item.UserId == userId).ToList();
+            });
+        }
+
+        public IEnumerable<UserRole> GetUserRoles(string roleName, int siteId)
+        {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.UserRole.Where(item => item.UserId == userId)
+            return db.UserRole
                 .Include(item => item.Role) // eager load roles
                 .Include(item => item.User) // eager load users
-                .Where(item => item.Role.SiteId == siteId || item.Role.SiteId == null || siteId == -1).ToList();
+                .Where(item => (item.Role.SiteId == siteId || item.Role.SiteId == null || siteId == -1) && item.Role.Name == roleName).ToList();
         }
 
         public UserRole AddUserRole(UserRole userRole)
@@ -48,6 +69,10 @@ namespace Oqtane.Repository
                 DeleteUserRoles(userRole.UserId);
             }
 
+            var alias = _tenantManager.GetAlias();
+            _cache.Remove($"user:{userRole.UserId}:{alias.SiteKey}");
+            _cache.Remove($"userroles:{userRole.UserId}:{alias.SiteKey}");
+
             return userRole;
         }
 
@@ -56,6 +81,11 @@ namespace Oqtane.Repository
             using var db = _dbContextFactory.CreateDbContext();
             db.Entry(userRole).State = EntityState.Modified;
             db.SaveChanges();
+
+            var alias = _tenantManager.GetAlias();
+            _cache.Remove($"user:{userRole.UserId}:{alias.SiteKey}");
+            _cache.Remove($"userroles:{userRole.UserId}:{alias.SiteKey}");
+
             return userRole;
         }
 
@@ -113,6 +143,10 @@ namespace Oqtane.Repository
             var userRole = db.UserRole.Find(userRoleId);
             db.UserRole.Remove(userRole);
             db.SaveChanges();
+
+            var alias = _tenantManager.GetAlias();
+            _cache.Remove($"user:{userRole.UserId}:{alias.SiteKey}");
+            _cache.Remove($"userroles:{userRole.UserId}:{alias.SiteKey}");
         }
 
         public void DeleteUserRoles(int userId)
@@ -123,6 +157,10 @@ namespace Oqtane.Repository
                 db.UserRole.Remove(userRole);
             }
             db.SaveChanges();
+
+            var alias = _tenantManager.GetAlias();
+            _cache.Remove($"user:{userId}:{alias.SiteKey}");
+            _cache.Remove($"userroles:{userId}:{alias.SiteKey}");
         }
     }
 }

@@ -1,0 +1,141 @@
+@using Oqtane.Services
+@using System.Net
+@namespace Oqtane.Modules.Admin.SearchResults
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject ISearchResultsService SearchResultsService
+@inject ISettingService SettingService
+@inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+<div class="search-result-container">
+    <div class="row">
+        <div class="col">
+            <form method="post" @formname="SearchResultsForm" @onsubmit="Search" data-enhance>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">@Localizer["SearchLabel"]</span>
+                    <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                    <input type="text" name="keywords" class="form-control shadow-none" maxlength="50"
+                            aria-label="Keywords"
+                            placeholder="@Localizer["SearchPlaceholder"]"
+                            @bind="@_keywords">
+                    <button class="btn btn-primary" type="submit">@SharedLocalizer["Search"]</button>
+                    <a class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Reset"]</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12  mb-3">
+            @if (_loading)
+            {
+                <div class="app-progress-indicator"></div>
+            }
+            else
+            {
+                @if (_searchResults != null && _searchResults.Results != null)
+                {
+                    if (_searchResults.Results.Any())
+                    {
+                        <Pager Items="@_searchResults?.Results"
+                                Format="Grid"
+                                Columns="1"
+                                Toolbar="Bottom"
+                                Parameters="@($"q={_keywords}")">
+                            <Row>
+                                <div class="search-item mb-2">
+                                    <h4 class="mb-1"><a href="@context.Url">@context.Title</a></h4>
+                                    <p class="mb-0 text-muted">@((MarkupString)context.Snippet)</p>
+                                </div>
+                            </Row>
+                        </Pager>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info show mt-3" role="alert">
+                            @Localizer["NoResult"]
+                        </div>
+                    }
+                }
+                <div class="clearfix"></div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    public override string RenderMode => RenderModes.Static;
+
+    private string _includeEntities;
+    private string _excludeEntities;
+    private string _fromDate;
+    private string _toDate;
+    private string _pageSize;
+    private string _sortField;
+    private string _sortOrder;
+    private string _bodyLength;
+    
+    private string _keywords;
+    private SearchResults _searchResults;
+    private bool _loading;
+
+    [SupplyParameterFromForm(FormName = "SearchResultsForm")]
+    public string KeyWords { get => ""; set => _keywords = value; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _includeEntities = SettingService.GetSetting(ModuleState.Settings, "SearchResults_IncludeEntities", "");
+        _excludeEntities = SettingService.GetSetting(ModuleState.Settings, "SearchResults_ExcludeEntities", "");
+        _fromDate = SettingService.GetSetting(ModuleState.Settings, "SearchResults_FromDate", DateTime.MinValue.ToString());
+        _toDate = SettingService.GetSetting(ModuleState.Settings, "SearchResults_ToDate", DateTime.MaxValue.ToString());
+        _pageSize = SettingService.GetSetting(ModuleState.Settings, "SearchResults_PageSize", int.MaxValue.ToString());
+        _sortField = SettingService.GetSetting(ModuleState.Settings, "SearchResults_SortField", "Relevance");
+        _sortOrder = SettingService.GetSetting(ModuleState.Settings, "SearchResults_SortOrder", "Descending");
+        _bodyLength = SettingService.GetSetting(ModuleState.Settings, "SearchResults_BodyLength", "255");
+
+        if (_keywords == null && PageState.QueryString.ContainsKey("q"))
+        {
+            _keywords = WebUtility.UrlDecode(PageState.QueryString["q"]);
+            await PerformSearch();
+        }
+    }
+
+    private void Search()
+    {
+        NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, $"page=1&q={_keywords}"));
+    }
+
+    private async Task PerformSearch()
+    {
+        _loading = true;
+        StateHasChanged();
+
+        if (!string.IsNullOrEmpty(_keywords))
+        {
+            var searchQuery = new SearchQuery
+            {
+                SiteId = PageState.Site.SiteId,
+                Alias = PageState.Alias,
+                Keywords = _keywords,
+                IncludeEntities = _includeEntities,
+                ExcludeEntities = _excludeEntities,
+                FromDate = (!string.IsNullOrEmpty(_fromDate)) ? DateTime.Parse(_fromDate) : DateTime.MinValue,
+                ToDate = (!string.IsNullOrEmpty(_toDate)) ? DateTime.Parse(_toDate) : DateTime.MaxValue,
+                PageSize = (!string.IsNullOrEmpty(_pageSize)) ? int.Parse(_pageSize) : int.MaxValue,
+                PageIndex = 0,
+                SortField = (!string.IsNullOrEmpty(_sortField)) ? (SearchSortField)Enum.Parse(typeof(SearchSortField), _sortField) : SearchSortField.Relevance,
+                SortOrder = (!string.IsNullOrEmpty(_sortOrder)) ? (SearchSortOrder)Enum.Parse(typeof(SearchSortOrder), _sortOrder) : SearchSortOrder.Descending,
+                BodyLength = (!string.IsNullOrEmpty(_bodyLength)) ? int.Parse(_bodyLength) : 255
+            };
+
+            _searchResults = await SearchResultsService.GetSearchResultsAsync(searchQuery);
+        }
+        else
+        {
+            AddModuleMessage(Localizer["NoCriteria"], MessageType.Info, "bottom");
+        }
+
+        _loading = false;
+        StateHasChanged();
+    }
+}

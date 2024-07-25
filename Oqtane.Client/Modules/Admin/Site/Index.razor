@@ -1,13 +1,16 @@
 @namespace Oqtane.Modules.Admin.Site
 @inherits ModuleBase
 @using System.Text.RegularExpressions
+@using Microsoft.Extensions.DependencyInjection
 @inject NavigationManager NavigationManager
 @inject ISiteService SiteService
+@inject IPageService PageService
 @inject ITenantService TenantService
 @inject IDatabaseService DatabaseService
 @inject IAliasService AliasService
 @inject IThemeService  ThemeService
 @inject ISettingService  SettingService
+@inject IServiceProvider ServiceProvider
 @inject IStringLocalizer<Index> Localizer
 @inject INotificationService NotificationService
 @inject IStringLocalizer<SharedResources> SharedLocalizer
@@ -27,7 +30,7 @@
                 <div class="col-sm-9">
                     <select id="homepage" class="form-select" @bind="@_homepageid" required>
                         <option value="-">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
-                        @foreach (Page page in PageState.Pages)
+                        @foreach (Page page in _pages)
                         {
 							if (UserSecurity.ContainsRole(page.PermissionList, PermissionNames.View, RoleNames.Everyone))
 							{
@@ -74,7 +77,7 @@
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="logo" HelpText="Specify a logo for the site" ResourceKey="Logo">Logo: </Label>
                     <div class="col-sm-9">
-                        <FileManager FileId="@_logofileid" Filter="@_ImageFiles" @ref="_logofilemanager" />
+                        <FileManager FileId="@_logofileid" Filter="@_imageFiles" @ref="_logofilemanager" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
@@ -125,18 +128,32 @@
                 </div>
             </div>
         </Section>
-        <Section Name="FileExtensions" Heading="File Extensions" ResourceKey="FileExtensions">
+        <Section Name="Functionality" Heading="Functionality" ResourceKey="Functionality">
             <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="textEditor" HelpText="Select the text editor for the site" ResourceKey="TextEditor">Text Editor: </Label>
+                    <div class="col-sm-9">
+                        <select id="textEditor" class="form-select" @bind="@_textEditor" required>
+                            @if (_textEditors != null)
+                            {
+                                @foreach (var textEditor in _textEditors)
+                                {
+                                    <option value="@textEditor.Value">@textEditor.Key</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="imageExt" HelpText="Enter a comma separated list of image file extensions" ResourceKey="ImageExtensions">Image Extensions: </Label>
                     <div class="col-sm-9">
-                        <input id="imageExt" spellcheck="false" class="form-control" @bind="@_ImageFiles" />
+                        <input id="imageExt" spellcheck="false" class="form-control" @bind="@_imageFiles" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="uploadableFileExt" HelpText="Enter a comma separated list of uploadable file extensions" ResourceKey="UploadableFileExtensions">Uploadable File Extensions: </Label>
                     <div class="col-sm-9">
-                        <input id="uploadableFileExt" spellcheck="false"  class="form-control" @bind="@_UploadableFiles" />
+                        <input id="uploadableFileExt" spellcheck="false" class="form-control" @bind="@_uploadableFiles" />
                     </div>
                 </div>
             </div>
@@ -394,12 +411,15 @@
     private bool _initialized = false;
     private List<ThemeControl> _themes = new List<ThemeControl>();
     private List<ThemeControl> _containers = new List<ThemeControl>();
+    private List<Page> _pages;
+
     private string _name = string.Empty;
     private string _homepageid = "-";
     private string _isdeleted;
     private string _sitemap = "";
     private string _siteguid = "";
     private string _version = "";
+
     private int _logofileid = -1;
     private FileManager _logofilemanager;
     private int _faviconfileid = -1;
@@ -407,8 +427,15 @@
     private string _themetype = "";
     private string _containertype = "";
     private string _admincontainertype = "";
+
+    private Dictionary<string, string> _textEditors = new Dictionary<string, string>();
+    private string _textEditor = "";
+    private string _imageFiles = string.Empty;
+    private string _uploadableFiles = string.Empty;
+
     private string _headcontent = string.Empty;
     private string _bodycontent = string.Empty;
+
     private string _smtphost = string.Empty;
     private string _smtpport = string.Empty;
     private string _smtpssl = "False";
@@ -419,25 +446,28 @@
     private string _smtpsender = string.Empty;
     private string _smtprelay = "False";
     private string _smtpenabled = "True";
-    private string _ImageFiles = string.Empty;
-    private string _UploadableFiles = string.Empty;
     private int _retention = 30;
+
     private string _pwaisenabled;
     private int _pwaappiconfileid = -1;
     private FileManager _pwaappiconfilemanager;
     private int _pwasplashiconfileid = -1;
     private FileManager _pwasplashiconfilemanager;
+
     private List<Alias> _aliases;
     private int _aliasid = -1;
     private string _aliasname;
     private string _defaultalias;
+
     private string _rendermode = RenderModes.Interactive;
     private string _runtime = Runtimes.Server;
     private string _prerender = "True";
     private string _hybrid = "False";
+
     private string _tenant = string.Empty;
     private string _database = string.Empty;
     private string _connectionstring = string.Empty;
+
     private string _createdby;
     private DateTime _createdon;
     private string _modifiedby;
@@ -454,6 +484,10 @@
             Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
             if (site != null)
             {
+                var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
+
+                _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
+
                 _name = site.Name;
                 if (site.HomePageId != null)
                 {
@@ -480,23 +514,23 @@
                 _containertype = (!string.IsNullOrEmpty(site.DefaultContainerType)) ? site.DefaultContainerType : Constants.DefaultContainer;
                 _admincontainertype = (!string.IsNullOrEmpty(site.AdminContainerType)) ? site.AdminContainerType : Constants.DefaultAdminContainer;
 
+                // functionality
+                var textEditors = ServiceProvider.GetServices<ITextEditor>();
+                foreach (var textEditor in textEditors)
+                {
+                    _textEditors.Add(textEditor.Name, Utilities.GetFullTypeName(textEditor.GetType().AssemblyQualifiedName));
+                }
+                _textEditor = SettingService.GetSetting(settings, "TextEditor", Constants.DefaultTextEditor);
+                _imageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
+                _imageFiles = (string.IsNullOrEmpty(_imageFiles)) ? Constants.ImageFiles : _imageFiles;
+                _uploadableFiles = SettingService.GetSetting(settings, "UploadableFiles", Constants.UploadableFiles);
+                _uploadableFiles = (string.IsNullOrEmpty(_uploadableFiles)) ? Constants.UploadableFiles : _uploadableFiles;
+
                 // page content
                 _headcontent = site.HeadContent;
                 _bodycontent = site.BodyContent;
 
-                // PWA
-                _pwaisenabled = site.PwaIsEnabled.ToString();
-                if (site.PwaAppIconFileId != null)
-                {
-                    _pwaappiconfileid = site.PwaAppIconFileId.Value;
-                }
-                if (site.PwaSplashIconFileId != null)
-                {
-                    _pwasplashiconfileid = site.PwaSplashIconFileId.Value;
-                }
-
                 // SMTP
-                var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
                 _smtphost = SettingService.GetSetting(settings, "SMTPHost", string.Empty);
                 _smtpport = SettingService.GetSetting(settings, "SMTPPort", string.Empty);
                 _smtpssl = SettingService.GetSetting(settings, "SMTPSSL", "False");
@@ -508,11 +542,16 @@
                 _smtpenabled = SettingService.GetSetting(settings, "SMTPEnabled", "True");
                 _retention = int.Parse(SettingService.GetSetting(settings, "NotificationRetention", "30"));
 
-                // file extensions
-                _ImageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
-                _ImageFiles = (string.IsNullOrEmpty(_ImageFiles)) ? Constants.ImageFiles : _ImageFiles;
-                _UploadableFiles = SettingService.GetSetting(settings, "UploadableFiles", Constants.UploadableFiles);
-                _UploadableFiles = (string.IsNullOrEmpty(_UploadableFiles)) ? Constants.UploadableFiles : _UploadableFiles;
+                // PWA
+                _pwaisenabled = site.PwaIsEnabled.ToString();
+                if (site.PwaAppIconFileId != null)
+                {
+                    _pwaappiconfileid = site.PwaAppIconFileId.Value;
+                }
+                if (site.PwaSplashIconFileId != null)
+                {
+                    _pwasplashiconfileid = site.PwaSplashIconFileId.Value;
+                }
 
                 // aliases
                 await GetAliases();
@@ -673,160 +712,161 @@
                             }
                         }
 
-						site = await SiteService.UpdateSiteAsync(site);
+                        site = await SiteService.UpdateSiteAsync(site);
 
                         // SMTP
-						var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
+                        var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
                         settings = SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
-						settings = SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
-						settings = SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
-						settings = SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
-						settings = SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
-						settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
-						settings = SettingService.SetSetting(settings, "SMTPRelay", _smtprelay, true);
+                        settings = SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
+                        settings = SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
+                        settings = SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
+                        settings = SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
+                        settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
+                        settings = SettingService.SetSetting(settings, "SMTPRelay", _smtprelay, true);
                         settings = SettingService.SetSetting(settings, "SMTPEnabled", _smtpenabled, true);
                         settings = SettingService.SetSetting(settings, "SiteGuid", _siteguid, true);
                         settings = SettingService.SetSetting(settings, "NotificationRetention", _retention.ToString(), true);
 
-                        // file extensions
-                        settings = SettingService.SetSetting(settings, "ImageFiles", (_ImageFiles != Constants.ImageFiles) ? _ImageFiles.Replace(" ", "") : "", false);
-                        settings = SettingService.SetSetting(settings, "UploadableFiles", (_UploadableFiles != Constants.UploadableFiles) ? _UploadableFiles.Replace(" ", "") : "", false);
+                        // functionality
+                        settings = SettingService.SetSetting(settings, "TextEditor", _textEditor);
+                        settings = SettingService.SetSetting(settings, "ImageFiles", (_imageFiles != Constants.ImageFiles) ? _imageFiles.Replace(" ", "") : "", false);
+                        settings = SettingService.SetSetting(settings, "UploadableFiles", (_uploadableFiles != Constants.UploadableFiles) ? _uploadableFiles.Replace(" ", "") : "", false);
 
-						await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
+                        await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 
-						await logger.LogInformation("Site Settings Saved {Site}", site);
+                        await logger.LogInformation("Site Settings Saved {Site}", site);
 
-					    NavigationManager.NavigateTo(NavigateUrl(), true); // reload
-					}
-				}
-				else
-				{
-					AddModuleMessage(Localizer["Message.Required.SiteName"], MessageType.Warning);
-				}
-			}
-			catch (Exception ex)
-			{
-				await logger.LogError(ex, "Error Saving Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
-				AddModuleMessage(Localizer["Error.SaveSite"], MessageType.Error);
-			}
-		}
-		else
-		{
-			AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
-		}
-	}
+                        NavigationManager.NavigateTo(NavigateUrl(), true); // reload
+                    }
+                }
+                else
+                {
+                    AddModuleMessage(Localizer["Message.Required.SiteName"], MessageType.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Saving Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
+                AddModuleMessage(Localizer["Error.SaveSite"], MessageType.Error);
+            }
+        }
+        else
+        {
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+        }
+    }
 
-	private async Task DeleteSite()
-	{
-		try
-		{
-			var aliases = await AliasService.GetAliasesAsync();
-			if (aliases.Any(item => item.SiteId != PageState.Site.SiteId || item.TenantId != PageState.Site.TenantId))
-			{
-				await SiteService.DeleteSiteAsync(PageState.Site.SiteId);
-				await logger.LogInformation("Site Deleted {SiteId}", PageState.Site.SiteId);
+    private async Task DeleteSite()
+    {
+        try
+        {
+            var aliases = await AliasService.GetAliasesAsync();
+            if (aliases.Any(item => item.SiteId != PageState.Site.SiteId || item.TenantId != PageState.Site.TenantId))
+            {
+                await SiteService.DeleteSiteAsync(PageState.Site.SiteId);
+                await logger.LogInformation("Site Deleted {SiteId}", PageState.Site.SiteId);
 
-				foreach (Alias alias in aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Site.TenantId))
-				{
-					await AliasService.DeleteAliasAsync(alias.AliasId);
-				}
+                foreach (Alias alias in aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Site.TenantId))
+                {
+                    await AliasService.DeleteAliasAsync(alias.AliasId);
+                }
 
-				var redirect = aliases.First(item => item.SiteId != PageState.Site.SiteId || item.TenantId != PageState.Site.TenantId);
-				NavigationManager.NavigateTo(PageState.Uri.Scheme + "://" + redirect.Name, true);
-			}
-			else
-			{
-				AddModuleMessage(Localizer["Message.FailAuth.DeleteSite"], MessageType.Warning);
-			}
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Deleting Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
-			AddModuleMessage(Localizer["Error.DeleteSite"], MessageType.Error);
-		}
-	}
+                var redirect = aliases.First(item => item.SiteId != PageState.Site.SiteId || item.TenantId != PageState.Site.TenantId);
+                NavigationManager.NavigateTo(PageState.Uri.Scheme + "://" + redirect.Name, true);
+            }
+            else
+            {
+                AddModuleMessage(Localizer["Message.FailAuth.DeleteSite"], MessageType.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
+            AddModuleMessage(Localizer["Error.DeleteSite"], MessageType.Error);
+        }
+    }
 
-	private async Task SendEmail()
-	{
-		if (_smtphost != "" && _smtpport != "" && _smtpsender != "")
-		{
-			try
-			{
-				var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-				settings = SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
-				settings = SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
-				settings = SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
-				settings = SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
-				settings = SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
-				settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
-				await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
-				await logger.LogInformation("Site SMTP Settings Saved");
+    private async Task SendEmail()
+    {
+        if (_smtphost != "" && _smtpport != "" && _smtpsender != "")
+        {
+            try
+            {
+                var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+                settings = SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
+                settings = SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
+                settings = SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
+                settings = SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
+                settings = SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
+                settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
+                await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
+                await logger.LogInformation("Site SMTP Settings Saved");
 
-				await NotificationService.AddNotificationAsync(new Notification(PageState.Site.SiteId, PageState.User, PageState.Site.Name + " SMTP Configuration Test", "SMTP Server Is Configured Correctly."));
-				AddModuleMessage(Localizer["Info.Smtp.SaveSettings"], MessageType.Info);
+                await NotificationService.AddNotificationAsync(new Notification(PageState.Site.SiteId, PageState.User, PageState.Site.Name + " SMTP Configuration Test", "SMTP Server Is Configured Correctly."));
+                AddModuleMessage(Localizer["Info.Smtp.SaveSettings"], MessageType.Info);
                 await ScrollToPageTop();
             }
-			catch (Exception ex)
-			{
-				await logger.LogError(ex, "Error Testing SMTP Configuration");
-				AddModuleMessage(Localizer["Error.Smtp.TestConfig"], MessageType.Error);
-			}
-		}
-		else
-		{
-			AddModuleMessage(Localizer["Message.Required.Smtp"], MessageType.Warning);
-		}
-	}
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Testing SMTP Configuration");
+                AddModuleMessage(Localizer["Error.Smtp.TestConfig"], MessageType.Error);
+            }
+        }
+        else
+        {
+            AddModuleMessage(Localizer["Message.Required.Smtp"], MessageType.Warning);
+        }
+    }
 
-	private void ToggleSMTPPassword()
-	{
-		if (_smtppasswordtype == "password")
-		{
-			_smtppasswordtype = "text";
-			_togglesmtppassword = SharedLocalizer["HidePassword"];
-		}
-		else
-		{
-			_smtppasswordtype = "password";
-			_togglesmtppassword = SharedLocalizer["ShowPassword"];
-		}
-	}
+    private void ToggleSMTPPassword()
+    {
+        if (_smtppasswordtype == "password")
+        {
+            _smtppasswordtype = "text";
+            _togglesmtppassword = SharedLocalizer["HidePassword"];
+        }
+        else
+        {
+            _smtppasswordtype = "password";
+            _togglesmtppassword = SharedLocalizer["ShowPassword"];
+        }
+    }
 
-	private async Task GetAliases()
-	{
-		if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-		{
-			_aliases = await AliasService.GetAliasesAsync();
-			_aliases = _aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Site.TenantId).OrderBy(item => item.AliasId).ToList();
-		}
-	}
+    private async Task GetAliases()
+    {
+        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+        {
+            _aliases = await AliasService.GetAliasesAsync();
+            _aliases = _aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Site.TenantId).OrderBy(item => item.AliasId).ToList();
+        }
+    }
 
-	private void AddAlias()
-	{
-		_aliases.Add(new Alias { AliasId = 0, Name = "", IsDefault = false });
-		_aliasid = 0;
-		_aliasname = "";
-		_defaultalias = "False";
-		StateHasChanged();
-	}
+    private void AddAlias()
+    {
+        _aliases.Add(new Alias { AliasId = 0, Name = "", IsDefault = false });
+        _aliasid = 0;
+        _aliasname = "";
+        _defaultalias = "False";
+        StateHasChanged();
+    }
 
-	private void EditAlias(Alias alias)
-	{
-		_aliasid = alias.AliasId;
-		_aliasname = alias.Name;
-		_defaultalias = alias.IsDefault.ToString();
-		StateHasChanged();
-	}
+    private void EditAlias(Alias alias)
+    {
+        _aliasid = alias.AliasId;
+        _aliasname = alias.Name;
+        _defaultalias = alias.IsDefault.ToString();
+        StateHasChanged();
+    }
 
-	private async Task DeleteAlias(Alias alias)
-	{
-		if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-		{
-			await AliasService.DeleteAliasAsync(alias.AliasId);
-			await GetAliases();
-			StateHasChanged();
-		}
-	}
+    private async Task DeleteAlias(Alias alias)
+    {
+        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+        {
+            await AliasService.DeleteAliasAsync(alias.AliasId);
+            await GetAliases();
+            StateHasChanged();
+        }
+    }
 
     private async Task SaveAlias()
     {
@@ -878,11 +918,11 @@
         }
     }
 
-	private async Task CancelAlias()
-	{
-		await GetAliases();
-		_aliasid = -1;
-		_aliasname = "";
-		StateHasChanged();
-	}
+    private async Task CancelAlias()
+    {
+        await GetAliases();
+        _aliasid = -1;
+        _aliasname = "";
+        StateHasChanged();
+    }
 }

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -117,16 +117,52 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="InsertImage" xml:space="preserve">
-    <value>Insert Image</value>
+  <data name="Enabled.Text" xml:space="preserve">
+    <value>Enabled? </value>
   </data>
-  <data name="Close" xml:space="preserve">
-    <value>Close</value>
+  <data name="Enabled.HelpText" xml:space="preserve">
+    <value>Specify if search indexing is enabled</value>
   </data>
-  <data name="Message.Require.Image" xml:space="preserve">
-    <value>You Must Select An Image To Insert</value>
+  <data name="LastIndexedOn.Text" xml:space="preserve">
+    <value>Last Indexed: </value>
   </data>
-  <data name="Placeholder" xml:space="preserve">
-    <value>Enter Your Content...</value>
+  <data name="LastIndexedOn.HelpText" xml:space="preserve">
+    <value>The date/time which the site was last indexed on</value>
+  </data>
+  <data name="IgnorePages.Text" xml:space="preserve">
+    <value>Ignore Pages: </value>
+  </data>
+  <data name="IgnorePages.HelpText" xml:space="preserve">
+    <value>Comma delimited list of pages which should be ignored (based on page path)</value>
+  </data>
+  <data name="IgnoreEntities.Text" xml:space="preserve">
+    <value>Ignore Entities: </value>
+  </data>
+  <data name="IgnoreEntities.HelpText" xml:space="preserve">
+    <value>Comma delimited list of entities which should be ignored</value>
+  </data>
+  <data name="MinimumWordLength.Text" xml:space="preserve">
+    <value>Word Length: </value>
+  </data>
+  <data name="MinimumWordLength.HelpText" xml:space="preserve">
+    <value>Minimum length of a word to be indexed</value>
+  </data>
+  <data name="IgnoreWords.Text" xml:space="preserve">
+    <value>Ignore Words: </value>
+  </data>
+  <data name="IgnoreWords.HelpText" xml:space="preserve">
+    <value>Comma delimited list of words which should be ignored</value>
+  </data>
+  <data name="Success.Save" xml:space="preserve">
+    <value>Search Settings Saved Successfully</value>
+  </data>
+  <data name="Error.Save" xml:space="preserve">
+    <value>Error Saving Search Settings</value>
+  </data>
+  <data name="SearchProvider.HelpText" xml:space="preserve">
+    <value>Specify the search provider for this site</value>
+  </data>
+  <data name="SearchProvider.Text" xml:space="preserve">
+    <value>Search Provider:</value>
   </data>
 </root>

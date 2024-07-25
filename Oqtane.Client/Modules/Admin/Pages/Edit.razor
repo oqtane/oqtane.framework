@@ -31,7 +31,7 @@
                                 <div class="col-sm-9">
                                         <select id="parent" class="form-select" value="@_parentid" @onchange="(e => ParentChanged(e))" required>
                                             <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
-                                            @foreach (Page page in PageState.Pages)
+                                            @foreach (Page page in _pages)
                                             {
                                                 if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, page.PermissionList) && page.PageId != _pageId)
                                                 {
@@ -302,6 +302,7 @@
     private bool validated = false;
     private List<ThemeControl> _themes = new List<ThemeControl>();
     private List<ThemeControl> _containers = new List<ThemeControl>();
+    private List<Page> _pages;
     private int _pageId;
     private string _name;
     private string _currentparentid;
@@ -345,6 +346,7 @@
     {
         try
         {
+            _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
             _pageId = Int32.Parse(PageState.QueryString["id"]);
             _page = await PageService.GetPageAsync(_pageId);
             _icons = await SystemService.GetIconsAsync();
@@ -360,10 +362,10 @@
                 else
                 {
                     _parentid = _page.ParentId.ToString();
-                    _parent = PageState.Pages.FirstOrDefault(item => item.PageId == _page.ParentId);
+                    _parent = _pages.FirstOrDefault(item => item.PageId == _page.ParentId);
                 }
                 _children = new List<Page>();
-                foreach (Page p in PageState.Pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == int.Parse(_parentid, CultureInfo.InvariantCulture))))
+                foreach (Page p in _pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == int.Parse(_parentid, CultureInfo.InvariantCulture))))
                 {
                     if (p.PageId != _pageId && UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
                     {
@@ -415,7 +417,7 @@
                 _permissions = _page.PermissionList;
 
                 // page modules
-                _pageModules = PageState.Modules.Where(m => m.PageId == _page.PageId).ToList();
+                _pageModules = PageState.Modules;
 
                 // audit
                 _createdby = _page.CreatedBy;
@@ -447,8 +449,8 @@
         {
             _parentid = (string)e.Value;
             _children = new List<Page>();
-            foreach (Page p in PageState.Pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == int.Parse(_parentid))))
-            {
+            foreach (Page p in _pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == int.Parse(_parentid))))
+        {
                 if (p.PageId != _pageId && UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
                 {
                     _children.Add(p);
@@ -549,7 +551,7 @@
                     }
                     else
                     {
-                        Page parent = PageState.Pages.FirstOrDefault(item => item.PageId == _page.ParentId);
+                        Page parent = _pages.FirstOrDefault(item => item.PageId == _page.ParentId);
                         if (parent.Path == string.Empty)
                         {
                             _page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
@@ -560,7 +562,6 @@
                         }
                     }
 
-                    var _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
                     if (_pages.Any(item => item.Path == _page.Path && item.PageId != _page.PageId))
                     {
                         AddModuleMessage(string.Format(Localizer["Mesage.Page.PathExists"], _path), MessageType.Warning);
@@ -582,11 +583,11 @@
                                 _page.Order = 0;
                                 break;
                             case "<":
-                                child = PageState.Pages.FirstOrDefault(item => item.PageId == _childid);
+                                child = _pages.FirstOrDefault(item => item.PageId == _childid);
                                 if (child != null) _page.Order = child.Order - 1;
                                 break;
                             case ">":
-                                child = PageState.Pages.FirstOrDefault(item => item.PageId == _childid);
+                                child = _pages.FirstOrDefault(item => item.PageId == _childid);
                                 if (child != null) _page.Order = child.Order + 1;
                                 break;
                             case ">>":

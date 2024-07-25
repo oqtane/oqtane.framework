@@ -1,0 +1,102 @@
+@namespace Oqtane.Modules.Admin.Search
+@inherits ModuleBase
+@inject ISettingService SettingService
+@inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+<div class="container">
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="searchprovider" HelpText="Specify the search provider for this site" ResourceKey="SearchProvider">Search Provider: </Label>
+        <div class="col-sm-9">
+            <input id="searchprovider" class="form-control" @bind="@_searchProvider" />
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="enabled" HelpText="Specify if search indexing is enabled" ResourceKey="Enabled">Indexing Enabled? </Label>
+        <div class="col-sm-9">
+            <select id="enabled" class="form-select" @bind="@_enabled">
+                <option value="True">@SharedLocalizer["Yes"]</option>
+                <option value="False">@SharedLocalizer["No"]</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="lastindexedon" HelpText="The date/time which the site was last indexed on" ResourceKey="LastIndexedOn">Last Indexed: </Label>
+        <div class="col-sm-9">
+            <input id="lastindexedon" class="form-control" @bind="@_lastIndexedOn" />
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="ignorepages" HelpText="Comma delimited list of pages which should be ignored (based on their path)" ResourceKey="IgnorePages">Ignore Pages: </Label>
+        <div class="col-sm-9">
+            <textarea id="ignorepages" class="form-control" @bind="@_ignorePages" rows="3"></textarea>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="ignoreentities" HelpText="Comma delimited list of entities which should be ignored" ResourceKey="IgnoreEntities">Ignore Entities: </Label>
+        <div class="col-sm-9">
+            <textarea id="ignoreentities" class="form-control" @bind="@_ignoreEntities" rows="3"></textarea>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="minimumwordlength" HelpText="Minimum length of a word to be indexed" ResourceKey="MinimumWordLength">Word Length: </Label>
+        <div class="col-sm-9">
+            <input id="minimumwordlength" class="form-control" type="number" min="0" step="1" @bind="@_minimumWordLength" />
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="ignorewords" HelpText="Comma delimited list of words which should be ignored" ResourceKey="IgnoreWords">Ignore Words: </Label>
+        <div class="col-sm-9">
+            <textarea id="ignorewords" class="form-control" @bind="@_ignoreWords" rows="3"></textarea>
+        </div>
+    </div>
+</div>
+<br /><br />
+<button type="button" class="btn btn-success" @onclick="Save">@SharedLocalizer["Save"]</button>  
+<br /><br />
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+
+    private string _searchProvider;
+    private string _enabled;
+    private string _lastIndexedOn;
+    private string _ignorePages;
+    private string _ignoreEntities;
+    private string _minimumWordLength;
+    private string _ignoreWords;
+
+	protected override async Task OnInitializedAsync()
+	{
+        var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+        _searchProvider = SettingService.GetSetting(settings, "Search_SearchProvider", Constants.DefaultSearchProviderName);
+        _enabled = SettingService.GetSetting(settings, "Search_Enabled", "True");
+        _lastIndexedOn = SettingService.GetSetting(settings, "Search_LastIndexedOn", "");
+        _ignorePages = SettingService.GetSetting(settings, "Search_IgnorePages", "");
+        _ignoreEntities = SettingService.GetSetting(settings, "Search_IgnoreEntities", "");
+        _minimumWordLength = SettingService.GetSetting(settings, "Search_MininumWordLength", "3");
+        _ignoreWords = SettingService.GetSetting(settings, "Search_IgnoreWords", "");
+    }
+
+	private async Task Save()
+	{
+		try
+		{
+            var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+            settings = SettingService.SetSetting(settings, "Search_SearchProvider", _searchProvider);
+            settings = SettingService.SetSetting(settings, "Search_Enabled", _enabled, true);
+            settings = SettingService.SetSetting(settings, "Search_LastIndexedOn", _lastIndexedOn, true);
+            settings = SettingService.SetSetting(settings, "Search_IgnorePages", _ignorePages, true);
+            settings = SettingService.SetSetting(settings, "Search_IgnoreEntities", _ignoreEntities, true);
+            settings = SettingService.SetSetting(settings, "Search_MininumWordLength", _minimumWordLength, true);
+            settings = SettingService.SetSetting(settings, "Search_IgnoreWords", _ignoreWords, true);
+            await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
+            AddModuleMessage(Localizer["Success.Save"], MessageType.Success);
+        }
+		catch (Exception ex)
+		{
+            await logger.LogError(ex, "Error Saving Search Settings {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Save"], MessageType.Error);
+        }
+	}
+}

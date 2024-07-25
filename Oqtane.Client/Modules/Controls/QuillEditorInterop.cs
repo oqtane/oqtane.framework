@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 
 namespace Oqtane.Modules.Controls
 {
-    public class RichTextEditorInterop
+    public class QuillEditorInterop
     {
         private readonly IJSRuntime _jsRuntime;
 
-        public RichTextEditorInterop(IJSRuntime jsRuntime)
+        public QuillEditorInterop(IJSRuntime jsRuntime)
         {
             _jsRuntime = jsRuntime;
         }

@@ -7,6 +7,7 @@ using Oqtane.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using Oqtane.Shared;
 
 namespace Oqtane.Security
 {
@@ -26,11 +27,13 @@ namespace Oqtane.Security
     public class UserPermissions : IUserPermissions
     {
         private readonly IPermissionRepository _permissions;
+        private readonly IUserRoleRepository _userRoles;
         private readonly IHttpContextAccessor _accessor;
 
-        public UserPermissions(IPermissionRepository permissions, IHttpContextAccessor accessor)
+        public UserPermissions(IPermissionRepository permissions, IUserRoleRepository userRoles, IHttpContextAccessor accessor)
         {
             _permissions = permissions;
+            _userRoles = userRoles;
             _accessor = accessor;
         }
 
@@ -71,13 +74,24 @@ namespace Oqtane.Security
             if (user.IsAuthenticated)
             {
                 user.Username = principal.Identity.Name;
-                if (principal.Claims.Any(item => item.Type == ClaimTypes.NameIdentifier))
+                user.UserId = principal.UserId();
+
+                // include roles
+                var userRoles = _userRoles.GetUserRoles(user.UserId, principal.SiteId()).ToList();
+                foreach (var roleName in principal.Roles())
                 {
-                    user.UserId = int.Parse(principal.Claims.First(item => item.Type == ClaimTypes.NameIdentifier).Value);
-                }
-                foreach (var claim in principal.Claims.Where(item => item.Type == ClaimTypes.Role))
-                {
-                    user.Roles += claim.Value + ";";
+                    var role = userRoles.FirstOrDefault(item => item.Role.Name == roleName);
+                    if (role != null)
+                    {
+                        if (Utilities.IsEffectiveAndNotExpired(role.EffectiveDate,role.ExpiryDate))
+                        {
+                            user.Roles += roleName + ";";
+                        }
+                    }
+                    else
+                    {
+                        user.Roles += roleName + ";";
+                    }
                 }
                 if (user.Roles != "") user.Roles = ";" + user.Roles;
             }

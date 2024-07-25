@@ -59,7 +59,7 @@ namespace Oqtane.Themes.Controls
             logouturl = Utilities.TenantUrl(PageState.Alias, "/pages/logout/");
 
             // verify anonymous users can access current page
-            if (UserSecurity.IsAuthorized(null, PermissionNames.View, PageState.Page.PermissionList) && Utilities.IsPageModuleVisible(PageState.Page.EffectiveDate, PageState.Page.ExpiryDate))
+            if (UserSecurity.IsAuthorized(null, PermissionNames.View, PageState.Page.PermissionList) && Utilities.IsEffectiveAndNotExpired(PageState.Page.EffectiveDate, PageState.Page.ExpiryDate))
             {
                 returnurl = PageState.Route.PathAndQuery;
             }

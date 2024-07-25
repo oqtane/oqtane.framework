@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Localization;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
@@ -25,15 +26,15 @@ namespace Oqtane.Managers
         private readonly ITenantManager _tenantManager;
         private readonly INotificationRepository _notifications;
         private readonly IFolderRepository _folders;
-        private readonly IFileRepository _files;
         private readonly IProfileRepository _profiles;
         private readonly ISettingRepository _settings;
+        private readonly ISiteRepository _sites;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
+        private readonly IMemoryCache _cache;
         private readonly IStringLocalizer<UserManager> _localizer;
-        private readonly ISiteRepository _siteRepo;
 
-        public UserManager(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, IFileRepository files, IProfileRepository profiles, ISettingRepository settings, ISyncManager syncManager, ILogManager logger, IStringLocalizer<UserManager> localizer, ISiteRepository siteRepo)
+        public UserManager(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, IProfileRepository profiles, ISettingRepository settings, ISiteRepository sites, ISyncManager syncManager, ILogManager logger, IMemoryCache cache, IStringLocalizer<UserManager> localizer)
         {
             _users = users;
             _roles = roles;
@@ -43,29 +44,40 @@ namespace Oqtane.Managers
             _tenantManager = tenantManager;
             _notifications = notifications;
             _folders = folders;
-            _files = files;
             _profiles = profiles;
             _settings = settings;
+            _sites = sites;
             _syncManager = syncManager;
             _logger = logger;
+            _cache = cache;
             _localizer = localizer;
-            _siteRepo = siteRepo;
         }
 
         public User GetUser(int userid, int siteid)
         {
-            User user = _users.GetUser(userid);
+            var alias = _tenantManager.GetAlias();
+            return _cache.GetOrCreate($"user:{userid}:{alias.SiteKey}", entry =>
+            {
+                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                User user = _users.GetUser(userid);
+                if (user != null)
+                {
+                    user.SiteId = siteid;
+                    user.Roles = GetUserRoles(user.UserId, user.SiteId);
+                }
+                return user;
+            });
+        }
+
+        public User GetUser(string username, int siteid)
+        {
+            User user = _users.GetUser(username);
             if (user != null)
             {
                 user.SiteId = siteid;
                 user.Roles = GetUserRoles(user.UserId, user.SiteId);
             }
             return user;
-        }
-
-        public User GetUser(string username, int siteid)
-        {
-            return GetUser(username, "", siteid);
         }
 
         public User GetUser(string username, string email, int siteid)
@@ -85,14 +97,17 @@ namespace Oqtane.Managers
             List<UserRole> userroles = _userRoles.GetUserRoles(userId, siteId).ToList();
             foreach (UserRole userrole in userroles)
             {
-                roles += userrole.Role.Name + ";";
-                if (userrole.Role.Name == RoleNames.Host && !userroles.Any(item => item.Role.Name == RoleNames.Admin))
+                if (Utilities.IsEffectiveAndNotExpired(userrole.EffectiveDate, userrole.ExpiryDate))
                 {
-                    roles += RoleNames.Admin + ";";
-                }
-                if (userrole.Role.Name == RoleNames.Host && !userroles.Any(item => item.Role.Name == RoleNames.Registered))
-                {
-                    roles += RoleNames.Registered + ";";
+                    roles += userrole.Role.Name + ";";
+                    if (userrole.Role.Name == RoleNames.Host && !userroles.Any(item => item.Role.Name == RoleNames.Admin))
+                    {
+                        roles += RoleNames.Admin + ";";
+                    }
+                    if (userrole.Role.Name == RoleNames.Host && !userroles.Any(item => item.Role.Name == RoleNames.Registered))
+                    {
+                        roles += RoleNames.Registered + ";";
+                    }
                 }
             }
             if (roles != "") roles = ";" + roles;
@@ -153,7 +168,7 @@ namespace Oqtane.Managers
 
             if (User != null)
             {
-                string siteName = _siteRepo.GetSite(user.SiteId).Name;
+                string siteName = _sites.GetSite(user.SiteId).Name;
                 if (!user.EmailConfirmed)
                 {
                     string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
@@ -201,6 +216,8 @@ namespace Oqtane.Managers
             IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
             if (identityuser != null)
             {
+                var alias = _tenantManager.GetAlias();
+
                 if (!string.IsNullOrEmpty(user.Password))
                 {
                     var validator = new PasswordValidator<IdentityUser>();
@@ -224,7 +241,6 @@ namespace Oqtane.Managers
                     // if email address changed and it is not confirmed, verification is required for new email address
                     if (!user.EmailConfirmed)
                     {
-                        var alias = _tenantManager.GetAlias();
                         string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
                         string url = alias.Protocol + alias.Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
                         string body = "Dear " + user.DisplayName + ",\n\nIn Order To Verify The Email Address Associated To Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
@@ -242,6 +258,7 @@ namespace Oqtane.Managers
                 user = _users.UpdateUser(user);
                 _syncManager.AddSyncEvent(_tenantManager.GetAlias(), EntityNames.User, user.UserId, SyncEventActions.Update);
                 _syncManager.AddSyncEvent(_tenantManager.GetAlias(), EntityNames.User, user.UserId, SyncEventActions.Reload);
+                _cache.Remove($"user:{user.UserId}:{alias.SiteKey}");
                 user.Password = ""; // remove sensitive information
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", user);
             }
@@ -324,7 +341,7 @@ namespace Oqtane.Managers
                             _users.UpdateUser(user);
                             var alias = _tenantManager.GetAlias();
                             string url = alias.Protocol + alias.Name;
-                            string siteName = _siteRepo.GetSite(alias.SiteId).Name;
+                            string siteName = _sites.GetSite(alias.SiteId).Name;
                             string subject = _localizer["TwoFactorEmailSubject"];
                             subject = subject.Replace("[SiteName]", siteName);
                             string body = _localizer["TwoFactorEmailBody"].Value;
@@ -376,7 +393,7 @@ namespace Oqtane.Managers
                         user = _users.GetUser(user.Username);
                         string token = await _identityUserManager.GeneratePasswordResetTokenAsync(identityuser);
                         string url = alias.Protocol + alias.Name + "/reset?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
-                        string siteName = _siteRepo.GetSite(alias.SiteId).Name;
+                        string siteName = _sites.GetSite(alias.SiteId).Name;
                         string subject = _localizer["UserLockoutEmailSubject"];
                         subject = subject.Replace("[SiteName]", siteName);
                         string body = _localizer["UserLockoutEmailBody"].Value;
@@ -429,7 +446,7 @@ namespace Oqtane.Managers
                 user = _users.GetUser(user.Username);
                 string token = await _identityUserManager.GeneratePasswordResetTokenAsync(identityuser);
                 string url = alias.Protocol + alias.Name + "/reset?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
-                string siteName = _siteRepo.GetSite(alias.SiteId).Name;
+                string siteName = _sites.GetSite(alias.SiteId).Name;
                 string subject = _localizer["ForgotPasswordEmailSubject"];
                 subject = subject.Replace("[SiteName]", siteName);
                 string body = _localizer["ForgotPasswordEmailBody"].Value;

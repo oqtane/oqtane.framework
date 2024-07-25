@@ -28,7 +28,7 @@
     </div>
     <div class="@BodyClass">
         <div class="container-fluid">
-            @if (_canViewAdminDashboard)
+            @if (CanViewAdminDashboard)
             {
                 <div class="row d-flex">
                     <div class="col">
@@ -248,7 +248,9 @@
     [Parameter]
     public string LanguageDropdownAlignment { get; set; }
 
-    private bool _canViewAdminDashboard = false;
+    [Parameter]
+    public bool CanViewAdminDashboard { get; set; }
+
     private bool _deleteConfirmation = false;
     private List<string> _categories = new List<string>();
     private List<ModuleDefinition> _allModuleDefinitions;
@@ -278,42 +280,15 @@
         // repopulate the SiteState service based on the values passed in the SiteState parameter (this is how state is marshalled across the render mode boundary)
         ComponentSiteState.Hydrate(SiteState);
 
-        _canViewAdminDashboard = CanViewAdminDashboard();
         if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
         {
             LoadSettingsAsync();
-
-            _pages?.Clear();
-            foreach (Page p in PageState.Pages)
-            {
-                if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
-                {
-                    _pages.Add(p);
-                }
-            }
-
             _containers = ThemeService.GetContainerControls(PageState.Site.Themes, PageState.Page.ThemeType);
             _containerType = PageState.Site.DefaultContainerType;
-            _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
+            _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Page.SiteId);
             _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(_category)).ToList();
             _categories = _allModuleDefinitions.SelectMany(m => m.Categories.Split(',', StringSplitOptions.RemoveEmptyEntries)).Distinct().Where(item => item != "Headless").ToList();
         }
-    }
-
-    private bool CanViewAdminDashboard()
-    {
-        var admin = PageState.Pages.FirstOrDefault(item => item.Path == "admin");
-        if (admin != null)
-        {
-            foreach (var page in PageState.Pages.Where(item => item.ParentId == admin?.PageId))
-            {
-                if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, page.PermissionList))
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     private void CategoryChanged(ChangeEventArgs e)
@@ -339,20 +314,24 @@
         StateHasChanged();
     }
 
-    private void ModuleTypeChanged(ChangeEventArgs e)
+    private async Task ModuleTypeChanged(ChangeEventArgs e)
     {
         _moduleType = (string)e.Value;
+        if (_moduleType != "new")
+        {
+            _pages = await PageService.GetPagesAsync(PageState.Page.SiteId);
+        }
         _pageId = "-";
         _moduleId = "-";
     }
 
-    private void PageChanged(ChangeEventArgs e)
+    private async Task PageChanged(ChangeEventArgs e)
     {
         _pageId = (string)e.Value;
         if (_pageId != "-")
         {
-            _modules = PageState.Modules
-                .Where(module => module.PageId == int.Parse(_pageId) &&
+            _modules = await ModuleService.GetModulesAsync(PageState.Page.SiteId);
+            _modules = _modules.Where(module => module.PageId == int.Parse(_pageId) &&
                 UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.PermissionList) &&
                 (_moduleType == "add" || module.ModuleDefinition.IsPortable))
                 .ToList();
@@ -371,7 +350,7 @@
                 if (_moduleType == "new")
                 {
                     Module module = new Module();
-                    module.SiteId = PageState.Site.SiteId;
+                    module.SiteId = PageState.Page.SiteId;
                     module.PageId = PageState.Page.PageId;
                     module.ModuleDefinitionName = _moduleDefinitionName;
                     module.AllPages = false;
@@ -384,7 +363,7 @@
                 {
                     var module = await ModuleService.GetModuleAsync(int.Parse(_moduleId));
                     module.ModuleId = 0;
-                    module.SiteId = PageState.Site.SiteId;
+                    module.SiteId = PageState.Page.SiteId;
                     module.PageId = PageState.Page.PageId;
                     module.AllPages = false;
                     module.PermissionList = GenerateDefaultPermissions(module.SiteId);
@@ -482,27 +461,19 @@
 
     private void Navigate(string location)
     {
-        Module module;
+        int moduleId;
         switch (location)
         {
             case "Admin":
                 // get admin dashboard moduleid
-                module = PageState.Modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.AdminDashboardModule);
-                if (module != null)
-                {
-                    NavigationManager.NavigateTo(Utilities.EditUrl(PageState.Alias.Path, "admin", module.ModuleId, "Index", "returnurl=" + WebUtility.UrlEncode(PageState.Route.PathAndQuery)));
-                }
+                moduleId = int.Parse(PageState.Site.Settings[Constants.AdminDashboardModule]);
+                NavigationManager.NavigateTo(Utilities.EditUrl(PageState.Alias.Path, "admin", moduleId, "Index", "returnurl=" + WebUtility.UrlEncode(PageState.Route.PathAndQuery)));
                 break;
             case "Add":
             case "Edit":
-                string url = "";
                 // get page management moduleid
-                module = PageState.Modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.PageManagementModule);
-                if (module != null)
-                {
-                    url = Utilities.EditUrl(PageState.Alias.Path, "admin/pages", module.ModuleId, location, $"id={PageState.Page.PageId}&returnurl={WebUtility.UrlEncode(PageState.Route.PathAndQuery)}");
-                    NavigationManager.NavigateTo(url);
-                }
+                moduleId = int.Parse(PageState.Site.Settings[Constants.PageManagementModule]);
+                NavigationManager.NavigateTo(Utilities.EditUrl(PageState.Alias.Path, "admin/pages", moduleId, location, $"id={PageState.Page.PageId}&returnurl={WebUtility.UrlEncode(PageState.Route.PathAndQuery)}"));
                 break;
         }
     }
@@ -517,11 +488,11 @@
                 case "publish":
                     if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Everyone))
                     {
-                        permissions.Add(new Permission(PageState.Site.SiteId, EntityNames.Page, PageState.Page.PageId, PermissionNames.View, RoleNames.Everyone, null, true));
+                        permissions.Add(new Permission(PageState.Page.SiteId, EntityNames.Page, PageState.Page.PageId, PermissionNames.View, RoleNames.Everyone, null, true));
                     }
                     if (!permissions.Any(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Registered))
                     {
-                        permissions.Add(new Permission(PageState.Site.SiteId, EntityNames.Page, PageState.Page.PageId, PermissionNames.View, RoleNames.Registered, null, true));
+                        permissions.Add(new Permission(PageState.Page.SiteId, EntityNames.Page, PageState.Page.PageId, PermissionNames.View, RoleNames.Registered, null, true));
                     }
                     break;
                 case "unpublish":

@@ -1,6 +1,7 @@
 @namespace Oqtane.Modules.Admin.ModuleDefinitions
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
+@inject IModuleService ModuleService
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject IPackageService PackageService
 @inject IStringLocalizer<Index> Localizer
@@ -70,7 +71,7 @@ else
                }
             </td>
             <td>
-				@if (context.AssemblyName == Constants.ClientId || PageState.Modules.Where(m => m.ModuleDefinition?.ModuleDefinitionId == context.ModuleDefinitionId).FirstOrDefault() != null)
+				@if (context.AssemblyName == Constants.ClientId || _modules.Where(m => m.ModuleDefinition?.ModuleDefinitionId == context.ModuleDefinitionId).FirstOrDefault() != null)
                 {
                     <span>@SharedLocalizer["Yes"]</span>
                 }
@@ -99,6 +100,7 @@ else
 }
 
 @code {
+    private List<Module> _modules;
     private List<ModuleDefinition> _allModuleDefinitions;
     private List<ModuleDefinition> _moduleDefinitions;
     private List<Package> _packages;
@@ -111,6 +113,7 @@ else
     {
         try
         {
+            _modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId);
             _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
             _categories = _allModuleDefinitions.SelectMany(m => m.Categories.Split(',')).Distinct().ToList();
             await LoadModuleDefinitions();

@@ -93,6 +93,7 @@
     private string _code = string.Empty;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
+    public override bool? Prerender => true;
 
     public override List<Resource> Resources => new List<Resource>()
     {

@@ -3,6 +3,7 @@
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IThemeService ThemeService
+@inject IPageService PageService
 @inject IModuleService ModuleService
 @inject IPageModuleService PageModuleService
 @inject IStringLocalizer<Settings> Localizer
@@ -79,14 +80,16 @@
                                 }
                                 else
                                 {
-                                    foreach (Page p in PageState.Pages)
+                                    if (_pages != null)
                                     {
-                                        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, p.PermissionList))
+                                        foreach (Page p in _pages)
                                         {
-                                            <option value="@p.PageId">@(new string('-', p.Level * 2))@(p.Name)</option>
+                                            if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, p.PermissionList))
+                                            {
+                                                <option value="@p.PageId">@(new string('-', p.Level * 2))@(p.Name)</option>
+                                            }
                                         }
                                     }
-
                                 }
                             </select>
                         </div>
@@ -154,10 +157,12 @@
     private DateTime modifiedon;
     private DateTime? _effectivedate = null;
     private DateTime? _expirydate = null;
+    private List<Page> _pages;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         SetModuleTitle(Localizer["ModuleSettings.Title"]);
+
         _module = ModuleState.ModuleDefinition.Name;
         _title = ModuleState.Title;
         _moduleSettingsTitle = Localizer["ModuleSettings.Heading"];
@@ -173,8 +178,8 @@
         modifiedon = ModuleState.ModifiedOn;
         _effectivedate = Utilities.UtcAsLocalDate(ModuleState.EffectiveDate);
         _expirydate = Utilities.UtcAsLocalDate(ModuleState.ExpiryDate);
-        
-        
+        _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
+
         if (ModuleState.ModuleDefinition != null)
         {
             _permissionNames = ModuleState.ModuleDefinition?.PermissionNames;

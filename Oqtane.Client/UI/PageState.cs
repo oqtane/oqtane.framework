@@ -9,6 +9,7 @@ namespace Oqtane.UI
         public Alias Alias { get; set; }
         public Site Site { get; set; }
         public Page Page { get; set; }
+        public List<Module> Modules { get; set; }
         public User User { get; set; }
         public Uri Uri { get; set; }
         public Route Route { get; set; }
@@ -29,15 +30,11 @@ namespace Oqtane.UI
 
         public List<Page> Pages
         {
-            get { return Site.Pages; }
-        }
-        public List<Module> Modules
-        {
-            get { return Site.Modules; }
+            get { return Site?.Pages; }
         }
         public List<Language> Languages
         {
-            get { return Site.Languages; }
+            get { return Site?.Languages; }
         }
     }
 }

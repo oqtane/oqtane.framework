@@ -4,8 +4,8 @@ namespace Oqtane.Shared
 {
     public class Constants
     {
-        public static readonly string Version = "5.1.2";
-        public const string ReleaseVersions = "1.0.0,1.0.1,1.0.2,1.0.3,1.0.4,2.0.0,2.0.1,2.0.2,2.1.0,2.2.0,2.3.0,2.3.1,3.0.0,3.0.1,3.0.2,3.0.3,3.1.0,3.1.1,3.1.2,3.1.3,3.1.4,3.2.0,3.2.1,3.3.0,3.3.1,3.4.0,3.4.1,3.4.2,3.4.3,4.0.0,4.0.1,4.0.2,4.0.3,4.0.4,4.0.5,4.0.6,5.0.0,5.0.1,5.0.2,5.0.3,5.1.0,5.1.1,5.1.2";
+        public static readonly string Version = "5.2.0";
+        public const string ReleaseVersions = "1.0.0,1.0.1,1.0.2,1.0.3,1.0.4,2.0.0,2.0.1,2.0.2,2.1.0,2.2.0,2.3.0,2.3.1,3.0.0,3.0.1,3.0.2,3.0.3,3.1.0,3.1.1,3.1.2,3.1.3,3.1.4,3.2.0,3.2.1,3.3.0,3.3.1,3.4.0,3.4.1,3.4.2,3.4.3,4.0.0,4.0.1,4.0.2,4.0.3,4.0.4,4.0.5,4.0.6,5.0.0,5.0.1,5.0.2,5.0.3,5.1.0,5.1.1,5.1.2,5.2.0";
         public const string PackageId = "Oqtane.Framework";
         public const string ClientId = "Oqtane.Client";
         public const string UpdaterPackageId = "Oqtane.Updater";
@@ -33,6 +33,7 @@ namespace Oqtane.Shared
         public const string PageManagementModule = "Oqtane.Modules.Admin.Pages, Oqtane.Client";
         public const string ErrorModule = "Oqtane.Modules.Admin.Error.{Action}, Oqtane.Client";
 
+        public const string AdminSiteTemplate = "Oqtane.SiteTemplates.AdminSiteTemplate, Oqtane.Server";
         public const string DefaultSiteTemplate = "Oqtane.SiteTemplates.DefaultSiteTemplate, Oqtane.Server";
 
         public static readonly string[] DefaultHostModuleTypes = new[] { "Upgrade", "Themes", "SystemInfo", "Sql", "Sites", "ModuleDefinitions", "Logs", "Jobs", "ModuleCreator" };
@@ -76,6 +77,11 @@ namespace Oqtane.Shared
         public const string MauiCorsPolicy = "MauiCorsPolicy"; // must be a constant to be used with an attribute
 
         public static readonly string VisitorCookiePrefix = "APP_VISITOR_";
+
+        public const string DefaultSearchProviderName = "DatabaseSearchProvider";
+
+        public static readonly string[] InternalPagePaths = { "login", "register", "reset", "404" };
+        public const string DefaultTextEditor = "Oqtane.Modules.Controls.QuillJSTextEditor, Oqtane.Client";
 
         // Obsolete constants
 

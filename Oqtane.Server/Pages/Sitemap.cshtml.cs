@@ -46,16 +46,13 @@ namespace Oqtane.Pages
         {
             var sitemap = new List<Sitemap>();
 
-            // internal pages which should not be indexed
-            string[] internalPaths = { "login", "register", "reset", "404" };
-
             // build site map
             var rooturl = _alias.Protocol + (string.IsNullOrEmpty(_alias.Path) ? _alias.Name : _alias.Name.Substring(0, _alias.Name.IndexOf("/")));
             var moduleDefinitions = _moduleDefinitions.GetModuleDefinitions(_alias.SiteId).ToList();
             var pageModules = _pageModules.GetPageModules(_alias.SiteId);
             foreach (var page in _pages.GetPages(_alias.SiteId))
             {
-                if (_userPermissions.IsAuthorized(null, PermissionNames.View, page.PermissionList) && !internalPaths.Contains(page.Path))
+                if (_userPermissions.IsAuthorized(null, PermissionNames.View, page.PermissionList) && !Constants.InternalPagePaths.Contains(page.Path))
                 {
                     var pageurl = rooturl;
                     if (string.IsNullOrEmpty(page.Url))
@@ -76,7 +73,7 @@ namespace Oqtane.Pages
                             if (moduleDefinition != null && moduleDefinition.ServerManagerType != "")
                             {
                                 Type moduletype = Type.GetType(moduleDefinition.ServerManagerType);
-                                if (moduletype != null && moduletype.GetInterface("ISitemap") != null)
+                                if (moduletype != null && moduletype.GetInterface(nameof(ISitemap)) != null)
                                 {
                                     try
                                     {

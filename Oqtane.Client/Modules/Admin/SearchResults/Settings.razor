@@ -1,0 +1,123 @@
+@namespace Oqtane.Modules.Admin.SearchResults
+@inherits ModuleBase
+@inject ISettingService SettingService
+@implements Oqtane.Interfaces.ISettingsControl
+@inject IStringLocalizer<Settings> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+<form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+    <div class="container">
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="includeentities" ResourceKey="IncludeEntities" ResourceType="@resourceType" HelpText="Comma delimited list of entities to include in the search results. By default all entities will be included.">Include Entities: </Label>
+            <div class="col-sm-9">
+                <input id="includeentities" type="text" class="form-control" @bind="@_includeEntities" required />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="excludeentities" ResourceKey="ExcludeEntities" ResourceType="@resourceType" HelpText="Comma delimited list of entities to exclude from search results. By default no entities will be excluded.">Exclude Entities: </Label>
+            <div class="col-sm-9">
+                <input id="excludeentities" class="form-control" @bind="@_excludeEntities" required></input>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="daterange" ResourceKey="DateRange" ResourceType="@resourceType" HelpText="Enter the date range for search results. The default includes all content.">Date Range: </Label>
+            <div class="col-sm-9">
+                <div class="input-group">
+                    <input type="date" class="form-control" @bind="@_fromDate" />
+                    <span class="input-group-text">@Localizer["To"]</span>
+                    <input type="date" class="form-control" @bind="@_toDate" />
+                </div>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="pagesize" ResourceKey="PageSize" ResourceType="@resourceType" HelpText="The maximum number of search results to retrieve. The default is unlimited.">Page Size: </Label>
+            <div class="col-sm-9">
+                <input id="pagesize" type="text" class="form-control" @bind="@_pageSize" />
+            </div>
+        </div>
+        <hr />
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="sortfield" ResourceKey="SortField" ResourceType="@resourceType" HelpText="Specify the default sort field">Sort By: </Label>
+            <div class="col-sm-9">
+                <select id="softfield" class="form-select" @bind="@_sortField">
+                    <option value="Relevance">@Localizer["Relevance"]</option>
+                    <option value="Title">@Localizer["Title"]</option>
+                    <option value="LastModified">@Localizer["LastModified"]</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="sortorder" ResourceKey="SortOrder" ResourceType="@resourceType" HelpText="Specify the default sort order">Sort Order: </Label>
+            <div class="col-sm-9">
+                <select id="softorder" class="form-select" @bind="@_sortOrder">
+                    <option value="Ascending">@Localizer["Ascending"]</option>
+                    <option value="Descending">@Localizer["Descending"]</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="bodylength" ResourceKey="BodyLength" ResourceType="@resourceType" HelpText="The number of characters displayed for each search result summary. The default is 255 characters.">Body Size: </Label>
+            <div class="col-sm-9">
+                <input id="bodylength" type="text" class="form-control" @bind="@_bodyLength" />
+            </div>
+        </div>
+    </div>
+</form>
+
+@code {
+    private string resourceType = "Oqtane.Modules.Admin.SearchResults.Settings, Oqtane.Client"; // for localization
+
+    private ElementReference form;
+    private bool validated = false;
+
+    private string _includeEntities;
+    private string _excludeEntities;
+    private DateTime? _fromDate = null;
+    private DateTime? _toDate = null;
+    private string _pageSize;
+    private string _sortField;
+    private string _sortOrder;
+    private string _bodyLength;
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            _includeEntities = SettingService.GetSetting(ModuleState.Settings, "SearchResults_IncludeEntities", "");
+            _excludeEntities = SettingService.GetSetting(ModuleState.Settings, "SearchResults_ExcludeEntities", "");
+            var fromDate = SettingService.GetSetting(ModuleState.Settings, "SearchResults_FromDate", "");
+            _fromDate = (string.IsNullOrEmpty(fromDate)) ? null : DateTime.Parse(fromDate);
+            var toDate = SettingService.GetSetting(ModuleState.Settings, "SearchResults_ToDate", "");
+            _toDate = (string.IsNullOrEmpty(toDate)) ? null : DateTime.Parse(toDate);
+            _pageSize = SettingService.GetSetting(ModuleState.Settings, "SearchResults_PageSize", "");
+            _sortField = SettingService.GetSetting(ModuleState.Settings, "SearchResults_SortField", "Relevance");
+            _sortOrder = SettingService.GetSetting(ModuleState.Settings, "SearchResults_SortOrder", "Descending");
+            _bodyLength = SettingService.GetSetting(ModuleState.Settings, "SearchResults_BodyLength", "255");
+        }
+        catch (Exception ex)
+        {
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
+    public async Task UpdateSettings()
+    {
+        try
+        {
+            var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+            settings = SettingService.SetSetting(settings, "SearchResults_IncludeEntities", _includeEntities);
+            settings = SettingService.SetSetting(settings, "SearchResults_ExcludeEntities", _excludeEntities);
+            settings = SettingService.SetSetting(settings, "SearchResults_From", _fromDate.ToString());
+            settings = SettingService.SetSetting(settings, "SearchResults_To", _toDate.ToString());
+            settings = SettingService.SetSetting(settings, "SearchResults_PageSize", _pageSize);
+            settings = SettingService.SetSetting(settings, "SearchResults_SortField", _sortField);
+            settings = SettingService.SetSetting(settings, "SearchResults_SortOrder", _sortOrder);
+            settings = SettingService.SetSetting(settings, "SearchResults_BodyLength", _bodyLength);
+            await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+        }
+        catch (Exception ex)
+        {
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+}

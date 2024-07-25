@@ -43,7 +43,7 @@ else
 
         DynamicComponent = builder =>
         {
-            foreach (Module module in PageState.Modules.Where(item => item.PageId == PageState.Page.PageId))
+            foreach (Module module in PageState.Modules)
             {
                 // set renderid - this allows the framework to determine which components should be rendered when PageState changes
                 if (module.RenderId != PageState.RenderId)

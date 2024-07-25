@@ -10,6 +10,9 @@
 }
 else
 {
+    <button type="button" class="btn btn-secondary" @onclick="Refresh">@Localizer["Refresh"]</button>
+    <br /><br />
+
     <Pager Items="@_jobLogs">
         <Header>
             <th>@SharedLocalizer["Name"]</th>
@@ -35,6 +38,11 @@ else
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnParametersSetAsync()
+    {
+        await GetJobLogs();
+    }
+
+    private async Task GetJobLogs()
     {
         _jobLogs = await JobLogService.GetJobLogsAsync();
 
@@ -66,5 +74,11 @@ else
         }
 
         return status;
+    }
+
+    private async Task Refresh()
+    {
+        await GetJobLogs();
+        StateHasChanged();
     }
 }

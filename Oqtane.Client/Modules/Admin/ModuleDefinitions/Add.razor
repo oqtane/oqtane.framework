@@ -125,7 +125,7 @@
     <TabPanel Name="Upload" ResourceKey="Upload" Heading="Upload">
         <div class="container">
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" HelpText="Upload one or more module packages. Once they are uploaded click Install to complete the installation." ResourceKey="Module">Module: </Label>
+                <Label Class="col-sm-3" HelpText="Upload one or more module packages." ResourceKey="Module">Module: </Label>
                 <div class="col-sm-9">
                     <FileManager Folder="@Constants.PackagesFolder" UploadMultiple="true" OnUpload="OnUpload" />
                 </div>

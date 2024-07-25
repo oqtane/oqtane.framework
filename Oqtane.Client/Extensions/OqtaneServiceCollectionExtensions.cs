@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components.Authorization;
+using Oqtane.Interfaces;
 using Oqtane.Providers;
 using Oqtane.Services;
 using Oqtane.Shared;
@@ -50,6 +51,10 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IUrlMappingService, UrlMappingService>();
             services.AddScoped<IVisitorService, VisitorService>();
             services.AddScoped<ISyncService, SyncService>();
+
+            // providers
+            services.AddScoped<ITextEditor, Oqtane.Modules.Controls.QuillJSTextEditor>();
+            services.AddScoped<ITextEditor, Oqtane.Modules.Controls.TextAreaTextEditor>();
 
             return services;
         }

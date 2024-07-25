@@ -29,5 +29,9 @@ namespace Oqtane.Repository
         public virtual DbSet<Language> Language { get; set; }
         public virtual DbSet<Visitor> Visitor { get; set; }
         public virtual DbSet<UrlMapping> UrlMapping { get; set; }
+        public virtual DbSet<SearchContent> SearchContent { get; set; }
+        public virtual DbSet<SearchContentProperty> SearchContentProperty { get; set; }
+        public virtual DbSet<SearchContentWord> SearchContentWord { get; set; }
+        public virtual DbSet<SearchWord> SearchWord { get; set; }
     }
 }

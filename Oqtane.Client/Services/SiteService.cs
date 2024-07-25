@@ -1,7 +1,6 @@
 using Oqtane.Models;
 using System.Threading.Tasks;
 using System.Net.Http;
-using System.Linq;
 using System.Collections.Generic;
 using Oqtane.Shared;
 using System;
@@ -39,6 +38,11 @@ namespace Oqtane.Services
         public async Task DeleteSiteAsync(int siteId)
         {
             await DeleteAsync($"{Apiurl}/{siteId}");
+        }
+
+        public async Task<List<Module>> GetModulesAsync(int siteId, int pageId)
+        {
+            return await GetJsonAsync<List<Module>>($"{Apiurl}/modules/{siteId}/{pageId}");
         }
 
         [Obsolete("This method is deprecated.", false)]

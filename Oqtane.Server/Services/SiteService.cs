@@ -62,35 +62,28 @@ namespace Oqtane.Services
 
         public async Task<Site> GetSiteAsync(int siteId)
         {
-            if (!_accessor.HttpContext.User.Identity.IsAuthenticated)
+            var alias = _tenantManager.GetAlias();
+            var site = await _cache.GetOrCreateAsync($"site:{alias.SiteKey}", async entry =>
             {
-                // unauthenticated
-                return await _cache.GetOrCreateAsync($"site:{_accessor.HttpContext.GetAlias().SiteKey}", async entry =>
-                {
-                    entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                    return await GetSite(siteId);
-                }, true);
-            }
-            else // authenticated
+                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                return await GetSite(siteId);
+            });
+
+            // trim pages based on user permissions
+            var pages = new List<Page>();
+            foreach (Page page in site.Pages)
             {
-                // is only in registered users role - cache by role
-                if (_accessor.HttpContext.User.IsOnlyInRole(RoleNames.Registered))
+                if (!page.IsDeleted && _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.View, page.PermissionList) && (Utilities.IsEffectiveAndNotExpired(page.EffectiveDate, page.ExpiryDate) || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, page.PermissionList)))
                 {
-                    return await _cache.GetOrCreateAsync($"site:{_accessor.HttpContext.GetAlias().SiteKey}:{RoleNames.Registered}", async entry =>
-                    {
-                        entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                        return await GetSite(siteId);
-                    }, true);
-                }
-                else // cache by user
-                {
-                    return await _cache.GetOrCreateAsync($"site:{_accessor.HttpContext.GetAlias().SiteKey}:{_accessor.HttpContext.User.UserId()}", async entry =>
-                    {
-                        entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                        return await GetSite(siteId);
-                    }, true);
+                    pages.Add(page);
                 }
             }
+
+            // clone object so that cache is not mutated
+            site = site.Clone(site);
+            site.Pages = pages;
+
+            return site;
         }
 
         private async Task<Site> GetSite(int siteid)
@@ -115,62 +108,17 @@ namespace Oqtane.Services
                 site.Pages = new List<Page>();
                 foreach (Page page in _pages.GetPages(site.SiteId))
                 {
-                    if (!page.IsDeleted && _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.View, page.PermissionList) && (Utilities.IsPageModuleVisible(page.EffectiveDate, page.ExpiryDate) || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, page.PermissionList)))
-                    {
-                        page.Settings = settings.Where(item => item.EntityId == page.PageId)
-                            .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, page.PermissionList))
-                            .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
-                        site.Pages.Add(page);
-                    }
+                    page.Settings = settings.Where(item => item.EntityId == page.PageId)
+                        .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, page.PermissionList))
+                        .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
+                    site.Pages.Add(page);
                 }
-
                 site.Pages = GetPagesHierarchy(site.Pages);
 
-                // modules
-                List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(site.SiteId).ToList();
-                settings = _settings.GetSettings(EntityNames.Module).ToList();
-                site.Modules = new List<Module>();
-                foreach (PageModule pagemodule in _pageModules.GetPageModules(site.SiteId).Where(pm => !pm.IsDeleted && _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.View, pm.Module.PermissionList)))
-                {
-                    if (Utilities.IsPageModuleVisible(pagemodule.EffectiveDate, pagemodule.ExpiryDate) || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, pagemodule.Module.PermissionList))
-                    {
-                        Module module = new Module
-                        {
-                            SiteId = pagemodule.Module.SiteId,
-                            ModuleDefinitionName = pagemodule.Module.ModuleDefinitionName,
-                            AllPages = pagemodule.Module.AllPages,
-                            PermissionList = pagemodule.Module.PermissionList,
-                            CreatedBy = pagemodule.Module.CreatedBy,
-                            CreatedOn = pagemodule.Module.CreatedOn,
-                            ModifiedBy = pagemodule.Module.ModifiedBy,
-                            ModifiedOn = pagemodule.Module.ModifiedOn,
-                            DeletedBy = pagemodule.DeletedBy,
-                            DeletedOn = pagemodule.DeletedOn,
-                            IsDeleted = pagemodule.IsDeleted,
-
-                            PageModuleId = pagemodule.PageModuleId,
-                            ModuleId = pagemodule.ModuleId,
-                            PageId = pagemodule.PageId,
-                            Title = pagemodule.Title,
-                            Pane = pagemodule.Pane,
-                            Order = pagemodule.Order,
-                            ContainerType = pagemodule.ContainerType,
-                            EffectiveDate = pagemodule.EffectiveDate,
-                            ExpiryDate = pagemodule.ExpiryDate,
-
-                            ModuleDefinition = _moduleDefinitions.FilterModuleDefinition(moduledefinitions.Find(item => item.ModuleDefinitionName == pagemodule.Module.ModuleDefinitionName)),
-
-                            Settings = settings
-                            .Where(item => item.EntityId == pagemodule.ModuleId)
-                            .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, pagemodule.Module.PermissionList))
-                            .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue)
-                        };
-
-                        site.Modules.Add(module);
-                    }
-                }
-
-                site.Modules = site.Modules.OrderBy(item => item.PageId).ThenBy(item => item.Pane).ThenBy(item => item.Order).ToList();
+                // framework modules
+                var modules = await GetModulesAsync(site.SiteId);
+                site.Settings.Add(Constants.AdminDashboardModule, modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.AdminDashboardModule).ModuleId.ToString());
+                site.Settings.Add(Constants.PageManagementModule, modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.PageManagementModule).ModuleId.ToString());
 
                 // languages
                 site.Languages = _languages.GetLanguages(site.SiteId).ToList();
@@ -189,6 +137,46 @@ namespace Oqtane.Services
                 }
             }
             return site;
+        }
+
+        private static List<Page> GetPagesHierarchy(List<Page> pages)
+        {
+            List<Page> hierarchy = new List<Page>();
+            Action<List<Page>, Page> getPath = null;
+            getPath = (pageList, page) =>
+            {
+                IEnumerable<Page> children;
+                int level;
+                if (page == null)
+                {
+                    level = -1;
+                    children = pages.Where(item => item.ParentId == null);
+                }
+                else
+                {
+                    level = page.Level;
+                    children = pages.Where(item => item.ParentId == page.PageId);
+                }
+                foreach (Page child in children)
+                {
+                    child.Level = level + 1;
+                    child.HasChildren = pages.Any(item => item.ParentId == child.PageId && !item.IsDeleted && item.IsNavigation);
+                    hierarchy.Add(child);
+                    getPath(pageList, child);
+                }
+            };
+            pages = pages.OrderBy(item => item.Order).ToList();
+            getPath(pages, null);
+
+            // add any non-hierarchical items to the end of the list
+            foreach (Page page in pages)
+            {
+                if (hierarchy.Find(item => item.PageId == page.PageId) == null)
+                {
+                    hierarchy.Add(page);
+                }
+            }
+            return hierarchy;
         }
 
         public async Task<Site> AddSiteAsync(Site site)
@@ -256,44 +244,81 @@ namespace Oqtane.Services
             }
         }
 
-        private static List<Page> GetPagesHierarchy(List<Page> pages)
+        public async Task<List<Module>> GetModulesAsync(int siteId, int pageId)
         {
-            List<Page> hierarchy = new List<Page>();
-            Action<List<Page>, Page> getPath = null;
-            getPath = (pageList, page) =>
+            var alias = _tenantManager.GetAlias();
+            var sitemodules = await _cache.GetOrCreateAsync($"modules:{alias.SiteKey}", async entry =>
             {
-                IEnumerable<Page> children;
-                int level;
-                if (page == null)
-                {
-                    level = -1;
-                    children = pages.Where(item => item.ParentId == null);
-                }
-                else
-                {
-                    level = page.Level;
-                    children = pages.Where(item => item.ParentId == page.PageId);
-                }
-                foreach (Page child in children)
-                {
-                    child.Level = level + 1;
-                    child.HasChildren = pages.Any(item => item.ParentId == child.PageId && !item.IsDeleted && item.IsNavigation);
-                    hierarchy.Add(child);
-                    getPath(pageList, child);
-                }
-            };
-            pages = pages.OrderBy(item => item.Order).ToList();
-            getPath(pages, null);
+                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                return await GetModulesAsync(siteId);
+            });
 
-            // add any non-hierarchical items to the end of the list
-            foreach (Page page in pages)
+            var modules = new List<Module>();
+            foreach (Module module in sitemodules.Where(item => (item.PageId == pageId || pageId == -1) && !item.IsDeleted && _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.View, item.PermissionList)))
             {
-                if (hierarchy.Find(item => item.PageId == page.PageId) == null)
+                if (Utilities.IsEffectiveAndNotExpired(module.EffectiveDate, module.ExpiryDate) || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, module.PermissionList))
                 {
-                    hierarchy.Add(page);
+                    modules.Add(module);
                 }
             }
-            return hierarchy;
+            return modules;
+        }
+
+        public async Task<List<Module>> GetModulesAsync(int siteId)
+        {
+            var alias = _tenantManager.GetAlias();
+            return await _cache.GetOrCreateAsync($"modules:{alias.SiteKey}", async entry =>
+            {
+                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                return await GetModules(siteId);
+            });
+        }
+
+        private async Task<List<Module>> GetModules(int siteId)
+        {
+            await Task.Yield(); // force method to async
+
+            List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(siteId).ToList();
+            var settings = _settings.GetSettings(EntityNames.Module).ToList();
+            var modules = new List<Module>();
+
+            foreach (PageModule pagemodule in _pageModules.GetPageModules(siteId))
+            {
+                Module module = new Module
+                {
+                    SiteId = pagemodule.Module.SiteId,
+                    ModuleDefinitionName = pagemodule.Module.ModuleDefinitionName,
+                    AllPages = pagemodule.Module.AllPages,
+                    PermissionList = pagemodule.Module.PermissionList,
+                    CreatedBy = pagemodule.Module.CreatedBy,
+                    CreatedOn = pagemodule.Module.CreatedOn,
+                    ModifiedBy = pagemodule.Module.ModifiedBy,
+                    ModifiedOn = pagemodule.Module.ModifiedOn,
+                    DeletedBy = pagemodule.DeletedBy,
+                    DeletedOn = pagemodule.DeletedOn,
+                    IsDeleted = pagemodule.IsDeleted,
+
+                    PageModuleId = pagemodule.PageModuleId,
+                    ModuleId = pagemodule.ModuleId,
+                    PageId = pagemodule.PageId,
+                    Title = pagemodule.Title,
+                    Pane = pagemodule.Pane,
+                    Order = pagemodule.Order,
+                    ContainerType = pagemodule.ContainerType,
+                    EffectiveDate = pagemodule.EffectiveDate,
+                    ExpiryDate = pagemodule.ExpiryDate,
+
+                    ModuleDefinition = _moduleDefinitions.FilterModuleDefinition(moduledefinitions.Find(item => item.ModuleDefinitionName == pagemodule.Module.ModuleDefinitionName)),
+
+                    Settings = settings.Where(item => item.EntityId == pagemodule.ModuleId)
+                        .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, pagemodule.Module.PermissionList))
+                        .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue)
+                };
+
+                modules.Add(module);
+            }
+
+            return modules.OrderBy(item => item.PageId).ThenBy(item => item.Pane).ThenBy(item => item.Order).ToList();
         }
 
         [Obsolete("This method is deprecated.", false)]

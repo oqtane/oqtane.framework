@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace Oqtane.Models
 {
@@ -11,7 +12,7 @@ namespace Oqtane.Models
     public class Site : ModelBase, IDeletable
     {
         /// <summary>
-        /// Internal ID, not to be confused with the <see cref="Alias.AliasId"/>
+        /// The ID of the Site
         /// </summary>
         public int SiteId { get; set; }
 
@@ -22,7 +23,6 @@ namespace Oqtane.Models
 
         /// <summary>
         /// The site Name
-        /// TODO: todoc where this will be used / shown
         /// </summary>
         public string Name { get; set; }
 
@@ -37,15 +37,37 @@ namespace Oqtane.Models
         /// Reference to a <see cref="File"/> which has the FavIcon for this site.
         /// Should be an image. 
         /// The theme can then use this where needed.
-        /// TODO: todoc does this get applied automatically, or does the Theme do this?
         /// </summary>
         public int? FaviconFileId { get; set; }
 
+        /// <summary>
+        /// Default theme for the site
+        /// </summary>
         public string DefaultThemeType { get; set; }
+
+        /// <summary>
+        /// Default container for the site
+        /// </summary>
         public string DefaultContainerType { get; set; }
+
+        /// <summary>
+        /// Default admin container
+        /// </summary>
         public string AdminContainerType { get; set; }
+
+        /// <summary>
+        /// Indicates if the site is a progressive web application (PWA)
+        /// </summary>
         public bool PwaIsEnabled { get; set; }
+
+        /// <summary>
+        /// The app icon for the progressive web application (PWA)
+        /// </summary>
         public int? PwaAppIconFileId { get; set; }
+
+        /// <summary>
+        /// The splash icon for the progressive web application (PWA)
+        /// </summary>
         public int? PwaSplashIconFileId { get; set; }
 
         /// <summary>
@@ -54,7 +76,7 @@ namespace Oqtane.Models
         public bool AllowRegistration { get; set; }
 
         /// <summary>
-        /// Determines if visitors will be tracked
+        /// Determines if site visitors will be recorded
         /// </summary>
         public bool VisitorTracking { get; set; }
 
@@ -94,7 +116,7 @@ namespace Oqtane.Models
         public string Version { get; set; }
 
         /// <summary>
-        /// The home page of the site which will be used as a fallback if no page has a path of "/" 
+        /// The home page of the site - the "/" path will be used by default if no home page is specified
         /// </summary>
         public int? HomePageId { get; set; }
 
@@ -109,42 +131,105 @@ namespace Oqtane.Models
         public string BodyContent { get; set; }
 
         /// <summary>
-        /// The ImageFile extensions
+        /// Indicates if site is deleted
+        /// </summary>
+        public bool IsDeleted { get; set; }
+
+        /// <summary>
+        /// The user who deleted site
+        /// </summary>
+        public string DeletedBy { get; set; }
+
+        /// <summary>
+        /// Date site was deleted
+        /// </summary>
+        public DateTime? DeletedOn { get; set; }
+
+        /// <summary>
+        /// The allowable iamge file extensions
         /// </summary>
         [NotMapped]
         public string ImageFiles { get; set; }
 
         /// <summary>
-        /// The UploadableFile extensions
+        /// The allowable file extensions which can be uploaded
         /// </summary>
         [NotMapped]
         public string UploadableFiles { get; set; }
 
+        /// <summary>
+        /// Used when provisioning a site from a site template
+        /// </summary>
+        [NotMapped]
+        public string SiteTemplateType { get; set; }
+
+        /// <summary>
+        /// The settings for the site
+        /// </summary>
         [NotMapped]
         public Dictionary<string, string> Settings { get; set; }
 
+        /// <summary>
+        /// List of pages for the site
+        /// </summary>
         [NotMapped]
         public List<Page> Pages { get; set; }
 
-        [NotMapped]
-        public List<Module> Modules { get; set; }
-
+        /// <summary>
+        /// List of languages for the site
+        /// </summary>
         [NotMapped]
         public List<Language> Languages { get; set; }
 
+        /// <summary>
+        /// List of themes for the site
+        /// </summary>
         [NotMapped]
         public List<Theme> Themes { get; set; }
 
-        #region IDeletable Properties
-
-        public string DeletedBy { get; set; }
-        public DateTime? DeletedOn { get; set; }
-        public bool IsDeleted { get; set; }
-
-        #endregion
-
-        [NotMapped]
-        public string SiteTemplateType { get; set; }
+        public Site Clone(Site site)
+        {
+            return new Site
+            {
+                SiteId = site.SiteId,
+                TenantId = site.TenantId,
+                Name = site.Name,
+                LogoFileId = site.LogoFileId,
+                FaviconFileId = site.FaviconFileId,
+                DefaultThemeType = site.DefaultThemeType,
+                DefaultContainerType = site.DefaultContainerType,
+                AdminContainerType = site.AdminContainerType,
+                PwaIsEnabled = site.PwaIsEnabled,
+                PwaAppIconFileId = site.PwaAppIconFileId,
+                PwaSplashIconFileId = site.PwaSplashIconFileId,
+                AllowRegistration = site.AllowRegistration,
+                VisitorTracking = site.VisitorTracking,
+                CaptureBrokenUrls = site.CaptureBrokenUrls,
+                SiteGuid = site.SiteGuid,
+                RenderMode = site.RenderMode,
+                Runtime = site.Runtime,
+                Prerender = site.Prerender,
+                Hybrid = site.Hybrid,
+                Version = site.Version,
+                HomePageId = site.HomePageId,
+                HeadContent = site.HeadContent,
+                BodyContent = site.BodyContent,
+                IsDeleted = site.IsDeleted,
+                DeletedBy = site.DeletedBy,
+                DeletedOn = site.DeletedOn,
+                ImageFiles = site.ImageFiles,
+                UploadableFiles = site.UploadableFiles,
+                SiteTemplateType = site.SiteTemplateType,
+                CreatedBy = site.CreatedBy,
+                CreatedOn = site.CreatedOn,
+                ModifiedBy = site.ModifiedBy,
+                ModifiedOn = site.ModifiedOn,
+                Settings = site.Settings.ToDictionary(),
+                Pages = site.Pages.ToList(),
+                Languages = site.Languages.ToList(),
+                Themes = site.Themes.ToList()
+            };
+        }
 
         #region Obsolete properties
         [NotMapped]

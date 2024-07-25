@@ -132,6 +132,7 @@
                     _renderMode = site.RenderMode;
                     _runtime = site.Runtime;
                     _prerender = site.Prerender;
+                    var modules = new List<Module>();
 
                     Route route = new Route(url, alias.Path);
                     var page = site.Pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
@@ -156,6 +157,10 @@
                     {
                         HandlePageNotFound(site, page, route);
                     }
+                    else
+                    {
+                        modules = await SiteService.GetModulesAsync(site.SiteId, page.PageId);
+                    }
 
                     if (site.VisitorTracking)
                     {
@@ -169,7 +174,7 @@
                     }
 
                     // includes resources
-                    var resources = GetPageResources(alias, site, page, int.Parse(route.ModuleId, CultureInfo.InvariantCulture), route.Action);
+                    var resources = await GetPageResources(alias, site, page, modules, int.Parse(route.ModuleId, CultureInfo.InvariantCulture), route.Action);
                     ManageStyleSheets(resources);
                     ManageScripts(resources, alias);
 
@@ -215,12 +220,13 @@
                         _language = _language.Replace("c=", "");
                     }
 
-                    // create initial PageState 
+                    // create initial PageState
                     _pageState = new PageState
                     {
                         Alias = alias,
                         Site = site,
                         Page = page,
+                        Modules = modules,
                         User = null,
                         Uri = new Uri(url, UriKind.Absolute),
                         Route = route,
@@ -332,7 +338,7 @@
             {
                 var values = visitorCookieValue.Split('|');
                 int.TryParse(values[0], out _visitorId);
-                DateTime.TryParse(values[1], out expiry);
+                DateTime.TryParseExact(values[1], "M/d/yyyy hh:mm:ss tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out expiry);
             }
             else // legacy cookie format
             {
@@ -419,7 +425,7 @@
 
                 Context.Response.Cookies.Append(
                     visitorCookieName,
-                    $"{_visitorId}|{expiry}",
+                    $"{_visitorId}|{expiry.ToString("M/d/yyyy hh:mm:ss tt", CultureInfo.InvariantCulture)}",
                     new CookieOptions()
                     {
                         Expires = DateTimeOffset.UtcNow.AddYears(10),
@@ -574,7 +580,16 @@
             else
             {
                 // use custom element which can execute script on every page transition
-                return "<page-script src=\"" + resource.Url + "\"></page-script>";
+                @if (string.IsNullOrEmpty(resource.Integrity) && string.IsNullOrEmpty(resource.CrossOrigin))
+                {
+                    return "<page-script src=\"" + resource.Url + "\"></page-script>";
+                }
+                else
+                {
+                    // use modulepreload for external resources
+                    return "<link rel=\"modulepreload\" href=\"" + resource.Url + "\" integrity=\"" + resource.Integrity + "\" crossorigin=\"" + resource.CrossOrigin + "\" />\n" +
+                        "<page-script src=\"" + resource.Url + "\"></page-script>";
+                }
             }
         }
         else
@@ -591,7 +606,7 @@
             CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)));
     }
 
-    private List<Resource> GetPageResources(Alias alias, Site site, Page page, int moduleid, string action)
+    private async Task<List<Resource>> GetPageResources(Alias alias, Site site, Page page, List<Module> modules, int moduleid, string action)
     {
         var resources = new List<Resource>();
 
@@ -617,7 +632,7 @@
             }
         }
 
-        foreach (Module module in site.Modules.Where(item => item.PageId == page.PageId || item.ModuleId == moduleid))
+        foreach (Module module in modules.Where(item => item.PageId == page.PageId || item.ModuleId == moduleid))
         {
             var typename = "";
             if (module.ModuleDefinition != null)
@@ -683,13 +698,16 @@
             }
         }
 
-        // site level resources for modules in site
-        var modules = site.Modules.GroupBy(item => item.ModuleDefinition?.ModuleDefinitionName).Select(group => group.First()).ToList();
-        foreach (var module in modules)
+        if (site.RenderMode == RenderModes.Interactive)
         {
-            if (module.ModuleDefinition?.Resources != null)
+            // site level resources for modules in site
+            var sitemodules = await SiteService.GetModulesAsync(site.SiteId, -1);
+            foreach (var module in sitemodules.GroupBy(item => item.ModuleDefinition?.ModuleDefinitionName).Select(group => group.First()).ToList())
             {
-                resources = AddResources(resources, module.ModuleDefinition.Resources.Where(item => item.ResourceType == ResourceType.Script && item.Level == ResourceLevel.Site).ToList(), ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName), site.RenderMode);
+                if (module.ModuleDefinition?.Resources != null)
+                {
+                    resources = AddResources(resources, module.ModuleDefinition.Resources.Where(item => item.ResourceType == ResourceType.Script && item.Level == ResourceLevel.Site).ToList(), ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName), site.RenderMode);
+                }
             }
         }
 

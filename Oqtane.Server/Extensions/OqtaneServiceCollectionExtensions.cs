@@ -19,8 +19,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Oqtane.Infrastructure;
 using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Interfaces;
 using Oqtane.Managers;
 using Oqtane.Modules;
+using Oqtane.Providers;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Services;
@@ -97,6 +99,13 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IUrlMappingService, UrlMappingService>();
             services.AddScoped<IVisitorService, VisitorService>();
             services.AddScoped<ISyncService, SyncService>();
+            services.AddScoped<ISearchResultsService, SearchResultsService>();
+            services.AddScoped<ISearchService, SearchService>();
+            services.AddScoped<ISearchProvider, DatabaseSearchProvider>();
+
+            // providers
+            services.AddScoped<ITextEditor, Oqtane.Modules.Controls.QuillJSTextEditor>();
+            services.AddScoped<ITextEditor, Oqtane.Modules.Controls.TextAreaTextEditor>();
 
             return services;
         }
@@ -131,6 +140,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<ILanguageRepository, LanguageRepository>();
             services.AddTransient<IVisitorRepository, VisitorRepository>();
             services.AddTransient<IUrlMappingRepository, UrlMappingRepository>();
+            services.AddTransient<ISearchContentRepository, SearchContentRepository>();
 
             // managers
             services.AddTransient<IDBContextDependencies, DBContextDependencies>();

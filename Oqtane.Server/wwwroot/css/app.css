@@ -235,3 +235,23 @@ app {
 .app-form-inline {
     display: inline-block;
 }
+.app-search{
+    display: inline-block;
+    position: relative;
+}
+.app-search input + button{
+    background: none;
+    border: none;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+.app-search input + button .oi{
+    top: 0;
+}
+
+/* Text Editor */
+.text-area-editor > textarea {
+    width: 100%;
+    min-height: 250px;
+}
