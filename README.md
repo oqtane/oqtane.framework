@@ -1,6 +1,6 @@
 # Latest Release
 
-[5.1.2](https://github.com/oqtane/oqtane.framework/releases/tag/v5.1.2) was released on May 28, 2024 and is primarily a stabilization release. This release includes 68 pull requests by 9 different contributors, pushing the total number of project commits all-time to over 5300. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
+[5.2.0](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.0) was released on July 25, 2024 and is a major release. This release includes 109 pull requests by 8 different contributors, pushing the total number of project commits all-time to over 5600. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Foqtane%2Foqtane.framework%2Fmaster%2Fazuredeploy.json)
 
@@ -18,7 +18,7 @@ Please note that this project is owned by the .NET Foundation and is governed by
 
 **Using Version 5:**
 
-- Install **[.NET 8.0.5 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)**.
+- Install **[.NET 8.0.7 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)**.
 
 - Install the latest edition (v17.9 or higher) of [Visual Studio 2022](https://visualstudio.microsoft.com/downloads) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you wish to use LocalDB for development ( not a requirement as Oqtane supports SQLite, mySQL, and PostgreSQL ) you must also install the **Data storage and processing**.  
 
@@ -62,6 +62,11 @@ Backlog (TBD)
 - [ ] Azure Autoscale support (ie. web farm)
 - [ ] Folder Providers
 - [ ] Generative AI Integration
+
+[5.2.0](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.0) (Jul 25, 2024)
+- [x] Site Content Search
+- [x] RichTextEditor extensibility
+- [x] Scalability and performance improvements
 
 [5.1.2](https://github.com/oqtane/oqtane.framework/releases/tag/v5.1.2) (May 28, 2024)
 - [x] Stabilization improvements
