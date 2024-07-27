@@ -66,8 +66,8 @@ namespace Oqtane.Infrastructure
                     case "5.1.0":
                         Upgrade_5_1_0(tenant, scope);
                         break;
-                    case "5.2.0":
-                        Upgrade_5_2_0(tenant, scope);
+                    case "5.2.1":
+                        Upgrade_5_2_1(tenant, scope);
                         break;
                 }
             }
@@ -201,7 +201,7 @@ namespace Oqtane.Infrastructure
                 }
             };
 
-            AddPagesToSites(scope, pageTemplates);
+            AddPagesToSites(scope, tenant, pageTemplates);
         }
 
         private void Upgrade_3_1_3(Tenant tenant, IServiceScope scope)
@@ -386,7 +386,7 @@ namespace Oqtane.Infrastructure
             }
         }
 
-        private void Upgrade_5_2_0(Tenant tenant, IServiceScope scope)
+        private void Upgrade_5_2_1(Tenant tenant, IServiceScope scope)
         {
             var pageTemplates = new List<PageTemplate>
             {
@@ -438,14 +438,16 @@ namespace Oqtane.Infrastructure
                 }
             };
 
-            AddPagesToSites(scope, pageTemplates);
+            AddPagesToSites(scope, tenant, pageTemplates);
         }
 
-        private void AddPagesToSites(IServiceScope scope, List<PageTemplate> pageTemplates)
+        private void AddPagesToSites(IServiceScope scope, Tenant tenant, List<PageTemplate> pageTemplates)
         {
+            var tenants = scope.ServiceProvider.GetRequiredService<ITenantManager>();
             var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
             foreach (var site in sites.GetSites().ToList())
             {
+                tenants.SetAlias(tenant.TenantId, site.SiteId);
                 sites.CreatePages(site, pageTemplates, null);
             }
         }
