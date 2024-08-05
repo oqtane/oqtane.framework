@@ -210,7 +210,7 @@ namespace Oqtane.Infrastructure
                 if (alias != null)
                 {
                     subject = $"{alias.Name} Site {log.Level} Notification";
-                    body = $"Log Message: {log.Message}<br /><br />Please visit {alias.Protocol}://{alias.Name}/admin/log?id={log.LogId} for more information";
+                    body = $"Log Message: {log.Message}<br /><br />Please visit {alias.Protocol}{alias.Name}/admin/log?id={log.LogId} for more information";
                 }
 
                 foreach (var userrole in _userRoles.GetUserRoles(RoleNames.Host, log.SiteId.Value))
