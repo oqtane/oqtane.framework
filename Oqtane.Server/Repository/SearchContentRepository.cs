@@ -22,8 +22,6 @@ namespace Oqtane.Repository
             using var db = _dbContextFactory.CreateDbContext();
             var searchContents = db.SearchContent.AsNoTracking()
                 .Include(i => i.SearchContentProperties)
-                .Include(i => i.SearchContentWords)
-                .ThenInclude(w => w.SearchWord)
                 .Where(i => i.SiteId == searchQuery.SiteId);
 
             if (!string.IsNullOrEmpty(searchQuery.IncludeEntities))

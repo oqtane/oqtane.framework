@@ -104,7 +104,8 @@ namespace Oqtane.Providers
             var score = 0f;
             foreach (var keyword in SearchUtils.GetKeywords(searchQuery.Keywords))
             {
-                score += searchContent.SearchContentWords.Where(i => i.SearchWord.Word.StartsWith(keyword)).Sum(i => i.Count);
+                var content = FormatContent($"{searchContent.Title} {searchContent.Description} {searchContent.Body} {searchContent.AdditionalContent}");
+                score += content.Split(' ').Count(i => i.StartsWith(keyword, StringComparison.OrdinalIgnoreCase));
             }
 
             return score / 100;
