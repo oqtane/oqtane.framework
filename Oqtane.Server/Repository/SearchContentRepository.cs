@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
@@ -20,50 +21,82 @@ namespace Oqtane.Repository
         public async Task<IEnumerable<SearchContent>> GetSearchContentsAsync(SearchQuery searchQuery)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            var searchContents = db.SearchContent.AsNoTracking()
-                .Include(i => i.SearchContentProperties)
-                .Include(i => i.SearchContentWords)
-                .ThenInclude(w => w.SearchWord)
-                .Where(i => i.SiteId == searchQuery.SiteId);
 
+            var keywords = SearchUtils.GetKeywords(searchQuery.Keywords);
+
+            // using dynamic SQL for query performance (this could be replaced with linq if the exact query structure can be replicated)
+            var parameters = new List<object>();
+            parameters.Add(searchQuery.SiteId);
+
+            var query = "SELECT sc.*, Count ";
+            query += "FROM ( ";
+            query += "SELECT sc.SearchContentId, SUM(Count) AS Count ";
+            query += "FROM SearchContent sc ";
+            query += "INNER JOIN SearchContentWord scw ON sc.SearchContentId = scw.SearchContentId ";
+            query += "INNER JOIN SearchWord sw ON scw.SearchWordId = sw.SearchWordId ";
+            query += "WHERE sc.SiteId = {0} ";
+            if (keywords.Count > 0)
+            {
+                query += "AND ( ";
+                for (int index = 0; index < keywords.Count; index++)
+                {
+                    query += (index == 0 ? "" : "OR ") + "Word LIKE {" + parameters.Count + "} ";
+                    parameters.Add(keywords[index] + "%");
+                }
+                query += " ) ";
+            }
+            query += "GROUP BY sc.SearchContentId ";
+            query += ") AS Scores ";
+            query += "INNER JOIN SearchContent sc ON sc.SearchContentId = Scores.SearchContentId ";
+            if (searchQuery.Properties != null && searchQuery.Properties.Any())
+            {
+                query += "LEFT JOIN SearchContentProperty scp ON sc.SearchContentId = scp.SearchContentId ";
+            }
+            query += "WHERE sc.SiteId = {0} ";
             if (!string.IsNullOrEmpty(searchQuery.IncludeEntities))
             {
-                searchContents = searchContents.Where(i => searchQuery.IncludeEntities.Split(',', StringSplitOptions.RemoveEmptyEntries).Contains(i.EntityName));
+                query += "AND sc.EntityName IN ( ";
+                var entities = searchQuery.IncludeEntities.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                for (int index = 0; index < entities.Length; index++)
+                {
+                    query += (index == 0 ? "" : ", ") + "{" + parameters.Count + "} ";
+                    parameters.Add(entities[index]);
+                }
+                query += " ) ";
             }
-
             if (!string.IsNullOrEmpty(searchQuery.ExcludeEntities))
             {
-                searchContents = searchContents.Where(i => !searchQuery.ExcludeEntities.Split(',', StringSplitOptions.RemoveEmptyEntries).Contains(i.EntityName));
+                query += "AND sc.EntityName NOT IN ( ";
+                var entities = searchQuery.ExcludeEntities.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                for (int index = 0; index < entities.Length; index++)
+                {
+                    query += (index == 0 ? "" : ", ") + "{" + parameters.Count + "} ";
+                    parameters.Add(entities[index]);
+                }
+                query += " ) ";
             }
-
-            if (searchQuery.FromDate != DateTime.MinValue)
+            if (searchQuery.FromDate.ToString() != DateTime.MinValue.ToString())
             {
-                searchContents = searchContents.Where(i => i.ContentModifiedOn >= searchQuery.FromDate);
+                query += "AND sc.ContentModifiedOn >= {" + parameters.Count + "} ";
+                parameters.Add(searchQuery.FromDate);
             }
-
-            if (searchQuery.ToDate != DateTime.MaxValue)
+            if (searchQuery.ToDate.ToString() != DateTime.MaxValue.ToString())
             {
-                searchContents = searchContents.Where(i => i.ContentModifiedOn <= searchQuery.ToDate);
+                query += "AND sc.ContentModifiedOn <= {" + parameters.Count + "} ";
+                parameters.Add(searchQuery.ToDate);
             }
-
             if (searchQuery.Properties != null && searchQuery.Properties.Any())
             {
                 foreach (var property in searchQuery.Properties)
                 {
-                    searchContents = searchContents.Where(i => i.SearchContentProperties.Any(p => p.Name == property.Key && p.Value == property.Value));
+                    query += "AND ( scp.Key = {" + parameters.Count + "} ";
+                    parameters.Add(property.Key);
+                    query += "AND scp.Value = {" + parameters.Count + "} ) ";
+                    parameters.Add(property.Value);
                 }
             }
 
-            var filteredContentList = new List<SearchContent>();
-            if (!string.IsNullOrEmpty(searchQuery.Keywords))
-            {
-                foreach (var keyword in SearchUtils.GetKeywords(searchQuery.Keywords))
-                {
-                    filteredContentList.AddRange(await searchContents.Where(i => i.SearchContentWords.Any(w => w.SearchWord.Word.StartsWith(keyword))).ToListAsync());
-                }
-            }
-
-            return filteredContentList.DistinctBy(i => i.UniqueKey);
+            return await db.SearchContent.FromSql(FormattableStringFactory.Create(query, parameters.ToArray())).ToListAsync();
         }
 
         public SearchContent AddSearchContent(SearchContent searchContent)

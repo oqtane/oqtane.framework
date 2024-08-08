@@ -51,7 +51,7 @@ namespace Oqtane.Providers
                 ContentModifiedOn = searchContent.ContentModifiedOn,
                 SearchContentProperties = searchContent.SearchContentProperties,
                 Snippet = BuildSnippet(searchContent, searchQuery),
-                Score = CalculateScore(searchContent, searchQuery)
+                Score = (searchContent.Count / 100f)
             };
 
             return searchResult;
@@ -97,17 +97,6 @@ namespace Oqtane.Providers
             }
 
             return snippet;
-        }
-
-        private float CalculateScore(SearchContent searchContent, SearchQuery searchQuery)
-        {
-            var score = 0f;
-            foreach (var keyword in SearchUtils.GetKeywords(searchQuery.Keywords))
-            {
-                score += searchContent.SearchContentWords.Where(i => i.SearchWord.Word.StartsWith(keyword)).Sum(i => i.Count);
-            }
-
-            return score / 100;
         }
 
         public Task SaveSearchContent(SearchContent searchContent, Dictionary<string, string> siteSettings)
