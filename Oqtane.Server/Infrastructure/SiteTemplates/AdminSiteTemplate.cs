@@ -266,7 +266,6 @@ namespace Oqtane.SiteTemplates
                 PermissionList = new List<Permission>
                 {
                     new Permission(PermissionNames.View, RoleNames.Admin, true),
-                    new Permission(PermissionNames.View, RoleNames.Registered, true),
                     new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                 },
                 PageTemplateModules = new List<PageTemplateModule>
