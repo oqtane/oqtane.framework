@@ -5,7 +5,8 @@
 @inject NavigationManager NavigationManager
 @inject IPageService PageService
 @inject IPageModuleService PageModuleService
-@inject IThemeService  ThemeService
+@inject IModuleService ModuleService
+@inject IThemeService ThemeService
 @inject ISystemService SystemService
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
@@ -417,7 +418,8 @@
                 _permissions = _page.PermissionList;
 
                 // page modules
-                _pageModules = PageState.Modules;
+                var modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId);
+                _pageModules = modules.Where(item => item.PageId == _page.PageId).ToList();
 
                 // audit
                 _createdby = _page.CreatedBy;
