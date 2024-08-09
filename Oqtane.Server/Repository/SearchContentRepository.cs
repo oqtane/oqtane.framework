@@ -4,6 +4,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Oqtane.Extensions;
+using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
 
@@ -24,79 +27,80 @@ namespace Oqtane.Repository
 
             var keywords = SearchUtils.GetKeywords(searchQuery.Keywords);
 
-            // using dynamic SQL for query performance (this could be replaced with linq if the exact query structure can be replicated)
-            var parameters = new List<object>();
-            parameters.Add(searchQuery.SiteId);
-
-            var query = "SELECT sc.*, Count ";
-            query += "FROM ( ";
-            query += "SELECT sc.SearchContentId, SUM(Count) AS Count ";
-            query += "FROM SearchContent sc ";
-            query += "INNER JOIN SearchContentWord scw ON sc.SearchContentId = scw.SearchContentId ";
-            query += "INNER JOIN SearchWord sw ON scw.SearchWordId = sw.SearchWordId ";
-            query += "WHERE sc.SiteId = {0} ";
-            if (keywords.Count > 0)
-            {
-                query += "AND ( ";
-                for (int index = 0; index < keywords.Count; index++)
+            var searchContents = db.SearchContentWord
+                .AsNoTracking()
+                .Include(item => item.SearchContent)
+                .Include(item => item.SearchWord)
+                .Where(item => item.SearchContent.SiteId == searchQuery.SiteId)
+                .FilterByItems(keywords, (item, keyword) => item.SearchWord.Word.StartsWith(keyword), true)
+                .GroupBy(item => new
                 {
-                    query += (index == 0 ? "" : "OR ") + "Word LIKE {" + parameters.Count + "} ";
-                    parameters.Add(keywords[index] + "%");
-                }
-                query += " ) ";
-            }
-            query += "GROUP BY sc.SearchContentId ";
-            query += ") AS Scores ";
-            query += "INNER JOIN SearchContent sc ON sc.SearchContentId = Scores.SearchContentId ";
+                    item.SearchContent.SearchContentId,
+                    item.SearchContent.SiteId,
+                    item.SearchContent.EntityName,
+                    item.SearchContent.EntityId,
+                    item.SearchContent.Title,
+                    item.SearchContent.Description,
+                    item.SearchContent.Body,
+                    item.SearchContent.Url,
+                    item.SearchContent.Permissions,
+                    item.SearchContent.ContentModifiedBy,
+                    item.SearchContent.ContentModifiedOn,
+                    item.SearchContent.AdditionalContent,
+                    item.SearchContent.CreatedOn
+                })
+                .Select(result => new SearchContent
+                {
+                    SearchContentId = result.Key.SearchContentId,
+                    SiteId = result.Key.SiteId,
+                    EntityName = result.Key.EntityName,
+                    EntityId = result.Key.EntityId,
+                    Title = result.Key.Title,
+                    Description = result.Key.Description,
+                    Body = result.Key.Body,
+                    Url = result.Key.Url,
+                    Permissions = result.Key.Permissions,
+                    ContentModifiedBy = result.Key.ContentModifiedBy,
+                    ContentModifiedOn = result.Key.ContentModifiedOn,
+                    AdditionalContent = result.Key.AdditionalContent,
+                    CreatedOn = result.Key.CreatedOn,
+                    Count = result.Sum(group => group.Count)
+                });
+
             if (searchQuery.Properties != null && searchQuery.Properties.Any())
             {
-                query += "LEFT JOIN SearchContentProperty scp ON sc.SearchContentId = scp.SearchContentId ";
+                searchContents = searchContents.Include(item => item.SearchContentProperties);
             }
-            query += "WHERE sc.SiteId = {0} ";
+
             if (!string.IsNullOrEmpty(searchQuery.IncludeEntities))
             {
-                query += "AND sc.EntityName IN ( ";
-                var entities = searchQuery.IncludeEntities.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                for (int index = 0; index < entities.Length; index++)
-                {
-                    query += (index == 0 ? "" : ", ") + "{" + parameters.Count + "} ";
-                    parameters.Add(entities[index]);
-                }
-                query += " ) ";
+                searchContents = searchContents.Where(item => searchQuery.IncludeEntities.Split(',', StringSplitOptions.RemoveEmptyEntries).Contains(item.EntityName));
             }
+
             if (!string.IsNullOrEmpty(searchQuery.ExcludeEntities))
             {
-                query += "AND sc.EntityName NOT IN ( ";
-                var entities = searchQuery.ExcludeEntities.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                for (int index = 0; index < entities.Length; index++)
-                {
-                    query += (index == 0 ? "" : ", ") + "{" + parameters.Count + "} ";
-                    parameters.Add(entities[index]);
-                }
-                query += " ) ";
+                searchContents = searchContents.Where(item => !searchQuery.ExcludeEntities.Split(',', StringSplitOptions.RemoveEmptyEntries).Contains(item.EntityName));
             }
-            if (searchQuery.FromDate.ToString() != DateTime.MinValue.ToString())
+
+            if (searchQuery.FromDate.Date != DateTime.MinValue.Date)
             {
-                query += "AND sc.ContentModifiedOn >= {" + parameters.Count + "} ";
-                parameters.Add(searchQuery.FromDate);
+                searchContents = searchContents.Where(item => item.ContentModifiedOn >= searchQuery.FromDate);
             }
-            if (searchQuery.ToDate.ToString() != DateTime.MaxValue.ToString())
+
+            if (searchQuery.ToDate.Date != DateTime.MaxValue.Date)
             {
-                query += "AND sc.ContentModifiedOn <= {" + parameters.Count + "} ";
-                parameters.Add(searchQuery.ToDate);
+                searchContents = searchContents.Where(item => item.ContentModifiedOn <= searchQuery.ToDate);
             }
+
             if (searchQuery.Properties != null && searchQuery.Properties.Any())
             {
                 foreach (var property in searchQuery.Properties)
                 {
-                    query += "AND ( scp.Key = {" + parameters.Count + "} ";
-                    parameters.Add(property.Key);
-                    query += "AND scp.Value = {" + parameters.Count + "} ) ";
-                    parameters.Add(property.Value);
+                    searchContents = searchContents.Where(item => item.SearchContentProperties.Any(p => p.Name == property.Key && p.Value == property.Value));
                 }
             }
 
-            return await db.SearchContent.FromSql(FormattableStringFactory.Create(query, parameters.ToArray())).ToListAsync();
+            return await searchContents.ToListAsync();
         }
 
         public SearchContent AddSearchContent(SearchContent searchContent)

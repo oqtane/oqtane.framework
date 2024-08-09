@@ -20,5 +20,7 @@ namespace Oqtane.Models
         public DateTime ModifiedOn { get; set; }
 
         public SearchWord SearchWord { get; set; }
+
+        public SearchContent SearchContent { get; set; }
     }
 }
