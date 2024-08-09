@@ -109,7 +109,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
                 setting = _settings.AddSetting(setting);
-                AddSyncEvent(setting.EntityName, setting.SettingId, SyncEventActions.Create);
+                AddSyncEvent(setting.EntityName, setting.EntityId, setting.SettingId, SyncEventActions.Create);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Setting Added {Setting}", setting);
             }
             else
@@ -131,7 +131,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && setting.SettingId == id && IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
                 setting = _settings.UpdateSetting(setting);
-                AddSyncEvent(setting.EntityName, setting.SettingId, SyncEventActions.Update);
+                AddSyncEvent(setting.EntityName, setting.EntityId, setting.SettingId, SyncEventActions.Update);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Updated {Setting}", setting);
             }
             else
@@ -154,7 +154,7 @@ namespace Oqtane.Controllers
             if (IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
                 _settings.DeleteSetting(setting.EntityName, id);
-                AddSyncEvent(setting.EntityName, setting.SettingId, SyncEventActions.Delete);
+                AddSyncEvent(setting.EntityName, setting.EntityId, setting.SettingId, SyncEventActions.Delete);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Setting Deleted {Setting}", setting);
             }
             else
@@ -300,7 +300,7 @@ namespace Oqtane.Controllers
             return filter;
         }
 
-        private void AddSyncEvent(string EntityName, int SettingId, string Action)
+        private void AddSyncEvent(string EntityName, int EntityId, int SettingId, string Action)
         {
             _syncManager.AddSyncEvent(_alias, EntityName + "Setting", SettingId, Action);
 
@@ -310,6 +310,9 @@ namespace Oqtane.Controllers
                 case EntityNames.Page:
                 case EntityNames.Site:
                     _syncManager.AddSyncEvent(_alias, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
+                    break;
+                case EntityNames.User:
+                    _syncManager.AddSyncEvent(_alias, EntityName, EntityId, SyncEventActions.Update);
                     break;
             }
         }

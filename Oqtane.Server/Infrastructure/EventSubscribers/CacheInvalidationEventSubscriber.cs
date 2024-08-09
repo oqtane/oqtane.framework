@@ -29,6 +29,12 @@ namespace Oqtane.Infrastructure.EventSubscribers
                 _cache.Remove($"assemblieslist:{syncEvent.TenantId}:{syncEvent.EntityId}");
                 _cache.Remove($"assemblies:{syncEvent.TenantId}:{syncEvent.EntityId}");
             }
+
+            // when a users settings are changed, the user cache item needs to be refreshed
+            if (syncEvent.EntityName == EntityNames.User && syncEvent.Action == SyncEventActions.Update)
+            {
+                _cache.Remove($"user:{syncEvent.EntityId}:{syncEvent.TenantId}:{syncEvent.SiteId}");
+            }
         }
     }
 }
