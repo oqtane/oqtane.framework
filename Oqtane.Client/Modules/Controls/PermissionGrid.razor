@@ -111,7 +111,7 @@
 	[Parameter]
 	public List<Permission> PermissionList { get; set; }
 
-	protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
 	{
 		if (!string.IsNullOrEmpty(Permissions))
 		{
