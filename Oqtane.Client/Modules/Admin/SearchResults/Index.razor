@@ -102,7 +102,7 @@
 
     private void Search()
     {
-        NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, $"page=1&q={_keywords}"));
+        NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, $"page=1&q={WebUtility.UrlEncode(_keywords)}"));
     }
 
     private async Task PerformSearch()

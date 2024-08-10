@@ -33,9 +33,10 @@ namespace Oqtane.Models
 
         public DateTime CreatedOn { get; set; }
 
-        public int Count { get; set; } // only populated for queries
-
         public List<SearchContentProperty> SearchContentProperties { get; set; } // only used during updates
+
+        [NotMapped]
+        public int Count { get; set; } // only populated for queries
 
         [NotMapped]
         public bool IsDeleted { get; set; } // only used during updates

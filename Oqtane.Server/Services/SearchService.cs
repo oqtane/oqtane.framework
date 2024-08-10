@@ -37,12 +37,10 @@ namespace Oqtane.Services
             var searchProvider = GetSearchProvider(searchQuery.SiteId);
             var searchResults = await searchProvider.GetSearchResultsAsync(searchQuery);
 
-            // security trim results
+            // security trim results and aggregate by Url
             var results = searchResults.Where(item => HasViewPermission(item, searchQuery)) 
-                .OrderBy(item => item.Url).ThenByDescending(item => item.Score);
-
-            // aggegrate by Url
-            results.GroupBy(group => group.Url) 
+                .OrderBy(item => item.Url).ThenByDescending(item => item.Score)
+                .GroupBy(group => group.Url)
                 .Select(result => new SearchResult
                 {
                     SearchContentId = result.First().SearchContentId,
