@@ -165,4 +165,16 @@
   <data name="SearchProvider.Text" xml:space="preserve">
     <value>Search Provider:</value>
   </data>
+  <data name="Message.Reindex" xml:space="preserve">
+    <value>The search index will be rebuilt for this site. Please be patient during the reindexing process.</value>
+  </data>
+  <data name="Reindex.Text" xml:space="preserve">
+    <value>Reindex</value>
+  </data>
+  <data name="Reindex.Header" xml:space="preserve">
+    <value>Reindex</value>
+  </data>
+  <data name="Reindex.Message" xml:space="preserve">
+    <value>Are You Sure You Wish To Reindex Search Content?</value>
+  </data>
 </root>

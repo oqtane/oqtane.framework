@@ -186,18 +186,21 @@ namespace Oqtane.Infrastructure
 
             if (string.IsNullOrEmpty(searchContent.Title))
             {
-                searchContent.Title = string.Empty;
-                if (!string.IsNullOrEmpty(pageModule.Title))
-                {
-                    searchContent.Title = pageModule.Title;
-                }
-                else if (pageModule.Page != null)
+                if (pageModule.Page != null)
                 {
                     searchContent.Title = !string.IsNullOrEmpty(pageModule.Page.Title) ? pageModule.Page.Title : pageModule.Page.Name;
                 }
+                else
+                {
+                    searchContent.Title = pageModule.Title;
+                }
             }
 
-            if (searchContent.Description == null) { searchContent.Description = string.Empty;}
+            if (searchContent.Description == null)
+            {
+                searchContent.Description = (searchContent.Title != pageModule.Title) ? pageModule.Title : string.Empty;
+            }
+
             if (searchContent.Body == null) { searchContent.Body = string.Empty; }
 
             if (string.IsNullOrEmpty(searchContent.Url))

@@ -152,7 +152,8 @@ else
 
     private async Task Refresh()
     {
+        ShowProgressIndicator();
         await GetJobs();
-        StateHasChanged();
+        HideProgressIndicator();
     }
 }
