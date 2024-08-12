@@ -180,6 +180,17 @@ namespace Oqtane.Services
         Task UpdateSettingsAsync(Dictionary<string, string> settings, string entityName, int entityId);
 
         /// <summary>
+        /// Updates setting for a given entityName and Id
+        /// </summary>
+        /// <param name="entityName"></param>
+        /// <param name="entityId"></param>
+        /// <param name="settingName"></param>
+        /// <param name="settingValue"></param>
+        /// <param name="isPrivate"></param>
+        /// <returns></returns>
+        Task AddOrUpdateSettingAsync(string entityName, int entityId, string settingName, string settingValue, bool isPrivate);
+
+        /// <summary>
         /// Returns a specific setting
         /// </summary>
         /// <param name="entityName"></param>
