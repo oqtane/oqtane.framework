@@ -270,9 +270,8 @@
                     {
                         if (editpageid != -1)
                         {
-                            // reset edit page
-                            var userSettings = new Dictionary<string, string> { { "CP-editmode", "-1" } };
-                            await SettingService.UpdateUserSettingsAsync(userSettings, user.UserId);
+                            // reset edit mode page
+                            await SettingService.AddOrUpdateSettingAsync(EntityNames.User, user.UserId, "CP-editmode", "-1", false);
                         }
                     }
                 }
