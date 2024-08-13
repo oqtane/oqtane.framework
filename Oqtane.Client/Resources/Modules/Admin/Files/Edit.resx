@@ -150,14 +150,11 @@
   <data name="Name.HelpText" xml:space="preserve">
     <value>Enter the folder name</value>
   </data>
-  <data name="Permissions.HelpText" xml:space="preserve">
-    <value>Select the permissions you want for the folder</value>
-  </data>
   <data name="Parent.Text" xml:space="preserve">
     <value>Parent: </value>
   </data>
-  <data name="Permissions.Text" xml:space="preserve">
-    <value>Permissions: </value>
+  <data name="Permissions.Heading" xml:space="preserve">
+    <value>Permissions</value>
   </data>
   <data name="DeleteFolder.Header" xml:space="preserve">
     <value>Delete Folder</value>
@@ -197,5 +194,8 @@
   </data>
   <data name="Message.Folder.Duplicate" xml:space="preserve">
     <value>Folder Name Specified Already Exists In Parent</value>
+  </data>
+  <data name="Settings.Heading" xml:space="preserve">
+    <value>Settings</value>
   </data>
 </root>
