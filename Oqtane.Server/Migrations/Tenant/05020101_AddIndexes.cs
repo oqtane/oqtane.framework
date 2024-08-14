@@ -31,9 +31,6 @@ namespace Oqtane.Migrations.Tenant
 
             var searchContentWordEntityBuilder = new SearchContentWordEntityBuilder(migrationBuilder, ActiveDatabase);
             searchContentWordEntityBuilder.AddIndex("IX_SearchContentWord", new string[] { "SearchContentId", "SearchWordId" }, true);
-
-            var visitorEntityBuilder = new VisitorEntityBuilder(migrationBuilder, ActiveDatabase);
-            visitorEntityBuilder.AddIndex("IX_Visitor", new string[] { "SiteId", "IPAddress" }, true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
