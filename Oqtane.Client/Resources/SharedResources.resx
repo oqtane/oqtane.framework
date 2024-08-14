@@ -213,6 +213,9 @@
   <data name="Reset" xml:space="preserve">
     <value>Reset</value>
   </data>
+  <data name="Search Settings" xml:space="preserve">
+    <value>Search Settings</value>
+  </data>
   <data name="Search" xml:space="preserve">
     <value>Search</value>
   </data>
