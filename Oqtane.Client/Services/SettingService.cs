@@ -194,7 +194,7 @@ namespace Oqtane.Services
 
         public async Task AddOrUpdateSettingAsync(string entityName, int entityId, string settingName, string settingValue, bool isPrivate)
         {
-            await PutJsonAsync<object>($"{Apiurl}/{entityName}/{entityId}/{settingName}/{settingValue}/{isPrivate}", null);
+            await PutAsync($"{Apiurl}/{entityName}/{entityId}/{settingName}/{settingValue}/{isPrivate}");
         }
 
         public async Task DeleteSettingAsync(string entityName, int entityId, string settingName)

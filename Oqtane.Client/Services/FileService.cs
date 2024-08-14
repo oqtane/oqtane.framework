@@ -75,5 +75,10 @@ namespace Oqtane.Services
         {
             return await GetByteArrayAsync($"{Apiurl}/download/{fileId}");
         }
+
+        public async Task UnzipFileAsync(int fileId)
+        {
+            await PutAsync($"{Apiurl}/unzip/{fileId}");
+        }
     }
 }

@@ -40,10 +40,14 @@
                 </div>
             </div>
         </div>
+        <br />
         <button type="button" class="btn btn-success" @onclick="SaveFile">@SharedLocalizer["Save"]</button>
         <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-        <br />
-        <br />
+        @if (_name.ToLower().EndsWith(".zip"))
+        {
+            <button type="button" class="btn btn-primary mx-1" @onclick="UnzipFile">Unzip</button>            
+        }
+        <br /><br />
         <AuditInfo CreatedBy="@_createdBy" CreatedOn="@_createdOn" ModifiedBy="@_modifiedBy" ModifiedOn="@_modifiedOn"></AuditInfo>
     </form>
 }
@@ -124,6 +128,20 @@
         else
         {
             AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+        }
+    }
+
+    private async Task UnzipFile()
+    {
+        try
+        {
+            await FileService.UnzipFileAsync(_fileId);
+            NavigationManager.NavigateTo(NavigateUrl());
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Unzipping File {FileId} {Error}", _fileId, ex.Message);
+            AddModuleMessage(Localizer["Error.File.Unzip"], MessageType.Error);
         }
     }
 }
