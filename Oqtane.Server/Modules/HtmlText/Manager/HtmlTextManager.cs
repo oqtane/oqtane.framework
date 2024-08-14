@@ -20,18 +20,15 @@ namespace Oqtane.Modules.HtmlText.Manager
     [PrivateApi("Mark HtmlText classes as private, since it's not very useful in the public docs")]
     public class HtmlTextManager : MigratableModuleBase, IInstallable, IPortable, ISearchable
     {
-        private readonly IServiceProvider _serviceProvider;
         private readonly IHtmlTextRepository _htmlText;
         private readonly IDBContextDependencies _DBContextDependencies;
         private readonly ISqlRepository _sqlRepository;
 
         public HtmlTextManager(
-            IServiceProvider serviceProvider,
             IHtmlTextRepository htmlText,
             IDBContextDependencies DBContextDependencies,
             ISqlRepository sqlRepository)
         {
-            _serviceProvider = serviceProvider;
             _htmlText = htmlText;
             _DBContextDependencies = DBContextDependencies;
             _sqlRepository = sqlRepository;
@@ -53,19 +50,15 @@ namespace Oqtane.Modules.HtmlText.Manager
         {
             var searchContents = new List<SearchContent>();
 
-            var htmltexts = _htmlText.GetHtmlTexts(pageModule.ModuleId);
-            if (htmltexts != null && htmltexts.Any())
+            var htmltext = _htmlText.GetHtmlTexts(pageModule.ModuleId)?.OrderByDescending(item => item.CreatedOn).FirstOrDefault();
+            if (htmltext != null && htmltext.CreatedOn >= lastIndexedOn)
             {
-                var htmltext = htmltexts.OrderByDescending(item => item.CreatedOn).First();
-                if (htmltext.CreatedOn >= lastIndexedOn)
+                searchContents.Add(new SearchContent
                 {
-                    searchContents.Add(new SearchContent
-                    {
-                        Body = htmltext.Content,
-                        ContentModifiedBy = htmltext.CreatedBy,
-                        ContentModifiedOn = htmltext.CreatedOn
-                    });
-                }
+                    Body = htmltext.Content,
+                    ContentModifiedBy = htmltext.CreatedBy,
+                    ContentModifiedOn = htmltext.CreatedOn
+                });
             }
 
             return Task.FromResult(searchContents);
