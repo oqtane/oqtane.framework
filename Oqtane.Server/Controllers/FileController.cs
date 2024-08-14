@@ -21,6 +21,7 @@ using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Formats.Png;
 using System.Net.Http;
 using Microsoft.AspNetCore.Cors;
+using System.IO.Compression;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
@@ -177,9 +178,12 @@ namespace Oqtane.Controllers
                         if (System.IO.File.Exists(filepath))
                         {
                             file = CreateFile(file.Name, folder.FolderId, filepath);
-                            file = _files.AddFile(file);
-                            _syncManager.AddSyncEvent(_alias, EntityNames.File, file.FileId, SyncEventActions.Create);
-                            _logger.Log(LogLevel.Information, this, LogFunction.Create, "File Added {File}", file);
+                            if (file != null)
+                            {
+                                file = _files.AddFile(file);
+                                _syncManager.AddSyncEvent(_alias, EntityNames.File, file.FileId, SyncEventActions.Create);
+                                _logger.Log(LogLevel.Information, this, LogFunction.Create, "File Added {File}", file);
+                            }
                         }
                         else
                         {
@@ -265,6 +269,57 @@ namespace Oqtane.Controllers
             return file;
         }
 
+        // PUT api/<controller>/unzip/5
+        [HttpPut("unzip/{id}")]
+        [Authorize(Roles = RoleNames.Admin)]
+        public void Unzip(int id)
+        {
+            var zipfile = _files.GetFile(id, false);
+            if (zipfile != null && zipfile.Folder.SiteId == _alias.SiteId && zipfile.Extension.ToLower() == "zip")
+            {
+                // extract files
+                string folderpath = _folders.GetFolderPath(zipfile.Folder);
+                using (ZipArchive archive = ZipFile.OpenRead(Path.Combine(folderpath, zipfile.Name)))
+                {
+                    foreach (ZipArchiveEntry entry in archive.Entries)
+                    {
+                        if (HasValidFileExtension(entry.Name) && entry.Name.IsPathOrFileValid())
+                        {
+                            entry.ExtractToFile(Path.Combine(folderpath, entry.Name), true);
+                            var file = CreateFile(entry.Name, zipfile.Folder.FolderId, Path.Combine(folderpath, entry.Name));
+                            if (file != null)
+                            {
+                                if (file.FileId == 0)
+                                {
+                                    file = _files.AddFile(file);
+                                }
+                                else
+                                {
+                                    file = _files.UpdateFile(file);
+                                }
+                                _syncManager.AddSyncEvent(_alias, EntityNames.File, file.FileId, SyncEventActions.Create);
+                                _logger.Log(LogLevel.Information, this, LogFunction.Create, "File Extracted {File}", file);
+                            }
+                        }
+                        else
+                        {
+                            _logger.Log(LogLevel.Error, this, LogFunction.Security, "File Name Is Invalid Or Contains Invalid Extension {File}", entry.Name);
+                        }
+                    }
+                }
+
+                // delete zip file
+                _files.DeleteFile(zipfile.FileId);
+                System.IO.File.Delete(Path.Combine(folderpath, zipfile.Name));
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Zip File Removed {File}", zipfile);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized File Unzip Attempt {FileId}", id);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            }
+        }
+
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
         [Authorize(Roles = RoleNames.Registered)]
@@ -342,6 +397,7 @@ namespace Oqtane.Controllers
                         if (file != null)
                         {
                             file = _files.AddFile(file);
+                            _logger.Log(LogLevel.Information, this, LogFunction.Create, "File Downloaded {File}", file);
                             _syncManager.AddSyncEvent(_alias, EntityNames.File, file.FileId, SyncEventActions.Create);
                         }
                     }
@@ -426,7 +482,7 @@ namespace Oqtane.Controllers
                         {
                             file = _files.UpdateFile(file);
                         }
-                        _logger.Log(LogLevel.Information, this, LogFunction.Create, "File Upload Succeeded {File}", Path.Combine(folderPath, upload));
+                        _logger.Log(LogLevel.Information, this, LogFunction.Create, "File Uploaded {File}", Path.Combine(folderPath, upload));
                         _syncManager.AddSyncEvent(_alias, EntityNames.File, file.FileId, SyncEventActions.Create);
                     }
                 }
@@ -836,6 +892,7 @@ namespace Oqtane.Controllers
                 {
                     _files.DeleteFile(file.FileId);
                 }
+                file = null;
                 _logger.Log(LogLevel.Warning, this, LogFunction.Create, "File Exceeds Folder Capacity And Has Been Removed {Folder} {File}", folder, filepath);
             }
 
