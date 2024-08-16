@@ -519,9 +519,9 @@
         "<script>" + Environment.NewLine +
         "    // Blazor Static Rendering Scroll Position" + Environment.NewLine +
         "    window.interceptNavigation = () => {" + Environment.NewLine +
-        "        let currentUrl = window.location.href;" + Environment.NewLine +
+        "        let currentUrl = window.location.pathname;" + Environment.NewLine +
         "        Blazor.addEventListener('enhancedload', () => {" + Environment.NewLine +
-        "            let newUrl = window.location.href;" + Environment.NewLine +
+        "            let newUrl = window.location.pathname;" + Environment.NewLine +
         "            if (currentUrl != newUrl) {" + Environment.NewLine +
         "                window.scrollTo({ top: 0, left: 0, behavior: 'instant' });" + Environment.NewLine +
         "            }" + Environment.NewLine +
