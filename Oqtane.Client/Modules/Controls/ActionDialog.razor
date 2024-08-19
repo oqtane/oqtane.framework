@@ -51,13 +51,13 @@ else
             <div class="modal" tabindex="-1" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">@Header</h5>
-                            <form method="post" @formname="@($"ActionDialogCloseForm{Id}")" @onsubmit="DisplayModal" data-enhance>
-                                <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                        <form class="app-form-inline" method="post" @formname="@($"ActionDialogCloseForm{Id}")" @onsubmit="DisplayModal" data-enhance>
+                            <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                            <div class="modal-header">
+                                <h5 class="modal-title">@Header</h5>
                                 <button type="submit" class="btn-close" aria-label="Close"></button>
-                            </form>
-                        </div>
+                            </div>
+                        </form>
                         <div class="modal-body">
                             <p>@Message</p>
                         </div>
@@ -87,7 +87,7 @@ else
         }
         else
         {
-            <form method="post" @formname="@($"ActionDialogActionForm{Id}")" @onsubmit="DisplayModal" data-enhance>
+            <form method="post" class="app-form-inline" @formname="@($"ActionDialogActionForm{Id}")" @onsubmit="DisplayModal" data-enhance>
                 <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                 <button type="submit" class="@Class">@((MarkupString)_openIconSpan) @_openText</button>
             </form>
@@ -198,6 +198,8 @@ else
         _openText = Text;
         _permissions = (PermissionList == null) ? ModuleState.PermissionList : PermissionList;
         _authorized = IsAuthorized();
+
+        if (string.IsNullOrEmpty(Id)) Id = "1";
 
         if (PageState.QueryString.ContainsKey("dialog"))
         {
