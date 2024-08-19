@@ -51,7 +51,7 @@ else
             <div class="modal" tabindex="-1" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <form class="app-form-inline" method="post" @formname="@($"ActionDialogCloseForm{Id}")" @onsubmit="DisplayModal" data-enhance>
+                        <form class="app-form-inline" method="post" @formname="@($"ActionDialogCloseForm:{ModuleState.PageModuleId}:{Id}")" @onsubmit="DisplayModal" data-enhance>
                             <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                             <div class="modal-header">
                                 <h5 class="modal-title">@Header</h5>
@@ -64,12 +64,12 @@ else
                         <div class="modal-footer">
                             @if (!string.IsNullOrEmpty(Action))
                             {
-                                <form method="post" @formname="@($"ActionDialogConfirmForm{Id}")" @onsubmit="Confirm" data-enhance>
+                                <form method="post" @formname="@($"ActionDialogConfirmForm:{ModuleState.PageModuleId}:{Id}")" @onsubmit="Confirm" data-enhance>
                                     <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                                     <button type="submit" class="@Class">@((MarkupString)_iconSpan) @Text</button>
                                 </form>
                             }
-                            <form method="post" @formname="@($"ActionDialogCancelForm{Id}")" @onsubmit="DisplayModal" data-enhance>
+                            <form method="post" @formname="@($"ActionDialogCancelForm:{ModuleState.PageModuleId}:{Id}")" @onsubmit="DisplayModal" data-enhance>
                                 <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                                 <button type="submit" class="btn btn-secondary">@SharedLocalizer["Cancel"]</button>
                             </form>
@@ -87,7 +87,7 @@ else
         }
         else
         {
-            <form method="post" class="app-form-inline" @formname="@($"ActionDialogActionForm{Id}")" @onsubmit="DisplayModal" data-enhance>
+            <form method="post" class="app-form-inline" @formname="@($"ActionDialogActionForm:{ModuleState.PageModuleId}:{Id}")" @onsubmit="DisplayModal" data-enhance>
                 <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                 <button type="submit" class="@Class">@((MarkupString)_openIconSpan) @_openText</button>
             </form>
