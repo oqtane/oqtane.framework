@@ -6,15 +6,6 @@ namespace Oqtane.Repository
 {
     public interface ISiteRepository
     {
-        // asynchronous methods
-        Task<IEnumerable<Site>> GetSitesAsync();
-        Task<Site> AddSiteAsync(Site site);
-        Task<Site> UpdateSiteAsync(Site site);
-        Task<Site> GetSiteAsync(int siteId);
-        Task<Site> GetSiteAsync(int siteId, bool tracking);
-        Task DeleteSiteAsync(int siteId);
-
-        // synchronous methods
         IEnumerable<Site> GetSites();
         Site AddSite(Site site);
         Site UpdateSite(Site site);
