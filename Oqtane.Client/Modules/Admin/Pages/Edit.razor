@@ -419,7 +419,7 @@
 
                 // page modules
                 var modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId);
-                _pageModules = modules.Where(item => item.PageId == _page.PageId).ToList();
+                _pageModules = modules.Where(item => item.PageId == _page.PageId && !item.IsDeleted).ToList();
 
                 // audit
                 _createdby = _page.CreatedBy;
