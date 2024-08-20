@@ -5,14 +5,13 @@ using Microsoft.AspNetCore.Http;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
-using Oqtane.Modules;
 using Oqtane.Security;
 using Oqtane.Shared;
 using [Owner].Module.[Module].Repository;
 
 namespace [Owner].Module.[Module].Services
 {
-    public class Server[Module]Service : I[Module]Service, ITransientService
+    public class Server[Module]Service : I[Module]Service
     {
         private readonly I[Module]Repository _[Module]Repository;
         private readonly IUserPermissions _userPermissions;
