@@ -198,7 +198,7 @@ namespace Oqtane.Repository
                 {
                     moduledefinition.SiteId = siteId;
 
-                    var setting = settings.FirstOrDefault(item => item.EntityId == moduledefinition.ModuleDefinitionId && item.SettingName == $"{settingprefix}{_tenants.GetAlias().SiteKey}");
+                    var setting = settings.FirstOrDefault(item => item.EntityId == moduledefinition.ModuleDefinitionId && item.SettingName == $"{settingprefix}{siteKey}");
                     if (setting != null)
                     {
                        moduledefinition.IsEnabled = bool.Parse(setting.SettingValue);
