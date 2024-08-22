@@ -52,7 +52,7 @@
     {
         if (_searchResultsPage != null)
         {
-            var url = NavigateUrl(_searchResultsPage.Path, $"q={_keywords}");
+            var url = NavigateUrl(_searchResultsPage.Path, $"q={WebUtility.UrlEncode(_keywords)}");
             NavigationManager.NavigateTo(url);
         }
     }

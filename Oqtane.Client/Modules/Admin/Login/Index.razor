@@ -208,17 +208,20 @@
                 {
                     await logger.LogInformation(LogFunction.Security, "Login Successful For Username {Username}", _username);
 
+                    // return url is not specified if user navigated directly to login page
+                    var returnurl = (!string.IsNullOrEmpty(PageState.ReturnUrl)) ? PageState.ReturnUrl : PageState.Alias.Path;
+
                     if (hybrid)
                     {
                         // hybrid apps utilize an interactive login
                         var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
                         authstateprovider.NotifyAuthenticationChanged();
-                        NavigationManager.NavigateTo(NavigateUrl(PageState.ReturnUrl, true));
+                        NavigationManager.NavigateTo(NavigateUrl(returnurl, true));
                     }
                     else
                     {
                         // post back to the Login page so that the cookies are set correctly
-                        var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, username = _username, password = _password, remember = _remember, returnurl = WebUtility.UrlEncode(PageState.ReturnUrl) };
+                        var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, username = _username, password = _password, remember = _remember, returnurl = WebUtility.UrlEncode(returnurl) };
                         string url = Utilities.TenantUrl(PageState.Alias, "/pages/login/");
                         await interop.SubmitForm(url, fields);
                     }

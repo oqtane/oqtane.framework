@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,58 +50,6 @@ namespace Oqtane.Repository
             _logger = logger;
         }
 
-        // asynchronous methods
-        public async Task<IEnumerable<Site>> GetSitesAsync()
-        {
-            using var db = _factory.CreateDbContext();
-            return await db.Site.OrderBy(item => item.Name).ToListAsync();
-        }
-
-        public async Task<Site> AddSiteAsync(Site site)
-        {
-            site.SiteGuid = Guid.NewGuid().ToString();
-            using var db = _factory.CreateDbContext();
-            db.Site.Add(site);
-            await db.SaveChangesAsync();
-            CreateSite(site);
-            return site;
-        }
-
-        public async Task<Site> UpdateSiteAsync(Site site)
-        {
-            using var db = _factory.CreateDbContext();
-            db.Entry(site).State = EntityState.Modified;
-            await db.SaveChangesAsync();
-            return site;
-        }
-
-        public async Task<Site> GetSiteAsync(int siteId)
-        {
-            return await GetSiteAsync(siteId, true);
-        }
-
-        public async Task<Site> GetSiteAsync(int siteId, bool tracking)
-        {
-            using var db = _factory.CreateDbContext();
-            if (tracking)
-            {
-                return await db.Site.FindAsync(siteId);
-            }
-            else
-            {
-                return await db.Site.AsNoTracking().FirstOrDefaultAsync(item => item.SiteId == siteId);
-            }
-        }
-
-        public async Task DeleteSiteAsync(int siteId)
-        {
-            using var db = _factory.CreateDbContext();
-            var site = db.Site.Find(siteId);
-            db.Site.Remove(site);
-            await db.SaveChangesAsync();
-        }
-
-        // synchronous methods
         public IEnumerable<Site> GetSites()
         {
             using var db = _factory.CreateDbContext();

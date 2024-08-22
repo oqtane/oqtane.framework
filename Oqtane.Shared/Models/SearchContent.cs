@@ -31,20 +31,21 @@ namespace Oqtane.Models
 
         public string AdditionalContent { get; set; }
 
-        [NotMapped]
-        public bool IsDeleted { get; set; }
-
-        public List<SearchContentProperty> SearchContentProperties { get; set; }
-
         public DateTime CreatedOn { get; set; }
 
+        public List<SearchContentProperty> SearchContentProperties { get; set; } // only used during updates
+
         [NotMapped]
-        public int TenantId { get; set; }
+        public int Count { get; set; } // only populated for queries
+
+        [NotMapped]
+        public bool IsDeleted { get; set; } // only used during updates
+
+        [NotMapped]
+        public int TenantId { get; set; } // only used during updates
 
         [NotMapped]
         public string UniqueKey => $"{TenantId}:{SiteId}:{EntityName}:{EntityId}";
-
-        public List<SearchContentWord> SearchContentWords { get; set; }
 
         // constructors
         public SearchContent() { }

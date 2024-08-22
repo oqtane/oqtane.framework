@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Documentation;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
@@ -17,24 +19,26 @@ namespace Oqtane.Modules.HtmlText.Services
     {
         private readonly IHtmlTextRepository _htmlText;
         private readonly IUserPermissions _userPermissions;
+        private readonly IMemoryCache _cache;
         private readonly ILogManager _logger;
         private readonly IHttpContextAccessor _accessor;
         private readonly Alias _alias;
 
-        public ServerHtmlTextService(IHtmlTextRepository htmlText, IUserPermissions userPermissions, ITenantManager tenantManager, ILogManager logger, IHttpContextAccessor accessor)
+        public ServerHtmlTextService(IHtmlTextRepository htmlText, IUserPermissions userPermissions, IMemoryCache cache, ITenantManager tenantManager, ILogManager logger, IHttpContextAccessor accessor)
         {
             _htmlText = htmlText;
             _userPermissions = userPermissions;
+            _cache = cache;
             _logger = logger;
             _accessor = accessor;
             _alias = tenantManager.GetAlias();
         }
 
-        public async Task<List<Models.HtmlText>> GetHtmlTextsAsync(int moduleId)
+        public Task<List<Models.HtmlText>> GetHtmlTextsAsync(int moduleId)
         {
             if (_accessor.HttpContext.User.IsInRole(RoleNames.Registered))
             {
-                return (await _htmlText.GetHtmlTextsAsync(moduleId)).ToList();
+                return Task.FromResult(GetCachedHtmlTexts(moduleId));
             }
             else
             {
@@ -43,19 +47,11 @@ namespace Oqtane.Modules.HtmlText.Services
             }
         }
 
-        public async Task<Models.HtmlText> GetHtmlTextAsync(int moduleId)
+        public Task<Models.HtmlText> GetHtmlTextAsync(int moduleId)
         {
             if (_userPermissions.IsAuthorized(_accessor.HttpContext.User, _alias.SiteId, EntityNames.Module, moduleId, PermissionNames.View))
             {
-                var htmltexts = await _htmlText.GetHtmlTextsAsync(moduleId);
-                if (htmltexts != null && htmltexts.Any())
-                {
-                    return htmltexts.OrderByDescending(item => item.CreatedOn).First();
-                }
-                else
-                {
-                    return null;
-                }
+                return Task.FromResult(GetCachedHtmlTexts(moduleId)?.OrderByDescending(item => item.CreatedOn).FirstOrDefault());
             }
             else
             {
@@ -64,11 +60,11 @@ namespace Oqtane.Modules.HtmlText.Services
             }
         }
 
-        public async Task<Models.HtmlText> GetHtmlTextAsync(int htmlTextId, int moduleId)
+        public Task<Models.HtmlText> GetHtmlTextAsync(int htmlTextId, int moduleId)
         {
             if (_userPermissions.IsAuthorized(_accessor.HttpContext.User, _alias.SiteId, EntityNames.Module, moduleId, PermissionNames.View))
             {
-                return await _htmlText.GetHtmlTextAsync(htmlTextId);
+                return Task.FromResult(GetCachedHtmlTexts(moduleId)?.FirstOrDefault(item => item.HtmlTextId == htmlTextId));
             }
             else
             {
@@ -77,11 +73,12 @@ namespace Oqtane.Modules.HtmlText.Services
             }
         }
 
-        public async Task<Models.HtmlText> AddHtmlTextAsync(Models.HtmlText htmlText)
+        public Task<Models.HtmlText> AddHtmlTextAsync(Models.HtmlText htmlText)
         {
             if (_userPermissions.IsAuthorized(_accessor.HttpContext.User, _alias.SiteId, EntityNames.Module, htmlText.ModuleId, PermissionNames.Edit))
             {
-                htmlText = await _htmlText.AddHtmlTextAsync(htmlText);
+                htmlText = _htmlText.AddHtmlText(htmlText);
+                ClearCache(htmlText.ModuleId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Html/Text Added {HtmlText}", htmlText);
             }
             else
@@ -89,20 +86,36 @@ namespace Oqtane.Modules.HtmlText.Services
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Html/Text Add Attempt {HtmlText}", htmlText);
                 htmlText = null;
             }
-            return htmlText;
+            return Task.FromResult(htmlText);
         }
 
-        public async Task DeleteHtmlTextAsync(int htmlTextId, int moduleId)
+        public Task DeleteHtmlTextAsync(int htmlTextId, int moduleId)
         {
             if (_userPermissions.IsAuthorized(_accessor.HttpContext.User, _alias.SiteId, EntityNames.Module, moduleId, PermissionNames.Edit))
             {
-                await _htmlText.DeleteHtmlTextAsync(htmlTextId);
+                _htmlText.DeleteHtmlText(htmlTextId);
+                ClearCache(moduleId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Html/Text Deleted {HtmlTextId}", htmlTextId);
             }
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Html/Text Delete Attempt {HtmlTextId} {ModuleId}", htmlTextId, moduleId);
             }
+            return Task.CompletedTask;
+        }
+
+        private List<Models.HtmlText> GetCachedHtmlTexts(int moduleId)
+        {
+            return _cache.GetOrCreate($"HtmlText:{_alias.SiteKey}:{moduleId}", entry =>
+            {
+                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                return _htmlText.GetHtmlTexts(moduleId).ToList();
+            });
+        }
+
+        private void ClearCache(int moduleId)
+        {
+            _cache.Remove($"HtmlText:{_alias.SiteKey}:{moduleId}");
         }
     }
 }

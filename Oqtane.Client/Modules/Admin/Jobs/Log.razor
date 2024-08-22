@@ -78,7 +78,8 @@ else
 
     private async Task Refresh()
     {
+        ShowProgressIndicator();
         await GetJobLogs();
-        StateHasChanged();
+        HideProgressIndicator();
     }
 }

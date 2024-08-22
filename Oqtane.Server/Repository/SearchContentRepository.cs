@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Oqtane.Extensions;
+using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
 
@@ -20,50 +24,83 @@ namespace Oqtane.Repository
         public async Task<IEnumerable<SearchContent>> GetSearchContentsAsync(SearchQuery searchQuery)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            var searchContents = db.SearchContent.AsNoTracking()
-                .Include(i => i.SearchContentProperties)
-                .Include(i => i.SearchContentWords)
-                .ThenInclude(w => w.SearchWord)
-                .Where(i => i.SiteId == searchQuery.SiteId);
+
+            var keywords = SearchUtils.GetKeywords(searchQuery.Keywords);
+
+            var searchContents = db.SearchContentWord
+                .AsNoTracking()
+                .Include(item => item.SearchContent)
+                .Include(item => item.SearchWord)
+                .Where(item => item.SearchContent.SiteId == searchQuery.SiteId)
+                .FilterByItems(keywords, (item, keyword) => item.SearchWord.Word.StartsWith(keyword), true)
+                .GroupBy(item => new
+                {
+                    item.SearchContent.SearchContentId,
+                    item.SearchContent.SiteId,
+                    item.SearchContent.EntityName,
+                    item.SearchContent.EntityId,
+                    item.SearchContent.Title,
+                    item.SearchContent.Description,
+                    item.SearchContent.Body,
+                    item.SearchContent.Url,
+                    item.SearchContent.Permissions,
+                    item.SearchContent.ContentModifiedBy,
+                    item.SearchContent.ContentModifiedOn,
+                    item.SearchContent.AdditionalContent,
+                    item.SearchContent.CreatedOn
+                })
+                .Select(result => new SearchContent
+                {
+                    SearchContentId = result.Key.SearchContentId,
+                    SiteId = result.Key.SiteId,
+                    EntityName = result.Key.EntityName,
+                    EntityId = result.Key.EntityId,
+                    Title = result.Key.Title,
+                    Description = result.Key.Description,
+                    Body = result.Key.Body,
+                    Url = result.Key.Url,
+                    Permissions = result.Key.Permissions,
+                    ContentModifiedBy = result.Key.ContentModifiedBy,
+                    ContentModifiedOn = result.Key.ContentModifiedOn,
+                    AdditionalContent = result.Key.AdditionalContent,
+                    CreatedOn = result.Key.CreatedOn,
+                    Count = result.Sum(group => group.Count)
+                });
+
+            if (searchQuery.Properties != null && searchQuery.Properties.Any())
+            {
+                searchContents = searchContents.Include(item => item.SearchContentProperties);
+            }
 
             if (!string.IsNullOrEmpty(searchQuery.IncludeEntities))
             {
-                searchContents = searchContents.Where(i => searchQuery.IncludeEntities.Split(',', StringSplitOptions.RemoveEmptyEntries).Contains(i.EntityName));
+                searchContents = searchContents.Where(item => searchQuery.IncludeEntities.Split(',', StringSplitOptions.RemoveEmptyEntries).Contains(item.EntityName));
             }
 
             if (!string.IsNullOrEmpty(searchQuery.ExcludeEntities))
             {
-                searchContents = searchContents.Where(i => !searchQuery.ExcludeEntities.Split(',', StringSplitOptions.RemoveEmptyEntries).Contains(i.EntityName));
+                searchContents = searchContents.Where(item => !searchQuery.ExcludeEntities.Split(',', StringSplitOptions.RemoveEmptyEntries).Contains(item.EntityName));
             }
 
-            if (searchQuery.FromDate != DateTime.MinValue)
+            if (searchQuery.FromDate.Date != DateTime.MinValue.Date)
             {
-                searchContents = searchContents.Where(i => i.ContentModifiedOn >= searchQuery.FromDate);
+                searchContents = searchContents.Where(item => item.ContentModifiedOn >= searchQuery.FromDate);
             }
 
-            if (searchQuery.ToDate != DateTime.MaxValue)
+            if (searchQuery.ToDate.Date != DateTime.MaxValue.Date)
             {
-                searchContents = searchContents.Where(i => i.ContentModifiedOn <= searchQuery.ToDate);
+                searchContents = searchContents.Where(item => item.ContentModifiedOn <= searchQuery.ToDate);
             }
 
             if (searchQuery.Properties != null && searchQuery.Properties.Any())
             {
                 foreach (var property in searchQuery.Properties)
                 {
-                    searchContents = searchContents.Where(i => i.SearchContentProperties.Any(p => p.Name == property.Key && p.Value == property.Value));
+                    searchContents = searchContents.Where(item => item.SearchContentProperties.Any(p => p.Name == property.Key && p.Value == property.Value));
                 }
             }
 
-            var filteredContentList = new List<SearchContent>();
-            if (!string.IsNullOrEmpty(searchQuery.Keywords))
-            {
-                foreach (var keyword in SearchUtils.GetKeywords(searchQuery.Keywords))
-                {
-                    filteredContentList.AddRange(await searchContents.Where(i => i.SearchContentWords.Any(w => w.SearchWord.Word.StartsWith(keyword))).ToListAsync());
-                }
-            }
-
-            return filteredContentList.DistinctBy(i => i.UniqueKey);
+            return await searchContents.ToListAsync();
         }
 
         public SearchContent AddSearchContent(SearchContent searchContent)

@@ -309,7 +309,7 @@
 											}
 										</td>
 										<td>@context.Name</td>
-										<td>@context.IsDefault</td>
+                                        <td>@((context.IsDefault) ? SharedLocalizer["Yes"] : SharedLocalizer["No"])</td>
 									}
 									else
 									{

@@ -185,6 +185,7 @@ namespace Oqtane.Repository
             if (siteId != -1)
             {
                 var siteKey = _tenants.GetAlias().SiteKey;
+                var assemblies = new List<string>();
 
                 // get all module definition permissions for site
                 List<Permission> permissions = _permissions.GetPermissions(siteId, EntityNames.ModuleDefinition).ToList();
@@ -193,12 +194,11 @@ namespace Oqtane.Repository
                 var settings = _settings.GetSettings(EntityNames.ModuleDefinition).ToList();
 
                 // populate module definition site settings and permissions
-                var serverState = _serverState.GetServerState(siteKey);
                 foreach (ModuleDefinition moduledefinition in ModuleDefinitions)
                 {
                     moduledefinition.SiteId = siteId;
 
-                    var setting = settings.FirstOrDefault(item => item.EntityId == moduledefinition.ModuleDefinitionId && item.SettingName == $"{settingprefix}{_tenants.GetAlias().SiteKey}");
+                    var setting = settings.FirstOrDefault(item => item.EntityId == moduledefinition.ModuleDefinitionId && item.SettingName == $"{settingprefix}{siteKey}");
                     if (setting != null)
                     {
                        moduledefinition.IsEnabled = bool.Parse(setting.SettingValue);
@@ -211,17 +211,17 @@ namespace Oqtane.Repository
                     if (moduledefinition.IsEnabled)
                     {
                         // build list of assemblies for site
-                        if (!serverState.Assemblies.Contains(moduledefinition.AssemblyName))
+                        if (!assemblies.Contains(moduledefinition.AssemblyName))
                         {
-                            serverState.Assemblies.Add(moduledefinition.AssemblyName);
+                            assemblies.Add(moduledefinition.AssemblyName);
                         }
                         if (!string.IsNullOrEmpty(moduledefinition.Dependencies))
                         {
                             foreach (var assembly in moduledefinition.Dependencies.Replace(".dll", "").Split(',', StringSplitOptions.RemoveEmptyEntries).Reverse())
                             {
-                                if (!serverState.Assemblies.Contains(assembly.Trim()))
+                                if (!assemblies.Contains(assembly.Trim()))
                                 {
-                                    serverState.Assemblies.Insert(0, assembly.Trim());
+                                    assemblies.Insert(0, assembly.Trim());
                                 }
                             }
                         }
@@ -246,6 +246,13 @@ namespace Oqtane.Repository
                             _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId, moduledefinition.PermissionList);
                         }
                     }
+                }
+
+                // cache site assemblies
+                var serverState = _serverState.GetServerState(siteKey);
+                foreach (var assembly in assemblies)
+                {
+                    if (!serverState.Assemblies.Contains(assembly)) serverState.Assemblies.Add(assembly);
                 }
 
                 // clean up any orphaned permissions

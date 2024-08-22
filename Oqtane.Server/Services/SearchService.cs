@@ -37,12 +37,27 @@ namespace Oqtane.Services
             var searchProvider = GetSearchProvider(searchQuery.SiteId);
             var searchResults = await searchProvider.GetSearchResultsAsync(searchQuery);
 
-            var totalResults = 0;
-
-            // trim results
-            var results = searchResults.Where(i => HasViewPermission(i, searchQuery))
-                .OrderBy(i => i.Url).ThenByDescending(i => i.Score)
-                .DistinctBy(i => i.Url);
+            // security trim results and aggregate by Url
+            var results = searchResults.Where(item => HasViewPermission(item, searchQuery)) 
+                .OrderBy(item => item.Url).ThenByDescending(item => item.Score)
+                .GroupBy(group => group.Url)
+                .Select(result => new SearchResult
+                {
+                    SearchContentId = result.First().SearchContentId,
+                    SiteId = result.First().SiteId,
+                    EntityName = result.First().EntityName,
+                    EntityId = result.First().EntityId,
+                    Title = result.First().Title,
+                    Description = result.First().Description,
+                    Body = result.First().Body,
+                    Url = result.First().Url,
+                    Permissions = result.First().Permissions,
+                    ContentModifiedBy = result.First().ContentModifiedBy,
+                    ContentModifiedOn = result.First().ContentModifiedOn,
+                    SearchContentProperties = result.First().SearchContentProperties,
+                    Snippet = result.First().Snippet,
+                    Score = result.Sum(group => group.Score) // recalculate score
+                });
 
             // sort results
             if (searchQuery.SortOrder == SearchSortOrder.Descending)
@@ -76,12 +91,10 @@ namespace Oqtane.Services
                 }
             }
 
-            totalResults = results.Count();
-
             return new SearchResults
             {
                 Results = results.Skip(searchQuery.PageIndex * searchQuery.PageSize).Take(searchQuery.PageSize).ToList(),
-                TotalResults = totalResults
+                TotalResults = results.Count()
             };
         }
 

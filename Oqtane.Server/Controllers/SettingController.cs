@@ -109,7 +109,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
                 setting = _settings.AddSetting(setting);
-                AddSyncEvent(setting.EntityName, setting.SettingId, SyncEventActions.Create);
+                AddSyncEvent(setting.EntityName, setting.EntityId, setting.SettingId, SyncEventActions.Create);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Setting Added {Setting}", setting);
             }
             else
@@ -131,7 +131,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && setting.SettingId == id && IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
                 setting = _settings.UpdateSetting(setting);
-                AddSyncEvent(setting.EntityName, setting.SettingId, SyncEventActions.Update);
+                AddSyncEvent(setting.EntityName, setting.EntityId, setting.SettingId, SyncEventActions.Update);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Updated {Setting}", setting);
             }
             else
@@ -146,15 +146,53 @@ namespace Oqtane.Controllers
             return setting;
         }
 
-        // DELETE api/<controller>/5/xxx
-        [HttpDelete("{id}/{entityName}")]
-        public void Delete(string entityName, int id)
+        // PUT api/<controller>/site/1/settingname/x/false
+        [HttpPut("{entityName}/{entityId}/{settingName}/{settingValue}/{isPrivate}")]
+        public void Put(string entityName, int entityId, string settingName, string settingValue, bool isPrivate)
         {
-            Setting setting = _settings.GetSetting(entityName, id);
+            if (IsAuthorized(entityName, entityId, PermissionNames.Edit))
+            {
+                Setting setting = _settings.GetSetting(entityName, entityId, settingName);
+                if (setting == null)
+                {
+                    setting = new Setting();
+                    setting.EntityName = entityName;
+                    setting.EntityId = entityId;
+                    setting.SettingName = settingName;
+                    setting.SettingValue = settingValue;
+                    setting.IsPrivate = isPrivate;
+                    setting = _settings.AddSetting(setting);
+                    AddSyncEvent(setting.EntityName, setting.EntityId, setting.SettingId, SyncEventActions.Create);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Created {Setting}", setting);
+                }
+                else
+                {
+                    if (setting.SettingValue != settingValue || setting.IsPrivate != isPrivate)
+                    {
+                        setting.SettingValue = settingValue;
+                        setting.IsPrivate = isPrivate;
+                        setting = _settings.UpdateSetting(setting);
+                        AddSyncEvent(setting.EntityName, setting.EntityId, setting.SettingId, SyncEventActions.Update);
+                        _logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Updated {Setting}", setting);
+                    }
+                }
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Add Or Update Setting {EntityName} {EntityId} {SettingName}", entityName, entityId, settingName);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            }
+        }
+
+        // DELETE api/<controller>/site/1/settingname
+        [HttpDelete("{entityName}/{entityId}/{settingName}")]
+        public void Delete(string entityName, int entityId, string settingName)
+        {
+            Setting setting = _settings.GetSetting(entityName, entityId, settingName);
             if (IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
-                _settings.DeleteSetting(setting.EntityName, id);
-                AddSyncEvent(setting.EntityName, setting.SettingId, SyncEventActions.Delete);
+                _settings.DeleteSetting(setting.EntityName, setting.SettingId);
+                AddSyncEvent(setting.EntityName, setting.EntityId, setting.SettingId, SyncEventActions.Delete);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Setting Deleted {Setting}", setting);
             }
             else
@@ -300,7 +338,7 @@ namespace Oqtane.Controllers
             return filter;
         }
 
-        private void AddSyncEvent(string EntityName, int SettingId, string Action)
+        private void AddSyncEvent(string EntityName, int EntityId, int SettingId, string Action)
         {
             _syncManager.AddSyncEvent(_alias, EntityName + "Setting", SettingId, Action);
 
@@ -310,6 +348,9 @@ namespace Oqtane.Controllers
                 case EntityNames.Page:
                 case EntityNames.Site:
                     _syncManager.AddSyncEvent(_alias, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh);
+                    break;
+                case EntityNames.User:
+                    _syncManager.AddSyncEvent(_alias, EntityName, EntityId, SyncEventActions.Update);
                     break;
             }
         }

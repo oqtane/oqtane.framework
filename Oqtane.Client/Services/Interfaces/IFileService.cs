@@ -92,5 +92,13 @@ namespace Oqtane.Services
         /// </param>
         /// <returns></returns>
         Task<List<File>> GetFilesAsync(int siteId, string folderPath);
+
+        /// <summary>
+        /// Unzips the contents of a zip file
+        /// </summary>
+        /// <param name="fileId">Reference to the <see cref="File"/></param>
+        /// </param>
+        /// <returns></returns>
+        Task UnzipFileAsync(int fileId);
     }
 }

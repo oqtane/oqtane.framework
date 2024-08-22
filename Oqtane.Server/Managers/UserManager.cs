@@ -64,6 +64,9 @@ namespace Oqtane.Managers
                 {
                     user.SiteId = siteid;
                     user.Roles = GetUserRoles(user.UserId, user.SiteId);
+                    List<Setting> settings = _settings.GetSettings(EntityNames.User, user.UserId).ToList();
+                    user.Settings = settings.Where(item => !item.IsPrivate || user.UserId == user.UserId)
+                        .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                 }
                 return user;
             });
@@ -74,8 +77,7 @@ namespace Oqtane.Managers
             User user = _users.GetUser(username);
             if (user != null)
             {
-                user.SiteId = siteid;
-                user.Roles = GetUserRoles(user.UserId, user.SiteId);
+                user = GetUser(user.UserId, siteid);
             }
             return user;
         }
@@ -85,8 +87,7 @@ namespace Oqtane.Managers
             User user = _users.GetUser(username, email);
             if (user != null)
             {
-                user.SiteId = siteid;
-                user.Roles = GetUserRoles(user.UserId, user.SiteId);
+                user = GetUser(user.UserId, siteid);
             }
             return user;
         }

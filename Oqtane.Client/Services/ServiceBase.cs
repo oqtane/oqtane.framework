@@ -35,6 +35,7 @@ namespace Oqtane.Services
             if (_factory != null)
             {
                 var client = _factory.CreateClient("oqtane");
+                client.BaseAddress = new Uri(_siteState.Alias.Protocol + _siteState.Alias.Name);
                 if (!client.DefaultRequestHeaders.Contains(Constants.AntiForgeryTokenHeaderName) && _siteState != null && !string.IsNullOrEmpty(_siteState.AntiForgeryToken))
                 {
                     client.DefaultRequestHeaders.Add(Constants.AntiForgeryTokenHeaderName, _siteState.AntiForgeryToken);

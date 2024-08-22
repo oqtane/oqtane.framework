@@ -233,7 +233,7 @@ app {
 }
 
 .app-form-inline {
-    display: inline-block;
+    display: inline;
 }
 .app-search{
     display: inline-block;

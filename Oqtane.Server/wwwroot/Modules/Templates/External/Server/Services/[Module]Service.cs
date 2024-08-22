@@ -5,14 +5,13 @@ using Microsoft.AspNetCore.Http;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
-using Oqtane.Modules;
 using Oqtane.Security;
 using Oqtane.Shared;
 using [Owner].Module.[Module].Repository;
 
 namespace [Owner].Module.[Module].Services
 {
-    public class Server[Module]Service : I[Module]Service, ITransientService
+    public class Server[Module]Service : I[Module]Service
     {
         private readonly I[Module]Repository _[Module]Repository;
         private readonly IUserPermissions _userPermissions;
@@ -29,11 +28,11 @@ namespace [Owner].Module.[Module].Services
             _alias = tenantManager.GetAlias();
         }
 
-        public async Task<List<Models.[Module]>> Get[Module]sAsync(int ModuleId)
+        public Task<List<Models.[Module]>> Get[Module]sAsync(int ModuleId)
         {
             if (_userPermissions.IsAuthorized(_accessor.HttpContext.User, _alias.SiteId, EntityNames.Module, ModuleId, PermissionNames.View))
             {
-                return (await _[Module]Repository.Get[Module]sAsync(ModuleId)).ToList();
+                return Task.FromResult(_[Module]Repository.Get[Module]s(ModuleId).ToList());
             }
             else
             {
@@ -42,11 +41,11 @@ namespace [Owner].Module.[Module].Services
             }
         }
 
-        public async Task<Models.[Module]> Get[Module]Async(int [Module]Id, int ModuleId)
+        public Task<Models.[Module]> Get[Module]Async(int [Module]Id, int ModuleId)
         {
             if (_userPermissions.IsAuthorized(_accessor.HttpContext.User, _alias.SiteId, EntityNames.Module, ModuleId, PermissionNames.View))
             {
-                return await _[Module]Repository.Get[Module]Async([Module]Id);
+                return Task.FromResult(_[Module]Repository.Get[Module]([Module]Id));
             }
             else
             {
@@ -55,11 +54,11 @@ namespace [Owner].Module.[Module].Services
             }
         }
 
-        public async Task<Models.[Module]> Add[Module]Async(Models.[Module] [Module])
+        public Task<Models.[Module]> Add[Module]Async(Models.[Module] [Module])
         {
             if (_userPermissions.IsAuthorized(_accessor.HttpContext.User, _alias.SiteId, EntityNames.Module, [Module].ModuleId, PermissionNames.Edit))
             {
-                [Module] = await _[Module]Repository.Add[Module]Async([Module]);
+                [Module] = _[Module]Repository.Add[Module]([Module]);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "[Module] Added {[Module]}", [Module]);
             }
             else
@@ -67,14 +66,14 @@ namespace [Owner].Module.[Module].Services
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized [Module] Add Attempt {[Module]}", [Module]);
                 [Module] = null;
             }
-            return [Module];
+            return Task.FromResult([Module]);
         }
 
-        public async Task<Models.[Module]> Update[Module]Async(Models.[Module] [Module])
+        public Task<Models.[Module]> Update[Module]Async(Models.[Module] [Module])
         {
             if (_userPermissions.IsAuthorized(_accessor.HttpContext.User, _alias.SiteId, EntityNames.Module, [Module].ModuleId, PermissionNames.Edit))
             {
-                [Module] = await _[Module]Repository.Update[Module]Async([Module]);
+                [Module] = _[Module]Repository.Update[Module]([Module]);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "[Module] Updated {[Module]}", [Module]);
             }
             else
@@ -82,20 +81,21 @@ namespace [Owner].Module.[Module].Services
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized [Module] Update Attempt {[Module]}", [Module]);
                 [Module] = null;
             }
-            return [Module];
+            return Task.FromResult([Module]);
         }
 
-        public async Task Delete[Module]Async(int [Module]Id, int ModuleId)
+        public Task Delete[Module]Async(int [Module]Id, int ModuleId)
         {
             if (_userPermissions.IsAuthorized(_accessor.HttpContext.User, _alias.SiteId, EntityNames.Module, ModuleId, PermissionNames.Edit))
             {
-                await _[Module]Repository.Delete[Module]Async([Module]Id);
+                _[Module]Repository.Delete[Module]([Module]Id);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "[Module] Deleted {[Module]Id}", [Module]Id);
             }
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized [Module] Delete Attempt {[Module]Id} {ModuleId}", [Module]Id, ModuleId);
             }
+            return Task.CompletedTask;
         }
     }
 }

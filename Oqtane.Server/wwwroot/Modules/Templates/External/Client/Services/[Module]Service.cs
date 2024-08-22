@@ -2,13 +2,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Oqtane.Modules;
 using Oqtane.Services;
 using Oqtane.Shared;
 
 namespace [Owner].Module.[Module].Services
 {
-    public class [Module]Service : ServiceBase, I[Module]Service, IService
+    public class [Module]Service : ServiceBase, I[Module]Service
     {
         public [Module]Service(IHttpClientFactory http, SiteState siteState) : base(http, siteState) { }
 

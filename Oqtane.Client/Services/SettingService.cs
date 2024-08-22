@@ -12,7 +12,7 @@ namespace Oqtane.Services
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class SettingService : ServiceBase, ISettingService
     {
-        public SettingService(HttpClient http, SiteState siteState) : base(http, siteState) { }
+        public SettingService(HttpClient http, SiteState siteState) : base(http, siteState) {}
 
         private string Apiurl => CreateApiUrl("Setting");
 
@@ -134,7 +134,7 @@ namespace Oqtane.Services
         public async Task<Dictionary<string, string>> GetSettingsAsync(string entityName, int entityId)
         {
             var dictionary = new Dictionary<string, string>();
-            var settings = await GetJsonAsync<List<Setting>>($"{Apiurl}?entityname={entityName}&entityid={entityId}");
+            var settings = await GetSettingsAsync(entityName, entityId, "");
             if (settings != null)
             {
                 foreach (Setting setting in settings.OrderBy(item => item.SettingName).ToList())
@@ -147,7 +147,7 @@ namespace Oqtane.Services
 
         public async Task UpdateSettingsAsync(Dictionary<string, string> settings, string entityName, int entityId)
         {
-            var settingsList = await GetJsonAsync<List<Setting>>($"{Apiurl}?entityname={entityName}&entityid={entityId}");
+            var settingsList = await GetSettingsAsync(entityName, entityId, "");
 
             foreach (KeyValuePair<string, string> kvp in settings)
             {
@@ -192,14 +192,14 @@ namespace Oqtane.Services
             }
         }
 
+        public async Task AddOrUpdateSettingAsync(string entityName, int entityId, string settingName, string settingValue, bool isPrivate)
+        {
+            await PutAsync($"{Apiurl}/{entityName}/{entityId}/{settingName}/{settingValue}/{isPrivate}");
+        }
+
         public async Task DeleteSettingAsync(string entityName, int entityId, string settingName)
         {
-            var settings = await GetJsonAsync<List<Setting>>($"{Apiurl}?entityname={entityName}&entityid={entityId}");
-            var setting = settings.FirstOrDefault(item => item.SettingName == settingName);
-            if (setting != null)
-            {
-                await DeleteAsync($"{Apiurl}/{setting.SettingId}/{entityName}");
-            }
+            await DeleteAsync($"{Apiurl}/{entityName}/{entityId}/{settingName}");
         }
 
         public async Task<List<Setting>> GetSettingsAsync(string entityName, int entityId, string settingName)
