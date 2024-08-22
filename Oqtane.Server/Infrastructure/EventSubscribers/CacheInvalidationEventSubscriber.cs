@@ -17,7 +17,7 @@ namespace Oqtane.Infrastructure.EventSubscribers
         public void EntityChanged(SyncEvent syncEvent)
         {
             // when site entities change (ie. site, pages, modules, etc...) a site refresh event is raised and the site cache item needs to be refreshed
-            if (syncEvent.EntityName == EntityNames.Site && syncEvent.Action == SyncEventActions.Refresh)
+            if (syncEvent.EntityName == EntityNames.Site && (syncEvent.Action == SyncEventActions.Refresh || syncEvent.Action == SyncEventActions.Reload))
             {
                 _cache.Remove($"site:{syncEvent.TenantId}:{syncEvent.EntityId}");
                 _cache.Remove($"modules:{syncEvent.TenantId}:{syncEvent.EntityId}");
