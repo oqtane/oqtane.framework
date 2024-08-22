@@ -203,6 +203,7 @@ namespace Oqtane.Services
                 if (site.SiteId == alias.SiteId && site.TenantId == alias.TenantId && current != null)
                 {
                     site = _sites.UpdateSite(site);
+                    ClearCache();
                     _syncManager.AddSyncEvent(alias, EntityNames.Site, site.SiteId, SyncEventActions.Update);
                     string action = SyncEventActions.Refresh;
                     if (current.RenderMode != site.RenderMode || current.Runtime != site.Runtime)
@@ -234,6 +235,7 @@ namespace Oqtane.Services
                 if (site != null && site.SiteId == alias.SiteId)
                 {
                     _sites.DeleteSite(siteId);
+                    ClearCache();
                     _syncManager.AddSyncEvent(alias, EntityNames.Site, site.SiteId, SyncEventActions.Delete);
                     _logger.Log(siteId, LogLevel.Information, this, LogFunction.Delete, "Site Deleted {SiteId}", siteId);
                 }
@@ -318,6 +320,13 @@ namespace Oqtane.Services
             }
 
             return modules.OrderBy(item => item.PageId).ThenBy(item => item.Pane).ThenBy(item => item.Order).ToList();
+        }
+
+        private void ClearCache()
+        {
+            var alias = _tenantManager.GetAlias();
+            var cacheKey = $"site:{alias.SiteKey}";
+            _cache.Remove(cacheKey);
         }
 
         [Obsolete("This method is deprecated.", false)]
