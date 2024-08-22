@@ -10,13 +10,13 @@
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="includeentities" ResourceKey="IncludeEntities" ResourceType="@resourceType" HelpText="Comma delimited list of entities to include in the search results. By default all entities will be included.">Include Entities: </Label>
             <div class="col-sm-9">
-                <input id="includeentities" type="text" class="form-control" @bind="@_includeEntities" required />
+                <input id="includeentities" type="text" class="form-control" @bind="@_includeEntities" />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="excludeentities" ResourceKey="ExcludeEntities" ResourceType="@resourceType" HelpText="Comma delimited list of entities to exclude from search results. By default no entities will be excluded.">Exclude Entities: </Label>
             <div class="col-sm-9">
-                <input id="excludeentities" class="form-control" @bind="@_excludeEntities" required></input>
+                <input id="excludeentities" class="form-control" @bind="@_excludeEntities" />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
