@@ -13,6 +13,7 @@
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
     <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.1</releaseNotes>
+    <readme>readme.md</readme>
     <icon>icon.png</icon>
     <tags>oqtane</tags>
   </metadata>
