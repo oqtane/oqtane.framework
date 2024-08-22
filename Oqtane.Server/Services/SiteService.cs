@@ -235,6 +235,7 @@ namespace Oqtane.Services
                 {
                     _sites.DeleteSite(siteId);
                     _syncManager.AddSyncEvent(alias, EntityNames.Site, site.SiteId, SyncEventActions.Delete);
+                    _syncManager.AddSyncEvent(alias, EntityNames.Site, site.SiteId, SyncEventActions.Refresh);
                     _logger.Log(siteId, LogLevel.Information, this, LogFunction.Delete, "Site Deleted {SiteId}", siteId);
                 }
                 else

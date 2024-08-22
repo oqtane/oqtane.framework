@@ -24,7 +24,7 @@ namespace Oqtane.Infrastructure.EventSubscribers
             }
 
             // when a site entity is updated, the hosting model may have changed so the client assemblies cache items need to be refreshed
-            if (syncEvent.EntityName == EntityNames.Site && syncEvent.Action == SyncEventActions.Update)
+            if (syncEvent.EntityName == EntityNames.Site && (syncEvent.Action == SyncEventActions.Update || syncEvent.Action == SyncEventActions.Delete))
             {
                 _cache.Remove($"assemblieslist:{syncEvent.TenantId}:{syncEvent.EntityId}");
                 _cache.Remove($"assemblies:{syncEvent.TenantId}:{syncEvent.EntityId}");
