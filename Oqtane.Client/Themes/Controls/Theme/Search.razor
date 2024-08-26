@@ -2,27 +2,38 @@
 @using System.Net
 @using Microsoft.AspNetCore.Http
 @inherits ThemeControlBase
+@inject ISettingService SettingService
 @inject IStringLocalizer<Search> Localizer
 @inject NavigationManager NavigationManager
 
 @if (_searchResultsPage != null)
 {
-    <span class="app-search @CssClass">
+    @if (AllowInput)
+    {
+        <span class="app-search @CssClass">
+            <form method="post" class="app-form-inline" @formname="@($"SearchForm")" @onsubmit="@PerformSearch" data-enhance>
+                <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                <input type="text" name="keywords" maxlength="50"
+                        class="form-control d-inline-block pe-5 shadow-none"
+                        @bind="_keywords"
+                        placeholder="@Localizer["SearchPlaceHolder"]"
+                        aria-label="Search" />
+                <button type="submit" class="btn btn-search">
+                    <span class="oi oi-magnifying-glass align-middle"></span>
+                </button>
+            </form>
+        </span>
+    }
+    else
+    {
         <form method="post" class="app-form-inline" @formname="@($"SearchForm")" @onsubmit="@PerformSearch" data-enhance>
             <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
-            <input type="text" name="keywords" maxlength="50"
-                   class="form-control d-inline-block pe-5 shadow-none"
-                   @bind="_keywords"
-                   placeholder="@Localizer["SearchPlaceHolder"]"
-                   aria-label="Search" />
-            <button type="submit" class="btn btn-search">
+            <button type="submit" class="btn btn-primary">
                 <span class="oi oi-magnifying-glass align-middle"></span>
             </button>
         </form>
-    </span>
+    }
 }
-
-
 
 @code {
     private Page _searchResultsPage;
@@ -32,7 +43,10 @@
     public string CssClass { get; set; }
 
     [Parameter]
-    public string SearchResultPagePath { get; set; } = "search";
+    public bool AllowInput { get; set; } = true; // setting to false will display only the search icon button - not the textbox 
+
+    [Parameter]
+    public string SearchResultPagePath { get; set; } = "search"; // setting to "" will disable search
 
     [CascadingParameter]
     HttpContext HttpContext { get; set; }
@@ -42,9 +56,12 @@
 
     protected override void OnInitialized()
     {
-        if(!string.IsNullOrEmpty(SearchResultPagePath))
+        if (bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "Search_Enabled", "True")))
         {
-            _searchResultsPage = PageState.Pages.FirstOrDefault(i => i.Path == SearchResultPagePath);
+            if (!string.IsNullOrEmpty(SearchResultPagePath))
+            {
+                _searchResultsPage = PageState.Pages.FirstOrDefault(i => i.Path == SearchResultPagePath);
+            }
         }
     }
 
