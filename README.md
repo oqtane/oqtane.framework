@@ -50,6 +50,8 @@ Please note that this project is owned by the .NET Foundation and is governed by
 
 **Installing an official release:**
 
+- all official releases of Oqtane are distributed on [GitHub](https://github.com/oqtane/oqtane.framework/releases). Releases include an Install.zip package for new installations and an Upgrade.zip for existing installations.
+  
 - A detailed set of instructions for installing Oqtane on Azure is located here: [Installing Oqtane on Azure](https://blazorhelpwebsite.com/ViewBlogPost/1)
 
 - A detailed set of instructions for installing Oqtane on IIS is located here: [Installing Oqtane on IIS](https://www.oqtane.org/Resources/Blog/PostId/542/installing-oqtane-on-iis)
