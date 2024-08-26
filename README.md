@@ -128,7 +128,7 @@ The following diagram visualizes the client and server components in the Oqtane 
 
 # Databases
 
-As of version 2.1, Oqtane supports multiple relational database providers.
+As of version 2.1 (June 2021) Oqtane supports multiple relational database providers.
 
 ![Databases](https://github.com/oqtane/framework/blob/dev/screenshots/databases.png?raw=true "Oqtane Databases")
 
