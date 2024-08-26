@@ -38,7 +38,7 @@ Please note that this project is owned by the .NET Foundation and is governed by
 
 - login as the host user
 
-- navigate to Control Panel, Admin Dashboard, Module Management
+- navigate to Control Panel (gear icon at top-right of page), Admin Dashboard, Module Management
 
 - select Create Module
 
