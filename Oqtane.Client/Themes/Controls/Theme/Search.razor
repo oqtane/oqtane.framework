@@ -8,7 +8,7 @@
 
 @if (_searchResultsPage != null)
 {
-    @if (AllowInput)
+    @if (AllowTextInput)
     {
         <span class="app-search @CssClass">
             <form method="post" class="app-form-inline" @formname="@($"SearchForm")" @onsubmit="@PerformSearch" data-enhance>
@@ -43,7 +43,7 @@
     public string CssClass { get; set; }
 
     [Parameter]
-    public bool AllowInput { get; set; } = true; // setting to false will display only the search icon button - not the textbox 
+    public bool AllowTextInput { get; set; } = true; // setting to false will display only the search icon button - not the textbox 
 
     [Parameter]
     public string SearchResultPagePath { get; set; } = "search"; // setting to "" will disable search
