@@ -18,4 +18,8 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Oqtane.Shared\Oqtane.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

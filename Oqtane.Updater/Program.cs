@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Threading;
+using Oqtane.Shared;
 
 namespace Oqtane.Updater
 {
@@ -293,6 +294,8 @@ namespace Oqtane.Updater
         private static void UpdateOfflineContent(string filePath, string contentTemplate, int progress, string status,  string progressClass =  "")
         {
             var content = contentTemplate
+                            .Replace("[BOOTSTRAPCSSURL]", Constants.BootstrapStylesheetUrl)
+                            .Replace("[BOOTSTRAPCSSINTEGRITY]", Constants.BootstrapStylesheetIntegrity)
                             .Replace("[PROGRESS]", progress.ToString())
                             .Replace("[PROGRESSCLASS]", progressClass)
                             .Replace("[STATUS]", status);

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width">
     <title>Upgrade Framework</title>
     <base href="/" />
-	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" href="[BOOTSTRAPCSSURL]" integrity="[BOOTSTRAPCSSINTEGRITY]"  crossorigin="anonymous" />
     <link rel="stylesheet" type="text/css" href="https://www.oqtane.net/css/app.css">
 </head>
 <body onload="refresh()">
