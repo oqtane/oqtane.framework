@@ -147,11 +147,13 @@ namespace Oqtane.Controllers
                 if (_userPermissions.IsAuthorized(User, user.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin))
                 {
                     user.EmailConfirmed = true;
+                    user.IsAuthenticated = true;
                     allowregistration = true;
                 }
                 else
                 {
                     user.EmailConfirmed = false;
+                    user.IsAuthenticated = false;
                     allowregistration = _sites.GetSite(user.SiteId).AllowRegistration;
                 }
 
