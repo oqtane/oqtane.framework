@@ -93,6 +93,7 @@ namespace Oqtane.Themes
 
         // url methods
 
+        // navigate url
         public string NavigateUrl()
         {
             return NavigateUrl(PageState.Page.Path);
@@ -108,31 +109,78 @@ namespace Oqtane.Themes
             return NavigateUrl(PageState.Page.Path, refresh);
         }
 
+        public string NavigateUrl(string path, string querystring)
+        {
+            return Utilities.NavigateUrl(PageState.Alias.Path, path, querystring);
+        }
+
+        public string NavigateUrl(string path, Dictionary<string, string> querystring)
+        {
+            return NavigateUrl(path, Utilities.CreateQueryString(querystring));
+        }
+
         public string NavigateUrl(string path, bool refresh)
         {
-            return Utilities.NavigateUrl(PageState.Alias.Path, path, refresh ? "refresh" : "");
+            return NavigateUrl(path, refresh ? "refresh" : "");
         }
 
-        public string NavigateUrl(string path, string parameters)
+        public string NavigateUrl(int moduleid, string action)
         {
-            return Utilities.NavigateUrl(PageState.Alias.Path, path, parameters);
+            return EditUrl(moduleid, action, "");
         }
 
+        public string NavigateUrl(int moduleid, string action, string querystring)
+        {
+            return EditUrl(PageState.Page.Path, moduleid, action, querystring);
+        }
+
+        public string NavigateUrl(int moduleid, string action, Dictionary<string, string> querystring)
+        {
+            return EditUrl(PageState.Page.Path, moduleid, action, Utilities.CreateQueryString(querystring));
+        }
+
+        public string NavigateUrl(string path, int moduleId, string action)
+        {
+            return EditUrl(path, moduleId, action, "");
+        }
+
+        public string NavigateUrl(string path, int moduleid, string action, string querystring)
+        {
+            return EditUrl(path, moduleid, action, querystring);
+        }
+
+        public string NavigateUrl(string path, int moduleid, string action, Dictionary<string, string> querystring)
+        {
+            return EditUrl(path, moduleid, action, querystring);
+        }
+
+        // edit url
         public string EditUrl(int moduleid, string action)
         {
             return EditUrl(moduleid, action, "");
         }
 
-        public string EditUrl(int moduleid, string action, string parameters)
+        public string EditUrl(int moduleid, string action, string querystring)
         {
-            return EditUrl(PageState.Page.Path, moduleid, action, parameters);
+            return EditUrl(PageState.Page.Path, moduleid, action, querystring);
         }
 
-        public string EditUrl(string path, int moduleid, string action, string parameters)
+        public string EditUrl(int moduleid, string action, Dictionary<string, string> querystring)
         {
-            return Utilities.EditUrl(PageState.Alias.Path, path, moduleid, action, parameters);
+            return EditUrl(PageState.Page.Path, moduleid, action, querystring);
         }
 
+        public string EditUrl(string path, int moduleid, string action, string querystring)
+        {
+            return Utilities.EditUrl(PageState.Alias.Path, path, moduleid, action, querystring);
+        }
+
+        public string EditUrl(string path, int moduleid, string action, Dictionary<string, string> querystring)
+        {
+            return EditUrl(path, moduleid, action, Utilities.CreateQueryString(querystring));
+        }
+
+        // file url
         public string FileUrl(string folderpath, string filename)
         {
             return FileUrl(folderpath, filename, false);
@@ -152,6 +200,7 @@ namespace Oqtane.Themes
             return Utilities.FileUrl(PageState.Alias, fileid, download);
         }
 
+        // image url
         public string ImageUrl(int fileid, int width, int height)
         {
             return ImageUrl(fileid, width, height, "");

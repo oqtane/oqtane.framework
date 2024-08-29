@@ -23,12 +23,13 @@ namespace Oqtane.Shared
 
         public static (string UrlParameters, string Querystring, string Fragment) ParseParameters(string parameters)
         {
-            // /urlparameters /urlparameters?Id=1 /urlparameters#5 /urlparameters?Id=1#5 /urlparameters?reload#5
-            // Id=1 Id=1#5 reload#5 reload
+            // /urlparameters /urlparameters?id=1 /urlparameters#5 /urlparameters?id=1#5 /urlparameters?reload#5
+            // ?id=1 ?id=1#5 ?reload#5 ?reload
+            // id=1 id=1#5 reload#5 reload
             // #5
 
             // create absolute url to convert to Uri
-            parameters = (!parameters.StartsWith("/") && !parameters.StartsWith("#") ? "?" : "") + parameters;
+            parameters = (!parameters.StartsWith("/") && !parameters.StartsWith("#") && !parameters.StartsWith("?") ? "?" : "") + parameters;
             parameters = Constants.PackageRegistryUrl + parameters;
             var uri = new Uri(parameters);
             var querystring = uri.Query.Replace("?", "");
