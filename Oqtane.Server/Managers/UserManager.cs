@@ -12,6 +12,7 @@ using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Repository;
+using Oqtane.Security;
 using Oqtane.Shared;
 
 namespace Oqtane.Managers
@@ -145,13 +146,17 @@ namespace Oqtane.Managers
             }
             else
             {
-                var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, false);
-                succeeded = result.Succeeded;
-                if (!succeeded)
+                succeeded = true;
+                if (!user.IsAuthenticated)
                 {
-                    errors = "Password Not Valid For User";
+                    var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, false);
+                    succeeded = result.Succeeded;
+                    if (!succeeded)
+                    {
+                        errors = "Password Not Valid For User";
+                    }
+                    user.EmailConfirmed = succeeded;
                 }
-                user.EmailConfirmed = succeeded;
             }
 
             if (succeeded)
