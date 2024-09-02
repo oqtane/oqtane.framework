@@ -474,6 +474,7 @@ namespace Oqtane.Managers
             IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
             if (identityuser != null && !string.IsNullOrEmpty(token))
             {
+                // note that ResetPasswordAsync checks password complexity rules
                 var result = await _identityUserManager.ResetPasswordAsync(identityuser, token, user.Password);
                 if (result.Succeeded)
                 {
