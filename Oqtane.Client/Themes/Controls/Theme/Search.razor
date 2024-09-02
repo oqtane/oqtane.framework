@@ -1,6 +1,5 @@
 @namespace Oqtane.Themes.Controls
 @using System.Net
-@using Microsoft.AspNetCore.Http
 @inherits ThemeControlBase
 @inject ISettingService SettingService
 @inject IStringLocalizer<Search> Localizer
@@ -39,9 +38,6 @@
 
     [Parameter]
     public string SearchResultPagePath { get; set; } = "search"; // setting to "" will disable search
-
-    [CascadingParameter]
-    HttpContext HttpContext { get; set; }
 
     [SupplyParameterFromForm(FormName = "SearchForm")]
     public string KeyWords { get => ""; set => _keywords = value; }
