@@ -127,6 +127,46 @@ namespace Oqtane.Migrations.EntityBuilders
             return table.Column<DateTimeOffset>(name: RewriteName(name), nullable: nullable, defaultValue: defaultValue);
         }
 
+        public void AddDateOnlyColumn(string name, bool nullable = false)
+        {
+            _migrationBuilder.AddColumn<DateOnly>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable, schema: Schema);
+        }
+
+        public void AddDateOnlyColumn(string name, bool nullable, DateOnly defaultValue)
+        {
+            _migrationBuilder.AddColumn<DateOnly>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable, defaultValue: defaultValue, schema: Schema);
+        }
+
+        protected OperationBuilder<AddColumnOperation> AddDateOnlyColumn(ColumnsBuilder table, string name, bool nullable = false)
+        {
+            return table.Column<DateOnly>(name: RewriteName(name), nullable: nullable);
+        }
+
+        protected OperationBuilder<AddColumnOperation> AddDateOnlyColumn(ColumnsBuilder table, string name, bool nullable, DateOnly defaultValue)
+        {
+            return table.Column<DateOnly>(name: RewriteName(name), nullable: nullable, defaultValue: defaultValue);
+        }
+
+        public void AddTimeOnlyColumn(string name, bool nullable = false)
+        {
+            _migrationBuilder.AddColumn<TimeOnly>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable, schema: Schema);
+        }
+
+        public void AddTimeOnlyColumn(string name, bool nullable, TimeOnly defaultValue)
+        {
+            _migrationBuilder.AddColumn<TimeOnly>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable, defaultValue: defaultValue, schema: Schema);
+        }
+
+        protected OperationBuilder<AddColumnOperation> AddTimeOnlyColumn(ColumnsBuilder table, string name, bool nullable = false)
+        {
+            return table.Column<TimeOnly>(name: RewriteName(name), nullable: nullable);
+        }
+
+        protected OperationBuilder<AddColumnOperation> AddTimeOnlyColumn(ColumnsBuilder table, string name, bool nullable, TimeOnly defaultValue)
+        {
+            return table.Column<TimeOnly>(name: RewriteName(name), nullable: nullable, defaultValue: defaultValue);
+        }
+
         public void AddByteColumn(string name, bool nullable = false)
         {
             _migrationBuilder.AddColumn<byte>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable, schema: Schema);
