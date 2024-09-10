@@ -342,9 +342,9 @@ namespace Oqtane.Infrastructure
 
                         _cache.Remove("aliases");
                     }
-            }
 
-            result.Success = true;
+                result.Success = true;
+            }
 
             return result;
         }
