@@ -66,7 +66,7 @@ namespace Oqtane.Managers
                     user.SiteId = siteid;
                     user.Roles = GetUserRoles(user.UserId, user.SiteId);
                     List<Setting> settings = _settings.GetSettings(EntityNames.User, user.UserId).ToList();
-                    user.Settings = settings.Where(item => !item.IsPrivate || user.UserId == user.UserId)
+                    user.Settings = settings.Where(setting => !setting.IsPrivate && setting.EntityId == user.UserId)
                         .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                 }
                 return user;
