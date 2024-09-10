@@ -209,7 +209,7 @@ else
 				if (tenant != null)
 				{
 					_tenant = tenant.Name;
-					_databasetype = _databases.FirstOrDefault(item => item.DBType == tenant.DBType).Name;
+					_databasetype = _databases.FirstOrDefault(item => item.DBType == tenant.DBType)?.Name;
 				}
 			}
 			else
@@ -314,7 +314,7 @@ else
 		{
 			if (_databasetype != "-" && !string.IsNullOrEmpty(_sql))
 			{
-				var dbtype = _databases.FirstOrDefault(item => item.Name == _databasetype).DBType;
+				var dbtype = _databases.FirstOrDefault(item => item.Name == _databasetype)?.DBType;
 				var sqlquery = new SqlQuery { DBConnectionString = _connection, DBType = dbtype, Query = _sql };
                 sqlquery = await SqlService.ExecuteQueryAsync(sqlquery);
                 _results = sqlquery.Results;

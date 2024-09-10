@@ -117,8 +117,8 @@ namespace Oqtane.Services
 
                 // framework modules
                 var modules = GetModules(site.SiteId);
-                site.Settings.Add(Constants.AdminDashboardModule, modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.AdminDashboardModule).ModuleId.ToString());
-                site.Settings.Add(Constants.PageManagementModule, modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.PageManagementModule).ModuleId.ToString());
+                site.Settings.Add(Constants.AdminDashboardModule, modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.AdminDashboardModule)?.ModuleId.ToString());
+                site.Settings.Add(Constants.PageManagementModule, modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.PageManagementModule)?.ModuleId.ToString());
 
                 // languages
                 site.Languages = _languages.GetLanguages(site.SiteId).ToList();

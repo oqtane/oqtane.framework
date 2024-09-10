@@ -408,10 +408,12 @@
 
     private async Task GetPackage(string packagename)
     {
-        var version = _packages.Where(item => item.PackageId == packagename).FirstOrDefault().Version;
+        var version = _packages.Where(item => item.PackageId == packagename)
+            .FirstOrDefault()?.Version;
         try
         {
             _package = await PackageService.GetPackageAsync(packagename, version, false);
+
             if (_package != null)
             {
                 StateHasChanged();

@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Security.Claims;
 using Oqtane.Models;
@@ -13,11 +14,11 @@ namespace Oqtane.Extensions
         {
             if (claimsPrincipal.HasClaim(item => item.Type == ClaimTypes.Name))
             {
-                return claimsPrincipal.Claims.FirstOrDefault(item => item.Type == ClaimTypes.Name).Value;
+                return claimsPrincipal.Claims.FirstOrDefault(item => item.Type == ClaimTypes.Name)?.Value;
             }
             else
             {
-                return "";
+                return String.Empty;
             }
         }
 
@@ -43,11 +44,11 @@ namespace Oqtane.Extensions
         {
             if (claimsPrincipal.HasClaim(item => item.Type == "sitekey"))
             {
-                return claimsPrincipal.Claims.FirstOrDefault(item => item.Type == "sitekey").Value;
+                return claimsPrincipal.Claims.FirstOrDefault(item => item.Type == "sitekey")?.Value;
             }
             else
             {
-                return "";
+                return String.Empty;
             }
         }
 

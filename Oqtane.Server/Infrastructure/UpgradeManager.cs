@@ -325,28 +325,41 @@ namespace Oqtane.Infrastructure
                 var siteRepository = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
                 foreach (Site site in siteRepository.GetSites().ToList())
                 {
-                    int roleid = roles.GetRoles(site.SiteId).FirstOrDefault(item => item.Name == RoleNames.Registered).RoleId;
+                    var roleId = roles.GetRoles(site.SiteId)
+                        .FirstOrDefault(item => item.Name == RoleNames.Registered)?.RoleId;
 
-                    int pageid = pages.GetPages(site.SiteId).FirstOrDefault(item => item.Path == "admin").PageId;
+                    var pageId = pages.GetPages(site.SiteId).FirstOrDefault(item => item.Path == "admin")?.PageId;
+                    if (!pageId.HasValue)
+                    {
+                        continue;
+                    }
+
                     var permission = new Permission
                     {
                         SiteId = site.SiteId,
                         EntityName = EntityNames.Page,
-                        EntityId = pageid,
+                        EntityId = pageId.Value,
                         PermissionName = PermissionNames.View,
-                        RoleId = roleid,
+                        RoleId = roleId.Value,
                         IsAuthorized = true
                     };
                     permissions.AddPermission(permission);
 
-                    int moduleid = modules.GetModules(site.SiteId).FirstOrDefault(item => item.ModuleDefinitionName == "Oqtane.Modules.Admin.Dashboard, Oqtane.Client").ModuleId;
+                    var moduleId = modules.GetModules(site.SiteId)
+                        .FirstOrDefault(item => item.ModuleDefinitionName == "Oqtane.Modules.Admin.Dashboard, Oqtane.Client")?.ModuleId;
+
+                    if (!moduleId.HasValue)
+                    {
+                        continue;
+                    }
+
                     permission = new Permission
                     {
                         SiteId = site.SiteId,
                         EntityName = EntityNames.Module,
-                        EntityId = moduleid,
+                        EntityId = moduleId.Value,
                         PermissionName = PermissionNames.View,
-                        RoleId = roleid,
+                        RoleId = roleId.Value,
                         IsAuthorized = true
                     };
                     permissions.AddPermission(permission);
