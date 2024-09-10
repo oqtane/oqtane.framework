@@ -167,7 +167,7 @@
     {
         SetModuleTitle(Localizer["ModuleSettings.Title"]);
 
-        _module = ModuleState.ModuleDefinition.Name;
+        _module = ModuleState.ModuleDefinition?.Name;
         _title = ModuleState.Title;
         _moduleSettingsTitle = Localizer["ModuleSettings.Heading"];
         _pane = ModuleState.Pane;
