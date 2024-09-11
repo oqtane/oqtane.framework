@@ -12,7 +12,6 @@ using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Repository;
-using Oqtane.Security;
 using Oqtane.Shared;
 
 namespace Oqtane.Managers
@@ -65,8 +64,7 @@ namespace Oqtane.Managers
                 {
                     user.SiteId = siteid;
                     user.Roles = GetUserRoles(user.UserId, user.SiteId);
-                    List<Setting> settings = _settings.GetSettings(EntityNames.User, user.UserId).ToList();
-                    user.Settings = settings.Where(item => !item.IsPrivate || user.UserId == user.UserId)
+                    user.Settings = _settings.GetSettings(EntityNames.User, user.UserId)
                         .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                 }
                 return user;
