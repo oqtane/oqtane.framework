@@ -387,7 +387,7 @@
 
                         var size = Int64.Parse(uploads[upload].Split(':')[1]); // bytes
                         var megabits = (size / 1048576.0) * 8; // binary conversion
-                        var uploadspeed = 2; // 2 Mbps (3G ranges from 300Kbps to 3Mbps)
+                        var uploadspeed = (PageState.Alias.Name.Contains("localhost")) ? 100 : 3; // 3 Mbps is FCC minimum for broadband upload
                         var uploadtime = (megabits / uploadspeed); // seconds
                         var maxattempts = 5; // polling (minimum timeout duration will be 5 seconds)
                         var sleep = (int)Math.Ceiling(uploadtime / maxattempts) * 1000; // milliseconds
