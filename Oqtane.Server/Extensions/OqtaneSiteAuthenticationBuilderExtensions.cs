@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Net;
 using System.Text.Json.Nodes;
 using System.Globalization;
+using System.Net.WebSockets;
 
 namespace Oqtane.Extensions
 {
@@ -529,7 +530,8 @@ namespace Oqtane.Extensions
                 {
                     // create claims identity
                     var _userRoles = httpContext.RequestServices.GetRequiredService<IUserRoleRepository>();
-                    identity = UserSecurity.CreateClaimsIdentity(alias, user, _userRoles.GetUserRoles(user.UserId, user.SiteId).ToList());
+                    var userRoles = _userRoles.GetUserRoles(user.UserId, user.SiteId).ToList();
+                    identity = UserSecurity.CreateClaimsIdentity(alias, user, userRoles);
                     identity.Label = ExternalLoginStatus.Success;
 
                     // update user
@@ -540,13 +542,49 @@ namespace Oqtane.Extensions
                     // external roles
                     if (!string.IsNullOrEmpty(httpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimType", "")))
                     {
-                        if (claimsPrincipal.Claims.Any(item => item.Type == ClaimTypes.Role))
+                        if (claimsPrincipal.Claims.Any(item => item.Type == httpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimType", "")))
                         {
-                            foreach (var claim in claimsPrincipal.Claims.Where(item => item.Type == ClaimTypes.Role))
+                            var _roles = httpContext.RequestServices.GetRequiredService<IRoleRepository>();                            
+                            var roles = _roles.GetRoles(user.SiteId).ToList(); // global roles excluded ie. host users cannot be added/deleted
+
+                            var mappings = httpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimMappings", "").Split(',');
+                            foreach (var claim in claimsPrincipal.Claims.Where(item => item.Type == httpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimType", "")))
                             {
-                                if (!identity.Claims.Any(item => item.Type == ClaimTypes.Role && item.Value == claim.Value))
+                                var rolename = claim.Value;
+                                if (mappings.Any(item => item.StartsWith(rolename + ":")))
                                 {
-                                    identity.AddClaim(new Claim(ClaimTypes.Role, claim.Value));
+                                    rolename = mappings.First(item => item.StartsWith(rolename + ":")).Split(':')[1];
+                                }
+                                var role = roles.FirstOrDefault(item => item.Name == rolename);
+                                if (role != null)
+                                {
+                                    if (!userRoles.Any(item => item.RoleId == role.RoleId && item.UserId == user.UserId))
+                                    {
+                                        var userRole = new UserRole();
+                                        userRole.RoleId = role.RoleId;
+                                        userRole.UserId = user.UserId;
+                                        _userRoles.AddUserRole(userRole);
+                                    }
+                                }
+                            }
+                            if (bool.Parse(httpContext.GetSiteSettings().GetValue("ExternalLogin:SynchronizeRoles", "false")))
+                            {
+                                userRoles = _userRoles.GetUserRoles(user.UserId, user.SiteId).ToList();
+                                foreach (var userRole in userRoles)
+                                {
+                                    var role = roles.FirstOrDefault(item => item.RoleId == userRole.RoleId);
+                                    if (role != null)
+                                    {
+                                        var rolename = role.Name;
+                                        if (mappings.Any(item => item.EndsWith(":" + rolename)))
+                                        {
+                                            rolename = mappings.First(item => item.EndsWith(":" + rolename)).Split(':')[0];
+                                        }
+                                        if (!claimsPrincipal.Claims.Any(item => item.Type == httpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimType", "") && item.Value == rolename))
+                                        {
+                                            _userRoles.DeleteUserRole(userRole.UserRoleId);
+                                        }
+                                    }
                                 }
                             }
                         }
