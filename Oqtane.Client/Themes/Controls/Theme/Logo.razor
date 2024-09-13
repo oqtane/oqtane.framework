@@ -8,4 +8,19 @@
             <img class="img-fluid" src="@Utilities.FileUrl(PageState.Alias, PageState.Site.LogoFileId.Value)" alt="@PageState.Site.Name" />       
         </a>
     </span>
-} 
+}
+else
+{
+    if (ShowName)
+    {
+        <span class="app-logo">
+            <a class="site-name" href="@PageState.Alias.Path">@PageState.Site.Name</a>
+        </span>
+    }
+}
+
+@code {
+    [Parameter]
+    public bool ShowName { get; set; } = false;
+}
+

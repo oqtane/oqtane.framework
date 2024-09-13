@@ -268,3 +268,9 @@ app {
     width: 100%;
     min-height: 250px;
 }
+
+.app-logo .site-name {
+    padding: 0 20px 0 20px;
+    font-size: x-large;
+    color: white;
+}
