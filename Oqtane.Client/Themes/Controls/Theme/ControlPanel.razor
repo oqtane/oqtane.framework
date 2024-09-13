@@ -147,8 +147,7 @@
         {
             if (PageState.Page.IsPersonalizable && PageState.User != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Registered))
             {
-                PageState.EditMode = true;
-                NavigationManager.NavigateTo(NavigateUrl(page.Path, "edit=" + ((PageState.EditMode) ? "true" : "false")));
+                NavigationManager.NavigateTo(NavigateUrl(page.Path, "edit=" + PageState.EditMode.ToString()));
             }
         }
     }
