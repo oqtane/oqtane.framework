@@ -269,8 +269,6 @@ app {
     min-height: 250px;
 }
 
-.app-logo .site-name {
-    padding: 0 20px 0 20px;
-    font-size: x-large;
-    color: white;
+.app-logo .navbar-brand {
+    padding: 5px 20px 5px 20px;
 }
