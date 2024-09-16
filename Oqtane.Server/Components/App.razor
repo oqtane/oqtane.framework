@@ -534,9 +534,9 @@
 
     private string ParseScripts(string content)
     {
-        // iterate scripts
         var scripts = "";
-        if (!string.IsNullOrEmpty(content))
+        // in interactive render mode, parse scripts from content and inject into page
+        if (_renderMode == RenderModes.Interactive && !string.IsNullOrEmpty(content))
         {
             var index = content.IndexOf("<script");
             while (index >= 0)
