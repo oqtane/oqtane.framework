@@ -123,8 +123,11 @@ namespace Oqtane.Controllers
                 filtered.UserId = user.UserId;
                 filtered.Username = user.Username;
                 filtered.DisplayName = user.DisplayName;
+
+                // restricted properties
                 filtered.Password = "";
                 filtered.TwoFactorCode = "";
+                filtered.SecurityStamp = "";
 
                 // include private properties if authenticated user is accessing their own user account os is an administrator
                 if (_userPermissions.IsAuthorized(User, user.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) || _userPermissions.GetUser(User).UserId == user.UserId)

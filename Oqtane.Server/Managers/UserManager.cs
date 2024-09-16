@@ -64,6 +64,7 @@ namespace Oqtane.Managers
                 {
                     user.SiteId = siteid;
                     user.Roles = GetUserRoles(user.UserId, user.SiteId);
+                    user.SecurityStamp = _identityUserManager.FindByNameAsync(user.Username).GetAwaiter().GetResult()?.SecurityStamp;
                     user.Settings = _settings.GetSettings(EntityNames.User, user.UserId)
                         .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                 }
