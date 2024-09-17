@@ -4,31 +4,28 @@
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <span class="app-login">
-    <AuthorizeView Roles="@RoleNames.Registered">
-        <Authorizing>
-            <text>...</text>
-        </Authorizing>
-        <Authorized>
-            @if (PageState.Runtime == Runtime.Hybrid)
-            {
-                <button type="button" class="btn btn-primary" @onclick="LogoutUser">@Localizer["Logout"]</button>
-            }
-            else
-            {
-                <form method="post" class="app-form-inline" action="@logouturl" @formname="LogoutForm">
-                    <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
-                    <input type="hidden" name="returnurl" value="@returnurl" />
-                    <button type="submit" class="btn btn-primary">@Localizer["Logout"]</button>
-                </form>
-            }
-        </Authorized>
-        <NotAuthorized>
-            @if (ShowLogin)
-            {
-                <a href="@loginurl" class="btn btn-primary">@SharedLocalizer["Login"]</a>
-            }
-        </NotAuthorized>
-    </AuthorizeView>
+    @if (PageState.User != null)
+    {
+        @if (PageState.Runtime == Runtime.Hybrid)
+        {
+            <button type="button" class="btn btn-primary" @onclick="LogoutUser">@Localizer["Logout"]</button>
+        }
+        else
+        {
+            <form method="post" class="app-form-inline" action="@logouturl" @formname="LogoutForm">
+                <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                <input type="hidden" name="returnurl" value="@returnurl" />
+                <button type="submit" class="btn btn-primary">@Localizer["Logout"]</button>
+            </form>
+        }
+    }
+    else
+    {
+        @if (ShowLogin)
+        {
+            <a href="@loginurl" class="btn btn-primary">@SharedLocalizer["Login"]</a>
+        }
+    }
 </span>
 
 @code

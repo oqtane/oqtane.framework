@@ -8,74 +8,77 @@
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<AuthorizeView Roles="@RoleNames.Registered">
-    <Authorizing>
-        <text>...</text>
-    </Authorizing>
-    <Authorized>
-        <ModuleMessage Message="@Localizer["Info.SignedIn"]" Type="MessageType.Info" />
-    </Authorized>
-    <NotAuthorized>
-		@if (!twofactor)
-		{
-			<form @ref="login" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
-				<div class="Oqtane-Modules-Admin-Login" @onkeypress="@(e => KeyPressed(e))">
-				@if (_allowexternallogin)
-				{
-					<button type="button" class="btn btn-primary" @onclick="ExternalLogin">@Localizer["Use"] @PageState.Site.Settings["ExternalLogin:ProviderName"]</button>						
-					<br /><br />
-				}
-				@if (_allowsitelogin)
-				{
-					<div class="form-group">
-						<Label Class="control-label" For="username" HelpText="Please enter your Username" ResourceKey="Username">Username:</Label>
-						<input id="username" type="text" @ref="username" class="form-control" placeholder="@Localizer["Username.Placeholder"]" @bind="@_username" required />
-					</div>
-					<div class="form-group mt-2">
-						<Label Class="control-label" For="password" HelpText="Please enter your Password" ResourceKey="Password">Password:</Label>
-						<div class="input-group">
-							<input id="password" type="@_passwordtype" name="Password" class="form-control" placeholder="@Localizer["Password.Placeholder"]" @bind="@_password" required />
+@if (PageState.User != null)
+{
+    <ModuleMessage Message="@Localizer["Info.SignedIn"]" Type="MessageType.Info" />
+}
+else
+{
+    @if (!twofactor)
+    {
+        <form @ref="login" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+            <div class="Oqtane-Modules-Admin-Login" @onkeypress="@(e => KeyPressed(e))">
+                @if (_allowexternallogin)
+                {
+                    <button type="button" class="btn btn-primary" @onclick="ExternalLogin">@Localizer["Use"] @PageState.Site.Settings["ExternalLogin:ProviderName"]</button>
+                    <br />
+
+                    <br />
+                }
+                @if (_allowsitelogin)
+                {
+                    <div class="form-group">
+                        <Label Class="control-label" For="username" HelpText="Please enter your Username" ResourceKey="Username">Username:</Label>
+                        <input id="username" type="text" @ref="username" class="form-control" placeholder="@Localizer["Username.Placeholder"]" @bind="@_username" required />
+                    </div>
+                    <div class="form-group mt-2">
+                        <Label Class="control-label" For="password" HelpText="Please enter your Password" ResourceKey="Password">Password:</Label>
+                        <div class="input-group">
+                            <input id="password" type="@_passwordtype" name="Password" class="form-control" placeholder="@Localizer["Password.Placeholder"]" @bind="@_password" required />
                             <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
-						</div>
-					</div>
-					<div class="form-group mt-2">
-						@if (!_alwaysremember)
-						{
-						    <div class="form-check">
-							    <input id="remember" type="checkbox" class="form-check-input" @bind="@_remember" />
-							    <Label Class="control-label" For="remember" HelpText="Specify if you would like to be signed back in automatically the next time you visit this site" ResourceKey="Remember">Remember Me?</Label>
-						    </div>
-						}
-					</div>
-					<button type="button" class="btn btn-primary" @onclick="Login">@SharedLocalizer["Login"]</button>
-					<button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
-					<br /><br />
-                    <button type="button" class="btn btn-secondary" @onclick="Forgot">@Localizer["ForgotPassword"]</button>
-                        @if (PageState.Site.AllowRegistration)
+                        </div>
+                    </div>
+                    <div class="form-group mt-2">
+                        @if (!_alwaysremember)
                         {
-                            <br /><br />
-                            <NavLink  href="@NavigateUrl("register")">@Localizer["Register"]</NavLink>
+                            <div class="form-check">
+                                <input id="remember" type="checkbox" class="form-check-input" @bind="@_remember" />
+                                <Label Class="control-label" For="remember" HelpText="Specify if you would like to be signed back in automatically the next time you visit this site" ResourceKey="Remember">Remember Me?</Label>
+                            </div>
                         }
+                    </div>
+                    <button type="button" class="btn btn-primary" @onclick="Login">@SharedLocalizer["Login"]</button>
+                    <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
+                    <br />
+
+                    <br />
+                    <button type="button" class="btn btn-secondary" @onclick="Forgot">@Localizer["ForgotPassword"]</button>
+                    @if (PageState.Site.AllowRegistration)
+                    {
+                        <br />
+
+                        <br />
+                        <NavLink href="@NavigateUrl("register")">@Localizer["Register"]</NavLink>
                     }
-				</div>
-			</form>
-		}
-		else
-		{
-			<form @ref="login" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
-				<div class="container Oqtane-Modules-Admin-Login">
-					<div class="form-group">
-						<Label Class="control-label" For="code" HelpText="Please enter the secure verification code which was sent to you by email" ResourceKey="Code">Verification Code:</Label>
-						<input id="code" class="form-control" @bind="@_code" placeholder="@Localizer["Code.Placeholder"]" maxlength="6" required />
-					</div>
-					<br />
-					<button type="button" class="btn btn-primary" @onclick="Login">@SharedLocalizer["Login"]</button>
-					<button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Cancel"]</button>
-				</div>
-			</form>
-		}
-	</NotAuthorized>
-</AuthorizeView>
+                }
+            </div>
+        </form>
+    }
+    else
+    {
+        <form @ref="login" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+            <div class="container Oqtane-Modules-Admin-Login">
+                <div class="form-group">
+                    <Label Class="control-label" For="code" HelpText="Please enter the secure verification code which was sent to you by email" ResourceKey="Code">Verification Code:</Label>
+                    <input id="code" class="form-control" @bind="@_code" placeholder="@Localizer["Code.Placeholder"]" maxlength="6" required />
+                </div>
+                <br />
+                <button type="button" class="btn btn-primary" @onclick="Login">@SharedLocalizer["Login"]</button>
+                <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Cancel"]</button>
+            </div>
+        </form>
+    }
+}
 
 @code {
     private bool _allowsitelogin = true;
@@ -204,7 +207,7 @@
                     user = await UserService.VerifyTwoFactorAsync(user, _code);
                 }
 
-                if (user.IsAuthenticated)
+                if (user != null && user.IsAuthenticated)
                 {
                     await logger.LogInformation(LogFunction.Security, "Login Successful For Username {Username}", _username);
 
@@ -228,7 +231,7 @@
                 }
                 else
                 {
-                    if (SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:TwoFactor", "false") == "required" || user.TwoFactorRequired)
+                    if (SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:TwoFactor", "false") == "required" || (user != null && user.TwoFactorRequired))
                     {
                         twofactor = true;
                         validated = false;
@@ -239,12 +242,12 @@
                         if (!twofactor)
                         {
                             await logger.LogInformation(LogFunction.Security, "Login Failed For Username {Username}", _username);
-                            AddModuleMessage(Localizer["Error.Login.Fail"], MessageType.Error);						
+                            AddModuleMessage(Localizer["Error.Login.Fail"], MessageType.Error);
                         }
                         else
                         {
                             await logger.LogInformation(LogFunction.Security, "Two Factor Verification Failed For Username {Username}", _username);
-                            AddModuleMessage(Localizer["Error.TwoFactor.Fail"], MessageType.Error);						
+                            AddModuleMessage(Localizer["Error.TwoFactor.Fail"], MessageType.Error);
                         }
                     }
                 }

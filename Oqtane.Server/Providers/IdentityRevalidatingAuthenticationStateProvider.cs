@@ -10,6 +10,7 @@ using System;
 using Oqtane.Infrastructure;
 using Oqtane.Extensions;
 using Oqtane.Managers;
+using System.Security.Claims;
 
 namespace Oqtane.Providers
 {
@@ -41,6 +42,8 @@ namespace Oqtane.Providers
             else
             {
                 return true;
+                //var principalStamp = authState.User.FindFirstValue(options.Value.ClaimsIdentity.SecurityStampClaimType);
+                //return principalStamp == user.SecurityStamp;
             }
         }
     }

@@ -99,8 +99,8 @@ namespace Oqtane.Security
             if (alias != null && user != null && !user.IsDeleted)
             {
                 identity.AddClaim(new Claim(ClaimTypes.Name, user.Username));
-                identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()));
-                identity.AddClaim(new Claim("sitekey", alias.SiteKey));
+                identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()));                
+                identity.AddClaim(new Claim(Constants.SiteKeyClaimType, alias.SiteKey));
                 if (user.Roles.Contains(RoleNames.Host))
                 {
                     // host users are site admins by default
@@ -115,6 +115,7 @@ namespace Oqtane.Security
                         identity.AddClaim(new Claim(ClaimTypes.Role, role));
                     }
                 }
+                identity.AddClaim(new Claim(Constants.SecurityStampClaimType, user.SecurityStamp));
             }
             return identity;
         }
