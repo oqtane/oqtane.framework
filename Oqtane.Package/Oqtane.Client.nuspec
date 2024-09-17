@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+<package>
   <metadata>
     <id>Oqtane.Client</id>
     <version>5.2.2</version>
@@ -21,5 +21,6 @@
     <file src="..\Oqtane.Client\bin\Release\net8.0\Oqtane.Client.dll" target="lib\net8.0" /> 
     <file src="..\Oqtane.Client\bin\Release\net8.0\Oqtane.Client.pdb" target="lib\net8.0" /> 
     <file src="icon.png" target="" />
+    <file src="readme.md" target="" />
   </files>
 </package>
