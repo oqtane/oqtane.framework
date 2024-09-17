@@ -20,7 +20,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Net;
 using System.Text.Json.Nodes;
 using System.Globalization;
-using System.Collections.Generic;
 
 namespace Oqtane.Extensions
 {
