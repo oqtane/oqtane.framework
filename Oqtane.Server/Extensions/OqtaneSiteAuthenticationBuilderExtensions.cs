@@ -20,7 +20,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Net;
 using System.Text.Json.Nodes;
 using System.Globalization;
-using System.Net.WebSockets;
 
 namespace Oqtane.Extensions
 {
@@ -366,6 +365,7 @@ namespace Oqtane.Extensions
                 {
                     user = _users.GetUser(identityuser.UserName);
                     user.SiteId = alias.SiteId;
+                    user.SecurityStamp = identityuser.SecurityStamp;
                 }
                 else
                 {
@@ -431,6 +431,8 @@ namespace Oqtane.Extensions
                                 var result = await _identityUserManager.CreateAsync(identityuser, password);
                                 if (result.Succeeded)
                                 {
+                                    identityuser = await _identityUserManager.FindByNameAsync(username);
+
                                     user = new User
                                     {
                                         SiteId = alias.SiteId,
@@ -438,7 +440,8 @@ namespace Oqtane.Extensions
                                         DisplayName = displayname,
                                         Email = emailaddress,
                                         LastLoginOn = null,
-                                        LastIPAddress = ""
+                                        LastIPAddress = "",
+                                        SecurityStamp = identityuser.SecurityStamp
                                     };
                                     user = _users.AddUser(user);
 
