@@ -120,6 +120,7 @@ namespace Oqtane.Controllers
                 filtered = new User();
 
                 // public properties
+                filtered.SiteId = user.SiteId;
                 filtered.UserId = user.UserId;
                 filtered.Username = user.Username;
                 filtered.DisplayName = user.DisplayName;
