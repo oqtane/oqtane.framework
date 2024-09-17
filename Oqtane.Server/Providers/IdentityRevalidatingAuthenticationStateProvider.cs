@@ -10,7 +10,6 @@ using System;
 using Oqtane.Infrastructure;
 using Oqtane.Extensions;
 using Oqtane.Managers;
-using System.Security.Claims;
 
 namespace Oqtane.Providers
 {
