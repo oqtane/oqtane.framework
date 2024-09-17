@@ -41,9 +41,7 @@ namespace Oqtane.Providers
             }
             else
             {
-                return true;
-                //var principalStamp = authState.User.FindFirstValue(options.Value.ClaimsIdentity.SecurityStampClaimType);
-                //return principalStamp == user.SecurityStamp;
+                return authState.User.SecurityStamp() == user.SecurityStamp;
             }
         }
     }
