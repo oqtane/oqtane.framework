@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Net;
 using System.Text.Json.Nodes;
 using System.Globalization;
+using System.Collections.Generic;
 
 namespace Oqtane.Extensions
 {
@@ -365,7 +366,6 @@ namespace Oqtane.Extensions
                 {
                     user = _users.GetUser(identityuser.UserName);
                     user.SiteId = alias.SiteId;
-                    user.SecurityStamp = identityuser.SecurityStamp;
                 }
                 else
                 {
@@ -431,8 +431,6 @@ namespace Oqtane.Extensions
                                 var result = await _identityUserManager.CreateAsync(identityuser, password);
                                 if (result.Succeeded)
                                 {
-                                    identityuser = await _identityUserManager.FindByNameAsync(username);
-
                                     user = new User
                                     {
                                         SiteId = alias.SiteId,
@@ -440,8 +438,7 @@ namespace Oqtane.Extensions
                                         DisplayName = displayname,
                                         Email = emailaddress,
                                         LastLoginOn = null,
-                                        LastIPAddress = "",
-                                        SecurityStamp = identityuser.SecurityStamp
+                                        LastIPAddress = ""
                                     };
                                     user = _users.AddUser(user);
 
@@ -531,20 +528,17 @@ namespace Oqtane.Extensions
                 // manage user
                 if (user != null)
                 {
-                    // create claims identity
-                    var _userRoles = httpContext.RequestServices.GetRequiredService<IUserRoleRepository>();
-                    var userRoles = _userRoles.GetUserRoles(user.UserId, user.SiteId).ToList();
-                    identity = UserSecurity.CreateClaimsIdentity(alias, user, userRoles);
-                    identity.Label = ExternalLoginStatus.Success;
-
                     // update user
                     user.LastLoginOn = DateTime.UtcNow;
                     user.LastIPAddress = httpContext.Connection.RemoteIpAddress.ToString();
                     _users.UpdateUser(user);
 
-                    // external roles
+                    // manage roles
+                    var _userRoles = httpContext.RequestServices.GetRequiredService<IUserRoleRepository>();
+                    var userRoles = _userRoles.GetUserRoles(user.UserId, user.SiteId).ToList();
                     if (!string.IsNullOrEmpty(httpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimType", "")))
                     {
+                        // external roles
                         if (claimsPrincipal.Claims.Any(item => item.Type == httpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimType", "")))
                         {
                             var _roles = httpContext.RequestServices.GetRequiredService<IRoleRepository>();                            
@@ -590,12 +584,19 @@ namespace Oqtane.Extensions
                                     }
                                 }
                             }
+                            userRoles = _userRoles.GetUserRoles(user.UserId, user.SiteId).ToList();
                         }
                         else
                         {
                             _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "The Role Claim {ClaimType} Does Not Exist. Please Use The Review Claims Feature To View The Claims Returned By Your Provider.", httpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimType", ""));
                         }
                     }
+
+                    // create claims identity
+                    identityuser = await _identityUserManager.FindByEmailAsync(user.Username);
+                    user.SecurityStamp = identityuser.SecurityStamp;
+                    identity = UserSecurity.CreateClaimsIdentity(alias, user, userRoles);
+                    identity.Label = ExternalLoginStatus.Success;
 
                     // user profile claims
                     if (!string.IsNullOrEmpty(httpContext.GetSiteSettings().GetValue("ExternalLogin:ProfileClaimTypes", "")))

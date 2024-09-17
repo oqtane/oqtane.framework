@@ -32,7 +32,7 @@ namespace Oqtane.Security
                         var user = userManager.GetUser(context.Principal.UserId(), alias.SiteId); // cached
 
                         // check if user is valid, not deleted, has roles, and security stamp has not changed
-                        if (user != null && !user.IsDeleted && user.Roles.Any() && context.Principal.SecurityStamp() == user.SecurityStamp)
+                        if (user != null && !user.IsDeleted && !string.IsNullOrEmpty(user.Roles) && context.Principal.SecurityStamp() == user.SecurityStamp)
                         {
                             // validate sitekey in case user has changed sites in installation
                             if (context.Principal.SiteKey() != alias.SiteKey || !context.Principal.Roles().Any())
