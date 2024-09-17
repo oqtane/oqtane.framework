@@ -157,7 +157,7 @@
 
         // verify user is authenticated for current site
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        if (authState.User.Identity.IsAuthenticated && authState.User.Claims.Any(item => item.Type == "sitekey" && item.Value == SiteState.Alias.SiteKey))
+        if (authState.User.Identity.IsAuthenticated && authState.User.Claims.Any(item => item.Type == Constants.SiteKeyClaimType && item.Value == SiteState.Alias.SiteKey))
         {
             // get user
             var userid = int.Parse(authState.User.Claims.First(item => item.Type == ClaimTypes.NameIdentifier).Value);

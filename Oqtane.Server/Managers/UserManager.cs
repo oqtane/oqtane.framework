@@ -231,6 +231,7 @@ namespace Oqtane.Managers
                     {
                         identityuser.PasswordHash = _identityUserManager.PasswordHasher.HashPassword(identityuser, user.Password);
                         await _identityUserManager.UpdateAsync(identityuser);
+                        await _identityUserManager.UpdateSecurityStampAsync(identityuser); // will force user to sign in again
                     }
                     else
                     {
@@ -241,7 +242,8 @@ namespace Oqtane.Managers
 
                 if (user.Email != identityuser.Email)
                 {
-                    await _identityUserManager.SetEmailAsync(identityuser, user.Email);
+                    identityuser.Email = user.Email;
+                    await _identityUserManager.UpdateAsync(identityuser); // security stamp not updated
 
                     // if email address changed and it is not confirmed, verification is required for new email address
                     if (!user.EmailConfirmed)

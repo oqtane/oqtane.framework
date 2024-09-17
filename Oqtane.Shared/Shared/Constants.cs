@@ -67,6 +67,9 @@ namespace Oqtane.Shared
         public static readonly string AntiForgeryTokenHeaderName = "X-XSRF-TOKEN-HEADER";
         public static readonly string AntiForgeryTokenCookieName = "X-XSRF-TOKEN-COOKIE";
 
+        public static readonly string SecurityStampClaimType = "AspNet.Identity.SecurityStamp";
+        public static readonly string SiteKeyClaimType = "Oqtane.Identity.SiteKey";
+
         public static readonly string DefaultVisitorFilter = "bot,crawler,slurp,spider,(none),??";
 
         public static readonly string HttpContextAliasKey = "Alias";
