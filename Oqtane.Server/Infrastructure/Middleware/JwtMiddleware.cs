@@ -4,8 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Oqtane.Extensions;
 using Oqtane.Managers;
-using Oqtane.Models;
-using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Shared;
 
