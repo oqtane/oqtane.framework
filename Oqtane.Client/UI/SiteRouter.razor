@@ -287,10 +287,10 @@
                 }
 
                 // load additional metadata for current page
-                page = ProcessPage(page, site, user, SiteState.Alias);
+                page = ProcessPage(page, site, user, SiteState.Alias, action);
 
                 // load additional metadata for modules
-                (page, modules) = ProcessModules(page, modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType, SiteState.Alias);
+                (page, modules) = ProcessModules(site, page, modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType, SiteState.Alias);
 
                 // populate page state (which acts as a client-side cache for subsequent requests)
                 _pagestate = new PageState
@@ -366,7 +366,7 @@
         }
     }
 
-    private Page ProcessPage(Page page, Site site, User user, Alias alias)
+    private Page ProcessPage(Page page, Site site, User user, Alias alias, string action)
     {
         try
         {
@@ -403,6 +403,16 @@
                     page.Resources = ManagePageResources(page.Resources, themeobject.Resources, ResourceLevel.Page, alias, "Themes", themetype.Namespace);
                 }
             }
+            // theme settings components are dynamically loaded within the framework Page Management module
+            if (page.Path == "admin/pages" && action.ToLower() == "edit" && theme != null && !string.IsNullOrEmpty(theme.ThemeSettingsType))
+            {
+                var settingsType = Type.GetType(theme.ThemeSettingsType);
+                if (settingsType != null)
+                {
+                    var objSettings = Activator.CreateInstance(settingsType) as IModuleControl;
+                    page.Resources = ManagePageResources(page.Resources, objSettings.Resources, ResourceLevel.Module, alias, "Modules", settingsType.Namespace);
+                }
+            }
 
             if (!string.IsNullOrEmpty(panes))
             {
@@ -426,7 +436,7 @@
         return page;
     }
 
-    private (Page Page, List<Module> Modules) ProcessModules(Page page, List<Module> modules, int moduleid, string action, string defaultcontainertype, Alias alias)
+    private (Page Page, List<Module> Modules) ProcessModules(Site site, Page page, List<Module> modules, int moduleid, string action, string defaultcontainertype, Alias alias)
     {
         var paneindex = new Dictionary<string, int>();
 
@@ -494,14 +504,39 @@
                 module.Prerender = moduleobject.Prerender;
 
                 page.Resources = ManagePageResources(page.Resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules",  moduletype.Namespace);
+
+                // settings components are dynamically loaded within the framework Settings module
                 if (action.ToLower() == "settings" && module.ModuleDefinition != null)
                 {
-                    // settings components are embedded within a framework settings module
-                    moduletype = Type.GetType(module.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, action), false, true);
+                    // module settings component
+                    var settingsType = "";
+                    if (!string.IsNullOrEmpty(module.ModuleDefinition.SettingsType))
+                    {                        
+                        // module settings type explicitly declared in IModule interface
+                        settingsType = module.ModuleDefinition.SettingsType; 
+                    }
+                    else
+                    {
+                        // legacy support - module settings type determined by convention
+                        settingsType = module.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, action);
+                    }
+                    moduletype = Type.GetType(settingsType, false, true);
                     if (moduletype != null)
                     {
                         moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
                         page.Resources = ManagePageResources(page.Resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace);
+                    }
+
+                    // container settings component
+                    var theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == page.ThemeType));
+                    if (theme != null && !string.IsNullOrEmpty(theme.ContainerSettingsType))
+                    {
+                        moduletype = Type.GetType(theme.ContainerSettingsType);
+                        if (moduletype != null)
+                        {
+                            moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
+                            page.Resources = ManagePageResources(page.Resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace);
+                        }
                     }
                 }
 
