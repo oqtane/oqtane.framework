@@ -65,7 +65,8 @@ namespace Oqtane.Security
         {
             if (!path.StartsWith("/api/")) // reduce log verbosity
             {
-                logger.Log(alias.SiteId, LogLevel.Information, "LoginValidation", Enums.LogFunction.Security, message, username, path);
+                var siteId = (alias != null) ? alias.SiteId : -1;
+                logger.Log(siteId, LogLevel.Information, "UserValidation", Enums.LogFunction.Security, message, username, path);
             }
         }
     }
