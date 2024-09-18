@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Oqtane.Enums;
 using Oqtane.Models;
 using Oqtane.Repository;
@@ -20,8 +21,9 @@ namespace Oqtane.Infrastructure
         private readonly IHttpContextAccessor _accessor;
         private readonly IUserRoleRepository _userRoles;
         private readonly INotificationRepository _notifications;
+        private readonly ILogger<LogManager> _filelogger;
 
-        public LogManager(ILogRepository logs, ITenantManager tenantManager, IConfigManager config, IUserPermissions userPermissions, IHttpContextAccessor accessor, IUserRoleRepository userRoles, INotificationRepository notifications)
+        public LogManager(ILogRepository logs, ITenantManager tenantManager, IConfigManager config, IUserPermissions userPermissions, IHttpContextAccessor accessor, IUserRoleRepository userRoles, INotificationRepository notifications, ILogger<LogManager> filelogger)
         {
             _logs = logs;
             _tenantManager = tenantManager;
@@ -30,24 +32,25 @@ namespace Oqtane.Infrastructure
             _accessor = accessor;
             _userRoles = userRoles;
             _notifications = notifications;
+            _filelogger = filelogger;
         }
 
-        public void Log(LogLevel level, object @class, LogFunction function, string message, params object[] args)
+        public void Log(Shared.LogLevel level, object @class, LogFunction function, string message, params object[] args)
         {
             Log(-1, level, @class, function, null, message, args);
         }
 
-        public void Log(LogLevel level, object @class, LogFunction function, Exception exception, string message, params object[] args)
+        public void Log(Shared.LogLevel level, object @class, LogFunction function, Exception exception, string message, params object[] args)
         {
             Log(-1, level, @class, function, exception, message, args);
         }
 
-        public void Log(int siteId, LogLevel level, object @class, LogFunction function, string message, params object[] args)
+        public void Log(int siteId, Shared.LogLevel level, object @class, LogFunction function, string message, params object[] args)
         {
             Log(siteId, level, @class, function, null, message, args);
         }
 
-        public void Log(int siteId, LogLevel level, object @class, LogFunction function, Exception exception, string message, params object[] args)
+        public void Log(int siteId, Shared.LogLevel level, object @class, LogFunction function, Exception exception, string message, params object[] args)
         {
             Log log = new Log();
 
@@ -60,7 +63,6 @@ namespace Oqtane.Infrastructure
                     log.SiteId = alias.SiteId;
                 }
             }
-            if (log.SiteId == -1) return; // logs must be site specific
 
             log.PageId = null;
             log.ModuleId = null;
@@ -92,7 +94,7 @@ namespace Oqtane.Infrastructure
                 log.Feature = log.Category;
             }
             log.Function = Enum.GetName(typeof(LogFunction), function);
-            log.Level = Enum.GetName(typeof(LogLevel), level);
+            log.Level = Enum.GetName(typeof(Shared.LogLevel), level);
             if (exception != null)
             {
                 log.Exception = exception.ToString();
@@ -112,14 +114,14 @@ namespace Oqtane.Infrastructure
 
         public void Log(Log log)
         {
-            LogLevel minlevel = LogLevel.Information;
+            var minlevel = Shared.LogLevel.Information;
             var section = _config.GetSection("Logging:LogLevel:Default");
             if (section.Exists())
             {
-                minlevel = Enum.Parse<LogLevel>(section.Value);
+                minlevel = Enum.Parse<Shared.LogLevel>(section.Value);
             }
 
-            if (Enum.Parse<LogLevel>(log.Level) >= minlevel)
+            if (Enum.Parse<Shared.LogLevel>(log.Level) >= minlevel)
             {
                 log.LogDate = DateTime.UtcNow;
                 log.Server = Environment.MachineName;
@@ -127,12 +129,19 @@ namespace Oqtane.Infrastructure
                 log = ProcessStructuredLog(log);
                 try
                 {
-                    _logs.AddLog(log);
-                    SendNotification(log);
+                    if (log.SiteId != -1)
+                    {
+                        _logs.AddLog(log);
+                        SendNotification(log);
+                    }
+                    else // use file logger as fallback when site cannot be determined
+                    {
+                        _filelogger.Log(GetLogLevel(log.Level), "[" + log.Category + "] " + log.Message);
+                    }
                 }
                 catch
                 {
-                    // an error occurred writing to the database
+                    // an error occurred writing the log
                 }
             }
         }
@@ -195,13 +204,13 @@ namespace Oqtane.Infrastructure
 
         private void SendNotification(Log log)
         {
-            LogLevel notifylevel = LogLevel.Error;
+            Shared.LogLevel notifylevel = Shared.LogLevel.Error;
             var section = _config.GetSection("Logging:LogLevel:Notify");
             if (section.Exists())
             {
-                notifylevel = Enum.Parse<LogLevel>(section.Value);
+                notifylevel = Enum.Parse<Shared.LogLevel>(section.Value);
             }
-            if (Enum.Parse<LogLevel>(log.Level) >= notifylevel)
+            if (Enum.Parse<Shared.LogLevel>(log.Level) >= notifylevel)
             {
                 var subject = $"Site {log.Level} Notification";
                 string body = $"Log Message: {log.Message}";
@@ -218,6 +227,27 @@ namespace Oqtane.Infrastructure
                     var notification = new Notification(log.SiteId.Value, userrole.User, subject, body);
                     _notifications.AddNotification(notification);
                 }
+            }
+        }
+
+        private Microsoft.Extensions.Logging.LogLevel GetLogLevel(string level)
+        {
+            switch (Enum.Parse<Shared.LogLevel>(level))
+            {
+                case Shared.LogLevel.Trace:
+                    return Microsoft.Extensions.Logging.LogLevel.Trace;
+                case Shared.LogLevel.Debug:
+                    return Microsoft.Extensions.Logging.LogLevel.Debug;
+                case Shared.LogLevel.Information:
+                    return Microsoft.Extensions.Logging.LogLevel.Information;
+                case Shared.LogLevel.Warning:
+                    return Microsoft.Extensions.Logging.LogLevel.Warning;
+                case Shared.LogLevel.Error:
+                    return Microsoft.Extensions.Logging.LogLevel.Error;
+                case Shared.LogLevel.Critical:
+                    return Microsoft.Extensions.Logging.LogLevel.Critical;
+                default:
+                    return Microsoft.Extensions.Logging.LogLevel.None;
             }
         }
     }
