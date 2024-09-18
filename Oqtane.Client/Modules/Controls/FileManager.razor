@@ -359,12 +359,6 @@
             }
             if (restricted == "")
             {
-                if (!ShowProgress)
-                {
-                    _uploading = true;
-                    StateHasChanged();
-                }
-
                 try
                 {
                     // upload the files
@@ -374,7 +368,21 @@
                     if (PageState.Runtime == Shared.Runtime.Hybrid)
                     {
                         jwt = await UserService.GetTokenAsync();
+                        if (string.IsNullOrEmpty(jwt))
+                        {
+                            await logger.LogInformation("File Upload Failed From .NET MAUI Due To Missing Security Token. Token Options Must Be Set In User Settings.");
+                            _message = "Security Token Not Specified";
+                            _messagetype = MessageType.Error;
+                            return;
+                        }
                     }
+
+                    if (!ShowProgress)
+                    {
+                        _uploading = true;
+                        StateHasChanged();
+                    }
+
                     await interop.UploadFiles(posturl, folder, _guid, SiteState.AntiForgeryToken, jwt);
 
                     // uploading is asynchronous so we need to poll to determine if uploads are completed

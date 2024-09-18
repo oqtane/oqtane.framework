@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Security.Claims;
 using Oqtane.Shared;
-using System;
 using System.Net;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
@@ -386,6 +385,7 @@ namespace Oqtane.Controllers
                 }
                 if (roles != "") roles = ";" + roles;
                 user.Roles = roles;
+                user.SecurityStamp = User.SecurityStamp();
             }
             return user;
         }
