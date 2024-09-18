@@ -134,12 +134,11 @@ namespace Oqtane.Themes.Controls
             return url;
         }
 
-        private async Task<string> Settings(string url, PageModule pagemodule)
+        private Task<string> Settings(string url, PageModule pagemodule)
         {
-            await Task.Yield();
-            var returnurl = Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, "edit=true");
+            var returnurl = NavigationManager.Uri.Substring(NavigationManager.BaseUri.Length - 1);
             url = Utilities.EditUrl(PageState.Alias.Path, PageState.Page.Path, pagemodule.ModuleId, "Settings", "returnurl=" + WebUtility.UrlEncode(returnurl));
-            return url;
+            return Task.FromResult(url);
         }
 
         private async Task<string> Publish(string url, PageModule pagemodule)
