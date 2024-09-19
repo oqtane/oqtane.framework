@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
@@ -40,5 +39,18 @@ namespace Oqtane.Models
         /// Version of the satellite assembly
         /// </summary>
         public string Version { get; set; }
+
+        public Language Clone()
+        {
+            return new Language
+            {
+                LanguageId = LanguageId,
+                SiteId = SiteId,
+                Name = Name,
+                Code = Code,
+                IsDefault = IsDefault,
+                Version = Version
+            };
+        }
     }
 }
