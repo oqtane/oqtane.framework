@@ -198,7 +198,9 @@ Oqtane.Interop = {
             }
             promises.push(new Promise((resolve, reject) => {
                 if (loadjs.isDefined(bundles[b])) {
-                    resolve(true);
+                    loadjs.ready(bundles[b], () => {
+                        resolve(true);
+                    });
                 }
                 else {
                     loadjs(urls, bundles[b], {
