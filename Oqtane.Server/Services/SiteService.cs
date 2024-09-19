@@ -71,7 +71,7 @@ namespace Oqtane.Services
             });
 
             // clone object so that cache is not mutated
-            site = site.Clone(site);
+            site = site.Clone();
 
             // trim site settings based on user permissions
             site.Settings = site.Settings
@@ -256,25 +256,28 @@ namespace Oqtane.Services
         public Task<List<Module>> GetModulesAsync(int siteId, int pageId)
         {
             var alias = _tenantManager.GetAlias();
-            var sitemodules = _cache.GetOrCreate($"modules:{alias.SiteKey}", entry =>
+            var modules = _cache.GetOrCreate($"modules:{alias.SiteKey}", entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                 return GetPageModules(siteId);
             });
 
+            // clone object so that cache is not mutated
+            modules = modules.ConvertAll(module => module.Clone());
+
             // trim modules for current page based on user permissions
-            var modules = new List<Module>();
-            foreach (Module module in sitemodules.Where(item => (item.PageId == pageId || pageId == -1) && !item.IsDeleted && _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.View, item.PermissionList)))
+            var pagemodules = new List<Module>();
+            foreach (Module module in modules.Where(item => (item.PageId == pageId || pageId == -1) && !item.IsDeleted && _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.View, item.PermissionList)))
             {
                 if (Utilities.IsEffectiveAndNotExpired(module.EffectiveDate, module.ExpiryDate) || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, module.PermissionList))
                 {
                     module.Settings = module.Settings
                         .Where(item => !item.Value.StartsWith(_private) || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, module.PermissionList))
                         .ToDictionary(setting => setting.Key, setting => setting.Value.Replace(_private, ""));
-                    modules.Add(module);
+                    pagemodules.Add(module);
                 }
             }
-            return Task.FromResult(modules);
+            return Task.FromResult(pagemodules);
         }
 
         private List<Module> GetPageModules(int siteId)

@@ -441,7 +441,7 @@ namespace Oqtane.Repository
                                 pageModule.Module.PermissionList = new List<Permission>();
                                 foreach (var permission in pageTemplateModule.PermissionList)
                                 {
-                                    pageModule.Module.PermissionList.Add(permission.Clone(permission));
+                                    pageModule.Module.PermissionList.Add(permission.Clone());
                                 }
                                 pageModule.Module.AllPages = false;
                                 pageModule.Module.IsDeleted = false;
