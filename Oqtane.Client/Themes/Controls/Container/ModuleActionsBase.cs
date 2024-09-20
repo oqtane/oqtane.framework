@@ -94,9 +94,13 @@ namespace Oqtane.Themes.Controls
             if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList))
             {
                 var url = NavigationManager.Uri.Substring(NavigationManager.BaseUri.Length - 1);
-                if (!url.Contains("edit=true&refresh"))
+                if (!url.Contains("edit="))
                 {
-                    url += (!url.Contains("?") ? "?" : "&") + "edit=true&refresh";
+                    url += (!url.Contains("?") ? "?" : "&") + "edit=true";
+                }
+                if (!url.Contains("refresh="))
+                {
+                    url += (!url.Contains("?") ? "?" : "&") + "refresh=true";
                 }
 
                 var pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
