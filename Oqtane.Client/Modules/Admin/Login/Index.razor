@@ -209,7 +209,7 @@ else
 
                 if (user != null && user.IsAuthenticated)
                 {
-                    await logger.LogInformation(LogFunction.Security, "Login Successful For Username {Username}", _username);
+                    await logger.LogInformation(LogFunction.Security, "Login Successful For {Username} From IP Address {IPAddress}", _username, SiteState.RemoteIPAddress);
 
                     // return url is not specified if user navigated directly to login page
                     var returnurl = (!string.IsNullOrEmpty(PageState.ReturnUrl)) ? PageState.ReturnUrl : PageState.Alias.Path;

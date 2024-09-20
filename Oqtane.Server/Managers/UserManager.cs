@@ -265,7 +265,6 @@ namespace Oqtane.Managers
                 user = _users.UpdateUser(user);
                 _syncManager.AddSyncEvent(_tenantManager.GetAlias(), EntityNames.User, user.UserId, SyncEventActions.Update);
                 _syncManager.AddSyncEvent(_tenantManager.GetAlias(), EntityNames.User, user.UserId, SyncEventActions.Reload);
-                _cache.Remove($"user:{user.UserId}:{alias.SiteKey}");
                 user.Password = ""; // remove sensitive information
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", user);
             }
@@ -373,7 +372,7 @@ namespace Oqtane.Managers
                                     user.LastLoginOn = DateTime.UtcNow;
                                     user.LastIPAddress = LastIPAddress;
                                     _users.UpdateUser(user);
-                                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful {Username}", user.Username);
+                                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful For {Username} From IP Address {IPAddress}", user.Username, LastIPAddress);
 
                                     if (setCookie)
                                     {
@@ -419,6 +418,16 @@ namespace Oqtane.Managers
             }
 
             return user;
+        }
+        public async Task LogoutUserEverywhere(User user)
+        {
+            var identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+            if (identityuser != null)
+            {
+                await _identityUserManager.UpdateSecurityStampAsync(identityuser);
+                _syncManager.AddSyncEvent(_tenantManager.GetAlias(), EntityNames.User, user.UserId, SyncEventActions.Update);
+                _syncManager.AddSyncEvent(_tenantManager.GetAlias(), EntityNames.User, user.UserId, SyncEventActions.Reload);
+            }
         }
 
         public async Task<User> VerifyEmail(User user, string token)

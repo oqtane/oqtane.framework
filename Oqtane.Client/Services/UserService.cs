@@ -61,8 +61,12 @@ namespace Oqtane.Services
 
         public async Task LogoutUserAsync(User user)
         {
-            // best practices recommend post is preferrable to get for logout
             await PostJsonAsync($"{Apiurl}/logout", user);
+        }
+
+        public async Task LogoutUserEverywhereAsync(User user)
+        {
+            await PostJsonAsync($"{Apiurl}/logouteverywhere", user);
         }
 
         public async Task<User> VerifyEmailAsync(User user, string token)

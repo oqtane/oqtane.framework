@@ -263,8 +263,24 @@ namespace Oqtane.Controllers
         [Authorize]
         public async Task Logout([FromBody] User user)
         {
-            await HttpContext.SignOutAsync(Constants.AuthenticationScheme);
-            _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Logout {Username}", (user != null) ? user.Username : "");
+            if (_userPermissions.GetUser(User).UserId == user.UserId)
+            {
+                await HttpContext.SignOutAsync(Constants.AuthenticationScheme);
+                _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Logout {Username}", (user != null) ? user.Username : "");
+            }
+        }
+
+        // POST api/<controller>/logout
+        [HttpPost("logouteverywhere")]
+        [Authorize]
+        public async Task LogoutEverywhere([FromBody] User user)
+        {
+            if (_userPermissions.GetUser(User).UserId == user.UserId)
+            {
+                await _userManager.LogoutUserEverywhere(user);
+                await HttpContext.SignOutAsync(Constants.AuthenticationScheme);
+                _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Logout Everywhere {Username}", (user != null) ? user.Username : "");
+            }
         }
 
         // POST api/<controller>/verify
