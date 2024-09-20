@@ -165,17 +165,11 @@ namespace Oqtane.Infrastructure
                             names.Add(message.Substring(index + 1, message.IndexOf("}", index) - index - 1));
                             if (values.Length > (names.Count - 1))
                             {
-                                if (values[names.Count - 1] == null)
-                                {
-                                    message = message.Replace("{" + names[names.Count - 1] + "}", "null");
-                                }
-                                else
-                                {
-                                    message = message.Replace("{" + names[names.Count - 1] + "}", values[names.Count - 1].ToString());
-                                }
+                                var value = (values[names.Count - 1] == null) ? "null" : values[names.Count - 1].ToString();
+                                message = message.Replace("{" + names[names.Count - 1] + "}", value);
                             }
                         }
-                        index = message.IndexOf("{", index + 1);
+                        index = (index < message.Length - 1) ? message.IndexOf("{", index + 1) : -1;
                     }
                     // rebuild properties into dictionary
                     Dictionary<string, object> propertyDictionary = new Dictionary<string, object>();

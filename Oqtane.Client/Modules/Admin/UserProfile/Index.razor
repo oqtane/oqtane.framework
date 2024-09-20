@@ -9,6 +9,8 @@
 @inject INotificationService NotificationService
 @inject IFileService FileService
 @inject IFolderService FolderService
+@inject IJSRuntime jsRuntime
+@inject IServiceProvider ServiceProvider
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -84,6 +86,7 @@
             <br />
             <button type="button" class="btn btn-success" @onclick="Save">@SharedLocalizer["Save"]</button>
             <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
+            <button type="button" class="btn btn-danger" @onclick="Logout">@Localizer["Logout Everywhere"]</button>
         </TabPanel>
         <TabPanel Name="Profile" ResourceKey="Profile">
             <div class="container">
@@ -515,6 +518,32 @@
         {
             await logger.LogError(ex, "Error Saving User Profile {Error}", ex.Message);
             AddModuleMessage(Localizer["Error.Profile.Save"], MessageType.Error);
+        }
+    }
+
+    private async Task Logout()
+    {
+        await logger.LogInformation("User Logout Everywhere For Username {Username}", PageState.User?.Username);
+
+        var url = NavigateUrl(""); // home page
+
+        if (PageState.Runtime == Shared.Runtime.Hybrid)
+        {
+            if (PageState.User != null)
+            {
+                // hybrid apps utilize an interactive logout
+                await UserService.LogoutUserEverywhereAsync(PageState.User);
+                var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
+                authstateprovider.NotifyAuthenticationChanged();
+                NavigationManager.NavigateTo(url, true);
+            }
+        }
+        else
+        {
+            // post to the Logout page to complete the logout process
+            var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, returnurl = url, everywhere = true };
+            var interop = new Interop(jsRuntime);
+            await interop.SubmitForm(Utilities.TenantUrl(PageState.Alias, "/pages/logout/"), fields);
         }
     }
 

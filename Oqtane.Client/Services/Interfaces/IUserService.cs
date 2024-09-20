@@ -76,6 +76,13 @@ namespace Oqtane.Services
         Task LogoutUserAsync(User user);
 
         /// <summary>
+        /// Logout a <see cref="User"/>
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        Task LogoutUserEverywhereAsync(User user);
+
+        /// <summary>
         /// Update e-mail verification status of a user.
         /// </summary>
         /// <param name="user">The <see cref="User"/> we're verifying</param>
