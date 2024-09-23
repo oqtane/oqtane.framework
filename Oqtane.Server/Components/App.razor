@@ -534,9 +534,9 @@
 
     private string ParseScripts(string content)
     {
-        // iterate scripts
         var scripts = "";
-        if (!string.IsNullOrEmpty(content))
+        // in interactive render mode, parse scripts from content and inject into page
+        if (_renderMode == RenderModes.Interactive && !string.IsNullOrEmpty(content))
         {
             var index = content.IndexOf("<script");
             while (index >= 0)
@@ -644,6 +644,16 @@
                 resources = AddResources(resources, obj.Resources, ResourceLevel.Page, alias, "Themes", type.Namespace, site.RenderMode);
             }
         }
+        // theme settings components are dynamically loaded within the framework Page Management module
+        if (page.Path == "admin/pages" && action.ToLower() == "edit" && theme != null && !string.IsNullOrEmpty(theme.ThemeSettingsType))
+        {
+            var settingsType = Type.GetType(theme.ThemeSettingsType);
+            if (settingsType != null)
+            {
+                var objSettings = Activator.CreateInstance(settingsType) as IModuleControl;
+                resources = AddResources(resources, objSettings.Resources, ResourceLevel.Module, alias, "Modules", settingsType.Namespace, site.RenderMode);
+            }
+        }
 
         foreach (Module module in modules.Where(item => item.PageId == page.PageId || item.ModuleId == moduleid))
         {
@@ -686,25 +696,49 @@
 
             // ensure component exists and implements IModuleControl
             module.ModuleType = "";
-            Type moduletype = Type.GetType(typename, false, true); // case insensitive
+            var moduletype = Type.GetType(typename, false, true); // case insensitive
             if (moduletype != null && moduletype.GetInterfaces().Contains(typeof(IModuleControl)))
             {
                 module.ModuleType = Utilities.GetFullTypeName(moduletype.AssemblyQualifiedName); // get actual type name
             }
             if (moduletype != null && module.ModuleType != "")
             {
-                var obj = Activator.CreateInstance(moduletype) as IModuleControl;
-                if (obj != null)
+                var moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
+                if (moduleobject != null)
                 {
-                    resources = AddResources(resources, obj.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, site.RenderMode);
+                    resources = AddResources(resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, site.RenderMode);
+
+                    // settings components are dynamically loaded within the framework Settings module
                     if (action.ToLower() == "settings" && module.ModuleDefinition != null)
                     {
-                        // settings components are embedded within a framework settings module
-                        moduletype = Type.GetType(module.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, action), false, true);
+                        // module settings component
+                        var settingsType = "";
+                        if (!string.IsNullOrEmpty(module.ModuleDefinition.SettingsType))
+                        {
+                            // module settings type explicitly declared in IModule interface
+                            settingsType = module.ModuleDefinition.SettingsType;
+                        }
+                        else
+                        {
+                            // legacy support - module settings type determined by convention
+                            settingsType = module.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, action);
+                        }
+                        moduletype = Type.GetType(settingsType, false, true);
                         if (moduletype != null)
                         {
-                            obj = Activator.CreateInstance(moduletype) as IModuleControl;
-                            resources = AddResources(resources, obj.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, site.RenderMode);
+                            moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
+                            resources = AddResources(resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, site.RenderMode);
+                        }
+
+                        // container settings component
+                        if (theme != null && !string.IsNullOrEmpty(theme.ContainerSettingsType))
+                        {
+                            moduletype = Type.GetType(theme.ContainerSettingsType);
+                            if (moduletype != null)
+                            {
+                                moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
+                                resources = AddResources(resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, site.RenderMode);
+                            }
                         }
                     }
                 }

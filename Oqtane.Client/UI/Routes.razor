@@ -61,7 +61,6 @@
     {
         SiteState.AntiForgeryToken = AntiForgeryToken;
         SiteState.AuthorizationToken = AuthorizationToken;
-        SiteState.RemoteIPAddress = (_pageState != null) ? _pageState.RemoteIPAddress : "";
         SiteState.Platform = Platform;
         SiteState.IsPrerendering = (HttpContext != null) ? true : false;
 
@@ -80,6 +79,7 @@
             {
                 _pageState = PageState;
                 SiteState.Alias = PageState.Alias;
+                SiteState.RemoteIPAddress = (PageState != null) ? PageState.RemoteIPAddress : "";
                 _installed = true;
             }
         }

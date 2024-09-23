@@ -20,6 +20,13 @@
             return;
         }
 
+        // force authenticated user to provide email address (email may be missing if using external login)
+        if (PageState.User != null && PageState.User.IsAuthenticated && string.IsNullOrEmpty(PageState.User.Email) && PageState.Route.PagePath != "profile")
+        {
+            NavigationManager.NavigateTo(Utilities.NavigateUrl(PageState.Alias.Path, "profile", "returnurl=" + WebUtility.UrlEncode(PageState.Route.PathAndQuery)));
+            return;
+        }
+        
         // set page title
         if (!string.IsNullOrEmpty(PageState.Page.Title))
         {
@@ -44,7 +51,6 @@
         }
 
         // head content
-        AddHeadContent(headcontent, PageState.Site.HeadContent);
         if (!string.IsNullOrEmpty(PageState.Site.HeadContent))
         {
             headcontent = AddHeadContent(headcontent, PageState.Site.HeadContent);
@@ -66,30 +72,24 @@
     {
         if (!string.IsNullOrEmpty(content))
         {
-            if (PageState.RenderMode == RenderModes.Interactive)
+            var elements = content.Split('<', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var element in elements)
             {
-                // remove scripts
-                var index = content.IndexOf("<script");
-                while (index >= 0)
+                if (PageState.RenderMode == RenderModes.Static || (!element.ToLower().StartsWith("script") && !element.ToLower().StartsWith("/script")))
                 {
-                    content = content.Remove(index, content.IndexOf("</script>") + 9 - index);
-                    index = content.IndexOf("<script");
+                    if (!headcontent.Contains("<" + element) || element.StartsWith("/"))
+                    {
+                        headcontent += "<" + element;
+                    }
                 }
             }
-            headcontent += content + "\n";
+            headcontent += "\n";
         }
         return headcontent;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        // force authenticated user to provide email address (email may be missing if using external login)
-        if (PageState.User != null && PageState.User.IsAuthenticated && string.IsNullOrEmpty(PageState.User.Email) && PageState.Route.PagePath != "profile")
-        {
-            NavigationManager.NavigateTo(Utilities.NavigateUrl(PageState.Alias.Path, "profile", "returnurl=" + WebUtility.UrlEncode(PageState.Route.PathAndQuery)));
-            return;
-        }
-
         if (!firstRender)
         {
             if (!string.IsNullOrEmpty(PageState.Page.HeadContent) && PageState.Page.HeadContent.Contains("<script"))

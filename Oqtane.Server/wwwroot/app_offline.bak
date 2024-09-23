@@ -5,24 +5,30 @@
     <meta name="viewport" content="width=device-width">
     <title>Upgrade Framework</title>
     <base href="/" />
-    <link rel="stylesheet" href="https://www.oqtane.net/css/app.css">
+	<link rel="stylesheet" type="text/css" href="[BOOTSTRAPCSSURL]" integrity="[BOOTSTRAPCSSINTEGRITY]"  crossorigin="anonymous" />
+    <link rel="stylesheet" type="text/css" href="https://www.oqtane.net/css/app.css">
 </head>
-<body onload="forceWait()">
+<body onload="refresh()">
     <div>
 	    <br /><br />
         <h1 align="center">Please Wait... Upgrade In Progress...</h1>
         <p align="center">(this process can take a few minutes... please be patient)</p>
     </div>
-
-    <div class="app-progress-indicator"></div>
+	<div class="w-50 mx-auto mt-5">
+		<div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+			<div class="progress-bar progress-bar-striped progress-bar-animated [PROGRESSCLASS]" style="width: [PROGRESS]%"></div>
+		</div>
+		<div class="fs-6 fst-italic mt-1">
+			[STATUS]
+		</div>
+	</div>
 
     <script>
-        function forceWait() {
-            setInterval(function () {
-                window.location.href = "/";
-            }, 120 * 1000);
+        function refresh() {
+            setTimeout(function () {
+                window.location.href = "/?reload";
+            }, 1000);
         }
     </script>
 </body>
 </html>
-

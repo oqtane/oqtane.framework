@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+<package>
   <metadata>
     <id>Oqtane.Framework</id>
-    <version>5.2.1</version>
+    <version>5.2.2</version>
     <authors>Shaun Walker</authors>
     <owners>.NET Foundation</owners>
     <title>Oqtane Framework</title>
@@ -11,12 +11,14 @@
     <copyright>.NET Foundation</copyright>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
-    <projectUrl>https://github.com/oqtane/oqtane.framework/releases/download/v5.2.1/Oqtane.Framework.5.2.1.Upgrade.zip</projectUrl>
-    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.1</releaseNotes>
+    <projectUrl>https://github.com/oqtane/oqtane.framework/releases/download/v5.2.2/Oqtane.Framework.5.2.2.Upgrade.zip</projectUrl>
+    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.2</releaseNotes>
+    <readme>readme.md</readme>
     <icon>icon.png</icon>
     <tags>oqtane framework</tags>
   </metadata>
   <files>
     <file src="icon.png" target="" />
+    <file src="readme.md" target="" />
   </files>
 </package>

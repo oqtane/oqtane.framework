@@ -1,6 +1,5 @@
 using System.Linq;
 using System.Security.Claims;
-using Oqtane.Models;
 using Oqtane.Shared;
 
 namespace Oqtane.Extensions
@@ -41,9 +40,9 @@ namespace Oqtane.Extensions
 
         public static string SiteKey(this ClaimsPrincipal claimsPrincipal)
         {
-            if (claimsPrincipal.HasClaim(item => item.Type == "sitekey"))
+            if (claimsPrincipal.HasClaim(item => item.Type == Constants.SiteKeyClaimType))
             {
-                return claimsPrincipal.Claims.FirstOrDefault(item => item.Type == "sitekey").Value;
+                return claimsPrincipal.Claims.FirstOrDefault(item => item.Type == Constants.SiteKeyClaimType).Value;
             }
             else
             {
@@ -69,6 +68,18 @@ namespace Oqtane.Extensions
                 return int.Parse(sitekey.Split(':')[1]);
             }
             return -1;
+        }
+
+        public static string SecurityStamp(this ClaimsPrincipal claimsPrincipal)
+        {
+            if (claimsPrincipal.HasClaim(item => item.Type == Constants.SecurityStampClaimType))
+            {
+                return claimsPrincipal.Claims.FirstOrDefault(item => item.Type == Constants.SecurityStampClaimType).Value;
+            }
+            else
+            {
+                return "";
+            }
         }
 
         public static bool IsOnlyInRole(this ClaimsPrincipal claimsPrincipal, string role)

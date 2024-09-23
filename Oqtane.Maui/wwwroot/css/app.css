@@ -35,6 +35,9 @@ app {
     }
 
 /* Action Dialog */
+.app-actiondialog{
+    position: absolute;
+}
 .app-actiondialog .modal {
     position: fixed; /* Stay in place */
     z-index: 9999; /* Sit on top */
@@ -230,5 +233,41 @@ app {
 }
 
 .app-form-inline {
+    display: inline;
+}
+.app-search{
     display: inline-block;
+    position: relative;
+}
+.app-search input + button{
+    background: none;
+    border: none;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+.app-search input + button .oi{
+    top: 0;
+}
+.app-search-noinput {
+    display: inline-block;
+    position: relative;
+}
+.app-search-noinput button {
+    background: none;
+    border: none;
+    color: var(--bs-heading-color);
+}
+.app-search-noinput button:hover {
+    color: var(--bs-heading-color);
+}
+
+/* Text Editor */
+.text-area-editor > textarea {
+    width: 100%;
+    min-height: 250px;
+}
+
+.app-logo .navbar-brand {
+    padding: 5px 20px 5px 20px;
 }

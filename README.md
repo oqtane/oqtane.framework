@@ -1,6 +1,6 @@
 # Latest Release
 
-[5.2.0](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.0) was released on July 25, 2024 and is a major release including 109 pull requests by 8 different contributors, pushing the total number of project commits all-time to over 5600. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
+[5.2.1](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.1) was released on August 22, 2024 and is a maintenance release including 41 pull requests by 5 different contributors, pushing the total number of project commits all-time to over 5700. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Foqtane%2Foqtane.framework%2Fmaster%2Fazuredeploy.json)
 
@@ -14,25 +14,45 @@ Oqtane is being developed based on some fundamental principles which are outline
 
 Please note that this project is owned by the .NET Foundation and is governed by the **[.NET Foundation Contributor Covenant Code of Conduct](https://dotnetfoundation.org/code-of-conduct)**
 
-# Getting Started
+# Getting Started (Version 5.x)
 
-**Using Version 5:**
+**Installing using source code from the Dev/Master branch:**
 
-- Install **[.NET 8.0.7 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)**.
+- Install **[.NET 8.0.8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)**.
 
 - Install the latest edition (v17.9 or higher) of [Visual Studio 2022](https://visualstudio.microsoft.com/downloads) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you wish to use LocalDB for development ( not a requirement as Oqtane supports SQLite, mySQL, and PostgreSQL ) you must also install the **Data storage and processing**.  
 
-- Clone the Oqtane dev branch source code to your local system.
+- Clone (or download) the Oqtane Master or Dev branch source code to your local system.
 
 - Open the **Oqtane.sln** solution file.
 
-- **Important:** Rebuild the entire solution before running it.
+- **Important:** Rebuild the entire solution before running it (ie. Build / Rebuild Solution).
   
-- Make sure you specify Oqtane.Server as the Startup Project
+- Make sure you specify Oqtane.Server as the Startup Project.
 
-- Run the application.
+- Run the application... an Installation Wizard screen will be displayed which will allow you to configure your preferred database and create a host user account.
+
+**Developing a custom module:**  
+
+- follow the instructions for installing using source code outlined above
+
+- login as the host user
+
+- navigate to Control Panel (gear icon at top-right of page), Admin Dashboard, Module Management
+
+- select Create Module
+
+- enter information corresponding to the module you wish to create and then select the Create button
+
+- make note of the Location where the code was generated and open the solution file in Visual Studio
+
+- Build / Rebuild Solution, ensure the Oqtane.Server is set as the Startup Project, and hit F5 to run the solution
 
 **Installing an official release:**
+
+- all official releases of Oqtane are distributed on [GitHub](https://github.com/oqtane/oqtane.framework/releases). Releases include an Install.zip package for new installations and an Upgrade.zip for existing installations.
+  
+- A detailed set of instructions for installing Oqtane on Azure is located here: [Installing Oqtane on Azure](https://blazorhelpwebsite.com/ViewBlogPost/1)
 
 - A detailed set of instructions for installing Oqtane on IIS is located here: [Installing Oqtane on IIS](https://www.oqtane.org/Resources/Blog/PostId/542/installing-oqtane-on-iis)
 - Instructions for upgrading Oqtane are located here: [Upgrading Oqtane](https://www.oqtane.org/Resources/Blog/PostId/543/upgrading-oqtane)
@@ -63,6 +83,10 @@ Backlog (TBD)
 - [ ] Folder Providers
 - [ ] Generative AI Integration
 
+[5.2.1](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.1) (Aug 22, 2024)
+- [x] Stabilization improvements
+- [x] Unzip support in File Management
+
 [5.2.0](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.0) (Jul 25, 2024)
 - [x] Site Content Search
 - [x] RichTextEditor extensibility
@@ -90,7 +114,7 @@ Backlog (TBD)
 ➡️ Full list and older versions can be found in the [docs roadmap](https://docs.oqtane.org/guides/roadmap/index.html)
 
 # Background
-Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology and a Single Page Application (SPA) architecture. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly themes, and extensibility via third party modules.
+Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Oqtane is a native Blazor application written from the ground up using modern .NET Core technology and a Single Page Application (SPA) architecture. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly themes, and extensibility via third party modules.
 
 # Reference Implementations
 
@@ -106,7 +130,7 @@ The following diagram visualizes the client and server components in the Oqtane 
 
 # Databases
 
-As of version 2.1, Oqtane supports multiple relational database providers.
+As of version 2.1 (June 2021) Oqtane supports multiple relational database providers - SQL Server, SQLite, MySQL, PostgreSQL
 
 ![Databases](https://github.com/oqtane/framework/blob/dev/screenshots/databases.png?raw=true "Oqtane Databases")
 

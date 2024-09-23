@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Threading;
+using Oqtane.Shared;
 
 namespace Oqtane.Updater
 {
@@ -31,10 +32,6 @@ namespace Oqtane.Updater
 
                 if (Directory.Exists(deployfolder))
                 {
-                    string log = "Upgrade Process Started: " + DateTime.UtcNow.ToString() + Environment.NewLine;
-                    log += "ContentRootPath: " + contentrootfolder + Environment.NewLine;
-                    log += "WebRootPath: " + webrootfolder + Environment.NewLine;
-
                     string packagename = "";
                     string[] packages = Directory.GetFiles(deployfolder, "Oqtane.Framework.*.Upgrade.zip");
                     if (packages.Length > 0)
@@ -42,15 +39,27 @@ namespace Oqtane.Updater
                         packagename = packages[packages.Length - 1]; // use highest version 
                     }
 
+                    // create upgrade log file
+                    var logFilePath = Path.Combine(deployfolder, $"{Path.GetFileNameWithoutExtension(packagename)}.log");
+                    if (File.Exists(logFilePath))
+                    {
+                        File.Delete(logFilePath);
+                    }
+
+                    WriteLog(logFilePath, "Upgrade Process Started: " + DateTime.UtcNow.ToString() + Environment.NewLine);
+                    WriteLog(logFilePath, "ContentRootPath: " + contentrootfolder + Environment.NewLine);
+                    WriteLog(logFilePath, "WebRootPath: " + webrootfolder + Environment.NewLine);
                     if (packagename != "" && File.Exists(Path.Combine(webrootfolder, "app_offline.bak")))
                     {
-                        log += "Located Upgrade Package: " + packagename + Environment.NewLine;
+                        WriteLog(logFilePath, "Located Upgrade Package: " + packagename + Environment.NewLine);
 
-                        log += "Stopping Application Using: " + Path.Combine(contentrootfolder, "app_offline.htm") + Environment.NewLine;
-                        File.Copy(Path.Combine(webrootfolder, "app_offline.bak"), Path.Combine(contentrootfolder, "app_offline.htm"), true);
+                        WriteLog(logFilePath, "Stopping Application Using: " + Path.Combine(contentrootfolder, "app_offline.htm") + Environment.NewLine);
+                        var offlineTemplate = File.ReadAllText(Path.Combine(webrootfolder, "app_offline.bak"));
+                        var offlineFilePath = Path.Combine(contentrootfolder, "app_offline.htm");
 
                         // get list of files in package with local paths
-                        log += "Retrieving List Of Files From Upgrade Package..." + Environment.NewLine;
+                        UpdateOfflineContent(offlineFilePath, offlineTemplate, 5, "Retrieving List Of Files From Upgrade Package");
+                        WriteLog(logFilePath, "Retrieving List Of Files From Upgrade Package..." + Environment.NewLine);
                         List<string> files = new List<string>();
                         using (ZipArchive archive = ZipFile.OpenRead(packagename))
                         {
@@ -59,15 +68,18 @@ namespace Oqtane.Updater
                                 if (!string.IsNullOrEmpty(entry.Name))
                                 {
                                     files.Add(Path.Combine(contentrootfolder, entry.FullName));
+                                    WriteLog(logFilePath, "Check File: " + entry.FullName + Environment.NewLine);
                                 }
                             }
                         }
 
+                        bool success = true;
                         // ensure files are not locked
                         if (CanAccessFiles(files))
                         {
-                            log += "Preparing Backup Folder: " + backupfolder + Environment.NewLine;
-                            bool success = true;
+                            UpdateOfflineContent(offlineFilePath, offlineTemplate, 10, "Preparing Backup Folder");
+                            WriteLog(logFilePath, "Preparing Backup Folder: " + backupfolder + Environment.NewLine);
+                            
                             try
                             {
                                 // clear out backup folder
@@ -79,14 +91,16 @@ namespace Oqtane.Updater
                             }
                             catch (Exception ex)
                             {
-                                log += "Error Creating Backup Folder: " + ex.Message + Environment.NewLine;
+                                UpdateOfflineContent(offlineFilePath, offlineTemplate, 95, "Error Creating Backup Folder", "bg-danger");
+                                WriteLog(logFilePath, "Error Creating Backup Folder: " + ex.Message + Environment.NewLine);
                                 success = false;
                             }
 
                             // backup files
                             if (success)
                             {
-                                log += "Backing Up Files..." + Environment.NewLine;
+                                UpdateOfflineContent(offlineFilePath, offlineTemplate, 15, "Backing Up Files");
+                                WriteLog(logFilePath, "Backing Up Files..." + Environment.NewLine);
                                 foreach (string file in files)
                                 {
                                     string filename = Path.Combine(backupfolder, file.Replace(contentrootfolder + Path.DirectorySeparatorChar, ""));
@@ -99,12 +113,15 @@ namespace Oqtane.Updater
                                                 Directory.CreateDirectory(Path.GetDirectoryName(filename));
                                             }
                                             File.Copy(file, filename);
+                                            WriteLog(logFilePath, "Copy File: " + filename + Environment.NewLine);
                                         }
                                     }
                                     catch (Exception ex)
                                     {
-                                        log += "Error Backing Up Files: " + ex.Message + Environment.NewLine;
+                                        UpdateOfflineContent(offlineFilePath, offlineTemplate, 95, "Error Backing Up Files", "bg-danger");
+                                        WriteLog(logFilePath, "Error Backing Up Files: " + ex.Message + Environment.NewLine);
                                         success = false;
+                                        break;
                                     }
                                 }
                             }
@@ -112,7 +129,8 @@ namespace Oqtane.Updater
                             // extract files
                             if (success)
                             {
-                                log += "Extracting Files From Upgrade Package..." + Environment.NewLine;
+                                UpdateOfflineContent(offlineFilePath, offlineTemplate, 50, "Extracting Files From Upgrade Package");
+                                WriteLog(logFilePath, "Extracting Files From Upgrade Package..." + Environment.NewLine);
                                 try
                                 {
                                     using (ZipArchive archive = ZipFile.OpenRead(packagename))
@@ -127,6 +145,7 @@ namespace Oqtane.Updater
                                                     Directory.CreateDirectory(Path.GetDirectoryName(filename));
                                                 }
                                                 entry.ExtractToFile(filename, true);
+                                                WriteLog(logFilePath, "Exact File: " + filename + Environment.NewLine);
                                             }
                                         }
                                     }
@@ -134,12 +153,14 @@ namespace Oqtane.Updater
                                 catch (Exception ex)
                                 {
                                     success = false;
-                                    log += "Error Extracting Files From Upgrade Package: " + ex.Message + Environment.NewLine;
+                                    UpdateOfflineContent(offlineFilePath, offlineTemplate, 95, "Error Extracting Files From Upgrade Package", "bg-danger");
+                                    WriteLog(logFilePath, "Error Extracting Files From Upgrade Package: " + ex.Message + Environment.NewLine);
                                 }
 
                                 if (success)
                                 {
-                                    log += "Removing Backup Folder..." + Environment.NewLine;
+                                    UpdateOfflineContent(offlineFilePath, offlineTemplate, 90, "Removing Backup Folder");
+                                    WriteLog(logFilePath, "Removing Backup Folder..." + Environment.NewLine);
                                     try
                                     {
                                         // clean up backup
@@ -149,12 +170,14 @@ namespace Oqtane.Updater
                                     }
                                     catch (Exception ex)
                                     {
-                                        log += "Error Removing Backup Folder: " + ex.Message + Environment.NewLine;
+                                        UpdateOfflineContent(offlineFilePath, offlineTemplate, 95, "Error Extracting Files From Upgrade Package", "bg-warning");
+                                        WriteLog(logFilePath, "Error Removing Backup Folder: " + ex.Message + Environment.NewLine);
                                     }
                                 }
                                 else
                                 {
-                                    log += "Restoring Files From Backup Folder..." + Environment.NewLine;
+                                    UpdateOfflineContent(offlineFilePath, offlineTemplate, 50, "Upgrade Failed, Restoring Files From Backup Folder", "bg-warning");
+                                    WriteLog(logFilePath, "Restoring Files From Backup Folder..." + Environment.NewLine);
                                     try
                                     {
                                         // restore on failure
@@ -165,6 +188,7 @@ namespace Oqtane.Updater
                                             if (File.Exists(filename))
                                             {
                                                 File.Copy(filename, file);
+                                                WriteLog(logFilePath, "Restore File: " + filename + Environment.NewLine);
                                             }
                                         }
                                         // clean up backup
@@ -172,41 +196,38 @@ namespace Oqtane.Updater
                                     }
                                     catch (Exception ex)
                                     {
-                                        log += "Error Restoring Files From Backup Folder: " + ex.Message + Environment.NewLine;
+                                        UpdateOfflineContent(offlineFilePath, offlineTemplate, 95, "Error Restoring Files From Backup Folder", "bg-danger");
+                                        WriteLog(logFilePath, "Error Restoring Files From Backup Folder: " + ex.Message + Environment.NewLine);
                                     }
                                 }
                             }
                             else
                             {
-                                log += "Upgrade Failed: Could Not Backup Files" + Environment.NewLine;
+                                UpdateOfflineContent(offlineFilePath, offlineTemplate, 95, "Upgrade Failed: Could Not Backup Files", "bg-danger");
+                                WriteLog(logFilePath, "Upgrade Failed: Could Not Backup Files" + Environment.NewLine);
                             }
                         }
                         else
                         {
-                            log += "Upgrade Failed: Some Files Are Locked By The Hosting Environment" + Environment.NewLine;
+                            UpdateOfflineContent(offlineFilePath, offlineTemplate, 95, "Upgrade Failed: Some Files Are Locked By The Hosting Environment", "bg-danger");
+                            WriteLog(logFilePath, "Upgrade Failed: Some Files Are Locked By The Hosting Environment" + Environment.NewLine);
                         }
 
+                        UpdateOfflineContent(offlineFilePath, offlineTemplate, 100, "Upgrade Process Finished, Reloading", success ? "" : "bg-danger");
+                        Thread.Sleep(3000); //wait for 3 seconds to complete the upgrade process.
                         // bring the app back online
                         if (File.Exists(Path.Combine(contentrootfolder, "app_offline.htm")))
                         {
-                            log += "Restarting Application By Removing: " + Path.Combine(contentrootfolder, "app_offline.htm") + Environment.NewLine;
+                            WriteLog(logFilePath, "Restarting Application By Removing: " + Path.Combine(contentrootfolder, "app_offline.htm") + Environment.NewLine);
                             File.Delete(Path.Combine(contentrootfolder, "app_offline.htm"));
                         }
                     }
                     else
                     {
-                        log += "Framework Upgrade Package Not Found Or " + Path.Combine(webrootfolder, "app_offline.bak") + " Does Not Exist" + Environment.NewLine;
+                        WriteLog(logFilePath, "Framework Upgrade Package Not Found Or " + Path.Combine(webrootfolder, "app_offline.bak") + " Does Not Exist" + Environment.NewLine);
                     }
 
-                    log += "Upgrade Process Ended: " + DateTime.UtcNow.ToString() + Environment.NewLine;
-
-                    // create upgrade log file
-                    string logfile = Path.Combine(deployfolder, Path.GetFileNameWithoutExtension(packagename) + ".log");
-                    if (File.Exists(logfile))
-                    {
-                        File.Delete(logfile);
-                    }
-                    File.WriteAllText(logfile, log);
+                    WriteLog(logFilePath, "Upgrade Process Ended: " + DateTime.UtcNow.ToString() + Environment.NewLine);
                 }
                 else
                 {
@@ -268,6 +289,22 @@ namespace Oqtane.Updater
                 i += 1;
             }
             return canAccess;
+        }
+
+        private static void UpdateOfflineContent(string filePath, string contentTemplate, int progress, string status,  string progressClass =  "")
+        {
+            var content = contentTemplate
+                            .Replace("[BOOTSTRAPCSSURL]", Constants.BootstrapStylesheetUrl)
+                            .Replace("[BOOTSTRAPCSSINTEGRITY]", Constants.BootstrapStylesheetIntegrity)
+                            .Replace("[PROGRESS]", progress.ToString())
+                            .Replace("[PROGRESSCLASS]", progressClass)
+                            .Replace("[STATUS]", status);
+            File.WriteAllText(filePath, content);
+        }
+
+        private static void WriteLog(string logFilePath, string logContent)
+        {
+            File.AppendAllText(logFilePath, $"[{DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff")}] {logContent}");
         }
     }
 }

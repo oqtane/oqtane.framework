@@ -64,8 +64,8 @@ namespace Oqtane.Managers
                 {
                     user.SiteId = siteid;
                     user.Roles = GetUserRoles(user.UserId, user.SiteId);
-                    List<Setting> settings = _settings.GetSettings(EntityNames.User, user.UserId).ToList();
-                    user.Settings = settings.Where(item => !item.IsPrivate || user.UserId == user.UserId)
+                    user.SecurityStamp = _identityUserManager.FindByNameAsync(user.Username).GetAwaiter().GetResult()?.SecurityStamp;
+                    user.Settings = _settings.GetSettings(EntityNames.User, user.UserId)
                         .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                 }
                 return user;
@@ -145,13 +145,17 @@ namespace Oqtane.Managers
             }
             else
             {
-                var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, false);
-                succeeded = result.Succeeded;
-                if (!succeeded)
+                succeeded = true;
+                if (!user.IsAuthenticated)
                 {
-                    errors = "Password Not Valid For User";
+                    var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, false);
+                    succeeded = result.Succeeded;
+                    if (!succeeded)
+                    {
+                        errors = "Password Not Valid For User";
+                    }
+                    user.EmailConfirmed = succeeded;
                 }
-                user.EmailConfirmed = succeeded;
             }
 
             if (succeeded)
@@ -227,6 +231,7 @@ namespace Oqtane.Managers
                     {
                         identityuser.PasswordHash = _identityUserManager.PasswordHasher.HashPassword(identityuser, user.Password);
                         await _identityUserManager.UpdateAsync(identityuser);
+                        await _identityUserManager.UpdateSecurityStampAsync(identityuser); // will force user to sign in again
                     }
                     else
                     {
@@ -237,7 +242,8 @@ namespace Oqtane.Managers
 
                 if (user.Email != identityuser.Email)
                 {
-                    await _identityUserManager.SetEmailAsync(identityuser, user.Email);
+                    identityuser.Email = user.Email;
+                    await _identityUserManager.UpdateAsync(identityuser); // security stamp not updated
 
                     // if email address changed and it is not confirmed, verification is required for new email address
                     if (!user.EmailConfirmed)
@@ -259,7 +265,6 @@ namespace Oqtane.Managers
                 user = _users.UpdateUser(user);
                 _syncManager.AddSyncEvent(_tenantManager.GetAlias(), EntityNames.User, user.UserId, SyncEventActions.Update);
                 _syncManager.AddSyncEvent(_tenantManager.GetAlias(), EntityNames.User, user.UserId, SyncEventActions.Reload);
-                _cache.Remove($"user:{user.UserId}:{alias.SiteKey}");
                 user.Password = ""; // remove sensitive information
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", user);
             }
@@ -367,7 +372,7 @@ namespace Oqtane.Managers
                                     user.LastLoginOn = DateTime.UtcNow;
                                     user.LastIPAddress = LastIPAddress;
                                     _users.UpdateUser(user);
-                                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful {Username}", user.Username);
+                                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful For {Username} From IP Address {IPAddress}", user.Username, LastIPAddress);
 
                                     if (setCookie)
                                     {
@@ -413,6 +418,16 @@ namespace Oqtane.Managers
             }
 
             return user;
+        }
+        public async Task LogoutUserEverywhere(User user)
+        {
+            var identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+            if (identityuser != null)
+            {
+                await _identityUserManager.UpdateSecurityStampAsync(identityuser);
+                _syncManager.AddSyncEvent(_tenantManager.GetAlias(), EntityNames.User, user.UserId, SyncEventActions.Update);
+                _syncManager.AddSyncEvent(_tenantManager.GetAlias(), EntityNames.User, user.UserId, SyncEventActions.Reload);
+            }
         }
 
         public async Task<User> VerifyEmail(User user, string token)
@@ -469,6 +484,7 @@ namespace Oqtane.Managers
             IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
             if (identityuser != null && !string.IsNullOrEmpty(token))
             {
+                // note that ResetPasswordAsync checks password complexity rules
                 var result = await _identityUserManager.ResetPasswordAsync(identityuser, token, user.Password);
                 if (result.Succeeded)
                 {

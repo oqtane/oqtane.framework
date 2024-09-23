@@ -14,30 +14,11 @@
         <TabPanel Name="Identity" ResourceKey="Identity">
             @if (profiles != null)
             {
-                <ModuleMessage Message="@_passwordrequirements" Type="MessageType.Info" />
                 <div class="container">
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="username" HelpText="A unique username for a user. Note that this field can not be modified once it is saved." ResourceKey="Username"></Label>
                         <div class="col-sm-9">
                             <input id="username" class="form-control" @bind="@_username" />
-                        </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="password" HelpText="The user's password. Please choose a password which is sufficiently secure." ResourceKey="Password"></Label>
-                        <div class="col-sm-9">
-                            <div class="input-group">
-                                <input id="password" type="@_passwordtype" class="form-control" @bind="@_password" autocomplete="new-password" required />
-                                <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="confirm" HelpText="Please enter the password again to confirm it matches with the value above" ResourceKey="Confirm"></Label>
-                        <div class="col-sm-9">
-                            <div class="input-group">
-                                <input id="confirm" type="@_passwordtype" class="form-control" @bind="@_confirm" autocomplete="new-password" required />
-                                <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
-                            </div>
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
@@ -123,12 +104,7 @@
 
 @code {
     private bool _initialized = false;
-    private string _passwordrequirements;
     private string _username = string.Empty;
-    private string _password = string.Empty;
-    private string _passwordtype = "password";
-    private string _togglepassword = string.Empty;
-    private string _confirm = string.Empty;
     private string _email = string.Empty;
     private string _displayname = string.Empty;
     private string _notify = "True";
@@ -142,8 +118,6 @@
     {
         try
         {
-            _passwordrequirements = await UserService.GetPasswordRequirementsAsync(PageState.Site.SiteId);
-            _togglepassword = SharedLocalizer["ShowPassword"];
             profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
             settings = new Dictionary<string, string>();
             _initialized = true;
@@ -169,39 +143,32 @@
     {
         try
         {
-            if (_username != string.Empty && _password != string.Empty && _confirm != string.Empty && _email != string.Empty)
+            if (_username != string.Empty && _email != string.Empty)
             {
-                if (_password == _confirm)
+                if (ValidateProfiles())
                 {
-                    if (ValidateProfiles())
+                    var user = new User();
+                    user.SiteId = PageState.Site.SiteId;
+                    user.Username = _username;
+                    user.Password = ""; // will be auto generated
+                    user.Email = _email;
+                    user.DisplayName = string.IsNullOrWhiteSpace(_displayname) ? _username : _displayname;
+                    user.PhotoFileId = null;
+                    user.SuppressNotification = !bool.Parse(_notify);
+
+                    user = await UserService.AddUserAsync(user);
+
+                    if (user != null)
                     {
-                        var user = new User();
-                        user.SiteId = PageState.Site.SiteId;
-                        user.Username = _username;
-                        user.Password = _password;
-                        user.Email = _email;
-                        user.DisplayName = string.IsNullOrWhiteSpace(_displayname) ? _username : _displayname;
-                        user.PhotoFileId = null;
-                        user.SuppressNotification = !bool.Parse(_notify);
-
-                        user = await UserService.AddUserAsync(user);
-
-                        if (user != null)
-                        {
-                            await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
-                            await logger.LogInformation("User Created {User}", user);
-                            NavigationManager.NavigateTo(NavigateUrl());
-                        }
-                        else
-                        {
-                            await logger.LogError("Error Adding User {Username} {Email}", _username, _email);
-                            AddModuleMessage(Localizer["Error.User.AddCheckPass"], MessageType.Error);
-                        }
+                        await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
+                        await logger.LogInformation("User Created {User}", user);
+                        NavigationManager.NavigateTo(NavigateUrl());
                     }
-                }
-                else
-                {
-                    AddModuleMessage(Localizer["Message.Password.NoMatch"], MessageType.Warning);
+                    else
+                    {
+                        await logger.LogError("Error Adding User {Username} {Email}", _username, _email);
+                        AddModuleMessage(Localizer["Error.User.AddCheckPass"], MessageType.Error);
+                    }
                 }
             }
             else
@@ -252,18 +219,4 @@
         var value = (string)e.Value;
         settings = SettingService.SetSetting(settings, SettingName, value);
     }
-
-    private void TogglePassword()
-	{
-		if (_passwordtype == "password")
-		{
-			_passwordtype = "text";
-			_togglepassword = SharedLocalizer["HidePassword"];
-		}
-		else
-		{
-			_passwordtype = "password";
-			_togglepassword = SharedLocalizer["ShowPassword"];
-		}
-	}
 }

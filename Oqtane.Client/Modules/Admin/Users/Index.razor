@@ -333,12 +333,29 @@ else
 								</div>
 							</div>
 							<div class="row mb-1 align-items-center">
-								<Label Class="col-sm-3" For="roleclaimtype" HelpText="The name of the role claim provided by the provider" ResourceKey="RoleClaimType">Role Claim:</Label>
+								<Label Class="col-sm-3" For="roleclaimtype" HelpText="The name of the roles claim provided by the provider" ResourceKey="RoleClaimType">Roles Claim:</Label>
 								<div class="col-sm-9">
 									<input id="roleclaimtype" class="form-control" @bind="@_roleclaimtype" />
 								</div>
 							</div>
-							<div class="row mb-1 align-items-center">
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="roleclaimmappings" HelpText="Optionally provide a comma delimited list of role names provided by the identity provider, as well as mappings to your site roles." ResourceKey="RoleClaimMappings">Role Claim Mappings:</Label>
+                                <div class="col-sm-9">
+                                    <input id="roleclaimmappings" class="form-control" @bind="@_roleclaimmappings" />
+                                </div>
+                            </div>
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="synchronizeroles" HelpText="This option will add or remove role assignments so that the site roles exactly match the roles provided by the identity provider" ResourceKey="SynchronizeRoles">Synchronize Roles?</Label>
+                                <div class="col-sm-9">
+                                    <div class="input-group">
+                                        <select id="synchronizeroles" class="form-select" @bind="@_synchronizeroles" required>
+                                            <option value="true">@SharedLocalizer["Yes"]</option>
+                                            <option value="false">@SharedLocalizer["No"]</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-1 align-items-center">
 								<Label Class="col-sm-3" For="profileclaimtypes" HelpText="A comma delimited list of user profile claims provided by the provider, as well as mappings to your user profile definition. For example if the provider includes a 'given_name' claim and you have a 'FirstName' user profile definition you should specify 'given_name:FirstName'." ResourceKey="ProfileClaimTypes">User Profile Claims:</Label>
 								<div class="col-sm-9">
 									<input id="profileclaimtypes" class="form-control" @bind="@_profileclaimtypes" />
@@ -457,6 +474,8 @@ else
     private string _nameclaimtype;
     private string _emailclaimtype;
     private string _roleclaimtype;
+    private string _roleclaimmappings;
+    private string _synchronizeroles;
     private string _profileclaimtypes;
     private string _domainfilter;
     private string _createusers;
@@ -521,6 +540,8 @@ else
             _nameclaimtype = SettingService.GetSetting(settings, "ExternalLogin:NameClaimType", "name");
             _emailclaimtype = SettingService.GetSetting(settings, "ExternalLogin:EmailClaimType", "email");
             _roleclaimtype = SettingService.GetSetting(settings, "ExternalLogin:RoleClaimType", "");
+            _roleclaimmappings = SettingService.GetSetting(settings, "ExternalLogin:RoleClaimMappings", "");
+            _synchronizeroles = SettingService.GetSetting(settings, "ExternalLogin:SynchronizeRoles", "false");
             _profileclaimtypes = SettingService.GetSetting(settings, "ExternalLogin:ProfileClaimTypes", "");
             _domainfilter = SettingService.GetSetting(settings, "ExternalLogin:DomainFilter", "");
             _createusers = SettingService.GetSetting(settings, "ExternalLogin:CreateUsers", "true");
@@ -614,7 +635,9 @@ else
                 settings = SettingService.SetSetting(settings, "ExternalLogin:NameClaimType", _nameclaimtype, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:EmailClaimType", _emailclaimtype, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:RoleClaimType", _roleclaimtype, true);
-				settings = SettingService.SetSetting(settings, "ExternalLogin:ProfileClaimTypes", _profileclaimtypes, true);
+                settings = SettingService.SetSetting(settings, "ExternalLogin:RoleClaimMappings", _roleclaimmappings, true);
+                settings = SettingService.SetSetting(settings, "ExternalLogin:SynchronizeRoles", _synchronizeroles, true);
+                settings = SettingService.SetSetting(settings, "ExternalLogin:ProfileClaimTypes", _profileclaimtypes, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:DomainFilter", _domainfilter, true);
 				settings = SettingService.SetSetting(settings, "ExternalLogin:CreateUsers", _createusers, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:VerifyUsers", _verifyusers, true);

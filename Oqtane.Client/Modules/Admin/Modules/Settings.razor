@@ -9,129 +9,133 @@
 @inject IStringLocalizer<Settings> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
-    <TabStrip>
-        <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings">
-            @if (_containers != null)
-            {
-                <div class="container">
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="module" HelpText="The name of the module" ResourceKey="Module">Module: </Label>
-                        <div class="col-sm-9">
-                            <input id="module" type="text" class="form-control" @bind="@_module" disabled />
+@if (_initialized)
+{
+    <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+        <TabStrip>
+            <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings">
+                @if (_containers != null)
+                {
+                    <div class="container">
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="module" HelpText="The name of the module" ResourceKey="Module">Module: </Label>
+                            <div class="col-sm-9">
+                                <input id="module" type="text" class="form-control" @bind="@_module" disabled />
+                            </div>
                         </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="title" HelpText="Enter the title of the module" ResourceKey="Title">Title: </Label>
-                        <div class="col-sm-9">
-                            <input id="title" type="text" class="form-control" @bind="@_title" required />
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="title" HelpText="Enter the title of the module" ResourceKey="Title">Title: </Label>
+                            <div class="col-sm-9">
+                                <input id="title" type="text" class="form-control" @bind="@_title" required />
+                            </div>
                         </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="pane" HelpText="The pane where the module will be displayed" ResourceKey="Pane">Pane: </Label>
-                        <div class="col-sm-9">
-                            <select class="form-select" @bind="@_pane">
-                                @foreach (string pane in PageState.Page.Panes)
-                                {
-                                    <option value="@pane">@pane Pane</option>
-                                }
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="container" HelpText="Select the module's container" ResourceKey="Container">Container: </Label>
-                        <div class="col-sm-9">
-                            <select id="container" class="form-select" @bind="@_containerType" required>
-                                @foreach (var container in _containers)
-                                {
-                                    <option value="@container.TypeName">@container.Name</option>
-                                }
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="effectiveDate" HelpText="The date that this module is active" ResourceKey="EffectiveDate">Effective Date: </Label>
-                        <div class="col-sm-9">
-                            <input type="date" id="effectiveDate" class="form-control" @bind="@_effectivedate" />
-                        </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="expiryDate" HelpText="The date that this module expires" ResourceKey="ExpiryDate">Expiry Date: </Label>
-                        <div class="col-sm-9">
-                            <input type="date" id="expiryDate" class="form-control" @bind="@_expirydate" />
-                        </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="allpages" HelpText="Indicate if this module should be displayed on all pages" ResourceKey="DisplayOnAllPages">Display On All Pages? </Label>
-                        <div class="col-sm-9">
-                            <select id="allpages" class="form-select" @bind="@_allPages" required>
-                                <option value="True">@SharedLocalizer["Yes"]</option>
-                                <option value="False">@SharedLocalizer["No"]</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="page" HelpText="The page that the module is located on" ResourceKey="Page">Page: </Label>
-                        <div class="col-sm-9">
-                            <select id="page" class="form-select" @bind="@_pageId" required>
-                                @if (PageState.Page.UserId != null)
-                                {
-                                    <option value="@PageState.Page.PageId">@(PageState.Page.Name)</option>
-                                }
-                                else
-                                {
-                                    if (_pages != null)
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="pane" HelpText="The pane where the module will be displayed" ResourceKey="Pane">Pane: </Label>
+                            <div class="col-sm-9">
+                                <select class="form-select" @bind="@_pane">
+                                    @foreach (string pane in PageState.Page.Panes)
                                     {
-                                        foreach (Page p in _pages)
+                                        <option value="@pane">@pane Pane</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="container" HelpText="Select the module's container" ResourceKey="Container">Container: </Label>
+                            <div class="col-sm-9">
+                                <select id="container" class="form-select" @bind="@_containerType" required>
+                                    @foreach (var container in _containers)
+                                    {
+                                        <option value="@container.TypeName">@container.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="effectiveDate" HelpText="The date that this module is active" ResourceKey="EffectiveDate">Effective Date: </Label>
+                            <div class="col-sm-9">
+                                <input type="date" id="effectiveDate" class="form-control" @bind="@_effectivedate" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="expiryDate" HelpText="The date that this module expires" ResourceKey="ExpiryDate">Expiry Date: </Label>
+                            <div class="col-sm-9">
+                                <input type="date" id="expiryDate" class="form-control" @bind="@_expirydate" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="allpages" HelpText="Indicate if this module should be displayed on all pages" ResourceKey="DisplayOnAllPages">Display On All Pages? </Label>
+                            <div class="col-sm-9">
+                                <select id="allpages" class="form-select" @bind="@_allPages" required>
+                                    <option value="True">@SharedLocalizer["Yes"]</option>
+                                    <option value="False">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="page" HelpText="The page that the module is located on" ResourceKey="Page">Page: </Label>
+                            <div class="col-sm-9">
+                                <select id="page" class="form-select" @bind="@_pageId" required>
+                                    @if (PageState.Page.UserId != null)
+                                    {
+                                        <option value="@PageState.Page.PageId">@(PageState.Page.Name)</option>
+                                    }
+                                    else
+                                    {
+                                        if (_pages != null)
                                         {
-                                            if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, p.PermissionList))
+                                            foreach (Page p in _pages)
                                             {
-                                                <option value="@p.PageId">@(new string('-', p.Level * 2))@(p.Name)</option>
+                                                if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, p.PermissionList))
+                                                {
+                                                    <option value="@p.PageId">@(new string('-', p.Level * 2))@(p.Name)</option>
+                                                }
                                             }
                                         }
                                     }
-                                }
-                            </select>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </div>
-            }
-        </TabPanel>
-        <TabPanel Name="Permissions" Heading="Permissions" ResourceKey="Permissions">
-            @if (_permissions != null)
-            {
-                <div class="container">
-                    <div class="row mb-1 align-items-center">
-                        <PermissionGrid EntityName="@EntityNames.Module" PermissionNames="@_permissionNames" PermissionList="@_permissions" @ref="_permissionGrid" />
+                }
+            </TabPanel>
+            <TabPanel Name="Permissions" Heading="Permissions" ResourceKey="Permissions">
+                @if (_permissions != null)
+                {
+                    <div class="container">
+                        <div class="row mb-1 align-items-center">
+                            <PermissionGrid EntityName="@EntityNames.Module" PermissionNames="@_permissionNames" PermissionList="@_permissions" @ref="_permissionGrid" />
+                        </div>
                     </div>
-                </div>
 
+                }
+            </TabPanel>
+            @if (_moduleSettingsType != null)
+            {
+                <TabPanel Name="ModuleSettings" Heading="@_moduleSettingsTitle" ResourceKey="ModuleSettings">
+                    @ModuleSettingsComponent
+                </TabPanel>
             }
-        </TabPanel>
-        @if (_moduleSettingsType != null)
-        {
-            <TabPanel Name="ModuleSettings" Heading="@_moduleSettingsTitle" ResourceKey="ModuleSettings">
-                @ModuleSettingsComponent
-            </TabPanel>
-        }
-        @if (_containerSettingsType != null)
-        {
-            <TabPanel Name="ContainerSettings" Heading="Container Settings" ResourceKey="ContainerSettings">
-                @ContainerSettingsComponent
-            </TabPanel>
-        }
-    </TabStrip>
-    <br />
-    <button type="button" class="btn btn-success" @onclick="SaveModule">@SharedLocalizer["Save"]</button>
-    <NavLink class="btn btn-secondary" href="@PageState.ReturnUrl">@SharedLocalizer["Cancel"]</NavLink>
-    <br />
-    <br />
-    <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
-</form>
+            @if (_containerSettingsType != null)
+            {
+                <TabPanel Name="ContainerSettings" Heading="Container Settings" ResourceKey="ContainerSettings">
+                    @ContainerSettingsComponent
+                </TabPanel>
+            }
+        </TabStrip>
+        <br />
+        <button type="button" class="btn btn-success" @onclick="SaveModule">@SharedLocalizer["Save"]</button>
+        <NavLink class="btn btn-secondary" href="@PageState.ReturnUrl">@SharedLocalizer["Cancel"]</NavLink>
+        <br />
+        <br />
+        <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
+    </form>
+}
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
 
+    private bool _initialized = false;
     private ElementReference form;
     private bool validated = false;
     private List<ThemeControl> _containers = new List<ThemeControl>();
@@ -163,7 +167,6 @@
     {
         SetModuleTitle(Localizer["ModuleSettings.Title"]);
 
-        _module = ModuleState.ModuleDefinition.Name;
         _title = ModuleState.Title;
         _moduleSettingsTitle = Localizer["ModuleSettings.Heading"];
         _pane = ModuleState.Pane;
@@ -182,6 +185,7 @@
 
         if (ModuleState.ModuleDefinition != null)
         {
+            _module = ModuleState.ModuleDefinition.Name;
             _permissionNames = ModuleState.ModuleDefinition?.PermissionNames;
 
             if (!string.IsNullOrEmpty(ModuleState.ModuleDefinition.SettingsType))
@@ -231,6 +235,8 @@
                 };
             }
         }
+
+        _initialized = true;
     }
 
     private async Task SaveModule()

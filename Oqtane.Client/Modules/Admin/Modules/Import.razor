@@ -17,7 +17,7 @@
     </div>
 
     <button type="button" class="btn btn-success" @onclick="ImportModule">@Localizer["Import"]</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+    <NavLink class="btn btn-secondary" href="@PageState.ReturnUrl">@SharedLocalizer["Cancel"]</NavLink>
 </form>
 
 @code {

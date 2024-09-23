@@ -425,11 +425,11 @@ namespace Oqtane.Controllers
         // POST api/<controller>/upload
         [EnableCors(Constants.MauiCorsPolicy)]
         [HttpPost("upload")]
-        public async Task UploadFile(string folder, IFormFile formfile)
+        public async Task<IActionResult> UploadFile(string folder, IFormFile formfile)
         {
             if (formfile == null || formfile.Length <= 0)
             {
-                return;
+                return NoContent();
             }
 
             // ensure filename is valid
@@ -437,7 +437,7 @@ namespace Oqtane.Controllers
             if (!formfile.FileName.IsPathOrFileValid() || !formfile.FileName.Contains(token) || !HasValidFileExtension(formfile.FileName.Substring(0, formfile.FileName.IndexOf(token))))
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "File Name Is Invalid Or Contains Invalid Extension {File}", formfile.FileName);
-                return;
+                return NoContent();
             }
 
             string folderPath = "";
@@ -492,6 +492,8 @@ namespace Oqtane.Controllers
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized File Upload Attempt {Folder} {File}", folder, formfile.FileName);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
+
+            return NoContent();
         }
 
         private async Task<string> MergeFile(string folder, string filename)

@@ -117,6 +117,10 @@
     margin: .5rem;
 }
 
+.app-logo .navbar-brand {
+    color: white;
+}
+
 @media (max-width: 767.98px) {
     .main .top-row {
         display: none;

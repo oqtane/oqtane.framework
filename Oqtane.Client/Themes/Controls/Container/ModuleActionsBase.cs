@@ -11,9 +11,6 @@ using System.Net;
 using Microsoft.Extensions.Localization;
 using Oqtane.UI;
 
-// ReSharper disable UnassignedGetOnlyAutoProperty
-// ReSharper disable MemberCanBePrivate.Global
-
 namespace Oqtane.Themes.Controls
 {
     public class ModuleActionsBase : ComponentBase
@@ -92,20 +89,21 @@ namespace Oqtane.Themes.Controls
             return actionList;
         }
 
-        private async Task<string> EditUrlAsync(string url, int moduleId, string import)
-        {
-            await Task.Yield();
-            return Utilities.EditUrl(PageState.Alias.Path, PageState.Page.Path, moduleId, import, "");
-        }
-
         protected async Task ModuleAction(ActionViewModel action)
         {
             if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList))
             {
-                PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
+                var url = NavigationManager.Uri.Substring(NavigationManager.BaseUri.Length - 1);
+                if (!url.Contains("edit="))
+                {
+                    url += (!url.Contains("?") ? "?" : "&") + "edit=true";
+                }
+                if (!url.Contains("refresh="))
+                {
+                    url += (!url.Contains("?") ? "?" : "&") + "refresh=true";
+                }
 
-                string url = Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, "edit=true&refresh");
-
+                var pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
                 if (action.Action != null)
                 {
                     url = await action.Action(url, pagemodule);
@@ -115,31 +113,10 @@ namespace Oqtane.Themes.Controls
             }
         }
 
-        private async Task<string> MoveToPane(string url, string newPane, PageModule pagemodule)
+        private Task<string> Settings(string url, PageModule pagemodule)
         {
-            string oldPane = pagemodule.Pane;
-            pagemodule.Pane = newPane;
-            pagemodule.Order = int.MaxValue; // add to bottom of pane
-            await PageModuleService.UpdatePageModuleAsync(pagemodule);
-            await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
-            await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, oldPane);
-            return url;
-        }
-
-        private async Task<string> DeleteModule(string url, PageModule pagemodule)
-        {
-            pagemodule.IsDeleted = true;
-            await PageModuleService.UpdatePageModuleAsync(pagemodule);
-            await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
-            return url;
-        }
-
-        private async Task<string> Settings(string url, PageModule pagemodule)
-        {
-            await Task.Yield();
-            var returnurl = Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, "edit=true");
-            url = Utilities.EditUrl(PageState.Alias.Path, PageState.Page.Path, pagemodule.ModuleId, "Settings", "returnurl=" + WebUtility.UrlEncode(returnurl));
-            return url;
+            url = Utilities.EditUrl(PageState.Alias.Path, PageState.Page.Path, pagemodule.ModuleId, "Settings", "returnurl=" + WebUtility.UrlEncode(url));
+            return Task.FromResult(url);
         }
 
         private async Task<string> Publish(string url, PageModule pagemodule)
@@ -174,6 +151,20 @@ namespace Oqtane.Themes.Controls
             return url;
         }
 
+        private async Task<string> DeleteModule(string url, PageModule pagemodule)
+        {
+            pagemodule.IsDeleted = true;
+            await PageModuleService.UpdatePageModuleAsync(pagemodule);
+            await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
+            return url;
+        }
+
+        private Task<string> EditUrlAsync(string url, int moduleId, string import)
+        {
+            url = Utilities.EditUrl(PageState.Alias.Path, PageState.Page.Path, moduleId, import, "returnurl=" + WebUtility.UrlEncode(url));
+            return Task.FromResult(url);
+        }
+
         private async Task<string> MoveTop(string url, PageModule pagemodule)
         {
             pagemodule.Order = 0;
@@ -203,6 +194,17 @@ namespace Oqtane.Themes.Controls
             pagemodule.Order += 3;
             await PageModuleService.UpdatePageModuleAsync(pagemodule);
             await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
+            return url;
+        }
+
+        private async Task<string> MoveToPane(string url, string newPane, PageModule pagemodule)
+        {
+            string oldPane = pagemodule.Pane;
+            pagemodule.Pane = newPane;
+            pagemodule.Order = int.MaxValue; // add to bottom of pane
+            await PageModuleService.UpdatePageModuleAsync(pagemodule);
+            await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
+            await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, oldPane);
             return url;
         }
 

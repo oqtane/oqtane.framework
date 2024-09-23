@@ -16,7 +16,7 @@ namespace Oqtane.Themes
         string Thumbnail { get; }
 
         /// <summary>
-        /// Identifies all panes in a theme ( delimited by "," or ";") - assumed to be a layout if no panes specified
+        /// Comma delimited list of all panes in a theme
         /// </summary>
         string Panes { get; }
 

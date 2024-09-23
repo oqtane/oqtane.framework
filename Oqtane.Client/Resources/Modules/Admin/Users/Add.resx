@@ -117,12 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Error.User.AddCheckPass" xml:space="preserve">
-    <value>Error Adding User. Please Ensure Password Meets Complexity Requirements And Username And Email Is Not Already In Use.</value>
-  </data>
-  <data name="Message.Password.NoMatch" xml:space="preserve">
-    <value>Passwords Entered Do Not Match</value>
-  </data>
   <data name="Error.User.Add" xml:space="preserve">
     <value>Error Adding User</value>
   </data>
@@ -133,16 +127,10 @@
     <value>Identity</value>
   </data>
   <data name="Message.Required.ProfileInfo" xml:space="preserve">
-    <value>You Must Provide A Username, Password, Email Address And All Required Profile Information</value>
+    <value>You Must Provide A Username, Email Address And All Required Profile Information</value>
   </data>
   <data name="Message.Username.Exists" xml:space="preserve">
     <value>Username Already Exists</value>
-  </data>
-  <data name="Confirm.HelpText" xml:space="preserve">
-    <value>Please enter the password again to confirm it matches with the value above</value>
-  </data>
-  <data name="Confirm.Text" xml:space="preserve">
-    <value>Confirm Password:</value>
   </data>
   <data name="DisplayName.HelpText" xml:space="preserve">
     <value>The full name of the user</value>
@@ -156,20 +144,11 @@
   <data name="Email.Text" xml:space="preserve">
     <value>Email:</value>
   </data>
-  <data name="Password.HelpText" xml:space="preserve">
-    <value>The user's password. Please choose a password which is sufficiently secure.</value>
-  </data>
-  <data name="Password.Text" xml:space="preserve">
-    <value>Password:</value>
-  </data>
   <data name="Username.HelpText" xml:space="preserve">
     <value>A unique username for a user. Note that this field can not be modified once it is saved.</value>
   </data>
   <data name="Username.Text" xml:space="preserve">
     <value>Username:</value>
-  </data>
-  <data name="Password.Placeholder" xml:space="preserve">
-    <value>Password</value>
   </data>
   <data name="Notify.HelpText" xml:space="preserve">
     <value>Indicate if new users should receive an email notification</value>

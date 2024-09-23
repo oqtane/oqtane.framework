@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <OutputType>Exe</OutputType>
-    <Version>5.2.1</Version>
+    <Version>5.2.2</Version>
     <Product>Oqtane</Product>
     <Authors>Shaun Walker</Authors>
     <Company>.NET Foundation</Company>
@@ -11,11 +11,15 @@
     <Copyright>.NET Foundation</Copyright>
     <PackageProjectUrl>https://www.oqtane.org</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/oqtane/oqtane.framework/blob/dev/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.1</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.2</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/oqtane/oqtane.framework</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <RootNamespace>Oqtane</RootNamespace>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Oqtane.Shared\Oqtane.Shared.csproj" />
+  </ItemGroup>
 
 </Project>
