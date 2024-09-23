@@ -110,6 +110,7 @@ namespace Oqtane.Models
                 EntityId = EntityId,
                 PermissionName = PermissionName,
                 RoleName = RoleName,
+                RoleId = RoleId,
                 UserId = UserId,
                 IsAuthorized = IsAuthorized,
                 CreatedBy = CreatedBy,

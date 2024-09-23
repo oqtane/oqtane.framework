@@ -1,6 +1,6 @@
 # Latest Release
 
-[5.2.1](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.1) was released on August 22, 2024 and is a maintenance release including 41 pull requests by 5 different contributors, pushing the total number of project commits all-time to over 5700. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
+[5.2.2](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.2) was released on September 23, 2024 and is a maintenance release including 55 pull requests by 8 different contributors, pushing the total number of project commits all-time to over 5800. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Foqtane%2Foqtane.framework%2Fmaster%2Fazuredeploy.json)
 
@@ -82,6 +82,11 @@ Backlog (TBD)
 - [ ] Azure Autoscale support (ie. web farm)
 - [ ] Folder Providers
 - [ ] Generative AI Integration
+
+[5.2.2](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.2) (Sep 23, 2024)
+- [x] Stabilization improvements
+- [x] Support for Security Stamp to faciliate Logout Everywhere
+- [x] Role synchronization from External Login identity providers
 
 [5.2.1](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.1) (Aug 22, 2024)
 - [x] Stabilization improvements

@@ -207,14 +207,14 @@
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="username" HelpText="Enter the username for your SMTP account" ResourceKey="SmtpUsername">Username: </Label>
                     <div class="col-sm-9">
-                        <input id="username" class="form-control" @bind="@_smtpusername" />
+                        <input id="username" class="form-control" @bind="@_smtpusername" autocomplete="off"/>
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="password" HelpText="Enter the password for your SMTP account" ResourceKey="SmtpPassword">Password: </Label>
                     <div class="col-sm-9">
 						<div class="input-group">
-							<input id="password" type="@_smtppasswordtype" class="form-control" @bind="@_smtppassword" />
+							<input id="password" type="@_smtppasswordtype" class="form-control" @bind="@_smtppassword" autocomplete="off"/>
                             <button type="button" class="btn btn-secondary" @onclick="@ToggleSMTPPassword" tabindex="-1">@_togglesmtppassword</button>
 						</div>
                     </div>
