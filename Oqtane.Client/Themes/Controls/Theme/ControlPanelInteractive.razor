@@ -454,7 +454,7 @@
     {
         foreach (var permission in PageState.Page.PermissionList.Where(item => item.PermissionName == pagePermission))
         {
-            permissions.Add(new Permission { SiteId = siteId, EntityName = EntityNames.Module, PermissionName = modulePermission, RoleId = permission.RoleId, UserId = permission.UserId, IsAuthorized = permission.IsAuthorized });
+            permissions.Add(new Permission { SiteId = siteId, EntityName = EntityNames.Module, PermissionName = modulePermission, RoleName = permission.RoleName, UserId = permission.UserId, IsAuthorized = permission.IsAuthorized });
         }
         return permissions;
     }
