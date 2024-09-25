@@ -522,7 +522,7 @@
         "        let currentUrl = window.location.pathname;" + Environment.NewLine +
         "        Blazor.addEventListener('enhancedload', () => {" + Environment.NewLine +
         "            let newUrl = window.location.pathname;" + Environment.NewLine +
-        "            if (currentUrl !== newUrl || window.location.hash === '') {" + Environment.NewLine +
+        "            if (currentUrl !== newUrl || window.location.hash === '#top') {" + Environment.NewLine +
         "                window.scrollTo({ top: 0, left: 0, behavior: 'instant' });" + Environment.NewLine +
         "            }" + Environment.NewLine +
         "            currentUrl = newUrl;" + Environment.NewLine +
