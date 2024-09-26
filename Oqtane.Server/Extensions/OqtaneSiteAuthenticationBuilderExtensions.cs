@@ -592,7 +592,7 @@ namespace Oqtane.Extensions
                     }
 
                     // create claims identity
-                    identityuser = await _identityUserManager.FindByEmailAsync(user.Username);
+                    identityuser = await _identityUserManager.FindByNameAsync(user.Username);
                     user.SecurityStamp = identityuser.SecurityStamp;
                     identity = UserSecurity.CreateClaimsIdentity(alias, user, userRoles);
                     identity.Label = ExternalLoginStatus.Success;
@@ -645,7 +645,7 @@ namespace Oqtane.Extensions
                         }
                     }
 
-                    _logger.Log(LogLevel.Information, "ExternalLogin", Enums.LogFunction.Security, "External User Login Successful For {Username} From IP Address {IPAddress} Using Provider {Provider}", user.Username, httpContext.Connection.RemoteIpAddress, providerName);
+                    _logger.Log(LogLevel.Information, "ExternalLogin", Enums.LogFunction.Security, "External User Login Successful For {Username} From IP Address {IPAddress} Using Provider {Provider}", user.Username, httpContext.Connection.RemoteIpAddress.ToString(), providerName);
                 }
             }
             else // claims invalid
