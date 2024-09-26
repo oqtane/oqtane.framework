@@ -651,7 +651,7 @@ namespace Oqtane.Extensions
             else // claims invalid
             {
                 identity.Label = ExternalLoginStatus.MissingClaims;
-                _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "Provider Did Not Return All Of The Claims Types Specified Or Email Address Does Not Saitisfy Domain Filter. The Actual Claims Returned Were {Claims}. Login Was Denied.", claims);
+                _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "Provider Did Not Return All Of The Claims Types Specified Or Email Address Does Not Satisfy Domain Filter. The Actual Claims Returned Were {Claims}. Login Was Denied.", claims);
             }
 
             return identity;
