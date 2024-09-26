@@ -75,6 +75,7 @@ namespace Oqtane.Repository
                 userrole.RoleId = role.RoleId;
                 userrole.EffectiveDate = null;
                 userrole.ExpiryDate = null;
+                userrole.IgnoreSecurityStamp = true;
                 _userroles.AddUserRole(userrole);
             }
 

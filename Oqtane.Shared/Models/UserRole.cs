@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
 {
@@ -26,10 +27,17 @@ namespace Oqtane.Models
         /// Start of when this assignment is valid. See also <see cref="ExpiryDate"/>
         /// </summary>
         public DateTime? EffectiveDate { get; set; }
+
         /// <summary>
         /// End of when this assignment is valid. See also <see cref="EffectiveDate"/>
         /// </summary>
         public DateTime? ExpiryDate { get; set; }
+
+        /// <summary>
+        /// Indicates that the User Security Stamp should not be updated when this user role is added or updated
+        /// </summary>
+        [NotMapped]
+        public bool IgnoreSecurityStamp { get; set; }
 
         /// <summary>
         /// Direct reference to the <see cref="Role"/> object.
