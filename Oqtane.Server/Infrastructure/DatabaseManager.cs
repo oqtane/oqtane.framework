@@ -155,7 +155,7 @@ namespace Oqtane.Infrastructure
                     // add new site
                     if (install.TenantName != TenantNames.Master && install.ConnectionString.Contains("="))
                     {
-                        _configManager.AddOrUpdateSetting($"{SettingKeys.ConnectionStringsSection}:{install.TenantName}", install.ConnectionString, false);
+                        _configManager.AddOrUpdateSetting($"{SettingKeys.ConnectionStringsSection}:{install.TenantName}", install.ConnectionString, true);
                     }
                     if (install.TenantName == TenantNames.Master && !install.ConnectionString.Contains("="))
                     {
