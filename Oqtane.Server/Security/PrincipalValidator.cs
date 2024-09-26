@@ -7,9 +7,7 @@ using Oqtane.Models;
 using Oqtane.Extensions;
 using Oqtane.Shared;
 using Oqtane.Managers;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication;
-
 
 namespace Oqtane.Security
 {
