@@ -169,6 +169,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.Cookie.HttpOnly = true;
                 options.Cookie.SameSite = SameSiteMode.Lax;
                 options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                options.LoginPath = "/login"; // overrides .NET Identity default of /Account/Login
                 options.Events.OnRedirectToLogin = context =>
                 {
                     context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
