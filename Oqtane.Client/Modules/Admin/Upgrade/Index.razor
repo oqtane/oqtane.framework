@@ -54,6 +54,8 @@
             }
             else
             {
+                AddModuleMessage(Localizer["Disclaimer.Text"], MessageType.Warning);
+
                 List<Package> packages = await PackageService.GetPackagesAsync("framework", "", "", "");
                 if (packages != null)
                 {
