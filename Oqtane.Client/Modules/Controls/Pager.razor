@@ -452,9 +452,9 @@
             _displayPages = int.Parse(DisplayPages);
         }
 
-        if (PageState.QueryString.ContainsKey("page"))
+        if (PageState.QueryString.ContainsKey("page") && int.TryParse(PageState.QueryString["page"], out int page))
         {
-            _page = int.Parse(PageState.QueryString["page"]);
+            _page = page;
         }
         else
         {
