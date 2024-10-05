@@ -56,7 +56,7 @@
                 var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
                 HttpContext.Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, new CookieOptions { Path = "/", Expires = DateTimeOffset.UtcNow.AddYears(365) });
             }
-            NavigationManager.NavigateTo(NavigationManager.Uri.Replace($"?culture={culture}", ""), forceLoad: true);
+            NavigationManager.NavigateTo(NavigationManager.Uri.Replace($"?culture={culture}", ""), true);
         }
     }
 
@@ -67,7 +67,7 @@
             var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
             var interop = new Interop(JSRuntime);
             await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360);
-            NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+            NavigationManager.NavigateTo(NavigationManager.Uri, true);
         }
     }
 }
