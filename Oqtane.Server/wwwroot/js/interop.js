@@ -6,19 +6,12 @@ Oqtane.Interop = {
         d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
         var expires = "expires=" + d.toUTCString();
         var cookieString = name + "=" + value + ";" + expires + ";path=/";
-
-        // Add SameSite attribute
         if (sameSite === "Lax" || sameSite === "Strict" || sameSite === "None") {
             cookieString += `; SameSite=${sameSite}`;
         }
-
-        // Add Secure attribute
         if (secure) {
             cookieString += "; Secure";
         }
-
-        // Note: HttpOnly cannot be set here; it needs to be handled server-side.
-
         document.cookie = cookieString;
     },
     getCookie: function (name) {
