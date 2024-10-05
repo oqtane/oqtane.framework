@@ -1,11 +1,18 @@
 var Oqtane = Oqtane || {};
 
 Oqtane.Interop = {
-    setCookie: function (name, value, days) {
+    setCookie: function (name, value, days, secure, httpOnly, sameSite) {
         var d = new Date();
         d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
         var expires = "expires=" + d.toUTCString();
-        document.cookie = name + "=" + value + ";" + expires + ";path=/";
+        var cookieString = name + "=" + value + ";" + expires + ";path=/";
+        if (sameSite === "Lax" || sameSite === "Strict" || sameSite === "None") {
+            cookieString += `; SameSite=${sameSite}`;
+        }
+        if (secure) {
+            cookieString += "; Secure";
+        }
+        document.cookie = cookieString;
     },
     getCookie: function (name) {
         name = name + "=";
