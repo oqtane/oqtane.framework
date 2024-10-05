@@ -16,7 +16,7 @@ namespace Oqtane.UI
             _jsRuntime = jsRuntime;
         }
 
-        public Task SetCookie(string name, string value, int days, bool secure, bool httpOnly, string sameSite)
+        public Task SetCookie(string name, string value, int days, bool secure, string sameSite)
         {
             try
             {
