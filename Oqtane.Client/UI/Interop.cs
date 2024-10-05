@@ -22,7 +22,7 @@ namespace Oqtane.UI
             {
                 _jsRuntime.InvokeVoidAsync(
                     "Oqtane.Interop.setCookie",
-                    name, value, days, secure, httpOnly, sameSite);
+                    name, value, days, secure, sameSite);
                 return Task.CompletedTask;
             }
             catch
