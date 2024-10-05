@@ -75,7 +75,7 @@
         {
             var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
             var interop = new Interop(JSRuntime);
-            await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360, true, true, "Lax");
+            await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360, true, "Lax");
             NavigationManager.NavigateTo(NavigationManager.Uri, true);
         }
     }
