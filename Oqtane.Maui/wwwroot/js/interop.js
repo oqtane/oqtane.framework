@@ -1,7 +1,7 @@
 var Oqtane = Oqtane || {};
 
 Oqtane.Interop = {
-    setCookie: function (name, value, days, secure, httpOnly, sameSite) {
+    setCookie: function (name, value, days, secure, sameSite) {
         var d = new Date();
         d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
         var expires = "expires=" + d.toUTCString();
