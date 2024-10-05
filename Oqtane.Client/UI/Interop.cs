@@ -16,13 +16,13 @@ namespace Oqtane.UI
             _jsRuntime = jsRuntime;
         }
 
-        public Task SetCookie(string name, string value, int days)
+        public Task SetCookie(string name, string value, int days, bool secure, bool httpOnly, string sameSite)
         {
             try
             {
                 _jsRuntime.InvokeVoidAsync(
                     "Oqtane.Interop.setCookie",
-                    name, value, days);
+                    name, value, days, secure, httpOnly, sameSite);
                 return Task.CompletedTask;
             }
             catch
