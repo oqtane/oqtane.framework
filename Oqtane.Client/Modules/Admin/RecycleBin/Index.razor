@@ -28,7 +28,8 @@ else
 						<th style="width: 1px;">&nbsp;</th>
 						<th>@SharedLocalizer["Name"]</th>
 						<th>@Localizer["DeletedBy"]</th>
-						<th>@Localizer["DeletedOn"]</th>
+                        <th class="app-sort-th link-primary text-decoration-underline" @onclick="@(() => SortTable("DeletedOn"))">@Localizer["DeletedOn"]<i class="@(SetSortIcon("DeletedOn"))"></i></th>
+						@* <th>@Localizer["DeletedOn"]</th> *@
 					</Header>
 					<Row>
                         <td><button type="button" @onclick="@(() => RestorePage(context))" class="btn btn-success" title="Restore">@Localizer["Restore"]</button></td>
@@ -57,7 +58,8 @@ else
 						<th>@Localizer["Page"]</th>
 						<th>@Localizer["Module"]</th>
 						<th>@Localizer["DeletedBy"]</th>
-						<th>@Localizer["DeletedOn"]</th>
+                        <th class="app-sort-th link-primary text-decoration-underline" @onclick="@(() => SortTable("DeletedOn"))">@Localizer["DeletedOn"]<i class="@(SetSortIcon("DeletedOn"))"></i></th>
+						@* <th>@Localizer["DeletedOn"]</th> *@
 					</Header>
 					<Row>
 						<td><button type="button" @onclick="@(() => RestoreModule(context))" class="btn btn-success" title="Restore">@Localizer["Restore"]</button></td>
@@ -80,6 +82,8 @@ else
 	private List<Module> _modules;
     private int _pagePage = 1;
     private int _pageModule = 1;
+    private bool isSortedAscending;
+    private string activeSortColumn;
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnInitializedAsync()
@@ -223,5 +227,51 @@ else
     private void OnPageChangeModule(int page)
     {
         _pageModule = page;
+    }
+    private void SortTable(string columnName)
+    {
+        if (columnName != activeSortColumn)
+        {
+            _modules = _modules.OrderBy(x => GetPropertyValue(x, columnName)).ToList();
+            _pages = _pages.OrderBy(x => GetPropertyValue(x, columnName)).ToList();
+            isSortedAscending = true;
+            activeSortColumn = columnName;
+        }
+        else
+        {
+            if (isSortedAscending)
+            {
+                _modules = _modules.OrderBy(x => GetPropertyValue(x, columnName)).ToList();
+                _pages = _pages.OrderBy(x => GetPropertyValue(x, columnName)).ToList();
+            }
+            else
+            {
+                _modules = _modules.OrderByDescending(x => GetPropertyValue(x, columnName)).ToList();
+                _pages = _pages.OrderByDescending(x => GetPropertyValue(x, columnName)).ToList();
+            }
+
+            isSortedAscending = !isSortedAscending;
+        }
+    }
+    // Helper method to get the property value
+    private static object GetPropertyValue(object obj, string propertyName)
+    {
+        return obj.GetType().GetProperty(propertyName)?.GetValue(obj, null);
+    }
+
+    private string SetSortIcon(string columnName)
+    {
+        if (activeSortColumn != columnName)
+        {
+            return "app-fas pe-3 ";
+        }
+        if (isSortedAscending)
+        {
+            return "app-fas oi oi-sort-ascending";
+        }
+        else
+        {
+            return "app-fas oi oi-sort-descending";
+        }
     }
 }
