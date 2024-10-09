@@ -230,6 +230,7 @@ else
     }
     private void SortTable(string columnName)
     {
+        // Active tab not known, so sort both lists.
         if (columnName != activeSortColumn)
         {
             _modules = _modules.OrderBy(x => GetPropertyValue(x, columnName)).ToList();
