@@ -1,11 +1,11 @@
 {
+  "RenderMode": "Interactive",
   "Runtime": "Server",
-  "RenderMode": "ServerPrerendered",
   "Database": {
-    "DefaultDBType": ""
+    "DefaultDBType": "Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer"
   },
   "ConnectionStrings": {
-    "DefaultConnection": ""
+    "DefaultConnection": "Data Source=(LocalDb)\\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\\Oqtane-Fork.mdf;Initial Catalog=Oqtane-Fork;Integrated Security=SSPI;Encrypt=false;"
   },
   "Installation": {
     "DefaultAlias": "",
@@ -44,5 +44,20 @@
       "ControlType": "Oqtane.Installer.Controls.PostgreSQLConfig, Oqtane.Client",
       "DBType": "Oqtane.Database.PostgreSQL.PostgreSQLDatabase, Oqtane.Database.PostgreSQL"
     }
-  ]
+  ],
+  "Logging": {
+    "FileLogger": {
+      "LogLevel": {
+        "Default": "Error"
+      }
+    },
+    "LogLevel": {
+      "Default": "Information"
+    }
+  },
+  "InstallationId": "b9ab2e37-8983-40ef-83cd-1e3285129a6c",
+  "ReCaptcha": {
+    "SiteKey": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
+    "SecretKey": "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
+  }
 }
