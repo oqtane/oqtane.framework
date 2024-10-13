@@ -102,7 +102,16 @@ namespace Oqtane.Pages
                     // appends the query string to the redirect url
                     if (Request.QueryString.HasValue && !string.IsNullOrWhiteSpace(Request.QueryString.Value))
                     {
-                        url += Request.QueryString.Value;
+                        if (url.Contains('?'))
+                        {
+                            url += "&";
+                        }
+                        else
+                        {
+                            url += "?";
+                        }
+
+                        url += Request.QueryString.Value.Substring(1);
                     }
                     
                     return RedirectPermanent(url);
@@ -122,24 +131,48 @@ namespace Oqtane.Pages
             string downloadName = file.Name;
             string filepath = _files.GetFilePath(file);
 
-            bool hasWidthParam = Request.Query.TryGetValue("width", out var widthStr);
-            bool hasHeightParam = Request.Query.TryGetValue("height", out var heightStr);
+            var etagValue = file.ModifiedOn.Ticks ^ file.Size;
+
+            bool isRequestingImageManipulation = false;
 
             int width = 0;
             int height = 0;
-
-            bool isRequestingImageResize =
-                hasWidthParam && int.TryParse(widthStr, out width) && width > 0 &&
-                hasHeightParam && int.TryParse(heightStr, out height) && height > 0;
-
-            if (isRequestingImageResize)
+            if (Request.Query.TryGetValue("width", out var widthStr) && int.TryParse(widthStr, out width) && width > 0)
             {
-                etag = Convert.ToString(file.ModifiedOn.Ticks ^ file.Size ^ (width * 31) ^ (height * 17), 16);
+                isRequestingImageManipulation = true;
+                etagValue ^= (width * 31);
             }
-            else
+            if (Request.Query.TryGetValue("height", out var heightStr) && int.TryParse(heightStr, out height) && height > 0)
             {
-                etag = Convert.ToString(file.ModifiedOn.Ticks ^ file.Size, 16);
+                isRequestingImageManipulation = true;
+                etagValue ^= (height * 17);
             }
+
+            Request.Query.TryGetValue("mode", out var mode);
+            Request.Query.TryGetValue("position", out var position);
+            Request.Query.TryGetValue("background", out var background);
+
+            if (width > 0 || height > 0)
+            {
+                if (!string.IsNullOrWhiteSpace(mode)) etagValue ^= mode.ToString().GetHashCode();
+                if (!string.IsNullOrWhiteSpace(position)) etagValue ^= position.ToString().GetHashCode();
+                if (!string.IsNullOrWhiteSpace(background)) etagValue ^= background.ToString().GetHashCode();
+            }
+
+            int rotate;
+            if (Request.Query.TryGetValue("rotate", out var rotateStr) && int.TryParse(rotateStr, out rotate) && 360 > rotate && rotate > 0)
+            {
+                isRequestingImageManipulation = true;
+                etagValue ^= (rotate * 13);
+            }
+
+            if (Request.Query.TryGetValue("format", out var format) && _imageService.GetAvailableFormats().Contains(format.ToString()))
+            {
+                isRequestingImageManipulation = true;
+                etagValue ^= format.ToString().GetHashCode();
+            }
+
+            etag = Convert.ToString(etagValue, 16);
 
             var header = "";
             if (HttpContext.Request.Headers.TryGetValue(HeaderNames.IfNoneMatch, out var ifNoneMatch))
@@ -160,7 +193,7 @@ namespace Oqtane.Pages
                 return BrokenFile();
             }
 
-            if (isRequestingImageResize)
+            if (isRequestingImageManipulation)
             {
                 var _ImageFiles = _settingRepository.GetSetting(EntityNames.Site, _alias.SiteId, "ImageFiles")?.SettingValue;
                 _ImageFiles = (string.IsNullOrEmpty(_ImageFiles)) ? Constants.ImageFiles : _ImageFiles;
@@ -172,22 +205,24 @@ namespace Oqtane.Pages
                     return BrokenFile();
                 }
 
-                Request.Query.TryGetValue("mode", out var mode);
-                Request.Query.TryGetValue("position", out var position);
-                Request.Query.TryGetValue("background", out var background);
-                Request.Query.TryGetValue("rotate", out var rotate);
                 Request.Query.TryGetValue("recreate", out var recreate);
 
                 if (!bool.TryParse(recreate, out _)) recreate = "false";
+                if (!_imageService.GetAvailableFormats().Contains(format.ToString())) format = "png";
+                if (width == 0 && height == 0)
+                {
+                    width = file.ImageWidth;
+                    height = file.ImageHeight;
+                }
 
-                string imagepath = filepath.Replace(Path.GetExtension(filepath), "." + width.ToString() + "x" + height.ToString() + ".png");
+                string imagepath = filepath.Replace(Path.GetExtension(filepath), "." + width.ToString() + "x" + height.ToString() + "." + format);
                 if (!System.IO.File.Exists(imagepath) || bool.Parse(recreate))
                 {
                     // user has edit access to folder or folder supports the image size being created
                     if (_userPermissions.IsAuthorized(User, PermissionNames.Edit, file.Folder.PermissionList) ||
                         (!string.IsNullOrEmpty(file.Folder.ImageSizes) && (file.Folder.ImageSizes == "*" || file.Folder.ImageSizes.ToLower().Split(",").Contains(width.ToString() + "x" + height.ToString()))))
                     {
-                        imagepath = _imageService.CreateImage(filepath, width, height, mode, position, background, rotate, imagepath);
+                        imagepath = _imageService.CreateImage(filepath, width, height, mode, position, background, rotateStr, format, imagepath);
                     }
                     else
                     {
@@ -204,7 +239,7 @@ namespace Oqtane.Pages
                     return BrokenFile();
                 }
 
-                downloadName = file.Name.Replace(Path.GetExtension(filepath), "." + width.ToString() + "x" + height.ToString() + ".png");
+                downloadName = file.Name.Replace(Path.GetExtension(filepath), "." + width.ToString() + "x" + height.ToString() + "." + format);
                 filepath = imagepath;
             }
 

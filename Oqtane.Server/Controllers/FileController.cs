@@ -685,14 +685,16 @@ namespace Oqtane.Controllers
                     {
                         if (!bool.TryParse(recreate, out _)) recreate = "false";
 
-                        string imagepath = filepath.Replace(Path.GetExtension(filepath), "." + width.ToString() + "x" + height.ToString() + ".png");
+                        string format = "png";
+
+                        string imagepath = filepath.Replace(Path.GetExtension(filepath), "." + width.ToString() + "x" + height.ToString() + "." + format);
                         if (!System.IO.File.Exists(imagepath) || bool.Parse(recreate))
                         {
                             // user has edit access to folder or folder supports the image size being created
                             if (_userPermissions.IsAuthorized(User, PermissionNames.Edit, file.Folder.PermissionList) ||
                               (!string.IsNullOrEmpty(file.Folder.ImageSizes) && (file.Folder.ImageSizes == "*" || file.Folder.ImageSizes.ToLower().Split(",").Contains(width.ToString() + "x" + height.ToString()))))
                             {
-                                imagepath = _imageService.CreateImage(filepath, width, height, mode, position, background, rotate, imagepath);
+                                imagepath = _imageService.CreateImage(filepath, width, height, mode, position, background, rotate, format, imagepath);
                             }
                             else
                             {
