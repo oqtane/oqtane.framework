@@ -6,11 +6,11 @@ Oqtane.Interop = {
         d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
         var expires = "expires=" + d.toUTCString();
         var cookieString = name + "=" + value + ";" + expires + ";path=/";
-        if (sameSite === "Lax" || sameSite === "Strict" || sameSite === "None") {
-            cookieString += `; SameSite=${sameSite}`;
-        }
         if (secure) {
-            cookieString += "; Secure";
+            cookieString += "; secure";
+        }
+        if (sameSite === "Lax" || sameSite === "Strict" || sameSite === "None") {
+            cookieString += "; SameSite=" + sameSite;
         }
         document.cookie = cookieString;
     },
