@@ -56,16 +56,16 @@
                 var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
 
                 HttpContext.Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, new CookieOptions
-                    {
-                        Path = "/",
-                        Expires = DateTimeOffset.UtcNow.AddYears(365),
-                        SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax, // Set SameSite attribute
-                        Secure = true, // Ensure the cookie is only sent over HTTPS
-                        HttpOnly = true // Optional: Helps mitigate XSS attacks
-                    });
+                {
+                    Path = "/",
+                    Expires = DateTimeOffset.UtcNow.AddYears(365),
+                    SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax, // Set SameSite attribute
+                    Secure = true, // Ensure the cookie is only sent over HTTPS
+                    HttpOnly = false // cookie is updated using JS Interop in Interactive render mode
+                });
 
             }
-            NavigationManager.NavigateTo(NavigationManager.Uri.Replace($"?culture={culture}", ""), true);
+            NavigationManager.NavigateTo(NavigationManager.Uri.Replace($"?culture={culture}", ""));
         }
     }
 

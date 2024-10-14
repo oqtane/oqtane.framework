@@ -609,7 +609,7 @@
             Expires = DateTimeOffset.UtcNow.AddYears(1),
             SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax, // Set SameSite attribute
             Secure = true, // Ensure the cookie is only sent over HTTPS
-            HttpOnly = false // cookie is updated using JS Interop
+            HttpOnly = false // cookie is updated using JS Interop in Interactive render mode
         };
 
         Context.Response.Cookies.Append(
