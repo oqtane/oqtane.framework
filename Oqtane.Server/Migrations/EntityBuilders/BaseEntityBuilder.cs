@@ -319,6 +319,19 @@ namespace Oqtane.Migrations.EntityBuilders
                 schema: Schema);
         }
 
+        public virtual void AddForeignKey(string foreignKeyName, string columnName, string principalTable, string principalColumn, string principalSchema, ReferentialAction onDelete)
+        {
+            _migrationBuilder.AddForeignKey(
+                name: RewriteName(foreignKeyName),
+                table: RewriteName(EntityTableName),
+                column: RewriteName(columnName),
+                principalTable: RewriteName(principalTable),
+                principalColumn: RewriteName(principalColumn),
+                principalSchema: RewriteName(principalSchema),
+                onDelete: onDelete,
+                schema: Schema);
+        }
+
         /// <summary>
         /// Creates a Migration to add an Index to the Entity (table)
         /// </summary>
@@ -368,6 +381,7 @@ namespace Oqtane.Migrations.EntityBuilders
                 column: foreignKey.Column,
                 principalTable: RewriteName(foreignKey.PrincipalTable),
                 principalColumn: RewriteName(foreignKey.PrincipalColumn),
+                principalSchema: RewriteName(foreignKey.PrincipalSchema),
                 onDelete: foreignKey.OnDeleteAction);
         }
 
@@ -381,6 +395,7 @@ namespace Oqtane.Migrations.EntityBuilders
                     column: RewriteName(foreignKey.ColumnName),
                     principalTable: RewriteName(foreignKey.PrincipalTable),
                     principalColumn: RewriteName(foreignKey.PrincipalColumn),
+                    principalSchema: RewriteName(foreignKey.PrincipalSchema),
                     onDelete: foreignKey.OnDeleteAction,
                     schema: Schema);
         }
