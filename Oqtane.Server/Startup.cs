@@ -159,7 +159,7 @@ namespace Oqtane
                    }
                }).AddHubOptions(options =>
                {
-                   options.MaximumReceiveMessageSize = null; // no limit (for large amnounts of data ie. textarea components)
+                   options.MaximumReceiveMessageSize = null; // no limit (for large amounts of data ie. textarea components)
                })
                .AddInteractiveWebAssemblyComponents();
 
