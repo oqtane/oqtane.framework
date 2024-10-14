@@ -17,11 +17,10 @@ using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Extensions;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Formats.Png;
 using System.Net.Http;
 using Microsoft.AspNetCore.Cors;
 using System.IO.Compression;
+using Oqtane.Services;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
@@ -38,7 +37,9 @@ namespace Oqtane.Controllers
         private readonly ILogManager _logger;
         private readonly Alias _alias;
         private readonly ISettingRepository _settingRepository;
-        public FileController(IWebHostEnvironment environment, IFileRepository files, IFolderRepository folders, IUserPermissions userPermissions, ISettingRepository settingRepository, ISyncManager syncManager, ILogManager logger, ITenantManager tenantManager)
+        private readonly IImageService _imageService;
+
+        public FileController(IWebHostEnvironment environment, IFileRepository files, IFolderRepository folders, IUserPermissions userPermissions, ISettingRepository settingRepository, ISyncManager syncManager, ILogManager logger, ITenantManager tenantManager, IImageService imageService)
         {
             _environment = environment;
             _files = files;
@@ -48,6 +49,7 @@ namespace Oqtane.Controllers
             _logger = logger;
             _alias = tenantManager.GetAlias();
             _settingRepository = settingRepository;
+            _imageService = imageService;
         }
 
         // GET: api/<controller>?folder=x
@@ -681,22 +683,18 @@ namespace Oqtane.Controllers
                     var filepath = _files.GetFilePath(file);
                     if (System.IO.File.Exists(filepath))
                     {
-                        // validation
-                        if (!Enum.TryParse(mode, true, out ResizeMode _)) mode = "crop";
-                        if (!Enum.TryParse(position, true, out AnchorPositionMode _)) position = "center";
-                        if (!Color.TryParseHex("#" + background, out _)) background = "transparent";
-                        if (!int.TryParse(rotate, out _)) rotate = "0";
-                        rotate = (int.Parse(rotate) < 0 || int.Parse(rotate) > 360) ? "0" : rotate;
                         if (!bool.TryParse(recreate, out _)) recreate = "false";
 
-                        string imagepath = filepath.Replace(Path.GetExtension(filepath), "." + width.ToString() + "x" + height.ToString() + ".png");
+                        string format = "png";
+
+                        string imagepath = filepath.Replace(Path.GetExtension(filepath), "." + width.ToString() + "x" + height.ToString() + "." + format);
                         if (!System.IO.File.Exists(imagepath) || bool.Parse(recreate))
                         {
                             // user has edit access to folder or folder supports the image size being created
                             if (_userPermissions.IsAuthorized(User, PermissionNames.Edit, file.Folder.PermissionList) ||
                               (!string.IsNullOrEmpty(file.Folder.ImageSizes) && (file.Folder.ImageSizes == "*" || file.Folder.ImageSizes.ToLower().Split(",").Contains(width.ToString() + "x" + height.ToString()))))
                             {
-                                imagepath = CreateImage(filepath, width, height, mode, position, background, rotate, imagepath);
+                                imagepath = _imageService.CreateImage(filepath, width, height, mode, position, background, rotate, format, imagepath);
                             }
                             else
                             {
@@ -741,70 +739,6 @@ namespace Oqtane.Controllers
 
             string errorPath = Path.Combine(GetFolderPath("wwwroot/images"), "error.png");
             return System.IO.File.Exists(errorPath) ? PhysicalFile(errorPath, MimeUtilities.GetMimeType(errorPath)) : null;
-        }
-
-        private string CreateImage(string filepath, int width, int height, string mode, string position, string background, string rotate, string imagepath)
-        {
-            try
-            {
-                using (var stream = new FileStream(filepath, FileMode.Open, FileAccess.Read))
-                {
-                    stream.Position = 0;
-                    using (var image = Image.Load(stream))
-                    {
-                        int.TryParse(rotate, out int angle);
-                        Enum.TryParse(mode, true, out ResizeMode resizemode);
-                        Enum.TryParse(position, true, out AnchorPositionMode anchorpositionmode);
-
-                        PngEncoder encoder;
-
-                        if (background != "transparent")
-                        {
-                            image.Mutate(x => x
-                                .AutoOrient() // auto orient the image
-                                .Rotate(angle)
-                                .Resize(new ResizeOptions
-                                {
-                                    Mode = resizemode,
-                                    Position = anchorpositionmode,
-                                    Size = new Size(width, height),
-                                    PadColor = Color.ParseHex("#" + background)
-                                }));
-
-                            encoder = new PngEncoder();
-                        }
-                        else
-                        {
-                            image.Mutate(x => x
-                                .AutoOrient() // auto orient the image
-                                .Rotate(angle)
-                                .Resize(new ResizeOptions
-                                {
-                                    Mode = resizemode,
-                                    Position = anchorpositionmode,
-                                    Size = new Size(width, height)
-                                }));
-
-                            encoder = new PngEncoder
-                            {
-                                ColorType = PngColorType.RgbWithAlpha,
-                                TransparentColorMode = PngTransparentColorMode.Preserve,
-                                BitDepth = PngBitDepth.Bit8,
-                                CompressionLevel = PngCompressionLevel.BestSpeed
-                            };
-                        }
-
-                        image.Save(imagepath, encoder);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, ex, "Error Creating Image For File {FilePath} {Width} {Height} {Mode} {Rotate} {Error}", filepath, width, height, mode, rotate, ex.Message);
-                imagepath = "";
-            }
-
-            return imagepath;
         }
 
         private string GetFolderPath(string folder)
