@@ -571,7 +571,7 @@
                     if (tenant != null)
                     {
                         _tenant = tenant.Name;
-                        _database = _databases.Find(item => item.DBType == tenant.DBType)?.Name;
+                        _database = _databases.Find(item => item.DBType == tenant.DBType && item.Name != "LocalDB")?.Name;
                         _connectionstring = tenant.DBConnectionString;
                     }
                 }

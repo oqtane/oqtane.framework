@@ -83,24 +83,15 @@ else
 		{
 			@if (_connection != "-")
 			{
-				<div class="row mb-1 align-items-center">
-					<Label Class="col-sm-3" For="databasetype" HelpText="The database type" ResourceKey="DatabaseType">Type: </Label>
-					<div class="col-sm-9">
-						@if (_databases != null)
-						{
-							<select id="databasetype" class="form-select" @bind="@_databasetype" required>
-								<option value="-">&lt;@Localizer["Type.Select"]&gt;</option>
-								@foreach (var database in _databases)
-								{
-									<option value="@database.Name">@Localizer[@database.Name]</option>
-								}
-							</select>
-						}
-					</div>
-				</div>
 				@if (!string.IsNullOrEmpty(_tenant))
 				{
-					<div class="row mb-1 align-items-center">
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="databasetype" HelpText="The database type" ResourceKey="DatabaseType">Type: </Label>
+                        <div class="col-sm-9">
+                            <input id="databasetype" class="form-control" @bind="@_databasetype" readonly />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
 						<Label Class="col-sm-3" For="tenant" HelpText="The database using this connection" ResourceKey="Tenant">Database: </Label>
 						<div class="col-sm-9">
 							<input id="tenant" class="form-control" @bind="@_tenant" readonly />
@@ -204,12 +195,12 @@ else
 			{
 				_connectionstring = _connections[_connection].ToString();
 				_tenant = "";
-				_databasetype = "-";
+				_databasetype = "";
 				var tenant = _tenants.FirstOrDefault(item => item.DBConnectionString == _connection);
 				if (tenant != null)
 				{
 					_tenant = tenant.Name;
-					_databasetype = _databases.FirstOrDefault(item => item.DBType == tenant.DBType).Name;
+					_databasetype = _databases.FirstOrDefault(item => item.DBType == tenant.DBType && item.Name != "LocalDB").Name;
 				}
 			}
 			else
