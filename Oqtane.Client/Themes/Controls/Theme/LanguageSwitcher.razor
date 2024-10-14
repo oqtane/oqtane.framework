@@ -61,7 +61,9 @@
                     Expires = DateTimeOffset.UtcNow.AddYears(365),
                     SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax, // Set SameSite attribute
                     Secure = true, // Ensure the cookie is only sent over HTTPS
-                    HttpOnly = PageState.RenderMode == RenderModes.Static // sets the cookie HttpOnly=true only if the rendermode is not updated using JS Interop in Interactive render mode
+                    HttpOnly = PageState.RenderMode == RenderModes.Static // Sets the cookie with HttpOnly=true only if the render mode is Static. 
+                                                                          // In Interactive mode, cookies are updated using JavaScript Interop, 
+                                                                          // which requires HttpOnly to be false.
                 });
 
             }
