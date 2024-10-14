@@ -604,38 +604,19 @@
 
     private void SetLocalizationCookie(string culture)
     {
-        if (_renderMode == RenderModes.Static)
+        var cookieOptions = new Microsoft.AspNetCore.Http.CookieOptions
         {
-            var cookieOptions = new Microsoft.AspNetCore.Http.CookieOptions
-                {
-                    Expires = DateTimeOffset.UtcNow.AddYears(1),
-                    SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax, // Set SameSite attribute
-                    Secure = true, // Ensure the cookie is only sent over HTTPS
-                    HttpOnly = true // Optional: Helps mitigate XSS attacks
-                };
+            Expires = DateTimeOffset.UtcNow.AddYears(1),
+            SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax, // Set SameSite attribute
+            Secure = true, // Ensure the cookie is only sent over HTTPS
+            HttpOnly = _renderMode == RenderModes.Static // Set HttpOnly based on render mode
+        };
 
-            Context.Response.Cookies.Append(
-                CookieRequestCultureProvider.DefaultCookieName,
-                CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
-                cookieOptions
-            );
-        }
-        else
-        {
-            var cookieOptions = new Microsoft.AspNetCore.Http.CookieOptions
-                {
-                    Expires = DateTimeOffset.UtcNow.AddYears(1),
-                    SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax, // Set SameSite attribute
-                    Secure = true, // Ensure the cookie is only sent over HTTPS
-                    HttpOnly = false // cookie is updated using JS Interop
-                };
-
-            Context.Response.Cookies.Append(
-                CookieRequestCultureProvider.DefaultCookieName,
-                CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
-                cookieOptions
-            );
-        }
+        Context.Response.Cookies.Append(
+            CookieRequestCultureProvider.DefaultCookieName,
+            CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
+            cookieOptions
+        );
     }
 
     private async Task<List<Resource>> GetPageResources(Alias alias, Site site, Page page, List<Module> modules, int moduleid, string action)
