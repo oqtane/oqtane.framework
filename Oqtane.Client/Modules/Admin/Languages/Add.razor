@@ -94,7 +94,6 @@ else
 			var language = new Language
 				{
 					SiteId = PageState.Page.SiteId,
-					Name = CultureInfo.GetCultureInfo(_code).DisplayName,
 					Code = _code,
 					IsDefault = (_default == null ? false : Boolean.Parse(_default))
 				};
