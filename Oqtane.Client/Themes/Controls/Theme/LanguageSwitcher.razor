@@ -25,8 +25,7 @@
                 }
                 else
                 {
-                    <a class="dropdown-item @(CultureInfo.CurrentUICulture.Name == culture.Name ? "active" : String.Empty)"
-                        href="@NavigateUrl(PageState.Page.Path, "culture=" + culture.Name)">@culture.NativeName</a>
+                    <a class="dropdown-item @(CultureInfo.CurrentUICulture.Name == culture.Name ? "active" : String.Empty)" href="@NavigateUrl(PageState.Page.Path, "culture=" + culture.Name)" data-enhance-nav="false">@culture.NativeName</a>
                 }
             }
         </div>
