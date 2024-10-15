@@ -79,9 +79,7 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 
 Connect with other developers, get support, and share ideas by joining the Oqtane community on Discord!
 
-<a href="https://discord.gg/BnPny88avK" target="_blank">
-    <img src="https://img.shields.io/badge/Join%20the%20Oqtane%20Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white" alt="Join Oqtane Discord" />
-</a>
+[![Join our Discord](https://img.shields.io/badge/Join%20Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/BnPny88avK)
 
 # Roadmap
 This project is open source, and therefore is a work in progress...
