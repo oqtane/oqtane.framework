@@ -67,7 +67,7 @@ namespace Oqtane.Controllers
                         }
                     }
                     var defaultCulture = CultureInfo.GetCultureInfo(Constants.DefaultCulture);
-                    languages.Add(new Language { Code = defaultCulture.Name, Name = defaultCulture.DisplayName, Version = Constants.Version, IsDefault = !languages.Any(l => l.IsDefault) });
+                    languages.Add(new Language { Code = defaultCulture.Name, Name = defaultCulture.NativeName, Version = Constants.Version, IsDefault = !languages.Any(l => l.IsDefault) });
                 }
                 return languages.OrderBy(item => item.Name);
             }

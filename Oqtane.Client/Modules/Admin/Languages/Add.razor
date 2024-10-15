@@ -11,52 +11,56 @@
 
 @if (_cultures == null)
 {
-    <p><em>@SharedLocalizer["Loading"]</em></p>
+	<p><em>@SharedLocalizer["Loading"]</em></p>
 }
 else
 {
-    <TabStrip>
-        <TabPanel Name="Manage" ResourceKey="Manage" Heading="Manage">
-            <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
-                <div class="container">
+	<TabStrip>
+		<TabPanel Name="Manage" ResourceKey="Manage" Heading="Manage">
+			<form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+				<div class="container">
 					<div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="name" HelpText="Name Of The Language" ResourceKey="Name">Name:</Label>
-                        <div class="col-sm-9">
-                            <select id="_code" class="form-select" @bind="@_code" required>
+						<Label Class="col-sm-3" For="name" HelpText="Name Of The Language" ResourceKey="Name">Name:</Label>
+						<div class="col-sm-9">
+							<select id="_code" class="form-select" @bind="@_code" required>
 								<option value="-">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
 								@foreach (var culture in _cultures)
-                                {
-                                    <option value="@culture.Name">@(culture.DisplayName + " (" + culture.Name + ")")</option>
-                                }
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="default" HelpText="Indicates Whether Or Not This Language Is The Default For The Site" ResourceKey="IsDefault">Default?</Label>
-                        <div class="col-sm-9">
-                            <select id="default" class="form-select" @bind="@_default" required>
-                                <option value="True">@SharedLocalizer["Yes"]</option>
-                                <option value="False">@SharedLocalizer["No"]</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <button type="button" class="btn btn-success" @onclick="SaveLanguage">@SharedLocalizer["Save"]</button>
+								{
+									<option value="@culture.Name">@(culture.NativeName + " (" + culture.Name + ")")</option>
+								}
+							</select>
+						</div>
+					</div>
+					<div class="row mb-1 align-items-center">
+						<Label Class="col-sm-3" For="default"
+							HelpText="Indicates Whether Or Not This Language Is The Default For The Site"
+							ResourceKey="IsDefault">Default?</Label>
+						<div class="col-sm-9">
+							<select id="default" class="form-select" @bind="@_default" required>
+								<option value="True">@SharedLocalizer["Yes"]</option>
+								<option value="False">@SharedLocalizer["No"]</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				<button type="button" class="btn btn-success" @onclick="SaveLanguage">@SharedLocalizer["Save"]</button>
 				<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-            </form>
-        </TabPanel>
-        <TabPanel Name="Upload" ResourceKey="Upload" Security="SecurityAccessLevel.Host" Heading="Upload">
-            <div class="container">
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" HelpText="Upload one or more translations. Once they are uploaded click Install." ResourceKey="LanguageUpload">Translation: </Label>
-                    <div class="col-sm-9">
-                        <FileManager Folder="@Constants.PackagesFolder" UploadMultiple="true" OnUpload="OnUpload" />
-                    </div>
-                </div>
-            </div>
-            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-        </TabPanel>
-    </TabStrip>
+			</form>
+		</TabPanel>
+		<TabPanel Name="Upload" ResourceKey="Upload" Security="SecurityAccessLevel.Host" Heading="Upload">
+			<div class="container">
+				<div class="row mb-1 align-items-center">
+					<Label Class="col-sm-3"
+						HelpText="Upload one or more translations. Once they are uploaded click Install."
+						ResourceKey="LanguageUpload">Translation: </Label>
+					<div class="col-sm-9">
+						<FileManager Folder="@Constants.PackagesFolder" UploadMultiple="true" OnUpload="OnUpload" />
+					</div>
+				</div>
+			</div>
+			<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+		</TabPanel>
+	</TabStrip>
 }
 
 @code {
@@ -124,18 +128,19 @@ else
 		}
 	}
 
-    private async Task SetCultureAsync(string culture)
-    {
-        if (culture != CultureInfo.CurrentUICulture.Name)
-        {
-            var interop = new Interop(JSRuntime);
-            var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
-            await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360, true, "Lax");
-        }
-    }
+	private async Task SetCultureAsync(string culture)
+	{
+		if (culture != CultureInfo.CurrentUICulture.Name)
+		{
+			var interop = new Interop(JSRuntime);
+			var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
+			await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360, true, "Lax");
+		}
+	}
 
-    private void OnUpload()
-    {
-        AddModuleMessage(string.Format(Localizer["Success.Language.Download"], NavigateUrl("admin/system")), MessageType.Success);
-    }
+	private void OnUpload()
+	{
+		AddModuleMessage(string.Format(Localizer["Success.Language.Download"], NavigateUrl("admin/system")),
+		MessageType.Success);
+	}
 }

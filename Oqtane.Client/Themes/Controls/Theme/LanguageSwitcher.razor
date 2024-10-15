@@ -10,7 +10,8 @@
 @if (_supportedCultures?.Count() > 1)
 {
     <div class="btn-group pe-1" role="group">
-        <button id="btnCultures" type="button" class="btn @ButtonClass dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button id="btnCultures" type="button" class="btn @ButtonClass dropdown-toggle" data-bs-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
             <span class="oi oi-globe"></span>
         </button>
         <div class="dropdown-menu @MenuAlignment" aria-labelledby="btnCultures">
@@ -18,18 +19,21 @@
             {
                 @if (PageState.RenderMode == RenderModes.Interactive)
                 {
-                    <a class="dropdown-item @(CultureInfo.CurrentUICulture.Name == culture.Name ? "active" : String.Empty)" href="#" @onclick="@(async e => await SetCultureAsync(culture.Name))" @onclick:preventDefault="true">@culture.DisplayName</a>
+                    <a class="dropdown-item @(CultureInfo.CurrentUICulture.Name == culture.Name ? "active" : String.Empty)" href="#"
+                        @onclick="@(async e => await SetCultureAsync(culture.Name))"
+                        @onclick:preventDefault="true">@culture.NativeName</a>
                 }
                 else
                 {
-                    <a class="dropdown-item @(CultureInfo.CurrentUICulture.Name == culture.Name ? "active" : String.Empty)" href="@NavigateUrl(PageState.Page.Path, "culture=" + culture.Name)">@culture.DisplayName</a>
+                    <a class="dropdown-item @(CultureInfo.CurrentUICulture.Name == culture.Name ? "active" : String.Empty)"
+                        href="@NavigateUrl(PageState.Page.Path, "culture=" + culture.Name)">@culture.NativeName</a>
                 }
             }
         </div>
     </div>
 }
 
-@code{
+@code {
     private IEnumerable<Culture> _supportedCultures;
     private string MenuAlignment = string.Empty;
 
@@ -55,14 +59,15 @@
             {
                 var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
 
-                HttpContext.Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, new CookieOptions
-                {
-                    Path = "/",
-                    Expires = DateTimeOffset.UtcNow.AddYears(365),
-                    SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax, // Set SameSite attribute
-                    Secure = true, // Ensure the cookie is only sent over HTTPS
-                    HttpOnly = false // cookie is updated using JS Interop in Interactive render mode
-                });
+                HttpContext.Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, new
+                CookieOptions
+                    {
+                        Path = "/",
+                        Expires = DateTimeOffset.UtcNow.AddYears(365),
+                        SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax, // Set SameSite attribute
+                        Secure = true, // Ensure the cookie is only sent over HTTPS
+                        HttpOnly = false // cookie is updated using JS Interop in Interactive render mode
+                    });
 
             }
             NavigationManager.NavigateTo(NavigationManager.Uri.Replace($"?culture={culture}", ""));
