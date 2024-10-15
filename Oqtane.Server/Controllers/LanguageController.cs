@@ -55,6 +55,10 @@ namespace Oqtane.Controllers
                 else
                 {
                     languages = _languages.GetLanguages(SiteId).ToList();
+                    foreach (Language language in languages)
+                    {
+                        language.Name = CultureInfo.GetCultureInfo(language.Code).DisplayName;
+                    }
                     if (!string.IsNullOrEmpty(packagename))
                     {
                         foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), $"{packagename}*{Constants.SatelliteAssemblyExtension}", SearchOption.AllDirectories))
@@ -85,6 +89,7 @@ namespace Oqtane.Controllers
             var language = _languages.GetLanguage(id);
             if (language != null && language.SiteId == _alias.SiteId)
             {
+                language.Name = CultureInfo.GetCultureInfo(language.Code).DisplayName;
                 return language;
             }
             else
