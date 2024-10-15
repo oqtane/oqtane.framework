@@ -97,6 +97,7 @@ namespace Oqtane.Services
             {
                 language.Name = CultureInfo.GetCultureInfo(language.Code).DisplayName;
             }
+            site.Languages = site.Languages.OrderBy(item => item.Name).ToList();
 
             return Task.FromResult(site);
         }

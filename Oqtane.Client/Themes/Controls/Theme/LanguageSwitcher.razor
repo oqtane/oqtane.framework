@@ -45,8 +45,7 @@
     {
         MenuAlignment = DropdownAlignment.ToLower() == "right" ? "dropdown-menu-end" : string.Empty;
 
-        var languages = PageState.Languages;
-        _supportedCultures = languages.Select(l => new Culture { Name = l.Code, DisplayName = l.Name });
+        _supportedCultures = PageState.Languages.Select(l => new Culture { Name = l.Code, DisplayName = l.Name });
 
         if (PageState.QueryString.ContainsKey("culture"))
         {
