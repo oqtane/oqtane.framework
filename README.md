@@ -75,6 +75,12 @@ Explore and enhance your Oqtane experience by visiting the Oqtane Marketplace. D
 # Documentation
 There is a separate [Documentation repository](https://github.com/oqtane/oqtane.docs) which contains a variety of types of documentation for Oqtane, including API documentation that is auto generated using Docfx. The contents of the repository is published to Githib Pages and is available at [https://docs.oqtane.org](https://docs.oqtane.org/)
 
+# Join the Community
+
+Connect with other developers, get support, and share ideas by joining the Oqtane community on Discord!
+
+[![Join our Discord](https://img.shields.io/badge/Join%20Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/BnPny88avK)
+
 # Roadmap
 This project is open source, and therefore is a work in progress...
 
