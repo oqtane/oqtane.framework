@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Oqtane.Models;
 
 namespace Oqtane.Shared
@@ -13,9 +14,10 @@ namespace Oqtane.Shared
                 {
                     new ExternalLoginProvider
                     {
-                        Name = "Custom",
+                        Name = "<Custom>",
                         Settings = new Dictionary<string, string>()
                     },
+                    // OIDC
                     new ExternalLoginProvider
                     {
                         Name = "Microsoft Entra",
@@ -29,6 +31,20 @@ namespace Oqtane.Shared
                             { "ExternalLogin:ClientSecret", "YOUR CLIENT SECRET" }
                         }
                     },
+                    new ExternalLoginProvider
+                    {
+                        Name = "Auth0 (by Okta)",
+                        Settings = new Dictionary<string, string>()
+                        {
+                            { "ExternalLogin:ProviderUrl", "https://auth0.com/docs/get-started" },
+                            { "ExternalLogin:ProviderType", "oidc" },
+                            { "ExternalLogin:ProviderName", "Auth0" },
+                            { "ExternalLogin:Authority", "YOUR DOMAIN" },
+                            { "ExternalLogin:ClientId", "YOUR CLIENT ID" },
+                            { "ExternalLogin:ClientSecret", "YOUR CLIENT SECRET" }
+                        }
+                    },
+                    // OAuth2
                     new ExternalLoginProvider
                     {
                         Name = "GitHub",
@@ -46,10 +62,27 @@ namespace Oqtane.Shared
                             { "ExternalLogin:IdentifierClaimType", "email" },
                             { "ExternalLogin:DomainFilter", "!users.noreply.github.com" }
                         }
+                    },
+                    new ExternalLoginProvider
+                    {
+                        Name = "Facebook",
+                        Settings = new Dictionary<string, string>()
+                        {
+                            { "ExternalLogin:ProviderUrl", "https://developers.facebook.com/apps/" },
+                            { "ExternalLogin:ProviderType", "oauth2" },
+                            { "ExternalLogin:ProviderName", "Facebook" },
+                            { "ExternalLogin:AuthorizationUrl", "https://www.facebook.com/v18.0/dialog/oauth" },
+                            { "ExternalLogin:TokenUrl", "https://graph.facebook.com/v18.0/oauth/access_token" },
+                            { "ExternalLogin:UserInfoUrl", "https://graph.facebook.com/v18.0/me" },
+                            { "ExternalLogin:ClientId", "YOUR CLIENT ID" },
+                            { "ExternalLogin:ClientSecret", "YOUR CLIENT SECRET" },
+                            { "ExternalLogin:Scopes", "public_profile" },
+                            { "ExternalLogin:IdentifierClaimType", "id" }
+                        }
                     }
                 };
 
-                return providers;
+                return providers.OrderBy(item => item.Name).ToList();
             }
         }
     }

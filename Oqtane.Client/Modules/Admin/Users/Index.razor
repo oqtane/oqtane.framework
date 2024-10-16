@@ -551,7 +551,7 @@ else
 
     private void LoadExternalLoginSettings(Dictionary<string, string> settings)
     {
-        _provider = SettingService.GetSetting(settings, "ExternalLogin:Provider", "Custom");
+        _provider = SettingService.GetSetting(settings, "ExternalLogin:Provider", "<Custom>");
         _providerurl = SettingService.GetSetting(settings, "ExternalLogin:ProviderUrl", "");
         _providertype = SettingService.GetSetting(settings, "ExternalLogin:ProviderType", "");
         _providername = SettingService.GetSetting(settings, "ExternalLogin:ProviderName", "");
