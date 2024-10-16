@@ -205,8 +205,8 @@ else
 							<div class="col-sm-9">
 								<select id="providertype" class="form-select" value="@_providertype" @onchange="(e => ProviderTypeChanged(e))">
                                     <option value="" selected>&lt;@Localizer["Not Specified"]&gt;</option>
-									<option value="@AuthenticationProviderTypes.OpenIDConnect">@Localizer["OpenID Connect"]</option>
-									<option value="@AuthenticationProviderTypes.OAuth2">@Localizer["OAuth 2.0"]</option>
+									<option value="@AuthenticationProviderTypes.OpenIDConnect">@Localizer["OIDC"]</option>
+									<option value="@AuthenticationProviderTypes.OAuth2">@Localizer["OAuth2"]</option>
 								</select>
 							</div>
 						</div>		
