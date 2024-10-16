@@ -489,4 +489,10 @@
   <data name="Info" xml:space="preserve">
     <value>Info</value>
   </data>
+  <data name="OAuth2" xml:space="preserve">
+    <value>OAuth 2.0</value>
+  </data>
+  <data name="OIDC" xml:space="preserve">
+    <value>OpenID Connect (OIDC)</value>
+  </data>
 </root>
