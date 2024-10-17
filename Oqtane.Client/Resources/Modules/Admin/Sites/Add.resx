@@ -187,7 +187,7 @@
     <value>Select the database for the site</value>
   </data>
   <data name="TenantName.HelpText" xml:space="preserve">
-    <value>Enter the name for the database</value>
+    <value>Enter the name for the database. Note that this will be the tenant name which is used within the framework to identify the database.</value>
   </data>
   <data name="DatabaseType.HelpText" xml:space="preserve">
     <value>Select the database type</value>

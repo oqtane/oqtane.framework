@@ -20,11 +20,6 @@ namespace Oqtane.Models
         public int? SiteId { get; set; }
 
         /// <summary>
-        /// Language Name - corresponds to <see cref="Culture.DisplayName"/>, _not_ <see cref="Culture.Name"/>
-        /// </summary>
-        public string Name { get; set; }
-
-        /// <summary>
         /// Language / Culture code, like 'en-US' - corresponds to <see cref="Culture.Name"/>
         /// </summary>
         public string Code { get; set; }
@@ -33,6 +28,12 @@ namespace Oqtane.Models
         /// Is this the default language on a <see cref="Site"/>
         /// </summary>
         public bool IsDefault { get; set; }
+
+        [NotMapped]
+        /// <summary>
+        /// Language Name - corresponds to <see cref="Culture.DisplayName"/>, _not_ <see cref="Culture.Name"/>
+        /// </summary>
+        public string Name { get; set; }
 
         [NotMapped]
         /// <summary>

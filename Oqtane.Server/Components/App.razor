@@ -522,7 +522,7 @@
         "        let currentUrl = window.location.pathname;" + Environment.NewLine +
         "        Blazor.addEventListener('enhancedload', () => {" + Environment.NewLine +
         "            let newUrl = window.location.pathname;" + Environment.NewLine +
-        "            if (currentUrl !== newUrl || window.location.hash === '') {" + Environment.NewLine +
+        "            if (currentUrl !== newUrl || window.location.hash === '#top') {" + Environment.NewLine +
         "                window.scrollTo({ top: 0, left: 0, behavior: 'instant' });" + Environment.NewLine +
         "            }" + Environment.NewLine +
         "            currentUrl = newUrl;" + Environment.NewLine +
@@ -609,7 +609,7 @@
             Expires = DateTimeOffset.UtcNow.AddYears(1),
             SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax, // Set SameSite attribute
             Secure = true, // Ensure the cookie is only sent over HTTPS
-            HttpOnly = true // Optional: Helps mitigate XSS attacks
+            HttpOnly = false // cookie is updated using JS Interop in Interactive render mode
         };
 
         Context.Response.Cookies.Append(

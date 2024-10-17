@@ -102,6 +102,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<ISearchResultsService, SearchResultsService>();
             services.AddScoped<ISearchService, SearchService>();
             services.AddScoped<ISearchProvider, DatabaseSearchProvider>();
+            services.AddScoped<IImageService, ImageService>();
 
             // providers
             services.AddScoped<ITextEditor, Oqtane.Modules.Controls.QuillJSTextEditor>();
@@ -169,6 +170,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.Cookie.HttpOnly = true;
                 options.Cookie.SameSite = SameSiteMode.Lax;
                 options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                options.LoginPath = "/login"; // overrides .NET Identity default of /Account/Login
                 options.Events.OnRedirectToLogin = context =>
                 {
                     context.Response.StatusCode = (int)HttpStatusCode.Forbidden;

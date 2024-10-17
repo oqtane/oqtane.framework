@@ -92,6 +92,13 @@ namespace Oqtane.Services
             }
             site.Pages = pages;
 
+            // get language display name for user
+            foreach (Language language in site.Languages)
+            {
+                language.Name = CultureInfo.GetCultureInfo(language.Code).DisplayName;
+            }
+            site.Languages = site.Languages.OrderBy(item => item.Name).ToList();
+
             return Task.FromResult(site);
         }
 
@@ -130,7 +137,10 @@ namespace Oqtane.Services
                 // languages
                 site.Languages = _languages.GetLanguages(site.SiteId).ToList();
                 var defaultCulture = CultureInfo.GetCultureInfo(Constants.DefaultCulture);
-                site.Languages.Add(new Language { Code = defaultCulture.Name, Name = defaultCulture.DisplayName, Version = Constants.Version, IsDefault = !site.Languages.Any(l => l.IsDefault) });
+                if (!site.Languages.Exists(item => item.Code == defaultCulture.Name))
+                {
+                    site.Languages.Add(new Language { Code = defaultCulture.Name, Name = "", Version = Constants.Version, IsDefault = !site.Languages.Any(l => l.IsDefault) });
+                }
 
                 // themes
                 site.Themes = _themes.FilterThemes(_themes.GetThemes().ToList());

@@ -72,8 +72,13 @@ namespace Oqtane.Repository
                 DeleteUserRoles(userRole.UserId);
             }
 
-            UpdateSecurityStamp(userRole.UserId);
- 
+            if (!userRole.IgnoreSecurityStamp)
+            {
+                UpdateSecurityStamp(userRole.UserId);
+            }
+
+            RefreshCache(userRole.UserId);
+
             return userRole;
         }
 
@@ -83,7 +88,12 @@ namespace Oqtane.Repository
             db.Entry(userRole).State = EntityState.Modified;
             db.SaveChanges();
 
-            UpdateSecurityStamp(userRole.UserId);
+            if (!userRole.IgnoreSecurityStamp)
+            {
+                UpdateSecurityStamp(userRole.UserId);
+            }
+
+            RefreshCache(userRole.UserId);
 
             return userRole;
         }
@@ -144,6 +154,7 @@ namespace Oqtane.Repository
             db.SaveChanges();
 
             UpdateSecurityStamp(userRole.UserId);
+            RefreshCache(userRole.UserId);
         }
 
         public void DeleteUserRoles(int userId)
@@ -156,11 +167,11 @@ namespace Oqtane.Repository
             db.SaveChanges();
 
             UpdateSecurityStamp(userId);
+            RefreshCache(userId);
         }
 
         private void UpdateSecurityStamp(int userId)
         {
-            // update user security stamp
             using var db = _dbContextFactory.CreateDbContext();
             var user = db.User.Find(userId);
             if (user != null)
@@ -168,11 +179,13 @@ namespace Oqtane.Repository
                 var identityuser = _identityUserManager.FindByNameAsync(user.Username).GetAwaiter().GetResult();
                 if (identityuser != null)
                 {
-                    _identityUserManager.UpdateSecurityStampAsync(identityuser);
+                    _identityUserManager.UpdateSecurityStampAsync(identityuser).GetAwaiter().GetResult();
                 }
             }
+        }
 
-            // refresh cache
+        private void RefreshCache(int userId)
+        {
             var alias = _tenantManager.GetAlias();
             if (alias != null)
             {

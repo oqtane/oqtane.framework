@@ -94,7 +94,6 @@ else
 			var language = new Language
 				{
 					SiteId = PageState.Page.SiteId,
-					Name = CultureInfo.GetCultureInfo(_code).DisplayName,
 					Code = _code,
 					IsDefault = (_default == null ? false : Boolean.Parse(_default))
 				};
@@ -130,7 +129,7 @@ else
         {
             var interop = new Interop(JSRuntime);
             var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
-            await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360);
+            await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360, true, "Lax");
         }
     }
 

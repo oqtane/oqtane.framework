@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Version>5.2.3</Version>
+    <Version>5.2.4</Version>
     <Product>Oqtane</Product>
     <Authors>Shaun Walker</Authors>
     <Company>.NET Foundation</Company>
@@ -10,7 +10,7 @@
     <Copyright>.NET Foundation</Copyright>
     <PackageProjectUrl>https://www.oqtane.org</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/oqtane/oqtane.framework/blob/dev/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.3</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.4</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/oqtane/oqtane.framework</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
@@ -34,7 +34,7 @@
   
   <ItemGroup>
     <PackageReference Include="MySql.EntityFrameworkCore" Version="8.0.5" />
-    <PackageReference Include="MySql.Data" Version="9.0.0" />
+    <PackageReference Include="MySql.Data" Version="9.1.0" />
   </ItemGroup>
 
   <ItemGroup>

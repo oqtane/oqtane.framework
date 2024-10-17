@@ -1,6 +1,6 @@
 # Latest Release
 
-[5.2.2](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.2) was released on September 23, 2024 and is a maintenance release including 55 pull requests by 8 different contributors, pushing the total number of project commits all-time to over 5800. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
+[5.2.3](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.3) was released on September 23, 2024 and is a maintenance release including 55 pull requests by 8 different contributors, pushing the total number of project commits all-time to over 5800. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Foqtane%2Foqtane.framework%2Fmaster%2Fazuredeploy.json)
 
@@ -75,6 +75,12 @@ Explore and enhance your Oqtane experience by visiting the Oqtane Marketplace. D
 # Documentation
 There is a separate [Documentation repository](https://github.com/oqtane/oqtane.docs) which contains a variety of types of documentation for Oqtane, including API documentation that is auto generated using Docfx. The contents of the repository is published to Githib Pages and is available at [https://docs.oqtane.org](https://docs.oqtane.org/)
 
+# Join the Community
+
+Connect with other developers, get support, and share ideas by joining the Oqtane community on Discord!
+
+[![Join our Discord](https://img.shields.io/badge/Join%20Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/BnPny88avK)
+
 # Roadmap
 This project is open source, and therefore is a work in progress...
 
@@ -82,6 +88,9 @@ Backlog (TBD)
 - [ ] Azure Autoscale support (ie. web farm)
 - [ ] Folder Providers
 - [ ] Generative AI Integration
+
+[5.2.3](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.3) (Sep 23, 2024)
+- [x] Stabilization improvements
 
 [5.2.2](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.2) (Sep 23, 2024)
 - [x] Stabilization improvements

@@ -7,13 +7,13 @@ using Oqtane.Models;
 using Oqtane.Extensions;
 using Oqtane.Shared;
 using Oqtane.Managers;
-
+using Microsoft.AspNetCore.Authentication;
 
 namespace Oqtane.Security
 {
     public static class PrincipalValidator
     {
-        public static Task ValidateAsync(CookieValidatePrincipalContext context)
+        public static async Task ValidateAsync(CookieValidatePrincipalContext context)
         {
             if (context != null && context.Principal.Identity.IsAuthenticated && context.Principal.Identity.Name != null)
             {
@@ -49,6 +49,7 @@ namespace Oqtane.Security
                             // remove principal (ie. log user out)
                             Log(_logger, alias, "Permissions Removed For User {Username} Accessing {Url}", context.Principal.Identity.Name, path);
                             context.RejectPrincipal();
+                            await context.HttpContext.SignOutAsync(Constants.AuthenticationScheme);
                         }
                     }
                     else
@@ -58,7 +59,6 @@ namespace Oqtane.Security
                     }
                 }
             }
-            return Task.CompletedTask;
         }
 
         private static void Log (ILogManager logger, Alias alias, string message, string username, string path)

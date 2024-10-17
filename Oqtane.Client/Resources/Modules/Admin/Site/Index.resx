@@ -163,7 +163,7 @@
     <value>Enter the site name</value>
   </data>
   <data name="Tenant.HelpText" xml:space="preserve">
-    <value>The name of the database used for the site</value>
+    <value>The name of the database used for the site. Note that this is not the physical database name but rather the tenant name which is used within the framework to identify a database.</value>
   </data>
   <data name="Aliases.HelpText" xml:space="preserve">
     <value>The urls for the site. This can include domain names (ie. domain.com), subdomains (ie. sub.domain.com) or virtual folders (ie. domain.com/folder).</value>
@@ -307,7 +307,7 @@
     <value>Type:</value>
   </data>
   <data name="ConnectionString.HelpText" xml:space="preserve">
-    <value>The connection information for the database</value>
+    <value>The name of the connection string in appsettings.json which will be used to connect to the database</value>
   </data>
   <data name="Database.HelpText" xml:space="preserve">
     <value>The type of database</value>

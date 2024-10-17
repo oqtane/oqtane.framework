@@ -189,7 +189,7 @@ namespace Oqtane.Controllers
         public void Delete(string entityName, int entityId, string settingName)
         {
             Setting setting = _settings.GetSetting(entityName, entityId, settingName);
-            if (IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
+            if (setting != null && IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
                 _settings.DeleteSetting(setting.EntityName, setting.SettingId);
                 AddSyncEvent(setting.EntityName, setting.EntityId, setting.SettingId, SyncEventActions.Delete);
@@ -199,7 +199,7 @@ namespace Oqtane.Controllers
             {
                 if (entityName != EntityNames.Visitor)
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Delete, "User Not Authorized To Delete Setting {Setting}", setting);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Delete, "Setting Does Not Exist Or User Not Authorized To Delete Setting For Entity {EntityName} Id {EntityId} Name {SettingName}", entityName, entityId, settingName);
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 }
             }

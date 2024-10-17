@@ -54,6 +54,8 @@
             }
             else
             {
+                AddModuleMessage(Localizer["Disclaimer.Text"], MessageType.Warning);
+
                 List<Package> packages = await PackageService.GetPackagesAsync("framework", "", "", "");
                 if (packages != null)
                 {
@@ -97,13 +99,16 @@
     {
         try
         {
+            ShowProgressIndicator();
             await PackageService.DownloadPackageAsync(packageid, version);
             await PackageService.DownloadPackageAsync(Constants.UpdaterPackageId, version);
+            HideProgressIndicator();
             AddModuleMessage(Localizer["Success.Framework.Download"], MessageType.Success);
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Downloading Framework Package {Error}", ex.Message);
+            HideProgressIndicator();
             AddModuleMessage(Localizer["Error.Framework.Download"], MessageType.Error);
         }
     }

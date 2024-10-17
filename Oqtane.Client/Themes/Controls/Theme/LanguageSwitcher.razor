@@ -22,7 +22,7 @@
                 }
                 else
                 {
-                    <a class="dropdown-item @(CultureInfo.CurrentUICulture.Name == culture.Name ? "active" : String.Empty)" href="@NavigateUrl(PageState.Page.Path, "culture=" + culture.Name)">@culture.DisplayName</a>
+                    <a class="dropdown-item @(CultureInfo.CurrentUICulture.Name == culture.Name ? "active" : String.Empty)" href="@NavigateUrl(PageState.Page.Path, "culture=" + culture.Name)" data-enhance-nav="false">@culture.DisplayName</a>
                 }
             }
         </div>
@@ -45,8 +45,7 @@
     {
         MenuAlignment = DropdownAlignment.ToLower() == "right" ? "dropdown-menu-end" : string.Empty;
 
-        var languages = PageState.Languages;
-        _supportedCultures = languages.Select(l => new Culture { Name = l.Code, DisplayName = l.Name });
+        _supportedCultures = PageState.Languages.Select(l => new Culture { Name = l.Code, DisplayName = l.Name });
 
         if (PageState.QueryString.ContainsKey("culture"))
         {
@@ -54,9 +53,18 @@
             if (_supportedCultures.Any(item => item.Name == culture))
             {
                 var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
-                HttpContext.Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, new CookieOptions { Path = "/", Expires = DateTimeOffset.UtcNow.AddYears(365) });
+
+                HttpContext.Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, new CookieOptions
+                {
+                    Path = "/",
+                    Expires = DateTimeOffset.UtcNow.AddYears(365),
+                    SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax, // Set SameSite attribute
+                    Secure = true, // Ensure the cookie is only sent over HTTPS
+                    HttpOnly = false // cookie is updated using JS Interop in Interactive render mode
+                });
+
             }
-            NavigationManager.NavigateTo(NavigationManager.Uri.Replace($"?culture={culture}", ""), forceLoad: true);
+            NavigationManager.NavigateTo(NavigationManager.Uri.Replace($"?culture={culture}", ""));
         }
     }
 
@@ -66,8 +74,8 @@
         {
             var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
             var interop = new Interop(JSRuntime);
-            await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360);
-            NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+            await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360, true, "Lax");
+            NavigationManager.NavigateTo(NavigationManager.Uri, true);
         }
     }
 }

@@ -471,13 +471,28 @@
   <data name="ReviewClaims.Text" xml:space="preserve">
     <value>Review Claims?</value>
   </data>
-    <data name="ReviewClaims.HelpText" xml:space="preserve">
+  <data name="ReviewClaims.HelpText" xml:space="preserve">
     <value>This option will record the full list of Claims returned by the Provider in the Event Log. It should only be used for testing purposes. External Login will be restricted when this option is enabled.</value>
   </data>
   <data name="NameClaimType.HelpText" xml:space="preserve">
     <value>Optionally specify the type name of the user's name claim provided by the identity provider. The typical value is 'name'.</value>
   </data>
-    <data name="NameClaimType.Text" xml:space="preserve">
+  <data name="NameClaimType.Text" xml:space="preserve">
     <value>Name Claim:</value>
+  </data>
+  <data name="Provider.HelpText" xml:space="preserve">
+    <value>Select the external login provider</value>
+  </data>
+  <data name="Provider.Text" xml:space="preserve">
+    <value>Provider:</value>
+  </data>
+  <data name="Info" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="OAuth2" xml:space="preserve">
+    <value>OAuth 2.0</value>
+  </data>
+  <data name="OIDC" xml:space="preserve">
+    <value>OpenID Connect (OIDC)</value>
   </data>
 </root>

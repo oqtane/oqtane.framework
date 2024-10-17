@@ -10,13 +10,16 @@
         {
             <NavLink class="ms-2" href="@NavigateUrl("admin/log")">View Details</NavLink>
         }
-        @if (ModuleState.RenderMode == RenderModes.Static)
+        @if (ModuleState != null)
         {
-            <a href="@NavigationManager.Uri" class="btn-close" data-dismiss="alert" aria-label="close"></a>
-        }
-        else
-        {
-            <button type="button" class="btn-close" data-dismiss="alert" aria-label="close" @onclick="CloseMessage"></button>
+            @if (ModuleState.RenderMode == RenderModes.Static)
+            {
+                <a href="@NavigationManager.Uri" class="btn-close" data-dismiss="alert" aria-label="close"></a>
+            }
+            else
+            {
+                <button type="button" class="btn-close" data-dismiss="alert" aria-label="close" @onclick="CloseMessage"></button>
+            }
         }
     </div>
 }
