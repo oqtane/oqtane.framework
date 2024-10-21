@@ -83,12 +83,10 @@ Connect with other developers, get support, and share ideas by joining the Oqtan
 
 # Roadmap
 This project is open source, and therefore is a work in progress...
-
-Backlog (TBD)
-- [ ] Azure Autoscale support (ie. web farm)
-- [ ] Folder Providers
-- [ ] Generative AI Integration
       
+6.0.0 (Nov 13, 2024)
+- [x] Migration to .NET 9
+
 [5.2.4](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.4) (Oct 17, 2024)
 - [x] Stabilization improvements
 
