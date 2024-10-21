@@ -33,8 +33,41 @@ namespace Oqtane.Managers
         private readonly ILogManager _logger;
         private readonly IMemoryCache _cache;
         private readonly IStringLocalizer<UserManager> _localizer;
+        private readonly IUserStore<IdentityUser> _identityStore;
+        private readonly Microsoft.Extensions.Options.IOptions<IdentityOptions> _identityOptionsAccessor;
+        private readonly IPasswordHasher<IdentityUser> _passwordHasher;
+        private readonly IEnumerable<IUserValidator<IdentityUser>> _userValidators;
+        private readonly IEnumerable<IPasswordValidator<IdentityUser>> _passwordValidators;
+        private readonly ILookupNormalizer _identityKeyNormalizer;
+        private readonly IdentityErrorDescriber _identityErrors;
+        private readonly IServiceProvider _identityServices;
+        private readonly Microsoft.Extensions.Logging.ILogger<UserManager<IdentityUser>> _identityLogger;
 
-        public UserManager(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, IProfileRepository profiles, ISettingRepository settings, ISiteRepository sites, ISyncManager syncManager, ILogManager logger, IMemoryCache cache, IStringLocalizer<UserManager> localizer)
+        public UserManager(
+            IUserRepository users,
+            IRoleRepository roles,
+            IUserRoleRepository userRoles,
+            UserManager<IdentityUser> identityUserManager,
+            SignInManager<IdentityUser> identitySignInManager,
+            ITenantManager tenantManager,
+            INotificationRepository notifications,
+            IFolderRepository folders,
+            IProfileRepository profiles,
+            ISettingRepository settings,
+            ISiteRepository sites,
+            ISyncManager syncManager,
+            ILogManager logger,
+            IMemoryCache cache,
+            IStringLocalizer<UserManager> localizer,
+            IUserStore<IdentityUser> store,
+            Microsoft.Extensions.Options.IOptions<IdentityOptions> optionsAccessor,
+            IPasswordHasher<IdentityUser> passwordHasher,
+            IEnumerable<IUserValidator<IdentityUser>> userValidators,
+            IEnumerable<IPasswordValidator<IdentityUser>> passwordValidators,
+            ILookupNormalizer keyNormalizer,
+            IdentityErrorDescriber errors,
+            IServiceProvider services,
+            Microsoft.Extensions.Logging.ILogger<UserManager<IdentityUser>> identityLogger)
         {
             _users = users;
             _roles = roles;
@@ -51,6 +84,15 @@ namespace Oqtane.Managers
             _logger = logger;
             _cache = cache;
             _localizer = localizer;
+            _identityStore = store;
+            _identityOptionsAccessor = optionsAccessor;
+            _passwordHasher = passwordHasher;
+            _userValidators = userValidators;
+            _passwordValidators = passwordValidators;
+            _identityKeyNormalizer = keyNormalizer;
+            _identityErrors = errors;
+            _identityServices = services;
+            _identityLogger = identityLogger;
         }
 
         public User GetUser(int userid, int siteid)
@@ -538,6 +580,40 @@ namespace Oqtane.Managers
                 }
             }
             return user;
+        }
+
+        public async Task<UserValidateResult> ValidateUser(string username, string email, string password)
+        {
+            var validateResult = new UserValidateResult { Succeeded = true };
+            var installUserManager = new InstallUserManager<IdentityUser>(_identityStore, _identityOptionsAccessor, _passwordHasher, _userValidators, _passwordValidators, _identityKeyNormalizer, _identityErrors, _identityServices, _identityLogger);
+
+            var user = new IdentityUser { UserName = username, Email = email, EmailConfirmed = true };
+            var userValidator = new UserValidator<IdentityUser>();
+            var userResult = await userValidator.ValidateAsync(installUserManager, user);
+            if (!userResult.Succeeded)
+            {
+                validateResult.Succeeded = false;
+                if(userResult.Errors != null)
+                {
+                    validateResult.Errors = userResult.Errors?.ToDictionary(i => i.Code, i => i.Description);
+                }
+            }
+
+            var passwordValidator = new PasswordValidator<IdentityUser>();
+            var passwordResult = await passwordValidator.ValidateAsync(installUserManager, null, password);
+            if (!passwordResult.Succeeded && !validateResult.Errors.ContainsKey("InvalidPassword"))
+            {
+                validateResult.Succeeded = false;
+                if (passwordResult.Errors != null)
+                {
+                    foreach (var error in passwordResult.Errors)
+                    {
+                        validateResult.Errors.Add(error.Code, error.Description);
+                    }
+                }
+            }
+
+            return validateResult;
         }
 
         public async Task<bool> ValidatePassword(string password)

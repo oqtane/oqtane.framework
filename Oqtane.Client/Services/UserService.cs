@@ -89,6 +89,11 @@ namespace Oqtane.Services
             return await PostJsonAsync<User>($"{Apiurl}/twofactor?token={token}", user);
         }
 
+        public async Task<UserValidateResult> ValidateUserAsync(string username, string email, string password)
+        {
+            return await GetJsonAsync<UserValidateResult>($"{Apiurl}/validateuser?username={WebUtility.UrlEncode(username)}&email={WebUtility.UrlEncode(email)}&password={WebUtility.UrlEncode(password)}");
+        }
+
         public async Task<bool> ValidatePasswordAsync(string password)
         {
             return await GetJsonAsync<bool>($"{Apiurl}/validate/{WebUtility.UrlEncode(password)}");

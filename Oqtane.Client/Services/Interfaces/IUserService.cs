@@ -114,6 +114,15 @@ namespace Oqtane.Services
         Task<User> VerifyTwoFactorAsync(User user, string token);
 
         /// <summary>
+        /// Validate identity user info.
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="email"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        Task<UserValidateResult> ValidateUserAsync(string username, string email, string password);
+
+        /// <summary>
         /// Validate a users password against the password policy 
         /// </summary>
         /// <param name="password"></param>
