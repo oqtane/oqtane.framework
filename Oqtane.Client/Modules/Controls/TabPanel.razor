@@ -36,14 +36,7 @@ else
 
         Parent.AddTabPanel((TabPanel)this);
 
-        if (string.IsNullOrEmpty(Heading))
-        {
-            Heading = Localize(nameof(Name), Name);
-        }
-        else
-        {
-            Heading = Localize(nameof(Heading), Heading);
-        }
+        Heading = string.IsNullOrEmpty(Heading) ? Localize(nameof(Name), Name) : Localize(nameof(Heading), Heading);
     }
 
     public string DisplayHeading()
