@@ -162,6 +162,9 @@
   <data name="Message.Page.Exists" xml:space="preserve">
     <value>A page with path '{0}' already exists for this site. Page paths must be unique. You may need to check if a page with this path exists in the Recycle Bin.</value>
   </data>
+  <data name="Message.Required.PageName" xml:space="preserve">
+    <value>You Must Provide Page A Name</value>
+  </data>
   <data name="Message.Required.PageInfo" xml:space="preserve">
     <value>You Must Provide Page Name, Theme, and Container</value>
   </data>
