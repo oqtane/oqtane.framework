@@ -559,13 +559,6 @@ namespace Oqtane.Managers
             {
                 validateResult.Succeeded = false;
                 validateResult.Errors.Add("Message.Password.Invalid", string.Empty);
-                if (passwordResult.Errors != null)
-                {
-                    foreach (var error in passwordResult.Errors)
-                    {
-                        validateResult.Errors.Add(error.Code, error.Description);
-                    }
-                }
             }
 
             return validateResult;
