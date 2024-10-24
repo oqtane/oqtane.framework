@@ -215,9 +215,7 @@
                     // set language for page
                     if (!string.IsNullOrEmpty(culture))
                     {
-                        // localization cookie value in form of c=en|uic=en
-                        _language = culture.Split('|')[0];
-                        _language = _language.Replace("c=", "");
+                        _language = Shared.CookieRequestCultureProvider.ParseCookieValue(culture).Culture.Name;
                     }
 
                     // create initial PageState
