@@ -196,7 +196,7 @@
                     _bodyResources += ParseScripts(site.BodyContent);
 
                     // set culture if not specified
-                    string culture = Context.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName];
+                    string culture = Context.Request.Cookies[Shared.CookieRequestCultureProvider.DefaultCookieName];
                     if (culture == null)
                     {
                         // get default language for site
@@ -613,8 +613,8 @@
         };
 
         Context.Response.Cookies.Append(
-            CookieRequestCultureProvider.DefaultCookieName,
-            CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
+            Shared.CookieRequestCultureProvider.DefaultCookieName,
+            Shared.CookieRequestCultureProvider.MakeCookieValue(new Models.RequestCulture(culture)),
             cookieOptions
         );
     }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
@@ -13,13 +12,13 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 using Oqtane.Documentation;
 using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Services;
+using Oqtane.Shared;
 using Oqtane.UI;
 
 namespace Oqtane.Client
@@ -258,7 +257,7 @@ namespace Oqtane.Client
             var jsRuntime = serviceProvider.GetRequiredService<IJSRuntime>();
             var interop = new Interop(jsRuntime);
             var localizationCookie = await interop.GetCookie(CookieRequestCultureProvider.DefaultCookieName);
-            var culture = CookieRequestCultureProvider.ParseCookieValue(localizationCookie)?.UICultures?[0].Value;
+            var culture = CookieRequestCultureProvider.ParseCookieValue(localizationCookie)?.UICulture.Name;
             var localizationService = serviceProvider.GetRequiredService<ILocalizationService>();
             var cultures = await localizationService.GetCulturesAsync(false);
 
