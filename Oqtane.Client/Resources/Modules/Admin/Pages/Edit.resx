@@ -157,7 +157,7 @@
     <value>You Must Provide Page Name, Theme, and Container</value>
   </data>
   <data name="Message.Required.PageName" xml:space="preserve">
-    <value>You Must Provide Page A Name</value>
+    <value>A page name is required. Please enter one.</value>
   </data>
   <data name="Error.Page.Save" xml:space="preserve">
     <value>Error Saving Page</value>
