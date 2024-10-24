@@ -44,7 +44,7 @@ namespace Oqtane.Migrations
 
         public string PrincipalColumn { get; }
 
-        public string PrincipalSchema { get; }
+        public string PrincipalSchema { get; } = "";
 
 
     }
