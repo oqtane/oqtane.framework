@@ -473,10 +473,6 @@
                 else
                 {
                     AddModuleMessage(Localizer["Message.Required.PageInfo"], MessageType.Warning);
-                    if (string.IsNullOrEmpty(_name))
-                    {
-                        AddModuleMessage(Localizer["Message.Required.PageName"], MessageType.Warning);
-                    }
                     await ScrollToPageTop();
                 }
 
@@ -491,10 +487,6 @@
         else
         {
             AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
-            if (string.IsNullOrEmpty(_name))
-            {
-                AddModuleMessage(Localizer["Message.Required.PageName"], MessageType.Warning);
-            }
             await ScrollToPageTop();
         }
     }
