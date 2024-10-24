@@ -279,7 +279,7 @@
             }
             else
             {
-                _message = string.Join("<br />", result.Errors.Select(i => i.Value));
+                _message = string.Join("<br />", result.Errors.Select(i => !string.IsNullOrEmpty(i.Value) ? i.Value : Localizer[i.Key]));
 			}
 		}
 		else
