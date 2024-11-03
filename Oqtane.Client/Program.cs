@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 using Oqtane.Documentation;
+using Oqtane.Helpers;
 using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Services;
@@ -152,11 +153,11 @@ namespace Oqtane.Client
                 var zip = await http.GetByteArrayAsync($"{urlpath}api/Installation/load?list=" + string.Join(",", list));
 
                 // asemblies and debug symbols are packaged in a zip file
-                using (ZipArchive archive = new ZipArchive(new MemoryStream(zip)))
+                using (ZipArchive archive = new ZipArchive(StreamHelpers.RecyclableMemoryStreamManager.GetStream(nameof(Oqtane.Client.Program.Main), zip)))
                 {
                     foreach (ZipArchiveEntry entry in archive.Entries)
                     {
-                        using (var memoryStream = new MemoryStream())
+                        using (var memoryStream = StreamHelpers.RecyclableMemoryStreamManager.GetStream(nameof(Oqtane.Client.Program.Main)))
                         {
                             entry.Open().CopyTo(memoryStream);
                             byte[] file = memoryStream.ToArray();

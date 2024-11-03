@@ -17,6 +17,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using Oqtane.Helpers;
 
 namespace Oqtane.Controllers
 {
@@ -214,7 +215,7 @@ namespace Oqtane.Controllers
                 }
 
                 // create zip file containing assemblies and debug symbols
-                using (var memoryStream = new MemoryStream())
+                using (var memoryStream = StreamHelpers.RecyclableMemoryStreamManager.GetStream(nameof(Oqtane.Controllers.InstallationController.GetAssemblyList)))
                 {
                     using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
                     {
@@ -249,11 +250,7 @@ namespace Oqtane.Controllers
             else
             {
                 // return empty zip
-                using (var memoryStream = new MemoryStream())
-                {
-                    using (var zip = new ZipArchive(memoryStream, ZipArchiveMode.Create)) {}
-                    return memoryStream.ToArray();
-                }
+                return [];
             }
         }
 
