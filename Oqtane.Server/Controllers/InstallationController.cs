@@ -249,11 +249,7 @@ namespace Oqtane.Controllers
             else
             {
                 // return empty zip
-                using (var memoryStream = new MemoryStream())
-                {
-                    using (var zip = new ZipArchive(memoryStream, ZipArchiveMode.Create)) {}
-                    return memoryStream.ToArray();
-                }
+                return [];
             }
         }
 
