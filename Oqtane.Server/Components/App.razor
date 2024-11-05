@@ -179,10 +179,6 @@
                     ManageScripts(resources, alias);
 
                     // generate scripts
-                    if (_renderMode == RenderModes.Interactive && _runtime == Runtimes.Server)
-                    {
-                        _scripts += CreateReconnectScript();
-                    }
                     if (site.PwaIsEnabled && site.PwaAppIconFileId != null && site.PwaSplashIconFileId != null)
                     {
                         _scripts += CreatePWAScript(alias, site, route);
@@ -489,25 +485,6 @@
         "            console.log('ServiceWorker Registration Failed ', err);" + Environment.NewLine +
         "        });" + Environment.NewLine +
         "    };" + Environment.NewLine +
-        "</script>" + Environment.NewLine;
-    }
-
-    private string CreateReconnectScript()
-    {
-        return Environment.NewLine +
-        "<script>" + Environment.NewLine +
-        "    // Interactive Blazor Server Reconnect" + Environment.NewLine +
-        "    new MutationObserver((mutations, observer) => {" + Environment.NewLine +
-        "        if (document.querySelector('#components-reconnect-modal h5 a')) {" + Environment.NewLine +
-        "            async function attemptReload() {" + Environment.NewLine +
-        "                await fetch('');" + Environment.NewLine +
-        "                location.reload();" + Environment.NewLine +
-        "            }" + Environment.NewLine +
-        "            observer.disconnect();" + Environment.NewLine +
-        "            attemptReload();" + Environment.NewLine +
-        "            setInterval(attemptReload, 5000);" + Environment.NewLine +
-        "        }" + Environment.NewLine +
-        "    }).observe(document.body, { childList: true, subtree: true });" + Environment.NewLine +
         "</script>" + Environment.NewLine;
     }
 
