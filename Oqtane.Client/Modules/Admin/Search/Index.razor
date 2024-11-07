@@ -106,9 +106,7 @@
         try
         {
             _lastIndexedOn = DateTime.MinValue.ToString();
-            var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-            settings = SettingService.SetSetting(settings, "Search_LastIndexedOn", _lastIndexedOn, true);
-            await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
+            await Save();
             AddModuleMessage(Localizer["Message.Reindex"], MessageType.Success);
         }
         catch (Exception ex)
