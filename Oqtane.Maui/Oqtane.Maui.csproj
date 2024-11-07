@@ -67,7 +67,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.0-rc.2.24474.3" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.0-rc.2.24474.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Localization" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0-rc.2.24473.5" />
     <PackageReference Include="Microsoft.Extensions.Localization" Version="9.0.0-rc.2.24474.3" />
     <PackageReference Include="System.Net.Http.Json" Version="9.0.0-rc.2.24473.5" />
