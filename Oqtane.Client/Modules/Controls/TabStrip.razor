@@ -16,7 +16,7 @@
                         }
                         else
                         {
-							<a class="nav-link" data-bs-toggle="tab" href="#@(Id + tabPanel.Name)" role="tab" @onclick:preventDefault="true">
+                            <a class="nav-link" data-bs-toggle="tab" href="#@(Id + tabPanel.Name)" role="tab" @onclick:preventDefault="true">
                                 @tabPanel.DisplayHeading()
                             </a>
                         }
@@ -32,34 +32,43 @@
 </CascadingValue>
 
 @code {
-	private List<TabPanel> _tabPanels;
-	private string _tabpanelid = string.Empty;
+    public override List<Resource> Resources { get; set; } = new List<Resource>()
+    {
+        new Resource { ResourceType = ResourceType.Script, Url = "js/controls.interop.js", Location = ResourceLocation.Body }
+    };
 
-	[Parameter]
-	public RenderFragment ChildContent { get; set; } // contains the TabPanels
+    private List<TabPanel> _tabPanels;
+    private string _tabpanelid = string.Empty;
 
-	[Parameter]
-	public string ActiveTab { get; set; } // optional - defaults to first TabPanel if not specified. Can also be set using a "tab=" querystring parameter.
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } // contains the TabPanels
 
-	[Parameter]
-	public bool Refresh { get; set; } // optional - used in scenarios where TabPanels are added/removed dynamically within a parent form. ActiveTab may need to be reset as well when this property is used.
+    [Parameter]
+    public string ActiveTab { get; set; } // optional - defaults to first TabPanel if not specified. Can also be set using a "tab=" querystring parameter.
 
-	[Parameter]
-	public string Id { get; set; } // optional - used to uniquely identify an instance of a tab strip component (will be set automatically if no value provided)
+    [Parameter]
+    public bool Refresh { get; set; } // optional - used in scenarios where TabPanels are added/removed dynamically within a parent form. ActiveTab may need to be reset as well when this property is used.
+
+    [Parameter]
+    public string Id { get; set; } // optional - used to uniquely identify an instance of a tab strip component (will be set automatically if no value provided)
 
     [Parameter]
     public string TabContentClass { get; set; } // optional - to extend the TabContent div.
 
-	protected override void OnInitialized()
-	{
-		if (string.IsNullOrEmpty(Id))
-		{
-			// create unique id for component
-			Id = "TabStrip_" + Guid.NewGuid().ToString("N") + "_" ;
-		}
-	}
-	
-	protected override void OnParametersSet()
+    private TabStripInterop _interop;
+
+    protected override void OnInitialized()
+    {
+        if (string.IsNullOrEmpty(Id))
+        {
+            // create unique id for component
+            Id = "TabStrip_" + Guid.NewGuid().ToString("N") + "_" ;
+        }
+
+        _interop = new TabStripInterop(JSRuntime);
+    }
+
+    protected override void OnParametersSet()
     {
         if (PageState.QueryString.ContainsKey("tab"))
         {
@@ -109,5 +118,12 @@
                 break;
         }
         return authorized;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        await _interop.UpdateView(Id);
     }
 }
