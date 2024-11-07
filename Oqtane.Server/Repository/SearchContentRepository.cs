@@ -152,11 +152,17 @@ namespace Oqtane.Repository
             }
         }
 
-        public void DeleteAllSearchContent()
+        public void DeleteAllSearchContent(int siteId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            db.SearchContent.RemoveRange(db.SearchContent);
-            db.SaveChanges();
+            // delete in batches of 100 records
+            var searchContents = db.SearchContent.Where(item => item.SiteId == siteId).Take(100).ToList();
+            while (searchContents.Count > 0)
+            {
+                db.SearchContent.RemoveRange(searchContents);
+                db.SaveChanges();
+                searchContents = db.SearchContent.Where(item => item.SiteId == siteId).Take(100).ToList();
+            }
         }
 
         public SearchWord GetSearchWord(string word)
