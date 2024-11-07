@@ -215,7 +215,11 @@
                     // set language for page
                     if (!string.IsNullOrEmpty(culture))
                     {
-                        _language = Shared.CookieRequestCultureProvider.ParseCookieValue(culture).Culture.Name;
+                        var parsedCulture = Shared.CookieRequestCultureProvider.ParseCookieValue(culture);
+                        if (parsedCulture?.Culture != null)
+                        {
+                            _language = parsedCulture.Culture.Name;
+                        }
                     }
 
                     // create initial PageState
