@@ -67,7 +67,7 @@ namespace Oqtane.Infrastructure
                 }
 
                 var ignorePages = siteSettings.GetValue(SearchIgnorePagesSetting, "").Split(',');
-                var ignoreEntities = siteSettings.GetValue(SearchIgnoreEntitiesSetting, "").Split(',');
+                var ignoreEntities = siteSettings.GetValue(SearchIgnoreEntitiesSetting, "File").Split(',');
 
                 var pages = pageRepository.GetPages(site.SiteId);
                 var pageModules = pageModuleRepository.GetPageModules(site.SiteId);
