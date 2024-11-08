@@ -192,26 +192,29 @@
                     _bodyResources += ParseScripts(site.BodyContent);
 
                     // set culture if not specified
-                    string culture = Context.Request.Cookies[Shared.CookieRequestCultureProvider.DefaultCookieName];
-                    if (culture == null)
+                    string cultureCookie = Context.Request.Cookies[Shared.CookieRequestCultureProvider.DefaultCookieName];
+                    if (cultureCookie == null)
                     {
                         // get default language for site
                         if (site.Languages.Any())
                         {
                             // use default language if specified otherwise use first language in collection
-                            culture = (site.Languages.Where(l => l.IsDefault).SingleOrDefault() ?? site.Languages.First()).Code;
+                            cultureCookie = (site.Languages.Where(l => l.IsDefault).SingleOrDefault() ?? site.Languages.First()).Code;
                         }
                         else
                         {
-                            culture = LocalizationManager.GetDefaultCulture();
+                            // fallback language
+                            cultureCookie = LocalizationManager.GetDefaultCulture();
                         }
-                        SetLocalizationCookie(culture);
+                        // convert language code to culture cookie format (ie. "c=en|uic=en")
+                        cultureCookie = Shared.CookieRequestCultureProvider.MakeCookieValue(new Models.RequestCulture(cultureCookie));
+                        SetLocalizationCookie(cultureCookie);
                     }
 
                     // set language for page
-                    if (!string.IsNullOrEmpty(culture))
+                    if (!string.IsNullOrEmpty(cultureCookie))
                     {
-                        _language = Shared.CookieRequestCultureProvider.ParseCookieValue(culture).Culture.Name;
+                        _language = Shared.CookieRequestCultureProvider.ParseCookieValue(cultureCookie).Culture.Name;
                     }
 
                     // create initial PageState
@@ -577,7 +580,7 @@
         }
     }
 
-    private void SetLocalizationCookie(string culture)
+    private void SetLocalizationCookie(string cookieValue)
     {
         var cookieOptions = new Microsoft.AspNetCore.Http.CookieOptions
         {
@@ -589,7 +592,7 @@
 
         Context.Response.Cookies.Append(
             Shared.CookieRequestCultureProvider.DefaultCookieName,
-            Shared.CookieRequestCultureProvider.MakeCookieValue(new Models.RequestCulture(culture)),
+            cookieValue,
             cookieOptions
         );
     }
