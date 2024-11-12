@@ -196,7 +196,7 @@
             else
             {
                 FolderId = -1;
-                _message = "Folder Path " + Folder + "Does Not Exist";
+                _message = "Folder Path " + Folder + " Does Not Exist";
                 _messagetype = MessageType.Error;
             }
         }
@@ -226,9 +226,9 @@
             }
             else
             {
-                FileId = -1; // file does not exist
-                _message = "FileId " + FileId.ToString() + "Does Not Exist";
+                _message = "FileId " + FileId.ToString() + " Does Not Exist";
                 _messagetype = MessageType.Error;
+                FileId = -1; // file does not exist
             }
         }
 
