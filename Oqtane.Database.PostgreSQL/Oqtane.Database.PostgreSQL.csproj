@@ -34,7 +34,7 @@
   
   <ItemGroup>
     <PackageReference Include="EFCore.NamingConventions" Version="8.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.0-rc.2.24474.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.0-rc.2" />
   </ItemGroup>
 
