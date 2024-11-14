@@ -85,7 +85,7 @@
         {
             var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
             settings = SettingService.SetSetting(settings, "Search_SearchProvider", _searchProvider);
-            settings = SettingService.SetSetting(settings, "Search_Enabled", _enabled, true);
+            settings = SettingService.SetSetting(settings, "Search_Enabled", _enabled);
             settings = SettingService.SetSetting(settings, "Search_LastIndexedOn", _lastIndexedOn, true);
             settings = SettingService.SetSetting(settings, "Search_IgnorePages", _ignorePages, true);
             settings = SettingService.SetSetting(settings, "Search_IgnoreEntities", _ignoreEntities, true);
