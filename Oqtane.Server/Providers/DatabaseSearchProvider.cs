@@ -235,9 +235,9 @@ namespace Oqtane.Providers
             return text;
         }
 
-        public Task ResetIndex()
+        public Task DeleteSearchContent(int siteId)
         {
-            _searchContentRepository.DeleteAllSearchContent();
+            _searchContentRepository.DeleteAllSearchContent(siteId);
             return Task.CompletedTask;
         }
     }

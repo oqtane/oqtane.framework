@@ -517,7 +517,7 @@ namespace Oqtane.Controllers
                 bool success = true;
                 using (var stream = new FileStream(Path.Combine(folder, filename + ".tmp"), FileMode.Create))
                 {
-                    foreach (string filepart in fileparts)
+                    foreach (string filepart in fileparts.Order())
                     {
                         try
                         {

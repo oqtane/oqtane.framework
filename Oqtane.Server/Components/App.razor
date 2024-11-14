@@ -179,10 +179,6 @@
                     ManageScripts(resources, alias);
 
                     // generate scripts
-                    if (_renderMode == RenderModes.Interactive && _runtime == Runtimes.Server)
-                    {
-                        _scripts += CreateReconnectScript();
-                    }
                     if (site.PwaIsEnabled && site.PwaAppIconFileId != null && site.PwaSplashIconFileId != null)
                     {
                         _scripts += CreatePWAScript(alias, site, route);
@@ -196,28 +192,29 @@
                     _bodyResources += ParseScripts(site.BodyContent);
 
                     // set culture if not specified
-                    string culture = Context.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName];
-                    if (culture == null)
+                    string cultureCookie = Context.Request.Cookies[Shared.CookieRequestCultureProvider.DefaultCookieName];
+                    if (cultureCookie == null)
                     {
                         // get default language for site
                         if (site.Languages.Any())
                         {
                             // use default language if specified otherwise use first language in collection
-                            culture = (site.Languages.Where(l => l.IsDefault).SingleOrDefault() ?? site.Languages.First()).Code;
+                            cultureCookie = (site.Languages.Where(l => l.IsDefault).SingleOrDefault() ?? site.Languages.First()).Code;
                         }
                         else
                         {
-                            culture = LocalizationManager.GetDefaultCulture();
+                            // fallback language
+                            cultureCookie = LocalizationManager.GetDefaultCulture();
                         }
-                        SetLocalizationCookie(culture);
+                        // convert language code to culture cookie format (ie. "c=en|uic=en")
+                        cultureCookie = Shared.CookieRequestCultureProvider.MakeCookieValue(new Models.RequestCulture(cultureCookie));
+                        SetLocalizationCookie(cultureCookie);
                     }
 
                     // set language for page
-                    if (!string.IsNullOrEmpty(culture))
+                    if (!string.IsNullOrEmpty(cultureCookie))
                     {
-                        // localization cookie value in form of c=en|uic=en
-                        _language = culture.Split('|')[0];
-                        _language = _language.Replace("c=", "");
+                        _language = Shared.CookieRequestCultureProvider.ParseCookieValue(cultureCookie).Culture.Name;
                     }
 
                     // create initial PageState
@@ -494,25 +491,6 @@
         "</script>" + Environment.NewLine;
     }
 
-    private string CreateReconnectScript()
-    {
-        return Environment.NewLine +
-        "<script>" + Environment.NewLine +
-        "    // Interactive Blazor Server Reconnect" + Environment.NewLine +
-        "    new MutationObserver((mutations, observer) => {" + Environment.NewLine +
-        "        if (document.querySelector('#components-reconnect-modal h5 a')) {" + Environment.NewLine +
-        "            async function attemptReload() {" + Environment.NewLine +
-        "                await fetch('');" + Environment.NewLine +
-        "                location.reload();" + Environment.NewLine +
-        "            }" + Environment.NewLine +
-        "            observer.disconnect();" + Environment.NewLine +
-        "            attemptReload();" + Environment.NewLine +
-        "            setInterval(attemptReload, 5000);" + Environment.NewLine +
-        "        }" + Environment.NewLine +
-        "    }).observe(document.body, { childList: true, subtree: true });" + Environment.NewLine +
-        "</script>" + Environment.NewLine;
-    }
-
     private string CreateScrollPositionScript()
     {
         return Environment.NewLine +
@@ -602,7 +580,7 @@
         }
     }
 
-    private void SetLocalizationCookie(string culture)
+    private void SetLocalizationCookie(string cookieValue)
     {
         var cookieOptions = new Microsoft.AspNetCore.Http.CookieOptions
         {
@@ -613,8 +591,8 @@
         };
 
         Context.Response.Cookies.Append(
-            CookieRequestCultureProvider.DefaultCookieName,
-            CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
+            Shared.CookieRequestCultureProvider.DefaultCookieName,
+            cookieValue,
             cookieOptions
         );
     }

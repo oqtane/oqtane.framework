@@ -63,7 +63,7 @@
     private string _enabled = "True";
     private string _lastIndexedOn = "";
     private string _ignorePages = "";
-    private string _ignoreEntities = "";
+    private string _ignoreEntities = "File";
     private string _minimumWordLength = "3";
     private string _ignoreWords = "the,be,to,of,and,a,i,in,that,have,it,for,not,on,with,he,as,you,do,at,this,but,his,by,from,they,we,say,her,she,or,an,will,my,one,all,would,there,their,what,so,up,out,if,about,who,get,which,go,me,when,make,can,like,time,no,just,him,know,take,people,into,year,your,good,some,could,them,see,other,than,then,now,look,only,come,its,over,think,also,back,after,use,two,how,our,work,first,well,way,even,new,want,because,any,these,give,day,most,us";
 
@@ -85,7 +85,7 @@
         {
             var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
             settings = SettingService.SetSetting(settings, "Search_SearchProvider", _searchProvider);
-            settings = SettingService.SetSetting(settings, "Search_Enabled", _enabled, true);
+            settings = SettingService.SetSetting(settings, "Search_Enabled", _enabled);
             settings = SettingService.SetSetting(settings, "Search_LastIndexedOn", _lastIndexedOn, true);
             settings = SettingService.SetSetting(settings, "Search_IgnorePages", _ignorePages, true);
             settings = SettingService.SetSetting(settings, "Search_IgnoreEntities", _ignoreEntities, true);
@@ -106,9 +106,7 @@
         try
         {
             _lastIndexedOn = DateTime.MinValue.ToString();
-            var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-            settings = SettingService.SetSetting(settings, "Search_LastIndexedOn", _lastIndexedOn, true);
-            await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
+            await Save();
             AddModuleMessage(Localizer["Message.Reindex"], MessageType.Success);
         }
         catch (Exception ex)

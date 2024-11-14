@@ -691,6 +691,10 @@ else
             await logger.LogError(ex, "Error Saving Site Settings {Error}", ex.Message);
             AddModuleMessage(Localizer["Error.SaveSiteSettings"], MessageType.Error);
         }
+        finally
+        {
+            await ScrollToPageTop();
+        }
     }
 
     private void ProviderChanged(ChangeEventArgs e)

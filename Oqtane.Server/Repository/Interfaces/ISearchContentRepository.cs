@@ -12,7 +12,7 @@ namespace Oqtane.Repository
         void DeleteSearchContent(int searchContentId);
         void DeleteSearchContent(string entityName, string entryId);
         void DeleteSearchContent(string uniqueKey);
-        void DeleteAllSearchContent();
+        void DeleteAllSearchContent(int siteId);
 
         SearchWord GetSearchWord(string word);
         SearchWord AddSearchWord(SearchWord searchWord);

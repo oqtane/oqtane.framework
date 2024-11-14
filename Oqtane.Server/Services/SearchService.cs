@@ -149,6 +149,12 @@ namespace Oqtane.Services
             return result;
         }
 
+        public async Task DeleteSearchContentsAsync(int siteId)
+        {
+            var searchProvider = GetSearchProvider(siteId);
+            await searchProvider.DeleteSearchContent(siteId);
+        }
+
         private ISearchProvider GetSearchProvider(int siteId)
         {
             var providerName = GetSearchProviderSetting(siteId);

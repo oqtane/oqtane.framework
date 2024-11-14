@@ -348,6 +348,13 @@ namespace Oqtane.Controllers
         }
 
         // GET api/<controller>/validate/x
+        [HttpGet("validateuser")]
+        public async Task<UserValidateResult> ValidateUser(string username, string email, string password)
+        {
+            return await _userManager.ValidateUser(username, email, password);
+        }
+
+        // GET api/<controller>/validate/x
         [HttpGet("validate/{password}")]
         public async Task<bool> Validate(string password)
         {

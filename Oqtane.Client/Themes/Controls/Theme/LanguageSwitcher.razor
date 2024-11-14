@@ -1,10 +1,9 @@
 @using System.Globalization
-@using Microsoft.AspNetCore.Localization
-@using Microsoft.AspNetCore.Http
 @using Oqtane.Models
 @namespace Oqtane.Themes.Controls
 @inherits ThemeControlBase
 @inject ILanguageService LanguageService
+@inject ILocalizationCookieService LocalizationCookieService
 @inject NavigationManager NavigationManager
 
 @if (_supportedCultures?.Count() > 1)
@@ -38,10 +37,7 @@
     [Parameter]
     public string ButtonClass { get; set; } = "btn-outline-secondary";
 
-    [CascadingParameter]
-    HttpContext HttpContext { get; set; }
-
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
         MenuAlignment = DropdownAlignment.ToLower() == "right" ? "dropdown-menu-end" : string.Empty;
 
@@ -52,17 +48,7 @@
             var culture = PageState.QueryString["culture"];
             if (_supportedCultures.Any(item => item.Name == culture))
             {
-                var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
-
-                HttpContext.Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, new CookieOptions
-                {
-                    Path = "/",
-                    Expires = DateTimeOffset.UtcNow.AddYears(365),
-                    SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax, // Set SameSite attribute
-                    Secure = true, // Ensure the cookie is only sent over HTTPS
-                    HttpOnly = false // cookie is updated using JS Interop in Interactive render mode
-                });
-
+                await LocalizationCookieService.SetLocalizationCookieAsync(culture);
             }
             NavigationManager.NavigateTo(NavigationManager.Uri.Replace($"?culture={culture}", ""));
         }

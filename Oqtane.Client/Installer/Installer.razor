@@ -15,7 +15,7 @@
     <div class="row">
         <div class="mx-auto text-center">
             <img src="oqtane-black.png" />
-            <div style="font-weight: bold">@SharedLocalizer["Version"] @Constants.Version (.NET 8)</div>
+            <div style="font-weight: bold">@SharedLocalizer["Version"] @Constants.Version (.NET 9)</div>
         </div>
     </div>
     <hr class="app-rule" />
@@ -156,129 +156,130 @@
     private List<SiteTemplate> _templates;
     private string _template = Constants.DefaultSiteTemplate;
     private bool _register = true;
-	private string _message = string.Empty;
-	private string _loadingDisplay = "display: none;";
+    private string _message = string.Empty;
+    private string _loadingDisplay = "display: none;";
 
-	protected override async Task OnInitializedAsync()
-	{
+    protected override async Task OnInitializedAsync()
+    {
         // include CSS
         var content = $"<link rel=\"stylesheet\" href=\"{Constants.BootstrapStylesheetUrl}\" integrity=\"{Constants.BootstrapStylesheetIntegrity}\" crossorigin=\"anonymous\" type=\"text/css\"/>";
         SiteState.AppendHeadContent(content);
 
         _togglePassword = SharedLocalizer["ShowPassword"];
-		_toggleConfirmPassword = SharedLocalizer["ShowPassword"];
+        _toggleConfirmPassword = SharedLocalizer["ShowPassword"];
 
-		_databases = await DatabaseService.GetDatabasesAsync();
-		if (_databases.Exists(item => item.IsDefault))
-		{
-			_databaseName = _databases.Find(item => item.IsDefault).Name;
-		}
-		else
-		{
-			_databaseName = "LocalDB";
-		}
-		LoadDatabaseConfigComponent();
+        _databases = await DatabaseService.GetDatabasesAsync();
+        if (_databases.Exists(item => item.IsDefault))
+        {
+            _databaseName = _databases.Find(item => item.IsDefault).Name;
+        }
+        else
+        {
+            _databaseName = "LocalDB";
+        }
+        LoadDatabaseConfigComponent();
 
         _templates = await SiteTemplateService.GetSiteTemplatesAsync();
     }
 
-	private void DatabaseChanged(ChangeEventArgs eventArgs)
-	{
-		try
-		{
-			_databaseName = (string)eventArgs.Value;
-			_showConnectionString = false;
-			LoadDatabaseConfigComponent();
-		}
-		catch
-		{
-			_message = Localizer["Error.DbConfig.Load"];
-		}
-	}
+    private void DatabaseChanged(ChangeEventArgs eventArgs)
+    {
+        try
+        {
+            _databaseName = (string)eventArgs.Value;
+            _showConnectionString = false;
+            LoadDatabaseConfigComponent();
+        }
+        catch
+        {
+            _message = Localizer["Error.DbConfig.Load"];
+        }
+    }
 
-	private void LoadDatabaseConfigComponent()
-	{
-		var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
-		if (database != null)
-		{
-			_databaseConfigType = Type.GetType(database.ControlType);
-			DatabaseConfigComponent = builder =>
-			{
-				builder.OpenComponent(0, _databaseConfigType);
-				builder.AddComponentReferenceCapture(1, inst => { _databaseConfig = Convert.ChangeType(inst, _databaseConfigType); });
-				builder.CloseComponent();
-			};
-		}
-	}
+    private void LoadDatabaseConfigComponent()
+    {
+        var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
+        if (database != null)
+        {
+            _databaseConfigType = Type.GetType(database.ControlType);
+            DatabaseConfigComponent = builder =>
+            {
+                builder.OpenComponent(0, _databaseConfigType);
+                builder.AddComponentReferenceCapture(1, inst => { _databaseConfig = Convert.ChangeType(inst, _databaseConfigType); });
+                builder.CloseComponent();
+            };
+        }
+    }
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (firstRender)
-		{
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
             // include JavaScript
-			var interop = new Interop(JSRuntime);
+            var interop = new Interop(JSRuntime);
             await interop.IncludeScript("", Constants.BootstrapScriptUrl, Constants.BootstrapScriptIntegrity, "anonymous", "", "head");
-		}
-	}
+        }
+    }
 
-	private async Task Install()
-	{
-		var connectionString = String.Empty;
-		if (_showConnectionString)
-		{
-			connectionString = _connectionString;
-		}
-		else
-		{
-			if (_databaseConfig is IDatabaseConfigControl databaseConfigControl)
-			{
-				connectionString = databaseConfigControl.GetConnectionString();
-			}
-		}
+    private async Task Install()
+    {
+        var connectionString = String.Empty;
+        if (_showConnectionString)
+        {
+            connectionString = _connectionString;
+        }
+        else
+        {
+            if (_databaseConfig is IDatabaseConfigControl databaseConfigControl)
+            {
+                connectionString = databaseConfigControl.GetConnectionString();
+            }
+        }
 
-		if (connectionString != "" && !string.IsNullOrEmpty(_hostUsername) && !string.IsNullOrEmpty(_hostPassword) && _hostPassword == _confirmPassword && !string.IsNullOrEmpty(_hostEmail) && _hostEmail.Contains("@"))
-		{
-			if (await UserService.ValidatePasswordAsync(_hostPassword))
-			{
-				_loadingDisplay = "";
-				StateHasChanged();
+        if (connectionString != "" && !string.IsNullOrEmpty(_hostUsername) && !string.IsNullOrEmpty(_hostPassword) && _hostPassword == _confirmPassword && !string.IsNullOrEmpty(_hostEmail) && _hostEmail.Contains("@"))
+        {
+            var result = await UserService.ValidateUserAsync(_hostUsername, _hostEmail, _hostPassword);
+            if (result.Succeeded)
+            {
+                _loadingDisplay = "";
+                StateHasChanged();
 
-				Uri uri = new Uri(NavigationManager.Uri);
+                Uri uri = new Uri(NavigationManager.Uri);
 
-				var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
+                var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
 
-				var config = new InstallConfig
-				{
-					DatabaseType = database.DBType,
-					ConnectionString = connectionString,
-					Aliases = uri.Authority,
-					HostUsername = _hostUsername,
-					HostPassword = _hostPassword,
-					HostEmail = _hostEmail,
-					HostName = _hostUsername,
-					TenantName = TenantNames.Master,
-					IsNewTenant = true,
-					SiteName = Constants.DefaultSite,
-					Register = _register,
-                    SiteTemplate = _template,
-                    RenderMode = RenderModes.Static,
-                    Runtime = Runtimes.Server
-                };
+                var config = new InstallConfig
+                    {
+                        DatabaseType = database.DBType,
+                        ConnectionString = connectionString,
+                        Aliases = uri.Authority,
+                        HostUsername = _hostUsername,
+                        HostPassword = _hostPassword,
+                        HostEmail = _hostEmail,
+                        HostName = _hostUsername,
+                        TenantName = TenantNames.Master,
+                        IsNewTenant = true,
+                        SiteName = Constants.DefaultSite,
+                        Register = _register,
+                        SiteTemplate = _template,
+                        RenderMode = RenderModes.Static,
+                        Runtime = Runtimes.Server
+                    };
 
-				var installation = await InstallationService.Install(config);
-				if (installation.Success)
-				{
-					NavigationManager.NavigateTo(uri.Scheme + "://" + uri.Authority, true);
-				}
-				else
-				{
-					_message = installation.Message;
-					_loadingDisplay = "display: none;";
-				}				
-			}
-			else
-			{
-				_message = Localizer["Message.Password.Invalid"];				
+                var installation = await InstallationService.Install(config);
+                if (installation.Success)
+                {
+                    NavigationManager.NavigateTo(uri.Scheme + "://" + uri.Authority, true);
+                }
+                else
+                {
+                    _message = installation.Message;
+                    _loadingDisplay = "display: none;";
+                }
+            }
+            else
+            {
+                _message = string.Join("<br />", result.Errors.Select(i => !string.IsNullOrEmpty(i.Value) ? i.Value : Localizer[i.Key]));
 			}
 		}
 		else

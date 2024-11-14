@@ -1,6 +1,6 @@
 # Latest Release
 
-[5.2.3](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.3) was released on September 23, 2024 and is a maintenance release including 55 pull requests by 8 different contributors, pushing the total number of project commits all-time to over 5800. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
+[5.2.4](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.4) was released on October 17, 2024 and is a maintenance release including 51 pull requests by 7 different contributors, pushing the total number of project commits all-time to over 5900. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Foqtane%2Foqtane.framework%2Fmaster%2Fazuredeploy.json)
 
@@ -18,7 +18,7 @@ Please note that this project is owned by the .NET Foundation and is governed by
 
 **Installing using source code from the Dev/Master branch:**
 
-- Install **[.NET 8.0.8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)**.
+- Install **[.NET 8.0.10 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)**.
 
 - Install the latest edition (v17.9 or higher) of [Visual Studio 2022](https://visualstudio.microsoft.com/downloads) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you wish to use LocalDB for development ( not a requirement as Oqtane supports SQLite, mySQL, and PostgreSQL ) you must also install the **Data storage and processing**.  
 
@@ -83,11 +83,12 @@ Connect with other developers, get support, and share ideas by joining the Oqtan
 
 # Roadmap
 This project is open source, and therefore is a work in progress...
+      
+6.0.0 (Nov 13, 2024)
+- [x] Migration to .NET 9
 
-Backlog (TBD)
-- [ ] Azure Autoscale support (ie. web farm)
-- [ ] Folder Providers
-- [ ] Generative AI Integration
+[5.2.4](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.4) (Oct 17, 2024)
+- [x] Stabilization improvements
 
 [5.2.3](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.3) (Sep 23, 2024)
 - [x] Stabilization improvements

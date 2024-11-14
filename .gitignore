@@ -22,6 +22,9 @@ Oqtane.Server/Packages
 Oqtane.Server/wwwroot/Content
 Oqtane.Server/wwwroot/Packages/*.log
 
+Oqtane.Server/wwwroot/_content/*
+!Oqtane.Server/wwwroot/_content/Placeholder.txt
+
 Oqtane.Server/wwwroot/Modules/*
 !Oqtane.Server/wwwroot/Modules/Oqtane.Modules.*
 !Oqtane.Server/wwwroot/Modules/Templates

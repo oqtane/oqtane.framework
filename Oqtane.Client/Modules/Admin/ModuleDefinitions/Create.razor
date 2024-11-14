@@ -27,7 +27,7 @@
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="description" HelpText="Enter a short description for the module" ResourceKey="Description">Description: </Label>
                 <div class="col-sm-9">
-                    <textarea id="description" class="form-control" @bind="@_description" rows="3" maxlength="2000" required></textarea>
+                    <textarea id="description" class="form-control" @bind="@_description" rows="3" maxlength="2000"></textarea>
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
@@ -118,6 +118,7 @@
             {
                 if (IsValid(_owner) && IsValid(_module) && _owner != _module && _template != "-")
                 {
+                    if (string.IsNullOrEmpty(_description)) _description = _module;
                     if (IsValidXML(_description))
                     {
                         var template = _templates.FirstOrDefault(item => item.Name == _template);

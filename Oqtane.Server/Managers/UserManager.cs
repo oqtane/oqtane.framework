@@ -540,6 +540,30 @@ namespace Oqtane.Managers
             return user;
         }
 
+        public async Task<UserValidateResult> ValidateUser(string username, string email, string password)
+        {
+            var validateResult = new UserValidateResult { Succeeded = true };
+
+            //validate username
+            var allowedChars = _identityUserManager.Options.User.AllowedUserNameCharacters;
+            if (string.IsNullOrWhiteSpace(username) || (!string.IsNullOrEmpty(allowedChars) && username.Any(c => !allowedChars.Contains(c))))
+            {
+                validateResult.Succeeded = false;
+                validateResult.Errors.Add("Message.Username.Invalid", string.Empty);
+            }
+
+            //validate password
+            var passwordValidator = new PasswordValidator<IdentityUser>();
+            var passwordResult = await passwordValidator.ValidateAsync(_identityUserManager, null, password);
+            if (!passwordResult.Succeeded)
+            {
+                validateResult.Succeeded = false;
+                validateResult.Errors.Add("Message.Password.Invalid", string.Empty);
+            }
+
+            return validateResult;
+        }
+
         public async Task<bool> ValidatePassword(string password)
         {
             var validator = new PasswordValidator<IdentityUser>();
