@@ -16,7 +16,7 @@
     <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
         @if (_page.UserId == null)
         {
-            <TabStrip Refresh="@_refresh">
+            <TabStrip Refresh="@_refresh" ActiveTab="@_activetab">
                 <TabPanel Name="Settings" ResourceKey="Settings" Heading="Settings">
                     <div class="container">
                         <div class="row mb-1 align-items-center">
@@ -30,16 +30,16 @@
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
                                 <div class="col-sm-9">
-                                        <select id="parent" class="form-select" value="@_parentid" @onchange="(e => ParentChanged(e))" required>
-                                            <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
-                                            @foreach (Page page in _pages)
+                                    <select id="parent" class="form-select" value="@_parentid" @onchange="(e => ParentChanged(e))" required>
+                                        <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
+                                        @foreach (Page page in _pages)
+                                        {
+                                            if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, page.PermissionList) && page.PageId != _pageId)
                                             {
-                                                if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, page.PermissionList) && page.PageId != _pageId)
-                                                {
-                                                    <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
-                                                }
+                                                <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
                                             }
-                                        </select>
+                                        }
+                                    </select>
                                 </div>
                             </div>
                             <div class="row mb-1 align-items-center">
@@ -230,10 +230,10 @@
                 <TabPanel Name="PageModules" Heading="Modules" ResourceKey="PageModules">
                     <Pager Items="_pageModules">
                         <Header>
-                        <th style="width: 1px;">&nbsp;</th>
-                        <th style="width: 1px;">&nbsp;</th>
-                        <th>@Localizer["ModuleTitle"]</th>
-                        <th>@Localizer["ModuleDefinition"]</th>
+                            <th style="width: 1px;">&nbsp;</th>
+                            <th style="width: 1px;">&nbsp;</th>
+                            <th>@Localizer["ModuleTitle"]</th>
+                            <th>@Localizer["ModuleDefinition"]</th>
                         </Header>
                         <Row>
                             <td><ActionLink Action="Settings" Text="Edit" Path="@_actualpath" ModuleId="@context.ModuleId" Security="SecurityAccessLevel.Edit" PermissionList="@context.PermissionList" ResourceKey="ModuleSettings" /></td>
@@ -356,6 +356,7 @@
     private string _iconresources = "";
     private DateTime? _effectivedate = null;
     private DateTime? _expirydate = null;
+    private string _activetab = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -466,7 +467,7 @@
             _parentid = (string)e.Value;
             _children = new List<Page>();
             foreach (Page p in _pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == int.Parse(_parentid))))
-        {
+            {
                 if (p.PageId != _pageId && UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
                 {
                     _children.Add(p);
@@ -512,7 +513,7 @@
                     builder.OpenComponent(0, _themeSettingsType);
                     builder.AddAttribute(1, "RenderModeBoundary", RenderModeBoundary);
                     builder.AddComponentReferenceCapture(2, inst => { _themeSettings = Convert.ChangeType(inst, _themeSettingsType); });
-                    
+
                     builder.CloseComponent();
                 };
             }
@@ -522,6 +523,7 @@
 
     private async Task SavePage()
     {
+        _activetab = "Settings";
         validated = true;
         var interop = new Interop(JSRuntime);
         if (await interop.FormValid(form))
@@ -670,7 +672,7 @@
                 }
                 else
                 {
-                    AddModuleMessage(Localizer["Message.Required.PageInfo"], MessageType.Warning);
+                    AddModuleMessage(Localizer["Message.Required.PageInfo"], MessageType.Warning);                    
                 }
             }
             catch (Exception ex)
