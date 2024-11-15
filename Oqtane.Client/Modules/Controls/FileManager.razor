@@ -196,7 +196,7 @@
             else
             {
                 FolderId = -1;
-                _message = "Folder Path " + Folder + "Does Not Exist";
+                _message = "Folder Path " + Folder + " Does Not Exist";
                 _messagetype = MessageType.Error;
             }
         }
@@ -226,9 +226,9 @@
             }
             else
             {
-                FileId = -1; // file does not exist
-                _message = "FileId " + FileId.ToString() + "Does Not Exist";
+                _message = "FileId " + FileId.ToString() + " Does Not Exist";
                 _messagetype = MessageType.Error;
+                FileId = -1; // file does not exist
             }
         }
 
@@ -359,12 +359,6 @@
             }
             if (restricted == "")
             {
-                if (!ShowProgress)
-                {
-                    _uploading = true;
-                    StateHasChanged();
-                }
-
                 try
                 {
                     // upload the files
@@ -374,7 +368,21 @@
                     if (PageState.Runtime == Shared.Runtime.Hybrid)
                     {
                         jwt = await UserService.GetTokenAsync();
+                        if (string.IsNullOrEmpty(jwt))
+                        {
+                            await logger.LogInformation("File Upload Failed From .NET MAUI Due To Missing Security Token. Token Options Must Be Set In User Settings.");
+                            _message = "Security Token Not Specified";
+                            _messagetype = MessageType.Error;
+                            return;
+                        }
                     }
+
+                    if (!ShowProgress)
+                    {
+                        _uploading = true;
+                        StateHasChanged();
+                    }
+
                     await interop.UploadFiles(posturl, folder, _guid, SiteState.AntiForgeryToken, jwt);
 
                     // uploading is asynchronous so we need to poll to determine if uploads are completed
@@ -387,7 +395,7 @@
 
                         var size = Int64.Parse(uploads[upload].Split(':')[1]); // bytes
                         var megabits = (size / 1048576.0) * 8; // binary conversion
-                        var uploadspeed = 2; // 2 Mbps (3G ranges from 300Kbps to 3Mbps)
+                        var uploadspeed = (PageState.Alias.Name.Contains("localhost")) ? 100 : 3; // 3 Mbps is FCC minimum for broadband upload
                         var uploadtime = (megabits / uploadspeed); // seconds
                         var maxattempts = 5; // polling (minimum timeout duration will be 5 seconds)
                         var sleep = (int)Math.Ceiling(uploadtime / maxattempts) * 1000; // milliseconds

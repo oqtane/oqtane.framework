@@ -76,6 +76,13 @@ namespace Oqtane.Services
         Task LogoutUserAsync(User user);
 
         /// <summary>
+        /// Logout a <see cref="User"/>
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        Task LogoutUserEverywhereAsync(User user);
+
+        /// <summary>
         /// Update e-mail verification status of a user.
         /// </summary>
         /// <param name="user">The <see cref="User"/> we're verifying</param>
@@ -105,6 +112,15 @@ namespace Oqtane.Services
         /// <param name="token"></param>
         /// <returns></returns>
         Task<User> VerifyTwoFactorAsync(User user, string token);
+
+        /// <summary>
+        /// Validate identity user info.
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="email"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        Task<UserValidateResult> ValidateUserAsync(string username, string email, string password);
 
         /// <summary>
         /// Validate a users password against the password policy 

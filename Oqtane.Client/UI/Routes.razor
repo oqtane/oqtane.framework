@@ -1,7 +1,5 @@
 @namespace Oqtane.UI
-@using Microsoft.AspNetCore.Http
 @inject IInstallationService InstallationService
-@inject IJSRuntime JSRuntime
 @inject SiteState SiteState
 
 @if (_initialized)
@@ -48,9 +46,6 @@
     [Parameter]
     public string Platform { get; set; } = "";
 
-    [CascadingParameter]
-    HttpContext HttpContext { get; set; }
-
     private bool _initialized = false;
     private bool _installed = false;
     private string _display = "display: none;";
@@ -61,9 +56,8 @@
     {
         SiteState.AntiForgeryToken = AntiForgeryToken;
         SiteState.AuthorizationToken = AuthorizationToken;
-        SiteState.RemoteIPAddress = (_pageState != null) ? _pageState.RemoteIPAddress : "";
         SiteState.Platform = Platform;
-        SiteState.IsPrerendering = (HttpContext != null) ? true : false;
+        SiteState.IsPrerendering = !RendererInfo.IsInteractive;
 
         if (Runtime == Runtimes.Hybrid)
         {
@@ -80,6 +74,7 @@
             {
                 _pageState = PageState;
                 SiteState.Alias = PageState.Alias;
+                SiteState.RemoteIPAddress = (PageState != null) ? PageState.RemoteIPAddress : "";
                 _installed = true;
             }
         }

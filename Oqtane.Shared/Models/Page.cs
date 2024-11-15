@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -75,33 +76,68 @@ namespace Oqtane.Models
         public string BodyContent { get; set; }
 
         /// <summary>
-        /// Icon file for this page.
-        /// TODO: unclear what this is for, and what icon library is used. Probably FontAwesome?
+        /// Icon class name for this page
         /// </summary>
         public string Icon { get; set; }
+
+        /// <summary>
+        /// Indicates if this page should be included in navigation menu
+        /// </summary>
         public bool IsNavigation { get; set; }
+
+        /// <summary>
+        /// Indicates if this page should be clickable in navigation menu
+        /// </summary>
         public bool IsClickable { get; set; }
-        public int? UserId { get; set; }
+
         /// <summary>
-        /// Start of when this assignment is valid. See also <see cref="ExpiryDate"/>
+        /// Indicates if page is personalizable ie. allows users to create custom versions of the page
         /// </summary>
-        public DateTime? EffectiveDate { get; set; }
-        /// <summary>
-        /// End of when this assignment is valid. See also <see cref="EffectiveDate"/>
-        /// </summary>
-        public DateTime? ExpiryDate { get; set; }
         public bool IsPersonalizable { get; set; }
 
-        #region IDeletable Properties
-
-        public string DeletedBy { get; set; }
-        public DateTime? DeletedOn { get; set; }
-        public bool IsDeleted { get; set; }
-
-        #endregion
+        /// <summary>
+        /// Reference to the user <see cref="User"/> who owns the personalized page
+        /// </summary>
+        public int? UserId { get; set; }
 
         /// <summary>
-        /// List of Pane-names which this Page has.
+        /// Start of when this page is visible. See also <see cref="ExpiryDate"/>
+        /// </summary>
+        public DateTime? EffectiveDate { get; set; }
+
+        /// <summary>
+        /// End of when this page is visible. See also <see cref="EffectiveDate"/>
+        /// </summary>
+        public DateTime? ExpiryDate { get; set; }
+
+        /// <summary>
+        /// The hierarchical level of the page
+        /// </summary>
+        [NotMapped]
+        public int Level { get; set; }
+
+        /// <summary>
+        /// Determines if there are sub-pages. True if this page has sub-pages.
+        /// </summary>
+        [NotMapped]
+        public bool HasChildren { get; set; }
+
+        /// <summary>
+        /// List of permissions for this page
+        /// </summary>
+        [NotMapped]
+        public List<Permission> PermissionList { get; set; }
+
+        /// <summary>
+        /// List of settings for this page
+        /// </summary>
+        [NotMapped]
+        public Dictionary<string, string> Settings { get; set; }
+
+        #region SiteRouter properties
+
+        /// <summary>
+        /// List of Pane names for the Theme assigned to this page
         /// </summary>
         [NotMapped]
         public List<string> Panes { get; set; }
@@ -112,20 +148,15 @@ namespace Oqtane.Models
         [NotMapped]
         public List<Resource> Resources { get; set; }
 
-        [NotMapped]
-        public List<Permission> PermissionList { get; set; }
+        #endregion
 
-        [NotMapped]
-        public Dictionary<string, string> Settings { get; set; }
+        #region IDeletable Properties
 
-        [NotMapped]
-        public int Level { get; set; }
+        public string DeletedBy { get; set; }
+        public DateTime? DeletedOn { get; set; }
+        public bool IsDeleted { get; set; }
 
-        /// <summary>
-        /// Determines if there are sub-pages. True if this page has sub-pages.
-        /// </summary>
-        [NotMapped]
-        public bool HasChildren { get; set; }
+        #endregion
 
         #region Deprecated Properties
 
@@ -152,5 +183,42 @@ namespace Oqtane.Models
         }
 
         #endregion
+
+        public Page Clone()
+        {
+            return new Page
+            {
+                PageId = PageId,
+                SiteId = SiteId,
+                Path = Path,
+                ParentId = ParentId,
+                Name = Name,
+                Title = Title,
+                Order = Order,
+                Url = Url,
+                ThemeType = ThemeType,
+                DefaultContainerType = DefaultContainerType,
+                HeadContent = HeadContent,
+                BodyContent = BodyContent,
+                Icon = Icon, 
+                IsNavigation = IsNavigation,
+                IsClickable = IsClickable,
+                UserId = UserId,
+                IsPersonalizable = IsPersonalizable,
+                EffectiveDate = EffectiveDate,
+                ExpiryDate = ExpiryDate,
+                Level = Level,
+                HasChildren = HasChildren,                 
+                CreatedBy = CreatedBy,
+                CreatedOn = CreatedOn,
+                ModifiedBy = ModifiedBy,
+                ModifiedOn = ModifiedOn,
+                DeletedBy = DeletedBy,
+                DeletedOn = DeletedOn,
+                IsDeleted = IsDeleted,
+                PermissionList = PermissionList.ConvertAll(permission => permission.Clone()),
+                Settings = Settings.ToDictionary(setting => setting.Key, setting => setting.Value)
+            };
+        }
     }
 }

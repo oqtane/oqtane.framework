@@ -8,4 +8,19 @@
             <img class="img-fluid" src="@Utilities.FileUrl(PageState.Alias, PageState.Site.LogoFileId.Value)" alt="@PageState.Site.Name" />       
         </a>
     </span>
-} 
+}
+else
+{
+    if (UseSiteNameAsFallback)
+    {
+        <span class="app-logo">
+            <a class="navbar-brand" href="@PageState.Alias.Path">@PageState.Site.Name</a>
+        </span>
+    }
+}
+
+@code {
+    [Parameter]
+    public bool UseSiteNameAsFallback { get; set; } = false; // indicates if the site name should be displayed in scenarios where a site does not have a logo defined
+}
+

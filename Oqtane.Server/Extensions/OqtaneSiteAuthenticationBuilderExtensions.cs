@@ -527,34 +527,75 @@ namespace Oqtane.Extensions
                 // manage user
                 if (user != null)
                 {
-                    // create claims identity
-                    var _userRoles = httpContext.RequestServices.GetRequiredService<IUserRoleRepository>();
-                    identity = UserSecurity.CreateClaimsIdentity(alias, user, _userRoles.GetUserRoles(user.UserId, user.SiteId).ToList());
-                    identity.Label = ExternalLoginStatus.Success;
-
                     // update user
                     user.LastLoginOn = DateTime.UtcNow;
                     user.LastIPAddress = httpContext.Connection.RemoteIpAddress.ToString();
                     _users.UpdateUser(user);
 
-                    // external roles
+                    // manage roles
+                    var _userRoles = httpContext.RequestServices.GetRequiredService<IUserRoleRepository>();
+                    var userRoles = _userRoles.GetUserRoles(user.UserId, user.SiteId).ToList();
                     if (!string.IsNullOrEmpty(httpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimType", "")))
                     {
-                        if (claimsPrincipal.Claims.Any(item => item.Type == ClaimTypes.Role))
+                        // external roles
+                        if (claimsPrincipal.Claims.Any(item => item.Type == httpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimType", "")))
                         {
-                            foreach (var claim in claimsPrincipal.Claims.Where(item => item.Type == ClaimTypes.Role))
+                            var _roles = httpContext.RequestServices.GetRequiredService<IRoleRepository>();                            
+                            var roles = _roles.GetRoles(user.SiteId).ToList(); // global roles excluded ie. host users cannot be added/deleted
+
+                            var mappings = httpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimMappings", "").Split(',');
+                            foreach (var claim in claimsPrincipal.Claims.Where(item => item.Type == httpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimType", "")))
                             {
-                                if (!identity.Claims.Any(item => item.Type == ClaimTypes.Role && item.Value == claim.Value))
+                                var rolename = claim.Value;
+                                if (mappings.Any(item => item.StartsWith(rolename + ":")))
                                 {
-                                    identity.AddClaim(new Claim(ClaimTypes.Role, claim.Value));
+                                    rolename = mappings.First(item => item.StartsWith(rolename + ":")).Split(':')[1];
+                                }
+                                var role = roles.FirstOrDefault(item => item.Name == rolename);
+                                if (role != null)
+                                {
+                                    if (!userRoles.Any(item => item.RoleId == role.RoleId && item.UserId == user.UserId))
+                                    {
+                                        var userRole = new UserRole();
+                                        userRole.RoleId = role.RoleId;
+                                        userRole.UserId = user.UserId;
+                                        _userRoles.AddUserRole(userRole);
+                                    }
                                 }
                             }
+                            if (bool.Parse(httpContext.GetSiteSettings().GetValue("ExternalLogin:SynchronizeRoles", "false")))
+                            {
+                                userRoles = _userRoles.GetUserRoles(user.UserId, user.SiteId).ToList();
+                                foreach (var userRole in userRoles)
+                                {
+                                    var role = roles.FirstOrDefault(item => item.RoleId == userRole.RoleId);
+                                    if (role != null)
+                                    {
+                                        var rolename = role.Name;
+                                        if (mappings.Any(item => item.EndsWith(":" + rolename)))
+                                        {
+                                            rolename = mappings.First(item => item.EndsWith(":" + rolename)).Split(':')[0];
+                                        }
+                                        if (!claimsPrincipal.Claims.Any(item => item.Type == httpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimType", "") && item.Value == rolename))
+                                        {
+                                            _userRoles.DeleteUserRole(userRole.UserRoleId);
+                                        }
+                                    }
+                                }
+                            }
+                            userRoles = _userRoles.GetUserRoles(user.UserId, user.SiteId).ToList();
                         }
                         else
                         {
                             _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "The Role Claim {ClaimType} Does Not Exist. Please Use The Review Claims Feature To View The Claims Returned By Your Provider.", httpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimType", ""));
                         }
                     }
+
+                    // create claims identity
+                    identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+                    user.SecurityStamp = identityuser.SecurityStamp;
+                    identity = UserSecurity.CreateClaimsIdentity(alias, user, userRoles);
+                    identity.Label = ExternalLoginStatus.Success;
 
                     // user profile claims
                     if (!string.IsNullOrEmpty(httpContext.GetSiteSettings().GetValue("ExternalLogin:ProfileClaimTypes", "")))
@@ -604,13 +645,13 @@ namespace Oqtane.Extensions
                         }
                     }
 
-                    _logger.Log(LogLevel.Information, "ExternalLogin", Enums.LogFunction.Security, "External User Login Successful For {Username} Using Provider {Provider}", user.Username, providerName);
+                    _logger.Log(LogLevel.Information, "ExternalLogin", Enums.LogFunction.Security, "External User Login Successful For {Username} From IP Address {IPAddress} Using Provider {Provider}", user.Username, httpContext.Connection.RemoteIpAddress.ToString(), providerName);
                 }
             }
             else // claims invalid
             {
                 identity.Label = ExternalLoginStatus.MissingClaims;
-                _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "Provider Did Not Return All Of The Claims Types Specified Or Email Address Does Not Saitisfy Domain Filter. The Actual Claims Returned Were {Claims}. Login Was Denied.", claims);
+                _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "Provider Did Not Return All Of The Claims Types Specified Or Email Address Does Not Satisfy Domain Filter. The Actual Claims Returned Were {Claims}. Login Was Denied.", claims);
             }
 
             return identity;

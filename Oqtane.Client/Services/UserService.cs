@@ -61,8 +61,12 @@ namespace Oqtane.Services
 
         public async Task LogoutUserAsync(User user)
         {
-            // best practices recommend post is preferrable to get for logout
             await PostJsonAsync($"{Apiurl}/logout", user);
+        }
+
+        public async Task LogoutUserEverywhereAsync(User user)
+        {
+            await PostJsonAsync($"{Apiurl}/logouteverywhere", user);
         }
 
         public async Task<User> VerifyEmailAsync(User user, string token)
@@ -83,6 +87,11 @@ namespace Oqtane.Services
         public async Task<User> VerifyTwoFactorAsync(User user, string token)
         {
             return await PostJsonAsync<User>($"{Apiurl}/twofactor?token={token}", user);
+        }
+
+        public async Task<UserValidateResult> ValidateUserAsync(string username, string email, string password)
+        {
+            return await GetJsonAsync<UserValidateResult>($"{Apiurl}/validateuser?username={WebUtility.UrlEncode(username)}&email={WebUtility.UrlEncode(email)}&password={WebUtility.UrlEncode(password)}");
         }
 
         public async Task<bool> ValidatePasswordAsync(string password)

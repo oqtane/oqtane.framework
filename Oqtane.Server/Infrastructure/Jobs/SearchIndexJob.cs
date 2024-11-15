@@ -59,8 +59,15 @@ namespace Oqtane.Infrastructure
                 var currentTime = DateTime.UtcNow;
                 var lastIndexedOn = Convert.ToDateTime(siteSettings.GetValue(SearchLastIndexedOnSetting, DateTime.MinValue.ToString()));
 
+                if (lastIndexedOn == DateTime.MinValue)
+                {
+                    // reset index
+                    log += $"*Site Index Reset*<br />";
+                    await searchService.DeleteSearchContentsAsync(site.SiteId);
+                }
+
                 var ignorePages = siteSettings.GetValue(SearchIgnorePagesSetting, "").Split(',');
-                var ignoreEntities = siteSettings.GetValue(SearchIgnoreEntitiesSetting, "").Split(',');
+                var ignoreEntities = siteSettings.GetValue(SearchIgnoreEntitiesSetting, "File").Split(',');
 
                 var pages = pageRepository.GetPages(site.SiteId);
                 var pageModules = pageModuleRepository.GetPageModules(site.SiteId);

@@ -1,10 +1,9 @@
 @using System.Globalization
-@using Microsoft.AspNetCore.Localization
-@using Microsoft.AspNetCore.Http
 @using Oqtane.Models
 @namespace Oqtane.Themes.Controls
 @inherits ThemeControlBase
 @inject ILanguageService LanguageService
+@inject ILocalizationCookieService LocalizationCookieService
 @inject NavigationManager NavigationManager
 
 @if (_supportedCultures?.Count() > 1)
@@ -22,7 +21,7 @@
                 }
                 else
                 {
-                    <a class="dropdown-item @(CultureInfo.CurrentUICulture.Name == culture.Name ? "active" : String.Empty)" href="@NavigateUrl(PageState.Page.Path, "culture=" + culture.Name)">@culture.DisplayName</a>
+                    <a class="dropdown-item @(CultureInfo.CurrentUICulture.Name == culture.Name ? "active" : String.Empty)" href="@NavigateUrl(PageState.Page.Path, "culture=" + culture.Name)" data-enhance-nav="false">@culture.DisplayName</a>
                 }
             }
         </div>
@@ -38,25 +37,20 @@
     [Parameter]
     public string ButtonClass { get; set; } = "btn-outline-secondary";
 
-    [CascadingParameter]
-    HttpContext HttpContext { get; set; }
-
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
         MenuAlignment = DropdownAlignment.ToLower() == "right" ? "dropdown-menu-end" : string.Empty;
 
-        var languages = PageState.Languages;
-        _supportedCultures = languages.Select(l => new Culture { Name = l.Code, DisplayName = l.Name });
+        _supportedCultures = PageState.Languages.Select(l => new Culture { Name = l.Code, DisplayName = l.Name });
 
         if (PageState.QueryString.ContainsKey("culture"))
         {
             var culture = PageState.QueryString["culture"];
             if (_supportedCultures.Any(item => item.Name == culture))
             {
-                var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
-                HttpContext.Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, new CookieOptions { Path = "/", Expires = DateTimeOffset.UtcNow.AddYears(365) });
+                await LocalizationCookieService.SetLocalizationCookieAsync(culture);
             }
-            NavigationManager.NavigateTo(NavigationManager.Uri.Replace($"?culture={culture}", ""), forceLoad: true);
+            NavigationManager.NavigateTo(NavigationManager.Uri.Replace($"?culture={culture}", ""));
         }
     }
 
@@ -66,8 +60,8 @@
         {
             var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
             var interop = new Interop(JSRuntime);
-            await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360);
-            NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+            await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360, true, "Lax");
+            NavigationManager.NavigateTo(NavigationManager.Uri, true);
         }
     }
 }

@@ -101,17 +101,22 @@ namespace Oqtane.Models
             IsAuthorized = isAuthorized;
         }
 
-        public Permission Clone(Permission permission)
+        public Permission Clone()
         {
             return new Permission
             {
-                SiteId = permission.SiteId,
-                EntityName = permission.EntityName,
-                EntityId = permission.EntityId,
-                PermissionName = permission.PermissionName,
-                RoleName = permission.RoleName,
-                UserId = permission.UserId,
-                IsAuthorized = permission.IsAuthorized
+                SiteId = SiteId,
+                EntityName = EntityName,
+                EntityId = EntityId,
+                PermissionName = PermissionName,
+                RoleName = RoleName,
+                RoleId = RoleId,
+                UserId = UserId,
+                IsAuthorized = IsAuthorized,
+                CreatedBy = CreatedBy,
+                CreatedOn = CreatedOn,
+                ModifiedBy = ModifiedBy,
+                ModifiedOn = ModifiedOn
             };
         }
 

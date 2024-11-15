@@ -385,10 +385,22 @@
     <value>Parameters:</value>
   </data>
   <data name="RoleClaimType.HelpText" xml:space="preserve">
-    <value>Optionally provide the type name of the role claim provided by the identity provider. These roles will be used in addition to any internal user roles assigned within the site.</value>
+    <value>Optionally provide the type name of the roles claim provided by the identity provider (the standard default is 'roles'). If role names from the identity provider do not exactly match your site role names, please use the Role Claim Mappings.</value>
   </data>
   <data name="RoleClaimType.Text" xml:space="preserve">
-    <value>Role Claim:</value>
+    <value>Roles Claim:</value>
+  </data>
+  <data name="RoleClaimMappings.HelpText" xml:space="preserve">
+    <value>Optionally provide a comma delimited list of role names provided by the identity provider, as well as mappings to your site roles. For example if the identity provider includes an 'Admin' role name and you want it to map to the 'Administrators' site role you should specify 'Admin:Administrators'.</value>
+  </data>
+  <data name="RoleClaimMappings.Text" xml:space="preserve">
+    <value>Role Claim Mappings:</value>
+  </data>
+  <data name="SynchronizeRoles.HelpText" xml:space="preserve">
+    <value>This option will add or remove role assignments so that the site roles exactly match the roles provided by the identity provider for a user</value>
+  </data>
+  <data name="SynchronizeRoles.Text" xml:space="preserve">
+    <value>Synchronize Roles?</value>
   </data>
   <data name="ProfileClaimTypes.HelpText" xml:space="preserve">
     <value>Optionally provide a comma delimited list of user profile claim type names provided by the identity provider, as well as mappings to your user profile definition. For example if the identity provider includes a 'given_name' claim and you have a 'FirstName' user profile definition you should specify 'given_name:FirstName'.</value>
@@ -459,13 +471,28 @@
   <data name="ReviewClaims.Text" xml:space="preserve">
     <value>Review Claims?</value>
   </data>
-    <data name="ReviewClaims.HelpText" xml:space="preserve">
+  <data name="ReviewClaims.HelpText" xml:space="preserve">
     <value>This option will record the full list of Claims returned by the Provider in the Event Log. It should only be used for testing purposes. External Login will be restricted when this option is enabled.</value>
   </data>
   <data name="NameClaimType.HelpText" xml:space="preserve">
     <value>Optionally specify the type name of the user's name claim provided by the identity provider. The typical value is 'name'.</value>
   </data>
-    <data name="NameClaimType.Text" xml:space="preserve">
+  <data name="NameClaimType.Text" xml:space="preserve">
     <value>Name Claim:</value>
+  </data>
+  <data name="Provider.HelpText" xml:space="preserve">
+    <value>Select the external login provider</value>
+  </data>
+  <data name="Provider.Text" xml:space="preserve">
+    <value>Provider:</value>
+  </data>
+  <data name="Info" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="OAuth2" xml:space="preserve">
+    <value>OAuth 2.0</value>
+  </data>
+  <data name="OIDC" xml:space="preserve">
+    <value>OpenID Connect (OIDC)</value>
   </data>
 </root>

@@ -22,7 +22,7 @@ else
 			}
 			else
 			{
-          <Pager Items="@_pages.Where(item => item.IsDeleted)" CurrentPage="@_pagePage.ToString()" OnPageChange="OnPageChangePage">
+          <Pager Items="@_pages.Where(item => item.IsDeleted).OrderByDescending(item => item.DeletedOn)" CurrentPage="@_pagePage.ToString()" OnPageChange="OnPageChangePage">
 					<Header>
 						<th style="width: 1px;">&nbsp;</th>
 						<th style="width: 1px;">&nbsp;</th>
@@ -50,7 +50,7 @@ else
 			}
 			else
 			{
-          <Pager Items="@_modules.Where(item => item.IsDeleted)" CurrentPage="@_pageModule.ToString()" OnPageChange="OnPageChangeModule">
+          <Pager Items="@_modules.Where(item => item.IsDeleted).OrderByDescending(item => item.DeletedOn)" CurrentPage="@_pageModule.ToString()" OnPageChange="OnPageChangeModule">
 					<Header>
 						<th style="width: 1px;">&nbsp;</th>
 						<th style="width: 1px;">&nbsp;</th>

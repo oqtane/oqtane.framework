@@ -40,7 +40,7 @@ namespace Oqtane.Providers
             }
             else
             {
-                return true;
+                return authState.User.SecurityStamp() == user.SecurityStamp;
             }
         }
     }

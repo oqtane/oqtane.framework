@@ -167,7 +167,6 @@
     {
         SetModuleTitle(Localizer["ModuleSettings.Title"]);
 
-        _module = ModuleState.ModuleDefinition.Name;
         _title = ModuleState.Title;
         _moduleSettingsTitle = Localizer["ModuleSettings.Heading"];
         _pane = ModuleState.Pane;
@@ -186,6 +185,7 @@
 
         if (ModuleState.ModuleDefinition != null)
         {
+            _module = ModuleState.ModuleDefinition.Name;
             _permissionNames = ModuleState.ModuleDefinition?.PermissionNames;
 
             if (!string.IsNullOrEmpty(ModuleState.ModuleDefinition.SettingsType))

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Infrastructure;
@@ -14,13 +15,15 @@ namespace Oqtane.Repository
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
         private readonly IRoleRepository _roles;
         private readonly ITenantManager _tenantManager;
+        private readonly UserManager<IdentityUser> _identityUserManager;
         private readonly IMemoryCache _cache;
 
-        public UserRoleRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IRoleRepository roles, ITenantManager tenantManager, IMemoryCache cache)
+        public UserRoleRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IRoleRepository roles, ITenantManager tenantManager, UserManager<IdentityUser> identityUserManager, IMemoryCache cache)
         {
             _dbContextFactory = dbContextFactory;
             _roles = roles;
             _tenantManager = tenantManager;
+            _identityUserManager = identityUserManager;
             _cache = cache;
         }
 
@@ -69,9 +72,12 @@ namespace Oqtane.Repository
                 DeleteUserRoles(userRole.UserId);
             }
 
-            var alias = _tenantManager.GetAlias();
-            _cache.Remove($"user:{userRole.UserId}:{alias.SiteKey}");
-            _cache.Remove($"userroles:{userRole.UserId}:{alias.SiteKey}");
+            if (!userRole.IgnoreSecurityStamp)
+            {
+                UpdateSecurityStamp(userRole.UserId);
+            }
+
+            RefreshCache(userRole.UserId);
 
             return userRole;
         }
@@ -82,9 +88,12 @@ namespace Oqtane.Repository
             db.Entry(userRole).State = EntityState.Modified;
             db.SaveChanges();
 
-            var alias = _tenantManager.GetAlias();
-            _cache.Remove($"user:{userRole.UserId}:{alias.SiteKey}");
-            _cache.Remove($"userroles:{userRole.UserId}:{alias.SiteKey}");
+            if (!userRole.IgnoreSecurityStamp)
+            {
+                UpdateSecurityStamp(userRole.UserId);
+            }
+
+            RefreshCache(userRole.UserId);
 
             return userRole;
         }
@@ -144,9 +153,8 @@ namespace Oqtane.Repository
             db.UserRole.Remove(userRole);
             db.SaveChanges();
 
-            var alias = _tenantManager.GetAlias();
-            _cache.Remove($"user:{userRole.UserId}:{alias.SiteKey}");
-            _cache.Remove($"userroles:{userRole.UserId}:{alias.SiteKey}");
+            UpdateSecurityStamp(userRole.UserId);
+            RefreshCache(userRole.UserId);
         }
 
         public void DeleteUserRoles(int userId)
@@ -158,9 +166,32 @@ namespace Oqtane.Repository
             }
             db.SaveChanges();
 
+            UpdateSecurityStamp(userId);
+            RefreshCache(userId);
+        }
+
+        private void UpdateSecurityStamp(int userId)
+        {
+            using var db = _dbContextFactory.CreateDbContext();
+            var user = db.User.Find(userId);
+            if (user != null)
+            {
+                var identityuser = _identityUserManager.FindByNameAsync(user.Username).GetAwaiter().GetResult();
+                if (identityuser != null)
+                {
+                    _identityUserManager.UpdateSecurityStampAsync(identityuser).GetAwaiter().GetResult();
+                }
+            }
+        }
+
+        private void RefreshCache(int userId)
+        {
             var alias = _tenantManager.GetAlias();
-            _cache.Remove($"user:{userId}:{alias.SiteKey}");
-            _cache.Remove($"userroles:{userId}:{alias.SiteKey}");
+            if (alias != null)
+            {
+                _cache.Remove($"user:{userId}:{alias.SiteKey}");
+                _cache.Remove($"userroles:{userId}:{alias.SiteKey}");
+            }
         }
     }
 }

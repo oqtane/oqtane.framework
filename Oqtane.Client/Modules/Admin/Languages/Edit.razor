@@ -1,7 +1,6 @@
 @namespace Oqtane.Modules.Admin.Languages
 @inherits ModuleBase
 @using System.Globalization
-@using Microsoft.AspNetCore.Localization
 @inject NavigationManager NavigationManager
 @inject ILocalizationService LocalizationService
 @inject ILanguageService LanguageService
@@ -103,7 +102,7 @@ else
         {
             var interop = new Interop(JSRuntime);
             var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
-            await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360);
+            await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360, true, "Lax");
         }
     }
 

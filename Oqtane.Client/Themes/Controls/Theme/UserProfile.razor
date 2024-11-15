@@ -6,20 +6,17 @@
 @inject NavigationManager NavigationManager
 
 <span class="app-profile">
-    <AuthorizeView Roles="@RoleNames.Registered">
-        <Authorizing>
-            <text>...</text>
-        </Authorizing>
-        <Authorized>
-            <a href="@NavigateUrl("profile", "returnurl=" + _returnurl)" class="btn btn-primary">@context.User.Identity.Name</a>
-        </Authorized>
-        <NotAuthorized>
-            @if (ShowRegister && PageState.Site.AllowRegistration)
-            {
-                <a href="@NavigateUrl("register", "returnurl=" + _returnurl)" class="btn btn-primary">@Localizer["Register"]</a>
-            }
-        </NotAuthorized>
-    </AuthorizeView>
+    @if (PageState.User != null)
+    {
+        <a href="@NavigateUrl("profile", "returnurl=" + _returnurl)" class="btn btn-primary">@PageState.User.Username</a>
+    }
+    else
+    {
+        @if (ShowRegister && PageState.Site.AllowRegistration)
+        {
+            <a href="@NavigateUrl("register", "returnurl=" + _returnurl)" class="btn btn-primary">@Localizer["Register"]</a>
+        }
+    }
 </span>
 
 @code {

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+<package>
   <metadata>
     <id>Oqtane.Client</id>
-    <version>5.2.2</version>
+    <version>6.0.0</version>
     <authors>Shaun Walker</authors>
     <owners>.NET Foundation</owners>
     <title>Oqtane Framework</title>
@@ -12,14 +12,15 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
-    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.2</releaseNotes>
+    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v6.0.0</releaseNotes>
     <readme>readme.md</readme>
     <icon>icon.png</icon>
     <tags>oqtane</tags>
   </metadata>
   <files>
-    <file src="..\Oqtane.Client\bin\Release\net8.0\Oqtane.Client.dll" target="lib\net8.0" /> 
-    <file src="..\Oqtane.Client\bin\Release\net8.0\Oqtane.Client.pdb" target="lib\net8.0" /> 
+    <file src="..\Oqtane.Client\bin\Release\net8.0\Oqtane.Client.dll" target="lib\net9.0" /> 
+    <file src="..\Oqtane.Client\bin\Release\net8.0\Oqtane.Client.pdb" target="lib\net9.0" /> 
     <file src="icon.png" target="" />
+    <file src="readme.md" target="" />
   </files>
 </package>

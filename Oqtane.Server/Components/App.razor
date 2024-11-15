@@ -179,10 +179,6 @@
                     ManageScripts(resources, alias);
 
                     // generate scripts
-                    if (_renderMode == RenderModes.Interactive && _runtime == Runtimes.Server)
-                    {
-                        _scripts += CreateReconnectScript();
-                    }
                     if (site.PwaIsEnabled && site.PwaAppIconFileId != null && site.PwaSplashIconFileId != null)
                     {
                         _scripts += CreatePWAScript(alias, site, route);
@@ -196,28 +192,29 @@
                     _bodyResources += ParseScripts(site.BodyContent);
 
                     // set culture if not specified
-                    string culture = Context.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName];
-                    if (culture == null)
+                    string cultureCookie = Context.Request.Cookies[Shared.CookieRequestCultureProvider.DefaultCookieName];
+                    if (cultureCookie == null)
                     {
                         // get default language for site
                         if (site.Languages.Any())
                         {
                             // use default language if specified otherwise use first language in collection
-                            culture = (site.Languages.Where(l => l.IsDefault).SingleOrDefault() ?? site.Languages.First()).Code;
+                            cultureCookie = (site.Languages.Where(l => l.IsDefault).SingleOrDefault() ?? site.Languages.First()).Code;
                         }
                         else
                         {
-                            culture = LocalizationManager.GetDefaultCulture();
+                            // fallback language
+                            cultureCookie = LocalizationManager.GetDefaultCulture();
                         }
-                        SetLocalizationCookie(culture);
+                        // convert language code to culture cookie format (ie. "c=en|uic=en")
+                        cultureCookie = Shared.CookieRequestCultureProvider.MakeCookieValue(new Models.RequestCulture(cultureCookie));
+                        SetLocalizationCookie(cultureCookie);
                     }
 
                     // set language for page
-                    if (!string.IsNullOrEmpty(culture))
+                    if (!string.IsNullOrEmpty(cultureCookie))
                     {
-                        // localization cookie value in form of c=en|uic=en
-                        _language = culture.Split('|')[0];
-                        _language = _language.Replace("c=", "");
+                        _language = Shared.CookieRequestCultureProvider.ParseCookieValue(cultureCookie).Culture.Name;
                     }
 
                     // create initial PageState
@@ -494,25 +491,6 @@
         "</script>" + Environment.NewLine;
     }
 
-    private string CreateReconnectScript()
-    {
-        return Environment.NewLine +
-        "<script>" + Environment.NewLine +
-        "    // Interactive Blazor Server Reconnect" + Environment.NewLine +
-        "    new MutationObserver((mutations, observer) => {" + Environment.NewLine +
-        "        if (document.querySelector('#components-reconnect-modal h5 a')) {" + Environment.NewLine +
-        "            async function attemptReload() {" + Environment.NewLine +
-        "                await fetch('');" + Environment.NewLine +
-        "                location.reload();" + Environment.NewLine +
-        "            }" + Environment.NewLine +
-        "            observer.disconnect();" + Environment.NewLine +
-        "            attemptReload();" + Environment.NewLine +
-        "            setInterval(attemptReload, 5000);" + Environment.NewLine +
-        "        }" + Environment.NewLine +
-        "    }).observe(document.body, { childList: true, subtree: true });" + Environment.NewLine +
-        "</script>" + Environment.NewLine;
-    }
-
     private string CreateScrollPositionScript()
     {
         return Environment.NewLine +
@@ -522,7 +500,7 @@
         "        let currentUrl = window.location.pathname;" + Environment.NewLine +
         "        Blazor.addEventListener('enhancedload', () => {" + Environment.NewLine +
         "            let newUrl = window.location.pathname;" + Environment.NewLine +
-        "            if (currentUrl != newUrl) {" + Environment.NewLine +
+        "            if (currentUrl !== newUrl || window.location.hash === '#top') {" + Environment.NewLine +
         "                window.scrollTo({ top: 0, left: 0, behavior: 'instant' });" + Environment.NewLine +
         "            }" + Environment.NewLine +
         "            currentUrl = newUrl;" + Environment.NewLine +
@@ -534,9 +512,9 @@
 
     private string ParseScripts(string content)
     {
-        // iterate scripts
         var scripts = "";
-        if (!string.IsNullOrEmpty(content))
+        // in interactive render mode, parse scripts from content and inject into page
+        if (_renderMode == RenderModes.Interactive && !string.IsNullOrEmpty(content))
         {
             var index = content.IndexOf("<script");
             while (index >= 0)
@@ -602,19 +580,19 @@
         }
     }
 
-    private void SetLocalizationCookie(string culture)
+    private void SetLocalizationCookie(string cookieValue)
     {
         var cookieOptions = new Microsoft.AspNetCore.Http.CookieOptions
         {
             Expires = DateTimeOffset.UtcNow.AddYears(1),
             SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax, // Set SameSite attribute
             Secure = true, // Ensure the cookie is only sent over HTTPS
-            HttpOnly = true // Optional: Helps mitigate XSS attacks
+            HttpOnly = false // cookie is updated using JS Interop in Interactive render mode
         };
 
         Context.Response.Cookies.Append(
-            CookieRequestCultureProvider.DefaultCookieName,
-            CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
+            Shared.CookieRequestCultureProvider.DefaultCookieName,
+            cookieValue,
             cookieOptions
         );
     }
@@ -642,6 +620,16 @@
             if (obj != null)
             {
                 resources = AddResources(resources, obj.Resources, ResourceLevel.Page, alias, "Themes", type.Namespace, site.RenderMode);
+            }
+        }
+        // theme settings components are dynamically loaded within the framework Page Management module
+        if (page.Path == "admin/pages" && action.ToLower() == "edit" && theme != null && !string.IsNullOrEmpty(theme.ThemeSettingsType))
+        {
+            var settingsType = Type.GetType(theme.ThemeSettingsType);
+            if (settingsType != null)
+            {
+                var objSettings = Activator.CreateInstance(settingsType) as IModuleControl;
+                resources = AddResources(resources, objSettings.Resources, ResourceLevel.Module, alias, "Modules", settingsType.Namespace, site.RenderMode);
             }
         }
 
@@ -686,25 +674,49 @@
 
             // ensure component exists and implements IModuleControl
             module.ModuleType = "";
-            Type moduletype = Type.GetType(typename, false, true); // case insensitive
+            var moduletype = Type.GetType(typename, false, true); // case insensitive
             if (moduletype != null && moduletype.GetInterfaces().Contains(typeof(IModuleControl)))
             {
                 module.ModuleType = Utilities.GetFullTypeName(moduletype.AssemblyQualifiedName); // get actual type name
             }
             if (moduletype != null && module.ModuleType != "")
             {
-                var obj = Activator.CreateInstance(moduletype) as IModuleControl;
-                if (obj != null)
+                var moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
+                if (moduleobject != null)
                 {
-                    resources = AddResources(resources, obj.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, site.RenderMode);
+                    resources = AddResources(resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, site.RenderMode);
+
+                    // settings components are dynamically loaded within the framework Settings module
                     if (action.ToLower() == "settings" && module.ModuleDefinition != null)
                     {
-                        // settings components are embedded within a framework settings module
-                        moduletype = Type.GetType(module.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, action), false, true);
+                        // module settings component
+                        var settingsType = "";
+                        if (!string.IsNullOrEmpty(module.ModuleDefinition.SettingsType))
+                        {
+                            // module settings type explicitly declared in IModule interface
+                            settingsType = module.ModuleDefinition.SettingsType;
+                        }
+                        else
+                        {
+                            // legacy support - module settings type determined by convention
+                            settingsType = module.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, action);
+                        }
+                        moduletype = Type.GetType(settingsType, false, true);
                         if (moduletype != null)
                         {
-                            obj = Activator.CreateInstance(moduletype) as IModuleControl;
-                            resources = AddResources(resources, obj.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, site.RenderMode);
+                            moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
+                            resources = AddResources(resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, site.RenderMode);
+                        }
+
+                        // container settings component
+                        if (theme != null && !string.IsNullOrEmpty(theme.ContainerSettingsType))
+                        {
+                            moduletype = Type.GetType(theme.ContainerSettingsType);
+                            if (moduletype != null)
+                            {
+                                moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
+                                resources = AddResources(resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, site.RenderMode);
+                            }
                         }
                     }
                 }

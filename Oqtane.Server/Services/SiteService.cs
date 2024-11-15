@@ -32,6 +32,7 @@ namespace Oqtane.Services
         private readonly ILogManager _logger;
         private readonly IMemoryCache _cache;
         private readonly IHttpContextAccessor _accessor;
+        private readonly string _private = "[PRIVATE]";
 
         public ServerSiteService(ISiteRepository sites, IPageRepository pages, IThemeRepository themes, IPageModuleRepository pageModules, IModuleDefinitionRepository moduleDefinitions, ILanguageRepository languages, IUserPermissions userPermissions, ISettingRepository settings, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger, IMemoryCache cache, IHttpContextAccessor accessor)
         {
@@ -69,19 +70,34 @@ namespace Oqtane.Services
                 return GetSite(siteId);
             });
 
+            // clone object so that cache is not mutated
+            site = site.Clone();
+
+            // trim site settings based on user permissions
+            site.Settings = site.Settings
+                .Where(item => !item.Value.StartsWith(_private) || _accessor.HttpContext.User.IsInRole(RoleNames.Admin))
+                .ToDictionary(setting => setting.Key, setting => setting.Value.Replace(_private, ""));
+
             // trim pages based on user permissions
             var pages = new List<Page>();
             foreach (Page page in site.Pages)
             {
                 if (!page.IsDeleted && _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.View, page.PermissionList) && (Utilities.IsEffectiveAndNotExpired(page.EffectiveDate, page.ExpiryDate) || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, page.PermissionList)))
                 {
+                    page.Settings = page.Settings
+                        .Where(item => !item.Value.StartsWith(_private) || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, page.PermissionList))
+                        .ToDictionary(setting => setting.Key, setting => setting.Value.Replace(_private, ""));
                     pages.Add(page);
                 }
             }
-
-            // clone object so that cache is not mutated
-            site = site.Clone(site);
             site.Pages = pages;
+
+            // get language display name for user
+            foreach (Language language in site.Languages)
+            {
+                language.Name = CultureInfo.GetCultureInfo(language.Code).DisplayName;
+            }
+            site.Languages = site.Languages.OrderBy(item => item.Name).ToList();
 
             return Task.FromResult(site);
         }
@@ -94,14 +110,13 @@ namespace Oqtane.Services
             {
                 // site settings
                 site.Settings = _settings.GetSettings(EntityNames.Site, site.SiteId)
-                    .Where(item => !item.IsPrivate || _accessor.HttpContext.User.IsInRole(RoleNames.Admin))
-                    .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
+                    .ToDictionary(setting => setting.SettingName, setting => (setting.IsPrivate ? _private : "") + setting.SettingValue);
 
-                // populate File Extensions 
+                // populate file extensions 
                 site.ImageFiles = site.Settings.ContainsKey("ImageFiles") && !string.IsNullOrEmpty(site.Settings["ImageFiles"])
                     ? site.Settings["ImageFiles"] : Constants.ImageFiles;
                 site.UploadableFiles = site.Settings.ContainsKey("UploadableFiles") && !string.IsNullOrEmpty(site.Settings["UploadableFiles"])
-                ? site.Settings["UploadableFiles"] : Constants.UploadableFiles;
+                    ? site.Settings["UploadableFiles"] : Constants.UploadableFiles;
 
                 // pages
                 List<Setting> settings = _settings.GetSettings(EntityNames.Page).ToList();
@@ -109,21 +124,23 @@ namespace Oqtane.Services
                 foreach (Page page in _pages.GetPages(site.SiteId))
                 {
                     page.Settings = settings.Where(item => item.EntityId == page.PageId)
-                        .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, page.PermissionList))
-                        .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
+                        .ToDictionary(setting => setting.SettingName, setting => (setting.IsPrivate ? _private : "") + setting.SettingValue);
                     site.Pages.Add(page);
                 }
                 site.Pages = GetPagesHierarchy(site.Pages);
 
                 // framework modules
-                var modules = GetModules(site.SiteId);
+                var modules = GetPageModules(site.SiteId);
                 site.Settings.Add(Constants.AdminDashboardModule, modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.AdminDashboardModule).ModuleId.ToString());
                 site.Settings.Add(Constants.PageManagementModule, modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.PageManagementModule).ModuleId.ToString());
 
                 // languages
                 site.Languages = _languages.GetLanguages(site.SiteId).ToList();
                 var defaultCulture = CultureInfo.GetCultureInfo(Constants.DefaultCulture);
-                site.Languages.Add(new Language { Code = defaultCulture.Name, Name = defaultCulture.DisplayName, Version = Constants.Version, IsDefault = !site.Languages.Any(l => l.IsDefault) });
+                if (!site.Languages.Exists(item => item.Code == defaultCulture.Name))
+                {
+                    site.Languages.Add(new Language { Code = defaultCulture.Name, Name = "", Version = Constants.Version, IsDefault = !site.Languages.Any(l => l.IsDefault) });
+                }
 
                 // themes
                 site.Themes = _themes.FilterThemes(_themes.GetThemes().ToList());
@@ -249,31 +266,28 @@ namespace Oqtane.Services
         public Task<List<Module>> GetModulesAsync(int siteId, int pageId)
         {
             var alias = _tenantManager.GetAlias();
-            var sitemodules = _cache.GetOrCreate($"modules:{alias.SiteKey}", entry =>
-            {
-                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                return GetModules(siteId);
-            });
-
-            var modules = new List<Module>();
-            foreach (Module module in sitemodules.Where(item => (item.PageId == pageId || pageId == -1) && !item.IsDeleted && _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.View, item.PermissionList)))
-            {
-                if (Utilities.IsEffectiveAndNotExpired(module.EffectiveDate, module.ExpiryDate) || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, module.PermissionList))
-                {
-                    modules.Add(module);
-                }
-            }
-            return Task.FromResult(modules);
-        }
-
-        private List<Module> GetModules(int siteId)
-        {
-            var alias = _tenantManager.GetAlias();
-            return _cache.GetOrCreate($"modules:{alias.SiteKey}", entry =>
+            var modules = _cache.GetOrCreate($"modules:{alias.SiteKey}", entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                 return GetPageModules(siteId);
             });
+
+            // clone object so that cache is not mutated
+            modules = modules.ConvertAll(module => module.Clone());
+
+            // trim modules for current page based on user permissions
+            var pagemodules = new List<Module>();
+            foreach (Module module in modules.Where(item => (item.PageId == pageId || pageId == -1) && !item.IsDeleted && _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.View, item.PermissionList)))
+            {
+                if (Utilities.IsEffectiveAndNotExpired(module.EffectiveDate, module.ExpiryDate) || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, module.PermissionList))
+                {
+                    module.Settings = module.Settings
+                        .Where(item => !item.Value.StartsWith(_private) || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, module.PermissionList))
+                        .ToDictionary(setting => setting.Key, setting => setting.Value.Replace(_private, ""));
+                    pagemodules.Add(module);
+                }
+            }
+            return Task.FromResult(pagemodules);
         }
 
         private List<Module> GetPageModules(int siteId)
@@ -311,8 +325,7 @@ namespace Oqtane.Services
                     ModuleDefinition = _moduleDefinitions.FilterModuleDefinition(moduledefinitions.Find(item => item.ModuleDefinitionName == pagemodule.Module.ModuleDefinitionName)),
 
                     Settings = settings.Where(item => item.EntityId == pagemodule.ModuleId)
-                        .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, pagemodule.Module.PermissionList))
-                        .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue)
+                        .ToDictionary(setting => setting.SettingName, setting => (setting.IsPrivate ? _private : "") + setting.SettingValue)
                 };
 
                 modules.Add(module);

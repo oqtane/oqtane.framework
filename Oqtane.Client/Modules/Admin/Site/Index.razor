@@ -207,14 +207,14 @@
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="username" HelpText="Enter the username for your SMTP account" ResourceKey="SmtpUsername">Username: </Label>
                     <div class="col-sm-9">
-                        <input id="username" class="form-control" @bind="@_smtpusername" />
+                        <input id="username" class="form-control" @bind="@_smtpusername" autocomplete="off"/>
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="password" HelpText="Enter the password for your SMTP account" ResourceKey="SmtpPassword">Password: </Label>
                     <div class="col-sm-9">
 						<div class="input-group">
-							<input id="password" type="@_smtppasswordtype" class="form-control" @bind="@_smtppassword" />
+							<input id="password" type="@_smtppasswordtype" class="form-control" @bind="@_smtppassword" autocomplete="off"/>
                             <button type="button" class="btn btn-secondary" @onclick="@ToggleSMTPPassword" tabindex="-1">@_togglesmtppassword</button>
 						</div>
                     </div>
@@ -376,7 +376,7 @@
             <Section Name="TenantInformation" Heading="Database" ResourceKey="TenantInformation">
                 <div class="container">
                     <div class="row mb-1 align-items-center">
-						<Label Class="col-sm-3" For="tenant" HelpText="The name of the database used for the site" ResourceKey="Tenant">Database: </Label>
+						<Label Class="col-sm-3" For="tenant" HelpText="The name of the database used for the site. Note that this is not the physical database name but rather the tenant name which is used within the framework to identify a database." ResourceKey="Tenant">Database: </Label>
                         <div class="col-sm-9">
                             <input id="tenant" class="form-control" @bind="@_tenant" readonly />
                         </div>
@@ -388,7 +388,7 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="connectionstring" HelpText="The connection information for the database" ResourceKey="ConnectionString">Connection: </Label>
+                        <Label Class="col-sm-3" For="connectionstring" HelpText="The name of the connection string in appsettings.json which will be used to connect to the database" ResourceKey="ConnectionString">Connection: </Label>
                         <div class="col-sm-9">
 							<input id="connectionstring" class="form-control" @bind="@_connectionstring" readonly />
                         </div>
@@ -571,7 +571,7 @@
                     if (tenant != null)
                     {
                         _tenant = tenant.Name;
-                        _database = _databases.Find(item => item.DBType == tenant.DBType)?.Name;
+                        _database = _databases.Find(item => item.DBType == tenant.DBType && item.Name != "LocalDB")?.Name;
                         _connectionstring = tenant.DBConnectionString;
                     }
                 }

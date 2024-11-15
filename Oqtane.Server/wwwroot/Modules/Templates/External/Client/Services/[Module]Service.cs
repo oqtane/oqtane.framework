@@ -9,7 +9,7 @@ namespace [Owner].Module.[Module].Services
 {
     public class [Module]Service : ServiceBase, I[Module]Service
     {
-        public [Module]Service(IHttpClientFactory http, SiteState siteState) : base(http, siteState) { }
+        public [Module]Service(HttpClient http, SiteState siteState) : base(http, siteState) { }
 
         private string Apiurl => CreateApiUrl("[Module]");
 

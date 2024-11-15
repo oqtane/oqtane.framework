@@ -91,18 +91,29 @@ namespace Oqtane.Repository
         public void DeletePage(int pageId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            var page = db.Page.Find(pageId);
-            _permissions.DeletePermissions(page.SiteId, EntityNames.Page, pageId);
-            _settings.DeleteSettings(EntityNames.Page, pageId);
-            // remove page modules for page
-            var pageModules = db.PageModule.Where(item => item.PageId == pageId).ToList();
-            foreach (var pageModule in pageModules)
             {
-                _pageModules.DeletePageModule(pageModule.PageModuleId);
+                var page = db.Page.Find(pageId);
+                _permissions.DeletePermissions(page.SiteId, EntityNames.Page, pageId);
+                _settings.DeleteSettings(EntityNames.Page, pageId);
+                // remove page modules for page
+                var pageModules = db.PageModule.Where(item => item.PageId == pageId).ToList();
+                foreach (var pageModule in pageModules)
+                {
+                    _pageModules.DeletePageModule(pageModule.PageModuleId);
+                }
+
+                // At this point the page item is unaware of changes happened in other
+                // contexts (i.e.: the contex opened and closed in each DeletePageModule).
+                // Workin on page item may result in unxpected behaviour:
+                // better close and reopen context to work on a fresh page item.
             }
-            // must occur after page modules are deleted because of cascading delete relationship
-            db.Page.Remove(page);
-            db.SaveChanges();
+
+            using var dbContext = _dbContextFactory.CreateDbContext();
+            {
+                var page = dbContext.Page.Find(pageId);
+                dbContext.Page.Remove(page);
+                dbContext.SaveChanges();
+            }
         }
     }
 }

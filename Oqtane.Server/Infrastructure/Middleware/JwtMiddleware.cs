@@ -3,8 +3,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Oqtane.Extensions;
-using Oqtane.Models;
-using Oqtane.Repository;
+using Oqtane.Managers;
 using Oqtane.Security;
 using Oqtane.Shared;
 
@@ -59,19 +58,18 @@ namespace Oqtane.Infrastructure
 
                             if (userid != null && username != null)
                             {
-                                // create user identity
-                                var user = new User
+                                var _users = context.RequestServices.GetService(typeof(IUserManager)) as IUserManager;
+                                var user = _users.GetUser(userid, alias.SiteId); // cached
+                                if (user != null && !user.IsDeleted)
                                 {
-                                    UserId = int.Parse(userid),
-                                    Username = username
-                                };
-
-                                // set claims identity (note jwt already contains the roles - we are reloading to ensure most accurate permissions)
-                                var _userRoles = context.RequestServices.GetService(typeof(IUserRoleRepository)) as IUserRoleRepository;
-                                var claimsidentity = UserSecurity.CreateClaimsIdentity(alias, user, _userRoles.GetUserRoles(user.UserId, alias.SiteId).ToList());
-                                context.User = new ClaimsPrincipal(claimsidentity);
-
-                                logger.Log(alias.SiteId, LogLevel.Information, "TokenValidation", Enums.LogFunction.Security, "Token Validated For UserId {UserId} And Username {Username}", user.UserId, user.Username);
+                                    var claimsidentity = UserSecurity.CreateClaimsIdentity(alias, user);
+                                    context.User = new ClaimsPrincipal(claimsidentity);
+                                    logger.Log(alias.SiteId, LogLevel.Information, "TokenValidation", Enums.LogFunction.Security, "Token Validated For User {Username}", user.Username);
+                                }
+                                else
+                                {
+                                    logger.Log(alias.SiteId, LogLevel.Error, "TokenValidation", Enums.LogFunction.Security, "Token Validated But User {Username} Does Not Exist Or Is Deleted", user.Username);
+                                }
                             }
                             else
                             {

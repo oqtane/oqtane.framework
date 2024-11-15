@@ -13,11 +13,13 @@ namespace Oqtane.Managers
         Task<User> UpdateUser(User user);
         Task DeleteUser(int userid, int siteid);
         Task<User> LoginUser(User user, bool setCookie, bool isPersistent);
+        Task LogoutUserEverywhere(User user);
         Task<User> VerifyEmail(User user, string token);
         Task ForgotPassword(User user);
         Task<User> ResetPassword(User user, string token);
         User VerifyTwoFactor(User user, string token);
         Task<User> LinkExternalAccount(User user, string token, string type, string key, string name);
+        Task<UserValidateResult> ValidateUser(string username, string email, string password);
         Task<bool> ValidatePassword(string password);
         Task<Dictionary<string, string>> ImportUsers(int siteId, string filePath, bool notify);
     }

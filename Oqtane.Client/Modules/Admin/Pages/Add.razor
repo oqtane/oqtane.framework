@@ -156,7 +156,14 @@
                                 <select id="theme" class="form-select" value="@_themetype" @onchange="(e => ThemeChanged(e))" required>
                                     @foreach (var theme in _themes)
                                     {
-                                        <option value="@theme.TypeName">@theme.Name</option>
+                                        @if (theme.TypeName == PageState.Site.DefaultThemeType)
+                                        {
+                                            <option value="@theme.TypeName">*@theme.Name*</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@theme.TypeName">@theme.Name</option>
+                                        }
                                     }
                                 </select>
                             </div>

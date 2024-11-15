@@ -3,18 +3,17 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Oqtane.Infrastructure;
-using Oqtane.Repository;
 using Oqtane.Models;
-using System.Collections.Generic;
 using Oqtane.Extensions;
 using Oqtane.Shared;
-using System.IO;
+using Oqtane.Managers;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Oqtane.Security
 {
     public static class PrincipalValidator
     {
-        public static Task ValidateAsync(CookieValidatePrincipalContext context)
+        public static async Task ValidateAsync(CookieValidatePrincipalContext context)
         {
             if (context != null && context.Principal.Identity.IsAuthenticated && context.Principal.Identity.Name != null)
             {
@@ -24,60 +23,50 @@ namespace Oqtane.Security
                 // check if framework is installed
                 if (config.IsInstalled() && !path.StartsWith("/_")) // ignore Blazor framework requests
                 {
-                    // get current site
+                    var _logger = context.HttpContext.RequestServices.GetService(typeof(ILogManager)) as ILogManager;
+
                     var alias = context.HttpContext.GetAlias();
                     if (alias != null)
                     {
-                        var claims = context.Principal.Claims;
+                        var userManager = context.HttpContext.RequestServices.GetService(typeof(IUserManager)) as IUserManager;
+                        var user = userManager.GetUser(context.Principal.UserId(), alias.SiteId); // cached
 
-                        // check if principal has roles and matches current site
-                        if (!claims.Any(item => item.Type == ClaimTypes.Role) || !claims.Any(item => item.Type == "sitekey" && item.Value == alias.SiteKey))
+                        // check if user is valid, not deleted, has roles, and security stamp has not changed
+                        if (user != null && !user.IsDeleted && !string.IsNullOrEmpty(user.Roles) && context.Principal.SecurityStamp() == user.SecurityStamp)
                         {
-                            var userRepository = context.HttpContext.RequestServices.GetService(typeof(IUserRepository)) as IUserRepository;
-                            var userRoleRepository = context.HttpContext.RequestServices.GetService(typeof(IUserRoleRepository)) as IUserRoleRepository;
-                            var _logger = context.HttpContext.RequestServices.GetService(typeof(ILogManager)) as ILogManager;
-
-                            User user = userRepository.GetUser(context.Principal.Identity.Name);
-                            if (user != null)
+                            // validate sitekey in case user has changed sites in installation
+                            if (context.Principal.SiteKey() != alias.SiteKey || !context.Principal.Roles().Any())
                             {
-                                // replace principal with roles for current site
-                                List<UserRole> userroles = userRoleRepository.GetUserRoles(user.UserId, alias.SiteId).ToList();
-                                if (userroles.Any())
-                                {
-                                    var identity = UserSecurity.CreateClaimsIdentity(alias, user, userroles);
-                                    context.ReplacePrincipal(new ClaimsPrincipal(identity));
-                                    context.ShouldRenew = true;
-                                    Log(_logger, alias, "Permissions Updated For User {Username} Accessing {Url}", context.Principal.Identity.Name, path);
-                                }
-                                else
-                                {
-                                    // user has no roles - remove principal
-                                    Log(_logger, alias, "Permissions Removed For User {Username} Accessing {Url}", context.Principal.Identity.Name, path);
-                                    context.RejectPrincipal();
-                                }
+                                // refresh principal
+                                var identity = UserSecurity.CreateClaimsIdentity(alias, user);
+                                context.ReplacePrincipal(new ClaimsPrincipal(identity));
+                                context.ShouldRenew = true;
+                                Log(_logger, alias, "Permissions Refreshed For User {Username} Accessing {Url}", context.Principal.Identity.Name, path);
                             }
-                            else
-                            {
-                                // user does not exist - remove principal
-                                Log(_logger, alias, "Permissions Removed For User {Username} Accessing {Url}", context.Principal.Identity.Name, path);
-                                context.RejectPrincipal();
-                            }
+                        }
+                        else
+                        {
+                            // remove principal (ie. log user out)
+                            Log(_logger, alias, "Permissions Removed For User {Username} Accessing {Url}", context.Principal.Identity.Name, path);
+                            context.RejectPrincipal();
+                            await context.HttpContext.SignOutAsync(Constants.AuthenticationScheme);
                         }
                     }
                     else
                     {
-                        // user is signed in but tenant cannot be determined
+                        // user is signed in but site cannot be determined
+                        Log(_logger, alias, "Alias Could Not Be Resolved For User {Username} Accessing {Url}", context.Principal.Identity.Name, path);
                     }
                 }
             }
-            return Task.CompletedTask;
         }
 
         private static void Log (ILogManager logger, Alias alias, string message, string username, string path)
         {
             if (!path.StartsWith("/api/")) // reduce log verbosity
             {
-                logger.Log(alias.SiteId, LogLevel.Information, "LoginValidation", Enums.LogFunction.Security, message, username, path);
+                var siteId = (alias != null) ? alias.SiteId : -1;
+                logger.Log(siteId, LogLevel.Information, "UserValidation", Enums.LogFunction.Security, message, username, path);
             }
         }
     }

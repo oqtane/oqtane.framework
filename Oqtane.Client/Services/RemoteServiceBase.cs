@@ -4,7 +4,6 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Net.Http.Headers;
 using Oqtane.Shared;
 
 namespace Oqtane.Services
@@ -28,9 +27,9 @@ namespace Oqtane.Services
         private HttpClient GetHttpClient(string AuthorizationToken)
         {
             var httpClient = _httpClientFactory.CreateClient("Remote");
-            if (!httpClient.DefaultRequestHeaders.Contains(HeaderNames.Authorization) && !string.IsNullOrEmpty(AuthorizationToken))
+            if (!httpClient.DefaultRequestHeaders.Contains("Authorization") && !string.IsNullOrEmpty(AuthorizationToken))
             {
-                httpClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + AuthorizationToken);
+                httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + AuthorizationToken);
             }
             return httpClient;
         }

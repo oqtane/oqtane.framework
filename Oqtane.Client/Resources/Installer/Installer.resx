@@ -183,4 +183,7 @@
   <data name="Template" xml:space="preserve">
     <value>Select a site template</value>
   </data>
+  <data name="Message.Username.Invalid" xml:space="preserve">
+    <value>The Username Provided Does Not Meet The System Requirement, It Can Only Contains Letters Or Digits.</value>
+  </data>
 </root>

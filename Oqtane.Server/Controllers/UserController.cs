@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Security.Claims;
 using Oqtane.Shared;
-using System;
 using System.Net;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
@@ -120,11 +119,15 @@ namespace Oqtane.Controllers
                 filtered = new User();
 
                 // public properties
+                filtered.SiteId = user.SiteId;
                 filtered.UserId = user.UserId;
                 filtered.Username = user.Username;
                 filtered.DisplayName = user.DisplayName;
+
+                // restricted properties
                 filtered.Password = "";
                 filtered.TwoFactorCode = "";
+                filtered.SecurityStamp = "";
 
                 // include private properties if authenticated user is accessing their own user account os is an administrator
                 if (_userPermissions.IsAuthorized(User, user.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) || _userPermissions.GetUser(User).UserId == user.UserId)
@@ -260,8 +263,24 @@ namespace Oqtane.Controllers
         [Authorize]
         public async Task Logout([FromBody] User user)
         {
-            await HttpContext.SignOutAsync(Constants.AuthenticationScheme);
-            _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Logout {Username}", (user != null) ? user.Username : "");
+            if (_userPermissions.GetUser(User).UserId == user.UserId)
+            {
+                await HttpContext.SignOutAsync(Constants.AuthenticationScheme);
+                _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Logout {Username}", (user != null) ? user.Username : "");
+            }
+        }
+
+        // POST api/<controller>/logout
+        [HttpPost("logouteverywhere")]
+        [Authorize]
+        public async Task LogoutEverywhere([FromBody] User user)
+        {
+            if (_userPermissions.GetUser(User).UserId == user.UserId)
+            {
+                await _userManager.LogoutUserEverywhere(user);
+                await HttpContext.SignOutAsync(Constants.AuthenticationScheme);
+                _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Logout Everywhere {Username}", (user != null) ? user.Username : "");
+            }
         }
 
         // POST api/<controller>/verify
@@ -329,6 +348,13 @@ namespace Oqtane.Controllers
         }
 
         // GET api/<controller>/validate/x
+        [HttpGet("validateuser")]
+        public async Task<UserValidateResult> ValidateUser(string username, string email, string password)
+        {
+            return await _userManager.ValidateUser(username, email, password);
+        }
+
+        // GET api/<controller>/validate/x
         [HttpGet("validate/{password}")]
         public async Task<bool> Validate(string password)
         {
@@ -382,6 +408,7 @@ namespace Oqtane.Controllers
                 }
                 if (roles != "") roles = ";" + roles;
                 user.Roles = roles;
+                user.SecurityStamp = User.SecurityStamp();
             }
             return user;
         }
