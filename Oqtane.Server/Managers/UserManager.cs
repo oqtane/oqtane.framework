@@ -346,13 +346,11 @@ namespace Oqtane.Managers
                             user.TwoFactorExpiry = DateTime.UtcNow.AddMinutes(10);
                             _users.UpdateUser(user);
                             var alias = _tenantManager.GetAlias();
-                            string url = alias.Protocol + alias.Name;
                             string siteName = _sites.GetSite(alias.SiteId).Name;
                             string subject = _localizer["TwoFactorEmailSubject"];
                             subject = subject.Replace("[SiteName]", siteName);
                             string body = _localizer["TwoFactorEmailBody"].Value;
                             body = body.Replace("[UserDisplayName]", user.DisplayName);
-                            body = body.Replace("[URL]", url);
                             body = body.Replace("[SiteName]", siteName);
                             body = body.Replace("[Token]", token);
                             var notification = new Notification(alias.SiteId, user, subject, body);
