@@ -18,8 +18,8 @@
     <tags>oqtane</tags>
   </metadata>
   <files>
-    <file src="..\Oqtane.Client\bin\Release\net8.0\Oqtane.Client.dll" target="lib\net9.0" /> 
-    <file src="..\Oqtane.Client\bin\Release\net8.0\Oqtane.Client.pdb" target="lib\net9.0" /> 
+    <file src="..\Oqtane.Client\bin\Release\net9.0\Oqtane.Client.dll" target="lib\net9.0" /> 
+    <file src="..\Oqtane.Client\bin\Release\net9.0\Oqtane.Client.pdb" target="lib\net9.0" /> 
     <file src="icon.png" target="" />
     <file src="readme.md" target="" />
   </files>
