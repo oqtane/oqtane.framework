@@ -21,7 +21,7 @@
 
         @if ((Toolbar == "Top" || Toolbar == "Both") && _pages > 0 && Items.Count() > _maxItems)
         {
-            <ul class="pagination justify-content-center my-2">
+            <ul class="pagination justify-content-@PaginationAlignment.ToLower() my-2">
                 <li class="page-item@((_page > 1) ? " app-pager-pointer" : " disabled")">
                     <a class="page-link shadow-none" @onclick=@(async () => UpdateList(1))><span class="oi oi-media-step-backward" title="start" aria-hidden="true"></span></a>
                 </li>
@@ -84,7 +84,7 @@
 
         @if ((Toolbar == "Top" || Toolbar == "Both") && _pages > 0 && Items.Count() > _maxItems)
         {
-            <ul class="pagination justify-content-center my-2">
+            <ul class="pagination justify-content-@PaginationAlignment.ToLower() my-2">
                 <li class="page-item@((_page > 1) ? " app-pager-pointer" : " disabled")">
                     <a class="page-link shadow-none" href="@PageUrl(1, _search)"><span class="oi oi-media-step-backward" title="start" aria-hidden="true"></span></a>
                 </li>
@@ -200,7 +200,7 @@
     {
         @if (PageState.RenderMode == RenderModes.Interactive || ModuleState.RenderMode == RenderModes.Interactive)
         {
-            <ul class="pagination justify-content-center my-2">
+            <ul class="pagination justify-content-@PaginationAlignment.ToLower() my-2">
                 <li class="page-item@((_page > 1) ? " app-pager-pointer" : " disabled")">
                     <a class="page-link shadow-none" @onclick=@(async () => UpdateList(1))><span class="oi oi-media-step-backward" title="start" aria-hidden="true"></span></a>
                 </li>
@@ -248,7 +248,7 @@
         }
         else
         {
-            <ul class="pagination justify-content-center my-2">
+            <ul class="pagination justify-content-@PaginationAlignment.ToLower() my-2">
                 <li class="page-item@((_page > 1) ? " app-pager-pointer" : " disabled")">
                     <a class="page-link shadow-none" href="@PageUrl(1, _search)"><span class="oi oi-media-step-backward" title="start" aria-hidden="true"></span></a>
                 </li>
@@ -367,6 +367,12 @@
 
     [SupplyParameterFromForm(FormName = "PagerForm")]
     public string _Search { get => ""; set => _search = value; }
+
+    /// <summary>
+    /// Accepted values are Start or Center or End. The default value is Center
+    /// </summary>
+    [Parameter]
+    public string PaginationAlignment { get; set; } = "center"; // Alignment of the Page Numbering start, center, end
 
     private IEnumerable<TableItem> ItemList { get; set; }
 
