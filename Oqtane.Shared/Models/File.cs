@@ -56,7 +56,9 @@ namespace Oqtane.Models
         public string Description { get; set; }
 
         /// <summary>
-        /// Deprecated - not used
+        /// Deprecated
+        /// Note that this property still exists in the database because columns cannot be dropped in SQLite
+        /// Therefore the property must be retained/mapped even though the framework no longer uses it
         /// </summary>
         public bool? IsDeleted { get; set; }
 
