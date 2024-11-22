@@ -32,32 +32,32 @@
                         <option value="-">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
                         @foreach (Page page in _pages)
                         {
-							if (UserSecurity.ContainsRole(page.PermissionList, PermissionNames.View, RoleNames.Everyone))
-							{
-								<option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
-							}
+                            if (UserSecurity.ContainsRole(page.PermissionList, PermissionNames.View, RoleNames.Everyone))
+                            {
+                                <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
+                            }
                         }
                     </select>
                 </div>
             </div>
-			<div class="row mb-1 align-items-center">
-				<Label Class="col-sm-3" For="isDeleted" HelpText="Is this site deleted?" ResourceKey="IsDeleted">Deleted? </Label>
-				<div class="col-sm-9">
-					<select id="isDeleted" class="form-select" @bind="@_isdeleted" required>
-						<option value="True">@SharedLocalizer["Yes"]</option>
-						<option value="False">@SharedLocalizer["No"]</option>
-					</select>
-				</div>
-			</div>
-			<div class="row mb-1 align-items-center">
-				<Label Class="col-sm-3" For="sitemap" HelpText="The site map url for this site which can be submitted to search engines for indexing" ResourceKey="SiteMap">Site Map: </Label>
-				<div class="col-sm-9">
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="isDeleted" HelpText="Is this site deleted?" ResourceKey="IsDeleted">Deleted? </Label>
+                <div class="col-sm-9">
+                    <select id="isDeleted" class="form-select" @bind="@_isdeleted" required>
+                        <option value="True">@SharedLocalizer["Yes"]</option>
+                        <option value="False">@SharedLocalizer["No"]</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="sitemap" HelpText="The site map url for this site which can be submitted to search engines for indexing" ResourceKey="SiteMap">Site Map: </Label>
+                <div class="col-sm-9">
                     <div class="input-group">
                         <input id="sitemap" class="form-control" @bind="@_sitemap" disabled />
                         <a href="@_sitemap" class="btn btn-secondary" target="_new">@Localizer["Browse"]</a>
                     </div>
                 </div>
-			</div>
+            </div>
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="siteguid" HelpText="The Unique Identifier For The Site" ResourceKey="SiteGuid">ID: </Label>
                 <div class="col-sm-9">
@@ -159,8 +159,8 @@
             </div>
         </Section>
         <Section Name="PageContent" Heading="Page Content" ResourceKey="PageContent">
-           <div class="container">
-               <div class="row mb-1 align-items-center">
+            <div class="container">
+                <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="headcontent" HelpText="Optionally enter content to be included in the page head (ie. meta, link, or script tags)" ResourceKey="HeadContent">Head Content: </Label>
                     <div class="col-sm-9">
                         <textarea id="headcontent" class="form-control" @bind="@_headcontent" rows="3"></textarea>
@@ -213,10 +213,10 @@
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="password" HelpText="Enter the password for your SMTP account" ResourceKey="SmtpPassword">Password: </Label>
                     <div class="col-sm-9">
-						<div class="input-group">
-							<input id="password" type="@_smtppasswordtype" class="form-control" @bind="@_smtppassword" autocomplete="off"/>
+                        <div class="input-group">
+                            <input id="password" type="@_smtppasswordtype" class="form-control" @bind="@_smtppassword" autocomplete="off"/>
                             <button type="button" class="btn btn-secondary" @onclick="@ToggleSMTPPassword" tabindex="-1">@_togglesmtppassword</button>
-						</div>
+                        </div>
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
@@ -225,15 +225,15 @@
                         <input id="sender" class="form-control" @bind="@_smtpsender" />
                     </div>
                 </div>
-				<div class="row mb-1 align-items-center">
-					<Label Class="col-sm-3" For="relay" HelpText="Only specify this option if you have properly configured an SMTP Relay Service to route your outgoing mail. This option will send notifications from the user's email rather than from the Email Sender specified above." ResourceKey="SmtpRelay">Relay Configured? </Label>
-					<div class="col-sm-9">
-						<select id="relay" class="form-select" @bind="@_smtprelay" required>
-							<option value="True">@SharedLocalizer["Yes"]</option>
-							<option value="False">@SharedLocalizer["No"]</option>
-						</select>
-					</div>
-				</div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="relay" HelpText="Only specify this option if you have properly configured an SMTP Relay Service to route your outgoing mail. This option will send notifications from the user's email rather than from the Email Sender specified above." ResourceKey="SmtpRelay">Relay Configured? </Label>
+                    <div class="col-sm-9">
+                        <select id="relay" class="form-select" @bind="@_smtprelay" required>
+                            <option value="True">@SharedLocalizer["Yes"]</option>
+                            <option value="False">@SharedLocalizer["No"]</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="smtpenabled" HelpText="Specify if SMTP is enabled for this site" ResourceKey="SMTPEnabled">Enabled? </Label>
                     <div class="col-sm-9">
@@ -244,10 +244,10 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-					<Label Class="col-sm-3" For="retention" HelpText="Number of days of notifications to retain" ResourceKey="Retention">Retention (Days): </Label>
-					<div class="col-sm-9">
+                    <Label Class="col-sm-3" For="retention" HelpText="Number of days of notifications to retain" ResourceKey="Retention">Retention (Days): </Label>
+                    <div class="col-sm-9">
                         <input id="retention" class="form-control" type="number" min="0" step="1" @bind="@_retention" />
-					</div>
+                    </div>
                 </div>
                 <button type="button" class="btn btn-secondary" @onclick="SendEmail">@Localizer["Smtp.TestConfig"]</button>
                 <br /><br />
@@ -280,57 +280,57 @@
         </Section>
         @if (_aliases != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
         {
-			<Section Name="Aliases" Heading="Aliases" ResourceKey="Aliases">
-	            <div class="container">
-					<div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="aliases" HelpText="The urls for the site. This can include domain names (ie. domain.com), subdomains (ie. sub.domain.com) or virtual folders (ie. domain.com/folder)." ResourceKey="Aliases">Aliases: </Label>
-						<div class="col-sm-9">
-							<button type="button" class="btn btn-primary" @onclick="AddAlias">@SharedLocalizer["Add"]</button>
-							<Pager Items="@_aliases">
-								<Header>
-									<th style="width: 1px;">&nbsp;</th>
-									<th style="width: 1px;">&nbsp;</th>
-									<th>@Localizer["AliasName"]</th>
-									<th>@Localizer["AliasDefault"]</th>
-								</Header>
-								<Row>
-									@if (context.AliasId != _aliasid)
-									{
-										<td>
-											@if (_aliasid == -1)
-											{
-												<button type="button" class="btn btn-primary" @onclick="@(() => EditAlias(context))">@SharedLocalizer["Edit"]</button>
-											}
-										</td>
-										<td>
-											@if (_aliasid == -1)
-											{
-												<ActionDialog Action="Delete" OnClick="@(async () => await DeleteAlias(context))" ResourceKey="DeleteAlias" Class="btn btn-danger" Header="Delete Alias" Message="@string.Format(Localizer["Confirm.Alias.Delete", context.Name])" />
-											}
-										</td>
-										<td>@context.Name</td>
+            <Section Name="Aliases" Heading="Aliases" ResourceKey="Aliases">
+                <div class="container">
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="aliases" HelpText="The urls for the site. This can include domain names (ie. domain.com), subdomains (ie. sub.domain.com) or virtual folders (ie. domain.com/folder)." ResourceKey="Aliases">Aliases: </Label>
+                        <div class="col-sm-9">
+                            <button type="button" class="btn btn-primary" @onclick="AddAlias">@SharedLocalizer["Add"]</button>
+                            <Pager Items="@_aliases">
+                                <Header>
+                                    <th style="width: 1px;">&nbsp;</th>
+                                    <th style="width: 1px;">&nbsp;</th>
+                                    <th>@Localizer["AliasName"]</th>
+                                    <th>@Localizer["AliasDefault"]</th>
+                                </Header>
+                                <Row>
+                                    @if (context.AliasId != _aliasid)
+                                    {
+                                        <td>
+                                            @if (_aliasid == -1)
+                                            {
+                                                <button type="button" class="btn btn-primary" @onclick="@(() => EditAlias(context))">@SharedLocalizer["Edit"]</button>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (_aliasid == -1)
+                                            {
+                                                <ActionDialog Action="Delete" OnClick="@(async () => await DeleteAlias(context))" ResourceKey="DeleteAlias" Class="btn btn-danger" Header="Delete Alias" Message="@string.Format(Localizer["Confirm.Alias.Delete", context.Name])" />
+                                            }
+                                        </td>
+                                        <td>@context.Name</td>
                                         <td>@((context.IsDefault) ? SharedLocalizer["Yes"] : SharedLocalizer["No"])</td>
-									}
-									else
-									{
-										<td><button type="button" class="btn btn-success" @onclick="@(async () => await SaveAlias())">@SharedLocalizer["Save"]</button></td>
-										<td><button type="button" class="btn btn-secondary" @onclick="@(async () => await CancelAlias())">@SharedLocalizer["Cancel"]</button></td>
-										<td>
-											<input id="aliasname" class="form-control" @bind="@_aliasname" />
-										</td>
-										<td>
-											<select id="defaultalias" class="form-select" @bind="@_defaultalias" required>
-												<option value="True">@SharedLocalizer["Yes"]</option>
-												<option value="False">@SharedLocalizer["No"]</option>
-											</select>
-										</td>
-									}
-								</Row>
-							</Pager>
-						</div>
-					</div>
-				</div>
-			</Section>
+                                    }
+                                    else
+                                    {
+                                        <td><button type="button" class="btn btn-success" @onclick="@(async () => await SaveAlias())">@SharedLocalizer["Save"]</button></td>
+                                        <td><button type="button" class="btn btn-secondary" @onclick="@(async () => await CancelAlias())">@SharedLocalizer["Cancel"]</button></td>
+                                        <td>
+                                            <input id="aliasname" class="form-control" @bind="@_aliasname" />
+                                        </td>
+                                        <td>
+                                            <select id="defaultalias" class="form-select" @bind="@_defaultalias" required>
+                                                <option value="True">@SharedLocalizer["Yes"]</option>
+                                                <option value="False">@SharedLocalizer["No"]</option>
+                                            </select>
+                                        </td>
+                                    }
+                                </Row>
+                            </Pager>
+                        </div>
+                    </div>
+                </div>
+            </Section>
             <Section Name="Hosting" Heading="Hosting Model" ResourceKey="Hosting">
                 <div class="container">
                     <div class="row mb-1 align-items-center">
@@ -376,7 +376,7 @@
             <Section Name="TenantInformation" Heading="Database" ResourceKey="TenantInformation">
                 <div class="container">
                     <div class="row mb-1 align-items-center">
-						<Label Class="col-sm-3" For="tenant" HelpText="The name of the database used for the site. Note that this is not the physical database name but rather the tenant name which is used within the framework to identify a database." ResourceKey="Tenant">Database: </Label>
+                        <Label Class="col-sm-3" For="tenant" HelpText="The name of the database used for the site. Note that this is not the physical database name but rather the tenant name which is used within the framework to identify a database." ResourceKey="Tenant">Database: </Label>
                         <div class="col-sm-9">
                             <input id="tenant" class="form-control" @bind="@_tenant" readonly />
                         </div>
@@ -390,7 +390,7 @@
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="connectionstring" HelpText="The name of the connection string in appsettings.json which will be used to connect to the database" ResourceKey="ConnectionString">Connection: </Label>
                         <div class="col-sm-9">
-							<input id="connectionstring" class="form-control" @bind="@_connectionstring" readonly />
+                            <input id="connectionstring" class="form-control" @bind="@_connectionstring" readonly />
                         </div>
                     </div>
                 </div>
@@ -481,6 +481,11 @@
     {
         try
         {
+            if (PageState.QueryString.ContainsKey("updated"))
+            {
+                AddModuleMessage(Localizer["Success.Settings.SaveSite"], MessageType.Success);
+            }
+
             Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
             if (site != null)
             {
@@ -736,7 +741,7 @@
 
                         await logger.LogInformation("Site Settings Saved {Site}", site);
 
-                        NavigationManager.NavigateTo(NavigateUrl(), true); // reload
+                        NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "updated=true"), true); // reload
                     }
                 }
                 else
