@@ -30,6 +30,8 @@ else
     [Parameter]
     public SecurityAccessLevel? Security { get; set; } // optional - can be used to specify SecurityAccessLevel
 
+    public bool IsActive { get; set; }
+
     protected override void OnParametersSet()
     {
         base.OnParametersSet();

@@ -10,7 +10,7 @@
 @if (_initialized)
 {
     <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
-        <TabStrip Refresh="@_refresh">
+        <TabStrip Refresh="@_refresh" ActiveTab="@_activetab">
             <TabPanel Name="Settings" ResourceKey="Settings" Heading="Settings">
                 <div class="container">
                     <div class="row mb-1 align-items-center">
@@ -246,6 +246,7 @@
     private string _iconresources = "";
     private DateTime? _effectivedate = null;
     private DateTime? _expirydate = null;
+    private string _activetab = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -335,6 +336,7 @@
 
     private async Task SavePage()
     {
+        _activetab = "Settings";
         validated = true;
         var interop = new Interop(JSRuntime);
         if (await interop.FormValid(form))
