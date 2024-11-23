@@ -12,7 +12,7 @@
 @if (_initialized)
 {
     <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
-        <TabStrip>
+        <TabStrip ActiveTab="@_activetab">
             <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings">
                 @if (_containers != null)
                 {
@@ -162,6 +162,7 @@
     private DateTime? _effectivedate = null;
     private DateTime? _expirydate = null;
     private List<Page> _pages;
+    private string _activetab = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -241,6 +242,7 @@
 
     private async Task SaveModule()
     {
+
         validated = true;
         var interop = new Interop(JSRuntime);
         if (await interop.FormValid(form))
@@ -261,21 +263,21 @@
                 pagemodule.ExpiryDate = Utilities.LocalDateAndTimeAsUtc(_expirydate);
                 pagemodule.ContainerType = (_containerType != "-") ? _containerType : string.Empty;
                 if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Page.DefaultContainerType)
-				{
-					pagemodule.ContainerType = string.Empty;
-				}
-				if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Site.DefaultContainerType)
-				{
-					pagemodule.ContainerType = string.Empty;
-				}
-				await PageModuleService.UpdatePageModuleAsync(pagemodule);
-				await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
+                {
+                    pagemodule.ContainerType = string.Empty;
+                }
+                if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Site.DefaultContainerType)
+                {
+                    pagemodule.ContainerType = string.Empty;
+                }
+                await PageModuleService.UpdatePageModuleAsync(pagemodule);
+                await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
 
-				var module = ModuleState;
-				module.AllPages = bool.Parse(_allPages);
-				module.PageModuleId = ModuleState.PageModuleId;
-				module.PermissionList = _permissionGrid.GetPermissionList();
-				await ModuleService.UpdateModuleAsync(module);
+                var module = ModuleState;
+                module.AllPages = bool.Parse(_allPages);
+                module.PageModuleId = ModuleState.PageModuleId;
+                module.PermissionList = _permissionGrid.GetPermissionList();
+                await ModuleService.UpdateModuleAsync(module);
 
                 if (_moduleSettingsType != null)
                 {
@@ -300,11 +302,13 @@
             }
             else
             {
+                _activetab = "Settings";
                 AddModuleMessage(Localizer["Message.Required.Title"], MessageType.Warning);
             }
         }
         else
         {
+            _activetab = "Settings";
             AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
     }
