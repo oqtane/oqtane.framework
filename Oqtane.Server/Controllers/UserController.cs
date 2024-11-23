@@ -136,7 +136,7 @@ namespace Oqtane.Controllers
                     filtered.PhotoFileId = user.PhotoFileId;
                     filtered.LastLoginOn = user.LastLoginOn;
                     filtered.LastIPAddress = user.LastIPAddress;
-                    filtered.TwoFactorRequired = false;
+                    filtered.TwoFactorRequired = user.TwoFactorRequired;
                     filtered.Roles = user.Roles;
                     filtered.CreatedBy = user.CreatedBy;
                     filtered.CreatedOn = user.CreatedOn;
