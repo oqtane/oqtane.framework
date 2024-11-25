@@ -277,7 +277,7 @@
 		{
             // include CSS theme
             var interop = new Interop(JSRuntime);
-            await interop.IncludeLink("", "stylesheet", $"css/quill/quill.{_theme}.css", "text/css", "", "", "");
+            await interop.IncludeLink("", "stylesheet", $"{PageState?.Alias.BaseUrl}/css/quill/quill.{_theme}.css", "text/css", "", "", "");
         }
 
         await base.OnAfterRenderAsync(firstRender);
