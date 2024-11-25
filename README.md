@@ -1,18 +1,18 @@
+# Oqtane Framework
+
+![Oqtane](https://github.com/oqtane/framework/blob/master/oqtane.png?raw=true "Oqtane")
+
+Oqtane is an open source Content Management System (CMS) and Application Framework that provides advanced functionality for developing web, mobile, and desktop applications on modern .NET. 
+
+Oqtane allows you to "Build Applications, Not Infrastructure" which means that you can focus your investment on solving your unique business challenges rather than wasting time and effort on building out general infrastructure. Oqtane is "Rocket Fuel for Blazor" as it provides powerful capabilities to accelerate your Blazor development experience, providing scalable services and a composable UI which can be hosted on Static Blazor, Blazor Server, Blazor WebAssembly, or Blazor Hybrid (via .NET MAUI).
+
+Oqtane is being developed based on some fundamental principles which are outlined in the [Oqtane Philosophy](https://www.oqtane.org/blog/!/20/oqtane-philosophy). This project is owned by the .NET Foundation and is governed by the **[.NET Foundation Contributor Covenant Code of Conduct](https://dotnetfoundation.org/code-of-conduct)**
+
 # Latest Release
 
 [6.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v6.0.0) was released on November 14, 2024 and is a major release including 39 pull requests by 6 different contributors, pushing the total number of project commits all-time to over 6000. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Foqtane%2Foqtane.framework%2Fmaster%2Fazuredeploy.json)
-
-# Oqtane Framework
-
-![Oqtane](https://github.com/oqtane/framework/blob/master/oqtane.png?raw=true "Oqtane")
-
-Oqtane is an open source CMS and Application Framework that provides advanced functionality for developing web, mobile, and desktop applications on .NET. It leverages Blazor to compose a fully dynamic digital experience which can be hosted on Static Blazor, Blazor Server, Blazor WebAssembly, or Blazor Hybrid (via .NET MAUI).
-
-Oqtane is being developed based on some fundamental principles which are outlined in the [Oqtane Philosophy](https://www.oqtane.org/blog/!/20/oqtane-philosophy).
-
-Please note that this project is owned by the .NET Foundation and is governed by the **[.NET Foundation Contributor Covenant Code of Conduct](https://dotnetfoundation.org/code-of-conduct)**
 
 # Getting Started (Version 6.x)
 
