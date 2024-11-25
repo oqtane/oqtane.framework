@@ -87,45 +87,6 @@ This project is open source, and therefore is a work in progress...
 [6.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v6.0.0) (Nov 14, 2024)
 - [x] Migration to .NET 9
 
-[5.2.4](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.4) (Oct 17, 2024)
-- [x] Stabilization improvements
-
-[5.2.3](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.3) (Sep 23, 2024)
-- [x] Stabilization improvements
-
-[5.2.2](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.2) (Sep 23, 2024)
-- [x] Stabilization improvements
-- [x] Support for Security Stamp to faciliate Logout Everywhere
-- [x] Role synchronization from External Login identity providers
-
-[5.2.1](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.1) (Aug 22, 2024)
-- [x] Stabilization improvements
-- [x] Unzip support in File Management
-
-[5.2.0](https://github.com/oqtane/oqtane.framework/releases/tag/v5.2.0) (Jul 25, 2024)
-- [x] Site Content Search
-- [x] RichTextEditor extensibility
-- [x] Scalability and performance improvements
-
-[5.1.2](https://github.com/oqtane/oqtane.framework/releases/tag/v5.1.2) (May 28, 2024)
-- [x] Stabilization improvements
-
-[5.1.1](https://github.com/oqtane/oqtane.framework/releases/tag/v5.1.1) (Apr 16, 2024)
-- [x] Stabilization improvements
-
-[5.1.0](https://github.com/oqtane/oqtane.framework/releases/tag/v5.1.0) (Mar 27, 2024)
-- [x] Migration to the new unified Blazor approach in .NET 8 (ie. blazor.web.js)
-- [x] Static Server Rendering (SSR) support
-
-[5.0.2](https://github.com/oqtane/oqtane.framework/releases/tag/v5.0.2) (Jan 25, 2024)
-- [x] Stabilization improvements
-
-[5.0.1](https://github.com/oqtane/oqtane.framework/releases/tag/v5.0.1) (Dec 21, 2023)
-- [x] Stabilization improvements
-
-[5.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v5.0.0) (Nov 16, 2023)
-- [x] Migration to .NET 8
-
 ➡️ Full list and older versions can be found in the [docs roadmap](https://docs.oqtane.org/guides/roadmap/index.html)
 
 # Background
