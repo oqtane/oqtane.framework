@@ -339,13 +339,15 @@ namespace Oqtane.Managers
                     user = _users.GetUser(user.Username);
                     if (!user.IsDeleted)
                     {
-                        if (user.TwoFactorRequired)
+                        var alias = _tenantManager.GetAlias();
+                        var twoFactorSetting = _settings.GetSetting(EntityNames.Site, alias.SiteId, "LoginOptions:TwoFactor")?.SettingValue ?? "false";
+                        var twoFactorRequired = twoFactorSetting == "required" || user.TwoFactorRequired;
+                        if (twoFactorRequired)
                         {
                             var token = await _identityUserManager.GenerateTwoFactorTokenAsync(identityuser, "Email");
                             user.TwoFactorCode = token;
                             user.TwoFactorExpiry = DateTime.UtcNow.AddMinutes(10);
                             _users.UpdateUser(user);
-                            var alias = _tenantManager.GetAlias();
                             string siteName = _sites.GetSite(alias.SiteId).Name;
                             string subject = _localizer["TwoFactorEmailSubject"];
                             subject = subject.Replace("[SiteName]", siteName);
