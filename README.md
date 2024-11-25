@@ -4,7 +4,9 @@
 
 Oqtane is an open source Content Management System (CMS) and Application Framework that provides advanced functionality for developing web, mobile, and desktop applications on modern .NET. 
 
-Oqtane allows you to "Build Applications, Not Infrastructure" which means that you can focus your investment on solving your unique business challenges rather than wasting time and effort on building out general infrastructure. Oqtane is "Rocket Fuel for Blazor" as it provides powerful capabilities to accelerate your Blazor development experience, providing scalable services and a composable UI which can be hosted on Static Blazor, Blazor Server, Blazor WebAssembly, or Blazor Hybrid (via .NET MAUI).
+Oqtane allows you to "Build Applications, Not Infrastructure" which means that you can focus your investment on solving your unique business challenges rather than wasting time and effort on building out general infrastructure. 
+
+Oqtane is "Rocket Fuel for Blazor" as it provides powerful capabilities to accelerate your Blazor development experience, providing scalable services and a composable UI which can be hosted on Static Blazor, Blazor Server, Blazor WebAssembly, or Blazor Hybrid (via .NET MAUI).
 
 Oqtane is being developed based on some fundamental principles which are outlined in the [Oqtane Philosophy](https://www.oqtane.org/blog/!/20/oqtane-philosophy). This project is owned by the .NET Foundation and is governed by the **[.NET Foundation Contributor Covenant Code of Conduct](https://dotnetfoundation.org/code-of-conduct)**
 
