@@ -673,7 +673,6 @@
                 else
                 {
                     _activetab = "Settings";
-                    _refresh = true;
                     AddModuleMessage(Localizer["Message.Required.PageInfo"], MessageType.Warning);                    
                 }
             }
@@ -681,14 +680,12 @@
             {
                 await logger.LogError(ex, "Error Saving Page {Page} {Error}", _page, ex.Message);
                 _activetab = "Settings";
-                _refresh = true;
                 AddModuleMessage(Localizer["Error.Page.Save"], MessageType.Error);
             }
         }
         else
         {
             _activetab = "Settings";
-            _refresh = true;
             AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
     }

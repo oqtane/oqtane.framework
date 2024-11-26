@@ -7,7 +7,7 @@
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <div class="quill-text-editor">
-    <TabStrip ActiveTab="@_activetab">
+    <TabStrip ActiveTab="@_activetab" TabChangeEvent=false>
         @if (_allowRichText)
         {
             <TabPanel Name="Rich" Heading="Rich Text Editor" ResourceKey="RichTextEditor">
