@@ -254,11 +254,11 @@
     protected override void OnInitialized()
     {
         _interop = new QuillEditorInterop(JSRuntime);
-
         if (string.IsNullOrEmpty(Placeholder))
         {
             Placeholder = Localizer["Placeholder"];
         }
+       // _activetab = "Rich";
     }
 
     protected override void OnParametersSet()
@@ -269,6 +269,10 @@
         {
             _activetab = "Raw";
         }
+        // else
+        // {
+        //     _activetab = "Rich";
+        // }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
