@@ -230,13 +230,13 @@
 
                             @if (context.IsRead)
                             {
-                                <td>@context.FromDisplayName</td>
+                                <td>@(string.IsNullOrEmpty(context.FromDisplayName) ? SharedLocalizer["System"] : context.FromDisplayName)</td>
                                 <td>@context.Subject</td>
                                 <td>@string.Format("{0:dd-MMM-yyyy HH:mm:ss}", @context.CreatedOn)</td>
                             }
                             else
                             {
-                                <td><b>@context.FromDisplayName</b></td>
+                                <td><b>@(string.IsNullOrEmpty(context.FromDisplayName) ? SharedLocalizer["System"] : context.FromDisplayName)</b></td>
                                 <td><b>@context.Subject</b></td>
                                 <td><b>@string.Format("{0:dd-MMM-yyyy HH:mm:ss}", @context.CreatedOn)</b></td>
                             }

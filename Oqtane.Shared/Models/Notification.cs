@@ -144,25 +144,25 @@ namespace Oqtane.Models
             {
                 FromUserId = from.UserId;
                 FromDisplayName = from.DisplayName;
-                FromEmail = from.Email;
+                FromEmail = from.Email ?? "";
             }
             else
             {
                 FromUserId = null;
                 FromDisplayName = fromDisplayName;
-                FromEmail = fromEmail;
+                FromEmail = fromEmail ?? "";
             }
             if (to != null)
             {
                 ToUserId = to.UserId;
                 ToDisplayName = to.DisplayName;
-                ToEmail = to.Email;
+                ToEmail = to.Email ?? "";
             }
             else
             {
                 ToUserId = null;
                 ToDisplayName = toDisplayName;
-                ToEmail = toEmail;
+                ToEmail = toEmail ?? "";
             }
             Subject = subject;
             Body = body;
