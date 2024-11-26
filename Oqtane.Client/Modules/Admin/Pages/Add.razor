@@ -469,7 +469,6 @@
                 }
                 else
                 {
-                    _activetab = "Settings";
                     AddModuleMessage(Localizer["Message.Required.PageInfo"], MessageType.Warning);
                 }
 
@@ -477,13 +476,11 @@
             catch (Exception ex)
             {
                 await logger.LogError(ex, "Error Saving Page {Page} {Error}", page, ex.Message);
-                _activetab = "Settings";
                 AddModuleMessage(Localizer["Error.Page.Save"], MessageType.Error);
             }
         }
         else
         {
-            _activetab = "Settings";
             AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
     }

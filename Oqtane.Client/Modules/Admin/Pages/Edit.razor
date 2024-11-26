@@ -523,7 +523,7 @@
 
     private async Task SavePage()
     {
-        //_activetab = "Settings";
+        _activetab = "Settings";
         validated = true;
         var interop = new Interop(JSRuntime);
         if (await interop.FormValid(form))
@@ -672,20 +672,17 @@
                 }
                 else
                 {
-                    _activetab = "Settings";
                     AddModuleMessage(Localizer["Message.Required.PageInfo"], MessageType.Warning);                    
                 }
             }
             catch (Exception ex)
             {
                 await logger.LogError(ex, "Error Saving Page {Page} {Error}", _page, ex.Message);
-                _activetab = "Settings";
                 AddModuleMessage(Localizer["Error.Page.Save"], MessageType.Error);
             }
         }
         else
         {
-            _activetab = "Settings";
             AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
     }
