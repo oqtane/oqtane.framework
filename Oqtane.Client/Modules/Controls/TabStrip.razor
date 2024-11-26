@@ -8,18 +8,9 @@
                 @foreach (TabPanel tabPanel in _tabPanels)
                 {
                     <li class="nav-item" @key="tabPanel.Name">
-                        @if (tabPanel.Name.ToLower() == ActiveTab.ToLower())
-                        {
-                            <a class="nav-link active" data-bs-toggle="tab" href="#@(Id + tabPanel.Name)" role="tab" @onclick="() => { if (TabChangeEvent) ChangeTab(tabPanel.Name); }">
-                                @tabPanel.DisplayHeading()
-                            </a>
-                        }
-                        else
-                        {
-                        <a class="nav-link" data-bs-toggle="tab" href="#@(Id + tabPanel.Name)" role="tab" @onclick="() => { if (TabChangeEvent) ChangeTab(tabPanel.Name); }">
-                                @tabPanel.DisplayHeading()
-                            </a>
-                        }
+                        <a class="nav-link @(tabPanel.IsActive ? "active" : "")" data-bs-toggle="tab" href="#@(Id + tabPanel.Name)" role="tab" @onclick:preventDefault="true" @onclick="() => SetActiveTab(tabPanel.Name)">
+                            @tabPanel.DisplayHeading()
+                        </a>
                     </li>
                 }
             </ul>
@@ -32,47 +23,70 @@
 </CascadingValue>
 
 @code {
-    private List<TabPanel> _tabPanels;
-    private string _tabpanelid = string.Empty;
+	private List<TabPanel> _tabPanels;
+	private string _tabpanelid = string.Empty;
 
-    [Parameter]
-    public RenderFragment ChildContent { get; set; } // contains the TabPanels
+	[Parameter]
+	public RenderFragment ChildContent { get; set; } // contains the TabPanels
 
-    [Parameter]
-    public bool TabChangeEvent { get; set; } = true;
+	[Parameter]
+	public string ActiveTab { get; set; } // optional - defaults to first TabPanel if not specified. Can also be set using a "tab=" querystring parameter.
 
-    [Parameter]
-    public string ActiveTab { get; set; } // optional - defaults to first TabPanel if not specified. Can also be set using a "tab=" querystring parameter.
+	[Parameter]
+	public bool Refresh { get; set; } // optional - used in scenarios where TabPanels are added/removed dynamically within a parent form. ActiveTab may need to be reset as well when this property is used.
 
-    [Parameter]
-    public bool Refresh { get; set; } // optional - used in scenarios where TabPanels are added/removed dynamically within a parent form. ActiveTab may need to be reset as well when this property is used.
-
-    [Parameter]
-    public string Id { get; set; } // optional - used to uniquely identify an instance of a tab strip component (will be set automatically if no value provided)
+	[Parameter]
+	public string Id { get; set; } // optional - used to uniquely identify an instance of a tab strip component (will be set automatically if no value provided)
 
     [Parameter]
     public string TabContentClass { get; set; } // optional - to extend the TabContent div.
 
-    protected override void OnInitialized()
-    {
-        if (string.IsNullOrEmpty(Id))
-        {
-            // create unique id for component
-            Id = "TabStrip_" + Guid.NewGuid().ToString("N") + "_";
-        }
-    }
-
+	protected override void OnInitialized()
+	{
+		if (string.IsNullOrEmpty(Id))
+		{
+			// create unique id for component
+			Id = "TabStrip_" + Guid.NewGuid().ToString("N") + "_" ;
+		}
+	}
+	
     protected override void OnParametersSet()
     {
+        base.OnParametersSet();
+
         if (PageState.QueryString.ContainsKey("tab"))
         {
             ActiveTab = PageState.QueryString["tab"];
         }
+
         if (_tabPanels == null || Refresh)
         {
             _tabPanels = new List<TabPanel>();
         }
-        StateHasChanged();
+
+        // Ensure the active tab is valid and exists
+        if (!string.IsNullOrEmpty(ActiveTab) && _tabPanels.Any())
+        {
+            var activeTabExists = _tabPanels.Any(tp => tp.Name.Equals(ActiveTab, StringComparison.OrdinalIgnoreCase));
+            if (!activeTabExists)
+            {
+                ActiveTab = _tabPanels[0].Name;
+            }
+        }
+
+        // Update the active tab in the UI
+        UpdateActiveTab();
+    }
+
+    private void UpdateActiveTab()
+    {
+        if (!string.IsNullOrEmpty(ActiveTab) && _tabPanels != null)
+        {
+            foreach (var tabPanel in _tabPanels)
+            {
+                tabPanel.IsActive = tabPanel.Name.Equals(ActiveTab, StringComparison.OrdinalIgnoreCase);
+            }
+        }
     }
 
     internal void AddTabPanel(TabPanel tabPanel)
@@ -80,12 +94,20 @@
         if (!_tabPanels.Exists(item => item.Name == tabPanel.Name) && IsAuthorized(tabPanel))
         {
             _tabPanels.Add(tabPanel);
+            if (string.IsNullOrEmpty(ActiveTab))
+            {
+                ActiveTab = tabPanel.Name;
+            }
+            UpdateActiveTab();
             StateHasChanged();
         }
-        if (string.IsNullOrEmpty(ActiveTab))
-        {
-            ActiveTab = tabPanel.Name;
-        }
+    }
+
+    private void SetActiveTab(string tabName)
+    {
+        ActiveTab = tabName;
+        UpdateActiveTab();
+        StateHasChanged();
     }
 
     private bool IsAuthorized(TabPanel tabPanel)
@@ -113,14 +135,5 @@
                 break;
         }
         return authorized;
-    }
-
-    private void ChangeTab(string tabName)
-    {
-        if (ActiveTab != tabName)
-        {
-            ActiveTab = tabName;
-            StateHasChanged();
-        }
     }
 }
