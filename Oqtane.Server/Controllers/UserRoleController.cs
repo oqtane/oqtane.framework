@@ -10,7 +10,6 @@ using System.Linq;
 using System.Net;
 using Oqtane.Security;
 using System;
-using Oqtane.Modules.Admin.Roles;
 
 namespace Oqtane.Controllers
 {
@@ -40,24 +39,34 @@ namespace Oqtane.Controllers
         public IEnumerable<UserRole> Get(string siteid, string userid = null, string rolename = null)
         {
             int SiteId;
-            if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId && (userid != null || rolename != null))
+            int UserId = -1;
+            if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId && (userid != null && int.TryParse(userid, out UserId) || rolename != null))
             {
-                var userroles = _userRoles.GetUserRoles(SiteId).ToList();
-                if (userid != null)
+                if (IsAuthorized(UserId, rolename))
                 {
-                    int UserId = int.TryParse(userid, out UserId) ? UserId : -1;
-                    userroles = userroles.Where(item => item.UserId == UserId).ToList();
+                    var userroles = _userRoles.GetUserRoles(SiteId).ToList();
+                    if (UserId != -1)
+                    {
+                        userroles = userroles.Where(item => item.UserId == UserId).ToList();
+                    }
+                    if (rolename != null)
+                    {
+                        userroles = userroles.Where(item => item.Role.Name == rolename).ToList();
+                    }
+                    var user = _userPermissions.GetUser();
+                    for (int i = 0; i < userroles.Count(); i++)
+                    {
+                        userroles[i] = Filter(userroles[i], user.UserId);
+                    }
+                    return userroles.OrderBy(u => u.User.DisplayName);
+
                 }
-                if (rolename != null)
+                else
                 {
-                    userroles = userroles.Where(item => item.Role.Name == rolename).ToList();
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized UserRole Get Attempt For Site {SiteId} User {UserId} Role {RoleName}", siteid, userid, rolename);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return null;
                 }
-                var user = _userPermissions.GetUser();
-                for (int i = 0; i < userroles.Count(); i++)
-                {
-                    userroles[i] = Filter(userroles[i], user.UserId);
-                }
-                return userroles.OrderBy(u => u.User.DisplayName);
             }
             else
             {
@@ -73,7 +82,7 @@ namespace Oqtane.Controllers
         public UserRole Get(int id)
         {
             var userrole = _userRoles.GetUserRole(id);
-            if (userrole != null && SiteValid(userrole.Role.SiteId))
+            if (userrole != null && SiteValid(userrole.Role.SiteId) && IsAuthorized(userrole.UserId, userrole.Role.Name))
             {
                 return Filter(userrole, _userPermissions.GetUser().UserId);
             }
@@ -92,33 +101,57 @@ namespace Oqtane.Controllers
             }
         }
 
+        private bool IsAuthorized(int userId, string roleName)
+        {
+            bool authorized = true;
+            if (userId != -1)
+            {
+                authorized = _userPermissions.GetUser(User).UserId == userId;
+            }
+            if (authorized && !string.IsNullOrEmpty(roleName))
+            {
+                authorized = User.IsInRole(roleName);
+            }
+            return authorized;
+        }
+
         private UserRole Filter(UserRole userrole, int userid)
         {
+            // clone object to avoid mutating cache 
+            UserRole filtered = null;
+
             if (userrole != null)
             {
-                userrole.User.Password = "";
-                userrole.User.IsAuthenticated = false;
-                userrole.User.TwoFactorCode = "";
-                userrole.User.TwoFactorExpiry = null;
+                filtered = new UserRole();
 
-                if (!_userPermissions.IsAuthorized(User, userrole.User.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) && userid != userrole.User.UserId)
+                // public properties
+                filtered.UserRoleId = userrole.UserRoleId;
+                filtered.UserId = userrole.UserId;
+                filtered.RoleId = userrole.RoleId;
+
+                filtered.User = new User();
+                filtered.User.SiteId = userrole.User.SiteId;
+                filtered.User.UserId = userrole.User.UserId;
+                filtered.User.Username = userrole.User.Username;
+                filtered.User.DisplayName = userrole.User.DisplayName;
+
+                filtered.Role = new Role();
+                filtered.Role.SiteId = userrole.Role.SiteId;
+                filtered.Role.RoleId = userrole.Role.RoleId;
+                filtered.Role.Name = userrole.Role.Name;
+
+                // include private properties if administrator
+                if (_userPermissions.IsAuthorized(User, filtered.User.SiteId, EntityNames.UserRole, -1, PermissionNames.Write, RoleNames.Admin))
                 {
-                    userrole.User.Email = "";
-                    userrole.User.PhotoFileId = null;
-                    userrole.User.LastLoginOn = DateTime.MinValue;
-                    userrole.User.LastIPAddress = "";
-                    userrole.User.Roles = "";
-                    userrole.User.CreatedBy = "";
-                    userrole.User.CreatedOn = DateTime.MinValue;
-                    userrole.User.ModifiedBy = "";
-                    userrole.User.ModifiedOn = DateTime.MinValue;
-                    userrole.User.DeletedBy = "";
-                    userrole.User.DeletedOn = DateTime.MinValue;
-                    userrole.User.IsDeleted = false;
-                    userrole.User.TwoFactorRequired = false;
+                    filtered.User.Email = userrole.User.Email;
+                    filtered.User.PhotoFileId = userrole.User.PhotoFileId;
+                    filtered.User.LastLoginOn = userrole.User.LastLoginOn;
+                    filtered.User.LastIPAddress = userrole.User.LastIPAddress;
+                    filtered.User.CreatedOn = userrole.User.CreatedOn;
                 }
             }
-            return userrole;
+
+            return filtered;
         }
 
         // POST api/<controller>
