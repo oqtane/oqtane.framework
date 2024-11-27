@@ -269,11 +269,7 @@ namespace Oqtane.Controllers
                     authorized = _userPermissions.IsAuthorized(User, _alias.SiteId, entityName, entityId, permissionName);
                     break;
                 case EntityNames.User:
-                    authorized = true;
-                    if (permissionName == PermissionNames.Edit)
-                    {
-                        authorized = _userPermissions.IsAuthorized(User, _alias.SiteId, entityName, -1, PermissionNames.Write, RoleNames.Admin) || (_userPermissions.GetUser(User).UserId == entityId);
-                    }
+                    authorized = _userPermissions.IsAuthorized(User, _alias.SiteId, entityName, -1, PermissionNames.Write, RoleNames.Admin) || (_userPermissions.GetUser(User).UserId == entityId);
                     break;
                 case EntityNames.Visitor:
                     authorized = User.IsInRole(RoleNames.Admin);
@@ -319,7 +315,7 @@ namespace Oqtane.Controllers
                     filter = !_userPermissions.IsAuthorized(User, _alias.SiteId, entityName, entityId, PermissionNames.Edit);
                     break;
                 case EntityNames.User:
-                    filter = !User.IsInRole(RoleNames.Admin) && _userPermissions.GetUser(User).UserId != entityId;
+                    filter = !_userPermissions.IsAuthorized(User, _alias.SiteId, entityName, -1, PermissionNames.Write, RoleNames.Admin) && _userPermissions.GetUser(User).UserId != entityId;
                     break;
                 case EntityNames.Visitor:
                     if (!User.IsInRole(RoleNames.Admin))
