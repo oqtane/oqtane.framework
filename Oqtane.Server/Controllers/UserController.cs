@@ -145,20 +145,7 @@ namespace Oqtane.Controllers
                     filtered.DeletedBy = user.DeletedBy;
                     filtered.DeletedOn = user.DeletedOn;
                     filtered.IsDeleted = user.IsDeleted;
-                }
-
-                // if authenticated user is accessing their own user account
-                if (_userPermissions.GetUser(User).UserId == user.UserId)
-                {
-                    // include all settings
-                    filtered.Settings = user.Settings;
-                }
-                else
-                {
-                    // include only public settings
-                    filtered.Settings = _settings.GetSettings(EntityNames.User, user.UserId)
-                        .Where(item => !item.IsPrivate)
-                        .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
+                    filtered.Settings = user.Settings; // include all settings
                 }
             }
 
