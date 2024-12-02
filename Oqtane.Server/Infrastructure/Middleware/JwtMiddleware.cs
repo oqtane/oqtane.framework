@@ -41,12 +41,13 @@ namespace Oqtane.Infrastructure
                             var legacynameclaim = "name"; // this was a breaking change in System.IdentityModel.Tokens.Jwt in .NET 7
 
                             // get jwt claims for userid and username
-                            var userid = identity.Claims.FirstOrDefault(item => item.Type == idclaim)?.Value;
-                            if (userid != null)
+                            var userIdString = identity.Claims.FirstOrDefault(item => item.Type == idclaim)?.Value;
+                            var userId = 0;
+                            if (userIdString != null)
                             {
-                                if (!int.TryParse(userid, out _))
+                                if (!int.TryParse(userIdString, out userId))
                                 {
-                                    userid = null;
+                                    userIdString = null;
                                 }
                             }
                             var username = identity.Claims.FirstOrDefault(item => item.Type == nameclaim)?.Value;
@@ -56,10 +57,10 @@ namespace Oqtane.Infrastructure
                                 username = identity.Claims.FirstOrDefault(item => item.Type == legacynameclaim)?.Value;
                             }
 
-                            if (userid != null && username != null)
+                            if (userIdString != null && username != null)
                             {
                                 var _users = context.RequestServices.GetService(typeof(IUserManager)) as IUserManager;
-                                var user = _users.GetUser(userid, alias.SiteId); // cached
+                                var user = _users.GetUser(userId, alias.SiteId); // cached
                                 if (user != null && !user.IsDeleted)
                                 {
                                     var claimsidentity = UserSecurity.CreateClaimsIdentity(alias, user);

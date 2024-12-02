@@ -255,6 +255,11 @@ namespace Microsoft.Extensions.DependencyInjection
                         {
                             client.DefaultRequestHeaders.Add("Cookie", cookie.Key + "=" + cookie.Value);
                         }
+
+                        if (httpContextAccessor.HttpContext.Request.Headers.ContainsKey("Authorization"))
+                        {
+                            client.DefaultRequestHeaders.Add("Authorization", Convert.ToString(httpContextAccessor.HttpContext.Request.Headers["Authorization"]));
+                        }
                     }
 
                     return client;
@@ -272,6 +277,11 @@ namespace Microsoft.Extensions.DependencyInjection
                     foreach (var cookie in httpContextAccessor.HttpContext.Request.Cookies)
                     {
                         client.DefaultRequestHeaders.Add("Cookie", cookie.Key + "=" + cookie.Value);
+                    }
+
+                    if (httpContextAccessor.HttpContext.Request.Headers.ContainsKey("Authorization"))
+                    {
+                        client.DefaultRequestHeaders.Add("Authorization", Convert.ToString(httpContextAccessor.HttpContext.Request.Headers["Authorization"]));
                     }
                 }
             });
