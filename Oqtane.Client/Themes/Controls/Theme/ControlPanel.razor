@@ -9,7 +9,7 @@
     <LanguageSwitcher ButtonClass="@ButtonClass" DropdownAlignment="@LanguageDropdownAlignment" />
 }
 
-@if (_showEditMode || (PageState.Page.IsPersonalizable && PageState.User != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Registered)))
+@if (ShowEditMode && (_showEditMode || (PageState.Page.IsPersonalizable && PageState.User != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Registered))))
 {
     <form method="post" class="app-form-inline" @formname="EditModeForm" @onsubmit="@(async () => await ToggleEditMode(PageState.EditMode))" data-enhance>
         <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
@@ -59,9 +59,15 @@
     [Parameter]
     public string LanguageDropdownAlignment { get; set; } = string.Empty; // Empty or Left or Right
 
+    /// <summary>
+    /// Ability to hide the Edit Mode toggle button
+    /// </summary>
+    [Parameter]
+    public bool ShowEditMode { get; set; } = true;
+
     private PageState _pageState;
     private bool _canViewAdminDashboard = false;
-    private bool _showEditMode = false;
+    private bool _showEditMode = false; // internal state (not the same as ShowEditMode parameter)
 
     protected override void OnParametersSet()
     {
