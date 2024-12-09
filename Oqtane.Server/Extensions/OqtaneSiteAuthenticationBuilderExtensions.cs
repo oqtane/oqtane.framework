@@ -645,6 +645,9 @@ namespace Oqtane.Extensions
                         }
                     }
 
+                    var _syncManager = httpContext.RequestServices.GetRequiredService<ISyncManager>();
+                    _syncManager.AddSyncEvent(alias, EntityNames.User, user.UserId, "Login");
+
                     _logger.Log(LogLevel.Information, "ExternalLogin", Enums.LogFunction.Security, "External User Login Successful For {Username} From IP Address {IPAddress} Using Provider {Provider}", user.Username, httpContext.Connection.RemoteIpAddress.ToString(), providerName);
                 }
             }
