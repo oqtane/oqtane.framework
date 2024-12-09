@@ -374,6 +374,8 @@ namespace Oqtane.Managers
                                     _users.UpdateUser(user);
                                     _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful For {Username} From IP Address {IPAddress}", user.Username, LastIPAddress);
 
+                                    _syncManager.AddSyncEvent(alias, EntityNames.User, user.UserId, "Login");
+
                                     if (setCookie)
                                     {
                                         await _identitySignInManager.SignInAsync(identityuser, isPersistent);
