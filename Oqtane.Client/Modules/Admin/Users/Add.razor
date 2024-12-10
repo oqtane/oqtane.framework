@@ -81,11 +81,11 @@
                                 {
                                     @if (p.Rows == 1)
                                     {
-                                        <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                        <input id="@p.Name" class="form-control" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)" />
                                     }
                                     else
                                     {
-                                        <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))"></textarea>
+                                        <textarea id="@p.Name" class="form-control" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)"></textarea>
                                     }
                                 }
                             </div>
