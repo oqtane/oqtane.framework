@@ -1,4 +1,4 @@
 TargetFramework=$1
 
-"..\..\oqtane.framework\oqtane.package\nuget.exe" pack [Owner].Module.[Module].nuspec -Properties targetframework=$TargetFramework
-cp -f "*.nupkg" "..\..\oqtane.framework\Oqtane.Server\Packages\"
+"..\..\[RootFolder]\oqtane.package\nuget.exe" pack %ProjectName%.nuspec-Properties targetframework=%TargetFramework%;projectname=%ProjectName%
+cp -f "*.nupkg" "..\..\[RootFolder]\Oqtane.Server\Packages\"
