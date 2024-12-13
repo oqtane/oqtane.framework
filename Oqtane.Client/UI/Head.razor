@@ -41,7 +41,7 @@
                 }
                 break;
             case "HeadContent":
-                var content = RemoveScripts(SiteState.Properties.HeadContent) + "\n";
+                var content = FormatScripts(SiteState.Properties.HeadContent) + "\n";
                 if (content != _content)
                 {
                     _content = content;
@@ -51,14 +51,30 @@
         }
     }
 
-    private string RemoveScripts(string headcontent)
+    private string FormatScripts(string headcontent)
     {
-        if (!string.IsNullOrEmpty(headcontent) && RenderMode == RenderModes.Interactive)
+        if (!string.IsNullOrEmpty(headcontent))
         {
             var index = headcontent.IndexOf("<script");
             while (index >= 0)
             {
-                headcontent = headcontent.Remove(index, headcontent.IndexOf("</script>") + 9 - index);
+                var script = headcontent.Substring(index, headcontent.IndexOf("</script>") + 9 - index);
+                if (RenderMode == RenderModes.Interactive)
+                {
+                    // remove scripts when interactive rendering
+                    headcontent = headcontent.Remove(index, script.Length);
+                }
+                else
+                {
+                    // transform scripts into page-scripts when static rendering
+                    var pagescript = script.Replace("script", "page-script");
+                    if (!pagescript.Contains("><"))
+                    {
+                        var content = pagescript.Substring(pagescript.IndexOf(">") + 1, pagescript.LastIndexOf("<") - pagescript.IndexOf(">") - 1);
+                        pagescript = pagescript.Replace(">" + content, " content=\"" + content.Replace("\"","'") + "\">");
+                    }
+                    headcontent = headcontent.Replace(script, pagescript);
+                }
                 index = headcontent.IndexOf("<script");
             }
         }
