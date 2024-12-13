@@ -547,37 +547,20 @@
 
     private string CreateScript(Resource resource, Alias alias)
     {
-        if (!string.IsNullOrEmpty(resource.Url))
+        var src = resource.Url;
+        if (!string.IsNullOrEmpty(src))
         {
-            if (!resource.Reload)
-            {
-                var url = (resource.Url.Contains("://")) ? resource.Url : alias.BaseUrl + resource.Url;
-                return "<script" +
-                    ((!string.IsNullOrEmpty(resource.Integrity)) ? " integrity=\"" + resource.Integrity + "\"" : "") +
-                    ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
-                    ((resource.ES6Module) ? " type=\"module\"" : "") +
-                    " src=\"" + url + "\"></script>"; // src at end of element due to enhanced navigation patch algorithm
-            }
-            else
-            {
-                // use custom element which can execute script on every page transition
-                @if (string.IsNullOrEmpty(resource.Integrity) && string.IsNullOrEmpty(resource.CrossOrigin))
-                {
-                    return "<page-script src=\"" + resource.Url + "\"></page-script>";
-                }
-                else
-                {
-                    // use modulepreload for external resources
-                    return "<link rel=\"modulepreload\" href=\"" + resource.Url + "\" integrity=\"" + resource.Integrity + "\" crossorigin=\"" + resource.CrossOrigin + "\" />\n" +
-                        "<page-script src=\"" + resource.Url + "\"></page-script>";
-                }
-            }
+            src = (resource.Url.Contains("://")) ? resource.Url : alias.BaseUrl + resource.Url;
         }
-        else
-        {
-            // inline script
-            return "<script>" + resource.Content + "</script>";
-        }
+        
+        return "<page-script" +
+            ((!string.IsNullOrEmpty(src)) ? " src=\"" + src + "\"" : "") +
+            ((resource.ES6Module || resource.Reload) ? " type=\"module\"" : "") +
+            ((!string.IsNullOrEmpty(resource.Integrity)) ? " integrity=\"" + resource.Integrity + "\"" : "") +
+            ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
+            ((!string.IsNullOrEmpty(resource.Content)) ? " content=\"" + resource.Content + "\"" : "") +
+            ((resource.Reload) ? " reload=\"true\"" : "") +
+            "></page-script>";
     }
 
     private void SetLocalizationCookie(string cookieValue)
