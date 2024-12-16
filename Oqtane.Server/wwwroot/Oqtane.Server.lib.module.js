@@ -45,6 +45,7 @@ async function initializePageScript(pageScriptInfo) {
             console.error("Failed to load script: ${pageScriptInfo.src}", error);
         }
     }
+    removePageScript(pageScriptInfo);
 }
 
 function onEnhancedLoad() {
@@ -72,16 +73,18 @@ function onEnhancedLoad() {
             }
         }
     }
+
+    for (const [key, pageScriptInfo] of pageScriptInfoBySrc) {
+        removePageScript(pageScriptInfo);
+    }
 }
 
 function injectScript(pageScriptInfo) {
     return new Promise((resolve, reject) => {
-        var pageScript;
         var script = document.createElement("script");
         script.async = false;
 
         if (pageScriptInfo.src !== "") {
-            pageScript = document.querySelector("page-script[src=\"" + pageScriptInfo.src + "\"]");
             script.src = pageScriptInfo.src;
             if (pageScriptInfo.type !== "") {
                 script.type = pageScriptInfo.type;
@@ -93,7 +96,6 @@ function injectScript(pageScriptInfo) {
                 script.crossOrigin = pageScriptInfo.crossorigin;
             }
         } else {
-            pageScript = document.querySelector("page-script[content=\"" + CSS.escape(pageScriptInfo.content) + "\"]");
             script.innerHTML = pageScriptInfo.content;
         }
 
@@ -101,25 +103,27 @@ function injectScript(pageScriptInfo) {
         script.onerror = (error) => reject(error);
 
         // add script to page
-        if (pageScriptInfo.location === "head") {
-            document.head.appendChild(script);
-        } else {
-            document.body.appendChild(script);
-            // note this throws an exception when page-script is on a page which has interactive components (ie Counter.razor)
-            // Error: Uncaught (in promise) TypeError: can't access property "attributes" of null
-            // this seems to be related to Blazor-Server-Component-State which is also injected at the end of the body
-        }
-
-        // remove page-script element from page
-        if (pageScript !== null) {
-            pageScript.remove();
-        }
+        document.head.appendChild(script);
     });
+}
+
+function removePageScript(pageScriptInfo) {
+    var pageScript;
+
+    if (pageScriptInfo.src !== "") {
+        pageScript = document.querySelector("page-script[src=\"" + pageScriptInfo.src + "\"]");
+    } else {
+        pageScript = document.querySelector("page-script[content=\"" + CSS.escape(pageScriptInfo.content) + "\"]");
+    }
+
+    if (pageScript) {
+        pageScript.remove();
+    }
 }
 
 export function afterWebStarted(blazor) {
     customElements.define('page-script', class extends HTMLElement {
-        static observedAttributes = ['src', 'type', 'integrity', 'crossorigin', 'content', 'location', 'reload'];
+        static observedAttributes = ['src', 'type', 'integrity', 'crossorigin', 'content', 'reload'];
 
         constructor() {
             super();
@@ -129,7 +133,6 @@ export function afterWebStarted(blazor) {
             this.integrity = "";
             this.crossorigin = "";
             this.content = "";
-            this.location = "head";
             this.reload = false;
         }
 
@@ -150,17 +153,15 @@ export function afterWebStarted(blazor) {
                 case "content":
                     this.content = newValue;
                     break;
-                case "location":
-                    this.location = newValue;
-                    break;
                 case "reload":
                     this.reload = newValue;
                     break;
             }
-        }
 
-        connectedCallback() {
-            registerPageScriptElement(this);
+            // if last attribute for element has been processed
+            if (this.attributes[this.attributes.length - 1].name === name) {
+                registerPageScriptElement(this);
+            }
         }
 
         disconnectedCallback() {
