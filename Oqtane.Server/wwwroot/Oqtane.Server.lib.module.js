@@ -96,13 +96,14 @@ function scriptExists(pageScriptInfo) {
 function injectScript(pageScriptInfo) {
     return new Promise((resolve, reject) => {
         var script = document.createElement("script");
+
         script.async = false;
+        if (pageScriptInfo.type !== "") {
+            script.type = pageScriptInfo.type;
+        }
 
         if (pageScriptInfo.src !== "") {
             script.src = pageScriptInfo.src;
-            if (pageScriptInfo.type !== "") {
-                script.type = pageScriptInfo.type;
-            }
             if (pageScriptInfo.integrity !== "") {
                 script.integrity = pageScriptInfo.integrity;
             }
