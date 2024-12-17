@@ -70,10 +70,13 @@
                     var pagescript = script.Replace("script", "page-script");
                     if (!pagescript.Contains("><"))
                     {
+                        // convert inline script body to content attribute
                         var content = pagescript.Substring(pagescript.IndexOf(">") + 1, pagescript.LastIndexOf("<") - pagescript.IndexOf(">") - 1);
                         pagescript = pagescript.Replace(">" + content, " content=\"" + content.Replace("\"","'") + "\">");
                     }
-                    headcontent = headcontent.Replace(script, pagescript);
+                    // move page-script to end of headcontent as Blazor will move anything after a page-script element to the top of the body
+                    headcontent = headcontent.Replace(script, "");
+                    headcontent = headcontent + pagescript;
                 }
                 index = headcontent.IndexOf("<script");
             }
