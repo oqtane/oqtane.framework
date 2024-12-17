@@ -8,7 +8,7 @@ function getKey(element) {
     }
 }
 
-function registerPageScriptElement(element) {
+function registerPageScript(element) {
     let key = getKey(element);
     let pageScriptInfo = pageScriptInfoBySrc.get(key);
 
@@ -20,32 +20,30 @@ function registerPageScriptElement(element) {
         }
         pageScriptInfo = { src: element.src, type: element.type, integrity: element.integrity, crossorigin: element.crossorigin, content: element.content, location: element.location, reload: element.reload, module: null, referenceCount: 1 };
         pageScriptInfoBySrc.set(key, pageScriptInfo);
-        initializePageScript(pageScriptInfo);
+        initializePageScript(key, pageScriptInfo);
     }
 }
 
-function unregisterPageScriptElement(element) {
-    const pageScriptInfo = pageScriptInfoBySrc.get(getKey(element));
-    if (!pageScriptInfo) {
-        return;
-    }
-    pageScriptInfo.referenceCount--;
-}
-
-async function initializePageScript(pageScriptInfo) {
+async function initializePageScript(key, pageScriptInfo) {
     if (pageScriptInfo.reload) {
         const module = await import(pageScriptInfo.src);
         pageScriptInfo.module = module;
         module.onLoad?.();
         module.onUpdate?.();
     } else {
-        try {
-            injectScript(pageScriptInfo);
-        } catch (error) {
-            console.error("Failed to load script: ${pageScriptInfo.src}", error);
+        if (!scriptExists(pageScriptInfo)) {
+            try {
+                injectScript(pageScriptInfo);
+            } catch (error) {
+                if (pageScriptInfo.src !== "") {
+                    console.error("Failed to load external script: ${pageScriptInfo.src}", error);
+                } else {
+                    console.error("Failed to load inline script: ${pageScriptInfo.content}", error);
+                }
+            }
         }
     }
-    removePageScript(pageScriptInfo);
+    removePageScript(key, pageScriptInfo);
 }
 
 function onEnhancedLoad() {
@@ -62,20 +60,36 @@ function onEnhancedLoad() {
         if (pageScriptInfo.module) {
             pageScriptInfo.module.onUpdate?.();
         } else {
-            try {
-                injectScript(pageScriptInfo);
-            } catch (error) {
-                if (pageScriptInfo.src !== "") {
-                    console.error("Failed to load script library: ${pageScriptInfo.src}", error);
-                } else {
-                    console.error("Failed to load inline script: ${pageScriptInfo.content}", error);
+            if (!scriptExists(pageScriptInfo)) {
+                try {
+                    injectScript(pageScriptInfo);
+                } catch (error) {
+                    if (pageScriptInfo.src !== "") {
+                        console.error("Failed to load external script: ${pageScriptInfo.src}", error);
+                    } else {
+                        console.error("Failed to load inline script: ${pageScriptInfo.content}", error);
+                    }
                 }
             }
         }
     }
 
     for (const [key, pageScriptInfo] of pageScriptInfoBySrc) {
-        removePageScript(pageScriptInfo);
+        removePageScript(key, pageScriptInfo);
+    }
+}
+
+function scriptExists(pageScriptInfo) {
+    if (pageScriptInfo.src !== "") {
+        return document.querySelector("script[src=\"" + pageScriptInfo.src + "\"]");
+    } else {
+        const scripts = document.querySelectorAll('script:not([src])');
+        for (let i = 0; i < scripts.length; i++) {
+            if (scripts[i].textContent.includes(pageScriptInfo.content)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 
@@ -107,11 +121,11 @@ function injectScript(pageScriptInfo) {
     });
 }
 
-function removePageScript(pageScriptInfo) {
+function removePageScript(key, pageScriptInfo) {
     var pageScript;
 
     if (pageScriptInfo.src !== "") {
-        pageScript = document.querySelector("page-script[src=\"" + pageScriptInfo.src + "\"]");
+        pageScript = document.querySelector("page-script[src=\"" + key + "\"]");
     } else {
         pageScript = document.querySelector("page-script[content=\"" + CSS.escape(pageScriptInfo.content) + "\"]");
     }
@@ -119,6 +133,14 @@ function removePageScript(pageScriptInfo) {
     if (pageScript) {
         pageScript.remove();
     }
+}
+
+function unregisterPageScript(element) {
+    const pageScriptInfo = pageScriptInfoBySrc.get(getKey(element));
+    if (!pageScriptInfo) {
+        return;
+    }
+    pageScriptInfo.referenceCount--;
 }
 
 export function afterWebStarted(blazor) {
@@ -160,12 +182,12 @@ export function afterWebStarted(blazor) {
 
             // if last attribute for element has been processed
             if (this.attributes[this.attributes.length - 1].name === name) {
-                registerPageScriptElement(this);
+                registerPageScript(this);
             }
         }
 
         disconnectedCallback() {
-            unregisterPageScriptElement(this);
+            unregisterPageScript(this);
         }
     });
 
