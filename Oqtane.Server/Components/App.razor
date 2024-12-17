@@ -552,15 +552,27 @@
         {
             src = (resource.Url.Contains("://")) ? resource.Url : alias.BaseUrl + resource.Url;
         }
-        
-        return "<page-script" +
-            ((!string.IsNullOrEmpty(src)) ? " src=\"" + src + "\"" : "") +
-            ((resource.ES6Module || resource.Reload) ? " type=\"module\"" : "") +
-            ((!string.IsNullOrEmpty(resource.Integrity)) ? " integrity=\"" + resource.Integrity + "\"" : "") +
-            ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
-            ((!string.IsNullOrEmpty(resource.Content)) ? " content=\"" + resource.Content + "\"" : "") +
-            ((resource.Reload) ? " reload=\"true\"" : "") +
-            "></page-script>";
+
+        if (resource.Level == ResourceLevel.Module || !string.IsNullOrEmpty(resource.Content) || resource.Reload)
+        {
+            return "<page-script" +
+                ((!string.IsNullOrEmpty(src)) ? " src=\"" + src + "\"" : "") +
+                ((resource.ES6Module || resource.Reload) ? " type=\"module\"" : "") +
+                ((!string.IsNullOrEmpty(resource.Integrity)) ? " integrity=\"" + resource.Integrity + "\"" : "") +
+                ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
+                ((!string.IsNullOrEmpty(resource.Content)) ? " content=\"" + resource.Content + "\"" : "") +
+                ((resource.Reload) ? " reload=\"true\"" : "") +
+                "></page-script>";
+        }
+        else
+        {
+            return "<script" +
+                " src=\"" + src + "\"" +
+                ((!string.IsNullOrEmpty(resource.Integrity)) ? " integrity=\"" + resource.Integrity + "\"" : "") +
+                ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
+                ((resource.ES6Module) ? " type=\"module\"" : "") +
+                "></script>";
+        }
     }
 
     private void SetLocalizationCookie(string cookieValue)
