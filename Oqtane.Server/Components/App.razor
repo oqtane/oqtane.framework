@@ -56,6 +56,10 @@
             <Head RenderMode="@_renderMode" Runtime="@_runtime" @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(_runtime, _prerender)" />
         }
         @((MarkupString)_headResources)
+        @if (_renderMode == RenderModes.Static)
+        {
+            <page-script src="./js/reload.js"></page-script>
+        }
     </head>
     <body>
         @if (string.IsNullOrEmpty(_message))
@@ -547,31 +551,18 @@
 
     private string CreateScript(Resource resource, Alias alias)
     {
-        var src = resource.Url;
-        if (!string.IsNullOrEmpty(src))
+        if (!resource.Reload)
         {
-            src = (resource.Url.Contains("://")) ? resource.Url : alias.BaseUrl + resource.Url;
-        }
-
-        if (resource.Level == ResourceLevel.Module || !string.IsNullOrEmpty(resource.Content) || resource.Reload)
-        {
-            return "<page-script" +
-                ((!string.IsNullOrEmpty(src)) ? " src=\"" + src + "\"" : "") +
-                ((resource.ES6Module || resource.Reload) ? " type=\"module\"" : "") +
+            var url = (resource.Url.Contains("://")) ? resource.Url : alias.BaseUrl + resource.Url;
+            return "<script src=\"" + url + "\"" +
+                ((resource.ES6Module) ? " type=\"module\"" : "") +
                 ((!string.IsNullOrEmpty(resource.Integrity)) ? " integrity=\"" + resource.Integrity + "\"" : "") +
                 ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
-                ((!string.IsNullOrEmpty(resource.Content)) ? " content=\"" + resource.Content + "\"" : "") +
-                ((resource.Reload) ? " reload=\"true\"" : "") +
-                "></page-script>";
+                "></script>"; 
         }
         else
         {
-            return "<script" +
-                " src=\"" + src + "\"" +
-                ((!string.IsNullOrEmpty(resource.Integrity)) ? " integrity=\"" + resource.Integrity + "\"" : "") +
-                ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
-                ((resource.ES6Module) ? " type=\"module\"" : "") +
-                "></script>";
+            return "<page-script src=\"" + resource.Url + "\"></page-script>";
         }
     }
 
