@@ -176,7 +176,7 @@
             if (!string.IsNullOrEmpty(src))
             {
                 src = (src.Contains("://")) ? src : PageState.Alias.BaseUrl + src;
-                scripts.Add(new { href = src, bundle = "", integrity = integrity, crossorigin = crossorigin, es6module = (type == "module"), location = location.ToString().ToLower(), dataAttributes = dataAttributes });
+                scripts.Add(new { href = src, type = type, bundle = "", integrity = integrity, crossorigin = crossorigin, location = location.ToString().ToLower(), dataAttributes = dataAttributes });
             }
             else
             {
@@ -186,8 +186,8 @@
                     count += 1;
                     id = $"page{PageState.Page.PageId}-script{count}";
                 }
-                index = script.IndexOf(">") + 1;
-                await interop.IncludeScript(id, "", "", "", "", script.Substring(index, script.IndexOf("</script>") - index), location.ToString().ToLower());
+                var pos = script.IndexOf(">") + 1;
+                await interop.IncludeScript(id, "", "", "", type, script.Substring(pos, script.IndexOf("</script>") - pos), location.ToString().ToLower(), dataAttributes);
             }
             index = content.IndexOf("<script", index + 1);
         }
