@@ -57,22 +57,15 @@ function replaceScript(script) {
     return new Promise((resolve, reject) => {
         var newScript = document.createElement("script");
 
-        newScript.async = false;
-        if (script.type !== "") {
-            newScript.type = script.type;
+        // replicate attributes and content
+        for (let i = 0; i < script.attributes.length; i++) {
+            newScript.setAttribute(script.attributes[i].name, script.attributes[i].value);
         }
+        newScript.innerHTML = script.innerHTML;
 
-        if (script.src !== "") {
-            newScript.src = script.src;
-            if (script.integrity !== "") {
-                newScript.integrity = script.integrity;
-            }
-            if (script.crossorigin !== "") {
-                newScript.crossOrigin = script.crossOrigin;
-            }
-        } else {
-            newScript.innerHTML = script.innerHTML;
-        }
+        // dynamically injected scripts cannot be async or deferred
+        newScript.async = false;
+        newScript.defer = false;
 
         newScript.onload = () => resolve();
         newScript.onerror = (error) => reject(error);
