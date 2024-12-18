@@ -56,10 +56,6 @@
             <Head RenderMode="@_renderMode" Runtime="@_runtime" @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(_runtime, _prerender)" />
         }
         @((MarkupString)_headResources)
-        @if (_renderMode == RenderModes.Static)
-        {
-            <page-script src="./js/reload.js"></page-script>
-        }
     </head>
     <body>
         @if (string.IsNullOrEmpty(_message))
@@ -80,6 +76,10 @@
 
             @((MarkupString)_scripts)
             @((MarkupString)_bodyResources)
+            @if (_renderMode == RenderModes.Static)
+            {
+                <page-script src="./js/reload.js"></page-script>
+            }
         }
         else
         {
@@ -533,7 +533,7 @@
     private void AddScript(Resource resource, Alias alias)
     {
         var script = CreateScript(resource, alias);
-        if (resource.Location == Shared.ResourceLocation.Head)
+        if (resource.Location == Shared.ResourceLocation.Head && !resource.Reload)
         {
             if (!_headResources.Contains(script))
             {
