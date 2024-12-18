@@ -35,6 +35,7 @@
         try
         {
             _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
+            _pages = _pages.OrderBy(item => item.ParentId).ThenBy(item => item.Order).ToList();
         }
         catch (Exception ex)
         {
