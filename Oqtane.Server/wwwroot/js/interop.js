@@ -120,13 +120,22 @@ Oqtane.Interop = {
             this.includeLink(links[i].id, links[i].rel, links[i].href, links[i].type, links[i].integrity, links[i].crossorigin, links[i].insertbefore);
         }
     },
-    includeScript: function (id, src, integrity, crossorigin, type, content, location) {
+    includeScript: function (id, src, integrity, crossorigin, type, content, location, dataAttributes) {
         var script;
         if (src !== "") {
             script = document.querySelector("script[src=\"" + CSS.escape(src) + "\"]");
         }
         else {
-            script = document.getElementById(id);
+            if (id !== "") {
+                script = document.getElementById(id);
+            } else {
+                const scripts = document.querySelectorAll("script:not([src])");
+                for (let i = 0; i < scripts.length; i++) {
+                    if (scripts[i].textContent.includes(content)) {
+                        script = scripts[i];
+                    }
+                }
+            }
         }
         if (script !== null) {
             script.remove();
@@ -152,37 +161,36 @@ Oqtane.Interop = {
             else {
                 script.innerHTML = content;
             }
-            script.async = false;
-            this.addScript(script, location)
-                .then(() => {
-                    if (src !== "") {
-                        console.log(src + ' loaded');
-                    }
-                    else {
-                        console.log(id + ' loaded');
-                    }
-                })
-                .catch(() => {
-                    if (src !== "") {
-                        console.error(src + ' failed');
-                    }
-                    else {
-                        console.error(id + ' failed');
-                    }
-                });
+            if (dataAttributes !== null) {
+                for (var key in dataAttributes) {
+                    script.setAttribute(key, dataAttributes[key]);
+                }
+            }
+
+            try {
+                this.addScript(script, location);
+            } catch (error) {
+                if (src !== "") {
+                    console.error("Failed to load external script: ${src}", error);
+                } else {
+                    console.error("Failed to load inline script: ${content}", error);
+                }
+            }
         }
     },
     addScript: function (script, location) {
-        if (location === 'head') {
-            document.head.appendChild(script);
-        }
-        if (location === 'body') {
-            document.body.appendChild(script);
-        }
+        return new Promise((resolve, reject) => {
+            script.async = false;
+            script.defer = false;
 
-        return new Promise((res, rej) => {
-            script.onload = res();
-            script.onerror = rej();
+            script.onload = () => resolve();
+            script.onerror = (error) => reject(error);
+
+            if (location === 'head') {
+                document.head.appendChild(script);
+            } else {
+                document.body.appendChild(script);
+            }
         });
     },
     includeScripts: async function (scripts) {
@@ -222,10 +230,10 @@ Oqtane.Interop = {
                                     if (scripts[s].crossorigin !== '') {
                                         element.crossOrigin = scripts[s].crossorigin;
                                     }
-                                    if (scripts[s].es6module === true) {
-                                        element.type = "module";
+                                    if (scripts[s].type !== '') {
+                                        element.type = scripts[s].type;
                                     }
-                                    if (typeof scripts[s].dataAttributes !== "undefined" && scripts[s].dataAttributes !== null) {
+                                    if (scripts[s].dataAttributes !== null) {
                                         for (var key in scripts[s].dataAttributes) {
                                             element.setAttribute(key, scripts[s].dataAttributes[key]);
                                         }

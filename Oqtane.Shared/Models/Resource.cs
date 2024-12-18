@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Oqtane.Shared;
 
 namespace Oqtane.Models
@@ -28,6 +30,11 @@ namespace Oqtane.Models
         }
 
         /// <summary>
+        /// For Scripts this allows type to be specified - not applicable to Stylesheets
+        /// </summary>
+        public string Type { get; set; }
+
+        /// <summary>
         /// Integrity checks to increase the security of resources accessed. Especially common in CDN resources. 
         /// </summary>
         public string Integrity { get; set; }
@@ -53,11 +60,6 @@ namespace Oqtane.Models
         public ResourceLocation Location { get; set; }
 
         /// <summary>
-        /// For Scripts this allows type="module" registrations - not applicable to Stylesheets
-        /// </summary>
-        public bool ES6Module { get; set; }
-
-        /// <summary>
         /// Allows specification of inline script - not applicable to Stylesheets
         /// </summary>
         public string Content { get; set; }
@@ -73,6 +75,11 @@ namespace Oqtane.Models
         public bool Reload { get; set; }
 
         /// <summary>
+        /// Cusotm data-* attributes for scripts - not applicable to Stylesheets
+        /// </summary>
+        public Dictionary<string, string> DataAttributes { get; set; }
+
+        /// <summary>
         /// The namespace of the component that declared the resource - only used in SiteRouter
         /// </summary>
         public string Namespace { get; set; }
@@ -82,14 +89,22 @@ namespace Oqtane.Models
             var resource = new Resource();
             resource.ResourceType = ResourceType;
             resource.Url = Url;
+            resource.Type = Type;
             resource.Integrity = Integrity;
             resource.CrossOrigin = CrossOrigin;
             resource.Bundle = Bundle;
             resource.Location = Location;
-            resource.ES6Module = ES6Module;
             resource.Content = Content;
             resource.RenderMode = RenderMode;
             resource.Reload = Reload;
+            resource.DataAttributes = new Dictionary<string, string>();
+            if (DataAttributes != null && DataAttributes.Count > 0)
+            {
+                foreach (var kvp in DataAttributes)
+                {
+                    resource.DataAttributes.Add(kvp.Key, kvp.Value);
+                }
+            }
             resource.Level = level;
             resource.Namespace = name;
             return resource;
@@ -97,5 +112,18 @@ namespace Oqtane.Models
 
         [Obsolete("ResourceDeclaration is deprecated", false)]
         public ResourceDeclaration Declaration { get; set; }
+
+        [Obsolete("ES6Module is deprecated. Use Type property instead for scripts.", false)]
+        public bool ES6Module
+        {
+            get => (Type == "module");
+            set
+            {
+                if (value)
+                {
+                    Type = "module";
+                };
+            }
+        }
     }
 }
