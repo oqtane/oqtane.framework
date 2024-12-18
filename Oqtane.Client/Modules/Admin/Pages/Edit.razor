@@ -362,6 +362,7 @@
         try
         {
             _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
+            _pages = _pages.OrderBy(item => item.ParentId).ThenBy(item => item.Order).ToList();
             _pageId = Int32.Parse(PageState.QueryString["id"]);
             _page = await PageService.GetPageAsync(_pageId);
             _icons = await SystemService.GetIconsAsync();
