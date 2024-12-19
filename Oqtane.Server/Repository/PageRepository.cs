@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -31,7 +32,47 @@ namespace Oqtane.Repository
             {
                 page.PermissionList = permissions.Where(item => item.EntityId == page.PageId).ToList();
             }
-            return pages;
+            return GetPagesHierarchy(pages);
+        }
+
+        private static List<Page> GetPagesHierarchy(List<Page> pages)
+        {
+            List<Page> hierarchy = new List<Page>();
+            Action<List<Page>, Page> getPath = null;
+            getPath = (pageList, page) =>
+            {
+                IEnumerable<Page> children;
+                int level;
+                if (page == null)
+                {
+                    level = -1;
+                    children = pages.Where(item => item.ParentId == null);
+                }
+                else
+                {
+                    level = page.Level;
+                    children = pages.Where(item => item.ParentId == page.PageId);
+                }
+                foreach (Page child in children)
+                {
+                    child.Level = level + 1;
+                    child.HasChildren = pages.Any(item => item.ParentId == child.PageId && !item.IsDeleted && item.IsNavigation);
+                    hierarchy.Add(child);
+                    getPath(pageList, child);
+                }
+            };
+            pages = pages.OrderBy(item => item.Order).ToList();
+            getPath(pages, null);
+
+            // add any non-hierarchical items to the end of the list
+            foreach (Page page in pages)
+            {
+                if (hierarchy.Find(item => item.PageId == page.PageId) == null)
+                {
+                    hierarchy.Add(page);
+                }
+            }
+            return hierarchy;
         }
 
         public Page AddPage(Page page)

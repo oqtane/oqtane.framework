@@ -127,7 +127,6 @@ namespace Oqtane.Services
                         .ToDictionary(setting => setting.SettingName, setting => (setting.IsPrivate ? _private : "") + setting.SettingValue);
                     site.Pages.Add(page);
                 }
-                site.Pages = GetPagesHierarchy(site.Pages);
 
                 // framework modules
                 var modules = GetPageModules(site.SiteId);

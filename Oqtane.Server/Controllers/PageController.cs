@@ -9,7 +9,7 @@ using System.Net;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
-using System.IO;
+using System;
 
 namespace Oqtane.Controllers
 {
