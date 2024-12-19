@@ -15,22 +15,24 @@
             <table class="table table-borderless">
                 <tbody>
                     <tr>
-                        <th scope="col">@Localizer["Role"]</th>
                         @foreach (var permissionname in _permissionnames)
                         {
 							<th style="text-align: center; width: 1px;">@((MarkupString)DisplayPermissionName(permissionname).Replace(" ", "<br />"))</th>
 						}
+                        <th scope="col">@Localizer["Role"]</th>
+                        <th scope="col">@Localizer["Description"]</th>
                     </tr>
                     @foreach (Role role in _roles)
                     {
                         <tr>
-                            <td>@role.Name</td>
                             @foreach (var permissionname in _permissionnames)
                             {
                                 <td style="text-align: center;">
 									<TriStateCheckBox Value=@GetPermissionValue(permissionname, role.Name, -1) Disabled="@GetPermissionDisabled(permissionname, role.Name)" OnChange="@(e => PermissionChanged(e, permissionname, role.Name, -1))" />
                                 </td>
                             }
+                            <td>@role.Name</td>
+                            <td>@role.Description</td>
                         </tr>
                     }
                 </tbody>
@@ -49,24 +51,26 @@
                 <table class="table table-borderless">
                     <thead>
                         <tr>
+                            @foreach (var permissionname in _permissionnames)
+                            {
+                                <th style="text-align: center; width: 1px;">@((MarkupString)DisplayPermissionName(permissionname).Replace(" ", "<br />"))</th>
+                            }
                             <th scope="col">@Localizer["User"]</th>
-								@foreach (var permissionname in _permissionnames)
-								{
-									<th style="text-align: center; width: 1px;">@((MarkupString)DisplayPermissionName(permissionname).Replace(" ", "<br />"))</th>
-								}
-							</tr>
+                            <th scope="col">@Localizer["Display Name"]</th>
+                        </tr>
                     </thead>
                     <tbody>
                         @foreach (User user in _users)
                         {
                             <tr>
-                                <td>@user.DisplayName</td>
                                 @foreach (var permissionname in _permissionnames)
                                 {
                                     <td style="text-align: center; width: 1px;">
 										<TriStateCheckBox Value=@GetPermissionValue(permissionname, "", user.UserId) Disabled="@GetPermissionDisabled(permissionname, "")" OnChange="@(e => PermissionChanged(e, permissionname, "", user.UserId))" />
                                     </td>
                                 }
+                                <td>@user.Username</td>
+                                <td>@user.DisplayName</td>
                             </tr>
                         }
                     </tbody>
