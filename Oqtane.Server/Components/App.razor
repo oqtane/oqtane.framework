@@ -192,9 +192,6 @@
                         _scripts += CreateScrollPositionScript();
                     }
 
-                    _headResources += ParseScripts(site.HeadContent);
-                    _bodyResources += ParseScripts(site.BodyContent);
-
                     // set culture if not specified
                     string cultureCookie = Context.Request.Cookies[Shared.CookieRequestCultureProvider.DefaultCookieName];
                     if (cultureCookie == null)
@@ -512,22 +509,6 @@
         "    };" + Environment.NewLine +
         "    document.onload += window.interceptNavigation();" + Environment.NewLine +
         "</script>" + Environment.NewLine;
-    }
-
-    private string ParseScripts(string content)
-    {
-        var scripts = "";
-        // in interactive render mode, parse scripts from content and inject into page
-        if (_renderMode == RenderModes.Interactive && !string.IsNullOrEmpty(content))
-        {
-            var index = content.IndexOf("<script");
-            while (index >= 0)
-            {
-                scripts += content.Substring(index, content.IndexOf("</script>", index) + 9 - index);
-                index = content.IndexOf("<script", index + 1);
-            }
-        }
-        return scripts;
     }
 
     private void AddScript(Resource resource, Alias alias)
