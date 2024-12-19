@@ -11,6 +11,8 @@
 
     RenderFragment DynamicComponent { get; set; }
 
+    private string lastPagePath = "";
+
     protected override void OnParametersSet()
     {
         // handle page redirection
@@ -26,7 +28,7 @@
             NavigationManager.NavigateTo(Utilities.NavigateUrl(PageState.Alias.Path, "profile", "returnurl=" + WebUtility.UrlEncode(PageState.Route.PathAndQuery)));
             return;
         }
-        
+
         // set page title
         if (!string.IsNullOrEmpty(PageState.Page.Title))
         {
@@ -90,7 +92,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender)
+        if (!firstRender && PageState.Page.Path != lastPagePath)
         {
             if (!string.IsNullOrEmpty(PageState.Site.HeadContent) && PageState.Site.HeadContent.Contains("<script"))
             {
@@ -108,6 +110,7 @@
             {
                 await InjectScripts(PageState.Page.BodyContent, ResourceLocation.Body);
             }
+            lastPagePath = PageState.Page.Path;
         }
 
         // style sheets
