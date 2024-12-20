@@ -14,7 +14,7 @@ export function onUpdate() {
 
     // iterate over all script elements in page
     const scripts = document.getElementsByTagName("script");
-    for (const script of scripts) {
+    for (const script of Array.from(scripts)) {
         let key = getKey(script);
         let scriptInfo = scriptInfoBySrc.get(key);
         if (!scriptInfo) {
