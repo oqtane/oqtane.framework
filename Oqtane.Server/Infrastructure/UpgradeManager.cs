@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -17,12 +17,14 @@ namespace Oqtane.Infrastructure
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IWebHostEnvironment _environment;
         private readonly IConfigManager _configManager;
+        private readonly ILogger<UpgradeManager> _filelogger;
 
-        public UpgradeManager(IServiceScopeFactory serviceScopeFactory, IWebHostEnvironment environment, IConfigManager configManager)
+        public UpgradeManager(IServiceScopeFactory serviceScopeFactory, IWebHostEnvironment environment, IConfigManager configManager, ILogger<UpgradeManager> filelogger)
         {
             _serviceScopeFactory = serviceScopeFactory;
             _environment = environment;
             _configManager = configManager;
+            _filelogger = filelogger;
         }
 
         public void Upgrade(Tenant tenant, string version)
@@ -91,7 +93,7 @@ namespace Oqtane.Infrastructure
                     catch (Exception ex)
                     {
                         // error deleting directory
-                        Debug.WriteLine($"Oqtane Error: Error In 2.0.2 Upgrade Logic - {ex}");
+                        _filelogger.LogError(Utilities.LogMessage(this, $"Oqtane Error: Error In 2.0.2 Upgrade Logic - {ex}"));
                     }
                 }
             }
@@ -109,7 +111,7 @@ namespace Oqtane.Infrastructure
             catch (Exception ex)
             {
                 // error populating guid
-                Debug.WriteLine($"Oqtane Error: Error In 2.0.2 Upgrade Logic - {ex}");
+                _filelogger.LogError(Utilities.LogMessage(this, $"Oqtane Error: Error In 2.0.2 Upgrade Logic - {ex}"));
             }
         }
 
@@ -277,7 +279,7 @@ namespace Oqtane.Infrastructure
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Oqtane Error: Error In 3.2.0 Upgrade Logic - {ex}");
+                _filelogger.LogError(Utilities.LogMessage(this, $"Oqtane Error: Error In 3.2.0 Upgrade Logic - {ex}"));
             }
         }
 
@@ -313,7 +315,7 @@ namespace Oqtane.Infrastructure
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Oqtane Error: Error In 3.2.1 Upgrade Logic - {ex}");
+                _filelogger.LogError(Utilities.LogMessage(this, $"Oqtane Error: Error In 3.2.1 Upgrade Logic - {ex}"));
             }
         }
 
@@ -357,7 +359,7 @@ namespace Oqtane.Infrastructure
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Oqtane Error: Error In 3.3.0 Upgrade Logic - {ex}");
+                _filelogger.LogError(Utilities.LogMessage(this, $"Oqtane Error: Error In 3.3.0 Upgrade Logic - {ex}"));
             }
         }
 
@@ -384,7 +386,7 @@ namespace Oqtane.Infrastructure
                 catch (Exception ex)
                 {
                     // error deleting file
-                    Debug.WriteLine($"Oqtane Error: Error In 5.1.0 Upgrade Logic - {ex}");
+                    _filelogger.LogError(Utilities.LogMessage(this, $"Oqtane Error: Error In 5.1.0 Upgrade Logic - {ex}"));
                 }
             }
         }
@@ -487,7 +489,7 @@ namespace Oqtane.Infrastructure
                 catch (Exception ex)
                 {
                     // error deleting asesmbly
-                    Debug.WriteLine($"Oqtane Error: 6.0.1 Upgrade Error Removing {assembly} - {ex}");
+                    _filelogger.LogError(Utilities.LogMessage(this, $"Oqtane Error: 6.0.1 Upgrade Error Removing {assembly} - {ex}"));
                 }
             }
         }
