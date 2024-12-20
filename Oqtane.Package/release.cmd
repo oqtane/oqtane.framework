@@ -36,17 +36,6 @@ if "%%~nxi" == "%%j" set /A found=1
 )
 if not !found! == 1 rmdir /Q/S "%%i"
 )
-del "..\Oqtane.Server\bin\Release\net9.0\publish\Oqtane.Server.staticwebassets.endpoints.json"
-del /S "..\Oqtane.Server\bin\Release\net9.0\publish\wwwroot\css\*.br"
-del /S "..\Oqtane.Server\bin\Release\net9.0\publish\wwwroot\images\*.br"
-del /S "..\Oqtane.Server\bin\Release\net9.0\publish\wwwroot\js\*.br"
-del /S "..\Oqtane.Server\bin\Release\net9.0\publish\wwwroot\Modules\*.br"
-del /S "..\Oqtane.Server\bin\Release\net9.0\publish\wwwroot\Themes\*.br"
-del /S "..\Oqtane.Server\bin\Release\net9.0\publish\wwwroot\css\*.gz"
-del /S "..\Oqtane.Server\bin\Release\net9.0\publish\wwwroot\images\*.gz"
-del /S "..\Oqtane.Server\bin\Release\net9.0\publish\wwwroot\js\*.gz"
-del /S "..\Oqtane.Server\bin\Release\net9.0\publish\wwwroot\Modules\*.gz"
-del /S "..\Oqtane.Server\bin\Release\net9.0\publish\wwwroot\Themes\*.gz"
 del "..\Oqtane.Server\bin\Release\net9.0\publish\appsettings.json"
 ren "..\Oqtane.Server\bin\Release\net9.0\publish\appsettings.release.json" "appsettings.json"
 C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe ".\install.ps1"
