@@ -31,7 +31,7 @@ namespace Oqtane.Repository
                     .ToList()
                     .ForEach(l => l.IsDefault = false);
             }
-
+            language.Name = ""; // stored in database but not used (SQLite limitation)
             db.Language.Add(language);
             db.SaveChanges();
 
@@ -55,6 +55,7 @@ namespace Oqtane.Repository
                     .ForEach(l => l.IsDefault = false);
             }
 
+            language.Name = ""; // stored in database but not used (SQLite limitation)
             db.SaveChanges();
         }
 

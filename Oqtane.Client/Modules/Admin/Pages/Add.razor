@@ -316,10 +316,11 @@
         {
             await logger.LogError(ex, "Error Loading Child Pages For Parent {PageId} {Error}", _parentid, ex.Message);
             AddModuleMessage(Localizer["Error.ChildPage.Load"], MessageType.Error);
+            await ScrollToPageTop();
         }
     }
 
-    private void ThemeChanged(ChangeEventArgs e)
+    private async Task ThemeChanged(ChangeEventArgs e)
     {
         _themetype = (string)e.Value;
         _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
@@ -330,6 +331,7 @@
         if (ThemeService.GetTheme(PageState.Site.Themes, _themetype)?.ThemeName != ThemeService.GetTheme(PageState.Site.Themes, PageState.Site.DefaultThemeType)?.ThemeName)
         {
             AddModuleMessage(Localizer["ThemeChanged.Message"], MessageType.Warning);
+            await ScrollToPageTop();
         }
     }
 
@@ -345,6 +347,7 @@
                 if (!Utilities.ValidateEffectiveExpiryDates(_effectivedate, _expirydate))
                 {
                     AddModuleMessage(SharedLocalizer["Message.EffectiveExpiryDateError"], MessageType.Warning);
+                    await ScrollToPageTop();
                     return;
                 }
                 if (!string.IsNullOrEmpty(_themetype) && !string.IsNullOrEmpty(_containertype))
@@ -395,12 +398,14 @@
                     if (_pages.Any(item => item.Path == page.Path))
                     {
                         AddModuleMessage(string.Format(Localizer["Message.Page.Exists"], _path), MessageType.Warning);
+                        await ScrollToPageTop();
                         return;
                     }
 
                     if (page.ParentId == null && Constants.ReservedRoutes.Contains(page.Name.ToLower()))
                     {
                         AddModuleMessage(string.Format(Localizer["Message.Page.Reserved"], page.Name), MessageType.Warning);
+                        await ScrollToPageTop();
                         return;
                     }
 
@@ -468,6 +473,7 @@
                 else
                 {
                     AddModuleMessage(Localizer["Message.Required.PageInfo"], MessageType.Warning);
+                    await ScrollToPageTop();
                 }
 
             }
@@ -475,11 +481,13 @@
             {
                 await logger.LogError(ex, "Error Saving Page {Page} {Error}", page, ex.Message);
                 AddModuleMessage(Localizer["Error.Page.Save"], MessageType.Error);
+                await ScrollToPageTop();
             }
         }
         else
         {
             AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+            await ScrollToPageTop();
         }
     }
 

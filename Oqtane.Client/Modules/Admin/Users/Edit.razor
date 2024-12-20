@@ -89,8 +89,8 @@
                         }
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="@p.Name" HelpText="@p.Description">@p.Title</Label>
-                                <div class="col-sm-9">
-                                    @if (!string.IsNullOrEmpty(p.Options))
+                            <div class="col-sm-9">
+                                @if (!string.IsNullOrEmpty(p.Options))
                                 {
                                     <select id="@p.Name" class="form-select" @onchange="@(e => ProfileChanged(e, p.Name))">
                                         @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
@@ -110,11 +110,11 @@
                                 {
                                     @if (p.Rows == 1)
                                     {
-                                        <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                        <input id="@p.Name" class="form-control" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)" />
                                     }
                                     else
                                     {
-                                        <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))"></textarea>
+                                        <textarea id="@p.Name" class="form-control" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)"></textarea>
                                     }
                                 }
                             </div>
@@ -132,7 +132,7 @@
     <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
 }
 
- @code {
+@code {
     private bool _initialized = false;
     private string _passwordrequirements;
     private int userid;
@@ -148,7 +148,7 @@
     private string lastipaddress;
 
     private List<Profile> profiles;
-    private Dictionary<string, string> settings;
+    private Dictionary<string, string> userSettings;
     private string category = string.Empty;
 
     private string createdby;
@@ -181,7 +181,7 @@
                     lastlogin = string.Format("{0:MMM dd yyyy HH:mm:ss}", user.LastLoginOn);
                     lastipaddress = user.LastIPAddress;
 
-                    settings = await SettingService.GetUserSettingsAsync(user.UserId);
+                    userSettings = user.Settings;
                     createdby = user.CreatedBy;
                     createdon = user.CreatedOn;
                     modifiedby = user.ModifiedBy;
@@ -202,7 +202,7 @@
 
     private string GetProfileValue(string SettingName, string DefaultValue)
     {
-        string value = SettingService.GetSetting(settings, SettingName, DefaultValue);
+        string value = SettingService.GetSetting(userSettings, SettingName, DefaultValue);
         if (value.Contains("]"))
         {
             value = value.Substring(value.IndexOf("]") + 1);
@@ -232,7 +232,7 @@
                         user = await UserService.UpdateUserAsync(user);
                         if (user != null)
                         {
-                            await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
+                            await SettingService.UpdateUserSettingsAsync(userSettings, user.UserId);
                             await logger.LogInformation("User Saved {User}", user);
                             NavigationManager.NavigateTo(NavigateUrl());
                         }
@@ -266,7 +266,7 @@
             var value = GetProfileValue(profile.Name, string.Empty);
             if (string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(profile.DefaultValue))
             {
-                settings = SettingService.SetSetting(settings, profile.Name, profile.DefaultValue);
+                userSettings = SettingService.SetSetting(userSettings, profile.Name, profile.DefaultValue);
             }
             if (!profile.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
             {
@@ -293,7 +293,7 @@
     private void ProfileChanged(ChangeEventArgs e, string SettingName)
     {
         var value = (string)e.Value;
-        settings = SettingService.SetSetting(settings, SettingName, value);
+        userSettings = SettingService.SetSetting(userSettings, SettingName, value);
     }
 
     private void TogglePassword()

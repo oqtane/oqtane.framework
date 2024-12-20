@@ -466,7 +466,7 @@
             _parentid = (string)e.Value;
             _children = new List<Page>();
             foreach (Page p in _pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == int.Parse(_parentid))))
-        {
+            {
                 if (p.PageId != _pageId && UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
                 {
                     _children.Add(p);
@@ -479,10 +479,11 @@
         {
             await logger.LogError(ex, "Error Loading Child Pages For Parent {PageId} {Error}", _parentid, ex.Message);
             AddModuleMessage(Localizer["Error.ChildPage.Load"], MessageType.Error);
+            await ScrollToPageTop();
         }
     }
 
-    private void ThemeChanged(ChangeEventArgs e)
+    private async Task ThemeChanged(ChangeEventArgs e)
     {
         _themetype = (string)e.Value;
         _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
@@ -494,6 +495,7 @@
         if (ThemeService.GetTheme(PageState.Site.Themes, _themetype)?.ThemeName != ThemeService.GetTheme(PageState.Site.Themes, PageState.Site.DefaultThemeType)?.ThemeName)
         {
             AddModuleMessage(Localizer["ThemeChanged.Message"], MessageType.Warning);
+            await ScrollToPageTop();
         }
     }
 
@@ -531,6 +533,7 @@
                 if (!Utilities.ValidateEffectiveExpiryDates(_effectivedate, _expirydate))
                 {
                     AddModuleMessage(SharedLocalizer["Message.EffectiveExpiryDateError"], MessageType.Warning);
+                    await ScrollToPageTop();
                     return;
                 }
                 if (!string.IsNullOrEmpty(_themetype) && _containertype != "-")
@@ -581,12 +584,14 @@
                     if (_pages.Any(item => item.Path == _page.Path && item.PageId != _page.PageId))
                     {
                         AddModuleMessage(string.Format(Localizer["Mesage.Page.PathExists"], _path), MessageType.Warning);
+                        await ScrollToPageTop();
                         return;
                     }
 
                     if (_page.ParentId == null && Constants.ReservedRoutes.Contains(_page.Name.ToLower()))
                     {
                         AddModuleMessage(string.Format(Localizer["Message.Page.Reserved"], _page.Name), MessageType.Warning);
+                        await ScrollToPageTop();
                         return;
                     }
 
@@ -671,17 +676,20 @@
                 else
                 {
                     AddModuleMessage(Localizer["Message.Required.PageInfo"], MessageType.Warning);
+                    await ScrollToPageTop();
                 }
             }
             catch (Exception ex)
             {
                 await logger.LogError(ex, "Error Saving Page {Page} {Error}", _page, ex.Message);
                 AddModuleMessage(Localizer["Error.Page.Save"], MessageType.Error);
+                await ScrollToPageTop();
             }
         }
         else
         {
             AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+            await ScrollToPageTop();
         }
     }
 

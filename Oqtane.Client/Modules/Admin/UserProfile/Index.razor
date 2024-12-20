@@ -105,7 +105,7 @@
                             }
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="@p.Name" HelpText="@p.Description">@p.Title</Label>
-                                    <div class="col-sm-9">
+                                <div class="col-sm-9">
                                     @if (!string.IsNullOrEmpty(p.Options))
                                     {
                                         @if (!string.IsNullOrEmpty(p.Autocomplete))
@@ -149,22 +149,26 @@
                                             {
                                                 @if (p.IsRequired)
                                                 {
-                                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete" />
+                                                    <input id="@p.Name" class="form-control" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete"
+                                                           @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)" />
                                                 }
                                                 else
                                                 {
-                                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete" />
+                                                    <input id="@p.Name" class="form-control" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete"
+                                                           @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)" />
                                                 }
                                             }
                                             else
                                             {
                                                 @if (p.IsRequired)
                                                 {
-                                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                                    <input id="@p.Name" class="form-control" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))"
+                                                           @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)" />
                                                 }
                                                 else
                                                 {
-                                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                                    <input id="@p.Name" class="form-control" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))"
+                                                           @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)" />
                                                 }
                                             }
                                         }
@@ -174,22 +178,26 @@
                                             {
                                                 @if (p.IsRequired)
                                                 {
-                                                    <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete"></textarea>
+                                                    <textarea id="@p.Name" class="form-control" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete"
+                                                              @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)"></textarea>
                                                 }
                                                 else
                                                 {
-                                                    <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete"></textarea>
+                                                    <textarea id="@p.Name" class="form-control" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete"
+                                                              @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)"></textarea>
                                                 }
                                             }
                                             else
                                             {
                                                 @if (p.IsRequired)
                                                 {
-                                                    <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))"></textarea>
+                                                    <textarea id="@p.Name" class="form-control" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))"
+                                                              @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)"></textarea>
                                                 }
                                                 else
                                                 {
-                                                    <textarea id="@p.Name" class="form-control" maxlength="@p.MaxLength" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))"></textarea>
+                                                    <textarea id="@p.Name" class="form-control" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))"
+                                                              @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)"></textarea>
                                                 }
                                             }
                                         }
@@ -218,11 +226,11 @@
                 {
                     <Pager Items="@notifications">
                         <Header>
-                        <th style="width: 1px;">&nbsp;</th>
-                        <th style="width: 1px;">&nbsp;</th>
-                        <th>@Localizer["From"]</th>
-                        <th>@Localizer["Subject"]</th>
-                        <th>@Localizer["Received"]</th>
+                            <th style="width: 1px;">&nbsp;</th>
+                            <th style="width: 1px;">&nbsp;</th>
+                            <th>@Localizer["From"]</th>
+                            <th>@Localizer["Subject"]</th>
+                            <th>@Localizer["Received"]</th>
                         </Header>
                         <Row>
                             <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" ReturnUrl="@NavigateUrl(PageState.Page.Path, "tab=Notifications")" /></td>
@@ -230,13 +238,13 @@
 
                             @if (context.IsRead)
                             {
-                                <td>@context.FromDisplayName</td>
+                                <td>@(string.IsNullOrEmpty(context.FromDisplayName) ? SharedLocalizer["System"] : context.FromDisplayName)</td>
                                 <td>@context.Subject</td>
                                 <td>@string.Format("{0:dd-MMM-yyyy HH:mm:ss}", @context.CreatedOn)</td>
                             }
                             else
                             {
-                                <td><b>@context.FromDisplayName</b></td>
+                                <td><b>@(string.IsNullOrEmpty(context.FromDisplayName) ? SharedLocalizer["System"] : context.FromDisplayName)</b></td>
                                 <td><b>@context.Subject</b></td>
                                 <td><b>@string.Format("{0:dd-MMM-yyyy HH:mm:ss}", @context.CreatedOn)</b></td>
                             }
@@ -281,11 +289,11 @@
                 {
                     <Pager Items="@notifications">
                         <Header>
-                        <th style="width: 1px;"></th>
-                        <th style="width: 1px;"></th>
-                        <th>@Localizer["To"]</th>
-                        <th>@Localizer["Subject"]</th>
-                        <th>@Localizer["Sent"]</th>
+                            <th style="width: 1px;"></th>
+                            <th style="width: 1px;"></th>
+                            <th>@Localizer["To"]</th>
+                            <th>@Localizer["Subject"]</th>
+                            <th>@Localizer["Sent"]</th>
                         </Header>
                         <Row>
                             <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" ReturnUrl="@NavigateUrl(PageState.Page.Path, "tab=Notifications")" /></td>
@@ -363,7 +371,7 @@
     private File photo = null;
     private string _ImageFiles = string.Empty;
     private List<Profile> profiles;
-    private Dictionary<string, string> settings;
+    private Dictionary<string, string> userSettings;
     private string category = string.Empty;
 
     private string filter = "to";
@@ -411,9 +419,9 @@
                     photo = null;
                 }
 
-                settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
+                userSettings = PageState.User.Settings;
                 var sitesettings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-                _ImageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
+                _ImageFiles = SettingService.GetSetting(userSettings, "ImageFiles", Constants.ImageFiles);
                 _ImageFiles = (string.IsNullOrEmpty(_ImageFiles)) ? Constants.ImageFiles : _ImageFiles;
 
                 await LoadNotificationsAsync();
@@ -440,7 +448,7 @@
 
     private string GetProfileValue(string SettingName, string DefaultValue)
     {
-        string value = SettingService.GetSetting(settings, SettingName, DefaultValue);
+        string value = SettingService.GetSetting(userSettings, SettingName, DefaultValue);
         if (value.Contains("]"))
         {
             value = value.Substring(value.IndexOf("]") + 1);
@@ -483,7 +491,7 @@
                         user = await UserService.UpdateUserAsync(user);
                         if (user != null)
                         {
-                            await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
+                            await SettingService.UpdateUserSettingsAsync(userSettings, PageState.User.UserId);
                             await logger.LogInformation("User Profile Saved");
 
                             if (!string.IsNullOrEmpty(PageState.ReturnUrl))
@@ -554,7 +562,7 @@
             var value = GetProfileValue(profile.Name, string.Empty);
             if (string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(profile.DefaultValue))
             {
-                settings = SettingService.SetSetting(settings, profile.Name, profile.DefaultValue);
+                userSettings = SettingService.SetSetting(userSettings, profile.Name, profile.DefaultValue);
             }
             if (!profile.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
             {
@@ -586,7 +594,7 @@
     private void ProfileChanged(ChangeEventArgs e, string SettingName)
     {
         var value = (string)e.Value;
-        settings = SettingService.SetSetting(settings, SettingName, value);
+        userSettings = SettingService.SetSetting(userSettings, SettingName, value);
     }
 
     private async Task Delete(Notification Notification)

@@ -76,6 +76,10 @@
 
             @((MarkupString)_scripts)
             @((MarkupString)_bodyResources)
+            @if (_renderMode == RenderModes.Static)
+            {
+                <page-script src="./js/reload.js"></page-script>
+            }
         }
         else
         {
@@ -187,9 +191,6 @@
                     {
                         _scripts += CreateScrollPositionScript();
                     }
-
-                    _headResources += ParseScripts(site.HeadContent);
-                    _bodyResources += ParseScripts(site.BodyContent);
 
                     // set culture if not specified
                     string cultureCookie = Context.Request.Cookies[Shared.CookieRequestCultureProvider.DefaultCookieName];
@@ -510,26 +511,10 @@
         "</script>" + Environment.NewLine;
     }
 
-    private string ParseScripts(string content)
-    {
-        var scripts = "";
-        // in interactive render mode, parse scripts from content and inject into page
-        if (_renderMode == RenderModes.Interactive && !string.IsNullOrEmpty(content))
-        {
-            var index = content.IndexOf("<script");
-            while (index >= 0)
-            {
-                scripts += content.Substring(index, content.IndexOf("</script>", index) + 9 - index);
-                index = content.IndexOf("<script", index + 1);
-            }
-        }
-        return scripts;
-    }
-
     private void AddScript(Resource resource, Alias alias)
     {
         var script = CreateScript(resource, alias);
-        if (resource.Location == Shared.ResourceLocation.Head)
+        if (resource.Location == Shared.ResourceLocation.Head && !resource.Reload)
         {
             if (!_headResources.Contains(script))
             {
@@ -547,36 +532,29 @@
 
     private string CreateScript(Resource resource, Alias alias)
     {
-        if (!string.IsNullOrEmpty(resource.Url))
+        if (!resource.Reload)
         {
-            if (!resource.Reload)
+            var url = (resource.Url.Contains("://")) ? resource.Url : alias.BaseUrl + resource.Url;
+
+            var dataAttributes = "";
+            if (resource.DataAttributes != null && resource.DataAttributes.Count > 0)
             {
-                var url = (resource.Url.Contains("://")) ? resource.Url : alias.BaseUrl + resource.Url;
-                return "<script" +
-                    ((!string.IsNullOrEmpty(resource.Integrity)) ? " integrity=\"" + resource.Integrity + "\"" : "") +
-                    ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
-                    ((resource.ES6Module) ? " type=\"module\"" : "") +
-                    " src=\"" + url + "\"></script>"; // src at end of element due to enhanced navigation patch algorithm
-            }
-            else
-            {
-                // use custom element which can execute script on every page transition
-                @if (string.IsNullOrEmpty(resource.Integrity) && string.IsNullOrEmpty(resource.CrossOrigin))
+                foreach (var attribute in resource.DataAttributes)
                 {
-                    return "<page-script src=\"" + resource.Url + "\"></page-script>";
-                }
-                else
-                {
-                    // use modulepreload for external resources
-                    return "<link rel=\"modulepreload\" href=\"" + resource.Url + "\" integrity=\"" + resource.Integrity + "\" crossorigin=\"" + resource.CrossOrigin + "\" />\n" +
-                        "<page-script src=\"" + resource.Url + "\"></page-script>";
+                    dataAttributes += " " + attribute.Key + "=\"" + attribute.Value + "\"";
                 }
             }
+
+            return "<script src=\"" + url + "\"" +
+                ((!string.IsNullOrEmpty(resource.Type)) ? " type=\"" + resource.Type + "\"" : "") +
+                ((!string.IsNullOrEmpty(resource.Integrity)) ? " integrity=\"" + resource.Integrity + "\"" : "") +
+                ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
+                ((!string.IsNullOrEmpty(dataAttributes)) ? dataAttributes : "") +
+                "></script>";
         }
         else
         {
-            // inline script
-            return "<script>" + resource.Content + "</script>";
+            return "<page-script src=\"" + resource.Url + "\"></page-script>";
         }
     }
 

@@ -35,6 +35,7 @@ namespace Oqtane.Pages
                     {
                         await _userManager.LogoutUserEverywhere(user);
                     }
+                    _syncManager.AddSyncEvent(alias, EntityNames.User, user.UserId, "Logout");
                     _syncManager.AddSyncEvent(alias, EntityNames.User, user.UserId, SyncEventActions.Reload);
                 }
 

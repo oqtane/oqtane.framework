@@ -118,11 +118,16 @@ namespace Oqtane.UI
 
         public Task IncludeScript(string id, string src, string integrity, string crossorigin, string type, string content, string location)
         {
+            return IncludeScript(id, src, integrity, crossorigin, type, content, location, null);
+        }
+
+        public Task IncludeScript(string id, string src, string integrity, string crossorigin, string type, string content, string location, Dictionary<string, string> dataAttributes)
+        {
             try
             {
                 _jsRuntime.InvokeVoidAsync(
                     "Oqtane.Interop.includeScript",
-                    id, src, integrity, crossorigin, type, content, location);
+                    id, src, integrity, crossorigin, type, content, location, dataAttributes);
                 return Task.CompletedTask;
             }
             catch

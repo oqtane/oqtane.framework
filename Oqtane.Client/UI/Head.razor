@@ -41,7 +41,7 @@
                 }
                 break;
             case "HeadContent":
-                var content = RemoveScripts(SiteState.Properties.HeadContent) + "\n";
+                var content = FormatScripts(SiteState.Properties.HeadContent) + "\n";
                 if (content != _content)
                 {
                     _content = content;
@@ -51,15 +51,29 @@
         }
     }
 
-    private string RemoveScripts(string headcontent)
+    private string FormatScripts(string headcontent)
     {
-        if (!string.IsNullOrEmpty(headcontent) && RenderMode == RenderModes.Interactive)
+        if (!string.IsNullOrEmpty(headcontent))
         {
             var index = headcontent.IndexOf("<script");
             while (index >= 0)
             {
-                headcontent = headcontent.Remove(index, headcontent.IndexOf("</script>") + 9 - index);
-                index = headcontent.IndexOf("<script");
+                var script = headcontent.Substring(index, headcontent.IndexOf("</script>", index) - index + 9);
+                if (RenderMode == RenderModes.Interactive)
+                {
+                    // remove scripts when interactive rendering
+                    headcontent = headcontent.Remove(index, script.Length);
+                    index = headcontent.IndexOf("<script");
+                }
+                else
+                {
+                    if (!script.Contains("><") && !script.Contains("data-reload"))
+                    {
+                        // add data-reload attribute to inline script
+                        headcontent = headcontent.Replace(script, script.Replace("<script", "<script data-reload=\"true\""));
+                    }
+                    index = headcontent.IndexOf("<script", index + 1);
+                }
             }
         }
         return headcontent;

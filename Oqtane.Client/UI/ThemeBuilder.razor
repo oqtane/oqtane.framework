@@ -11,6 +11,8 @@
 
     RenderFragment DynamicComponent { get; set; }
 
+    private string lastPagePath = "";
+
     protected override void OnParametersSet()
     {
         // handle page redirection
@@ -26,7 +28,7 @@
             NavigationManager.NavigateTo(Utilities.NavigateUrl(PageState.Alias.Path, "profile", "returnurl=" + WebUtility.UrlEncode(PageState.Route.PathAndQuery)));
             return;
         }
-        
+
         // set page title
         if (!string.IsNullOrEmpty(PageState.Page.Title))
         {
@@ -90,8 +92,16 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender)
+        if (!firstRender && PageState.Page.Path != lastPagePath)
         {
+            if (!string.IsNullOrEmpty(PageState.Site.HeadContent) && PageState.Site.HeadContent.Contains("<script"))
+            {
+                await InjectScripts(PageState.Site.HeadContent, ResourceLocation.Head);
+            }
+            if (!string.IsNullOrEmpty(PageState.Site.BodyContent) && PageState.Site.BodyContent.Contains("<script"))
+            {
+                await InjectScripts(PageState.Site.BodyContent, ResourceLocation.Body);
+            }
             if (!string.IsNullOrEmpty(PageState.Page.HeadContent) && PageState.Page.HeadContent.Contains("<script"))
             {
                 await InjectScripts(PageState.Page.HeadContent, ResourceLocation.Head);
@@ -100,6 +110,7 @@
             {
                 await InjectScripts(PageState.Page.BodyContent, ResourceLocation.Body);
             }
+            lastPagePath = PageState.Page.Path;
         }
 
         // style sheets
@@ -176,18 +187,20 @@
             if (!string.IsNullOrEmpty(src))
             {
                 src = (src.Contains("://")) ? src : PageState.Alias.BaseUrl + src;
-                scripts.Add(new { href = src, bundle = "", integrity = integrity, crossorigin = crossorigin, es6module = (type == "module"), location = location.ToString().ToLower(), dataAttributes = dataAttributes });
+                scripts.Add(new { href = src, type = type, bundle = "", integrity = integrity, crossorigin = crossorigin, location = location.ToString().ToLower(), dataAttributes = dataAttributes });
             }
             else
             {
-                // inline script must have an id attribute
-                if (id == "")
+                if (dataAttributes == null || !dataAttributes.ContainsKey("data-reload") || dataAttributes["data-reload"] != "false")
                 {
-                    count += 1;
-                    id = $"page{PageState.Page.PageId}-script{count}";
+                    if (id == "")
+                    {
+                        count += 1;
+                        id = $"page{PageState.Page.PageId}-script{count}";
+                    }
+                    var pos = script.IndexOf(">") + 1;
+                    await interop.IncludeScript(id, "", "", "", type, script.Substring(pos, script.IndexOf("</script>") - pos), location.ToString().ToLower(), dataAttributes);
                 }
-                index = script.IndexOf(">") + 1;
-                await interop.IncludeScript(id, "", "", "", "", script.Substring(index, script.IndexOf("</script>") - index), location.ToString().ToLower());
             }
             index = content.IndexOf("<script", index + 1);
         }

@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Oqtane.Client</id>
-    <version>6.0.0</version>
+    <version>6.0.1</version>
     <authors>Shaun Walker</authors>
     <owners>.NET Foundation</owners>
     <title>Oqtane Framework</title>
@@ -12,14 +12,14 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
-    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v6.0.0</releaseNotes>
+    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v6.0.1</releaseNotes>
     <readme>readme.md</readme>
     <icon>icon.png</icon>
     <tags>oqtane</tags>
   </metadata>
   <files>
-    <file src="..\Oqtane.Client\bin\Release\net8.0\Oqtane.Client.dll" target="lib\net9.0" /> 
-    <file src="..\Oqtane.Client\bin\Release\net8.0\Oqtane.Client.pdb" target="lib\net9.0" /> 
+    <file src="..\Oqtane.Client\bin\Release\net9.0\Oqtane.Client.dll" target="lib\net9.0" /> 
+    <file src="..\Oqtane.Client\bin\Release\net9.0\Oqtane.Client.pdb" target="lib\net9.0" /> 
     <file src="icon.png" target="" />
     <file src="readme.md" target="" />
   </files>

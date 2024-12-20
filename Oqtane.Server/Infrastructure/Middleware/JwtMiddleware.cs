@@ -59,7 +59,7 @@ namespace Oqtane.Infrastructure
                             if (userid != null && username != null)
                             {
                                 var _users = context.RequestServices.GetService(typeof(IUserManager)) as IUserManager;
-                                var user = _users.GetUser(userid, alias.SiteId); // cached
+                                var user = _users.GetUser(int.Parse(userid), alias.SiteId); // cached
                                 if (user != null && !user.IsDeleted)
                                 {
                                     var claimsidentity = UserSecurity.CreateClaimsIdentity(alias, user);
