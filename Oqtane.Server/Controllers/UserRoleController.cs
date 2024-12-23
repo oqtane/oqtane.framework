@@ -42,7 +42,7 @@ namespace Oqtane.Controllers
             int UserId = -1;
             if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId && (userid != null && int.TryParse(userid, out UserId) || rolename != null))
             {
-                if (IsAuthorized(UserId, rolename))
+                if (IsAuthorized(UserId, rolename, SiteId))
                 {
                     var userroles = _userRoles.GetUserRoles(SiteId).ToList();
                     if (UserId != -1)
@@ -82,7 +82,7 @@ namespace Oqtane.Controllers
         public UserRole Get(int id)
         {
             var userrole = _userRoles.GetUserRole(id);
-            if (userrole != null && SiteValid(userrole.Role.SiteId) && IsAuthorized(userrole.UserId, userrole.Role.Name))
+            if (userrole != null && SiteValid(userrole.Role.SiteId) && IsAuthorized(userrole.UserId, userrole.Role.Name, userrole.Role.SiteId ?? -1))
             {
                 return Filter(userrole, _userPermissions.GetUser().UserId);
             }
@@ -101,16 +101,20 @@ namespace Oqtane.Controllers
             }
         }
 
-        private bool IsAuthorized(int userId, string roleName)
+        private bool IsAuthorized(int userId, string roleName, int siteId)
         {
             bool authorized = true;
             if (userId != -1)
             {
-                authorized = _userPermissions.GetUser(User).UserId == userId;
+                authorized = (_userPermissions.GetUser(User).UserId == userId);
             }
             if (authorized && !string.IsNullOrEmpty(roleName))
             {
                 authorized = User.IsInRole(roleName);
+            }
+            if (!authorized)
+            {
+                authorized = _userPermissions.IsAuthorized(User, siteId, EntityNames.UserRole, -1, PermissionNames.Write, RoleNames.Admin);
             }
             return authorized;
         }
