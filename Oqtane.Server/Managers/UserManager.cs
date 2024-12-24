@@ -512,7 +512,10 @@ namespace Oqtane.Managers
             user = _users.GetUser(user.Username);
             if (user != null)
             {
-                if (user.TwoFactorRequired && user.TwoFactorCode == token && DateTime.UtcNow < user.TwoFactorExpiry)
+                var alias = _tenantManager.GetAlias();
+                var twoFactorSetting = _settings.GetSetting(EntityNames.Site, alias.SiteId, "LoginOptions:TwoFactor")?.SettingValue ?? "false";
+                var twoFactorRequired = twoFactorSetting == "required" || user.TwoFactorRequired;
+                if (twoFactorRequired && user.TwoFactorCode == token && DateTime.UtcNow < user.TwoFactorExpiry)
                 {
                     user.IsAuthenticated = true;
                 }
