@@ -1,5 +1,6 @@
 del "*.nupkg"
 del "*.zip"
+dotnet restore ..\Oqtane.sln
 dotnet clean -c Release ..\Oqtane.sln 
 dotnet build -c Release ..\Oqtane.sln
 nuget.exe pack Oqtane.Client.nuspec

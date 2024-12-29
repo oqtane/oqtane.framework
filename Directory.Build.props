@@ -1,0 +1,5 @@
+<Project>
+  <Target Name="Restore" BeforeTargets="Build">
+    <Exec Command="dotnet restore $(SolutionDir)Oqtane.sln" />
+  </Target>
+</Project>
