@@ -43,7 +43,7 @@ namespace Oqtane.Infrastructure
         {
             var result = new Installation { Success = false, Message = string.Empty };
 
-            if (!string.IsNullOrEmpty(_config.GetConnectionString(SettingKeys.ConnectionStringKey)))
+            if (!string.IsNullOrEmpty(_config.GetConnectionString(ConfigUtilities.GetConnectionStringKey())))
             {
                 using (var db = GetInstallationContext())
                 {
@@ -94,7 +94,7 @@ namespace Oqtane.Infrastructure
                 // startup or silent installation
                 install = new InstallConfig
                 {
-                    ConnectionString = _config.GetConnectionString(SettingKeys.ConnectionStringKey),
+                    ConnectionString = _config.GetConnectionString(ConfigUtilities.GetConnectionStringKey()),
                     TenantName = TenantNames.Master,
                     DatabaseType = _config.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey],
                     IsNewTenant = false
@@ -301,7 +301,7 @@ namespace Oqtane.Infrastructure
                             tenant = new Tenant
                             {
                                 Name = install.TenantName,
-                                DBConnectionString = (install.TenantName == TenantNames.Master) ? SettingKeys.ConnectionStringKey : install.TenantName,
+                                DBConnectionString = (install.TenantName == TenantNames.Master) ? ConfigUtilities.GetConnectionStringKey() : install.TenantName,
                                 DBType = install.DatabaseType,
                                 CreatedBy = "",
                                 CreatedOn = DateTime.UtcNow,
@@ -637,7 +637,7 @@ namespace Oqtane.Infrastructure
 
         private InstallationContext GetInstallationContext()
         {
-            var connectionString = NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey));
+            var connectionString = NormalizeConnectionString(_config.GetConnectionString(ConfigUtilities.GetConnectionStringKey()));
             var databaseType = _config.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
 
             IDatabase database = null;
@@ -665,9 +665,9 @@ namespace Oqtane.Infrastructure
         public void UpdateConnectionString(string connectionString)
         {
             connectionString = DenormalizeConnectionString(connectionString);
-            if (_config.GetConnectionString(SettingKeys.ConnectionStringKey) != connectionString)
+            if (_config.GetConnectionString(ConfigUtilities.GetConnectionStringKey()) != connectionString)
             {
-                _configManager.AddOrUpdateSetting($"{SettingKeys.ConnectionStringsSection}:{SettingKeys.ConnectionStringKey}", connectionString, true);
+                _configManager.AddOrUpdateSetting($"{SettingKeys.ConnectionStringsSection}:{ConfigUtilities.GetConnectionStringKey()}", connectionString, true);
             }
         }
 
@@ -695,10 +695,10 @@ namespace Oqtane.Infrastructure
             // migrate connection strings from the Tenant table to appsettings
             if (tenant.DBConnectionString.Contains("="))
             {
-                var defaultConnection = _configManager.GetConnectionString(SettingKeys.ConnectionStringKey);
+                var defaultConnection = _configManager.GetConnectionString(ConfigUtilities.GetConnectionStringKey());
                 if (tenant.DBConnectionString == defaultConnection)
                 {
-                    tenant.DBConnectionString = SettingKeys.ConnectionStringKey;
+                    tenant.DBConnectionString = ConfigUtilities.GetConnectionStringKey();
                 }
                 else
                 {

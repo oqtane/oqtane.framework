@@ -1,3 +1,5 @@
+using System;
+
 namespace Oqtane.Shared
 {
     public static class SettingKeys
@@ -6,7 +8,7 @@ namespace Oqtane.Shared
         public const string DatabaseTypeKey = "DefaultDBType";
 
         public const string ConnectionStringsSection = "ConnectionStrings";
-        public const string ConnectionStringKey = "DefaultConnection";
+        public const string DefaultConnectionStringKey = "DefaultConnection";
 
         public const string InstallationSection = "Installation";
         public const string DefaultAliasKey = "DefaultAlias";
@@ -21,5 +23,8 @@ namespace Oqtane.Shared
         public const string AvailableDatabasesSection = "AvailableDatabases";
 
         public const string TestModeKey = "TestMode"; // optional - used for testing run-time characteristics
+
+        [Obsolete("Please use Oqtane.Extensions.ConfigUtilities.GetConnectionStringKey instead.")]
+        public const string ConnectionStringKey = "DefaultConnection";
     }
 }

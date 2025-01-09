@@ -41,7 +41,7 @@ namespace Oqtane.Repository
             {
                 if (_config.IsInstalled())
                 {
-                    _connectionString = _config.GetConnectionString(SettingKeys.ConnectionStringKey)
+                    _connectionString = _config.GetConnectionString(ConfigUtilities.GetConnectionStringKey())
                         .Replace($"|{Constants.DataDirectory}|", AppDomain.CurrentDomain.GetData(Constants.DataDirectory)?.ToString());
                 }
 

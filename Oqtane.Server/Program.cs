@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Oqtane.Documentation;
+using Oqtane.Extensions;
 
 namespace Oqtane.Server
 {
@@ -15,6 +16,7 @@ namespace Oqtane.Server
         public static void Main(string[] args)
         {
             var host = BuildWebHost(args);
+            ConfigUtilities.Configure(host.Services);
             var databaseManager = host.Services.GetService<IDatabaseManager>();
             var install = databaseManager.Install();
             if (!string.IsNullOrEmpty(install.Message))

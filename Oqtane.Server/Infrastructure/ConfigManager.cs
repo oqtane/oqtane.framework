@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Configuration;
+using Oqtane.Extensions;
 using Oqtane.Shared;
 
 namespace Oqtane.Infrastructure
@@ -154,7 +155,7 @@ namespace Oqtane.Infrastructure
 
         public string GetConnectionString()
         {
-            return _config.GetConnectionString(SettingKeys.ConnectionStringKey);
+            return _config.GetConnectionString(ConfigUtilities.GetConnectionStringKey());
         }
 
         public string GetConnectionString(string name)

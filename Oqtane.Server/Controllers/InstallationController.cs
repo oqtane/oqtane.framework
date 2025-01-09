@@ -17,6 +17,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using Oqtane.Extensions;
 
 namespace Oqtane.Controllers
 {
@@ -56,7 +57,7 @@ namespace Oqtane.Controllers
         {
             var installation = new Installation { Success = false, Message = "" };
 
-            if (ModelState.IsValid && (User.IsInRole(RoleNames.Host) || string.IsNullOrEmpty(_configManager.GetSetting($"{SettingKeys.ConnectionStringsSection}:{SettingKeys.ConnectionStringKey}", ""))))
+            if (ModelState.IsValid && (User.IsInRole(RoleNames.Host) || string.IsNullOrEmpty(_configManager.GetSetting($"{SettingKeys.ConnectionStringsSection}:{ConfigUtilities.GetConnectionStringKey()}", ""))))
             {
                 installation = _databaseManager.Install(config);
 
