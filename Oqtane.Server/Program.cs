@@ -25,7 +25,10 @@ namespace Oqtane.Server
                     filelogger.LogError($"[Oqtane.Server.Program.Main] {install.Message}");
                 }
             }
-            host.Run();
+            else
+            {
+                host.Run();
+            }
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
