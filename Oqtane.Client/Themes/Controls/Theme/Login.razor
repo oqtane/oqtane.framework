@@ -8,14 +8,14 @@
     {
         @if (PageState.Runtime == Runtime.Hybrid)
         {
-            <button type="button" class="btn btn-primary" @onclick="LogoutUser">@Localizer["Logout"]</button>
+            <button type="button" class="@CssClass" @onclick="LogoutUser">@Localizer["Logout"]</button>
         }
         else
         {
             <form method="post" class="app-form-inline" action="@logouturl" @formname="LogoutForm">
                 <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                 <input type="hidden" name="returnurl" value="@returnurl" />
-                <button type="submit" class="btn btn-primary">@Localizer["Logout"]</button>
+                <button type="submit" class="@CssClass">@Localizer["Logout"]</button>
             </form>
         }
     }
@@ -23,7 +23,7 @@
     {
         @if (ShowLogin)
         {
-            <a href="@loginurl" class="btn btn-primary">@SharedLocalizer["Login"]</a>
+            <a href="@loginurl" class="@CssClass">@SharedLocalizer["Login"]</a>
         }
     }
 </span>
@@ -32,4 +32,6 @@
 {
     [Parameter]
     public bool ShowLogin { get; set; } = true;
+    [Parameter]
+    public string CssClass { get; set; } = "btn btn-primary";
 }
