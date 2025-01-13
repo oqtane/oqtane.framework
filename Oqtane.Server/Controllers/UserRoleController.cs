@@ -121,41 +121,39 @@ namespace Oqtane.Controllers
 
         private UserRole Filter(UserRole userrole, int userid)
         {
-            // clone object to avoid mutating cache 
-            UserRole filtered = null;
-
-            if (userrole != null)
+            // include all properties if authorized
+            if (_userPermissions.IsAuthorized(User, userrole.User.SiteId, EntityNames.UserRole, -1, PermissionNames.Write, RoleNames.Admin))
             {
-                filtered = new UserRole();
-
-                // public properties
-                filtered.UserRoleId = userrole.UserRoleId;
-                filtered.UserId = userrole.UserId;
-                filtered.RoleId = userrole.RoleId;
-
-                filtered.User = new User();
-                filtered.User.SiteId = userrole.User.SiteId;
-                filtered.User.UserId = userrole.User.UserId;
-                filtered.User.Username = userrole.User.Username;
-                filtered.User.DisplayName = userrole.User.DisplayName;
-
-                filtered.Role = new Role();
-                filtered.Role.SiteId = userrole.Role.SiteId;
-                filtered.Role.RoleId = userrole.Role.RoleId;
-                filtered.Role.Name = userrole.Role.Name;
-
-                // include private properties if administrator
-                if (_userPermissions.IsAuthorized(User, filtered.User.SiteId, EntityNames.UserRole, -1, PermissionNames.Write, RoleNames.Admin))
-                {
-                    filtered.User.Email = userrole.User.Email;
-                    filtered.User.PhotoFileId = userrole.User.PhotoFileId;
-                    filtered.User.LastLoginOn = userrole.User.LastLoginOn;
-                    filtered.User.LastIPAddress = userrole.User.LastIPAddress;
-                    filtered.User.CreatedOn = userrole.User.CreatedOn;
-                }
+                return userrole;
             }
+            else
+            {
+                // clone object to avoid mutating cache 
+                UserRole filtered = null;
 
-            return filtered;
+                if (userrole != null)
+                {
+                    filtered = new UserRole();
+
+                    // include public properties
+                    filtered.UserRoleId = userrole.UserRoleId;
+                    filtered.UserId = userrole.UserId;
+                    filtered.RoleId = userrole.RoleId;
+
+                    filtered.User = new User();
+                    filtered.User.SiteId = userrole.User.SiteId;
+                    filtered.User.UserId = userrole.User.UserId;
+                    filtered.User.Username = userrole.User.Username;
+                    filtered.User.DisplayName = userrole.User.DisplayName;
+
+                    filtered.Role = new Role();
+                    filtered.Role.SiteId = userrole.Role.SiteId;
+                    filtered.Role.RoleId = userrole.Role.RoleId;
+                    filtered.Role.Name = userrole.Role.Name;
+                }
+
+                return filtered;
+            }
         }
 
         // POST api/<controller>
