@@ -379,7 +379,16 @@ else
 									<input id="profileclaimtypes" class="form-control" @bind="@_profileclaimtypes" />
 								</div>
 							</div>
-							<div class="row mb-1 align-items-center">
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="savetokens" HelpText="Specify whether access and refresh tokens should be saved after a successful login. The default is false to reduce the size of the authentication cookie." ResourceKey="SaveTokens">Save Tokens?</Label>
+                                <div class="col-sm-9">
+                                    <select id="savetokens" class="form-select" @bind="@_savetokens" required>
+                                        <option value="true">@SharedLocalizer["Yes"]</option>
+                                        <option value="false">@SharedLocalizer["No"]</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-1 align-items-center">
 								<Label Class="col-sm-3" For="domainfilter" HelpText="Provide any email domain filter criteria (separated by commas). Domains to exclude should be prefixed with an exclamation point (!). For example 'microsoft.com,!hotmail.com' would include microsoft.com email addresses but not hotmail.com email addresses." ResourceKey="DomainFilter">Domain Filter:</Label>
 								<div class="col-sm-9">
 									<input id="domainfilter" class="form-control" @bind="@_domainfilter" />
@@ -497,6 +506,7 @@ else
     private string _roleclaimmappings;
     private string _synchronizeroles;
     private string _profileclaimtypes;
+    private string _savetokens;
     private string _domainfilter;
     private string _createusers;
     private string _verifyusers;
@@ -577,6 +587,7 @@ else
         _roleclaimmappings = SettingService.GetSetting(settings, "ExternalLogin:RoleClaimMappings", "");
         _synchronizeroles = SettingService.GetSetting(settings, "ExternalLogin:SynchronizeRoles", "false");
         _profileclaimtypes = SettingService.GetSetting(settings, "ExternalLogin:ProfileClaimTypes", "");
+        _savetokens = SettingService.GetSetting(settings, "ExternalLogin:SaveTokens", "false");
         _domainfilter = SettingService.GetSetting(settings, "ExternalLogin:DomainFilter", "");
         _createusers = SettingService.GetSetting(settings, "ExternalLogin:CreateUsers", "true");
         _verifyusers = SettingService.GetSetting(settings, "ExternalLogin:VerifyUsers", "true");
@@ -666,6 +677,7 @@ else
                 settings = SettingService.SetSetting(settings, "ExternalLogin:RoleClaimMappings", _roleclaimmappings, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:SynchronizeRoles", _synchronizeroles, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:ProfileClaimTypes", _profileclaimtypes, true);
+                settings = SettingService.SetSetting(settings, "ExternalLogin:SaveTokens", _savetokens, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:DomainFilter", _domainfilter, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:CreateUsers", _createusers, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:VerifyUsers", _verifyusers, true);
