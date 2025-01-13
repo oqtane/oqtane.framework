@@ -91,7 +91,7 @@ namespace Oqtane.Infrastructure
             // get configuration
             if (install == null)
             {
-                // startup or silent installation
+                // startup or auotmated installation
                 install = new InstallConfig
                 {
                     ConnectionString = _config.GetConnectionString(SettingKeys.ConnectionStringKey),
@@ -111,7 +111,7 @@ namespace Oqtane.Infrastructure
 
                     if (!string.IsNullOrEmpty(install.ConnectionString) && !string.IsNullOrEmpty(install.Aliases) && !string.IsNullOrEmpty(install.HostPassword) && !string.IsNullOrEmpty(install.HostEmail))
                     {
-                        // silent install
+                        // automated install
                         install.SiteTemplate = GetInstallationConfig(SettingKeys.SiteTemplateKey, Constants.DefaultSiteTemplate);
                         install.DefaultTheme = GetInstallationConfig(SettingKeys.DefaultThemeKey, Constants.DefaultTheme);
                         install.DefaultContainer = GetInstallationConfig(SettingKeys.DefaultContainerKey, Constants.DefaultContainer);
@@ -120,7 +120,11 @@ namespace Oqtane.Infrastructure
                     }
                     else
                     {
-                        // silent installation is missing required information
+                        if (!string.IsNullOrEmpty(install.ConnectionString))
+                        {
+                            // automated installation is missing required information
+                            result.Message = $"Error Installing Master Database For {SettingKeys.ConnectionStringKey}: {install.ConnectionString}. If You Are Trying To Execute An Automated Installation You Must Include The HostEmail, HostPassword, And DefaultAlias In appsettings.json.";
+                        }
                         install.ConnectionString = "";
                     }
                 }
