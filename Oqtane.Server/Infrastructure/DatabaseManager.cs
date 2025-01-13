@@ -91,7 +91,7 @@ namespace Oqtane.Infrastructure
             // get configuration
             if (install == null)
             {
-                // startup or auotmated installation
+                // startup or automated installation
                 install = new InstallConfig
                 {
                     ConnectionString = _config.GetConnectionString(SettingKeys.ConnectionStringKey),
