@@ -8,13 +8,13 @@
 <span class="app-profile">
     @if (PageState.User != null)
     {
-        <a href="@NavigateUrl("profile", "returnurl=" + _returnurl)" class="btn btn-primary">@PageState.User.Username</a>
+        <a href="@NavigateUrl("profile", "returnurl=" + _returnurl)" class="@CssClass">@PageState.User.Username</a>
     }
     else
     {
         @if (ShowRegister && PageState.Site.AllowRegistration)
         {
-            <a href="@NavigateUrl("register", "returnurl=" + _returnurl)" class="btn btn-primary">@Localizer["Register"]</a>
+            <a href="@NavigateUrl("register", "returnurl=" + _returnurl)" class="@CssClass">@Localizer["Register"]</a>
         }
     }
 </span>
@@ -23,6 +23,8 @@
 
     [Parameter]
     public bool ShowRegister { get; set; }
+    [Parameter]
+    public string CssClass { get; set; } = "btn btn-primary";
 
     private string _returnurl = "";
 
