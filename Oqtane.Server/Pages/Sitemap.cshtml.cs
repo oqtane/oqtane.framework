@@ -52,7 +52,7 @@ namespace Oqtane.Pages
             var pageModules = _pageModules.GetPageModules(_alias.SiteId);
             foreach (var page in _pages.GetPages(_alias.SiteId))
             {
-                if (_userPermissions.IsAuthorized(null, PermissionNames.View, page.PermissionList) && !Constants.InternalPagePaths.Contains(page.Path))
+                if (!page.IsDeleted && _userPermissions.IsAuthorized(null, PermissionNames.View, page.PermissionList) && !Constants.InternalPagePaths.Contains(page.Path))
                 {
                     var pageurl = rooturl;
                     if (string.IsNullOrEmpty(page.Url))

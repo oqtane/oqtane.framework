@@ -97,7 +97,7 @@ else
 
     private async Task Load()
     {
-        _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
+        _pages = await PageService.GetPagesAsync(PageState.Site.SiteId, true);
         _modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId);
     }
 

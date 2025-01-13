@@ -17,6 +17,14 @@ namespace Oqtane.Services
         Task<List<Page>> GetPagesAsync(int siteId);
 
         /// <summary>
+        /// Returns a list of pages
+        /// </summary>
+        /// <param name="siteId"></param>
+        /// <param name="includeDeleted"></param>
+        /// <returns></returns>
+        Task<List<Page>> GetPagesAsync(int siteId, bool includeDeleted);
+
+        /// <summary>
         /// Returns a specific page
         /// </summary>
         /// <param name="pageId"></param>

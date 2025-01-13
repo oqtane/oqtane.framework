@@ -43,18 +43,19 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>?siteid=x
         [HttpGet]
-        public IEnumerable<Page> Get(string siteid)
+        public IEnumerable<Page> Get(string siteid, string includedeleted)
         {
             List<Page> pages = new List<Page>();
 
             int SiteId;
             if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
             {
+                var includeDeleted = bool.Parse(includedeleted);
                 List<Setting> settings = _settings.GetSettings(EntityNames.Page).ToList();
 
                 foreach (Page page in _pages.GetPages(SiteId))
                 {
-                    if (_userPermissions.IsAuthorized(User, PermissionNames.View, page.PermissionList))
+                    if ((includeDeleted || !page.IsDeleted) && _userPermissions.IsAuthorized(User, PermissionNames.View, page.PermissionList))
                     {
                         page.Settings = settings.Where(item => item.EntityId == page.PageId)
                             .Where(item => !item.IsPrivate || _userPermissions.IsAuthorized(User, PermissionNames.Edit, page.PermissionList))

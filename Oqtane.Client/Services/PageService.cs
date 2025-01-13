@@ -17,7 +17,12 @@ namespace Oqtane.Services
 
         public async Task<List<Page>> GetPagesAsync(int siteId)
         {
-            return await GetJsonAsync<List<Page>>($"{Apiurl}?siteid={siteId}");
+            return await GetPagesAsync(siteId, false);
+        }
+
+        public async Task<List<Page>> GetPagesAsync(int siteId, bool includeDeleted)
+        {
+            return await GetJsonAsync<List<Page>>($"{Apiurl}?siteid={siteId}&includeDeleted={includeDeleted}");
         }
 
         public async Task<Page> GetPageAsync(int pageId)
