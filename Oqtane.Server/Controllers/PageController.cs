@@ -189,14 +189,15 @@ namespace Oqtane.Controllers
             User user = _userPermissions.GetUser(User);
             if (parent != null && parent.SiteId == _alias.SiteId && parent.IsPersonalizable && user.UserId == int.Parse(userid))
             {
-                page = _pages.GetPage(parent.Path + "/" + user.Username, parent.SiteId);
+                var path = parent.Path + "/" + Utilities.GetFriendlyUrl(user.Username);
+                page = _pages.GetPage(path, parent.SiteId);
                 if (page == null)
                 {
                     page = new Page();
                     page.SiteId = parent.SiteId;
                     page.ParentId = parent.PageId;
                     page.Name = (!string.IsNullOrEmpty(user.DisplayName)) ? user.DisplayName : user.Username;
-                    page.Path = parent.Path + "/" + user.Username;
+                    page.Path = path;
                     page.Title = page.Name + " - " + parent.Name;
                     page.Order = 0;
                     page.IsNavigation = false;
