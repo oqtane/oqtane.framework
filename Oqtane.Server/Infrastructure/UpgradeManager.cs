@@ -481,43 +481,17 @@ namespace Oqtane.Infrastructure
                 "System.Text.Json.dll"
             };
 
-            foreach (var assembly in assemblies)
-            {
-                try
-                {
-                    var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-                    var filepath = Path.Combine(binFolder, assembly);
-                    if (System.IO.File.Exists(filepath)) System.IO.File.Delete(filepath);
-                }
-                catch (Exception ex)
-                {
-                    // error deleting asesmbly
-                    _filelogger.LogError(Utilities.LogMessage(this, $"Oqtane Error: 6.0.1 Upgrade Error Removing {assembly} - {ex}"));
-                }
-            }
+            RemoveAssemblies(assemblies, "6.0.1");
         }
 
         private void Upgrade_6_0_2(Tenant tenant, IServiceScope scope)
         {
-            // remove MySql.EntityFrameworkCore package
+            // remove MySql.EntityFrameworkCore package (replaced by Pomelo.EntityFrameworkCore.MySql)
             string[] assemblies = {
                 "MySql.EntityFrameworkCore.dll"
             };
 
-            foreach (var assembly in assemblies)
-            {
-                try
-                {
-                    var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-                    var filepath = Path.Combine(binFolder, assembly);
-                    if (System.IO.File.Exists(filepath)) System.IO.File.Delete(filepath);
-                }
-                catch (Exception ex)
-                {
-                    // error deleting asesmbly
-                    _filelogger.LogError(Utilities.LogMessage(this, $"Oqtane Error: 6.0.2 Upgrade Error Removing {assembly} - {ex}"));
-                }
-            }
+            RemoveAssemblies(assemblies, "6.0.2");
         }
 
         private void AddPagesToSites(IServiceScope scope, Tenant tenant, List<PageTemplate> pageTemplates)
@@ -528,6 +502,24 @@ namespace Oqtane.Infrastructure
             {
                 tenants.SetAlias(tenant.TenantId, site.SiteId);
                 sites.CreatePages(site, pageTemplates, null);
+            }
+        }
+
+        private void RemoveAssemblies(string[] assemblies, string version)
+        {
+            foreach (var assembly in assemblies)
+            {
+                try
+                {
+                    var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                    var filepath = Path.Combine(binFolder, assembly);
+                    if (System.IO.File.Exists(filepath)) System.IO.File.Delete(filepath);
+                }
+                catch (Exception ex)
+                {
+                    // error deleting asesmbly
+                    _filelogger.LogError(Utilities.LogMessage(this, $"Oqtane Error: {version} Upgrade Error Removing {assembly} - {ex}"));
+                }
             }
         }
     }
