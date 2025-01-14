@@ -74,6 +74,9 @@ namespace Oqtane.Infrastructure
                     case "6.0.1":
                         Upgrade_6_0_1(tenant, scope);
                         break;
+                    case "6.0.2":
+                        Upgrade_6_0_2(tenant, scope);
+                        break;
                 }
             }
         }
@@ -490,6 +493,29 @@ namespace Oqtane.Infrastructure
                 {
                     // error deleting asesmbly
                     _filelogger.LogError(Utilities.LogMessage(this, $"Oqtane Error: 6.0.1 Upgrade Error Removing {assembly} - {ex}"));
+                }
+            }
+        }
+
+        private void Upgrade_6_0_2(Tenant tenant, IServiceScope scope)
+        {
+            // remove MySql.EntityFrameworkCore package
+            string[] assemblies = {
+                "MySql.EntityFrameworkCore.dll"
+            };
+
+            foreach (var assembly in assemblies)
+            {
+                try
+                {
+                    var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                    var filepath = Path.Combine(binFolder, assembly);
+                    if (System.IO.File.Exists(filepath)) System.IO.File.Delete(filepath);
+                }
+                catch (Exception ex)
+                {
+                    // error deleting asesmbly
+                    _filelogger.LogError(Utilities.LogMessage(this, $"Oqtane Error: 6.0.2 Upgrade Error Removing {assembly} - {ex}"));
                 }
             }
         }

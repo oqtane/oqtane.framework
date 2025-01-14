@@ -33,8 +33,8 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="MySql.EntityFrameworkCore" Version="9.0.0-preview" />
     <PackageReference Include="MySql.Data" Version="9.1.0" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0-preview.2.efcore.9.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,7 +42,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <MySQLFiles Include="$(OutputPath)Oqtane.Database.MySQL.dll;$(OutputPath)Oqtane.Database.MySQL.pdb;$(OutputPath)MySql.EntityFrameworkCore.dll;$(OutputPath)MySql.Data.dll" DestinationPath="..\Oqtane.Server\bin\$(Configuration)\net9.0\%(Filename)%(Extension)" />
+    <MySQLFiles Include="$(OutputPath)Oqtane.Database.MySQL.dll;$(OutputPath)Oqtane.Database.MySQL.pdb;$(OutputPath)Pomelo.EntityFrameworkCore.MySql.dll;$(OutputPath)MySql.Data.dll" DestinationPath="..\Oqtane.Server\bin\$(Configuration)\net9.0\%(Filename)%(Extension)" />
   </ItemGroup>
 
   <Target Name="PublishProvider" AfterTargets="PostBuildEvent" Inputs="@(MySQLFiles)" Outputs="@(MySQLFiles->'%(DestinationPath)')">
