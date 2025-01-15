@@ -131,6 +131,7 @@
         if (PageState.Page.IsPersonalizable && PageState.User != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Registered))
         {
             page = await PageService.AddPageAsync(PageState.Page.PageId, PageState.User.UserId);
+            PageState.EditMode = true;
         }
 
         if (_showEditMode)
@@ -153,7 +154,7 @@
         {
             if (PageState.Page.IsPersonalizable && PageState.User != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Registered))
             {
-                NavigationManager.NavigateTo(NavigateUrl(page.Path, "edit=" + PageState.EditMode.ToString()));
+                NavigationManager.NavigateTo(NavigateUrl(page.Path, "edit=" + PageState.EditMode.ToString().ToLower()));
             }
         }
     }
