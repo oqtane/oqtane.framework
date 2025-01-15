@@ -244,7 +244,7 @@
                 // look for personalized page
                 if (user != null && page.IsPersonalizable && !UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList))
                 {
-                    var personalized = await PageService.GetPageAsync(route.PagePath + "/" + user.Username, site.SiteId);
+                    var personalized = await PageService.GetPageAsync(route.PagePath + "/" + Utilities.GetFriendlyUrl(user.Username), site.SiteId);
                     if (personalized != null)
                     {
                         // redirect to the personalized page
