@@ -62,7 +62,7 @@ namespace Oqtane.Themes
                     var inline = 0;
                     foreach (Resource resource in resources)
                     {
-                        if ((string.IsNullOrEmpty(resource.RenderMode) || resource.RenderMode == RenderModes.Interactive) && !resource.Reload)
+                        if (string.IsNullOrEmpty(resource.RenderMode) || resource.RenderMode == RenderModes.Interactive)
                         {
                             if (!string.IsNullOrEmpty(resource.Url))
                             {
