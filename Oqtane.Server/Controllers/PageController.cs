@@ -9,7 +9,6 @@ using System.Net;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
-using System;
 
 namespace Oqtane.Controllers
 {
@@ -189,16 +188,16 @@ namespace Oqtane.Controllers
             User user = _userPermissions.GetUser(User);
             if (parent != null && parent.SiteId == _alias.SiteId && parent.IsPersonalizable && user.UserId == int.Parse(userid))
             {
-                var path = parent.Path + "/" + Utilities.GetFriendlyUrl(user.Username);
-                page = _pages.GetPage(path, parent.SiteId);
+                var path = Utilities.GetFriendlyUrl(user.Username);
+                page = _pages.GetPage(parent.Path + "/" + path, parent.SiteId);
                 if (page == null)
                 {
                     page = new Page();
                     page.SiteId = parent.SiteId;
                     page.ParentId = parent.PageId;
-                    page.Name = (!string.IsNullOrEmpty(user.DisplayName)) ? user.DisplayName : user.Username;
-                    page.Path = path;
-                    page.Title = page.Name + " - " + parent.Name;
+                    page.Name = user.Username;
+                    page.Path = parent.Path + "/" + path;
+                    page.Title = ((!string.IsNullOrEmpty(user.DisplayName)) ? user.DisplayName : user.Username) + " - " + parent.Name;
                     page.Order = 0;
                     page.IsNavigation = false;
                     page.Url = "";
@@ -251,6 +250,11 @@ namespace Oqtane.Controllers
 
                     _syncManager.AddSyncEvent(_alias, EntityNames.Page, page.PageId, SyncEventActions.Create);
                     _syncManager.AddSyncEvent(_alias, EntityNames.Site, page.SiteId, SyncEventActions.Refresh);
+
+                    // set user personalized page path
+                    var setting = new Setting { EntityName = EntityNames.User, EntityId = page.UserId.Value, SettingName = $"PersonalizedPagePath:{page.SiteId}:{parent.PageId}", SettingValue = path, IsPrivate = false };
+                    _settings.AddSetting(setting);
+                    _syncManager.AddSyncEvent(_alias, EntityNames.User, user.UserId, SyncEventActions.Update);
                 }
             }
             else
@@ -341,6 +345,28 @@ namespace Oqtane.Controllers
 
                 _syncManager.AddSyncEvent(_alias, EntityNames.Page, page.PageId, SyncEventActions.Update);
                 _syncManager.AddSyncEvent(_alias, EntityNames.Site, page.SiteId, SyncEventActions.Refresh);
+
+                // personalized page
+                if (page.UserId != null && currentPage.Path != page.Path)
+                {
+                    // set user personalized page path
+                    var settingName = $"PersonalizedPagePath:{page.SiteId}:{page.ParentId}";
+                    var path = page.Path.Substring(page.Path.LastIndexOf("/") + 1);
+                    var settings = _settings.GetSettings(EntityNames.User, page.UserId.Value).ToList();
+                    var setting = settings.FirstOrDefault(item => item.SettingName == settingName);
+                    if (setting == null)
+                    {
+                        setting = new Setting { EntityName = EntityNames.User, EntityId = page.UserId.Value, SettingName = settingName, SettingValue = path, IsPrivate = false };
+                        _settings.AddSetting(setting);
+                    }
+                    else
+                    {
+                        setting.SettingValue = path;
+                        _settings.UpdateSetting(setting);
+                    }
+                    _syncManager.AddSyncEvent(_alias, EntityNames.User, page.UserId.Value, SyncEventActions.Update);
+                }
+
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Updated {Page}", page);
             }
             else

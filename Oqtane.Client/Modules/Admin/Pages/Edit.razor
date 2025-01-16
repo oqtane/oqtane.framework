@@ -116,7 +116,7 @@
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used. If the page is intended to be the root path specify '/'." ResourceKey="UrlPath">Url Path: </Label>
+                            <Label Class="col-sm-3" For="path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used. Please note that spaces and punctuation will be replaced by a dash. If the page is intended to be the root path specify '/'." ResourceKey="UrlPath">Url Path: </Label>
                             <div class="col-sm-9">
                                 <input id="path" class="form-control" @bind="@_path" maxlength="256" />
                             </div>
@@ -261,6 +261,12 @@
                             <Label Class="col-sm-3" For="title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used." ResourceKey="Title">Title: </Label>
                             <div class="col-sm-9">
                                 <input id="title" class="form-control" @bind="@_title" maxlength="200" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="path" HelpText="Provide a url path for your personalized page. Please note that spaces and punctuation will be replaced by a dash." ResourceKey="PersonalizedUrlPath">Url Path: </Label>
+                            <div class="col-sm-9">
+                                <input id="path" class="form-control" @bind="@_path" maxlength="256" />
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
