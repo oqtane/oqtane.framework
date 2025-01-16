@@ -20,7 +20,7 @@
 
 @if (!string.IsNullOrEmpty(_error))
 {
-	<ModuleMessage Message="@_error" Type="@MessageType.Warning" />
+    <ModuleMessage Message="@_error" Type="@MessageType.Warning" />
 }
 
 @DynamicComponent
@@ -244,7 +244,9 @@
                 // look for personalized page
                 if (user != null && page.IsPersonalizable && !UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList))
                 {
-                    var personalized = await PageService.GetPageAsync(route.PagePath + "/" + Utilities.GetFriendlyUrl(user.Username), site.SiteId);
+                    var settingName = $"PersonalizedPagePath:{page.SiteId}:{page.PageId}";
+                    var path = (user.Settings.ContainsKey(settingName)) ? user.Settings[settingName] : Utilities.GetFriendlyUrl(user.Username);
+                    var personalized = await PageService.GetPageAsync(route.PagePath + "/" + path, site.SiteId);
                     if (personalized != null)
                     {
                         // redirect to the personalized page
