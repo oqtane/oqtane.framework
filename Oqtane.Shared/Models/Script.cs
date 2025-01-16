@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Oqtane.Shared;
 
@@ -27,6 +28,13 @@ namespace Oqtane.Models
             this.Type = Type;
         }
 
+        public Script(string Content, ResourceLoadBehavior LoadBehavior)
+        {
+            SetDefaults();
+            this.Content = Content;
+            this.LoadBehavior = LoadBehavior;
+        }
+
         public Script(string Src, string Integrity, string CrossOrigin)
         {
             SetDefaults();
@@ -35,6 +43,22 @@ namespace Oqtane.Models
             this.CrossOrigin = CrossOrigin;
         }
 
+        public Script(string Src, string Integrity, string CrossOrigin, string Type, string Content, ResourceLocation Location, string Bundle, ResourceLoadBehavior LoadBehavior, Dictionary<string, string> DataAttributes, string RenderMode)
+        {
+            SetDefaults();
+            this.Url = Src;
+            this.Integrity = Integrity;
+            this.CrossOrigin = CrossOrigin;
+            this.Type = Type;
+            this.Content = Content;
+            this.Location = Location;
+            this.Bundle = Bundle;
+            this.LoadBehavior = LoadBehavior;
+            this.DataAttributes = DataAttributes;
+            this.RenderMode = RenderMode;
+        }
+
+        [Obsolete("This constructor is deprecated. Use constructor with LoadBehavior parameter instead.", false)]
         public Script(string Src, string Integrity, string CrossOrigin, string Type, string Content, ResourceLocation Location, string Bundle, bool Reload, Dictionary<string, string> DataAttributes, string RenderMode)
         {
             SetDefaults();
@@ -45,9 +69,10 @@ namespace Oqtane.Models
             this.Content = Content;
             this.Location = Location;
             this.Bundle = Bundle;
-            this.Reload = Reload;
+            this.LoadBehavior = (Reload) ? ResourceLoadBehavior.BlazorPageScript : ResourceLoadBehavior.Once;
             this.DataAttributes = DataAttributes;
             this.RenderMode = RenderMode;
         }
+
     }
 }
