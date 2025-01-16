@@ -14,7 +14,7 @@ export function onUpdate() {
             if (enhancedNavigation) {
                 // reload the script if data-reload is always or if the script has not been loaded previously and data-reload is once 
                 let dataReload = script.getAttribute('data-reload');
-                if (dataReload === 'always' || (!scriptKeys.has(key) && dataReload == 'once')) {
+                if ((dataReload === 'true' || dataReload === 'always') || (!scriptKeys.has(key) && dataReload == 'once')) {
                     reloadScript(script);
                 }
             }
