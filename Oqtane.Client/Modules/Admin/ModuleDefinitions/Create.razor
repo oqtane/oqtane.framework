@@ -111,6 +111,8 @@
     private async Task CreateModule()
     {
         validated = true;
+        _owner = _owner.Trim();
+        _module = _module.Trim();
         var interop = new Interop(JSRuntime);
         if (await interop.FormValid(form))
         {
