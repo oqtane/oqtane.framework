@@ -191,16 +191,13 @@
             }
             else
             {
-                if (dataAttributes == null || !dataAttributes.ContainsKey("data-reload") || dataAttributes["data-reload"] != "false")
+                if (id == "")
                 {
-                    if (id == "")
-                    {
-                        count += 1;
-                        id = $"page{PageState.Page.PageId}-script{count}";
-                    }
-                    var pos = script.IndexOf(">") + 1;
-                    await interop.IncludeScript(id, "", "", "", type, script.Substring(pos, script.IndexOf("</script>") - pos), location.ToString().ToLower(), dataAttributes);
+                    count += 1;
+                    id = $"page{PageState.Page.PageId}-script{count}";
                 }
+                var pos = script.IndexOf(">") + 1;
+                await interop.IncludeScript(id, "", "", "", type, script.Substring(pos, script.IndexOf("</script>") - pos), location.ToString().ToLower(), dataAttributes);
             }
             index = content.IndexOf("<script", index + 1);
         }

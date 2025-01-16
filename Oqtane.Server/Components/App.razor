@@ -514,7 +514,7 @@
     private void AddScript(Resource resource, Alias alias)
     {
         var script = CreateScript(resource, alias);
-        if (resource.Location == Shared.ResourceLocation.Head && !resource.Reload)
+        if (resource.Location == Shared.ResourceLocation.Head && resource.LoadBehavior != ResourceLoadBehavior.BlazorPageScript)
         {
             if (!_headResources.Contains(script))
             {
@@ -532,11 +532,27 @@
 
     private string CreateScript(Resource resource, Alias alias)
     {
-        if (!resource.Reload)
+        if (resource.LoadBehavior == ResourceLoadBehavior.BlazorPageScript)
+        {
+            return "<page-script src=\"" + resource.Url + "\"></page-script>";
+        }
+        else
         {
             var url = (resource.Url.Contains("://")) ? resource.Url : alias.BaseUrl + resource.Url;
 
             var dataAttributes = "";
+            if (!resource.DataAttributes.ContainsKey("data-reload"))
+            {
+                switch (resource.LoadBehavior)
+                {
+                    case ResourceLoadBehavior.Once: 
+                        dataAttributes += " data-reload=\"once\"";
+                        break;
+                    case ResourceLoadBehavior.Always:
+                        dataAttributes += " data-reload=\"always\"";
+                        break;
+                }
+            }
             if (resource.DataAttributes != null && resource.DataAttributes.Count > 0)
             {
                 foreach (var attribute in resource.DataAttributes)
@@ -551,10 +567,6 @@
                 ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
                 ((!string.IsNullOrEmpty(dataAttributes)) ? dataAttributes : "") +
                 "></script>";
-        }
-        else
-        {
-            return "<page-script src=\"" + resource.Url + "\"></page-script>";
         }
     }
 
