@@ -99,6 +99,12 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="name" HelpText="Provide the full name of the host user" ResourceKey="Name">Full Name:</Label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" @bind="@_hostName" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="template" HelpText="Select a site template" ResourceKey="Template">Template:</Label>
                     <div class="col-sm-9">
                         @if (_templates != null)
@@ -153,6 +159,7 @@
     private string _toggleConfirmPassword = string.Empty;
     private string _confirmPassword = string.Empty;
     private string _hostEmail = string.Empty;
+    private string _hostName = string.Empty;
     private List<SiteTemplate> _templates;
     private string _template = Constants.DefaultSiteTemplate;
     private bool _register = true;
@@ -236,7 +243,7 @@
             }
         }
 
-        if (connectionString != "" && !string.IsNullOrEmpty(_hostUsername) && !string.IsNullOrEmpty(_hostPassword) && _hostPassword == _confirmPassword && !string.IsNullOrEmpty(_hostEmail) && _hostEmail.Contains("@"))
+        if (connectionString != "" && !string.IsNullOrEmpty(_hostUsername) && !string.IsNullOrEmpty(_hostPassword) && _hostPassword == _confirmPassword && !string.IsNullOrEmpty(_hostEmail) && _hostEmail.Contains("@") && !string.IsNullOrEmpty(_hostName))
         {
             var result = await UserService.ValidateUserAsync(_hostUsername, _hostEmail, _hostPassword);
             if (result.Succeeded)
@@ -256,7 +263,7 @@
                         HostUsername = _hostUsername,
                         HostPassword = _hostPassword,
                         HostEmail = _hostEmail,
-                        HostName = _hostUsername,
+                        HostName = _hostName,
                         TenantName = TenantNames.Master,
                         IsNewTenant = true,
                         SiteName = Constants.DefaultSite,
