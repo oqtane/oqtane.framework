@@ -39,8 +39,9 @@ namespace Oqtane.Services
         /// Registers a new <see cref="User"/>
         /// </summary>
         /// <param name="email">Email of the user to be registered</param>
+        /// <param name="name">Name of the user to be registered</param>
         /// <returns></returns>
-        Task RegisterAsync(string email);
+        Task RegisterAsync(string email, string name);
 
     }
 }
