@@ -24,7 +24,7 @@
                             {
                                 <button type="button" class="@Class" @onclick="Confirm">@((MarkupString)_iconSpan) @Text</button>
                             }
-                            <button type="button" class="btn btn-secondary" @onclick="DisplayModal">@SharedLocalizer["Cancel"]</button>
+                            <button type="button" class="btn btn-secondary @GetButtonSize()" @onclick="DisplayModal">@SharedLocalizer["Cancel"]</button>
                         </div>
                     </div>
                 </div>
@@ -71,7 +71,7 @@ else
                             }
                             <form method="post" @formname="@($"ActionDialogCancelForm:{ModuleState.PageModuleId}:{Id}")" @onsubmit="DisplayModal" data-enhance>
                                 <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
-                                <button type="submit" class="btn btn-secondary">@SharedLocalizer["Cancel"]</button>
+                                <button type="submit" class="btn btn-secondary @GetButtonSize()">@SharedLocalizer["Cancel"]</button>
                             </form>
                         </div>
                     </div>
@@ -196,7 +196,7 @@ else
             _openIconSpan = $"<span class=\"{IconName}\"></span>{(IconOnly ? "" : "&nbsp")}";
             _iconSpan = $"<span class=\"{IconName}\"></span>&nbsp";
         }
-        
+
         _permissions = (PermissionList == null) ? ModuleState.PermissionList : PermissionList;
         _authorized = IsAuthorized();
 
@@ -206,6 +206,15 @@ else
         {
             _visible = (PageState.QueryString["dialog"] == Id); 
         }
+    }
+    /// <summary>
+    /// Checks the Class that is used for the Action Button, if it is small make the Cancel Button small as well.
+    /// </summary>
+    /// <param name="Class"></param>
+    /// <returns></returns>
+    private string GetButtonSize()
+    {
+        return Class.Contains("btn-sm", StringComparison.OrdinalIgnoreCase) ? "btn-sm" : string.Empty;
     }
 
     private bool IsAuthorized()
