@@ -253,12 +253,12 @@ namespace Oqtane.Pages
             if (download)
             {
                 _syncManager.AddSyncEvent(_alias, EntityNames.File, file.FileId, "Download");
-                return PhysicalFile(filepath, file.GetMimeType(), downloadName);
+                return PhysicalFile(filepath, MimeUtilities.GetMimeType(downloadName), downloadName);
             }
             else
             {
                 HttpContext.Response.Headers.Append(HeaderNames.ETag, etag);
-                return PhysicalFile(filepath, file.GetMimeType());
+                return PhysicalFile(filepath, MimeUtilities.GetMimeType(downloadName));
             }
         }
 
