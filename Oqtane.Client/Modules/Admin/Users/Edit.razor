@@ -51,15 +51,18 @@
                         <input id="displayname" class="form-control" @bind="@displayname" />
                     </div>
                 </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="isdeleted" HelpText="Indicate if the user is active" ResourceKey="IsDeleted"></Label>
-                    <div class="col-sm-9">
-                        <select id="isdeleted" class="form-select" @bind="@isdeleted">
-                            <option value="True">@SharedLocalizer["Yes"]</option>
-                            <option value="False">@SharedLocalizer["No"]</option>
-                        </select>
+                @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                {
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="isdeleted" HelpText="Indicate if the user is active" ResourceKey="IsDeleted"></Label>
+                        <div class="col-sm-9">
+                            <select id="isdeleted" class="form-select" @bind="@isdeleted">
+                                <option value="True">@SharedLocalizer["Yes"]</option>
+                                <option value="False">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
+                }
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="lastlogin" HelpText="The date and time when the user last signed in" ResourceKey="LastLogin"></Label>
                     <div class="col-sm-9">
@@ -127,8 +130,11 @@
 
     <button type="button" class="btn btn-success" @onclick="SaveUser">@SharedLocalizer["Save"]</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-    <br />
-    <br />
+    @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host) && isdeleted == "True")
+    {
+        <ActionDialog Header="Delete User" Message="Are You Sure You Wish To Permanently Delete This User?" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteUser())" ResourceKey="DeleteUser" />
+    }
+    <br /><br />
     <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
 }
 
@@ -226,8 +232,10 @@
                         user.Password = _password;
                         user.Email = email;
                         user.DisplayName = string.IsNullOrWhiteSpace(displayname) ? username : displayname;
-
-                        user.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
+                        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                        {
+                            user.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
+                        }
 
                         user = await UserService.UpdateUserAsync(user);
                         if (user != null)
@@ -256,6 +264,25 @@
         {
             await logger.LogError(ex, "Error Saving User {Username} {Email} {Error}", username, email, ex.Message);
             AddModuleMessage(Localizer["Error.User.Save"], MessageType.Error);
+        }
+    }
+
+    private async Task DeleteUser()
+    {
+        try
+        {
+            if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host) && userid != PageState.User.UserId)
+            {
+                var user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
+                await UserService.DeleteUserAsync(user.UserId, PageState.Site.SiteId);
+                await logger.LogInformation("User Permanently Deleted {User}", user);
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Permanently Deleting User {UserId} {Error}", userid, ex.Message);
+            AddModuleMessage(Localizer["Error.DeleteUser"], MessageType.Error);
         }
     }
 

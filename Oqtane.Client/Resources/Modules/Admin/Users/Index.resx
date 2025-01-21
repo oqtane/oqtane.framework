@@ -501,4 +501,10 @@
   <data name="SaveTokens.HelpText" xml:space="preserve">
     <value>Specify whether access and refresh tokens should be saved after a successful login. The default is false to reduce the size of the authentication cookie.</value>
   </data>
+  <data name="Success.DeleteUser" xml:space="preserve">
+    <value>User Deleted Successfully</value>
+  </data>
+  <data name="Error.DeleteUser" xml:space="preserve">
+    <value>Error Deleting User</value>
+  </data>
 </root>

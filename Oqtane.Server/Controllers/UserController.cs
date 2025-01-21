@@ -217,7 +217,7 @@ namespace Oqtane.Controllers
 
         // DELETE api/<controller>/5?siteid=x
         [HttpDelete("{id}")]
-        [Authorize(Policy = $"{EntityNames.User}:{PermissionNames.Write}:{RoleNames.Admin}")]
+        [Authorize(Policy = $"{EntityNames.User}:{PermissionNames.Write}:{RoleNames.Host}")]
         public async Task Delete(int id, string siteid)
         {
             User user = _users.GetUser(id, false);
