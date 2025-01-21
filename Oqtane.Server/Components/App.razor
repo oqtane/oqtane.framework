@@ -174,7 +174,7 @@
                     // get jwt token for downstream APIs
                     if (Context.User.Identity.IsAuthenticated)
                     {
-                        CreateJwtToken(alias);
+                        GetJwtToken(alias);
                     }
 
                     // includes resources
@@ -441,13 +441,23 @@
         }
     }
 
-    private void CreateJwtToken(Alias alias)
+    private void GetJwtToken(Alias alias)
     {
-        var sitesettings = Context.GetSiteSettings();
-        var secret = sitesettings.GetValue("JwtOptions:Secret", "");
-        if (!string.IsNullOrEmpty(secret))
+        _authorizationToken = Context.Request.Headers[HeaderNames.Authorization];
+        if (!string.IsNullOrEmpty(_authorizationToken))
         {
-            _authorizationToken = JwtManager.GenerateToken(alias, (ClaimsIdentity)Context.User.Identity, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""), int.Parse(sitesettings.GetValue("JwtOptions:Lifetime", "20")));
+            // bearer token was provided by remote Identity Provider and was persisted using SaveTokens
+            _authorizationToken = _authorizationToken.Replace("Bearer ", "");
+        }
+        else
+        {
+            // generate bearer token if a secret has been configured in User Settings
+            var sitesettings = Context.GetSiteSettings();
+            var secret = sitesettings.GetValue("JwtOptions:Secret", "");
+            if (!string.IsNullOrEmpty(secret))
+            {
+                _authorizationToken = JwtManager.GenerateToken(alias, (ClaimsIdentity)Context.User.Identity, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""), int.Parse(sitesettings.GetValue("JwtOptions:Lifetime", "20")));
+            }
         }
     }
 
