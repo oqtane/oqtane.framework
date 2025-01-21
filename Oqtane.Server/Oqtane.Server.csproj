@@ -57,7 +57,7 @@
   <ItemGroup>
     <ModuleTemplateFiles Include="$(ProjectDir)wwwroot\Modules\Templates\**\*.*" />
     <ThemeTemplateFiles Include="$(ProjectDir)wwwroot\Themes\Templates\**\*.*" />
-    <MySQLFiles Include="$(OutputPath)Oqtane.Database.MySQL.dll;$(OutputPath)Oqtane.Database.MySQL.pdb;$(OutputPath)MySql.EntityFrameworkCore.dll;$(OutputPath)MySql.Data.dll" />
+    <MySQLFiles Include="$(OutputPath)Oqtane.Database.MySQL.dll;$(OutputPath)Oqtane.Database.MySQL.pdb;$(OutputPath)Pomelo.EntityFrameworkCore.MySql.dll;$(OutputPath)MySql.Data.dll" />
     <PostgreSQLFiles Include="$(OutputPath)Oqtane.Database.PostgreSQL.dll;$(OutputPath)Oqtane.Database.PostgreSQL.pdb;$(OutputPath)EFCore.NamingConventions.dll;$(OutputPath)Npgsql.EntityFrameworkCore.PostgreSQL.dll;$(OutputPath)Npgsql.dll" />
     <SqliteFiles Include="$(OutputPath)Oqtane.Database.Sqlite.dll;$(OutputPath)Oqtane.Database.Sqlite.pdb;$(OutputPath)Microsoft.EntityFrameworkCore.Sqlite.dll" />
     <SqlServerFiles Include="$(OutputPath)Oqtane.Database.SqlServer.dll;$(OutputPath)Oqtane.Database.SqlServer.pdb;$(OutputPath)Microsoft.EntityFrameworkCore.SqlServer.dll" />
