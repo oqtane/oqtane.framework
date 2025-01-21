@@ -9,6 +9,8 @@ using System.Net;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
+using System.Xml.Linq;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace Oqtane.Controllers
 {
@@ -279,18 +281,14 @@ namespace Oqtane.Controllers
                 // get current page permissions
                 var currentPermissions = _permissionRepository.GetPermissions(page.SiteId, EntityNames.Page, page.PageId).ToList();
 
-                page = _pages.UpdatePage(page);
+                // preserve new path and deleted status
+                var newPath = page.Path;
+                var deleted = page.IsDeleted;
+                page.Path = currentPage.Path;
+                page.IsDeleted = currentPage.IsDeleted;
 
-                // save url mapping if page path changed
-                if (currentPage.Path != page.Path)
-                {
-                    var urlMapping = _urlMappings.GetUrlMapping(page.SiteId, currentPage.Path);
-                    if (urlMapping != null)
-                    {
-                        urlMapping.MappedUrl = page.Path;
-                        _urlMappings.UpdateUrlMapping(urlMapping);
-                    }
-                }
+                // update page
+                UpdatePage(page, page.Path, newPath, deleted);
 
                 // get differences between current and new page permissions
                 var added = GetPermissionsDifferences(page.PermissionList, currentPermissions);
@@ -320,6 +318,7 @@ namespace Oqtane.Controllers
                                 });
                             }
                         }
+
                         // permissions removed
                         foreach (Permission permission in removed)
                         {
@@ -343,7 +342,6 @@ namespace Oqtane.Controllers
                     }
                 }
 
-                _syncManager.AddSyncEvent(_alias, EntityNames.Page, page.PageId, SyncEventActions.Update);
                 _syncManager.AddSyncEvent(_alias, EntityNames.Site, page.SiteId, SyncEventActions.Refresh);
 
                 // personalized page
@@ -376,6 +374,39 @@ namespace Oqtane.Controllers
                 page = null;
             }
             return page;
+        }
+
+        private void UpdatePage(Page page, string oldPath, string newPath, bool deleted)
+        {
+            var update = false;
+            if (oldPath != newPath)
+            {
+                var urlMapping = _urlMappings.GetUrlMapping(page.SiteId, page.Path);
+                if (urlMapping != null)
+                {
+                    urlMapping.MappedUrl = newPath + page.Path.Substring(oldPath.Length);
+                    _urlMappings.UpdateUrlMapping(urlMapping);
+                }
+
+                page.Path = newPath + page.Path.Substring(oldPath.Length);
+                update = true;
+            }
+            if (deleted != page.IsDeleted)
+            {
+                page.IsDeleted = deleted;
+                update = true;
+            }
+            if (update)
+            {
+                _pages.UpdatePage(page);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Page, page.PageId, SyncEventActions.Update);
+            }
+
+            // update any children
+            foreach (var _page in _pages.GetPages(page.SiteId).Where(item => item.ParentId == page.PageId))
+            {
+                UpdatePage(_page, oldPath, newPath, deleted);
+            }
         }
 
         private List<Permission> GetPermissionsDifferences(List<Permission> permissions1, List<Permission> permissions2)
