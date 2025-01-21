@@ -474,4 +474,7 @@
   <data name="User" xml:space="preserve">
     <value>User</value>
   </data>
+  <data name="Path" xml:space="preserve">
+    <value>Path</value>
+  </data>
 </root>
