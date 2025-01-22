@@ -34,13 +34,5 @@ namespace Oqtane.Services
         /// </summary>
         /// <returns>internal status/message object</returns>
         Task RestartAsync();
-
-        /// <summary>
-        /// Registers a new <see cref="User"/>
-        /// </summary>
-        /// <param name="email">Email of the user to be registered</param>
-        /// <returns></returns>
-        Task RegisterAsync(string email);
-
     }
 }

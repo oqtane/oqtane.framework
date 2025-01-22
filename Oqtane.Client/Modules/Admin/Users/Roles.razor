@@ -53,17 +53,17 @@ else
     <p align="center">
         <Pager Items="@userroles">
             <Header>
-            <th>@Localizer["Roles"]</th>
-            <th>@Localizer["Effective"]</th>
-            <th>@Localizer["Expiry"]</th>
-            <th>&nbsp;</th>
+                <th>@Localizer["Roles"]</th>
+                <th>@Localizer["Effective"]</th>
+                <th>@Localizer["Expiry"]</th>
+                <th>&nbsp;</th>
             </Header>
             <Row>
                 <td>@context.Role.Name</td>
                 <td>@Utilities.UtcAsLocalDate(context.EffectiveDate)</td>
                 <td>@Utilities.UtcAsLocalDate(context.ExpiryDate)</td>
                 <td>
-                    <ActionDialog Header="Remove Role" Message="@string.Format(Localizer["Confirm.User.RemoveRole"], context.Role.Name)" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteUserRole(context.UserRoleId))" Disabled="@(context.Role.IsAutoAssigned || (context.Role.Name == RoleNames.Host && userid == PageState.User.UserId))" ResourceKey="DeleteUserRole" />
+                    <ActionDialog Header="Remove Role" Message="@string.Format(Localizer["Confirm.User.RemoveRole"], context.Role.Name)" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteUserRole(context.UserRoleId))" Disabled="@(context.Role.Name == RoleNames.Host && userid == PageState.User.UserId)" ResourceKey="DeleteUserRole" />
                 </td>
             </Row>
         </Pager>
@@ -171,8 +171,18 @@ else
     {
         try
         {
-            await UserRoleService.DeleteUserRoleAsync(UserRoleId);
-            await logger.LogInformation("User Removed From Role {UserRoleId}", UserRoleId);
+            var userrole = await UserRoleService.GetUserRoleAsync(UserRoleId);
+            if (userrole.Role.Name == RoleNames.Registered)
+            {
+                userrole.ExpiryDate = DateTime.UtcNow;
+                await UserRoleService.UpdateUserRoleAsync(userrole);
+                await logger.LogInformation("User {Username} Expired From Role {Role}", userrole.User.Username, userrole.Role.Name);
+            }
+            else
+            {
+                await UserRoleService.DeleteUserRoleAsync(UserRoleId);
+                await logger.LogInformation("User {Username} Removed From Role {Role}", userrole.User.Username, userrole.Role.Name);
+            }
             AddModuleMessage(Localizer["Success.User.Remove"], MessageType.Success);
             await GetUserRoles();
             StateHasChanged();

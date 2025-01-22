@@ -35,7 +35,7 @@ else
                         <ActionLink Action="Edit" Text="Edit" Parameters="@($"id=" + context.UserId.ToString())" Security="SecurityAccessLevel.Edit" ResourceKey="EditUser" />
 					</td>
 					<td>
-						<ActionDialog Header="Delete User" Message="@string.Format(Localizer["Confirm.User.Delete"], context.User.DisplayName)" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteUser(context))" Disabled="@(context.UserId == PageState.User.UserId)" ResourceKey="DeleteUser" />
+                        <ActionDialog Header="Delete User" Message="@string.Format(Localizer["Confirm.User.Delete"], context.User.DisplayName)" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteUser(context))" Disabled="@(context.UserId == PageState.User.UserId || context.User.IsDeleted)" ResourceKey="DeleteUser" />
 					</td>
 					<td>
                         <ActionLink Action="Roles" Text="Roles" Parameters="@($"id=" + context.UserId.ToString())" Security="SecurityAccessLevel.Edit" ResourceKey="Roles" />
@@ -611,19 +611,31 @@ else
     {
         try
         {
-            var user = await UserService.GetUserAsync(UserRole.UserId, PageState.Site.SiteId);
-            if (user != null)
+            if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
             {
-                await UserService.DeleteUserAsync(user.UserId, PageState.Site.SiteId);
-                await logger.LogInformation("User Deleted {User}", UserRole.User);
-                await LoadUsersAsync(true);
-                StateHasChanged();
+                var user = await UserService.GetUserAsync(UserRole.UserId, PageState.Site.SiteId);
+                if (user != null)
+                {
+                    user.IsDeleted = true;
+                    await UserService.UpdateUserAsync(user);
+                    await logger.LogInformation("User Soft Deleted {User}", user);
+                }
             }
+            else
+            {
+                var userrole = await UserRoleService.GetUserRoleAsync(UserRole.UserRoleId);
+                userrole.ExpiryDate = DateTime.UtcNow;
+                await UserRoleService.UpdateUserRoleAsync(userrole);
+                await logger.LogInformation("User {Username} Expired From Role {Role}", userrole.User.Username, userrole.Role.Name);
+            }
+            AddModuleMessage(Localizer["Success.DeleteUser"], MessageType.Success);
+            await LoadUsersAsync(true);
+            StateHasChanged();
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting User {User} {Error}", UserRole.User, ex.Message);
-            AddModuleMessage(ex.Message, MessageType.Error);
+            AddModuleMessage(Localizer["Error.DeleteUser"], MessageType.Error);
         }
     }
 

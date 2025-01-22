@@ -363,28 +363,36 @@ namespace Oqtane.Managers
                         }
                         else
                         {
-                            user = _users.GetUser(identityuser.UserName);
-                            if (user != null)
+                            if (await _identityUserManager.IsEmailConfirmedAsync(identityuser))
                             {
-                                if (await _identityUserManager.IsEmailConfirmedAsync(identityuser))
+                                user = GetUser(identityuser.UserName, alias.SiteId);
+                                if (user != null)
                                 {
-                                    user.IsAuthenticated = true;
-                                    user.LastLoginOn = DateTime.UtcNow;
-                                    user.LastIPAddress = LastIPAddress;
-                                    _users.UpdateUser(user);
-                                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful For {Username} From IP Address {IPAddress}", user.Username, LastIPAddress);
-
-                                    _syncManager.AddSyncEvent(alias, EntityNames.User, user.UserId, "Login");
-
-                                    if (setCookie)
+                                    // ensure user is registered for site
+                                    if (user.Roles.Contains(RoleNames.Registered))
                                     {
-                                        await _identitySignInManager.SignInAsync(identityuser, isPersistent);
+                                        user.IsAuthenticated = true;
+                                        user.LastLoginOn = DateTime.UtcNow;
+                                        user.LastIPAddress = LastIPAddress;
+                                        _users.UpdateUser(user);
+                                        _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful For {Username} From IP Address {IPAddress}", user.Username, LastIPAddress);
+
+                                        _syncManager.AddSyncEvent(alias, EntityNames.User, user.UserId, "Login");
+
+                                        if (setCookie)
+                                        {
+                                            await _identitySignInManager.SignInAsync(identityuser, isPersistent);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        _logger.Log(LogLevel.Information, this, LogFunction.Security, "User {Username} Is Not An Active Member Of Site {SiteId}", user.Username, alias.SiteId);
                                     }
                                 }
-                                else
-                                {
-                                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Email Address Not Verified {Username}", user.Username);
-                                }
+                            }
+                            else
+                            {
+                                _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Email Address Not Verified {Username}", user.Username);
                             }
                         }
                     }

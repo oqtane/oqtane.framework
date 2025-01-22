@@ -186,4 +186,10 @@
   <data name="Message.Username.Invalid" xml:space="preserve">
     <value>The Username Provided Does Not Meet The System Requirement, It Can Only Contains Letters Or Digits.</value>
   </data>
+  <data name="Name.Text" xml:space="preserve">
+    <value>Full Name:</value>
+  </data>
+  <data name="Name.HelpText" xml:space="preserve">
+    <value>Provide the full name of the host user</value>
+  </data>
 </root>

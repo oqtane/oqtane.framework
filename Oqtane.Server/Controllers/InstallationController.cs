@@ -60,9 +60,9 @@ namespace Oqtane.Controllers
             {
                 installation = _databaseManager.Install(config);
 
-                if (installation.Success && config.Register)
+                if (installation.Success)
                 {
-                    await RegisterContact(config.HostEmail);
+                    await RegisterContact(config.HostEmail, config.HostName, config.Register);
                 }
             }
             else
@@ -257,7 +257,7 @@ namespace Oqtane.Controllers
             }
         }
 
-        private async Task RegisterContact(string email)
+        private async Task RegisterContact(string email, string name, bool register)
         {
             try
             {
@@ -268,7 +268,7 @@ namespace Oqtane.Controllers
                     {
                         client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
                         client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
-                        var response = await client.GetAsync(new Uri(url + $"/api/registry/contact/?id={_configManager.GetInstallationId()}&email={WebUtility.UrlEncode(email)}")).ConfigureAwait(false);
+                        var response = await client.GetAsync(new Uri(url + $"/api/registry/contact/?id={_configManager.GetInstallationId()}&email={WebUtility.UrlEncode(email)}&name={WebUtility.UrlEncode(name)}&register={register.ToString().ToLower()}")).ConfigureAwait(false);
                     }
                 }
             }
@@ -276,14 +276,6 @@ namespace Oqtane.Controllers
             {
                 // error calling registry service
             }
-        }
-
-        // GET api/<controller>/register?email=x
-        [HttpPost("register")]
-        [Authorize(Roles = RoleNames.Host)]
-        public async Task Register(string email)
-        {
-            await RegisterContact(email);
         }
 
         public struct ClientAssembly

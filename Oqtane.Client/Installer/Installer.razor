@@ -71,14 +71,14 @@
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="username" HelpText="Provide a username for the primary user account" ResourceKey="Username">Username:</Label>
                     <div class="col-sm-9">
-                        <input id="username" type="text" class="form-control" @bind="@_hostUsername" />
+                        <input id="username" type="text" class="form-control" maxlength="256" @bind="@_hostUsername" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="password" HelpText="Provide a password for the primary user account" ResourceKey="Password">Password:</Label>
                     <div class="col-sm-9">
 						<div class="input-group">
-							<input id="password" type="@_passwordType" class="form-control" @bind="@_hostPassword" autocomplete="new-password" />
+                            <input id="password" type="@_passwordType" class="form-control" maxlength="256" @bind="@_hostPassword" autocomplete="new-password" />
                             <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglePassword</button>
 						</div>
                     </div>
@@ -87,7 +87,7 @@
                     <Label Class="col-sm-3" For="confirm" HelpText="Please confirm the password entered above by entering it again" ResourceKey="Confirm">Confirm:</Label>
                     <div class="col-sm-9">
 						<div class="input-group">
-							<input id="confirm" type="@_confirmPasswordType" class="form-control" @bind="@_confirmPassword" autocomplete="new-password" />
+                            <input id="confirm" type="@_confirmPasswordType" class="form-control" maxlength="256" @bind="@_confirmPassword" autocomplete="new-password" />
                             <button type="button" class="btn btn-secondary" @onclick="@ToggleConfirmPassword" tabindex="-1">@_toggleConfirmPassword</button>
 						</div>
                     </div>
@@ -95,7 +95,13 @@
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="email" HelpText="Provide the email address for the host user account" ResourceKey="Email">Email:</Label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" @bind="@_hostEmail" />
+                        <input type="text" class="form-control" maxlength="256" @bind="@_hostEmail" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="name" HelpText="Provide the full name of the host user" ResourceKey="Name">Full Name:</Label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" maxlength="50" @bind="@_hostName" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
@@ -153,6 +159,7 @@
     private string _toggleConfirmPassword = string.Empty;
     private string _confirmPassword = string.Empty;
     private string _hostEmail = string.Empty;
+    private string _hostName = string.Empty;
     private List<SiteTemplate> _templates;
     private string _template = Constants.DefaultSiteTemplate;
     private bool _register = true;
@@ -236,7 +243,7 @@
             }
         }
 
-        if (connectionString != "" && !string.IsNullOrEmpty(_hostUsername) && !string.IsNullOrEmpty(_hostPassword) && _hostPassword == _confirmPassword && !string.IsNullOrEmpty(_hostEmail) && _hostEmail.Contains("@"))
+        if (connectionString != "" && !string.IsNullOrEmpty(_hostUsername) && !string.IsNullOrEmpty(_hostPassword) && _hostPassword == _confirmPassword && !string.IsNullOrEmpty(_hostEmail) && _hostEmail.Contains("@") && !string.IsNullOrEmpty(_hostName))
         {
             var result = await UserService.ValidateUserAsync(_hostUsername, _hostEmail, _hostPassword);
             if (result.Succeeded)
@@ -256,7 +263,7 @@
                         HostUsername = _hostUsername,
                         HostPassword = _hostPassword,
                         HostEmail = _hostEmail,
-                        HostName = _hostUsername,
+                        HostName = _hostName,
                         TenantName = TenantNames.Master,
                         IsNewTenant = true,
                         SiteName = Constants.DefaultSite,
