@@ -223,15 +223,6 @@ else
             _visible = (PageState.QueryString["dialog"] == Id); 
         }
     }
-    /// <summary>
-    /// Checks the Class that is used for the Action Button, if it is small make the Cancel Button small as well.
-    /// </summary>
-    /// <param name="Class"></param>
-    /// <returns></returns>
-    private string GetButtonSize()
-    {
-        return Class.Contains("btn-sm", StringComparison.OrdinalIgnoreCase) ? "btn-sm" : string.Empty;
-    }
 
     private bool IsAuthorized()
     {
