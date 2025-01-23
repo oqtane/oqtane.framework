@@ -220,10 +220,10 @@
     <value>You Have Been Successfully Registered For Updates</value>
   </data>
   <data name="PackageManager.HelpText" xml:space="preserve">
-    <value>Specify The Package Manager Service For Installing Modules, Themes, And Translations. If This Field Is Blank It Means The Package Manager Service Is Disabled For This Installation.</value>
+    <value>Specify The Url Of The Package Manager Service For Installing Modules, Themes, And Translations. If This Field Is Blank It Means The Package Manager Service Is Disabled For This Installation.</value>
   </data>
   <data name="PackageManager.Text" xml:space="preserve">
-    <value>Package Manager:</value>
+    <value>Package Manager Url:</value>
   </data>
   <data name="Swagger.HelpText" xml:space="preserve">
     <value>Specify If Swagger Is Enabled For Your Server API</value>
@@ -293,5 +293,11 @@
   </data>
   <data name="Process.Text" xml:space="preserve">
     <value>Process: </value>
+  </data>
+  <data name="PackageManagerEmail.Text" xml:space="preserve">
+    <value>Package Manager Email:</value>
+  </data>
+  <data name="PackageManagerEmail.HelpText" xml:space="preserve">
+    <value>Specify The Email Address Of The User Account Used For Interacting With The Package Manager Service. This Account Is Used For Managing Packages Across Multiple Installations.</value>
   </data>
 </root>
