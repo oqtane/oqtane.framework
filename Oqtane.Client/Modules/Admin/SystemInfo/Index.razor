@@ -133,9 +133,15 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="packageregistryurl" HelpText="Specify The Package Manager Service For Installing Modules, Themes, And Translations. If This Field Is Blank It Means The Package Manager Service Is Disabled For This Installation." ResourceKey="PackageManager">Package Manager: </Label>
+                <Label Class="col-sm-3" For="packageregistryurl" HelpText="Specify The Url Of The Package Manager Service For Installing Modules, Themes, And Translations. If This Field Is Blank It Means The Package Manager Service Is Disabled For This Installation." ResourceKey="PackageManager">Package Manager Url: </Label>
                 <div class="col-sm-9">
                     <input id="packageregistryurl" class="form-control" @bind="@_packageregistryurl" />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="packageregistryemail" HelpText="Specify The Email Address Of The User Account Used For Interacting With The Package Manager Service. This Account Is Used For Managing Packages Across Multiple Installations." ResourceKey="PackageManagerEmail">Package Manager Email: </Label>
+                <div class="col-sm-9">
+                    <input id="packageregistryemail" class="form-control" @bind="@_packageregistryemail" />
                 </div>
             </div>
         </div>
@@ -180,8 +186,9 @@
 	private string _notificationlevel = string.Empty;
 	private string _swagger = string.Empty;
     private string _packageregistryurl = string.Empty;
+    private string _packageregistryemail = string.Empty;
 
-	private string _log = string.Empty;
+    private string _log = string.Empty;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -211,7 +218,8 @@
 			_notificationlevel = systeminfo["Logging:LogLevel:Notify"].ToString();
 			_swagger = systeminfo["UseSwagger"].ToString();
             _packageregistryurl = systeminfo["PackageRegistryUrl"].ToString();
-		}
+            _packageregistryemail = systeminfo["PackageRegistryEmail"].ToString();
+        }
 
 		systeminfo = await SystemService.GetSystemInfoAsync("log");
 		if (systeminfo != null)
@@ -230,7 +238,8 @@
 			settings.Add("Logging:LogLevel:Notify", _notificationlevel);
 			settings.Add("UseSwagger", _swagger);
 			settings.Add("PackageRegistryUrl", _packageregistryurl);
-			await SystemService.UpdateSystemInfoAsync(settings);
+            settings.Add("PackageRegistryEmail", _packageregistryemail);
+            await SystemService.UpdateSystemInfoAsync(settings);
 			AddModuleMessage(Localizer["Success.UpdateConfig.Restart"], MessageType.Success);
 		}
 		catch (Exception ex)
