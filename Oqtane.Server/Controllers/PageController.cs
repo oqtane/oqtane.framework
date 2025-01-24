@@ -288,7 +288,7 @@ namespace Oqtane.Controllers
                 page.IsDeleted = currentPage.IsDeleted;
 
                 // update page
-                UpdatePage(page, page.Path, newPath, deleted);
+                UpdatePage(page, page.PageId, page.Path, newPath, deleted);
 
                 // get differences between current and new page permissions
                 var added = GetPermissionsDifferences(page.PermissionList, currentPermissions);
@@ -376,9 +376,9 @@ namespace Oqtane.Controllers
             return page;
         }
 
-        private void UpdatePage(Page page, string oldPath, string newPath, bool deleted)
+        private void UpdatePage(Page page, int pageId, string oldPath, string newPath, bool deleted)
         {
-            var update = false;
+            var update = (page.PageId == pageId);
             if (oldPath != newPath)
             {
                 var urlMapping = _urlMappings.GetUrlMapping(page.SiteId, page.Path);
@@ -405,7 +405,7 @@ namespace Oqtane.Controllers
             // update any children
             foreach (var _page in _pages.GetPages(page.SiteId).Where(item => item.ParentId == page.PageId))
             {
-                UpdatePage(_page, oldPath, newPath, deleted);
+                UpdatePage(_page, pageId, oldPath, newPath, deleted);
             }
         }
 
