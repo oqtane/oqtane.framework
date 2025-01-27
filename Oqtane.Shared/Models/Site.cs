@@ -187,6 +187,12 @@ namespace Oqtane.Models
         [NotMapped]
         public List<Theme> Themes { get; set; }
 
+        /// <summary>
+        /// hash code for static assets
+        /// </summary>
+        [NotMapped]
+        public string Hash { get; set; }
+
         public Site Clone()
         {
             return new Site
@@ -227,7 +233,8 @@ namespace Oqtane.Models
                 Settings = Settings.ToDictionary(setting => setting.Key, setting => setting.Value),
                 Pages = Pages.ConvertAll(page => page.Clone()),
                 Languages = Languages.ConvertAll(language => language.Clone()),
-                Themes = Themes
+                Themes = Themes,
+                Hash = Hash
             };
         }
 

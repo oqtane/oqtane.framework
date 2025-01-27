@@ -132,7 +132,7 @@ namespace Oqtane.Controllers
                     if (user != null)
                     {
                         email = user.Email;
-                        _configManager.AddOrUpdateSetting("PackageRegistryEmail", email, false);
+                        _configManager.AddOrUpdateSetting("PackageRegistryEmail", email, true);
                     }
                 }
             }

@@ -29,12 +29,13 @@ namespace Oqtane.Services
         private readonly ISettingRepository _settings;
         private readonly ITenantManager _tenantManager;
         private readonly ISyncManager _syncManager;
+        private readonly IConfigManager _configManager;
         private readonly ILogManager _logger;
         private readonly IMemoryCache _cache;
         private readonly IHttpContextAccessor _accessor;
         private readonly string _private = "[PRIVATE]";
 
-        public ServerSiteService(ISiteRepository sites, IPageRepository pages, IThemeRepository themes, IPageModuleRepository pageModules, IModuleDefinitionRepository moduleDefinitions, ILanguageRepository languages, IUserPermissions userPermissions, ISettingRepository settings, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger, IMemoryCache cache, IHttpContextAccessor accessor)
+        public ServerSiteService(ISiteRepository sites, IPageRepository pages, IThemeRepository themes, IPageModuleRepository pageModules, IModuleDefinitionRepository moduleDefinitions, ILanguageRepository languages, IUserPermissions userPermissions, ISettingRepository settings, ITenantManager tenantManager, ISyncManager syncManager, IConfigManager configManager, ILogManager logger, IMemoryCache cache, IHttpContextAccessor accessor)
         {
             _sites = sites;
             _pages = pages;
@@ -46,6 +47,7 @@ namespace Oqtane.Services
             _settings = settings;
             _tenantManager = tenantManager;
             _syncManager = syncManager;
+            _configManager = configManager;
             _logger = logger;
             _cache = cache;
             _accessor = accessor;
@@ -143,6 +145,9 @@ namespace Oqtane.Services
 
                 // themes
                 site.Themes = _themes.FilterThemes(_themes.GetThemes().ToList());
+
+                // installation date used for fingerprinting static assets
+                site.Hash = Utilities.GenerateSimpleHash(_configManager.GetSetting("InstallationDate", DateTime.UtcNow.ToString("yyyyMMddHHmm")));
             }
             else
             {
