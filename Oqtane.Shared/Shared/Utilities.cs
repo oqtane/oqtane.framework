@@ -575,7 +575,6 @@ namespace Oqtane.Shared
             }
             else if (expiryDate.HasValue)
             {
-                // Include equality check here
                 return currentUtcTime <= expiryDate.Value;
             }
             else
@@ -586,29 +585,37 @@ namespace Oqtane.Shared
 
         public static bool ValidateEffectiveExpiryDates(DateTime? effectiveDate, DateTime? expiryDate)
         {
-            // Treat DateTime.MinValue as null
             effectiveDate ??= DateTime.MinValue;
             expiryDate ??= DateTime.MinValue;
 
-            // Check if both effectiveDate and expiryDate have values
             if (effectiveDate != DateTime.MinValue && expiryDate != DateTime.MinValue)
             {
                 return effectiveDate <= expiryDate;
             }
-            // Check if only effectiveDate has a value
             else if (effectiveDate != DateTime.MinValue)
             {
                 return true;
             }
-            // Check if only expiryDate has a value
             else if (expiryDate != DateTime.MinValue)
             {
                 return true;
             }
-            // If neither effectiveDate nor expiryDate has a value, consider the page/module visible
             else
             {
                 return true;
+            }
+        }
+
+        public static string GenerateSimpleHash(string text)
+        {
+            unchecked // prevent overflow exception
+            {
+                int hash = 23;
+                foreach (char c in text)
+                {
+                    hash = hash * 31 + c;
+                }
+                return hash.ToString("X8");
             }
         }
 

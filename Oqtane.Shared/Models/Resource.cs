@@ -83,7 +83,21 @@ namespace Oqtane.Models
         /// </summary>
         public string Namespace { get; set; }
 
-        public Resource Clone(ResourceLevel level, string name)
+        /// <summary>
+        /// The version of the theme or module that declared the resource - only used in SiteRouter
+        /// </summary>
+        public string Version
+        {
+            set
+            {
+                if (!string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(Url) && !Url.Contains("?"))
+                {
+                    Url += "?v=" + value;
+                }
+            }
+        }
+
+        public Resource Clone(ResourceLevel level, string name, string version)
         {
             var resource = new Resource();
             resource.ResourceType = ResourceType;
@@ -106,6 +120,7 @@ namespace Oqtane.Models
             }
             resource.Level = level;
             resource.Namespace = name;
+            resource.Version = version;
             return resource;
         }
 

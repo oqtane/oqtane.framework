@@ -175,6 +175,12 @@ namespace Oqtane.Infrastructure
                 installationid = Guid.NewGuid().ToString();
                 AddOrUpdateSetting("InstallationId", installationid, true);
             }
+            var version = GetSetting("InstallationVersion", "");
+            if (version != Constants.Version)
+            {
+                AddOrUpdateSetting("InstallationVersion", Constants.Version, true);
+                AddOrUpdateSetting("InstallationDate", DateTime.UtcNow.ToString("yyyyMMddHHmm"), true);
+            }
             return installationid;
         }
     }

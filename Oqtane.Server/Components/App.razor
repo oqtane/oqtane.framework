@@ -39,7 +39,7 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="/" />
-        <link rel="stylesheet" href="css/app.css" />
+        <link rel="stylesheet" href="css/app.css?v=@_hash" />
         @if (_scripts.Contains("PWA Manifest"))
         {
             <link id="app-manifest" rel="manifest" />
@@ -70,15 +70,15 @@
             }
 
             <script src="_framework/blazor.web.js"></script>
-            <script src="js/app.js"></script>
-            <script src="js/loadjs.min.js"></script>
-            <script src="js/interop.js"></script>
+            <script src="js/app.js?v=@_hash"></script>
+            <script src="js/loadjs.min.js?v=@_hash"></script>
+            <script src="js/interop.js?v=@_hash"></script>
 
             @((MarkupString)_scripts)
             @((MarkupString)_bodyResources)
             @if (_renderMode == RenderModes.Static)
             {
-                <page-script src="./js/reload.js"></page-script>
+                <page-script src="./js/reload.js?v=@_hash"></page-script>
             }
         }
         else
@@ -94,6 +94,7 @@
     private string _renderMode = RenderModes.Interactive;
     private string _runtime = Runtimes.Server;
     private bool _prerender = true;
+    private string _hash = "";
     private int _visitorId = -1;
     private string _antiForgeryToken = "";
     private string _remoteIPAddress = "";
@@ -136,6 +137,8 @@
                     _renderMode = site.RenderMode;
                     _runtime = site.Runtime;
                     _prerender = site.Prerender;
+                    _hash = site.Hash;
+
                     var modules = new List<Module>();
 
                     Route route = new Route(url, alias.Path);
@@ -605,13 +608,13 @@
         var theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == themeType));
         if (theme != null)
         {
-            resources = AddResources(resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName), site.RenderMode);
+            resources = AddResources(resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName), theme.Hash, site.RenderMode);
         }
         else
         {
             // fallback to default Oqtane theme
             theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == Constants.DefaultTheme));
-            resources = AddResources(resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName), site.RenderMode);
+            resources = AddResources(resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName), theme.Hash, site.RenderMode);
         }
         var type = Type.GetType(themeType);
         if (type != null)
@@ -619,7 +622,7 @@
             var obj = Activator.CreateInstance(type) as IThemeControl;
             if (obj != null)
             {
-                resources = AddResources(resources, obj.Resources, ResourceLevel.Page, alias, "Themes", type.Namespace, site.RenderMode);
+                resources = AddResources(resources, obj.Resources, ResourceLevel.Page, alias, "Themes", type.Namespace, theme.Hash, site.RenderMode);
             }
         }
         // theme settings components are dynamically loaded within the framework Page Management module
@@ -629,7 +632,7 @@
             if (settingsType != null)
             {
                 var objSettings = Activator.CreateInstance(settingsType) as IModuleControl;
-                resources = AddResources(resources, objSettings.Resources, ResourceLevel.Module, alias, "Modules", settingsType.Namespace, site.RenderMode);
+                resources = AddResources(resources, objSettings.Resources, ResourceLevel.Module, alias, "Modules", settingsType.Namespace, theme.Hash, site.RenderMode);
             }
         }
 
@@ -638,7 +641,7 @@
             var typename = "";
             if (module.ModuleDefinition != null)
             {
-                resources = AddResources(resources, module.ModuleDefinition.Resources, ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName), site.RenderMode);
+                resources = AddResources(resources, module.ModuleDefinition.Resources, ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName), module.ModuleDefinition.Hash, site.RenderMode);
 
                 // handle default action
                 if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
@@ -684,7 +687,7 @@
                 var moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
                 if (moduleobject != null)
                 {
-                    resources = AddResources(resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, site.RenderMode);
+                    resources = AddResources(resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, module.ModuleDefinition?.Hash, site.RenderMode);
 
                     // settings components are dynamically loaded within the framework Settings module
                     if (action.ToLower() == "settings" && module.ModuleDefinition != null)
@@ -705,7 +708,7 @@
                         if (moduletype != null)
                         {
                             moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
-                            resources = AddResources(resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, site.RenderMode);
+                            resources = AddResources(resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, module.ModuleDefinition?.Hash, site.RenderMode);
                         }
 
                         // container settings component
@@ -715,7 +718,7 @@
                             if (moduletype != null)
                             {
                                 moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
-                                resources = AddResources(resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, site.RenderMode);
+                                resources = AddResources(resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, theme.Hash, site.RenderMode);
                             }
                         }
                     }
@@ -731,7 +734,7 @@
             {
                 if (module.ModuleDefinition?.Resources != null)
                 {
-                    resources = AddResources(resources, module.ModuleDefinition.Resources.Where(item => item.ResourceType == ResourceType.Script && item.Level == ResourceLevel.Site).ToList(), ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName), site.RenderMode);
+                    resources = AddResources(resources, module.ModuleDefinition.Resources.Where(item => item.ResourceType == ResourceType.Script && item.Level == ResourceLevel.Site).ToList(), ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName), module.ModuleDefinition.Hash, site.RenderMode);
                 }
             }
         }
@@ -739,7 +742,7 @@
         return resources;
     }
 
-    private List<Resource> AddResources(List<Resource> pageresources, List<Resource> resources, ResourceLevel level, Alias alias, string type, string name, string rendermode)
+    private List<Resource> AddResources(List<Resource> pageresources, List<Resource> resources, ResourceLevel level, Alias alias, string type, string name, string version, string rendermode)
     {
         if (resources != null)
         {
@@ -759,7 +762,7 @@
                     // ensure resource does not exist already
                     if (!pageresources.Exists(item => item.Url.ToLower() == resource.Url.ToLower()))
                     {
-                        pageresources.Add(resource.Clone(level, name));
+                        pageresources.Add(resource.Clone(level, name, version));
                     }
                 }
             }

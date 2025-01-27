@@ -265,6 +265,7 @@ namespace Oqtane.Infrastructure
                     var installation = IsInstalled();
                     try
                     {
+                        UpdateInstallation();
                         UpdateConnectionString(install.ConnectionString);
                         UpdateDatabaseType(install.DatabaseType);
 
@@ -491,6 +492,7 @@ namespace Oqtane.Infrastructure
                                 moduleDefinition.Categories = moduledef.Categories;
                                 // update version
                                 moduleDefinition.Version = versions[versions.Length - 1];
+                                moduleDefinition.ModifiedOn = DateTime.UtcNow;
                                 db.Entry(moduleDefinition).State = EntityState.Modified;
                                 db.SaveChanges();
                             }
@@ -666,6 +668,11 @@ namespace Oqtane.Infrastructure
             return connectionString;
         }
 
+        public void UpdateInstallation()
+        {
+            _config.GetInstallationId();
+        }
+
         public void UpdateConnectionString(string connectionString)
         {
             connectionString = DenormalizeConnectionString(connectionString);
@@ -677,7 +684,10 @@ namespace Oqtane.Infrastructure
 
         public void UpdateDatabaseType(string databaseType)
         {
-            _configManager.AddOrUpdateSetting($"{SettingKeys.DatabaseSection}:{SettingKeys.DatabaseTypeKey}", databaseType, true);
+            if (_config.GetSetting($"{SettingKeys.DatabaseSection}:{SettingKeys.DatabaseTypeKey}", "") != databaseType)
+            {
+                _configManager.AddOrUpdateSetting($"{SettingKeys.DatabaseSection}:{SettingKeys.DatabaseTypeKey}", databaseType, true);
+            }
         }
 
         public void AddEFMigrationsHistory(ISqlRepository sql, string connectionString, string databaseType, string version, bool isMaster)
