@@ -205,6 +205,7 @@ namespace Oqtane
                 ServeUnknownFileTypes = true,
                 OnPrepareResponse = (ctx) =>
                 {
+                    ctx.Context.Response.Headers.Append("Cache-Control", "public, max-age=604800");
                     var policy = corsPolicyProvider.GetPolicyAsync(ctx.Context, Constants.MauiCorsPolicy)
                         .ConfigureAwait(false).GetAwaiter().GetResult();
                     corsService.ApplyResult(corsService.EvaluatePolicy(ctx.Context, policy), ctx.Context.Response);
