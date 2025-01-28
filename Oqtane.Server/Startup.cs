@@ -23,6 +23,7 @@ using OqtaneSSR.Extensions;
 using Microsoft.AspNetCore.Components.Authorization;
 using Oqtane.Providers;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.Net.Http.Headers;
 
 namespace Oqtane
 {
@@ -98,7 +99,7 @@ namespace Oqtane
             {
                 options.HeaderName = Constants.AntiForgeryTokenHeaderName;
                 options.Cookie.Name = Constants.AntiForgeryTokenCookieName;
-                options.Cookie.SameSite = SameSiteMode.Strict;
+                options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
                 options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
                 options.Cookie.HttpOnly = true;
             });
@@ -171,7 +172,7 @@ namespace Oqtane
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISyncManager sync, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider, ILogger<Startup> logger)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISyncManager sync, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider, IConfigManager configManager, ILogger<Startup> logger)
         {
             if (!string.IsNullOrEmpty(_configureServicesErrors))
             {
@@ -205,7 +206,14 @@ namespace Oqtane
                 ServeUnknownFileTypes = true,
                 OnPrepareResponse = (ctx) =>
                 {
-                    ctx.Context.Response.Headers.Append("Cache-Control", "public, max-age=604800");
+                    if (!env.IsDevelopment())
+                    {
+                        var cachecontrol = configManager.GetSetting("CacheControl", "public, max-age=604800");
+                        if (!string.IsNullOrEmpty(cachecontrol))
+                        {
+                            ctx.Context.Response.Headers.Append(HeaderNames.CacheControl, cachecontrol);
+                        }
+                    }
                     var policy = corsPolicyProvider.GetPolicyAsync(ctx.Context, Constants.MauiCorsPolicy)
                         .ConfigureAwait(false).GetAwaiter().GetResult();
                     corsService.ApplyResult(corsService.EvaluatePolicy(ctx.Context, policy), ctx.Context.Response);
