@@ -101,6 +101,15 @@ namespace Oqtane.Themes
             return PageState?.Alias.BaseUrl + "/Themes/" + GetType().Namespace + "/";
         }
 
+        // fingerprint hash code for static assets
+        public string Fingerprint
+        {
+            get
+            {
+                return ThemeState.Hash;
+            }
+        }
+
         // url methods
 
         // navigate url
