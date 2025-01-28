@@ -131,8 +131,7 @@ namespace Oqtane.Pages
             string downloadName = file.Name;
             string filepath = _files.GetFilePath(file);
 
-            var etagValue = file.ModifiedOn.Ticks ^ file.Size;
-
+            // evaluate any querystring parameters
             bool isRequestingImageManipulation = false;
 
             int width = 0;
@@ -140,39 +139,34 @@ namespace Oqtane.Pages
             if (Request.Query.TryGetValue("width", out var widthStr) && int.TryParse(widthStr, out width) && width > 0)
             {
                 isRequestingImageManipulation = true;
-                etagValue ^= (width * 31);
             }
             if (Request.Query.TryGetValue("height", out var heightStr) && int.TryParse(heightStr, out height) && height > 0)
             {
                 isRequestingImageManipulation = true;
-                etagValue ^= (height * 17);
             }
 
             Request.Query.TryGetValue("mode", out var mode);
             Request.Query.TryGetValue("position", out var position);
             Request.Query.TryGetValue("background", out var background);
 
-            if (width > 0 || height > 0)
-            {
-                if (!string.IsNullOrWhiteSpace(mode)) etagValue ^= mode.ToString().GetHashCode();
-                if (!string.IsNullOrWhiteSpace(position)) etagValue ^= position.ToString().GetHashCode();
-                if (!string.IsNullOrWhiteSpace(background)) etagValue ^= background.ToString().GetHashCode();
-            }
-
             int rotate;
             if (Request.Query.TryGetValue("rotate", out var rotateStr) && int.TryParse(rotateStr, out rotate) && 360 > rotate && rotate > 0)
             {
                 isRequestingImageManipulation = true;
-                etagValue ^= (rotate * 13);
             }
-
             if (Request.Query.TryGetValue("format", out var format) && _imageService.GetAvailableFormats().Contains(format.ToString()))
             {
                 isRequestingImageManipulation = true;
-                etagValue ^= format.ToString().GetHashCode();
             }
 
-            etag = Convert.ToString(etagValue, 16);
+            if (isRequestingImageManipulation)
+            {
+                etag = Utilities.GenerateSimpleHash(Request.QueryString.Value);
+            }
+            else
+            {
+                etag = Convert.ToString(file.ModifiedOn.Ticks ^ file.Size, 16);
+            }
 
             var header = "";
             if (HttpContext.Request.Headers.TryGetValue(HeaderNames.IfNoneMatch, out var ifNoneMatch))
