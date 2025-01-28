@@ -84,6 +84,16 @@ namespace Oqtane.Themes
             }
         }
 
+        // property for obtaining theme information about this theme component
+        public Theme ThemeState
+        {
+            get
+            {
+                var type = GetType().Namespace + ", " + GetType().Assembly.GetName().Name;
+                return PageState?.Site.Themes.FirstOrDefault(item => item.ThemeName == type);
+            }
+        }
+
         // path method
 
         public string ThemePath()
