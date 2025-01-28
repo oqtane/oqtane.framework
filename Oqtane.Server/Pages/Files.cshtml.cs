@@ -122,9 +122,16 @@ namespace Oqtane.Pages
 
             if (file.Folder.SiteId != _alias.SiteId || !_userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.PermissionList))
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized File Access Attempt For Site {SiteId} And Path {Path}", _alias.SiteId, path);
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                return BrokenFile();
+                if (!User.Identity.IsAuthenticated && download)
+                {
+                    return Redirect(Utilities.NavigateUrl(_alias.Path, "login", "?returnurl=" + WebUtility.UrlEncode(Request.Path)));
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized File Access Attempt For Site {SiteId} And Path {Path}", _alias.SiteId, path);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return BrokenFile();
+                }
             }
 
             string etag;
