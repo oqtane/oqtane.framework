@@ -145,7 +145,7 @@ namespace Oqtane.Models
         public bool IsPortable { get; set; }
 
         [NotMapped]
-        public string Hash { get; set; }
+        public string Fingerprint { get; set; }
 
         #region Deprecated Properties
 

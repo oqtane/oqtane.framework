@@ -137,7 +137,7 @@ namespace Oqtane.Modules
         {
             get
             {
-                return ModuleState.ModuleDefinition.Hash;
+                return ModuleState.ModuleDefinition.Fingerprint;
             }
         }
 

@@ -106,7 +106,7 @@ namespace Oqtane.Themes
         {
             get
             {
-                return ThemeState.Hash;
+                return ThemeState.Fingerprint;
             }
         }
 

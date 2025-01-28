@@ -88,7 +88,7 @@ namespace Oqtane.Repository
                 Theme.ThemeSettingsType = theme.ThemeSettingsType;
                 Theme.ContainerSettingsType = theme.ContainerSettingsType;
                 Theme.PackageName = theme.PackageName;
-                Theme.Hash = Utilities.GenerateSimpleHash(theme.ModifiedOn.ToString("yyyyMMddHHmm"));
+                Theme.Fingerprint = Utilities.GenerateSimpleHash(theme.ModifiedOn.ToString("yyyyMMddHHmm"));
                 Themes.Add(Theme);
             }
 
