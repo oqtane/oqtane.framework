@@ -257,6 +257,10 @@ namespace Oqtane.Pages
             }
             else
             {
+                if (!string.IsNullOrEmpty(file.Folder.CacheControl))
+                {
+                    HttpContext.Response.Headers.Append(HeaderNames.CacheControl, value: file.Folder.CacheControl);
+                }
                 HttpContext.Response.Headers.Append(HeaderNames.ETag, etag);
                 return PhysicalFile(filepath, MimeUtilities.GetMimeType(downloadName));
             }
