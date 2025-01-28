@@ -117,8 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Access.ApiFramework" xml:space="preserve">
-    <value>Access Swagger API</value>
+  <data name="Swagger" xml:space="preserve">
+    <value>Access Swagger UI</value>
   </data>
   <data name="FrameworkVersion.HelpText" xml:space="preserve">
     <value>Framework Version</value>
