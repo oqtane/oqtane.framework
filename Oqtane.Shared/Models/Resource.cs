@@ -84,12 +84,13 @@ namespace Oqtane.Models
         public string Namespace { get; set; }
 
         /// <summary>
-        /// The version of the theme or module that declared the resource - only used in SiteRouter
+        /// Unique identifier of the version of the theme or module that declared the resource - for cache busting - only used in SiteRouter
         /// </summary>
-        public string Version
+        public string Fingerprint
         {
             set
             {
+                // add the fingerprint to the url if it does not contain a querystring already
                 if (!string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(Url) && !Url.Contains("?"))
                 {
                     Url += "?v=" + value;
@@ -97,7 +98,7 @@ namespace Oqtane.Models
             }
         }
 
-        public Resource Clone(ResourceLevel level, string name, string version)
+        public Resource Clone(ResourceLevel level, string name, string fingerprint)
         {
             var resource = new Resource();
             resource.ResourceType = ResourceType;
@@ -120,7 +121,7 @@ namespace Oqtane.Models
             }
             resource.Level = level;
             resource.Namespace = name;
-            resource.Version = version;
+            resource.Fingerprint = fingerprint;
             return resource;
         }
 

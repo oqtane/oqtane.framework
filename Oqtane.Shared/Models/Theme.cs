@@ -98,7 +98,7 @@ namespace Oqtane.Models
         public string Template { get; set; }
 
         [NotMapped]
-        public string Hash { get; set; }
+        public string Fingerprint { get; set; }
 
         #region Obsolete Properties
 
