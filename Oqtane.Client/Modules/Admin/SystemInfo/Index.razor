@@ -133,6 +133,12 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="cachecontrol" HelpText="Provide a Cache-Control directive for static assets. For example 'public, max-age=604800' indicates that static assets should be cached for 1 week. A blank value indicates no caching." ResourceKey="CacheControl">Static Asset Caching: </Label>
+                <div class="col-sm-9">
+                    <input id="cachecontrol" class="form-control" @bind="@_cachecontrol" />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="packageregistryurl" HelpText="Specify The Url Of The Package Manager Service For Installing Modules, Themes, And Translations. If This Field Is Blank It Means The Package Manager Service Is Disabled For This Installation." ResourceKey="PackageManager">Package Manager Url: </Label>
                 <div class="col-sm-9">
                     <input id="packageregistryurl" class="form-control" @bind="@_packageregistryurl" />
@@ -185,6 +191,7 @@
 	private string _logginglevel = string.Empty;
 	private string _notificationlevel = string.Empty;
 	private string _swagger = string.Empty;
+    private string _cachecontrol = string.Empty;
     private string _packageregistryurl = string.Empty;
     private string _packageregistryemail = string.Empty;
 
@@ -216,7 +223,8 @@
 			_detailederrors = systeminfo["DetailedErrors"].ToString();
 			_logginglevel = systeminfo["Logging:LogLevel:Default"].ToString();
 			_notificationlevel = systeminfo["Logging:LogLevel:Notify"].ToString();
-			_swagger = systeminfo["UseSwagger"].ToString();
+            _swagger = systeminfo["UseSwagger"].ToString();
+            _cachecontrol = systeminfo["CacheControl"].ToString();
             _packageregistryurl = systeminfo["PackageRegistryUrl"].ToString();
             _packageregistryemail = systeminfo["PackageRegistryEmail"].ToString();
         }
@@ -237,7 +245,8 @@
 			settings.Add("Logging:LogLevel:Default", _logginglevel);
 			settings.Add("Logging:LogLevel:Notify", _notificationlevel);
 			settings.Add("UseSwagger", _swagger);
-			settings.Add("PackageRegistryUrl", _packageregistryurl);
+            settings.Add("CacheControl", _cachecontrol);
+            settings.Add("PackageRegistryUrl", _packageregistryurl);
             settings.Add("PackageRegistryEmail", _packageregistryemail);
             await SystemService.UpdateSystemInfoAsync(settings);
 			AddModuleMessage(Localizer["Success.UpdateConfig.Restart"], MessageType.Success);

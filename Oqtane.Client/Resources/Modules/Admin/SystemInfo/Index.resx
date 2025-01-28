@@ -300,4 +300,10 @@
   <data name="PackageManagerEmail.HelpText" xml:space="preserve">
     <value>Specify The Email Address Of The User Account Used For Interacting With The Package Manager Service. This Account Is Used For Managing Packages Across Multiple Installations.</value>
   </data>
+  <data name="CacheControl.Text" xml:space="preserve">
+    <value>Static Asset Caching:</value>
+  </data>
+  <data name="CacheControl.HelpText" xml:space="preserve">
+    <value>Provide a Cache-Control directive for static assets. For example 'public, max-age=604800' indicates that static assets should be cached for 1 week. A blank value indicates no caching.</value>
+  </data>
 </root>
