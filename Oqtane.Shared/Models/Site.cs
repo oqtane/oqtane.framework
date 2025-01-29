@@ -188,10 +188,10 @@ namespace Oqtane.Models
         public List<Theme> Themes { get; set; }
 
         /// <summary>
-        /// hash code for static assets
+        /// fingerprint for framework static assets
         /// </summary>
         [NotMapped]
-        public string Hash { get; set; }
+        public string Fingerprint { get; set; }
 
         public Site Clone()
         {
@@ -234,7 +234,7 @@ namespace Oqtane.Models
                 Pages = Pages.ConvertAll(page => page.Clone()),
                 Languages = Languages.ConvertAll(language => language.Clone()),
                 Themes = Themes,
-                Hash = Hash
+                Fingerprint = Fingerprint
             };
         }
 
