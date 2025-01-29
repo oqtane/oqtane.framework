@@ -46,10 +46,10 @@ namespace Oqtane.Repository
                 files = db.File.AsNoTracking().Where(item => item.FolderId == folderId).Include(item => item.Folder).ToList();
             }
 
+            var alias = _tenants.GetAlias();
             foreach (var file in files)
             {
                 file.Folder.PermissionList = permissions.ToList();
-                var alias = _tenants.GetAlias();
                 file.Url = GetFileUrl(file, alias);
             }
             return files;
