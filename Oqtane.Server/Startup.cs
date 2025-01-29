@@ -203,17 +203,15 @@ namespace Oqtane
             app.UseHttpsRedirection();
             app.UseStaticFiles(new StaticFileOptions
             {
-                ServeUnknownFileTypes = true,
                 OnPrepareResponse = (ctx) =>
                 {
-                    if (!env.IsDevelopment())
+                    // static asset caching
+                    var cachecontrol = Configuration.GetSection("CacheControl");
+                    if (!string.IsNullOrEmpty(cachecontrol.Value))
                     {
-                        var cachecontrol = Configuration.GetSection("CacheControl");
-                        if (!string.IsNullOrEmpty(cachecontrol.Value))
-                        {
-                            ctx.Context.Response.Headers.Append(HeaderNames.CacheControl, cachecontrol.Value);
-                        }
+                        ctx.Context.Response.Headers.Append(HeaderNames.CacheControl, cachecontrol.Value);
                     }
+                    // CORS headers for .NET MAUI clients
                     var policy = corsPolicyProvider.GetPolicyAsync(ctx.Context, Constants.MauiCorsPolicy)
                         .ConfigureAwait(false).GetAwaiter().GetResult();
                     corsService.ApplyResult(corsService.EvaluatePolicy(ctx.Context, policy), ctx.Context.Response);
