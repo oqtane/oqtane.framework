@@ -7,6 +7,7 @@
 @using Microsoft.AspNetCore.Localization
 @using Microsoft.Net.Http.Headers
 @using Microsoft.Extensions.Primitives
+@using Microsoft.AspNetCore.Authentication
 @using Oqtane.Client
 @using Oqtane.UI
 @using Oqtane.Repository
@@ -177,7 +178,7 @@
                     // get jwt token for downstream APIs
                     if (Context.User.Identity.IsAuthenticated)
                     {
-                        GetJwtToken(alias);
+                        await GetJwtToken(alias);
                     }
 
                     // includes resources
@@ -444,15 +445,11 @@
         }
     }
 
-    private void GetJwtToken(Alias alias)
+    private async Task GetJwtToken(Alias alias)
     {
-        _authorizationToken = Context.Request.Headers[HeaderNames.Authorization];
-        if (!string.IsNullOrEmpty(_authorizationToken))
-        {
-            // bearer token was provided by remote Identity Provider and was persisted using SaveTokens
-            _authorizationToken = _authorizationToken.Replace("Bearer ", "");
-        }
-        else
+        // bearer token may have been provided by remote Identity Provider and persisted using SaveTokens = true
+        _authorizationToken = await Context.GetTokenAsync("access_token");
+        if (string.IsNullOrEmpty(_authorizationToken))
         {
             // generate bearer token if a secret has been configured in User Settings
             var sitesettings = Context.GetSiteSettings();
