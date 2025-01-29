@@ -304,6 +304,6 @@
     <value>Static Asset Caching:</value>
   </data>
   <data name="CacheControl.HelpText" xml:space="preserve">
-    <value>Provide a Cache-Control directive for static assets. For example 'public, max-age=604800' indicates that static assets should be cached for 1 week. A blank value indicates no caching.</value>
+    <value>Provide a Cache-Control directive for static assets. For example 'public, max-age=60' indicates that static assets should be cached for 60 seconds. A blank value indicates caching is not enabled.</value>
   </data>
 </root>
