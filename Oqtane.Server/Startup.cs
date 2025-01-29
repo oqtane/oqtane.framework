@@ -172,7 +172,7 @@ namespace Oqtane
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISyncManager sync, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider, IConfigManager configManager, ILogger<Startup> logger)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISyncManager sync, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider, ILogger<Startup> logger)
         {
             if (!string.IsNullOrEmpty(_configureServicesErrors))
             {
@@ -208,10 +208,10 @@ namespace Oqtane
                 {
                     if (!env.IsDevelopment())
                     {
-                        var cachecontrol = configManager.GetSetting("CacheControl", "public, max-age=604800");
-                        if (!string.IsNullOrEmpty(cachecontrol))
+                        var cachecontrol = Configuration.GetSection("CacheControl");
+                        if (!string.IsNullOrEmpty(cachecontrol.Value))
                         {
-                            ctx.Context.Response.Headers.Append(HeaderNames.CacheControl, cachecontrol);
+                            ctx.Context.Response.Headers.Append(HeaderNames.CacheControl, cachecontrol.Value);
                         }
                     }
                     var policy = corsPolicyProvider.GetPolicyAsync(ctx.Context, Constants.MauiCorsPolicy)
