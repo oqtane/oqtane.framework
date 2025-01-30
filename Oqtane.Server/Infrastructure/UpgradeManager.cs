@@ -74,8 +74,8 @@ namespace Oqtane.Infrastructure
                     case "6.0.1":
                         Upgrade_6_0_1(tenant, scope);
                         break;
-                    case "6.0.2":
-                        Upgrade_6_0_2(tenant, scope);
+                    case "6.1.0":
+                        Upgrade_6_1_0(tenant, scope);
                         break;
                 }
             }
@@ -484,14 +484,14 @@ namespace Oqtane.Infrastructure
             RemoveAssemblies(assemblies, "6.0.1");
         }
 
-        private void Upgrade_6_0_2(Tenant tenant, IServiceScope scope)
+        private void Upgrade_6_1_0(Tenant tenant, IServiceScope scope)
         {
             // remove MySql.EntityFrameworkCore package (replaced by Pomelo.EntityFrameworkCore.MySql)
             string[] assemblies = {
                 "MySql.EntityFrameworkCore.dll"
             };
 
-            RemoveAssemblies(assemblies, "6.0.2");
+            RemoveAssemblies(assemblies, "6.1.0");
         }
 
         private void AddPagesToSites(IServiceScope scope, Tenant tenant, List<PageTemplate> pageTemplates)

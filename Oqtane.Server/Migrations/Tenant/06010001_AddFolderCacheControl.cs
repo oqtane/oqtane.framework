@@ -7,7 +7,7 @@ using Oqtane.Repository;
 namespace Oqtane.Migrations.Tenant
 {
     [DbContext(typeof(TenantDBContext))]
-    [Migration("Tenant.06.00.02.01")]
+    [Migration("Tenant.06.01.00.01")]
     public class AddFolderCacheControl : MultiDatabaseMigration
     {
         public AddFolderCacheControl(IDatabase database) : base(database)

@@ -7,7 +7,7 @@ using Oqtane.Repository;
 namespace Oqtane.Migrations.Master
 {
     [DbContext(typeof(MasterDBContext))]
-    [Migration("Master.06.00.02.01")]
+    [Migration("Master.06.01.00.01")]
     public class AddThemeVersion : MultiDatabaseMigration
     {
         public AddThemeVersion(IDatabase database) : base(database)
