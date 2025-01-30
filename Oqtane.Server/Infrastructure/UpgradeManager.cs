@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Oqtane.Models;
 using Oqtane.Repository;
@@ -507,18 +508,22 @@ namespace Oqtane.Infrastructure
 
         private void RemoveAssemblies(string[] assemblies, string version)
         {
-            foreach (var assembly in assemblies)
+            // in a development environment assemblies cannot be removed as the debugger runs fron /bin folder and locks the files
+            if (!_environment.IsDevelopment())
             {
-                try
+                foreach (var assembly in assemblies)
                 {
-                    var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-                    var filepath = Path.Combine(binFolder, assembly);
-                    if (System.IO.File.Exists(filepath)) System.IO.File.Delete(filepath);
-                }
-                catch (Exception ex)
-                {
-                    // error deleting asesmbly
-                    _filelogger.LogError(Utilities.LogMessage(this, $"Oqtane Error: {version} Upgrade Error Removing {assembly} - {ex}"));
+                    try
+                    {
+                        var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                        var filepath = Path.Combine(binFolder, assembly);
+                        if (System.IO.File.Exists(filepath)) System.IO.File.Delete(filepath);
+                    }
+                    catch (Exception ex)
+                    {
+                        // error deleting asesmbly
+                        _filelogger.LogError(Utilities.LogMessage(this, $"Oqtane Error: {version} Upgrade Error Removing {assembly} - {ex}"));
+                    }
                 }
             }
         }
