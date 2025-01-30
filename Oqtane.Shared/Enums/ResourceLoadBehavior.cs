@@ -4,7 +4,7 @@ namespace Oqtane.Shared
     {
         Once,
         Always,
-        Never,
+        None,
         BlazorPageScript
     }
 }
