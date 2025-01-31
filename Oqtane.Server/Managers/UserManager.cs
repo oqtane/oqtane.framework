@@ -12,6 +12,7 @@ using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Repository;
+using Oqtane.Security;
 using Oqtane.Shared;
 
 namespace Oqtane.Managers
@@ -369,7 +370,7 @@ namespace Oqtane.Managers
                                 if (user != null)
                                 {
                                     // ensure user is registered for site
-                                    if (user.Roles.Contains(RoleNames.Registered))
+                                    if (UserSecurity.ContainsRole(user.Roles, RoleNames.Registered))
                                     {
                                         user.IsAuthenticated = true;
                                         user.LastLoginOn = DateTime.UtcNow;
