@@ -133,7 +133,7 @@
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
     @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin) && PageState.Runtime != Shared.Runtime.Hybrid && !ishost)
     {
-        <button type="button" class="btn btn-primary ms-2" @onclick="ImpersonateUser">@Localizer["Impersonate"]</button>
+        <button type="button" class="btn btn-primary ms-1" @onclick="ImpersonateUser">@Localizer["Impersonate"]</button>
     }
     @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host) && isdeleted == "True")
     {
