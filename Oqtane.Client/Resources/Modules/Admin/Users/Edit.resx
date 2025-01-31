@@ -204,4 +204,10 @@
   <data name="DeleteUser.Message" xml:space="preserve">
     <value>Are You Sure You Wish To Permanently Delete This User?</value>
   </data>
+  <data name="Impersonate" xml:space="preserve">
+    <value>Impersonate</value>
+  </data>
+  <data name="Error.User.Impersonate" xml:space="preserve">
+    <value>Unable To Impersonate User</value>
+  </data>
 </root>

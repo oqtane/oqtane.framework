@@ -1,6 +1,5 @@
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -13,15 +12,14 @@ using Oqtane.Shared;
 
 namespace Oqtane.Pages
 {
-    [AllowAnonymous]
-    public class LoginModel : PageModel
+    public class ImpersonateModel : PageModel
     {
         private readonly UserManager<IdentityUser> _identityUserManager;
         private readonly SignInManager<IdentityUser> _identitySignInManager;
         private readonly IUserManager _userManager;
         private readonly ILogManager _logger;
 
-        public LoginModel(UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, IUserManager userManager, ILogManager logger)
+        public ImpersonateModel(UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, IUserManager userManager, ILogManager logger)
         {
             _identityUserManager = identityUserManager;
             _identitySignInManager = identitySignInManager;
@@ -29,40 +27,37 @@ namespace Oqtane.Pages
             _logger = logger;
         }
 
-        public async Task<IActionResult> OnPostAsync(string username, string password, bool remember, string returnurl)
+        public async Task<IActionResult> OnPostAsync(string username, string returnurl)
         {
-            if (!User.Identity.IsAuthenticated && !string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
+            if (User.IsInRole(RoleNames.Admin) && !string.IsNullOrEmpty(username))
             {
                 bool validuser = false;
                 IdentityUser identityuser = await _identityUserManager.FindByNameAsync(username);
                 if (identityuser != null)
                 {
-                    var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, password, true);
-                    if (result.Succeeded)
+                    var alias = HttpContext.GetAlias();
+                    var user = _userManager.GetUser(identityuser.UserName, alias.SiteId);
+                    if (user != null && !user.IsDeleted && UserSecurity.ContainsRole(user.Roles, RoleNames.Registered) && !UserSecurity.ContainsRole(user.Roles, RoleNames.Host))
                     {
-                        var alias = HttpContext.GetAlias();
-                        var user = _userManager.GetUser(identityuser.UserName, alias.SiteId);
-                        if (user != null && !user.IsDeleted && UserSecurity.ContainsRole(user.Roles, RoleNames.Registered))
-                        {
-                            validuser = true;
-                        }
+                        validuser = true;
                     }
                 }
 
                 if (validuser)
                 {
+                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "User {Username} Successfully Impersonated By Administrator {Administrator}", username, User.Identity.Name);
+
                     // note that .NET Identity uses a hardcoded ApplicationScheme of "Identity.Application" in SignInAsync
-                    await _identitySignInManager.SignInAsync(identityuser, remember);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "Login Successful For User {Username}", username);
+                    await _identitySignInManager.SignInAsync(identityuser, false);
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Login Failed For User {Username}", username);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Impersonation By Administrator {Administrator} Failed For User {Username} ", User.Identity.Name, username);
                 }
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Attempt To Login User {Username}", username);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Attempt To Impersonate User {Username} By User {User}", username, User.Identity.Name);
             }
 
             if (returnurl == null)
