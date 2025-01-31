@@ -15,6 +15,8 @@ namespace Oqtane.Themes
 {
     public abstract class ThemeBase : ComponentBase, IThemeControl
     {
+        private bool _scriptsloaded = false;
+
         [Inject]
         protected ILogService LoggingService { get; set; }
 
@@ -81,6 +83,15 @@ namespace Oqtane.Themes
                         await interop.IncludeScripts(scripts.ToArray());
                     }
                 }
+            }
+            _scriptsloaded = true;
+        }
+
+        public bool ScriptsLoaded
+        {
+            get
+            {
+                return _scriptsloaded;
             }
         }
 

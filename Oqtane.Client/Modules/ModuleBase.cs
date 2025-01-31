@@ -18,6 +18,7 @@ namespace Oqtane.Modules
         private Logger _logger;
         private string _urlparametersstate;
         private Dictionary<string, string> _urlparameters;
+        private bool _scriptsloaded = false;
 
         protected Logger logger => _logger ?? (_logger = new Logger(this));
 
@@ -117,12 +118,21 @@ namespace Oqtane.Modules
                         await interop.IncludeScripts(scripts.ToArray());
                     }
                 }
+                _scriptsloaded = true;
             }
         }
 
         protected override bool ShouldRender()
         {
             return PageState?.RenderId == ModuleState?.RenderId;
+        }
+
+        public bool ScriptsLoaded
+        {
+            get
+            {
+                return _scriptsloaded;
+            }
         }
 
         // path method
