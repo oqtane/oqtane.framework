@@ -510,10 +510,10 @@ namespace Oqtane.Controllers
             filename = Path.GetFileNameWithoutExtension(filename); // base filename
             string[] fileparts = Directory.GetFiles(folder, filename + token + "*"); // list of all file parts
 
-            // if all of the file parts exist ( note that file parts can arrive out of order )
+            // if all of the file parts exist (note that file parts can arrive out of order)
             if (fileparts.Length == totalparts && CanAccessFiles(fileparts))
             {
-                // merge file parts into temp file ( in case another user is trying to get the file )
+                // merge file parts into temp file (in case another user is trying to get the file)
                 bool success = true;
                 using (var stream = new FileStream(Path.Combine(folder, filename + ".tmp"), FileMode.Create))
                 {
@@ -536,17 +536,23 @@ namespace Oqtane.Controllers
                 // clean up file parts
                 foreach (var file in Directory.GetFiles(folder, "*" + token + "*"))
                 {
-                    // file name matches part or is more than 2 hours old (ie. a prior file upload failed)
-                    if (fileparts.Contains(file) || System.IO.File.GetCreationTime(file).ToUniversalTime() < DateTime.UtcNow.AddHours(-2))
+                    if (fileparts.Contains(file))
                     {
-                        System.IO.File.Delete(file);
+                        try
+                        {
+                            System.IO.File.Delete(file);
+                        }
+                        catch
+                        {
+                            // unable to delete part - ignore
+                        }
                     }
                 }
 
                 // rename temp file
                 if (success)
                 {
-                    // remove file if it already exists (as well as any thumbnails)
+                    // remove file if it already exists (as well as any thumbnails which may exist)
                     foreach (var file in Directory.GetFiles(folder, Path.GetFileNameWithoutExtension(filename) + ".*"))
                     {
                         if (Path.GetExtension(file) != ".tmp")
