@@ -13,13 +13,40 @@ namespace Oqtane.Models
         {
             this.ResourceType = ResourceType.Script;
             this.Location = ResourceLocation.Body;
+            this.LoadBehavior = ResourceLoadBehavior.Once;
         }
+
+        // external script constructors
 
         public Script(string Src)
         {
             SetDefaults();
             this.Url = Src;
         }
+
+        public Script(string Src, string Integrity, string CrossOrigin)
+        {
+            SetDefaults();
+            this.Url = Src;
+            this.Integrity = Integrity;
+            this.CrossOrigin = CrossOrigin;
+        }
+
+        public Script(string Src, string Integrity, string CrossOrigin, ResourceLocation Location, ResourceLoadBehavior LoadBehavior, Dictionary<string, string> DataAttributes, string Type, string Bundle, string RenderMode)
+        {
+            SetDefaults();
+            this.Url = Src;
+            this.Integrity = Integrity;
+            this.CrossOrigin = CrossOrigin;
+            this.Location = Location;
+            this.LoadBehavior = LoadBehavior;
+            this.DataAttributes = DataAttributes;
+            this.Type = Type;
+            this.Bundle = Bundle;
+            this.RenderMode = RenderMode;
+        }
+
+        // inline script constructors
 
         public Script(string Content, string Type)
         {
@@ -35,13 +62,18 @@ namespace Oqtane.Models
             this.LoadBehavior = LoadBehavior;
         }
 
-        public Script(string Src, string Integrity, string CrossOrigin)
+        public Script(string Content, ResourceLocation Location, ResourceLoadBehavior LoadBehavior, Dictionary<string, string> DataAttributes, string Type, string RenderMode)
         {
             SetDefaults();
-            this.Url = Src;
-            this.Integrity = Integrity;
-            this.CrossOrigin = CrossOrigin;
+            this.Content = Content;
+            this.Location = Location;
+            this.LoadBehavior = LoadBehavior;
+            this.DataAttributes = DataAttributes;
+            this.Type = Type;
+            this.RenderMode = RenderMode;
         }
+
+        // general constructor
 
         public Script(string Src, string Integrity, string CrossOrigin, string Type, string Content, ResourceLocation Location, string Bundle, ResourceLoadBehavior LoadBehavior, Dictionary<string, string> DataAttributes, string RenderMode)
         {
