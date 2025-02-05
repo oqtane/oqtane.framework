@@ -21,6 +21,7 @@ using System.Net.Http;
 using Microsoft.AspNetCore.Cors;
 using System.IO.Compression;
 using Oqtane.Services;
+using Microsoft.Extensions.Primitives;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
@@ -427,7 +428,7 @@ namespace Oqtane.Controllers
         // POST api/<controller>/upload
         [EnableCors(Constants.MauiCorsPolicy)]
         [HttpPost("upload")]
-        public async Task<IActionResult> UploadFile(string folder, IFormFile formfile)
+        public async Task<IActionResult> UploadFile([FromForm] string folder, IFormFile formfile)
         {
             if (formfile == null || formfile.Length <= 0)
             {
@@ -435,13 +436,20 @@ namespace Oqtane.Controllers
             }
 
             // ensure filename is valid
-            string token = ".part_";
-            if (!formfile.FileName.IsPathOrFileValid() || !formfile.FileName.Contains(token) || !HasValidFileExtension(formfile.FileName.Substring(0, formfile.FileName.IndexOf(token))))
+            if (!formfile.FileName.IsPathOrFileValid() || !HasValidFileExtension(formfile.FileName))
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "File Name Is Invalid Or Contains Invalid Extension {File}", formfile.FileName);
                 return NoContent();
             }
 
+            // ensure headers exist
+            if (!Request.Headers.TryGetValue("PartCount", out StringValues partCount) || !Request.Headers.TryGetValue("TotalParts", out StringValues totalParts))
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "File Upload Request Is Missing Required Headers");
+                return NoContent();
+            }
+
+            string fileName = formfile.FileName + ".part_" + int.Parse(partCount).ToString("000") + "_" + int.Parse(totalParts).ToString("000");
             string folderPath = "";
 
             int FolderId;
@@ -465,12 +473,12 @@ namespace Oqtane.Controllers
             if (!string.IsNullOrEmpty(folderPath))
             {
                 CreateDirectory(folderPath);
-                using (var stream = new FileStream(Path.Combine(folderPath, formfile.FileName), FileMode.Create))
+                using (var stream = new FileStream(Path.Combine(folderPath, fileName), FileMode.Create))
                 {
                     await formfile.CopyToAsync(stream);
                 }
 
-                string upload = await MergeFile(folderPath, formfile.FileName);
+                string upload = await MergeFile(folderPath, fileName);
                 if (upload != "" && FolderId != -1)
                 {
                     var file = CreateFile(upload, FolderId, Path.Combine(folderPath, upload));
