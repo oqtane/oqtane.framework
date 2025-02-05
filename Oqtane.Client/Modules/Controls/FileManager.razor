@@ -121,6 +121,9 @@
     private MessageType _messagetype;
     private bool _uploading = false;
 
+    private int _maxChunkSizeMB = 1;
+    private int _maxConcurrentUploads = 0;
+
     [Parameter]
     public string Id { get; set; } // optional - for setting the id of the FileManager component for accessibility
 
@@ -173,6 +176,9 @@
         _fileinputid = "FileInput_" + _guid;
         _progressinfoid = "ProgressInfo_" + _guid;
         _progressbarid = "ProgressBar_" + _guid;
+
+        int.TryParse(SettingService.GetSetting(PageState.Site.Settings, "MaxChunkSizeMB", "1"), out _maxChunkSizeMB);
+        int.TryParse(SettingService.GetSetting(PageState.Site.Settings, "MaxConcurrentChunkUploads", "0"), out _maxConcurrentUploads);
     }
 
     protected override async Task OnParametersSetAsync()
@@ -383,7 +389,7 @@
                         StateHasChanged();
                     }
 
-                    await interop.UploadFiles(posturl, folder, _guid, SiteState.AntiForgeryToken, jwt);
+                    await interop.UploadFiles(posturl, folder, _guid, SiteState.AntiForgeryToken, jwt, _maxChunkSizeMB, _maxConcurrentUploads);
 
                     // uploading is asynchronous so we need to poll to determine if uploads are completed
                     var success = true;

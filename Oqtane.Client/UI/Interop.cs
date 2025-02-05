@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 namespace Oqtane.UI
 {
@@ -208,13 +209,19 @@ namespace Oqtane.UI
             }
         }
 
+        [Obsolete("This function is deprecated. Use UploadFiles with MaxChunkSize and MaxConcurrentUploads parameters instead.", false)]
         public Task UploadFiles(string posturl, string folder, string id, string antiforgerytoken, string jwt)
+        {
+            return UploadFiles(posturl, folder, id, antiforgerytoken, jwt, 1, 0);
+        }
+
+        public Task UploadFiles(string posturl, string folder, string id, string antiforgerytoken, string jwt, int maxChunkSizeMB, int maxConcurrentUploads)
         {
             try
             {
                 _jsRuntime.InvokeVoidAsync(
                     "Oqtane.Interop.uploadFiles",
-                    posturl, folder, id, antiforgerytoken, jwt);
+                    posturl, folder, id, antiforgerytoken, jwt, maxChunkSizeMB, maxConcurrentUploads);
                 return Task.CompletedTask;
             }
             catch

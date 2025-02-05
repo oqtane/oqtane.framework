@@ -156,6 +156,18 @@
                         <input id="uploadableFileExt" spellcheck="false" class="form-control" @bind="@_uploadableFiles" />
                     </div>
                 </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="maxChunkSizeMB" HelpText="Enter the maximum size in MB of a chunk for file uploads" ResourceKey="MaxChunkSize">Maximum File Chunk Size (MB): </Label>
+                    <div class="col-sm-9">
+                        <input id="maxChunkSizeMB" type="number" min="1" max="50" step="1" class="form-control" @bind="@_maxChunkSizeMB" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="maxConcurrentChunkUploads" HelpText="Enter the maximum concurrent number of file chunk uploads. If set to 0, no concurrency limit is applied" ResourceKey="MaxConcurrentChunkUploads">Maximum Concurrent File Chunk Uploads: </Label>
+                    <div class="col-sm-9">
+                        <input id="maxConcurrentChunkUploads" type="number" min="0" step="1" class="form-control" @bind="@_maxConcurrentChunkUploads" />
+                    </div>
+                </div>
             </div>
         </Section>
         <Section Name="PageContent" Heading="Page Content" ResourceKey="PageContent">
@@ -432,6 +444,8 @@
     private string _textEditor = "";
     private string _imageFiles = string.Empty;
     private string _uploadableFiles = string.Empty;
+    private int _maxChunkSizeMB = 1;
+    private int _maxConcurrentChunkUploads = 0;
 
     private string _headcontent = string.Empty;
     private string _bodycontent = string.Empty;
@@ -530,6 +544,8 @@
                 _imageFiles = (string.IsNullOrEmpty(_imageFiles)) ? Constants.ImageFiles : _imageFiles;
                 _uploadableFiles = SettingService.GetSetting(settings, "UploadableFiles", Constants.UploadableFiles);
                 _uploadableFiles = (string.IsNullOrEmpty(_uploadableFiles)) ? Constants.UploadableFiles : _uploadableFiles;
+                _maxChunkSizeMB = int.Parse(SettingService.GetSetting(settings, "MaxChunkSizeMB", "1"));
+                _maxConcurrentChunkUploads = int.Parse(SettingService.GetSetting(settings, "MaxConcurrentChunkUploads", "0"));
 
                 // page content
                 _headcontent = site.HeadContent;
@@ -736,6 +752,8 @@
                         settings = SettingService.SetSetting(settings, "TextEditor", _textEditor);
                         settings = SettingService.SetSetting(settings, "ImageFiles", (_imageFiles != Constants.ImageFiles) ? _imageFiles.Replace(" ", "") : "", false);
                         settings = SettingService.SetSetting(settings, "UploadableFiles", (_uploadableFiles != Constants.UploadableFiles) ? _uploadableFiles.Replace(" ", "") : "", false);
+                        settings = SettingService.SetSetting(settings, "MaxChunkSizeMB", _maxChunkSizeMB.ToString(), false);
+                        settings = SettingService.SetSetting(settings, "MaxConcurrentChunkUploads", _maxConcurrentChunkUploads.ToString(), false);
 
                         await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 

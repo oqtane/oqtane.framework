@@ -308,7 +308,7 @@ Oqtane.Interop = {
         }
         return files;
     },
-    uploadFiles: function (posturl, folder, id, antiforgerytoken, jwt) {
+    uploadFiles: function (posturl, folder, id, antiforgerytoken, jwt, maxChunkSizeMB, maxConcurrentUploads) {
         var fileinput = document.getElementById('FileInput_' + id);
         var progressinfo = document.getElementById('ProgressInfo_' + id);
         var progressbar = document.getElementById('ProgressBar_' + id);
@@ -326,9 +326,21 @@ Oqtane.Interop = {
             totalSize = totalSize + files[i].size;
         }
 
-        var maxChunkSizeMB = 1;
+        maxChunkSizeMB = Math.ceil(maxChunkSizeMB);
+        if (maxChunkSizeMB < 1) {
+            maxChunkSizeMB = 1;
+        }
+        else if (maxChunkSizeMB > 50) {
+            maxChunkSizeMB = 50;
+        }
+
         var bufferChunkSize = maxChunkSizeMB * (1024 * 1024);
         var uploadedSize = 0;
+
+        maxConcurrentUploads = Math.ceil(maxConcurrentUploads);
+        var hasConcurrencyLimit = maxConcurrentUploads > 0;
+        var uploadQueue = [];
+        var activeUploads = 0;
 
         for (var i = 0; i < files.length; i++) {
             var fileChunk = [];
@@ -376,13 +388,23 @@ Oqtane.Interop = {
                     }
                 };
                 request.upload.onloadend = function (e) {
+                    if (hasConcurrencyLimit) {
+                        activeUploads--;
+                        processUploads();
+                    }
+
                     if (progressinfo !== null && progressbar !== null) {
                         uploadedSize = uploadedSize + e.total;
                         var percent = Math.ceil((uploadedSize / totalSize) * 100);
                         progressbar.value = (percent / 100);
                     }
                 };
-                request.upload.onerror = function() {
+                request.upload.onerror = function () {
+                    if (hasConcurrencyLimit) {
+                        activeUploads--;
+                        processUploads();
+                    }
+
                     if (progressinfo !== null && progressbar !== null) {
                         if (files.length === 1) {
                             progressinfo.innerHTML = file.name + ' Error: ' + request.statusText;
@@ -392,11 +414,31 @@ Oqtane.Interop = {
                         }
                     }
                 };
-                request.send(data);
+
+                if (hasConcurrencyLimit) {
+                    uploadQueue.push({ data, request });
+                    processUploads();
+                }
+                else {
+                    request.send(data);
+                }
             }
 
             if (i === files.length - 1) {
                 fileinput.value = '';
+            }
+        }
+
+        function processUploads() {
+            if (uploadQueue.length === 0 || activeUploads >= maxConcurrentUploads) {
+                return;
+            }
+
+            while (activeUploads < maxConcurrentUploads && uploadQueue.length > 0) {
+                activeUploads++;
+
+                let { data, request } = uploadQueue.shift();
+                request.send(data);
             }
         }
     },

@@ -438,4 +438,16 @@
   <data name="System" xml:space="preserve">
     <value>System</value>
   </data>
+  <data name="MaxChunkSize.HelpText" xml:space="preserve">
+    <value>Enter the maximum size in MB of a chunk for file uploads</value>
+  </data>
+  <data name="MaxChunkSize.Text" xml:space="preserve">
+    <value>Maximum File Chunk Size (MB):</value>
+  </data>
+  <data name="MaxConcurrentChunkUploads.HelpText" xml:space="preserve">
+    <value>Enter the maximum concurrent number of file chunk uploads. If set to 0, no concurrency limit is applied</value>
+  </data>
+  <data name="MaxConcurrentChunkUploads.Text" xml:space="preserve">
+    <value>Maximum Concurrent File Chunk Uploads:</value>
+  </data>
 </root>
