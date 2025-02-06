@@ -3,8 +3,8 @@
 @inherits ModuleControlBase
 @inject IFolderService FolderService
 @inject IFileService FileService
-@inject ISettingService SettingService
 @inject IUserService UserService
+@inject ISettingService SettingService
 @inject IStringLocalizer<FileManager> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -380,6 +380,13 @@
                         }
                     }
 
+                    var chunksize = ChunkSize;
+                    if (chunksize == 1)
+                    {
+                        // if ChunkSize parameter is not overridden use the site setting
+                        chunksize = int.Parse(SettingService.GetSetting(PageState.Site.Settings, "MaxChunkSize", "1"));
+                    }
+
                     if (!ShowProgress)
                     {
                         _uploading = true;
@@ -387,7 +394,7 @@
                     }
 
                     // upload files
-                    var success = await interop.UploadFiles(posturl, folder, _guid, SiteState.AntiForgeryToken, jwt, ChunkSize);
+                    var success = await interop.UploadFiles(posturl, folder, _guid, SiteState.AntiForgeryToken, jwt, chunksize);
 
                     // reset progress indicators
                     if (ShowProgress)
