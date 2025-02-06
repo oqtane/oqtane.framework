@@ -308,139 +308,128 @@ Oqtane.Interop = {
         }
         return files;
     },
-    uploadFiles: function (posturl, folder, id, antiforgerytoken, jwt, maxChunkSizeMB, maxConcurrentUploads) {
+    uploadFiles: async function (posturl, folder, id, antiforgerytoken, jwt, chunksize) {
+        var success = true;
         var fileinput = document.getElementById('FileInput_' + id);
         var progressinfo = document.getElementById('ProgressInfo_' + id);
         var progressbar = document.getElementById('ProgressBar_' + id);
 
+        var totalSize = 0;
+        for (var i = 0; i < fileinput.files.length; i++) {
+            totalSize += fileinput.files[i].size;
+        }
+        let uploadSize = 0;
+
+        if (!chunksize || chunksize < 1) {
+            chunksize = 1; // 1 MB default
+        }
+
+        let maxConcurrentUploads = 5;
+
         if (progressinfo !== null && progressbar !== null) {
-            progressinfo.setAttribute("style", "display: inline;");
-            progressinfo.innerHTML = '';
-            progressbar.setAttribute("style", "width: 100%; display: inline;");
+            progressinfo.setAttribute('style', 'display: inline;');
+            if (fileinput.files.length > 1) {
+                progressinfo.innerHTML = fileinput.files[0].name + ', ...';
+            }
+            else {
+                progressinfo.innerHTML = fileinput.files[0].name;
+            }
+            progressbar.setAttribute('style', 'width: 100%; display: inline;');
             progressbar.value = 0;
         }
 
-        var files = fileinput.files;
-        var totalSize = 0;
-        for (var i = 0; i < files.length; i++) {
-            totalSize = totalSize + files[i].size;
-        }
+        const uploadFiles = Array.from(fileinput.files).map(file => {
+            const uploadFile = () => {
+                const chunkSize = chunksize * (1024 * 1024);
+                const totalParts = Math.ceil(file.size / chunkSize);
+                let partCount = 0;
 
-        maxChunkSizeMB = Math.ceil(maxChunkSizeMB);
-        if (maxChunkSizeMB < 1) {
-            maxChunkSizeMB = 1;
-        }
-        else if (maxChunkSizeMB > 50) {
-            maxChunkSizeMB = 50;
-        }
+                let activeUploads = 0;
 
-        var bufferChunkSize = maxChunkSizeMB * (1024 * 1024);
-        var uploadedSize = 0;
+                const uploadPart = (partCount) => {
+                    const start = partCount * chunkSize;
+                    const end = Math.min(start + chunkSize, file.size);
+                    const chunk = file.slice(start, end);
 
-        maxConcurrentUploads = Math.ceil(maxConcurrentUploads);
-        var hasConcurrencyLimit = maxConcurrentUploads > 0;
-        var uploadQueue = [];
-        var activeUploads = 0;
+                    return new Promise((resolve, reject) => {
+                        let formdata = new FormData();
+                        formdata.append('__RequestVerificationToken', antiforgerytoken);
+                        formdata.append('folder', folder);
+                        formdata.append('formfile', chunk, file.name);
 
-        for (var i = 0; i < files.length; i++) {
-            var fileChunk = [];
-            var file = files[i];
-            var fileStreamPos = 0;
-            var endPos = bufferChunkSize;
-
-            while (fileStreamPos < file.size) {
-                fileChunk.push(file.slice(fileStreamPos, endPos));
-                fileStreamPos = endPos;
-                endPos = fileStreamPos + bufferChunkSize;
-            }
-
-            var totalParts = fileChunk.length;
-            var partCount = 0;
-
-            while (chunk = fileChunk.shift()) {
-                partCount++;
-                var fileName = file.name + ".part_" + partCount.toString().padStart(3, '0') + "_" + totalParts.toString().padStart(3, '0');
-
-                var data = new FormData();
-                data.append('__RequestVerificationToken', antiforgerytoken);
-                data.append('folder', folder);
-                data.append('formfile', chunk, fileName);
-                var request = new XMLHttpRequest();
-                request.open('POST', posturl, true);
-                if (jwt !== "") {
-                    request.setRequestHeader('Authorization', 'Bearer ' + jwt);
-                    request.withCredentials = true;
-                }
-                request.upload.onloadstart = function (e) {
-                    if (progressinfo !== null && progressbar !== null && progressinfo.innerHTML === '') {
-                        if (files.length === 1) {
-                            progressinfo.innerHTML = file.name;
+                        var credentials = 'same-origin';
+                        var headers = new Headers();
+                        headers.append('PartCount', partCount + 1);
+                        headers.append('TotalParts', totalParts);
+                        if (jwt !== "") {
+                            headers.append('Authorization', 'Bearer ' + jwt);
+                            credentials = 'include';
                         }
-                        else {
-                            progressinfo.innerHTML = file.name + ", ...";
-                        }
-                    }
-                };
-                request.upload.onprogress = function (e) {
-                    if (progressinfo !== null && progressbar !== null) {
-                        var percent = Math.ceil(((uploadedSize + e.loaded) / totalSize) * 100);
-                        progressbar.value = (percent / 100);
-                    }
-                };
-                request.upload.onloadend = function (e) {
-                    if (hasConcurrencyLimit) {
-                        activeUploads--;
-                        processUploads();
-                    }
 
-                    if (progressinfo !== null && progressbar !== null) {
-                        uploadedSize = uploadedSize + e.total;
-                        var percent = Math.ceil((uploadedSize / totalSize) * 100);
-                        progressbar.value = (percent / 100);
-                    }
-                };
-                request.upload.onerror = function () {
-                    if (hasConcurrencyLimit) {
-                        activeUploads--;
-                        processUploads();
-                    }
-
-                    if (progressinfo !== null && progressbar !== null) {
-                        if (files.length === 1) {
-                            progressinfo.innerHTML = file.name + ' Error: ' + request.statusText;
-                        }
-                        else {
-                            progressinfo.innerHTML = ' Error: ' + request.statusText;
-                        }
-                    }
+                        return fetch(posturl, {
+                            method: 'POST',
+                            headers: headers,
+                            credentials: credentials,
+                            body: formdata
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    if (progressinfo !== null) {
+                                        progressinfo.innerHTML = 'Error: ' + response.statusText;
+                                    }
+                                    throw new Error('Failed');
+                                }
+                                return;
+                            })
+                            .then(data => {
+                                if (progressbar !== null) {
+                                    uploadSize += chunk.size;
+                                    var percent = Math.ceil((uploadSize / totalSize) * 100);
+                                    progressbar.value = (percent / 100);
+                                }
+                                resolve(data);
+                            })
+                            .catch(error => {
+                                reject(error);
+                            });
+                    });
                 };
 
-                if (hasConcurrencyLimit) {
-                    uploadQueue.push({ data, request });
-                    processUploads();
-                }
-                else {
-                    request.send(data);
-                }
-            }
+                return new Promise((resolve, reject) => {
+                    function processNextUpload() {
+                        if (partCount >= totalParts) {
+                            if (activeUploads === 0) resolve(); // Done uploading all parts
+                            return;
+                        }
 
-            if (i === files.length - 1) {
-                fileinput.value = '';
-            }
+                        while (activeUploads < maxConcurrentUploads && partCount < totalParts) {
+                            uploadPart(partCount)
+                                .then(() => {
+                                    activeUploads--;
+                                    processNextUpload();
+                                })
+                                .catch(reject);
+
+                            activeUploads++;
+                            partCount++;
+                        }
+                    }
+
+                    processNextUpload();
+                });
+            };
+
+            return uploadFile();
+        });
+
+        try {
+            await Promise.all(uploadFiles);
+        } catch (error) {
+            success = false;
         }
 
-        function processUploads() {
-            if (uploadQueue.length === 0 || activeUploads >= maxConcurrentUploads) {
-                return;
-            }
-
-            while (activeUploads < maxConcurrentUploads && uploadQueue.length > 0) {
-                activeUploads++;
-
-                let { data, request } = uploadQueue.shift();
-                request.send(data);
-            }
-        }
+        fileinput.value = '';
+        return success;
     },
     refreshBrowser: function (verify, wait) {
         async function attemptReload (verify) {

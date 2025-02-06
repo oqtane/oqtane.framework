@@ -209,24 +209,23 @@ namespace Oqtane.UI
             }
         }
 
-        [Obsolete("This function is deprecated. Use UploadFiles with MaxChunkSize and MaxConcurrentUploads parameters instead.", false)]
         public Task UploadFiles(string posturl, string folder, string id, string antiforgerytoken, string jwt)
         {
-            return UploadFiles(posturl, folder, id, antiforgerytoken, jwt, 1, 0);
+            UploadFiles(posturl, folder, id, antiforgerytoken, jwt, 1);
+            return Task.CompletedTask;
         }
 
-        public Task UploadFiles(string posturl, string folder, string id, string antiforgerytoken, string jwt, int maxChunkSizeMB, int maxConcurrentUploads)
+        public ValueTask<bool> UploadFiles(string posturl, string folder, string id, string antiforgerytoken, string jwt, int chunksize)
         {
             try
             {
-                _jsRuntime.InvokeVoidAsync(
+                return _jsRuntime.InvokeAsync<bool>(
                     "Oqtane.Interop.uploadFiles",
-                    posturl, folder, id, antiforgerytoken, jwt, maxChunkSizeMB, maxConcurrentUploads);
-                return Task.CompletedTask;
+                    posturl, folder, id, antiforgerytoken, jwt, chunksize);
             }
             catch
             {
-                return Task.CompletedTask;
+                return new ValueTask<bool>(Task.FromResult(false));
             }
         }
 
