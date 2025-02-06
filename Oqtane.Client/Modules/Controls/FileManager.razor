@@ -412,7 +412,7 @@
                     }
                     else
                     {
-                        await logger.LogInformation("File Upload Failed {Files}", uploads);
+                        await logger.LogError("File Upload Failed {Files}", uploads);
                         _message = Localizer["Error.File.Upload"];
                         _messagetype = MessageType.Error;
                     }
