@@ -320,7 +320,7 @@ Oqtane.Interop = {
         }
         let uploadSize = 0;
 
-        if (!chunksize) {
+        if (!chunksize || chunksize < 1) {
             chunksize = 1; // 1 MB default
         }
 
@@ -336,75 +336,73 @@ Oqtane.Interop = {
             progressbar.value = 0;
         }
 
-        const uploadFiles = Array.from(fileinput.files).map(file => {
-            const uploadFile = () => {
-                const chunkSize = chunksize * (1024 * 1024);
-                const totalParts = Math.ceil(file.size / chunkSize);
-                let partCount = 0;
+        const uploadFile = (file) => {
+            const chunkSize = chunksize * (1024 * 1024);
+            const totalParts = Math.ceil(file.size / chunkSize);
+            let partCount = 0;
 
-                const uploadPart = () => {
-                    const start = partCount * chunkSize;
-                    const end = Math.min(start + chunkSize, file.size);
-                    const chunk = file.slice(start, end);
+            const uploadPart = () => {
+                const start = partCount * chunkSize;
+                const end = Math.min(start + chunkSize, file.size);
+                const chunk = file.slice(start, end);
 
-                    return new Promise((resolve, reject) => {
-                        let formdata = new FormData();
-                        formdata.append('__RequestVerificationToken', antiforgerytoken);
-                        formdata.append('folder', folder);
-                        formdata.append('formfile', chunk, file.name);
+                return new Promise((resolve, reject) => {
+                    let formdata = new FormData();
+                    formdata.append('__RequestVerificationToken', antiforgerytoken);
+                    formdata.append('folder', folder);
+                    formdata.append('formfile', chunk, file.name);
 
-                        var credentials = 'same-origin';
-                        var headers = new Headers();
-                        headers.append('PartCount', partCount + 1);
-                        headers.append('TotalParts', totalParts);
-                        if (jwt !== "") {
-                            headers.append('Authorization', 'Bearer ' + jwt);
-                            credentials = 'include';
-                        }
+                    var credentials = 'same-origin';
+                    var headers = new Headers();
+                    headers.append('PartCount', partCount + 1);
+                    headers.append('TotalParts', totalParts);
+                    if (jwt !== "") {
+                        headers.append('Authorization', 'Bearer ' + jwt);
+                        credentials = 'include';
+                    }
 
-                        return fetch(posturl, {
-                            method: 'POST',
-                            headers: headers,
-                            credentials: credentials,
-                            body: formdata
+                    return fetch(posturl, {
+                        method: 'POST',
+                        headers: headers,
+                        credentials: credentials,
+                        body: formdata
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                if (progressinfo !== null) {
+                                    progressinfo.innerHTML = 'Error: ' + response.statusText;
+                                }
+                                throw new Error('Failed');
+                            }
+                            return;
                         })
-                            .then(response => {
-                                if (!response.ok) {
-                                    if (progressinfo !== null) {
-                                        progressinfo.innerHTML = 'Error: ' + response.statusText;
-                                    }
-                                    throw new Error('Failed');
-                                }
-                                return;
-                            })
-                            .then(data => {
-                                partCount++;
-                                if (progressbar !== null) {
-                                    uploadSize += chunk.size;
-                                    var percent = Math.ceil((uploadSize / totalSize) * 100);
-                                    progressbar.value = (percent / 100);
-                                }
-                                if (partCount < totalParts) {
-                                    uploadPart().then(resolve).catch(reject);
-                                }
-                                else {
-                                    resolve(data);
-                                }
-                            })
-                            .catch(error => {
-                                reject(error);
-                            });
-                    });
-                };
-
-                return uploadPart();
+                        .then(data => {
+                            partCount++;
+                            if (progressbar !== null) {
+                                uploadSize += chunk.size;
+                                var percent = Math.ceil((uploadSize / totalSize) * 100);
+                                progressbar.value = (percent / 100);
+                            }
+                            if (partCount < totalParts) {
+                                uploadPart().then(resolve).catch(reject);
+                            }
+                            else {
+                                resolve(data);
+                            }
+                        })
+                        .catch(error => {
+                            reject(error);
+                        });
+                });
             };
 
-            return uploadFile();
-        });
+            return uploadPart();
+        };
 
         try {
-            await Promise.all(uploadFiles);
+            for (const file of fileinput.files) {
+                await uploadFile(file);
+            }
         } catch (error) {
             success = false;
         }
