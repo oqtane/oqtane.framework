@@ -165,4 +165,31 @@
   <data name="UploadFiles.Text" xml:space="preserve">
     <value>Upload Files</value>
   </data>
+  <data name="Files.Heading" xml:space="preserve">
+    <value>Files</value>
+  </data>
+  <data name="ImageExtensions.Text" xml:space="preserve">
+    <value>Image Extensions:</value>
+  </data>
+  <data name="ImageExtensions.HelpText" xml:space="preserve">
+    <value>Enter a comma separated list of image file extensions</value>
+  </data>
+  <data name="UploadableFileExtensions.Text" xml:space="preserve">
+    <value>Uploadable File Extensions:</value>
+  </data>
+  <data name="UploadableFileExtensions.HelpText" xml:space="preserve">
+    <value>Enter a comma separated list of uploadable file extensions</value>
+  </data>
+  <data name="MaxChunkSize.Text" xml:space="preserve">
+    <value>Max Upload Chunk Size (MB):</value>
+  </data>
+  <data name="MaxChunkSize.HelpText" xml:space="preserve">
+    <value>Files are split into chunks to streamline the upload process. Specify the maximum chunk size in MB (note that higher chunk sizes should only be used on faster networks).</value>
+  </data>
+  <data name="Success.SaveSiteSettings" xml:space="preserve">
+    <value>Settings Saved Successfully</value>
+  </data>
+  <data name="Error.SaveSiteSettings" xml:space="preserve">
+    <value>Error Saving Settings</value>
+  </data>
 </root>
