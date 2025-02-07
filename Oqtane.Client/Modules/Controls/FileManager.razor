@@ -362,6 +362,8 @@
             }
             if (restricted == "")
             {
+                CancellationTokenSource tokenSource = new CancellationTokenSource();
+
                 try
                 {
                     // upload the files
@@ -394,7 +396,7 @@
                     }
 
                     // upload files
-                    var success = await interop.UploadFiles(posturl, folder, _guid, SiteState.AntiForgeryToken, jwt, chunksize);
+                    var success = await interop.UploadFiles(posturl, folder, _guid, SiteState.AntiForgeryToken, jwt, chunksize, tokenSource.Token);
 
                     // reset progress indicators
                     if (ShowProgress)
@@ -449,6 +451,10 @@
                     _message = Localizer["Error.File.Upload"];
                     _messagetype = MessageType.Error;
                     _uploading = false;
+                    await tokenSource.CancelAsync();
+                }
+                finally {
+                    tokenSource.Dispose();
                 }
 
             }
