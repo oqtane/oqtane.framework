@@ -807,7 +807,7 @@
                 await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
                 await logger.LogInformation("Site SMTP Settings Saved");
 
-                await NotificationService.AddNotificationAsync(new Notification(PageState.Site.SiteId, PageState.User, PageState.Site.Name + " SMTP Configuration Test", "SMTP Server Is Configured Correctly."));
+                await NotificationService.AddNotificationAsync(new Notification(PageState.Site.SiteId, PageState.User, PageState.User, PageState.Site.Name + " SMTP Configuration Test", "SMTP Server Is Configured Correctly."));
                 AddModuleMessage(Localizer["Info.Smtp.SaveSettings"], MessageType.Info);
                 await ScrollToPageTop();
             }
