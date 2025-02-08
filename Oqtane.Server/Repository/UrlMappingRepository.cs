@@ -22,11 +22,11 @@ namespace Oqtane.Repository
             using var db = _dbContextFactory.CreateDbContext();
             if (isMapped)
             {
-                return db.UrlMapping.Where(item => item.SiteId == siteId && !string.IsNullOrEmpty(item.MappedUrl)).Take(200).ToList();
+                return db.UrlMapping.Where(item => item.SiteId == siteId && !string.IsNullOrEmpty(item.MappedUrl)).ToList();
             }
             else
             {
-                return db.UrlMapping.Where(item => item.SiteId == siteId && string.IsNullOrEmpty(item.MappedUrl)).Take(200).ToList();
+                return db.UrlMapping.Where(item => item.SiteId == siteId && string.IsNullOrEmpty(item.MappedUrl)).ToList();
             }
         }
 
