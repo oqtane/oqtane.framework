@@ -223,7 +223,7 @@ namespace Oqtane.Controllers
 
         private bool IsAuthorized(int? userid)
         {
-            bool authorized = false;
+            bool authorized = User.IsInRole(RoleNames.Admin);
             if (userid != null)
             {
                 authorized = (_userPermissions.GetUser(User).UserId == userid);
