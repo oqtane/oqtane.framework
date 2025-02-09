@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IUrlMappingService UrlMappingService
 @inject ISiteService SiteService
+@inject ISettingService SettingService
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -62,7 +63,13 @@ else
 						</select>
 					</div>
 				</div>
-			</div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="retention" HelpText="Number of days of broken urls to retain" ResourceKey="Retention">Retention (Days): </Label>
+                    <div class="col-sm-9">
+                        <input id="retention" class="form-control" type="number" min="0" step="1" @bind="@_retention" />
+                    </div>
+                </div>
+            </div>
 			<br />
 			<button type="button" class="btn btn-success" @onclick="SaveSiteSettings">@SharedLocalizer["Save"]</button>
 		</TabPanel>
@@ -73,6 +80,7 @@ else
 	private bool _mapped = true;
 	private List<UrlMapping> _urlMappings;
 	private string _capturebrokenurls;
+    private int _retention = 30;
 
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -80,7 +88,10 @@ else
 	{
 		await GetUrlMappings();
 		_capturebrokenurls = PageState.Site.CaptureBrokenUrls.ToString();
-	}
+
+        var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+        _retention = int.Parse(SettingService.GetSetting(settings, "UrlMappingRetention", "30"));
+    }
 
 	private async void MappedChanged(ChangeEventArgs e)
 	{
@@ -124,7 +135,12 @@ else
 			var site = PageState.Site;
 			site.CaptureBrokenUrls = bool.Parse(_capturebrokenurls);
 			await SiteService.UpdateSiteAsync(site);
-			AddModuleMessage(Localizer["Success.SaveSiteSettings"], MessageType.Success);
+
+            var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
+            settings = SettingService.SetSetting(settings, "UrlMappingRetention", _retention.ToString(), true);
+            await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
+
+            AddModuleMessage(Localizer["Success.SaveSiteSettings"], MessageType.Success);
 		}
 		catch (Exception ex)
 		{
