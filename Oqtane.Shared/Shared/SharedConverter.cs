@@ -26,7 +26,7 @@ namespace Oqtane.Shared
                 return result;
             }
 
-            return 0;
+            return defaultValue;
         }
     }
 }
