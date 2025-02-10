@@ -21,7 +21,7 @@ namespace Oqtane.Database.MySQL
 
         public MySQLDatabase() :base(_name, _friendlyName) { }
 
-        public override string Provider => "MySql.EntityFrameworkCore";
+        public override string Provider => "Pomelo.EntityFrameworkCore.MySql";
 
         public override OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name)
         {
