@@ -21,12 +21,7 @@ namespace Oqtane.Shared
 
         public static int ParseInteger(string value, CultureInfo cultureInfo, int defaultValue)
         {
-            if (int.TryParse(value, cultureInfo, out int result))
-            {
-                return result;
-            }
-
-            return defaultValue;
+            return int.Parse(value, cultureInfo);
         }
     }
 }
