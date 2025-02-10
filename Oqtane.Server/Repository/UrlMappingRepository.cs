@@ -105,7 +105,7 @@ namespace Oqtane.Repository
         public int DeleteUrlMappings(int siteId, int age)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            // delete notifications in batches of 100 records
+            // delete in batches of 100 records
             var count = 0;
             var purgedate = DateTime.UtcNow.AddDays(-age);
             var urlMappings = db.UrlMapping.Where(item => item.SiteId == siteId && string.IsNullOrEmpty(item.MappedUrl) && item.RequestedOn < purgedate)
