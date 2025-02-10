@@ -72,9 +72,6 @@ namespace Oqtane.Infrastructure
                     case "5.2.1":
                         Upgrade_5_2_1(tenant, scope);
                         break;
-                    case "6.0.1":
-                        Upgrade_6_0_1(tenant, scope);
-                        break;
                     case "6.1.0":
                         Upgrade_6_1_0(tenant, scope);
                         break;
@@ -448,41 +445,6 @@ namespace Oqtane.Infrastructure
             };
 
             AddPagesToSites(scope, tenant, pageTemplates);
-        }
-
-        private void Upgrade_6_0_1(Tenant tenant, IServiceScope scope)
-        {
-            // assemblies which have been relocated to the bin/refs folder in .NET 9
-            string[] assemblies = {
-                "Microsoft.AspNetCore.Authorization.dll",
-                "Microsoft.AspNetCore.Components.Authorization.dll",
-                "Microsoft.AspNetCore.Components.dll",
-                "Microsoft.AspNetCore.Components.Forms.dll",
-                "Microsoft.AspNetCore.Components.Web.dll",
-                "Microsoft.AspNetCore.Cryptography.Internal.dll",
-                "Microsoft.AspNetCore.Cryptography.KeyDerivation.dll",
-                "Microsoft.AspNetCore.Metadata.dll",
-                "Microsoft.Extensions.Caching.Memory.dll",
-                "Microsoft.Extensions.Configuration.Binder.dll",
-                "Microsoft.Extensions.Configuration.FileExtensions.dll",
-                "Microsoft.Extensions.Configuration.Json.dll",
-                "Microsoft.Extensions.DependencyInjection.Abstractions.dll",
-                "Microsoft.Extensions.DependencyInjection.dll",
-                "Microsoft.Extensions.Diagnostics.Abstractions.dll",
-                "Microsoft.Extensions.Diagnostics.dll",
-                "Microsoft.Extensions.Http.dll",
-                "Microsoft.Extensions.Identity.Core.dll",
-                "Microsoft.Extensions.Identity.Stores.dll",
-                "Microsoft.Extensions.Localization.Abstractions.dll",
-                "Microsoft.Extensions.Localization.dll",
-                "Microsoft.Extensions.Logging.Abstractions.dll",
-                "Microsoft.Extensions.Logging.dll",
-                "Microsoft.Extensions.Options.dll",
-                "Microsoft.JSInterop.dll",
-                "System.Text.Json.dll"
-            };
-
-            RemoveAssemblies(tenant, assemblies, "6.0.1");
         }
 
         private void Upgrade_6_1_0(Tenant tenant, IServiceScope scope)
