@@ -105,7 +105,7 @@
         _error = "";
 
         Route route = new Route(_absoluteUri, SiteState.Alias.Path);
-        int moduleid = int.Parse(route.ModuleId, CultureInfo.InvariantCulture);
+        int moduleid = SharedConverter.ParseInteger(route.ModuleId, CultureInfo.InvariantCulture);
         var action = route.Action; 
 
         var querystring = Utilities.ParseQueryString(route.Query);
@@ -159,7 +159,7 @@
         if (authState.User.Identity.IsAuthenticated && authState.User.Claims.Any(item => item.Type == Constants.SiteKeyClaimType && item.Value == SiteState.Alias.SiteKey))
         {
             // get user
-            var userid = int.Parse(authState.User.Claims.First(item => item.Type == ClaimTypes.NameIdentifier).Value);
+            var userid = SharedConverter.ParseInteger(authState.User.Claims.First(item => item.Type == ClaimTypes.NameIdentifier).Value);
             user = await UserService.GetUserAsync(userid, SiteState.Alias.SiteId);
             if (user != null)
             {
@@ -262,7 +262,7 @@
                 // edit mode
                 if (user != null)
                 {
-                    var editpageid = user.Settings.ContainsKey("CP-editmode") ? int.Parse(user.Settings["CP-editmode"], CultureInfo.InvariantCulture) : -1;
+                    var editpageid = user.Settings.ContainsKey("CP-editmode") ? SharedConverter.ParseInteger(user.Settings["CP-editmode"], CultureInfo.InvariantCulture) : -1;
                     if ((querystring.ContainsKey("edit") && querystring["edit"] == "true") || page.PageId == editpageid)
                     {
                         editmode = true;

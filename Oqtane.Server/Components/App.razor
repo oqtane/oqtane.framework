@@ -182,7 +182,7 @@
                     }
 
                     // includes resources
-                    var resources = await GetPageResources(alias, site, page, modules, int.Parse(route.ModuleId, CultureInfo.InvariantCulture), route.Action);
+                    var resources = await GetPageResources(alias, site, page, modules, SharedConverter.ParseInteger(route.ModuleId, CultureInfo.InvariantCulture), route.Action);
                     ManageStyleSheets(resources);
                     ManageScripts(resources, alias);
 
@@ -423,7 +423,7 @@
             // set cookie
             if (setcookie)
             {
-                expiry = DateTime.UtcNow.AddMinutes(int.Parse(settings.GetValue("VisitorDuration", "5")));
+                expiry = DateTime.UtcNow.AddMinutes(SharedConverter.ParseInteger(settings.GetValue("VisitorDuration", "5")));
 
                 Context.Response.Cookies.Append(
                     visitorCookieName,
@@ -456,7 +456,7 @@
             var secret = sitesettings.GetValue("JwtOptions:Secret", "");
             if (!string.IsNullOrEmpty(secret))
             {
-                _authorizationToken = JwtManager.GenerateToken(alias, (ClaimsIdentity)Context.User.Identity, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""), int.Parse(sitesettings.GetValue("JwtOptions:Lifetime", "20")));
+                _authorizationToken = JwtManager.GenerateToken(alias, (ClaimsIdentity)Context.User.Identity, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""), SharedConverter.ParseInteger(sitesettings.GetValue("JwtOptions:Lifetime", "20")));
             }
         }
     }

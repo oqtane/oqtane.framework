@@ -56,7 +56,7 @@
         {
             if (!string.IsNullOrEmpty(username.Key) && !string.IsNullOrEmpty(subject))
             {
-                var user = await UserService.GetUserAsync(int.Parse(username.Key), ModuleState.SiteId);
+                var user = await UserService.GetUserAsync(SharedConverter.ParseInteger(username.Key), ModuleState.SiteId);
                 if (user != null)
                 {
                     var notification = new Notification(PageState.Site.SiteId, PageState.User, user, subject, body);

@@ -36,7 +36,7 @@ namespace Oqtane.Services
                 if (!Enum.TryParse(position, true, out AnchorPositionMode _)) position = "center";
                 if (!Color.TryParseHex("#" + background, out _)) background = "transparent";
                 if (!int.TryParse(rotate, out _)) rotate = "0";
-                rotate = (int.Parse(rotate) < 0 || int.Parse(rotate) > 360) ? "0" : rotate;
+                rotate = (SharedConverter.ParseInteger(rotate) < 0 || SharedConverter.ParseInteger(rotate) > 360) ? "0" : rotate;
                 if (!_formats.Contains(format)) format = "png";
 
                 using (var stream = new FileStream(filepath, FileMode.Open, FileAccess.Read))

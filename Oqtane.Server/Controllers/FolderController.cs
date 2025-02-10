@@ -98,7 +98,7 @@ namespace Oqtane.Controllers
             if (folder == null && User.IsInRole(RoleNames.Host) && path.StartsWith("Users/"))
             {
                 // create the user folder on this site for the host user
-                var userId = int.Parse(path.ReplaceMultiple(new string[] { "Users", "/" }, ""));
+                var userId = SharedConverter.ParseInteger(path.ReplaceMultiple(new string[] { "Users", "/" }, ""));
                 folder = _folders.GetFolder(siteId, "Users/");
                 if (folder != null)
                 {

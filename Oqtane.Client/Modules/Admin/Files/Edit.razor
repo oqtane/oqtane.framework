@@ -212,7 +212,7 @@
                 folder.SiteId = PageState.Site.SiteId;
                 folder.Name = _name;
                 folder.Type = _type;
-                folder.Capacity = int.Parse(_capacity);
+                folder.Capacity = SharedConverter.ParseInteger(_capacity);
                 folder.CacheControl = _cachecontrol;
                 folder.ImageSizes = _imagesizes;
                 folder.IsSystem = _isSystem;

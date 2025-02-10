@@ -189,9 +189,9 @@
                 profile.Title = _title;
                 profile.Description = _description;
                 profile.Category = _category;
-                profile.ViewOrder = int.Parse(_vieworder);
-                profile.MaxLength = int.Parse(_maxlength);
-                profile.Rows = int.Parse(_rows);
+                profile.ViewOrder = SharedConverter.ParseInteger(_vieworder);
+                profile.MaxLength = SharedConverter.ParseInteger(_maxlength);
+                profile.Rows = SharedConverter.ParseInteger(_rows);
                 profile.DefaultValue = _defaultvalue;
                 profile.Options = _options;
                 profile.Validation = _validation;

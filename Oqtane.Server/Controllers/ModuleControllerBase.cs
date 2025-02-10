@@ -32,7 +32,7 @@ namespace Oqtane.Controllers
             // legacy support
             if (_authEntityId.Count == 0 && accessor.HttpContext.Request.Query.ContainsKey("entityid"))
             {
-                _entityId = int.Parse(accessor.HttpContext.Request.Query["entityid"]);
+                _entityId = SharedConverter.ParseInteger(accessor.HttpContext.Request.Query["entityid"]);
             }
 
         }

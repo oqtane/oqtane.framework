@@ -530,7 +530,7 @@
                 _smtpsender = SettingService.GetSetting(settings, "SMTPSender", string.Empty);
                 _smtprelay = SettingService.GetSetting(settings, "SMTPRelay", "False");
                 _smtpenabled = SettingService.GetSetting(settings, "SMTPEnabled", "True");
-                _retention = int.Parse(SettingService.GetSetting(settings, "NotificationRetention", "30"));
+                _retention = SharedConverter.ParseInteger(SettingService.GetSetting(settings, "NotificationRetention", "30"));
 
                 // PWA
                 _pwaisenabled = site.PwaIsEnabled.ToString();
@@ -632,7 +632,7 @@
                     if (site != null)
                     {
                         site.Name = _name;
-                        site.HomePageId = (_homepageid != "-" ? int.Parse(_homepageid) : null);
+                        site.HomePageId = (_homepageid != "-" ? SharedConverter.ParseInteger(_homepageid) : null);
                         site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
 
                         // appearance

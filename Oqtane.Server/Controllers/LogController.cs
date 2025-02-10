@@ -33,7 +33,7 @@ namespace Oqtane.Controllers
             int SiteId;
             if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
             {
-                return _logs.GetLogs(SiteId, level, function, int.Parse(rows));
+                return _logs.GetLogs(SiteId, level, function, SharedConverter.ParseInteger(rows));
             }
             else
             {

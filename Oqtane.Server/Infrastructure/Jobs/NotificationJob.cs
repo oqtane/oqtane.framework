@@ -55,7 +55,7 @@ namespace Oqtane.Infrastructure
                             DeliveryMethod = SmtpDeliveryMethod.Network,
                             UseDefaultCredentials = false,
                             Host = settings["SMTPHost"],
-                            Port = int.Parse(settings["SMTPPort"]),
+                            Port = SharedConverter.ParseInteger(settings["SMTPPort"]),
                             EnableSsl = bool.Parse(settings["SMTPSSL"])
                         };
                         if (settings["SMTPUsername"] != "" && settings["SMTPPassword"] != "")

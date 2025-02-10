@@ -383,7 +383,7 @@ else
                     }
                     else
                     {
-                        var tenant = _tenants.FirstOrDefault(item => item.TenantId == int.Parse(_tenantid));
+                        var tenant = _tenants.FirstOrDefault(item => item.TenantId == SharedConverter.ParseInteger(_tenantid));
                         if (tenant != null)
                         {
                             config.TenantName = tenant.Name;

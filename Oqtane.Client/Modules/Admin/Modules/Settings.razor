@@ -256,7 +256,7 @@
                     return;
                 }                
                 var pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
-                pagemodule.PageId = int.Parse(_pageId);
+                pagemodule.PageId = SharedConverter.ParseInteger(_pageId);
                 pagemodule.Title = _title;
                 pagemodule.Pane = _pane;
                 pagemodule.EffectiveDate = Utilities.LocalDateAndTimeAsUtc(_effectivedate);

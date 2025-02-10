@@ -386,7 +386,7 @@
                     _parent = _pages.FirstOrDefault(item => item.PageId == _page.ParentId);
                 }
                 _children = new List<Page>();
-                foreach (Page p in _pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == int.Parse(_parentid, CultureInfo.InvariantCulture))))
+                foreach (Page p in _pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == SharedConverter.ParseInteger(_parentid, CultureInfo.InvariantCulture))))
                 {
                     if (p.PageId != _pageId && UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
                     {
@@ -471,7 +471,7 @@
         {
             _parentid = (string)e.Value;
             _children = new List<Page>();
-            foreach (Page p in _pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == int.Parse(_parentid))))
+            foreach (Page p in _pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == SharedConverter.ParseInteger(_parentid))))
             {
                 if (p.PageId != _pageId && UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
                 {
@@ -661,7 +661,7 @@
                     }
                     else
                     {
-                        await PageService.UpdatePageOrderAsync(_page.SiteId, _page.PageId, int.Parse(_currentparentid));
+                        await PageService.UpdatePageOrderAsync(_page.SiteId, _page.PageId, SharedConverter.ParseInteger(_currentparentid));
                     }
 
                     if (_themeSettingsType != null && _themeSettings is ISettingsControl themeSettingsControl)

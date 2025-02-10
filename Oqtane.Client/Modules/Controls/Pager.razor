@@ -445,17 +445,17 @@
 
         if (!string.IsNullOrEmpty(PageSize))
         {
-            _maxItems = int.Parse(PageSize);
+            _maxItems = SharedConverter.ParseInteger(PageSize);
         }
 
         if (!string.IsNullOrEmpty(Columns))
         {
-            _columns = int.Parse(Columns);
+            _columns = SharedConverter.ParseInteger(Columns);
         }
 
         if (!string.IsNullOrEmpty(DisplayPages))
         {
-            _displayPages = int.Parse(DisplayPages);
+            _displayPages = SharedConverter.ParseInteger(DisplayPages);
         }
 
         if (PageState.QueryString.ContainsKey("page") && int.TryParse(PageState.QueryString["page"], out int page))
@@ -466,7 +466,7 @@
         {
             if (!string.IsNullOrEmpty(CurrentPage))
             {
-                _page = int.Parse(CurrentPage);
+                _page = SharedConverter.ParseInteger(CurrentPage);
             }
             else
             {

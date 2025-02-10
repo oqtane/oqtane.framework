@@ -119,7 +119,7 @@ else
             _imageFiles = (string.IsNullOrEmpty(_imageFiles)) ? Constants.ImageFiles : _imageFiles;
             _uploadableFiles = SettingService.GetSetting(settings, "UploadableFiles", Constants.UploadableFiles);
             _uploadableFiles = (string.IsNullOrEmpty(_uploadableFiles)) ? Constants.UploadableFiles : _uploadableFiles;
-            _maxChunkSize = int.Parse(SettingService.GetSetting(settings, "MaxChunkSize", "1"));
+            _maxChunkSize = SharedConverter.ParseInteger(SettingService.GetSetting(settings, "MaxChunkSize", "1"));
         }
         catch (Exception ex)
         {
@@ -137,7 +137,7 @@ else
     {
         try
         {
-            _folderId = int.Parse((string)e.Value);
+            _folderId = SharedConverter.ParseInteger((string)e.Value);
             await GetFiles();
             StateHasChanged();
         }

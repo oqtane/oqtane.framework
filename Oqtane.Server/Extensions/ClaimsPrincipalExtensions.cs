@@ -24,7 +24,7 @@ namespace Oqtane.Extensions
         {
             if (claimsPrincipal.HasClaim(item => item.Type == ClaimTypes.NameIdentifier))
             {
-                return int.Parse(claimsPrincipal.Claims.First(item => item.Type == ClaimTypes.NameIdentifier).Value);
+                return SharedConverter.ParseInteger(claimsPrincipal.Claims.First(item => item.Type == ClaimTypes.NameIdentifier).Value);
             }
             else
             {
@@ -55,7 +55,7 @@ namespace Oqtane.Extensions
             var sitekey = SiteKey(claimsPrincipal);
             if (!string.IsNullOrEmpty(sitekey) && sitekey.Contains(":"))
             {
-                return int.Parse(sitekey.Split(':')[0]);
+                return SharedConverter.ParseInteger(sitekey.Split(':')[0]);
             }
             return -1;
         }
@@ -65,7 +65,7 @@ namespace Oqtane.Extensions
             var sitekey = SiteKey(claimsPrincipal);
             if (!string.IsNullOrEmpty(sitekey) && sitekey.Contains(":"))
             {
-                return int.Parse(sitekey.Split(':')[1]);
+                return SharedConverter.ParseInteger(sitekey.Split(':')[1]);
             }
             return -1;
         }

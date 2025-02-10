@@ -122,11 +122,11 @@
                 ExcludeEntities = _excludeEntities,
                 FromDate = (!string.IsNullOrEmpty(_fromDate)) ? DateTime.Parse(_fromDate) : DateTime.MinValue,
                 ToDate = (!string.IsNullOrEmpty(_toDate)) ? DateTime.Parse(_toDate) : DateTime.MaxValue,
-                PageSize = (!string.IsNullOrEmpty(_pageSize)) ? int.Parse(_pageSize) : int.MaxValue,
+                PageSize = (!string.IsNullOrEmpty(_pageSize)) ? SharedConverter.ParseInteger(_pageSize) : int.MaxValue,
                 PageIndex = 0,
                 SortField = (!string.IsNullOrEmpty(_sortField)) ? (SearchSortField)Enum.Parse(typeof(SearchSortField), _sortField) : SearchSortField.Relevance,
                 SortOrder = (!string.IsNullOrEmpty(_sortOrder)) ? (SearchSortOrder)Enum.Parse(typeof(SearchSortOrder), _sortOrder) : SearchSortOrder.Descending,
-                BodyLength = (!string.IsNullOrEmpty(_bodyLength)) ? int.Parse(_bodyLength) : 255
+                BodyLength = (!string.IsNullOrEmpty(_bodyLength)) ? SharedConverter.ParseInteger(_bodyLength) : 255
             };
 
             _searchResults = await SearchResultsService.GetSearchResultsAsync(searchQuery);

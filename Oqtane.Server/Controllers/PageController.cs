@@ -188,7 +188,7 @@ namespace Oqtane.Controllers
             Page page = null;
             Page parent = _pages.GetPage(id);
             User user = _userPermissions.GetUser(User);
-            if (parent != null && parent.SiteId == _alias.SiteId && parent.IsPersonalizable && user.UserId == int.Parse(userid))
+            if (parent != null && parent.SiteId == _alias.SiteId && parent.IsPersonalizable && user.UserId == SharedConverter.ParseInteger(userid))
             {
                 var path = Utilities.GetFriendlyUrl(user.Username);
                 page = _pages.GetPage(parent.Path + "/" + path, parent.SiteId);
@@ -208,12 +208,12 @@ namespace Oqtane.Controllers
                     page.Icon = parent.Icon;
                     page.PermissionList = new List<Permission>()
                     {
-                        new Permission(PermissionNames.View, int.Parse(userid), true),
+                        new Permission(PermissionNames.View, SharedConverter.ParseInteger(userid), true),
                         new Permission(PermissionNames.View, RoleNames.Everyone, true),
-                        new Permission(PermissionNames.Edit, int.Parse(userid), true)
+                        new Permission(PermissionNames.Edit, SharedConverter.ParseInteger(userid), true)
                     };
                     page.IsPersonalizable = false;
-                    page.UserId = int.Parse(userid);
+                    page.UserId = SharedConverter.ParseInteger(userid);
                     page = _pages.AddPage(page);
 
                     // copy modules
@@ -227,9 +227,9 @@ namespace Oqtane.Controllers
                         module.AllPages = false;
                         module.PermissionList = new List<Permission>()
                         {
-                            new Permission(PermissionNames.View, int.Parse(userid), true),
+                            new Permission(PermissionNames.View, SharedConverter.ParseInteger(userid), true),
                             new Permission(PermissionNames.View, RoleNames.Everyone, true),
-                            new Permission(PermissionNames.Edit, int.Parse(userid), true)
+                            new Permission(PermissionNames.Edit, SharedConverter.ParseInteger(userid), true)
                         };
                         module = _modules.AddModule(module);
 

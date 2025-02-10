@@ -127,7 +127,7 @@ else
             await GetLogs();
 
             var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-            _retention = int.Parse( SettingService.GetSetting(settings, "LogRetention", "30"));
+            _retention = SharedConverter.ParseInteger( SettingService.GetSetting(settings, "LogRetention", "30"));
         }
         catch (Exception ex)
         {
@@ -184,7 +184,7 @@ else
 
     private async Task GetLogs()
     {
-        _logs = await LogService.GetLogsAsync(PageState.Site.SiteId, ((_level == "-") ? string.Empty : _level), ((_function == "-") ? string.Empty : _function), int.Parse(_rows));
+        _logs = await LogService.GetLogsAsync(PageState.Site.SiteId, ((_level == "-") ? string.Empty : _level), ((_function == "-") ? string.Empty : _function), SharedConverter.ParseInteger(_rows));
     }
 
     private string GetClass(string function)

@@ -158,7 +158,7 @@ namespace Oqtane.Providers
             var minimumWordLength = MinimumWordLength;
             if (siteSettings.ContainsKey(SearchMinimumWordLengthSetting) && !string.IsNullOrEmpty(siteSettings[SearchMinimumWordLengthSetting]))
             {
-                minimumWordLength = int.Parse(siteSettings[SearchMinimumWordLengthSetting]);
+                minimumWordLength = SharedConverter.ParseInteger(siteSettings[SearchMinimumWordLengthSetting]);
             }
 
             // analyze the search content and save the index words

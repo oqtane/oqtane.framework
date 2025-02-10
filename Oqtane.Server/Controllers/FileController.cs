@@ -530,7 +530,7 @@ namespace Oqtane.Controllers
             // parse the filename which is in the format of filename.ext.part_001_999
             string token = ".part_";
             string parts = Path.GetExtension(filename)?.Replace(token, ""); // returns "001_999"
-            int totalparts = int.Parse(parts?.Substring(parts.IndexOf("_") + 1));
+            int totalparts = SharedConverter.ParseInteger(parts?.Substring(parts.IndexOf("_") + 1));
 
             filename = Path.GetFileNameWithoutExtension(filename); // base filename
             string[] fileparts = Directory.GetFiles(folder, filename + token + "*"); // list of all file parts

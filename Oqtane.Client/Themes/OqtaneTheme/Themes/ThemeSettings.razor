@@ -63,7 +63,7 @@
     {
         if (PageState.QueryString.ContainsKey("id"))
         {
-            pageId = int.Parse(PageState.QueryString["id"]);
+            pageId = SharedConverter.ParseInteger(PageState.QueryString["id"]);
         }
 
         try

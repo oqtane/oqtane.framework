@@ -330,7 +330,7 @@
         if (_pageId != "-")
         {
             _modules = await ModuleService.GetModulesAsync(PageState.Page.SiteId);
-            _modules = _modules.Where(module => module.PageId == int.Parse(_pageId) && module.IsDeleted == false &&
+            _modules = _modules.Where(module => module.PageId == SharedConverter.ParseInteger(_pageId) && module.IsDeleted == false &&
                 UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.PermissionList) &&
                 (_moduleType == "add" || module.ModuleDefinition.IsPortable))
                 .ToList();
@@ -345,7 +345,7 @@
         {
             if ((_moduleType == "new" && _moduleDefinitionName != "-") || (_moduleType != "new" && _moduleId != "-"))
             {
-                var newModuleId = _moduleId != "-" ? int.Parse(_moduleId) : 0;
+                var newModuleId = _moduleId != "-" ? SharedConverter.ParseInteger(_moduleId) : 0;
                 if (_moduleType == "new")
                 {
                     Module module = new Module();
@@ -360,7 +360,7 @@
                 }
                 else if (_moduleType == "copy")
                 {
-                    var module = await ModuleService.GetModuleAsync(int.Parse(_moduleId));
+                    var module = await ModuleService.GetModuleAsync(SharedConverter.ParseInteger(_moduleId));
                     module.ModuleId = 0;
                     module.SiteId = PageState.Page.SiteId;
                     module.PageId = PageState.Page.PageId;
@@ -368,7 +368,7 @@
                     module.PermissionList = GenerateDefaultPermissions(module.SiteId);
 
                     module = await ModuleService.AddModuleAsync(module);
-                    var moduleContent = await ModuleService.ExportModuleAsync(int.Parse(_moduleId), PageState.Page.PageId);
+                    var moduleContent = await ModuleService.ExportModuleAsync(SharedConverter.ParseInteger(_moduleId), PageState.Page.PageId);
                     if (!string.IsNullOrEmpty(moduleContent))
                     {
                         await ModuleService.ImportModuleAsync(module.ModuleId, PageState.Page.PageId, moduleContent);
@@ -391,7 +391,7 @@
                     }
                     else
                     {
-                        pageModule.Title = _modules.FirstOrDefault(item => item.ModuleId == int.Parse(_moduleId))?.Title;
+                        pageModule.Title = _modules.FirstOrDefault(item => item.ModuleId == SharedConverter.ParseInteger(_moduleId))?.Title;
                     }
                 }
 
@@ -465,13 +465,13 @@
         {
             case "Admin":
                 // get admin dashboard moduleid
-                moduleId = int.Parse(PageState.Site.Settings[Constants.AdminDashboardModule]);
+                moduleId = SharedConverter.ParseInteger(PageState.Site.Settings[Constants.AdminDashboardModule]);
                 NavigationManager.NavigateTo(Utilities.EditUrl(PageState.Alias.Path, "admin", moduleId, "Index", "returnurl=" + WebUtility.UrlEncode(PageState.Route.PathAndQuery)));
                 break;
             case "Add":
             case "Edit":
                 // get page management moduleid
-                moduleId = int.Parse(PageState.Site.Settings[Constants.PageManagementModule]);
+                moduleId = SharedConverter.ParseInteger(PageState.Site.Settings[Constants.PageManagementModule]);
                 NavigationManager.NavigateTo(Utilities.EditUrl(PageState.Alias.Path, "admin/pages", moduleId, location, $"id={PageState.Page.PageId}&returnurl={WebUtility.UrlEncode(PageState.Route.PathAndQuery)}"));
                 break;
         }

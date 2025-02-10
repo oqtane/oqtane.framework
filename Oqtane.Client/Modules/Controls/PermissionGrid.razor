@@ -278,7 +278,7 @@
 	{
 		if (!string.IsNullOrEmpty(_user.Key))
 		{
-			var user = await UserService.GetUserAsync(int.Parse(_user.Key), ModuleState.SiteId);
+            var user = await UserService.GetUserAsync(SharedConverter.ParseInteger(_user.Key), ModuleState.SiteId);
 			if (user != null && !_users.Any(item => item.UserId == user.UserId))
 			{
 				_users.Add(user);

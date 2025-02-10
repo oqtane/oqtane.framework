@@ -295,7 +295,7 @@
         _message = string.Empty;
         try
         {
-            FolderId = int.Parse((string)e.Value);
+            FolderId = SharedConverter.ParseInteger((string)e.Value);
             await GetFiles();
             FileId = -1;
             _file = null;
@@ -313,7 +313,7 @@
     private async Task FileChanged(ChangeEventArgs e)
     {
         _message = string.Empty;
-        FileId = int.Parse((string)e.Value);
+        FileId = SharedConverter.ParseInteger((string)e.Value);
         await SetImage();
         await OnSelect.InvokeAsync(FileId);
         StateHasChanged();
@@ -386,7 +386,7 @@
                     if (chunksize == 1)
                     {
                         // if ChunkSize parameter is not overridden use the site setting
-                        chunksize = int.Parse(SettingService.GetSetting(PageState.Site.Settings, "MaxChunkSize", "1"));
+                        chunksize = SharedConverter.ParseInteger(SettingService.GetSetting(PageState.Site.Settings, "MaxChunkSize", "1"));
                     }
 
                     if (!ShowProgress)
@@ -433,7 +433,7 @@
                     else
                     {
                         // set FileId to first file in upload collection
-                        var file = await FileService.GetFileAsync(int.Parse(folder), uploads[0].Split(":")[0]);
+                        var file = await FileService.GetFileAsync(SharedConverter.ParseInteger(folder), uploads[0].Split(":")[0]);
                         if (file != null)
                         {
                             FileId = file.FileId;

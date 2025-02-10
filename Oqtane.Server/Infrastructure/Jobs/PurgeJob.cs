@@ -50,7 +50,7 @@ namespace Oqtane.Infrastructure
                 retention = 30; // 30 days
                 if (settings.ContainsKey("LogRetention") && !string.IsNullOrEmpty(settings["LogRetention"]))
                 {
-                    retention = int.Parse(settings["LogRetention"]);
+                    retention = SharedConverter.ParseInteger(settings["LogRetention"]);
                 }
                 try
                 {
@@ -68,7 +68,7 @@ namespace Oqtane.Infrastructure
                     retention = 30; // 30 days
                     if (settings.ContainsKey("VisitorRetention") && !string.IsNullOrEmpty(settings["VisitorRetention"]))
                     {
-                        retention = int.Parse(settings["VisitorRetention"]);
+                        retention = SharedConverter.ParseInteger(settings["VisitorRetention"]);
                     }
                     try
                     {
@@ -85,7 +85,7 @@ namespace Oqtane.Infrastructure
                 retention = 30; // 30 days
                 if (settings.ContainsKey("NotificationRetention") && !string.IsNullOrEmpty(settings["NotificationRetention"]))
                 {
-                    retention = int.Parse(settings["NotificationRetention"]);
+                    retention = SharedConverter.ParseInteger(settings["NotificationRetention"]);
                 }
                 try
                 {
@@ -101,7 +101,7 @@ namespace Oqtane.Infrastructure
                 retention = 30; // 30 days
                 if (settings.ContainsKey("UrlMappingRetention") && !string.IsNullOrEmpty(settings["UrlMappingRetention"]))
                 {
-                    retention = int.Parse(settings["UrlMappingRetention"]);
+                    retention = SharedConverter.ParseInteger(settings["UrlMappingRetention"]);
                 }
                 try
                 {

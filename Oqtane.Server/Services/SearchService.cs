@@ -106,7 +106,7 @@ namespace Oqtane.Services
                 if (permission.Contains(":")) // permission
                 {
                     var entityName = permission.Split(":")[0];
-                    var entityId = int.Parse(permission.Split(":")[1]);
+                    var entityId = SharedConverter.ParseInteger(permission.Split(":")[1]);
                     if (!_userPermissions.IsAuthorized(_accessor.HttpContext.User, searchQuery.SiteId, entityName, entityId, PermissionNames.View))
                     {
                         visible = false;

@@ -135,9 +135,9 @@ else
 
 		_tracking = PageState.Site.VisitorTracking.ToString();
 		var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-        _duration = int.Parse(SettingService.GetSetting(settings, "VisitorDuration", "5"));
+        _duration = SharedConverter.ParseInteger(SettingService.GetSetting(settings, "VisitorDuration", "5"));
         _filter = SettingService.GetSetting(settings, "VisitorFilter", Constants.DefaultVisitorFilter);
-		_retention = int.Parse(SettingService.GetSetting(settings, "VisitorRetention", "30"));
+		_retention = SharedConverter.ParseInteger(SettingService.GetSetting(settings, "VisitorRetention", "30"));
 		_correlation = SettingService.GetSetting(settings, "VisitorCorrelation", "true");
 	}
 
@@ -159,7 +159,7 @@ else
 	{
 		try
 		{
-			_days = int.Parse(e.Value.ToString());
+			_days = SharedConverter.ParseInteger(e.Value.ToString());
 			await GetVisitors();
 			StateHasChanged();
 		}

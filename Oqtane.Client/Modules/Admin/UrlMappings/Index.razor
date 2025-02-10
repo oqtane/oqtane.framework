@@ -90,7 +90,7 @@ else
 		_capturebrokenurls = PageState.Site.CaptureBrokenUrls.ToString();
 
         var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-        _retention = int.Parse(SettingService.GetSetting(settings, "UrlMappingRetention", "30"));
+        _retention = SharedConverter.ParseInteger(SettingService.GetSetting(settings, "UrlMappingRetention", "30"));
     }
 
 	private async void MappedChanged(ChangeEventArgs e)

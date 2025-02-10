@@ -174,11 +174,11 @@
 			}
 			else
 			{
-				job.Interval = int.Parse(_interval);
+				job.Interval = SharedConverter.ParseInteger(_interval);
 			}
 			job.StartDate = Utilities.LocalDateAndTimeAsUtc(_startDate, _startTime);
 			job.EndDate = Utilities.LocalDateAndTimeAsUtc(_endDate, _endTime);
-			job.RetentionHistory = int.Parse(_retentionHistory);
+			job.RetentionHistory = SharedConverter.ParseInteger(_retentionHistory);
 			job.NextExecution = Utilities.LocalDateAndTimeAsUtc(_nextDate, _nextTime);
 
 			try
