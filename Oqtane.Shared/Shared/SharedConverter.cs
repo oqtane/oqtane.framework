@@ -11,17 +11,12 @@ namespace Oqtane.Shared
     {
         public static int ParseInteger(string value)
         {
-            return ParseInteger(value, CultureInfo.InvariantCulture, 0);
+            return ParseInteger(value, CultureInfo.InvariantCulture);
         }
 
         public static int ParseInteger(string value, CultureInfo cultureInfo)
         {
-            return ParseInteger(value, cultureInfo, 0);
-        }
-
-        public static int ParseInteger(string value, CultureInfo cultureInfo, int defaultValue)
-        {
-            return int.Parse(value, cultureInfo);
+            return ParseInteger(value, cultureInfo);
         }
     }
 }
