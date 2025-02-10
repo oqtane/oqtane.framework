@@ -482,7 +482,7 @@ namespace Oqtane.Infrastructure
                 "System.Text.Json.dll"
             };
 
-            RemoveAssemblies(assemblies, "6.0.1");
+            RemoveAssemblies(tenant, assemblies, "6.0.1");
         }
 
         private void Upgrade_6_1_0(Tenant tenant, IServiceScope scope)
@@ -492,7 +492,7 @@ namespace Oqtane.Infrastructure
                 "MySql.EntityFrameworkCore.dll"
             };
 
-            RemoveAssemblies(assemblies, "6.1.0");
+            RemoveAssemblies(tenant, assemblies, "6.1.0");
         }
 
         private void AddPagesToSites(IServiceScope scope, Tenant tenant, List<PageTemplate> pageTemplates)
@@ -506,10 +506,10 @@ namespace Oqtane.Infrastructure
             }
         }
 
-        private void RemoveAssemblies(string[] assemblies, string version)
+        private void RemoveAssemblies(Tenant tenant, string[] assemblies, string version)
         {
             // in a development environment assemblies cannot be removed as the debugger runs fron /bin folder and locks the files
-            if (!_environment.IsDevelopment())
+            if (tenant.Name == TenantNames.Master && !_environment.IsDevelopment())
             {
                 foreach (var assembly in assemblies)
                 {
