@@ -70,7 +70,7 @@
                     if (!script.Contains("><") && !script.Contains("data-reload"))
                     {
                         // add data-reload attribute to inline script
-                        headcontent = headcontent.Replace(script, script.Replace("<script", "<script data-reload=\"true\""));
+                        headcontent = headcontent.Replace(script, script.Replace("<script", "<script data-reload=\"always\""));
                     }
                     index = headcontent.IndexOf("<script", index + 1);
                 }

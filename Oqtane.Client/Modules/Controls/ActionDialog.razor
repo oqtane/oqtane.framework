@@ -22,9 +22,9 @@
                         <div class="modal-footer">
                             @if (!string.IsNullOrEmpty(Action))
                             {
-                                <button type="button" class="@Class" @onclick="Confirm">@((MarkupString)_iconSpan) @Text</button>
+                                <button type="button" class="@ConfirmClass" @onclick="Confirm">@((MarkupString)_iconSpan) @Text</button>
                             }
-                            <button type="button" class="btn btn-secondary" @onclick="DisplayModal">@SharedLocalizer["Cancel"]</button>
+                            <button type="button" class="@CancelClass" @onclick="DisplayModal">@SharedLocalizer["Cancel"]</button>
                         </div>
                     </div>
                 </div>
@@ -66,12 +66,12 @@ else
                             {
                                 <form method="post" @formname="@($"ActionDialogConfirmForm:{ModuleState.PageModuleId}:{Id}")" @onsubmit="Confirm" data-enhance>
                                     <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
-                                    <button type="submit" class="@Class">@((MarkupString)_iconSpan) @Text</button>
+                                    <button type="submit" class="@ConfirmClass">@((MarkupString)_iconSpan) @Text</button>
                                 </form>
                             }
                             <form method="post" @formname="@($"ActionDialogCancelForm:{ModuleState.PageModuleId}:{Id}")" @onsubmit="DisplayModal" data-enhance>
                                 <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
-                                <button type="submit" class="btn btn-secondary">@SharedLocalizer["Cancel"]</button>
+                                <button type="submit" class="@CancelClass">@SharedLocalizer["Cancel"]</button>
                             </form>
                         </div>
                     </div>
@@ -129,6 +129,12 @@ else
     public string Class { get; set; } // optional
 
     [Parameter]
+    public string ConfirmClass { get; set; } // optional - for Confirm modal button
+
+    [Parameter]
+    public string CancelClass { get; set; } // optional - for Cancel modal button
+
+    [Parameter]
     public bool Disabled { get; set; } // optional
 
     [Parameter]
@@ -168,6 +174,16 @@ else
             Class = "btn btn-success";
         }
 
+        if (string.IsNullOrEmpty(ConfirmClass))
+        {
+            ConfirmClass = Class;
+        }
+
+        if (string.IsNullOrEmpty(CancelClass))
+        {
+            CancelClass = "btn btn-secondary";
+        }
+
         if (!string.IsNullOrEmpty(EditMode))
         {
             _editmode = bool.Parse(EditMode);
@@ -196,7 +212,7 @@ else
             _openIconSpan = $"<span class=\"{IconName}\"></span>{(IconOnly ? "" : "&nbsp")}";
             _iconSpan = $"<span class=\"{IconName}\"></span>&nbsp";
         }
-        
+
         _permissions = (PermissionList == null) ? ModuleState.PermissionList : PermissionList;
         _authorized = IsAuthorized();
 

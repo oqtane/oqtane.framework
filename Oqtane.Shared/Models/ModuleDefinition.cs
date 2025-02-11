@@ -65,7 +65,7 @@ namespace Oqtane.Models
         public string Categories { get; set; }
 
         /// <summary>
-        /// Version information of this Module based on the DLL / NuGet package.
+        /// Version information of this Module based on the information stored in its assembly
         /// </summary>
         public string Version { get; set; }
 
@@ -143,6 +143,9 @@ namespace Oqtane.Models
 
         [NotMapped]
         public bool IsPortable { get; set; }
+
+        [NotMapped]
+        public string Fingerprint { get; set; }
 
         #region Deprecated Properties
 

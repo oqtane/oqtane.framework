@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-We make every effort to ensure rapid and thorough analysis of reported issues and, where appropriate, provide workarounds and updated application releases to fix them. If you identify a potential security vulnerability please report it via [the GitHub feature for reporting a security vulnerability](https://github.com/oqtane/oqtane.framework/security/advisories/new).
+We make every effort to ensure rapid and thorough analysis of reported issues and, where appropriate, provide workarounds and updated application releases to fix them. If you identify a potential security vulnerability please report it via support@oqtane.org.
 
 All submitted information is viewed only by members of the Oqtane Security Team, and will not be discussed outside the Team without the permission of the person/company who reported the issue. Each confirmed issue is assigned a severity level (critical, moderate, or low) corresponding to its potential impact on an Oqtane installation.
 

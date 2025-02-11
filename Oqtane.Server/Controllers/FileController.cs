@@ -21,6 +21,8 @@ using System.Net.Http;
 using Microsoft.AspNetCore.Cors;
 using System.IO.Compression;
 using Oqtane.Services;
+using Microsoft.Extensions.Primitives;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
@@ -427,75 +429,98 @@ namespace Oqtane.Controllers
         // POST api/<controller>/upload
         [EnableCors(Constants.MauiCorsPolicy)]
         [HttpPost("upload")]
-        public async Task<IActionResult> UploadFile(string folder, IFormFile formfile)
+        public async Task<IActionResult> UploadFile([FromForm] string folder, IFormFile formfile)
         {
+            if (string.IsNullOrEmpty(folder))
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "File Upload Does Not Contain A Folder");
+                return StatusCode((int)HttpStatusCode.Forbidden);
+            }
+
             if (formfile == null || formfile.Length <= 0)
             {
-                return NoContent();
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "File Upload Does Not Contain A File");
+                return StatusCode((int)HttpStatusCode.Forbidden);
             }
 
             // ensure filename is valid
-            string token = ".part_";
-            if (!formfile.FileName.IsPathOrFileValid() || !formfile.FileName.Contains(token) || !HasValidFileExtension(formfile.FileName.Substring(0, formfile.FileName.IndexOf(token))))
+            if (!formfile.FileName.IsPathOrFileValid() || !HasValidFileExtension(formfile.FileName))
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "File Name Is Invalid Or Contains Invalid Extension {File}", formfile.FileName);
-                return NoContent();
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "File Upload File Name Is Invalid Or Contains Invalid Extension {File}", formfile.FileName);
+                return StatusCode((int)HttpStatusCode.Forbidden);
             }
 
+            // ensure headers exist
+            if (!Request.Headers.TryGetValue("PartCount", out StringValues partcount) || !int.TryParse(partcount, out int partCount) || partCount <= 0 ||
+                !Request.Headers.TryGetValue("TotalParts", out StringValues totalparts) || !int.TryParse(totalparts, out int totalParts) || totalParts <= 0)
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "File Upload Is Missing Required Headers");
+                return StatusCode((int)HttpStatusCode.Forbidden);
+            }
+
+            // create file name using header values
+            string fileName = formfile.FileName + ".part_" + partCount.ToString("000") + "_" + totalParts.ToString("000");
             string folderPath = "";
 
-            int FolderId;
-            if (int.TryParse(folder, out FolderId))
+            try
             {
-                Folder Folder = _folders.GetFolder(FolderId);
-                if (Folder != null && Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Edit, Folder.PermissionList))
+                int FolderId;
+                if (int.TryParse(folder, out FolderId))
                 {
-                    folderPath = _folders.GetFolderPath(Folder);
-                }
-            }
-            else
-            {
-                FolderId = -1;
-                if (User.IsInRole(RoleNames.Host))
-                {
-                    folderPath = GetFolderPath(folder);
-                }
-            }
-
-            if (!string.IsNullOrEmpty(folderPath))
-            {
-                CreateDirectory(folderPath);
-                using (var stream = new FileStream(Path.Combine(folderPath, formfile.FileName), FileMode.Create))
-                {
-                    await formfile.CopyToAsync(stream);
-                }
-
-                string upload = await MergeFile(folderPath, formfile.FileName);
-                if (upload != "" && FolderId != -1)
-                {
-                    var file = CreateFile(upload, FolderId, Path.Combine(folderPath, upload));
-                    if (file != null)
+                    Folder Folder = _folders.GetFolder(FolderId);
+                    if (Folder != null && Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Edit, Folder.PermissionList))
                     {
-                        if (file.FileId == 0)
-                        {
-                            file = _files.AddFile(file);
-                        }
-                        else
-                        {
-                            file = _files.UpdateFile(file);
-                        }
-                        _logger.Log(LogLevel.Information, this, LogFunction.Create, "File Uploaded {File}", Path.Combine(folderPath, upload));
-                        _syncManager.AddSyncEvent(_alias, EntityNames.File, file.FileId, SyncEventActions.Create);
+                        folderPath = _folders.GetFolderPath(Folder);
                     }
                 }
-            }
-            else
-            {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized File Upload Attempt {Folder} {File}", folder, formfile.FileName);
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-            }
+                else
+                {
+                    FolderId = -1;
+                    if (User.IsInRole(RoleNames.Host))
+                    {
+                        folderPath = GetFolderPath(folder);
+                    }
+                }
 
-            return NoContent();
+                if (!string.IsNullOrEmpty(folderPath))
+                {
+                    CreateDirectory(folderPath);
+                    using (var stream = new FileStream(Path.Combine(folderPath, fileName), FileMode.Create))
+                    {
+                        await formfile.CopyToAsync(stream);
+                    }
+
+                    string upload = await MergeFile(folderPath, fileName);
+                    if (upload != "" && FolderId != -1)
+                    {
+                        var file = CreateFile(upload, FolderId, Path.Combine(folderPath, upload));
+                        if (file != null)
+                        {
+                            if (file.FileId == 0)
+                            {
+                                file = _files.AddFile(file);
+                            }
+                            else
+                            {
+                                file = _files.UpdateFile(file);
+                            }
+                            _logger.Log(LogLevel.Information, this, LogFunction.Create, "File Uploaded {File}", Path.Combine(folderPath, upload));
+                            _syncManager.AddSyncEvent(_alias, EntityNames.File, file.FileId, SyncEventActions.Create);
+                        }
+                    }
+                    return NoContent();
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized File Upload Attempt {Folder} {File}", folder, formfile.FileName);
+                    return StatusCode((int)HttpStatusCode.Forbidden);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Create, ex, "File Upload Attempt Failed {Folder} {File}", folder, formfile.FileName);
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
         }
 
         private async Task<string> MergeFile(string folder, string filename)
@@ -510,10 +535,10 @@ namespace Oqtane.Controllers
             filename = Path.GetFileNameWithoutExtension(filename); // base filename
             string[] fileparts = Directory.GetFiles(folder, filename + token + "*"); // list of all file parts
 
-            // if all of the file parts exist ( note that file parts can arrive out of order )
+            // if all of the file parts exist (note that file parts can arrive out of order)
             if (fileparts.Length == totalparts && CanAccessFiles(fileparts))
             {
-                // merge file parts into temp file ( in case another user is trying to get the file )
+                // merge file parts into temp file (in case another user is trying to get the file)
                 bool success = true;
                 using (var stream = new FileStream(Path.Combine(folder, filename + ".tmp"), FileMode.Create))
                 {
@@ -536,17 +561,23 @@ namespace Oqtane.Controllers
                 // clean up file parts
                 foreach (var file in Directory.GetFiles(folder, "*" + token + "*"))
                 {
-                    // file name matches part or is more than 2 hours old (ie. a prior file upload failed)
-                    if (fileparts.Contains(file) || System.IO.File.GetCreationTime(file).ToUniversalTime() < DateTime.UtcNow.AddHours(-2))
+                    if (fileparts.Contains(file))
                     {
-                        System.IO.File.Delete(file);
+                        try
+                        {
+                            System.IO.File.Delete(file);
+                        }
+                        catch
+                        {
+                            // unable to delete part - ignore
+                        }
                     }
                 }
 
                 // rename temp file
                 if (success)
                 {
-                    // remove file if it already exists (as well as any thumbnails)
+                    // remove file if it already exists (as well as any thumbnails which may exist)
                     foreach (var file in Directory.GetFiles(folder, Path.GetFileNameWithoutExtension(filename) + ".*"))
                     {
                         if (Path.GetExtension(file) != ".tmp")

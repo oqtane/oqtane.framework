@@ -11,8 +11,6 @@
 
     RenderFragment DynamicComponent { get; set; }
 
-    private string lastPagePath = "";
-
     protected override void OnParametersSet()
     {
         // handle page redirection
@@ -92,8 +90,9 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender && PageState.Page.Path != lastPagePath)
+        if (!firstRender)
         {
+            // site content
             if (!string.IsNullOrEmpty(PageState.Site.HeadContent) && PageState.Site.HeadContent.Contains("<script"))
             {
                 await InjectScripts(PageState.Site.HeadContent, ResourceLocation.Head);
@@ -102,6 +101,7 @@
             {
                 await InjectScripts(PageState.Site.BodyContent, ResourceLocation.Body);
             }
+            // page content
             if (!string.IsNullOrEmpty(PageState.Page.HeadContent) && PageState.Page.HeadContent.Contains("<script"))
             {
                 await InjectScripts(PageState.Page.HeadContent, ResourceLocation.Head);
@@ -110,7 +110,6 @@
             {
                 await InjectScripts(PageState.Page.BodyContent, ResourceLocation.Body);
             }
-            lastPagePath = PageState.Page.Path;
         }
 
         // style sheets
@@ -191,16 +190,13 @@
             }
             else
             {
-                if (dataAttributes == null || !dataAttributes.ContainsKey("data-reload") || dataAttributes["data-reload"] != "false")
+                if (id == "")
                 {
-                    if (id == "")
-                    {
-                        count += 1;
-                        id = $"page{PageState.Page.PageId}-script{count}";
-                    }
-                    var pos = script.IndexOf(">") + 1;
-                    await interop.IncludeScript(id, "", "", "", type, script.Substring(pos, script.IndexOf("</script>") - pos), location.ToString().ToLower(), dataAttributes);
+                    count += 1;
+                    id = $"page{PageState.Page.PageId}-script{count}";
                 }
+                var pos = script.IndexOf(">") + 1;
+                await interop.IncludeScript(id, "", "", "", type, script.Substring(pos, script.IndexOf("</script>") - pos), location.ToString().ToLower(), dataAttributes);
             }
             index = content.IndexOf("<script", index + 1);
         }

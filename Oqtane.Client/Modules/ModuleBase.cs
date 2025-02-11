@@ -18,6 +18,7 @@ namespace Oqtane.Modules
         private Logger _logger;
         private string _urlparametersstate;
         private Dictionary<string, string> _urlparameters;
+        private bool _scriptsloaded = false;
 
         protected Logger logger => _logger ?? (_logger = new Logger(this));
 
@@ -98,7 +99,7 @@ namespace Oqtane.Modules
                     var inline = 0;
                     foreach (Resource resource in resources)
                     {
-                        if ((string.IsNullOrEmpty(resource.RenderMode) || resource.RenderMode == RenderModes.Interactive) && !resource.Reload)
+                        if (string.IsNullOrEmpty(resource.RenderMode) || resource.RenderMode == RenderModes.Interactive)
                         {
                             if (!string.IsNullOrEmpty(resource.Url))
                             {
@@ -117,6 +118,7 @@ namespace Oqtane.Modules
                         await interop.IncludeScripts(scripts.ToArray());
                     }
                 }
+                _scriptsloaded = true;
             }
         }
 
@@ -125,11 +127,28 @@ namespace Oqtane.Modules
             return PageState?.RenderId == ModuleState?.RenderId;
         }
 
+        public bool ScriptsLoaded
+        {
+            get
+            {
+                return _scriptsloaded;
+            }
+        }
+
         // path method
 
         public string ModulePath()
         {
             return PageState?.Alias.BaseUrl + "/Modules/" + GetType().Namespace + "/";
+        }
+
+        // fingerprint hash code for static assets
+        public string Fingerprint
+        {
+            get
+            {
+                return ModuleState.ModuleDefinition.Fingerprint;
+            }
         }
 
         // url methods

@@ -155,7 +155,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public Notification Post([FromBody] Notification notification)
         {
-            if (ModelState.IsValid && notification.SiteId == _alias.SiteId && IsAuthorized(notification.FromUserId))
+            if (ModelState.IsValid && notification.SiteId == _alias.SiteId && (IsAuthorized(notification.FromUserId) || (notification.FromUserId == null && User.IsInRole(RoleNames.Admin))))
             {
                 if (!User.IsInRole(RoleNames.Admin))
                 {
@@ -181,17 +181,45 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public Notification Put(int id, [FromBody] Notification notification)
         {
-            if (ModelState.IsValid && notification.SiteId == _alias.SiteId && notification.NotificationId == id && _notifications.GetNotification(notification.NotificationId, false) != null && (IsAuthorized(notification.FromUserId) || IsAuthorized(notification.ToUserId)))
+            if (ModelState.IsValid && notification.SiteId == _alias.SiteId && notification.NotificationId == id && _notifications.GetNotification(notification.NotificationId, false) != null)
             {
-                if (!User.IsInRole(RoleNames.Admin) && notification.FromUserId != null)
+                bool update = false;
+                if (IsAuthorized(notification.FromUserId))
                 {
-                    // content must be HTML encoded for non-admins to prevent HTML injection
-                    notification.Subject = WebUtility.HtmlEncode(notification.Subject);
-                    notification.Body = WebUtility.HtmlEncode(notification.Body);
+                    // notification belongs to current authenticated user - update is allowed
+                    if (!User.IsInRole(RoleNames.Admin))
+                    {
+                        // content must be HTML encoded for non-admins to prevent HTML injection
+                        notification.Subject = WebUtility.HtmlEncode(notification.Subject);
+                        notification.Body = WebUtility.HtmlEncode(notification.Body);
+                    }
+                    update = true;
                 }
-                notification = _notifications.UpdateNotification(notification);
-                _syncManager.AddSyncEvent(_alias, EntityNames.Notification, notification.NotificationId, SyncEventActions.Update);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Notification Updated {NotificationId}", notification.NotificationId);
+                else
+                {
+                    if (IsAuthorized(notification.ToUserId))
+                    {
+                        // notification was sent to current authenticated user - only isread and isdeleted properties can be updated
+                        var isread = notification.IsRead;
+                        var isdeleted = notification.IsDeleted;
+                        notification = _notifications.GetNotification(notification.NotificationId);
+                        notification.IsRead = isread;
+                        notification.IsDeleted = isdeleted;
+                        update = true;
+                    }
+                }
+                if (update)
+                {
+                    notification = _notifications.UpdateNotification(notification);
+                    _syncManager.AddSyncEvent(_alias, EntityNames.Notification, notification.NotificationId, SyncEventActions.Update);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Update, "Notification Updated {NotificationId}", notification.NotificationId);
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Notification Put Attempt {Notification}", notification);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    notification = null;
+                }
             }
             else
             {

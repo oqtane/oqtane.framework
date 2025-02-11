@@ -195,4 +195,19 @@
   <data name="LastLogin.Text" xml:space="preserve">
     <value>Last Login:</value>
   </data>
+  <data name="DeleteUser.Header" xml:space="preserve">
+    <value>Delete User</value>
+  </data>
+  <data name="DeleteUser.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DeleteUser.Message" xml:space="preserve">
+    <value>Are You Sure You Wish To Permanently Delete This User?</value>
+  </data>
+  <data name="Impersonate" xml:space="preserve">
+    <value>Impersonate</value>
+  </data>
+  <data name="Error.User.Impersonate" xml:space="preserve">
+    <value>Unable To Impersonate User</value>
+  </data>
 </root>

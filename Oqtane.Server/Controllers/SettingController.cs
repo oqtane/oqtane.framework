@@ -64,7 +64,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                // suppress unauthorized visitor logging as it is usually caused by clients that do not support cookies 
+                // suppress unauthorized visitor logging as it is usually caused by clients that do not support cookies or private browsing sessions
                 if (entityName != EntityNames.Visitor) 
                 {
                     _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Settings {EntityName} {EntityId}", entityName, entityId);

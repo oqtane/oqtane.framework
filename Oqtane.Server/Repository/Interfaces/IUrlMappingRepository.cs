@@ -13,5 +13,6 @@ namespace Oqtane.Repository
         UrlMapping GetUrlMapping(int urlMappingId, bool tracking);
         UrlMapping GetUrlMapping(int siteId, string url);
         void DeleteUrlMapping(int urlMappingId);
+        int DeleteUrlMappings(int siteId, int age);
     }
 }

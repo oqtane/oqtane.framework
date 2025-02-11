@@ -63,6 +63,11 @@ namespace Oqtane.Models
         public bool IsSystem { get; set; }
 
         /// <summary>
+        /// An HTTP Caching Cache-Control directive
+        /// </summary>
+        public string CacheControl { get; set; }
+
+        /// <summary>
         /// Deprecated
         /// Note that this property still exists in the database because columns cannot be dropped in SQLite
         /// Therefore the property must be retained/mapped even though the framework no longer uses it

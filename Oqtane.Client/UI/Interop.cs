@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Oqtane.UI
 {
@@ -210,16 +211,21 @@ namespace Oqtane.UI
 
         public Task UploadFiles(string posturl, string folder, string id, string antiforgerytoken, string jwt)
         {
+            UploadFiles(posturl, folder, id, antiforgerytoken, jwt, 1);
+            return Task.CompletedTask;
+        }
+
+        public ValueTask<bool> UploadFiles(string posturl, string folder, string id, string antiforgerytoken, string jwt, int chunksize, CancellationToken cancellationToken = default)
+        {
             try
             {
-                _jsRuntime.InvokeVoidAsync(
-                    "Oqtane.Interop.uploadFiles",
-                    posturl, folder, id, antiforgerytoken, jwt);
-                return Task.CompletedTask;
+                return _jsRuntime.InvokeAsync<bool>(
+                    "Oqtane.Interop.uploadFiles", cancellationToken,
+                    posturl, folder, id, antiforgerytoken, jwt, chunksize);
             }
             catch
             {
-                return Task.CompletedTask;
+                return new ValueTask<bool>(Task.FromResult(false));
             }
         }
 

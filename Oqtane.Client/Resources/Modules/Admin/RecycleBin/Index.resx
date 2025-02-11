@@ -195,4 +195,25 @@
   <data name="Modules.Heading" xml:space="preserve">
     <value>Modules</value>
   </data>
+  <data name="Message.Page.Restore" xml:space="preserve">
+    <value>You Cannot Restore A Page If Its Parent Is Deleted</value>
+  </data>
+  <data name="Success.Page.Restore" xml:space="preserve">
+    <value>Page Restored Successfully</value>
+  </data>
+  <data name="Success.Page.Delete" xml:space="preserve">
+    <value>Page Deleted Successfully</value>
+  </data>
+  <data name="Success.Pages.Deleted" xml:space="preserve">
+    <value>All Pages Deleted Successfully</value>
+  </data>
+  <data name="Success.Module.Restore" xml:space="preserve">
+    <value>Module Restored Successfully</value>
+  </data>
+  <data name="Success.Module.Delete" xml:space="preserve">
+    <value>Module Deleted Successfully</value>
+  </data>
+  <data name="Success.Modules.Delete" xml:space="preserve">
+    <value>All Modules Deleted Successfully</value>
+  </data>
 </root>

@@ -144,18 +144,6 @@
                         </select>
                     </div>
                 </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="imageExt" HelpText="Enter a comma separated list of image file extensions" ResourceKey="ImageExtensions">Image Extensions: </Label>
-                    <div class="col-sm-9">
-                        <input id="imageExt" spellcheck="false" class="form-control" @bind="@_imageFiles" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="uploadableFileExt" HelpText="Enter a comma separated list of uploadable file extensions" ResourceKey="UploadableFileExtensions">Uploadable File Extensions: </Label>
-                    <div class="col-sm-9">
-                        <input id="uploadableFileExt" spellcheck="false" class="form-control" @bind="@_uploadableFiles" />
-                    </div>
-                </div>
             </div>
         </Section>
         <Section Name="PageContent" Heading="Page Content" ResourceKey="PageContent">
@@ -431,7 +419,6 @@
     private Dictionary<string, string> _textEditors = new Dictionary<string, string>();
     private string _textEditor = "";
     private string _imageFiles = string.Empty;
-    private string _uploadableFiles = string.Empty;
 
     private string _headcontent = string.Empty;
     private string _bodycontent = string.Empty;
@@ -528,8 +515,6 @@
                 _textEditor = SettingService.GetSetting(settings, "TextEditor", Constants.DefaultTextEditor);
                 _imageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
                 _imageFiles = (string.IsNullOrEmpty(_imageFiles)) ? Constants.ImageFiles : _imageFiles;
-                _uploadableFiles = SettingService.GetSetting(settings, "UploadableFiles", Constants.UploadableFiles);
-                _uploadableFiles = (string.IsNullOrEmpty(_uploadableFiles)) ? Constants.UploadableFiles : _uploadableFiles;
 
                 // page content
                 _headcontent = site.HeadContent;
@@ -734,8 +719,6 @@
 
                         // functionality
                         settings = SettingService.SetSetting(settings, "TextEditor", _textEditor);
-                        settings = SettingService.SetSetting(settings, "ImageFiles", (_imageFiles != Constants.ImageFiles) ? _imageFiles.Replace(" ", "") : "", false);
-                        settings = SettingService.SetSetting(settings, "UploadableFiles", (_uploadableFiles != Constants.UploadableFiles) ? _uploadableFiles.Replace(" ", "") : "", false);
 
                         await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 

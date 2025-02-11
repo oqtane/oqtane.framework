@@ -32,6 +32,7 @@ namespace Oqtane.Infrastructure
             var logRepository = provider.GetRequiredService<ILogRepository>();
             var visitorRepository = provider.GetRequiredService<IVisitorRepository>();
             var notificationRepository = provider.GetRequiredService<INotificationRepository>();
+            var urlMappingRepository = provider.GetRequiredService<IUrlMappingRepository>();
             var installationManager = provider.GetRequiredService<IInstallationManager>();
 
             // iterate through sites for current tenant
@@ -94,6 +95,22 @@ namespace Oqtane.Infrastructure
                 catch (Exception ex)
                 {
                     log += $"Error Purging Notifications - {ex.Message}<br />";
+                }
+
+                // purge broken urls 
+                retention = 30; // 30 days
+                if (settings.ContainsKey("UrlMappingRetention") && !string.IsNullOrEmpty(settings["UrlMappingRetention"]))
+                {
+                    retention = int.Parse(settings["UrlMappingRetention"]);
+                }
+                try
+                {
+                    count = urlMappingRepository.DeleteUrlMappings(site.SiteId, retention);
+                    log += count.ToString() + " Broken Urls Purged<br />";
+                }
+                catch (Exception ex)
+                {
+                    log += $"Error Purging Broken Urls - {ex.Message}<br />";
                 }
             }
 

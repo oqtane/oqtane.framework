@@ -47,7 +47,6 @@ namespace Oqtane.Extensions
                     // default options
                     options.SignInScheme = Constants.AuthenticationScheme; // identity cookie
                     options.RequireHttpsMetadata = true;
-                    options.SaveTokens = false;
                     options.GetClaimsFromUserInfoEndpoint = true;
                     options.CallbackPath = string.IsNullOrEmpty(alias.Path) ? "/signin-" + AuthenticationProviderTypes.OpenIDConnect : "/" + alias.Path + "/signin-" + AuthenticationProviderTypes.OpenIDConnect;
                     options.ResponseMode = OpenIdConnectResponseMode.FormPost; // recommended as most secure
@@ -63,6 +62,7 @@ namespace Oqtane.Extensions
                     options.ClientSecret = sitesettings.GetValue("ExternalLogin:ClientSecret", "");
                     options.ResponseType = sitesettings.GetValue("ExternalLogin:AuthResponseType", "code"); // default is authorization code flow
                     options.UsePkce = bool.Parse(sitesettings.GetValue("ExternalLogin:PKCE", "false"));
+                    options.SaveTokens = bool.Parse(sitesettings.GetValue("ExternalLogin:SaveTokens", "false"));
                     if (!string.IsNullOrEmpty(sitesettings.GetValue("ExternalLogin:RoleClaimType", "")))
                     {
                         options.TokenValidationParameters.RoleClaimType = sitesettings.GetValue("ExternalLogin:RoleClaimType", "");
@@ -102,7 +102,6 @@ namespace Oqtane.Extensions
                     // default options
                     options.SignInScheme = Constants.AuthenticationScheme; // identity cookie
                     options.CallbackPath = string.IsNullOrEmpty(alias.Path) ? "/signin-" + AuthenticationProviderTypes.OAuth2 : "/" + alias.Path + "/signin-" + AuthenticationProviderTypes.OAuth2;
-                    options.SaveTokens = false;
 
                     // site options
                     options.AuthorizationEndpoint = sitesettings.GetValue("ExternalLogin:AuthorizationUrl", "");
@@ -111,6 +110,7 @@ namespace Oqtane.Extensions
                     options.ClientId = sitesettings.GetValue("ExternalLogin:ClientId", "");
                     options.ClientSecret = sitesettings.GetValue("ExternalLogin:ClientSecret", "");
                     options.UsePkce = bool.Parse(sitesettings.GetValue("ExternalLogin:PKCE", "false"));
+                    options.SaveTokens = bool.Parse(sitesettings.GetValue("ExternalLogin:SaveTokens", "false"));
                     options.Scope.Clear();
                     foreach (var scope in sitesettings.GetValue("ExternalLogin:Scopes", "").Split(',', StringSplitOptions.RemoveEmptyEntries))
                     {
@@ -228,7 +228,6 @@ namespace Oqtane.Extensions
             var identity = await ValidateUser(id, name, email, claims, context.HttpContext, context.Principal);
             if (identity.Label == ExternalLoginStatus.Success)
             {
-                identity.AddClaim(new Claim("access_token", context.AccessToken));
                 context.Principal = new ClaimsPrincipal(identity);
             }
 
@@ -304,8 +303,6 @@ namespace Oqtane.Extensions
             var identity = await ValidateUser(id, name, email, claims, context.HttpContext, context.Principal);
             if (identity.Label == ExternalLoginStatus.Success)
             {
-                // include access token
-                identity.AddClaim(new Claim("access_token", context.SecurityToken.RawData));
                 context.Principal = new ClaimsPrincipal(identity);
             }
             else
@@ -527,11 +524,6 @@ namespace Oqtane.Extensions
                 // manage user
                 if (user != null)
                 {
-                    // update user
-                    user.LastLoginOn = DateTime.UtcNow;
-                    user.LastIPAddress = httpContext.Connection.RemoteIpAddress.ToString();
-                    _users.UpdateUser(user);
-
                     // manage roles
                     var _userRoles = httpContext.RequestServices.GetRequiredService<IUserRoleRepository>();
                     var userRoles = _userRoles.GetUserRoles(user.UserId, user.SiteId).ToList();
@@ -591,64 +583,78 @@ namespace Oqtane.Extensions
                         }
                     }
 
-                    // create claims identity
-                    identityuser = await _identityUserManager.FindByNameAsync(user.Username);
-                    user.SecurityStamp = identityuser.SecurityStamp;
-                    identity = UserSecurity.CreateClaimsIdentity(alias, user, userRoles);
-                    identity.Label = ExternalLoginStatus.Success;
-
-                    // user profile claims
-                    if (!string.IsNullOrEmpty(httpContext.GetSiteSettings().GetValue("ExternalLogin:ProfileClaimTypes", "")))
+                    var userrole = userRoles.FirstOrDefault(item => item.Role.Name == RoleNames.Registered);
+                    if (!user.IsDeleted && userrole != null && Utilities.IsEffectiveAndNotExpired(userrole.EffectiveDate, userrole.ExpiryDate))
                     {
-                        var _settings = httpContext.RequestServices.GetRequiredService<ISettingRepository>();
-                        var _profiles = httpContext.RequestServices.GetRequiredService<IProfileRepository>();
-                        var profiles = _profiles.GetProfiles(alias.SiteId).ToList();
-                        foreach (var mapping in httpContext.GetSiteSettings().GetValue("ExternalLogin:ProfileClaimTypes", "").Split(',', StringSplitOptions.RemoveEmptyEntries))
+                        // update user
+                        user.LastLoginOn = DateTime.UtcNow;
+                        user.LastIPAddress = httpContext.Connection.RemoteIpAddress.ToString();
+                        _users.UpdateUser(user);
+
+                        // create claims identity
+                        identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+                        user.SecurityStamp = identityuser.SecurityStamp;
+                        identity = UserSecurity.CreateClaimsIdentity(alias, user, userRoles);
+                        identity.Label = ExternalLoginStatus.Success;
+
+                        // user profile claims
+                        if (!string.IsNullOrEmpty(httpContext.GetSiteSettings().GetValue("ExternalLogin:ProfileClaimTypes", "")))
                         {
-                            if (mapping.Contains(":"))
+                            var _settings = httpContext.RequestServices.GetRequiredService<ISettingRepository>();
+                            var _profiles = httpContext.RequestServices.GetRequiredService<IProfileRepository>();
+                            var profiles = _profiles.GetProfiles(alias.SiteId).ToList();
+                            foreach (var mapping in httpContext.GetSiteSettings().GetValue("ExternalLogin:ProfileClaimTypes", "").Split(',', StringSplitOptions.RemoveEmptyEntries))
                             {
-                                var claim = claimsPrincipal.Claims.FirstOrDefault(item => item.Type == mapping.Split(":")[0]);
-                                if (claim != null)
+                                if (mapping.Contains(":"))
                                 {
-                                    var profile = profiles.FirstOrDefault(item => item.Name == mapping.Split(":")[1]);
-                                    if (profile != null)
+                                    var claim = claimsPrincipal.Claims.FirstOrDefault(item => item.Type == mapping.Split(":")[0]);
+                                    if (claim != null)
                                     {
-                                        if (!string.IsNullOrEmpty(claim.Value))
+                                        var profile = profiles.FirstOrDefault(item => item.Name == mapping.Split(":")[1]);
+                                        if (profile != null)
                                         {
-                                            var setting = _settings.GetSetting(EntityNames.User, user.UserId, profile.Name);
-                                            if (setting != null)
+                                            if (!string.IsNullOrEmpty(claim.Value))
                                             {
-                                                setting.SettingValue = claim.Value;
-                                                _settings.UpdateSetting(setting);
+                                                var setting = _settings.GetSetting(EntityNames.User, user.UserId, profile.Name);
+                                                if (setting != null)
+                                                {
+                                                    setting.SettingValue = claim.Value;
+                                                    _settings.UpdateSetting(setting);
+                                                }
+                                                else
+                                                {
+                                                    setting = new Setting { EntityName = EntityNames.User, EntityId = user.UserId, SettingName = profile.Name, SettingValue = claim.Value, IsPrivate = profile.IsPrivate };
+                                                    _settings.AddSetting(setting);
+                                                }
                                             }
-                                            else
-                                            {
-                                                setting = new Setting { EntityName = EntityNames.User, EntityId = user.UserId, SettingName = profile.Name, SettingValue = claim.Value, IsPrivate = profile.IsPrivate };
-                                                _settings.AddSetting(setting);
-                                            }
+                                        }
+                                        else
+                                        {
+                                            _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "The User Profile {ProfileName} Does Not Exist For The Site. Please Verify Your User Profile Definitions.", mapping.Split(":")[1]);
                                         }
                                     }
                                     else
                                     {
-                                        _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "The User Profile {ProfileName} Does Not Exist For The Site. Please Verify Your User Profile Definitions.", mapping.Split(":")[1]);
+                                        _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "The User Profile Claim {ClaimType} Does Not Exist. Please Use The Review Claims Feature To View The Claims Returned By Your Provider.", mapping.Split(":")[0]);
                                     }
                                 }
                                 else
                                 {
-                                    _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "The User Profile Claim {ClaimType} Does Not Exist. Please Use The Review Claims Feature To View The Claims Returned By Your Provider.", mapping.Split(":")[0]);
+                                    _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "The User Profile Claim Mapping {Mapping} Is Not Specified Correctly. It Should Be In The Format 'ClaimType:ProfileName'.", mapping);
                                 }
                             }
-                            else
-                            {
-                                _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "The User Profile Claim Mapping {Mapping} Is Not Specified Correctly. It Should Be In The Format 'ClaimType:ProfileName'.", mapping);
-                            }
                         }
+
+                        var _syncManager = httpContext.RequestServices.GetRequiredService<ISyncManager>();
+                        _syncManager.AddSyncEvent(alias, EntityNames.User, user.UserId, "Login");
+
+                        _logger.Log(LogLevel.Information, "ExternalLogin", Enums.LogFunction.Security, "External User Login Successful For {Username} From IP Address {IPAddress} Using Provider {Provider}", user.Username, httpContext.Connection.RemoteIpAddress.ToString(), providerName);
                     }
-
-                    var _syncManager = httpContext.RequestServices.GetRequiredService<ISyncManager>();
-                    _syncManager.AddSyncEvent(alias, EntityNames.User, user.UserId, "Login");
-
-                    _logger.Log(LogLevel.Information, "ExternalLogin", Enums.LogFunction.Security, "External User Login Successful For {Username} From IP Address {IPAddress} Using Provider {Provider}", user.Username, httpContext.Connection.RemoteIpAddress.ToString(), providerName);
+                    else
+                    {
+                        identity.Label = ExternalLoginStatus.AccessDenied;
+                        _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "External User Login Denied For {Username}. User Account Is Deleted Or Not An Active Member Of Site {SiteId}.", user.Username, user.SiteId);
+                    }
                 }
             }
             else // claims invalid

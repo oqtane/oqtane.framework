@@ -40,9 +40,12 @@ namespace Oqtane.Models
         /// </summary>
         public string Name { get; set; }
 
-        // additional ITheme properties 
-        [NotMapped]
+        /// <summary>
+        /// Version information of this Theme based on the information stored in its assembly
+        /// </summary>
         public string Version { get; set; }
+
+        // additional ITheme properties 
 
         [NotMapped]
         public string Owner { get; set; }
@@ -78,16 +81,24 @@ namespace Oqtane.Models
         // internal properties
         [NotMapped]
         public int SiteId { get; set; }
+
         [NotMapped]
         public bool IsEnabled { get; set; }
+
         [NotMapped]
         public string AssemblyName { get; set; }
+
         [NotMapped]
         public List<ThemeControl> Themes { get; set; }
+
         [NotMapped]
         public List<ThemeControl> Containers { get; set; }
+
         [NotMapped]
         public string Template { get; set; }
+
+        [NotMapped]
+        public string Fingerprint { get; set; }
 
         #region Obsolete Properties
 

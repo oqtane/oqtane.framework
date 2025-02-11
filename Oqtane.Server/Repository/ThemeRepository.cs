@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Infrastructure;
@@ -87,6 +88,7 @@ namespace Oqtane.Repository
                 Theme.ThemeSettingsType = theme.ThemeSettingsType;
                 Theme.ContainerSettingsType = theme.ContainerSettingsType;
                 Theme.PackageName = theme.PackageName;
+                Theme.Fingerprint = Utilities.GenerateSimpleHash(theme.ModifiedOn.ToString("yyyyMMddHHmm"));
                 Themes.Add(Theme);
             }
 
@@ -126,6 +128,13 @@ namespace Oqtane.Repository
                 }
                 else
                 {
+                    if (theme.Version != Theme.Version)
+                    {
+                        // update theme version
+                        theme.Version = Theme.Version;
+                        _db.SaveChanges();
+                    }
+
                     // override user customizable property values
                     Theme.Name = (!string.IsNullOrEmpty(theme.Name)) ? theme.Name : Theme.Name;
 

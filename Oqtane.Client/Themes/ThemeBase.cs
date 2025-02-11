@@ -15,6 +15,8 @@ namespace Oqtane.Themes
 {
     public abstract class ThemeBase : ComponentBase, IThemeControl
     {
+        private bool _scriptsloaded = false;
+
         [Inject]
         protected ILogService LoggingService { get; set; }
 
@@ -62,7 +64,7 @@ namespace Oqtane.Themes
                     var inline = 0;
                     foreach (Resource resource in resources)
                     {
-                        if ((string.IsNullOrEmpty(resource.RenderMode) || resource.RenderMode == RenderModes.Interactive) && !resource.Reload)
+                        if (string.IsNullOrEmpty(resource.RenderMode) || resource.RenderMode == RenderModes.Interactive)
                         {
                             if (!string.IsNullOrEmpty(resource.Url))
                             {
@@ -82,6 +84,25 @@ namespace Oqtane.Themes
                     }
                 }
             }
+            _scriptsloaded = true;
+        }
+
+        public bool ScriptsLoaded
+        {
+            get
+            {
+                return _scriptsloaded;
+            }
+        }
+
+        // property for obtaining theme information about this theme component
+        public Theme ThemeState
+        {
+            get
+            {
+                var type = GetType().Namespace + ", " + GetType().Assembly.GetName().Name;
+                return PageState?.Site.Themes.FirstOrDefault(item => item.ThemeName == type);
+            }
         }
 
         // path method
@@ -89,6 +110,15 @@ namespace Oqtane.Themes
         public string ThemePath()
         {
             return PageState?.Alias.BaseUrl + "/Themes/" + GetType().Namespace + "/";
+        }
+
+        // fingerprint hash code for static assets
+        public string Fingerprint
+        {
+            get
+            {
+                return ThemeState.Fingerprint;
+            }
         }
 
         // url methods

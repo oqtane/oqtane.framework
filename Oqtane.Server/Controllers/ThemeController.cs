@@ -280,7 +280,7 @@ namespace Oqtane.Controllers
                             {
                                 { "FrameworkVersion", theme.Version },
                                 { "ClientReference", $"<PackageReference Include=\"Oqtane.Client\" Version=\"{theme.Version}\" />" },
-                                { "SharedReference", $"<PackageReference Include=\"Oqtane.Client\" Version=\"{theme.Version}\" />" },
+                                { "SharedReference", $"<PackageReference Include=\"Oqtane.Shared\" Version=\"{theme.Version}\" />" },
                             };
                 });
             }

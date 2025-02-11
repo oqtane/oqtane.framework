@@ -35,7 +35,7 @@ else
                         <ActionLink Action="Edit" Text="Edit" Parameters="@($"id=" + context.UserId.ToString())" Security="SecurityAccessLevel.Edit" ResourceKey="EditUser" />
 					</td>
 					<td>
-						<ActionDialog Header="Delete User" Message="@string.Format(Localizer["Confirm.User.Delete"], context.User.DisplayName)" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteUser(context))" Disabled="@(context.UserId == PageState.User.UserId)" ResourceKey="DeleteUser" />
+                        <ActionDialog Header="Delete User" Message="@string.Format(Localizer["Confirm.User.Delete"], context.User.DisplayName)" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteUser(context))" Disabled="@(context.UserId == PageState.User.UserId || context.User.IsDeleted)" ResourceKey="DeleteUser" />
 					</td>
 					<td>
                         <ActionLink Action="Roles" Text="Roles" Parameters="@($"id=" + context.UserId.ToString())" Security="SecurityAccessLevel.Edit" ResourceKey="Roles" />
@@ -379,7 +379,16 @@ else
 									<input id="profileclaimtypes" class="form-control" @bind="@_profileclaimtypes" />
 								</div>
 							</div>
-							<div class="row mb-1 align-items-center">
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="savetokens" HelpText="Specify whether access and refresh tokens should be saved after a successful login. The default is false to reduce the size of the authentication cookie." ResourceKey="SaveTokens">Save Tokens?</Label>
+                                <div class="col-sm-9">
+                                    <select id="savetokens" class="form-select" @bind="@_savetokens" required>
+                                        <option value="true">@SharedLocalizer["Yes"]</option>
+                                        <option value="false">@SharedLocalizer["No"]</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-1 align-items-center">
 								<Label Class="col-sm-3" For="domainfilter" HelpText="Provide any email domain filter criteria (separated by commas). Domains to exclude should be prefixed with an exclamation point (!). For example 'microsoft.com,!hotmail.com' would include microsoft.com email addresses but not hotmail.com email addresses." ResourceKey="DomainFilter">Domain Filter:</Label>
 								<div class="col-sm-9">
 									<input id="domainfilter" class="form-control" @bind="@_domainfilter" />
@@ -497,6 +506,7 @@ else
     private string _roleclaimmappings;
     private string _synchronizeroles;
     private string _profileclaimtypes;
+    private string _savetokens;
     private string _domainfilter;
     private string _createusers;
     private string _verifyusers;
@@ -577,6 +587,7 @@ else
         _roleclaimmappings = SettingService.GetSetting(settings, "ExternalLogin:RoleClaimMappings", "");
         _synchronizeroles = SettingService.GetSetting(settings, "ExternalLogin:SynchronizeRoles", "false");
         _profileclaimtypes = SettingService.GetSetting(settings, "ExternalLogin:ProfileClaimTypes", "");
+        _savetokens = SettingService.GetSetting(settings, "ExternalLogin:SaveTokens", "false");
         _domainfilter = SettingService.GetSetting(settings, "ExternalLogin:DomainFilter", "");
         _createusers = SettingService.GetSetting(settings, "ExternalLogin:CreateUsers", "true");
         _verifyusers = SettingService.GetSetting(settings, "ExternalLogin:VerifyUsers", "true");
@@ -600,19 +611,31 @@ else
     {
         try
         {
-            var user = await UserService.GetUserAsync(UserRole.UserId, PageState.Site.SiteId);
-            if (user != null)
+            if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
             {
-                await UserService.DeleteUserAsync(user.UserId, PageState.Site.SiteId);
-                await logger.LogInformation("User Deleted {User}", UserRole.User);
-                await LoadUsersAsync(true);
-                StateHasChanged();
+                var user = await UserService.GetUserAsync(UserRole.UserId, PageState.Site.SiteId);
+                if (user != null)
+                {
+                    user.IsDeleted = true;
+                    await UserService.UpdateUserAsync(user);
+                    await logger.LogInformation("User Soft Deleted {User}", user);
+                }
             }
+            else
+            {
+                var userrole = await UserRoleService.GetUserRoleAsync(UserRole.UserRoleId);
+                userrole.ExpiryDate = DateTime.UtcNow;
+                await UserRoleService.UpdateUserRoleAsync(userrole);
+                await logger.LogInformation("User {Username} Expired From Role {Role}", userrole.User.Username, userrole.Role.Name);
+            }
+            AddModuleMessage(Localizer["Success.DeleteUser"], MessageType.Success);
+            await LoadUsersAsync(true);
+            StateHasChanged();
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting User {User} {Error}", UserRole.User, ex.Message);
-            AddModuleMessage(ex.Message, MessageType.Error);
+            AddModuleMessage(Localizer["Error.DeleteUser"], MessageType.Error);
         }
     }
 
@@ -666,6 +689,7 @@ else
                 settings = SettingService.SetSetting(settings, "ExternalLogin:RoleClaimMappings", _roleclaimmappings, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:SynchronizeRoles", _synchronizeroles, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:ProfileClaimTypes", _profileclaimtypes, true);
+                settings = SettingService.SetSetting(settings, "ExternalLogin:SaveTokens", _savetokens, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:DomainFilter", _domainfilter, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:CreateUsers", _createusers, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:VerifyUsers", _verifyusers, true);

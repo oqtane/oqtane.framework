@@ -7,6 +7,7 @@
 @using Microsoft.AspNetCore.Localization
 @using Microsoft.Net.Http.Headers
 @using Microsoft.Extensions.Primitives
+@using Microsoft.AspNetCore.Authentication
 @using Oqtane.Client
 @using Oqtane.UI
 @using Oqtane.Repository
@@ -39,7 +40,7 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="/" />
-        <link rel="stylesheet" href="css/app.css" />
+        <link rel="stylesheet" href="css/app.css?v=@_fingerprint" />
         @if (_scripts.Contains("PWA Manifest"))
         {
             <link id="app-manifest" rel="manifest" />
@@ -70,15 +71,15 @@
             }
 
             <script src="_framework/blazor.web.js"></script>
-            <script src="js/app.js"></script>
-            <script src="js/loadjs.min.js"></script>
-            <script src="js/interop.js"></script>
+            <script src="js/app.js?v=@_fingerprint"></script>
+            <script src="js/loadjs.min.js?v=@_fingerprint"></script>
+            <script src="js/interop.js?v=@_fingerprint"></script>
 
             @((MarkupString)_scripts)
             @((MarkupString)_bodyResources)
             @if (_renderMode == RenderModes.Static)
             {
-                <page-script src="./js/reload.js"></page-script>
+                <page-script src="./js/reload.js?v=@_fingerprint"></page-script>
             }
         }
         else
@@ -94,6 +95,7 @@
     private string _renderMode = RenderModes.Interactive;
     private string _runtime = Runtimes.Server;
     private bool _prerender = true;
+    private string _fingerprint = "";
     private int _visitorId = -1;
     private string _antiForgeryToken = "";
     private string _remoteIPAddress = "";
@@ -136,6 +138,8 @@
                     _renderMode = site.RenderMode;
                     _runtime = site.Runtime;
                     _prerender = site.Prerender;
+                    _fingerprint = site.Fingerprint;
+
                     var modules = new List<Module>();
 
                     Route route = new Route(url, alias.Path);
@@ -174,7 +178,7 @@
                     // get jwt token for downstream APIs
                     if (Context.User.Identity.IsAuthenticated)
                     {
-                        CreateJwtToken(alias);
+                        await GetJwtToken(alias);
                     }
 
                     // includes resources
@@ -441,13 +445,19 @@
         }
     }
 
-    private void CreateJwtToken(Alias alias)
+    private async Task GetJwtToken(Alias alias)
     {
-        var sitesettings = Context.GetSiteSettings();
-        var secret = sitesettings.GetValue("JwtOptions:Secret", "");
-        if (!string.IsNullOrEmpty(secret))
+        // bearer token may have been provided by remote Identity Provider and persisted using SaveTokens = true
+        _authorizationToken = await Context.GetTokenAsync("access_token");
+        if (string.IsNullOrEmpty(_authorizationToken))
         {
-            _authorizationToken = JwtManager.GenerateToken(alias, (ClaimsIdentity)Context.User.Identity, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""), int.Parse(sitesettings.GetValue("JwtOptions:Lifetime", "20")));
+            // generate bearer token if a secret has been configured in User Settings
+            var sitesettings = Context.GetSiteSettings();
+            var secret = sitesettings.GetValue("JwtOptions:Secret", "");
+            if (!string.IsNullOrEmpty(secret))
+            {
+                _authorizationToken = JwtManager.GenerateToken(alias, (ClaimsIdentity)Context.User.Identity, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""), int.Parse(sitesettings.GetValue("JwtOptions:Lifetime", "20")));
+            }
         }
     }
 
@@ -514,7 +524,7 @@
     private void AddScript(Resource resource, Alias alias)
     {
         var script = CreateScript(resource, alias);
-        if (resource.Location == Shared.ResourceLocation.Head && !resource.Reload)
+        if (resource.Location == Shared.ResourceLocation.Head && resource.LoadBehavior != ResourceLoadBehavior.BlazorPageScript)
         {
             if (!_headResources.Contains(script))
             {
@@ -532,11 +542,27 @@
 
     private string CreateScript(Resource resource, Alias alias)
     {
-        if (!resource.Reload)
+        if (resource.LoadBehavior == ResourceLoadBehavior.BlazorPageScript)
+        {
+            return "<page-script src=\"" + resource.Url + "\"></page-script>";
+        }
+        else
         {
             var url = (resource.Url.Contains("://")) ? resource.Url : alias.BaseUrl + resource.Url;
 
             var dataAttributes = "";
+            if (!resource.DataAttributes.ContainsKey("data-reload"))
+            {
+                switch (resource.LoadBehavior)
+                {
+                    case ResourceLoadBehavior.Once: 
+                        dataAttributes += " data-reload=\"once\"";
+                        break;
+                    case ResourceLoadBehavior.Always:
+                        dataAttributes += " data-reload=\"always\"";
+                        break;
+                }
+            }
             if (resource.DataAttributes != null && resource.DataAttributes.Count > 0)
             {
                 foreach (var attribute in resource.DataAttributes)
@@ -551,10 +577,6 @@
                 ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
                 ((!string.IsNullOrEmpty(dataAttributes)) ? dataAttributes : "") +
                 "></script>";
-        }
-        else
-        {
-            return "<page-script src=\"" + resource.Url + "\"></page-script>";
         }
     }
 
@@ -583,13 +605,13 @@
         var theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == themeType));
         if (theme != null)
         {
-            resources = AddResources(resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName), site.RenderMode);
+            resources = AddResources(resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName), theme.Fingerprint, site.RenderMode);
         }
         else
         {
             // fallback to default Oqtane theme
             theme = site.Themes.FirstOrDefault(item => item.Themes.Any(item => item.TypeName == Constants.DefaultTheme));
-            resources = AddResources(resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName), site.RenderMode);
+            resources = AddResources(resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName), theme.Fingerprint, site.RenderMode);
         }
         var type = Type.GetType(themeType);
         if (type != null)
@@ -597,7 +619,7 @@
             var obj = Activator.CreateInstance(type) as IThemeControl;
             if (obj != null)
             {
-                resources = AddResources(resources, obj.Resources, ResourceLevel.Page, alias, "Themes", type.Namespace, site.RenderMode);
+                resources = AddResources(resources, obj.Resources, ResourceLevel.Page, alias, "Themes", type.Namespace, theme.Fingerprint, site.RenderMode);
             }
         }
         // theme settings components are dynamically loaded within the framework Page Management module
@@ -607,7 +629,7 @@
             if (settingsType != null)
             {
                 var objSettings = Activator.CreateInstance(settingsType) as IModuleControl;
-                resources = AddResources(resources, objSettings.Resources, ResourceLevel.Module, alias, "Modules", settingsType.Namespace, site.RenderMode);
+                resources = AddResources(resources, objSettings.Resources, ResourceLevel.Module, alias, "Modules", settingsType.Namespace, theme.Fingerprint, site.RenderMode);
             }
         }
 
@@ -616,7 +638,7 @@
             var typename = "";
             if (module.ModuleDefinition != null)
             {
-                resources = AddResources(resources, module.ModuleDefinition.Resources, ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName), site.RenderMode);
+                resources = AddResources(resources, module.ModuleDefinition.Resources, ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName), module.ModuleDefinition.Fingerprint, site.RenderMode);
 
                 // handle default action
                 if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
@@ -662,7 +684,7 @@
                 var moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
                 if (moduleobject != null)
                 {
-                    resources = AddResources(resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, site.RenderMode);
+                    resources = AddResources(resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, module.ModuleDefinition?.Fingerprint, site.RenderMode);
 
                     // settings components are dynamically loaded within the framework Settings module
                     if (action.ToLower() == "settings" && module.ModuleDefinition != null)
@@ -683,7 +705,7 @@
                         if (moduletype != null)
                         {
                             moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
-                            resources = AddResources(resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, site.RenderMode);
+                            resources = AddResources(resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, module.ModuleDefinition?.Fingerprint, site.RenderMode);
                         }
 
                         // container settings component
@@ -693,7 +715,7 @@
                             if (moduletype != null)
                             {
                                 moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
-                                resources = AddResources(resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, site.RenderMode);
+                                resources = AddResources(resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, theme.Fingerprint, site.RenderMode);
                             }
                         }
                     }
@@ -709,7 +731,7 @@
             {
                 if (module.ModuleDefinition?.Resources != null)
                 {
-                    resources = AddResources(resources, module.ModuleDefinition.Resources.Where(item => item.ResourceType == ResourceType.Script && item.Level == ResourceLevel.Site).ToList(), ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName), site.RenderMode);
+                    resources = AddResources(resources, module.ModuleDefinition.Resources.Where(item => item.ResourceType == ResourceType.Script && item.Level == ResourceLevel.Site).ToList(), ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName), module.ModuleDefinition.Fingerprint, site.RenderMode);
                 }
             }
         }
@@ -717,7 +739,7 @@
         return resources;
     }
 
-    private List<Resource> AddResources(List<Resource> pageresources, List<Resource> resources, ResourceLevel level, Alias alias, string type, string name, string rendermode)
+    private List<Resource> AddResources(List<Resource> pageresources, List<Resource> resources, ResourceLevel level, Alias alias, string type, string name, string fingerprint, string rendermode)
     {
         if (resources != null)
         {
@@ -737,7 +759,7 @@
                     // ensure resource does not exist already
                     if (!pageresources.Exists(item => item.Url.ToLower() == resource.Url.ToLower()))
                     {
-                        pageresources.Add(resource.Clone(level, name));
+                        pageresources.Add(resource.Clone(level, name, fingerprint));
                     }
                 }
             }

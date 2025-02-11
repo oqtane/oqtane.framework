@@ -12,6 +12,8 @@ using Oqtane.Infrastructure;
 using Oqtane.Enums;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using Oqtane.Managers;
+using System.Net;
 // ReSharper disable PartialTypeWithSinglePart
 
 namespace Oqtane.Controllers
@@ -20,13 +22,15 @@ namespace Oqtane.Controllers
     public class PackageController : Controller
     {
         private readonly IInstallationManager _installationManager;
+        private readonly IUserManager _userManager;
         private readonly IWebHostEnvironment _environment;
         private readonly IConfigManager _configManager;
         private readonly ILogManager _logger;
 
-        public PackageController(IInstallationManager installationManager, IWebHostEnvironment environment, IConfigManager configManager, ILogManager logger)
+        public PackageController(IInstallationManager installationManager, IUserManager userManager, IWebHostEnvironment environment, IConfigManager configManager, ILogManager logger)
         {
             _installationManager = installationManager;
+            _userManager = userManager;
             _environment = environment;
             _configManager = configManager;
             _logger = logger;
@@ -45,7 +49,7 @@ namespace Oqtane.Controllers
                 {
                     client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
                     client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
-                    packages = await GetJson<List<Package>>(client, url + $"/api/registry/packages/?id={_configManager.GetInstallationId()}&type={type.ToLower()}&version={Constants.Version}&search={search}&price={price}&package={package}&sort={sort}");
+                    packages = await GetJson<List<Package>>(client, url + $"/api/registry/packages/?id={_configManager.GetInstallationId()}&type={type.ToLower()}&version={Constants.Version}&search={WebUtility.UrlEncode(search)}&price={price}&package={package}&sort={sort}&email={WebUtility.UrlEncode(GetPackageRegistryEmail())}");
                 }
             }
             return packages;
@@ -64,7 +68,7 @@ namespace Oqtane.Controllers
                 {
                     client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
                     client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
-                    packages = await GetJson<List<Package>>(client, url + $"/api/registry/updates/?id={_configManager.GetInstallationId()}&version={Constants.Version}&type={type}");
+                    packages = await GetJson<List<Package>>(client, url + $"/api/registry/updates/?id={_configManager.GetInstallationId()}&version={Constants.Version}&type={type}&email={WebUtility.UrlEncode(GetPackageRegistryEmail())}");
                 }
             }
             return packages;
@@ -83,7 +87,7 @@ namespace Oqtane.Controllers
                 {
                     client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
                     client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
-                    package = await GetJson<Package>(client, url + $"/api/registry/package/?id={_configManager.GetInstallationId()}&package={packageid}&version={version}&download={download}");
+                    package = await GetJson<Package>(client, url + $"/api/registry/package/?id={_configManager.GetInstallationId()}&package={packageid}&version={version}&download={download}&email={WebUtility.UrlEncode(GetPackageRegistryEmail())}");
                 }
 
                 if (package != null)
@@ -115,6 +119,24 @@ namespace Oqtane.Controllers
                 }
             }
             return package;
+        }
+
+        private string GetPackageRegistryEmail()
+        {
+            var email = _configManager.GetSetting("PackageRegistryEmail", "");
+            if (string.IsNullOrEmpty(email))
+            {
+                if (User.Identity.IsAuthenticated)
+                {
+                    var user = _userManager.GetUser(User.Identity.Name, -1);
+                    if (user != null)
+                    {
+                        email = user.Email;
+                        _configManager.AddOrUpdateSetting("PackageRegistryEmail", email, true);
+                    }
+                }
+            }
+            return email;
         }
 
         private async Task<T> GetJson<T>(HttpClient httpClient, string url)

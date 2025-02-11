@@ -6,6 +6,7 @@
 @inject IProfileService ProfileService
 @inject ISettingService SettingService
 @inject IFileService FileService
+@inject IServiceProvider ServiceProvider
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -51,15 +52,18 @@
                         <input id="displayname" class="form-control" @bind="@displayname" />
                     </div>
                 </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="isdeleted" HelpText="Indicate if the user is active" ResourceKey="IsDeleted"></Label>
-                    <div class="col-sm-9">
-                        <select id="isdeleted" class="form-select" @bind="@isdeleted">
-                            <option value="True">@SharedLocalizer["Yes"]</option>
-                            <option value="False">@SharedLocalizer["No"]</option>
-                        </select>
+                @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                {
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="isdeleted" HelpText="Indicate if the user is active" ResourceKey="IsDeleted"></Label>
+                        <div class="col-sm-9">
+                            <select id="isdeleted" class="form-select" @bind="@isdeleted">
+                                <option value="True">@SharedLocalizer["Yes"]</option>
+                                <option value="False">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
+                }
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="lastlogin" HelpText="The date and time when the user last signed in" ResourceKey="LastLogin"></Label>
                     <div class="col-sm-9">
@@ -127,8 +131,15 @@
 
     <button type="button" class="btn btn-success" @onclick="SaveUser">@SharedLocalizer["Save"]</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-    <br />
-    <br />
+    @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin) && PageState.Runtime != Shared.Runtime.Hybrid && !ishost)
+    {
+        <button type="button" class="btn btn-primary ms-1" @onclick="ImpersonateUser">@Localizer["Impersonate"]</button>
+    }
+    @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host) && isdeleted == "True")
+    {
+        <ActionDialog Header="Delete User" Message="Are You Sure You Wish To Permanently Delete This User?" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteUser())" ResourceKey="DeleteUser" />
+    }
+    <br /><br />
     <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
 }
 
@@ -146,6 +157,7 @@
     private string isdeleted;
     private string lastlogin;
     private string lastipaddress;
+    private bool ishost = false;
 
     private List<Profile> profiles;
     private Dictionary<string, string> userSettings;
@@ -180,6 +192,7 @@
                     isdeleted = user.IsDeleted.ToString();
                     lastlogin = string.Format("{0:MMM dd yyyy HH:mm:ss}", user.LastLoginOn);
                     lastipaddress = user.LastIPAddress;
+                    ishost = UserSecurity.ContainsRole(user.Roles, RoleNames.Host);
 
                     userSettings = user.Settings;
                     createdby = user.CreatedBy;
@@ -226,8 +239,10 @@
                         user.Password = _password;
                         user.Email = email;
                         user.DisplayName = string.IsNullOrWhiteSpace(displayname) ? username : displayname;
-
-                        user.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
+                        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                        {
+                            user.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
+                        }
 
                         user = await UserService.UpdateUserAsync(user);
                         if (user != null)
@@ -256,6 +271,44 @@
         {
             await logger.LogError(ex, "Error Saving User {Username} {Email} {Error}", username, email, ex.Message);
             AddModuleMessage(Localizer["Error.User.Save"], MessageType.Error);
+        }
+    }
+
+    private async Task ImpersonateUser()
+    {
+        try
+        {
+            await logger.LogInformation(LogFunction.Security, "User {Username} Impersonated By Administrator {Administrator}", username, PageState.User.Username);
+
+            // post back to the server so that the cookies are set correctly
+            var interop = new Interop(JSRuntime);
+            var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, username = username, returnurl = PageState.Alias.Path };
+            string url = Utilities.TenantUrl(PageState.Alias, "/pages/impersonate/");
+            await interop.SubmitForm(url, fields);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Impersonating User {Username} {Error}", username, ex.Message);
+            AddModuleMessage(Localizer["Error.User.Impersonate"], MessageType.Error);
+        }
+    }
+
+    private async Task DeleteUser()
+    {
+        try
+        {
+            if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host) && userid != PageState.User.UserId)
+            {
+                var user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
+                await UserService.DeleteUserAsync(user.UserId, PageState.Site.SiteId);
+                await logger.LogInformation("User Permanently Deleted {User}", user);
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Permanently Deleting User {UserId} {Error}", userid, ex.Message);
+            AddModuleMessage(Localizer["Error.DeleteUser"], MessageType.Error);
         }
     }
 

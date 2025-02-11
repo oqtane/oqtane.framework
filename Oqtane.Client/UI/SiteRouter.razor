@@ -20,7 +20,7 @@
 
 @if (!string.IsNullOrEmpty(_error))
 {
-	<ModuleMessage Message="@_error" Type="@MessageType.Warning" />
+    <ModuleMessage Message="@_error" Type="@MessageType.Warning" />
 }
 
 @DynamicComponent
@@ -244,7 +244,9 @@
                 // look for personalized page
                 if (user != null && page.IsPersonalizable && !UserSecurity.IsAuthorized(user, PermissionNames.Edit, page.PermissionList))
                 {
-                    var personalized = await PageService.GetPageAsync(route.PagePath + "/" + user.Username, site.SiteId);
+                    var settingName = $"PersonalizedPagePath:{page.SiteId}:{page.PageId}";
+                    var path = (user.Settings.ContainsKey(settingName)) ? user.Settings[settingName] : Utilities.GetFriendlyUrl(user.Username);
+                    var personalized = await PageService.GetPageAsync(route.PagePath + "/" + path, site.SiteId);
                     if (personalized != null)
                     {
                         // redirect to the personalized page
@@ -389,7 +391,7 @@
             if (themetype != null)
             {
                 // get resources for theme (ITheme)
-                page.Resources = ManagePageResources(page.Resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName));
+                page.Resources = ManagePageResources(page.Resources, theme.Resources, ResourceLevel.Page, alias, "Themes", Utilities.GetTypeName(theme.ThemeName), theme.Fingerprint);
 
                 var themeobject = Activator.CreateInstance(themetype) as IThemeControl;
                 if (themeobject != null)
@@ -399,7 +401,7 @@
                         panes = themeobject.Panes;
                     }
                     // get resources for theme control
-                    page.Resources = ManagePageResources(page.Resources, themeobject.Resources, ResourceLevel.Page, alias, "Themes", themetype.Namespace);
+                    page.Resources = ManagePageResources(page.Resources, themeobject.Resources, ResourceLevel.Page, alias, "Themes", themetype.Namespace, theme.Fingerprint);
                 }
             }
             // theme settings components are dynamically loaded within the framework Page Management module
@@ -409,7 +411,7 @@
                 if (settingsType != null)
                 {
                     var objSettings = Activator.CreateInstance(settingsType) as IModuleControl;
-                    page.Resources = ManagePageResources(page.Resources, objSettings.Resources, ResourceLevel.Module, alias, "Modules", settingsType.Namespace);
+                    page.Resources = ManagePageResources(page.Resources, objSettings.Resources, ResourceLevel.Module, alias, "Modules", settingsType.Namespace, theme.Fingerprint);
                 }
             }
 
@@ -453,7 +455,7 @@
 
             if (module.ModuleDefinition != null && (module.ModuleDefinition.Runtimes == "" || module.ModuleDefinition.Runtimes.Contains(Runtime)))
             {
-                page.Resources = ManagePageResources(page.Resources, module.ModuleDefinition.Resources, ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName));
+                page.Resources = ManagePageResources(page.Resources, module.ModuleDefinition.Resources, ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName), module.ModuleDefinition.Fingerprint);
 
                 // handle default action
                 if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
@@ -502,7 +504,7 @@
                 module.RenderMode = moduleobject.RenderMode;
                 module.Prerender = moduleobject.Prerender;
 
-                page.Resources = ManagePageResources(page.Resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules",  moduletype.Namespace);
+                page.Resources = ManagePageResources(page.Resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, module.ModuleDefinition?.Fingerprint);
 
                 // settings components are dynamically loaded within the framework Settings module
                 if (action.ToLower() == "settings" && module.ModuleDefinition != null)
@@ -523,7 +525,7 @@
                     if (moduletype != null)
                     {
                         moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
-                        page.Resources = ManagePageResources(page.Resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace);
+                        page.Resources = ManagePageResources(page.Resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, module.ModuleDefinition?.Fingerprint);
                     }
 
                     // container settings component
@@ -534,7 +536,7 @@
                         if (moduletype != null)
                         {
                             moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
-                            page.Resources = ManagePageResources(page.Resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace);
+                            page.Resources = ManagePageResources(page.Resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, theme.Fingerprint);
                         }
                     }
                 }
@@ -593,7 +595,7 @@
         return (page, modules);
     }
 
-    private List<Resource> ManagePageResources(List<Resource> pageresources, List<Resource> resources, ResourceLevel level, Alias alias, string type, string name)
+    private List<Resource> ManagePageResources(List<Resource> pageresources, List<Resource> resources, ResourceLevel level, Alias alias, string type, string name, string fingerprint)
     {
         if (resources != null)
         {
@@ -613,7 +615,7 @@
                     // ensure resource does not exist already
                     if (!pageresources.Exists(item => item.Url.ToLower() == resource.Url.ToLower()))
                     {
-                        pageresources.Add(resource.Clone(level, name));
+                        pageresources.Add(resource.Clone(level, name, fingerprint));
                     }
                 }
 			}

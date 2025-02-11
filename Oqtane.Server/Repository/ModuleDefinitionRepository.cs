@@ -101,6 +101,7 @@ namespace Oqtane.Repository
                 ModuleDefinition.Resources = moduleDefinition.Resources;
                 ModuleDefinition.IsEnabled = moduleDefinition.IsEnabled;
                 ModuleDefinition.PackageName = moduleDefinition.PackageName;
+                ModuleDefinition.Fingerprint = Utilities.GenerateSimpleHash(moduleDefinition.ModifiedOn.ToString("yyyyMMddHHmm"));
             }
 
             return ModuleDefinition;

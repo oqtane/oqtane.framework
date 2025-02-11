@@ -22,11 +22,11 @@ namespace Oqtane.Repository
             using var db = _dbContextFactory.CreateDbContext();
             if (isMapped)
             {
-                return db.UrlMapping.Where(item => item.SiteId == siteId && !string.IsNullOrEmpty(item.MappedUrl)).Take(200).ToList();
+                return db.UrlMapping.Where(item => item.SiteId == siteId && !string.IsNullOrEmpty(item.MappedUrl)).ToList();
             }
             else
             {
-                return db.UrlMapping.Where(item => item.SiteId == siteId && string.IsNullOrEmpty(item.MappedUrl)).Take(200).ToList();
+                return db.UrlMapping.Where(item => item.SiteId == siteId && string.IsNullOrEmpty(item.MappedUrl)).ToList();
             }
         }
 
@@ -100,6 +100,25 @@ namespace Oqtane.Repository
             UrlMapping urlMapping = db.UrlMapping.Find(urlMappingId);
             db.UrlMapping.Remove(urlMapping);
             db.SaveChanges();
+        }
+
+        public int DeleteUrlMappings(int siteId, int age)
+        {
+            using var db = _dbContextFactory.CreateDbContext();
+            // delete in batches of 100 records
+            var count = 0;
+            var purgedate = DateTime.UtcNow.AddDays(-age);
+            var urlMappings = db.UrlMapping.Where(item => item.SiteId == siteId && string.IsNullOrEmpty(item.MappedUrl) && item.RequestedOn < purgedate)
+                .OrderBy(item => item.RequestedOn).Take(100).ToList();
+            while (urlMappings.Count > 0)
+            {
+                count += urlMappings.Count;
+                db.UrlMapping.RemoveRange(urlMappings);
+                db.SaveChanges();
+                urlMappings = db.UrlMapping.Where(item => item.SiteId == siteId && string.IsNullOrEmpty(item.MappedUrl) && item.RequestedOn < purgedate)
+                    .OrderBy(item => item.RequestedOn).Take(100).ToList();
+            }
+            return count;
         }
     }
 }

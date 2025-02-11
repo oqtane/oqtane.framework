@@ -29,12 +29,13 @@ namespace Oqtane.Services
         private readonly ISettingRepository _settings;
         private readonly ITenantManager _tenantManager;
         private readonly ISyncManager _syncManager;
+        private readonly IConfigManager _configManager;
         private readonly ILogManager _logger;
         private readonly IMemoryCache _cache;
         private readonly IHttpContextAccessor _accessor;
         private readonly string _private = "[PRIVATE]";
 
-        public ServerSiteService(ISiteRepository sites, IPageRepository pages, IThemeRepository themes, IPageModuleRepository pageModules, IModuleDefinitionRepository moduleDefinitions, ILanguageRepository languages, IUserPermissions userPermissions, ISettingRepository settings, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger, IMemoryCache cache, IHttpContextAccessor accessor)
+        public ServerSiteService(ISiteRepository sites, IPageRepository pages, IThemeRepository themes, IPageModuleRepository pageModules, IModuleDefinitionRepository moduleDefinitions, ILanguageRepository languages, IUserPermissions userPermissions, ISettingRepository settings, ITenantManager tenantManager, ISyncManager syncManager, IConfigManager configManager, ILogManager logger, IMemoryCache cache, IHttpContextAccessor accessor)
         {
             _sites = sites;
             _pages = pages;
@@ -46,6 +47,7 @@ namespace Oqtane.Services
             _settings = settings;
             _tenantManager = tenantManager;
             _syncManager = syncManager;
+            _configManager = configManager;
             _logger = logger;
             _cache = cache;
             _accessor = accessor;
@@ -143,6 +145,9 @@ namespace Oqtane.Services
 
                 // themes
                 site.Themes = _themes.FilterThemes(_themes.GetThemes().ToList());
+
+                // installation date used for fingerprinting static assets
+                site.Fingerprint = Utilities.GenerateSimpleHash(_configManager.GetSetting("InstallationDate", DateTime.UtcNow.ToString("yyyyMMddHHmm")));
             }
             else
             {
@@ -153,46 +158,6 @@ namespace Oqtane.Services
                 }
             }
             return site;
-        }
-
-        private static List<Page> GetPagesHierarchy(List<Page> pages)
-        {
-            List<Page> hierarchy = new List<Page>();
-            Action<List<Page>, Page> getPath = null;
-            getPath = (pageList, page) =>
-            {
-                IEnumerable<Page> children;
-                int level;
-                if (page == null)
-                {
-                    level = -1;
-                    children = pages.Where(item => item.ParentId == null);
-                }
-                else
-                {
-                    level = page.Level;
-                    children = pages.Where(item => item.ParentId == page.PageId);
-                }
-                foreach (Page child in children)
-                {
-                    child.Level = level + 1;
-                    child.HasChildren = pages.Any(item => item.ParentId == child.PageId && !item.IsDeleted && item.IsNavigation);
-                    hierarchy.Add(child);
-                    getPath(pageList, child);
-                }
-            };
-            pages = pages.OrderBy(item => item.Order).ToList();
-            getPath(pages, null);
-
-            // add any non-hierarchical items to the end of the list
-            foreach (Page page in pages)
-            {
-                if (hierarchy.Find(item => item.PageId == page.PageId) == null)
-                {
-                    hierarchy.Add(page);
-                }
-            }
-            return hierarchy;
         }
 
         public Task<Site> AddSiteAsync(Site site)

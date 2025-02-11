@@ -3,8 +3,8 @@
 @inherits ModuleControlBase
 @inject IFolderService FolderService
 @inject IFileService FileService
-@inject ISettingService SettingService
 @inject IUserService UserService
+@inject ISettingService SettingService
 @inject IStringLocalizer<FileManager> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -156,6 +156,9 @@
 
     [Parameter]
     public bool UploadMultiple { get; set; } = false; // optional - enable multiple file uploads - default false
+
+    [Parameter]
+    public int ChunkSize { get; set; } = 1; // optional - size of file chunks to upload in MB
 
     [Parameter]
     public EventCallback<int> OnUpload { get; set; } // optional - executes a method in the calling component when a file is uploaded
@@ -359,6 +362,8 @@
             }
             if (restricted == "")
             {
+                CancellationTokenSource tokenSource = new CancellationTokenSource();
+
                 try
                 {
                     // upload the files
@@ -377,57 +382,21 @@
                         }
                     }
 
+                    var chunksize = ChunkSize;
+                    if (chunksize == 1)
+                    {
+                        // if ChunkSize parameter is not overridden use the site setting
+                        chunksize = int.Parse(SettingService.GetSetting(PageState.Site.Settings, "MaxChunkSize", "1"));
+                    }
+
                     if (!ShowProgress)
                     {
                         _uploading = true;
                         StateHasChanged();
                     }
 
-                    await interop.UploadFiles(posturl, folder, _guid, SiteState.AntiForgeryToken, jwt);
-
-                    // uploading is asynchronous so we need to poll to determine if uploads are completed
-                    var success = true;
-                    int upload = 0;
-                    while (upload < uploads.Length && success)
-                    {
-                        success = false;
-                        var filename = uploads[upload].Split(':')[0];
-
-                        var size = Int64.Parse(uploads[upload].Split(':')[1]); // bytes
-                        var megabits = (size / 1048576.0) * 8; // binary conversion
-                        var uploadspeed = (PageState.Alias.Name.Contains("localhost")) ? 100 : 3; // 3 Mbps is FCC minimum for broadband upload
-                        var uploadtime = (megabits / uploadspeed); // seconds
-                        var maxattempts = 5; // polling (minimum timeout duration will be 5 seconds)
-                        var sleep = (int)Math.Ceiling(uploadtime / maxattempts) * 1000; // milliseconds
-
-                        int attempts = 0;
-                        while (attempts < maxattempts && !success)
-                        {
-                            attempts += 1;
-                            Thread.Sleep(sleep);
-
-                            if (Folder == Constants.PackagesFolder)
-                            {
-                                var files = await FileService.GetFilesAsync(folder);
-                                if (files != null && files.Any(item => item.Name == filename))
-                                {
-                                    success = true;
-                                }
-                            }
-                            else
-                            {
-                                var file = await FileService.GetFileAsync(int.Parse(folder), filename);
-                                if (file != null)
-                                {
-                                    success = true;
-                                }
-                            }
-                        }
-                        if (success)
-                        {
-                            upload++;
-                        }
-                    }
+                    // upload files
+                    var success = await interop.UploadFiles(posturl, folder, _guid, SiteState.AntiForgeryToken, jwt, chunksize, tokenSource.Token);
 
                     // reset progress indicators
                     if (ShowProgress)
@@ -452,7 +421,7 @@
                     }
                     else
                     {
-                        await logger.LogInformation("File Upload Failed Or Is Still In Progress {Files}", uploads);
+                        await logger.LogError("File Upload Failed {Files}", uploads);
                         _message = Localizer["Error.File.Upload"];
                         _messagetype = MessageType.Error;
                     }
@@ -482,6 +451,10 @@
                     _message = Localizer["Error.File.Upload"];
                     _messagetype = MessageType.Error;
                     _uploading = false;
+                    await tokenSource.CancelAsync();
+                }
+                finally {
+                    tokenSource.Dispose();
                 }
 
             }

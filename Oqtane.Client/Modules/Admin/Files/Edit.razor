@@ -50,15 +50,21 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="imagesizes" HelpText="Enter a list of image sizes which can be generated dynamically from uploaded images (ie. 200x200,400x400). Use * to indicate the folder supports all image sizes." ResourceKey="ImageSizes">Image Sizes: </Label>
-                        <div class="col-sm-9">
-                            <input id="imagesizes" class="form-control" @bind="@_imagesizes" maxlength="512" />
-                        </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="capacity" HelpText="Enter the maximum folder capacity (in megabytes). Specify zero if the capacity is unlimited." ResourceKey="Capacity">Capacity: </Label>
                         <div class="col-sm-9">
                             <input id="capacity" class="form-control" @bind="@_capacity" required />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="cachecontrol" HelpText="Optionally provide a Cache-Control directive for this folder. For example 'public, max-age=60' indicates that files in this folder should be cached for 60 seconds. Please note that when caching is enabled, changes to files will not be immediately reflected in the UI." ResourceKey="CacheControl">Caching: </Label>
+                        <div class="col-sm-9">
+                            <input id="cachecontrol" class="form-control" @bind="@_cachecontrol" maxlength="50" />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="imagesizes" HelpText="Optionally enter a list of image sizes which can be generated dynamically from uploaded images (ie. 200x200,400x400). Use * to indicate the folder supports all image sizes (not recommended)." ResourceKey="ImageSizes">Image Sizes: </Label>
+                        <div class="col-sm-9">
+                            <input id="imagesizes" class="form-control" @bind="@_imagesizes" maxlength="512" />
                         </div>
                     </div>
                 </div>
@@ -100,8 +106,9 @@
     private int _parentId = -1;
     private string _name;
     private string _type = FolderTypes.Private;
-    private string _imagesizes = string.Empty;
     private string _capacity = "0";
+    private string _cachecontrol = string.Empty;
+    private string _imagesizes = string.Empty;
     private bool _isSystem;
     private List<Permission> _permissions = null;
     private string _createdBy;
@@ -132,8 +139,9 @@
                     _parentId = folder.ParentId ?? -1;
                     _name = folder.Name;
                     _type = folder.Type;
-                    _imagesizes = folder.ImageSizes;
                     _capacity = folder.Capacity.ToString();
+                    _cachecontrol = folder.CacheControl;
+                    _imagesizes = folder.ImageSizes;
                     _isSystem = folder.IsSystem;
                     _permissions = folder.PermissionList;
                     _createdBy = folder.CreatedBy;
@@ -193,7 +201,7 @@
                 {
                     folder.ParentId = _parentId;
                 }
-                
+
                 // check for duplicate folder names
                 if (_folders.Any(item => item.ParentId == folder.ParentId && item.Name == _name && item.FolderId != _folderId))
                 {
@@ -204,8 +212,9 @@
                 folder.SiteId = PageState.Site.SiteId;
                 folder.Name = _name;
                 folder.Type = _type;
-                folder.ImageSizes = _imagesizes;
                 folder.Capacity = int.Parse(_capacity);
+                folder.CacheControl = _cachecontrol;
+                folder.ImageSizes = _imagesizes;
                 folder.IsSystem = _isSystem;
                 folder.PermissionList = _permissionGrid.GetPermissionList();
 
