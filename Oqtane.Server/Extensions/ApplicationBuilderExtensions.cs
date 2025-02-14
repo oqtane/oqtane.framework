@@ -34,6 +34,15 @@ namespace Oqtane.Extensions
                 options.SetDefaultCulture(defaultCulture)
                     .AddSupportedCultures(supportedCultures)
                     .AddSupportedUICultures(supportedCultures);
+
+                for  (var i = 0; i < options.SupportedCultures.Count; i++)
+                {
+                    if (options.SupportedCultures[i].Name.Equals("fa-IR", StringComparison.OrdinalIgnoreCase))
+                    {
+                        options.SupportedCultures[i] = PersianCulture.GetPersianCultureInfo();
+                        break;
+                    }
+                }
             });
 
             return app;
