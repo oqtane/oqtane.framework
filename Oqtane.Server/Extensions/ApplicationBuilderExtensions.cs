@@ -35,12 +35,11 @@ namespace Oqtane.Extensions
                     .AddSupportedCultures(supportedCultures)
                     .AddSupportedUICultures(supportedCultures);
 
-                for  (var i = 0; i < options.SupportedCultures.Count; i++)
+                foreach(var culture in options.SupportedCultures)
                 {
-                    if (options.SupportedCultures[i].Name.Equals("fa-IR", StringComparison.OrdinalIgnoreCase))
+                    if (culture.TextInfo.IsRightToLeft)
                     {
-                        options.SupportedCultures[i] = PersianCulture.GetPersianCultureInfo();
-                        break;
+                        RightToLeftCulture.ResolveFormat(culture);
                     }
                 }
             });

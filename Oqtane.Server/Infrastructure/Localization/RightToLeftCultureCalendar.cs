@@ -2,7 +2,7 @@ using System;
 
 namespace Oqtane.Infrastructure
 {
-    public class PersianCalendar : System.Globalization.PersianCalendar
+    public class RightToLeftCultureCalendar : System.Globalization.PersianCalendar
     {
         public override int GetYear(DateTime time)
         {
