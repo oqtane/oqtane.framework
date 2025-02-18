@@ -22,6 +22,14 @@ namespace Oqtane.Repository
         {
             return _cache.GetOrCreate("jobs", entry =>
             {
+                // remove any jobs which have been uninstalled
+                foreach (var job in _db.Job.ToList())
+                {
+                    if (Type.GetType(job.JobType) == null)
+                    {
+                        DeleteJob(job.JobId);
+                    }
+                }
                 entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                 return _db.Job.ToList();
             });
