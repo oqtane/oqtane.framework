@@ -171,7 +171,8 @@ namespace Oqtane.Controllers
                     }
                 }
                 return assemblyList;
-            });
+            }).ToList();
+
         }
 
         // GET api/<controller>/load?list=x,y
