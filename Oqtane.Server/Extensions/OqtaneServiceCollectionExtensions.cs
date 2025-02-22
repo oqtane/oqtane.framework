@@ -103,6 +103,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<ISearchService, SearchService>();
             services.AddScoped<ISearchProvider, DatabaseSearchProvider>();
             services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<ICookieConsentService, ServerCookieConsentService>();
 
             // providers
             services.AddScoped<ITextEditor, Oqtane.Modules.Controls.QuillJSTextEditor>();
