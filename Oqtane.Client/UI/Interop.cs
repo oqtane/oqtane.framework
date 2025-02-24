@@ -37,6 +37,19 @@ namespace Oqtane.UI
             }
         }
 
+        public Task SetCookieString(string cookieString)
+        {
+            try
+            {
+                _jsRuntime.InvokeVoidAsync("Oqtane.Interop.setCookieString", cookieString);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
+
         public ValueTask<string> GetCookie(string name)
         {
             try

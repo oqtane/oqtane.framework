@@ -1,0 +1,43 @@
+@namespace Oqtane.Themes.Controls
+@inherits ThemeControlBase
+@inject ICookieConsentService CookieConsentService
+@inject IJSRuntime JSRuntime
+@inject IStringLocalizer<CookieConsent> Localizer
+
+@if (showBanner)
+{
+    <form method="post" @formname="CookieConsentForm" @onsubmit="async () => await AcceptPolicy()" data-enhance>
+        <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+        @if (ChildContent != null)
+        {
+            @ChildContent
+        }
+        else
+        {
+            @((MarkupString)Convert.ToString(Localizer["ConsentBody"]))
+        }
+    </form>
+}
+@code {
+    private bool showBanner;
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        showBanner = !(await CookieConsentService.CanTrackAsync());
+    }
+
+    private async Task AcceptPolicy()
+    {
+        var cookieString = await CookieConsentService.CreateConsentCookieAsync();
+        if (!string.IsNullOrEmpty(cookieString))
+        {
+            var interop = new Interop(JSRuntime);
+            await interop.SetCookieString(cookieString);
+
+            showBanner = false;
+        }
+    }
+}
