@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -146,5 +146,11 @@
   </data>
   <data name="Site" xml:space="preserve">
     <value>Site</value>
+  </data>
+  <data name="DisplayCookieConsent.HelpText" xml:space="preserve">
+    <value>Specify whether display the cookie consent bar.</value>
+  </data>
+  <data name="DisplayCookieConsent.Text" xml:space="preserve">
+    <value>Display Cookie Consent?</value>
   </data>
 </root>

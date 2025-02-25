@@ -4,25 +4,35 @@
 @inject IJSRuntime JSRuntime
 @inject IStringLocalizer<CookieConsent> Localizer
 
-@if (showBanner)
+@if (Enabled && showBanner)
 {
     <form method="post" @formname="CookieConsentForm" @onsubmit="async () => await AcceptPolicy()" data-enhance>
         <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
-        @if (ChildContent != null)
-        {
-            @ChildContent
-        }
-        else
-        {
-            @((MarkupString)Convert.ToString(Localizer["ConsentBody"]))
-        }
+        <div class="gdpr-consent-bar bg-light text-dark p-3 fixed-bottom">
+            <div class="container-fluid d-flex justify-content-between align-items-center">
+                <div>
+                    @((MarkupString)Convert.ToString(Localizer["ConsentDescription"]))
+                </div>
+                <div>
+                    <button class="btn btn-primary" type="submit">@((MarkupString)Convert.ToString(Localizer["Apply"]))</button>
+                    @if (ShowPrivacyLink)
+                    {
+                        <a class="btn btn-secondary ms-2" href="/privacy" target="_blank">@((MarkupString)Convert.ToString(Localizer["Privacy"]))</a>
+                    }
+                </div>
+            </div>
+        </div>
+
     </form>
 }
 @code {
     private bool showBanner;
 
     [Parameter]
-    public RenderFragment ChildContent { get; set; } = null;
+    public bool Enabled { get; set; }
+
+    [Parameter]
+    public bool ShowPrivacyLink { get; set; } = true;
 
     protected override async Task OnInitializedAsync()
     {

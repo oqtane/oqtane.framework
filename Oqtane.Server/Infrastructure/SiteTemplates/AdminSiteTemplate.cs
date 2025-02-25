@@ -171,6 +171,33 @@ namespace Oqtane.SiteTemplates
 
             pageTemplates.Add(new PageTemplate
             {
+                Name = "Privacy",
+                Parent = "",
+                Path = "privacy",
+                Icon = Icons.Eye,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                PermissionList = new List<Permission>
+                    {
+                        new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                        new Permission(PermissionNames.View, RoleNames.Admin, true),
+                        new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                    },
+                PageTemplateModules = new List<PageTemplateModule>
+                    {
+                        new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Privacy Policy", Pane = PaneNames.Default,
+                            PermissionList = new List<Permission> {
+                                new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                                new Permission(PermissionNames.View, RoleNames.Admin, true),
+                                new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                            },
+                            Content = "<p>By using our website, you agree to this privacy policy. We value your privacy and are committed to protecting your personal information. This policy outlines how we collect, use, and safeguard your data when you visit our website or use our services.</p>"
+                        }
+                    }
+            });
+
+            pageTemplates.Add(new PageTemplate
+            {
                 Name = "Not Found",
                 Parent = "",
                 Path = "404",

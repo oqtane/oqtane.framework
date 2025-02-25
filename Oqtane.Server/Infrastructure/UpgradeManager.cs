@@ -75,6 +75,9 @@ namespace Oqtane.Infrastructure
                     case "6.1.0":
                         Upgrade_6_1_0(tenant, scope);
                         break;
+                    case "6.1.1":
+                        Upgrade_6_1_1(tenant, scope);
+                        break;
                 }
             }
         }
@@ -455,6 +458,41 @@ namespace Oqtane.Infrastructure
             };
 
             RemoveAssemblies(tenant, assemblies, "6.1.0");
+        }
+
+        private void Upgrade_6_1_1(Tenant tenant, IServiceScope scope)
+        {
+            var pageTemplates = new List<PageTemplate>
+            {
+                new PageTemplate
+                {
+                    Name = "Privacy",
+                    Parent = "",
+                    Path = "privacy",
+                    Icon = Icons.Eye,
+                    IsNavigation = false,
+                    IsPersonalizable = false,
+                    PermissionList = new List<Permission>
+                    {
+                        new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                        new Permission(PermissionNames.View, RoleNames.Admin, true),
+                        new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                    },
+                    PageTemplateModules = new List<PageTemplateModule>
+                    {
+                        new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Privacy Policy", Pane = PaneNames.Default,
+                            PermissionList = new List<Permission> {
+                                new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                                new Permission(PermissionNames.View, RoleNames.Admin, true),
+                                new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                            },
+                            Content = "<p>By using our website, you agree to this privacy policy. We value your privacy and are committed to protecting your personal information. This policy outlines how we collect, use, and safeguard your data when you visit our website or use our services.</p>"
+                        }
+                    }
+                }
+            };
+
+            AddPagesToSites(scope, tenant, pageTemplates);
         }
 
         private void AddPagesToSites(IServiceScope scope, Tenant tenant, List<PageTemplate> pageTemplates)
