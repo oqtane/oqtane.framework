@@ -1,5 +1,9 @@
 # Security Policy
 
+## Security Bulletins
+
+All verified security bulletins are published in the [Oqtane Security Center](https://www.oqtane.net/security).
+
 ## Reporting a Vulnerability
 
 We make every effort to ensure rapid and thorough analysis of reported issues and, where appropriate, provide workarounds and updated application releases to fix them. If you identify a potential security vulnerability please report it via support@oqtane.org.
