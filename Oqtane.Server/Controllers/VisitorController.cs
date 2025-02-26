@@ -34,7 +34,7 @@ namespace Oqtane.Controllers
             int SiteId;
             if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
             {
-                return _visitors.GetVisitors(SiteId, DateTime.ParseExact(fromdate, "yyyy-MM-dd", CultureInfo.InvariantCulture));
+                return _visitors.GetVisitors(SiteId, DateTime.ParseExact(fromdate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal));
             }
             else
             {
