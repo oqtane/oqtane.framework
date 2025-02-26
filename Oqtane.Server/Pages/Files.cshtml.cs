@@ -50,7 +50,6 @@ namespace Oqtane.Pages
         {
             if (string.IsNullOrWhiteSpace(path))
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized File Access Attempt - Path Not Specified For Site {SiteId}", _alias.SiteId);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return BrokenFile();
             }
