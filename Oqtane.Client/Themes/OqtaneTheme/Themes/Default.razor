@@ -107,7 +107,7 @@
         {
             <Pane Name="Footer" />
         }
-        <CookieConsent Enabled="@_displayCookieConsent" />
+        <CookieConsent />
     </div>
 </main>
 
@@ -119,7 +119,6 @@
     private bool _login = true;
     private bool _register = true;
     private bool _footer = false;
-    private bool _displayCookieConsent = false;
 
     protected override void OnParametersSet()
     {
@@ -129,7 +128,6 @@
             _login = bool.Parse(SettingService.GetSetting(settings, GetType().Namespace + ":Login", "true"));
             _register = bool.Parse(SettingService.GetSetting(settings, GetType().Namespace + ":Register", "true"));
             _footer = bool.Parse(SettingService.GetSetting(settings, GetType().Namespace + ":Footer", "false"));
-            _displayCookieConsent = bool.Parse(SettingService.GetSetting(settings, GetType().Namespace + ":DisplayCookieConsent", "false"));
         }
         catch
         {

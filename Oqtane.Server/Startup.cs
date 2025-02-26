@@ -233,6 +233,7 @@ namespace Oqtane
             app.UseAuthorization();
             app.UseAntiforgery();
             app.UseCookiePolicy();
+            app.UseCookieConsent();
 
             if (_useSwagger)
             {

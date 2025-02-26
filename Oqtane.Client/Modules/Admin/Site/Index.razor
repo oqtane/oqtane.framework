@@ -126,6 +126,15 @@
                         </select>
                     </div>
                 </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="cookieconsent" HelpText="Specify if cookie consent is enabled on this site" ResourceKey="CookieConsent">Cookie Consent: </Label>
+                    <div class="col-sm-9">
+                        <select id="cookieconsent" class="form-select" @bind="@_cookieconsent">
+                            <option value="True">@SharedLocalizer["Yes"]</option>
+                            <option value="False">@SharedLocalizer["No"]</option>
+                        </select>
+                    </div>
+                </div>
             </div>
         </Section>
         <Section Name="Functionality" Heading="Functionality" ResourceKey="Functionality">
@@ -415,6 +424,7 @@
     private string _themetype = "";
     private string _containertype = "";
     private string _admincontainertype = "";
+    private string _cookieconsent = "False";
 
     private Dictionary<string, string> _textEditors = new Dictionary<string, string>();
     private string _textEditor = "";
@@ -505,6 +515,7 @@
                 _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
                 _containertype = (!string.IsNullOrEmpty(site.DefaultContainerType)) ? site.DefaultContainerType : Constants.DefaultContainer;
                 _admincontainertype = (!string.IsNullOrEmpty(site.AdminContainerType)) ? site.AdminContainerType : Constants.DefaultAdminContainer;
+                _cookieconsent = SettingService.GetSetting(settings, "CookieConsent", "False");
 
                 // functionality
                 var textEditors = ServiceProvider.GetServices<ITextEditor>();
@@ -716,6 +727,9 @@
                         settings = SettingService.SetSetting(settings, "SMTPEnabled", _smtpenabled, true);
                         settings = SettingService.SetSetting(settings, "SiteGuid", _siteguid, true);
                         settings = SettingService.SetSetting(settings, "NotificationRetention", _retention.ToString(), true);
+                        
+                        //cookie consent
+                        settings = SettingService.SetSetting(settings, "CookieConsent", _cookieconsent);
 
                         // functionality
                         settings = SettingService.SetSetting(settings, "TextEditor", _textEditor);

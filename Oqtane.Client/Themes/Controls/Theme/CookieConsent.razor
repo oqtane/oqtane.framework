@@ -1,10 +1,11 @@
 @namespace Oqtane.Themes.Controls
 @inherits ThemeControlBase
+@inject ISettingService SettingService
 @inject ICookieConsentService CookieConsentService
 @inject IJSRuntime JSRuntime
 @inject IStringLocalizer<CookieConsent> Localizer
 
-@if (Enabled && showBanner)
+@if (_enabled && !Hidden && showBanner)
 {
     <form method="post" @formname="CookieConsentForm" @onsubmit="async () => await AcceptPolicy()" data-enhance>
         <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
@@ -27,9 +28,10 @@
 }
 @code {
     private bool showBanner;
+    private bool _enabled;
 
     [Parameter]
-    public bool Enabled { get; set; }
+    public bool Hidden { get; set; }
 
     [Parameter]
     public bool ShowPrivacyLink { get; set; } = true;
@@ -37,6 +39,7 @@
     protected override async Task OnInitializedAsync()
     {
         showBanner = !(await CookieConsentService.CanTrackAsync());
+        _enabled = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "CookieConsent", "False"));
     }
 
     private async Task AcceptPolicy()

@@ -426,4 +426,10 @@
   <data name="System" xml:space="preserve">
     <value>System</value>
   </data>
+  <data name="CookieConsent.HelpText" xml:space="preserve">
+    <value>Specify if cookie consent is enabled on this site</value>
+  </data>
+  <data name="CookieConsent.Text" xml:space="preserve">
+    <value>Cookie Consent:</value>
+  </data>
 </root>
