@@ -2,7 +2,7 @@
 
 ## Security Bulletins
 
-All verified security bulletins are published in the [Oqtane Security Center](https://www.oqtane.net/security).
+All published security bulletins are available in the Oqtane [Security Center](https://www.oqtane.net/security). The Security Center allows you to select a specific version of the Oqtane Framework and view the associated security bulletins. 
 
 ## Reporting a Vulnerability
 
