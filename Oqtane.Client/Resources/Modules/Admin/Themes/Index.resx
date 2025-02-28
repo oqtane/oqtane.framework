@@ -146,7 +146,7 @@
   </data>
   <data name="InstallTheme.Text" xml:space="preserve">
     <value>Install Theme</value>
-  </data>    
+  </data>
   <data name="ViewTheme.Text" xml:space="preserve">
     <value>View</value>
   </data>
@@ -155,5 +155,8 @@
   </data>
   <data name="Enabled" xml:space="preserve">
     <value>Enabled?</value>
+  </data>
+  <data name="Assign" xml:space="preserve">
+    <value>Assign</value>
   </data>
 </root>

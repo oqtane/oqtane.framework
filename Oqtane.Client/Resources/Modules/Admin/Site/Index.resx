@@ -437,5 +437,7 @@
   </data>
   <data name="OptOut" xml:space="preserve">
     <value>Opt-Out</value>
+  <data name="Theme.Heading" xml:space="preserve">
+    <value>Theme</value>
   </data>
 </root>

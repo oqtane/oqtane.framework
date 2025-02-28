@@ -4,6 +4,7 @@
 @inject NavigationManager NavigationManager
 @inject IThemeService ThemeService
 @inject IPackageService PackageService
+@inject ISiteService SiteService
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -21,6 +22,7 @@ else
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
+            <th style="width: 1px;">&nbsp;</th>
             <th>@SharedLocalizer["Name"]</th>
             <th>@SharedLocalizer["Version"]</th>
             <th>@Localizer["Enabled"]</th>
@@ -32,10 +34,11 @@ else
             <td><ActionLink Action="Edit" Text="Edit" Parameters="@($"id=" + context.ThemeId.ToString())" ResourceKey="EditTheme" /></td>
             <td>
 				@if (context.AssemblyName != Constants.ClientId)
-                    {
+                {
                     <ActionDialog Header="Delete Theme" Message="@string.Format(Localizer["Confirm.Theme.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTheme(context))" ResourceKey="DeleteTheme" />
-                    }
+                }
             </td>
+            <td><NavLink class="btn btn-secondary" href="@NavigateUrl("admin/site")">@Localizer["Assign"]</NavLink></td>
             <td>@context.Name</td>
             <td>@context.Version</td>
             <td>
