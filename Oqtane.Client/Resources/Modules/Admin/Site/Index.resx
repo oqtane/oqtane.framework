@@ -426,4 +426,7 @@
   <data name="System" xml:space="preserve">
     <value>System</value>
   </data>
+  <data name="Theme.Heading" xml:space="preserve">
+    <value>Theme</value>
+  </data>
 </root>

@@ -72,20 +72,8 @@
             </div>
         </div>
         <br />
-        <Section Name="Appearance" Heading="Appearance" ResourceKey="Appearance">
+        <Section Name="Theme" Heading="Theme" ResourceKey="Theme">
             <div class="container">
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="logo" HelpText="Specify a logo for the site" ResourceKey="Logo">Logo: </Label>
-                    <div class="col-sm-9">
-                        <FileManager FileId="@_logofileid" Filter="@_imageFiles" @ref="_logofilemanager" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="favicon" HelpText="Specify a Favicon" ResourceKey="FavoriteIcon">Favicon: </Label>
-                    <div class="col-sm-9">
-                        <FileManager FileId="@_faviconfileid" Filter="ico,png,gif" @ref="_faviconfilemanager" />
-                    </div>
-                </div>
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="defaultTheme" HelpText="Select the sites default theme" ResourceKey="DefaultTheme">Default Theme: </Label>
                     <div class="col-sm-9">
@@ -124,6 +112,22 @@
                                 }
                             }
                         </select>
+                    </div>
+                </div>
+            </div>
+        </Section>
+        <Section Name="Appearance" Heading="Appearance" ResourceKey="Appearance">
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="logo" HelpText="Specify a logo for the site" ResourceKey="Logo">Logo: </Label>
+                    <div class="col-sm-9">
+                        <FileManager FileId="@_logofileid" Filter="@_imageFiles" @ref="_logofilemanager" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="favicon" HelpText="Specify a Favicon" ResourceKey="FavoriteIcon">Favicon: </Label>
+                    <div class="col-sm-9">
+                        <FileManager FileId="@_faviconfileid" Filter="ico,png,gif" @ref="_faviconfilemanager" />
                     </div>
                 </div>
             </div>
