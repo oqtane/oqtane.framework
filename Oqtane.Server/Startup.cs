@@ -169,13 +169,6 @@ namespace Oqtane
                 options.CustomSchemaIds(type => type.ToString()); // Handle SchemaId already used for different type
             });
             services.TryAddSwagger(_useSwagger);
-
-            //add cookie consent policy
-            services.Configure<CookiePolicyOptions>(options =>
-            {
-                options.CheckConsentNeeded = context => true;
-                options.ConsentCookieValue = Constants.CookieConsentCookieValue;
-            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -232,7 +225,6 @@ namespace Oqtane
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseAntiforgery();
-            app.UseCookiePolicy();
 
             if (_useSwagger)
             {

@@ -16,15 +16,31 @@ namespace Oqtane.Services
 
         private string ApiUrl => CreateApiUrl("CookieConsent");
 
-        /// <inheritdoc />
-        public async Task<bool> CanTrackAsync()
+        public async Task<bool> IsActionedAsync()
         {
-            return await GetJsonAsync<bool>($"{ApiUrl}/CanTrack");
+            return await GetJsonAsync<bool>($"{ApiUrl}/IsActioned");
+        }
+
+        public async Task<bool> CanTrackAsync(bool optOut)
+        {
+            return await GetJsonAsync<bool>($"{ApiUrl}/CanTrack?optout=" + optOut);
+        }
+
+        public async Task<string> CreateActionedCookieAsync()
+        {
+            var cookie = await GetStringAsync($"{ApiUrl}/CreateActionedCookie");
+            return cookie ?? string.Empty;
         }
 
         public async Task<string> CreateConsentCookieAsync()
         {
             var cookie = await GetStringAsync($"{ApiUrl}/CreateConsentCookie");
+            return cookie ?? string.Empty;
+        }
+
+        public async Task<string> WithdrawConsentCookieAsync()
+        {
+            var cookie = await GetStringAsync($"{ApiUrl}/WithdrawConsentCookie");
             return cookie ?? string.Empty;
         }
     }

@@ -13,9 +13,9 @@
             <select id="scope" class="form-select" value="@_scope" @onchange="(e => ScopeChanged(e))">
                 @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
                 {
-                <option value="site">@Localizer["Site"]</option>
+                    <option value="site">@Localizer["Site"]</option>
                 }
-            <option value="page">@Localizer["Page"]</option>
+                <option value="page">@Localizer["Page"]</option>
             </select>
         </div>
     </div>
@@ -92,7 +92,7 @@
             settings = SettingService.MergeSettings(PageState.Site.Settings, settings);
             _login = SettingService.GetSetting(settings, GetType().Namespace + ":Login", "-");
             _register = SettingService.GetSetting(settings, GetType().Namespace + ":Register", "-");
-            _footer = SettingService.GetSetting(settings, GetType().Namespace + ":Footer", "-");                
+            _footer = SettingService.GetSetting(settings, GetType().Namespace + ":Footer", "-");
         }
         await Task.Yield();
     }

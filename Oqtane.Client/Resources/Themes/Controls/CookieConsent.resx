@@ -117,16 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ConsentBody" xml:space="preserve">
-    <value>
-        &lt;div class="gdpr-consent-bar bg-light text-dark p-3 fixed-bottom"&gt;
-            &lt;div class="container-fluid d-flex justify-content-between align-items-center"&gt;
-                &lt;div&gt;
-                    By clicking "Accept", you agree us to use cookies to ensure you get the best experience on our website.
-                &lt;/div&gt;
-                &lt;button class="btn btn-primary" type="submit"&gt;Accept&lt;/button&gt;
-            &lt;/div&gt;
-        &lt;/div&gt;
-    </value>
+  <data name="Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="ConsentDescription" xml:space="preserve">
+    <value>I agree to using cookies to provide the best user experience for this site.</value>
+  </data>
+  <data name="Privacy" xml:space="preserve">
+    <value>Privacy</value>
   </data>
 </root>

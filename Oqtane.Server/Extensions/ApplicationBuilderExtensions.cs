@@ -55,6 +55,5 @@ namespace Oqtane.Extensions
 
         public static IApplicationBuilder UseExceptionMiddleWare(this IApplicationBuilder builder)
           => builder.UseMiddleware<ExceptionMiddleware>();
-
     }
 }
