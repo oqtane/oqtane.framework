@@ -272,3 +272,13 @@ app {
 .app-logo .navbar-brand {
     padding: 5px 20px 5px 20px;
 }
+
+/* cookie consent */
+.gdpr-consent-bar .btn-show{
+    bottom: -3px;
+    left: 5px;
+}
+.gdpr-consent-bar .btn-hide{
+    top: 0;
+    right: 5px;
+}

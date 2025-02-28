@@ -100,16 +100,6 @@ div.app-moduleactions a.dropdown-toggle, div.app-moduleactions div.dropdown-menu
     z-index: 1000;
 }
 
-/* cookie consent */
-.gdpr-consent-bar .btn-show{
-    bottom: 0;
-    right: 5px;
-}
-.gdpr-consent-bar .btn-hide{
-    top: 0;
-    right: 5px;
-}
-
 @media (max-width: 767.98px) {
 
     .app-menu {
