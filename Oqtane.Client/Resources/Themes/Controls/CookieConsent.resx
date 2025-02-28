@@ -117,11 +117,11 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Apply" xml:space="preserve">
-    <value>Apply</value>
+  <data name="Confirm" xml:space="preserve">
+    <value>Confirm</value>
   </data>
   <data name="ConsentDescription" xml:space="preserve">
-    <value>By clicking "Accept", you agree us to use cookies to ensure you get the best experience on our website.</value>
+    <value>I agree to using cookies to provide the best user experience for this site.</value>
   </data>
   <data name="Privacy" xml:space="preserve">
     <value>Privacy</value>

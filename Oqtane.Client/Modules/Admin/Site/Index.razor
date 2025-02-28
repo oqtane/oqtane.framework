@@ -127,11 +127,12 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="cookieconsent" HelpText="Specify if cookie consent is enabled on this site" ResourceKey="CookieConsent">Cookie Consent: </Label>
+                    <Label Class="col-sm-3" For="cookieconsent" HelpText="Specify if cookie consent is enabled on this site. Please make sure your using theme supports Cookie Consent when enable this option." ResourceKey="CookieConsent">Cookie Consent: </Label>
                     <div class="col-sm-9">
                         <select id="cookieconsent" class="form-select" @bind="@_cookieconsent">
-                            <option value="True">@SharedLocalizer["Yes"]</option>
-                            <option value="False">@SharedLocalizer["No"]</option>
+                            <option value="">@SharedLocalizer["Disabled"]</option>
+                            <option value="optin">@Localizer["OptIn"]</option>
+                            <option value="optout">@Localizer["OptOut"]</option>
                         </select>
                     </div>
                 </div>
@@ -424,7 +425,7 @@
     private string _themetype = "";
     private string _containertype = "";
     private string _admincontainertype = "";
-    private string _cookieconsent = "False";
+    private string _cookieconsent = "";
 
     private Dictionary<string, string> _textEditors = new Dictionary<string, string>();
     private string _textEditor = "";
@@ -515,7 +516,7 @@
                 _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
                 _containertype = (!string.IsNullOrEmpty(site.DefaultContainerType)) ? site.DefaultContainerType : Constants.DefaultContainer;
                 _admincontainertype = (!string.IsNullOrEmpty(site.AdminContainerType)) ? site.AdminContainerType : Constants.DefaultAdminContainer;
-                _cookieconsent = SettingService.GetSetting(settings, "CookieConsent", "False");
+                _cookieconsent = SettingService.GetSetting(settings, "CookieConsent", string.Empty);
 
                 // functionality
                 var textEditors = ServiceProvider.GetServices<ITextEditor>();

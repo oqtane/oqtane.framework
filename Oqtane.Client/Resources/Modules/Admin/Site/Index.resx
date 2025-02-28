@@ -427,9 +427,15 @@
     <value>System</value>
   </data>
   <data name="CookieConsent.HelpText" xml:space="preserve">
-    <value>Specify if cookie consent is enabled on this site</value>
+    <value>Specify if cookie consent is enabled on this site. Please make sure your using theme supports Cookie Consent when enable this option.</value>
   </data>
   <data name="CookieConsent.Text" xml:space="preserve">
     <value>Cookie Consent:</value>
+  </data>
+  <data name="OptIn" xml:space="preserve">
+    <value>Opt-In</value>
+  </data>
+  <data name="OptOut" xml:space="preserve">
+    <value>Opt-Out</value>
   </data>
 </root>
