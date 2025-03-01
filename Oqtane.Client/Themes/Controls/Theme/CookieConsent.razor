@@ -120,6 +120,9 @@
             cookieString = _canTrack ? await CookieConsentService.CreateConsentCookieAsync() : await CookieConsentService.WithdrawConsentCookieAsync();
         }
 
+        //update the page state
+        PageState.AllowCookies = _canTrack;
+
         if (!string.IsNullOrEmpty(cookieString))
         {
             var interop = new Interop(JSRuntime);
