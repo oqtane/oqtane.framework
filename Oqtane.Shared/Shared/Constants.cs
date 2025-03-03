@@ -94,6 +94,8 @@ namespace Oqtane.Shared
         public const string CookieConsentCookieName = "Oqtane.CookieConsent";
         public const string CookieConsentCookieValue = "yes";
         public const string CookieConsentActionCookieValue = "yes";
+
+        public const string SitemapOutputCacheTag = "Sitemap";
         // Obsolete constants
 
         const string RoleObsoleteMessage = "Use the corresponding member from Oqtane.Shared.RoleNames";

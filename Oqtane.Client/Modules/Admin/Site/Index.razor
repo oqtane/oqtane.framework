@@ -14,6 +14,7 @@
 @inject IStringLocalizer<Index> Localizer
 @inject INotificationService NotificationService
 @inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject ICacheService CacheService
 
 @if (_initialized)
 {
@@ -50,11 +51,12 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="sitemap" HelpText="The site map url for this site which can be submitted to search engines for indexing" ResourceKey="SiteMap">Site Map: </Label>
+                <Label Class="col-sm-3" For="sitemap" HelpText="The site map url for this site which can be submitted to search engines for indexing. The sitemap is cached for 5 minutes and the cache can be manually cleared." ResourceKey="SiteMap">Site Map: </Label>
                 <div class="col-sm-9">
                     <div class="input-group">
                         <input id="sitemap" class="form-control" @bind="@_sitemap" disabled />
                         <a href="@_sitemap" class="btn btn-secondary" target="_new">@Localizer["Browse"]</a>
+                        <button type="button" class="btn btn-danger" @onclick="EvictSitemapOutputCache">@Localizer["SiteMap.EvictCache"]</button>
                     </div>
                 </div>
             </div>
@@ -732,7 +734,7 @@
                         settings = SettingService.SetSetting(settings, "SMTPEnabled", _smtpenabled, true);
                         settings = SettingService.SetSetting(settings, "SiteGuid", _siteguid, true);
                         settings = SettingService.SetSetting(settings, "NotificationRetention", _retention.ToString(), true);
-                        
+
                         //cookie consent
                         settings = SettingService.SetSetting(settings, "CookieConsent", _cookieconsent);
 
@@ -931,5 +933,10 @@
         _aliasid = -1;
         _aliasname = "";
         StateHasChanged();
+    }
+
+    private async Task EvictSitemapOutputCache() {
+        await CacheService.EvictOutputCacheByTag(Constants.SitemapOutputCacheTag);
+        AddModuleMessage(Localizer["Success.SiteMap.CacheEvicted"], MessageType.Success);
     }
 }
