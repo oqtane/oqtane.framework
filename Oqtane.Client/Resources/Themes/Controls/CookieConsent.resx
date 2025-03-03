@@ -120,8 +120,8 @@
   <data name="Confirm" xml:space="preserve">
     <value>Confirm</value>
   </data>
-  <data name="ConsentDescription" xml:space="preserve">
-    <value>I agree to using cookies to provide the best user experience for this site.</value>
+  <data name="ConsentNotice" xml:space="preserve">
+    <value>I agree to use cookies to provide the best possible user experience for this site. I understand that I can change these preferences at any time.</value>
   </data>
   <data name="Privacy" xml:space="preserve">
     <value>Privacy</value>
