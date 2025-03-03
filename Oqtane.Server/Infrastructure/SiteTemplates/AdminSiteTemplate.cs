@@ -1,14 +1,22 @@
 using System.Collections.Generic;
+using Microsoft.Extensions.Localization;
 using Oqtane.Documentation;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
 
-namespace Oqtane.SiteTemplates
+namespace Oqtane.Infrastructure.SiteTemplates
 {
     [PrivateApi("Mark Site-Template classes as private, since it's not very useful in the public docs")]
     public class AdminSiteTemplate : ISiteTemplate
     {
+        private readonly IStringLocalizer<AdminSiteTemplate> _localizer;
+
+        public AdminSiteTemplate(IStringLocalizer<AdminSiteTemplate> localizer)
+        {
+            _localizer = localizer;
+        }
+
         public string Name
         {
             get { return "Admin Site Template"; } 
@@ -191,7 +199,34 @@ namespace Oqtane.SiteTemplates
                                 new Permission(PermissionNames.View, RoleNames.Admin, true),
                                 new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                             },
-                            Content = "<p>By using our website, you agree to this privacy policy. We value your privacy and are committed to protecting your personal information. This policy outlines how we collect, use, and safeguard your data when you visit our website or use our services.</p>"
+                            Content = _localizer["Privacy"]
+                        }
+                    }
+            });
+
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Terms",
+                Parent = "",
+                Path = "terms",
+                Icon = Icons.List,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                PermissionList = new List<Permission>
+                    {
+                        new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                        new Permission(PermissionNames.View, RoleNames.Admin, true),
+                        new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                    },
+                PageTemplateModules = new List<PageTemplateModule>
+                    {
+                        new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Terms & Conditions", Pane = PaneNames.Default,
+                            PermissionList = new List<Permission> {
+                                new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                                new Permission(PermissionNames.View, RoleNames.Admin, true),
+                                new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                            },
+                            Content = _localizer["Terms"]
                         }
                     }
             });
