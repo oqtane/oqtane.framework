@@ -65,6 +65,7 @@ function injectScript(script) {
                 newScript.setAttribute(script.attributes[i].name, script.attributes[i].value);
             }
         }
+        newScript.nonce = script.nonce; // must be referenced explicitly
         newScript.innerHTML = script.innerHTML;
 
         // dynamically injected scripts cannot be async or deferred
