@@ -14,6 +14,7 @@
 @inject IUrlMappingService UrlMappingService
 @inject ILogService LogService
 @inject ISettingService SettingService
+@inject ICookieConsentService CookieConsentService
 @inject IJSRuntime JSRuntime
 @implements IHandleAfterRender
 @implements IDisposable
@@ -293,6 +294,14 @@
                 // load additional metadata for modules
                 (page, modules) = ProcessModules(site, page, modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType, SiteState.Alias);
 
+                //cookie consent
+                var _allowCookies = PageState?.AllowCookies;
+                if(!_allowCookies.HasValue)
+                {
+                    var cookieConsentSettings = SettingService.GetSetting(site.Settings, "CookieConsent", string.Empty);
+                    _allowCookies = string.IsNullOrEmpty(cookieConsentSettings) || await CookieConsentService.CanTrackAsync(cookieConsentSettings == "optout");
+                }
+                
                 // populate page state (which acts as a client-side cache for subsequent requests)
                 _pagestate = new PageState
                 {
@@ -316,7 +325,8 @@
 					ReturnUrl = returnurl,
                     IsInternalNavigation = _isInternalNavigation,
                     RenderId = Guid.NewGuid(),
-                    Refresh = false
+                    Refresh = false,
+                    AllowCookies = _allowCookies.GetValueOrDefault(true)
                 };
                 OnStateChange?.Invoke(_pagestate);
 
