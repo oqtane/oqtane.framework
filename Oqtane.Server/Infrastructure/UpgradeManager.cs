@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using Oqtane.Infrastructure.SiteTemplates;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
@@ -462,6 +464,8 @@ namespace Oqtane.Infrastructure
 
         private void Upgrade_6_1_1(Tenant tenant, IServiceScope scope)
         {
+            var localizer = scope.ServiceProvider.GetRequiredService<IStringLocalizer<AdminSiteTemplate>>();
+
             var pageTemplates = new List<PageTemplate>
             {
                 new PageTemplate
@@ -486,7 +490,33 @@ namespace Oqtane.Infrastructure
                                 new Permission(PermissionNames.View, RoleNames.Admin, true),
                                 new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                             },
-                            Content = "<p>By using our website, you agree to this privacy policy. We value your privacy and are committed to protecting your personal information. This policy outlines how we collect, use, and safeguard your data when you visit our website or use our services.</p>"
+                            Content = localizer["Privacy"]
+                        }
+                    }
+                },
+                new PageTemplate
+                {
+                    Name = "Terms",
+                    Parent = "",
+                    Path = "terms",
+                    Icon = Icons.List,
+                    IsNavigation = false,
+                    IsPersonalizable = false,
+                    PermissionList = new List<Permission>
+                    {
+                        new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                        new Permission(PermissionNames.View, RoleNames.Admin, true),
+                        new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                    },
+                    PageTemplateModules = new List<PageTemplateModule>
+                    {
+                        new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Terms & Conditions", Pane = PaneNames.Default,
+                            PermissionList = new List<Permission> {
+                                new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                                new Permission(PermissionNames.View, RoleNames.Admin, true),
+                                new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                            },
+                            Content = localizer["Terms"]
                         }
                     }
                 }
