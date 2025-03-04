@@ -30,7 +30,6 @@
 
 .breadcrumbs {
     background-color: #e6e6e6;
-    border-bottom: 1px solid #d6d5d5;
 }
 
 .top-row {
@@ -120,12 +119,7 @@
 .app-logo .navbar-brand {
     color: white;
 }
-
-@media (max-width: 767.98px) {
-    .main .top-row {
-        display: none;
-    }
-
+@media (max-width: 991.98px) {
     .app-search {
         border-radius: 6px;
     }
@@ -141,7 +135,7 @@
 
     .app-search:active, .app-search:hover {
         display: block;
-        position: fixed;
+        position: absolute;
         color: #fff;
         top: 0;
         min-height: 60px;
@@ -149,6 +143,7 @@
         left: 0;
         z-index: 999;
         border-radius: 0;
+        background-color: #e6e6e6;
     }
 
     .app-search:active .app-form-inline, .app-search:hover .app-form-inline {
@@ -167,6 +162,11 @@
         color: rgb(42, 159, 214);
         padding-top: 6px;
         padding-bottom: 6px;
+    }
+}
+@media (max-width: 767.98px) {
+    .main .top-row {
+        display: none;
     }
 }
 
@@ -257,6 +257,7 @@
         width: 100%;
         left: 0;
         z-index: 4;
+        border-bottom: 1px solid #d6d5d5;
     }
 
     .sidebar {

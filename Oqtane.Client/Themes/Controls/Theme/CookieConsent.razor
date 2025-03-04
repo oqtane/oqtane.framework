@@ -12,30 +12,32 @@
             @if (_showBanner)
             {
                 <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
-                <div class="container-fluid d-flex">
-                    <div class="col-10">
-                        @if (PageState.RenderMode == RenderModes.Static)
-                        {
-                            <input type="checkbox" name="cantrack" checked="@_canTrack" value="1" class="form-check-input me-2" />
-                        }
-                        else
-                        {
-                            <input type="checkbox" name="cantrack" @bind="@_canTrack" value="1" class="form-check-input me-2" />
-                        }
-                        @((MarkupString)Convert.ToString(Localizer["ConsentNotice"]))
-                    </div>
-                    <div class="col-2">
-                        <div class="row">
-                            <div class="col-md-6 col-xs-6 text-center">
-                                <button class="btn btn-primary mb-1" type="submit">@((MarkupString)Convert.ToString(Localizer["Confirm"]))</button>
-                            </div>
-                            @if (ShowPrivacyLink)
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-9 col-xl-10">
+                            @if (PageState.RenderMode == RenderModes.Static)
                             {
-                                <div class="col-md-6 col-xs-6 text-center">
-                                    <a class="btn btn-secondary mb-1 ms-2" href="/privacy" target="_blank">@((MarkupString)Convert.ToString(Localizer["Privacy"]))</a>
-                                </div>
-
+                                <input type="checkbox" name="cantrack" checked="@_canTrack" value="1" class="form-check-input me-2" />
                             }
+                            else
+                            {
+                                <input type="checkbox" name="cantrack" @bind="@_canTrack" value="1" class="form-check-input me-2" />
+                            }
+                            @((MarkupString)Convert.ToString(Localizer["ConsentNotice"]))
+                        </div>
+                        <div class="col-3 col-xl-2">
+                            <div class="row">
+                                <div class="col-md-6 col-xs-6 text-center">
+                                    <button class="btn btn-primary mb-1 px-0 w-100" type="submit">@((MarkupString)Convert.ToString(Localizer["Confirm"]))</button>
+                                </div>
+                                @if (ShowPrivacyLink)
+                                {
+                                    <div class="col-md-6 col-xs-6 text-center">
+                                        <a class="btn btn-secondary mb-1 px-0 w-100" href="/privacy" target="_blank">@((MarkupString)Convert.ToString(Localizer["Privacy"]))</a>
+                                    </div>
+
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -43,7 +45,7 @@
         </form>
         <form method="post" @formname="CookieConsentToggleForm" @onsubmit="async () => await ToggleBanner()" data-enhance>
             <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
-            @if(_showBanner)
+            @if (_showBanner)
             {
                 <input type="hidden" name="showbanner" value="false" />
                 <button type="submit" class="btn btn-light text-dark btn-sm position-absolute btn-hide">
@@ -77,8 +79,9 @@
     public bool ShowPrivacyLink { get; set; } = true;
 
     [SupplyParameterFromForm(FormName = "CookieConsentToggleForm")]
-    public string ShowBanner { 
-        get => ""; 
+    public string ShowBanner
+    {
+        get => "";
         set
         {
             _showBanner = bool.Parse(value);
@@ -109,7 +112,7 @@
             _canTrack = await CookieConsentService.CanTrackAsync(_optout);
         }
 
-        if(!_togglePostback)
+        if (!_togglePostback)
         {
             _showBanner = !_actioned;
         }
@@ -118,7 +121,7 @@
     private async Task AcceptPolicy()
     {
         var cookieString = string.Empty;
-        if(_optout)
+        if (_optout)
         {
             cookieString = _canTrack ? await CookieConsentService.WithdrawConsentCookieAsync() : await CookieConsentService.CreateConsentCookieAsync();
         }
@@ -156,7 +159,7 @@
             }
         }
 
-        if(PageState.RenderMode == RenderModes.Interactive)
+        if (PageState.RenderMode == RenderModes.Interactive)
         {
             _showBanner = !_showBanner;
             StateHasChanged();
