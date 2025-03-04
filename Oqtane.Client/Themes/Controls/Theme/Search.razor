@@ -56,7 +56,7 @@
 
     private void PerformSearch()
     {
-        if (_searchResultsPage != null)
+        if (_searchResultsPage != null && !string.IsNullOrEmpty(_keywords))
         {
             var url = NavigateUrl(_searchResultsPage.Path, $"q={WebUtility.UrlEncode(_keywords)}");
             NavigationManager.NavigateTo(url);
