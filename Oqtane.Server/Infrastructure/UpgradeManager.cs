@@ -510,7 +510,7 @@ namespace Oqtane.Infrastructure
                     },
                     PageTemplateModules = new List<PageTemplateModule>
                     {
-                        new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Terms & Conditions", Pane = PaneNames.Default,
+                        new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Terms of Service", Pane = PaneNames.Default,
                             PermissionList = new List<Permission> {
                                 new Permission(PermissionNames.View, RoleNames.Everyone, true),
                                 new Permission(PermissionNames.View, RoleNames.Admin, true),
