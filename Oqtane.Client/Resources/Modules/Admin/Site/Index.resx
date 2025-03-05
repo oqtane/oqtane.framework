@@ -427,16 +427,16 @@
     <value>System</value>
   </data>
   <data name="CookieConsent.HelpText" xml:space="preserve">
-    <value>Specify if cookie consent is enabled on this site. Please make sure your using theme supports Cookie Consent when enable this option.</value>
+    <value>Specify if cookie consent is enabled on this site. Please note this option must be used in conjunction with a Theme which supports cookie consent.</value>
   </data>
   <data name="CookieConsent.Text" xml:space="preserve">
     <value>Cookie Consent:</value>
   </data>
   <data name="OptIn" xml:space="preserve">
-    <value>Opt-In</value>
+    <value>Opt-In (GDPR)</value>
   </data>
   <data name="OptOut" xml:space="preserve">
-    <value>Opt-Out</value>
+    <value>Opt-Out (CCPA)</value>
   </data>
   <data name="Theme.Heading" xml:space="preserve">
     <value>Theme</value>
