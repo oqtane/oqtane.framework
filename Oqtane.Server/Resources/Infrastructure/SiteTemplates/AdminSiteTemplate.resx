@@ -118,9 +118,9 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Privacy" xml:space="preserve">
-    <value>&lt;p&gt;This privacy policy ("policy") will help you understand how [COMPANY] ("us", "we", "our") uses and protects the data you provide to us when you visit and use this website.&lt;/p&gt;
+    <value>&lt;p&gt;This privacy policy ("policy") will help you understand how [PageState:Site:Name] ("us", "we", "our") uses and protects the data you provide to us when you visit and use this website.&lt;/p&gt;
 
-&lt;p&gt;We reserve the right to change this policy at any time. We shall let our users know of these changes through electronic mail. If you want to make sure that you are up to date with the latest changes, we advise you to frequently visit this page.&lt;/p&gt;
+&lt;p&gt;We reserve the right to change this policy at any time. If you want to make sure that you are up to date with the latest changes, we advise you to frequently visit this page.&lt;/p&gt;
 
 &lt;h2&gt;What User Data We Collect&lt;/h2&gt;
 
@@ -132,7 +132,7 @@
 
 &lt;h2&gt;Safeguarding and Securing the Data&lt;/h2&gt;
 
-&lt;p&gt;[COMPANY] is committed to securing your data and keeping it confidential. [COMPANY] has done everything in its power to prevent data theft, unauthorized access, and disclosure by implementing the latest technologies and software, which help us safeguard all the information we collect online.&lt;/p&gt;
+&lt;p&gt;[PageState:Site:Name] is committed to securing your data and keeping it confidential. [PageState:Site:Name] has done everything in its power to prevent data theft, unauthorized access, and disclosure by implementing the latest technologies and software, which help us safeguard all the information we collect online.&lt;/p&gt;
 
 &lt;h2&gt;Our Cookie Policy&lt;/h2&gt;
 
@@ -146,20 +146,20 @@
 
 &lt;h2&gt;Links to Other Websites&lt;/h2&gt;
 
-&lt;p&gt;Our website contains links that lead to other websites. If you click on these links [COMPANY] is not held responsible for your data and privacy protection. Visiting those websites is not governed by this privacy policy agreement. Make sure to read the privacy policy documentation of the website you go to from our website.&lt;/p&gt;
+&lt;p&gt;Our website contains links that lead to other websites. If you click on these links [PageState:Site:Name] is not held responsible for your data and privacy protection. Visiting those websites is not governed by this privacy policy agreement. Make sure to read the privacy policy documentation of any website you navigate to from our website.&lt;/p&gt;
 
 &lt;h2&gt;Restricting the Collection of your Personal Data&lt;/h2&gt;
 
 &lt;p&gt;At some point, you might wish to restrict the use and collection of your personal data. If you previously agreed to share your information with us, feel free to contact us via email and we will be more than happy to change this for you.&lt;/p&gt;
 
-&lt;p&gt;[COMPANY] will not lease, sell or distribute your personal information to any third parties, unless we have your permission. Your personal information will only be used when we need to send you promotional materials if you agree to this privacy policy.&lt;/p&gt;</value>
+&lt;p&gt;[PageState:Site:Name] will not lease, sell or distribute your personal information to any third parties, unless we have your permission. Your personal information will only be used when we need to send you promotional materials if you agree to this privacy policy.&lt;/p&gt;</value>
   </data>
   <data name="Terms" xml:space="preserve">
-    <value>&lt;p&gt;Please read these terms and conditions carefully before using this website operated by [COMPANY] ("us", "we", "our").&lt;/p&gt;
+    <value>&lt;p&gt;Please read these terms and conditions carefully before using this website operated by [PageState:Site:Name] ("us", "we", "our").&lt;/p&gt;
 
 &lt;h2&gt;Conditions of Use&lt;/h2&gt;
 
-&lt;p&gt;By using this website, you certify that you have read and reviewed this Agreement and that you agree to comply with its terms. If you do not want to be bound by the terms of this Agreement, you are advised to stop using the website accordingly. [COMPANY] only grants use and access of this website, its products, and its services to those who have accepted its terms.&lt;/p&gt;
+&lt;p&gt;By using this website, you certify that you have read and reviewed this Agreement and that you agree to comply with its terms. If you do not want to be bound by the terms of this Agreement, you are advised to stop using the website accordingly. [PageState:Site:Name] only grants use and access of this website, its products, and its services to those who have accepted its terms.&lt;/p&gt;
 
 &lt;h2&gt;Privacy Policy&lt;/h2&gt;
 
@@ -167,9 +167,9 @@
 
 &lt;h2&gt;Intellectual Property&lt;/h2&gt;
 
-&lt;p&gt;You agree that all materials, products, and services provided on this website are the property of [COMPANY], its affiliates, directors, officers, employees, agents, suppliers, or licensors including all copyrights, trade secrets, trademarks, patents, and other intellectual property. You also agree that you will not reproduce or redistribute the [COMPANY]’s intellectual property in any way, including electronic, digital, or new trademark registrations.&lt;/p&gt;
+&lt;p&gt;You agree that all materials, products, and services provided on this website are the property of [PageState:Site:Name], its affiliates, directors, officers, employees, agents, suppliers, or licensors including all copyrights, trade secrets, trademarks, patents, and other intellectual property. You also agree that you will not reproduce or redistribute the [PageState:Site:Name]’s intellectual property in any way, including electronic, digital, or new trademark registrations.&lt;/p&gt;
 
-&lt;p&gt;You grant [COMPANY] a royalty-free and non-exclusive license to display, use, copy, transmit, and broadcast the content you upload and publish. For issues regarding intellectual property claims, you should contact us in order to come to an agreement.&lt;/p&gt;
+&lt;p&gt;You grant [PageState:Site:Name] a royalty-free and non-exclusive license to display, use, copy, transmit, and broadcast the content you upload and publish. For issues regarding intellectual property claims, you should contact us in order to come to an agreement.&lt;/p&gt;
 
 &lt;h2&gt;User Accounts&lt;/h2&gt;
 
@@ -181,19 +181,19 @@
 
 &lt;h2&gt;Applicable Law&lt;/h2&gt;
 
-&lt;p&gt;By using this website, you agree that the laws of [LOCATION], without regard to principles of conflict laws, will govern these terms and conditions, or any dispute of any sort that might come between [COMPANY] and you, or its business partners and associates.&lt;/p&gt;
+&lt;p&gt;By using this website, you agree that the laws of the jurisdiction associated to [PageState:Site:Name], without regard to principles of conflict laws, will govern these terms and conditions, or any dispute of any sort that might come between [PageState:Site:Name] and you, or its business partners and associates.&lt;/p&gt;
 
 &lt;h2&gt;Disputes&lt;/h2&gt;
 
-&lt;p&gt;Any dispute related in any way to your use of this website or to products you purchase from us shall be arbitrated by state or federal court [your location] and you consent to exclusive jurisdiction and venue of such courts.&lt;/p&gt;
+&lt;p&gt;Any dispute related in any way to your use of this website or to products you purchase from us shall be arbitrated by a court of law and you consent to exclusive jurisdiction and venue of such courts.&lt;/p&gt;
 
 &lt;h2&gt;Indemnification&lt;/h2&gt;
 
-&lt;p&gt;You agree to indemnify [COMPANY] and its affiliates and hold [COMPANY] harmless against legal claims and demands that may arise from your use or misuse of our services. We reserve the right to select our own legal counsel.&lt;/p&gt;
+&lt;p&gt;You agree to indemnify [PageState:Site:Name] and its affiliates and hold [PageState:Site:Name] harmless against legal claims and demands that may arise from your use or misuse of our services. We reserve the right to select our own legal counsel.&lt;/p&gt;
 
 &lt;h2&gt;Limitation on Liability&lt;/h2&gt;
 
-&lt;p&gt;[COMPANY] is not liable for any damages that may occur to you as a result of your misuse of our website. [COMPANY] reserves the right to edit, modify, and change this Agreement at any time. We shall let our users know of these changes through electronic mail. This Agreement is an understanding between [COMPANY] and the user, and this supersedes and replaces all prior agreements regarding the use of this website.&lt;/p&gt;
+&lt;p&gt;[PageState:Site:Name] is not liable for any damages that may occur to you as a result of your misuse of our website. [PageState:Site:Name] reserves the right to edit, modify, and change this Agreement at any time. We shall let our users know of these changes through electronic mail. This Agreement is an understanding between [PageState:Site:Name] and the user, and this supersedes and replaces all prior agreements regarding the use of this website.&lt;/p&gt;
 </value>
   </data>
 </root>

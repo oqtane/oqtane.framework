@@ -15,7 +15,7 @@ namespace Oqtane.Modules.HtmlText
             Version = "1.0.1",
             ServerManagerType = "Oqtane.Modules.HtmlText.Manager.HtmlTextManager, Oqtane.Server",
             ReleaseVersions = "1.0.0,1.0.1",
-            SettingsType = string.Empty,
+            SettingsType = "Oqtane.Modules.HtmlText.Settings, Oqtane.Client",
             Resources = new List<Resource>()
             {
                 new Resource { ResourceType = ResourceType.Stylesheet, Url = "~/Module.css" }

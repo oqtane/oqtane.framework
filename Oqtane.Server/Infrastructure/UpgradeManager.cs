@@ -490,6 +490,9 @@ namespace Oqtane.Infrastructure
                                 new Permission(PermissionNames.View, RoleNames.Admin, true),
                                 new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                             },
+                            Settings = new List<Setting> {
+                                new Setting { SettingName = "DynamicTokens", SettingValue = "true" }
+                            },
                             Content = localizer["Privacy"]
                         }
                     }
@@ -515,6 +518,9 @@ namespace Oqtane.Infrastructure
                                 new Permission(PermissionNames.View, RoleNames.Everyone, true),
                                 new Permission(PermissionNames.View, RoleNames.Admin, true),
                                 new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                            },
+                            Settings = new List<Setting> {
+                                new Setting { SettingName = "DynamicTokens", SettingValue = "true" }
                             },
                             Content = localizer["Terms"]
                         }
