@@ -14,7 +14,11 @@ Oqtane is being developed based on some fundamental principles which are outline
 
 [6.1.0](https://github.com/oqtane/oqtane.framework/releases/tag/v6.1.0) was released on February 11, 2025 and is a minor release including 95 pull requests by 9 different contributors, pushing the total number of project commits all-time to over 6300. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
+# Try It Now!
+
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Foqtane%2Foqtane.framework%2Fmaster%2Fazuredeploy.json)
+
+[![Deploy to MonsterASP.NET](https://www.oqtane.org/files/Public/MonsterASPNET.png)](https://www.monsterasp.net/)
 
 # Getting Started (Version 6.x)
 
