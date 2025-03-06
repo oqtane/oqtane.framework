@@ -9,6 +9,7 @@ using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Modules;
+using Oqtane.Modules.Admin.Modules;
 using Oqtane.Shared;
 using Module = Oqtane.Models.Module;
 
@@ -25,6 +26,7 @@ namespace Oqtane.Repository
         private readonly IPageModuleRepository _pageModuleRepository;
         private readonly IModuleDefinitionRepository _moduleDefinitionRepository;
         private readonly IThemeRepository _themeRepository;
+        private readonly ISettingRepository _settingRepository;
         private readonly IServiceProvider _serviceProvider;
         private readonly IConfigurationRoot _config;
         private readonly IServerStateManager _serverState;
@@ -32,8 +34,8 @@ namespace Oqtane.Repository
         private static readonly object _lock = new object();
 
         public SiteRepository(IDbContextFactory<TenantDBContext> factory, IRoleRepository roleRepository, IProfileRepository profileRepository, IFolderRepository folderRepository, IPageRepository pageRepository,
-            IModuleRepository moduleRepository, IPageModuleRepository pageModuleRepository, IModuleDefinitionRepository moduleDefinitionRepository, IThemeRepository themeRepository, IServiceProvider serviceProvider,
-            IConfigurationRoot config, IServerStateManager serverState, ILogManager logger)
+            IModuleRepository moduleRepository, IPageModuleRepository pageModuleRepository, IModuleDefinitionRepository moduleDefinitionRepository, IThemeRepository themeRepository, ISettingRepository settingRepository,
+            IServiceProvider serviceProvider, IConfigurationRoot config, IServerStateManager serverState, ILogManager logger)
         {
             _factory = factory;
             _roleRepository = roleRepository;
@@ -44,6 +46,7 @@ namespace Oqtane.Repository
             _pageModuleRepository = pageModuleRepository;
             _moduleDefinitionRepository = moduleDefinitionRepository;
             _themeRepository = themeRepository;
+            _settingRepository = settingRepository;
             _serviceProvider = serviceProvider;
             _config = config;
             _serverState = serverState;
@@ -391,6 +394,7 @@ namespace Oqtane.Repository
                                     {
                                         _logger.Log(LogLevel.Information, "Site Template", LogFunction.Update, "Page Updated {Page}", page);
                                     }
+                                    UpdateSettings(EntityNames.Page, page.PageId, pageTemplate.Settings);
                                 }
                             }
                             else
@@ -401,6 +405,7 @@ namespace Oqtane.Repository
                                 {
                                     _logger.Log(LogLevel.Information, "Site Template", LogFunction.Create, "Page Added {Page}", page);
                                 }
+                                UpdateSettings(EntityNames.Page, page.PageId, pageTemplate.Settings);
                             }
                         }
                         catch (Exception ex)
@@ -457,6 +462,7 @@ namespace Oqtane.Repository
                                             {
                                                 _logger.Log(LogLevel.Information, "Site Template", LogFunction.Update, "Page Module Updated {PageModule}", pageModule);
                                             }
+                                            UpdateSettings(EntityNames.Module, pageModule.Module.ModuleId, pageTemplateModule.Settings);
                                         }
                                         else
                                         {
@@ -475,6 +481,7 @@ namespace Oqtane.Repository
                                         {
                                             _logger.Log(LogLevel.Information, "Site Template", LogFunction.Create, "Page Module Added {PageModule}", pageModule);
                                         }
+                                        UpdateSettings(EntityNames.Module, pageModule.Module.ModuleId, pageTemplateModule.Settings);
                                     }
 
                                 }
@@ -519,6 +526,26 @@ namespace Oqtane.Repository
                             }
                         }
                     }
+                }
+            }
+        }
+
+        private void UpdateSettings(string entityName, int entityId, List<Setting> templateSettings)
+        {
+            foreach (var templateSetting in templateSettings)
+            {
+                var setting = _settingRepository.GetSetting(entityName, entityId, templateSetting.SettingName);
+                if (setting == null)
+                {
+                    templateSetting.EntityName = entityName;
+                    templateSetting.EntityId = entityId;
+                    _settingRepository.AddSetting(templateSetting);
+                }
+                else
+                {
+                    setting.SettingValue = templateSetting.SettingValue;
+                    setting.IsPrivate = templateSetting.IsPrivate;
+                    _settingRepository.UpdateSetting(setting);
                 }
             }
         }

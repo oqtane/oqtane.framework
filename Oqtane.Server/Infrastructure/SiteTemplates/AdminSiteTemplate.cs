@@ -199,6 +199,9 @@ namespace Oqtane.Infrastructure.SiteTemplates
                                 new Permission(PermissionNames.View, RoleNames.Admin, true),
                                 new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                             },
+                            Settings = new List<Setting> {
+                                new Setting { SettingName = "DynamicTokens", SettingValue = "true" }
+                            },
                             Content = _localizer["Privacy"]
                         }
                     }
@@ -225,6 +228,9 @@ namespace Oqtane.Infrastructure.SiteTemplates
                                 new Permission(PermissionNames.View, RoleNames.Everyone, true),
                                 new Permission(PermissionNames.View, RoleNames.Admin, true),
                                 new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                            },
+                            Settings = new List<Setting> {
+                                new Setting { SettingName = "DynamicTokens", SettingValue = "true" }
                             },
                             Content = _localizer["Terms"]
                         }
