@@ -16,9 +16,10 @@ Oqtane is being developed based on some fundamental principles which are outline
 
 # Try It Now!
 
-Automated Deployment to Microsoft Azure [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Foqtane%2Foqtane.framework%2Fmaster%2Fazuredeploy.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Foqtane%2Foqtane.framework%2Fmaster%2Fazuredeploy.json) Microsoft's Public Cloud
 
-Automated Deployment to Monster ASP.NET [![Deploy to MonsterASP.NET](https://www.oqtane.org/files/Public/MonsterASPNET.png)](https://www.monsterasp.net/)
+
+[![Deploy to MonsterASP.NET](https://www.oqtane.org/files/Public/MonsterASPNET.png)](https://www.monsterasp.net/) Free hosting account. No hidden fees. No credit card required.
 
 # Getting Started (Version 6.x)
 
