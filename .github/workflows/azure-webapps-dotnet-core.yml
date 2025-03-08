@@ -56,7 +56,7 @@ jobs:
         run: dotnet build --configuration Release Oqtane.sln
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp Oqtane.sln
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
