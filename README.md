@@ -26,7 +26,7 @@ A free ASP.NET hosting account. No hidden fees. No credit card required.
 
 **Installing using source code from the Dev/Master branch:**
 
-- Install **[.NET 9.0.1 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)**.
+- Install **[.NET 9.0.2 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)**.
 
 - Install the latest edition (v17.12 or higher) of [Visual Studio 2022](https://visualstudio.microsoft.com/downloads) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you wish to use LocalDB for development ( not a requirement as Oqtane supports SQLite, mySQL, and PostgreSQL ) you must also install the **Data storage and processing**.  
 
