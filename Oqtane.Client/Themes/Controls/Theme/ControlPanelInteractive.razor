@@ -573,7 +573,7 @@
         else
         {
             // post to the Logout page to complete the logout process
-            var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, returnurl = url };
+            var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, returnurl = url, everywhere = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:LogoutEverywhere", "false")) };
             var interop = new Interop(jsRuntime);
             await interop.SubmitForm(Utilities.TenantUrl(PageState.Alias, "/pages/logout/"), fields);
         }

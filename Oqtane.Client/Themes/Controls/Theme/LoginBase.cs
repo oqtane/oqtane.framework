@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Oqtane.Enums;
-using Oqtane.Models;
 using Oqtane.Providers;
 using Oqtane.Security;
 using Oqtane.Services;
@@ -26,6 +25,7 @@ namespace Oqtane.Themes.Controls
         protected string loginurl;
         protected string logouturl;
         protected string returnurl;
+        protected string everywhere;
 
         protected override void OnParametersSet()
         {
@@ -57,6 +57,7 @@ namespace Oqtane.Themes.Controls
 
             // set logout url
             logouturl = Utilities.TenantUrl(PageState.Alias, "/pages/logout/");
+            everywhere = SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:LogoutEverywhere", "false");
 
             // verify anonymous users can access current page
             if (UserSecurity.IsAuthorized(null, PermissionNames.View, PageState.Page.PermissionList) && Utilities.IsEffectiveAndNotExpired(PageState.Page.EffectiveDate, PageState.Page.ExpiryDate))
@@ -98,7 +99,7 @@ namespace Oqtane.Themes.Controls
             else // this condition is only valid for legacy Login button inheriting from LoginBase
             {
                 // post to the Logout page to complete the logout process
-                var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, returnurl = returnurl };
+                var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, returnurl = returnurl, everywhere = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:LogoutEverywhere", "false")) };
                 var interop = new Interop(jsRuntime);
                 await interop.SubmitForm(logouturl, fields);
             }

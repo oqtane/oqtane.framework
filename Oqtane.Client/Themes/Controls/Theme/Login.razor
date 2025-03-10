@@ -15,6 +15,7 @@
             <form method="post" class="app-form-inline" action="@logouturl" @formname="LogoutForm">
                 <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                 <input type="hidden" name="returnurl" value="@returnurl" />
+                <input type="hidden" name="everywhere" value="@everywhere" />
                 <button type="submit" class="@CssClass">@Localizer["Logout"]</button>
             </form>
         }
