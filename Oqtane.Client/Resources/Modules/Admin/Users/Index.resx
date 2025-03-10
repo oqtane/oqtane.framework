@@ -507,4 +507,10 @@
   <data name="Error.DeleteUser" xml:space="preserve">
     <value>Error Deleting User</value>
   </data>
+  <data name="LogoutEverywhere.Text" xml:space="preserve">
+    <value>Logout Everywhere?</value>
+  </data>
+  <data name="LogoutEverywhere.HelpText" xml:space="preserve">
+    <value>Do you want users to be logged out of every active session on any device, or only their current session?</value>
+  </data>
 </root>
