@@ -12,24 +12,24 @@ using Oqtane.Shared;
 namespace Oqtane.Services
 {
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
-    public class ServerCacheService : ICacheService
+    public class ServerOutputCacheService : IOutputCacheService
     {
         private readonly IOutputCacheStore _outputCacheStore;
         private readonly ILogManager _logger;
         private readonly IHttpContextAccessor _accessor;
 
-        public ServerCacheService(IOutputCacheStore outputCacheStore, ILogManager logger, IHttpContextAccessor accessor)
+        public ServerOutputCacheService(IOutputCacheStore outputCacheStore, ILogManager logger, IHttpContextAccessor accessor)
         {
             _outputCacheStore = outputCacheStore;
             _logger = logger;
             _accessor = accessor;
         }
 
-        public async Task EvictOutputCacheByTag(string tag, CancellationToken cancellationToken = default)
+        public async Task EvictByTag(string tag)
         {
             if (_accessor.HttpContext.User.IsInRole(RoleNames.Admin))
             {
-                await _outputCacheStore.EvictByTagAsync(tag, cancellationToken);
+                await _outputCacheStore.EvictByTagAsync(tag, default);
                 _logger.Log(LogLevel.Information, this, LogFunction.Other, "Evicted Output Cache for Tag {Tag}", tag);
             }
             else

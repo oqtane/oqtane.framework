@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Swagger" xml:space="preserve">
-    <value>Access Swagger UI</value>
+    <value>Swagger UI</value>
   </data>
   <data name="FrameworkVersion.HelpText" xml:space="preserve">
     <value>Framework Version</value>
@@ -305,5 +305,8 @@
   </data>
   <data name="CacheControl.HelpText" xml:space="preserve">
     <value>Provide a Cache-Control directive for static assets. For example 'public, max-age=60' indicates that static assets should be cached for 60 seconds. A blank value indicates caching is not enabled.</value>
+  </data>
+  <data name="Endpoints" xml:space="preserve">
+    <value>API Endpoints</value>
   </data>
 </root>

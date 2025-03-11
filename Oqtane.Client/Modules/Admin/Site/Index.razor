@@ -14,7 +14,7 @@
 @inject IStringLocalizer<Index> Localizer
 @inject INotificationService NotificationService
 @inject IStringLocalizer<SharedResources> SharedLocalizer
-@inject ICacheService CacheService
+@inject IOutputCacheService CacheService
 
 @if (_initialized)
 {
@@ -936,7 +936,7 @@
     }
 
     private async Task EvictSitemapOutputCache() {
-        await CacheService.EvictOutputCacheByTag(Constants.SitemapOutputCacheTag);
+        await CacheService.EvictByTag(Constants.SitemapOutputCacheTag);
         AddModuleMessage(Localizer["Success.SiteMap.CacheEvicted"], MessageType.Success);
     }
 }

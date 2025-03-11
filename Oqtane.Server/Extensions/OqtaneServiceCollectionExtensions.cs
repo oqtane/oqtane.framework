@@ -117,7 +117,7 @@ namespace Microsoft.Extensions.DependencyInjection
             // services
             services.AddTransient<ISiteService, ServerSiteService>();
             services.AddTransient<ILocalizationCookieService, ServerLocalizationCookieService>();
-            services.AddTransient<ICacheService, ServerCacheService>();
+            services.AddTransient<IOutputCacheService, ServerOutputCacheService>();
 
             // repositories
             services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
