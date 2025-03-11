@@ -445,6 +445,6 @@
     <value>Clear Cache</value>
   </data>
   <data name="Success.SiteMap.CacheEvicted" xml:space="preserve">
-    <value>SiteMap Output Cache Evicted</value>
+    <value>Site Map Cache Cleared</value>
   </data>
 </root>
