@@ -48,7 +48,7 @@ namespace Oqtane.Controllers
                         ControllerMethod = controllerMethod
                     };
                 }
-            );
+            ).OrderBy(item => item.Route);
 
             return Json(output);
         }
