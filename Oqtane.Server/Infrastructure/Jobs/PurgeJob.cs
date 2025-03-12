@@ -39,7 +39,7 @@ namespace Oqtane.Infrastructure
             List<Site> sites = siteRepository.GetSites().ToList();
             foreach (Site site in sites)
             {
-                log += "Processing Site: " + site.Name + "<br />";
+                log += "<br />Processing Site: " + site.Name + "<br />";
                 int retention;
                 int count;
 
@@ -118,11 +118,11 @@ namespace Oqtane.Infrastructure
             try
             {
                 var assemblies = installationManager.RegisterAssemblies();
-                log += assemblies.ToString() + " Assemblies Registered<br />";
+                log += "<br />" + assemblies.ToString() + " Assemblies Registered<br />";
             }
             catch (Exception ex)
             {
-                log += $"Error Registering Assemblies - {ex.Message}<br />";
+                log += $"<br />Error Registering Assemblies - {ex.Message}<br />";
             }
 
             return log;

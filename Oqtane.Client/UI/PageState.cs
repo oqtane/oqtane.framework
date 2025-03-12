@@ -27,6 +27,7 @@ namespace Oqtane.UI
         public bool IsInternalNavigation { get; set; }
         public Guid RenderId { get; set; }
         public bool Refresh {  get; set; }
+        public bool AllowCookies { get; set; }
 
         public List<Page> Pages
         {

@@ -1,14 +1,22 @@
 using System.Collections.Generic;
+using Microsoft.Extensions.Localization;
 using Oqtane.Documentation;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
 
-namespace Oqtane.SiteTemplates
+namespace Oqtane.Infrastructure.SiteTemplates
 {
     [PrivateApi("Mark Site-Template classes as private, since it's not very useful in the public docs")]
     public class AdminSiteTemplate : ISiteTemplate
     {
+        private readonly IStringLocalizer<AdminSiteTemplate> _localizer;
+
+        public AdminSiteTemplate(IStringLocalizer<AdminSiteTemplate> localizer)
+        {
+            _localizer = localizer;
+        }
+
         public string Name
         {
             get { return "Admin Site Template"; } 
@@ -167,6 +175,66 @@ namespace Oqtane.SiteTemplates
                         }
                     }
                 }
+            });
+
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Privacy",
+                Parent = "",
+                Path = "privacy",
+                Icon = Icons.Eye,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                PermissionList = new List<Permission>
+                    {
+                        new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                        new Permission(PermissionNames.View, RoleNames.Admin, true),
+                        new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                    },
+                PageTemplateModules = new List<PageTemplateModule>
+                    {
+                        new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Privacy Policy", Pane = PaneNames.Default,
+                            PermissionList = new List<Permission> {
+                                new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                                new Permission(PermissionNames.View, RoleNames.Admin, true),
+                                new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                            },
+                            Settings = new List<Setting> {
+                                new Setting { SettingName = "DynamicTokens", SettingValue = "true" }
+                            },
+                            Content = _localizer["Privacy"]
+                        }
+                    }
+            });
+
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Terms",
+                Parent = "",
+                Path = "terms",
+                Icon = Icons.List,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                PermissionList = new List<Permission>
+                    {
+                        new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                        new Permission(PermissionNames.View, RoleNames.Admin, true),
+                        new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                    },
+                PageTemplateModules = new List<PageTemplateModule>
+                    {
+                        new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Terms of Use", Pane = PaneNames.Default,
+                            PermissionList = new List<Permission> {
+                                new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                                new Permission(PermissionNames.View, RoleNames.Admin, true),
+                                new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                            },
+                            Settings = new List<Setting> {
+                                new Setting { SettingName = "DynamicTokens", SettingValue = "true" }
+                            },
+                            Content = _localizer["Terms"]
+                        }
+                    }
             });
 
             pageTemplates.Add(new PageTemplate

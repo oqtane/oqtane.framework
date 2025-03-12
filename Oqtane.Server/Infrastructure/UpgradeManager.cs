@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using Oqtane.Infrastructure.SiteTemplates;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
@@ -74,6 +76,9 @@ namespace Oqtane.Infrastructure
                         break;
                     case "6.1.0":
                         Upgrade_6_1_0(tenant, scope);
+                        break;
+                    case "6.1.1":
+                        Upgrade_6_1_1(tenant, scope);
                         break;
                 }
             }
@@ -455,6 +460,75 @@ namespace Oqtane.Infrastructure
             };
 
             RemoveAssemblies(tenant, assemblies, "6.1.0");
+        }
+
+        private void Upgrade_6_1_1(Tenant tenant, IServiceScope scope)
+        {
+            var localizer = scope.ServiceProvider.GetRequiredService<IStringLocalizer<AdminSiteTemplate>>();
+
+            var pageTemplates = new List<PageTemplate>
+            {
+                new PageTemplate
+                {
+                    Name = "Privacy",
+                    Parent = "",
+                    Path = "privacy",
+                    Icon = Icons.Eye,
+                    IsNavigation = false,
+                    IsPersonalizable = false,
+                    PermissionList = new List<Permission>
+                    {
+                        new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                        new Permission(PermissionNames.View, RoleNames.Admin, true),
+                        new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                    },
+                    PageTemplateModules = new List<PageTemplateModule>
+                    {
+                        new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Privacy Policy", Pane = PaneNames.Default,
+                            PermissionList = new List<Permission> {
+                                new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                                new Permission(PermissionNames.View, RoleNames.Admin, true),
+                                new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                            },
+                            Settings = new List<Setting> {
+                                new Setting { SettingName = "DynamicTokens", SettingValue = "true" }
+                            },
+                            Content = localizer["Privacy"]
+                        }
+                    }
+                },
+                new PageTemplate
+                {
+                    Name = "Terms",
+                    Parent = "",
+                    Path = "terms",
+                    Icon = Icons.List,
+                    IsNavigation = false,
+                    IsPersonalizable = false,
+                    PermissionList = new List<Permission>
+                    {
+                        new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                        new Permission(PermissionNames.View, RoleNames.Admin, true),
+                        new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                    },
+                    PageTemplateModules = new List<PageTemplateModule>
+                    {
+                        new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Terms of Use", Pane = PaneNames.Default,
+                            PermissionList = new List<Permission> {
+                                new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                                new Permission(PermissionNames.View, RoleNames.Admin, true),
+                                new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                            },
+                            Settings = new List<Setting> {
+                                new Setting { SettingName = "DynamicTokens", SettingValue = "true" }
+                            },
+                            Content = localizer["Terms"]
+                        }
+                    }
+                }
+            };
+
+            AddPagesToSites(scope, tenant, pageTemplates);
         }
 
         private void AddPagesToSites(IServiceScope scope, Tenant tenant, List<PageTemplate> pageTemplates)

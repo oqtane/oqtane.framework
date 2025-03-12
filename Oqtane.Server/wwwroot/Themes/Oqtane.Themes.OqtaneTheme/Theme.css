@@ -99,7 +99,49 @@ div.app-moduleactions a.dropdown-toggle, div.app-moduleactions div.dropdown-menu
     color: #ffffff;
     z-index: 1000;
 }
+@media (max-width: 991.98px) {
+    .app-search {
+        border-radius: 6px;
+    }
+    .app-search input{
+        display: none !important;
+    }
 
+    .app-search input + button {
+        position: initial;
+        padding-top: 7px;
+        padding-bottom: 7px;
+    }
+
+    .app-search:active, .app-search:hover {
+        display: block;
+        position: fixed;
+        top: 0;
+        min-height: 96px;
+        width: 100%;
+        left: 0;
+        z-index: 999;
+        border-radius: 0;
+    }
+
+    .app-search:active .app-form-inline, .app-search:hover .app-form-inline {
+        margin: 10px auto;
+        position: relative;
+        display: block;
+        max-width: 80%;
+    }
+
+    .app-search:active .app-form-inline input, .app-search:hover .app-form-inline input {
+        width: 100%;
+        display: block !important;
+    }
+    .app-search:active .app-form-inline input + button, .app-search:hover .app-form-inline input + button {
+        position: absolute;
+        color: rgb(42, 159, 214);
+        padding-top: 6px;
+        padding-bottom: 6px;
+    }
+}
 @media (max-width: 767.98px) {
 
     .app-menu {
@@ -130,45 +172,7 @@ div.app-moduleactions a.dropdown-toggle, div.app-moduleactions div.dropdown-menu
         position: relative;
         top: 60px;
     }
-    .app-search {
-        border-radius: 6px;
-    }
-    .app-search input{
-        display: none !important;
-    }
-
-    .app-search input + button {
-        position: initial;
-        padding-top: 7px;
-        padding-bottom: 7px;
-    }
-
-    .app-search:active, .app-search:hover {
-        display: block;
-        position: fixed;
-        top: 0;
+    .app-search:active, .app-search:hover{
         min-height: 60px;
-        width: 100%;
-        left: 0;
-        z-index: 999;
-        border-radius: 0;
-    }
-
-    .app-search:active .app-form-inline, .app-search:hover .app-form-inline {
-        margin: 10px auto;
-        position: relative;
-        display: block;
-        max-width: 80%;
-    }
-
-    .app-search:active .app-form-inline input, .app-search:hover .app-form-inline input {
-        width: 100%;
-        display: block !important;
-    }
-    .app-search:active .app-form-inline input + button, .app-search:hover .app-form-inline input + button {
-        position: absolute;
-        color: rgb(42, 159, 214);
-        padding-top: 6px;
-        padding-bottom: 6px;
     }
 }

@@ -142,6 +142,8 @@ namespace Oqtane
                     });
             });
 
+            services.AddOutputCache();
+
             services.AddMvc(options =>
             {
                 options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
@@ -222,6 +224,7 @@ namespace Oqtane
             app.UseJwtAuthorization();
             app.UseRouting();
             app.UseCors();
+            app.UseOutputCache();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseAntiforgery();

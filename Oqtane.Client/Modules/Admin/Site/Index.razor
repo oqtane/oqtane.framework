@@ -14,6 +14,7 @@
 @inject IStringLocalizer<Index> Localizer
 @inject INotificationService NotificationService
 @inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject IOutputCacheService CacheService
 
 @if (_initialized)
 {
@@ -50,11 +51,12 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="sitemap" HelpText="The site map url for this site which can be submitted to search engines for indexing" ResourceKey="SiteMap">Site Map: </Label>
+                <Label Class="col-sm-3" For="sitemap" HelpText="The site map url for this site which can be submitted to search engines for indexing. The sitemap is cached for 5 minutes and the cache can be manually cleared." ResourceKey="SiteMap">Site Map: </Label>
                 <div class="col-sm-9">
                     <div class="input-group">
                         <input id="sitemap" class="form-control" @bind="@_sitemap" disabled />
                         <a href="@_sitemap" class="btn btn-secondary" target="_new">@Localizer["Browse"]</a>
+                        <button type="button" class="btn btn-danger" @onclick="EvictSitemapOutputCache">@Localizer["SiteMap.EvictCache"]</button>
                     </div>
                 </div>
             </div>
@@ -72,20 +74,8 @@
             </div>
         </div>
         <br />
-        <Section Name="Appearance" Heading="Appearance" ResourceKey="Appearance">
+        <Section Name="Theme" Heading="Theme" ResourceKey="Theme">
             <div class="container">
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="logo" HelpText="Specify a logo for the site" ResourceKey="Logo">Logo: </Label>
-                    <div class="col-sm-9">
-                        <FileManager FileId="@_logofileid" Filter="@_imageFiles" @ref="_logofilemanager" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="favicon" HelpText="Specify a Favicon" ResourceKey="FavoriteIcon">Favicon: </Label>
-                    <div class="col-sm-9">
-                        <FileManager FileId="@_faviconfileid" Filter="ico,png,gif" @ref="_faviconfilemanager" />
-                    </div>
-                </div>
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="defaultTheme" HelpText="Select the sites default theme" ResourceKey="DefaultTheme">Default Theme: </Label>
                     <div class="col-sm-9">
@@ -124,6 +114,32 @@
                                 }
                             }
                         </select>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="cookieconsent" HelpText="Specify if cookie consent is enabled on this site. Please note this option must be used in conjunction with a Theme which supports cookie consent." ResourceKey="CookieConsent">Cookie Consent: </Label>
+                    <div class="col-sm-9">
+                        <select id="cookieconsent" class="form-select" @bind="@_cookieconsent">
+                            <option value="">@SharedLocalizer["Disabled"]</option>
+                            <option value="optin">@Localizer["OptIn"]</option>
+                            <option value="optout">@Localizer["OptOut"]</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </Section>
+        <Section Name="Appearance" Heading="Appearance" ResourceKey="Appearance">
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="logo" HelpText="Specify a logo for the site" ResourceKey="Logo">Logo: </Label>
+                    <div class="col-sm-9">
+                        <FileManager FileId="@_logofileid" Filter="@_imageFiles" @ref="_logofilemanager" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="favicon" HelpText="Specify a Favicon" ResourceKey="FavoriteIcon">Favicon: </Label>
+                    <div class="col-sm-9">
+                        <FileManager FileId="@_faviconfileid" Filter="ico,png,gif" @ref="_faviconfilemanager" />
                     </div>
                 </div>
             </div>
@@ -415,6 +431,7 @@
     private string _themetype = "";
     private string _containertype = "";
     private string _admincontainertype = "";
+    private string _cookieconsent = "";
 
     private Dictionary<string, string> _textEditors = new Dictionary<string, string>();
     private string _textEditor = "";
@@ -505,6 +522,7 @@
                 _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
                 _containertype = (!string.IsNullOrEmpty(site.DefaultContainerType)) ? site.DefaultContainerType : Constants.DefaultContainer;
                 _admincontainertype = (!string.IsNullOrEmpty(site.AdminContainerType)) ? site.AdminContainerType : Constants.DefaultAdminContainer;
+                _cookieconsent = SettingService.GetSetting(settings, "CookieConsent", string.Empty);
 
                 // functionality
                 var textEditors = ServiceProvider.GetServices<ITextEditor>();
@@ -717,6 +735,9 @@
                         settings = SettingService.SetSetting(settings, "SiteGuid", _siteguid, true);
                         settings = SettingService.SetSetting(settings, "NotificationRetention", _retention.ToString(), true);
 
+                        //cookie consent
+                        settings = SettingService.SetSetting(settings, "CookieConsent", _cookieconsent);
+
                         // functionality
                         settings = SettingService.SetSetting(settings, "TextEditor", _textEditor);
 
@@ -912,5 +933,10 @@
         _aliasid = -1;
         _aliasname = "";
         StateHasChanged();
+    }
+
+    private async Task EvictSitemapOutputCache() {
+        await CacheService.EvictByTag(Constants.SitemapOutputCacheTag);
+        AddModuleMessage(Localizer["Success.SiteMap.CacheEvicted"], MessageType.Success);
     }
 }

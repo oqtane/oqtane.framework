@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Privacy" xml:space="preserve">
+    <value>&lt;p&gt;This privacy policy ("policy") will help you understand how [PageState:Site:Name] ("us", "we", "our") uses and protects the data you provide to us when you visit and use this website.&lt;/p&gt;
+
+&lt;p&gt;We reserve the right to change this policy at any time. If you want to make sure that you are up to date with the latest changes, we advise you to frequently visit this page.&lt;/p&gt;
+
+&lt;h2&gt;What User Data We Collect&lt;/h2&gt;
+
+&lt;p&gt;When you visit this website, we may collect the following data: your IP address, your contact information and email address, other information such as interests and preferences.&lt;/p&gt;
+
+&lt;h2&gt;Why We Collect Your Data&lt;/h2&gt;
+
+&lt;p&gt;We are collecting your data for several reasons: to better understand your needs, to improve our products and services, to send you promotional emails containing the information we think you will find interesting, to customize our website according to your online behavior and personal preferences.&lt;/p&gt;
+
+&lt;h2&gt;Safeguarding and Securing the Data&lt;/h2&gt;
+
+&lt;p&gt;[PageState:Site:Name] is committed to securing your data and keeping it confidential. [PageState:Site:Name] has done everything in its power to prevent data theft, unauthorized access, and disclosure by implementing the latest technologies and software, which help us safeguard all the information we collect online.&lt;/p&gt;
+
+&lt;h2&gt;Our Cookie Policy&lt;/h2&gt;
+
+&lt;p&gt;Once you agree to allow our website to use cookies, you also agree to allow us to use the data it collects regarding your online behavior (analyze web traffic, web pages you visit and spend the most time on, etc...).&lt;/p&gt;
+
+&lt;p&gt;The data we collect by using cookies is used to customize our website to your needs.&lt;/p&gt;
+
+&lt;p&gt;Please note that cookies don't allow us to gain access to your computer in any way. They are strictly used to monitor which pages you find useful and which you do not so that we can provide a better experience for you.&lt;/p&gt;
+
+&lt;p&gt;If you want to disable or remove cookies, you can do so by accessing the settings of your internet browser.&lt;/p&gt;
+
+&lt;h2&gt;Links to Other Websites&lt;/h2&gt;
+
+&lt;p&gt;Our website contains links that lead to other websites. If you click on these links [PageState:Site:Name] is not held responsible for your data and privacy protection. Visiting those websites is not governed by this privacy policy agreement. Make sure to read the privacy policy documentation of any website you navigate to from our website.&lt;/p&gt;
+
+&lt;h2&gt;Restricting the Collection of your Personal Data&lt;/h2&gt;
+
+&lt;p&gt;At some point, you might wish to restrict the use and collection of your personal data. If you previously agreed to share your information with us, feel free to contact us via email and we will be more than happy to change this for you.&lt;/p&gt;
+
+&lt;p&gt;[PageState:Site:Name] will not lease, sell or distribute your personal information to any third parties, unless we have your permission. Your personal information will only be used when we need to send you promotional materials if you agree to this privacy policy.&lt;/p&gt;</value>
+  </data>
+  <data name="Terms" xml:space="preserve">
+    <value>&lt;p&gt;Please read these terms and conditions carefully before using this website operated by [PageState:Site:Name] ("us", "we", "our").&lt;/p&gt;
+
+&lt;h2&gt;Conditions of Use&lt;/h2&gt;
+
+&lt;p&gt;By using this website, you certify that you have read and reviewed this Agreement and that you agree to comply with its terms. If you do not want to be bound by the terms of this Agreement, you are advised to stop using the website accordingly. [PageState:Site:Name] only grants use and access of this website, its products, and its services to those who have accepted its terms.&lt;/p&gt;
+
+&lt;h2&gt;Privacy Policy&lt;/h2&gt;
+
+&lt;p&gt;Before you continue using our website, we advise you to read our &lt;a href="/privacy"&gt;privacy policy&lt;/a&gt; regarding our user data collection. It will help you better understand our practices.&lt;/p&gt;
+
+&lt;h2&gt;Intellectual Property&lt;/h2&gt;
+
+&lt;p&gt;You agree that all materials, products, and services provided on this website are the property of [PageState:Site:Name], its affiliates, directors, officers, employees, agents, suppliers, or licensors including all copyrights, trade secrets, trademarks, patents, and other intellectual property. You also agree that you will not reproduce or redistribute the [PageState:Site:Name]’s intellectual property in any way, including electronic, digital, or new trademark registrations.&lt;/p&gt;
+
+&lt;p&gt;You grant [PageState:Site:Name] a royalty-free and non-exclusive license to display, use, copy, transmit, and broadcast the content you upload and publish. For issues regarding intellectual property claims, you should contact us in order to come to an agreement.&lt;/p&gt;
+
+&lt;h2&gt;User Accounts&lt;/h2&gt;
+
+&lt;p&gt;As a user of this website, you may be asked to register with us and provide private information. You are responsible for ensuring the accuracy of this information, and you are responsible for maintaining the safety and security of your identifying information.&lt;/p&gt;
+
+&lt;p&gt;You are also responsible for all activities that occur under your account or password. If you think there are any possible issues regarding the security of your account on the website, inform us immediately so we may address them accordingly.&lt;/p&gt;
+
+&lt;p&gt;We reserve all rights to terminate accounts, edit or remove content and cancel orders at our sole discretion.&lt;/p&gt;
+
+&lt;h2&gt;Applicable Law&lt;/h2&gt;
+
+&lt;p&gt;By using this website, you agree that the laws of the jurisdiction associated to [PageState:Site:Name], without regard to principles of conflict laws, will govern these terms and conditions, or any dispute of any sort that might come between [PageState:Site:Name] and you, or its business partners and associates.&lt;/p&gt;
+
+&lt;h2&gt;Disputes&lt;/h2&gt;
+
+&lt;p&gt;Any dispute related in any way to your use of this website or to products you purchase from us shall be arbitrated by a court of law and you consent to exclusive jurisdiction and venue of such courts.&lt;/p&gt;
+
+&lt;h2&gt;Indemnification&lt;/h2&gt;
+
+&lt;p&gt;You agree to indemnify [PageState:Site:Name] and its affiliates and hold [PageState:Site:Name] harmless against legal claims and demands that may arise from your use or misuse of our services. We reserve the right to select our own legal counsel.&lt;/p&gt;
+
+&lt;h2&gt;Limitation on Liability&lt;/h2&gt;
+
+&lt;p&gt;[PageState:Site:Name] is not liable for any damages that may occur to you as a result of your misuse of our website. [PageState:Site:Name] reserves the right to edit, modify, and change this Agreement at any time. We shall let our users know of these changes through electronic mail. This Agreement is an understanding between [PageState:Site:Name] and the user, and this supersedes and replaces all prior agreements regarding the use of this website.&lt;/p&gt;
+</value>
+  </data>
+</root>

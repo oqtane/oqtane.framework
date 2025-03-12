@@ -2,6 +2,7 @@
 @namespace Oqtane.Modules.HtmlText
 @inherits ModuleBase
 @inject IHtmlTextService HtmlTextService
+@inject ISettingService SettingService
 @inject IStringLocalizer<Index> Localizer
 
 @if (PageState.EditMode)
@@ -36,6 +37,10 @@
                 {
                     content = htmltext.Content;
                     content = Utilities.FormatContent(content, PageState.Alias, "render");
+                    if (bool.Parse(SettingService.GetSetting(ModuleState.Settings, "DynamicTokens", "false")))
+                    {
+                        content = ReplaceTokens(content);
+                    }
                 }
                 else
                 {

@@ -52,6 +52,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IVisitorService, VisitorService>();
             services.AddScoped<ISyncService, SyncService>();
             services.AddScoped<ILocalizationCookieService, LocalizationCookieService>();
+            services.AddScoped<ICookieConsentService, CookieConsentService>();
+            services.AddScoped<IOutputCacheService, OutputCacheService>();
 
             // providers
             services.AddScoped<ITextEditor, Oqtane.Modules.Controls.QuillJSTextEditor>();

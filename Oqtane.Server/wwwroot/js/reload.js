@@ -1,8 +1,8 @@
 const scriptKeys = new Set();
 
 export function onUpdate() {
-    // determine if this is an enhanced navigation
-    let enhancedNavigation = scriptKeys.size !== 0;
+    // determine if this is an initial request
+    let initialRequest = scriptKeys.size === 0;
 
     // iterate over all script elements in document
     const scripts = document.getElementsByTagName('script');
@@ -11,7 +11,7 @@ export function onUpdate() {
         if (script.hasAttribute('data-reload')) {
             let key = getKey(script);
 
-            if (enhancedNavigation) {
+            if (!initialRequest) {
                 // reload the script if data-reload is "always" or "true"... or if the script has not been loaded previously and data-reload is "once"
                 let dataReload = script.getAttribute('data-reload');
                 if ((dataReload === 'always' || dataReload === 'true') || (!scriptKeys.has(key) && dataReload == 'once')) {
@@ -40,7 +40,7 @@ function getKey(script) {
 function reloadScript(script) {
     try {
         if (isValid(script)) {
-            replaceScript(script);
+            injectScript(script);
         }
     } catch (error) {
         console.error(`Blazor Script Reload failed to load script: ${getKey(script)}`, error);
@@ -55,16 +55,18 @@ function isValid(script) {
     return true;
 }
 
-function replaceScript(script) {
+function injectScript(script) {
     return new Promise((resolve, reject) => {
         var newScript = document.createElement('script');
 
         // replicate attributes and content
         for (let i = 0; i < script.attributes.length; i++) {
-            newScript.setAttribute(script.attributes[i].name, script.attributes[i].value);
+            if (script.attributes[i].name !== 'data-reload') {
+                newScript.setAttribute(script.attributes[i].name, script.attributes[i].value);
+            }
         }
+        newScript.nonce = script.nonce; // must be referenced explicitly
         newScript.innerHTML = script.innerHTML;
-        newScript.removeAttribute('data-reload');
 
         // dynamically injected scripts cannot be async or deferred
         newScript.async = false;
@@ -73,10 +75,10 @@ function replaceScript(script) {
         newScript.onload = () => resolve();
         newScript.onerror = (error) => reject(error);
 
-        // remove existing script element
-        script.remove();
-
-        // replace with new script element to force reload in Blazor
+        // inject script element in head to force execution in Blazor
         document.head.appendChild(newScript);
+
+        // remove data-reload attribute
+        script.removeAttribute('data-reload');
     });
 }

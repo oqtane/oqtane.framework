@@ -14,6 +14,9 @@ Oqtane.Interop = {
         }
         document.cookie = cookieString;
     },
+    setCookieString: function (cookieString) {
+        document.cookie = cookieString;
+    },
     getCookie: function (name) {
         name = name + "=";
         var decodedCookie = decodeURIComponent(document.cookie);

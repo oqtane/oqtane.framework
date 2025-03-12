@@ -1,11 +1,6 @@
 @namespace Oqtane.Themes.BlazorTheme
 @inherits ThemeBase
 
-
-<div class="breadcrumbs">
-    <Breadcrumbs />
-</div>
-
 <div class="row flex-xl-nowrap gx-0">
     <div class="sidebar">
         <nav class="navbar">
@@ -22,13 +17,18 @@
                 <Login />
                 <ControlPanel LanguageDropdownAlignment="right" />
             </div>
+            <div class="breadcrumbs">
+                <Breadcrumbs />
+            </div>
         </div>
         <div class="container">
             <div class="row px-4">
                 <Pane Name="@PaneNames.Admin" />
+                <CookieConsent />
             </div>
         </div>
     </div>
+    
 </div>
 
 @code {

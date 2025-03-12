@@ -32,6 +32,15 @@ namespace Oqtane.Models
             this.CrossOrigin = CrossOrigin;
         }
 
+        public Script(string Src, string Integrity, string CrossOrigin, ResourceLoadBehavior LoadBehavior)
+        {
+            SetDefaults();
+            this.Url = Src;
+            this.Integrity = Integrity;
+            this.CrossOrigin = CrossOrigin;
+            this.LoadBehavior = LoadBehavior;
+        }
+
         public Script(string Src, string Integrity, string CrossOrigin, ResourceLocation Location, ResourceLoadBehavior LoadBehavior, Dictionary<string, string> DataAttributes, string Type, string Bundle, string RenderMode)
         {
             SetDefaults();

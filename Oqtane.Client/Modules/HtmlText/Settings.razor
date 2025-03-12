@@ -1,0 +1,55 @@
+@namespace Oqtane.Modules.HtmlText
+@inherits ModuleBase
+@inject ISettingService SettingService
+@implements Oqtane.Interfaces.ISettingsControl
+@inject IStringLocalizer<Settings> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+<form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+    <div class="container">
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="dynamictokens" ResourceKey="DynamicTokens" ResourceType="@resourceType" HelpText="Do you wish to allow tokens to be dynamically replaced? Please note that this will affect the performance of your site.">Dynamic Tokens? </Label>
+            <div class="col-sm-9">
+                <select id="dynamictokens" class="form-select" @bind="@_dynamictokens">
+                    <option value="true">@SharedLocalizer["Yes"]</option>
+                    <option value="false">@SharedLocalizer["No"]</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</form>
+
+@code {
+    private string resourceType = "Oqtane.Modules.HtmlText.Settings, Oqtane.Client"; // for localization
+
+    private ElementReference form;
+    private bool validated = false;
+
+    private string _dynamictokens;
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            _dynamictokens = SettingService.GetSetting(ModuleState.Settings, "DynamicTokens", "false");
+        }
+        catch (Exception ex)
+        {
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
+    public async Task UpdateSettings()
+    {
+        try
+        {
+            var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+            settings = SettingService.SetSetting(settings, "DynamicTokens", _dynamictokens);
+            await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+        }
+        catch (Exception ex)
+        {
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+}

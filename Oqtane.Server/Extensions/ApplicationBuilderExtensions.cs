@@ -34,6 +34,14 @@ namespace Oqtane.Extensions
                 options.SetDefaultCulture(defaultCulture)
                     .AddSupportedCultures(supportedCultures)
                     .AddSupportedUICultures(supportedCultures);
+
+                foreach(var culture in options.SupportedCultures)
+                {
+                    if (culture.TextInfo.IsRightToLeft)
+                    {
+                        RightToLeftCulture.ResolveFormat(culture);
+                    }
+                }
             });
 
             return app;
@@ -47,6 +55,5 @@ namespace Oqtane.Extensions
 
         public static IApplicationBuilder UseExceptionMiddleWare(this IApplicationBuilder builder)
           => builder.UseMiddleware<ExceptionMiddleware>();
-
     }
 }

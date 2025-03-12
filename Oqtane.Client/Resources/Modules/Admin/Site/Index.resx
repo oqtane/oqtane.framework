@@ -349,7 +349,7 @@
     <value>Relay Configured?</value>
   </data>
   <data name="SiteMap.HelpText" xml:space="preserve">
-    <value>The site map url for this site which can be submitted to search engines for indexing</value>
+    <value>The site map url for this site which can be submitted to search engines for indexing. The sitemap is cached for 5 minutes and the cache can be manually cleared.</value>
   </data>
   <data name="SiteMap.Text" xml:space="preserve">
     <value>Site Map:</value>
@@ -425,5 +425,26 @@
   </data>
   <data name="System" xml:space="preserve">
     <value>System</value>
+  </data>
+  <data name="CookieConsent.HelpText" xml:space="preserve">
+    <value>Specify if cookie consent is enabled on this site. Please note this option must be used in conjunction with a Theme which supports cookie consent.</value>
+  </data>
+  <data name="CookieConsent.Text" xml:space="preserve">
+    <value>Cookie Consent:</value>
+  </data>
+  <data name="OptIn" xml:space="preserve">
+    <value>Opt-In (GDPR)</value>
+  </data>
+  <data name="OptOut" xml:space="preserve">
+    <value>Opt-Out (CCPA)</value>
+  </data>
+  <data name="Theme.Heading" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="SiteMap.EvictCache" xml:space="preserve">
+    <value>Clear Cache</value>
+  </data>
+  <data name="Success.SiteMap.CacheEvicted" xml:space="preserve">
+    <value>Site Map Cache Cleared</value>
   </data>
 </root>

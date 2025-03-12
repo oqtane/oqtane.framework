@@ -31,6 +31,8 @@
 @inject IUrlMappingRepository UrlMappingRepository
 @inject IVisitorRepository VisitorRepository
 @inject IJwtManager JwtManager
+@inject ICookieConsentService CookieConsentService
+@inject ISettingService SettingService
 
 @if (_initialized)
 {
@@ -107,6 +109,7 @@
     private string _styleSheets = "";
     private string _scripts = "";
     private string _message = "";
+    private bool _allowCookies;
     private PageState _pageState;
 
     //  CascadingParameter is required to access HttpContext
@@ -140,6 +143,9 @@
                     _prerender = site.Prerender;
                     _fingerprint = site.Fingerprint;
 
+                    var cookieConsentSettings = SettingService.GetSetting(site.Settings, "CookieConsent", string.Empty);
+                    _allowCookies = string.IsNullOrEmpty(cookieConsentSettings) || await CookieConsentService.CanTrackAsync(cookieConsentSettings == "optout");
+
                     var modules = new List<Module>();
 
                     Route route = new Route(url, alias.Path);
@@ -170,7 +176,7 @@
                         modules = await SiteService.GetModulesAsync(site.SiteId, page.PageId);
                     }
 
-                    if (site.VisitorTracking)
+                    if (site.VisitorTracking && _allowCookies)
                     {
                         TrackVisitor(site.SiteId);
                     }
@@ -245,7 +251,8 @@
                         ReturnUrl = "",
                         IsInternalNavigation = false,
                         RenderId = Guid.NewGuid(),
-                        Refresh = true
+                        Refresh = true,
+                        AllowCookies = _allowCookies
                     };
                 }
                 else

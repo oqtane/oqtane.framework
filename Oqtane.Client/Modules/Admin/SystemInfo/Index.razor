@@ -153,8 +153,10 @@
         </div>
         <br /><br />
         <button type="button" class="btn btn-success" @onclick="SaveConfig">@SharedLocalizer["Save"]</button>&nbsp;
-        <a class="btn btn-primary" href="swagger/index.html" target="_new">@Localizer["Swagger"]</a>&nbsp;
         <ActionDialog Header="Restart Application" Message="Are You Sure You Wish To Restart The Application?" Action="Restart Application" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await RestartApplication())" ResourceKey="RestartApplication" />
+        <br /><br />
+        <a class="btn btn-primary" href="swagger/index.html" target="_new">@Localizer["Swagger"]</a>&nbsp;
+        <a class="btn btn-secondary" href="api/endpoint" target="_new">@Localizer["Endpoints"]</a>
     </TabPanel>
     <TabPanel Name="Log" Heading="Log" ResourceKey="Log">
         <div class="container">

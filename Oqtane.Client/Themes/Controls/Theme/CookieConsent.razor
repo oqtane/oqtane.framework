@@ -1,0 +1,168 @@
+@namespace Oqtane.Themes.Controls
+@inherits ThemeControlBase
+@inject ISettingService SettingService
+@inject ICookieConsentService CookieConsentService
+@inject IStringLocalizer<CookieConsent> Localizer
+
+@if (_enabled && !Hidden)
+{
+
+    <div class="gdpr-consent-bar bg-light text-dark @(_showBanner ? "p-3" : "p-0") pe-5 fixed-bottom">
+        <form method="post" @formname="CookieConsentForm" @onsubmit="async () => await AcceptPolicy()" data-enhance>
+            @if (_showBanner)
+            {
+                <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-9 col-xl-10">
+                            @if (PageState.RenderMode == RenderModes.Static)
+                            {
+                                <input type="checkbox" name="cantrack" checked="@_canTrack" value="1" class="form-check-input me-2" />
+                            }
+                            else
+                            {
+                                <input type="checkbox" name="cantrack" @bind="@_canTrack" value="1" class="form-check-input me-2" />
+                            }
+                            @((MarkupString)Convert.ToString(Localizer["ConsentNotice"]))
+                        </div>
+                        <div class="col-3 col-xl-2">
+                            <div class="row">
+                                <div class="col-md-6 col-xs-6 text-center">
+                                    <button class="btn btn-primary mb-1 px-0 w-100" type="submit">@((MarkupString)Convert.ToString(Localizer["Confirm"]))</button>
+                                </div>
+                                @if (ShowPrivacyLink)
+                                {
+                                    <div class="col-md-6 col-xs-6 text-center">
+                                        <a class="btn btn-secondary mb-1 px-0 w-100" href="/privacy" target="_blank">@((MarkupString)Convert.ToString(Localizer["Privacy"]))</a>
+                                    </div>
+
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </form>
+        <form method="post" @formname="CookieConsentToggleForm" @onsubmit="async () => await ToggleBanner()" data-enhance>
+            <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+            @if (_showBanner)
+            {
+                <input type="hidden" name="showbanner" value="false" />
+                <button type="submit" class="btn btn-light text-dark btn-sm position-absolute btn-hide">
+                    <i class="oi oi-chevron-bottom"></i>
+                </button>
+            }
+            else
+            {
+                <input type="hidden" name="showbanner" value="true" />
+                <button type="submit" class="btn btn-light text-dark btn-sm position-absolute btn-show">
+                    <i class="oi oi-chevron-top"></i>
+                </button>
+            }
+
+        </form>
+    </div>
+}
+@code {
+    private bool _showBanner;
+    private bool _enabled;
+    private bool _optout;
+    private bool _actioned;
+    private bool _canTrack;
+    private bool _consentPostback;
+    private bool _togglePostback;
+
+    [Parameter]
+    public bool Hidden { get; set; }
+
+    [Parameter]
+    public bool ShowPrivacyLink { get; set; } = true;
+
+    [SupplyParameterFromForm(FormName = "CookieConsentToggleForm")]
+    public string ShowBanner
+    {
+        get => "";
+        set
+        {
+            _showBanner = bool.Parse(value);
+            _togglePostback = true;
+        }
+    }
+
+    [SupplyParameterFromForm(FormName = "CookieConsentForm")]
+    public string CanTrack
+    {
+        get => "";
+        set
+        {
+            _canTrack = !string.IsNullOrEmpty(value);
+            _consentPostback = true;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var cookieConsentSetting = SettingService.GetSetting(PageState.Site.Settings, "CookieConsent", string.Empty);
+        _enabled = !string.IsNullOrEmpty(cookieConsentSetting);
+        _optout = cookieConsentSetting == "optout";
+        _actioned = await CookieConsentService.IsActionedAsync();
+
+        if (!_consentPostback)
+        {
+            _canTrack = await CookieConsentService.CanTrackAsync(_optout);
+        }
+
+        if (!_togglePostback)
+        {
+            _showBanner = !_actioned;
+        }
+    }
+
+    private async Task AcceptPolicy()
+    {
+        var cookieString = string.Empty;
+        if (_optout)
+        {
+            cookieString = _canTrack ? await CookieConsentService.WithdrawConsentCookieAsync() : await CookieConsentService.CreateConsentCookieAsync();
+        }
+        else
+        {
+            cookieString = _canTrack ? await CookieConsentService.CreateConsentCookieAsync() : await CookieConsentService.WithdrawConsentCookieAsync();
+        }
+
+        //update the page state
+        PageState.AllowCookies = _canTrack;
+
+        if (!string.IsNullOrEmpty(cookieString))
+        {
+            var interop = new Interop(JSRuntime);
+            await interop.SetCookieString(cookieString);
+
+            _actioned = true;
+            _showBanner = false;
+
+            StateHasChanged();
+        }
+    }
+
+    private async Task ToggleBanner()
+    {
+        if (!_actioned)
+        {
+            var cookieString = await CookieConsentService.CreateActionedCookieAsync();
+            if (!string.IsNullOrEmpty(cookieString))
+            {
+                var interop = new Interop(JSRuntime);
+                await interop.SetCookieString(cookieString);
+
+                _actioned = true;
+            }
+        }
+
+        if (PageState.RenderMode == RenderModes.Interactive)
+        {
+            _showBanner = !_showBanner;
+            StateHasChanged();
+        }
+    }
+}

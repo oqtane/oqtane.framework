@@ -65,14 +65,14 @@ namespace Oqtane.Repository
             // delete visitors in batches of 100 records
             var count = 0;
             var purgedate = DateTime.UtcNow.AddDays(-age);
-            var visitors = db.Visitor.Where(item => item.SiteId == siteId && item.Visits < 2 && item.VisitedOn < purgedate)
+            var visitors = db.Visitor.Where(item => item.SiteId == siteId && item.VisitedOn < purgedate)
                 .OrderBy(item => item.VisitedOn).Take(100).ToList();
             while (visitors.Count > 0)
             {
                 count += visitors.Count;
                 db.Visitor.RemoveRange(visitors);
                 db.SaveChanges();
-                visitors = db.Visitor.Where(item => item.SiteId == siteId && item.Visits < 2 && item.VisitedOn < purgedate)
+                visitors = db.Visitor.Where(item => item.SiteId == siteId && item.VisitedOn < purgedate)
                     .OrderBy(item => item.VisitedOn).Take(100).ToList();
             }
             return count;
