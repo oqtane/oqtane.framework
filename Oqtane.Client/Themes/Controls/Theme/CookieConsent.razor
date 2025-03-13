@@ -6,7 +6,7 @@
 
 @if (_enabled && !Hidden)
 {
-    <div class="gdpr-consent-bar bg-light text-dark @(_showBanner ? "p-3 pt-5 pt-sm-3 pe-sm-5" : "p-0") fixed-bottom">
+    <div class="gdpr-consent-bar bg-light text-dark @(_showBanner ? "px-0 py-3 pt-5 pt-sm-3 pe-sm-5 ps-sm-3" : "p-0") fixed-bottom">
         <form method="post" @formname="CookieConsentForm" @onsubmit="async () => await AcceptPolicy()" data-enhance>
             @if (_showBanner)
             {
