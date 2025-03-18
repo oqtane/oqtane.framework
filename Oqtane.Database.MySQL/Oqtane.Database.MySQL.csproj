@@ -42,7 +42,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <MySQLFiles Include="$(OutputPath)Oqtane.Database.MySQL.dll;$(OutputPath)Oqtane.Database.MySQL.pdb;$(OutputPath)Pomelo.EntityFrameworkCore.MySql.dll;$(OutputPath)MySqlConnector.dll" DestinationPath="..\Oqtane.Server\bin\$(Configuration)\net9.0\%(Filename)%(Extension)" />
+    <MySQLFiles Include="$(OutputPath)Oqtane.Database.MySQL.dll;$(OutputPath)Oqtane.Database.MySQL.pdb;$(OutputPath)Pomelo.EntityFrameworkCore.MySql.dll;$(OutputPath)MySqlConnector.dll;$(OutputPath)MySql.Data.dll" DestinationPath="..\Oqtane.Server\bin\$(Configuration)\net9.0\%(Filename)%(Extension)" />
   </ItemGroup>
 
   <Target Name="PublishProvider" AfterTargets="PostBuildEvent" Inputs="@(MySQLFiles)" Outputs="@(MySQLFiles->'%(DestinationPath)')">
