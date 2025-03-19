@@ -68,5 +68,22 @@ namespace Oqtane.Services
         /// <param name="args"></param>
         /// <returns></returns>
         Task Log(Alias alias, int? pageId, int? moduleId, int? userId, string category, string feature, LogFunction function, LogLevel level, Exception exception, string message, params object[] args);
+
+        /// <summary>
+        /// Creates a new log entry
+        /// </summary>
+        /// <param name="siteId"></param>
+        /// <param name="pageId"></param>
+        /// <param name="moduleId"></param>
+        /// <param name="userId"></param>
+        /// <param name="category"></param>
+        /// <param name="feature"></param>
+        /// <param name="function"></param>
+        /// <param name="level"></param>
+        /// <param name="exception"></param>
+        /// <param name="message"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        Task Log(int siteId, int? pageId, int? moduleId, int? userId, string category, string feature, LogFunction function, LogLevel level, Exception exception, string message, params object[] args);
     }
 }

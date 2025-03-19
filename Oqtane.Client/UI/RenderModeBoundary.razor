@@ -1,7 +1,9 @@
 @namespace Oqtane.UI
+@using BindingFlags = System.Reflection.BindingFlags
 @inject SiteState ComponentSiteState
 @inject IStringLocalizer<ModuleInstance> Localizer
 @inject ILogService LoggingService
+@inject IServiceProvider ServiceProvider
 @inherits ErrorBoundary
 
 <CascadingValue Value="@PageState">
@@ -73,6 +75,8 @@
                 ModuleType = Type.GetType(ModuleState.ModuleType);
                 if (ModuleType != null)
                 {
+                    ValidateInjectedServices(ModuleType);
+
                     // repopulate the SiteState service based on the values passed in the SiteState parameter (this is how state is marshalled across the render mode boundary)
                     ComponentSiteState.Hydrate(SiteState);
 
@@ -145,7 +149,7 @@
         // log error
         string category = GetType().AssemblyQualifiedName;
         string feature = Utilities.GetTypeNameLastSegment(category, 1);
-        await LoggingService.Log(null, ModuleState.PageId, ModuleState.ModuleId, PageState.User?.UserId, category, feature, LogFunction.Other, LogLevel.Error, exception, "An Unexpected Error Has Occurred In {ModuleDefinitionName}: {Error}", ModuleState.ModuleDefinitionName, exception.Message);
+        await LoggingService.Log(ModuleState.SiteId, ModuleState.PageId, ModuleState.ModuleId, PageState.User?.UserId, category, feature, LogFunction.Other, LogLevel.Error, exception, "An Unexpected Error Has Occurred In {ModuleDefinitionName}: {Error}", ModuleState.ModuleDefinitionName, exception.Message);
         await base.OnErrorAsync(exception);
         return;
     }
@@ -154,5 +158,22 @@
     {
         _error = "";
         base.Recover();
+    }
+
+    private void ValidateInjectedServices(Type componentType)
+    {
+        var properties = componentType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+            .Where(prop => prop.GetCustomAttributes(typeof(InjectAttribute), true).Any());
+
+        foreach (var property in properties)
+        {
+            var serviceType = property.PropertyType;
+            var serviceInstance = ServiceProvider.GetService(serviceType);
+
+            if (serviceInstance == null)
+            {
+                throw new InvalidOperationException($"Service '{serviceType.FullName}' required by component '{componentType.FullName}' is not registered.");
+            }
+        }
     }
 }

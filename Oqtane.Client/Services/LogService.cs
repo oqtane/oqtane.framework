@@ -47,15 +47,14 @@ namespace Oqtane.Services
 
         public async Task Log(Alias alias, int? pageId, int? moduleId, int? userId, string category, string feature, LogFunction function, LogLevel level, Exception exception, string message, params object[] args)
         {
+            var siteId = alias != null ? alias.SiteId : _siteState.Alias.SiteId;
+            await Log(siteId, pageId, moduleId, userId, category, feature, function, level, exception, message, args);
+        }
+
+        public async Task Log(int siteId, int? pageId, int? moduleId, int? userId, string category, string feature, LogFunction function, LogLevel level, Exception exception, string message, params object[] args)
+        {
             Log log = new Log();
-            if (alias == null)
-            {
-                log.SiteId = _siteState.Alias.SiteId;
-            }
-            else
-            {
-                log.SiteId = alias.SiteId;
-            }
+            log.SiteId = siteId;
             log.PageId = pageId;
             log.ModuleId = moduleId;
             log.UserId = userId;
