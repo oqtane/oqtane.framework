@@ -132,8 +132,8 @@
   <data name="Owner.Text" xml:space="preserve">
     <value>Owner: </value>
   </data>
-  <data name="ReferenceUrl.Text" xml:space="preserve">
-    <value>Reference Url: </value>
+  <data name="Url.Text" xml:space="preserve">
+    <value>Url: </value>
   </data>
   <data name="Contact.Text" xml:space="preserve">
     <value>Contact: </value>
@@ -153,8 +153,8 @@
   <data name="Owner.HelpText" xml:space="preserve">
     <value>The owner or creator of the theme</value>
   </data>
-  <data name="ReferenceUrl.HelpText" xml:space="preserve">
-    <value>The reference url of the theme</value>
+  <data name="Url.HelpText" xml:space="preserve">
+    <value>The url of the theme</value>
   </data>
   <data name="Contact.HelpText" xml:space="preserve">
     <value>The contact for the theme</value>
