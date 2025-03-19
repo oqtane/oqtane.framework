@@ -90,32 +90,25 @@ namespace Oqtane.Controllers
                     package = await GetJson<Package>(client, url + $"/api/registry/package/?id={_configManager.GetInstallationId()}&package={packageid}&version={version}&download={download}&email={WebUtility.UrlEncode(GetPackageRegistryEmail())}");
                 }
 
-                if (package != null)
+                if (package != null && bool.Parse(install))
                 {
-                    if (bool.Parse(install))
+                    using (var httpClient = new HttpClient())
                     {
-                        using (var httpClient = new HttpClient())
+                        var folder = Path.Combine(_environment.ContentRootPath, Constants.PackagesFolder);
+                        var response = await httpClient.GetAsync(package.PackageUrl).ConfigureAwait(false);
+                        if (response.IsSuccessStatusCode)
                         {
-                            var folder = Path.Combine(_environment.ContentRootPath, Constants.PackagesFolder);
-                            var response = await httpClient.GetAsync(package.PackageUrl).ConfigureAwait(false);
-                            if (response.IsSuccessStatusCode)
+                            string filename = packageid + "." + version + ".nupkg";
+                            using (var fileStream = new FileStream(Path.Combine(Constants.PackagesFolder, filename), FileMode.Create, FileAccess.Write, FileShare.None))
                             {
-                                string filename = packageid + "." + version + ".nupkg";
-                                using (var fileStream = new FileStream(Path.Combine(Constants.PackagesFolder, filename), FileMode.Create, FileAccess.Write, FileShare.None))
-                                {
-                                    await response.Content.CopyToAsync(fileStream).ConfigureAwait(false);
-                                }
-                            }
-                            else
-                            {
-                                _logger.Log(LogLevel.Error, this, LogFunction.Create, "Could Not Download {PackageUrl}", package.PackageUrl);
+                                await response.Content.CopyToAsync(fileStream).ConfigureAwait(false);
                             }
                         }
+                        else
+                        {
+                            _logger.Log(LogLevel.Error, this, LogFunction.Create, "Could Not Download {PackageUrl}", package.PackageUrl);
+                        }
                     }
-                }
-                else
-                {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Create, "Package {PackageId}.{Version} Is Not Registered In The Marketplace", packageid, version);
                 }
             }
             return package;

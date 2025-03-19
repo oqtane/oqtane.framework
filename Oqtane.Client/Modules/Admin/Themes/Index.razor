@@ -15,8 +15,8 @@
 else
 {
     <ActionLink Action="Add" Text="Install Theme" ResourceKey="InstallTheme" />
-    @((MarkupString)"&nbsp;")
-    <ActionLink Action="Create" Text="Create Theme" ResourceKey="CreateTheme" Class="btn btn-secondary" />
+    <ActionLink Action="Create" Text="Create Theme" ResourceKey="CreateTheme" Class="btn btn-secondary ps-2" />
+    <button type="button" class="btn btn-secondary pw-2" @onclick="@Synchronize">@Localizer["Synchronize"]</button>
 
     <Pager Items="@_themes">
         <Header>
@@ -171,6 +171,29 @@ else
         {
             await logger.LogError(ex, "Error Deleting Theme {Theme} {Error}", Theme, ex.Message);
             AddModuleMessage(Localizer["Error.Theme.Delete"], MessageType.Error);
+        }
+    }
+
+    private async Task Synchronize()
+    {
+        try
+        {
+            ShowProgressIndicator();
+            foreach (var theme in _themes)
+            {
+                if (!string.IsNullOrEmpty(theme.PackageName) && !_packages.Any(item => item.PackageId == theme.PackageName))
+                {
+                    await PackageService.GetPackageAsync(theme.PackageName, theme.Version, false);
+                }
+            }
+            HideProgressIndicator();
+            AddModuleMessage(Localizer["Success.Theme.Synchronize"], MessageType.Success);
+            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, true));
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Synchronizing Themes {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Theme.Synchronize"], MessageType.Error);
         }
     }
 }
