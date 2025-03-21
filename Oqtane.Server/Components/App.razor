@@ -764,7 +764,7 @@
                     }
 
                     // ensure resource does not exist already
-                    if (!pageresources.Exists(item => item.Url.ToLower() == resource.Url.ToLower()))
+                    if (!pageresources.Exists(item => Utilities.GetUrlPath(item.Url).ToLower() == Utilities.GetUrlPath(resource.Url).ToLower()))
                     {
                         pageresources.Add(resource.Clone(level, name, fingerprint));
                     }
