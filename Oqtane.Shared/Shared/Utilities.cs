@@ -491,6 +491,15 @@ namespace Oqtane.Shared
             return querystring;
         }
 
+        public static string GetUrlPath(string url)
+        {
+            if (url.Contains("?"))
+            {
+                url = url.Substring(0, url.IndexOf("?"));
+            }
+            return url;
+        }
+
         public static string LogMessage(object @class, string message)
         {
             return $"[{@class.GetType()}] {message}";
