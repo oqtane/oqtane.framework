@@ -46,6 +46,8 @@ namespace Oqtane.Infrastructure
 
         protected async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await Task.Yield(); // required so that this method does not block startup
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 using (var scope = _serviceScopeFactory.CreateScope())
