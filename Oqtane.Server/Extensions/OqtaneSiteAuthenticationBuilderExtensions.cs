@@ -532,8 +532,9 @@ namespace Oqtane.Extensions
                         // external roles
                         if (claimsPrincipal.Claims.Any(item => item.Type == httpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimType", "")))
                         {
-                            var _roles = httpContext.RequestServices.GetRequiredService<IRoleRepository>();                            
-                            var roles = _roles.GetRoles(user.SiteId).ToList(); // global roles excluded ie. host users cannot be added/deleted
+                            var _roles = httpContext.RequestServices.GetRequiredService<IRoleRepository>();
+                            var allowhostrole = bool.Parse(httpContext.GetSiteSettings().GetValue("ExternalLogin:AllowHostRole", "false"));
+                            var roles = _roles.GetRoles(user.SiteId, allowhostrole).ToList();
 
                             var mappings = httpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimMappings", "").Split(',');
                             foreach (var claim in claimsPrincipal.Claims.Where(item => item.Type == httpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimType", "")))
