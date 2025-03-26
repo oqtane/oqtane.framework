@@ -421,6 +421,18 @@ else
                                     </select>
                                 </div>
                             </div>
+                            @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                            {
+                                <div class="row mb-1 align-items-center">
+                                    <Label Class="col-sm-3" For="allowhostrole" HelpText="Indicate if host roles are supported from the identity provider. Please use caution with this option as it allows the host user to administrate every site within your installation." ResourceKey="AllowHostRole">Allow Host Role?</Label>
+                                    <div class="col-sm-9">
+                                        <select id="allowhostrole" class="form-select" @bind="@_allowhostrole" required>
+                                            <option value="true">@SharedLocalizer["Yes"]</option>
+                                            <option value="false">@SharedLocalizer["No"]</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            }
                         }
                     </Section>
                     <Section Name="Token" Heading="Token Settings" ResourceKey="TokenSettings">
@@ -520,6 +532,7 @@ else
     private string _domainfilter;
     private string _createusers;
     private string _verifyusers;
+    private string _allowhostrole;
 
     private string _secret;
     private string _secrettype = "password";
@@ -602,6 +615,7 @@ else
         _domainfilter = SettingService.GetSetting(settings, "ExternalLogin:DomainFilter", "");
         _createusers = SettingService.GetSetting(settings, "ExternalLogin:CreateUsers", "true");
         _verifyusers = SettingService.GetSetting(settings, "ExternalLogin:VerifyUsers", "true");
+        _allowhostrole = SettingService.GetSetting(settings, "ExternalLogin:AllowHostRole", "false");
     }
 
     private async Task LoadUsersAsync(bool load)
@@ -705,6 +719,7 @@ else
                 settings = SettingService.SetSetting(settings, "ExternalLogin:DomainFilter", _domainfilter, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:CreateUsers", _createusers, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:VerifyUsers", _verifyusers, true);
+                settings = SettingService.SetSetting(settings, "ExternalLogin:AllowHostRole", _allowhostrole, true);
 
                 settings = SettingService.SetSetting(settings, "JwtOptions:Secret", _secret, true);
                 settings = SettingService.SetSetting(settings, "JwtOptions:Issuer", _issuer, true);
