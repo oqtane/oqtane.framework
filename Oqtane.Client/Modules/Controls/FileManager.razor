@@ -324,7 +324,9 @@
         _message = string.Empty;
         FileId = int.Parse((string)e.Value);
         await SetImage();
+    #pragma warning disable CS0618
         await OnSelect.InvokeAsync(FileId);
+    #pragma warning restore CS0618
         await OnSelectFile.InvokeAsync(FileId);
         StateHasChanged();
     }
@@ -448,7 +450,9 @@
                         {
                             FileId = file.FileId;
                             await SetImage();
+#pragma warning disable CS0618
                             await OnSelect.InvokeAsync(FileId);
+#pragma warning restore CS0618
                             await OnSelectFile.InvokeAsync(FileId);
                             await OnUpload.InvokeAsync(FileId);
                         }
@@ -500,7 +504,9 @@
 			await GetFiles();
 			FileId = -1;
 			await SetImage();
+#pragma warning disable CS0618
             await OnSelect.InvokeAsync(FileId);
+#pragma warning restore CS0618
             await OnSelectFile.InvokeAsync(FileId);
             StateHasChanged();
 		}
