@@ -10,10 +10,11 @@ namespace Oqtane.Services
     public interface IJobLogService
     {
         /// <summary>
-        /// Return a list of all <see cref="JobLog"/> entries
+        /// Return a list of <see cref="JobLog"/> entries
         /// </summary>
+        /// <param name="jobId"></param>
         /// <returns></returns>
-        Task<List<JobLog>> GetJobLogsAsync();
+        Task<List<JobLog>> GetJobLogsAsync(int jobId);
 
         /// <summary>
         /// Return a <see cref="JobLog"/> entry for the given Id

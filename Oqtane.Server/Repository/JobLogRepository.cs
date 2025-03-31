@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
@@ -16,8 +16,16 @@ namespace Oqtane.Repository
 
         public IEnumerable<JobLog> GetJobLogs()
         {
+            return GetJobLogs(-1);
+        }
+
+        public IEnumerable<JobLog> GetJobLogs(int jobId)
+        {
             return _db.JobLog
+                .AsNoTracking()
+                .Where(item => item.JobId == jobId || jobId == -1)
                 .Include(item => item.Job) // eager load jobs
+                .OrderByDescending(item => item.JobLogId)
                 .ToList();
         }
 
