@@ -115,7 +115,7 @@
     // ------------------------------------------------------
     {
       "type": "Microsoft.Sql/servers",
-      "apiVersion": "2022-05-01-preview", // Updated API version
+      "apiVersion": "2022-05-01-preview",
       "name": "[parameters('sqlServerName')]",
       "location": "[parameters('location')]",
       "tags": {
@@ -132,7 +132,7 @@
     // ------------------------------------------------------
     {
       "type": "Microsoft.Sql/servers/databases",
-      "apiVersion": "2022-05-01-preview", // Updated API version
+      "apiVersion": "2022-05-01-preview",
       "name": "[format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabaseName'))]",
       "location": "[parameters('location')]",
       "tags": {
@@ -173,7 +173,7 @@
     // ------------------------------------------------------
     {
       "type": "Microsoft.Sql/servers/firewallRules",
-      "apiVersion": "2022-05-01-preview", // Updated API version
+      "apiVersion": "2022-05-01-preview",
       "name": "[format('{0}/{1}', parameters('sqlServerName'), 'AllowAllMicrosoftAzureIps')]",
       "properties": {
         "endIpAddress": "0.0.0.0",
@@ -188,7 +188,7 @@
     // ------------------------------------------------------
     {
       "type": "Microsoft.Web/serverfarms",
-      "apiVersion": "2022-03-01", // Updated API version
+      "apiVersion": "2022-03-01",
       "name": "[variables('hostingPlanName')]",
       "location": "[parameters('location')]",
       "tags": {
@@ -209,7 +209,7 @@
     // Web App
     // ------------------------------------------------------
     {
-      "apiVersion": "2022-03-01", // Updated API version
+      "apiVersion": "2022-03-01",
       "name": "[parameters('BlazorWebsiteName')]",
       "type": "Microsoft.Web/sites",
       "location": "[parameters('location')]",
@@ -224,7 +224,6 @@
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
         "siteConfig": {
           "webSocketsEnabled": true,
-          // Updated .NET version "v9.0" from second snippet
           "netFrameworkVersion": "v9.0"
         }
       },
