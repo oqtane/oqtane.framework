@@ -280,9 +280,14 @@ namespace Oqtane.Controllers
             var folder = _folders.GetFolder(id, false);
             if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, folder.SiteId, EntityNames.Folder, id, PermissionNames.Edit))
             {
-                if (Directory.Exists(_folders.GetFolderPath(folder)))
+                var folderPath = _folders.GetFolderPath(folder);
+                if (Directory.Exists(folderPath))
                 {
-                    Directory.Delete(_folders.GetFolderPath(folder));
+                    foreach (var filePath in Directory.GetFiles(folderPath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+                    Directory.Delete(folderPath);
                 }
                 _folders.DeleteFolder(id);
                 _syncManager.AddSyncEvent(_alias, EntityNames.Folder, folder.FolderId, SyncEventActions.Delete);
