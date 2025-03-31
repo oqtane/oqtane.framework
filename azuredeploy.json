@@ -169,7 +169,7 @@
       ]
     },
     // ------------------------------------------------------
-    // Firewall Rule (renamed to 'AllowAllMicrosoftAzureIps')
+    // Firewall Rule
     // ------------------------------------------------------
     {
       "type": "Microsoft.Sql/servers/firewallRules",
@@ -196,7 +196,6 @@
       },
       "sku": {
         "name": "[parameters('BlazorSKU')]",
-        // If you want to auto-map to certain "tier" strings, you can do so. Here we just set the capacity:
         "capacity": "[parameters('BlazorSKUCapacity')]"
       },
       "properties": {
@@ -212,6 +211,7 @@
       "apiVersion": "2022-03-01",
       "name": "[parameters('BlazorWebsiteName')]",
       "type": "Microsoft.Web/sites",
+      "kind": "app",
       "location": "[parameters('location')]",
       "dependsOn": [
         "[variables('hostingPlanName')]"
@@ -224,27 +224,16 @@
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
         "siteConfig": {
           "webSocketsEnabled": true,
-          "netFrameworkVersion": "v9.0"
+          "netFrameworkVersion": "v9.0",
+          "appSettings": [
+            {
+              "name": "WEBSITE_RUN_FROM_PACKAGE",
+              "value": "https://github.com/oqtane/oqtane.framework/releases/download/v6.1.1/Oqtane.Framework.6.1.1.Install.zip"
+            }
+          ]
         }
       },
       "resources": [
-        // --------------------------------------------------
-        // Source Control for your Web App
-        // --------------------------------------------------
-        {
-          "type": "sourcecontrols",
-          "apiVersion": "2022-03-01",
-          "name": "web",
-          "location": "[parameters('location')]",
-          "dependsOn": [
-            "[resourceId('Microsoft.Web/sites', parameters('BlazorWebsiteName'))]"
-          ],
-          "properties": {
-            "repoUrl": "https://github.com/oqtane/oqtane.framework.git",
-            "branch": "master",
-            "isManualIntegration": true
-          }
-        },
         // --------------------------------------------------
         // Connection Strings (to use FQDN)
         // --------------------------------------------------
