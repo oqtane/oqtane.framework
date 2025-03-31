@@ -60,7 +60,7 @@
                         @foreach (User user in _users)
                         {
                             <tr>
-                                <td>@user.DisplayName</td>
+                                <td>@user.DisplayName (@user.Username)</td>
                                 @foreach (var permissionname in _permissionnames)
                                 {
                                     <td style="text-align: center; width: 1px;">
@@ -270,8 +270,8 @@
 	private async Task<Dictionary<string, string>> GetUsers(string filter)
 	{
 		var users = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Registered);
-		return users.Where(item => item.User.DisplayName.Contains(filter, StringComparison.OrdinalIgnoreCase))
-			.ToDictionary(item => item.UserId.ToString(), item => item.User.DisplayName);
+        return users.Where(item => item.User.DisplayName.Contains(filter, StringComparison.OrdinalIgnoreCase) || item.User.Username.Contains(filter, StringComparison.OrdinalIgnoreCase))
+			.ToDictionary(item => item.UserId.ToString(), item => item.User.DisplayName + " (" + item.User.Username + ")");
 	}
 
 	private async Task AddUser()
