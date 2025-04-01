@@ -241,23 +241,6 @@
           "dependsOn": [
             "[resourceId('Microsoft.Web/sites', parameters('BlazorWebsiteName'))]"
           ]
-        },
-        // --------------------------------------------------
-        // Connection Strings
-        // --------------------------------------------------
-        {
-          "type": "config",
-          "apiVersion": "2022-03-01",
-          "name": "connectionstrings",
-          "dependsOn": [
-            "[resourceId('Microsoft.Web/sites', parameters('BlazorWebsiteName'))]"
-          ],
-          "properties": {
-            "DefaultConnection": {
-              "value": "[concat('Data Source=tcp:', reference(resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', parameters('sqlDatabaseName'), ';User Id=', parameters('sqlAdministratorLogin'), '@', reference(resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))).fullyQualifiedDomainName, ';Password=', parameters('sqlAdministratorLoginPassword'), ';')]",
-              "type": "SQLAzure"
-            }
-          }
         }
       ]
     }
