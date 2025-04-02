@@ -56,7 +56,7 @@
     "BlazorWebsiteName": {
       "type": "string",
       "metadata": {
-        "description": "The App Service name for the Blazor Website (must be unique)"
+        "description": "The App Service name for the Blazor Website (must be unique). If you use the same name as the SQL Database specified above, it will make it easier to associate the resources later."
       }
     },
     "BlazorSKU": {
