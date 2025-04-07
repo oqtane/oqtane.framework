@@ -13,9 +13,21 @@
         <TabPanel Name="Download" ResourceKey="Download">
             @if (_package != null && _upgradeavailable)
             {
-                <ModuleMessage Type="MessageType.Info" Message="Select The Download Button To Download The Framework Upgrade Package And Then Select Upgrade"></ModuleMessage>
+                <div class="container">
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" HelpText="Specify if you want to backup files during the upgrade process. Disabling this option will result in a better experience in some environments." ResourceKey="Backup">Backup Files? </Label>
+                        <div class="col-sm-9">
+                            <select id="backup" class="form-select" @bind="@_backup">
+                                <option value="True">@SharedLocalizer["Yes"]</option>
+                                <option value="False">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
                 <button type="button" class="btn btn-primary" @onclick=@(async () => await Download(Constants.PackageId, @_package.Version))>@SharedLocalizer["Download"] @_package.Version</button>
                 <button type="button" class="btn btn-success" @onclick="Upgrade">@SharedLocalizer["Upgrade"]</button>
+                <br /><br />
+                <ModuleMessage Type="MessageType.Info" Message="Select The Download Button To Download The Framework Upgrade Package And Then Select Upgrade"></ModuleMessage>
             }
             else
             {
@@ -23,7 +35,6 @@
             }
         </TabPanel>
         <TabPanel Name="Upload" ResourceKey="Upload">
-            <ModuleMessage Type="MessageType.Info" Message=@Localizer["MessageUpgrade.Text"]></ModuleMessage>
             <div class="container">
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" HelpText="Upload A Framework Package And Then Select Upgrade" ResourceKey="Framework">Framework: </Label>
@@ -31,8 +42,19 @@
                         <FileManager Folder="@Constants.PackagesFolder" />
                     </div>
                 </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" HelpText="Specify if you want to backup files during the upgrade process. Disabling this option will result in a better experience in some environments." ResourceKey="Backup">Backup Files? </Label>
+                    <div class="col-sm-9">
+                        <select id="backup" class="form-select" @bind="@_backup">
+                            <option value="True">@SharedLocalizer["Yes"]</option>
+                            <option value="False">@SharedLocalizer["No"]</option>
+                        </select>
+                    </div>
+                </div>
             </div>
             <button type="button" class="btn btn-success" @onclick="Upgrade">@SharedLocalizer["Upgrade"]</button>
+            <br /><br />
+            <ModuleMessage Type="MessageType.Info" Message=@Localizer["MessageUpgrade.Text"]></ModuleMessage>
         </TabPanel>
     </TabStrip>
 }
@@ -41,6 +63,7 @@
     private bool _initialized = false;
     private Package _package;
     private bool _upgradeavailable = false;
+    private string _backup = "True";
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
@@ -86,7 +109,7 @@
             ShowProgressIndicator();
             var interop = new Interop(JSRuntime);
             await interop.RedirectBrowser(NavigateUrl(), 10);
-            await InstallationService.Upgrade();
+            await InstallationService.Upgrade(bool.Parse(_backup));
         }
         catch (Exception ex)
         {

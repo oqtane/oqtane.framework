@@ -88,10 +88,10 @@ namespace Oqtane.Controllers
 
         [HttpGet("upgrade")]
         [Authorize(Roles = RoleNames.Host)]
-        public Installation Upgrade()
+        public Installation Upgrade(string backup)
         {
             var installation = new Installation { Success = true, Message = "" };
-            _installationManager.UpgradeFramework();
+            _installationManager.UpgradeFramework(bool.Parse(backup));
             return installation;
         }
 
