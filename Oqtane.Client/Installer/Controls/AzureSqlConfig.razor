@@ -65,14 +65,14 @@
 }
 
 @code {
-    private string _server = String.Empty;
-    private string _database = "Oqtane-" + DateTime.UtcNow.ToString("yyyyMMddHHmm");
-    private string _security = "integrated";
-    private string _uid = String.Empty;
+    private string _server = "tcp:{SQL Server Name}.database.windows.net,1433";
+    private string _database = "{SQL Database Name}";
+    private string _security = "custom";
+    private string _uid = "{SQL Administrator Login}";
     private string _pwd = String.Empty;
     private string _passwordType = "password";
     private string _togglePassword = string.Empty;
-    private string _encryption = "false";
+    private string _encryption = "true";
     private string _trustservercertificate = "false";
 
     protected override void OnInitialized()

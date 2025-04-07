@@ -32,6 +32,12 @@
     <ProjectReference Include="..\Oqtane.Shared\Oqtane.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Installer\Controls\AzureSqlConfig.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+  </ItemGroup>
+
   <PropertyGroup>
     <PublishTrimmed>false</PublishTrimmed>
     <BlazorEnableCompression>false</BlazorEnableCompression>
