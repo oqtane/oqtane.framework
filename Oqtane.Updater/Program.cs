@@ -15,17 +15,19 @@ namespace Oqtane.Updater
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            // requires 2 arguments - the ContentRootPath and the WebRootPath of the site
+            // requires 3 arguments - the ContentRootPath, the WebRootPath of the site, and a backup flag
 
             // for testing purposes you can uncomment and modify the logic below
-            //Array.Resize(ref args, 2);
+            //Array.Resize(ref args, 3);
             //args[0] = @"C:\yourpath\oqtane.framework\Oqtane.Server";
             //args[1] = @"C:\yourpath\oqtane.framework\Oqtane.Server\wwwroot";
+            //args[2] = @"true";
 
-            if (args.Length == 2)
+            if (args.Length == 3)
             {
                 string contentrootfolder = args[0];
                 string webrootfolder = args[1];
+                bool backup = bool.Parse(args[2]);
 
                 string deployfolder = Path.Combine(contentrootfolder, "Packages");
                 string backupfolder = Path.Combine(contentrootfolder, "Backup");
@@ -49,6 +51,7 @@ namespace Oqtane.Updater
                     WriteLog(logFilePath, "Upgrade Process Started: " + DateTime.UtcNow.ToString() + Environment.NewLine);
                     WriteLog(logFilePath, "ContentRootPath: " + contentrootfolder + Environment.NewLine);
                     WriteLog(logFilePath, "WebRootPath: " + webrootfolder + Environment.NewLine);
+
                     if (packagename != "" && File.Exists(Path.Combine(webrootfolder, "app_offline.bak")))
                     {
                         WriteLog(logFilePath, "Located Upgrade Package: " + packagename + Environment.NewLine);
@@ -74,12 +77,12 @@ namespace Oqtane.Updater
                         }
 
                         bool success = true;
-                        // ensure files are not locked
-                        if (CanAccessFiles(files))
+
+                        if (backup)
                         {
                             UpdateOfflineContent(offlineFilePath, offlineTemplate, 10, "Preparing Backup Folder");
                             WriteLog(logFilePath, "Preparing Backup Folder: " + backupfolder + Environment.NewLine);
-                            
+
                             try
                             {
                                 // clear out backup folder
@@ -112,8 +115,28 @@ namespace Oqtane.Updater
                                             {
                                                 Directory.CreateDirectory(Path.GetDirectoryName(filename));
                                             }
-                                            File.Copy(file, filename);
-                                            WriteLog(logFilePath, "Copy File: " + filename + Environment.NewLine);
+
+                                            try
+                                            {
+                                                // try optimistically to backup the file
+                                                File.Copy(file, filename);
+                                                WriteLog(logFilePath, "Copy File: " + filename + Environment.NewLine);
+                                            }
+                                            catch
+                                            {
+                                                // if the file is locked, wait until it is unlocked
+                                                if (CanAccessFile(file))
+                                                {
+                                                    File.Copy(file, filename);
+                                                    WriteLog(logFilePath, "Copy File: " + filename + Environment.NewLine);
+                                                }
+                                                else
+                                                {
+                                                    // file could not be backed up, upgrade unsuccessful
+                                                    success = false;
+                                                    WriteLog(logFilePath, "Error Backing Up Files" + Environment.NewLine);
+                                                }
+                                            }
                                         }
                                     }
                                     catch (Exception ex)
@@ -125,17 +148,20 @@ namespace Oqtane.Updater
                                     }
                                 }
                             }
+                        }
 
-                            // extract files
-                            if (success)
+                        // extract files
+                        if (success)
+                        {
+                            UpdateOfflineContent(offlineFilePath, offlineTemplate, 50, "Extracting Files From Upgrade Package");
+                            WriteLog(logFilePath, "Extracting Files From Upgrade Package..." + Environment.NewLine);
+                            try
                             {
-                                UpdateOfflineContent(offlineFilePath, offlineTemplate, 50, "Extracting Files From Upgrade Package");
-                                WriteLog(logFilePath, "Extracting Files From Upgrade Package..." + Environment.NewLine);
-                                try
+                                using (ZipArchive archive = ZipFile.OpenRead(packagename))
                                 {
-                                    using (ZipArchive archive = ZipFile.OpenRead(packagename))
+                                    foreach (ZipArchiveEntry entry in archive.Entries)
                                     {
-                                        foreach (ZipArchiveEntry entry in archive.Entries)
+                                        if (success)
                                         {
                                             if (!string.IsNullOrEmpty(entry.Name))
                                             {
@@ -144,20 +170,42 @@ namespace Oqtane.Updater
                                                 {
                                                     Directory.CreateDirectory(Path.GetDirectoryName(filename));
                                                 }
-                                                entry.ExtractToFile(filename, true);
-                                                WriteLog(logFilePath, "Exact File: " + filename + Environment.NewLine);
+
+                                                try
+                                                {
+                                                    // try optimistically to extract the file
+                                                    entry.ExtractToFile(filename, true);
+                                                    WriteLog(logFilePath, "Exact File: " + filename + Environment.NewLine);
+                                                }
+                                                catch
+                                                {
+                                                    // if the file is locked, wait until it is unlocked
+                                                    if (CanAccessFile(filename))
+                                                    {
+                                                        entry.ExtractToFile(filename, true);
+                                                        WriteLog(logFilePath, "Exact File: " + filename + Environment.NewLine);
+                                                    }
+                                                    else
+                                                    {
+                                                        // file could not be extracted, upgrade unsuccessful
+                                                        success = false;
+                                                        WriteLog(logFilePath, "Error Extracting Files From Upgrade Package" + Environment.NewLine);
+                                                    }
+                                                }
                                             }
                                         }
                                     }
                                 }
-                                catch (Exception ex)
-                                {
-                                    success = false;
-                                    UpdateOfflineContent(offlineFilePath, offlineTemplate, 95, "Error Extracting Files From Upgrade Package", "bg-danger");
-                                    WriteLog(logFilePath, "Error Extracting Files From Upgrade Package: " + ex.Message + Environment.NewLine);
-                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                success = false;
+                                WriteLog(logFilePath, "Error Extracting Files From Upgrade Package: " + ex.Message + Environment.NewLine);
+                            }
 
-                                if (success)
+                            if (success)
+                            {
+                                if (backup)
                                 {
                                     UpdateOfflineContent(offlineFilePath, offlineTemplate, 90, "Removing Backup Folder");
                                     WriteLog(logFilePath, "Removing Backup Folder..." + Environment.NewLine);
@@ -174,7 +222,12 @@ namespace Oqtane.Updater
                                         WriteLog(logFilePath, "Error Removing Backup Folder: " + ex.Message + Environment.NewLine);
                                     }
                                 }
-                                else
+                            }
+                            else
+                            {
+                                UpdateOfflineContent(offlineFilePath, offlineTemplate, 95, "Error Extracting Files From Upgrade Package", "bg-danger");
+
+                                if (backup)
                                 {
                                     UpdateOfflineContent(offlineFilePath, offlineTemplate, 50, "Upgrade Failed, Restoring Files From Backup Folder", "bg-warning");
                                     WriteLog(logFilePath, "Restoring Files From Backup Folder..." + Environment.NewLine);
@@ -201,17 +254,13 @@ namespace Oqtane.Updater
                                     }
                                 }
                             }
-                            else
-                            {
-                                UpdateOfflineContent(offlineFilePath, offlineTemplate, 95, "Upgrade Failed: Could Not Backup Files", "bg-danger");
-                                WriteLog(logFilePath, "Upgrade Failed: Could Not Backup Files" + Environment.NewLine);
-                            }
                         }
                         else
                         {
-                            UpdateOfflineContent(offlineFilePath, offlineTemplate, 95, "Upgrade Failed: Some Files Are Locked By The Hosting Environment", "bg-danger");
-                            WriteLog(logFilePath, "Upgrade Failed: Some Files Are Locked By The Hosting Environment" + Environment.NewLine);
+                            UpdateOfflineContent(offlineFilePath, offlineTemplate, 95, "Upgrade Failed: Could Not Backup Files", "bg-danger");
+                            WriteLog(logFilePath, "Upgrade Failed: Could Not Backup Files" + Environment.NewLine);
                         }
+
 
                         UpdateOfflineContent(offlineFilePath, offlineTemplate, 100, "Upgrade Process Finished, Reloading", success ? "" : "bg-danger");
                         Thread.Sleep(3000); //wait for 3 seconds to complete the upgrade process.
@@ -240,55 +289,45 @@ namespace Oqtane.Updater
             }
         }
 
-        private static bool CanAccessFiles(List<string> files)
+        private static bool CanAccessFile(string filepath)
         {
-            // ensure files are not locked by another process
-            // the IIS ShutdownTimeLimit defines the duration for app shutdown (default is 90 seconds)
-            // websockets can delay application shutdown (ie. Blazor Server)
+            // ensure file is not locked by another process
             int retries = 60;
             int sleep = 2;
-
-            bool canAccess = true;
+            int attempts = 0;
             FileStream stream = null;
-            int i = 0;
-            while (i < (files.Count - 1) && canAccess)
-            {
-                string filepath = files[i];
-                int attempts = 0;
-                bool locked = true;
 
-                while (attempts < retries && locked)
+            bool locked = true;
+            while (attempts < retries && locked)
+            {
+                try
                 {
-                    try
+                    if (File.Exists(filepath))
                     {
-                        if (File.Exists(filepath))
-                        {
-                            stream = File.Open(filepath, FileMode.Open, FileAccess.Read, FileShare.None);
-                            locked = false;
-                        }
-                        else
-                        {
-                            locked = false;
-                        }
+                        stream = File.Open(filepath, FileMode.Open, FileAccess.Read, FileShare.None);
+                        locked = false;
                     }
-                    catch // file is locked by another process
+                    else
                     {
-                        Thread.Sleep(sleep * 1000); // wait
+                        locked = false;
                     }
-                    finally
-                    {
-                        stream?.Close();
-                    }
-                    attempts += 1;
                 }
-                if (locked)
+                catch // file is locked by another process
                 {
-                    canAccess = false;
-                    Console.WriteLine("File Locked: " + filepath);
+                    Thread.Sleep(sleep * 1000); // wait
                 }
-                i += 1;
+                finally
+                {
+                    stream?.Close();
+                }
+                attempts += 1;
             }
-            return canAccess;
+            if (locked)
+            {
+                Console.WriteLine("File Locked: " + filepath);
+            }
+
+            return !locked;
         }
 
         private static void UpdateOfflineContent(string filePath, string contentTemplate, int progress, string status,  string progressClass =  "")

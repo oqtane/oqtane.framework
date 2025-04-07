@@ -26,8 +26,9 @@ namespace Oqtane.Services
         /// <summary>
         /// Starts the upgrade process
         /// </summary>
+        /// <param name="backup">indicates if files should be backed up during upgrade</param>
         /// <returns>internal status/message object</returns>
-        Task<Installation> Upgrade();
+        Task<Installation> Upgrade(bool backup);
 
         /// <summary>
         /// Restarts the installation

@@ -151,6 +151,12 @@
     <value>You Cannot Perform A System Update In A Development Environment</value>
   </data>
   <data name="Disclaimer.Text" xml:space="preserve">
-    <value>Please Note That The System Update Capability Is A Simplified Upgrade Process Intended For Small To Medium Sized Installations. For Larger Enterprise Installations You Will Want To Use A Manual Upgrade Process. Also Note That The System Update Capability Is Not Recommended When Using Microsoft Azure Due To Environmental Limitations.</value>
+    <value>Please Note That The System Update Capability Is A Simplified Upgrade Process Intended For Small To Medium Sized Installations. For Larger Enterprise Installations You Will Want To Use A Manual Upgrade Process.</value>
+  </data>
+  <data name="Backup.Text" xml:space="preserve">
+    <value>Backup Files?</value>
+  </data>
+  <data name="Backup.HelpText" xml:space="preserve">
+    <value>Specify if you want to backup files during the upgrade process. Disabling this option will result in a better experience in some environments.</value>
   </data>
 </root>
