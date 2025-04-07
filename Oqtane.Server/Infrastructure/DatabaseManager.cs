@@ -731,6 +731,7 @@ namespace Oqtane.Infrastructure
             {
                 _configManager.AddOrUpdateSetting($"{SettingKeys.DatabaseSection}:{SettingKeys.DatabaseTypeKey}", Constants.DefaultDBType, true);
             }
+
             if (!_configManager.GetSection(SettingKeys.AvailableDatabasesSection).Exists())
             {
                 string databases = "[";
@@ -739,6 +740,19 @@ namespace Oqtane.Infrastructure
                 databases += "{ \"Name\": \"SQLite\", \"ControlType\": \"Oqtane.Installer.Controls.SqliteConfig, Oqtane.Client\", \"DBTYpe\": \"Oqtane.Database.Sqlite.SqliteDatabase, Oqtane.Database.Sqlite\" },";
                 databases += "{ \"Name\": \"MySQL\", \"ControlType\": \"Oqtane.Installer.Controls.MySQLConfig, Oqtane.Client\", \"DBTYpe\": \"Oqtane.Database.MySQL.SqlServerDatabase, Oqtane.Database.MySQL\" },";
                 databases += "{ \"Name\": \"PostgreSQL\", \"ControlType\": \"Oqtane.Installer.Controls.PostgreSQLConfig, Oqtane.Client\", \"DBTYpe\": \"Oqtane.Database.PostgreSQL.PostgreSQLDatabase, Oqtane.Database.PostgreSQL\" }";
+                databases += "]";
+                _configManager.AddOrUpdateSetting(SettingKeys.AvailableDatabasesSection, databases, true);
+            }
+            var availabledatabases = _configManager.GetSection(SettingKeys.AvailableDatabasesSection).GetChildren();
+            if (!availabledatabases.Any(item => item.GetSection("Name").Value == "Azure SQL"))
+            {
+                // Azure SQL added in 6.1.2
+                string databases = "[";
+                foreach (var database in availabledatabases)
+                {
+                    databases += "{ " + $"\"Name\": \"{database["Name"]}\", \"ControlType\": \"{database["ControlType"]}\", \"DBTYpe\": \"{database["DBType"]}\"" + " },";
+                }
+                databases += "{ \"Name\": \"Azure SQL\", \"ControlType\": \"Oqtane.Installer.Controls.AzureSqlConfig, Oqtane.Client\", \"DBTYpe\": \"Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer\" }";
                 databases += "]";
                 _configManager.AddOrUpdateSetting(SettingKeys.AvailableDatabasesSection, databases, true);
             }
