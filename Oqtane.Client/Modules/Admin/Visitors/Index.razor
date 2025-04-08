@@ -100,6 +100,18 @@ else
 			<br />
 			<button type="button" class="btn btn-success" @onclick="SaveSiteSettings">@SharedLocalizer["Save"]</button>
 		</TabPanel>
+        <TabPanel Name="Robots" Heading="Robots.txt" ResourceKey="Robots">
+			<div class="container">
+				<div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="robots" HelpText="Specify your robots.txt instructions to provide bots with guidance on which parts of your site should be indexed" ResourceKey="Robots">Instructions: </Label>
+					<div class="col-sm-9">
+                        <textarea id="robots" class="form-control" @bind="@_robots" rows="3"></textarea>
+                    </div>
+				</div>
+            </div>
+            <br />
+            <button type="button" class="btn btn-success" @onclick="SaveSiteSettings">@SharedLocalizer["Save"]</button>
+        </TabPanel>
 	</TabStrip>
 }
 
@@ -113,6 +125,7 @@ else
     private string _filter = "";
 	private int _retention = 30;
 	private string _correlation = "true";
+    private string _robots = "";
 
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -139,7 +152,8 @@ else
         _filter = SettingService.GetSetting(settings, "VisitorFilter", Constants.DefaultVisitorFilter);
 		_retention = int.Parse(SettingService.GetSetting(settings, "VisitorRetention", "30"));
 		_correlation = SettingService.GetSetting(settings, "VisitorCorrelation", "true");
-	}
+        _robots = SettingService.GetSetting(settings, "Robots", "");
+    }
 
 	private async void TypeChanged(ChangeEventArgs e)
 	{
@@ -191,6 +205,7 @@ else
             settings = SettingService.SetSetting(settings, "VisitorFilter", _filter, true);
 			settings = SettingService.SetSetting(settings, "VisitorRetention", _retention.ToString(), true);
 			settings = SettingService.SetSetting(settings, "VisitorCorrelation", _correlation, true);
+            settings = SettingService.SetSetting(settings, "Robots", _robots, true);
             await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
 
 			AddModuleMessage(Localizer["Success.SaveSiteSettings"], MessageType.Success);
