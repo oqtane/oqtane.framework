@@ -198,4 +198,13 @@
   <data name="Duration.Text" xml:space="preserve">
     <value>Session Duration:</value>
   </data>
+  <data name="Robots.Heading" xml:space="preserve">
+    <value>Robots.txt</value>
+  </data>
+  <data name="Robots.Text" xml:space="preserve">
+    <value>Instructions:</value>
+  </data>
+  <data name="Robots.HelpText" xml:space="preserve">
+    <value>Specify your robots.txt instructions to provide bots with guidance on which parts of your site should be indexed</value>
+  </data>
 </root>
