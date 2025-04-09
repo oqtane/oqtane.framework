@@ -584,8 +584,9 @@ namespace Oqtane.Extensions
                         }
                     }
 
-                    var userrole = userRoles.FirstOrDefault(item => item.Role.Name == RoleNames.Registered);
-                    if (!user.IsDeleted && userrole != null && Utilities.IsEffectiveAndNotExpired(userrole.EffectiveDate, userrole.ExpiryDate))
+                    var host = userRoles.FirstOrDefault(item => item.Role.Name == RoleNames.Host);
+                    var registered = userRoles.FirstOrDefault(item => item.Role.Name == RoleNames.Registered);
+                    if (!user.IsDeleted && (host != null || registered != null && Utilities.IsEffectiveAndNotExpired(registered.EffectiveDate, registered.ExpiryDate)))
                     {
                         // update user
                         user.LastLoginOn = DateTime.UtcNow;
