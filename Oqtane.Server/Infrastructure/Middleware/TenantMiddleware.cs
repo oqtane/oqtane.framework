@@ -84,7 +84,7 @@ namespace Oqtane.Infrastructure
                             // allow all user agents by default
                             robots = $"User-agent: *";
                         }
-                        if (!robots.ToLower().Contains("sitemap"))
+                        if (!robots.ToLower().Contains("Sitemap:"))
                         {
                             // add sitemap if not specified
                             robots += $"\n\nSitemap: {context.Request.Scheme}://{alias.Name}/sitemap.xml";
