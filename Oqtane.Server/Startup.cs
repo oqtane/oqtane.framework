@@ -70,7 +70,6 @@ namespace Oqtane
             services.AddLocalization(options => options.ResourcesPath = "Resources");
 
             services.AddOptions<List<Database>>().Bind(Configuration.GetSection(SettingKeys.AvailableDatabasesSection));
-            services.Configure<HostOptions>(opts => opts.ShutdownTimeout = TimeSpan.FromSeconds(10)); // increase from default of 5 seconds
 
             // register scoped core services
             services.AddScoped<IAuthorizationHandler, PermissionHandler>()

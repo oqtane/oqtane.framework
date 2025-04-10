@@ -46,6 +46,8 @@ namespace Oqtane.Infrastructure
 
         protected async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await Task.Yield(); // required so that this method does not block startup
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 using (var scope = _serviceScopeFactory.CreateScope())
@@ -170,8 +172,7 @@ namespace Oqtane.Infrastructure
                                     jobs.UpdateJob(job);
 
                                     // trim the job log
-                                    List<JobLog> logs = jobLogs.GetJobLogs().Where(item => item.JobId == job.JobId)
-                                        .OrderByDescending(item => item.JobLogId).ToList();
+                                    List<JobLog> logs = jobLogs.GetJobLogs(job.JobId).ToList();
                                     for (int i = logs.Count; i > job.RetentionHistory; i--)
                                     {
                                         jobLogs.DeleteJobLog(logs[i - 1].JobLogId);

@@ -121,7 +121,7 @@
     <value>Server:</value>
   </data>
   <data name="Server.HelpText" xml:space="preserve">
-    <value>Enter the database server name. This might include a port number as well if you are using a cloud service (ie. servername.database.windows.net,1433) </value>
+    <value>Enter the database server name. This might include a port number as well if you are using a cloud service.</value>
   </data>
   <data name="Database.Text" xml:space="preserve">
     <value>Database:</value>

@@ -2,6 +2,24 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.2",
   "parameters": {
+    "sqlServerName": {
+      "type": "string",
+      "metadata": {
+        "description": "The SQL Server name (must be unique). If you have an existing SQL Server in your resource group, you can specify its name and include its login credentials below."
+      }
+    },
+    "sqlAdministratorLogin": {
+      "type": "string",
+      "metadata": {
+        "description": "The Administrator login username for the SQL Server specified above"
+      }
+    },
+    "sqlAdministratorLoginPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The Administrator login password for the SQL Server specified above"
+      }
+    },
     "sqlDatabaseEditionTierDtuCapacity": {
       "type": "string",
       "defaultValue": "Basic-Basic-5-2",
@@ -26,37 +44,19 @@
         "GeneralPurpose-GP_S_Gen5_2-2-250"
       ],
       "metadata": {
-        "description": "Describes the database Edition, Tier, Dtu, Gigabytes (Edition-Tier-Dtu-Gigabytes)"
-      }
-    },
-    "sqlServerName": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the sql server. It has to be unique."
+        "description": "The SQL Database Configuration (Edition-Tier-DTU-Capacity)"
       }
     },
     "sqlDatabaseName": {
       "type": "string",
       "metadata": {
-        "description": "The name of the sql database. It has to be unique."
-      }
-    },
-    "sqlAdministratorLogin": {
-      "type": "string",
-      "metadata": {
-        "description": "The admin user of the SQL Server."
-      }
-    },
-    "sqlAdministratorLoginPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "The password of the admin user of the SQL Server."
+        "description": "The SQL Database name (must be unique)"
       }
     },
     "BlazorWebsiteName": {
       "type": "string",
       "metadata": {
-        "description": "The name of the website. It has to be unique."
+        "description": "The App Service name for the Blazor Website (must be unique). If you use the same name as the SQL Database specified above, it will make it easier to associate the resources later."
       }
     },
     "BlazorSKU": {
@@ -77,28 +77,12 @@
       ],
       "defaultValue": "B1",
       "metadata": {
-        "description": "The SKU for the App Service Plan"
-      }
-    },
-    "BlazorSKUCapacity": {
-      "type": "int",
-      "defaultValue": 1,
-      "maxValue": 3,
-      "minValue": 1,
-      "metadata": {
-        "description": "Describes plan's instance count"
-      }
-    },
-    "location": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().location]",
-      "metadata": {
-        "description": "Location for all resources."
+        "description": "The App Service SKU for the Blazor Website"
       }
     }
   },
   "variables": {
-    "hostingPlanName": "[concat('Oqtane-hostingplan-', uniqueString(resourceGroup().id))]",
+    "hostingPlanName": "[concat('Oqtane-HostingPlan-', uniqueString(resourceGroup().id))]",
     "databaseCollation": "SQL_Latin1_General_CP1_CI_AS",
     "databaseEditionTierDtuCapacity": "[split(parameters('sqlDatabaseEditionTierDtuCapacity'),'-')]",
     "databaseEdition": "[variables('databaseEditionTierDtuCapacity')[0]]",
@@ -115,9 +99,9 @@
     // ------------------------------------------------------
     {
       "type": "Microsoft.Sql/servers",
-      "apiVersion": "2022-05-01-preview", // Updated API version
+      "apiVersion": "2022-05-01-preview",
       "name": "[parameters('sqlServerName')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "tags": {
         "displayName": "SQL Server"
       },
@@ -132,9 +116,9 @@
     // ------------------------------------------------------
     {
       "type": "Microsoft.Sql/servers/databases",
-      "apiVersion": "2022-05-01-preview", // Updated API version
+      "apiVersion": "2022-05-01-preview",
       "name": "[format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabaseName'))]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "tags": {
         "displayName": "Database"
       },
@@ -169,11 +153,11 @@
       ]
     },
     // ------------------------------------------------------
-    // Firewall Rule (renamed to 'AllowAllMicrosoftAzureIps')
+    // Firewall Rule
     // ------------------------------------------------------
     {
       "type": "Microsoft.Sql/servers/firewallRules",
-      "apiVersion": "2022-05-01-preview", // Updated API version
+      "apiVersion": "2022-05-01-preview",
       "name": "[format('{0}/{1}', parameters('sqlServerName'), 'AllowAllMicrosoftAzureIps')]",
       "properties": {
         "endIpAddress": "0.0.0.0",
@@ -188,16 +172,15 @@
     // ------------------------------------------------------
     {
       "type": "Microsoft.Web/serverfarms",
-      "apiVersion": "2022-03-01", // Updated API version
+      "apiVersion": "2022-03-01",
       "name": "[variables('hostingPlanName')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "tags": {
         "displayName": "Blazor"
       },
       "sku": {
         "name": "[parameters('BlazorSKU')]",
-        // If you want to auto-map to certain "tier" strings, you can do so. Here we just set the capacity:
-        "capacity": "[parameters('BlazorSKUCapacity')]"
+        "capacity": "1"
       },
       "properties": {
         "name": "[variables('hostingPlanName')]",
@@ -209,13 +192,11 @@
     // Web App
     // ------------------------------------------------------
     {
-      "apiVersion": "2022-03-01", // Updated API version
-      "name": "[parameters('BlazorWebsiteName')]",
       "type": "Microsoft.Web/sites",
-      "location": "[parameters('location')]",
-      "dependsOn": [
-        "[variables('hostingPlanName')]"
-      ],
+      "apiVersion": "2022-03-01",
+      "name": "[parameters('BlazorWebsiteName')]",
+      "kind": "app",
+      "location": "[resourceGroup().location]",
       "tags": {
         "[concat('hidden-related:', resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName')))]": "empty",
         "displayName": "Website"
@@ -224,44 +205,26 @@
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
         "siteConfig": {
           "webSocketsEnabled": true,
-          // Updated .NET version "v9.0" from second snippet
           "netFrameworkVersion": "v9.0"
         }
       },
+      "dependsOn": [
+        "[variables('hostingPlanName')]"
+      ],
       "resources": [
         // --------------------------------------------------
-        // Source Control for your Web App
+        // ZIP Deploy
         // --------------------------------------------------
         {
-          "type": "sourcecontrols",
-          "apiVersion": "2022-03-01",
-          "name": "web",
-          "location": "[parameters('location')]",
+	  "type": "Microsoft.Web/sites/extensions",
+	  "apiVersion": "2024-04-01",
+	  "name": "[concat(parameters('BlazorWebsiteName'), '/ZipDeploy')]",
+          "properties": {
+	    "packageUri": "https://github.com/oqtane/oqtane.framework/releases/download/v6.1.1/Oqtane.Framework.6.1.1.Install.zip"
+          },
           "dependsOn": [
             "[resourceId('Microsoft.Web/sites', parameters('BlazorWebsiteName'))]"
-          ],
-          "properties": {
-            "repoUrl": "https://github.com/oqtane/oqtane.framework.git",
-            "branch": "master",
-            "isManualIntegration": true
-          }
-        },
-        // --------------------------------------------------
-        // Connection Strings (to use FQDN)
-        // --------------------------------------------------
-        {
-          "type": "config",
-          "apiVersion": "2022-03-01",
-          "name": "connectionstrings",
-          "dependsOn": [
-            "[resourceId('Microsoft.Web/sites', parameters('BlazorWebsiteName'))]"
-          ],
-          "properties": {
-            "DefaultConnection": {
-              "value": "[concat('Data Source=tcp:', reference(resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', parameters('sqlDatabaseName'), ';User Id=', parameters('sqlAdministratorLogin'), '@', reference(resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))).fullyQualifiedDomainName, ';Password=', parameters('sqlAdministratorLoginPassword'), ';')]",
-              "type": "SQLAzure"
-            }
-          }
+          ]
         }
       ]
     }

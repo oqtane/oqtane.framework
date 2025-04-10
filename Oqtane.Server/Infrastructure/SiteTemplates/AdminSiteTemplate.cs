@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.Localization;
 using Oqtane.Documentation;
-using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
 
@@ -182,6 +181,7 @@ namespace Oqtane.Infrastructure.SiteTemplates
                 Name = "Privacy",
                 Parent = "",
                 Path = "privacy",
+                Order = seed + 11,
                 Icon = Icons.Eye,
                 IsNavigation = false,
                 IsPersonalizable = false,
@@ -212,6 +212,7 @@ namespace Oqtane.Infrastructure.SiteTemplates
                 Name = "Terms",
                 Parent = "",
                 Path = "terms",
+                Order = seed + 13,
                 Icon = Icons.List,
                 IsNavigation = false,
                 IsPersonalizable = false,
@@ -242,7 +243,7 @@ namespace Oqtane.Infrastructure.SiteTemplates
                 Name = "Not Found",
                 Parent = "",
                 Path = "404",
-                Order = seed + 11,
+                Order = seed + 15,
                 Icon = Icons.X,
                 IsNavigation = false,
                 IsPersonalizable = false,

@@ -15,10 +15,9 @@ namespace Oqtane.Services
 
         private string Apiurl => CreateApiUrl("JobLog");
 
-        public async Task<List<JobLog>> GetJobLogsAsync()
+        public async Task<List<JobLog>> GetJobLogsAsync(int jobId)
         {
-            List<JobLog> joblogs = await GetJsonAsync<List<JobLog>>(Apiurl);
-            return joblogs.OrderBy(item => item.StartDate).ToList();
+            return await GetJsonAsync<List<JobLog>>($"{Apiurl}?jobid={jobId}");
         }
 
         public async Task<JobLog> GetJobLogAsync(int jobLogId)

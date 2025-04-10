@@ -532,8 +532,9 @@ namespace Oqtane.Extensions
                         // external roles
                         if (claimsPrincipal.Claims.Any(item => item.Type == httpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimType", "")))
                         {
-                            var _roles = httpContext.RequestServices.GetRequiredService<IRoleRepository>();                            
-                            var roles = _roles.GetRoles(user.SiteId).ToList(); // global roles excluded ie. host users cannot be added/deleted
+                            var _roles = httpContext.RequestServices.GetRequiredService<IRoleRepository>();
+                            var allowhostrole = bool.Parse(httpContext.GetSiteSettings().GetValue("ExternalLogin:AllowHostRole", "false"));
+                            var roles = _roles.GetRoles(user.SiteId, allowhostrole).ToList();
 
                             var mappings = httpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimMappings", "").Split(',');
                             foreach (var claim in claimsPrincipal.Claims.Where(item => item.Type == httpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimType", "")))
@@ -583,8 +584,9 @@ namespace Oqtane.Extensions
                         }
                     }
 
-                    var userrole = userRoles.FirstOrDefault(item => item.Role.Name == RoleNames.Registered);
-                    if (!user.IsDeleted && userrole != null && Utilities.IsEffectiveAndNotExpired(userrole.EffectiveDate, userrole.ExpiryDate))
+                    var host = userRoles.FirstOrDefault(item => item.Role.Name == RoleNames.Host);
+                    var registered = userRoles.FirstOrDefault(item => item.Role.Name == RoleNames.Registered);
+                    if (!user.IsDeleted && (host != null || registered != null && Utilities.IsEffectiveAndNotExpired(registered.EffectiveDate, registered.ExpiryDate)))
                     {
                         // update user
                         user.LastLoginOn = DateTime.UtcNow;

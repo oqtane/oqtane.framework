@@ -61,6 +61,9 @@ namespace Oqtane.Repository
 
         public UserRole AddUserRole(UserRole userRole)
         {
+            userRole.EffectiveDate = userRole.EffectiveDate.HasValue ? DateTime.SpecifyKind(userRole.EffectiveDate.Value, DateTimeKind.Utc) : userRole.EffectiveDate;
+            userRole.ExpiryDate = userRole.ExpiryDate.HasValue ? DateTime.SpecifyKind(userRole.ExpiryDate.Value, DateTimeKind.Utc) : userRole.ExpiryDate;
+
             using var db = _dbContextFactory.CreateDbContext();
             db.UserRole.Add(userRole);
             db.SaveChanges();
@@ -84,6 +87,9 @@ namespace Oqtane.Repository
 
         public UserRole UpdateUserRole(UserRole userRole)
         {
+            userRole.EffectiveDate = userRole.EffectiveDate.HasValue ? DateTime.SpecifyKind(userRole.EffectiveDate.Value, DateTimeKind.Utc) : userRole.EffectiveDate;
+            userRole.ExpiryDate = userRole.ExpiryDate.HasValue ? DateTime.SpecifyKind(userRole.ExpiryDate.Value, DateTimeKind.Utc) : userRole.ExpiryDate;
+
             using var db = _dbContextFactory.CreateDbContext();
             db.Entry(userRole).State = EntityState.Modified;
             db.SaveChanges();

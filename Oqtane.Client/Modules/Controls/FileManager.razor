@@ -164,6 +164,13 @@
     public EventCallback<int> OnUpload { get; set; } // optional - executes a method in the calling component when a file is uploaded
 
     [Parameter]
+    public EventCallback<int> OnSelectFolder { get; set; } // optional - executes a method in the calling component when a folder is selected
+
+    [Parameter]
+    public EventCallback<int> OnSelectFile { get; set; } // optional - executes a method in the calling component when a file is selected
+
+    [Obsolete("Use OnSelectFile instead.")]
+    [Parameter]
     public EventCallback<int> OnSelect { get; set; } // optional - executes a method in the calling component when a file is selected
 
     [Parameter]
@@ -300,6 +307,8 @@
             FileId = -1;
             _file = null;
             _image = string.Empty;
+
+            await OnSelectFolder.InvokeAsync(FolderId);
             StateHasChanged();
         }
         catch (Exception ex)
@@ -315,7 +324,10 @@
         _message = string.Empty;
         FileId = int.Parse((string)e.Value);
         await SetImage();
+    #pragma warning disable CS0618
         await OnSelect.InvokeAsync(FileId);
+    #pragma warning restore CS0618
+        await OnSelectFile.InvokeAsync(FileId);
         StateHasChanged();
     }
 
@@ -438,7 +450,10 @@
                         {
                             FileId = file.FileId;
                             await SetImage();
+#pragma warning disable CS0618
                             await OnSelect.InvokeAsync(FileId);
+#pragma warning restore CS0618
+                            await OnSelectFile.InvokeAsync(FileId);
                             await OnUpload.InvokeAsync(FileId);
                         }
                         await GetFiles();
@@ -489,7 +504,10 @@
 			await GetFiles();
 			FileId = -1;
 			await SetImage();
+#pragma warning disable CS0618
             await OnSelect.InvokeAsync(FileId);
+#pragma warning restore CS0618
+            await OnSelectFile.InvokeAsync(FileId);
             StateHasChanged();
 		}
 		catch (Exception ex)

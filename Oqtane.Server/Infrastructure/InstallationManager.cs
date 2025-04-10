@@ -380,7 +380,7 @@ namespace Oqtane.Infrastructure
             File.WriteAllText(assemblyLogPath, JsonSerializer.Serialize(assemblies, new JsonSerializerOptions { WriteIndented = true }));
         }
 
-        public async Task UpgradeFramework()
+        public async Task UpgradeFramework(bool backup)
         {
             string folder = Path.Combine(_environment.ContentRootPath, Constants.PackagesFolder);
             if (Directory.Exists(folder))
@@ -448,14 +448,14 @@ namespace Oqtane.Infrastructure
                         // install Oqtane.Upgrade zip package
                         if (File.Exists(upgradepackage))
                         {
-                            FinishUpgrade();
+                            FinishUpgrade(backup);
                         }
                     }
                 }
             }
         }
 
-        private void FinishUpgrade()
+        private void FinishUpgrade(bool backup)
         {
             // check if updater application exists
             string Updater = Constants.UpdaterPackageId + ".dll";
@@ -469,7 +469,7 @@ namespace Oqtane.Infrastructure
                 {
                     WorkingDirectory = folder,
                     FileName = "dotnet",
-                    Arguments = Path.Combine(folder, Updater) + " \"" + _environment.ContentRootPath + "\" \"" + _environment.WebRootPath + "\"",
+                    Arguments = Path.Combine(folder, Updater) + " \"" + _environment.ContentRootPath + "\" \"" + _environment.WebRootPath + "\" \"" + backup.ToString() + "\"",
                     UseShellExecute = false,
                     ErrorDialog = false,
                     CreateNoWindow = true,

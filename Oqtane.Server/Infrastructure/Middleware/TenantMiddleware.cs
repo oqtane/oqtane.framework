@@ -74,8 +74,21 @@ namespace Oqtane.Infrastructure
                     // handle robots.txt root request (does not support subfolder aliases)
                     if (context.Request.Path.StartsWithSegments("/robots.txt") && string.IsNullOrEmpty(alias.Path))
                     {
-                        // allow all user agents and specify site map
-                        var robots = $"User-agent: *\n\nSitemap: {context.Request.Scheme}://{alias.Name}/sitemap.xml";
+                        string robots = "";
+                        if (sitesettings.ContainsKey("Robots") && !string.IsNullOrEmpty(sitesettings["Robots"]))
+                        {
+                            robots = sitesettings["Robots"];
+                        }
+                        else
+                        {
+                            // allow all user agents by default
+                            robots = $"User-agent: *";
+                        }
+                        if (!robots.ToLower().Contains("Sitemap:"))
+                        {
+                            // add sitemap if not specified
+                            robots += $"\n\nSitemap: {context.Request.Scheme}://{alias.Name}/sitemap.xml";
+                        }
                         context.Response.ContentType = "text/plain";
                         await context.Response.WriteAsync(robots);
                         return;

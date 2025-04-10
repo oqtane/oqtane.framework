@@ -121,6 +121,17 @@ namespace Oqtane.Shared
             return $"{alias?.BaseUrl}{url}{Constants.ImageUrl}{fileId}/{width}/{height}/{mode}/{position}/{background}/{rotate}/{recreate}";
         }
 
+        public static string ImageUrl(Alias alias, string folderpath, string filename, int width, int height, string mode, string position, string background, int rotate, string format, bool recreate)
+        {
+            var aliasUrl = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path : "";
+            mode = string.IsNullOrEmpty(mode) ? "crop" : mode;
+            position = string.IsNullOrEmpty(position) ? "center" : position;
+            background = string.IsNullOrEmpty(background) ? "transparent" : background;
+            format = string.IsNullOrEmpty(format) ? "png" : format;
+            var querystring = $"?width={width}&height={height}&mode={mode}&position={position}&background={background}&rotate={rotate}&format={format}&recreate={recreate}";
+            return $"{alias?.BaseUrl}{aliasUrl}{Constants.FileUrl}{folderpath.Replace("\\", "/")}{filename}{querystring}";
+        }
+
         public static string TenantUrl(Alias alias, string url)
         {
             url = (!url.StartsWith("/")) ? "/" + url : url;
@@ -478,6 +489,15 @@ namespace Oqtane.Shared
                 }
             }
             return querystring;
+        }
+
+        public static string GetUrlPath(string url)
+        {
+            if (url.Contains("?"))
+            {
+                url = url.Substring(0, url.IndexOf("?"));
+            }
+            return url;
         }
 
         public static string LogMessage(object @class, string message)

@@ -23,6 +23,7 @@ using System.IO.Compression;
 using Oqtane.Services;
 using Microsoft.Extensions.Primitives;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Net.Http.Headers;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
@@ -735,6 +736,10 @@ namespace Oqtane.Controllers
                         }
                         if (!string.IsNullOrEmpty(imagepath))
                         {
+                            if (!string.IsNullOrEmpty(file.Folder.CacheControl))
+                            {
+                                HttpContext.Response.Headers.Append(HeaderNames.CacheControl, value: file.Folder.CacheControl);
+                            }
                             return PhysicalFile(imagepath, file.GetMimeType());
                         }
                         else

@@ -7,7 +7,7 @@ namespace Oqtane.Infrastructure
         void InstallPackages();
         bool UninstallPackage(string PackageName);
         int RegisterAssemblies();
-        Task UpgradeFramework();
+        Task UpgradeFramework(bool backup);
         void RestartApplication();
     }
 }

@@ -2,19 +2,18 @@
 @using System.Net
 @inherits ThemeControlBase
 @inject IStringLocalizer<UserProfile> Localizer
-
 @inject NavigationManager NavigationManager
 
 <span class="app-profile">
     @if (PageState.User != null)
     {
-        <a href="@NavigateUrl("profile", "returnurl=" + _returnurl)" class="@CssClass">@PageState.User.Username</a>
+        <a href="@_profileurl" class="@CssClass">@PageState.User.Username</a>
     }
     else
     {
         @if (ShowRegister && PageState.Site.AllowRegistration)
         {
-            <a href="@NavigateUrl("register", "returnurl=" + _returnurl)" class="@CssClass">@Localizer["Register"]</a>
+            <a href="@_registerurl" class="@CssClass">@Localizer["Register"]</a>
         }
     }
 </span>
@@ -23,23 +22,50 @@
 
     [Parameter]
     public bool ShowRegister { get; set; }
+
     [Parameter]
     public string CssClass { get; set; } = "btn btn-primary";
 
+    [Parameter]
+    public string RegisterUrl { get; set; } // optional parameter to specify a custom registration url
+
+    [Parameter]
+    public string ProfileUrl { get; set; } // optional parameter to specify a custom user profile url
+
+    private string _registerurl = "";
+    private string _profileurl = "";
     private string _returnurl = "";
 
     protected override void OnParametersSet()
-    {
-		if (!PageState.QueryString.ContainsKey("returnurl"))
-		{
-			// remember current url
-			_returnurl = WebUtility.UrlEncode(PageState.Route.PathAndQuery);
-		}
-		else
-		{
-			// use existing value
-			_returnurl = PageState.QueryString["returnurl"];
-		}
+    {        
+        if (!PageState.QueryString.ContainsKey("returnurl"))
+        {
+            // remember current url
+            _returnurl = WebUtility.UrlEncode(PageState.Route.PathAndQuery);
+        }
+        else
+        {
+            // use existing value
+            _returnurl = PageState.QueryString["returnurl"];
+        }
+
+        if (!string.IsNullOrEmpty(RegisterUrl))
+        {
+            _registerurl = RegisterUrl + "?returnurl=" + (RegisterUrl.Contains("://") ? WebUtility.UrlEncode(PageState.Route.RootUrl) + _returnurl : _returnurl);
+        }
+        else
+        {
+            _registerurl = NavigateUrl("register", "returnurl=" + _returnurl);
+        }
+
+        if (!string.IsNullOrEmpty(ProfileUrl))
+        {
+            _registerurl = ProfileUrl + "?returnurl=" + (ProfileUrl.Contains("://") ? WebUtility.UrlEncode(PageState.Route.RootUrl) + _returnurl : _returnurl);
+        }
+        else
+        {
+            _registerurl = NavigateUrl("profile", "returnurl=" + _returnurl);
+        }
     }
 }
 

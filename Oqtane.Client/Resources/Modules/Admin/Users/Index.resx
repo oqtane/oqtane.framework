@@ -513,4 +513,10 @@
   <data name="LogoutEverywhere.HelpText" xml:space="preserve">
     <value>Do you want users to be logged out of every active session on any device, or only their current session?</value>
   </data>
+  <data name="AllowHostRole.Text" xml:space="preserve">
+    <value>Allow Host Role?</value>
+  </data>
+  <data name="AllowHostRole.HelpText" xml:space="preserve">
+    <value>Indicate if host roles are supported from the identity provider. Please use caution with this option as it allows the host user to administrate every site within your installation.</value>
+  </data>
 </root>

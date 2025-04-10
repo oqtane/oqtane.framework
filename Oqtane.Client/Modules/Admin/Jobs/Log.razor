@@ -44,14 +44,12 @@ else
 
     private async Task GetJobLogs()
     {
-        _jobLogs = await JobLogService.GetJobLogsAsync();
-
+        var jobId = -1;
         if (PageState.QueryString.ContainsKey("id"))
         {
-            _jobLogs = _jobLogs.Where(item => item.JobId == Int32.Parse(PageState.QueryString["id"])).ToList();
+            jobId = int.Parse(PageState.QueryString["id"]);
         }
-
-        _jobLogs = _jobLogs.OrderByDescending(item => item.JobLogId).ToList();
+        _jobLogs = await JobLogService.GetJobLogsAsync(jobId);
     }
 
     private string DisplayStatus(bool isExecuting, bool? succeeded)
