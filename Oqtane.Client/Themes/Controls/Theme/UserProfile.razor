@@ -60,11 +60,11 @@
 
         if (!string.IsNullOrEmpty(ProfileUrl))
         {
-            _registerurl = ProfileUrl + "?returnurl=" + (ProfileUrl.Contains("://") ? WebUtility.UrlEncode(PageState.Route.RootUrl) + _returnurl : _returnurl);
+            _profileurl = ProfileUrl + "?returnurl=" + (ProfileUrl.Contains("://") ? WebUtility.UrlEncode(PageState.Route.RootUrl) + _returnurl : _returnurl);
         }
         else
         {
-            _registerurl = NavigateUrl("profile", "returnurl=" + _returnurl);
+            _profileurl = NavigateUrl("profile", "returnurl=" + _returnurl);
         }
     }
 }
