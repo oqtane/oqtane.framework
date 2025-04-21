@@ -620,19 +620,6 @@ namespace Oqtane.Shared
             }
         }
 
-        public static string GenerateSimpleHash16(string text)
-        {
-            unchecked // prevent overflow exception
-            {
-                long hash = 23;
-                foreach (char c in text)
-                {
-                    hash = hash * 31 + c;
-                }
-                return hash.ToString("X16");
-            }
-        }
-
         [Obsolete("ContentUrl(Alias alias, int fileId) is deprecated. Use FileUrl(Alias alias, int fileId) instead.", false)]
         public static string ContentUrl(Alias alias, int fileId)
         {
