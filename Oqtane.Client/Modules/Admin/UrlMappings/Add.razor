@@ -26,35 +26,37 @@
 </form>
 
 @code {
-	private ElementReference form;
-	private bool validated = false;
+    private ElementReference form;
+    private bool validated = false;
 
-	private string _url = string.Empty;
-	private string _mappedurl = string.Empty;
+    private string _url = string.Empty;
+    private string _mappedurl = string.Empty;
 
-	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-	private async Task SaveUrlMapping()
-	{
-		validated = true;
-		var interop = new Interop(JSRuntime);
-		if (await interop.FormValid(form))
-		{
-			if (_url != _mappedurl)
-			{
-				var url = PageState.Uri.Scheme + "://" + PageState.Uri.Authority + "/";
-				url = url + (!string.IsNullOrEmpty(PageState.Alias.Path) ? PageState.Alias.Path + "/" : "");
+    private async Task SaveUrlMapping()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
+        {
+            if (_url != _mappedurl)
+            {
+                var url = PageState.Uri.Scheme + "://" + PageState.Uri.Authority + "/";
+                url = url + (!string.IsNullOrEmpty(PageState.Alias.Path) ? PageState.Alias.Path + "/" : "");
 
-				_url = (_url.StartsWith("/")) ? _url.Substring(1) : _url;
-				_url = (!_url.StartsWith("http")) ? url + _url : _url;
+                _url = (_url.StartsWith("/")) ? _url.Substring(1) : _url;
+                _url = (!_url.StartsWith("http")) ? url + _url : _url;
 
-				if (_url.StartsWith(url))
+                _mappedurl = _mappedurl.Replace(url, "");
+                _mappedurl = (_mappedurl.StartsWith("/")) ? _mappedurl.Substring(1) : _mappedurl;
+
+                if (_url.StartsWith(url))
 				{
 					var urlmapping = new UrlMapping();
 					urlmapping.SiteId = PageState.Site.SiteId;
-					var route = new Route(_url, PageState.Alias.Path);
-					urlmapping.Url = route.PagePath;
-					urlmapping.MappedUrl = _mappedurl.Replace(url, "");
+                    urlmapping.Url = new Route(_url, PageState.Alias.Path).PagePath;
+					urlmapping.MappedUrl = _mappedurl;
 					urlmapping.Requests = 0;
 					urlmapping.CreatedOn = DateTime.UtcNow;
 					urlmapping.RequestedOn = DateTime.UtcNow;
