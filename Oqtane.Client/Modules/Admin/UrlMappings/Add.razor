@@ -8,9 +8,12 @@
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <div class="container">
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="url" HelpText="The fully qualified Url for this site" ResourceKey="Url">Url:</Label>
+            <Label Class="col-sm-3" For="url" HelpText="An absolute Url for this site" ResourceKey="Url">Url:</Label>
             <div class="col-sm-9">
-                <input id="url" class="form-control" @bind="@_url" maxlength="500" required />
+                <div class="input-group">
+                    <input id="url" class="form-control" @bind="@_url" maxlength="500" required />
+                    <button type="button" class="btn btn-primary" @onclick="GenerateUrl">@Localizer["Generate"]</button>
+                </div>
             </div>
         </div>
         <div class="row mb-1 align-items-center">
@@ -49,43 +52,57 @@
                 _url = (!_url.StartsWith("http")) ? url + _url : _url;
 
                 _mappedurl = _mappedurl.Replace(url, "");
-                _mappedurl = (_mappedurl.StartsWith("/")) ? _mappedurl.Substring(1) : _mappedurl;
+                _mappedurl = (_mappedurl.StartsWith("/") && _mappedurl != "/") ? _mappedurl.Substring(1) : _mappedurl;
 
                 if (_url.StartsWith(url))
-				{
-					var urlmapping = new UrlMapping();
-					urlmapping.SiteId = PageState.Site.SiteId;
+                {
+                    var urlmapping = new UrlMapping();
+                    urlmapping.SiteId = PageState.Site.SiteId;
                     urlmapping.Url = new Route(_url, PageState.Alias.Path).PagePath;
-					urlmapping.MappedUrl = _mappedurl;
-					urlmapping.Requests = 0;
-					urlmapping.CreatedOn = DateTime.UtcNow;
-					urlmapping.RequestedOn = DateTime.UtcNow;
+                    urlmapping.MappedUrl = _mappedurl;
+                    urlmapping.Requests = 0;
+                    urlmapping.CreatedOn = DateTime.UtcNow;
+                    urlmapping.RequestedOn = DateTime.UtcNow;
 
-					try
-					{
-						urlmapping = await UrlMappingService.AddUrlMappingAsync(urlmapping);
-						await logger.LogInformation("UrlMapping Saved {UrlMapping}", urlmapping);
-						NavigationManager.NavigateTo(NavigateUrl());
-					}
-					catch (Exception ex)
-					{
-						await logger.LogError(ex, "Error Saving UrlMapping {UrlMapping} {Error}", urlmapping, ex.Message);
-						AddModuleMessage(Localizer["Error.SaveUrlMapping"], MessageType.Error);
-					}
-				}
-				else
-				{
-					AddModuleMessage(Localizer["Message.SaveUrlMapping"], MessageType.Warning);
-				}
-			}
-			else
-			{
+                    try
+                    {
+                        urlmapping = await UrlMappingService.AddUrlMappingAsync(urlmapping);
+                        await logger.LogInformation("UrlMapping Saved {UrlMapping}", urlmapping);
+                        NavigationManager.NavigateTo(NavigateUrl());
+                    }
+                    catch (Exception ex)
+                    {
+                        await logger.LogError(ex, "Error Saving UrlMapping {UrlMapping} {Error}", urlmapping, ex.Message);
+                        AddModuleMessage(Localizer["Error.SaveUrlMapping"], MessageType.Error);
+                    }
+                }
+                else
+                {
+                    AddModuleMessage(Localizer["Message.SaveUrlMapping"], MessageType.Warning);
+                }
+            }
+            else
+            {
                 AddModuleMessage(Localizer["Message.DuplicateUrlMapping"], MessageType.Warning);
-			}
+            }
         }
         else
         {
             AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
+    }
+
+    private void GenerateUrl()
+    {
+        var url = PageState.Uri.Scheme + "://" + PageState.Uri.Authority + "/";
+        url = url + (!string.IsNullOrEmpty(PageState.Alias.Path) ? PageState.Alias.Path + "/" : "");
+
+        var chars = "abcdefghijklmnopqrstuvwxyz";
+        Random rnd = new Random();
+        for (int i = 0; i < 5; i++)
+        {
+            url += chars.Substring(rnd.Next(0, chars.Length - 1), 1);
+        }
+        _url = url;
     }
 }
