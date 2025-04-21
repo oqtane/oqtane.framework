@@ -67,8 +67,11 @@
 					var url = PageState.Uri.Scheme + "://" + PageState.Uri.Authority + "/";
 					url = url + (!string.IsNullOrEmpty(PageState.Alias.Path) ? PageState.Alias.Path + "/" : "");
 
+                    _mappedurl = _mappedurl.Replace(url, "");
+                    _mappedurl = (_mappedurl.StartsWith("/")) ? _mappedurl.Substring(1) : _mappedurl;
+
 					var urlmapping = await UrlMappingService.GetUrlMappingAsync(_urlmappingid);
-					urlmapping.MappedUrl = _mappedurl.Replace(url, "");
+					urlmapping.MappedUrl = _mappedurl;
 					urlmapping = await UrlMappingService.UpdateUrlMappingAsync(urlmapping);
 					await logger.LogInformation("UrlMapping Saved {UrlMapping}", urlmapping);
 					NavigationManager.NavigateTo(NavigateUrl());
