@@ -343,7 +343,7 @@
                     var urlMapping = await UrlMappingService.GetUrlMappingAsync(site.SiteId, route.PagePath);
                     if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
                     {
-                        var url = (urlMapping.MappedUrl.StartsWith("http")) ? urlMapping.MappedUrl : route.SiteUrl + "/" + urlMapping.MappedUrl + route.Query;
+                        var url = (urlMapping.MappedUrl.StartsWith("http")) ? urlMapping.MappedUrl : route.SiteUrl + (!urlMapping.MappedUrl.StartsWith("/") ? "/" : "") + urlMapping.MappedUrl + ((!urlMapping.MappedUrl.Contains("?")) ? route.Query : "");
                         NavigationManager.NavigateTo(url, false);
                         return;
                     }

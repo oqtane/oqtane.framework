@@ -121,7 +121,7 @@
     <value>Redirect To:</value>
   </data>
   <data name="MappedUrl.HelpText" xml:space="preserve">
-    <value>A relative or absolute Url where the user will be redirected</value>
+    <value>A relative or absolute Url where the user will be redirected. Use "/" for site root path.</value>
   </data>
   <data name="Url.HelpText" xml:space="preserve">
     <value>A relative Url identifying a path to a specific page in the site</value>

@@ -297,7 +297,7 @@
         if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
         {
             // redirect to mapped url
-            var url = (urlMapping.MappedUrl.StartsWith("http")) ? urlMapping.MappedUrl : route.SiteUrl + "/" + urlMapping.MappedUrl;
+            var url = (urlMapping.MappedUrl.StartsWith("http")) ? urlMapping.MappedUrl : route.SiteUrl + (!urlMapping.MappedUrl.StartsWith("/") ? "/" : "") + urlMapping.MappedUrl + ((!urlMapping.MappedUrl.Contains("?")) ? route.Query : "");
             NavigationManager.NavigateTo(url, true);
         }
         else // no url mapping exists
