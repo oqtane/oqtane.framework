@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using File = Oqtane.Models.File;
@@ -617,6 +618,13 @@ namespace Oqtane.Shared
                 }
                 return hash.ToString("X8");
             }
+        }
+
+        public static string GenerateHashMD5(string input)
+        {
+            var bytes = Encoding.UTF8.GetBytes(input);
+            var hashBytes = MD5.HashData(bytes);
+            return Convert.ToHexString(hashBytes);
         }
 
         [Obsolete("ContentUrl(Alias alias, int fileId) is deprecated. Use FileUrl(Alias alias, int fileId) instead.", false)]
