@@ -137,14 +137,14 @@ namespace Oqtane.Pages
             string downloadName = file.Name;
             string filepath = _files.GetFilePath(file);
 
-            var etagInput = $"{file.ModifiedOn.Ticks}:{file.Size}";
-
             if (Request.QueryString.HasValue)
             {
-                etagInput += $":{Request.QueryString.Value}";
+                etag = Utilities.GenerateSimpleHash16($"{file.ModifiedOn.Ticks}:{file.Size}:{Request.QueryString.Value}");
             }
-
-            etag = Utilities.GenerateSimpleHash16(etagInput);
+            else
+            {
+                etag = Convert.ToString(file.ModifiedOn.Ticks ^ file.Size, 16);
+            }
 
             var header = "";
             if (HttpContext.Request.Headers.TryGetValue(HeaderNames.IfNoneMatch, out var ifNoneMatch))
