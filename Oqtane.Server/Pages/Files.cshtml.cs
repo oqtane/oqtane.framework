@@ -112,7 +112,7 @@ namespace Oqtane.Pages
 
                         url += Request.QueryString.Value.Substring(1);
                     }
-                    
+
                     return RedirectPermanent(url);
                 }
 
@@ -136,6 +136,34 @@ namespace Oqtane.Pages
             string etag;
             string downloadName = file.Name;
             string filepath = _files.GetFilePath(file);
+
+            if (Request.QueryString.HasValue)
+            {
+                etag = Utilities.GenerateSimpleHash(Request.QueryString.Value);
+            }
+            else
+            {
+                etag = Convert.ToString(file.ModifiedOn.Ticks ^ file.Size, 16);
+            }
+
+            var header = "";
+            if (HttpContext.Request.Headers.TryGetValue(HeaderNames.IfNoneMatch, out var ifNoneMatch))
+            {
+                header = ifNoneMatch.ToString();
+            }
+
+            if (header.Equals(etag))
+            {
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.NotModified;
+                return Content(String.Empty);
+            }
+
+            if (!System.IO.File.Exists(filepath))
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {FilePath}", filepath);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                return BrokenFile();
+            }
 
             // evaluate any querystring parameters
             bool isRequestingImageManipulation = false;
@@ -163,34 +191,6 @@ namespace Oqtane.Pages
             if (Request.Query.TryGetValue("format", out var format) && _imageService.GetAvailableFormats().Contains(format.ToString()))
             {
                 isRequestingImageManipulation = true;
-            }
-
-            if (isRequestingImageManipulation)
-            {
-                etag = Utilities.GenerateSimpleHash(Request.QueryString.Value);
-            }
-            else
-            {
-                etag = Convert.ToString(file.ModifiedOn.Ticks ^ file.Size, 16);
-            }
-
-            var header = "";
-            if (HttpContext.Request.Headers.TryGetValue(HeaderNames.IfNoneMatch, out var ifNoneMatch))
-            {
-                header = ifNoneMatch.ToString();
-            }
-
-            if (header.Equals(etag))
-            {
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.NotModified;
-                return Content(String.Empty);
-            }
-
-            if (!System.IO.File.Exists(filepath))
-            {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {FilePath}", filepath);
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                return BrokenFile();
             }
 
             if (isRequestingImageManipulation)
