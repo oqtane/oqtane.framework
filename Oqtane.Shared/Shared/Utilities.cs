@@ -620,11 +620,17 @@ namespace Oqtane.Shared
             }
         }
 
-        public static string GenerateHashMD5(string input)
+        public static string GenerateSimpleHash16(string text)
         {
-            var bytes = Encoding.UTF8.GetBytes(input);
-            var hashBytes = MD5.HashData(bytes);
-            return Convert.ToHexString(hashBytes);
+            unchecked // prevent overflow exception
+            {
+                long hash = 23;
+                foreach (char c in text)
+                {
+                    hash = hash * 31 + c;
+                }
+                return hash.ToString("X16");
+            }
         }
 
         [Obsolete("ContentUrl(Alias alias, int fileId) is deprecated. Use FileUrl(Alias alias, int fileId) instead.", false)]

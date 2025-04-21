@@ -144,7 +144,7 @@ namespace Oqtane.Pages
                 etagInput += $":{Request.QueryString.Value}";
             }
 
-            etag = Utilities.GenerateHashMD5(etagInput);
+            etag = Utilities.GenerateSimpleHash16(etagInput);
 
             var header = "";
             if (HttpContext.Request.Headers.TryGetValue(HeaderNames.IfNoneMatch, out var ifNoneMatch))
