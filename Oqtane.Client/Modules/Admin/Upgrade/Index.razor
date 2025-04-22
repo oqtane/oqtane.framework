@@ -15,7 +15,7 @@
             {
                 <div class="container">
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" HelpText="Specify if you want to backup files during the upgrade process. Disabling this option will result in a better experience in some environments." ResourceKey="Backup">Backup Files? </Label>
+                        <Label Class="col-sm-3" HelpText="Specify if you want to backup files during the upgrade process. Disabling this option will reduce the time required for the upgrade." ResourceKey="Backup">Backup Files? </Label>
                         <div class="col-sm-9">
                             <select id="backup" class="form-select" @bind="@_backup">
                                 <option value="True">@SharedLocalizer["Yes"]</option>
@@ -24,10 +24,15 @@
                         </div>
                     </div>
                 </div>
-                <button type="button" class="btn btn-primary" @onclick=@(async () => await Download(Constants.PackageId, @_package.Version))>@SharedLocalizer["Download"] @_package.Version</button>
-                <button type="button" class="btn btn-success" @onclick="Upgrade">@SharedLocalizer["Upgrade"]</button>
-                <br /><br />
-                <ModuleMessage Type="MessageType.Info" Message="Select The Download Button To Download The Framework Upgrade Package And Then Select Upgrade"></ModuleMessage>
+                <br />
+                @if (!_downloaded)
+                {
+                    <button type="button" class="btn btn-primary" @onclick=@(async () => await Download(Constants.PackageId, @_package.Version))>@SharedLocalizer["Download"] @_package.Version</button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-success" @onclick="Upgrade">@SharedLocalizer["Upgrade"]</button>
+                }
             }
             else
             {
@@ -43,7 +48,7 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" HelpText="Specify if you want to backup files during the upgrade process. Disabling this option will result in a better experience in some environments." ResourceKey="Backup">Backup Files? </Label>
+                    <Label Class="col-sm-3" HelpText="Specify if you want to backup files during the upgrade process. Disabling this option will reduce the time required for the upgrade." ResourceKey="Backup">Backup Files? </Label>
                     <div class="col-sm-9">
                         <select id="backup" class="form-select" @bind="@_backup">
                             <option value="True">@SharedLocalizer["Yes"]</option>
@@ -52,15 +57,15 @@
                     </div>
                 </div>
             </div>
+            <br />
             <button type="button" class="btn btn-success" @onclick="Upgrade">@SharedLocalizer["Upgrade"]</button>
-            <br /><br />
-            <ModuleMessage Type="MessageType.Info" Message=@Localizer["MessageUpgrade.Text"]></ModuleMessage>
         </TabPanel>
     </TabStrip>
 }
 
 @code {
     private bool _initialized = false;
+    private bool _downloaded = false;
     private Package _package;
     private bool _upgradeavailable = false;
     private string _backup = "True";
@@ -125,6 +130,7 @@
             ShowProgressIndicator();
             await PackageService.DownloadPackageAsync(packageid, version);
             await PackageService.DownloadPackageAsync(Constants.UpdaterPackageId, version);
+            _downloaded = true;
             HideProgressIndicator();
             AddModuleMessage(Localizer["Success.Framework.Download"], MessageType.Success);
         }
