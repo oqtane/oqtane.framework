@@ -30,7 +30,7 @@
 		<ApplicationId>com.oqtane.maui</ApplicationId>
     
 		<!-- Versions -->
-		<ApplicationDisplayVersion>6.1.2</ApplicationDisplayVersion>
+		<ApplicationDisplayVersion>6.2.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
     <!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
