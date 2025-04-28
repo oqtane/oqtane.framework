@@ -13,5 +13,6 @@ namespace Oqtane.Repository
         Setting GetSetting(string entityName, int entityId, string settingName);
         void DeleteSetting(string entityName, int settingId);
         void DeleteSettings(string entityName, int entityId);
+        string GetSettingValue(List<Setting> settings, string settingName, string defaultValue);
     }
 }
