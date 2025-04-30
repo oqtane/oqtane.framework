@@ -40,18 +40,13 @@ namespace Oqtane.Infrastructure
             foreach (Site site in sites)
             {
                 log += "<br />Processing Site: " + site.Name + "<br />";
-                int retention;
                 int count;
 
                 // get site settings
-                Dictionary<string, string> settings = GetSettings(settingRepository.GetSettings(EntityNames.Site, site.SiteId).ToList());
+                var settings = settingRepository.GetSettings(EntityNames.Site, site.SiteId, EntityNames.Host, -1);
 
                 // purge event log
-                retention = 30; // 30 days
-                if (settings.ContainsKey("LogRetention") && !string.IsNullOrEmpty(settings["LogRetention"]))
-                {
-                    retention = int.Parse(settings["LogRetention"]);
-                }
+                var retention = int.Parse(settingRepository.GetSettingValue(settings, "LogRetention", "30")); // 30 day default
                 try
                 {
                     count = logRepository.DeleteLogs(site.SiteId, retention);
@@ -65,11 +60,7 @@ namespace Oqtane.Infrastructure
                 // purge visitors
                 if (site.VisitorTracking)
                 {
-                    retention = 30; // 30 days
-                    if (settings.ContainsKey("VisitorRetention") && !string.IsNullOrEmpty(settings["VisitorRetention"]))
-                    {
-                        retention = int.Parse(settings["VisitorRetention"]);
-                    }
+                    retention = int.Parse(settingRepository.GetSettingValue(settings, "VisitorRetention", "30")); // 30 day default
                     try
                     {
                         count = visitorRepository.DeleteVisitors(site.SiteId, retention);
@@ -82,11 +73,7 @@ namespace Oqtane.Infrastructure
                 }
 
                 // purge notifications
-                retention = 30; // 30 days
-                if (settings.ContainsKey("NotificationRetention") && !string.IsNullOrEmpty(settings["NotificationRetention"]))
-                {
-                    retention = int.Parse(settings["NotificationRetention"]);
-                }
+                retention = int.Parse(settingRepository.GetSettingValue(settings, "NotificationRetention", "30")); // 30 day default
                 try
                 {
                     count = notificationRepository.DeleteNotifications(site.SiteId, retention);
@@ -98,11 +85,7 @@ namespace Oqtane.Infrastructure
                 }
 
                 // purge broken urls 
-                retention = 30; // 30 days
-                if (settings.ContainsKey("UrlMappingRetention") && !string.IsNullOrEmpty(settings["UrlMappingRetention"]))
-                {
-                    retention = int.Parse(settings["UrlMappingRetention"]);
-                }
+                retention = int.Parse(settingRepository.GetSettingValue(settings, "UrlMappingRetention", "30")); // 30 day default
                 try
                 {
                     count = urlMappingRepository.DeleteUrlMappings(site.SiteId, retention);
@@ -126,16 +109,6 @@ namespace Oqtane.Infrastructure
             }
 
             return log;
-        }
-
-        private Dictionary<string, string> GetSettings(List<Setting> settings)
-        {
-            Dictionary<string, string> dictionary = new Dictionary<string, string>();
-            foreach (Setting setting in settings.OrderBy(item => item.SettingName).ToList())
-            {
-                dictionary.Add(setting.SettingName, setting.SettingValue);
-            }
-            return dictionary;
         }
     }
 }
