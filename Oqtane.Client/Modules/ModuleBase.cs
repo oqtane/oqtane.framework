@@ -17,7 +17,7 @@ namespace Oqtane.Modules
     public abstract class ModuleBase : ComponentBase, IModuleControl
     {
         private Logger _logger;
-        private string _urlparametersstate;
+        private string _urlparametersstate = string.Empty;
         private Dictionary<string, string> _urlparameters;
         private bool _scriptsloaded = false;
 
@@ -62,7 +62,7 @@ namespace Oqtane.Modules
         public Dictionary<string, string> UrlParameters {
             get
             {
-                if (_urlparametersstate == null || _urlparametersstate != PageState.UrlParameters)
+                if (string.IsNullOrEmpty(_urlparametersstate) || _urlparametersstate != PageState.UrlParameters)
                 {
                     _urlparametersstate = PageState.UrlParameters;
                     _urlparameters = GetUrlParameters(UrlParametersTemplate);
