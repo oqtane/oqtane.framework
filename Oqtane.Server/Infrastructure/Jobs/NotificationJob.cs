@@ -40,7 +40,7 @@ namespace Oqtane.Infrastructure
                 log += "Processing Notifications For Site: " + site.Name + "<br />";
 
                 // get site settings
-                List<Setting> sitesettings = settingRepository.GetSettings(EntityNames.Site, site.SiteId).ToList();
+                List<Setting> sitesettings = settingRepository.GetSettings(EntityNames.Site, site.SiteId, EntityNames.Host, -1).ToList();
                 Dictionary<string, string> settings = GetSettings(sitesettings);
                 if (!site.IsDeleted && (!settings.ContainsKey("SMTPEnabled") || settings["SMTPEnabled"] == "True"))
                 {

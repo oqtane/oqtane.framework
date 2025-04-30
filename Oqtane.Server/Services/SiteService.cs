@@ -111,7 +111,7 @@ namespace Oqtane.Services
             if (site != null && site.SiteId == alias.SiteId)
             {
                 // site settings
-                site.Settings = _settings.GetSettings(EntityNames.Site, site.SiteId)
+                site.Settings = _settings.GetSettings(EntityNames.Site, site.SiteId, EntityNames.Host, -1)
                     .ToDictionary(setting => setting.SettingName, setting => (setting.IsPrivate ? _private : "") + setting.SettingValue);
 
                 // populate file extensions 
