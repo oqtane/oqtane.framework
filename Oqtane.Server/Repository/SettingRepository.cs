@@ -167,7 +167,7 @@ namespace Oqtane.Repository
             ManageCache(entityName);
         }
 
-        public string GetSettingValue(List<Setting> settings, string settingName, string defaultValue)
+        public string GetSettingValue(IEnumerable<Setting> settings, string settingName, string defaultValue)
         {
             var setting = settings.FirstOrDefault(item => item.SettingName == settingName);
             if (setting != null)
