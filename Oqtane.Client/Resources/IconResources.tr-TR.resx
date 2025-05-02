@@ -1,0 +1,789 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Icon.AccountLogout" xml:space="preserve">
+    <value>#TODO#_Çıkış Yap</value>
+  </data>
+  <data name="Icon.Bookmark" xml:space="preserve">
+    <value>#TODO#_Yer İşareti</value>
+  </data>
+  <data name="Icon.Box" xml:space="preserve">
+    <value>#TODO#_Kutu</value>
+  </data>
+  <data name="Icon.Wifi" xml:space="preserve">
+    <value>#TODO#_Wifi</value>
+  </data>
+  <data name="Icon.SortDescending" xml:space="preserve">
+    <value>#TODO#_Azalan Sırala</value>
+  </data>
+  <data name="Icon.SortAscending" xml:space="preserve">
+    <value>#TODO#_Artan Sırala</value>
+  </data>
+  <data name="Icon.Signpost" xml:space="preserve">
+    <value>#TODO#_Yol Gösterici</value>
+  </data>
+  <data name="Icon.Signal" xml:space="preserve">
+    <value>#TODO#_Sinyal</value>
+  </data>
+  <data name="Icon.Shield" xml:space="preserve">
+    <value>#TODO#_Kalkan</value>
+  </data>
+  <data name="Icon.AccountLogin" xml:space="preserve">
+    <value>#TODO#_Giriş Yap</value>
+  </data>
+  <data name="Icon.ActionRedo" xml:space="preserve">
+    <value>#TODO#_İşlemi Yeniden Yap</value>
+  </data>
+  <data name="Icon.ActionUndo" xml:space="preserve">
+    <value>#TODO#_İşlemi Geri Al</value>
+  </data>
+  <data name="Icon.AlignCenter" xml:space="preserve">
+    <value>#TODO#_Ortala</value>
+  </data>
+  <data name="Icon.AlignLeft" xml:space="preserve">
+    <value>#TODO#_Sola Hizala</value>
+  </data>
+  <data name="Icon.AlignRight" xml:space="preserve">
+    <value>#TODO#_Sağa Hizala</value>
+  </data>
+  <data name="Icon.Aperture" xml:space="preserve">
+    <value>#TODO#_Diyafram</value>
+  </data>
+  <data name="Icon.ArrowBottom" xml:space="preserve">
+    <value>#TODO#_Ok Aşağı</value>
+  </data>
+  <data name="Icon.ArrowCircleBottom" xml:space="preserve">
+    <value>#TODO#_Ok Daire Aşağı</value>
+  </data>
+  <data name="Icon.ArrowCircleLeft" xml:space="preserve">
+    <value>#TODO#_Ok Daire Sol</value>
+  </data>
+  <data name="Icon.ArrowCircleRight" xml:space="preserve">
+    <value>#TODO#_Ok Daire Sağ</value>
+  </data>
+  <data name="Icon.ArrowCircleTop" xml:space="preserve">
+    <value>#TODO#_Ok Daire Yukarı</value>
+  </data>
+  <data name="Icon.ArrowLeft" xml:space="preserve">
+    <value>#TODO#_Ok Sol</value>
+  </data>
+  <data name="Icon.ArrowRight" xml:space="preserve">
+    <value>#TODO#_Ok Sağ</value>
+  </data>
+  <data name="Icon.ArrowThickBottom" xml:space="preserve">
+    <value>#TODO#_Kalın Ok Aşağı</value>
+  </data>
+  <data name="Icon.ArrowThickLeft" xml:space="preserve">
+    <value>#TODO#_Kalın Sol Ok</value>
+  </data>
+  <data name="Icon.ArrowThickRight" xml:space="preserve">
+    <value>#TODO#_Kalın Sağ Ok</value>
+  </data>
+  <data name="Icon.ArrowThickTop" xml:space="preserve">
+    <value>#TODO#_Kalın Üst Ok</value>
+  </data>
+  <data name="Icon.ArrowTop" xml:space="preserve">
+    <value>#TODO#_Üst Ok</value>
+  </data>
+  <data name="Icon.AudioSpectrum" xml:space="preserve">
+    <value>#TODO#_Ses Spektrumu</value>
+  </data>
+  <data name="Icon.Audio" xml:space="preserve">
+    <value>#TODO#_Ses</value>
+  </data>
+  <data name="Icon.Badge" xml:space="preserve">
+    <value>#TODO#_Rozet</value>
+  </data>
+  <data name="Icon.Ban" xml:space="preserve">
+    <value>#TODO#_Yasak</value>
+  </data>
+  <data name="Icon.BarChart" xml:space="preserve">
+    <value>#TODO#_Çubuk Grafik</value>
+  </data>
+  <data name="Icon.Basket" xml:space="preserve">
+    <value>#TODO#_Sepet</value>
+  </data>
+  <data name="Icon.BatteryEmpty" xml:space="preserve">
+    <value>#TODO#_Pil Boş</value>
+  </data>
+  <data name="Icon.BatteryFull" xml:space="preserve">
+    <value>#TODO#_Pil Dolu</value>
+  </data>
+  <data name="Icon.Beaker" xml:space="preserve">
+    <value>#TODO#_Beher</value>
+  </data>
+  <data name="Icon.Bell" xml:space="preserve">
+    <value>#TODO#_Zil</value>
+  </data>
+  <data name="Icon.Bluetooth" xml:space="preserve">
+    <value>#TODO#_Bluetooth</value>
+  </data>
+  <data name="Icon.Bold" xml:space="preserve">
+    <value>#TODO#_Kalın</value>
+  </data>
+  <data name="Icon.Bolt" xml:space="preserve">
+    <value>#TODO#_Cıvata</value>
+  </data>
+  <data name="Icon.Book" xml:space="preserve">
+    <value>#TODO#_Kitap</value>
+  </data>
+  <data name="Icon.Briefcase" xml:space="preserve">
+    <value>#TODO#_El Çantası</value>
+  </data>
+  <data name="Icon.BritishPound" xml:space="preserve">
+    <value>#TODO#_İngiliz Sterlini</value>
+  </data>
+  <data name="Icon.Browser" xml:space="preserve">
+    <value>#TODO#_Tarayıcı</value>
+  </data>
+  <data name="Icon.Brush" xml:space="preserve">
+    <value>#TODO#_Fırça</value>
+  </data>
+  <data name="Icon.Bug" xml:space="preserve">
+    <value>#TODO#_Hata</value>
+  </data>
+  <data name="Icon.Bullhorn" xml:space="preserve">
+    <value>#TODO#_Megafon</value>
+  </data>
+  <data name="Icon.Calculator" xml:space="preserve">
+    <value>#TODO#_Hesap Makinesi</value>
+  </data>
+  <data name="Icon.Calendar" xml:space="preserve">
+    <value>#TODO#_Takvim</value>
+  </data>
+  <data name="Icon.CameraSlr" xml:space="preserve">
+    <value>#TODO#_Fotoğraf Makinesi</value>
+  </data>
+  <data name="Icon.CaretBottom" xml:space="preserve">
+    <value>#TODO#_Aşağı İşaret</value>
+  </data>
+  <data name="Icon.CaretLeft" xml:space="preserve">
+    <value>#TODO#_Sol İşaret</value>
+  </data>
+  <data name="Icon.CaretRight" xml:space="preserve">
+    <value>#TODO#_Sağ İşaret</value>
+  </data>
+  <data name="Icon.CaretTop" xml:space="preserve">
+    <value>#TODO#_Yukarı İşaret</value>
+  </data>
+  <data name="Icon.Cart" xml:space="preserve">
+    <value>#TODO#_Sepet</value>
+  </data>
+  <data name="Icon.Chat" xml:space="preserve">
+    <value>#TODO#_Sohbet</value>
+  </data>
+  <data name="Icon.Check" xml:space="preserve">
+    <value>#TODO#_Kontrol</value>
+  </data>
+  <data name="Icon.ChevronBottom" xml:space="preserve">
+    <value>#TODO#_Aşağı İşaret</value>
+  </data>
+  <data name="Icon.ChevronLeft" xml:space="preserve">
+    <value>#TODO#_Sol İşaret</value>
+  </data>
+  <data name="Icon.ChevronRight" xml:space="preserve">
+    <value>#TODO#_Sağ İşaret</value>
+  </data>
+  <data name="Icon.ChevronTop" xml:space="preserve">
+    <value>#TODO#_Üst İşaret</value>
+  </data>
+  <data name="Icon.CircleCheck" xml:space="preserve">
+    <value>#TODO#_Daire Kontrol</value>
+  </data>
+  <data name="Icon.CircleX" xml:space="preserve">
+    <value>#TODO#_Daire X</value>
+  </data>
+  <data name="Icon.Clipboard" xml:space="preserve">
+    <value>#TODO#_Pano</value>
+  </data>
+  <data name="Icon.Clock" xml:space="preserve">
+    <value>#TODO#_Saat</value>
+  </data>
+  <data name="Icon.CloudDownload" xml:space="preserve">
+    <value>#TODO#_Bulut İndirme</value>
+  </data>
+  <data name="Icon.CloudUpload" xml:space="preserve">
+    <value>#TODO#_Bulut Yükleme</value>
+  </data>
+  <data name="Icon.Cloud" xml:space="preserve">
+    <value>#TODO#_Bulut</value>
+  </data>
+  <data name="Icon.Cloudy" xml:space="preserve">
+    <value>#TODO#_Bulutlu</value>
+  </data>
+  <data name="Icon.Code" xml:space="preserve">
+    <value>#TODO#_Kod</value>
+  </data>
+  <data name="Icon.Cog" xml:space="preserve">
+    <value>#TODO#_Dişli</value>
+  </data>
+  <data name="Icon.CollapseDown" xml:space="preserve">
+    <value>#TODO#_Aşağı Daralt</value>
+  </data>
+  <data name="Icon.CollapseLeft" xml:space="preserve">
+    <value>#TODO#_Sola Daralt</value>
+  </data>
+  <data name="Icon.CollapseRight" xml:space="preserve">
+    <value>#TODO#_Sağa Daralt</value>
+  </data>
+  <data name="Icon.CollapseUp" xml:space="preserve">
+    <value>#TODO#_Yukarı Daralt</value>
+  </data>
+  <data name="Icon.Command" xml:space="preserve">
+    <value>#TODO#_Komut</value>
+  </data>
+  <data name="Icon.CommentSquare" xml:space="preserve">
+    <value>#TODO#_Yorum Kare</value>
+  </data>
+  <data name="Icon.Compass" xml:space="preserve">
+    <value>#TODO#_Pusula</value>
+  </data>
+  <data name="Icon.Contrast" xml:space="preserve">
+    <value>#TODO#_Kontrast</value>
+  </data>
+  <data name="Icon.Copywriting" xml:space="preserve">
+    <value>#TODO#_Kopya Yazı</value>
+  </data>
+  <data name="Icon.CreditCard" xml:space="preserve">
+    <value>#TODO#_Kredi Kartı</value>
+  </data>
+  <data name="Icon.Crop" xml:space="preserve">
+    <value>#TODO#_Kırpma</value>
+  </data>
+  <data name="Icon.Dashboard" xml:space="preserve">
+    <value>#TODO#_Gösterge Paneli</value>
+  </data>
+  <data name="Icon.DataTransferDownload" xml:space="preserve">
+    <value>#TODO#_Veri Transferi İndirme</value>
+  </data>
+  <data name="Icon.DataTransferUpload" xml:space="preserve">
+    <value>#TODO#_Veri Transferi Yükleme</value>
+  </data>
+  <data name="Icon.Delete" xml:space="preserve">
+    <value>#TODO#_Sil</value>
+  </data>
+  <data name="Icon.Dial" xml:space="preserve">
+    <value>#TODO#_Çevir</value>
+  </data>
+  <data name="Icon.Document" xml:space="preserve">
+    <value>#TODO#_Belge</value>
+  </data>
+  <data name="Icon.Dollar" xml:space="preserve">
+    <value>#TODO#_Dolar</value>
+  </data>
+  <data name="Icon.DoubleQuoteSansLeft" xml:space="preserve">
+    <value>#TODO#_Sol Çift Tırnak</value>
+  </data>
+  <data name="Icon.DoubleQuoteSansRight" xml:space="preserve">
+    <value>#TODO#_Sağ Çift Tırnak</value>
+  </data>
+  <data name="Icon.DoubleQuoteSerifLeft" xml:space="preserve">
+    <value>#TODO#_Sol Serif Tırnak</value>
+  </data>
+  <data name="Icon.DoubleQuoteSerifRight" xml:space="preserve">
+    <value>#TODO#_Sağ Serif Tırnak</value>
+  </data>
+  <data name="Icon.Droplet" xml:space="preserve">
+    <value>#TODO#_Damlacık</value>
+  </data>
+  <data name="Icon.Eject" xml:space="preserve">
+    <value>#TODO#_Çıkart</value>
+  </data>
+  <data name="Icon.Elevator" xml:space="preserve">
+    <value>#TODO#_Asansör</value>
+  </data>
+  <data name="Icon.Ellipses" xml:space="preserve">
+    <value>#TODO#_Elipsler</value>
+  </data>
+  <data name="Icon.EnvelopeClosed" xml:space="preserve">
+    <value>#TODO#_Mühürlü Zarf</value>
+  </data>
+  <data name="Icon.EnvelopeOpen" xml:space="preserve">
+    <value>#TODO#_Açık Zarf</value>
+  </data>
+  <data name="Icon.Euro" xml:space="preserve">
+    <value>#TODO#_Euro</value>
+  </data>
+  <data name="Icon.Excerpt" xml:space="preserve">
+    <value>#TODO#_Alıntı</value>
+  </data>
+  <data name="Icon.ExpandDown" xml:space="preserve">
+    <value>#TODO#_Aşağı Genişlet</value>
+  </data>
+  <data name="Icon.ExpandLeft" xml:space="preserve">
+    <value>#TODO#_Sola Genişlet</value>
+  </data>
+  <data name="Icon.ExpandRight" xml:space="preserve">
+    <value>#TODO#_Sağa Genişlet</value>
+  </data>
+  <data name="Icon.ExpandUp" xml:space="preserve">
+    <value>#TODO#_Yukarı Genişlet</value>
+  </data>
+  <data name="Icon.ExternalLink" xml:space="preserve">
+    <value>#TODO#_Dış Bağlantı</value>
+  </data>
+  <data name="Icon.Eye" xml:space="preserve">
+    <value>#TODO#_Göz</value>
+  </data>
+  <data name="Icon.Eyedropper" xml:space="preserve">
+    <value>#TODO#_Damla Alıcı</value>
+  </data>
+  <data name="Icon.File" xml:space="preserve">
+    <value>#TODO#_Dosya</value>
+  </data>
+  <data name="Icon.Fire" xml:space="preserve">
+    <value>#TODO#_Ateş</value>
+  </data>
+  <data name="Icon.Flag" xml:space="preserve">
+    <value>#TODO#_Bayrak</value>
+  </data>
+  <data name="Icon.Flash" xml:space="preserve">
+    <value>#TODO#_Flaş</value>
+  </data>
+  <data name="Icon.Folder" xml:space="preserve">
+    <value>#TODO#_Klasör</value>
+  </data>
+  <data name="Icon.Fork" xml:space="preserve">
+    <value>#TODO#_Çatal</value>
+  </data>
+  <data name="Icon.FullscreenEnter" xml:space="preserve">
+    <value>#TODO#_Tam Ekran Giriş</value>
+  </data>
+  <data name="Icon.FullscreenExit" xml:space="preserve">
+    <value>#TODO#_Tam Ekran Çıkış</value>
+  </data>
+  <data name="Icon.Globe" xml:space="preserve">
+    <value>#TODO#_Dünya</value>
+  </data>
+  <data name="Icon.Graph" xml:space="preserve">
+    <value>#TODO#_Grafik</value>
+  </data>
+  <data name="Icon.GridFourUp" xml:space="preserve">
+    <value>#TODO#_Dörtlü Izgara</value>
+  </data>
+  <data name="Icon.GridThreeUp" xml:space="preserve">
+    <value>#TODO#_Üçlü Izgara</value>
+  </data>
+  <data name="Icon.GridTwoUp" xml:space="preserve">
+    <value>#TODO#_İkil İzgara</value>
+  </data>
+  <data name="Icon.HardDrive" xml:space="preserve">
+    <value>#TODO#_Sabit Disk</value>
+  </data>
+  <data name="Icon.Header" xml:space="preserve">
+    <value>#TODO#_Başlık</value>
+  </data>
+  <data name="Icon.Headphones" xml:space="preserve">
+    <value>#TODO#_Kulaklık</value>
+  </data>
+  <data name="Icon.Heart" xml:space="preserve">
+    <value>#TODO#_Kalp</value>
+  </data>
+  <data name="Icon.Home" xml:space="preserve">
+    <value>#TODO#_Ana Sayfa</value>
+  </data>
+  <data name="Icon.Image" xml:space="preserve">
+    <value>#TODO#_Resim</value>
+  </data>
+  <data name="Icon.Inbox" xml:space="preserve">
+    <value>#TODO#_Gelen Kutusu</value>
+  </data>
+  <data name="Icon.Infinity" xml:space="preserve">
+    <value>#TODO#_Sonsuzluk</value>
+  </data>
+  <data name="Icon.Info" xml:space="preserve">
+    <value>#TODO#_Bilgi</value>
+  </data>
+  <data name="Icon.Italic" xml:space="preserve">
+    <value>#TODO#_İtalik</value>
+  </data>
+  <data name="Icon.JustifyCenter" xml:space="preserve">
+    <value>#TODO#_Ortala Hizala</value>
+  </data>
+  <data name="Icon.JustifyLeft" xml:space="preserve">
+    <value>#TODO#_Sola Hizala</value>
+  </data>
+  <data name="Icon.JustifyRight" xml:space="preserve">
+    <value>#TODO#_Sağa Hizala</value>
+  </data>
+  <data name="Icon.Key" xml:space="preserve">
+    <value>#TODO#_Anahtar</value>
+  </data>
+  <data name="Icon.Laptop" xml:space="preserve">
+    <value>#TODO#_Dizüstü Bilgisayar</value>
+  </data>
+  <data name="Icon.Layers" xml:space="preserve">
+    <value>#TODO#_Katmanlar</value>
+  </data>
+  <data name="Icon.Lightbulb" xml:space="preserve">
+    <value>#TODO#_Ampul</value>
+  </data>
+  <data name="Icon.LinkBroken" xml:space="preserve">
+    <value>#TODO#_Bağlantı Kırık</value>
+  </data>
+  <data name="Icon.LinkIntact" xml:space="preserve">
+    <value>#TODO#_Bağlantı Sağlam</value>
+  </data>
+  <data name="Icon.ListRich" xml:space="preserve">
+    <value>#TODO#_Zengin Liste</value>
+  </data>
+  <data name="Icon.List" xml:space="preserve">
+    <value>#TODO#_Liste</value>
+  </data>
+  <data name="Icon.Location" xml:space="preserve">
+    <value>#TODO#_Konum</value>
+  </data>
+  <data name="Icon.LockLocked" xml:space="preserve">
+    <value>#TODO#_Kilitli</value>
+  </data>
+  <data name="Icon.LockUnlocked" xml:space="preserve">
+    <value>#TODO#_Kilitsiz</value>
+  </data>
+  <data name="Icon.LoopCircular" xml:space="preserve">
+    <value>#TODO#_Döngü Dairesel</value>
+  </data>
+  <data name="Icon.LoopSquare" xml:space="preserve">
+    <value>#TODO#_Döngü Kare</value>
+  </data>
+  <data name="Icon.Loop" xml:space="preserve">
+    <value>#TODO#_Döngü</value>
+  </data>
+  <data name="Icon.MagnifyingGlass" xml:space="preserve">
+    <value>#TODO#_Büyüteç</value>
+  </data>
+  <data name="Icon.MapMarker" xml:space="preserve">
+    <value>#TODO#_Harita İşaretleyici</value>
+  </data>
+  <data name="Icon.Map" xml:space="preserve">
+    <value>#TODO#_Harita</value>
+  </data>
+  <data name="Icon.MediaPause" xml:space="preserve">
+    <value>#TODO#_Medya Duraklat</value>
+  </data>
+  <data name="Icon.MediaPlay" xml:space="preserve">
+    <value>#TODO#_Medya Oynat</value>
+  </data>
+  <data name="Icon.MediaRecord" xml:space="preserve">
+    <value>#TODO#_Medya Kayıt</value>
+  </data>
+  <data name="Icon.MediaSkipBackward" xml:space="preserve">
+    <value>#TODO#_Medya Geri Sar</value>
+  </data>
+  <data name="Icon.MediaSkipForward" xml:space="preserve">
+    <value>#TODO#_Medya İleri Sar</value>
+  </data>
+  <data name="Icon.MediaStepBackward" xml:space="preserve">
+    <value>#TODO#_Medya Geri Adım</value>
+  </data>
+  <data name="Icon.MediaStepForward" xml:space="preserve">
+    <value>#TODO#_Medya Adımı İleri</value>
+  </data>
+  <data name="Icon.MediaStop" xml:space="preserve">
+    <value>#TODO#_Medya Durdur</value>
+  </data>
+  <data name="Icon.MedicalCross" xml:space="preserve">
+    <value>#TODO#_Tıbbi Haç</value>
+  </data>
+  <data name="Icon.Menu" xml:space="preserve">
+    <value>#TODO#_Menü</value>
+  </data>
+  <data name="Icon.Microphone" xml:space="preserve">
+    <value>#TODO#_Mikrofon</value>
+  </data>
+  <data name="Icon.Minus" xml:space="preserve">
+    <value>#TODO#_Eksi</value>
+  </data>
+  <data name="Icon.Monitor" xml:space="preserve">
+    <value>#TODO#_Monitör</value>
+  </data>
+  <data name="Icon.Moon" xml:space="preserve">
+    <value>#TODO#_Ay</value>
+  </data>
+  <data name="Icon.Move" xml:space="preserve">
+    <value>#TODO#_Hareket</value>
+  </data>
+  <data name="Icon.MusicalNote" xml:space="preserve">
+    <value>#TODO#_Müzik Noktası</value>
+  </data>
+  <data name="Icon.Paperclip" xml:space="preserve">
+    <value>#TODO#_Raptiye</value>
+  </data>
+  <data name="Icon.Pencil" xml:space="preserve">
+    <value>#TODO#_Kalem</value>
+  </data>
+  <data name="Icon.People" xml:space="preserve">
+    <value>#TODO#_İnsanlar</value>
+  </data>
+  <data name="Icon.Person" xml:space="preserve">
+    <value>#TODO#_Kişi</value>
+  </data>
+  <data name="Icon.Phone" xml:space="preserve">
+    <value>#TODO#_Telefon</value>
+  </data>
+  <data name="Icon.PieChart" xml:space="preserve">
+    <value>#TODO#_Pasta Grafiği</value>
+  </data>
+  <data name="Icon.Pin" xml:space="preserve">
+    <value>#TODO#_Pin</value>
+  </data>
+  <data name="Icon.PlayCircle" xml:space="preserve">
+    <value>#TODO#_Oynatma Dairesi</value>
+  </data>
+  <data name="Icon.Plus" xml:space="preserve">
+    <value>#TODO#_Artı</value>
+  </data>
+  <data name="Icon.PowerStandby" xml:space="preserve">
+    <value>#TODO#_Güç Bekleme</value>
+  </data>
+  <data name="Icon.Print" xml:space="preserve">
+    <value>#TODO#_Yazdır</value>
+  </data>
+  <data name="Icon.Project" xml:space="preserve">
+    <value>#TODO#_Projeksiyon</value>
+  </data>
+  <data name="Icon.Pulse" xml:space="preserve">
+    <value>#TODO#_Atış</value>
+  </data>
+  <data name="Icon.PuzzlePiece" xml:space="preserve">
+    <value>#TODO#_Puzzle Parçası</value>
+  </data>
+  <data name="Icon.QuestionMark" xml:space="preserve">
+    <value>#TODO#_Soru İşareti</value>
+  </data>
+  <data name="Icon.Rain" xml:space="preserve">
+    <value>#TODO#_Yağmur</value>
+  </data>
+  <data name="Icon.Random" xml:space="preserve">
+    <value>#TODO#_Rastgele</value>
+  </data>
+  <data name="Icon.Reload" xml:space="preserve">
+    <value>#TODO#_Yeniden Yükle</value>
+  </data>
+  <data name="Icon.ResizeBoth" xml:space="preserve">
+    <value>#TODO#_Her İki Yönü de Yeniden Boyutlandır</value>
+  </data>
+  <data name="Icon.ResizeHeight" xml:space="preserve">
+    <value>#TODO#_Yüksekliği Yeniden Boyutlandır</value>
+  </data>
+  <data name="Icon.ResizeWidth" xml:space="preserve">
+    <value>#TODO#_Genişliği Yeniden Boyutlandır</value>
+  </data>
+  <data name="Icon.RssAlt" xml:space="preserve">
+    <value>#TODO#_Rss Alternatif</value>
+  </data>
+  <data name="Icon.Rss" xml:space="preserve">
+    <value>#TODO#_Rss</value>
+  </data>
+  <data name="Icon.Script" xml:space="preserve">
+    <value>#TODO#_Komut Dosyası</value>
+  </data>
+  <data name="Icon.ShareBoxed" xml:space="preserve">
+    <value>#TODO#_Paylaşım Kutulu</value>
+  </data>
+  <data name="Icon.Share" xml:space="preserve">
+    <value>#TODO#_Paylaş</value>
+  </data>
+  <data name="Icon.Spreadsheet" xml:space="preserve">
+    <value>#TODO#_Elektronik Tablo</value>
+  </data>
+  <data name="Icon.Star" xml:space="preserve">
+    <value>#TODO#_Yıldız</value>
+  </data>
+  <data name="Icon.Sun" xml:space="preserve">
+    <value>#TODO#_Güneş</value>
+  </data>
+  <data name="Icon.Tablet" xml:space="preserve">
+    <value>#TODO#_Tablet</value>
+  </data>
+  <data name="Icon.Tag" xml:space="preserve">
+    <value>#TODO#_Etiket</value>
+  </data>
+  <data name="Icon.Tags" xml:space="preserve">
+    <value>#TODO#_Etiketler</value>
+  </data>
+  <data name="Icon.Target" xml:space="preserve">
+    <value>#TODO#_Hedef</value>
+  </data>
+  <data name="Icon.Task" xml:space="preserve">
+    <value>#TODO#_Görev</value>
+  </data>
+  <data name="Icon.Terminal" xml:space="preserve">
+    <value>#TODO#_Terminal</value>
+  </data>
+  <data name="Icon.Text" xml:space="preserve">
+    <value>#TODO#_Metin</value>
+  </data>
+  <data name="Icon.ThumbDown" xml:space="preserve">
+    <value>#TODO#_Baş Aşağı İşaret</value>
+  </data>
+  <data name="Icon.ThumbUp" xml:space="preserve">
+    <value>#TODO#_Baş Yukarı İşaret</value>
+  </data>
+  <data name="Icon.Timer" xml:space="preserve">
+    <value>#TODO#_Zamanlayıcı</value>
+  </data>
+  <data name="Icon.Transfer" xml:space="preserve">
+    <value>#TODO#_Transfer</value>
+  </data>
+  <data name="Icon.Trash" xml:space="preserve">
+    <value>#TODO#_Çöp Kutusu</value>
+  </data>
+  <data name="Icon.Underline" xml:space="preserve">
+    <value>#TODO#_Altı Çizili</value>
+  </data>
+  <data name="Icon.VerticalAlignBottom" xml:space="preserve">
+    <value>#TODO#_Dikey Ortala Alt</value>
+  </data>
+  <data name="Icon.VerticalAlignCenter" xml:space="preserve">
+    <value>#TODO#_Dikey Ortala Merkez</value>
+  </data>
+  <data name="Icon.VerticalAlignTop" xml:space="preserve">
+    <value>#TODO#_Dikey Ortala Üst</value>
+  </data>
+  <data name="Icon.Video" xml:space="preserve">
+    <value>#TODO#_Video</value>
+  </data>
+  <data name="Icon.VolumeHigh" xml:space="preserve">
+    <value>#TODO#_Yüksek Ses</value>
+  </data>
+  <data name="Icon.VolumeLow" xml:space="preserve">
+    <value>#TODO#_Düşük Ses</value>
+  </data>
+  <data name="Icon.VolumeOff" xml:space="preserve">
+    <value>#TODO#_Ses Kapalı</value>
+  </data>
+  <data name="Icon.Warning" xml:space="preserve">
+    <value>#TODO#_Uyarı</value>
+  </data>
+  <data name="Icon.Wrench" xml:space="preserve">
+    <value>#TODO#_İngiliz anahtarı</value>
+  </data>
+  <data name="Icon.X" xml:space="preserve">
+    <value>#TODO#_X</value>
+  </data>
+  <data name="Icon.Yen" xml:space="preserve">
+    <value>#TODO#_Yen</value>
+  </data>
+  <data name="Icon.ZoomIn" xml:space="preserve">
+    <value>#TODO#_Yakınlaştır</value>
+  </data>
+  <data name="Icon.ZoomOut" xml:space="preserve">
+    <value>#TODO#_Uzaklaştır</value>
+  </data>
+</root>
