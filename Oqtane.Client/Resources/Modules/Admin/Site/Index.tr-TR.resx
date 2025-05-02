@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Name.Text" xml:space="preserve">
+    <value>Adı:</value>
+  </data>
+  <data name="Container.Select" xml:space="preserve">
+    <value>Konteyner Seç</value>
+  </data>
+  <data name="Error.Theme.LoadPane" xml:space="preserve">
+    <value>Tema İçin Bölme Düzenleri Yüklenirken Hata Oluştu</value>
+  </data>
+  <data name="DefaultContainer.Text" xml:space="preserve">
+    <value>Varsayılan Konteyner:</value>
+  </data>
+  <data name="DefaultAdminContainer" xml:space="preserve">
+    <value>Varsayılan Yönetici Konteyneri</value>
+  </data>
+  <data name="Smtp.Required.EnableNotificationJob" xml:space="preserve">
+    <value>** Lütfen SMTP'nin Zamanlanmış İşlerde Etkin Olmasını Gerektiren Bildirim İşinin Etkin Olduğuna Dikkat Edin</value>
+  </data>
+  <data name="Smtp.TestConfig" xml:space="preserve">
+    <value>SMTP Yapılandırmasını Test Et</value>
+  </data>
+  <data name="Success.Settings.SaveSite" xml:space="preserve">
+    <value>Site Ayarları Kaydedildi</value>
+  </data>
+  <data name="Message.Aliases.Taken" xml:space="preserve">
+    <value>Başka Bir Site İçin Kullanılan Bir Takma Ad Belirtildi</value>
+  </data>
+  <data name="Message.Required.SiteName" xml:space="preserve">
+    <value>Bir Site Adı, Takma Ad ve Varsayılan Tema/Konteyner Sağlamanız Gerekmektedir</value>
+  </data>
+  <data name="Error.SaveSite" xml:space="preserve">
+    <value>Site Kaydedilirken Hata Oluştu</value>
+  </data>
+  <data name="Info.Smtp.SaveSettings" xml:space="preserve">
+    <value>SMTP Ayarları Kaydedildi ve Kullanıcı Hesabınıza Bağlı E-posta Adresine Bir Mesaj Gönderildi... Lütfen Teslimat İçin Birkaç Dakika Bekleyin. E-postayı Almazsanız, Lütfen Zamanlanmış İşlerdeki Bildirim İşi İçin Herhangi Bir Günlük Detayını İnceleyin.</value>
+  </data>
+  <data name="Error.Smtp.TestConfig" xml:space="preserve">
+    <value>SMTP Yapılandırmasını Test Ederken Hata Oluştu</value>
+  </data>
+  <data name="Message.Required.Smtp" xml:space="preserve">
+    <value>SMTP Sunucusu, Port ve Göndericiyi Belirtmelisiniz</value>
+  </data>
+  <data name="Name.HelpText" xml:space="preserve">
+    <value>Site adını girin</value>
+  </data>
+  <data name="Tenant.HelpText" xml:space="preserve">
+    <value>Site için kullanılan veritabanının adı. Bu, fiziksel veritabanı adı değil, çerçeve içinde bir veritabanını tanımlamak için kullanılan kiracı adıdır.</value>
+  </data>
+  <data name="Aliases.HelpText" xml:space="preserve">
+    <value>Site için URL'ler. Bu alan adlarını (örneğin domain.com), alt alan adlarını (örneğin sub.domain.com) veya sanal klasörleri (örneğin domain.com/folder) içerebilir.</value>
+  </data>
+  <data name="IsDeleted.HelpText" xml:space="preserve">
+    <value>Bu site silindi mi?</value>
+  </data>
+  <data name="Logo.HelpText" xml:space="preserve">
+    <value>Site için bir logo belirtin</value>
+  </data>
+  <data name="FavoriteIcon.HelpText" xml:space="preserve">
+    <value>Favicon belirtin. Görüntünün biçimi 16×16, 32×32, 48×48 veya 64×64 piksel boyutunda olmalı ve 8-bit, 24-bit veya 32-bit renk derinliğine sahip olmalıdır. Görüntünün biçimi ICO, PNG veya GIF olmalıdır.</value>
+  </data>
+  <data name="DefaultTheme.HelpText" xml:space="preserve">
+    <value>Site'nin varsayılan temasını seçin</value>
+  </data>
+  <data name="DefaultContainer.HelpText" xml:space="preserve">
+    <value>Site için varsayılan konteyneri seçin</value>
+  </data>
+  <data name="DefaultAdminContainer.HelpText" xml:space="preserve">
+    <value>Site için varsayılan yönetici konteynerini seçin</value>
+  </data>
+  <data name="Host.HelpText" xml:space="preserve">
+    <value>SMTP sunucusunun ana bilgisini girin</value>
+  </data>
+  <data name="Port.HelpText" xml:space="preserve">
+    <value>SMTP sunucusu için bağlantı noktası numarasını girin. Lütfen bu alanı sağlarsanız gerekli olduğunu unutmayın.</value>
+  </data>
+  <data name="UseSsl.HelpText" xml:space="preserve">
+    <value>SMTP sunucunuz için SSL'nin gerekip gerekmediğini belirtin</value>
+  </data>
+  <data name="SmtpUsername.HelpText" xml:space="preserve">
+    <value>SMTP hesabınız için kullanıcı adını girin</value>
+  </data>
+  <data name="SmtpPassword.HelpText" xml:space="preserve">
+    <value>SMTP hesabınız için şifreyi girin</value>
+  </data>
+  <data name="SmtpSender.HelpText" xml:space="preserve">
+    <value>E-posta adresini girin, e-postaların bu adresten gönderileceğini unutmayın. Lütfen bu e-posta adresinin SMTP sunucusu ile yetkilendirilmesi gerekebilir.</value>
+  </data>
+  <data name="EnablePWA.HelpText" xml:space="preserve">
+    <value>Bu sitenin Progressive Web Uygulaması (PWA) olarak kullanılabilir olmasını isteyip istemediğinizi seçin.</value>
+  </data>
+  <data name="PwaApplicationIcon.HelpText" xml:space="preserve">
+    <value>PWA'nız için bir uygulama simgesi ekleyin. Boyutları 192 X 192 piksel olan bir PNG olmalıdır.</value>
+  </data>
+  <data name="PwaSplashIcon.HelpText" xml:space="preserve">
+    <value>PWA'nız için bir başlangıç simgesi ekleyin. Boyutları 512 X 512 piksel olan bir PNG olmalıdır.</value>
+  </data>
+  <data name="Tenant.Text" xml:space="preserve">
+    <value>Veritabanı:</value>
+  </data>
+  <data name="Aliases.Text" xml:space="preserve">
+    <value>URL'ler:</value>
+  </data>
+  <data name="IsDeleted.Text" xml:space="preserve">
+    <value>Silindi mi?</value>
+  </data>
+  <data name="Logo.Text" xml:space="preserve">
+    <value>Logo:</value>
+  </data>
+  <data name="FavoriteIcon.Text" xml:space="preserve">
+    <value>Favicon:</value>
+  </data>
+  <data name="DefaultTheme.Text" xml:space="preserve">
+    <value>Varsayılan Tema:</value>
+  </data>
+  <data name="DefaultAdminContainer.Text" xml:space="preserve">
+    <value>Varsayılan Yönetici Konteyneri:</value>
+  </data>
+  <data name="Host.Text" xml:space="preserve">
+    <value>Ana Bilgisayar:</value>
+  </data>
+  <data name="Port.Text" xml:space="preserve">
+    <value>Bağlantı Noktası:</value>
+  </data>
+  <data name="UseSsl.Text" xml:space="preserve">
+    <value>SSL Etkin mi?</value>
+  </data>
+  <data name="SmtpUsername.Text" xml:space="preserve">
+    <value>Kullanıcı Adı:</value>
+  </data>
+  <data name="SmtpPassword.Text" xml:space="preserve">
+    <value>Şifre:</value>
+  </data>
+  <data name="SmtpSender.Text" xml:space="preserve">
+    <value>E-posta Gönderen:</value>
+  </data>
+  <data name="EnablePWA.Text" xml:space="preserve">
+    <value>Etkin mi?</value>
+  </data>
+  <data name="PwaApplicationIcon.Text" xml:space="preserve">
+    <value>Uygulama Simgesi:</value>
+  </data>
+  <data name="PwaSplashIcon.Text" xml:space="preserve">
+    <value>Başlangıç Simgesi:</value>
+  </data>
+  <data name="Confirm.DeleteSite" xml:space="preserve">
+    <value>Bu Siteyi Silmek İstediğinizden Emin misiniz?</value>
+  </data>
+  <data name="Error.DeleteSite" xml:space="preserve">
+    <value>Site Silinirken Hata Oluştu</value>
+  </data>
+  <data name="Message.FailAuth.DeleteSite" xml:space="preserve">
+    <value>Siteyi Silme Yetkiniz Yok</value>
+  </data>
+  <data name="Theme.Select" xml:space="preserve">
+    <value>Tema Seç</value>
+  </data>
+  <data name="Hosting.Heading" xml:space="preserve">
+    <value>UI Bileşen Ayarları</value>
+  </data>
+  <data name="Prerender.HelpText" xml:space="preserve">
+    <value>Etkileşimli bileşenlerin sunucuda çıktılarını önceden oluşturup oluşturmayacaklarını belirtir</value>
+  </data>
+  <data name="Prerender.Text" xml:space="preserve">
+    <value>Önceden Oluştur:</value>
+  </data>
+  <data name="RenderMode.HelpText" xml:space="preserve">
+    <value>Site için varsayılan render modu</value>
+  </data>
+  <data name="RenderMode.Text" xml:space="preserve">
+    <value>Render Modu:</value>
+  </data>
+  <data name="Browse" xml:space="preserve">
+    <value>Göz at</value>
+  </data>
+  <data name="TenantInformation.Heading" xml:space="preserve">
+    <value>Veritabanı</value>
+  </data>
+  <data name="PWASettings.Heading" xml:space="preserve">
+    <value>PWA Ayarları</value>
+  </data>
+  <data name="SMTPSettings.Heading" xml:space="preserve">
+    <value>SMTP Ayarları</value>
+  </data>
+  <data name="ConnectionString.Text" xml:space="preserve">
+    <value>Bağlantı:</value>
+  </data>
+  <data name="Database.Text" xml:space="preserve">
+    <value>Tür:</value>
+  </data>
+  <data name="ConnectionString.HelpText" xml:space="preserve">
+    <value>Veritabanına bağlanmak için kullanılacak appsettings.json'daki bağlantı dizesinin adı</value>
+  </data>
+  <data name="Database.HelpText" xml:space="preserve">
+    <value>Veritabanı türü</value>
+  </data>
+  <data name="DeleteSite.Header" xml:space="preserve">
+    <value>Siteyi Sil</value>
+  </data>
+  <data name="DeleteSite.Text" xml:space="preserve">
+    <value>Siteyi Sil</value>
+  </data>
+  <data name="DefaultAlias.HelpText" xml:space="preserve">
+    <value>Site için varsayılan takma ad. Varsayılan olmayan takma adlar için istekler varsayılan takma ada yönlendirilecektir.</value>
+  </data>
+  <data name="DefaultAlias.Text" xml:space="preserve">
+    <value>Varsayılan Takma Ad:</value>
+  </data>
+  <data name="Aliases.Heading" xml:space="preserve">
+    <value>Site URL'leri</value>
+  </data>
+  <data name="AliasName" xml:space="preserve">
+    <value>URL</value>
+  </data>
+  <data name="AliasDefault" xml:space="preserve">
+    <value>Varsayılan mı?</value>
+  </data>
+  <data name="Confirm.Alias.Delete" xml:space="preserve">
+    <value>Silmek istediğinizden emin misiniz {0}?</value>
+  </data>
+  <data name="HomePage.HelpText" xml:space="preserve">
+    <value>Site için ana sayfayı seçin (eğer '/' yolunda bir sayfa yoksa kullanılacak)</value>
+  </data>
+  <data name="HomePage.Text" xml:space="preserve">
+    <value>Ana Sayfa:</value>
+  </data>
+  <data name="SmtpRelay.HelpText" xml:space="preserve">
+    <value>Yalnızca çıkış postanızı yönlendirmek için doğru bir SMTP Röle Servisi yapılandırdıysanız bu seçeneği belirtin. Bu seçenek, bildirimleri kullanıcının e-postasından gönderecek, yukarıda belirtilen E-posta Göndericiden değil.</value>
+  </data>
+  <data name="SmtpRelay.Text" xml:space="preserve">
+    <value>Röle Yapılandırıldı mı?</value>
+  </data>
+  <data name="SiteMap.HelpText" xml:space="preserve">
+    <value>Bu site için arama motorlarına dizinleme için gönderilebilecek site haritası URL'si. Site haritası 5 dakika boyunca önbelleğe alınır ve önbellek manuel olarak temizlenebilir.</value>
+  </data>
+  <data name="SiteMap.Text" xml:space="preserve">
+    <value>Site Haritası:</value>
+  </data>
+  <data name="Appearance.Heading" xml:space="preserve">
+    <value>Görünüm</value>
+  </data>
+  <data name="HeadContent.HelpText" xml:space="preserve">
+    <value>Sayfa başlığında yer alacak içeriği isteğe bağlı olarak girin (ör. meta, link veya script etiketleri)</value>
+  </data>
+  <data name="HeadContent.Text" xml:space="preserve">
+    <value>Başlık İçeriği:</value>
+  </data>
+  <data name="BodyContent.HelpText" xml:space="preserve">
+    <value>Sayfa gövdesine dahil edilecek içeriği isteğe bağlı olarak girin (ör. script etiketleri)</value>
+  </data>
+  <data name="BodyContent.Text" xml:space="preserve">
+    <value>Gövde İçeriği:</value>
+  </data>
+  <data name="PageContent.Heading" xml:space="preserve">
+    <value>Sayfa İçeriği</value>
+  </data>
+  <data name="SMTPEnabled.HelpText" xml:space="preserve">
+    <value>Bu site için SMTP etkin mi?</value>
+  </data>
+  <data name="SMTPEnabled.Text" xml:space="preserve">
+    <value>Etkin mi?</value>
+  </data>
+  <data name="Version.HelpText" xml:space="preserve">
+    <value>Site sürümü (site içerik göçleri için)</value>
+  </data>
+  <data name="Version.Text" xml:space="preserve">
+    <value>Sürüm:</value>
+  </data>
+  <data name="DeleteAlias.Text" xml:space="preserve">
+    <value>Sil</value>
+  </data>
+  <data name="DeleteAlias.Header" xml:space="preserve">
+    <value>Alias Sil</value>
+  </data>
+  <data name="SiteGuid.HelpText" xml:space="preserve">
+    <value>Site için Benzersiz Kimlik</value>
+  </data>
+  <data name="SiteGuid.Text" xml:space="preserve">
+    <value>Kimlik:</value>
+  </data>
+  <data name="Retention.HelpText" xml:space="preserve">
+    <value>Bildirimlerin saklanacağı gün sayısı</value>
+  </data>
+  <data name="Retention.Text" xml:space="preserve">
+    <value>Saklama (Gün):</value>
+  </data>
+  <data name="HybridEnabled.HelpText" xml:space="preserve">
+    <value>Siteye harici bir .NET MAUI hibrit uygulamasıyla entegre edilip edilemeyeceğini belirler</value>
+  </data>
+  <data name="HybridEnabled.Text" xml:space="preserve">
+    <value>Hibrit Etkin mi?</value>
+  </data>
+  <data name="Runtime.HelpText" xml:space="preserve">
+    <value>Etkileşim gerektiren UI bileşenleri için render modu</value>
+  </data>
+  <data name="Runtime.Text" xml:space="preserve">
+    <value>Etkileşim:</value>
+  </data>
+  <data name="TextEditor.HelpText" xml:space="preserve">
+    <value>Site için metin düzenleyiciyi seçin</value>
+  </data>
+  <data name="TextEditor.Text" xml:space="preserve">
+    <value>Metin Düzenleyici:</value>
+  </data>
+  <data name="Functionality" xml:space="preserve">
+    <value>İşlevsellik</value>
+  </data>
+  <data name="System" xml:space="preserve">
+    <value>Sistem</value>
+  </data>
+  <data name="CookieConsent.HelpText" xml:space="preserve">
+    <value>Bu sitede çerez onayının etkin olup olmadığını belirtin. Lütfen bu seçeneğin çerez onayını destekleyen bir Tema ile birlikte kullanılması gerektiğini unutmayın.</value>
+  </data>
+  <data name="CookieConsent.Text" xml:space="preserve">
+    <value>Çerez Onayı:</value>
+  </data>
+  <data name="OptIn" xml:space="preserve">
+    <value>Opt-In (GDPR)</value>
+  </data>
+  <data name="OptOut" xml:space="preserve">
+    <value>Çıkış Yap (CCPA)</value>
+  </data>
+  <data name="Theme.Heading" xml:space="preserve">
+    <value>Tema</value>
+  </data>
+  <data name="SiteMap.EvictCache" xml:space="preserve">
+    <value>Önbelleği Temizle</value>
+  </data>
+  <data name="Success.SiteMap.CacheEvicted" xml:space="preserve">
+    <value>Site Haritası Önbelleği Temizlendi</value>
+  </data>
+</root>
