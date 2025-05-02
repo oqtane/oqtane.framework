@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Swagger" xml:space="preserve">
+    <value>Swagger UI</value>
+  </data>
+  <data name="FrameworkVersion.HelpText" xml:space="preserve">
+    <value>Framework Sürümü</value>
+  </data>
+  <data name="CLRVersion.HelpText" xml:space="preserve">
+    <value>Ortak Dil Çalışma Zamanı Sürümü</value>
+  </data>
+  <data name="OSVersion.HelpText" xml:space="preserve">
+    <value>İşletim Sistemi Sürümü</value>
+  </data>
+  <data name="ContentRootPath.HelpText" xml:space="preserve">
+    <value>Sunucu Kök Yolu</value>
+  </data>
+  <data name="ServerTime.HelpText" xml:space="preserve">
+    <value>Sunucu Tarih/Saat (UTC)</value>
+  </data>
+  <data name="FrameworkVersion.Text" xml:space="preserve">
+    <value>Çerçeve Sürümü:</value>
+  </data>
+  <data name="CLRVersion.Text" xml:space="preserve">
+    <value>CLR Sürümü:</value>
+  </data>
+  <data name="OSVersion.Text" xml:space="preserve">
+    <value>OS Sürümü:</value>
+  </data>
+  <data name="ContentRootPath.Text" xml:space="preserve">
+    <value>Kök Yol:</value>
+  </data>
+  <data name="ServerTime.Text" xml:space="preserve">
+    <value>Sunucu Tarihi/Saati:</value>
+  </data>
+  <data name="RestartApplication.Header" xml:space="preserve">
+    <value>Uygulamayı Yeniden Başlat</value>
+  </data>
+  <data name="RestartApplication.Message" xml:space="preserve">
+    <value>Uygulamayı Yeniden Başlatmak İstediğinizden Emin Misiniz?</value>
+  </data>
+  <data name="Error.UpdateConfig" xml:space="preserve">
+    <value>Yapılandırma Güncelleme Hatası Oluştu</value>
+  </data>
+  <data name="Success.UpdateConfig.Restart" xml:space="preserve">
+    <value>Yapılandırma Güncellendi. Bu Değişikliklerin Aktive Edilmesi İçin Lütfen Uygulamayı Yeniden Başlatın.</value>
+  </data>
+  <data name="InstallationId.Text" xml:space="preserve">
+    <value>Kurulum Kimliği:</value>
+  </data>
+  <data name="InstallationId.HelpText" xml:space="preserve">
+    <value>Kurulumunuz İçin Benzersiz Tanımlayıcı</value>
+  </data>
+  <data name="DetailedErrors.Text" xml:space="preserve">
+    <value>Detaylı Hatalar mı?</value>
+  </data>
+  <data name="DetailedErrors.HelpText" xml:space="preserve">
+    <value>Blazor için Detaylı Hataların Etkin Olup Olmadığını Belirtin. Bu Seçenek Üretimde Etkin Olmamalıdır.</value>
+  </data>
+  <data name="True" xml:space="preserve">
+    <value>Doğru</value>
+  </data>
+  <data name="False" xml:space="preserve">
+    <value>Yanlış</value>
+  </data>
+  <data name="LoggingLevel.Text" xml:space="preserve">
+    <value>Günlük Seviyesi:</value>
+  </data>
+  <data name="LoggingLevel.HelpText" xml:space="preserve">
+    <value>Olay Günlüğü İçin Minimum Günlük Seviyesi. Bu Seçenek, Olay Günlüğünüzde Saklanan Öğelerin Miktarını Kontrol Etmek İçin Kullanılabilir.</value>
+  </data>
+  <data name="Trace" xml:space="preserve">
+    <value>İzleme</value>
+  </data>
+  <data name="Debug" xml:space="preserve">
+    <value>Hata Ayıklama</value>
+  </data>
+  <data name="Information" xml:space="preserve">
+    <value>Bilgi</value>
+  </data>
+  <data name="Warning" xml:space="preserve">
+    <value>Uyarı</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Hata</value>
+  </data>
+  <data name="Critical" xml:space="preserve">
+    <value>Kritik</value>
+  </data>
+  <data name="Info.Heading" xml:space="preserve">
+    <value>Bilgi</value>
+  </data>
+  <data name="Options.Heading" xml:space="preserve">
+    <value>Seçenekler</value>
+  </data>
+  <data name="Log.Heading" xml:space="preserve">
+    <value>Kayıt</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>Lütfen Beni Önemli Ürün Güncellemeleri ve Güvenlik Bültenleri İçin Kayıt Edin</value>
+  </data>
+  <data name="Success.Register" xml:space="preserve">
+    <value>Güncellemeler İçin Başarıyla Kayıt Oldunuz</value>
+  </data>
+  <data name="PackageManager.HelpText" xml:space="preserve">
+    <value>Modüllerin, Temaların ve Çevirilerin Yüklenmesi İçin Paket Yöneticisi Servisinin URL'sini Belirtin. Bu Alan Boş İse, Bu Kurulum İçin Paket Yöneticisi Servisi Devre Dışı Bırakılmış Demektir.</value>
+  </data>
+  <data name="PackageManager.Text" xml:space="preserve">
+    <value>Paket Yöneticisi URL'si:</value>
+  </data>
+  <data name="Swagger.HelpText" xml:space="preserve">
+    <value>Sunucu API'nız İçin Swagger'ın Etkin Olup Olmadığını Belirtin</value>
+  </data>
+  <data name="Swagger.Text" xml:space="preserve">
+    <value>Swagger Etkin Mi?</value>
+  </data>
+  <data name="RestartApplication.Text" xml:space="preserve">
+    <value>Uygulamayı Yeniden Başlat</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>Hiçbiri</value>
+  </data>
+  <data name="NotificationLevel.HelpText" xml:space="preserve">
+    <value>Bildirimlerin Gönderileceği Minimum Günlüğe Kayıt Seviyesi.</value>
+  </data>
+  <data name="NotificationLevel.Text" xml:space="preserve">
+    <value>Bildirim Seviyesi:</value>
+  </data>
+  <data name="IPAddress.HelpText" xml:space="preserve">
+    <value>Sunucu IP Adresi</value>
+  </data>
+  <data name="IPAddress.Text" xml:space="preserve">
+    <value>IP Adresi:</value>
+  </data>
+  <data name="MachineName.HelpText" xml:space="preserve">
+    <value>Sunucu Makine Adı</value>
+  </data>
+  <data name="MachineName.Text" xml:space="preserve">
+    <value>Makine Adı:</value>
+  </data>
+  <data name="WebRootPath.HelpText" xml:space="preserve">
+    <value>Sunucu Web Kök Yolu</value>
+  </data>
+  <data name="WebRootPath.Text" xml:space="preserve">
+    <value>Web Yolu:</value>
+  </data>
+  <data name="WorkingSet.HelpText" xml:space="preserve">
+    <value>Hizmetin Bellek Tahsisi (MB cinsinden)</value>
+  </data>
+  <data name="WorkingSet.Text" xml:space="preserve">
+    <value>Bellek Tahsisi:</value>
+  </data>
+  <data name="Environment.HelpText" xml:space="preserve">
+    <value>Ortam Adı</value>
+  </data>
+  <data name="Environment.Text" xml:space="preserve">
+    <value>Ortam:</value>
+  </data>
+  <data name="Log.Text" xml:space="preserve">
+    <value>Günlük:</value>
+  </data>
+  <data name="Log.HelpText" xml:space="preserve">
+    <value>Mevcut gün için sistem günlük bilgileri</value>
+  </data>
+  <data name="Clear" xml:space="preserve">
+    <value>Temiz</value>
+  </data>
+  <data name="Success.ClearLog" xml:space="preserve">
+    <value>Sistem Günlüğü Başarıyla Temizlendi</value>
+  </data>
+  <data name="Error.ClearLog" xml:space="preserve">
+    <value>Sistem Günlüğü Temizlenirken Bir Hata Oluştu</value>
+  </data>
+  <data name="Process.HelpText" xml:space="preserve">
+    <value>Mevcut işlemin 32 bit mi yoksa 64 bit mi olduğunu belirtir</value>
+  </data>
+  <data name="Process.Text" xml:space="preserve">
+    <value>İşlem:</value>
+  </data>
+  <data name="PackageManagerEmail.Text" xml:space="preserve">
+    <value>Paket Yöneticisi E-posta:</value>
+  </data>
+  <data name="PackageManagerEmail.HelpText" xml:space="preserve">
+    <value>Paket Yöneticisi Hizmetiyle Etkileşimde Kullanılan Kullanıcı Hesabının E-posta Adresini Belirtin. Bu Hesap, Birden Fazla Kurulumda Paketleri Yönetmek İçin Kullanılır.</value>
+  </data>
+  <data name="CacheControl.Text" xml:space="preserve">
+    <value>Statik Varlık Önbelleği:</value>
+  </data>
+  <data name="CacheControl.HelpText" xml:space="preserve">
+    <value>Statik varlıklar için bir Önbellek-Kontrol yönergesi sağlayın. Örneğin 'public, max-age=60' statik varlıkların 60 saniye boyunca önbelleğe alınması gerektiğini belirtir. Boş bir değer, önbelleğin etkin olmadığını gösterir.</value>
+  </data>
+  <data name="Endpoints" xml:space="preserve">
+    <value>API Uç Noktaları</value>
+  </data>
+</root>
