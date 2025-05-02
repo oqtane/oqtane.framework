@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Privacy" xml:space="preserve">
+    <value>Bu gizlilik politikası ("politika"), [PageState:Site:Name] ("biz", "biz", "bizim")'in bu web sitesini ziyaret ettiğinizde ve kullandığınızda bize sağladığınız verileri nasıl kullandığınızı ve koruduğunu anlamanıza yardımcı olacaktır. Bu politikayı istediğimiz zaman değiştirme hakkını saklı tutarız. En son değişikliklerle güncel olduğunuzdan emin olmak istiyorsanız, sık sık bu sayfayı ziyaret etmenizi öneririz. Kullanıcı Verileri Topladığımız Veriler: Bu web sitesini ziyaret ettiğinizde, aşağıdaki verileri toplayabiliriz: IP adresiniz, iletişim bilgileriniz ve e-posta adresiniz, ilgi ve tercihler gibi diğer bilgiler. Verilerinizi Neden Topladığımız: Verilerinizi birkaç nedenle topluyoruz: ihtiyaçlarınızı daha iyi anlamak, ürün ve hizmetlerimizi geliştirmek, sizi ilginizi çekeceğini düşündüğümüz bilgileri içeren promosyon e-postaları göndermek, web sitesini çevrimiçi davranışınıza ve kişisel tercihlerinize göre özelleştirmek. Verileri Koruma ve Güvenliği: [PageState:Site:Name], verilerinizi güvence altına almayı ve gizli tutmayı taahhüt etmektedir. [PageState:Site:Name], çevrimiçi topladığımız tüm bilgileri korumamıza yardımcı olan en son teknolojileri ve yazılımları uygulayarak veri hırsızlığını, izinsiz erişimi ve açıklamayı önlemek için elinden geleni yapmıştır. Çerez Politikamız: Web sitemizin çerez kullanmasına izin verdiğinizde, aynı zamanda çevrimiçi davranışınızla ilgili topladığı verileri kullanmamıza da izin vermiş olursunuz (web trafiğini analiz etmek, en çok ziyaret ettiğiniz ve en çok zaman geçirdiğiniz web sayfalarını analiz etmek vb.). Çerezleri kullanarak topladığımız veriler, web sitemizi ihtiyaçlarınıza göre özelleştirmek için kullanılır. Lütfen unutmayın ki çerezler bilgisayarınıza herhangi bir şekilde erişim sağlamamıza izin vermez. Sadece hangi sayfaların yararlı bulduğunuzu ve hangilerini bulmadığınızı izlemek için kullanılırlar, böylece size daha iyi bir deneyim sunabiliriz. Çerezleri devre dışı bırakmak veya kaldırmak isterseniz, bunu internet tarayıcınızın ayarlarına erişerek yapabilirsiniz. Diğer Web Sitelerine Bağlantılar: Web sitemiz, diğer web sitelerine yönlendiren bağlantılar içerir. Bu bağlantılara tıklarsanız, [PageState:Site:Name] veri ve gizlilik korumasından sorumlu tutulmaz. Bu gizlilik politikası anlaşması tarafından yönetilmeyen web sitelerini ziyaret ettiğinizden emin olun. Web sitesi üzerinden gezinirken yönlendiğiniz herhangi bir web sitesinin gizlilik politikası belgelerini okuduğunuzdan emin olun. Kişisel Verilerinizin Toplanmasının Sınırlanması: Zaman zaman kişisel verilerinizin kullanımını ve toplanmasını sınırlamak isteyebilirsiniz. Daha önce bilgilerinizi bizimle paylaşmayı kabul ettiyseniz, bize e-posta yoluyla ulaşmaktan çekinmeyin ve bunu sizin için değiştirmekten mutluluk duyarız. [PageState:Site:Name], kişisel bilgilerinizi, izniniz olmadan üçüncü taraflara kiralamayacak, satmayacak veya dağıtmayacaktır. Kişisel bilgileriniz, yalnızca bu gizlilik politikasını kabul ederseniz size promosyon materyalleri göndermek için kullanılacaktır.</value>
+  </data>
+  <data name="Terms" xml:space="preserve">
+    <value>Bu web sitesini kullanmadan önce lütfen [PageState:Site:Name] tarafından işletilen bu web sitesinin şartlarını dikkatlice okuyun.
+
+Kullanım Koşulları
+
+Bu web sitesini kullanarak, bu Anlaşmayı okuduğunuzu ve incelediğinizi ve şartlarına uyacağınıza dair onay verdiğinizi beyan edersiniz. Bu Anlaşmanın şartlarına bağlı kalmak istemiyorsanız, web sitesini kullanmayı bırakmanız önerilir. [PageState:Site:Name], sadece şartlarını kabul edenlere bu web sitesi, ürünleri ve hizmetlerine kullanım ve erişim imkanı tanır.
+
+Gizlilik Politikası
+
+Web sitemizi kullanmaya devam etmeden önce, kullanıcı verilerimizle ilgili &lt;a href="/privacy"&gt;gizlilik politikamızı&lt;/a&gt; okumanızı tavsiye ederiz. Uygulamalarımızı daha iyi anlamanıza yardımcı olacaktır.
+
+Fikri Mülkiyet
+
+Bu web sitesinde sunulan tüm materyallerin, ürünlerin ve hizmetlerin [PageState:Site:Name], bağlı kuruluşları, yöneticileri, memurları, çalışanları, acenteleri, tedarikçileri veya lisans verenlerin mülkiyetinde olduğunu kabul edersiniz, tüm telif hakları, ticari sırlar, ticari markalar, patentler ve diğer fikri mülkiyet hakları dahil. Ayrıca, [PageState:Site:Name]’in fikri mülkiyetini elektronik, dijital veya yeni ticari marka tescilleri de dahil olmak üzere hiçbir şekilde çoğaltmayacağınızı veya yeniden dağıtmayacağınızı kabul edersiniz.
+
+Yüklediğiniz ve yayınladığınız içeriği görüntülemek, kullanmak, kopyalamak, iletmek ve yayınlamak için [PageState:Site:Name]’e telifsiz ve münhasır bir lisans verirsiniz. Fikri mülkiyet iddialarıyla ilgili sorunlarınız varsa, anlaşmaya varmak için bizimle iletişime geçmelisiniz.
+
+Kullanıcı Hesapları
+
+Bu web sitesinin bir kullanıcısı olarak, bizimle kaydolmanız ve özel bilgiler sağlamanız istenebilir. Bu bilgilerin doğruluğundan ve kimlik bilgilerinizin güvenliğini sağlamaktan sorumlusunuz.
+
+Ayrıca, hesabınız veya şifreniz altında gerçekleşen tüm faaliyetlerden sorumlusunuz. Web sitesindeki hesabınızın güvenliği ile ilgili herhangi bir olası sorun olduğunu düşünüyorsanız, derhal bizi bilgilendirin, böylece bunlarla ilgilenebiliriz.
+
+Hesapları sonlandırma, içeriği düzenleme veya kaldırma ve siparişleri tek taraflı olarak iptal etme hakkını saklı tutarız.
+
+Uygulanabilir Kanun
+
+Bu web sitesini kullanarak, [PageState:Site:Name] ile siz veya iş ortakları ve ortaklarımız arasında ortaya çıkabilecek herhangi bir anlaşmazlık veya anlaşmazlık, çatışma yasaları prensiplerine bakılmaksızın, [PageState:Site:Name] ile ilişkilendirilen yargı alanının yasalarının bu şartları ve koşulları yöneteceğini kabul edersiniz.
+
+Anlaşmazlıklar
+
+Bu web sitesini kullanımınızla veya bizden satın aldığınız ürünlerle ilgili herhangi bir anlaşmazlık, bir mahkeme tarafından tahkim edilecek ve böyle bir mahkemenin münhasır yargı yetkisi ve yeri konusunda onay verirsiniz.
+
+Tazminat
+
+[PageState:Site:Name] ve bağlı kuruluşlarını tazmin edeceğinize ve hizmetlerimizin kullanımı veya kötüye kullanımından kaynaklanabilecek yasal iddialara karşı [PageState:Site:Name]’i zararsız tutacağınıza dair anlaşırsınız. Kendi yasal danışmanımızı seçme hakkını saklı tutarız.
+
+Sorumluluk Sınırlaması
+
+Web sitemizi yanlış kullanmanızdan kaynaklanabilecek herhangi bir zarardan [PageState:Site:Name] sorumlu değildir. [PageState:Site:Name], bu Anlaşmayı istediği zaman düzenleme, değiştirme ve değiştirme hakkını saklı tutar. Bu değişiklikleri kullanıcılarımıza elektronik posta yoluyla bildireceğiz. Bu Anlaşma, [PageState:Site:Name] ve kullanıcı arasında bir anlaşmadır ve bu web sitesinin kullanımıyla ilgili önceki tüm anlaşmaları geçersiz kılar ve yerine geçer.</value>
+  </data>
+</root>
