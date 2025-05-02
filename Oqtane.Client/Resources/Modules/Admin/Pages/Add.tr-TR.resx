@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Name.Text" xml:space="preserve">
+    <value>Ad: </value>
+  </data>
+  <data name="Parent.Text" xml:space="preserve">
+    <value>Üst: </value>
+  </data>
+  <data name="Title.Text" xml:space="preserve">
+    <value>Başlık: </value>
+  </data>
+  <data name="Settings.Heading" xml:space="preserve">
+    <value>Ayarlar</value>
+  </data>
+  <data name="SiteRoot" xml:space="preserve">
+    <value>Site Kökü</value>
+  </data>
+  <data name="AtBeginning" xml:space="preserve">
+    <value>Başlangıçta</value>
+  </data>
+  <data name="Before" xml:space="preserve">
+    <value>Öncesinde</value>
+  </data>
+  <data name="After" xml:space="preserve">
+    <value>Sonrasında</value>
+  </data>
+  <data name="AtEnd" xml:space="preserve">
+    <value>Sona</value>
+  </data>
+  <data name="Page.Select" xml:space="preserve">
+    <value>Sayfa Seç</value>
+  </data>
+  <data name="Container.Select" xml:space="preserve">
+    <value>Konteyner Seç</value>
+  </data>
+  <data name="Error.Page.Load" xml:space="preserve">
+    <value>Sayfa Yüklenirken Hata Oluştu</value>
+  </data>
+  <data name="Error.ChildPage.Load" xml:space="preserve">
+    <value>Üst Sayfa İçin Alt Sayfalar Yüklenirken Hata Oluştu</value>
+  </data>
+  <data name="Error.Pane.Load" xml:space="preserve">
+    <value>Tema İçin Panel Düzenleri Yüklenirken Hata Oluştu</value>
+  </data>
+  <data name="Message.Page.Exists" xml:space="preserve">
+    <value>Bu site için '{0}' yoluyla bir sayfa zaten mevcut. Sayfa yolları benzersiz olmalıdır. Bu yola sahip bir sayfanın Geri Dönüşüm Kutusu'nda var olup olmadığını kontrol etmeniz gerekebilir.</value>
+  </data>
+  <data name="Message.Required.PageInfo" xml:space="preserve">
+    <value>Sayfa Adı, Tema ve Konteyner Sağlamanız Gerekmektedir</value>
+  </data>
+  <data name="Error.Page.Save" xml:space="preserve">
+    <value>Sayfa Kaydedilirken Hata Oluştu</value>
+  </data>
+  <data name="Name.HelpText" xml:space="preserve">
+    <value>Sayfa Adını Girin</value>
+  </data>
+  <data name="Parent.HelpText" xml:space="preserve">
+    <value>Sayfa için site hiyerarşisindeki üst öğeyi seçin</value>
+  </data>
+  <data name="Insert.HelpText" xml:space="preserve">
+    <value>Sayfayı diğer sayfalara göre nereye eklemek istediğinizi seçin</value>
+  </data>
+  <data name="Navigation.HelpText" xml:space="preserve">
+    <value>Sayfanın site gezinimine mi yoksa gizli mi olduğunu seçin</value>
+  </data>
+  <data name="UrlPath.HelpText" xml:space="preserve">
+    <value>İsteğe bağlı olarak bu sayfa için bir url yolunu girin (ör. ana). Bir url yolunu sağlamazsanız, sayfa adı kullanılacaktır. Sayfanın kök yol olmasını istiyorsanız '/' belirtin.</value>
+  </data>
+  <data name="Redirect.HelpText" xml:space="preserve">
+    <value>Kullanıcı sayfaya gezindiğinde yönlendirilmesini istediğiniz bir url girin</value>
+  </data>
+  <data name="Title.HelpText" xml:space="preserve">
+    <value>Sayfa başlığını isteğe bağlı olarak girin. Bir sayfa başlığı sağlamazsanız, sayfa adı kullanılacaktır.</value>
+  </data>
+  <data name="Theme.HelpText" xml:space="preserve">
+    <value>Bu sayfa için tema seçin</value>
+  </data>
+  <data name="DefaultContainer.HelpText" xml:space="preserve">
+    <value>Sayfa için varsayılan konteyneri seçin</value>
+  </data>
+  <data name="Icon.HelpText" xml:space="preserve">
+    <value>Site gezinmesinde görüntülenecek bu sayfa için isteğe bağlı bir simge sınıf adı sağlayın</value>
+  </data>
+  <data name="Personalizable.HelpText" xml:space="preserve">
+    <value>Kullanıcıların kendi içerikleriyle bu sayfayı kişiselleştirebilmelerini isteyip istemediğinizi seçin</value>
+  </data>
+  <data name="Insert.Text" xml:space="preserve">
+    <value>Ekle: </value>
+  </data>
+  <data name="Navigation.Text" xml:space="preserve">
+    <value>Gezinme? </value>
+  </data>
+  <data name="UrlPath.Text" xml:space="preserve">
+    <value>Url Yolu: </value>
+  </data>
+  <data name="Redirect.Text" xml:space="preserve">
+    <value>Yönlendirme: </value>
+  </data>
+  <data name="Theme.Text" xml:space="preserve">
+    <value>Tema: </value>
+  </data>
+  <data name="DefaultContainer.Text" xml:space="preserve">
+    <value>Varsayılan Konteyner: </value>
+  </data>
+  <data name="Icon.Text" xml:space="preserve">
+    <value>Simge: </value>
+  </data>
+  <data name="Personalizable.Text" xml:space="preserve">
+    <value>Kişiselleştirilebilir mi? </value>
+  </data>
+  <data name="Appearance.Name" xml:space="preserve">
+    <value>Görünüm</value>
+  </data>
+  <data name="HeadContent.HelpText" xml:space="preserve">
+    <value>Sayfa başına dahil edilecek içeriği isteğe bağlı olarak girin (ör. meta, link veya script etiketleri)</value>
+  </data>
+  <data name="HeadContent.Text" xml:space="preserve">
+    <value>Başlık İçeriği:</value>
+  </data>
+  <data name="Message.Page.Reserved" xml:space="preserve">
+    <value>Sayfa adı {0} ayrılmıştır. Lütfen sayfanız için farklı bir ad girin.</value>
+  </data>
+  <data name="BodyContent.HelpText" xml:space="preserve">
+    <value>İsteğe bağlı olarak sayfa içeriğini girin (örneğin, script etiketleri)</value>
+  </data>
+  <data name="BodyContent.Text" xml:space="preserve">
+    <value>Gövde İçeriği:</value>
+  </data>
+  <data name="PageContent.Heading" xml:space="preserve">
+    <value>Sayfa İçeriği</value>
+  </data>
+  <data name="ThemeChanged.Message" xml:space="preserve">
+    <value>Varsayılan Site Temasını İlgisiz Bir Sayfa Temasıyla Değiştirmenin, Sitelerinizde Uyumluluk Sorunlarına Neden Olabileceğini Lütfen Unutmayın</value>
+  </data>
+  <data name="Permissions.Heading" xml:space="preserve">
+    <value>İzinler</value>
+  </data>
+  <data name="Theme.Heading" xml:space="preserve">
+    <value>Tema Ayarları</value>
+  </data>
+  <data name="EffectiveDate.HelpText" xml:space="preserve">
+    <value>Bu sayfanın aktif olduğu tarih</value>
+  </data>
+  <data name="EffectiveDate.Text" xml:space="preserve">
+    <value>Etkili Tarih: </value>
+  </data>
+  <data name="ExpiryDate.HelpText" xml:space="preserve">
+    <value>Bu sayfanın süresi dolma tarihi</value>
+  </data>
+  <data name="ExpiryDate.Text" xml:space="preserve">
+    <value>Son Kullanma Tarihi: </value>
+  </data>
+</root>
