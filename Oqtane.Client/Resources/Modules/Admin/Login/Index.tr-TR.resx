@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ForgotPassword" xml:space="preserve">
+    <value>Şifremi Unuttum</value>
+  </data>
+  <data name="Success.Account.Verified" xml:space="preserve">
+    <value>Kullanıcı Hesabı Başarıyla Doğrulandı. Şimdi Kullanıcı Adınız ve Şifrenizle Giriş Yapabilirsiniz.</value>
+  </data>
+  <data name="Message.Account.NotVerified" xml:space="preserve">
+    <value>Kullanıcı Hesabı Doğrulanamadı. Lütfen Yöneticinize Başvurun.</value>
+  </data>
+  <data name="Success.Account.Linked" xml:space="preserve">
+    <value>Kullanıcı Hesabı Başarıyla Bağlandı. Artık Dış Hesabınızla Giriş Yapabilirsiniz.</value>
+  </data>
+  <data name="Message.Account.NotLinked" xml:space="preserve">
+    <value>Dış Hesap Bağlanamadı. Lütfen Daha Fazla Talimat İçin Yöneticinize Başvurun.</value>
+  </data>
+  <data name="Error.Login.Fail" xml:space="preserve">
+    <value>Giriş Başarısız Oldu. Lütfen Parolaların Büyük ve Küçük Harfe Duyarlı Olduğunu Unutmayın. Birden Fazla Başarısız Giriş Denemesi Yaptıysanız Hesabınız Belirli Bir Süre Kilitlenecektir. Kullanıcı Hesapları İlk Oluşturulduğunda Doğrulama Gerektirir, Bu Nedenle Yeni Bir Kullanıcıysanız E-postanızı Kontrol Etmek İsteyebilirsiniz.</value>
+  </data>
+  <data name="Message.Required.UserInfo" xml:space="preserve">
+    <value>Lütfen Tüm Gerekli Alanları Doldurun</value>
+  </data>
+  <data name="Info.SignedIn" xml:space="preserve">
+    <value>Zaten Giriş Yaptınız</value>
+  </data>
+  <data name="Message.ForgotPassword" xml:space="preserve">
+    <value>Lütfen Hesabınıza İlişkin Kullanıcı Adını Girin ve Ardından Tekrar Parolamı Unuttum Seçeneğini Seçin</value>
+  </data>
+  <data name="Message.ForgotUser" xml:space="preserve">
+    <value>Şifre Sıfırlama Bildirimi için Kullanıcı hesabınıza ilişkilendirilmiş e-posta adresinizi kontrol edin</value>
+  </data>
+  <data name="Message.UserDoesNotExist" xml:space="preserve">
+    <value>Kullanıcı mevcut değil</value>
+  </data>
+  <data name="Code.HelpText" xml:space="preserve">
+    <value>Lütfen e-posta ile size gönderilen güvenli doğrulama kodunu girin.</value>
+  </data>
+  <data name="Code.Placeholder" xml:space="preserve">
+    <value>Doğrulama Kodu</value>
+  </data>
+  <data name="Code.Text" xml:space="preserve">
+    <value>Doğrulama Kodu:</value>
+  </data>
+  <data name="Error.TwoFactor.Fail" xml:space="preserve">
+    <value>Doğrulama başarısız. Lütfen e-postanızda verilen formda kodu tam olarak girdiğinizden emin olun. Yeni bir doğrulama kodu istemek isterseniz, İptal seçeneğini seçin ve tekrar oturum açın. </value>
+  </data>
+  <data name="Message.TwoFactor" xml:space="preserve">
+    <value>E-posta adresinize güvenli bir doğrulama kodu gönderildi. Lütfen aldığınız kodu girin. Kodu almadıysanız veya e-posta erişiminizi kaybettiyseniz, lütfen yöneticinize başvurun.</value>
+  </data>
+  <data name="Password.HelpText" xml:space="preserve">
+    <value>Lütfen Hesabınıza İlişkin Şifreyi Girin. Şifrelerin Büyük Küçük Harfe Duyarlı Olduğunu Unutmayın. Hesabınıza Birden Fazla Kez Başarısız Giriş Denemesi Yaparsanız, Belirli Bir Süre Kilitleneceksiniz.</value>
+  </data>
+  <data name="Password.Placeholder" xml:space="preserve">
+    <value>Şifre</value>
+  </data>
+  <data name="Password.Text" xml:space="preserve">
+    <value>Şifre:</value>
+  </data>
+  <data name="Remember.HelpText" xml:space="preserve">
+    <value>Bu Siteyi Bir Sonraki Ziyaretinizde Otomatik Olarak Tekrar Giriş Yapmak İster Misiniz?</value>
+  </data>
+  <data name="Remember.Text" xml:space="preserve">
+    <value>Beni Hatırla?</value>
+  </data>
+  <data name="Username.HelpText" xml:space="preserve">
+    <value>Lütfen Hesabınıza İlişkin Kullanıcı Adını Girin</value>
+  </data>
+  <data name="Username.Placeholder" xml:space="preserve">
+    <value>Kullanıcı Adı</value>
+  </data>
+  <data name="Username.Text" xml:space="preserve">
+    <value>Kullanıcı Adı:</value>
+  </data>
+  <data name="Use" xml:space="preserve">
+    <value>Kullan</value>
+  </data>
+  <data name="Error.LoadLogin" xml:space="preserve">
+    <value>Giriş Yüklenirken Hata Oluştu</value>
+  </data>
+  <data name="Error.Login" xml:space="preserve">
+    <value>Giriş Yapılırken Hata Oluştu</value>
+  </data>
+  <data name="Error.ResetPassword" xml:space="preserve">
+    <value>Şifre Sıfırlanırken Hata Oluştu</value>
+  </data>
+  <data name="ExternalLoginStatus.DuplicateEmail" xml:space="preserve">
+    <value>Dış Girişinizin E-posta Adresiyle Zaten Birden Fazla Kullanıcı Hesabı Mevcut. Lütfen Yöneticinize Başvurun.</value>
+  </data>
+  <data name="ExternalLoginStatus.MissingClaims" xml:space="preserve">
+    <value>Dış Giriş Sağlayıcısı Gerekli Tüm Bilgileri Sağlamadı. Lütfen Yöneticinize Başvurun.</value>
+  </data>
+  <data name="ExternalLoginStatus.ProviderKeyMismatch" xml:space="preserve">
+    <value>Harici Girişiniz Doğrulanırken Bir Hata Oluştu. Lütfen Yöneticinize Başvurun.</value>
+  </data>
+  <data name="ExternalLoginStatus.UserDoesNotExist" xml:space="preserve">
+    <value>Harici Girişinizin E-Posta Adresiyle Eşleşen Bir Kullanıcı Hesabı Mevcut Değil. Lütfen Yöneticinize Başvurun.</value>
+  </data>
+  <data name="ExternalLoginStatus.UserNotCreated" xml:space="preserve">
+    <value>Harici Girişiniz İçin Bir Kullanıcı Hesabı Oluşturulamadı. Lütfen Yöneticinize Başvurun.</value>
+  </data>
+  <data name="ExternalLoginStatus.VerificationRequired" xml:space="preserve">
+    <value>Harici Girişinizi Kullanıcı Hesabınızla Bağlamak İçin Kimliğinizi Doğrulamanız Gerekmektedir. Lütfen E-Postanızı Kontrol Edin.</value>
+  </data>
+  <data name="ExternalLoginStatus.AccessDenied" xml:space="preserve">
+    <value>Harici Girişiniz Erişime Engellendi. Lütfen Yöneticinize Başvurun.</value>
+  </data>
+  <data name="ExternalLoginStatus.RemoteFailure" xml:space="preserve">
+    <value>Harici Girişiniz Başarısız Oldu. Lütfen Yöneticinize Başvurun.</value>
+  </data>
+  <data name="ExternalLoginStatus.ReviewClaims" xml:space="preserve">
+    <value>Dış Giriş Ayarlarında İnceleme Talepleri Seçeneği Etkinleştirildi. Sağlayıcı Tarafından Döndürülen Talepleri Görmek İçin Olay Günlüğünü Ziyaret Edin.</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>Yeni kullanıcı olarak kaydolmak mı?</value>
+  </data>
+</root>
