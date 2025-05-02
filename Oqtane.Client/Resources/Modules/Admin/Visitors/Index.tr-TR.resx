@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Url" xml:space="preserve">
+    <value>Url</value>
+  </data>
+  <data name="Visited" xml:space="preserve">
+    <value>Ziyaret Edilen</value>
+  </data>
+  <data name="Visits" xml:space="preserve">
+    <value>Ziyaretler</value>
+  </data>
+  <data name="AllVisitors" xml:space="preserve">
+    <value>Tüm Ziyaretçiler</value>
+  </data>
+  <data name="PastDay" xml:space="preserve">
+    <value>Geçmiş Gün</value>
+  </data>
+  <data name="PastMonth" xml:space="preserve">
+    <value>Geçmiş Ay</value>
+  </data>
+  <data name="PastWeek" xml:space="preserve">
+    <value>Geçmiş Hafta</value>
+  </data>
+  <data name="UsersOnly" xml:space="preserve">
+    <value>Yalnızca Kullanıcılar</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Dil</value>
+  </data>
+  <data name="Error.SaveSiteSettings" xml:space="preserve">
+    <value>Ayarlar Kaydedilirken Hata Oluştu</value>
+  </data>
+  <data name="Settings.Heading" xml:space="preserve">
+    <value>Ayarlar</value>
+  </data>
+  <data name="Success.SaveSiteSettings" xml:space="preserve">
+    <value>Ayarlar Başarıyla Kaydedildi</value>
+  </data>
+  <data name="Visitors.Heading" xml:space="preserve">
+    <value>Ziyaretçiler</value>
+  </data>
+  <data name="Tracking.HelpText" xml:space="preserve">
+    <value>Ziyaretçi takibinin etkin olup olmadığını belirtin</value>
+  </data>
+  <data name="Tracking.Text" xml:space="preserve">
+    <value>Takip Etkin mi?</value>
+  </data>
+  <data name="IP" xml:space="preserve">
+    <value>IP</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>Kullanıcı</value>
+  </data>
+  <data name="Created" xml:space="preserve">
+    <value>Oluşturuldu</value>
+  </data>
+  <data name="Details.Text" xml:space="preserve">
+    <value>Detaylar</value>
+  </data>
+  <data name="Filter.HelpText" xml:space="preserve">
+    <value>IP adreslerinde, kullanıcı ajanlarında veya ziyaretçileri tanımlayan dillerde bulunabilecek izlenmemesi gereken terimlerin virgülle ayrılmış listesi</value>
+  </data>
+  <data name="Filter.Text" xml:space="preserve">
+    <value>Filtre:</value>
+  </data>
+  <data name="Retention.HelpText" xml:space="preserve">
+    <value>Saklanacak ziyaretçi etkinliği gün sayısı</value>
+  </data>
+  <data name="Retention.Text" xml:space="preserve">
+    <value>Saklama:</value>
+  </data>
+  <data name="Correlation.HelpText" xml:space="preserve">
+    <value>Bu siteye yeni ziyaretçilerin IP adreslerine dayalı olarak ilişkilendirilip ilişkilendirilmeyeceğini belirtin</value>
+  </data>
+  <data name="Correlation.Text" xml:space="preserve">
+    <value>Ziyaretçileri İlişkilendir?</value>
+  </data>
+  <data name="Duration.HelpText" xml:space="preserve">
+    <value>Bir gezinme oturumunun süresi, ayrı bir ziyaret olarak kabul edilir (dakika cinsinden)</value>
+  </data>
+  <data name="Duration.Text" xml:space="preserve">
+    <value>Oturum Süresi:</value>
+  </data>
+  <data name="Robots.Heading" xml:space="preserve">
+    <value>Robots.txt</value>
+  </data>
+  <data name="Robots.Text" xml:space="preserve">
+    <value>Yönergeler:</value>
+  </data>
+  <data name="Robots.HelpText" xml:space="preserve">
+    <value>Sitenizin hangi bölümlerinin dizine eklenmesi gerektiği konusunda botlara rehberlik sağlamak için robots.txt yönergelerinizi belirtin</value>
+  </data>
+</root>
