@@ -142,7 +142,7 @@
     <value>İptal</value>
   </data>
   <data name="Admin Dashboard" xml:space="preserve">
-    <value>Yönetici Kontrol Paneli</value>
+    <value>Yönetici Paneli</value>
   </data>
   <data name="User Login" xml:space="preserve">
     <value>Kullanıcı Girişi</value>
@@ -217,7 +217,7 @@
     <value>Arama Ayarları</value>
   </data>
   <data name="Search" xml:space="preserve">
-    <value>Ara</value>
+    <value>Arama</value>
   </data>
   <data name="Search.Hint" xml:space="preserve">
     <value>Arama Terimini Girin</value>
@@ -259,7 +259,7 @@
     <value>Durum</value>
   </data>
   <data name="Upgrade" xml:space="preserve">
-    <value>Yükselt</value>
+    <value>Yükseltme</value>
   </data>
   <data name="Username" xml:space="preserve">
     <value>Kullanıcı Adı</value>
@@ -295,13 +295,13 @@
     <value>Fiyat</value>
   </data>
   <data name="Accept" xml:space="preserve">
-    <value>Kabul Et</value>
+    <value>Kabul et</value>
   </data>
   <data name="License Not Specified" xml:space="preserve">
-    <value>Lisans Belirtilmemiş</value>
+    <value>Lisans Belirtilmedi</value>
   </data>
   <data name="Review License Terms" xml:space="preserve">
-    <value>Lisans Koşullarını İncele</value>
+    <value>Lisans Şartlarını İncele</value>
   </data>
   <data name="Trial" xml:space="preserve">
     <value>Gün Deneme</value>
@@ -310,7 +310,7 @@
     <value>Süresi Dolmuş</value>
   </data>
   <data name="Extend" xml:space="preserve">
-    <value>Genişlet</value>
+    <value>Uzat</value>
   </data>
   <data name="Not Specified" xml:space="preserve">
     <value>Belirtilmemiş</value>
@@ -355,7 +355,7 @@
     <value>Tamam</value>
   </data>
   <data name="Apply" xml:space="preserve">
-    <value>Başvur</value>
+    <value>Uygula</value>
   </data>
   <data name="Select" xml:space="preserve">
     <value>Seç</value>
@@ -406,7 +406,7 @@
     <value>Sonuçlar</value>
   </data>
   <data name="Search.RecentlyReleased" xml:space="preserve">
-    <value>Yeni Çıkanlar</value>
+    <value>Son Çıkanlar</value>
   </data>
   <data name="From" xml:space="preserve">
     <value>Kimden</value>
@@ -427,7 +427,7 @@
     <value>En Az Bir Büyük Harf</value>
   </data>
   <data name="Password.ValidationCriteria" xml:space="preserve">
-    <value>Parolalar Bu Site İçin Parola Karmaşıklık Gereksinimlerini Karşılamak İçin En Az {0} Karakter Uzunluğunda Olmalıdır, En Az {1} Benzersiz Karakter ({2}{3}{4}{5}) İçermelidir.</value>
+    <value>Şifreler Bu Site İçin Şifre Karmaşıklık Gereksinimlerini Karşılamak İçin En Az {0} Karakterden Oluşmalı ve En Az {1} Benzersiz Karakter ({2}{3}{4}{5}) İçermelidir</value>
   </data>
   <data name="ProfileInvalid" xml:space="preserve">
     <value>{0} Geçerli Değil</value>
@@ -442,7 +442,7 @@
     <value>Test</value>
   </data>
   <data name="Message.EffectiveExpiryDateError" xml:space="preserve">
-    <value>Geçerlilik Tarihi, Son Kullanma Tarihinden Sonra Olamaz.</value>
+    <value>Geçerlilik Tarihi, Bitiş Tarihinden sonra olamaz.</value>
   </data>
   <data name="RuntimeAuto" xml:space="preserve">
     <value>Otomatik</value>
