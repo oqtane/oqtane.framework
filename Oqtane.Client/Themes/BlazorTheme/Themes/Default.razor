@@ -37,7 +37,7 @@
     public override List<Resource> Resources => new List<Resource>()
     {
 		// obtained from https://cdnjs.com/libraries
-        new Stylesheet("https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css", "sha512-jnSuA4Ss2PkkikSOLtYs8BlYIeeIK1h99ty4YfvRPAlzr377vr3CXDb7sb7eEEBYjDtcYj+AjBH3FLv5uSJuXg==", "anonymous"),
+        new Stylesheet(Constants.BootstrapStylesheetUrl, Constants.BootstrapStylesheetIntegrity, "anonymous"),
         new Stylesheet(ThemePath() + "Theme.css"),
         new Script(Constants.BootstrapScriptUrl, Constants.BootstrapScriptIntegrity, "anonymous")
     };
