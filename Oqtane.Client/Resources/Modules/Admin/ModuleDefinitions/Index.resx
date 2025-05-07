@@ -160,12 +160,12 @@
     <value>Enabled?</value>
   </data>
   <data name="Synchronize" xml:space="preserve">
-    <value>Synchronize</value>
+    <value>Check For Updates</value>
   </data>
   <data name="Success.Module.Synchronize" xml:space="preserve">
-    <value>Modules Have Been Successfully Synchronized With The Marketplace</value>
+    <value>Module Information Has Been Retrieved From The Marketplace</value>
   </data>
   <data name="Error.Module.Synchronize" xml:space="preserve">
-    <value>Error Synchronizing Modules With The Marketplace</value>
+    <value>Error Retrieving Module Information From The Marketplace</value>
   </data>
 </root>
