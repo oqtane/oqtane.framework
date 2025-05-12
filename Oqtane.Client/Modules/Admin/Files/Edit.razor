@@ -265,17 +265,9 @@
             }
             if (!isparent)
             {
-                var files = await FileService.GetFilesAsync(_folderId);
-                if (files.Count == 0)
-                {
-                    await FolderService.DeleteFolderAsync(_folderId);
-                    await logger.LogInformation("Folder Deleted {Folder}", _folderId);
-                    NavigationManager.NavigateTo(NavigateUrl());
-                }
-                else
-                {
-                    AddModuleMessage(Localizer["Message.Folder.Files.InvalidDelete"], MessageType.Warning);
-                }
+                await FolderService.DeleteFolderAsync(_folderId);
+                await logger.LogInformation("Folder Deleted {Folder}", _folderId);
+                NavigationManager.NavigateTo(NavigateUrl());
             }
             else
             {

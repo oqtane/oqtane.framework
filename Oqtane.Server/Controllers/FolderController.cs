@@ -20,14 +20,16 @@ namespace Oqtane.Controllers
     {
         private readonly IFolderRepository _folders;
         private readonly IUserPermissions _userPermissions;
+        private readonly IFileRepository _files;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public FolderController(IFolderRepository folders, IUserPermissions userPermissions, ISyncManager syncManager, ILogManager logger, ITenantManager tenantManager)
+        public FolderController(IFolderRepository folders, IUserPermissions userPermissions, IFileRepository files, ISyncManager syncManager, ILogManager logger, ITenantManager tenantManager)
         {
             _folders = folders;
             _userPermissions = userPermissions;
+            _files = files;
             _syncManager = syncManager;
             _logger = logger;
             _alias = tenantManager.GetAlias();
@@ -283,12 +285,20 @@ namespace Oqtane.Controllers
                 var folderPath = _folders.GetFolderPath(folder);
                 if (Directory.Exists(folderPath))
                 {
+                    // remove all files from disk (including thumbnails, etc...)
                     foreach (var filePath in Directory.GetFiles(folderPath))
                     {
                         System.IO.File.Delete(filePath);
                     }
                     Directory.Delete(folderPath);
                 }
+
+                // remove files from database
+                foreach (var file in _files.GetFiles(id))
+                {
+                    _files.DeleteFile(file.FileId);
+                }
+
                 _folders.DeleteFolder(id);
                 _syncManager.AddSyncEvent(_alias, EntityNames.Folder, folder.FolderId, SyncEventActions.Delete);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Folder Deleted {FolderId}", id);
