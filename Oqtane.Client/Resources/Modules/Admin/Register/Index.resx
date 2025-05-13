@@ -180,4 +180,10 @@
   <data name="Login" xml:space="preserve">
     <value>Already have account? Login now.</value>
   </data>
+  <data name="TimeZone.Text" xml:space="preserve">
+    <value>Time Zone:</value>
+  </data>
+  <data name="TimeZone.HelpText" xml:space="preserve">
+    <value>Your time zone</value>
+  </data>
 </root>
