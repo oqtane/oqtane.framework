@@ -195,6 +195,9 @@ namespace Oqtane
                 app.UseHsts();
             }
 
+            // execute any IServerStartup logic
+            app.ConfigureOqtaneAssemblies(env);
+
             // allow oqtane localization middleware
             app.UseOqtaneLocalization();
 
@@ -244,9 +247,6 @@ namespace Oqtane
                     .AddInteractiveWebAssemblyRenderMode()
                     .AddAdditionalAssemblies(typeof(SiteRouter).Assembly);
             });
-
-            // execute any IServerStartup logic
-            app.ConfigureOqtaneAssemblies(env);
 
             // simulate the fallback routing approach of traditional Blazor - allowing the custom SiteRouter to handle all routing concerns
             app.UseEndpoints(endpoints =>
