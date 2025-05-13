@@ -30,16 +30,16 @@
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
                                 <div class="col-sm-9">
-                                        <select id="parent" class="form-select" value="@_parentid" @onchange="(e => ParentChanged(e))" required>
-                                            <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
-                                            @foreach (Page page in _pages)
+                                    <select id="parent" class="form-select" value="@_parentid" @onchange="(e => ParentChanged(e))" required>
+                                        <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
+                                        @foreach (Page page in _pages)
+                                        {
+                                            if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, page.PermissionList) && page.PageId != _pageId)
                                             {
-                                                if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, page.PermissionList) && page.PageId != _pageId)
-                                                {
-                                                    <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
-                                                }
+                                                <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
                                             }
-                                        </select>
+                                        }
+                                    </select>
                                 </div>
                             </div>
                             <div class="row mb-1 align-items-center">
@@ -217,6 +217,9 @@
                         </div>
                     </Section>
                     <br />
+                    <button type="button" class="btn btn-success" @onclick="SavePage">@SharedLocalizer["Save"]</button>
+                    <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
+                    <br />
                     <br />
                     <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
                 </TabPanel>
@@ -225,15 +228,28 @@
                         <div class="row mb-1 align-items-center">
                             <PermissionGrid EntityName="@EntityNames.Page" PermissionList="@_permissions" @ref="_permissionGrid" />
                         </div>
+                        <br /><br />
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="updatemodulepermissions" HelpText="Specify if changes made to page permissions should be propagated to the modules on this page" ResourceKey="UpdateModulePermissions">Update Module Permissions? </Label>
+                            <div class="col-sm-9">
+                                <select id="updatemodulepermissions" class="form-select" @bind="@_updatemodulepermissions" required>
+                                    <option value="True">@SharedLocalizer["Yes"]</option>
+                                    <option value="False">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
+                        </div>
+                        <br />
+                        <button type="button" class="btn btn-success" @onclick="SavePage">@SharedLocalizer["Save"]</button>
+                        <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
                     </div>
                 </TabPanel>
                 <TabPanel Name="PageModules" Heading="Modules" ResourceKey="PageModules">
                     <Pager Items="_pageModules">
                         <Header>
-                        <th style="width: 1px;">&nbsp;</th>
-                        <th style="width: 1px;">&nbsp;</th>
-                        <th>@Localizer["ModuleTitle"]</th>
-                        <th>@Localizer["ModuleDefinition"]</th>
+                            <th style="width: 1px;">&nbsp;</th>
+                            <th style="width: 1px;">&nbsp;</th>
+                            <th>@Localizer["ModuleTitle"]</th>
+                            <th>@Localizer["ModuleDefinition"]</th>
                         </Header>
                         <Row>
                             <td><ActionLink Action="Settings" Text="Edit" Path="@_actualpath" ModuleId="@context.ModuleId" Security="SecurityAccessLevel.Edit" PermissionList="@context.PermissionList" ResourceKey="ModuleSettings" /></td>
@@ -247,8 +263,10 @@
                 {
                     <TabPanel Name="ThemeSettings" Heading="Theme Settings" ResourceKey="ThemeSettings">
                         @_themeSettingsComponent
+                        <br />
+                        <button type="button" class="btn btn-success" @onclick="SavePage">@SharedLocalizer["Save"]</button>
+                        <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
                     </TabPanel>
-                    <br />
                 }
             </TabStrip>
         }
@@ -299,19 +317,21 @@
                             </div>
                         </div>
                     </div>
+                    <br />
+                    <button type="button" class="btn btn-success" @onclick="SavePage">@SharedLocalizer["Save"]</button>
+                    <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
                 </TabPanel>
                 @if (_themeSettingsType != null)
                 {
                     <TabPanel Name="ThemeSettings" Heading="Theme Settings" ResourceKey="ThemeSettings">
                         @_themeSettingsComponent
+                        <br />
+                        <button type="button" class="btn btn-success" @onclick="SavePage">@SharedLocalizer["Save"]</button>
+                        <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
                     </TabPanel>
-                    <br />
                 }
             </TabStrip>
         }
-        <br />
-        <button type="button" class="btn btn-success" @onclick="SavePage">@SharedLocalizer["Save"]</button>
-        <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
     </form>
 }
 
@@ -348,6 +368,7 @@
     private string _bodycontent;
     private List<Permission> _permissions = null;
     private PermissionGrid _permissionGrid;
+    private string _updatemodulepermissions;
     private List<Module> _pageModules;
     private string _createdby;
     private DateTime _createdon;
@@ -436,6 +457,7 @@
 
                 // permissions
                 _permissions = _page.PermissionList;
+                _updatemodulepermissions = "True";
 
                 // page modules
                 var modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId);
@@ -651,6 +673,7 @@
                     if (_page.UserId == null)
                     {
                         _page.PermissionList = _permissionGrid.GetPermissionList();
+                        _page.UpdateModulePermissions = bool.Parse(_updatemodulepermissions);
                     }
 
                     _page = await PageService.UpdatePageAsync(_page);

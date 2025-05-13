@@ -303,4 +303,10 @@
   <data name="PersonalizedUrlPath.HelpText" xml:space="preserve">
     <value>Provide a url path for your personalized page. Please note that spaces and punctuation will be replaced by a dash.</value>
   </data>
+  <data name="UpdateModulePermissions.Text" xml:space="preserve">
+    <value>Update Module Permissions?</value>
+  </data>
+  <data name="UpdateModulePermissions.HelpText" xml:space="preserve">
+    <value>Specify if changes made to page permissions should be propagated to the modules on this page</value>
+  </data>
 </root>
