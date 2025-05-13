@@ -156,4 +156,10 @@
   <data name="Notify.Text" xml:space="preserve">
     <value>Notify?</value>
   </data>
+  <data name="TimeZone.Text" xml:space="preserve">
+    <value>Time Zone:</value>
+  </data>
+  <data name="TimeZone.HelpText" xml:space="preserve">
+    <value>The user's time zone</value>
+  </data>
 </root>

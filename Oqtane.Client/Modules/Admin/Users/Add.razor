@@ -5,6 +5,7 @@
 @inject IUserService UserService
 @inject IProfileService ProfileService
 @inject ISettingService SettingService
+@inject ITimeZoneService TimeZoneService
 @inject IStringLocalizer<Add> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -12,7 +13,7 @@
 {
     <TabStrip>
         <TabPanel Name="Identity" ResourceKey="Identity">
-            @if (profiles != null)
+            @if (_profiles != null)
             {
                 <div class="container">
                     <div class="row mb-1 align-items-center">
@@ -34,6 +35,18 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="timezone" HelpText="Your time zone" ResourceKey="TimeZone">Time Zone:</Label>
+                        <div class="col-sm-9">
+                            <select id="timezone" class="form-select" @bind="@_timezoneid">
+                                <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                                @foreach (var timezone in _timezones)
+                                {
+                                    <option value="@timezone.Id">@timezone.DisplayName</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="notify" HelpText="Indicate if new users should receive an email notification" ResourceKey="Notify">Notify? </Label>
                         <div class="col-sm-9">
                             <select id="notify" class="form-select" @bind="@_notify" required>
@@ -48,20 +61,20 @@
         <TabPanel Name="Profile" ResourceKey="Profile">
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    @foreach (Profile profile in profiles)
+                    @foreach (Profile profile in _profiles)
                     {
                         var p = profile;
-                        if (p.Category != category)
+                        if (p.Category != _category)
                         {
                             <div class="col text-center pb-2">
                                 <strong>@p.Category</strong>
                             </div>
-                            category = p.Category;
+                            _category = p.Category;
                         }
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="@p.Name" HelpText="@p.Description">@p.Title</Label>
-                                <div class="col-sm-9">
-                                    @if (!string.IsNullOrEmpty(p.Options))
+                            <div class="col-sm-9">
+                                @if (!string.IsNullOrEmpty(p.Options))
                                 {
                                     <select id="@p.Name" class="form-select" @onchange="@(e => ProfileChanged(e, p.Name))">
                                         @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
@@ -103,14 +116,16 @@
 
 
 @code {
+    private List<Models.TimeZone> _timezones;
     private bool _initialized = false;
     private string _username = string.Empty;
     private string _email = string.Empty;
     private string _displayname = string.Empty;
+    private string _timezoneid = string.Empty;
     private string _notify = "True";
-    private List<Profile> profiles;
-    private Dictionary<string, string> settings;
-    private string category = string.Empty;
+    private List<Profile> _profiles;
+    private Dictionary<string, string> _settings;
+    private string _category = string.Empty;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
 
@@ -118,8 +133,10 @@
     {
         try
         {
-            profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
-            settings = new Dictionary<string, string>();
+            _timezones = await TimeZoneService.GetTimeZonesAsync();
+            _profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
+            _settings = new Dictionary<string, string>();
+            _timezoneid = PageState.Site.TimeZoneId;
             _initialized = true;
         }
         catch (Exception ex)
@@ -131,7 +148,7 @@
 
     private string GetProfileValue(string SettingName, string DefaultValue)
     {
-        string value = SettingService.GetSetting(settings, SettingName, DefaultValue);
+        string value = SettingService.GetSetting(_settings, SettingName, DefaultValue);
         if (value.Contains("]"))
         {
             value = value.Substring(value.IndexOf("]") + 1);
@@ -153,6 +170,7 @@
                     user.Password = ""; // will be auto generated
                     user.Email = _email;
                     user.DisplayName = string.IsNullOrWhiteSpace(_displayname) ? _username : _displayname;
+                    user.TimeZoneId = _timezoneid;
                     user.PhotoFileId = null;
                     user.SuppressNotification = !bool.Parse(_notify);
 
@@ -160,7 +178,7 @@
 
                     if (user != null)
                     {
-                        await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
+                        await SettingService.UpdateUserSettingsAsync(_settings, user.UserId);
                         await logger.LogInformation("User Created {User}", user);
                         NavigationManager.NavigateTo(NavigateUrl());
                     }
@@ -185,12 +203,12 @@
 
     private bool ValidateProfiles()
     {
-        foreach (Profile profile in profiles)
+        foreach (Profile profile in _profiles)
         {
             var value = GetProfileValue(profile.Name, string.Empty);
             if (string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(profile.DefaultValue))
             {
-                settings = SettingService.SetSetting(settings, profile.Name, profile.DefaultValue);
+                _settings = SettingService.SetSetting(_settings, profile.Name, profile.DefaultValue);
             }
             if (!profile.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
             {
@@ -217,6 +235,6 @@
     private void ProfileChanged(ChangeEventArgs e, string SettingName)
     {
         var value = (string)e.Value;
-        settings = SettingService.SetSetting(settings, SettingName, value);
+        _settings = SettingService.SetSetting(_settings, SettingName, value);
     }
 }

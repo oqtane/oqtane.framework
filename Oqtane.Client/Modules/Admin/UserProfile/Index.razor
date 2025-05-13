@@ -9,6 +9,7 @@
 @inject INotificationService NotificationService
 @inject IFileService FileService
 @inject IFolderService FolderService
+@inject ITimeZoneService TimeZoneService
 @inject IJSRuntime jsRuntime
 @inject IServiceProvider ServiceProvider
 @inject IStringLocalizer<Index> Localizer
@@ -16,9 +17,9 @@
 
 @if (_initialized)
 {
-    @if (PageState.User != null && photo != null)
+    @if (PageState.User != null && _photo != null)
     {
-        <img src="@ImageUrl(photofileid, 400, 400)" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
+        <img src="@ImageUrl(_photofileid, 400, 400)" alt="@_displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
     }
     else
     {
@@ -31,7 +32,7 @@
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="username" HelpText="Your username. Note that this field can not be modified." ResourceKey="Username"></Label>
                     <div class="col-sm-9">
-                        <input id="username" class="form-control" @bind="@username" readonly />
+                        <input id="username" class="form-control" @bind="@_username" readonly />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
@@ -47,17 +48,17 @@
                     <Label Class="col-sm-3" For="confirm" HelpText="If you are changing your password you must enter it again to confirm it matches" ResourceKey="Confirm"></Label>
                     <div class="col-sm-9">
                         <div class="input-group">
-                            <input id="confirm" type="@_passwordtype" class="form-control" @bind="@confirm" autocomplete="new-password" />
+                            <input id="confirm" type="@_passwordtype" class="form-control" @bind="@_confirm" autocomplete="new-password" />
                             <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
                         </div>
                     </div>
                 </div>
-                @if (allowtwofactor)
+                @if (_allowtwofactor)
                 {
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="twofactor" HelpText="Indicates if you are using two factor authentication. Two factor authentication requires you to enter a verification code sent via email after you sign in." ResourceKey="TwoFactor"></Label>
                         <div class="col-sm-9">
-                            <select id="twofactor" class="form-select" @bind="@twofactor" required>
+                            <select id="twofactor" class="form-select" @bind="@_twofactor" required>
                                 <option value="True">@SharedLocalizer["Yes"]</option>
                                 <option value="False">@SharedLocalizer["No"]</option>
                             </select>
@@ -67,19 +68,31 @@
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="email" HelpText="Your email address where you wish to receive notifications" ResourceKey="Email"></Label>
                     <div class="col-sm-9">
-                        <input id="email" class="form-control" @bind="@email" />
+                        <input id="email" class="form-control" @bind="@_email" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="displayname" HelpText="Your full name" ResourceKey="DisplayName"></Label>
                     <div class="col-sm-9">
-                        <input id="displayname" class="form-control" @bind="@displayname" />
+                        <input id="displayname" class="form-control" @bind="@_displayname" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="@photofileid.ToString()" HelpText="A photo of yourself" ResourceKey="Photo"></Label>
+                    <Label Class="col-sm-3" For="timezone" HelpText="Your time zone" ResourceKey="TimeZone">Time Zone:</Label>
                     <div class="col-sm-9">
-                        <FileManager FileId="@photofileid" Filter="@PageState.Site.ImageFiles" ShowFolders="false" ShowFiles="true" UploadMultiple="false" FolderId="@folderid" @ref="filemanager" />
+                        <select id="timezone" class="form-select" @bind="@_timezoneid">
+                            <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                            @foreach (var timezone in _timezones)
+                            {
+                                <option value="@timezone.Id">@timezone.DisplayName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="@_photofileid.ToString()" HelpText="A photo of yourself" ResourceKey="Photo"></Label>
+                    <div class="col-sm-9">
+                        <FileManager FileId="@_photofileid" Filter="@PageState.Site.ImageFiles" ShowFolders="false" ShowFiles="true" UploadMultiple="false" FolderId="@_folderid" @ref="_filemanager" />
                     </div>
                 </div>
             </div>
@@ -91,17 +104,17 @@
         <TabPanel Name="Profile" ResourceKey="Profile">
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    @foreach (Profile profile in profiles)
+                    @foreach (Profile profile in _profiles)
                     {
                         var p = profile;
                         if (!p.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
                         {
-                            if (p.Category != category)
+                            if (p.Category != _category)
                             {
                                 <div class="col text-center pb-2">
                                     @p.Category
                                 </div>
-                                category = p.Category;
+                                _category = p.Category;
                             }
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="@p.Name" HelpText="@p.Description">@p.Title</Label>
@@ -150,12 +163,12 @@
                                                 @if (p.IsRequired)
                                                 {
                                                     <input id="@p.Name" class="form-control" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete"
-                                                           @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)" />
+                                                    @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)" />
                                                 }
                                                 else
                                                 {
                                                     <input id="@p.Name" class="form-control" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete"
-                                                           @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)" />
+                                                    @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)" />
                                                 }
                                             }
                                             else
@@ -163,12 +176,12 @@
                                                 @if (p.IsRequired)
                                                 {
                                                     <input id="@p.Name" class="form-control" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))"
-                                                           @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)" />
+                                                    @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)" />
                                                 }
                                                 else
                                                 {
                                                     <input id="@p.Name" class="form-control" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))"
-                                                           @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)" />
+                                                    @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)" />
                                                 }
                                             }
                                         }
@@ -179,12 +192,12 @@
                                                 @if (p.IsRequired)
                                                 {
                                                     <textarea id="@p.Name" class="form-control" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete"
-                                                              @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)"></textarea>
+                                                    @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)"></textarea>
                                                 }
                                                 else
                                                 {
                                                     <textarea id="@p.Name" class="form-control" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete"
-                                                              @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)"></textarea>
+                                                    @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)"></textarea>
                                                 }
                                             }
                                             else
@@ -192,12 +205,12 @@
                                                 @if (p.IsRequired)
                                                 {
                                                     <textarea id="@p.Name" class="form-control" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))"
-                                                              @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)"></textarea>
+                                                    @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)"></textarea>
                                                 }
                                                 else
                                                 {
                                                     <textarea id="@p.Name" class="form-control" rows="@p.Rows" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))"
-                                                              @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)"></textarea>
+                                                    @attributes="@(p.MaxLength > 0 ? new Dictionary<string, object> {{"maxlength", p.MaxLength }} : null)"></textarea>
                                                 }
                                             }
                                         }
@@ -220,11 +233,11 @@
                 <option value="from">@Localizer["Items.Sent"]</option>
             </select>
             <br />
-            @if (filter == "to")
+            @if (_filter == "to")
             {
-                @if (notifications.Any())
+                @if (_notifications.Any())
                 {
-                    <Pager Items="@notifications">
+                    <Pager Items="@_notifications">
                         <Header>
                             <th style="width: 1px;">&nbsp;</th>
                             <th style="width: 1px;">&nbsp;</th>
@@ -260,15 +273,15 @@
                                         context.Body = context.Body.Replace("\n", "");
                                         context.Body = context.Body.Replace("\r", "");
                                     }
-                                    notificationSummary = context.Body.Length > 100 ? (context.Body.Substring(0, 97) + "...") : context.Body;
+                                    _notificationSummary = context.Body.Length > 100 ? (context.Body.Substring(0, 97) + "...") : context.Body;
                                 }
                                 @if (context.IsRead)
                                 {
-                                    @notificationSummary
+                                    @_notificationSummary
                                 }
                                 else
                                 {
-                                    <b>@notificationSummary</b>
+                                    <b>@_notificationSummary</b>
                                 }
                             </td>
                         </Detail>
@@ -285,9 +298,9 @@
             }
             else
             {
-                @if (notifications.Any())
+                @if (_notifications.Any())
                 {
-                    <Pager Items="@notifications">
+                    <Pager Items="@_notifications">
                         <Header>
                             <th style="width: 1px;"></th>
                             <th style="width: 1px;"></th>
@@ -324,15 +337,15 @@
                                         context.Body = context.Body.Replace("\n", "");
                                         context.Body = context.Body.Replace("\r", "");
                                     }
-                                    notificationSummary = context.Body.Length > 100 ? (context.Body.Substring(0, 97) + "...") : context.Body;
+                                    _notificationSummary = context.Body.Length > 100 ? (context.Body.Substring(0, 97) + "...") : context.Body;
                                 }
                                 @if (context.IsRead)
                                 {
-                                    @notificationSummary
+                                    @_notificationSummary
                                 }
                                 else
                                 {
-                                    <b>@notificationSummary</b>
+                                    <b>@_notificationSummary</b>
                                 }
                             </td>
                         </Detail>
@@ -354,29 +367,32 @@
 }
 
 @code {
+    private List<Models.TimeZone> _timezones;
     private bool _initialized = false;
     private string _passwordrequirements;
-    private string username = string.Empty;
+    private string _username = string.Empty;
     private string _password = string.Empty;
     private string _passwordtype = "password";
     private string _togglepassword = string.Empty;
-    private string confirm = string.Empty;
-    private bool allowtwofactor = false;
-    private string twofactor = "False";
-    private string email = string.Empty;
-    private string displayname = string.Empty;
-    private FileManager filemanager;
-    private int folderid = -1;
-    private int photofileid = -1;
-    private File photo = null;
-    private string _ImageFiles = string.Empty;
-    private List<Profile> profiles;
-    private Dictionary<string, string> userSettings;
-    private string category = string.Empty;
+    private string _confirm = string.Empty;
+    private bool _allowtwofactor = false;
+    private string _twofactor = "False";
+    private string _email = string.Empty;
+    private string _displayname = string.Empty;
+    private FileManager _filemanager;
+    private int _folderid = -1;
+    private string _timezoneid = string.Empty;
+    private int _photofileid = -1;
+    private File _photo = null;
+    private string _imagefiles = string.Empty;
 
-    private string filter = "to";
-    private List<Notification> notifications;
-    private string notificationSummary = string.Empty;
+    private List<Profile> _profiles;
+    private Dictionary<string, string> _userSettings;
+    private string _category = string.Empty;
+
+    private string _filter = "to";
+    private List<Notification> _notifications;
+    private string _notificationSummary = string.Empty;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
 
@@ -386,17 +402,19 @@
         {
             _passwordrequirements = await UserService.GetPasswordRequirementsAsync(PageState.Site.SiteId);
             _togglepassword = SharedLocalizer["ShowPassword"];
-            allowtwofactor = (SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:TwoFactor", "false") == "true");
-            profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
+            _allowtwofactor = (SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:TwoFactor", "false") == "true");
+            _profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
+            _timezones = await TimeZoneService.GetTimeZonesAsync();
 
             if (PageState.User != null)
             {
-                username = PageState.User.Username;
-                twofactor = PageState.User.TwoFactorRequired.ToString();
-                email = PageState.User.Email;
-                displayname = PageState.User.DisplayName;
+                _username = PageState.User.Username;
+                _twofactor = PageState.User.TwoFactorRequired.ToString();
+                _email = PageState.User.Email;
+                _displayname = PageState.User.DisplayName;
+                _timezoneid = PageState.User.TimeZoneId;
 
-                if (string.IsNullOrEmpty(email))
+                if (string.IsNullOrEmpty(_email))
                 {
                     AddModuleMessage(Localizer["Message.User.NoEmail"], MessageType.Warning);
                 }
@@ -405,24 +423,24 @@
                 var folder = await FolderService.GetFolderAsync(ModuleState.SiteId, PageState.User.FolderPath);
                 if (folder != null)
                 {
-                    folderid = folder.FolderId;
+                    _folderid = folder.FolderId;
                 }
 
                 if (PageState.User.PhotoFileId != null)
                 {
-                    photofileid = PageState.User.PhotoFileId.Value;
-                    photo = await FileService.GetFileAsync(photofileid);
+                    _photofileid = PageState.User.PhotoFileId.Value;
+                    _photo = await FileService.GetFileAsync(_photofileid);
                 }
                 else
                 {
-                    photofileid = -1;
-                    photo = null;
+                    _photofileid = -1;
+                    _photo = null;
                 }
 
-                userSettings = PageState.User.Settings;
+                _userSettings = PageState.User.Settings;
                 var sitesettings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-                _ImageFiles = SettingService.GetSetting(userSettings, "ImageFiles", Constants.ImageFiles);
-                _ImageFiles = (string.IsNullOrEmpty(_ImageFiles)) ? Constants.ImageFiles : _ImageFiles;
+                _imagefiles = SettingService.GetSetting(_userSettings, "ImageFiles", Constants.ImageFiles);
+                _imagefiles = (string.IsNullOrEmpty(_imagefiles)) ? Constants.ImageFiles : _imagefiles;
 
                 await LoadNotificationsAsync();
 
@@ -442,13 +460,13 @@
 
     private async Task LoadNotificationsAsync()
     {
-        notifications = await NotificationService.GetNotificationsAsync(PageState.Site.SiteId, filter, PageState.User.UserId);
-        notifications = notifications.Where(item => item.DeletedBy != PageState.User.Username).ToList();
+        _notifications = await NotificationService.GetNotificationsAsync(PageState.Site.SiteId, _filter, PageState.User.UserId);
+        _notifications = _notifications.Where(item => item.DeletedBy != PageState.User.Username).ToList();
     }
 
     private string GetProfileValue(string SettingName, string DefaultValue)
     {
-        string value = SettingService.GetSetting(userSettings, SettingName, DefaultValue);
+        string value = SettingService.GetSetting(_userSettings, SettingName, DefaultValue);
         if (value.Contains("]"))
         {
             value = value.Substring(value.IndexOf("]") + 1);
@@ -460,38 +478,39 @@
     {
         try
         {
-            if (username != string.Empty && email != string.Empty)
+            if (_username != string.Empty && _email != string.Empty)
             {
-                if (_password == confirm)
+                if (_password == _confirm)
                 {
                     if (ValidateProfiles())
                     {
                         var user = PageState.User;
-                        user.Username = username;
+                        user.Username = _username;
                         user.Password = _password;
-                        user.TwoFactorRequired = bool.Parse(twofactor);
-                        user.Email = email;
-                        user.DisplayName = (displayname == string.Empty ? username : displayname);
-                        user.PhotoFileId = filemanager.GetFileId();
+                        user.TwoFactorRequired = bool.Parse(_twofactor);
+                        user.Email = _email;
+                        user.DisplayName = (_displayname == string.Empty ? _username : _displayname);
+                        user.TimeZoneId = _timezoneid;
+                        user.PhotoFileId = _filemanager.GetFileId();
                         if (user.PhotoFileId == -1)
                         {
                             user.PhotoFileId = null;
                         }
                         if (user.PhotoFileId != null)
                         {
-                            photofileid = user.PhotoFileId.Value;
-                            photo = await FileService.GetFileAsync(photofileid);
+                            _photofileid = user.PhotoFileId.Value;
+                            _photo = await FileService.GetFileAsync(_photofileid);
                         }
                         else
                         {
-                            photofileid = -1;
-                            photo = null;
+                            _photofileid = -1;
+                            _photo = null;
                         }
 
                         user = await UserService.UpdateUserAsync(user);
                         if (user != null)
                         {
-                            await SettingService.UpdateUserSettingsAsync(userSettings, PageState.User.UserId);
+                            await SettingService.UpdateUserSettingsAsync(_userSettings, PageState.User.UserId);
                             await logger.LogInformation("User Profile Saved");
 
                             if (!string.IsNullOrEmpty(PageState.ReturnUrl))
@@ -557,12 +576,12 @@
 
     private bool ValidateProfiles()
     {
-        foreach (Profile profile in profiles)
+        foreach (Profile profile in _profiles)
         {
             var value = GetProfileValue(profile.Name, string.Empty);
             if (string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(profile.DefaultValue))
             {
-                userSettings = SettingService.SetSetting(userSettings, profile.Name, profile.DefaultValue);
+                _userSettings = SettingService.SetSetting(_userSettings, profile.Name, profile.DefaultValue);
             }
             if (!profile.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
             {
@@ -594,7 +613,7 @@
     private void ProfileChanged(ChangeEventArgs e, string SettingName)
     {
         var value = (string)e.Value;
-        userSettings = SettingService.SetSetting(userSettings, SettingName, value);
+        _userSettings = SettingService.SetSetting(_userSettings, SettingName, value);
     }
 
     private async Task Delete(Notification Notification)
@@ -624,7 +643,7 @@
 
     private async void FilterChanged(ChangeEventArgs e)
     {
-        filter = (string)e.Value;
+        _filter = (string)e.Value;
         await LoadNotificationsAsync();
         StateHasChanged();
     }
@@ -634,7 +653,7 @@
         try
         {
             ShowProgressIndicator();
-            foreach(var Notification in notifications)
+            foreach(var Notification in _notifications)
             {
                 if (!Notification.IsDeleted)
                 {

@@ -3,6 +3,7 @@
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
+@inject ITimeZoneService TimeZoneService
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject ISettingService SettingService
@@ -56,6 +57,18 @@
                             <input id="displayname" class="form-control" @bind="@_displayname" maxlength="50" />
                         </div>
                     </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="timezone" HelpText="Your time zone" ResourceKey="TimeZone">Time Zone:</Label>
+                        <div class="col-sm-9">
+                            <select id="timezone" class="form-select" @bind="@_timezoneid">
+                                <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                                @foreach (var timezone in _timezones)
+                                {
+                                    <option value="@timezone.Id">@timezone.DisplayName</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <br />
                 <button type="button" class="btn btn-primary" @onclick="Register">@Localizer["Register"]</button>
@@ -77,6 +90,7 @@ else
 }
 
 @code {
+    private List<Models.TimeZone> _timezones;
     private string _passwordrequirements;
     private string _username = string.Empty;
     private ElementReference form;
@@ -87,6 +101,7 @@ else
     private string _confirm = string.Empty;
     private string _email = string.Empty;
     private string _displayname = string.Empty;
+    private string _timezoneid = string.Empty;
     private bool _userCreated = false;
     private bool _allowsitelogin = true;
 
@@ -96,6 +111,8 @@ else
     {
         _passwordrequirements = await UserService.GetPasswordRequirementsAsync(PageState.Site.SiteId); 
         _allowsitelogin = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AllowSiteLogin", "true"));
+        _timezones = await TimeZoneService.GetTimeZonesAsync();
+        _timezoneid = PageState.Site.TimeZoneId;
     }
 
     protected override void OnParametersSet()
@@ -124,6 +141,7 @@ else
                             Password = _password,
                             Email = _email,
                             DisplayName = (_displayname == string.Empty ? _username : _displayname),
+                            TimeZoneId = _timezoneid,
 							PhotoFileId = null
                         };
                         user = await UserService.AddUserAsync(user);
