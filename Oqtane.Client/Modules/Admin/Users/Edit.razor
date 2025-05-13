@@ -207,7 +207,7 @@
                     _displayname = user.DisplayName;
                     _timezoneid = PageState.User.TimeZoneId;
                     _isdeleted = user.IsDeleted.ToString();
-                    _lastlogin = string.Format("{0:MMM dd yyyy HH:mm:ss}", user.LastLoginOn);
+                    _lastlogin = string.Format("{0:MMM dd yyyy HH:mm:ss}", UtcToLocal(user.LastLoginOn));
                     _lastipaddress = user.LastIPAddress;
                     _ishost = UserSecurity.ContainsRole(user.Roles, RoleNames.Host);
 
