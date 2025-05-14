@@ -1,7 +1,10 @@
 @namespace Oqtane.UI
 @inject SiteState SiteState
 
-@((MarkupString)ModuleState.Header)
+@if (PageState.ModuleId == -1)
+{
+    @((MarkupString)ModuleState.Header)
+}
 @if (_comment != null)
 {
     @((MarkupString)_comment)
@@ -14,7 +17,11 @@
         <RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, _prerender)" />
     }
 }
-@((MarkupString)ModuleState.Footer)
+@if (PageState.ModuleId == -1)
+{
+    @((MarkupString)ModuleState.Footer)
+}
+
 
 @code {
     [CascadingParameter]
@@ -25,8 +32,6 @@
 
     private bool _prerender;
     private string _comment;
-    private string _header;
-    private string _footer;
 
     protected override void OnParametersSet()
     {
@@ -43,16 +48,11 @@
         }
         _comment += " -->";
 
-        _header = ModuleState.Header;
-        _footer = ModuleState.Footer;
-
         if (PageState.RenderMode == RenderModes.Static && ModuleState.RenderMode == RenderModes.Interactive)
         {
             // trim PageState to mitigate page bloat caused by Blazor serializing/encrypting state when crossing render mode boundaries
             // please note that this performance optimization results in the PageState.Pages property not being available for use in Interactive components
             PageState.Site.Pages = new List<Page>();
-            ModuleState.Header = string.Empty;
-            ModuleState.Footer = string.Empty;
         }
     }
 
