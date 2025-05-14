@@ -195,9 +195,6 @@ namespace Oqtane
                 app.UseHsts();
             }
 
-            // execute any IServerStartup logic
-            app.ConfigureOqtaneAssemblies(env);
-
             // allow oqtane localization middleware
             app.UseOqtaneLocalization();
 
@@ -227,6 +224,9 @@ namespace Oqtane
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseAntiforgery();
+
+            // execute any IServerStartup logic
+            app.ConfigureOqtaneAssemblies(env);
 
             if (_useSwagger)
             {
