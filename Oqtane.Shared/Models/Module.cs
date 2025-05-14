@@ -113,6 +113,18 @@ namespace Oqtane.Models
         [NotMapped]
         public DateTime? ExpiryDate { get; set; }
 
+        /// <summary>
+        /// Header content to include at the top of a module instance in the UI
+        /// </summary>
+        [NotMapped]
+        public string Header { get; set; }
+
+        /// <summary>
+        /// Footer content to include below a module instance in the UI
+        /// </summary>
+        [NotMapped]
+        public string Footer { get; set; }
+
         #endregion
 
         #region SiteRouter properties
@@ -218,6 +230,8 @@ namespace Oqtane.Models
                 ContainerType = ContainerType,
                 EffectiveDate = EffectiveDate,
                 ExpiryDate = ExpiryDate,
+                Header = Header,
+                Footer = Footer,
                 CreatedBy = CreatedBy,
                 CreatedOn = CreatedOn,
                 ModifiedBy = ModifiedBy,
