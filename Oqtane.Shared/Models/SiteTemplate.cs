@@ -95,6 +95,8 @@ namespace Oqtane.Models
             Pane = PaneNames.Default;
             Order = 1;
             ContainerType = "";
+            Header = "";
+            Footer = "";
             IsDeleted = false;
             PermissionList = new List<Permission>()
             {
@@ -110,6 +112,8 @@ namespace Oqtane.Models
         public string Pane { get; set; }
         public int Order { get; set; }
         public string ContainerType { get; set; }
+        public string Header { get; set; }
+        public string Footer { get; set; }
         public bool IsDeleted { get; set; }
         public List<Permission> PermissionList { get; set; }
         public List<Setting> Settings { get; set; }

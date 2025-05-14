@@ -246,6 +246,10 @@ namespace Oqtane.Controllers
                         pagemodule.Pane = pm.Pane;
                         pagemodule.Order = pm.Order;
                         pagemodule.ContainerType = pm.ContainerType;
+                        pagemodule.EffectiveDate = pm.EffectiveDate;
+                        pagemodule.ExpiryDate = pm.ExpiryDate;
+                        pagemodule.Header = pm.Header;
+                        pagemodule.Footer = pm.Footer;
 
                         _pageModules.AddPageModule(pagemodule);
                     }

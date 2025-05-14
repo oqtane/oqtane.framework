@@ -76,6 +76,8 @@ namespace Oqtane.Controllers
                         module.ContainerType = pagemodule.ContainerType;
                         module.EffectiveDate = pagemodule.EffectiveDate;
                         module.ExpiryDate = pagemodule.ExpiryDate;
+                        module.Header = pagemodule.Header;
+                        module.Footer = pagemodule.Footer;
 
                         module.ModuleDefinition = _moduleDefinitions.FilterModuleDefinition(moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName));
 
