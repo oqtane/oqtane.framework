@@ -447,4 +447,10 @@
   <data name="Success.SiteMap.CacheEvicted" xml:space="preserve">
     <value>Site Map Cache Cleared</value>
   </data>
+  <data name="TimeZone.Text" xml:space="preserve">
+    <value>Time Zone:</value>
+  </data>
+  <data name="TimeZone.HelpText" xml:space="preserve">
+    <value>The default time zone for the site</value>
+  </data>
 </root>

@@ -246,6 +246,10 @@ namespace Oqtane.Controllers
                         pagemodule.Pane = pm.Pane;
                         pagemodule.Order = pm.Order;
                         pagemodule.ContainerType = pm.ContainerType;
+                        pagemodule.EffectiveDate = pm.EffectiveDate;
+                        pagemodule.ExpiryDate = pm.ExpiryDate;
+                        pagemodule.Header = pm.Header;
+                        pagemodule.Footer = pm.Footer;
 
                         _pageModules.AddPageModule(pagemodule);
                     }
@@ -295,38 +299,43 @@ namespace Oqtane.Controllers
                 var removed = GetPermissionsDifferences(currentPermissions, page.PermissionList);
 
                 // synchronize module permissions
-                if (added.Count > 0 || removed.Count > 0)
+                if (page.UpdateModulePermissions && (added.Count > 0 || removed.Count > 0))
                 {
-                    foreach (PageModule pageModule in _pageModules.GetPageModules(page.SiteId).Where(item => item.PageId == page.PageId).ToList())
+                    var pageModules = _pageModules.GetPageModules(page.SiteId);
+                    foreach (PageModule pageModule in pageModules.Where(item => item.PageId == page.PageId).ToList())
                     {
-                        var modulePermissions = _permissionRepository.GetPermissions(pageModule.Module.SiteId, EntityNames.Module, pageModule.Module.ModuleId).ToList();
-                        // permissions added
-                        foreach (Permission permission in added)
+                        // ignore "shared" modules
+                        if (!pageModules.Any(item => item.ModuleId == pageModule.ModuleId && item.PageId != pageModule.PageId))
                         {
-                            if (!modulePermissions.Any(item => item.PermissionName == permission.PermissionName
-                              && item.RoleId == permission.RoleId && item.UserId == permission.UserId && item.IsAuthorized == permission.IsAuthorized))
+                            var modulePermissions = _permissionRepository.GetPermissions(pageModule.Module.SiteId, EntityNames.Module, pageModule.Module.ModuleId).ToList();
+                            // permissions added
+                            foreach (Permission permission in added)
                             {
-                                _permissionRepository.AddPermission(new Permission
+                                if (!modulePermissions.Any(item => item.PermissionName == permission.PermissionName
+                                  && item.RoleId == permission.RoleId && item.UserId == permission.UserId && item.IsAuthorized == permission.IsAuthorized))
                                 {
-                                    SiteId = page.SiteId,
-                                    EntityName = EntityNames.Module,
-                                    EntityId = pageModule.ModuleId,
-                                    PermissionName = permission.PermissionName,
-                                    RoleId = permission.RoleId,
-                                    UserId = permission.UserId,
-                                    IsAuthorized = permission.IsAuthorized
-                                });
+                                    _permissionRepository.AddPermission(new Permission
+                                    {
+                                        SiteId = page.SiteId,
+                                        EntityName = EntityNames.Module,
+                                        EntityId = pageModule.ModuleId,
+                                        PermissionName = permission.PermissionName,
+                                        RoleId = permission.RoleId,
+                                        UserId = permission.UserId,
+                                        IsAuthorized = permission.IsAuthorized
+                                    });
+                                }
                             }
-                        }
 
-                        // permissions removed
-                        foreach (Permission permission in removed)
-                        {
-                            var modulePermission = modulePermissions.FirstOrDefault(item => item.PermissionName == permission.PermissionName
-                              && item.RoleId == permission.RoleId && item.UserId == permission.UserId && item.IsAuthorized == permission.IsAuthorized);
-                            if (modulePermission != null)
+                            // permissions removed
+                            foreach (Permission permission in removed)
                             {
-                                _permissionRepository.DeletePermission(modulePermission.PermissionId);
+                                var modulePermission = modulePermissions.FirstOrDefault(item => item.PermissionName == permission.PermissionName
+                                  && item.RoleId == permission.RoleId && item.UserId == permission.UserId && item.IsAuthorized == permission.IsAuthorized);
+                                if (modulePermission != null)
+                                {
+                                    _permissionRepository.DeletePermission(modulePermission.PermissionId);
+                                }
                             }
                         }
                     }

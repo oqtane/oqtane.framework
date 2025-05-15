@@ -1,6 +1,10 @@
 @namespace Oqtane.UI
 @inject SiteState SiteState
 
+@if (PageState.ModuleId == -1)
+{
+    @((MarkupString)ModuleState.Header)
+}
 @if (_comment != null)
 {
     @((MarkupString)_comment)
@@ -13,6 +17,11 @@
         <RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, _prerender)" />
     }
 }
+@if (PageState.ModuleId == -1)
+{
+    @((MarkupString)ModuleState.Footer)
+}
+
 
 @code {
     [CascadingParameter]
