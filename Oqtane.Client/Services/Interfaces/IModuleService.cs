@@ -66,7 +66,8 @@ namespace Oqtane.Services
         /// <param name="moduleId"></param>
         /// <param name="pageId"></param>
         /// <param name="folderId"></param>
+        /// <param name="filename"></param>
         /// <returns>success/failure</returns>
-        Task<Result> ExportModuleAsync(int moduleId, int pageId, int folderId);
+        Task<Result> ExportModuleAsync(int moduleId, int pageId, int folderId, string filename);
     }
 }
