@@ -56,7 +56,17 @@ namespace Oqtane.Services
         /// Exports a given module
         /// </summary>
         /// <param name="moduleId"></param>
-        /// <returns>module in JSON</returns>
+        /// <param name="pageId"></param>
+        /// <returns>module content in JSON format</returns>
         Task<string> ExportModuleAsync(int moduleId, int pageId);
+
+        /// <summary>
+        /// Exports a given module
+        /// </summary>
+        /// <param name="moduleId"></param>
+        /// <param name="pageId"></param>
+        /// <param name="folderId"></param>
+        /// <returns>success/failure</returns>
+        Task<Result> ExportModuleAsync(int moduleId, int pageId, int folderId);
     }
 }
