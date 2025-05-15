@@ -5,24 +5,45 @@
 @inject IStringLocalizer<Export> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<div class="container">
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="content" HelpText="The Exported Module Content" ResourceKey="Content">Content: </Label>
-        <div class="col-sm-9">
-            <textarea id="content" class="form-control" @bind="@_content" rows="5" readonly></textarea>
+<TabStrip>
+    <TabPanel Name="Text" Heading="Text" ResourceKey="Text">
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="content" HelpText="Select the Export option and you will be able to view the module content" ResourceKey="Content">Content: </Label>
+                <div class="col-sm-9">
+                    <textarea id="content" class="form-control" @bind="@_content" rows="5" readonly></textarea>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
+        <br />
+        <button type="button" class="btn btn-success" @onclick="ExportText">@Localizer["Export"]</button>
+        <NavLink class="btn btn-secondary" href="@PageState.ReturnUrl">@SharedLocalizer["Cancel"]</NavLink>
+    </TabPanel>
+    <TabPanel Name="File" Heading="File" ResourceKey="File">
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="folder" HelpText="Select a folder where you wish to save the exported content" ResourceKey="Folder">Folder: </Label>
+                <div class="col-sm-9">
+                    <FileManager ShowFiles="false" ShowUpload="false" @ref="_filemanager" />
+                </div>
+            </div>
+        </div>
+        <br />
+        <button type="button" class="btn btn-success" @onclick="ExportFile">@Localizer["Export"]</button>
+        <NavLink class="btn btn-secondary" href="@PageState.ReturnUrl">@SharedLocalizer["Cancel"]</NavLink>
+    </TabPanel>
+</TabStrip>
 
-<button type="button" class="btn btn-success" @onclick="ExportModule">@Localizer["Export"]</button>
-<NavLink class="btn btn-secondary" href="@PageState.ReturnUrl">@SharedLocalizer["Cancel"]</NavLink>
+
 
 @code {
     private string _content = string.Empty;
+    private FileManager _filemanager;
+
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
     public override string Title => "Export Content";
 
-    private async Task ExportModule()
+    private async Task ExportText()
     {
         try
         {
@@ -35,4 +56,34 @@
             AddModuleMessage(Localizer["Error.Module.Export"], MessageType.Error);
         }
     }
+
+    private async Task ExportFile()
+    {
+        try
+        {
+            var folderid = _filemanager.GetFolderId();
+            if (folderid != -1)
+            {
+                var result = await ModuleService.ExportModuleAsync(ModuleState.ModuleId, PageState.Page.PageId, folderid);
+                if (result.Success)
+                {
+                    AddModuleMessage(string.Format(Localizer["Success.Export.File"], result.Message), MessageType.Success);
+                }
+                else
+                {
+                    AddModuleMessage(Localizer["Error.Module.Export"], MessageType.Error);
+                }
+            }
+            else
+            {
+                AddModuleMessage(Localizer["Message.Content.Export"], MessageType.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Exporting Module {ModuleId} {Error}", ModuleState.ModuleId, ex.Message);
+            AddModuleMessage(Localizer["Error.Module.Export"], MessageType.Error);
+        }
+    }
+
 }
