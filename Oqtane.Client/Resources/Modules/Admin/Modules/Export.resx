@@ -135,8 +135,8 @@
   <data name="Export Content" xml:space="preserve">
     <value>Export Content</value>
   </data>
-  <data name="Text.Heading" xml:space="preserve">
-    <value>Text</value>
+  <data name="Content.Heading" xml:space="preserve">
+    <value>Content</value>
   </data>
   <data name="File.Heading" xml:space="preserve">
     <value>File</value>
