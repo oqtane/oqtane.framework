@@ -290,7 +290,7 @@ namespace Oqtane.Controllers
                 var file = _files.GetFile(folderid, filename);
                 if (file == null)
                 {
-                    file = new Models.File { FolderId = folderid, Name = filename, Extension = "txt", Size = (int)new FileInfo(filepath).Length, ImageWidth = 0, ImageHeight = 0 };
+                    file = new Models.File { FolderId = folderid, Name = filename, Extension = "json", Size = (int)new FileInfo(filepath).Length, ImageWidth = 0, ImageHeight = 0 };
                     _files.AddFile(file);
                 }
                 else
