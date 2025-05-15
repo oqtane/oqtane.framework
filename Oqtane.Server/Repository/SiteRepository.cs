@@ -442,6 +442,8 @@ namespace Oqtane.Repository
                                 pageModule.Pane = (string.IsNullOrEmpty(pageTemplateModule.Pane)) ? PaneNames.Default : pageTemplateModule.Pane;
                                 pageModule.Order = (pageTemplateModule.Order == 0) ? 1 : pageTemplateModule.Order;
                                 pageModule.ContainerType = pageTemplateModule.ContainerType;
+                                pageModule.Header = pageTemplateModule.Header;
+                                pageModule.Footer = pageTemplateModule.Footer;
                                 pageModule.IsDeleted = pageTemplateModule.IsDeleted;
                                 pageModule.Module.PermissionList = new List<Permission>();
                                 foreach (var permission in pageTemplateModule.PermissionList)

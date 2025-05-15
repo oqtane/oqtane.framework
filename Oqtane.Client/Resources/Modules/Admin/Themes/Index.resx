@@ -160,12 +160,12 @@
     <value>Assign</value>
   </data>
   <data name="Synchronize" xml:space="preserve">
-    <value>Synchronize</value>
+    <value>Check For Updates</value>
   </data>
   <data name="Success.Theme.Synchronize" xml:space="preserve">
-    <value>Themes Have Been Successfully Synchronized With The Marketplace</value>
+    <value>Theme Information Has Been Retrieved From The Marketplace</value>
   </data>
   <data name="Error.Theme.Synchronize" xml:space="preserve">
-    <value>Error Synchronizing Themes With The Marketplace</value>
+    <value>Error Retrieving Theme Information From The Marketplace</value>
   </data>
 </root>

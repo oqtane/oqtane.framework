@@ -53,8 +53,8 @@ else
 					</td>
 					<td>@context.Language</td>
 					<td>@context.Visits</td>
-					<td>@context.VisitedOn</td>
-					<td>@context.CreatedOn</td>
+					<td>@UtcToLocal(context.VisitedOn)</td>
+					<td>@UtcToLocal(context.CreatedOn)</td>
 				</Row>
 			</Pager>
 		</TabPanel>

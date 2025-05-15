@@ -27,6 +27,11 @@ namespace Oqtane.Models
         public string Name { get; set; }
 
         /// <summary>
+        /// The default time zone for the site
+        /// </summary>
+        public string TimeZoneId { get; set; }
+
+        /// <summary>
         /// Reference to a <see cref="File"/> which has the Logo for this site.
         /// Should be an image.
         /// The theme can then use this where needed. 
@@ -200,6 +205,7 @@ namespace Oqtane.Models
                 SiteId = SiteId,
                 TenantId = TenantId,
                 Name = Name,
+                TimeZoneId = TimeZoneId,
                 LogoFileId = LogoFileId,
                 FaviconFileId = FaviconFileId,
                 DefaultThemeType = DefaultThemeType,

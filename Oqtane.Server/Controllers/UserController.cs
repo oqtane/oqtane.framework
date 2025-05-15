@@ -135,6 +135,7 @@ namespace Oqtane.Controllers
                 if (_userPermissions.IsAuthorized(User, user.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) || _userPermissions.GetUser(User).UserId == user.UserId)
                 {
                     filtered.Email = user.Email;
+                    filtered.TimeZoneId = user.TimeZoneId;
                     filtered.PhotoFileId = user.PhotoFileId;
                     filtered.LastLoginOn = user.LastLoginOn;
                     filtered.LastIPAddress = user.LastIPAddress;

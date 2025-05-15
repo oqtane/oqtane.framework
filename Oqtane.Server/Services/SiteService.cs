@@ -285,6 +285,8 @@ namespace Oqtane.Services
                     ContainerType = pagemodule.ContainerType,
                     EffectiveDate = pagemodule.EffectiveDate,
                     ExpiryDate = pagemodule.ExpiryDate,
+                    Header = pagemodule.Header,
+                    Footer = pagemodule.Footer,
 
                     ModuleDefinition = _moduleDefinitions.FilterModuleDefinition(moduledefinitions.Find(item => item.ModuleDefinitionName == pagemodule.Module.ModuleDefinitionName)),
 

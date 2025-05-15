@@ -10,6 +10,7 @@
 @inject IAliasService AliasService
 @inject IThemeService  ThemeService
 @inject ISettingService  SettingService
+@inject ITimeZoneService TimeZoneService
 @inject IServiceProvider ServiceProvider
 @inject IStringLocalizer<Index> Localizer
 @inject INotificationService NotificationService
@@ -37,6 +38,18 @@
                             {
                                 <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
                             }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="timezone" HelpText="Your time zone" ResourceKey="TimeZone">Time Zone:</Label>
+                <div class="col-sm-9">
+                    <select id="timezone" class="form-select" @bind="@_timezoneid">
+                        <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                        @foreach (var timezone in _timezones)
+                        {
+                            <option value="@timezone.Id">@timezone.DisplayName</option>
                         }
                     </select>
                 </div>
@@ -133,7 +146,7 @@
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="logo" HelpText="Specify a logo for the site" ResourceKey="Logo">Logo: </Label>
                     <div class="col-sm-9">
-                        <FileManager FileId="@_logofileid" Filter="@_imageFiles" @ref="_logofilemanager" />
+                        <FileManager FileId="@_logofileid" Filter="@_imagefiles" @ref="_logofilemanager" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
@@ -416,9 +429,11 @@
     private List<ThemeControl> _themes = new List<ThemeControl>();
     private List<ThemeControl> _containers = new List<ThemeControl>();
     private List<Page> _pages;
+    private List<Models.TimeZone> _timezones;
 
     private string _name = string.Empty;
     private string _homepageid = "-";
+    private string _timezoneid = string.Empty;
     private string _isdeleted;
     private string _sitemap = "";
     private string _siteguid = "";
@@ -435,7 +450,7 @@
 
     private Dictionary<string, string> _textEditors = new Dictionary<string, string>();
     private string _textEditor = "";
-    private string _imageFiles = string.Empty;
+    private string _imagefiles = string.Empty;
 
     private string _headcontent = string.Empty;
     private string _bodycontent = string.Empty;
@@ -493,11 +508,13 @@
             Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
             if (site != null)
             {
+                _timezones = await TimeZoneService.GetTimeZonesAsync();
                 var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
 
                 _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
 
                 _name = site.Name;
+                _timezoneid = site.TimeZoneId;
                 if (site.HomePageId != null)
                 {
                     _homepageid = site.HomePageId.Value.ToString();
@@ -531,8 +548,8 @@
                     _textEditors.Add(textEditor.Name, Utilities.GetFullTypeName(textEditor.GetType().AssemblyQualifiedName));
                 }
                 _textEditor = SettingService.GetSetting(settings, "TextEditor", Constants.DefaultTextEditor);
-                _imageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
-                _imageFiles = (string.IsNullOrEmpty(_imageFiles)) ? Constants.ImageFiles : _imageFiles;
+                _imagefiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
+                _imagefiles = (string.IsNullOrEmpty(_imagefiles)) ? Constants.ImageFiles : _imagefiles;
 
                 // page content
                 _headcontent = site.HeadContent;
@@ -650,6 +667,7 @@
                     if (site != null)
                     {
                         site.Name = _name;
+                        site.TimeZoneId = _timezoneid;
                         site.HomePageId = (_homepageid != "-" ? int.Parse(_homepageid) : null);
                         site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
 
