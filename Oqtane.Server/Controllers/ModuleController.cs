@@ -256,15 +256,15 @@ namespace Oqtane.Controllers
             return content;
         }
 
-        // POST api/<controller>/export?moduleid=x&pageid=y&folderid=z
+        // POST api/<controller>/export?moduleid=x&pageid=y&folderid=z&filename=a
         [HttpPost("export")]
         [Authorize(Roles = RoleNames.Registered)]
-        public Result Export(int moduleid, int pageid, int folderid)
+        public Result Export(int moduleid, int pageid, int folderid, string filename)
         {
             var result = new Result(false);
             var module = _modules.GetModule(moduleid);
             if (module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, module.SiteId, EntityNames.Page, pageid, PermissionNames.Edit) &&
-                _userPermissions.IsAuthorized(User, module.SiteId, EntityNames.Folder, folderid, PermissionNames.Edit))
+                _userPermissions.IsAuthorized(User, module.SiteId, EntityNames.Folder, folderid, PermissionNames.Edit) && !string.IsNullOrEmpty(filename))
             {
                 // get content
                 var content = _modules.ExportModule(moduleid);
@@ -277,8 +277,8 @@ namespace Oqtane.Controllers
                     Directory.CreateDirectory(folderPath);
                 }
 
-                // create text file
-                var filename = Utilities.GetTypeNameLastSegment(module.ModuleDefinitionName, 0) + moduleid.ToString() + ".json";
+                // create json file
+                filename = Path.GetFileNameWithoutExtension(filename) + ".json";
                 string filepath = Path.Combine(folderPath, filename);
                 if (System.IO.File.Exists(filepath))
                 {

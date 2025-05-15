@@ -148,9 +148,12 @@
     <value>Select a folder where you wish to save the exported content</value>
   </data>
   <data name="Message.Content.Export" xml:space="preserve">
-    <value>Please Select A Folder Before Choosing Export</value>
+    <value>Please Select A Folder And Provide A Filename Before Choosing Export</value>
   </data>
-  <data name="Success.Export.File" xml:space="preserve">
-    <value>Content Was Successfully Exported To Specified Folder With Filename {0}</value>
+  <data name="Filename.Text" xml:space="preserve">
+    <value>Filename:</value>
+  </data>
+  <data name="Filename.HelpText" xml:space="preserve">
+    <value>Specify a name for the file (without an extension)</value>
   </data>
 </root>
