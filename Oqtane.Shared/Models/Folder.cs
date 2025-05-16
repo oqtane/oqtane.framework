@@ -43,7 +43,7 @@ namespace Oqtane.Models
         public string Path { get; set; }
 
         /// <summary>
-        /// Sorting order of the folder
+        /// Sorting order of the folder ** not used as folders are sorted in alphabetical order **
         /// </summary>
         public int Order { get; set; }
 
