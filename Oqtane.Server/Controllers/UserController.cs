@@ -205,8 +205,8 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && user.SiteId == _tenantManager.GetAlias().SiteId && user.UserId == id && existing != null
                 && (_userPermissions.IsAuthorized(User, user.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) || User.Identity.Name == user.Username))
             {
-                // only administrators can update the email confirmation
-                if (!User.IsInRole(RoleNames.Admin))
+                // only authorized users can update the email confirmation
+                if (!_userPermissions.IsAuthorized(User, user.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin))
                 {
                     user.EmailConfirmed = existing.EmailConfirmed;
                 }
