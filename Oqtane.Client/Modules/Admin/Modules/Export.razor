@@ -50,6 +50,11 @@
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
     public override string Title => "Export Content";
 
+    protected override void OnInitialized()
+    {
+        _filename = Utilities.GetFriendlyUrl(ModuleState.Title);
+    }
+
     private async Task ExportText()
     {
         try
@@ -71,8 +76,8 @@
             var folderid = _filemanager.GetFolderId();
             if (folderid != -1 && !string.IsNullOrEmpty(_filename))
             {
-                var result = await ModuleService.ExportModuleAsync(ModuleState.ModuleId, PageState.Page.PageId, folderid, _filename);
-                if (result.Success)
+                var fileid = await ModuleService.ExportModuleAsync(ModuleState.ModuleId, PageState.Page.PageId, folderid, _filename);
+                if (fileid != -1)
                 {
                     AddModuleMessage(Localizer["Success.Content.Export"], MessageType.Success);
                 }
