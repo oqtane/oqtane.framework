@@ -140,6 +140,7 @@ namespace Oqtane.Controllers
                     filtered.LastLoginOn = user.LastLoginOn;
                     filtered.LastIPAddress = user.LastIPAddress;
                     filtered.TwoFactorRequired = user.TwoFactorRequired;
+                    filtered.EmailConfirmed = user.EmailConfirmed;
                     filtered.Roles = user.Roles;
                     filtered.CreatedBy = user.CreatedBy;
                     filtered.CreatedOn = user.CreatedOn;
@@ -200,10 +201,15 @@ namespace Oqtane.Controllers
         [Authorize]
         public async Task<User> Put(int id, [FromBody] User user)
         {
-            if (ModelState.IsValid && user.SiteId == _tenantManager.GetAlias().SiteId && user.UserId == id && _users.GetUser(user.UserId, false) != null
+            var existing = _userManager.GetUser(user.UserId, user.SiteId);
+            if (ModelState.IsValid && user.SiteId == _tenantManager.GetAlias().SiteId && user.UserId == id && existing != null
                 && (_userPermissions.IsAuthorized(User, user.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) || User.Identity.Name == user.Username))
             {
-                user.EmailConfirmed = User.IsInRole(RoleNames.Admin);
+                // only administrators can update the email confirmation
+                if (!User.IsInRole(RoleNames.Admin))
+                {
+                    user.EmailConfirmed = existing.EmailConfirmed;
+                }
                 user = await _userManager.UpdateUser(user);
             }
             else
