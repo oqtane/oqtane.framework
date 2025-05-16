@@ -216,4 +216,10 @@
   <data name="TimeZone.HelpText" xml:space="preserve">
     <value>The user's time zone</value>
   </data>
+  <data name="Confirmed.Text" xml:space="preserve">
+    <value>Confirmed?</value>
+  </data>
+  <data name="Confirmed.HelpText" xml:space="preserve">
+    <value>Indicates if the user's email is verified</value>
+  </data>
 </root>
