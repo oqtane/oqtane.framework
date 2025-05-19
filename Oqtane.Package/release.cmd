@@ -9,6 +9,8 @@ nuget.exe pack Oqtane.Framework.nuspec
 del /F/Q/S "..\Oqtane.Server\bin\Release\net9.0\publish" > NUL
 rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish"
 dotnet publish ..\Oqtane.Server\Oqtane.Server.csproj /p:Configuration=Release
+del /F/Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\Content" > NUL
+rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\Content"
 del /F/Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\wwwroot\Content" > NUL
 rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\wwwroot\Content"
 setlocal ENABLEDELAYEDEXPANSION
