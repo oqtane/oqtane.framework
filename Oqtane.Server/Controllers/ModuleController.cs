@@ -10,9 +10,6 @@ using Oqtane.Repository;
 using Oqtane.Security;
 using System.Net;
 using System.IO;
-using System;
-using static System.Net.WebRequestMethods;
-using System.Net.Http;
 
 namespace Oqtane.Controllers
 {
@@ -259,9 +256,9 @@ namespace Oqtane.Controllers
         // POST api/<controller>/export?moduleid=x&pageid=y&folderid=z&filename=a
         [HttpPost("export")]
         [Authorize(Roles = RoleNames.Registered)]
-        public Result Export(int moduleid, int pageid, int folderid, string filename)
+        public int Export(int moduleid, int pageid, int folderid, string filename)
         {
-            var result = new Result(false);
+            var fileid = -1;
             var module = _modules.GetModule(moduleid);
             if (module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, module.SiteId, EntityNames.Page, pageid, PermissionNames.Edit) &&
                 _userPermissions.IsAuthorized(User, module.SiteId, EntityNames.Folder, folderid, PermissionNames.Edit) && !string.IsNullOrEmpty(filename))
@@ -278,7 +275,7 @@ namespace Oqtane.Controllers
                 }
 
                 // create json file
-                filename = Path.GetFileNameWithoutExtension(filename) + ".json";
+                filename = Utilities.GetFriendlyUrl(Path.GetFileNameWithoutExtension(filename)) + ".json";
                 string filepath = Path.Combine(folderPath, filename);
                 if (System.IO.File.Exists(filepath))
                 {
@@ -298,9 +295,7 @@ namespace Oqtane.Controllers
                     file.Size = (int)new FileInfo(filepath).Length;
                     _files.UpdateFile(file);
                 }
-
-                result.Success = true;
-                result.Message = filename;
+                fileid = file.FileId;
 
                 _logger.Log(LogLevel.Information, this, LogFunction.Read, "Content Exported For Module {ModuleId} To Folder {FolderId}", moduleid, folderid);
             }
@@ -309,7 +304,8 @@ namespace Oqtane.Controllers
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Export Attempt For Module {Module} To Folder {FolderId}", moduleid, folderid);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
-            return result;
+
+            return fileid;
         }
 
         // POST api/<controller>/import?moduleid=x&pageid=y
