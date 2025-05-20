@@ -79,18 +79,21 @@ namespace Oqtane.Modules
             {
                 List<Resource> resources = null;
                 var type = GetType();
-                if (type.BaseType == typeof(ModuleBase))
+                if (type.IsSubclassOf(typeof(ModuleBase)))
                 {
-                    if (PageState.Page.Resources != null)
+                    if (type.IsSubclassOf(typeof(ModuleControlBase)))
                     {
-                        resources = PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Script && item.Level == ResourceLevel.Module && item.Namespace == type.Namespace).ToList();
+                        if (Resources != null)
+                        {
+                            resources = Resources.Where(item => item.ResourceType == ResourceType.Script).ToList();
+                        }
                     }
-                }
-                else // modulecontrolbase
-                {
-                    if (Resources != null)
+                    else // ModuleBase
                     {
-                        resources = Resources.Where(item => item.ResourceType == ResourceType.Script).ToList();
+                        if (PageState.Page.Resources != null)
+                        {
+                            resources = PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Script && item.Level == ResourceLevel.Module && item.Namespace == type.Namespace).ToList();
+                        }
                     }
                 }
                 if (resources != null && resources.Any())
