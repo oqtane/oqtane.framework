@@ -43,18 +43,21 @@ namespace Oqtane.Themes
             {
                 List<Resource> resources = null;
                 var type = GetType();
-                if (type.BaseType == typeof(ThemeBase))
+                if (type.IsSubclassOf(typeof(ThemeBase)))
                 {
-                    if (PageState.Page.Resources != null)
+                    if (type.IsSubclassOf(typeof(ThemeControlBase)) || type.IsSubclassOf(typeof(ContainerBase)))
                     {
-                        resources = PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Script && item.Level == ResourceLevel.Page && item.Namespace == type.Namespace).ToList();
+                        if (Resources != null)
+                        {
+                            resources = Resources.Where(item => item.ResourceType == ResourceType.Script).ToList();
+                        }
                     }
-                }
-                else // themecontrolbase, containerbase
-                {
-                    if (Resources != null)
+                    else // ThemeBase
                     {
-                        resources = Resources.Where(item => item.ResourceType == ResourceType.Script).ToList();
+                        if (PageState.Page.Resources != null)
+                        {
+                            resources = PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Script && item.Level == ResourceLevel.Page && item.Namespace == type.Namespace).ToList();
+                        }
                     }
                 }
                 if (resources != null && resources.Any())
