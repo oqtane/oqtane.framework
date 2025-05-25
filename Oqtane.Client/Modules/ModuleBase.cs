@@ -1,16 +1,16 @@
-using Microsoft.AspNetCore.Components;
-using Oqtane.Shared;
-using Oqtane.Models;
-using System.Threading.Tasks;
-using Oqtane.Services;
 using System;
-using Oqtane.Enums;
-using Oqtane.UI;
 using System.Collections.Generic;
-using Microsoft.JSInterop;
-using System.Linq;
 using System.Dynamic;
-using System.Reflection;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+using Oqtane.Enums;
+using Oqtane.Models;
+using Oqtane.Services;
+using Oqtane.Shared;
+using Oqtane.UI;
 
 namespace Oqtane.Modules
 {
@@ -424,72 +424,54 @@ namespace Oqtane.Modules
 
         public string ReplaceTokens(string content, object obj)
         {
-            var tokens = new List<string>();
-            var pos = content.IndexOf("[");
-            if (pos != -1)
-            {
-                if (content.IndexOf("]", pos) != -1)
-                {
-                    var token = content.Substring(pos, content.IndexOf("]", pos) - pos + 1);
-                    if (token.Contains(":"))
-                    {
-                        tokens.Add(token.Substring(1, token.Length - 2));
-                    }
-                }
-                pos = content.IndexOf("[", pos + 1);
-            }
-            if (tokens.Count != 0)
-            {
-                foreach (string token in tokens)
-                {
-                    var segments = token.Split(":");
-                    if (segments.Length >= 2 && segments.Length <= 3)
-                    {
-                        var objectName = string.Join(":", segments, 0, segments.Length - 1);
-                        var propertyName = segments[segments.Length - 1];
-                        var propertyValue = "";
+            // Pattern: [Object:Property] or [Object:SubObject:Property]
+            var pattern = @"\[(\w+(?::\w+){1,2})\]";
 
-                        switch (objectName)
-                        {
-                            case "ModuleState":
-                                propertyValue = ModuleState.GetType().GetProperty(propertyName)?.GetValue(ModuleState, null).ToString();
-                                break;
-                            case "PageState":
-                                propertyValue = PageState.GetType().GetProperty(propertyName)?.GetValue(PageState, null).ToString();
-                                break;
-                            case "PageState:Alias":
-                                propertyValue = PageState.Alias.GetType().GetProperty(propertyName)?.GetValue(PageState.Alias, null).ToString();
-                                break;
-                            case "PageState:Site":
-                                propertyValue = PageState.Site.GetType().GetProperty(propertyName)?.GetValue(PageState.Site, null).ToString();
-                                break;
-                            case "PageState:Page":
-                                propertyValue = PageState.Page.GetType().GetProperty(propertyName)?.GetValue(PageState.Page, null).ToString();
-                                break;
-                            case "PageState:User":
-                                propertyValue = PageState.User?.GetType().GetProperty(propertyName)?.GetValue(PageState.User, null).ToString();
-                                break;
-                            case "PageState:Route":
-                                propertyValue = PageState.Route.GetType().GetProperty(propertyName)?.GetValue(PageState.Route, null).ToString();
-                                break;
-                            default:
-                                if (obj != null && obj.GetType().Name == objectName)
-                                {
-                                    propertyValue = obj.GetType().GetProperty(propertyName)?.GetValue(obj, null).ToString();
-                                }
-                                break;
-                        }
-                        if (propertyValue != null)
-                        {
-                            content = content.Replace("[" + token + "]", propertyValue);
-                        }
+            return Regex.Replace(content, pattern, match =>
+            {
+                string token = match.Groups[1].Value;
+                var segments = token.Split(':');
+                if (segments.Length < 2 || segments.Length > 3)
+                    return match.Value; // Leave as is if not a valid token
 
-                    }
+                string objectName = string.Join(":", segments, 0, segments.Length - 1);
+                string propertyName = segments[segments.Length - 1];
+                string propertyValue = null;
+
+                switch (objectName)
+                {
+                    case "ModuleState":
+                        propertyValue = ModuleState.GetType().GetProperty(propertyName)?.GetValue(ModuleState, null)?.ToString();
+                        break;
+                    case "PageState":
+                        propertyValue = PageState.GetType().GetProperty(propertyName)?.GetValue(PageState, null)?.ToString();
+                        break;
+                    case "PageState:Alias":
+                        propertyValue = PageState.Alias?.GetType().GetProperty(propertyName)?.GetValue(PageState.Alias, null)?.ToString();
+                        break;
+                    case "PageState:Site":
+                        propertyValue = PageState.Site?.GetType().GetProperty(propertyName)?.GetValue(PageState.Site, null)?.ToString();
+                        break;
+                    case "PageState:Page":
+                        propertyValue = PageState.Page?.GetType().GetProperty(propertyName)?.GetValue(PageState.Page, null)?.ToString();
+                        break;
+                    case "PageState:User":
+                        propertyValue = PageState.User?.GetType().GetProperty(propertyName)?.GetValue(PageState.User, null)?.ToString();
+                        break;
+                    case "PageState:Route":
+                        propertyValue = PageState.Route?.GetType().GetProperty(propertyName)?.GetValue(PageState.Route, null)?.ToString();
+                        break;
+                    default:
+                        if (obj != null && obj.GetType().Name == objectName)
+                        {
+                            propertyValue = obj.GetType().GetProperty(propertyName)?.GetValue(obj, null)?.ToString();
+                        }
+                        break;
                 }
-            }
-            return content;
+
+                return propertyValue ?? match.Value; // If not found, leave token as is
+            });
         }
-
         // date methods
         public DateTime? UtcToLocal(DateTime? datetime)
         {
