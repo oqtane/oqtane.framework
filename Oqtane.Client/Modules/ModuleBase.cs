@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
-using System.Text.RegularExpressions;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -424,54 +424,82 @@ namespace Oqtane.Modules
 
         public string ReplaceTokens(string content, object obj)
         {
-            // Pattern: [Object:Property] or [Object:SubObject:Property]
-            var pattern = @"\[(\w+(?::\w+){1,2})\]";
+            // Using StringBuilder avoids the performance penalty of repeated string allocations
+            // that occur with string.Replace or string concatenation inside loops.
+            var sb = new StringBuilder();
+            var cache = new Dictionary<string, string>(); // Cache to store resolved tokens
+            int index = 0;
 
-            return Regex.Replace(content, pattern, match =>
+            // Loop through content to find and replace all tokens
+            while (index < content.Length)
             {
-                string token = match.Groups[1].Value;
-                var segments = token.Split(':');
-                if (segments.Length < 2 || segments.Length > 3)
-                    return match.Value; // Leave as is if not a valid token
-
-                string objectName = string.Join(":", segments, 0, segments.Length - 1);
-                string propertyName = segments[segments.Length - 1];
-                string propertyValue = null;
-
-                switch (objectName)
+                int start = content.IndexOf('[', index); // Find start of token
+                if (start == -1)
                 {
-                    case "ModuleState":
-                        propertyValue = ModuleState.GetType().GetProperty(propertyName)?.GetValue(ModuleState, null)?.ToString();
-                        break;
-                    case "PageState":
-                        propertyValue = PageState.GetType().GetProperty(propertyName)?.GetValue(PageState, null)?.ToString();
-                        break;
-                    case "PageState:Alias":
-                        propertyValue = PageState.Alias?.GetType().GetProperty(propertyName)?.GetValue(PageState.Alias, null)?.ToString();
-                        break;
-                    case "PageState:Site":
-                        propertyValue = PageState.Site?.GetType().GetProperty(propertyName)?.GetValue(PageState.Site, null)?.ToString();
-                        break;
-                    case "PageState:Page":
-                        propertyValue = PageState.Page?.GetType().GetProperty(propertyName)?.GetValue(PageState.Page, null)?.ToString();
-                        break;
-                    case "PageState:User":
-                        propertyValue = PageState.User?.GetType().GetProperty(propertyName)?.GetValue(PageState.User, null)?.ToString();
-                        break;
-                    case "PageState:Route":
-                        propertyValue = PageState.Route?.GetType().GetProperty(propertyName)?.GetValue(PageState.Route, null)?.ToString();
-                        break;
-                    default:
-                        if (obj != null && obj.GetType().Name == objectName)
-                        {
-                            propertyValue = obj.GetType().GetProperty(propertyName)?.GetValue(obj, null)?.ToString();
-                        }
-                        break;
+                    sb.Append(content, index, content.Length - index); // Append remaining content
+                    break;
                 }
 
-                return propertyValue ?? match.Value; // If not found, leave token as is
-            });
+                int end = content.IndexOf(']', start); // Find end of token
+                if (end == -1)
+                {
+                    sb.Append(content, index, content.Length - index); // Append unmatched content
+                    break;
+                }
+
+                sb.Append(content, index, start - index); // Append content before token
+
+                string token = content.Substring(start + 1, end - start - 1); // Extract token without brackets
+                string[] parts = token.Split('|', 2); // Separate default fallback if present
+                string key = parts[0];
+                string fallback = parts.Length == 2 ? parts[1] : null;
+
+                if (!cache.TryGetValue(token, out string replacement)) // Check cache first
+                {
+                    replacement = "[" + token + "]"; // Default replacement is original token
+                    string[] segments = key.Split(':');
+
+                    if (segments.Length >= 2)
+                    {
+                        object current = GetTarget(segments[0], obj); // Start from root object
+                        for (int i = 1; i < segments.Length && current != null; i++)
+                        {
+                            var type = current.GetType();
+                            var prop = type.GetProperty(segments[i]);
+                            current = prop?.GetValue(current);
+                        }
+
+                        if (current != null)
+                        {
+                            replacement = current.ToString();
+                        }
+                        else if (fallback != null)
+                        {
+                            replacement = fallback; // Use fallback if available
+                        }
+                    }
+                    cache[token] = replacement; // Store in cache
+                }
+
+                sb.Append(replacement); // Append replacement value
+                index = end + 1; // Move index past token
+            }
+
+            return sb.ToString();
         }
+
+        // Resolve the object instance for a given object name
+        // Easy to extend with additional object types
+        private object GetTarget(string name, object obj)
+        {
+            return name switch
+            {
+                "ModuleState" => ModuleState,
+                "PageState" => PageState,
+                _ => (obj != null && obj.GetType().Name == name) ? obj : null // Fallback to obj
+            };
+        }
+
         // date methods
         public DateTime? UtcToLocal(DateTime? datetime)
         {
