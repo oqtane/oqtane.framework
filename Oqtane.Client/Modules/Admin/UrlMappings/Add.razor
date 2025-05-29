@@ -8,13 +8,16 @@
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <div class="container">
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="url" HelpText="The fully qualified Url for this site" ResourceKey="Url">Url:</Label>
+            <Label Class="col-sm-3" For="url" HelpText="A Url identifying a path to a specific page in the site (absolute or relative)" ResourceKey="Url">Url:</Label>
             <div class="col-sm-9">
-                <input id="url" class="form-control" @bind="@_url" maxlength="500" required />
+                <div class="input-group">
+                    <input id="url" class="form-control" @bind="@_url" maxlength="500" required />
+                    <button type="button" class="btn btn-primary" @onclick="GenerateUrl">@Localizer["Generate"]</button>
+                </div>
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="mappedurl" HelpText="A fully qualified Url where the user will be redirected" ResourceKey="MappedUrl">Redirect To:</Label>
+            <Label Class="col-sm-3" For="mappedurl" HelpText="A Url where the user will be redirected (absolute or relative). Use '/' for site root path." ResourceKey="MappedUrl">Redirect To:</Label>
             <div class="col-sm-9">
                 <input id="mappedurl" class="form-control" @bind="@_mappedurl" maxlength="500" required />
             </div>
@@ -26,64 +29,80 @@
 </form>
 
 @code {
-	private ElementReference form;
-	private bool validated = false;
+    private ElementReference form;
+    private bool validated = false;
 
-	private string _url = string.Empty;
-	private string _mappedurl = string.Empty;
+    private string _url = string.Empty;
+    private string _mappedurl = string.Empty;
 
-	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-	private async Task SaveUrlMapping()
-	{
-		validated = true;
-		var interop = new Interop(JSRuntime);
-		if (await interop.FormValid(form))
-		{
-			if (_url != _mappedurl)
-			{
-				var url = PageState.Uri.Scheme + "://" + PageState.Uri.Authority + "/";
-				url = url + (!string.IsNullOrEmpty(PageState.Alias.Path) ? PageState.Alias.Path + "/" : "");
+    private async Task SaveUrlMapping()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
+        {
+            if (_url != _mappedurl)
+            {
+                var url = PageState.Uri.Scheme + "://" + PageState.Uri.Authority + "/";
+                url = url + (!string.IsNullOrEmpty(PageState.Alias.Path) ? PageState.Alias.Path + "/" : "");
 
-				_url = (_url.StartsWith("/")) ? _url.Substring(1) : _url;
-				_url = (!_url.StartsWith("http")) ? url + _url : _url;
+                _url = (_url.StartsWith("/")) ? _url.Substring(1) : _url;
+                _url = (!_url.StartsWith("http")) ? url + _url : _url;
 
-				if (_url.StartsWith(url))
-				{
-					var urlmapping = new UrlMapping();
-					urlmapping.SiteId = PageState.Site.SiteId;
-					var route = new Route(_url, PageState.Alias.Path);
-					urlmapping.Url = route.PagePath;
-					urlmapping.MappedUrl = _mappedurl.Replace(url, "");
-					urlmapping.Requests = 0;
-					urlmapping.CreatedOn = DateTime.UtcNow;
-					urlmapping.RequestedOn = DateTime.UtcNow;
+                _mappedurl = _mappedurl.Replace(url, "");
+                _mappedurl = (_mappedurl.StartsWith("/") && _mappedurl != "/") ? _mappedurl.Substring(1) : _mappedurl;
 
-					try
-					{
-						urlmapping = await UrlMappingService.AddUrlMappingAsync(urlmapping);
-						await logger.LogInformation("UrlMapping Saved {UrlMapping}", urlmapping);
-						NavigationManager.NavigateTo(NavigateUrl());
-					}
-					catch (Exception ex)
-					{
-						await logger.LogError(ex, "Error Saving UrlMapping {UrlMapping} {Error}", urlmapping, ex.Message);
-						AddModuleMessage(Localizer["Error.SaveUrlMapping"], MessageType.Error);
-					}
-				}
-				else
-				{
-					AddModuleMessage(Localizer["Message.SaveUrlMapping"], MessageType.Warning);
-				}
-			}
-			else
-			{
+                if (_url.StartsWith(url))
+                {
+                    var urlmapping = new UrlMapping();
+                    urlmapping.SiteId = PageState.Site.SiteId;
+                    urlmapping.Url = new Route(_url, PageState.Alias.Path).PagePath;
+                    urlmapping.MappedUrl = _mappedurl;
+                    urlmapping.Requests = 0;
+                    urlmapping.CreatedOn = DateTime.UtcNow;
+                    urlmapping.RequestedOn = DateTime.UtcNow;
+
+                    try
+                    {
+                        urlmapping = await UrlMappingService.AddUrlMappingAsync(urlmapping);
+                        await logger.LogInformation("UrlMapping Saved {UrlMapping}", urlmapping);
+                        NavigationManager.NavigateTo(NavigateUrl());
+                    }
+                    catch (Exception ex)
+                    {
+                        await logger.LogError(ex, "Error Saving UrlMapping {UrlMapping} {Error}", urlmapping, ex.Message);
+                        AddModuleMessage(Localizer["Error.SaveUrlMapping"], MessageType.Error);
+                    }
+                }
+                else
+                {
+                    AddModuleMessage(Localizer["Message.SaveUrlMapping"], MessageType.Warning);
+                }
+            }
+            else
+            {
                 AddModuleMessage(Localizer["Message.DuplicateUrlMapping"], MessageType.Warning);
-			}
+            }
         }
         else
         {
             AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
+    }
+
+    private void GenerateUrl()
+    {
+        var url = PageState.Uri.Scheme + "://" + PageState.Uri.Authority + "/";
+        url = url + (!string.IsNullOrEmpty(PageState.Alias.Path) ? PageState.Alias.Path + "/" : "");
+
+        var chars = "abcdefghijklmnopqrstuvwxyz";
+        Random rnd = new Random();
+        for (int i = 0; i < 5; i++)
+        {
+            url += chars.Substring(rnd.Next(0, chars.Length - 1), 1);
+        }
+        _url = url;
     }
 }

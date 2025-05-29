@@ -132,13 +132,13 @@
 				_isEnabled = job.IsEnabled.ToString();
 				_interval = job.Interval.ToString();
 				_frequency = job.Frequency;
-				_startDate = Utilities.UtcAsLocalDate(job.StartDate);
-                _startTime = Utilities.UtcAsLocalDateTime(job.StartDate);
-                _endDate = Utilities.UtcAsLocalDate(job.EndDate);
-                _endTime = Utilities.UtcAsLocalDateTime(job.EndDate);
+				_startDate = UtcToLocal(job.StartDate);
+                _startTime = UtcToLocal(job.StartDate);
+                _endDate = UtcToLocal(job.EndDate);
+                _endTime = UtcToLocal(job.EndDate);
                 _retentionHistory = job.RetentionHistory.ToString();
-                _nextDate = Utilities.UtcAsLocalDate(job.NextExecution);
-                _nextTime = Utilities.UtcAsLocalDateTime(job.NextExecution);
+                _nextDate = UtcToLocal(job.NextExecution);
+                _nextTime = UtcToLocal(job.NextExecution);
                 createdby = job.CreatedBy;
 				createdon = job.CreatedOn;
 				modifiedby = job.ModifiedBy;
@@ -176,10 +176,10 @@
 			{
 				job.Interval = int.Parse(_interval);
 			}
-			job.StartDate = Utilities.LocalDateAndTimeAsUtc(_startDate, _startTime);
-			job.EndDate = Utilities.LocalDateAndTimeAsUtc(_endDate, _endTime);
+            job.StartDate = LocalToUtc(_startDate.Value.Date.Add(_startTime.Value.TimeOfDay));
+            job.EndDate = LocalToUtc(_endDate.Value.Date.Add(_endTime.Value.TimeOfDay));
 			job.RetentionHistory = int.Parse(_retentionHistory);
-			job.NextExecution = Utilities.LocalDateAndTimeAsUtc(_nextDate, _nextTime);
+            job.NextExecution = LocalToUtc(_nextDate.Value.Date.Add(_nextTime.Value.TimeOfDay));
 
 			try
 			{

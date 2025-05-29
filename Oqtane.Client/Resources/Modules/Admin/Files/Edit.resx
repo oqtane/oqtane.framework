@@ -135,9 +135,6 @@
   <data name="Error.Folder.Save" xml:space="preserve">
     <value>Error Saving Folder</value>
   </data>
-  <data name="Message.Folder.Files.InvalidDelete" xml:space="preserve">
-    <value>Folder Has Files And Cannot Be Deleted</value>
-  </data>
   <data name="Message.Folder.Subfolders.InvalidDelete" xml:space="preserve">
     <value>Folder Has Subfolders And Cannot Be Deleted</value>
   </data>

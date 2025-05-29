@@ -97,6 +97,23 @@
                             </div>
                         </div>
                     </div>
+                    <br />
+                    <Section Name="ModuleContent" Heading="Content" ResourceKey="ModuleContent">
+                        <div class="container">
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="moduleheader" HelpText="Optionally provide content to be injected above the module instance" ResourceKey="Header">Header: </Label>
+                                <div class="col-sm-9">
+                                    <textarea id="moduleheader" class="form-control" @bind="@_header" rows="3" maxlength="4000"></textarea>
+                                </div>
+                            </div>
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="modulefooter" HelpText="Optionally provide content to be injected below the module instance" ResourceKey="Footer">Footer: </Label>
+                                <div class="col-sm-9">
+                                    <textarea id="modulefooter" class="form-control" @bind="@_footer" rows="3" maxlength="4000"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </Section>
                 }
             </TabPanel>
             <TabPanel Name="Permissions" Heading="Permissions" ResourceKey="Permissions">
@@ -144,6 +161,8 @@
     private string _pane;
     private string _containerType;
     private string _allPages = "false";
+    private string _header = "";
+    private string _footer = "";
     private string _permissionNames = "";
     private List<Permission> _permissions = null;
     private string _pageId;
@@ -167,37 +186,47 @@
     protected override async Task OnInitializedAsync()
     {
         SetModuleTitle(Localizer["ModuleSettings.Title"]);
-
-        _title = ModuleState.Title;
         _moduleSettingsTitle = Localizer["ModuleSettings.Heading"];
-        _pane = ModuleState.Pane;
+
         _containers = ThemeService.GetContainerControls(PageState.Site.Themes, PageState.Page.ThemeType);
-        _containerType = ModuleState.ContainerType;
-        _allPages = ModuleState.AllPages.ToString();
-        _permissions = ModuleState.PermissionList;
-        _pageId = ModuleState.PageId.ToString();
-        createdby = ModuleState.CreatedBy;
-        createdon = ModuleState.CreatedOn;
-        modifiedby = ModuleState.ModifiedBy;
-        modifiedon = ModuleState.ModifiedOn;
-        _effectivedate = Utilities.UtcAsLocalDate(ModuleState.EffectiveDate);
-        _expirydate = Utilities.UtcAsLocalDate(ModuleState.ExpiryDate);
         _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
 
-        if (ModuleState.ModuleDefinition != null)
-        {
-            _module = ModuleState.ModuleDefinition.Name;
-            _permissionNames = ModuleState.ModuleDefinition?.PermissionNames;
+        var pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
 
-            if (!string.IsNullOrEmpty(ModuleState.ModuleDefinition.SettingsType))
+        _pageId = pagemodule.PageId.ToString();
+        _title = pagemodule.Title;
+        _pane = pagemodule.Pane;
+        _containerType = pagemodule.ContainerType;
+        if (string.IsNullOrEmpty(_containerType))
+        {
+            _containerType = (!string.IsNullOrEmpty(PageState.Page.DefaultContainerType)) ? PageState.Page.DefaultContainerType : PageState.Site.DefaultContainerType;
+        }
+        _header = pagemodule.Header;
+        _footer = pagemodule.Footer;
+        _effectivedate = Utilities.UtcAsLocalDate(pagemodule.EffectiveDate);
+        _expirydate = Utilities.UtcAsLocalDate(pagemodule.ExpiryDate);
+
+        _allPages = pagemodule.Module.AllPages.ToString();
+        createdby = pagemodule.Module.CreatedBy;
+        createdon = pagemodule.Module.CreatedOn;
+        modifiedby = pagemodule.Module.ModifiedBy;
+        modifiedon = pagemodule.Module.ModifiedOn;
+        _permissions = pagemodule.Module.PermissionList;
+
+        if (pagemodule.Module.ModuleDefinition != null)
+        {
+            _module = pagemodule.Module.ModuleDefinition.Name;
+            _permissionNames = pagemodule.Module.ModuleDefinition?.PermissionNames;
+
+            if (!string.IsNullOrEmpty(pagemodule.Module.ModuleDefinition.SettingsType))
             {
                 // module settings type explicitly declared in IModule interface
-                _moduleSettingsType = Type.GetType(ModuleState.ModuleDefinition.SettingsType);
+                _moduleSettingsType = Type.GetType(pagemodule.Module.ModuleDefinition.SettingsType);
             }
             else
             {
                 // legacy support - module settings type determined by convention ( ie. existence of a "Settings.razor" component in module )
-                _moduleSettingsType = Type.GetType(ModuleState.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, PageState.Action), false, true);
+                _moduleSettingsType = Type.GetType(pagemodule.Module.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, PageState.Action), false, true);
             }
             if (_moduleSettingsType != null)
             {
@@ -218,7 +247,7 @@
         }
         else
         {
-            AddModuleMessage(string.Format(Localizer["Error.Module.Load"], ModuleState.ModuleDefinitionName), MessageType.Error);
+            AddModuleMessage(string.Format(Localizer["Error.Module.Load"], pagemodule.Module.ModuleDefinitionName), MessageType.Error);
         }
 
         var theme = PageState.Site.Themes.FirstOrDefault(item => item.Containers.Any(themecontrol => themecontrol.TypeName.Equals(_containerType)));
@@ -270,10 +299,12 @@
                 {
                     pagemodule.ContainerType = string.Empty;
                 }
+                pagemodule.Header = _header;
+                pagemodule.Footer = _footer;
                 await PageModuleService.UpdatePageModuleAsync(pagemodule);
                 await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
 
-                var module = ModuleState;
+                var module = await ModuleService.GetModuleAsync(ModuleState.ModuleId);
                 module.AllPages = bool.Parse(_allPages);
                 module.PageModuleId = ModuleState.PageModuleId;
                 module.PermissionList = _permissionGrid.GetPermissionList();

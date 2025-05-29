@@ -132,6 +132,18 @@
   <data name="AllowRegistration.Text" xml:space="preserve">
     <value>Allow Registration? </value>
   </data>
+  <data name="RegisterUrl.HelpText" xml:space="preserve">
+    <value>Optionally provide a custom registration url</value>
+  </data>
+  <data name="RegisterUrl.Text" xml:space="preserve">
+    <value>Register Url: </value>
+  </data>
+  <data name="ProfileUrl.HelpText" xml:space="preserve">
+    <value>Optionally provide a custom user profile url</value>
+  </data>
+  <data name="ProfileUrl.Text" xml:space="preserve">
+    <value>Profile Url: </value>
+  </data>
   <data name="Error.SaveSiteSettings" xml:space="preserve">
     <value>Error Saving Settings</value>
   </data>
@@ -208,7 +220,7 @@
     <value>Do you want to allow users to sign in using a username and password that is managed locally on this site? Note that you should only disable this option if you have already sucessfully configured an external login provider, or else you may lock yourself out of the site.</value>
   </data>
   <data name="AllowSiteLogin.Text" xml:space="preserve">
-    <value>Allow Login?</value>
+    <value>Allow Local Login?</value>
   </data>
   <data name="Authority.HelpText" xml:space="preserve">
     <value>The authority url or issuer url associated with the identity provider</value>

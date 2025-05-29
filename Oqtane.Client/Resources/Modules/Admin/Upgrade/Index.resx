@@ -124,7 +124,7 @@
     <value>Error Downloading Framework Package</value>
   </data>
   <data name="Framework.HelpText" xml:space="preserve">
-    <value>Upload a framework package and select Install to complete the installation</value>
+    <value>Upload A Framework Package (Oqtane.Framework.#.#.#.nupkg) And Then Select Upgrade</value>
   </data>
   <data name="Framework.Text" xml:space="preserve">
     <value>Framework: </value>
@@ -144,9 +144,6 @@
   <data name="Message.Text" xml:space="preserve">
     <value>Framework Is Already Up To Date</value>
   </data>
-  <data name="MessageUpgrade.Text" xml:space="preserve">
-    <value>Upload A Framework Package (Oqtane.Framework.version.nupkg) And Then Select Upgrade</value>
-  </data>
   <data name="Localhost.Text" xml:space="preserve">
     <value>You Cannot Perform A System Update In A Development Environment</value>
   </data>
@@ -157,6 +154,6 @@
     <value>Backup Files?</value>
   </data>
   <data name="Backup.HelpText" xml:space="preserve">
-    <value>Specify if you want to backup files during the upgrade process. Disabling this option will result in a better experience in some environments.</value>
+    <value>Specify if you want to backup files during the upgrade process. Disabling this option will reduce the time required for the upgrade.</value>
   </data>
 </root>

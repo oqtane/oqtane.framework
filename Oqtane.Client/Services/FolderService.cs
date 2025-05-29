@@ -42,14 +42,6 @@ namespace Oqtane.Services
             return await PutJsonAsync<Folder>($"{ApiUrl}/{folder.FolderId}", folder);
         }
 
-        public async Task UpdateFolderOrderAsync(int siteId, int folderId, int? parentId)
-        {
-            var parent = parentId == null
-                ? string.Empty
-                : parentId.ToString();
-            await PutAsync($"{ApiUrl}/?siteid={siteId}&folderid={folderId}&parentid={parent}");
-        }
-
         public async Task DeleteFolderAsync(int folderId)
         {
             await DeleteAsync($"{ApiUrl}/{folderId}");

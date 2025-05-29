@@ -68,7 +68,7 @@ namespace Oqtane.Shared
                         Name = "Facebook",
                         Settings = new Dictionary<string, string>()
                         {
-                            { "ExternalLogin:ProviderUrl", "https://developers.facebook.com/apps/" },
+                            { "ExternalLogin:ProviderUrl", "https://developers.facebook.com" },
                             { "ExternalLogin:ProviderType", "oauth2" },
                             { "ExternalLogin:ProviderName", "Facebook" },
                             { "ExternalLogin:AuthorizationUrl", "https://www.facebook.com/v18.0/dialog/oauth" },

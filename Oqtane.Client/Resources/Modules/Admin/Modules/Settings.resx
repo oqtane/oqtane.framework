@@ -189,4 +189,19 @@
   <data name="ModuleSettings.Title" xml:space="preserve">
     <value>Module Settings</value>
   </data>
+  <data name="Header.Text" xml:space="preserve">
+    <value>Header:</value>
+  </data>
+  <data name="Header.HelpText" xml:space="preserve">
+    <value>Optionally provide content to be injected above the module instance</value>
+  </data>
+  <data name="Footer.Text" xml:space="preserve">
+    <value>Footer:</value>
+  </data>
+  <data name="Footer.HelpText" xml:space="preserve">
+    <value>Optionally provide content to be injected below the module instance</value>
+  </data>
+  <data name="ModuleContent.Heading" xml:space="preserve">
+    <value>Content</value>
+  </data>
 </root>

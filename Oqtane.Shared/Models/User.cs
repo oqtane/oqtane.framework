@@ -30,6 +30,11 @@ namespace Oqtane.Models
         public string Email { get; set; }
 
         /// <summary>
+        /// User time zone
+        /// </summary>
+        public string TimeZoneId { get; set; }
+
+        /// <summary>
         /// Reference to a <see cref="File"/> containing the users photo.
         /// </summary>
         public int? PhotoFileId { get; set; }

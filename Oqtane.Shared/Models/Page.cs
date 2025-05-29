@@ -123,6 +123,12 @@ namespace Oqtane.Models
         public bool HasChildren { get; set; }
 
         /// <summary>
+        /// Indicates if module permissions should be updated to be consistent with page permissions
+        /// </summary>
+        [NotMapped]
+        public bool UpdateModulePermissions { get; set; }
+
+        /// <summary>
         /// List of permissions for this page
         /// </summary>
         [NotMapped]

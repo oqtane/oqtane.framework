@@ -136,7 +136,7 @@ namespace Oqtane
                     policy =>
                     {
                         // allow .NET MAUI client cross origin calls
-                        policy.WithOrigins("https://0.0.0.0", "http://0.0.0.0", "app://0.0.0.0")
+                        policy.WithOrigins("https://0.0.0.1", "http://0.0.0.1", "app://0.0.0.1")
                             .AllowAnyHeader().AllowAnyMethod().AllowCredentials();
                     });
             });
@@ -195,9 +195,6 @@ namespace Oqtane
                 app.UseHsts();
             }
 
-            // execute any IServerStartup logic
-            app.ConfigureOqtaneAssemblies(env);
-
             // allow oqtane localization middleware
             app.UseOqtaneLocalization();
 
@@ -227,6 +224,9 @@ namespace Oqtane
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseAntiforgery();
+
+            // execute any IServerStartup logic
+            app.ConfigureOqtaneAssemblies(env);
 
             if (_useSwagger)
             {

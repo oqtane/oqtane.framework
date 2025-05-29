@@ -8,13 +8,13 @@
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <div class="container">
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="url" HelpText="A fully qualified Url for this site" ResourceKey="Url">Url:</Label>
+            <Label Class="col-sm-3" For="url" HelpText="A Url identifying a path to a specific page in the site (absolute or relative)" ResourceKey="Url">Url:</Label>
             <div class="col-sm-9">
                 <input id="url" class="form-control" @bind="@_url" maxlength="500" readonly />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="mappedurl" HelpText="A fully qualified Url where the user will be redirected" ResourceKey="MappedUrl">Redirect To:</Label>
+            <Label Class="col-sm-3" For="mappedurl" HelpText="A Url where the user will be redirected (absolute or relative). Use '/' for site root path." ResourceKey="MappedUrl">Redirect To:</Label>
             <div class="col-sm-9">
                 <input id="mappedurl" class="form-control" @bind="@_mappedurl" maxlength="500" required />
             </div>
@@ -67,8 +67,11 @@
 					var url = PageState.Uri.Scheme + "://" + PageState.Uri.Authority + "/";
 					url = url + (!string.IsNullOrEmpty(PageState.Alias.Path) ? PageState.Alias.Path + "/" : "");
 
+                    _mappedurl = _mappedurl.Replace(url, "");
+                    _mappedurl = (_mappedurl.StartsWith("/") && _mappedurl != "/") ? _mappedurl.Substring(1) : _mappedurl;
+
 					var urlmapping = await UrlMappingService.GetUrlMappingAsync(_urlmappingid);
-					urlmapping.MappedUrl = _mappedurl.Replace(url, "");
+					urlmapping.MappedUrl = _mappedurl;
 					urlmapping = await UrlMappingService.UpdateUrlMappingAsync(urlmapping);
 					await logger.LogInformation("UrlMapping Saved {UrlMapping}", urlmapping);
 					NavigationManager.NavigateTo(NavigateUrl());

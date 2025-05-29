@@ -40,27 +40,26 @@ namespace Oqtane.Infrastructure
                 log += "Processing Notifications For Site: " + site.Name + "<br />";
 
                 // get site settings
-                List<Setting> sitesettings = settingRepository.GetSettings(EntityNames.Site, site.SiteId).ToList();
-                Dictionary<string, string> settings = GetSettings(sitesettings);
-                if (!site.IsDeleted && (!settings.ContainsKey("SMTPEnabled") || settings["SMTPEnabled"] == "True"))
+                var settings = settingRepository.GetSettings(EntityNames.Site, site.SiteId, EntityNames.Host, -1);
+
+                if (!site.IsDeleted && settingRepository.GetSettingValue(settings, "SMTPEnabled", "True") == "True")
                 {
-                    if (settings.ContainsKey("SMTPHost") && settings["SMTPHost"] != "" &&
-                        settings.ContainsKey("SMTPPort") && settings["SMTPPort"] != "" &&
-                        settings.ContainsKey("SMTPSSL") && settings["SMTPSSL"] != "" &&
-                        settings.ContainsKey("SMTPSender") && settings["SMTPSender"] != "")
+                    if (settingRepository.GetSettingValue(settings, "SMTPHost", "") != "" &&
+                        settingRepository.GetSettingValue(settings, "SMTPPort", "") != "" &&
+                        settingRepository.GetSettingValue(settings, "SMTPSender", "") != "")
                     {
                         // construct SMTP Client 
                         var client = new SmtpClient()
                         {
                             DeliveryMethod = SmtpDeliveryMethod.Network,
                             UseDefaultCredentials = false,
-                            Host = settings["SMTPHost"],
-                            Port = int.Parse(settings["SMTPPort"]),
-                            EnableSsl = bool.Parse(settings["SMTPSSL"])
+                            Host = settingRepository.GetSettingValue(settings, "SMTPHost", ""),
+                            Port = int.Parse(settingRepository.GetSettingValue(settings, "SMTPPort", "")),
+                            EnableSsl = bool.Parse(settingRepository.GetSettingValue(settings, "SMTPSSL", "False"))
                         };
-                        if (settings["SMTPUsername"] != "" && settings["SMTPPassword"] != "")
+                        if (settingRepository.GetSettingValue(settings, "SMTPUsername", "") != "" && settingRepository.GetSettingValue(settings, "SMTPPassword", "") != "")
                         {
-                            client.Credentials = new NetworkCredential(settings["SMTPUsername"], settings["SMTPPassword"]);
+                            client.Credentials = new NetworkCredential(settingRepository.GetSettingValue(settings, "SMTPUsername", ""), settingRepository.GetSettingValue(settings, "SMTPPassword", ""));
                         }
 
                         // iterate through undelivered notifications
@@ -100,7 +99,7 @@ namespace Oqtane.Infrastructure
                                 MailMessage mailMessage = new MailMessage();
 
                                 // sender
-                                if (settings.ContainsKey("SMTPRelay") && settings["SMTPRelay"] == "True" && !string.IsNullOrEmpty(notification.FromEmail))
+                                if (settingRepository.GetSettingValue(settings, "SMTPRelay", "False") == "True" && !string.IsNullOrEmpty(notification.FromEmail))
                                 {
                                     if (!string.IsNullOrEmpty(notification.FromDisplayName))
                                     {
@@ -113,7 +112,7 @@ namespace Oqtane.Infrastructure
                                 }
                                 else
                                 {
-                                    mailMessage.From = new MailAddress(settings["SMTPSender"], (!string.IsNullOrEmpty(notification.FromDisplayName)) ? notification.FromDisplayName : site.Name);
+                                    mailMessage.From = new MailAddress(settingRepository.GetSettingValue(settings, "SMTPSender", ""), (!string.IsNullOrEmpty(notification.FromDisplayName)) ? notification.FromDisplayName : site.Name);
                                 }
 
                                 // recipient
@@ -162,7 +161,7 @@ namespace Oqtane.Infrastructure
                     }
                     else
                     {
-                        log += "SMTP Not Configured Properly In Site Settings - Host, Port, SSL, And Sender Are All Required" + "<br />";
+                        log += "SMTP Not Configured Properly In Site Settings - Host, Port, And Sender Are All Required" + "<br />";
                     }
                 }
                 else
@@ -172,16 +171,6 @@ namespace Oqtane.Infrastructure
             }
 
             return log;
-        }
-
-        private Dictionary<string, string> GetSettings(List<Setting> settings)
-        {
-            Dictionary<string, string> dictionary = new Dictionary<string, string>();
-            foreach (Setting setting in settings.OrderBy(item => item.SettingName).ToList())
-            {
-                dictionary.Add(setting.SettingName, setting.SettingValue);
-            }
-            return dictionary;
         }
     }
 }

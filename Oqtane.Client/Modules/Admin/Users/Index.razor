@@ -43,7 +43,7 @@ else
                     <td>@context.User.Username</td>
                     <td>@context.User.DisplayName</td>
                     <td>@((MarkupString)string.Format("<a href=\"mailto:{0}\">{1}</a>", @context.User.Email, @context.User.Email))</td>
-                    <td>@((context.User.LastLoginOn != DateTime.MinValue) ? string.Format("{0:dd-MMM-yyyy HH:mm:ss}", context.User.LastLoginOn) : "")</td>
+                    <td>@((context.User.LastLoginOn != DateTime.MinValue) ? string.Format("{0:dd-MMM-yyyy HH:mm:ss}", UtcToLocal(context.User.LastLoginOn)) : "")</td>
                 </Row>
             </Pager>
         </TabPanel>
@@ -59,29 +59,23 @@ else
                             </select>
                         </div>
                     </div>
+                    @if (_allowregistration == "true")
+                    {
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="registerurl" HelpText="Optionally provide a custom registration url" ResourceKey="RegisterUrl">Register Url:</Label>
+                            <div class="col-sm-9">
+                                <input id="registerurl" class="form-control" @bind="@_registerurl" />
+                            </div>
+                        </div>
+                    }
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="profileurl" HelpText="Optionally provide a custom profile url" ResourceKey="ProfileUrl">Profile Url:</Label>
+                        <div class="col-sm-9">
+                            <input id="profileurl" class="form-control" @bind="@_profileurl" />
+                        </div>
+                    </div>
                     @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
                     {
-                        @if (_providertype != "")
-                        {
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="allowsitelogin" HelpText="Do you want to allow users to sign in using a username and password that is managed locally on this site? Note that you should only disable this option if you have already sucessfully configured an external login provider, or else you may lock yourself out of the site." ResourceKey="AllowSiteLogin">Allow Login?</Label>
-                                <div class="col-sm-9">
-                                    <select id="allowsitelogin" class="form-select" @bind="@_allowsitelogin">
-                                        <option value="true">@SharedLocalizer["Yes"]</option>
-                                        <option value="false">@SharedLocalizer["No"]</option>
-                                    </select>
-                                </div>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="allowsitelogin" HelpText="Do you want to allow users to sign in using a username and password that is managed locally on this site? Note that you should only disable this option if you have already sucessfully configured an external login provider, or else you may lock yourself out of the site." ResourceKey="AllowSiteLogin">Allow Login?</Label>
-                                <div class="col-sm-9">
-                                    <input id="allowsitelogin" class="form-control" value="@SharedLocalizer["Yes"]" readonly />
-                                </div>
-                            </div>
-                        }
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="twofactor" HelpText="Do you want users to use two factor authentication? Note that you should use the Disabled option until you have successfully verified that the Notification Job in Scheduled Jobs is enabled and your SMTP options in Site Settings are configured or else you will lock yourself out." ResourceKey="TwoFactor">Two Factor?</Label>
                             <div class="col-sm-9">
@@ -432,6 +426,15 @@ else
                                         </select>
                                     </div>
                                 </div>
+                                <div class="row mb-1 align-items-center">
+                                    <Label Class="col-sm-3" For="allowsitelogin" HelpText="Do you want to allow users to sign in using a username and password that is managed locally on this site? Note that you should only disable this option if you have already sucessfully configured an external login provider, or else you may lock yourself out of the site." ResourceKey="AllowSiteLogin">Allow Local Login?</Label>
+                                    <div class="col-sm-9">
+                                        <select id="allowsitelogin" class="form-select" @bind="@_allowsitelogin">
+                                            <option value="true">@SharedLocalizer["Yes"]</option>
+                                            <option value="false">@SharedLocalizer["No"]</option>
+                                        </select>
+                                    </div>
+                                </div>
                             }
                         }
                     </Section>
@@ -485,7 +488,8 @@ else
     private List<UserRole> users;
 
     private string _allowregistration;
-    private string _allowsitelogin;
+    private string _registerurl;
+    private string _profileurl;
     private string _twofactor;
     private string _cookiename;
     private string _cookieexpiration;
@@ -533,6 +537,7 @@ else
     private string _createusers;
     private string _verifyusers;
     private string _allowhostrole;
+    private string _allowsitelogin;
 
     private string _secret;
     private string _secrettype = "password";
@@ -553,7 +558,8 @@ else
 
         var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
         _allowregistration = PageState.Site.AllowRegistration.ToString().ToLower();
-        _allowsitelogin = SettingService.GetSetting(settings, "LoginOptions:AllowSiteLogin", "true");
+        _registerurl = SettingService.GetSetting(settings, "LoginOptions:RegisterUrl", "");
+        _profileurl = SettingService.GetSetting(settings, "LoginOptions:ProfileUrl", "");
 
         if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
         {
@@ -616,6 +622,7 @@ else
         _createusers = SettingService.GetSetting(settings, "ExternalLogin:CreateUsers", "true");
         _verifyusers = SettingService.GetSetting(settings, "ExternalLogin:VerifyUsers", "true");
         _allowhostrole = SettingService.GetSetting(settings, "ExternalLogin:AllowHostRole", "false");
+        _allowsitelogin = SettingService.GetSetting(settings, "LoginOptions:AllowSiteLogin", "true");
     }
 
     private async Task LoadUsersAsync(bool load)
@@ -673,10 +680,11 @@ else
             await SiteService.UpdateSiteAsync(site);
 
             var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
-            settings = SettingService.SetSetting(settings, "LoginOptions:AllowSiteLogin", _allowsitelogin, false);
 
             if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
             {
+                settings = SettingService.SetSetting(settings, "LoginOptions:RegisterUrl", _registerurl, false);
+                settings = SettingService.SetSetting(settings, "LoginOptions:ProfileUrl", _profileurl, false);
                 settings = SettingService.SetSetting(settings, "LoginOptions:TwoFactor", _twofactor, false);
                 settings = SettingService.SetSetting(settings, "LoginOptions:CookieName", _cookiename, true);
                 settings = SettingService.SetSetting(settings, "LoginOptions:CookieExpiration", _cookieexpiration, true);
@@ -720,6 +728,7 @@ else
                 settings = SettingService.SetSetting(settings, "ExternalLogin:CreateUsers", _createusers, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:VerifyUsers", _verifyusers, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:AllowHostRole", _allowhostrole, true);
+                settings = SettingService.SetSetting(settings, "LoginOptions:AllowSiteLogin", _allowsitelogin, false);
 
                 settings = SettingService.SetSetting(settings, "JwtOptions:Secret", _secret, true);
                 settings = SettingService.SetSetting(settings, "JwtOptions:Issuer", _issuer, true);

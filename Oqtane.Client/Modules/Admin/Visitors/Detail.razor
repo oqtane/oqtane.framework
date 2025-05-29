@@ -101,8 +101,8 @@
 				_url = visitor.Url;
 				_referrer = visitor.Referrer;
 				_visits = visitor.Visits.ToString();
-				_visited = visitor.VisitedOn.ToString(CultureInfo.CurrentCulture);
-				_created = visitor.CreatedOn.ToString(CultureInfo.CurrentCulture);
+				_visited = UtcToLocal(visitor.VisitedOn).Value.ToString(CultureInfo.CurrentCulture);
+				_created = UtcToLocal(visitor.CreatedOn).Value.ToString(CultureInfo.CurrentCulture);
 
 				if (visitor.UserId != null)
 				{

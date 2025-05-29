@@ -6,6 +6,7 @@
 @inject IProfileService ProfileService
 @inject ISettingService SettingService
 @inject IFileService FileService
+@inject ITimeZoneService TimeZoneService
 @inject IServiceProvider ServiceProvider
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
@@ -17,13 +18,13 @@
             <ModuleMessage Message="@_passwordrequirements" Type="MessageType.Info" />
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="username" HelpText="The unique username for a user. Note that this field can not be modified." ResourceKey="Username"></Label>
+                    <Label Class="col-sm-3" For="username" HelpText="The unique username for a user. Note that this field can not be modified." ResourceKey="Username">Username:</Label>
                     <div class="col-sm-9">
-                        <input id="username" class="form-control" @bind="@username" readonly />
+                        <input id="username" class="form-control" @bind="@_username" readonly />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="password" HelpText="The user's password. Please choose a password which is sufficiently secure." ResourceKey="Password"></Label>
+                    <Label Class="col-sm-3" For="password" HelpText="The user's password. Please choose a password which is sufficiently secure." ResourceKey="Password">Password:</Label>
                     <div class="col-sm-9">
                         <div class="input-group">
                             <input id="password" type="@_passwordtype" class="form-control" @bind="@_password" autocomplete="new-password" />
@@ -32,32 +33,53 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="confirm" HelpText="Please enter the password again to confirm it matches with the value above" ResourceKey="Confirm"></Label>
+                    <Label Class="col-sm-3" For="confirm" HelpText="Please enter the password again to confirm it matches with the value above" ResourceKey="Confirm">Confirm Password:</Label>
                     <div class="col-sm-9">
                         <div class="input-group">
-                            <input id="confirm" type="@_passwordtype" class="form-control" @bind="@confirm" autocomplete="new-password" />
+                            <input id="confirm" type="@_passwordtype" class="form-control" @bind="@_confirm" autocomplete="new-password" />
                             <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
                         </div>
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="email" HelpText="The email address where the user will receive notifications" ResourceKey="Email"></Label>
+                    <Label Class="col-sm-3" For="email" HelpText="The email address where the user will receive notifications" ResourceKey="Email">Email:</Label>
                     <div class="col-sm-9">
-                        <input id="email" class="form-control" @bind="@email" />
+                        <input id="email" class="form-control" @bind="@_email" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="displayname" HelpText="The full name of the user" ResourceKey="DisplayName"></Label>
+                    <Label Class="col-sm-3" For="confirmed" HelpText="Indicates if the user's email is verified" ResourceKey="Confirmed">Confirmed?</Label>
                     <div class="col-sm-9">
-                        <input id="displayname" class="form-control" @bind="@displayname" />
+                        <select id="confirmed" class="form-select" @bind="@_confirmed">
+                            <option value="True">@SharedLocalizer["Yes"]</option>
+                            <option value="False">@SharedLocalizer["No"]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="displayname" HelpText="The full name of the user" ResourceKey="DisplayName">Full Name:</Label>
+                    <div class="col-sm-9">
+                        <input id="displayname" class="form-control" @bind="@_displayname" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="timezone" HelpText="Your time zone" ResourceKey="TimeZone">Time Zone:</Label>
+                    <div class="col-sm-9">
+                        <select id="timezone" class="form-select" @bind="@_timezoneid">
+                            <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                            @foreach (var timezone in _timezones)
+                            {
+                                <option value="@timezone.Id">@timezone.DisplayName</option>
+                            }
+                        </select>
                     </div>
                 </div>
                 @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
                 {
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="isdeleted" HelpText="Indicate if the user is active" ResourceKey="IsDeleted"></Label>
+                        <Label Class="col-sm-3" For="isdeleted" HelpText="Indicate if the user is active" ResourceKey="IsDeleted">Deleted?</Label>
                         <div class="col-sm-9">
-                            <select id="isdeleted" class="form-select" @bind="@isdeleted">
+                            <select id="isdeleted" class="form-select" @bind="@_isdeleted">
                                 <option value="True">@SharedLocalizer["Yes"]</option>
                                 <option value="False">@SharedLocalizer["No"]</option>
                             </select>
@@ -65,15 +87,15 @@
                     </div>
                 }
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="lastlogin" HelpText="The date and time when the user last signed in" ResourceKey="LastLogin"></Label>
+                    <Label Class="col-sm-3" For="lastlogin" HelpText="The date and time when the user last signed in" ResourceKey="LastLogin">Last Login:</Label>
                     <div class="col-sm-9">
-                        <input id="lastlogin" class="form-control" @bind="@lastlogin" readonly />
+                        <input id="lastlogin" class="form-control" @bind="@_lastlogin" readonly />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="lastipaddress" HelpText="The IP Address of the user recorded during their last login" ResourceKey="LastIPAddress"></Label>
+                    <Label Class="col-sm-3" For="lastipaddress" HelpText="The IP Address of the user recorded during their last login" ResourceKey="LastIPAddress">Last IP Address:</Label>
                     <div class="col-sm-9">
-                        <input id="lastipaddress" class="form-control" @bind="@lastipaddress" readonly />
+                        <input id="lastipaddress" class="form-control" @bind="@_lastipaddress" readonly />
                     </div>
                 </div>
             </div>
@@ -81,15 +103,15 @@
         <TabPanel Name="Profile" ResourceKey="Profile">
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    @foreach (Profile profile in profiles)
+                    @foreach (Profile profile in _profiles)
                     {
                         var p = profile;
-                        if (p.Category != category)
+                        if (p.Category != _category)
                         {
                             <div class="col text-center pb-2">
                                 <strong>@p.Category</strong>
                             </div>
-                            category = p.Category;
+                            _category = p.Category;
                         }
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="@p.Name" HelpText="@p.Description">@p.Title</Label>
@@ -128,47 +150,50 @@
             </div>
         </TabPanel>
     </TabStrip>
-
+    <br />
     <button type="button" class="btn btn-success" @onclick="SaveUser">@SharedLocalizer["Save"]</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-    @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin) && PageState.Runtime != Shared.Runtime.Hybrid && !ishost)
+    @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin) && PageState.Runtime != Shared.Runtime.Hybrid && !_ishost)
     {
         <button type="button" class="btn btn-primary ms-1" @onclick="ImpersonateUser">@Localizer["Impersonate"]</button>
     }
-    @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host) && isdeleted == "True")
+    @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host) && _isdeleted == "True")
     {
         <ActionDialog Header="Delete User" Message="Are You Sure You Wish To Permanently Delete This User?" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteUser())" ResourceKey="DeleteUser" />
     }
     <br /><br />
-    <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
+    <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
 }
 
 @code {
+    private List<Models.TimeZone> _timezones;
     private bool _initialized = false;
     private string _passwordrequirements;
-    private int userid;
-    private string username = string.Empty;
+    private int _userid;
+    private string _username = string.Empty;
     private string _password = string.Empty;
     private string _passwordtype = "password";
     private string _togglepassword = string.Empty;
-    private string confirm = string.Empty;
-    private string email = string.Empty;
-    private string displayname = string.Empty;
-    private string isdeleted;
-    private string lastlogin;
-    private string lastipaddress;
-    private bool ishost = false;
+    private string _confirm = string.Empty;
+    private string _email = string.Empty;
+    private string _confirmed = string.Empty;
+    private string _displayname = string.Empty;
+    private string _timezoneid = string.Empty;
+    private string _isdeleted;
+    private string _lastlogin;
+    private string _lastipaddress;
+    private bool _ishost = false;
 
-    private List<Profile> profiles;
-    private Dictionary<string, string> userSettings;
-    private string category = string.Empty;
+    private List<Profile> _profiles;
+    private Dictionary<string, string> _settings;
+    private string _category = string.Empty;
 
-    private string createdby;
-    private DateTime createdon;
-    private string modifiedby;
-    private DateTime modifiedon;
-    private string deletedby;
-    private DateTime? deletedon;
+    private string _createdby;
+    private DateTime _createdon;
+    private string _modifiedby;
+    private DateTime _modifiedon;
+    private string _deletedby;
+    private DateTime? _deletedon;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
 
@@ -178,29 +203,32 @@
         {
             _passwordrequirements = await UserService.GetPasswordRequirementsAsync(PageState.Site.SiteId);
             _togglepassword = SharedLocalizer["ShowPassword"];
-            profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
+            _profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
+            _timezones = await TimeZoneService.GetTimeZonesAsync();
 
             if (PageState.QueryString.ContainsKey("id") && int.TryParse(PageState.QueryString["id"], out int UserId))
             {
-                userid = UserId;
-                var user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
+                _userid = UserId;
+                var user = await UserService.GetUserAsync(_userid, PageState.Site.SiteId);
                 if (user != null)
                 {
-                    username = user.Username;
-                    email = user.Email;
-                    displayname = user.DisplayName;
-                    isdeleted = user.IsDeleted.ToString();
-                    lastlogin = string.Format("{0:MMM dd yyyy HH:mm:ss}", user.LastLoginOn);
-                    lastipaddress = user.LastIPAddress;
-                    ishost = UserSecurity.ContainsRole(user.Roles, RoleNames.Host);
+                    _username = user.Username;
+                    _email = user.Email;
+                    _confirmed = user.EmailConfirmed.ToString();
+                    _displayname = user.DisplayName;
+                    _timezoneid = PageState.User.TimeZoneId;
+                    _isdeleted = user.IsDeleted.ToString();
+                    _lastlogin = string.Format("{0:MMM dd yyyy HH:mm:ss}", UtcToLocal(user.LastLoginOn));
+                    _lastipaddress = user.LastIPAddress;
+                    _ishost = UserSecurity.ContainsRole(user.Roles, RoleNames.Host);
 
-                    userSettings = user.Settings;
-                    createdby = user.CreatedBy;
-                    createdon = user.CreatedOn;
-                    modifiedby = user.ModifiedBy;
-                    modifiedon = user.ModifiedOn;
-                    deletedby = user.DeletedBy;
-                    deletedon = user.DeletedOn;
+                    _settings = user.Settings;
+                    _createdby = user.CreatedBy;
+                    _createdon = user.CreatedOn;
+                    _modifiedby = user.ModifiedBy;
+                    _modifiedon = user.ModifiedOn;
+                    _deletedby = user.DeletedBy;
+                    _deletedon = user.DeletedOn;
                 }
             }
 
@@ -208,14 +236,14 @@
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading User {UserId} {Error}", userid, ex.Message);
+            await logger.LogError(ex, "Error Loading User {UserId} {Error}", _userid, ex.Message);
             AddModuleMessage(Localizer["Error.User.Load"], MessageType.Error);
         }
     }
 
     private string GetProfileValue(string SettingName, string DefaultValue)
     {
-        string value = SettingService.GetSetting(userSettings, SettingName, DefaultValue);
+        string value = SettingService.GetSetting(_settings, SettingName, DefaultValue);
         if (value.Contains("]"))
         {
             value = value.Substring(value.IndexOf("]") + 1);
@@ -227,27 +255,29 @@
     {
         try
         {
-            if (username != string.Empty && email != string.Empty)
+            if (_username != string.Empty && _email != string.Empty)
             {
-                if (_password == confirm)
+                if (_password == _confirm)
                 {
                     if (ValidateProfiles())
                     {
-                        var user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
+                        var user = await UserService.GetUserAsync(_userid, PageState.Site.SiteId);
                         user.SiteId = PageState.Site.SiteId;
-                        user.Username = username;
+                        user.Username = _username;
                         user.Password = _password;
-                        user.Email = email;
-                        user.DisplayName = string.IsNullOrWhiteSpace(displayname) ? username : displayname;
+                        user.Email = _email;
+                        user.EmailConfirmed = bool.Parse(_confirmed);
+                        user.DisplayName = string.IsNullOrWhiteSpace(_displayname) ? _username : _displayname;
+                        user.TimeZoneId = _timezoneid;
                         if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
                         {
-                            user.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
+                            user.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
                         }
 
                         user = await UserService.UpdateUserAsync(user);
                         if (user != null)
                         {
-                            await SettingService.UpdateUserSettingsAsync(userSettings, user.UserId);
+                            await SettingService.UpdateUserSettingsAsync(_settings, user.UserId);
                             await logger.LogInformation("User Saved {User}", user);
                             NavigationManager.NavigateTo(NavigateUrl());
                         }
@@ -269,7 +299,7 @@
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Saving User {Username} {Email} {Error}", username, email, ex.Message);
+            await logger.LogError(ex, "Error Saving User {Username} {Email} {Error}", _username, _email, ex.Message);
             AddModuleMessage(Localizer["Error.User.Save"], MessageType.Error);
         }
     }
@@ -278,17 +308,17 @@
     {
         try
         {
-            await logger.LogInformation(LogFunction.Security, "User {Username} Impersonated By Administrator {Administrator}", username, PageState.User.Username);
+            await logger.LogInformation(LogFunction.Security, "User {Username} Impersonated By Administrator {Administrator}", _username, PageState.User.Username);
 
             // post back to the server so that the cookies are set correctly
             var interop = new Interop(JSRuntime);
-            var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, username = username, returnurl = PageState.Alias.Path };
+            var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, username = _username, returnurl = PageState.Alias.Path };
             string url = Utilities.TenantUrl(PageState.Alias, "/pages/impersonate/");
             await interop.SubmitForm(url, fields);
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Impersonating User {Username} {Error}", username, ex.Message);
+            await logger.LogError(ex, "Error Impersonating User {Username} {Error}", _username, ex.Message);
             AddModuleMessage(Localizer["Error.User.Impersonate"], MessageType.Error);
         }
     }
@@ -297,9 +327,9 @@
     {
         try
         {
-            if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host) && userid != PageState.User.UserId)
+            if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host) && _userid != PageState.User.UserId)
             {
-                var user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
+                var user = await UserService.GetUserAsync(_userid, PageState.Site.SiteId);
                 await UserService.DeleteUserAsync(user.UserId, PageState.Site.SiteId);
                 await logger.LogInformation("User Permanently Deleted {User}", user);
                 NavigationManager.NavigateTo(NavigateUrl());
@@ -307,19 +337,19 @@
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Permanently Deleting User {UserId} {Error}", userid, ex.Message);
+            await logger.LogError(ex, "Error Permanently Deleting User {UserId} {Error}", _userid, ex.Message);
             AddModuleMessage(Localizer["Error.DeleteUser"], MessageType.Error);
         }
     }
 
     private bool ValidateProfiles()
     {
-        foreach (Profile profile in profiles)
+        foreach (Profile profile in _profiles)
         {
             var value = GetProfileValue(profile.Name, string.Empty);
             if (string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(profile.DefaultValue))
             {
-                userSettings = SettingService.SetSetting(userSettings, profile.Name, profile.DefaultValue);
+                _settings = SettingService.SetSetting(_settings, profile.Name, profile.DefaultValue);
             }
             if (!profile.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
             {
@@ -346,7 +376,7 @@
     private void ProfileChanged(ChangeEventArgs e, string SettingName)
     {
         var value = (string)e.Value;
-        userSettings = SettingService.SetSetting(userSettings, SettingName, value);
+        _settings = SettingService.SetSetting(_settings, SettingName, value);
     }
 
     private void TogglePassword()

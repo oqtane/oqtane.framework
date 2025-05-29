@@ -9,6 +9,7 @@ using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Security;
 using System.Net;
+using System.IO;
 
 namespace Oqtane.Controllers
 {
@@ -20,18 +21,22 @@ namespace Oqtane.Controllers
         private readonly IPageRepository _pages;
         private readonly IModuleDefinitionRepository _moduleDefinitions;
         private readonly ISettingRepository _settings;
+        private readonly IFolderRepository _folders;
+        private readonly IFileRepository _files;
         private readonly IUserPermissions _userPermissions;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public ModuleController(IModuleRepository modules, IPageModuleRepository pageModules, IPageRepository pages, IModuleDefinitionRepository moduleDefinitions, ISettingRepository settings, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
+        public ModuleController(IModuleRepository modules, IPageModuleRepository pageModules, IPageRepository pages, IModuleDefinitionRepository moduleDefinitions, ISettingRepository settings, IFolderRepository folders, IFileRepository files, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
         {
             _modules = modules; 
             _pageModules = pageModules;
             _pages = pages;
             _moduleDefinitions = moduleDefinitions;
             _settings = settings;
+            _folders = folders;
+            _files = files;
             _userPermissions = userPermissions;
             _syncManager = syncManager;
             _logger = logger;
@@ -76,6 +81,8 @@ namespace Oqtane.Controllers
                         module.ContainerType = pagemodule.ContainerType;
                         module.EffectiveDate = pagemodule.EffectiveDate;
                         module.ExpiryDate = pagemodule.ExpiryDate;
+                        module.Header = pagemodule.Header;
+                        module.Footer = pagemodule.Footer;
 
                         module.ModuleDefinition = _moduleDefinitions.FilterModuleDefinition(moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName));
 
@@ -244,6 +251,61 @@ namespace Oqtane.Controllers
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
             return content;
+        }
+
+        // POST api/<controller>/export?moduleid=x&pageid=y&folderid=z&filename=a
+        [HttpPost("export")]
+        [Authorize(Roles = RoleNames.Registered)]
+        public int Export(int moduleid, int pageid, int folderid, string filename)
+        {
+            var fileid = -1;
+            var module = _modules.GetModule(moduleid);
+            if (module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, module.SiteId, EntityNames.Page, pageid, PermissionNames.Edit) &&
+                _userPermissions.IsAuthorized(User, module.SiteId, EntityNames.Folder, folderid, PermissionNames.Edit) && !string.IsNullOrEmpty(filename))
+            {
+                // get content
+                var content = _modules.ExportModule(moduleid);
+
+                // get folder
+                var folder = _folders.GetFolder(folderid, false);
+                string folderPath = _folders.GetFolderPath(folder);
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                // create json file
+                filename = Utilities.GetFriendlyUrl(Path.GetFileNameWithoutExtension(filename)) + ".json";
+                string filepath = Path.Combine(folderPath, filename);
+                if (System.IO.File.Exists(filepath))
+                {
+                    System.IO.File.Delete(filepath);
+                }
+                System.IO.File.WriteAllText(filepath, content);
+
+                // register file
+                var file = _files.GetFile(folderid, filename);
+                if (file == null)
+                {
+                    file = new Models.File { FolderId = folderid, Name = filename, Extension = "json", Size = (int)new FileInfo(filepath).Length, ImageWidth = 0, ImageHeight = 0 };
+                    _files.AddFile(file);
+                }
+                else
+                {
+                    file.Size = (int)new FileInfo(filepath).Length;
+                    _files.UpdateFile(file);
+                }
+                fileid = file.FileId;
+
+                _logger.Log(LogLevel.Information, this, LogFunction.Read, "Content Exported For Module {ModuleId} To Folder {FolderId}", moduleid, folderid);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Export Attempt For Module {Module} To Folder {FolderId}", moduleid, folderid);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            }
+
+            return fileid;
         }
 
         // POST api/<controller>/import?moduleid=x&pageid=y

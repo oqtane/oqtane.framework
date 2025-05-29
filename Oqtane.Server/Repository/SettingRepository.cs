@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Infrastructure;
@@ -39,24 +38,27 @@ namespace Oqtane.Repository
 
         public IEnumerable<Setting> GetSettings(string entityName, int entityId)
         {
-            var settings = GetSettings(entityName).ToList();
-            if (entityName == EntityNames.Site)
+            return GetSettings(entityName).Where(item => item.EntityId == entityId);
+        }
+
+        public IEnumerable<Setting> GetSettings(string entityName1, int entityId1, string entityName2, int entityId2)
+        {
+            // merge settings from entity2 into entity1
+            var settings1 = GetSettings(entityName1, entityId1).ToList();
+            foreach (var setting2 in GetSettings(entityName2, entityId2))
             {
-                // site settings can be overridden by host settings
-                var hostsettings = GetSettings(EntityNames.Host);
-                foreach (var hostsetting in hostsettings)
+                var setting1 = settings1.FirstOrDefault(item => item.SettingName == setting2.SettingName);
+                if (setting1 == null)
                 {
-                    if (settings.Any(item => item.SettingName == hostsetting.SettingName))
-                    {
-                        settings.First(item => item.SettingName == hostsetting.SettingName).SettingValue = hostsetting.SettingValue;
-                    }
-                    else
-                    {
-                        settings.Add(new Setting { SettingId = -1, EntityName = entityName, EntityId = entityId, SettingName = hostsetting.SettingName, SettingValue = hostsetting.SettingValue, IsPrivate = hostsetting.IsPrivate });
-                    }
+                    settings1.Add(new Setting { EntityName = entityName1, EntityId = entityId1, SettingName = setting2.SettingName, SettingValue = setting2.SettingValue, IsPrivate = setting2.IsPrivate });
+                }
+                else
+                {
+                    setting1.SettingValue = setting2.SettingValue;
+                    setting1.IsPrivate = setting2.IsPrivate;
                 }
             }
-            return settings.Where(item => item.EntityId == entityId);
+            return settings1;
         }
 
         public Setting AddSetting(Setting setting)
@@ -163,6 +165,19 @@ namespace Oqtane.Repository
                 tenant.SaveChanges();
             }
             ManageCache(entityName);
+        }
+
+        public string GetSettingValue(IEnumerable<Setting> settings, string settingName, string defaultValue)
+        {
+            var setting = settings.FirstOrDefault(item => item.SettingName == settingName);
+            if (setting != null)
+            {
+                return setting.SettingValue;
+            }
+            else
+            {
+                return defaultValue;
+            }
         }
 
         private bool IsMaster(string EntityName)

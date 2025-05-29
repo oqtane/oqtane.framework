@@ -52,7 +52,7 @@
 
             if (CreatedOn != null)
             {
-                _text += $" {Localizer["On"]} <b>{CreatedOn.Value.ToString(DateTimeFormat)}</b>";
+                _text += $" {Localizer["On"]} <b>{UtcToLocal(CreatedOn).Value.ToString(DateTimeFormat)}</ b >";
             }
 
             _text += "</p>";
@@ -69,7 +69,7 @@
 
             if (ModifiedOn != null)
             {
-                _text += $" {Localizer["On"]} <b>{ModifiedOn.Value.ToString(DateTimeFormat)}</b>";
+                _text += $" {Localizer["On"]} <b>{UtcToLocal(ModifiedOn).Value.ToString(DateTimeFormat)}</ b >";
             }
 
             _text += "</p>";
@@ -86,7 +86,7 @@
 
             if (DeletedOn != null)
             {
-                _text += $" {Localizer["On"]} <b>{DeletedOn.Value.ToString(DateTimeFormat)}</b>";
+                _text += $" {Localizer["On"]} <b>{UtcToLocal(DeletedOn).Value.ToString(DateTimeFormat)}</ b >";
             }
 
             _text += "</p>";

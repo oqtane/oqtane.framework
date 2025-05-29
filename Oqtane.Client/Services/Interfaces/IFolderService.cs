@@ -40,15 +40,6 @@ namespace Oqtane.Services
         Task<Folder> UpdateFolderAsync(Folder folder);
 
         /// <summary>
-        /// Update the internal Folder-Order within the list of Folders.
-        /// </summary>
-        /// <param name="siteId">Reference to the <see cref="Site"/></param>
-        /// <param name="folderId">Reference to a <see cref="Folder"/> for the security check</param>
-        /// <param name="parentId">Reference to the Parent <see cref="Folder"/> or null - this Folders children will be re-sorted.</param>
-        /// <returns></returns>
-        Task UpdateFolderOrderAsync(int siteId, int folderId, int? parentId);
-
-        /// <summary>
         /// Delete a <see cref="Folder"/>
         /// </summary>
         /// <param name="folderId">Reference to a <see cref="Folder"/></param>

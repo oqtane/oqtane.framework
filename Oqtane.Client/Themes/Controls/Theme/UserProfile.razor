@@ -1,6 +1,7 @@
 @namespace Oqtane.Themes.Controls
 @using System.Net
 @inherits ThemeControlBase
+@inject ISettingService SettingService
 @inject IStringLocalizer<UserProfile> Localizer
 @inject NavigationManager NavigationManager
 
@@ -51,20 +52,38 @@
 
         if (!string.IsNullOrEmpty(RegisterUrl))
         {
-            _registerurl = RegisterUrl + "?returnurl=" + (RegisterUrl.Contains("://") ? WebUtility.UrlEncode(PageState.Route.RootUrl) + _returnurl : _returnurl);
+            _registerurl = RegisterUrl;            
+            _registerurl += (!_registerurl.Contains("?") ? "?" : "&") + "returnurl=" + (_registerurl.Contains("://") ? WebUtility.UrlEncode(PageState.Route.RootUrl) + _returnurl : _returnurl);
         }
         else
         {
-            _registerurl = NavigateUrl("register", "returnurl=" + _returnurl);
+            if (!string.IsNullOrEmpty(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:RegisterUrl", "")))
+            {
+                _registerurl = SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:RegisterUrl", "");
+                _registerurl += (!_registerurl.Contains("?") ? "?" : "&") + "returnurl=" + (_registerurl.Contains("://") ? WebUtility.UrlEncode(PageState.Route.RootUrl) + _returnurl : _returnurl);
+            }
+            else
+            {
+                _registerurl = NavigateUrl("register", "returnurl=" + _returnurl);
+            }
         }
 
         if (!string.IsNullOrEmpty(ProfileUrl))
         {
-            _registerurl = ProfileUrl + "?returnurl=" + (ProfileUrl.Contains("://") ? WebUtility.UrlEncode(PageState.Route.RootUrl) + _returnurl : _returnurl);
+            _profileurl = ProfileUrl;
+            _profileurl += (!_profileurl.Contains("?") ? "?" : "&") + "returnurl=" + (_profileurl.Contains("://") ? WebUtility.UrlEncode(PageState.Route.RootUrl) + _returnurl : _returnurl);
         }
         else
         {
-            _registerurl = NavigateUrl("profile", "returnurl=" + _returnurl);
+            if (!string.IsNullOrEmpty(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:ProfileUrl", "")))
+            {
+                _profileurl = SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:ProfileUrl", "");
+                _profileurl += (!_profileurl.Contains("?") ? "?" : "&") + "returnurl=" + (_profileurl.Contains("://") ? WebUtility.UrlEncode(PageState.Route.RootUrl) + _returnurl : _returnurl);
+            }
+            else
+            {
+                _profileurl = NavigateUrl("profile", "returnurl=" + _returnurl);
+            }
         }
     }
 }

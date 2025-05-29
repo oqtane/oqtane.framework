@@ -48,7 +48,7 @@ else
 						}
 					</td>
 					<td>@context.Requests</td>
-					<td>@context.RequestedOn</td>
+					<td>@UtcToLocal(context.RequestedOn)</td>
 				</Row>
 			</Pager>
 		</TabPanel>

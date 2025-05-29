@@ -141,7 +141,7 @@
             var log = await LogService.GetLogAsync(_logId);
             if (log != null)
             {
-                _logDate = log.LogDate.ToString(CultureInfo.CurrentCulture);
+                _logDate = UtcToLocal(log.LogDate).Value.ToString(CultureInfo.CurrentCulture);
                 _level = log.Level;
                 _feature = log.Feature;
                 _function = log.Function;

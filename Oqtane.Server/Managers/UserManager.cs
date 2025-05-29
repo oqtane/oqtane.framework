@@ -65,7 +65,12 @@ namespace Oqtane.Managers
                 {
                     user.SiteId = siteid;
                     user.Roles = GetUserRoles(user.UserId, user.SiteId);
-                    user.SecurityStamp = _identityUserManager.FindByNameAsync(user.Username).GetAwaiter().GetResult()?.SecurityStamp;
+                    var identityuser = _identityUserManager.FindByNameAsync(user.Username).GetAwaiter().GetResult();
+                    if (identityuser != null)
+                    {
+                        user.SecurityStamp = identityuser.SecurityStamp;
+                        user.EmailConfirmed = identityuser.EmailConfirmed;
+                    }
                     user.Settings = _settings.GetSettings(EntityNames.User, user.UserId)
                         .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                 }
@@ -245,22 +250,30 @@ namespace Oqtane.Managers
                 {
                     identityuser.Email = user.Email;
                     await _identityUserManager.UpdateAsync(identityuser); // security stamp not updated
-
-                    // if email address changed and it is not confirmed, verification is required for new email address
-                    if (!user.EmailConfirmed)
-                    {
-                        string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
-                        string url = alias.Protocol + alias.Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
-                        string body = "Dear " + user.DisplayName + ",\n\nIn Order To Verify The Email Address Associated To Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
-                        var notification = new Notification(user.SiteId, user, "User Account Verification", body);
-                        _notifications.AddNotification(notification);
-                    }
                 }
 
                 if (user.EmailConfirmed)
                 {
-                    var emailConfirmationToken = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
-                    await _identityUserManager.ConfirmEmailAsync(identityuser, emailConfirmationToken);
+                    if (!identityuser.EmailConfirmed)
+                    {
+                        var emailConfirmationToken = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
+                        await _identityUserManager.ConfirmEmailAsync(identityuser, emailConfirmationToken);
+
+                        string body = "Dear " + user.DisplayName + ",\n\nThe Email Address For Your User Account Has Been Verified. You Can Now Login With Your Username And Password.";
+                        var notification = new Notification(user.SiteId, user, "User Account Verification", body);
+                        _notifications.AddNotification(notification);
+                    }
+                }
+                else
+                {
+                    identityuser.EmailConfirmed = false;
+                    await _identityUserManager.UpdateAsync(identityuser); // security stamp not updated
+
+                    string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
+                    string url = alias.Protocol + alias.Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
+                    string body = "Dear " + user.DisplayName + ",\n\nIn Order To Verify The Email Address Associated To Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
+                    var notification = new Notification(user.SiteId, user, "User Account Verification", body);
+                    _notifications.AddNotification(notification);
                 }
 
                 user = _users.UpdateUser(user);

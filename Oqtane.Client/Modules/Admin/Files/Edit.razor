@@ -15,22 +15,34 @@
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="parent" HelpText="Select the parent folder" ResourceKey="Parent">Parent: </Label>
                         <div class="col-sm-9">
-                            <select id="parent" class="form-select" @bind="@_parentId" required>
-                                @if (PageState.QueryString.ContainsKey("id"))
-                                {
+                            @if (_parentId == -1)
+                            {
+                                <select id="parent" class="form-select" @bind="@_parentId" required>
                                     <option value="-1">&lt;@Localizer["NoParent"]&gt;</option>
-                                }
+                                </select>
+                            }
+                            else
+                            {
+                                <select id="parent" class="form-select" @bind="@_parentId" required>
                                 @foreach (Folder folder in _folders)
                                 {
                                     <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
                                 }
-                            </select>
+                                </select>
+                            }
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="name" HelpText="Enter the folder name" ResourceKey="Name">Name: </Label>
                         <div class="col-sm-9">
-                            <input id="name" class="form-control" @bind="@_name" maxlength="256" required />
+                            @if (_isSystem)
+                            {
+                                <input id="name" class="form-control" @bind="@_name" readonly />
+                            }
+                            else
+                            {
+                                <input id="name" class="form-control" @bind="@_name" maxlength="256" required />
+                            }
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
@@ -229,7 +241,6 @@
 
                 if (folder != null)
                 {
-                    await FolderService.UpdateFolderOrderAsync(folder.SiteId, folder.FolderId, folder.ParentId);
                     await logger.LogInformation("Folder Saved {Folder}", folder);
                     NavigationManager.NavigateTo(NavigateUrl());
                 }
@@ -265,17 +276,9 @@
             }
             if (!isparent)
             {
-                var files = await FileService.GetFilesAsync(_folderId);
-                if (files.Count == 0)
-                {
-                    await FolderService.DeleteFolderAsync(_folderId);
-                    await logger.LogInformation("Folder Deleted {Folder}", _folderId);
-                    NavigationManager.NavigateTo(NavigateUrl());
-                }
-                else
-                {
-                    AddModuleMessage(Localizer["Message.Folder.Files.InvalidDelete"], MessageType.Warning);
-                }
+                await FolderService.DeleteFolderAsync(_folderId);
+                await logger.LogInformation("Folder Deleted {Folder}", _folderId);
+                NavigationManager.NavigateTo(NavigateUrl());
             }
             else
             {

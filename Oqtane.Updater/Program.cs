@@ -15,19 +15,25 @@ namespace Oqtane.Updater
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            // requires 3 arguments - the ContentRootPath, the WebRootPath of the site, and a backup flag
+            // note additional arguments must be added in a backward compatible manner as older versions will not pass them
+            // requires 2 arguments - the ContentRootPath and the WebRootPath of the site
 
             // for testing purposes you can uncomment and modify the logic below
             //Array.Resize(ref args, 3);
             //args[0] = @"C:\yourpath\oqtane.framework\Oqtane.Server";
             //args[1] = @"C:\yourpath\oqtane.framework\Oqtane.Server\wwwroot";
-            //args[2] = @"true";
+            //args[2] = @"true"; // parameter added in 6.1.2
 
-            if (args.Length == 3)
+            if (args.Length >= 2)
             {
                 string contentrootfolder = args[0];
                 string webrootfolder = args[1];
-                bool backup = bool.Parse(args[2]);
+
+                bool backup = true;
+                if (args.Length >= 3)
+                {
+                    backup = bool.Parse(args[2]);
+                }
 
                 string deployfolder = Path.Combine(contentrootfolder, "Packages");
                 string backupfolder = Path.Combine(contentrootfolder, "Backup");

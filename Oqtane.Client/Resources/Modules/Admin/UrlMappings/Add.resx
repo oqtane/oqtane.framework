@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -121,10 +121,10 @@
     <value>Redirect To:</value>
   </data>
   <data name="MappedUrl.HelpText" xml:space="preserve">
-    <value>A relative or absolute Url where the user will be redirected</value>
+    <value>A Url where the user will be redirected (absolute or relative). Use '/' for site root path.</value>
   </data>
   <data name="Url.HelpText" xml:space="preserve">
-    <value>An absolute Url identifying a path to a specific page in the site</value>
+    <value>A Url identifying a path to a specific page in the site (absolute or relative)</value>
   </data>
   <data name="Url.Text" xml:space="preserve">
     <value>Url:</value>
@@ -140,5 +140,8 @@
   </data>
   <data name="Message.SaveUrlMapping" xml:space="preserve">
     <value>The Url must belong to the current site</value>
+  </data>
+  <data name="Generate" xml:space="preserve">
+    <value>Generate</value>
   </data>
 </root>
