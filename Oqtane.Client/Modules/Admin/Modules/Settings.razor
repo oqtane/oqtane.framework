@@ -101,15 +101,15 @@
                     <Section Name="ModuleContent" Heading="Content" ResourceKey="ModuleContent">
                         <div class="container">
                             <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="header" HelpText="Optionally provide content to be injected above the module instance" ResourceKey="Header">Header: </Label>
+                                <Label Class="col-sm-3" For="moduleheader" HelpText="Optionally provide content to be injected above the module instance" ResourceKey="Header">Header: </Label>
                                 <div class="col-sm-9">
-                                    <textarea id="header" class="form-control" @bind="@_header" rows="3" maxlength="4000"></textarea>
+                                    <textarea id="moduleheader" class="form-control" @bind="@_header" rows="3" maxlength="4000"></textarea>
                                 </div>
                             </div>
                             <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="footer" HelpText="Optionally provide content to be injected below the module instance" ResourceKey="Footer">Footer: </Label>
+                                <Label Class="col-sm-3" For="modulefooter" HelpText="Optionally provide content to be injected below the module instance" ResourceKey="Footer">Footer: </Label>
                                 <div class="col-sm-9">
-                                    <textarea id="footer" class="form-control" @bind="@_footer" rows="3" maxlength="4000"></textarea>
+                                    <textarea id="modulefooter" class="form-control" @bind="@_footer" rows="3" maxlength="4000"></textarea>
                                 </div>
                             </div>
                         </div>
