@@ -47,8 +47,13 @@ namespace Oqtane.Services
         }
 
         public async Task<string> ExportModuleAsync(int moduleId, int pageId)
-{
+        {
             return await GetStringAsync($"{Apiurl}/export?moduleid={moduleId}&pageid={pageId}");
+        }
+
+        public async Task<int> ExportModuleAsync(int moduleId, int pageId, int folderId, string filename)
+        {
+            return await PostJsonAsync<string,int>($"{Apiurl}/export?moduleid={moduleId}&pageid={pageId}&folderid={folderId}&filename={filename}", null);
         }
     }
 }

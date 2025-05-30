@@ -2,20 +2,27 @@
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IModuleService ModuleService
+@inject IFileService FileService
 @inject IStringLocalizer<Import> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <div class="container">
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="content" HelpText="Enter The Module Content To Import" ResourceKey="Content">Content: </Label>
+            <Label Class="col-sm-3" For="file" HelpText="Optionally upload or select a file to import for this module" ResourceKey="File">File: </Label>
+            <div class="col-sm-9">
+                <FileManager Filter="json" OnSelectFile="OnSelectFile" />
+            </div>
+        </div>
+        <hr />
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="content" HelpText="Provide the module content to import" ResourceKey="Content">Content: </Label>
             <div class="col-sm-9">
                 <textarea id="content" class="form-control" @bind="@_content" rows="5" required></textarea>
-
             </div>
         </div>
     </div>
-
+    <br />
     <button type="button" class="btn btn-success" @onclick="ImportModule">@Localizer["Import"]</button>
     <NavLink class="btn btn-secondary" href="@PageState.ReturnUrl">@SharedLocalizer["Cancel"]</NavLink>
 </form>
@@ -27,6 +34,12 @@
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
     public override string Title => "Import Content";
+
+    private async Task OnSelectFile(int fileId)
+    {
+        var bytes = await FileService.DownloadFileAsync(fileId);
+        _content = System.Text.Encoding.UTF8.GetString(bytes, 0, bytes.Length);
+    }
 
     private async Task ImportModule()
     {

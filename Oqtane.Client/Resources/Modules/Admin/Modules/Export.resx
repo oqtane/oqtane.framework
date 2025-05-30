@@ -121,7 +121,7 @@
     <value>Export</value>
   </data>
   <data name="Content.HelpText" xml:space="preserve">
-    <value>The Exported Module Content</value>
+    <value>Select the Export option and you will be able to view the module content</value>
   </data>
   <data name="Content.Text" xml:space="preserve">
     <value>Content: </value>
@@ -134,5 +134,26 @@
   </data>
   <data name="Export Content" xml:space="preserve">
     <value>Export Content</value>
+  </data>
+  <data name="Content.Heading" xml:space="preserve">
+    <value>Content</value>
+  </data>
+  <data name="File.Heading" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="Folder.Text" xml:space="preserve">
+    <value>Folder:</value>
+  </data>
+  <data name="Folder.HelpText" xml:space="preserve">
+    <value>Select a folder where you wish to save the exported content</value>
+  </data>
+  <data name="Message.Content.Export" xml:space="preserve">
+    <value>Please Select A Folder And Provide A Filename Before Choosing Export</value>
+  </data>
+  <data name="Filename.Text" xml:space="preserve">
+    <value>Filename:</value>
+  </data>
+  <data name="Filename.HelpText" xml:space="preserve">
+    <value>Specify a name for the file (without an extension)</value>
   </data>
 </root>

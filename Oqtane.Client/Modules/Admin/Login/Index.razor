@@ -144,7 +144,7 @@ else
                     user = await UserService.VerifyEmailAsync(user, PageState.QueryString["token"]);
                     if (user != null)
                     {
-                        await logger.LogInformation(LogFunction.Security, "Email Verified For For Username {Username}", _username);
+                        await logger.LogInformation(LogFunction.Security, "Email Verified For Username {Username}", _username);
                         AddModuleMessage(Localizer["Success.Account.Verified"], MessageType.Info);						
                     }
                     else
