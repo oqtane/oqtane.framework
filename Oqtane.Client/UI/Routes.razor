@@ -48,12 +48,18 @@
 
     private bool _initialized = false;
     private bool _installed = false;
-    private string _display = "display: none;";
+    private string _display = "";
 
     private PageState _pageState { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
+        if (PageState != null && PageState.RenderMode == RenderModes.Interactive && PageState.Site.Prerender)
+        {
+            // prevents flash on initial interactive page load when using prerendering
+            _display = "display: none;";
+        }
+
         SiteState.AntiForgeryToken = AntiForgeryToken;
         SiteState.AuthorizationToken = AuthorizationToken;
         SiteState.Platform = Platform;
@@ -61,7 +67,7 @@
 
         if (Runtime == Runtimes.Hybrid)
         {
-             var installation = await InstallationService.IsInstalled();
+            var installation = await InstallationService.IsInstalled();
             _installed = installation.Success;
             if (installation.Alias != null)
             {
@@ -73,8 +79,8 @@
             if (PageState != null)
             {
                 _pageState = PageState;
-                SiteState.Alias = PageState.Alias;
-                SiteState.RemoteIPAddress = (PageState != null) ? PageState.RemoteIPAddress : "";
+                SiteState.Alias = _pageState.Alias;
+                SiteState.RemoteIPAddress = _pageState.RemoteIPAddress;
                 _installed = true;
             }
         }
@@ -85,9 +91,7 @@
     {
         if (firstRender)
         {
-            // prevents flash on initial interactive page load
             _display = "";
-            StateHasChanged();
         }
     }
 

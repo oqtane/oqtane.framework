@@ -4,8 +4,8 @@
 @inject ILogService LoggingService
 @inherits ErrorBoundary
 
-<CascadingValue Value="@PageState">
-    <CascadingValue Value="@ModuleState">
+<CascadingValue Value="@PageState" IsFixed="true">
+    <CascadingValue Value="@ModuleState" IsFixed="true">
         @if (CurrentException is null)
         {
             @if (ModuleType != null)
