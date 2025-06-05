@@ -12,7 +12,7 @@ Oqtane is being developed based on some fundamental principles which are outline
 
 # Latest Release
 
-[6.1.2](https://github.com/oqtane/oqtane.framework/releases/tag/v6.1.2) was released on April 10, 2025 and is a maintenance release including 41 pull requests by 3 different contributors, pushing the total number of project commits all-time to over 6500. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
+[6.1.3](https://github.com/oqtane/oqtane.framework/releases/tag/v6.1.3) was released on May 29, 2025 and is a maintenance release including 59 pull requests by 5 different contributors, pushing the total number of project commits all-time to over 6600. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
 # Try It Now!
 
@@ -22,11 +22,11 @@ Microsoft's Public Cloud (requires an Azure account)
 A free ASP.NET hosting account. No hidden fees. No credit card required.  
 [![Deploy to MonsterASP.NET](https://www.oqtane.org/files/Public/MonsterASPNET.png)](https://www.monsterasp.net/) 
 
-# Getting Started (Version 6.1.2)
+# Getting Started (Version 6)
 
 **Installing using source code from the Dev/Master branch:**
 
-- Install **[.NET 9.0.4 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)**.
+- Install **[.NET 9.0.5 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)**.
 
 - Install the latest edition (v17.12 or higher) of [Visual Studio 2022](https://visualstudio.microsoft.com/downloads) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you wish to use LocalDB for development ( not a requirement as Oqtane supports SQLite, mySQL, and PostgreSQL ) you must also install the **Data storage and processing**.  
 
@@ -91,6 +91,9 @@ Connect with other developers, get support, and share ideas by joining the Oqtan
 
 # Roadmap
 This project is open source, and therefore is a work in progress...
+
+[6.1.3](https://github.com/oqtane/oqtane.framework/releases/tag/v6.1.3) (May 29, 2025)
+- [x] Stabilization improvements 
 
 [6.1.2](https://github.com/oqtane/oqtane.framework/releases/tag/v6.1.2) (Apr 10, 2025)
 - [x] Stabilization improvements
