@@ -500,17 +500,24 @@ namespace Oqtane.Modules
             };
         }
 
-        // date methods
+        // date conversion methods
         public DateTime? UtcToLocal(DateTime? datetime)
         {
             TimeZoneInfo timezone = null;
-            if (PageState.User != null && !string.IsNullOrEmpty(PageState.User.TimeZoneId))
+            try
             {
-                timezone = TimeZoneInfo.FindSystemTimeZoneById(PageState.User.TimeZoneId);
+                if (PageState.User != null && !string.IsNullOrEmpty(PageState.User.TimeZoneId))
+                {
+                    timezone = TimeZoneInfo.FindSystemTimeZoneById(PageState.User.TimeZoneId);
+                }
+                else if (!string.IsNullOrEmpty(PageState.Site.TimeZoneId))
+                {
+                    timezone = TimeZoneInfo.FindSystemTimeZoneById(PageState.Site.TimeZoneId);
+                }
             }
-            else if (!string.IsNullOrEmpty(PageState.Site.TimeZoneId))
+            catch
             {
-                timezone = TimeZoneInfo.FindSystemTimeZoneById(PageState.Site.TimeZoneId);
+                // The time zone ID was not found on the local computer
             }
             return Utilities.UtcAsLocalDateTime(datetime, timezone);
         }
@@ -518,13 +525,20 @@ namespace Oqtane.Modules
         public DateTime? LocalToUtc(DateTime? datetime)
         {
             TimeZoneInfo timezone = null;
-            if (PageState.User != null && !string.IsNullOrEmpty(PageState.User.TimeZoneId))
+            try
             {
-                timezone = TimeZoneInfo.FindSystemTimeZoneById(PageState.User.TimeZoneId);
+                if (PageState.User != null && !string.IsNullOrEmpty(PageState.User.TimeZoneId))
+                {
+                    timezone = TimeZoneInfo.FindSystemTimeZoneById(PageState.User.TimeZoneId);
+                }
+                else if (!string.IsNullOrEmpty(PageState.Site.TimeZoneId))
+                {
+                    timezone = TimeZoneInfo.FindSystemTimeZoneById(PageState.Site.TimeZoneId);
+                }
             }
-            else if (!string.IsNullOrEmpty(PageState.Site.TimeZoneId))
+            catch
             {
-                timezone = TimeZoneInfo.FindSystemTimeZoneById(PageState.Site.TimeZoneId);
+                // The time zone ID was not found on the local computer
             }
             return Utilities.LocalDateAndTimeAsUtc(datetime, timezone);
         }
