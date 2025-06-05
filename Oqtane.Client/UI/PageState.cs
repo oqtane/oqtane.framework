@@ -37,5 +37,34 @@ namespace Oqtane.UI
         {
             get { return Site?.Languages; }
         }
+
+        public PageState Clone()
+        {
+            return new PageState
+            {
+                Alias = Alias,
+                Site = Site,
+                Page = Page,
+                Modules = Modules,
+                User = User,
+                Uri = Uri,
+                Route = Route,
+                QueryString = QueryString,
+                UrlParameters = UrlParameters,
+                ModuleId = ModuleId,
+                Action = Action,
+                EditMode = EditMode,
+                LastSyncDate = LastSyncDate,
+                RenderMode = RenderMode,
+                Runtime = Runtime,
+                VisitorId = VisitorId,
+                RemoteIPAddress = RemoteIPAddress,
+                ReturnUrl = ReturnUrl,
+                IsInternalNavigation = IsInternalNavigation,
+                RenderId = RenderId,
+                Refresh = Refresh,
+                AllowCookies = AllowCookies
+            };
+        }
     }
 }

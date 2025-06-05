@@ -10,11 +10,11 @@
     @((MarkupString)_comment)
     @if (PageState.RenderMode == RenderModes.Interactive || ModuleState.RenderMode == RenderModes.Static)
     {
-        <RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" />
+        <RenderModeBoundary ModuleState="@ModuleState" PageState="@_pageState" SiteState="@SiteState" />
     }
     else
     {
-        <RenderModeBoundary ModuleState="@ModuleState" PageState="@PageState" SiteState="@SiteState" @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, _prerender)" />
+        <RenderModeBoundary ModuleState="@ModuleState" PageState="@_pageState" SiteState="@SiteState" @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(PageState.Site.Runtime, _prerender)" />
     }
 }
 @if (PageState.ModuleId == -1)
@@ -32,6 +32,7 @@
 
     private bool _prerender;
     private string _comment;
+    private PageState _pageState;
 
     protected override void OnParametersSet()
     {
@@ -48,11 +49,12 @@
         }
         _comment += " -->";
 
+        _pageState = PageState.Clone();
         if (PageState.RenderMode == RenderModes.Static && ModuleState.RenderMode == RenderModes.Interactive)
         {
             // trim PageState to mitigate page bloat caused by Blazor serializing/encrypting state when crossing render mode boundaries
-            // please note that this performance optimization results in the PageState.Pages property not being available for use in Interactive components
-            PageState.Site.Pages = new List<Page>();
+            // please note that this performance optimization results in the PageState.Pages property not being available for use in downstream Interactive components
+            _pageState.Site.Pages = new List<Page>();
         }
     }
 
