@@ -103,6 +103,9 @@
     {
         var cookieConsentSetting = SettingService.GetSetting(PageState.Site.Settings, "CookieConsent", string.Empty);
         _enabled = !string.IsNullOrEmpty(cookieConsentSetting);
+
+        if (!_enabled) return;
+
         _optout = cookieConsentSetting == "optout";
         _actioned = await CookieConsentService.IsActionedAsync();
 
