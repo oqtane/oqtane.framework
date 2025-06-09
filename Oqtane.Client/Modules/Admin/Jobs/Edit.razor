@@ -176,10 +176,18 @@
 			{
 				job.Interval = int.Parse(_interval);
 			}
-            job.StartDate = LocalToUtc(_startDate.Value.Date.Add(_startTime.Value.TimeOfDay));
-            job.EndDate = LocalToUtc(_endDate.Value.Date.Add(_endTime.Value.TimeOfDay));
-			job.RetentionHistory = int.Parse(_retentionHistory);
-            job.NextExecution = LocalToUtc(_nextDate.Value.Date.Add(_nextTime.Value.TimeOfDay));
+                job.StartDate = _startDate.HasValue && _startTime.HasValue
+                    ? LocalToUtc(_startDate.Value.Date.Add(_startTime.Value.TimeOfDay))
+                    : null;
+
+                job.EndDate = _endDate.HasValue && _endTime.HasValue
+                    ? LocalToUtc(_endDate.Value.Date.Add(_endTime.Value.TimeOfDay))
+                    : null;
+
+                job.NextExecution = _nextDate.HasValue && _nextTime.HasValue
+                    ? LocalToUtc(_nextDate.Value.Date.Add(_nextTime.Value.TimeOfDay))
+                    : null; 
+                job.RetentionHistory = int.Parse(_retentionHistory);
 
 			try
 			{
