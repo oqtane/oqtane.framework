@@ -32,7 +32,30 @@ namespace Oqtane.Repository
         public IEnumerable<Module> GetModules(int siteId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.Module.Where(item => item.SiteId == siteId).ToList();
+
+            // Get modules first
+                .Where(m => m.SiteId == siteId)
+                .ToList();
+
+            // Get deletable info in one query
+            var deletableInfo = db.PageModule
+                .Where(pm => modules.Select(m => m.ModuleId).Contains(pm.ModuleId))
+                .Select(pm => new { pm.ModuleId, pm.DeletedBy, pm.DeletedOn, pm.IsDeleted })
+                .ToList();
+
+            // Update modules
+            foreach (var module in modules)
+            {
+                var info = deletableInfo.FirstOrDefault(di => di.ModuleId == module.ModuleId);
+                if (info != null)
+                {
+                    module.DeletedBy = info.DeletedBy;
+                    module.DeletedOn = info.DeletedOn;
+                    module.IsDeleted = info.IsDeleted;
+                }
+            }
+
+            return modules;
         }
 
         public Module AddModule(Module module)
