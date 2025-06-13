@@ -71,7 +71,7 @@
     {
         if (PageState == null || PageState.Refresh)
         {
-            await Refresh();
+            await Refresh(false);
         }
     }
 
@@ -79,7 +79,7 @@
     {
         _absoluteUri = args.Location;
         _isInternalNavigation = true;
-        await Refresh();
+        await Refresh(true);
     }
 
     Task IHandleAfterRender.OnAfterRenderAsync()
@@ -93,7 +93,7 @@
     }
 
     [SuppressMessage("ReSharper", "StringIndexOfIsCultureSpecific.1")]
-    private async Task Refresh()
+    private async Task Refresh(bool locationChanged)
     {
         Site site = null;
         Page page = null;
@@ -103,6 +103,7 @@
         var refresh = false;
         var lastsyncdate = DateTime.MinValue;
         var visitorId = -1;
+        var renderid = Guid.Empty;
         _error = "";
 
         Route route = new Route(_absoluteUri, SiteState.Alias.Path);
@@ -288,11 +289,21 @@
                     modules = PageState.Modules;
                 }
 
+                // renderid allows the framework to determine which module components should be rendered on a page
+                if (PageState == null || locationChanged)
+                {
+                    renderid = Guid.NewGuid();
+                }
+                else
+                {
+                    renderid = PageState.RenderId;
+                }
+                
                 // load additional metadata for current page
                 page = ProcessPage(page, site, user, SiteState.Alias, action);
 
                 // load additional metadata for modules
-                (page, modules) = ProcessModules(site, page, modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType, SiteState.Alias);
+                (page, modules) = ProcessModules(site, page, modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType, SiteState.Alias, renderid);
 
                 //cookie consent
                 var _allowCookies = PageState?.AllowCookies;
@@ -324,7 +335,7 @@
 					RemoteIPAddress = SiteState.RemoteIPAddress,
 					ReturnUrl = returnurl,
                     IsInternalNavigation = _isInternalNavigation,
-                    RenderId = Guid.NewGuid(),
+                    RenderId = renderid,
                     Refresh = false,
                     AllowCookies = _allowCookies.GetValueOrDefault(true)
                 };
@@ -447,7 +458,7 @@
         return page;
     }
 
-    private (Page Page, List<Module> Modules) ProcessModules(Site site, Page page, List<Module> modules, int moduleid, string action, string defaultcontainertype, Alias alias)
+    private (Page Page, List<Module> Modules) ProcessModules(Site site, Page page, List<Module> modules, int moduleid, string action, string defaultcontainertype, Alias alias, Guid renderid)
     {
         var paneindex = new Dictionary<string, int>();
 
@@ -592,6 +603,8 @@
             {
                 module.ContainerType = defaultcontainertype;
             }
+
+            module.RenderId = renderid;
         }
 
         foreach (Module module in modules.Where(item => item.PageId == page.PageId))
