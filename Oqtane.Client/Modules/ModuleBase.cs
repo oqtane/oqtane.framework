@@ -503,6 +503,10 @@ namespace Oqtane.Modules
         // date conversion methods
         public DateTime? UtcToLocal(DateTime? datetime)
         {
+            // Early return if input is null
+            if (datetime == null)
+                return null;
+
             TimeZoneInfo timezone = null;
             try
             {
@@ -519,11 +523,16 @@ namespace Oqtane.Modules
             {
                 // The time zone ID was not found on the local computer
             }
+
             return Utilities.UtcAsLocalDateTime(datetime, timezone);
         }
 
         public DateTime? LocalToUtc(DateTime? datetime)
         {
+            // Early return if input is null
+            if (datetime == null)
+                return null;
+
             TimeZoneInfo timezone = null;
             try
             {
@@ -540,6 +549,7 @@ namespace Oqtane.Modules
             {
                 // The time zone ID was not found on the local computer
             }
+
             return Utilities.LocalDateAndTimeAsUtc(datetime, timezone);
         }
 
