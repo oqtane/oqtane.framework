@@ -34,6 +34,7 @@
     <EmbeddedResource Include="Scripts\MigrateTenant.sql" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="MailKit" Version="4.13.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.5" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
