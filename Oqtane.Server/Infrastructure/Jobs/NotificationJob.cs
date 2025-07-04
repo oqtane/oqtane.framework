@@ -57,7 +57,7 @@ namespace Oqtane.Infrastructure
 
                         client.Connect(host: settingRepository.GetSettingValue(settings, "SMTPHost", ""), 
                                        port: int.Parse(settingRepository.GetSettingValue(settings, "SMTPPort", "")),
-                                       options: MailKit.Security.SecureSocketOptions.Auto);
+                                       options: bool.Parse(settingRepository.GetSettingValue(settings, "SMTPSSL", "False")) ? MailKit.Security.SecureSocketOptions.StartTls : MailKit.Security.SecureSocketOptions.None);
 
                         if (settingRepository.GetSettingValue(settings, "SMTPUsername", "") != "" && settingRepository.GetSettingValue(settings, "SMTPPassword", "") != "")
                         {
