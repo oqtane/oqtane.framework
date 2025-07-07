@@ -1,9 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Mail;
+
+using MailKit.Net.Smtp;
+
 using Microsoft.Extensions.DependencyInjection;
+
+using MimeKit;
+
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
@@ -48,18 +52,17 @@ namespace Oqtane.Infrastructure
                         settingRepository.GetSettingValue(settings, "SMTPPort", "") != "" &&
                         settingRepository.GetSettingValue(settings, "SMTPSender", "") != "")
                     {
-                        // construct SMTP Client 
-                        var client = new SmtpClient()
-                        {
-                            DeliveryMethod = SmtpDeliveryMethod.Network,
-                            UseDefaultCredentials = false,
-                            Host = settingRepository.GetSettingValue(settings, "SMTPHost", ""),
-                            Port = int.Parse(settingRepository.GetSettingValue(settings, "SMTPPort", "")),
-                            EnableSsl = bool.Parse(settingRepository.GetSettingValue(settings, "SMTPSSL", "False"))
-                        };
+                        // construct SMTP Client
+                        using var client = new SmtpClient();
+
+                        client.Connect(host: settingRepository.GetSettingValue(settings, "SMTPHost", ""), 
+                                       port: int.Parse(settingRepository.GetSettingValue(settings, "SMTPPort", "")),
+                                       options: bool.Parse(settingRepository.GetSettingValue(settings, "SMTPSSL", "False")) ? MailKit.Security.SecureSocketOptions.StartTls : MailKit.Security.SecureSocketOptions.None);
+
                         if (settingRepository.GetSettingValue(settings, "SMTPUsername", "") != "" && settingRepository.GetSettingValue(settings, "SMTPPassword", "") != "")
                         {
-                            client.Credentials = new NetworkCredential(settingRepository.GetSettingValue(settings, "SMTPUsername", ""), settingRepository.GetSettingValue(settings, "SMTPPassword", ""));
+                            client.Authenticate(settingRepository.GetSettingValue(settings, "SMTPUsername", ""), 
+                                                settingRepository.GetSettingValue(settings, "SMTPPassword", ""));
                         }
 
                         // iterate through undelivered notifications
@@ -88,7 +91,7 @@ namespace Oqtane.Infrastructure
                             }
 
                             // validate recipient
-                            if (string.IsNullOrEmpty(notification.ToEmail) || !MailAddress.TryCreate(notification.ToEmail, out _))
+                            if (string.IsNullOrEmpty(notification.ToEmail) || !MailboxAddress.TryParse(notification.ToEmail, out _))
                             {
                                 log += $"NotificationId: {notification.NotificationId} - Has Missing Or Invalid Recipient {notification.ToEmail}<br />";
                                 notification.IsDeleted = true;
@@ -96,50 +99,52 @@ namespace Oqtane.Infrastructure
                             }
                             else
                             {
-                                MailMessage mailMessage = new MailMessage();
+                                MimeMessage mailMessage = new MimeMessage();
 
                                 // sender
                                 if (settingRepository.GetSettingValue(settings, "SMTPRelay", "False") == "True" && !string.IsNullOrEmpty(notification.FromEmail))
                                 {
                                     if (!string.IsNullOrEmpty(notification.FromDisplayName))
                                     {
-                                        mailMessage.From = new MailAddress(notification.FromEmail, notification.FromDisplayName);
+                                        mailMessage.From.Add(new MailboxAddress(notification.FromDisplayName, notification.FromEmail));
                                     }
                                     else
                                     {
-                                        mailMessage.From = new MailAddress(notification.FromEmail);
+                                        mailMessage.From.Add(new MailboxAddress("", notification.FromEmail));
                                     }
                                 }
                                 else
                                 {
-                                    mailMessage.From = new MailAddress(settingRepository.GetSettingValue(settings, "SMTPSender", ""), (!string.IsNullOrEmpty(notification.FromDisplayName)) ? notification.FromDisplayName : site.Name);
+                                    mailMessage.From.Add(new MailboxAddress((!string.IsNullOrEmpty(notification.FromDisplayName)) ? notification.FromDisplayName : site.Name,
+                                                                            settingRepository.GetSettingValue(settings, "SMTPSender", "")));
                                 }
 
                                 // recipient
                                 if (!string.IsNullOrEmpty(notification.ToDisplayName))
                                 {
-                                    mailMessage.To.Add(new MailAddress(notification.ToEmail, notification.ToDisplayName));
+                                    mailMessage.To.Add(new MailboxAddress(notification.ToDisplayName, notification.ToEmail));
                                 }
                                 else
                                 {
-                                    mailMessage.To.Add(new MailAddress(notification.ToEmail));
+                                    mailMessage.To.Add(new MailboxAddress("", notification.ToEmail));
                                 }
 
                                 // subject
                                 mailMessage.Subject = notification.Subject;
 
                                 //body
-                                mailMessage.Body = notification.Body;
-                                if (!mailMessage.Body.Contains("<") || !mailMessage.Body.Contains(">"))
+                                var bodyText = notification.Body;
+
+                                if (!bodyText.Contains('<') || !bodyText.Contains('>'))
                                 {
                                     // plain text messages should convert line breaks to HTML tags to preserve formatting
-                                    mailMessage.Body = mailMessage.Body.Replace("\n", "<br />");
+                                    bodyText = bodyText.Replace("\n", "<br />");
                                 }
 
-                                // encoding
-                                mailMessage.SubjectEncoding = System.Text.Encoding.UTF8;
-                                mailMessage.BodyEncoding = System.Text.Encoding.UTF8;
-                                mailMessage.IsBodyHtml = true;
+                                mailMessage.Body = new TextPart("html", System.Text.Encoding.UTF8)
+                                {
+                                    Text = bodyText
+                                };
 
                                 // send mail
                                 try
@@ -157,6 +162,7 @@ namespace Oqtane.Infrastructure
                                 }
                             }
                         }
+                        client.Disconnect(true);
                         log += "Notifications Delivered: " + sent + "<br />";
                     }
                     else
