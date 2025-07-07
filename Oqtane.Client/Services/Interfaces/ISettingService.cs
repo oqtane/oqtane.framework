@@ -256,7 +256,7 @@ namespace Oqtane.Services
 
         Dictionary<string, string> SetSetting(Dictionary<string, string> settings, string settingName, string settingValue, bool isPrivate);
 
-        Dictionary<string, string> MergeSettings(Dictionary<string, string> settings1, Dictionary<string, string> settings2);
+        Dictionary<string, string> MergeSettings(Dictionary<string, string> baseSettings, Dictionary<string, string> overwriteSettings);
 
 
         [Obsolete("GetSettingAsync(int settingId) is deprecated. Use GetSettingAsync(string entityName, int settingId) instead.", false)]
