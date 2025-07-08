@@ -20,13 +20,6 @@
             return;
         }
 
-        // force authenticated user to provide email address (email may be missing if using external login)
-        if (PageState.User != null && PageState.User.IsAuthenticated && string.IsNullOrEmpty(PageState.User.Email) && PageState.Route.PagePath != "profile")
-        {
-            NavigationManager.NavigateTo(Utilities.NavigateUrl(PageState.Alias.Path, "profile", "returnurl=" + WebUtility.UrlEncode(PageState.Route.PathAndQuery)));
-            return;
-        }
-
         // set page title
         if (!string.IsNullOrEmpty(PageState.Page.Title))
         {
