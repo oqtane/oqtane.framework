@@ -71,13 +71,15 @@ namespace Oqtane.Shared
                             { "ExternalLogin:ProviderUrl", "https://developers.facebook.com" },
                             { "ExternalLogin:ProviderType", "oauth2" },
                             { "ExternalLogin:ProviderName", "Facebook" },
-                            { "ExternalLogin:AuthorizationUrl", "https://www.facebook.com/v18.0/dialog/oauth" },
-                            { "ExternalLogin:TokenUrl", "https://graph.facebook.com/v18.0/oauth/access_token" },
-                            { "ExternalLogin:UserInfoUrl", "https://graph.facebook.com/v18.0/me" },
+                            { "ExternalLogin:AuthorizationUrl", "https://www.facebook.com/v23.0/dialog/oauth" },
+                            { "ExternalLogin:TokenUrl", "https://graph.facebook.com/v23.0/oauth/access_token" },
+                            { "ExternalLogin:UserInfoUrl", "https://graph.facebook.com/v23.0/me?fields=id,name,email" },
                             { "ExternalLogin:ClientId", "YOUR CLIENT ID" },
                             { "ExternalLogin:ClientSecret", "YOUR CLIENT SECRET" },
-                            { "ExternalLogin:Scopes", "public_profile" },
-                            { "ExternalLogin:IdentifierClaimType", "id" }
+                            { "ExternalLogin:Scopes", "public_profile,email" },
+                            { "ExternalLogin:IdentifierClaimType", "id" },
+                            { "ExternalLogin:NameClaimType", "name" },
+                            { "ExternalLogin:EmailClaimType", "email" }
                         }
                     }
                 };
