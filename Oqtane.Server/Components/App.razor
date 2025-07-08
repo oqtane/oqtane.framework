@@ -345,6 +345,7 @@
             DateTime expiry = DateTime.MinValue;
             if (visitorCookieValue != null && visitorCookieValue.Contains("|"))
             {
+                // visitor cookies contain the visitor id and an expiry date separated by a pipe symbol
                 var values = visitorCookieValue.Split('|');
                 int.TryParse(values[0], out _visitorId);
                 DateTime.TryParseExact(values[1], "M/d/yyyy hh:mm:ss tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out expiry);
