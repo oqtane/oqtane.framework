@@ -414,11 +414,6 @@
                 _displayname = PageState.User.DisplayName;
                 _timezoneid = PageState.User.TimeZoneId;
 
-                if (string.IsNullOrEmpty(_email))
-                {
-                    AddModuleMessage(Localizer["Message.User.NoEmail"], MessageType.Warning);
-                }
-
                 // get user folder
                 var folder = await FolderService.GetFolderAsync(ModuleState.SiteId, PageState.User.FolderPath);
                 if (folder != null)
