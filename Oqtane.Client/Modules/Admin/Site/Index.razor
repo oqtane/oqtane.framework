@@ -10,7 +10,6 @@
 @inject IAliasService AliasService
 @inject IThemeService  ThemeService
 @inject ISettingService  SettingService
-@inject ITimeZoneService TimeZoneService
 @inject IServiceProvider ServiceProvider
 @inject IStringLocalizer<Index> Localizer
 @inject INotificationService NotificationService
@@ -508,7 +507,7 @@
             Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
             if (site != null)
             {
-                _timezones = await TimeZoneService.GetTimeZonesAsync();
+                _timezones = Utilities.GetTimeZones();
                 var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
 
                 _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
