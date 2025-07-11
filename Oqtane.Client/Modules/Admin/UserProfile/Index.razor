@@ -9,7 +9,6 @@
 @inject INotificationService NotificationService
 @inject IFileService FileService
 @inject IFolderService FolderService
-@inject ITimeZoneService TimeZoneService
 @inject IJSRuntime jsRuntime
 @inject IServiceProvider ServiceProvider
 @inject IStringLocalizer<Index> Localizer
@@ -404,7 +403,7 @@
             _togglepassword = SharedLocalizer["ShowPassword"];
             _allowtwofactor = (SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:TwoFactor", "false") == "true");
             _profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
-            _timezones = await TimeZoneService.GetTimeZonesAsync();
+            _timezones = Utilities.GetTimeZones();
 
             if (PageState.User != null)
             {

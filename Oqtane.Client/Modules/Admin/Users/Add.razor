@@ -5,7 +5,6 @@
 @inject IUserService UserService
 @inject IProfileService ProfileService
 @inject ISettingService SettingService
-@inject ITimeZoneService TimeZoneService
 @inject IStringLocalizer<Add> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -133,7 +132,7 @@
     {
         try
         {
-            _timezones = await TimeZoneService.GetTimeZonesAsync();
+            _timezones = Utilities.GetTimeZones();
             _profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
             _settings = new Dictionary<string, string>();
             _timezoneid = PageState.Site.TimeZoneId;
