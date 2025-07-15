@@ -75,6 +75,10 @@ app {
     color: gray;
 }
 
+.app-moduleactions .dropdown-menu {
+    z-index: 9000;
+}
+
 .app-moduleactions .dropdown-submenu {
     position: relative;
 }
