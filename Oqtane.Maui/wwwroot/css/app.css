@@ -76,7 +76,7 @@ app {
 }
 
 .app-moduleactions .dropdown-menu {
-    z-index: 9000;
+    z-index: 9999;
 }
 
 .app-moduleactions .dropdown-submenu {
