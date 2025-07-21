@@ -158,6 +158,9 @@
     public bool UploadMultiple { get; set; } = false; // optional - enable multiple file uploads - default false
 
     [Parameter]
+    public bool AnonymizeUploadFilenames { get; set; } = false; // optional - indicate if file names should be anonymized on upload - default false
+
+    [Parameter]
     public int ChunkSize { get; set; } = 1; // optional - size of file chunks to upload in MB
 
     [Parameter]
@@ -408,7 +411,7 @@
                     }
 
                     // upload files
-                    var success = await interop.UploadFiles(posturl, folder, _guid, SiteState.AntiForgeryToken, jwt, chunksize, tokenSource.Token);
+                    var success = await interop.UploadFiles(posturl, folder, _guid, SiteState.AntiForgeryToken, jwt, chunksize, AnonymizeUploadFilenames, tokenSource.Token);
 
                     // reset progress indicators
                     if (ShowProgress)
