@@ -123,4 +123,7 @@
   <data name="PermissionDenied" xml:space="preserve">
     <value>Permission Denied</value>
   </data>
+  <data name="PermissionDisabled" xml:space="preserve">
+    <value>Permission Disabled</value>
+  </data>
 </root>
