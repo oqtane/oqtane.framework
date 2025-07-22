@@ -16,7 +16,7 @@
     public bool Disabled { get; set; }
 
     [Parameter]
-    public Action<bool?> OnChange { get; set; }
+    public Func<bool?, bool?> OnChange { get; set; }
 
     protected override void OnInitialized()
     {
@@ -41,27 +41,35 @@
                     break;
             }
 
+            _value = OnChange(_value);
             SetImage();
-            OnChange(_value);
         }
     }
 
     private void SetImage()
     {
-        switch (_value)
+        if (!Disabled)
         {
-            case true:
-                _src = "images/checked.png";
-                _title = Localizer["PermissionGranted"];
-                break;
-            case false:
-                _src = "images/unchecked.png";
-                _title = Localizer["PermissionDenied"];
-                break;
-            case null:
-                _src = "images/null.png";
-                _title = string.Empty;
-                break;
+            switch (_value)
+            {
+                case true:
+                    _src = "images/checked.png";
+                    _title = Localizer["PermissionGranted"];
+                    break;
+                case false:
+                    _src = "images/unchecked.png";
+                    _title = Localizer["PermissionDenied"];
+                    break;
+                case null:
+                    _src = "images/null.png";
+                    _title = string.Empty;
+                    break;
+            }
+        }
+        else
+        {
+            _src = "images/disabled.png";
+            _title = Localizer["PermissionDisabled"];
         }
 
         StateHasChanged();
