@@ -404,13 +404,13 @@ namespace Oqtane.Extensions
                                 else if (!string.IsNullOrEmpty(name)) // name claim provided
                                 {
                                     username = name.ToLower().Replace(" ", "") + DateTime.UtcNow.ToString("mmss");
-                                    emailaddress = ""; // unknown - will need to be requested from user later
+                                    emailaddress = username + "@unknown.com";
                                     displayname = name;
                                 }
                                 else // neither email nor name provided
                                 {
                                     username = Guid.NewGuid().ToString("N"); 
-                                    emailaddress = ""; // unknown - will need to be requested from user later
+                                    emailaddress = username + "@unknown.com";
                                     displayname = username;
                                 }
 

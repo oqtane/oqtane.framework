@@ -266,27 +266,25 @@ namespace Oqtane.Services
             return settings;
         }
 
-        public Dictionary<string, string> MergeSettings(Dictionary<string, string> settings1, Dictionary<string, string> settings2)
+        public Dictionary<string, string> MergeSettings(Dictionary<string, string> baseSettings, Dictionary<string, string> overwriteSettings)
         {
-            if (settings1 == null)
+            var settings = baseSettings != null ? new Dictionary<string, string>(baseSettings) : new Dictionary<string, string>();
+            if (overwriteSettings != null)
             {
-                settings1 = new Dictionary<string, string>();
-            }
-            if (settings2 != null)
-            {
-                foreach (var setting in settings2)
+                foreach (var setting in overwriteSettings)
                 {
-                    if (settings1.ContainsKey(setting.Key))
+                    if (settings.ContainsKey(setting.Key))
                     {
-                        settings1[setting.Key] = setting.Value;
+                        settings[setting.Key] = setting.Value;
                     }
                     else
                     {
-                        settings1.Add(setting.Key, setting.Value);
+                        settings.Add(setting.Key, setting.Value);
                     }
                 }
             }
-            return settings1;
+
+            return settings;
         }
 
         [Obsolete("GetSettingAsync(int settingId) is deprecated. Use GetSettingAsync(string entityName, int settingId) instead.", false)]

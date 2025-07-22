@@ -9,7 +9,6 @@
 @inject INotificationService NotificationService
 @inject IFileService FileService
 @inject IFolderService FolderService
-@inject ITimeZoneService TimeZoneService
 @inject IJSRuntime jsRuntime
 @inject IServiceProvider ServiceProvider
 @inject IStringLocalizer<Index> Localizer
@@ -404,7 +403,7 @@
             _togglepassword = SharedLocalizer["ShowPassword"];
             _allowtwofactor = (SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:TwoFactor", "false") == "true");
             _profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
-            _timezones = await TimeZoneService.GetTimeZonesAsync();
+            _timezones = Utilities.GetTimeZones();
 
             if (PageState.User != null)
             {
@@ -413,11 +412,6 @@
                 _email = PageState.User.Email;
                 _displayname = PageState.User.DisplayName;
                 _timezoneid = PageState.User.TimeZoneId;
-
-                if (string.IsNullOrEmpty(_email))
-                {
-                    AddModuleMessage(Localizer["Message.User.NoEmail"], MessageType.Warning);
-                }
 
                 // get user folder
                 var folder = await FolderService.GetFolderAsync(ModuleState.SiteId, PageState.User.FolderPath);

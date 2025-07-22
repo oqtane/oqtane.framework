@@ -43,7 +43,6 @@ namespace Oqtane.Controllers
 
         private readonly ILogManager _logger;
         private readonly Alias _alias;
-        private readonly string _visitorCookie;
 
         public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, 
             IOptions<CookieAuthenticationOptions> cookieOptions, IOptionsSnapshot<CookieAuthenticationOptions> cookieOptionsSnapshot, IOptionsMonitorCache<CookieAuthenticationOptions> cookieOptionsMonitorCache,

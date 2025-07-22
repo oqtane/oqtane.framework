@@ -224,17 +224,17 @@ namespace Oqtane.UI
 
         public Task UploadFiles(string posturl, string folder, string id, string antiforgerytoken, string jwt)
         {
-            UploadFiles(posturl, folder, id, antiforgerytoken, jwt, 1);
+            UploadFiles(posturl, folder, id, antiforgerytoken, jwt, 1, false);
             return Task.CompletedTask;
         }
 
-        public ValueTask<bool> UploadFiles(string posturl, string folder, string id, string antiforgerytoken, string jwt, int chunksize, CancellationToken cancellationToken = default)
+        public ValueTask<bool> UploadFiles(string posturl, string folder, string id, string antiforgerytoken, string jwt, int chunksize, bool anonymizeuploadfilenames, CancellationToken cancellationToken = default)
         {
             try
             {
                 return _jsRuntime.InvokeAsync<bool>(
                     "Oqtane.Interop.uploadFiles", cancellationToken,
-                    posturl, folder, id, antiforgerytoken, jwt, chunksize);
+                    posturl, folder, id, antiforgerytoken, jwt, chunksize, anonymizeuploadfilenames);
             }
             catch
             {

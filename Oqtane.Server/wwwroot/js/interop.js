@@ -311,7 +311,7 @@ Oqtane.Interop = {
         }
         return files;
     },
-    uploadFiles: async function (posturl, folder, id, antiforgerytoken, jwt, chunksize) {
+    uploadFiles: async function (posturl, folder, id, antiforgerytoken, jwt, chunksize, anonymizeuploadfilenames) {
         var success = true;
         var fileinput = document.getElementById('FileInput_' + id);
         var progressinfo = document.getElementById('ProgressInfo_' + id);
@@ -344,16 +344,22 @@ Oqtane.Interop = {
             const totalParts = Math.ceil(file.size / chunkSize);
             let partCount = 0;
 
+            let filename = file.name;
+            if (anonymizeuploadfilenames) {
+                filename = crypto.randomUUID() + '.' + filename.split('.').pop();
+            }
+
             const uploadPart = () => {
                 const start = partCount * chunkSize;
                 const end = Math.min(start + chunkSize, file.size);
                 const chunk = file.slice(start, end);
 
                 return new Promise((resolve, reject) => {
+
                     let formdata = new FormData();
                     formdata.append('__RequestVerificationToken', antiforgerytoken);
                     formdata.append('folder', folder);
-                    formdata.append('formfile', chunk, file.name);
+                    formdata.append('formfile', chunk, filename);
 
                     var credentials = 'same-origin';
                     var headers = new Headers();

@@ -444,9 +444,14 @@ namespace Oqtane.Controllers
             }
 
             // ensure filename is valid
-            if (!formfile.FileName.IsPathOrFileValid() || !HasValidFileExtension(formfile.FileName))
+            string fileName = formfile.FileName;
+            if (Path.GetExtension(fileName).Contains(':'))
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "File Upload File Name Is Invalid Or Contains Invalid Extension {File}", formfile.FileName);
+                fileName = fileName.Substring(0, fileName.LastIndexOf(':')); // remove invalid suffix from extension
+            }
+            if (!fileName.IsPathOrFileValid() || !HasValidFileExtension(fileName))
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "File Upload File Name Is Invalid Or Contains Invalid Extension {File}", fileName);
                 return StatusCode((int)HttpStatusCode.Forbidden);
             }
 
@@ -458,8 +463,8 @@ namespace Oqtane.Controllers
                 return StatusCode((int)HttpStatusCode.Forbidden);
             }
 
-            // create file name using header values
-            string fileName = formfile.FileName + ".part_" + partCount.ToString("000") + "_" + totalParts.ToString("000");
+            // create file name using header part values
+            fileName += ".part_" + partCount.ToString("000") + "_" + totalParts.ToString("000");
             string folderPath = "";
 
             try
@@ -532,13 +537,13 @@ namespace Oqtane.Controllers
             string parts = Path.GetExtension(filename)?.Replace(token, ""); // returns "001_999"
             int totalparts = int.Parse(parts?.Substring(parts.IndexOf("_") + 1));
 
-            filename = Path.GetFileNameWithoutExtension(filename); // base filename
+            filename = Path.GetFileNameWithoutExtension(filename); // base filename including original file extension
             string[] fileparts = Directory.GetFiles(folder, filename + token + "*"); // list of all file parts
 
             // if all of the file parts exist (note that file parts can arrive out of order)
             if (fileparts.Length == totalparts && CanAccessFiles(fileparts))
             {
-                // merge file parts into temp file (in case another user is trying to get the file)
+                // merge file parts into temp file (in case another user is trying to read the file)
                 bool success = true;
                 using (var stream = new FileStream(Path.Combine(folder, filename + ".tmp"), FileMode.Create))
                 {
@@ -559,25 +564,22 @@ namespace Oqtane.Controllers
                 }
 
                 // clean up file parts
-                foreach (var file in Directory.GetFiles(folder, "*" + token + "*"))
+                foreach (var file in fileparts)
                 {
-                    if (fileparts.Contains(file))
+                    try
                     {
-                        try
-                        {
-                            System.IO.File.Delete(file);
-                        }
-                        catch
-                        {
-                            // unable to delete part - ignore
-                        }
+                        System.IO.File.Delete(file);
+                    }
+                    catch
+                    {
+                        // unable to delete part - ignore
                     }
                 }
 
                 // rename temp file
                 if (success)
                 {
-                    // remove file if it already exists (as well as any thumbnails which may exist)
+                    // remove existing file (as well as any thumbnails)
                     foreach (var file in Directory.GetFiles(folder, Path.GetFileNameWithoutExtension(filename) + ".*"))
                     {
                         if (Path.GetExtension(file) != ".tmp")

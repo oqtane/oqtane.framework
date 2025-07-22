@@ -6,7 +6,6 @@
 @inject IProfileService ProfileService
 @inject ISettingService SettingService
 @inject IFileService FileService
-@inject ITimeZoneService TimeZoneService
 @inject IServiceProvider ServiceProvider
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
@@ -204,7 +203,7 @@
             _passwordrequirements = await UserService.GetPasswordRequirementsAsync(PageState.Site.SiteId);
             _togglepassword = SharedLocalizer["ShowPassword"];
             _profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
-            _timezones = await TimeZoneService.GetTimeZonesAsync();
+            _timezones = Utilities.GetTimeZones();
 
             if (PageState.QueryString.ContainsKey("id") && int.TryParse(PageState.QueryString["id"], out int UserId))
             {
