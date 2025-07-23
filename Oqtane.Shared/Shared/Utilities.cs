@@ -695,11 +695,11 @@ namespace Oqtane.Shared
         public static List<TimeZone> GetTimeZones()
         {
             return [.. DateTimeZoneProviders.Tzdb.GetAllZones()
-                                                  .Select(tz => new TimeZone()
-                                                    {
-                                                        Id = tz.Id,
-                                                        DisplayName = tz.ToString()
-                                                    })];
+                .Select(tz => new TimeZone()
+                {
+                    Id = tz.Id,
+                    DisplayName = tz.Id
+                })];
         }
 
         public static bool IsEffectiveAndNotExpired(DateTime? effectiveDate, DateTime? expiryDate)
