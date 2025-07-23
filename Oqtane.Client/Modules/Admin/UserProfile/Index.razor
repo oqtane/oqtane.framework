@@ -9,6 +9,7 @@
 @inject INotificationService NotificationService
 @inject IFileService FileService
 @inject IFolderService FolderService
+@inject ITimeZoneService TimeZoneService
 @inject IJSRuntime jsRuntime
 @inject IServiceProvider ServiceProvider
 @inject IStringLocalizer<Index> Localizer
@@ -366,7 +367,6 @@
 }
 
 @code {
-    private List<Models.TimeZone> _timezones;
     private bool _initialized = false;
     private string _passwordrequirements;
     private string _username = string.Empty;
@@ -380,6 +380,7 @@
     private string _displayname = string.Empty;
     private FileManager _filemanager;
     private int _folderid = -1;
+    private List<Models.TimeZone> _timezones;
     private string _timezoneid = string.Empty;
     private int _photofileid = -1;
     private File _photo = null;
@@ -403,7 +404,7 @@
             _togglepassword = SharedLocalizer["ShowPassword"];
             _allowtwofactor = (SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:TwoFactor", "false") == "true");
             _profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
-            _timezones = Utilities.GetTimeZones();
+            _timezones = TimeZoneService.GetTimeZones();
 
             if (PageState.User != null)
             {
