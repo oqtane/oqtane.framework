@@ -33,26 +33,26 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected string Schema { get; init; }
 
-        private string RewriteSqlEntityTableName(string name)
+        private string AddSchema(string name)
         {
-            if (Schema == null)
+            if (string.IsNullOrEmpty(Schema))
             {
-                return RewriteName(name);
+                return name;
             }
             else
             {
-                return $"{Schema}.{RewriteName(name)}";
+                return $"{Schema}.{name}";
             }
+        }
+
+        private string DelimitName(string name)
+        {
+            return ActiveDatabase.DelimitName(name);
         }
 
         private string RewriteName(string name)
         {
             return ActiveDatabase.RewriteName(name);
-        }
-
-        private string RewriteName(string name, bool isQuery)
-        {
-            return ActiveDatabase.RewriteName(name, isQuery);
         }
 
         private string RewriteValue(string value, string type)
@@ -468,9 +468,10 @@ namespace Oqtane.Migrations.EntityBuilders
 
         public void DeleteFromTable(string condition = "")
         {
-            var deleteSql = $"DELETE FROM {RewriteSqlEntityTableName(EntityTableName)} ";
+            var deleteSql = $"DELETE FROM {AddSchema(DelimitName(RewriteName(EntityTableName)))} ";
             if(!string.IsNullOrEmpty(condition))
             {
+                // note that condition values must be created using RewriteName(), DelimitName(), RewriteValue() if targeting multiple database platforms 
                 deleteSql +=  $"WHERE {condition}";
             }
             _migrationBuilder.Sql(deleteSql);
@@ -488,9 +489,10 @@ namespace Oqtane.Migrations.EntityBuilders
 
         public void UpdateColumn(string columnName, string value, string type, string condition)
         {
-            var updateSql = $"UPDATE {RewriteSqlEntityTableName(EntityTableName)} SET {RewriteName(columnName, true)} = {RewriteValue(value, type)} ";
+            var updateSql = $"UPDATE {AddSchema(DelimitName(RewriteName(EntityTableName)))} SET {DelimitName(RewriteName(columnName))} = {RewriteValue(value, type)} ";
             if (!string.IsNullOrEmpty(condition))
             {
+                // note that condition values must be created using RewriteName(), DelimitName(), RewriteValue() if targeting multiple database platforms 
                 updateSql += $"WHERE {condition}";
             }
             _migrationBuilder.Sql(updateSql);
