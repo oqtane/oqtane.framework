@@ -61,12 +61,12 @@ namespace Oqtane.Databases
 
         public abstract IDataReader ExecuteReader(string connectionString, string query);
 
-        public virtual string RewriteName(string name)
+        public virtual string DelimitName(string name)
         {
             return name;
         }
 
-        public virtual string RewriteName(string name, bool isQuery)
+        public virtual string RewriteName(string name)
         {
             return name;
         }

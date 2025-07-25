@@ -26,9 +26,9 @@ namespace Oqtane.Databases.Interfaces
 
         public IDataReader ExecuteReader(string connectionString, string query);
 
-        public string RewriteName(string name);
+        public string DelimitName(string name); // only used in conjunction with method using MigrationBuilder.Sql()
 
-        public string RewriteName(string name, bool isQuery);
+        public string RewriteName(string name);
 
         public string RewriteValue(string value, string type);
 
