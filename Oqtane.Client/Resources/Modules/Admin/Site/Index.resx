@@ -192,7 +192,7 @@
   <data name="Port.HelpText" xml:space="preserve">
     <value>Enter the port number for the SMTP server. Please note this field is required if you provide a host name.</value>
   </data>
-  <data name="UseSsl.HelpText" xml:space="preserve">
+  <data name="SmtpSSL.HelpText" xml:space="preserve">
     <value>Specify if SSL is required for your SMTP server</value>
   </data>
   <data name="SmtpUsername.HelpText" xml:space="preserve">
@@ -202,7 +202,7 @@
     <value>Enter the password for your SMTP account</value>
   </data>
   <data name="SmtpSender.HelpText" xml:space="preserve">
-    <value>Enter the email which emails will be sent from. Please note that this email address may need to be authorized with the SMTP server.</value>
+    <value>Enter the email address which emails will be sent from. Please note that this email address usually needs to be authorized with the SMTP server.</value>
   </data>
   <data name="EnablePWA.HelpText" xml:space="preserve">
     <value>Select whether you would like this site to be available as a Progressive Web Application (PWA)</value>
@@ -240,8 +240,8 @@
   <data name="Port.Text" xml:space="preserve">
     <value>Port: </value>
   </data>
-  <data name="UseSsl.Text" xml:space="preserve">
-    <value>SSL Enabled: </value>
+  <data name="SmtpSSL.Text" xml:space="preserve">
+    <value>SSL Required: </value>
   </data>
   <data name="SmtpUsername.Text" xml:space="preserve">
     <value>Username: </value>
@@ -372,10 +372,10 @@
   <data name="PageContent.Heading" xml:space="preserve">
     <value>Page Content</value>
   </data>
-  <data name="SMTPEnabled.HelpText" xml:space="preserve">
+  <data name="SmtpEnabled.HelpText" xml:space="preserve">
     <value>Specify if SMTP is enabled for this site</value>
   </data>
-  <data name="SMTPEnabled.Text" xml:space="preserve">
+  <data name="SmtpEnabled.Text" xml:space="preserve">
     <value>Enabled?</value>
   </data>
   <data name="Version.HelpText" xml:space="preserve">
@@ -452,5 +452,41 @@
   </data>
   <data name="TimeZone.HelpText" xml:space="preserve">
     <value>The default time zone for the site</value>
+  </data>
+  <data name="Basic" xml:space="preserve">
+    <value>Basic</value>
+  </data>
+  <data name="OAuth" xml:space="preserve">
+    <value>OAuth</value>
+  </data>
+  <data name="SmtpAuthentication.Text" xml:space="preserve">
+    <value>Authentication:</value>
+  </data>
+  <data name="SmtpAuthentication.HelpText" xml:space="preserve">
+    <value>Specify the SMTP authentication type</value>
+  </data>
+  <data name="SmtpClientID.Text" xml:space="preserve">
+    <value>Client ID:</value>
+  </data>
+  <data name="SmtpClientID.HelpText" xml:space="preserve">
+    <value>The Client ID for the SMTP provider</value>
+  </data>
+  <data name="SmtpClientSecret.Text" xml:space="preserve">
+    <value>Client Secret:</value>
+  </data>
+  <data name="SmtpClientSecret.HelpText" xml:space="preserve">
+    <value>The Client Secret for the SMTP provider</value>
+  </data>
+  <data name="SmtpScopes.Text" xml:space="preserve">
+    <value>Scopes:</value>
+  </data>
+  <data name="SmtpScopes.HelpText" xml:space="preserve">
+    <value>A list of Scopes for the SMTP provider (separated by commas)</value>
+  </data>
+  <data name="SmtpAuthority.Text" xml:space="preserve">
+    <value>Authority Url:</value>
+  </data>
+  <data name="SmtpAuthority.HelpText" xml:space="preserve">
+    <value>The Authority Url for the SMTP provider</value>
   </data>
 </root>
