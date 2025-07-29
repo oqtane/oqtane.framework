@@ -180,6 +180,19 @@ namespace Oqtane.Repository
             }
         }
 
+        public string GetSettingValue(string entityName, int entityId, string settingName, string defaultValue)
+        {
+            var setting = GetSetting(entityName, entityId, settingName);
+            if (setting != null)
+            {
+                return setting.SettingValue;
+            }
+            else
+            {
+                return defaultValue;
+            }
+        }
+
         private bool IsMaster(string EntityName)
         {
             return (EntityName == EntityNames.ModuleDefinition || EntityName == EntityNames.Host);
