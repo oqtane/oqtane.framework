@@ -228,11 +228,12 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.Lockout.AllowedForNewUsers = false;
 
                 // SignIn settings
-                options.SignIn.RequireConfirmedEmail = true; 
+                options.SignIn.RequireConfirmedEmail = false;
+                options.SignIn.RequireConfirmedAccount = false;
                 options.SignIn.RequireConfirmedPhoneNumber = false;
 
                 // User settings
-                options.User.RequireUniqueEmail = false; // changing to true will cause issues for legacy data
+                options.User.RequireUniqueEmail = false;
                 options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
             });
 

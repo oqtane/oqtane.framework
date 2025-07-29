@@ -165,14 +165,13 @@ namespace Oqtane.Controllers
                 bool allowregistration;
                 if (_userPermissions.IsAuthorized(User, user.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin))
                 {
-                    user.EmailConfirmed = true;
-                    user.IsAuthenticated = true;
+                    user.IsAuthenticated = true; // admins can add any existing user to a site
                     allowregistration = true;
                 }
                 else
                 {
-                    user.EmailConfirmed = false;
-                    user.IsAuthenticated = false;
+                    user.EmailConfirmed = false; // standard users cannot specify that their email is verified
+                    user.IsAuthenticated = false; // existing users can only be added to a site if they provide a valid username and password
                     allowregistration = _sites.GetSite(user.SiteId).AllowRegistration;
                 }
 

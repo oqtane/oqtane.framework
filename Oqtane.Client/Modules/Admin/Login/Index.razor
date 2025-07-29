@@ -21,9 +21,7 @@ else
                 @if (_allowexternallogin)
                 {
                     <button type="button" class="btn btn-primary" @onclick="ExternalLogin">@Localizer["Use"] @PageState.Site.Settings["ExternalLogin:ProviderName"]</button>
-                    <br />
-
-                    <br />
+                    <br /><br />
                 }
                 @if (_allowsitelogin)
                 {
@@ -49,15 +47,11 @@ else
                     </div>
                     <button type="button" class="btn btn-primary" @onclick="Login">@SharedLocalizer["Login"]</button>
                     <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
-                    <br />
-
-                    <br />
+                    <br /><br />
                     <button type="button" class="btn btn-secondary" @onclick="Forgot">@Localizer["ForgotPassword"]</button>
                     @if (PageState.Site.AllowRegistration)
                     {
-                        <br />
-
-                        <br />
+                        <br /><br />
                         <NavLink href="@NavigateUrl("register")">@Localizer["Register"]</NavLink>
                     }
                 }

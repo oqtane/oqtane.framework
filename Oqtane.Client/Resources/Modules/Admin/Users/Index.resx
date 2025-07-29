@@ -370,7 +370,13 @@
     <value>Do you want users to use two factor authentication? Note that you should use the Disabled option until you have successfully verified that the Notification Job in Scheduled Jobs is enabled and your SMTP options in Site Settings are configured or else you will lock yourself out.</value>
   </data>
   <data name="TwoFactor.Text" xml:space="preserve">
-    <value>Two Factor?</value>
+    <value>Two Factor Authentication?</value>
+  </data>
+  <data name="RequireValidEmail.HelpText" xml:space="preserve">
+    <value>Do you want to require registered users to validate their email address before they are allowed to log in?</value>
+  </data>
+  <data name="RequireValidEmail.Text" xml:space="preserve">
+    <value>Require Valid Email?</value>
   </data>
   <data name="Disabled" xml:space="preserve">
     <value>Disabled</value>
