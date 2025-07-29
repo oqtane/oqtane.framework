@@ -372,11 +372,11 @@
   <data name="TwoFactor.Text" xml:space="preserve">
     <value>Two Factor Authentication?</value>
   </data>
-  <data name="RequireValidEmail.HelpText" xml:space="preserve">
-    <value>Do you want to require registered users to validate their email address before they are allowed to log in?</value>
+  <data name="RequireConfirmedEmail.HelpText" xml:space="preserve">
+    <value>Do you want to require registered users to verify their email address before they are allowed to log in?</value>
   </data>
-  <data name="RequireValidEmail.Text" xml:space="preserve">
-    <value>Require Valid Email?</value>
+  <data name="RequireConfirmedEmail.Text" xml:space="preserve">
+    <value>Require Verified Email?</value>
   </data>
   <data name="Disabled" xml:space="preserve">
     <value>Disabled</value>
