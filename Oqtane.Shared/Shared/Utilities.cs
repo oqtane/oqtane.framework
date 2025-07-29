@@ -692,16 +692,6 @@ namespace Oqtane.Shared
             return (localDateTime?.Date, localTime);
         }
 
-        public static List<TimeZone> GetTimeZones()
-        {
-            return [.. DateTimeZoneProviders.Tzdb.GetAllZones()
-                .Select(tz => new TimeZone()
-                {
-                    Id = tz.Id,
-                    DisplayName = tz.Id
-                })];
-        }
-
         public static bool IsEffectiveAndNotExpired(DateTime? effectiveDate, DateTime? expiryDate)
         {
             DateTime currentUtcTime = DateTime.UtcNow;
