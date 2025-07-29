@@ -74,18 +74,19 @@ namespace Oqtane.Repository
         {
             using var db = _dbContextFactory.CreateDbContext();
 
-            Role role = db.Role.Find(roleId);
-
-            // remove permissions for this role
-            var permissions = db.Permission.Where(item => item.SiteId == role.SiteId).ToList();
-            foreach (var permission in permissions)
+            // remove userroles for role
+            foreach (var userrole in db.UserRole.Where(item => item.RoleId == roleId))
             {
-                if (permission.RoleId == roleId)
-                {
-                    db.Permission.Remove(permission);
-                }
+                db.UserRole.Remove(userrole);
             }
 
+            // remove permissions for role
+            foreach (var permission in db.Permission.Where(item => item.RoleId == roleId))
+            {
+                db.Permission.Remove(permission);
+            }
+
+            Role role = db.Role.Find(roleId);
             db.Role.Remove(role);
             db.SaveChanges();
         }
