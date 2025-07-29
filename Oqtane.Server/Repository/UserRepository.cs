@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
+using Oqtane.Modules.Admin.Users;
 using Oqtane.Shared;
 
 namespace Oqtane.Repository
@@ -131,6 +132,13 @@ namespace Oqtane.Repository
         public void DeleteUser(int userId)
         {
             using var db = _dbContextFactory.CreateDbContext();
+
+            // remove permissions for user
+            foreach (var permission in db.Permission.Where(item => item.UserId == userId))
+            {
+                db.Permission.Remove(permission);
+            }
+
             var user = db.User.Find(userId);
             db.User.Remove(user);
             db.SaveChanges();
