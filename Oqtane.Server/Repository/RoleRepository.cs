@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
+using Oqtane.Modules.Admin.Users;
+using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
@@ -71,7 +73,19 @@ namespace Oqtane.Repository
         public void DeleteRole(int roleId)
         {
             using var db = _dbContextFactory.CreateDbContext();
+
             Role role = db.Role.Find(roleId);
+
+            // remove permissions for this role
+            var permissions = db.Permission.Where(item => item.SiteId == role.SiteId).ToList();
+            foreach (var permission in permissions)
+            {
+                if (permission.RoleId == roleId)
+                {
+                    db.Permission.Remove(permission);
+                }
+            }
+
             db.Role.Remove(role);
             db.SaveChanges();
         }
