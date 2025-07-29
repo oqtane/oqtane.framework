@@ -180,7 +180,7 @@ namespace Oqtane.Managers
             if (User != null)
             {
                 string siteName = _sites.GetSite(user.SiteId).Name;
-                if (!user.EmailConfirmed && bool.Parse(_settings.GetSettingValue(EntityNames.Site, alias.SiteId, "LoginOptions:RequireValidEmail", "true")))
+                if (!user.EmailConfirmed && bool.Parse(_settings.GetSettingValue(EntityNames.Site, alias.SiteId, "LoginOptions:RequireConfirmedEmail", "true")))
                 {
                     string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
                     string url = alias.Protocol + alias.Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
@@ -252,7 +252,7 @@ namespace Oqtane.Managers
                     await _identityUserManager.UpdateAsync(identityuser); // security stamp not updated
                 }
 
-                if (bool.Parse(_settings.GetSettingValue(EntityNames.Site, alias.SiteId, "LoginOptions:RequireValidEmail", "true")))
+                if (bool.Parse(_settings.GetSettingValue(EntityNames.Site, alias.SiteId, "LoginOptions:RequireConfirmedEmail", "true")))
                 {
                     if (user.EmailConfirmed)
                     {
@@ -379,7 +379,7 @@ namespace Oqtane.Managers
                         }
                         else
                         {
-                            if (!bool.Parse(_settings.GetSettingValue(EntityNames.Site, alias.SiteId, "LoginOptions:RequireValidEmail", "true")) || await _identityUserManager.IsEmailConfirmedAsync(identityuser))
+                            if (!bool.Parse(_settings.GetSettingValue(EntityNames.Site, alias.SiteId, "LoginOptions:RequireConfirmedEmail", "true")) || await _identityUserManager.IsEmailConfirmedAsync(identityuser))
                             {
                                 user = GetUser(identityuser.UserName, alias.SiteId);
                                 if (user != null)
