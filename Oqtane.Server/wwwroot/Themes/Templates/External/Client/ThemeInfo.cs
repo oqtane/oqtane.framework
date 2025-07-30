@@ -17,7 +17,7 @@ namespace [Owner].Theme.[Theme]
             Resources = new List<Resource>()
             {
 		        // obtained from https://cdnjs.com/libraries
-                new Script(Constants.BootstrapStylesheetUrl, Constants.BootstrapStylesheetIntegrity, "anonymous"),
+                new StyleSheet(Constants.BootstrapStylesheetUrl, Constants.BootstrapStylesheetIntegrity, "anonymous"),
                 new Resource { ResourceType = ResourceType.Stylesheet, Url = "~/Theme.css" },
                 new Script(Constants.BootstrapScriptUrl, Constants.BootstrapScriptIntegrity, "anonymous")
 
