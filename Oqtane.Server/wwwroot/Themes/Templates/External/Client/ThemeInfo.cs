@@ -16,7 +16,7 @@ namespace [Owner].Theme.[Theme]
             ContainerSettingsType = "[Owner].Theme.[Theme].ContainerSettings, [Owner].Theme.[Theme].Client.Oqtane",
             Resources = new List<Resource>()
             {
-		        // obtained from https://www.jsdelivr.com/
+		        // obtained from https://cdnjs.com/libraries
                 new Script(Constants.BootstrapStylesheetUrl, Constants.BootstrapStylesheetIntegrity, "anonymous"),
                 new Resource { ResourceType = ResourceType.Stylesheet, Url = "~/Theme.css" },
                 new Script(Constants.BootstrapScriptUrl, Constants.BootstrapScriptIntegrity, "anonymous")
