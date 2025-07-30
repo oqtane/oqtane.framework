@@ -37,15 +37,19 @@ namespace Oqtane.Services
                     displayname =  displayname.Replace("_", " ").Replace("/", " / ");
                 }
 
-                // include offset prefix
-                var offset = tz.GetUtcOffset(Instant.FromDateTimeUtc(DateTime.UtcNow)).Ticks;
-                displayname = "(UTC" + (offset >= 0 ? "+" : "-") + new DateTime(Math.Abs(offset)).ToString("HH:mm") + ") " + displayname;
-
-                timezones.Add(new Models.TimeZone()
+                // time zones can be excluded from the list by providing an empty translation in the localization file
+                if (!string.IsNullOrEmpty(displayname))
                 {
-                    Id = tz.Id,
-                    DisplayName = displayname
-                });
+                    // include offset prefix
+                    var offset = tz.GetUtcOffset(Instant.FromDateTimeUtc(DateTime.UtcNow)).Ticks;
+                    displayname = "(UTC" + (offset >= 0 ? "+" : "-") + new DateTime(Math.Abs(offset)).ToString("HH:mm") + ") " + displayname;
+
+                    timezones.Add(new Models.TimeZone()
+                    {
+                        Id = tz.Id,
+                        DisplayName = displayname
+                    });
+                }
             }
 
             return timezones;
