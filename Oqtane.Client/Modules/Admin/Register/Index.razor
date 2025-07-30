@@ -3,10 +3,10 @@
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
-@inject ITimeZoneService TimeZoneService
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject ISettingService SettingService
+@inject ITimeZoneService TimeZoneService
 
 @if (_initialized)
 {
@@ -115,7 +115,7 @@
     {
         _passwordrequirements = await UserService.GetPasswordRequirementsAsync(PageState.Site.SiteId); 
         _allowsitelogin = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AllowSiteLogin", "true"));
-        _timezones = await TimeZoneService.GetTimeZonesAsync();
+        _timezones = TimeZoneService.GetTimeZones();
         _timezoneid = PageState.Site.TimeZoneId;
         _initialized = true;
     }

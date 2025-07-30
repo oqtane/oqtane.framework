@@ -43,7 +43,6 @@ namespace Oqtane.Controllers
 
         private readonly ILogManager _logger;
         private readonly Alias _alias;
-        private readonly string _visitorCookie;
 
         public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, 
             IOptions<CookieAuthenticationOptions> cookieOptions, IOptionsSnapshot<CookieAuthenticationOptions> cookieOptionsSnapshot, IOptionsMonitorCache<CookieAuthenticationOptions> cookieOptionsMonitorCache,
@@ -70,7 +69,6 @@ namespace Oqtane.Controllers
             _identityOptionsMonitorCache = identityOptionsMonitorCache;
             _logger = logger;
             _alias = tenantManager.GetAlias();
-            _visitorCookie = Constants.VisitorCookiePrefix + _alias.SiteId.ToString();
         }
 
         // GET: api/<controller>
@@ -299,11 +297,8 @@ namespace Oqtane.Controllers
                     authorized = User.IsInRole(RoleNames.Admin);
                     if (!authorized)
                     {
-                        // a visitor may have cookies disabled
-                        if (int.TryParse(Request.Cookies[_visitorCookie], out int visitorId))
-                        {
-                            authorized = (visitorId == entityId);
-                        }
+                        var visitorCookieName = Constants.VisitorCookiePrefix + _alias.SiteId.ToString();
+                        authorized = (entityId == GetVisitorCookieId(Request.Cookies[visitorCookieName]));
                     }
                     break;
                 default: // custom entity
@@ -344,11 +339,8 @@ namespace Oqtane.Controllers
                 case EntityNames.Visitor:
                     if (!User.IsInRole(RoleNames.Admin))
                     {
-                        filter = true;
-                        if (int.TryParse(Request.Cookies[_visitorCookie], out int visitorId))
-                        {
-                            filter = (visitorId != entityId);
-                        }
+                        var visitorCookieName = Constants.VisitorCookiePrefix + _alias.SiteId.ToString();
+                        filter = (entityId != GetVisitorCookieId(Request.Cookies[visitorCookieName]));
                     }
                     break;
                 default: // custom entity
@@ -356,6 +348,13 @@ namespace Oqtane.Controllers
                     break;
             }
             return filter;
+        }
+
+        private int GetVisitorCookieId(string visitorCookie)
+        {
+            // visitor cookies contain the visitor id and an expiry date separated by a pipe symbol
+            visitorCookie = (visitorCookie.Contains("|")) ? visitorCookie.Split('|')[0] : visitorCookie;
+            return (int.TryParse(visitorCookie, out int visitorId)) ? visitorId : -1;
         }
 
         private void AddSyncEvent(string EntityName, int EntityId, int SettingId, string Action)

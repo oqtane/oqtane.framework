@@ -29,6 +29,15 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="confirmed" HelpText="Indicates if the user's email is verified" ResourceKey="Confirmed">Verified?</Label>
+                        <div class="col-sm-9">
+                            <select id="confirmed" class="form-select" @bind="@_confirmed">
+                                <option value="True">@SharedLocalizer["Yes"]</option>
+                                <option value="False">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="displayname" HelpText="The full name of the user" ResourceKey="DisplayName"></Label>
                         <div class="col-sm-9">
                             <input id="displayname" class="form-control" @bind="@_displayname" />
@@ -120,6 +129,7 @@
     private bool _initialized = false;
     private string _username = string.Empty;
     private string _email = string.Empty;
+    private string _confirmed = "True";
     private string _displayname = string.Empty;
     private string _timezoneid = string.Empty;
     private string _notify = "True";
@@ -133,7 +143,7 @@
     {
         try
         {
-            _timezones = await TimeZoneService.GetTimeZonesAsync();
+            _timezones = TimeZoneService.GetTimeZones();
             _profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
             _settings = new Dictionary<string, string>();
             _timezoneid = PageState.Site.TimeZoneId;
@@ -169,6 +179,7 @@
                     user.Username = _username;
                     user.Password = ""; // will be auto generated
                     user.Email = _email;
+                    user.EmailConfirmed = bool.Parse(_confirmed);
                     user.DisplayName = string.IsNullOrWhiteSpace(_displayname) ? _username : _displayname;
                     user.TimeZoneId = _timezoneid;
                     user.PhotoFileId = null;

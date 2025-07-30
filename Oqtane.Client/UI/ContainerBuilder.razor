@@ -6,7 +6,7 @@
 @if (ComponentType != null && _visible)
 {
     <a id="@ModuleState.PageModuleId.ToString()"></a>
-    <CascadingValue Value="@ModuleState">
+    <CascadingValue Value="@ModuleState" IsFixed="true">
 		@if (_useadminborder)
 		{
 			<div class="app-pane-admin-border">
@@ -31,6 +31,9 @@
     [Parameter]
     public Module ModuleState { get; set; }
 
+    [Parameter]
+    public string ContainerType { get; set; }
+
     protected override bool ShouldRender()
     {
         return PageState?.RenderId == ModuleState?.RenderId;
@@ -44,6 +47,10 @@
     protected override void OnParametersSet()
     {
         string container = ModuleState.ContainerType;
+        if (!string.IsNullOrEmpty(ContainerType))
+        {
+            container = ContainerType;
+        }
         if (PageState.ModuleId != -1 && PageState.Route.Action != "" && ModuleState.UseAdminContainer)
         {
             container = (!string.IsNullOrEmpty(PageState.Site.AdminContainerType)) ? PageState.Site.AdminContainerType : Constants.DefaultAdminContainer;

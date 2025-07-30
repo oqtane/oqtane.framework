@@ -51,11 +51,8 @@ namespace Oqtane.Controllers
             bool authorized = User.IsInRole(RoleNames.Admin);
             if (!authorized)
             {
-                var visitorCookie = Constants.VisitorCookiePrefix + _alias.SiteId.ToString();
-                if (int.TryParse(Request.Cookies[visitorCookie], out int visitorId))
-                {
-                    authorized = (visitorId == id);
-                }
+                var visitorCookieName = Constants.VisitorCookiePrefix + _alias.SiteId.ToString();
+                authorized = (id == GetVisitorCookieId(Request.Cookies[visitorCookieName]));
             }
 
             var visitor = _visitors.GetVisitor(id);
@@ -76,6 +73,13 @@ namespace Oqtane.Controllers
                 }
                 return null;
             }
+        }
+
+        private int GetVisitorCookieId(string visitorCookie)
+        {
+            // visitor cookies contain the visitor id and an expiry date separated by a pipe symbol
+            visitorCookie = (visitorCookie.Contains("|")) ? visitorCookie.Split('|')[0] : visitorCookie;
+            return (int.TryParse(visitorCookie, out int visitorId)) ? visitorId : -1;
         }
     }
 }

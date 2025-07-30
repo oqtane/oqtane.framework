@@ -353,7 +353,7 @@
                     module.PageId = PageState.Page.PageId;
                     module.ModuleDefinitionName = _moduleDefinitionName;
                     module.AllPages = false;
-                    module.PermissionList = GenerateDefaultPermissions(module.SiteId);
+                    module.PermissionList = GenerateDefaultPermissions(module.SiteId, module.ModuleDefinitionName);
 
                     module = await ModuleService.AddModuleAsync(module);
                     newModuleId = module.ModuleId;
@@ -365,7 +365,7 @@
                     module.SiteId = PageState.Page.SiteId;
                     module.PageId = PageState.Page.PageId;
                     module.AllPages = false;
-                    module.PermissionList = GenerateDefaultPermissions(module.SiteId);
+                    module.PermissionList = GenerateDefaultPermissions(module.SiteId, module.ModuleDefinitionName);
 
                     module = await ModuleService.AddModuleAsync(module);
                     var moduleContent = await ModuleService.ExportModuleAsync(int.Parse(_moduleId), PageState.Page.PageId);
@@ -430,9 +430,11 @@
         }
     }
 
-    private List<Permission> GenerateDefaultPermissions(int siteId)
+    private List<Permission> GenerateDefaultPermissions(int siteId, string moduleDefinitionName)
     {
         var permissions = new List<Permission>();
+
+        // set module view permissions
         if (_visibility == "view")
         {
             // set module view permissions to page view permissions
@@ -443,8 +445,22 @@
             // set module view permissions to page edit permissions
             permissions = SetPermissions(permissions, siteId, PermissionNames.View, PermissionNames.Edit);
         }
-        // set module edit permissions to page edit permissions
-        permissions = SetPermissions(permissions, siteId, PermissionNames.Edit, PermissionNames.Edit);
+
+        // set remaining module permissions
+        var permissionNames = PermissionNames.Edit;
+        var moduleDefinition = _allModuleDefinitions.FirstOrDefault(item => item.ModuleDefinitionName == moduleDefinitionName);
+        if (moduleDefinition != null && !string.IsNullOrEmpty(moduleDefinition.PermissionNames))
+        {
+            permissionNames = moduleDefinition.PermissionNames; // custom module permissions
+        }
+        foreach (var permission in permissionNames.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (permission != PermissionNames.View)
+            {
+                // set module permissions to page edit permissions
+                permissions = SetPermissions(permissions, siteId, permission, PermissionNames.Edit);
+            }
+        }
 
         return permissions;
     }

@@ -91,6 +91,7 @@
         }
 
         // trim PageState to mitigate page bloat caused by Blazor serializing/encrypting state when crossing render mode boundaries
+        // only include properties required by the ControlPanelInteractive component
         _pageState = new PageState
         {
             Alias = PageState.Alias,

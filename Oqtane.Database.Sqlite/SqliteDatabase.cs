@@ -84,6 +84,11 @@ namespace Oqtane.Database.Sqlite
             return dr;
         }
 
+        public override string DelimitName(string name)
+        {
+            return $"\"{name}\"";
+        }
+
         public override DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString)
         {
             return optionsBuilder.UseSqlite(connectionString)

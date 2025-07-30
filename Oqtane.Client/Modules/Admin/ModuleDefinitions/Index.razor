@@ -17,8 +17,8 @@ else
         <div class="row mb-3 align-items-center">
             <div class="col-sm-6">
                 <ActionLink Action="Add" Text="Install Module" ResourceKey="InstallModule" />
-                <ActionLink Action="Create" Text="Create Module" ResourceKey="CreateModule" Class="btn btn-secondary ps-2" />
-                <button type="button" class="btn btn-secondary pw-2" @onclick="@Synchronize">@Localizer["Synchronize"]</button>
+                <ActionLink Action="Create" Text="Create Module" ResourceKey="CreateModule" Class="btn btn-secondary ms-1" />
+                <button type="button" class="btn btn-secondary ms-1" @onclick="@Synchronize">@Localizer["Synchronize"]</button>
             </div>
             <div class="col-sm-6">
                 <select class="form-select" @onchange="(e => CategoryChanged(e))">

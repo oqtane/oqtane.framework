@@ -1,4 +1,3 @@
-using Oqtane.Models;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -7,7 +6,14 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+
+using NodaTime;
+using NodaTime.Extensions;
+
+using Oqtane.Models;
+
 using File = Oqtane.Models.File;
+using TimeZone = Oqtane.Models.TimeZone;
 
 namespace Oqtane.Shared
 {
@@ -505,6 +511,7 @@ namespace Oqtane.Shared
             return $"[{@class.GetType()}] {message}";
         }
 
+        //Time conversions with TimeZoneInfo
         public static DateTime? LocalDateAndTimeAsUtc(DateTime? date, string time, TimeZoneInfo localTimeZone = null)
         {
             if (date != null && !string.IsNullOrEmpty(time) && TimeSpan.TryParse(time, out TimeSpan timespan))
@@ -581,6 +588,110 @@ namespace Oqtane.Shared
 
             return (localDateTime?.Date, localTime);
         }
+
+        //Time conversions with NodaTime (IANA) timezoneId
+        public static DateTime? LocalDateAndTimeAsUtc(DateTime? date, string time, string localTimeZoneId)
+        {
+            if (date != null && !string.IsNullOrEmpty(time) && TimeSpan.TryParse(time, out TimeSpan timespan))
+            {
+                return LocalDateAndTimeAsUtc(date.Value.Date.Add(timespan), localTimeZoneId);
+            }
+            return null;
+        }
+
+        public static DateTime? LocalDateAndTimeAsUtc(DateTime? date, DateTime? time, string localTimeZoneId)
+        {
+            if (date != null)
+            {
+                if (time != null)
+                {
+                    return LocalDateAndTimeAsUtc(date.Value.Date.Add(time.Value.TimeOfDay), localTimeZoneId);
+                }
+                return LocalDateAndTimeAsUtc(date.Value.Date, localTimeZoneId);
+            }
+            return null;
+        }
+
+        public static DateTime? LocalDateAndTimeAsUtc(DateTime? date, string localTimeZoneId)
+        {
+            if (date != null)
+            {
+                DateTimeZone localTimeZone;
+
+                if (!string.IsNullOrEmpty(localTimeZoneId))
+                {
+                    localTimeZone = DateTimeZoneProviders.Tzdb.GetZoneOrNull(localTimeZoneId) ?? DateTimeZoneProviders.Tzdb.GetSystemDefault();
+                }
+                else
+                {
+                    localTimeZone = DateTimeZoneProviders.Tzdb.GetSystemDefault();
+                }
+
+                var localDateTime = LocalDateTime.FromDateTime(date.Value);
+                return localTimeZone.AtLeniently(localDateTime).ToDateTimeUtc();
+            }
+            return null;
+        }
+
+        public static DateTime? UtcAsLocalDate(DateTime? dateTime, string timeZoneId)
+        {
+            return UtcAsLocalDateAndTime(dateTime, timeZoneId).date;
+        }
+
+        public static DateTime? UtcAsLocalDateTime(DateTime? dateTime, string timeZoneId)
+        {
+            var result = UtcAsLocalDateAndTime(dateTime, timeZoneId);
+            if (result.date != null && !string.IsNullOrEmpty(result.time) && TimeSpan.TryParse(result.time, out TimeSpan timespan))
+            {
+                result.date = result.date.Value.Add(timespan);
+            }
+            return result.date;
+        }
+
+        public static (DateTime? date, string time) UtcAsLocalDateAndTime(DateTime? dateTime, string timeZoneId)
+        {
+            DateTimeZone localTimeZone;
+
+            if (!string.IsNullOrEmpty(timeZoneId))
+            {
+                localTimeZone = DateTimeZoneProviders.Tzdb.GetZoneOrNull(timeZoneId) ?? DateTimeZoneProviders.Tzdb.GetSystemDefault();
+            }
+            else
+            {
+                localTimeZone = DateTimeZoneProviders.Tzdb.GetSystemDefault();
+            }
+
+            DateTime? localDateTime = null;
+            string localTime = string.Empty;
+
+            if (dateTime.HasValue && dateTime?.Kind != DateTimeKind.Local)
+            {
+                Instant instant;
+
+                if (dateTime?.Kind == DateTimeKind.Unspecified)
+                {
+                    // Treat Unspecified as Utc not Local. This is due to EF Core, on some databases, after retrieval will have DateTimeKind as Unspecified.
+                    // All values in database should be UTC.
+                    // Normal .net conversion treats Unspecified as local.
+                    // https://docs.microsoft.com/en-us/dotnet/api/system.timezoneinfo.converttime?view=net-6.0
+                    instant = Instant.FromDateTimeUtc(new DateTime(dateTime.Value.Ticks, DateTimeKind.Utc));
+                }
+                else
+                {
+                    instant = Instant.FromDateTimeUtc(dateTime.Value);
+                }
+
+                localDateTime = instant.InZone(localTimeZone).ToDateTimeOffset().DateTime;
+            }
+
+            if (localDateTime != null && localDateTime.Value.TimeOfDay.TotalSeconds != 0)
+            {
+                localTime = localDateTime.Value.ToString("HH:mm");
+            }
+
+            return (localDateTime?.Date, localTime);
+        }
+
         public static bool IsEffectiveAndNotExpired(DateTime? effectiveDate, DateTime? expiryDate)
         {
             DateTime currentUtcTime = DateTime.UtcNow;

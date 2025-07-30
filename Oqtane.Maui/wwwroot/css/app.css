@@ -75,6 +75,10 @@ app {
     color: gray;
 }
 
+.app-moduleactions .dropdown-menu {
+    z-index: 9999;
+}
+
 .app-moduleactions .dropdown-submenu {
     position: relative;
 }
@@ -235,18 +239,19 @@ app {
 .app-form-inline {
     display: inline;
 }
-.app-search{
+
+.app-search {
     display: inline-block;
     position: relative;
 }
-.app-search input + button{
+.app-search input + button {
     background: none;
     border: none;
     position: absolute;
     right: 0;
     top: 0;
 }
-.app-search input + button .oi{
+.app-search input + button .oi {
     top: 0;
 }
 .app-search-noinput {
@@ -270,4 +275,14 @@ app {
 
 .app-logo .navbar-brand {
     padding: 5px 20px 5px 20px;
+}
+
+/* cookie consent */
+.gdpr-consent-bar .btn-show {
+    bottom: -3px;
+    left: 5px;
+}
+.gdpr-consent-bar .btn-hide {
+    top: 0;
+    right: 5px;
 }
