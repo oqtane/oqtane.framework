@@ -456,8 +456,8 @@
   <data name="Basic" xml:space="preserve">
     <value>Basic</value>
   </data>
-  <data name="OAuth" xml:space="preserve">
-    <value>OAuth</value>
+  <data name="OAuth2" xml:space="preserve">
+    <value>OAuth 2.0 (OAuth2)</value>
   </data>
   <data name="SmtpAuthentication.Text" xml:space="preserve">
     <value>Authentication:</value>
