@@ -75,13 +75,9 @@ namespace Oqtane.Database.MySQL
             return dr;
         }
 
-        public override string RewriteName(string name, bool isQuery)
+        public override string DelimitName(string name)
         {
-            if (name.ToLower() == "rows" && isQuery)
-            {
-                name = $"`{name}`"; // escape reserved word in SQL query
-            }
-            return name;
+            return $"`{name}`";
         }
 
         public override DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString)

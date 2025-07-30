@@ -46,6 +46,11 @@ namespace Oqtane.Database.SqlServer
             }
         }
 
+        public override string DelimitName(string name)
+        {
+            return $"[{name}]";
+        }
+
         public override int ExecuteNonQuery(string connectionString, string query)
         {
             var conn = new SqlConnection(FormatConnectionString(connectionString));

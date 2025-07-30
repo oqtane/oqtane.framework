@@ -18,8 +18,8 @@ namespace Oqtane.Migrations.Tenant
         {
             ///Update Icon Field in Page
             var pageEntityBuilder = new PageEntityBuilder(migrationBuilder, ActiveDatabase);
-            var updateSql = ActiveDatabase.ConcatenateSql("'oi oi-'", $"{ActiveDatabase.RewriteName("Icon")}");
-            pageEntityBuilder.UpdateColumn("Icon", updateSql, $"{ActiveDatabase.RewriteName("Icon")} <> ''" );
+            var updateSql = ActiveDatabase.ConcatenateSql("'oi oi-'", $"{DelimitName(RewriteName("Icon"))}");
+            pageEntityBuilder.UpdateColumn("Icon", updateSql, $"{DelimitName(RewriteName("Icon"))} <> ''" );
         }
     }
 }
