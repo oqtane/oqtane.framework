@@ -278,11 +278,11 @@ app {
 }
 
 /* cookie consent */
-.gdpr-consent-bar .btn-show{
+.gdpr-consent-bar .btn-show {
     bottom: -3px;
     left: 5px;
 }
-.gdpr-consent-bar .btn-hide{
+.gdpr-consent-bar .btn-hide {
     top: 0;
     right: 5px;
 }
