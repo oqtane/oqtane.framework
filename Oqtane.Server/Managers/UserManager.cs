@@ -261,7 +261,8 @@ namespace Oqtane.Managers
                             var emailConfirmationToken = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
                             await _identityUserManager.ConfirmEmailAsync(identityuser, emailConfirmationToken);
 
-                            string body = "Dear " + user.DisplayName + ",\n\nThe Email Address For Your User Account Has Been Verified. You Can Now Login With Your Username And Password.";
+                            string url = alias.Protocol + alias.Name + "/login?name=" + user.Username;
+                            string body = "Dear " + user.DisplayName + ",\n\nThe Email Address For Your User Account Has Been Verified. You Can Now Login With Your Username And Password Using The Link Displayed Below:\n\n" + url + "\n\nThank You!";
                             var notification = new Notification(user.SiteId, user, "User Account Verification", body);
                             _notifications.AddNotification(notification);
                         }
