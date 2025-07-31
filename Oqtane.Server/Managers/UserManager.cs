@@ -180,7 +180,7 @@ namespace Oqtane.Managers
             if (User != null)
             {
                 string siteName = _sites.GetSite(user.SiteId).Name;
-                if (!user.EmailConfirmed)
+                if (!user.EmailConfirmed && bool.Parse(_settings.GetSettingValue(EntityNames.Site, alias.SiteId, "LoginOptions:RequireConfirmedEmail", "true")))
                 {
                     string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
                     string url = alias.Protocol + alias.Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
@@ -252,28 +252,31 @@ namespace Oqtane.Managers
                     await _identityUserManager.UpdateAsync(identityuser); // security stamp not updated
                 }
 
-                if (user.EmailConfirmed)
+                if (bool.Parse(_settings.GetSettingValue(EntityNames.Site, alias.SiteId, "LoginOptions:RequireConfirmedEmail", "true")))
                 {
-                    if (!identityuser.EmailConfirmed)
+                    if (user.EmailConfirmed)
                     {
-                        var emailConfirmationToken = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
-                        await _identityUserManager.ConfirmEmailAsync(identityuser, emailConfirmationToken);
+                        if (!identityuser.EmailConfirmed)
+                        {
+                            var emailConfirmationToken = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
+                            await _identityUserManager.ConfirmEmailAsync(identityuser, emailConfirmationToken);
 
-                        string body = "Dear " + user.DisplayName + ",\n\nThe Email Address For Your User Account Has Been Verified. You Can Now Login With Your Username And Password.";
+                            string body = "Dear " + user.DisplayName + ",\n\nThe Email Address For Your User Account Has Been Verified. You Can Now Login With Your Username And Password.";
+                            var notification = new Notification(user.SiteId, user, "User Account Verification", body);
+                            _notifications.AddNotification(notification);
+                        }
+                    }
+                    else
+                    {
+                        identityuser.EmailConfirmed = false;
+                        await _identityUserManager.UpdateAsync(identityuser); // security stamp not updated
+
+                        string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
+                        string url = alias.Protocol + alias.Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
+                        string body = "Dear " + user.DisplayName + ",\n\nIn Order To Verify The Email Address Associated To Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
                         var notification = new Notification(user.SiteId, user, "User Account Verification", body);
                         _notifications.AddNotification(notification);
                     }
-                }
-                else
-                {
-                    identityuser.EmailConfirmed = false;
-                    await _identityUserManager.UpdateAsync(identityuser); // security stamp not updated
-
-                    string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
-                    string url = alias.Protocol + alias.Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
-                    string body = "Dear " + user.DisplayName + ",\n\nIn Order To Verify The Email Address Associated To Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
-                    var notification = new Notification(user.SiteId, user, "User Account Verification", body);
-                    _notifications.AddNotification(notification);
                 }
 
                 user = _users.UpdateUser(user);
@@ -354,15 +357,14 @@ namespace Oqtane.Managers
                     if (!user.IsDeleted)
                     {
                         var alias = _tenantManager.GetAlias();
-                        var twoFactorSetting = _settings.GetSetting(EntityNames.Site, alias.SiteId, "LoginOptions:TwoFactor")?.SettingValue ?? "false";
-                        var twoFactorRequired = twoFactorSetting == "required" || user.TwoFactorRequired;
+                        string siteName = _sites.GetSite(alias.SiteId).Name;
+                        var twoFactorRequired = _settings.GetSettingValue(EntityNames.Site, alias.SiteId, "LoginOptions:TwoFactor", "false") == "required" || user.TwoFactorRequired;
                         if (twoFactorRequired)
                         {
                             var token = await _identityUserManager.GenerateTwoFactorTokenAsync(identityuser, "Email");
                             user.TwoFactorCode = token;
                             user.TwoFactorExpiry = DateTime.UtcNow.AddMinutes(10);
                             _users.UpdateUser(user);
-                            string siteName = _sites.GetSite(alias.SiteId).Name;
                             string subject = _localizer["TwoFactorEmailSubject"];
                             subject = subject.Replace("[SiteName]", siteName);
                             string body = _localizer["TwoFactorEmailBody"].Value;
@@ -377,7 +379,7 @@ namespace Oqtane.Managers
                         }
                         else
                         {
-                            if (await _identityUserManager.IsEmailConfirmedAsync(identityuser))
+                            if (!bool.Parse(_settings.GetSettingValue(EntityNames.Site, alias.SiteId, "LoginOptions:RequireConfirmedEmail", "true")) || await _identityUserManager.IsEmailConfirmedAsync(identityuser))
                             {
                                 user = GetUser(identityuser.UserName, alias.SiteId);
                                 if (user != null)
@@ -400,13 +402,25 @@ namespace Oqtane.Managers
                                     }
                                     else
                                     {
-                                        _logger.Log(LogLevel.Information, this, LogFunction.Security, "User {Username} Is Not An Active Member Of Site {SiteId}", user.Username, alias.SiteId);
+                                        _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Denied - User {Username} Is Not An Active Member Of Site {SiteId}", user.Username, alias.SiteId);
                                     }
                                 }
                             }
                             else
                             {
-                                _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Email Address Not Verified {Username}", user.Username);
+                                _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Denied - User Email Address Not Verified For {Username}", user.Username);
+
+                                // send verification email again
+                                string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
+                                string url = alias.Protocol + alias.Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
+                                string subject = _localizer["VerificationEmailSubject"];
+                                subject = subject.Replace("[SiteName]", siteName);
+                                string body = _localizer["VerificationEmailBody"].Value;
+                                body = body.Replace("[UserDisplayName]", user.DisplayName);
+                                body = body.Replace("[URL]", url);
+                                body = body.Replace("[SiteName]", siteName);
+                                var notification = new Notification(alias.SiteId, user, subject, body);
+                                _notifications.AddNotification(notification);
                             }
                         }
                     }
@@ -538,8 +552,7 @@ namespace Oqtane.Managers
             if (user != null)
             {
                 var alias = _tenantManager.GetAlias();
-                var twoFactorSetting = _settings.GetSetting(EntityNames.Site, alias.SiteId, "LoginOptions:TwoFactor")?.SettingValue ?? "false";
-                var twoFactorRequired = twoFactorSetting == "required" || user.TwoFactorRequired;
+                var twoFactorRequired = _settings.GetSettingValue(EntityNames.Site, alias.SiteId, "LoginOptions:TwoFactor", "false") == "required" || user.TwoFactorRequired;
                 if (twoFactorRequired && user.TwoFactorCode == token && DateTime.UtcNow < user.TwoFactorExpiry)
                 {
                     user.IsAuthenticated = true;

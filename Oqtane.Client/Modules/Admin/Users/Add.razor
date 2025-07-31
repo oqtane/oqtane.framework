@@ -5,6 +5,7 @@
 @inject IUserService UserService
 @inject IProfileService ProfileService
 @inject ISettingService SettingService
+@inject ITimeZoneService TimeZoneService
 @inject IStringLocalizer<Add> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -25,6 +26,15 @@
                         <Label Class="col-sm-3" For="email" HelpText="The email address where the user will receive notifications" ResourceKey="Email"></Label>
                         <div class="col-sm-9">
                             <input id="email" class="form-control" @bind="@_email" />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="confirmed" HelpText="Indicates if the user's email is verified" ResourceKey="Confirmed">Verified?</Label>
+                        <div class="col-sm-9">
+                            <select id="confirmed" class="form-select" @bind="@_confirmed">
+                                <option value="True">@SharedLocalizer["Yes"]</option>
+                                <option value="False">@SharedLocalizer["No"]</option>
+                            </select>
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
@@ -119,6 +129,7 @@
     private bool _initialized = false;
     private string _username = string.Empty;
     private string _email = string.Empty;
+    private string _confirmed = "True";
     private string _displayname = string.Empty;
     private string _timezoneid = string.Empty;
     private string _notify = "True";
@@ -132,7 +143,7 @@
     {
         try
         {
-            _timezones = Utilities.GetTimeZones();
+            _timezones = TimeZoneService.GetTimeZones();
             _profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
             _settings = new Dictionary<string, string>();
             _timezoneid = PageState.Site.TimeZoneId;
@@ -168,6 +179,7 @@
                     user.Username = _username;
                     user.Password = ""; // will be auto generated
                     user.Email = _email;
+                    user.EmailConfirmed = bool.Parse(_confirmed);
                     user.DisplayName = string.IsNullOrWhiteSpace(_displayname) ? _username : _displayname;
                     user.TimeZoneId = _timezoneid;
                     user.PhotoFileId = null;

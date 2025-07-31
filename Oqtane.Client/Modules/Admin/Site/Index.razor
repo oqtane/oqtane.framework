@@ -10,6 +10,7 @@
 @inject IAliasService AliasService
 @inject IThemeService  ThemeService
 @inject ISettingService  SettingService
+@inject ITimeZoneService TimeZoneService
 @inject IServiceProvider ServiceProvider
 @inject IStringLocalizer<Index> Localizer
 @inject INotificationService NotificationService
@@ -193,80 +194,125 @@
         <Section Name="SMTP" Heading="SMTP Settings" ResourceKey="SMTPSettings">
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    <div class="col-sm-3">
-                    </div>
+                    <Label Class="col-sm-3" For="smtpenabled" HelpText="Specify if SMTP is enabled for this site" ResourceKey="SmtpEnabled">Enabled? </Label>
                     <div class="col-sm-9">
-                        <strong>@Localizer["Smtp.Required.EnableNotificationJob"]</strong><br />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="host" HelpText="Enter the host name of the SMTP server" ResourceKey="Host">Host: </Label>
-                    <div class="col-sm-9">
-                        <input id="host" class="form-control" @bind="@_smtphost" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="port" HelpText="Enter the port number for the SMTP server. Please note this field is required if you provide a host name." ResourceKey="Port">Port: </Label>
-                    <div class="col-sm-9">
-                        <input id="port" class="form-control" @bind="@_smtpport" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="smtpssl" HelpText="Specify if SSL is required for your SMTP server" ResourceKey="UseSsl">SSL Enabled: </Label>
-                    <div class="col-sm-9">
-                        <select id="smtpssl" class="form-select" @bind="@_smtpssl" >
+                        <select id="smtpenabled" class="form-select" value="@_smtpenabled" @onchange="(e => SMTPEnabledChanged(e))">
                             <option value="True">@SharedLocalizer["Yes"]</option>
                             <option value="False">@SharedLocalizer["No"]</option>
                         </select>
                     </div>
                 </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="username" HelpText="Enter the username for your SMTP account" ResourceKey="SmtpUsername">Username: </Label>
-                    <div class="col-sm-9">
-                        <input id="username" class="form-control" @bind="@_smtpusername" autocomplete="off"/>
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="password" HelpText="Enter the password for your SMTP account" ResourceKey="SmtpPassword">Password: </Label>
-                    <div class="col-sm-9">
-                        <div class="input-group">
-                            <input id="password" type="@_smtppasswordtype" class="form-control" @bind="@_smtppassword" autocomplete="off"/>
-                            <button type="button" class="btn btn-secondary" @onclick="@ToggleSMTPPassword" tabindex="-1">@_togglesmtppassword</button>
+                @if (_smtpenabled == "True")
+                {
+                    <div class="row mb-1 align-items-center">
+                        <div class="col-sm-3">
+                        </div>
+                        <div class="col-sm-9">
+                            <strong>@Localizer["Smtp.Required.EnableNotificationJob"]</strong><br />
                         </div>
                     </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="sender" HelpText="Enter the email which emails will be sent from. Please note that this email address may need to be authorized with the SMTP server." ResourceKey="SmtpSender">Email Sender: </Label>
-                    <div class="col-sm-9">
-                        <input id="sender" class="form-control" @bind="@_smtpsender" />
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="host" HelpText="Enter the host name of the SMTP server" ResourceKey="Host">Host: </Label>
+                        <div class="col-sm-9">
+                            <input id="host" class="form-control" @bind="@_smtphost" />
+                        </div>
                     </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="relay" HelpText="Only specify this option if you have properly configured an SMTP Relay Service to route your outgoing mail. This option will send notifications from the user's email rather than from the Email Sender specified above." ResourceKey="SmtpRelay">Relay Configured? </Label>
-                    <div class="col-sm-9">
-                        <select id="relay" class="form-select" @bind="@_smtprelay" required>
-                            <option value="True">@SharedLocalizer["Yes"]</option>
-                            <option value="False">@SharedLocalizer["No"]</option>
-                        </select>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="port" HelpText="Enter the port number for the SMTP server. Please note this field is required if you provide a host name." ResourceKey="Port">Port: </Label>
+                        <div class="col-sm-9">
+                            <input id="port" class="form-control" @bind="@_smtpport" />
+                        </div>
                     </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="smtpenabled" HelpText="Specify if SMTP is enabled for this site" ResourceKey="SMTPEnabled">Enabled? </Label>
-                    <div class="col-sm-9">
-                        <select id="smtpenabled" class="form-select" @bind="@_smtpenabled">
-                            <option value="True">@SharedLocalizer["Yes"]</option>
-                            <option value="False">@SharedLocalizer["No"]</option>
-                        </select>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="smtpssl" HelpText="Specify if SSL is required for your SMTP server" ResourceKey="SmtpSSL">SSL Required: </Label>
+                        <div class="col-sm-9">
+                            <select id="smtpssl" class="form-select" @bind="@_smtpssl" >
+                                <option value="True">@SharedLocalizer["Yes"]</option>
+                                <option value="False">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="retention" HelpText="Number of days of notifications to retain" ResourceKey="Retention">Retention (Days): </Label>
-                    <div class="col-sm-9">
-                        <input id="retention" class="form-control" type="number" min="0" step="1" @bind="@_retention" />
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="smtpauthentication" HelpText="Specify the SMTP authentication type" ResourceKey="SMTPAuthentication">Authentication: </Label>
+                        <div class="col-sm-9">
+                            <select id="smtpauthentication" class="form-select" value="@_smtpauthentication" @onchange="(e => SMTPAuthenticationChanged(e))">
+                                <option value="Basic">@Localizer["Basic"]</option>
+                                <option value="OAuth2">@Localizer["OAuth2"]</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <button type="button" class="btn btn-secondary" @onclick="SendEmail">@Localizer["Smtp.TestConfig"]</button>
-                <br /><br />
+                    @if (_smtpauthentication == "Basic")
+                    {
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="username" HelpText="Enter the username for your SMTP account" ResourceKey="SmtpUsername">Username: </Label>
+                            <div class="col-sm-9">
+                                <input id="username" class="form-control" @bind="@_smtpusername" autocomplete="off" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="password" HelpText="Enter the password for your SMTP account" ResourceKey="SmtpPassword">Password: </Label>
+                            <div class="col-sm-9">
+                                <div class="input-group">
+                                    <input id="password" type="@_smtppasswordtype" class="form-control" @bind="@_smtppassword" autocomplete="off" />
+                                    <button type="button" class="btn btn-secondary" @onclick="@ToggleSMTPPassword" tabindex="-1">@_togglesmtppassword</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="relay" HelpText="Only specify this option if you have properly configured an SMTP Relay Service to route your outgoing mail. This option will send notifications from the user's email rather than from the Email Sender specified below." ResourceKey="SmtpRelay">Relay Configured? </Label>
+                            <div class="col-sm-9">
+                                <select id="relay" class="form-select" @bind="@_smtprelay" required>
+                                    <option value="True">@SharedLocalizer["Yes"]</option>
+                                    <option value="False">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="smtpauthority" HelpText="The Authority Url for the SMTP provider" ResourceKey="SmtpAuthority">Authority Url:</Label>
+                            <div class="col-sm-9">
+                                <input id="smtpauthority" class="form-control" @bind="@_smtpauthority" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="smtpclientid" HelpText="The Client ID for the SMTP provider" ResourceKey="SmtpClientID">Client ID:</Label>
+                            <div class="col-sm-9">
+                                <input id="smtpclientid" class="form-control" @bind="@_smtpclientid" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="smtpclientsecret" HelpText="The Client Secret for the SMTP provider" ResourceKey="SmtpClientSecret">Client Secret:</Label>
+                            <div class="col-sm-9">
+                                <div class="input-group">
+                                    <input type="@_smtpclientsecrettype" id="smtpclientsecret" class="form-control" @bind="@_smtpclientsecret" />
+                                    <button type="button" class="btn btn-secondary" @onclick="@ToggleSmtpClientSecret">@_togglesmtpclientsecret</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="smtpscopes" HelpText="A list of Scopes for the SMTP provider (separated by commas)" ResourceKey="SmtpScopes">Scopes:</Label>
+                            <div class="col-sm-9">
+                                <input id="smtpscopes" class="form-control" @bind="@_smtpscopes" />
+                            </div>
+                        </div>
+                    }
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="sender" HelpText="Enter the email address which emails will be sent from. Please note that this email address usually needs to be authorized with the SMTP provider." ResourceKey="SmtpSender">Email Sender: </Label>
+                        <div class="col-sm-9">
+                            <input id="sender" class="form-control" @bind="@_smtpsender" />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="retention" HelpText="Number of days of notifications to retain" ResourceKey="Retention">Retention (Days): </Label>
+                        <div class="col-sm-9">
+                            <input id="retention" class="form-control" type="number" min="0" step="1" @bind="@_retention" />
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary" @onclick="SendEmail">@Localizer["Smtp.TestConfig"]</button>
+                    <br /><br />
+                }
             </div>
         </Section>
         <Section Name="PWA" Heading="Progressive Web Application Settings" ResourceKey="PWASettings">
@@ -454,16 +500,23 @@
     private string _headcontent = string.Empty;
     private string _bodycontent = string.Empty;
 
+    private string _smtpenabled = "False";
+    private string _smtpauthentication = "Basic";
     private string _smtphost = string.Empty;
     private string _smtpport = string.Empty;
-    private string _smtpssl = "False";
+    private string _smtpssl = "True";
     private string _smtpusername = string.Empty;
     private string _smtppassword = string.Empty;
     private string _smtppasswordtype = "password";
     private string _togglesmtppassword = string.Empty;
+    private string _smtpauthority = string.Empty;
+    private string _smtpclientid = string.Empty;
+    private string _smtpclientsecret = string.Empty;
+    private string _smtpclientsecrettype = "password";
+    private string _togglesmtpclientsecret = string.Empty;
+    private string _smtpscopes = string.Empty;
     private string _smtpsender = string.Empty;
     private string _smtprelay = "False";
-    private string _smtpenabled = "True";
     private int _retention = 30;
 
     private string _pwaisenabled;
@@ -507,7 +560,7 @@
             Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
             if (site != null)
             {
-                _timezones = Utilities.GetTimeZones();
+                _timezones = TimeZoneService.GetTimeZones();
                 var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
 
                 _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
@@ -555,15 +608,21 @@
                 _bodycontent = site.BodyContent;
 
                 // SMTP
+                _smtpenabled = SettingService.GetSetting(settings, "SMTPEnabled", "False");
                 _smtphost = SettingService.GetSetting(settings, "SMTPHost", string.Empty);
                 _smtpport = SettingService.GetSetting(settings, "SMTPPort", string.Empty);
                 _smtpssl = SettingService.GetSetting(settings, "SMTPSSL", "False");
+                _smtpauthentication = SettingService.GetSetting(settings, "SMTPAuthentication", "Basic");
                 _smtpusername = SettingService.GetSetting(settings, "SMTPUsername", string.Empty);
                 _smtppassword = SettingService.GetSetting(settings, "SMTPPassword", string.Empty);
                 _togglesmtppassword = SharedLocalizer["ShowPassword"];
+                _smtpauthority = SettingService.GetSetting(settings, "SMTPAuthority", string.Empty);
+                _smtpclientid = SettingService.GetSetting(settings, "SMTPClientId", string.Empty);
+                _smtpclientsecret = SettingService.GetSetting(settings, "SMTPClientSecret", string.Empty);
+                _togglesmtpclientsecret = SharedLocalizer["ShowPassword"];
+                _smtpscopes = SettingService.GetSetting(settings, "SMTPScopes", string.Empty);
                 _smtpsender = SettingService.GetSetting(settings, "SMTPSender", string.Empty);
                 _smtprelay = SettingService.GetSetting(settings, "SMTPRelay", "False");
-                _smtpenabled = SettingService.GetSetting(settings, "SMTPEnabled", "True");
                 _retention = int.Parse(SettingService.GetSetting(settings, "NotificationRetention", "30"));
 
                 // PWA
@@ -744,8 +803,13 @@
                         settings = SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
                         settings = SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
                         settings = SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
+                        settings = SettingService.SetSetting(settings, "SMTPAuthentication", _smtpauthentication, true);
                         settings = SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
                         settings = SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
+                        settings = SettingService.SetSetting(settings, "SMTPAuthority", _smtpauthority, true);
+                        settings = SettingService.SetSetting(settings, "SMTPClientId", _smtpclientid, true);
+                        settings = SettingService.SetSetting(settings, "SMTPClientSecret", _smtpclientsecret, true);
+                        settings = SettingService.SetSetting(settings, "SMTPScopes", _smtpscopes, true);
                         settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
                         settings = SettingService.SetSetting(settings, "SMTPRelay", _smtprelay, true);
                         settings = SettingService.SetSetting(settings, "SMTPEnabled", _smtpenabled, true);
@@ -812,6 +876,46 @@
         }
     }
 
+    private void SMTPAuthenticationChanged(ChangeEventArgs e)
+    {
+        _smtpauthentication = (string)e.Value;
+        StateHasChanged();
+    }
+
+    private void SMTPEnabledChanged(ChangeEventArgs e)
+    {
+        _smtpenabled = (string)e.Value;
+        StateHasChanged();
+    }
+
+    private void ToggleSMTPPassword()
+    {
+        if (_smtppasswordtype == "password")
+        {
+            _smtppasswordtype = "text";
+            _togglesmtppassword = SharedLocalizer["HidePassword"];
+        }
+        else
+        {
+            _smtppasswordtype = "password";
+            _togglesmtppassword = SharedLocalizer["ShowPassword"];
+        }
+    }
+
+    private void ToggleSmtpClientSecret()
+    {
+        if (_smtpclientsecrettype == "password")
+        {
+            _smtpclientsecrettype = "text";
+            _togglesmtpclientsecret = SharedLocalizer["HidePassword"];
+        }
+        else
+        {
+            _smtpclientsecrettype = "password";
+            _togglesmtpclientsecret = SharedLocalizer["ShowPassword"];
+        }
+    }
+
     private async Task SendEmail()
     {
         if (_smtphost != "" && _smtpport != "" && _smtpsender != "")
@@ -822,8 +926,13 @@
                 settings = SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
                 settings = SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
                 settings = SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
+                settings = SettingService.SetSetting(settings, "SMTPAuthentication", _smtpauthentication, true);
                 settings = SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
                 settings = SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
+                settings = SettingService.SetSetting(settings, "SMTPAuthority", _smtpauthority, true);
+                settings = SettingService.SetSetting(settings, "SMTPClientId", _smtpclientid, true);
+                settings = SettingService.SetSetting(settings, "SMTPClientSecret", _smtpclientsecret, true);
+                settings = SettingService.SetSetting(settings, "SMTPScopes", _smtpscopes, true);
                 settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
                 await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
                 await logger.LogInformation("Site SMTP Settings Saved");
@@ -841,20 +950,6 @@
         else
         {
             AddModuleMessage(Localizer["Message.Required.Smtp"], MessageType.Warning);
-        }
-    }
-
-    private void ToggleSMTPPassword()
-    {
-        if (_smtppasswordtype == "password")
-        {
-            _smtppasswordtype = "text";
-            _togglesmtppassword = SharedLocalizer["HidePassword"];
-        }
-        else
-        {
-            _smtppasswordtype = "password";
-            _togglesmtppassword = SharedLocalizer["ShowPassword"];
         }
     }
 

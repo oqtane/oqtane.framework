@@ -117,13 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Universal" xml:space="preserve">
-    <value>(UTC) Coordinated Universal Time</value>
-  </data>
-  <data name="US/Eastern" xml:space="preserve">
-    <value>(UTC-05:00) Eastern Time (US &amp; Canada)</value>
-  </data>
-  <data name="US/Pacific" xml:space="preserve">
-    <value>(UTC-08:00) Pacific Time (US &amp; Canada)</value>
-  </data>
 </root>

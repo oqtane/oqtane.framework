@@ -26,6 +26,9 @@ else
     [Parameter]
     public string Name { get; set; }
 
+    [Parameter]
+    public string ContainerType { get; set; }
+
     RenderFragment DynamicComponent { get; set; }
 
     protected override void OnParametersSet()
@@ -119,6 +122,7 @@ else
     {
         builder.OpenComponent(0, typeof(ContainerBuilder));
         builder.AddAttribute(1, "ModuleState", module);
+        builder.AddAttribute(2, "ContainerType", ContainerType);
         builder.SetKey(module.PageModuleId);
         builder.CloseComponent();
     }
