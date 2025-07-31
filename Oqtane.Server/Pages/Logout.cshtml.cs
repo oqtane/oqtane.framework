@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Oqtane.Enums;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Managers;
@@ -16,11 +17,13 @@ namespace Oqtane.Pages
     {
         private readonly IUserManager _userManager;
         private readonly ISyncManager _syncManager;
+        private readonly ILogManager _logger;
 
-        public LogoutModel(IUserManager userManager, ISyncManager syncManager)
+        public LogoutModel(IUserManager userManager, ISyncManager syncManager, ILogManager logger)
         {
             _userManager = userManager;
             _syncManager = syncManager;
+            _logger = logger;
         }
 
         public async Task<IActionResult> OnPostAsync(string returnurl, string everywhere)
@@ -37,6 +40,7 @@ namespace Oqtane.Pages
                     }
                     _syncManager.AddSyncEvent(alias, EntityNames.User, user.UserId, "Logout");
                     _syncManager.AddSyncEvent(alias, EntityNames.User, user.UserId, SyncEventActions.Reload);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Logout For Username {Username}", user.Username);
                 }
 
                 await HttpContext.SignOutAsync(Constants.AuthenticationScheme);
