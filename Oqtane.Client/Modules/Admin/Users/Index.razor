@@ -17,8 +17,21 @@ else
 {
     <TabStrip>
         <TabPanel Name="Users" Heading="Users" ResourceKey="Users">
-            <ActionLink Action="Add" Text="Add User" Security="SecurityAccessLevel.Edit" ResourceKey="AddUser" />&nbsp;
-            <ActionLink Text="Import Users" Class="btn btn-secondary ms-2" Action="Users" Security="SecurityAccessLevel.Admin" ResourceKey="ImportUsers"/>
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <div class="col-sm-6">
+                        <ActionLink Action="Add" Text="Add User" Security="SecurityAccessLevel.Edit" ResourceKey="AddUser" />&nbsp;
+                        <ActionLink Text="Import Users" Class="btn btn-secondary ms-2" Action="Users" Security="SecurityAccessLevel.Admin" ResourceKey="ImportUsers" />
+                    </div>
+                    <div class="col-sm-6">
+                        <select id="deleted" class="form-select custom-select" value="@_deleted" @onchange="(e => DeletedChanged(e))">
+                            <option value="false">@Localizer["Active Users"]</option>
+                            <option value="true">@Localizer["Deleted Users"]</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <br />
 
             <Pager Items="@users" RowClass="align-middle" SearchProperties="User.Username,User.Email,User.DisplayName">
                 <Header>
@@ -495,6 +508,7 @@ else
 
 @code {
     private List<UserRole> users;
+    private string _deleted = "false";
 
     private string _allowregistration;
     private string _registerurl;
@@ -564,7 +578,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadUsersAsync(true);
+        await LoadUsersAsync();
 
         var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
         _allowregistration = PageState.Site.AllowRegistration.ToString().ToLower();
@@ -636,20 +650,32 @@ else
         _allowsitelogin = SettingService.GetSetting(settings, "LoginOptions:AllowSiteLogin", "true");
     }
 
-    private async Task LoadUsersAsync(bool load)
+    private async Task LoadUsersAsync()
     {
-        if (load)
+        users = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Registered);
+        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
         {
-            users = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Registered);
-            if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-            {
-                var hosts = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Host);
-                users.AddRange(hosts);
-                users = users.OrderBy(u => u.User.DisplayName).ToList();
-            }           
+            var hosts = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Host);
+            users.AddRange(hosts);
+            users = users.OrderBy(u => u.User.DisplayName).ToList();
         }
+        users = users.Where(item => item.User.IsDeleted == bool.Parse(_deleted)).ToList();
     }
 
+    private async void DeletedChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            _deleted = e.Value.ToString();
+            await LoadUsersAsync();
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error On DeletedChanged");
+		}
+	}
+    
     private async Task DeleteUser(UserRole UserRole)
     {
         try
@@ -672,7 +698,7 @@ else
                 await logger.LogInformation("User {Username} Expired From Role {Role}", userrole.User.Username, userrole.Role.Name);
             }
             AddModuleMessage(Localizer["Success.DeleteUser"], MessageType.Success);
-            await LoadUsersAsync(true);
+            await LoadUsersAsync();
             StateHasChanged();
         }
         catch (Exception ex)

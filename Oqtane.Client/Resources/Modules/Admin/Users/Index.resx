@@ -537,4 +537,10 @@
   <data name="AllowHostRole.HelpText" xml:space="preserve">
     <value>Indicate if host roles are supported from the identity provider. Please use caution with this option as it allows the host user to administrate every site within your installation.</value>
   </data>
+  <data name="Active Users" xml:space="preserve">
+    <value>Active Users</value>
+  </data>
+  <data name="Deleted Users" xml:space="preserve">
+    <value>Deleted Users</value>
+  </data>
 </root>
