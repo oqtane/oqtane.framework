@@ -83,10 +83,13 @@
 
     protected override void OnAfterRender(bool firstRender)
     {
-        if (firstRender && _display == "display: none;")
+        if (firstRender)
         {
             _display = "";
-            StateHasChanged(); // required or else the UI will not refresh
+            if (PageState != null && PageState.Site.Prerender)
+            {
+                StateHasChanged(); // required or else the UI will not refresh
+            }
         }
     }
 
