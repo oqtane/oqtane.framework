@@ -447,20 +447,31 @@
                     }
                     else
                     {
-                        // set FileId to first file in upload collection
-                        var file = await FileService.GetFileAsync(int.Parse(folder), uploads[0].Split(":")[0]);
-                        if (file != null)
+                        if (AnonymizeUploadFilenames)
                         {
-                            FileId = file.FileId;
-                            await SetImage();
-#pragma warning disable CS0618
-                            await OnSelect.InvokeAsync(FileId);
-#pragma warning restore CS0618
-                            await OnSelectFile.InvokeAsync(FileId);
-                            await OnUpload.InvokeAsync(FileId);
+                            // it is not possible to determine the FileId of the uploaded file when filenames are anonymized
+                            await OnUpload.InvokeAsync(-1);
                         }
-                        await GetFiles();
-                        StateHasChanged();
+                        else
+                        {
+                            // set FileId to first file in upload collection
+                            var file = await FileService.GetFileAsync(int.Parse(folder), uploads[0].Split(":")[0]);
+                            if (file != null)
+                            {
+                                FileId = file.FileId;
+                                await SetImage();
+#pragma warning disable CS0618
+                                await OnSelect.InvokeAsync(FileId);
+#pragma warning restore CS0618
+                                await OnSelectFile.InvokeAsync(FileId);
+                                await OnUpload.InvokeAsync(FileId);
+                            }
+                        }
+                        if (ShowFiles)
+                        {
+                            await GetFiles();
+                            StateHasChanged();
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -492,6 +503,7 @@
     private async Task DeleteFile()
     {
         _message = string.Empty;
+
         try
         {
             await FileService.DeleteFileAsync(FileId);
@@ -504,14 +516,17 @@
                 _messagetype = MessageType.Success;
             }
 
-			await GetFiles();
-			FileId = -1;
-			await SetImage();
+            if (ShowFiles)
+            {
+                await GetFiles();
+                FileId = -1;
+                await SetImage();
 #pragma warning disable CS0618
-            await OnSelect.InvokeAsync(FileId);
+                await OnSelect.InvokeAsync(FileId);
 #pragma warning restore CS0618
-            await OnSelectFile.InvokeAsync(FileId);
-            StateHasChanged();
+                await OnSelectFile.InvokeAsync(FileId);
+                StateHasChanged();
+            }
 		}
 		catch (Exception ex)
 		{
