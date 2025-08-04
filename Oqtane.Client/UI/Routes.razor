@@ -48,7 +48,7 @@
 
     private bool _initialized = false;
     private bool _installed = false;
-    private string _display = "display: none;"; // prevents flash on initial interactive page load when using prerendering
+    private string _display = "display: none;"; // prevents flash on initial interactive page load
 
     private PageState _pageState { get; set; }
 
@@ -86,10 +86,7 @@
         if (firstRender)
         {
             _display = "";
-            if (PageState != null && PageState.Site.Prerender)
-            {
-                StateHasChanged(); // required or else the UI will not refresh
-            }
+            StateHasChanged();
         }
     }
 
