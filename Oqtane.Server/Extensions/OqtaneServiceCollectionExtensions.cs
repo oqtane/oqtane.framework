@@ -257,7 +257,7 @@ namespace Microsoft.Extensions.DependencyInjection
                         // set the cookies to allow HttpClient API calls to be authenticated
                         foreach (var cookie in httpContextAccessor.HttpContext.Request.Cookies)
                         {
-                            client.DefaultRequestHeaders.Add("Cookie", cookie.Key + "=" + cookie.Value);
+                            client.DefaultRequestHeaders.Add("Cookie", cookie.Key + "=" + WebUtility.UrlEncode(cookie.Value));
                         }
                     }
 
@@ -275,7 +275,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     // set the cookies to allow HttpClient API calls to be authenticated
                     foreach (var cookie in httpContextAccessor.HttpContext.Request.Cookies)
                     {
-                        client.DefaultRequestHeaders.Add("Cookie", cookie.Key + "=" + cookie.Value);
+                        client.DefaultRequestHeaders.Add("Cookie", cookie.Key + "=" + WebUtility.UrlEncode(cookie.Value));
                     }
                 }
             });

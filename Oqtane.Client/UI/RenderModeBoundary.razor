@@ -64,8 +64,6 @@
 
     protected override void OnParametersSet()
     {
-        _messageContent = "";
-
         if (ShouldRender())
         {
             if (!string.IsNullOrEmpty(ModuleState.ModuleType))
@@ -107,7 +105,7 @@
 
     public void AddModuleMessage(string message, MessageType type, string position)
     {
-        if(message != _messageContent
+        if (message != _messageContent
             || type != _messageType
             || position != _messagePosition)
         {

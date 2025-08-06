@@ -298,7 +298,7 @@ namespace Oqtane.Controllers
                     if (!authorized)
                     {
                         var visitorCookieName = Constants.VisitorCookiePrefix + _alias.SiteId.ToString();
-                        authorized = (entityId == GetVisitorCookieId(Request.Cookies[visitorCookieName]));
+                        authorized = (entityId == GetVisitorCookieId(HttpContext.Request.Cookies[visitorCookieName]));
                     }
                     break;
                 default: // custom entity
@@ -352,9 +352,14 @@ namespace Oqtane.Controllers
 
         private int GetVisitorCookieId(string visitorCookie)
         {
-            // visitor cookies contain the visitor id and an expiry date separated by a pipe symbol
-            visitorCookie = (visitorCookie.Contains("|")) ? visitorCookie.Split('|')[0] : visitorCookie;
-            return (int.TryParse(visitorCookie, out int visitorId)) ? visitorId : -1;
+            var visitorId = -1;
+            if (visitorCookie != null)
+            {
+                // visitor cookies now contain the visitor id and an expiry date separated by a pipe symbol
+                visitorCookie = (visitorCookie.Contains("|")) ? visitorCookie.Split('|')[0] : visitorCookie;
+                visitorId = int.TryParse(visitorCookie, out int _visitorId) ? _visitorId : -1;
+            }
+            return visitorId;
         }
 
         private void AddSyncEvent(string EntityName, int EntityId, int SettingId, string Action)
