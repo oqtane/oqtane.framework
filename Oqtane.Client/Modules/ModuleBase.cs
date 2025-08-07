@@ -504,8 +504,8 @@ namespace Oqtane.Modules
         public DateTime? UtcToLocal(DateTime? datetime)
         {
             // Early return if input is null
-            if (datetime == null)
-                return null;
+            if (datetime == null || datetime.Value == DateTime.MinValue || datetime.Value == DateTime.MaxValue)
+                return datetime;
 
             string timezoneId = null;
 
@@ -524,8 +524,8 @@ namespace Oqtane.Modules
         public DateTime? LocalToUtc(DateTime? datetime)
         {
             // Early return if input is null
-            if (datetime == null)
-                return null;
+            if (datetime == null || datetime.Value == DateTime.MinValue || datetime.Value == DateTime.MaxValue)
+                return datetime;
 
             string timezoneId = null;
 
