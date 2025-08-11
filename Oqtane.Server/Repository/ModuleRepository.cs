@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Shared;
@@ -12,6 +11,18 @@ using Module = Oqtane.Models.Module;
 
 namespace Oqtane.Repository
 {
+    public interface IModuleRepository
+    {
+        IEnumerable<Module> GetModules(int siteId);
+        Module AddModule(Module module);
+        Module UpdateModule(Module module);
+        Module GetModule(int moduleId);
+        Module GetModule(int moduleId, bool tracking);
+        void DeleteModule(int moduleId);
+        string ExportModule(int moduleId);
+        bool ImportModule(int moduleId, string content);
+    }
+
     public class ModuleRepository : IModuleRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
