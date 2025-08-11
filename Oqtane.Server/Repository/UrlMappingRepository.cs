@@ -6,6 +6,18 @@ using Oqtane.Models;
 
 namespace Oqtane.Repository
 {
+    public interface IUrlMappingRepository
+    {
+        IEnumerable<UrlMapping> GetUrlMappings(int siteId, bool isMapped);
+        UrlMapping AddUrlMapping(UrlMapping urlMapping);
+        UrlMapping UpdateUrlMapping(UrlMapping urlMapping);
+        UrlMapping GetUrlMapping(int urlMappingId);
+        UrlMapping GetUrlMapping(int urlMappingId, bool tracking);
+        UrlMapping GetUrlMapping(int siteId, string url);
+        void DeleteUrlMapping(int urlMappingId);
+        int DeleteUrlMappings(int siteId, int age);
+    }
+
     public class UrlMappingRepository : IUrlMappingRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;

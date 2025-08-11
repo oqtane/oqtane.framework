@@ -5,6 +5,15 @@ using Oqtane.Models;
 
 namespace Oqtane.Repository
 {
+    public interface ILanguageRepository
+    {
+        IEnumerable<Language> GetLanguages(int siteId);
+        Language AddLanguage(Language language);
+        void UpdateLanguage(Language language);
+        Language GetLanguage(int languageId);
+        void DeleteLanguage(int languageId);
+    }
+
     public class LanguageRepository : ILanguageRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;

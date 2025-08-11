@@ -9,12 +9,24 @@ using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Modules;
-using Oqtane.Modules.Admin.Modules;
 using Oqtane.Shared;
 using Module = Oqtane.Models.Module;
 
 namespace Oqtane.Repository
 {
+    public interface ISiteRepository
+    {
+        IEnumerable<Site> GetSites();
+        Site AddSite(Site site);
+        Site UpdateSite(Site site);
+        Site GetSite(int siteId);
+        Site GetSite(int siteId, bool tracking);
+        void DeleteSite(int siteId);
+
+        void InitializeSite(Alias alias);
+        void CreatePages(Site site, List<PageTemplate> pageTemplates, Alias alias);
+    }
+
     public class SiteRepository : ISiteRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _factory;
