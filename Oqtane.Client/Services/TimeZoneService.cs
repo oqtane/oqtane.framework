@@ -9,6 +9,18 @@ using NodaTime.Extensions;
 
 namespace Oqtane.Services
 {
+    /// <summary>
+    /// Service to retrieve <see cref="TimeZone"/> entries
+    /// </summary>
+    public interface ITimeZoneService
+    {
+        /// <summary>
+        /// Get the list of time zones
+        /// </summary>
+        /// <returns></returns>
+        List<Models.TimeZone> GetTimeZones();
+    }
+
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class TimeZoneService : ITimeZoneService
     {
