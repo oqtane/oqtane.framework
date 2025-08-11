@@ -8,6 +8,19 @@ using System.Globalization;
 
 namespace Oqtane.Services
 {
+    /// <summary>
+    /// Service to retrieve <see cref="Sync"/> information.
+    /// </summary>
+    public interface ISyncService
+    {
+        /// <summary>
+        /// Get sync events
+        /// </summary>
+        /// <param name="lastSyncDate"></param>
+        /// <returns></returns>
+        Task<Sync> GetSyncEventsAsync(DateTime lastSyncDate);
+    }
+
     /// <inheritdoc cref="ISyncService" />
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class SyncService : ServiceBase, ISyncService

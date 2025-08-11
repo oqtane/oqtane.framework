@@ -1,13 +1,46 @@
-using Oqtane.Models;
 using System.Threading.Tasks;
 using System.Net.Http;
-using System;
 using Oqtane.Documentation;
 using Oqtane.Shared;
-using System.Globalization;
 
 namespace Oqtane.Services
 {
+    /// <summary>
+    /// Service to retrieve cookie consent information.
+    /// </summary>
+    public interface ICookieConsentService
+    {
+        /// <summary>
+        /// Get cookie consent bar actioned status
+        /// </summary>
+        /// <returns></returns>
+        Task<bool> IsActionedAsync();
+
+        /// <summary>
+        /// Get cookie consent status
+        /// </summary>
+        /// <returns></returns>
+        Task<bool> CanTrackAsync(bool optOut);
+
+        /// <summary>
+        /// create actioned cookie
+        /// </summary>
+        /// <returns></returns>
+        Task<string> CreateActionedCookieAsync();
+
+        /// <summary>
+        /// create consent cookie
+        /// </summary>
+        /// <returns></returns>
+        Task<string> CreateConsentCookieAsync();
+
+        /// <summary>
+        /// widhdraw consent cookie
+        /// </summary>
+        /// <returns></returns>
+        Task<string> WithdrawConsentCookieAsync();
+    }
+
     /// <inheritdoc cref="ICookieConsentService" />
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class CookieConsentService : ServiceBase, ICookieConsentService
