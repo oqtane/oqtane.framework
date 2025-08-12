@@ -19,7 +19,7 @@ namespace Oqtane.Migrations.Master
             //Add Column to Alias table
             var aliasEntityBuilder = new AliasEntityBuilder(migrationBuilder, ActiveDatabase);
             aliasEntityBuilder.AddBooleanColumn("IsDefault", true);
-            aliasEntityBuilder.UpdateColumn("IsDefault", "1", "bool", "");
+            aliasEntityBuilder.UpdateData("IsDefault", true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

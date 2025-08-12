@@ -29,22 +29,22 @@ namespace Oqtane.Migrations.Tenant
                 siteEntityBuilder.DropColumn("DefaultLayoutType");
 
                 //Update DefaultContainerType In Site
-                siteEntityBuilder.UpdateColumn("DefaultContainerType", "'Oqtane.Themes.OqtaneTheme.Container, Oqtane.Client'", $"{DelimitName(RewriteName("DefaultContainerType"))} = 'Oqtane.Themes.OqtaneTheme.DefaultTitle, Oqtane.Client'");
-                siteEntityBuilder.UpdateColumn("DefaultContainerType", "'Oqtane.Themes.OqtaneTheme.Container, Oqtane.Client'", $"{DelimitName(RewriteName("DefaultContainerType"))} = 'Oqtane.Themes.OqtaneTheme.DefaultNoTitle, Oqtane.Client'");
+                siteEntityBuilder.UpdateData("DefaultContainerType", "'Oqtane.Themes.OqtaneTheme.Container, Oqtane.Client'", $"{DelimitName(RewriteName("DefaultContainerType"))} = 'Oqtane.Themes.OqtaneTheme.DefaultTitle, Oqtane.Client'");
+                siteEntityBuilder.UpdateData("DefaultContainerType", "'Oqtane.Themes.OqtaneTheme.Container, Oqtane.Client'", $"{DelimitName(RewriteName("DefaultContainerType"))} = 'Oqtane.Themes.OqtaneTheme.DefaultNoTitle, Oqtane.Client'");
 
                 //Drop Column from Page Table
                 var pageEntityBuilder = new PageEntityBuilder(migrationBuilder, ActiveDatabase);
                 pageEntityBuilder.DropColumn("LayoutType");
 
                 //Update DefaultContainerType in Page
-                pageEntityBuilder.UpdateColumn("DefaultContainerType", "'Oqtane.Themes.OqtaneTheme.Container, Oqtane.Client'", $"{DelimitName(RewriteName("DefaultContainerType"))} = 'Oqtane.Themes.OqtaneTheme.DefaultTitle, Oqtane.Client'");
-                pageEntityBuilder.UpdateColumn("DefaultContainerType", "'Oqtane.Themes.OqtaneTheme.Container, Oqtane.Client'", $"{DelimitName(RewriteName("DefaultContainerType"))} = 'Oqtane.Themes.OqtaneTheme.DefaultNoTitle, Oqtane.Client'");
+                pageEntityBuilder.UpdateData("DefaultContainerType", "'Oqtane.Themes.OqtaneTheme.Container, Oqtane.Client'", $"{DelimitName(RewriteName("DefaultContainerType"))} = 'Oqtane.Themes.OqtaneTheme.DefaultTitle, Oqtane.Client'");
+                pageEntityBuilder.UpdateData("DefaultContainerType", "'Oqtane.Themes.OqtaneTheme.Container, Oqtane.Client'", $"{DelimitName(RewriteName("DefaultContainerType"))} = 'Oqtane.Themes.OqtaneTheme.DefaultNoTitle, Oqtane.Client'");
 
 
                 //Update ContainerType in PageModule
                 var pageModuleEntityBuilder = new PageModuleEntityBuilder(migrationBuilder, ActiveDatabase);
-                pageModuleEntityBuilder.UpdateColumn("ContainerType", "'Oqtane.Themes.OqtaneTheme.Container, Oqtane.Client'", $"{DelimitName(RewriteName("ContainerType"))} = 'Oqtane.Themes.OqtaneTheme.DefaultTitle, Oqtane.Client'");
-                pageModuleEntityBuilder.UpdateColumn("ContainerType", "'Oqtane.Themes.OqtaneTheme.Container, Oqtane.Client'", $"{DelimitName(RewriteName("ContainerType"))} = 'Oqtane.Themes.OqtaneTheme.DefaultNoTitle, Oqtane.Client'");
+                pageModuleEntityBuilder.UpdateData("ContainerType", "'Oqtane.Themes.OqtaneTheme.Container, Oqtane.Client'", $"{DelimitName(RewriteName("ContainerType"))} = 'Oqtane.Themes.OqtaneTheme.DefaultTitle, Oqtane.Client'");
+                pageModuleEntityBuilder.UpdateData("ContainerType", "'Oqtane.Themes.OqtaneTheme.Container, Oqtane.Client'", $"{DelimitName(RewriteName("ContainerType"))} = 'Oqtane.Themes.OqtaneTheme.DefaultNoTitle, Oqtane.Client'");
 
             }
         }

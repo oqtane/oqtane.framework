@@ -23,7 +23,7 @@ namespace Oqtane.Migrations.Tenant
             var pageEntityBuilder = new PageEntityBuilder(migrationBuilder, ActiveDatabase);
             pageEntityBuilder.AddStringColumn("HeadContent", 4000, true);
 
-            pageEntityBuilder.UpdateColumn("HeadContent", "Meta");
+            pageEntityBuilder.UpdateData("HeadContent", "Meta");
             pageEntityBuilder.DropColumn("Meta");
         }
 

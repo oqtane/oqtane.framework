@@ -80,6 +80,15 @@ namespace Oqtane.Database.MySQL
             return $"`{name}`";
         }
 
+        public override string RewriteValue(object value)
+        {
+            if (value.GetType().Name == "Boolean")
+            {
+                return (bool)value ? "1" : "0"; // MySQL uses 1/0 for boolean values
+            }
+            return value.ToString();
+        }
+
         public override DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString)
         {
             return optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
