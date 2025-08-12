@@ -21,7 +21,7 @@ namespace Oqtane.Migrations.Tenant
 
             //Add Type column and initialize
             folderEntityBuilder.AddStringColumn("Type", 50, true, true);
-            folderEntityBuilder.UpdateColumn("Type", "'" + FolderTypes.Private + "'");
+            folderEntityBuilder.UpdateData("Type", "'" + FolderTypes.Private + "'");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

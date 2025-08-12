@@ -18,13 +18,13 @@ namespace Oqtane.Migrations.Tenant
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             var settingEntityBuilder = new SettingEntityBuilder(migrationBuilder, ActiveDatabase);
-            settingEntityBuilder.UpdateColumn("IsPublic", "1", "bool", $"{DelimitName(RewriteName("SettingName"))} NOT LIKE 'SMTP%'");
+            settingEntityBuilder.UpdateData("IsPublic", true, $"{DelimitName(RewriteName("SettingName"))} NOT LIKE 'SMTP%'");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             var settingEntityBuilder = new SettingEntityBuilder(migrationBuilder, ActiveDatabase);
-            settingEntityBuilder.UpdateColumn("IsPublic", "0", "bool", $"{DelimitName(RewriteName("SettingName"))} NOT LIKE 'SMTP%'");
+            settingEntityBuilder.UpdateData("IsPublic", false, $"{DelimitName(RewriteName("SettingName"))} NOT LIKE 'SMTP%'");
         }
     }
 }

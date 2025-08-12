@@ -18,10 +18,10 @@ namespace Oqtane.Migrations.Tenant
         {
             // resetting value as framework now uses IANA ID consistently for time zones
             var siteEntityBuilder = new SiteEntityBuilder(migrationBuilder, ActiveDatabase);
-            siteEntityBuilder.UpdateColumn("TimeZoneId", "''");
+            siteEntityBuilder.UpdateData("TimeZoneId", "''");
 
             var userEntityBuilder = new UserEntityBuilder(migrationBuilder, ActiveDatabase);
-            userEntityBuilder.UpdateColumn("TimeZoneId", "''");
+            userEntityBuilder.UpdateData("TimeZoneId", "''");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

@@ -19,8 +19,8 @@ namespace Oqtane.Migrations.Tenant
         {
             var settingEntityBuilder = new SettingEntityBuilder(migrationBuilder, ActiveDatabase);
             settingEntityBuilder.AddBooleanColumn("IsPrivate", true);
-            settingEntityBuilder.UpdateColumn("IsPrivate", "0", "bool", "");
-            settingEntityBuilder.UpdateColumn("IsPrivate", "1", "bool", $"{DelimitName(RewriteName("EntityName"))} = 'Site' AND { DelimitName(RewriteName("SettingName"))} LIKE 'SMTP%'");
+            settingEntityBuilder.UpdateData("IsPrivate", false);
+            settingEntityBuilder.UpdateData("IsPrivate", true, $"{DelimitName(RewriteName("EntityName"))} = 'Site' AND { DelimitName(RewriteName("SettingName"))} LIKE 'SMTP%'");
             settingEntityBuilder.DropColumn("IsPublic");
         }
 

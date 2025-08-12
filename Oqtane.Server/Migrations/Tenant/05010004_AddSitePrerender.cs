@@ -19,13 +19,13 @@ namespace Oqtane.Migrations.Tenant
         {
             var siteEntityBuilder = new SiteEntityBuilder(migrationBuilder, ActiveDatabase);
 
-            siteEntityBuilder.UpdateColumn("RenderMode", $"'{RenderModes.Interactive}'");
+            siteEntityBuilder.UpdateData("RenderMode", $"'{RenderModes.Interactive}'");
 
             siteEntityBuilder.AddBooleanColumn("Prerender", true);
-            siteEntityBuilder.UpdateColumn("Prerender", "1", "bool", "");
+            siteEntityBuilder.UpdateData("Prerender", true);
 
             siteEntityBuilder.AddBooleanColumn("Hybrid", true);
-            siteEntityBuilder.UpdateColumn("Hybrid", "0", "bool", "");
+            siteEntityBuilder.UpdateData("Hybrid", false);
             siteEntityBuilder.DropColumn("HybridEnabled");
         }
 

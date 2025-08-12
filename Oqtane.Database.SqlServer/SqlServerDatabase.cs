@@ -51,6 +51,15 @@ namespace Oqtane.Database.SqlServer
             return $"[{name}]";
         }
 
+        public override string RewriteValue(object value)
+        {
+            if (value.GetType().Name == "Boolean")
+            {
+                return (bool)value ? "1" : "0"; // SQL Server uses 1/0 for boolean values
+            }
+            return value.ToString();
+        }
+
         public override int ExecuteNonQuery(string connectionString, string query)
         {
             var conn = new SqlConnection(FormatConnectionString(connectionString));
