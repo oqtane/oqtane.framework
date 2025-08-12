@@ -118,42 +118,42 @@ else
                     <Label Class="col-sm-3" For="databaseType" HelpText="Select the database type" ResourceKey="DatabaseType">Type: </Label>
                     <div class="col-sm-9">
                         @if (_databases != null)
-						{
-							<div class="input-group">
-								<select id="databaseType" class="form-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))" required>
-									@foreach (var database in _databases)
-									{
-										<option value="@database.Name">@Localizer[@database.Name]</option>
-									}
-								</select>
-								@if (!_showConnectionString)
-								{
-									<button type="button" class="btn btn-secondary" @onclick="ToggleConnectionString">@Localizer["EnterConnectionString"]</button>
-								}
-								else
-								{
-									<button type="button" class="btn btn-secondary" @onclick="ToggleConnectionString">@Localizer["EnterConnectionParameters"]</button>
-								}
-							</div>
-						}
-					</div>
+                        {
+                            <div class="input-group">
+                                <select id="databaseType" class="form-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))" required>
+                                    @foreach (var database in _databases)
+                                    {
+                                        <option value="@database.Name">@Localizer[@database.Name]</option>
+                                    }
+                                </select>
+                                @if (!_showConnectionString)
+                                {
+                                    <button type="button" class="btn btn-secondary" @onclick="ToggleConnectionString">@Localizer["EnterConnectionString"]</button>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-secondary" @onclick="ToggleConnectionString">@Localizer["EnterConnectionParameters"]</button>
+                                }
+                            </div>
+                        }
+                    </div>
                 </div>
-				@if (!_showConnectionString)
-				{
-					if (_databaseConfigType != null)
-					{
-						@DatabaseConfigComponent
-					}
-				}
-				else
-				{
-					<div class="row mb-1 align-items-center">
-						<Label Class="col-sm-3" For="connectionstring" HelpText="Enter a complete connection string including all parameters and delimiters" ResourceKey="ConnectionString">Settings:</Label>
-						<div class="col-sm-9">
-							<textarea id="connectionstring" class="form-control" @bind="@_connectionString" rows="3"></textarea>
-						</div>
-					</div>
-				}
+                @if (!_showConnectionString)
+                {
+                    if (_databaseConfigType != null)
+                    {
+                        @DatabaseConfigComponent
+                    }
+                }
+                else
+                {
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="connectionstring" HelpText="Enter a complete connection string including all parameters and delimiters" ResourceKey="ConnectionString">Settings:</Label>
+                        <div class="col-sm-9">
+                            <textarea id="connectionstring" class="form-control" @bind="@_connectionString" rows="3"></textarea>
+                        </div>
+                    </div>
+                }
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="hostUsername" HelpText="Enter the username of an existing host user" ResourceKey="HostUsername">Host Username:</Label>
                     <div class="col-sm-9">
@@ -390,6 +390,8 @@ else
                             config.DatabaseType = tenant.DBType;
                             config.ConnectionString = tenant.DBConnectionString;
                             config.IsNewTenant = false;
+                            config.HostEmail = PageState.User.Email;
+                            config.HostName = PageState.User.DisplayName;
                         }
                     }
 
@@ -403,6 +405,7 @@ else
                         config.SiteTemplate = _sitetemplatetype;
                         config.RenderMode = _rendermode;
                         config.Runtime = _runtime;
+                        config.Register = false;
 
                         ShowProgressIndicator();
 
