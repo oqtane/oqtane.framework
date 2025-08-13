@@ -94,7 +94,12 @@ namespace Oqtane.Database.PostgreSQL
 
         public override string RewriteValue(object value)
         {
-            if (value.GetType().Name == "Boolean")
+            var type = value.GetType().Name;
+            if (type == "DateTime")
+            {
+                return $"'{value}'";
+            }
+            if (type == "Boolean")
             {
                 return (bool)value ? "true" : "false"; // PostgreSQL uses true/false for boolean values
             }
