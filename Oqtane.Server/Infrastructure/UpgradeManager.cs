@@ -15,6 +15,10 @@ using System.Reflection;
 
 namespace Oqtane.Infrastructure
 {
+    public interface IUpgradeManager
+    {
+        void Upgrade(Tenant tenant, string version);
+    }
     public class UpgradeManager : IUpgradeManager
     {
         private readonly IServiceScopeFactory _serviceScopeFactory;

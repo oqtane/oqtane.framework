@@ -9,6 +9,13 @@ using Oqtane.Shared;
 
 namespace Oqtane.Infrastructure
 {
+    public interface ILocalizationManager
+    {
+        string GetDefaultCulture();
+        string[] GetSupportedCultures();
+        string[] GetInstalledCultures();
+    }
+
     public class LocalizationManager : ILocalizationManager
     {
         private static readonly string DefaultCulture = Constants.DefaultCulture;
