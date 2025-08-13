@@ -9,6 +9,11 @@ using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
+    public interface ISiteTemplateRepository
+    {
+        IEnumerable<SiteTemplate> GetSiteTemplates();
+    }
+
     public class SiteTemplateRepository : ISiteTemplateRepository
     {
         private readonly IServiceProvider _serviceProvider;

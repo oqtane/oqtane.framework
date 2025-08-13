@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Infrastructure;
@@ -14,6 +13,15 @@ using Oqtane.Themes;
 
 namespace Oqtane.Repository
 {
+    public interface IThemeRepository
+    {
+        IEnumerable<Theme> GetThemes();
+        Theme GetTheme(int themeId, int siteId);
+        void UpdateTheme(Theme theme);
+        void DeleteTheme(int themeId);
+        List<Theme> FilterThemes(List<Theme> themes);
+    }
+
     public class ThemeRepository : IThemeRepository
     {
         private MasterDBContext _db;

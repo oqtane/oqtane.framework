@@ -2,11 +2,22 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
-using Oqtane.Modules.Admin.Users;
 using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
+    public interface IUserRepository
+    {
+        IEnumerable<User> GetUsers();
+        User AddUser(User user);
+        User UpdateUser(User user);
+        User GetUser(int userId);
+        User GetUser(int userId, bool tracking);
+        User GetUser(string username);
+        User GetUser(string username, string email);
+        void DeleteUser(int userId);
+    }
+
     public class UserRepository : IUserRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;

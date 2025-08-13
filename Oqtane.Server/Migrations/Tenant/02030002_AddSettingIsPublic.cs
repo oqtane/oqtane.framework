@@ -19,7 +19,7 @@ namespace Oqtane.Migrations.Tenant
         {
             var settingEntityBuilder = new SettingEntityBuilder(migrationBuilder, ActiveDatabase);
             settingEntityBuilder.AddBooleanColumn("IsPublic", true);
-            settingEntityBuilder.UpdateColumn("IsPublic", "0", "bool", "");
+            settingEntityBuilder.UpdateData("IsPublic", false);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

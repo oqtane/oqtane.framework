@@ -92,13 +92,13 @@ namespace Oqtane.Database.PostgreSQL
             return $"\"{name}\"";
         }
 
-        public override string RewriteValue(string value, string type)
+        public override string RewriteValue(object value)
         {
-            if (type == "bool")
+            if (value.GetType().Name == "Boolean")
             {
-                value = (value == "1") ? "true" : "false";
+                return (bool)value ? "true" : "false"; // PostgreSQL uses true/false for boolean values
             }
-            return value;
+            return value.ToString();
         }
 
         public override void UpdateIdentityStoreTableNames(ModelBuilder builder)

@@ -21,7 +21,7 @@ namespace Oqtane.Migrations.Tenant
             profileEntityBuilder.AddStringColumn("Options", 2000, true);
 
             //Update new column
-            profileEntityBuilder.UpdateColumn("Options", "''");
+            profileEntityBuilder.UpdateData("Options", "''");
 
             //Alter Column in Page table for Sql Server
             if (ActiveDatabase.Name == "SqlServer")

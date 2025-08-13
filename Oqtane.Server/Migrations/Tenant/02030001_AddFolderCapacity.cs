@@ -19,8 +19,8 @@ namespace Oqtane.Migrations.Tenant
         {
             var folderEntityBuilder = new FolderEntityBuilder(migrationBuilder, ActiveDatabase);
             folderEntityBuilder.AddIntegerColumn("Capacity", true);
-            folderEntityBuilder.UpdateColumn("Capacity", "0");
-            folderEntityBuilder.UpdateColumn("Capacity", Constants.UserFolderCapacity.ToString(), $"{DelimitName(RewriteName("Name"))} = 'My Folder'");
+            folderEntityBuilder.UpdateData("Capacity", 0);
+            folderEntityBuilder.UpdateData("Capacity", Constants.UserFolderCapacity, $"{DelimitName(RewriteName("Name"))} = 'My Folder'");
             folderEntityBuilder.AddStringColumn("ImageSizes", 512, true, true);
 
             var fileEntityBuilder = new FileEntityBuilder(migrationBuilder, ActiveDatabase);

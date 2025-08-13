@@ -2,11 +2,20 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
-using Oqtane.Modules.Admin.Users;
-using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
+    public interface IRoleRepository
+    {
+        IEnumerable<Role> GetRoles(int siteId);
+        IEnumerable<Role> GetRoles(int siteId, bool includeGlobalRoles);
+        Role AddRole(Role role);
+        Role UpdateRole(Role role);
+        Role GetRole(int roleId);
+        Role GetRole(int roleId, bool tracking);
+        void DeleteRole(int roleId);
+    }
+
     public class RoleRepository : IRoleRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;

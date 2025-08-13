@@ -23,7 +23,7 @@ namespace Oqtane.Migrations.Master
             //Update new column if SqlServer (Other Databases will not have any records yet)
             if (ActiveDatabase.Name == "SqlServer")
             {
-                tenantEntityBuilder.UpdateColumn("DBType", $"'{ActiveDatabase.TypeName}'");
+                tenantEntityBuilder.UpdateData("DBType", $"'{ActiveDatabase.TypeName}'");
             }
         }
     }

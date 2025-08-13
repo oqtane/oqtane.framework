@@ -579,6 +579,34 @@ namespace Oqtane.Infrastructure.SiteTemplates
                     }
                 }
             });
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Language Management",
+                Parent = "Admin",
+                Order = 21,
+                Path = "admin/languages",
+                Icon = Icons.Text,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                PermissionList = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, RoleNames.Admin, true),
+                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                },
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Languages.Index).ToModuleDefinitionName(), Title = "Language Management", Pane = PaneNames.Default,
+                        PermissionList = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, RoleNames.Admin, true),
+                            new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                        },
+                        Content = ""
+                    }
+                }
+            });
 
             // host pages (order starts at 51)
             pageTemplates.Add(new PageTemplate
@@ -695,41 +723,9 @@ namespace Oqtane.Infrastructure.SiteTemplates
             });
             pageTemplates.Add(new PageTemplate
             {
-                Name = "Language Management",
-                Parent = "Admin",
-                Order = 59,
-                Path = "admin/languages",
-                Icon = Icons.Text,
-                IsNavigation = false,
-                IsPersonalizable = false,
-                PermissionList = new List<Permission>
-                {
-                    new Permission(PermissionNames.View, RoleNames.Host, true),
-                    new Permission(PermissionNames.Edit, RoleNames.Host, true),
-                    new Permission(PermissionNames.View, RoleNames.Admin, true),
-                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
-                },
-                PageTemplateModules = new List<PageTemplateModule>
-                {
-                    new PageTemplateModule
-                    {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Languages.Index).ToModuleDefinitionName(), Title = "Language Management", Pane = PaneNames.Default,
-                        PermissionList = new List<Permission>
-                        {
-                            new Permission(PermissionNames.View, RoleNames.Host, true),
-                            new Permission(PermissionNames.Edit, RoleNames.Host, true),
-                            new Permission(PermissionNames.View, RoleNames.Admin, true),
-                            new Permission(PermissionNames.Edit, RoleNames.Admin, true)
-                        },
-                        Content = ""
-                    }
-                }
-            });
-            pageTemplates.Add(new PageTemplate
-            {
                 Name = "Scheduled Jobs",
                 Parent = "Admin",
-                Order = 61,
+                Order = 59,
                 Path = "admin/jobs",
                 Icon = Icons.Timer,
                 IsNavigation = false,
@@ -757,7 +753,7 @@ namespace Oqtane.Infrastructure.SiteTemplates
             {
                 Name = "Sql Management",
                 Parent = "Admin",
-                Order = 63,
+                Order = 61,
                 Path = "admin/sql",
                 Icon = Icons.Spreadsheet,
                 IsNavigation = false,
@@ -785,7 +781,7 @@ namespace Oqtane.Infrastructure.SiteTemplates
             {
                 Name = "System Info",
                 Parent = "Admin",
-                Order = 65,
+                Order = 63,
                 Path = "admin/system",
                 Icon = Icons.MedicalCross,
                 IsNavigation = false,
@@ -813,7 +809,7 @@ namespace Oqtane.Infrastructure.SiteTemplates
             {
                 Name = "System Update",
                 Parent = "Admin",
-                Order = 67,
+                Order = 65,
                 Path = "admin/update",
                 Icon = Icons.Aperture,
                 IsNavigation = false,
