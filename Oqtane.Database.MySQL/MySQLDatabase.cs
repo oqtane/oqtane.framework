@@ -82,7 +82,12 @@ namespace Oqtane.Database.MySQL
 
         public override string RewriteValue(object value)
         {
-            if (value.GetType().Name == "Boolean")
+            var type = value.GetType().Name;
+            if (type == "DateTime")
+            {
+                return $"'{value}'";
+            }
+            if (type == "Boolean")
             {
                 return (bool)value ? "1" : "0"; // MySQL uses 1/0 for boolean values
             }
