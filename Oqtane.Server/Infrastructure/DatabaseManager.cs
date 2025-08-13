@@ -7,13 +7,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Oqtane.Databases.Interfaces;
 using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
 using Oqtane.Enums;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertToUsingDeclaration
@@ -225,18 +226,27 @@ namespace Oqtane.Infrastructure
                     if (type != null)
                     {
                         // create database object from type
-                        var database = Activator.CreateInstance(type) as IDatabase;
+                        var database = Activator.CreateInstance(type) as Oqtane.Databases.Interfaces.IDatabase;
 
-                        // create data directory if does not exist
+                        // create data directory if does not exist (for LocalDB and SQLite)
                         var dataDirectory = AppDomain.CurrentDomain.GetData(Constants.DataDirectory)?.ToString();
                         if (!Directory.Exists(dataDirectory)) Directory.CreateDirectory(dataDirectory ?? String.Empty);
 
                         var dbOptions = new DbContextOptionsBuilder().UseOqtaneDatabase(database, NormalizeConnectionString(install.ConnectionString)).Options;
                         using (var dbc = new DbContext(dbOptions))
                         {
-                            // create empty database if it does not exist
-                            dbc.Database.EnsureCreated();
-                            result.Success = true;
+                            var databaseCreator = dbc.Database.GetService<IRelationalDatabaseCreator>();
+                            if (!databaseCreator.Exists())
+                            {
+                                // create empty database if it does not exist
+                                dbc.Database.EnsureCreated();
+                                result.Success = true;
+                            }
+                            else
+                            {
+                                // assume database is empty and ready for migrations
+                                result.Success = true;
+                            }
                         }
                     }
                     else
@@ -653,11 +663,11 @@ namespace Oqtane.Infrastructure
             var connectionString = NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey));
             var databaseType = _config.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
 
-            IDatabase database = null;
+            Oqtane.Databases.Interfaces.IDatabase database = null;
             if (!string.IsNullOrEmpty(databaseType))
             {
                 var type = Type.GetType(databaseType);
-                database = Activator.CreateInstance(type) as IDatabase;
+                database = Activator.CreateInstance(type) as Oqtane.Databases.Interfaces.IDatabase;
             }
 
             return new InstallationContext(database, connectionString);
