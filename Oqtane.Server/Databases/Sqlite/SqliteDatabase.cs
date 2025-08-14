@@ -11,7 +11,7 @@ namespace Oqtane.Database.Sqlite
 {
     public class SqliteDatabase : DatabaseBase
     {
-        private static string _friendlyName => "Sqlite";
+        private static string _friendlyName => "SQLite";
 
         private static string _name => "Sqlite";
 
@@ -106,7 +106,7 @@ namespace Oqtane.Database.Sqlite
         public override DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString)
         {
             return optionsBuilder.UseSqlite(connectionString)
-                .ReplaceService<IHistoryRepository, OqtaneHistoryRepository>();
+                .ReplaceService<IHistoryRepository, HistoryRepository>();
         }
 
         private void PrepareCommand(SqliteConnection conn, SqliteCommand cmd, string query)

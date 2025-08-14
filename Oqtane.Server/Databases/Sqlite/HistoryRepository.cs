@@ -1,21 +1,21 @@
 using System;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal;
 using Oqtane.Migrations.Framework;
 using Oqtane.Models;
 
 // ReSharper disable ClassNeverInstantiated.Global
 
-namespace Oqtane.Database.PostgreSQL
+namespace Oqtane.Database.Sqlite
 {
-    public class OqtaneHistoryRepository : NpgsqlHistoryRepository
+    public class HistoryRepository : SqliteHistoryRepository
     {
-        private string _appliedDateColumnName = "applied_date";
-        private string _appliedVersionColumnName = "applied_version";
+        private string _appliedDateColumnName = "AppliedDate";
+        private string _appliedVersionColumnName = "AppliedVersion";
         private MigrationHistoryTable _migrationHistoryTable;
 
-        public OqtaneHistoryRepository(HistoryRepositoryDependencies dependencies) : base(dependencies)
+        public HistoryRepository(HistoryRepositoryDependencies dependencies) : base(dependencies)
         {
             _migrationHistoryTable = new MigrationHistoryTable
             {

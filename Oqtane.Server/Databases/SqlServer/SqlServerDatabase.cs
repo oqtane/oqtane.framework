@@ -98,7 +98,7 @@ namespace Oqtane.Database.SqlServer
         public override DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString)
         {
             return optionsBuilder.UseSqlServer(connectionString)
-                .ReplaceService<IHistoryRepository, OqtaneHistoryRepository>();
+                .ReplaceService<IHistoryRepository, HistoryRepository>();
         }
 
         private string FormatConnectionString(string connectionString)

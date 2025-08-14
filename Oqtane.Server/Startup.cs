@@ -69,7 +69,7 @@ namespace Oqtane
             // register localization services
             services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-            services.AddOptions<List<Database>>().Bind(Configuration.GetSection(SettingKeys.AvailableDatabasesSection));
+            services.AddOptions<List<Models.Database>>().Bind(Configuration.GetSection(SettingKeys.AvailableDatabasesSection));
 
             // register scoped core services
             services.AddScoped<IAuthorizationHandler, PermissionHandler>()
