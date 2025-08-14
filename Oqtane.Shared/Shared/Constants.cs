@@ -12,7 +12,7 @@ namespace Oqtane.Shared
         public const string PackageRegistryUrl = "https://www.oqtane.net";
 
         public const string DataDirectory = "DataDirectory";
-        public const string DefaultDBType = "Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer";
+        public const string DefaultDBType = "Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Server";
 
         public const string DefaultTheme = "Oqtane.Themes.OqtaneTheme.Default, Oqtane.Client";
         public const string DefaultContainer = "Oqtane.Themes.OqtaneTheme.Container, Oqtane.Client";

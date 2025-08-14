@@ -16,7 +16,7 @@ namespace Oqtane.Models
         public string ControlType { get; set; }
 
         /// <summary>
-        /// Type of DB using the full namespace, like `Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer`
+        /// Type of DB using the full namespace, like `Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Server`
         /// </summary>
         public string DBType { get; set; }
 

@@ -147,7 +147,7 @@ namespace Oqtane.Database.PostgreSQL
         {
             return optionsBuilder.UseNpgsql(connectionString)
                 .UseSnakeCaseNamingConvention()
-                .ReplaceService<IHistoryRepository, OqtaneHistoryRepository>();
+                .ReplaceService<IHistoryRepository, HistoryRepository>();
         }
 
         private void PrepareCommand(NpgsqlConnection conn, NpgsqlCommand cmd, string query)

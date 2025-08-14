@@ -9,13 +9,13 @@ using Oqtane.Models;
 
 namespace Oqtane.Database.SqlServer
 {
-    public class OqtaneHistoryRepository : SqlServerHistoryRepository
+    public class HistoryRepository : SqlServerHistoryRepository
     {
         private string _appliedDateColumnName = "AppliedDate";
         private string _appliedVersionColumnName = "AppliedVersion";
         private MigrationHistoryTable _migrationHistoryTable;
 
-        public OqtaneHistoryRepository(HistoryRepositoryDependencies dependencies) : base(dependencies)
+        public HistoryRepository(HistoryRepositoryDependencies dependencies) : base(dependencies)
         {
             _migrationHistoryTable = new MigrationHistoryTable
             {

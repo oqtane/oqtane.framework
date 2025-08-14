@@ -10,10 +10,10 @@ namespace Oqtane.Controllers
     [Route(ControllerRoutes.ApiRoute)]
     public class DatabaseController : Controller
     {
-        private IOptions<List<Database>> _databaseOptions;
+        private IOptions<List<Models.Database>> _databaseOptions;
         private IConfigManager _config;
 
-        public DatabaseController(IOptions<List<Database>> databaseOptions, IConfigManager config)
+        public DatabaseController(IOptions<List<Models.Database>> databaseOptions, IConfigManager config)
         {
             _databaseOptions = databaseOptions;
             _config = config;
@@ -21,7 +21,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>
         [HttpGet]
-        public IEnumerable<Database> Get()
+        public IEnumerable<Models.Database> Get()
         {
             var databases = _databaseOptions.Value;
             var master = _config.GetSetting(SettingKeys.DatabaseSection, SettingKeys.DatabaseTypeKey, "");
