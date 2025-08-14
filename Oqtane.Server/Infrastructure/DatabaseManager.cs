@@ -392,11 +392,20 @@ namespace Oqtane.Infrastructure
                         tenant.DBConnectionString = MigrateConnectionString(db, tenant);
                         try
                         {
-                            using (var tenantDbContext = new TenantDBContext(DBContextDependencies))
+                            var connectionString = _configManager.GetSetting($"{SettingKeys.ConnectionStringsSection}:{tenant.DBConnectionString}", "");
+                            if (!string.IsNullOrEmpty(connectionString))
                             {
-                                AddEFMigrationsHistory(sql, _configManager.GetSetting($"{SettingKeys.ConnectionStringsSection}:{tenant.DBConnectionString}", ""), tenant.DBType, tenant.Version, false);
-                                // push latest model into database
-                                tenantDbContext.Database.Migrate();
+                                using (var tenantDbContext = new TenantDBContext(DBContextDependencies))
+                                {
+                                    AddEFMigrationsHistory(sql, connectionString, tenant.DBType, tenant.Version, false);
+                                    // push latest model into database
+                                    tenantDbContext.Database.Migrate();
+                                }
+                            }
+                            else
+                            {
+                                result.Message = "A Connection String Named " + tenant.DBConnectionString + " Does Not Exist For Tenant " + tenant.Name + " In The ConnectionStrings Section Of Appsettings.json";
+                                _filelogger.LogError(Utilities.LogMessage(this, result.Message));
                             }
                         }
                         catch (Exception ex)
