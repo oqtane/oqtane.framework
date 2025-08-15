@@ -72,9 +72,9 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.8" />
     <PackageReference Include="Microsoft.Extensions.Localization" Version="9.0.8" />
     <PackageReference Include="System.Net.Http.Json" Version="9.0.8" />
-    <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.90" />
-    <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.90" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="9.0.90" />
+    <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.100" />
+    <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.100" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="9.0.100" />
   </ItemGroup>
 
   <ItemGroup>
