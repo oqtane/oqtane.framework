@@ -1,0 +1,14 @@
+using Microsoft.Extensions.DependencyInjection;
+using Oqtane.Services;
+using Oqtane.Application.Services;
+
+namespace Oqtane.Application.Startup
+{
+    public class ClientStartup : IClientStartup
+    {
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddScoped<IMyModuleService, MyModuleService>();
+        }
+    }
+}
