@@ -18,6 +18,15 @@ using Oqtane.Shared;
 
 namespace Oqtane.Infrastructure
 {
+    public interface IInstallationManager
+    {
+        void InstallPackages();
+        bool UninstallPackage(string PackageName);
+        int RegisterAssemblies();
+        Task UpgradeFramework(bool backup);
+        void RestartApplication();
+    }
+
     public class InstallationManager : IInstallationManager
     {
         private readonly IHostApplicationLifetime _hostApplicationLifetime;

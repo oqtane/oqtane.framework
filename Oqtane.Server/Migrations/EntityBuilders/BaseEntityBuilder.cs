@@ -558,7 +558,15 @@ namespace Oqtane.Migrations.EntityBuilders
         [Obsolete("UpdateColumn(columnName, value, type, condition) is deprecated. Use UpdateData(column, value, condition) instead", false)]
         public void UpdateColumn(string columnName, string value, string type, string condition)
         {
-            object obj = (type == "bool" && value == "1") ? true : false; // boolean values had custom logic for PostgreSQL
+            object obj;
+            if (type == "bool")
+            {
+                obj = (value == "1") ? true : false; // boolean values had custom logic for PostgreSQL
+            }
+            else
+            {
+                obj = value;
+            }
             UpdateData([columnName], [obj], condition);
         }
     }
