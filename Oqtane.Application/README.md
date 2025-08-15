@@ -2,9 +2,11 @@
 
 This folder contains content files for a Visual Studio Project Template designed for Oqtane development projects. The template relies on the native templating capabilities of the .NET Command Line Interface (CLI):
 
+```
 dotnet new install Oqtane.Application.Template
 dotnet new oqtane-app -o MyCompany.MyProject
 dotnet new uninstall Oqtane.Application.Template
+```
 
 When using this approach you do not need to have a local copy of the oqtane.framework source code - you simply utilize Oqtane as a standard applicaton dependency.
 
