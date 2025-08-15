@@ -22,7 +22,6 @@ else
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th style="width: 1px;">&nbsp;</th>
             <th>@SharedLocalizer["Name"]</th>
             <th>@SharedLocalizer["Version"]</th>
             <th>@Localizer["Enabled"]</th>
@@ -38,7 +37,6 @@ else
                     <ActionDialog Header="Delete Theme" Message="@string.Format(Localizer["Confirm.Theme.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTheme(context))" ResourceKey="DeleteTheme" />
                 }
             </td>
-            <td><NavLink class="btn btn-secondary" href="@NavigateUrl("admin/site")">@Localizer["Assign"]</NavLink></td>
             <td>@context.Name</td>
             <td>@context.Version</td>
             <td>

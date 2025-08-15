@@ -754,7 +754,11 @@ namespace Oqtane.Infrastructure
         private void ValidateConfiguration()
         {
             var defaultDatabaseType = _configManager.GetSetting(SettingKeys.DatabaseSection, SettingKeys.DatabaseTypeKey, "");
-            if (defaultDatabaseType == "" || defaultDatabaseType.Contains(", Oqtane.Database."))
+            if (defaultDatabaseType == "")
+            {
+                _configManager.AddOrUpdateSetting($"{SettingKeys.DatabaseSection}:{SettingKeys.DatabaseTypeKey}", Constants.DefaultDBType, true);
+            }
+            if (defaultDatabaseType.Contains(", Oqtane.Database."))
             {
                 // DefaultDBType migrated to Oqtane.Server in 6.1.5
                 defaultDatabaseType = defaultDatabaseType.Substring(0, defaultDatabaseType.IndexOf(", ")) + ", Oqtane.Server";
@@ -769,8 +773,8 @@ namespace Oqtane.Infrastructure
             else
             {
                 // available databases migrated to Oqtane.Server in 6.1.5
-                updateAvailableDatabases = !_configManager.GetSection(SettingKeys.AvailableDatabasesSection).GetChildren()
-                    .Any(item => item.GetSection("DBType").Value == "Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Server");
+                updateAvailableDatabases = _configManager.GetSection(SettingKeys.AvailableDatabasesSection).GetChildren()
+                    .Any(item => item.GetSection("DBType").Value.Contains(", Oqtane.Database."));
             }
             if (updateAvailableDatabases)
             {
