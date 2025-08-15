@@ -8,7 +8,7 @@ dotnet new oqtane-app -o MyCompany.MyProject
 dotnet new uninstall Oqtane.Application.Template
 ```
 
-When using this approach you do not need to have a local copy of the oqtane.framework source code - you simply utilize Oqtane as a standard applicaton dependency.
+When using this approach you do not need to have a local copy of the oqtane.framework source code - you simply utilize Oqtane as a standard application dependency.
 
 The solution contains an AppHost project which must be identified as the Startup project. It is only responsible for loading the development environment and launching the Oqtane framework.
 
