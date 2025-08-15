@@ -1,0 +1,11 @@
+The _content folder should only contain static resources from shared razor component libraries (RCLs). Static resources can be extracted from shared RCL Nuget packages by executing a Publish task on the module's Server project to a local folder and copying the files from the _content folder which is created. Each shared RCL would have its own appropriately named subfolder within the module's _content folder.
+
+ie.
+
+/_content
+  /Radzen.Blazor
+    /css
+    /fonts
+  /syncfusion.blazor
+    /scripts
+    /styles

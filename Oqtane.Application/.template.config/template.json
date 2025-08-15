@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Shaun Walker",
+  "classifications": [
+    "Web",
+    "ASP.NET",
+    "Blazor",
+    "Oqtane"
+  ],
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "identity": "Oqtane.Application.Template",
+  "name": "Oqtane Application Solution For Blazor",
+  "shortName": "oqtane-app",
+  "sourceName": "Oqtane.Application",
+  "preferNameDirectory": true
+}
