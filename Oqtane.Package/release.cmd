@@ -55,5 +55,6 @@ dotnet clean -c Release ..\Oqtane.Updater.sln
 dotnet build -c Release ..\Oqtane.Updater.sln
 dotnet publish ..\Oqtane.Updater\Oqtane.Updater.csproj /p:Configuration=Release
 nuget.exe pack Oqtane.Updater.nuspec
+nuget.exe pack ..\Oqtane.Application\Oqtane.Application.Template.nuspec
 pause 
 
