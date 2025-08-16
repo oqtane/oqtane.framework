@@ -9,7 +9,7 @@ dotnet new oqtane-app -o MyCompany.MyProject
 
 When using this approach you do not need to have a local copy of the oqtane.framework source code - you simply utilize Oqtane as a standard application dependency.
 
-The solution contains an AppHost project which must be identified as the Startup project. It is only responsible for loading the development environment and launching the Oqtane framework.
+The solution contains an AppHost project which must be identified as the Startup project. It is responsible for loading the development environment and launching the Oqtane framework.
 
 The solution also contains Build, Client, Server, and Shared folders which is where you you would implement your custom functionality. An example module and theme are included for reference, and you can add additional modules and themes within the same projects by following the standard Oqtane conventions. 
 
