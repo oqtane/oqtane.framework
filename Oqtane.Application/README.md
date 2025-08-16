@@ -16,5 +16,5 @@ The solution also contains Build, Client, Server, and Shared folders which is wh
 *Known Issues*
 
 - do not use the term "Oqtane" in your output name or else you will experience namespace conflicts
-- the application's *.nuspec file should be included in the *.nupkg package however Nuget is excluding it
-- when calling "dotnet new" the PostBuild section in the Oqtane.Application.Build.csproj is being modified - not sure why
+- the application's Build project is missing the *.nuspec file as Nuget is excluding it from the template - not sure why
+- when calling "dotnet new" the PostBuild section in the Oqtane.Application.Build.csproj is being modified incorrectly - not sure why
