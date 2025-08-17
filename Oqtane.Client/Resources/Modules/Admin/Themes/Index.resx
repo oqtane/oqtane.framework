@@ -156,9 +156,6 @@
   <data name="Enabled" xml:space="preserve">
     <value>Enabled?</value>
   </data>
-  <data name="Assign" xml:space="preserve">
-    <value>Assign</value>
-  </data>
   <data name="Synchronize" xml:space="preserve">
     <value>Check For Updates</value>
   </data>

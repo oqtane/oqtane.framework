@@ -15,6 +15,10 @@ using System.Reflection;
 
 namespace Oqtane.Infrastructure
 {
+    public interface IUpgradeManager
+    {
+        void Upgrade(Tenant tenant, string version);
+    }
     public class UpgradeManager : IUpgradeManager
     {
         private readonly IServiceScopeFactory _serviceScopeFactory;
@@ -79,6 +83,9 @@ namespace Oqtane.Infrastructure
                         break;
                     case "6.1.1":
                         Upgrade_6_1_1(tenant, scope);
+                        break;
+                    case "6.1.5":
+                        Upgrade_6_1_5(tenant, scope);
                         break;
                 }
             }
@@ -532,6 +539,24 @@ namespace Oqtane.Infrastructure
 
             AddPagesToSites(scope, tenant, pageTemplates);
         }
+
+        private void Upgrade_6_1_5(Tenant tenant, IServiceScope scope)
+        {
+            // remove Database Providers which were moved to Oqtane.Server
+            string[] assemblies = {
+                "Oqtane.Database.MySQL.dll",
+                "Oqtane.Database.MySQL.pdb",
+                "Oqtane.Database.PostgreSQL.dll",
+                "Oqtane.Database.PostgreSQL.pdb",
+                "Oqtane.Database.Sqlite.dll",
+                "Oqtane.Database.Sqlite.pdb",
+                "Oqtane.Database.SqlServer.dll",
+                "Oqtane.Database.SqlServer.pdb"
+            };
+
+            RemoveAssemblies(tenant, assemblies, "6.1.5");
+        }
+
 
         private void AddPagesToSites(IServiceScope scope, Tenant tenant, List<PageTemplate> pageTemplates)
         {

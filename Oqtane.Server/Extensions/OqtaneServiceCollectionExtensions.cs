@@ -18,7 +18,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Oqtane.Infrastructure;
-using Oqtane.Infrastructure.Interfaces;
 using Oqtane.Interfaces;
 using Oqtane.Managers;
 using Oqtane.Modules;
@@ -257,7 +256,7 @@ namespace Microsoft.Extensions.DependencyInjection
                         // set the cookies to allow HttpClient API calls to be authenticated
                         foreach (var cookie in httpContextAccessor.HttpContext.Request.Cookies)
                         {
-                            client.DefaultRequestHeaders.Add("Cookie", cookie.Key + "=" + cookie.Value);
+                            client.DefaultRequestHeaders.Add("Cookie", cookie.Key + "=" + WebUtility.UrlEncode(cookie.Value));
                         }
                     }
 
@@ -275,7 +274,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     // set the cookies to allow HttpClient API calls to be authenticated
                     foreach (var cookie in httpContextAccessor.HttpContext.Request.Cookies)
                     {
-                        client.DefaultRequestHeaders.Add("Cookie", cookie.Key + "=" + cookie.Value);
+                        client.DefaultRequestHeaders.Add("Cookie", cookie.Key + "=" + WebUtility.UrlEncode(cookie.Value));
                     }
                 }
             });

@@ -6,13 +6,19 @@ nuget.exe pack Oqtane.Client.nuspec
 nuget.exe pack Oqtane.Server.nuspec
 nuget.exe pack Oqtane.Shared.nuspec                  
 nuget.exe pack Oqtane.Framework.nuspec
-del /F/Q/S "..\Oqtane.Server\bin\Release\net9.0\publish" > NUL
 rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish"
 dotnet publish ..\Oqtane.Server\Oqtane.Server.csproj /p:Configuration=Release
-del /F/Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\Content" > NUL
 rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\Content"
-del /F/Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\wwwroot\Content" > NUL
 rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\wwwroot\Content"
+rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\runtimes\android-arm"
+rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\runtimes\android-arm64"
+rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\runtimes\android-x64"
+rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\runtimes\android-x86"
+rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\runtimes\ios-arm"
+rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\runtimes\ios-arm64"
+rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\runtimes\iossimulator-arm64"
+rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\runtimes\iossimulator-x64"
+rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\runtimes\iossimulator-x86"
 setlocal ENABLEDELAYEDEXPANSION
 set retain=Placeholder.txt
 for /D %%i in ("..\Oqtane.Server\bin\Release\net9.0\publish\wwwroot\_content\*") do (
@@ -49,5 +55,6 @@ dotnet clean -c Release ..\Oqtane.Updater.sln
 dotnet build -c Release ..\Oqtane.Updater.sln
 dotnet publish ..\Oqtane.Updater\Oqtane.Updater.csproj /p:Configuration=Release
 nuget.exe pack Oqtane.Updater.nuspec
+nuget.exe pack ..\Oqtane.Application\Oqtane.Application.Template.nuspec
 pause 
 

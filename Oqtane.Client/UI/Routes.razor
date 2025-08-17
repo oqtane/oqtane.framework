@@ -48,18 +48,12 @@
 
     private bool _initialized = false;
     private bool _installed = false;
-    private string _display = "";
+    private string _display = "display: none;"; // prevents flash on initial interactive page load
 
     private PageState _pageState { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        if (PageState != null && PageState.RenderMode == RenderModes.Interactive && PageState.Site.Prerender)
-        {
-            // prevents flash on initial interactive page load when using prerendering
-            _display = "display: none;";
-        }
-
         SiteState.AntiForgeryToken = AntiForgeryToken;
         SiteState.AuthorizationToken = AuthorizationToken;
         SiteState.Platform = Platform;
@@ -92,6 +86,7 @@
         if (firstRender)
         {
             _display = "";
+            StateHasChanged();
         }
     }
 

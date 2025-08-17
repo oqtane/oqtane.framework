@@ -2,13 +2,25 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
+    public interface IFolderRepository
+    {
+        IEnumerable<Folder> GetFolders(int siteId);
+        Folder AddFolder(Folder folder);
+        Folder UpdateFolder(Folder folder);
+        Folder GetFolder(int folderId);
+        Folder GetFolder(int folderId, bool tracking);
+        Folder GetFolder(int siteId, string path);
+        void DeleteFolder(int folderId);
+        string GetFolderPath(int folderId);
+        string GetFolderPath(Folder folder);
+    }
+
     public class FolderRepository : IFolderRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;

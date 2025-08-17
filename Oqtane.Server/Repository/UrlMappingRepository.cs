@@ -6,6 +6,18 @@ using Oqtane.Models;
 
 namespace Oqtane.Repository
 {
+    public interface IUrlMappingRepository
+    {
+        IEnumerable<UrlMapping> GetUrlMappings(int siteId, bool isMapped);
+        UrlMapping AddUrlMapping(UrlMapping urlMapping);
+        UrlMapping UpdateUrlMapping(UrlMapping urlMapping);
+        UrlMapping GetUrlMapping(int urlMappingId);
+        UrlMapping GetUrlMapping(int urlMappingId, bool tracking);
+        UrlMapping GetUrlMapping(int siteId, string url);
+        void DeleteUrlMapping(int urlMappingId);
+        int DeleteUrlMappings(int siteId, int age);
+    }
+
     public class UrlMappingRepository : IUrlMappingRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
@@ -68,6 +80,7 @@ namespace Oqtane.Repository
         public UrlMapping GetUrlMapping(int siteId, string url)
         {
             using var db = _dbContextFactory.CreateDbContext();
+            url = (url.StartsWith("/")) ? url.Substring(1) : url;
             url = (url.Length > 750) ? url.Substring(0, 750) : url;
             var urlMapping = db.UrlMapping.Where(item => item.SiteId == siteId && item.Url == url).FirstOrDefault();
             if (urlMapping == null)
@@ -82,7 +95,14 @@ namespace Oqtane.Repository
                     urlMapping.Requests = 1;
                     urlMapping.CreatedOn = DateTime.UtcNow;
                     urlMapping.RequestedOn = DateTime.UtcNow;
-                    urlMapping = AddUrlMapping(urlMapping);
+                    try
+                    {
+                        urlMapping = AddUrlMapping(urlMapping);
+                    }
+                    catch
+                    {
+                        // ignore duplicate key exception which can be caused by a race condition
+                    }
                 }
             }
             else

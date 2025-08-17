@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Oqtane.Enums;
 using Oqtane.Models;
+using Oqtane.Security;
 using Oqtane.Services;
 using Oqtane.Shared;
 using Oqtane.UI;
@@ -147,12 +148,25 @@ namespace Oqtane.Modules
         }
 
         // fingerprint hash code for static assets
+
         public string Fingerprint
         {
             get
             {
                 return ModuleState.ModuleDefinition.Fingerprint;
             }
+        }
+
+        // authorization methods
+
+        public bool IsAuthorizedRole(string roleName)
+        {
+            return UserSecurity.IsAuthorized(PageState.User, roleName);
+        }
+
+        public bool IsAuthorizedPermission(string permissionName)
+        {
+            return UserSecurity.IsAuthorized(PageState.User, permissionName, ModuleState.PermissionList);
         }
 
         // url methods
@@ -417,6 +431,9 @@ namespace Oqtane.Modules
             await interop.ScrollTo(0, 0, "smooth");
         }
 
+
+        // token replace methods
+
         public string ReplaceTokens(string content)
         {
             return ReplaceTokens(content, null);
@@ -501,11 +518,12 @@ namespace Oqtane.Modules
         }
 
         // date conversion methods
+
         public DateTime? UtcToLocal(DateTime? datetime)
         {
             // Early return if input is null
-            if (datetime == null)
-                return null;
+            if (datetime == null || datetime.Value == DateTime.MinValue || datetime.Value == DateTime.MaxValue)
+                return datetime;
 
             string timezoneId = null;
 
@@ -524,8 +542,8 @@ namespace Oqtane.Modules
         public DateTime? LocalToUtc(DateTime? datetime)
         {
             // Early return if input is null
-            if (datetime == null)
-                return null;
+            if (datetime == null || datetime.Value == DateTime.MinValue || datetime.Value == DateTime.MaxValue)
+                return datetime;
 
             string timezoneId = null;
 

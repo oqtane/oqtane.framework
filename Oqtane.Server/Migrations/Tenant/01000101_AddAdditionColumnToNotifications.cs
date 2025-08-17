@@ -21,7 +21,7 @@ namespace Oqtane.Migrations.Tenant
             notificationEntityBuilder.AddDateTimeColumn("SendOn", true);
 
             //Update new Column
-            notificationEntityBuilder.UpdateColumn("SendOn", $"{RewriteName("CreatedOn")}", $"{DelimitName(RewriteName("SendOn"))} IS NULL");
+            notificationEntityBuilder.UpdateData("SendOn", $"{DelimitName(RewriteName("CreatedOn"))}", $"{DelimitName(RewriteName("SendOn"))} IS NULL");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

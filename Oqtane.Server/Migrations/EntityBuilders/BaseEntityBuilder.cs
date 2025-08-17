@@ -55,9 +55,9 @@ namespace Oqtane.Migrations.EntityBuilders
             return ActiveDatabase.RewriteName(name);
         }
 
-        private string RewriteValue(string value, string type)
+        private string RewriteValue(object value)
         {
-            return ActiveDatabase.RewriteValue(value, type);
+            return ActiveDatabase.RewriteValue(value);
         }
 
         // Column Operations
@@ -466,36 +466,108 @@ namespace Oqtane.Migrations.EntityBuilders
 
         //Sql Operations
 
-        public void DeleteFromTable(string condition = "")
+        public void InsertData(string[] columns, object[] values, string condition)
         {
-            var deleteSql = $"DELETE FROM {AddSchema(DelimitName(RewriteName(EntityTableName)))} ";
-            if(!string.IsNullOrEmpty(condition))
+            var sql = $"INSERT INTO {AddSchema(DelimitName(RewriteName(EntityTableName)))} ";
+            if (columns != null && columns.Length > 0)
+            {
+                sql += "(";
+                for (var i = 0; i < columns.Length; i++)
+                {
+                    sql += ((i == 0) ? "" : ", ") + $"{DelimitName(RewriteName(columns[i]))}";
+                }
+                sql += ") ";
+            }
+            if (values != null && values.Length > 0)
+            {
+                sql += "VALUES (";
+                for (var i = 0; i < values.Length; i++)
+                {
+                    sql += ((i == 0) ? "" : ", ") + $"{RewriteValue(values[i])}";
+                }
+                sql += ") ";
+            }
+            if (!string.IsNullOrEmpty(condition))
             {
                 // note that condition values must be created using RewriteName(), DelimitName(), RewriteValue() if targeting multiple database platforms 
-                deleteSql +=  $"WHERE {condition}";
+                sql += $"{condition}";
             }
-            _migrationBuilder.Sql(deleteSql);
+            _migrationBuilder.Sql(sql);
         }
 
+        public void UpdateData(string column, object value)
+        {
+            UpdateData([column], [value], "");
+        }
+
+        public void UpdateData(string column, object value, string condition)
+        {
+            UpdateData([column], [value], condition);
+        }
+
+        public void UpdateData(string[] columns, object[] values, string condition)
+        {
+            var sql = $"UPDATE {AddSchema(DelimitName(RewriteName(EntityTableName)))} ";
+            if (columns != null && values != null && columns.Length > 0 && values.Length > 0 && columns.Length == values.Length)
+            {
+                sql += "SET ";
+                for (var i = 0; i < columns.Length; i++)
+                {
+                    sql += ((i == 0) ? "" : ", ") + $"{DelimitName(RewriteName(columns[i]))} = {RewriteValue(values[i])}";
+                }
+                sql += " ";
+            }
+            if (!string.IsNullOrEmpty(condition))
+            {
+                // note that condition values must be created using RewriteName(), DelimitName(), RewriteValue() if targeting multiple database platforms 
+                sql += $"WHERE {condition}";
+            }
+            _migrationBuilder.Sql(sql);
+        }
+
+        public void DeleteData(string condition)
+        {
+            var sql = $"DELETE FROM {AddSchema(DelimitName(RewriteName(EntityTableName)))} ";
+            if (!string.IsNullOrEmpty(condition))
+            {
+                // note that condition values must be created using RewriteName(), DelimitName(), RewriteValue() if targeting multiple database platforms 
+                sql += $"WHERE {condition}";
+            }
+            _migrationBuilder.Sql(sql);
+        }
+
+
+        [Obsolete("DeleteFromTable(condition) is deprecated. Use DeleteData(condition) instead", false)]
+        public void DeleteFromTable(string condition = "")
+        {
+            DeleteData(condition);
+        }
+
+        [Obsolete("UpdateColumn(columnName, value) is deprecated. Use UpdateData(column, value) instead", false)]
         public void UpdateColumn(string columnName, string value)
         {
             UpdateColumn(columnName, value, "", "");
         }
 
+        [Obsolete("UpdateColumn(columnName, value, condition) is deprecated. Use UpdateData(column, value, condition) instead", false)]
         public void UpdateColumn(string columnName, string value, string condition)
         {
             UpdateColumn(columnName, value, "", condition);
         }
 
+        [Obsolete("UpdateColumn(columnName, value, type, condition) is deprecated. Use UpdateData(column, value, condition) instead", false)]
         public void UpdateColumn(string columnName, string value, string type, string condition)
         {
-            var updateSql = $"UPDATE {AddSchema(DelimitName(RewriteName(EntityTableName)))} SET {DelimitName(RewriteName(columnName))} = {RewriteValue(value, type)} ";
-            if (!string.IsNullOrEmpty(condition))
+            object obj;
+            if (type == "bool")
             {
-                // note that condition values must be created using RewriteName(), DelimitName(), RewriteValue() if targeting multiple database platforms 
-                updateSql += $"WHERE {condition}";
+                obj = (value == "1") ? true : false; // boolean values had custom logic for PostgreSQL
             }
-            _migrationBuilder.Sql(updateSql);
+            else
+            {
+                obj = value;
+            }
+            UpdateData([columnName], [obj], condition);
         }
     }
 }

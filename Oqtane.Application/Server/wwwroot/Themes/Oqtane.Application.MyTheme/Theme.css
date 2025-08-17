@@ -1,0 +1,123 @@
+/* Oqtane Styles */
+
+body {
+    padding-top: 7rem;
+}
+
+/* App Logo */
+.app-logo .img-fluid {
+    max-height: 90px;
+    padding: 0 5px 0 5px;
+}
+
+.table > :not(caption) > * > * {
+    box-shadow: none;
+}
+
+.table .form-control {
+    background-color: #ffffff !important;
+    border-width: 0.5px !important;
+    border-bottom-color: #ccc !important;
+}
+
+.table .form-select {
+    background-color: #ffffff !important;
+    border-width: 0.5px !important;
+    border-bottom-color: #ccc !important;
+}
+
+.table .btn-primary {
+    background-color: var(--bs-primary);
+}
+
+.table .btn-secondary {
+    background-color: var(--bs-secondary);
+}
+
+.alert-dismissible .btn-close {
+    z-index: 1;
+}
+
+.controls {
+    z-index: 2000;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    margin-right: 10px;
+}
+
+.app-menu .nav-item {
+    font-size: 0.9rem;
+    padding-bottom: 0.5rem;
+    white-space: nowrap;
+}
+
+.app-menu .nav-item a {
+    border-radius: 4px;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    line-height: 3rem;
+    padding-left: 1rem;
+}
+
+.app-menu .nav-item a.active {
+    background-color: rgba(255,255,255,0.25);
+    color: white;
+}
+
+.app-menu .nav-item a:hover {
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+}
+
+.app-menu .nav-link .oi {
+    width: 1.5rem;
+    font-size: 1.1rem;
+    vertical-align: text-top;
+    top: -2px;
+}
+
+.navbar-toggler {
+    background-color: rgba(255, 255, 255, 0.1);
+    margin: .5rem;
+}
+
+div.app-moduleactions a.dropdown-toggle, div.app-moduleactions div.dropdown-menu {
+    color: #000000;
+}
+
+.dropdown-menu span {
+  mix-blend-mode: difference;
+}
+
+@media (max-width: 767.98px) {
+
+    .app-menu {
+        width: 100%;
+    }
+
+    .navbar {
+        position: fixed;
+        top: 60px;
+        width: 100%;
+    }
+
+    .controls {
+        height: 60px;
+        top: 15px;
+        position: fixed;
+        top: 0px;
+        width: 100%;
+        background-color: rgb(0, 0, 0);
+    }
+
+    .controls-group {
+        float: right;
+        margin-right: 25px;
+    }
+
+    .content {
+        position: relative;
+        top: 60px;
+    }
+}

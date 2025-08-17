@@ -89,7 +89,7 @@ namespace Oqtane.Controllers
                 // suppress unauthorized visitor logging as it is usually caused by clients that do not support cookies or private browsing sessions
                 if (entityName != EntityNames.Visitor) 
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Settings {EntityName} {EntityId}", entityName, entityId);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Settings For EntityName {EntityName} And EntityId {EntityId}", entityName, entityId);
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 }
             }
@@ -101,7 +101,7 @@ namespace Oqtane.Controllers
         public Setting Get(int id, string entityName)
         {
             Setting setting = _settings.GetSetting(entityName, id);
-            if (IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.View))
+            if (setting != null && IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.View))
             {
                 if (FilterPrivate(entityName, id) && setting.IsPrivate)
                 {
@@ -113,7 +113,7 @@ namespace Oqtane.Controllers
             {
                 if (setting != null && entityName != EntityNames.Visitor)
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Setting {EntityName} {SettingId}", entityName, id);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access SettingId {SettingId} For EntityName {EntityName} ", id, entityName);
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 }
                 else
@@ -201,12 +201,12 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Add Or Update Setting {EntityName} {EntityId} {SettingName}", entityName, entityId, settingName);
+                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Add Or Update Setting For EntityName {EntityName} EntityId {EntityId} SettingName {SettingName}", entityName, entityId, settingName);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
 
-        // DELETE api/<controller>/site/1/settingname
+        // DELETE api/<controller>/site/1/settingname/settingid
         [HttpDelete("{entityName}/{entityId}/{settingName}")]
         public void Delete(string entityName, int entityId, string settingName)
         {
@@ -221,7 +221,28 @@ namespace Oqtane.Controllers
             {
                 if (entityName != EntityNames.Visitor)
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Delete, "Setting Does Not Exist Or User Not Authorized To Delete Setting For Entity {EntityName} Id {EntityId} Name {SettingName}", entityName, entityId, settingName);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Delete, "Setting Does Not Exist Or User Not Authorized To Delete Setting For EntityName {EntityName} EntityId {EntityId} SettingName {SettingName}", entityName, entityId, settingName);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                }
+            }
+        }
+
+        // DELETE api/<controller>/1/site
+        [HttpDelete("{id}/{entityName}")]
+        public void Delete(int id, string entityName)
+        {
+            Setting setting = _settings.GetSetting(entityName, id);
+            if (setting != null && IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
+            {
+                _settings.DeleteSetting(setting.EntityName, setting.SettingId);
+                AddSyncEvent(setting.EntityName, setting.EntityId, setting.SettingId, SyncEventActions.Delete);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Setting Deleted {Setting}", setting);
+            }
+            else
+            {
+                if (entityName != EntityNames.Visitor)
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Delete, "Setting Does Not Exist Or User Not Authorized To Delete Setting For SettingId {SettingId} For EntityName {EntityName} ", id, entityName);
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 }
             }
@@ -298,7 +319,7 @@ namespace Oqtane.Controllers
                     if (!authorized)
                     {
                         var visitorCookieName = Constants.VisitorCookiePrefix + _alias.SiteId.ToString();
-                        authorized = (entityId == GetVisitorCookieId(Request.Cookies[visitorCookieName]));
+                        authorized = (entityId == GetVisitorCookieId(HttpContext.Request.Cookies[visitorCookieName]));
                     }
                     break;
                 default: // custom entity
@@ -352,9 +373,14 @@ namespace Oqtane.Controllers
 
         private int GetVisitorCookieId(string visitorCookie)
         {
-            // visitor cookies contain the visitor id and an expiry date separated by a pipe symbol
-            visitorCookie = (visitorCookie.Contains("|")) ? visitorCookie.Split('|')[0] : visitorCookie;
-            return (int.TryParse(visitorCookie, out int visitorId)) ? visitorId : -1;
+            var visitorId = -1;
+            if (visitorCookie != null)
+            {
+                // visitor cookies now contain the visitor id and an expiry date separated by a pipe symbol
+                visitorCookie = (visitorCookie.Contains("|")) ? visitorCookie.Split('|')[0] : visitorCookie;
+                visitorId = int.TryParse(visitorCookie, out int _visitorId) ? _visitorId : -1;
+            }
+            return visitorId;
         }
 
         private void AddSyncEvent(string EntityName, int EntityId, int SettingId, string Action)

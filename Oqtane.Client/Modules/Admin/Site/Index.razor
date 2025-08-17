@@ -202,7 +202,7 @@
                         </select>
                     </div>
                 </div>
-                @if (_smtpenabled == "True")
+                @if (_smtpenabled == "True" && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
                 {
                     <div class="row mb-1 align-items-center">
                         <div class="col-sm-3">
@@ -609,21 +609,24 @@
 
                 // SMTP
                 _smtpenabled = SettingService.GetSetting(settings, "SMTPEnabled", "False");
-                _smtphost = SettingService.GetSetting(settings, "SMTPHost", string.Empty);
-                _smtpport = SettingService.GetSetting(settings, "SMTPPort", string.Empty);
-                _smtpssl = SettingService.GetSetting(settings, "SMTPSSL", "False");
-                _smtpauthentication = SettingService.GetSetting(settings, "SMTPAuthentication", "Basic");
-                _smtpusername = SettingService.GetSetting(settings, "SMTPUsername", string.Empty);
-                _smtppassword = SettingService.GetSetting(settings, "SMTPPassword", string.Empty);
-                _togglesmtppassword = SharedLocalizer["ShowPassword"];
-                _smtpauthority = SettingService.GetSetting(settings, "SMTPAuthority", string.Empty);
-                _smtpclientid = SettingService.GetSetting(settings, "SMTPClientId", string.Empty);
-                _smtpclientsecret = SettingService.GetSetting(settings, "SMTPClientSecret", string.Empty);
-                _togglesmtpclientsecret = SharedLocalizer["ShowPassword"];
-                _smtpscopes = SettingService.GetSetting(settings, "SMTPScopes", string.Empty);
-                _smtpsender = SettingService.GetSetting(settings, "SMTPSender", string.Empty);
-                _smtprelay = SettingService.GetSetting(settings, "SMTPRelay", "False");
-                _retention = int.Parse(SettingService.GetSetting(settings, "NotificationRetention", "30"));
+                if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                {
+                    _smtphost = SettingService.GetSetting(settings, "SMTPHost", string.Empty);
+                    _smtpport = SettingService.GetSetting(settings, "SMTPPort", string.Empty);
+                    _smtpssl = SettingService.GetSetting(settings, "SMTPSSL", "False");
+                    _smtpauthentication = SettingService.GetSetting(settings, "SMTPAuthentication", "Basic");
+                    _smtpusername = SettingService.GetSetting(settings, "SMTPUsername", string.Empty);
+                    _smtppassword = SettingService.GetSetting(settings, "SMTPPassword", string.Empty);
+                    _togglesmtppassword = SharedLocalizer["ShowPassword"];
+                    _smtpauthority = SettingService.GetSetting(settings, "SMTPAuthority", string.Empty);
+                    _smtpclientid = SettingService.GetSetting(settings, "SMTPClientId", string.Empty);
+                    _smtpclientsecret = SettingService.GetSetting(settings, "SMTPClientSecret", string.Empty);
+                    _togglesmtpclientsecret = SharedLocalizer["ShowPassword"];
+                    _smtpscopes = SettingService.GetSetting(settings, "SMTPScopes", string.Empty);
+                    _smtpsender = SettingService.GetSetting(settings, "SMTPSender", string.Empty);
+                    _smtprelay = SettingService.GetSetting(settings, "SMTPRelay", "False");
+                    _retention = int.Parse(SettingService.GetSetting(settings, "NotificationRetention", "30"));
+                }
 
                 // PWA
                 _pwaisenabled = site.PwaIsEnabled.ToString();
@@ -800,21 +803,23 @@
 
                         // SMTP
                         var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
-                        settings = SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
-                        settings = SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
-                        settings = SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
-                        settings = SettingService.SetSetting(settings, "SMTPAuthentication", _smtpauthentication, true);
-                        settings = SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
-                        settings = SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
-                        settings = SettingService.SetSetting(settings, "SMTPAuthority", _smtpauthority, true);
-                        settings = SettingService.SetSetting(settings, "SMTPClientId", _smtpclientid, true);
-                        settings = SettingService.SetSetting(settings, "SMTPClientSecret", _smtpclientsecret, true);
-                        settings = SettingService.SetSetting(settings, "SMTPScopes", _smtpscopes, true);
-                        settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
-                        settings = SettingService.SetSetting(settings, "SMTPRelay", _smtprelay, true);
                         settings = SettingService.SetSetting(settings, "SMTPEnabled", _smtpenabled, true);
-                        settings = SettingService.SetSetting(settings, "SiteGuid", _siteguid, true);
-                        settings = SettingService.SetSetting(settings, "NotificationRetention", _retention.ToString(), true);
+                        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                        {
+                            settings = SettingService.SetSetting(settings, "SMTPHost", _smtphost, true);
+                            settings = SettingService.SetSetting(settings, "SMTPPort", _smtpport, true);
+                            settings = SettingService.SetSetting(settings, "SMTPSSL", _smtpssl, true);
+                            settings = SettingService.SetSetting(settings, "SMTPAuthentication", _smtpauthentication, true);
+                            settings = SettingService.SetSetting(settings, "SMTPUsername", _smtpusername, true);
+                            settings = SettingService.SetSetting(settings, "SMTPPassword", _smtppassword, true);
+                            settings = SettingService.SetSetting(settings, "SMTPAuthority", _smtpauthority, true);
+                            settings = SettingService.SetSetting(settings, "SMTPClientId", _smtpclientid, true);
+                            settings = SettingService.SetSetting(settings, "SMTPClientSecret", _smtpclientsecret, true);
+                            settings = SettingService.SetSetting(settings, "SMTPScopes", _smtpscopes, true);
+                            settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
+                            settings = SettingService.SetSetting(settings, "SMTPRelay", _smtprelay, true);
+                            settings = SettingService.SetSetting(settings, "NotificationRetention", _retention.ToString(), true);
+                        }
 
                         //cookie consent
                         settings = SettingService.SetSetting(settings, "CookieConsent", _cookieconsent);
@@ -822,6 +827,7 @@
                         // functionality
                         settings = SettingService.SetSetting(settings, "TextEditor", _textEditor);
 
+                        settings = SettingService.SetSetting(settings, "SiteGuid", _siteguid, true);
                         await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 
                         await logger.LogInformation("Site Settings Saved {Site}", site);

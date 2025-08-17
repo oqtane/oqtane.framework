@@ -17,6 +17,26 @@ using Oqtane.Shared;
 
 namespace Oqtane.Managers
 {
+    public interface IUserManager
+    {
+        User GetUser(int userid, int siteid);
+        User GetUser(string username, int siteid);
+        User GetUser(string username, string email, int siteid);
+        Task<User> AddUser(User user);
+        Task<User> UpdateUser(User user);
+        Task DeleteUser(int userid, int siteid);
+        Task<User> LoginUser(User user, bool setCookie, bool isPersistent);
+        Task LogoutUserEverywhere(User user);
+        Task<User> VerifyEmail(User user, string token);
+        Task ForgotPassword(User user);
+        Task<User> ResetPassword(User user, string token);
+        User VerifyTwoFactor(User user, string token);
+        Task<User> LinkExternalAccount(User user, string token, string type, string key, string name);
+        Task<UserValidateResult> ValidateUser(string username, string email, string password);
+        Task<bool> ValidatePassword(string password);
+        Task<Dictionary<string, string>> ImportUsers(int siteId, string filePath, bool notify);
+    }
+
     public class UserManager : IUserManager
     {
         private readonly IUserRepository _users;
@@ -261,7 +281,8 @@ namespace Oqtane.Managers
                             var emailConfirmationToken = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
                             await _identityUserManager.ConfirmEmailAsync(identityuser, emailConfirmationToken);
 
-                            string body = "Dear " + user.DisplayName + ",\n\nThe Email Address For Your User Account Has Been Verified. You Can Now Login With Your Username And Password.";
+                            string url = alias.Protocol + alias.Name + "/login?name=" + user.Username;
+                            string body = "Dear " + user.DisplayName + ",\n\nThe Email Address For Your User Account Has Been Verified. You Can Now Login With Your Username And Password Using The Link Displayed Below:\n\n" + url + "\n\nThank You!";
                             var notification = new Notification(user.SiteId, user, "User Account Verification", body);
                             _notifications.AddNotification(notification);
                         }

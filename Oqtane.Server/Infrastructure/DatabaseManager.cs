@@ -7,13 +7,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Oqtane.Databases.Interfaces;
 using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
 using Oqtane.Enums;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertToUsingDeclaration
@@ -22,6 +23,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Oqtane.Infrastructure
 {
+    public interface IDatabaseManager
+    {
+        Installation IsInstalled();
+        Installation Install();
+        Installation Install(InstallConfig install);
+    }
+
     public class DatabaseManager : IDatabaseManager
     {
         private readonly IConfigManager _config;
@@ -218,18 +226,27 @@ namespace Oqtane.Infrastructure
                     if (type != null)
                     {
                         // create database object from type
-                        var database = Activator.CreateInstance(type) as IDatabase;
+                        var database = Activator.CreateInstance(type) as Oqtane.Databases.Interfaces.IDatabase;
 
-                        // create data directory if does not exist
+                        // create data directory if does not exist (for LocalDB and SQLite)
                         var dataDirectory = AppDomain.CurrentDomain.GetData(Constants.DataDirectory)?.ToString();
                         if (!Directory.Exists(dataDirectory)) Directory.CreateDirectory(dataDirectory ?? String.Empty);
 
                         var dbOptions = new DbContextOptionsBuilder().UseOqtaneDatabase(database, NormalizeConnectionString(install.ConnectionString)).Options;
                         using (var dbc = new DbContext(dbOptions))
                         {
-                            // create empty database if it does not exist
-                            dbc.Database.EnsureCreated();
-                            result.Success = true;
+                            var databaseCreator = dbc.Database.GetService<IRelationalDatabaseCreator>();
+                            if (!databaseCreator.Exists())
+                            {
+                                // create empty database if it does not exist
+                                dbc.Database.EnsureCreated();
+                                result.Success = true;
+                            }
+                            else
+                            {
+                                // assume database is empty and ready for migrations
+                                result.Success = true;
+                            }
                         }
                     }
                     else
@@ -375,11 +392,20 @@ namespace Oqtane.Infrastructure
                         tenant.DBConnectionString = MigrateConnectionString(db, tenant);
                         try
                         {
-                            using (var tenantDbContext = new TenantDBContext(DBContextDependencies))
+                            var connectionString = _configManager.GetSetting($"{SettingKeys.ConnectionStringsSection}:{tenant.DBConnectionString}", "");
+                            if (!string.IsNullOrEmpty(connectionString))
                             {
-                                AddEFMigrationsHistory(sql, _configManager.GetSetting($"{SettingKeys.ConnectionStringsSection}:{tenant.DBConnectionString}", ""), tenant.DBType, tenant.Version, false);
-                                // push latest model into database
-                                tenantDbContext.Database.Migrate();
+                                using (var tenantDbContext = new TenantDBContext(DBContextDependencies))
+                                {
+                                    AddEFMigrationsHistory(sql, connectionString, tenant.DBType, tenant.Version, false);
+                                    // push latest model into database
+                                    tenantDbContext.Database.Migrate();
+                                }
+                            }
+                            else
+                            {
+                                result.Message = "A Connection String Named " + tenant.DBConnectionString + " Does Not Exist For Tenant " + tenant.Name + " In The ConnectionStrings Section Of Appsettings.json";
+                                _filelogger.LogError(Utilities.LogMessage(this, result.Message));
                             }
                         }
                         catch (Exception ex)
@@ -646,11 +672,11 @@ namespace Oqtane.Infrastructure
             var connectionString = NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey));
             var databaseType = _config.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
 
-            IDatabase database = null;
+            Databases.Interfaces.IDatabase database = null;
             if (!string.IsNullOrEmpty(databaseType))
             {
                 var type = Type.GetType(databaseType);
-                database = Activator.CreateInstance(type) as IDatabase;
+                database = Activator.CreateInstance(type) as Oqtane.Databases.Interfaces.IDatabase;
             }
 
             return new InstallationContext(database, connectionString);
@@ -727,32 +753,38 @@ namespace Oqtane.Infrastructure
 
         private void ValidateConfiguration()
         {
-            if (_configManager.GetSetting(SettingKeys.DatabaseSection, SettingKeys.DatabaseTypeKey, "") == "")
+            var defaultDatabaseType = _configManager.GetSetting(SettingKeys.DatabaseSection, SettingKeys.DatabaseTypeKey, "");
+            if (defaultDatabaseType == "")
             {
                 _configManager.AddOrUpdateSetting($"{SettingKeys.DatabaseSection}:{SettingKeys.DatabaseTypeKey}", Constants.DefaultDBType, true);
             }
+            if (defaultDatabaseType.Contains(", Oqtane.Database."))
+            {
+                // DefaultDBType migrated to Oqtane.Server in 6.1.5
+                defaultDatabaseType = defaultDatabaseType.Substring(0, defaultDatabaseType.IndexOf(", ")) + ", Oqtane.Server";
+                _configManager.AddOrUpdateSetting($"{SettingKeys.DatabaseSection}:{SettingKeys.DatabaseTypeKey}", defaultDatabaseType, true);
+            }
 
+            var updateAvailableDatabases = false;
             if (!_configManager.GetSection(SettingKeys.AvailableDatabasesSection).Exists())
             {
-                string databases = "[";
-                databases += "{ \"Name\": \"LocalDB\", \"ControlType\": \"Oqtane.Installer.Controls.LocalDBConfig, Oqtane.Client\", \"DBTYpe\": \"Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer\" },";
-                databases += "{ \"Name\": \"SQL Server\", \"ControlType\": \"Oqtane.Installer.Controls.SqlServerConfig, Oqtane.Client\", \"DBTYpe\": \"Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer\" },";
-                databases += "{ \"Name\": \"SQLite\", \"ControlType\": \"Oqtane.Installer.Controls.SqliteConfig, Oqtane.Client\", \"DBTYpe\": \"Oqtane.Database.Sqlite.SqliteDatabase, Oqtane.Database.Sqlite\" },";
-                databases += "{ \"Name\": \"MySQL\", \"ControlType\": \"Oqtane.Installer.Controls.MySQLConfig, Oqtane.Client\", \"DBTYpe\": \"Oqtane.Database.MySQL.MySQLDatabase, Oqtane.Database.MySQL\" },";
-                databases += "{ \"Name\": \"PostgreSQL\", \"ControlType\": \"Oqtane.Installer.Controls.PostgreSQLConfig, Oqtane.Client\", \"DBTYpe\": \"Oqtane.Database.PostgreSQL.PostgreSQLDatabase, Oqtane.Database.PostgreSQL\" }";
-                databases += "]";
-                _configManager.AddOrUpdateSetting(SettingKeys.AvailableDatabasesSection, databases, true);
+                updateAvailableDatabases = true;
             }
-            var availabledatabases = _configManager.GetSection(SettingKeys.AvailableDatabasesSection).GetChildren();
-            if (!availabledatabases.Any(item => item.GetSection("Name").Value == "Azure SQL"))
+            else
             {
-                // Azure SQL added in 6.1.2
+                // available databases migrated to Oqtane.Server in 6.1.5
+                updateAvailableDatabases = _configManager.GetSection(SettingKeys.AvailableDatabasesSection).GetChildren()
+                    .Any(item => item.GetSection("DBType").Value.Contains(", Oqtane.Database."));
+            }
+            if (updateAvailableDatabases)
+            {
                 string databases = "[";
-                foreach (var database in availabledatabases)
-                {
-                    databases += "{ " + $"\"Name\": \"{database["Name"]}\", \"ControlType\": \"{database["ControlType"]}\", \"DBTYpe\": \"{database["DBType"]}\"" + " },";
-                }
-                databases += "{ \"Name\": \"Azure SQL\", \"ControlType\": \"Oqtane.Installer.Controls.AzureSqlConfig, Oqtane.Client\", \"DBTYpe\": \"Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer\" }";
+                databases += "{ \"Name\": \"LocalDB\", \"ControlType\": \"Oqtane.Installer.Controls.LocalDBConfig, Oqtane.Client\", \"DBType\": \"Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Server\" },";
+                databases += "{ \"Name\": \"SQL Server\", \"ControlType\": \"Oqtane.Installer.Controls.SqlServerConfig, Oqtane.Client\", \"DBType\": \"Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Server\" },";
+                databases += "{ \"Name\": \"SQLite\", \"ControlType\": \"Oqtane.Installer.Controls.SqliteConfig, Oqtane.Client\", \"DBType\": \"Oqtane.Database.Sqlite.SqliteDatabase, Oqtane.Server\" },";
+                databases += "{ \"Name\": \"MySQL\", \"ControlType\": \"Oqtane.Installer.Controls.MySQLConfig, Oqtane.Client\", \"DBType\": \"Oqtane.Database.MySQL.MySQLDatabase, Oqtane.Server\" },";
+                databases += "{ \"Name\": \"PostgreSQL\", \"ControlType\": \"Oqtane.Installer.Controls.PostgreSQLConfig, Oqtane.Client\", \"DBType\": \"Oqtane.Database.PostgreSQL.PostgreSQLDatabase, Oqtane.Server\" },";
+                databases += "{ \"Name\": \"Azure SQL\", \"ControlType\": \"Oqtane.Installer.Controls.AzureSqlConfig, Oqtane.Client\", \"DBType\": \"Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Server\" }";
                 databases += "]";
                 _configManager.AddOrUpdateSetting(SettingKeys.AvailableDatabasesSection, databases, true);
             }

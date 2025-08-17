@@ -11,7 +11,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
-using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Shared;
@@ -69,7 +68,7 @@ namespace Oqtane
             // register localization services
             services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-            services.AddOptions<List<Database>>().Bind(Configuration.GetSection(SettingKeys.AvailableDatabasesSection));
+            services.AddOptions<List<Models.Database>>().Bind(Configuration.GetSection(SettingKeys.AvailableDatabasesSection));
 
             // register scoped core services
             services.AddScoped<IAuthorizationHandler, PermissionHandler>()

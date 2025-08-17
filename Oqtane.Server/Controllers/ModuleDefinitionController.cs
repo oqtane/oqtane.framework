@@ -15,7 +15,6 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 using System.Net;
-using Oqtane.Infrastructure.Interfaces;
 
 namespace Oqtane.Controllers
 {

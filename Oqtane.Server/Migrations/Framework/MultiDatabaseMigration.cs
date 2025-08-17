@@ -22,9 +22,9 @@ namespace Oqtane.Migrations
             return ActiveDatabase.RewriteName(name);
         }
 
-        protected string RewriteValue(string value, string type)
+        protected string RewriteValue(object value)
         {
-            return ActiveDatabase.RewriteValue(value, type);
+            return ActiveDatabase.RewriteValue(value);
         }
     }
 }
