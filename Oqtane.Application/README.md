@@ -16,3 +16,4 @@ The solution also contains Build, Client, Server, and Shared folders which is wh
 *Known Issues*
 
 - do not use the term "Oqtane" in your output name or else you will experience namespace conflicts
+
