@@ -1,6 +1,6 @@
 # Oqtane Application Template
 
-This folder contains content files for a Visual Studio Project Template designed for Oqtane development projects. The template relies on the native templating capabilities of the .NET Command Line Interface (CLI):
+This is a Visual Studio Project Template designed for Oqtane development projects. This template relies on the native templating capabilities of the .NET Command Line Interface (CLI):
 
 ```
 dotnet new install Oqtane.Application.Template
@@ -16,5 +16,4 @@ The solution also contains Build, Client, Server, and Shared folders which is wh
 *Known Issues*
 
 - do not use the term "Oqtane" in your output name or else you will experience namespace conflicts
-- the application's Build project is missing the *.nuspec file as Nuget is excluding it from the template - not sure why
-- when calling "dotnet new" the PostBuild section in the Oqtane.Application.Build.csproj is being modified incorrectly - not sure why
+
