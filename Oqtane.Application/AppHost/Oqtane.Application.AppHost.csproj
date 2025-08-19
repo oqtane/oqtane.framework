@@ -44,4 +44,8 @@
 		<PackageReference Include="Oqtane.Server" Version="6.1.5" />
 		<PackageReference Include="Oqtane.Shared" Version="6.1.5" />
 	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Server\Oqtane.Application.Server.csproj" />
+	</ItemGroup>
 </Project>
