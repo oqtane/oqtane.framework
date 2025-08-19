@@ -193,7 +193,7 @@
     <value>Enter the port number for the SMTP server. Please note this field is required if you provide a host name.</value>
   </data>
   <data name="SmtpSSL.HelpText" xml:space="preserve">
-    <value>Specify if SSL is required for your SMTP server</value>
+    <value>Specify the type of SSL connection for your SMTP server</value>
   </data>
   <data name="SmtpUsername.HelpText" xml:space="preserve">
     <value>Enter the username for your SMTP account</value>
@@ -241,7 +241,7 @@
     <value>Port: </value>
   </data>
   <data name="SmtpSSL.Text" xml:space="preserve">
-    <value>SSL Required: </value>
+    <value>SSL Options:</value>
   </data>
   <data name="SmtpUsername.Text" xml:space="preserve">
     <value>Username: </value>
@@ -488,5 +488,20 @@
   </data>
   <data name="SmtpAuthority.HelpText" xml:space="preserve">
     <value>The Authority Url for the SMTP provider</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="Auto" xml:space="preserve">
+    <value>Automatic</value>
+  </data>
+  <data name="StartTls" xml:space="preserve">
+    <value>Upgrade To TLS</value>
+  </data>
+  <data name="SslOnConnect" xml:space="preserve">
+    <value>Require SSL/TLS</value>
+  </data>
+  <data name="StartTlsWhenAvailable" xml:space="preserve">
+    <value>Use TLS When Available</value>
   </data>
 </root>

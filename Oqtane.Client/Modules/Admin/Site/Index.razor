@@ -224,11 +224,14 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="smtpssl" HelpText="Specify if SSL is required for your SMTP server" ResourceKey="SmtpSSL">SSL Required: </Label>
+                        <Label Class="col-sm-3" For="smtpssl" HelpText="Specify the type of SSL connection for your SMTP server" ResourceKey="SmtpSSL">SSL Options: </Label>
                         <div class="col-sm-9">
-                            <select id="smtpssl" class="form-select" @bind="@_smtpssl" >
-                                <option value="True">@SharedLocalizer["Yes"]</option>
-                                <option value="False">@SharedLocalizer["No"]</option>
+                            <select id="smtpssl" class="form-select" @bind="@_smtpssl">
+                                <option value="None">@Localizer["None"]</option>
+                                <option value="Auto">@Localizer["Auto"]</option>
+                                <option value="StartTls">@Localizer["StartTls"]</option>
+                                <option value="SslOnConnect">@Localizer["SslOnConnect"]</option>
+                                <option value="StartTlsWhenAvailable">@Localizer["StartTlsWhenAvailable"]</option>
                             </select>
                         </div>
                     </div>
@@ -504,7 +507,7 @@
     private string _smtpauthentication = "Basic";
     private string _smtphost = string.Empty;
     private string _smtpport = string.Empty;
-    private string _smtpssl = "True";
+    private string _smtpssl = "Auto";
     private string _smtpusername = string.Empty;
     private string _smtppassword = string.Empty;
     private string _smtppasswordtype = "password";
@@ -613,7 +616,9 @@
                 {
                     _smtphost = SettingService.GetSetting(settings, "SMTPHost", string.Empty);
                     _smtpport = SettingService.GetSetting(settings, "SMTPPort", string.Empty);
-                    _smtpssl = SettingService.GetSetting(settings, "SMTPSSL", "False");
+                    _smtpssl = SettingService.GetSetting(settings, "SMTPSSL", "Auto");
+                    if (_smtpssl == "True") _smtpssl = "SslOnConnect";
+                    if (_smtpssl == "False") _smtpssl = "StartTlsWhenAvailable";
                     _smtpauthentication = SettingService.GetSetting(settings, "SMTPAuthentication", "Basic");
                     _smtpusername = SettingService.GetSetting(settings, "SMTPUsername", string.Empty);
                     _smtppassword = SettingService.GetSetting(settings, "SMTPPassword", string.Empty);

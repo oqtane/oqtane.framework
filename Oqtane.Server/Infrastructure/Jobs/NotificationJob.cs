@@ -81,9 +81,31 @@ namespace Oqtane.Infrastructure
                         // construct SMTP Client
                         using var client = new SmtpClient();
 
+                        var secureSocketOptions = SecureSocketOptions.Auto;
+                        switch (settingRepository.GetSettingValue(settings, "SMTPSSL", "Auto"))
+                        {
+                            case "None":
+                                secureSocketOptions = SecureSocketOptions.None;
+                                break;
+                            case "Auto":
+                                secureSocketOptions = SecureSocketOptions.Auto;
+                                break;
+                            case "StartTls":
+                                secureSocketOptions = SecureSocketOptions.StartTls;
+                                break;
+                            case "SslOnConnect":
+                            case "True": // legacy setting value
+                                secureSocketOptions = SecureSocketOptions.SslOnConnect;
+                                break;
+                            case "StartTlsWhenAvailable":
+                            case "False": // legacy setting value
+                                secureSocketOptions = SecureSocketOptions.StartTlsWhenAvailable;
+                                break;
+                        }
+
                         await client.ConnectAsync(settingRepository.GetSettingValue(settings, "SMTPHost", ""), 
-                                    int.Parse(settingRepository.GetSettingValue(settings, "SMTPPort", "")),
-                                    bool.Parse(settingRepository.GetSettingValue(settings, "SMTPSSL", "False")) ? SecureSocketOptions.StartTls : SecureSocketOptions.None);
+                                int.Parse(settingRepository.GetSettingValue(settings, "SMTPPort", "")),
+                                secureSocketOptions);
 
                         if (settingRepository.GetSettingValue(settings, "SMTPAuthentication", "Basic") == "Basic")
                         {
