@@ -71,22 +71,30 @@ namespace Oqtane.Infrastructure
             {
                 try
                 {
-                    // iterate through files
+                    // open nupkg as zip archive
                     using (ZipArchive archive = ZipFile.OpenRead(packagename))
                     {
+                        string id = "";
                         string frameworkversion = "";
+
                         // locate nuspec
                         foreach (ZipArchiveEntry entry in archive.Entries)
                         {
                             if (entry.FullName.ToLower().EndsWith(".nuspec"))
                             {
                                 // open nuspec
-                                XmlTextReader reader = new XmlTextReader(entry.Open());
+                                var reader = new XmlTextReader(entry.Open());
                                 reader.Namespaces = false; // remove namespace
-                                XmlDocument doc = new XmlDocument();
+                                var doc = new XmlDocument();
                                 doc.Load(reader);
+                                // get id
+                                var node = doc.SelectSingleNode("/package/metadata/id");
+                                if (node != null)
+                                {
+                                    id = node.InnerText;
+                                }
                                 // get framework dependency
-                                XmlNode node = doc.SelectSingleNode("/package/metadata/dependencies/dependency[@id='Oqtane.Framework']");
+                                node = doc.SelectSingleNode("/package/metadata/dependencies/dependency[@id='Oqtane.Framework']");
                                 if (node != null)
                                 {
                                     frameworkversion = node.Attributes["version"].Value;
@@ -109,13 +117,16 @@ namespace Oqtane.Infrastructure
                                 string filename = "";
 
                                 // evaluate entry root folder
-                                switch (entry.FullName.Split('/')[0])
+                                switch (entry.FullName.Split('/')[0].ToLower())
                                 {
                                     case "lib": // lib/net*/...
                                         filename = ExtractFile(entry, binPath, 2);
                                         break;
                                     case "wwwroot": // wwwroot/...
                                         filename = ExtractFile(entry, webRootPath, 1);
+                                        break;
+                                    case "staticwebassets": // staticwebassets/...
+                                        filename = ExtractFile(entry, Path.Combine(webRootPath, Path.Combine("_content", id)), 1);
                                         break;
                                     case "runtimes": // runtimes/name/...
                                         filename = ExtractFile(entry, binPath, 0);
