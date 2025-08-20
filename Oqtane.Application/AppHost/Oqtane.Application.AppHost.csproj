@@ -9,7 +9,7 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.8" />
-		<PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.0" />
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.1" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.8" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.8">
 			<PrivateAssets>all</PrivateAssets>
@@ -43,5 +43,9 @@
 		<PackageReference Include="Oqtane.Client" Version="6.1.5" />
 		<PackageReference Include="Oqtane.Server" Version="6.1.5" />
 		<PackageReference Include="Oqtane.Shared" Version="6.1.5" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Server\Oqtane.Application.Server.csproj" />
 	</ItemGroup>
 </Project>

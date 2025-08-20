@@ -11,7 +11,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
-using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Shared;
