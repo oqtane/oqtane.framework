@@ -5,7 +5,6 @@
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
     <Version>1.0.0</Version>
     <AssemblyName>Oqtane.Application.Server.Oqtane</AssemblyName>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,11 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Oqtane.Server" Version="6.1.4" />
-    <PackageReference Include="Oqtane.Shared" Version="6.1.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\Themes\Oqtane.Application.MyTheme\" />
+    <PackageReference Include="Oqtane.Server" Version="6.1.5" />
+    <PackageReference Include="Oqtane.Shared" Version="6.1.5" />
   </ItemGroup>
 </Project>
