@@ -109,6 +109,11 @@ namespace Oqtane.Repository
 
         public void DeleteSite(int siteId)
         {
+            foreach (var role in _roleRepository.GetRoles(siteId, false))
+            {
+                _roleRepository.DeleteRole(role.RoleId);
+            }
+
             using var db = _factory.CreateDbContext();
             var site = db.Site.Find(siteId);
             db.Site.Remove(site);
