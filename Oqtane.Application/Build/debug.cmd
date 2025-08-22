@@ -1,1 +1,0 @@
-XCOPY "..\Server\wwwroot\*" "..\AppHost\wwwroot\" /Y /S /I

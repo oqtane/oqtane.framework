@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Oqtane.Shared</id>
-    <version>6.1.5</version>
+    <version>6.1.6</version>
     <authors>Shaun Walker</authors>
     <owners>.NET Foundation</owners>
     <title>Oqtane Framework</title>
@@ -16,6 +16,16 @@
     <readme>readme.md</readme>
     <icon>icon.png</icon>
     <tags>oqtane</tags>
+    <dependencies>
+      <group targetFramework="net9.0">
+        <dependency id="Microsoft.EntityFrameworkCore" version="9.0.8" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore.Relational" version="9.0.8" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.DependencyInjection.Abstractions" version="9.0.8" exclude="Build,Analyzers" />
+        <dependency id="NodaTime" version="3.2.2" exclude="Build,Analyzers" />
+        <dependency id="System.ComponentModel.Annotations" version="5.0.0" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="9.0.8" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
   </metadata>
   <files>
     <file src="..\Oqtane.Shared\bin\Release\net9.0\Oqtane.Shared.dll" target="lib\net9.0" />
