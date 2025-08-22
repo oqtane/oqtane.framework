@@ -1,1 +1,0 @@
-cp -rf "../Server/wwwroot/"* "../AppHost/wwwroot/"
