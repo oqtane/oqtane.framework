@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <PackageReference Include="Oqtane.Client" Version="6.1.6" />
-    <PackageReference Include="Oqtane.Shared" Version="6.1.6" />
   </ItemGroup>
 
   <PropertyGroup>
