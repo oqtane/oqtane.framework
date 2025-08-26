@@ -413,6 +413,18 @@ else
                                     </select>
                                 </div>
                             </div>
+                            @if (_providertype == AuthenticationProviderTypes.OpenIDConnect)
+                            {
+                                <div class="row mb-1 align-items-center">
+                                    <Label Class="col-sm-3" For="requirenonce" HelpText="Specify the RequireNonce property for OpenID Connect Authentication." ResourceKey="RequireNonce">Require Nonce?</Label>
+                                    <div class="col-sm-9">
+                                        <select id="requirenonce" class="form-select" @bind="@_requirenonce" required>
+                                            <option value="true">@SharedLocalizer["Yes"]</option>
+                                            <option value="false">@SharedLocalizer["No"]</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            }
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="domainfilter" HelpText="Provide any email domain filter criteria (separated by commas). Domains to exclude should be prefixed with an exclamation point (!). For example 'microsoft.com,!hotmail.com' would include microsoft.com email addresses but not hotmail.com email addresses." ResourceKey="DomainFilter">Domain Filter:</Label>
                                 <div class="col-sm-9">
@@ -557,6 +569,7 @@ else
     private string _synchronizeroles;
     private string _profileclaimtypes;
     private string _savetokens;
+    private string _requirenonce;
     private string _domainfilter;
     private string _createusers;
     private string _verifyusers;
@@ -643,6 +656,7 @@ else
         _synchronizeroles = SettingService.GetSetting(settings, "ExternalLogin:SynchronizeRoles", "false");
         _profileclaimtypes = SettingService.GetSetting(settings, "ExternalLogin:ProfileClaimTypes", "");
         _savetokens = SettingService.GetSetting(settings, "ExternalLogin:SaveTokens", "false");
+        _requirenonce = SettingService.GetSetting(settings, "ExternalLogin:RequireNonce", "false");
         _domainfilter = SettingService.GetSetting(settings, "ExternalLogin:DomainFilter", "");
         _createusers = SettingService.GetSetting(settings, "ExternalLogin:CreateUsers", "true");
         _verifyusers = SettingService.GetSetting(settings, "ExternalLogin:VerifyUsers", "true");
@@ -762,6 +776,7 @@ else
                 settings = SettingService.SetSetting(settings, "ExternalLogin:SynchronizeRoles", _synchronizeroles, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:ProfileClaimTypes", _profileclaimtypes, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:SaveTokens", _savetokens, true);
+                settings = SettingService.SetSetting(settings, "ExternalLogin:RequireNonce", _requirenonce, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:DomainFilter", _domainfilter, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:CreateUsers", _createusers, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:VerifyUsers", _verifyusers, true);
