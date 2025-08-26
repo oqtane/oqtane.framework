@@ -1,23 +1,21 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <Version>1.0.0</Version>
-    <AssemblyName>Oqtane.Application.Client.Oqtane</AssemblyName>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<Version>1.0.0</Version>
+		<AssemblyName>Oqtane.Application.Client.Oqtane</AssemblyName>
+		<NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
+		<StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
+		<BlazorWebAssemblyEnableLinking>false</BlazorWebAssemblyEnableLinking>
+		<BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Shared\Oqtane.Application.Shared.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Shared\Oqtane.Application.Shared.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Oqtane.Client" Version="6.1.6" />
-  </ItemGroup>
-
-  <PropertyGroup>
-    <!-- there may be other elements here -->
-    <BlazorWebAssemblyEnableLinking>false</BlazorWebAssemblyEnableLinking>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-  </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Oqtane.Client" Version="6.1.6" />
+	</ItemGroup>
 
 </Project>
