@@ -63,7 +63,7 @@ namespace Oqtane.Extensions
                     options.ResponseType = sitesettings.GetValue("ExternalLogin:AuthResponseType", "code"); // default is authorization code flow
                     options.UsePkce = bool.Parse(sitesettings.GetValue("ExternalLogin:PKCE", "false"));
                     options.SaveTokens = bool.Parse(sitesettings.GetValue("ExternalLogin:SaveTokens", "false"));
-                    options.ProtocolValidator.RequireNonce = bool.Parse(sitesettings.GetValue("ExternalLogin:RequireNonce", "true")); ;
+                    options.ProtocolValidator.RequireNonce = bool.Parse(sitesettings.GetValue("ExternalLogin:RequireNonce", "true"));
                     if (!string.IsNullOrEmpty(sitesettings.GetValue("ExternalLogin:RoleClaimType", "")))
                     {
                         options.TokenValidationParameters.RoleClaimType = sitesettings.GetValue("ExternalLogin:RoleClaimType", "");
