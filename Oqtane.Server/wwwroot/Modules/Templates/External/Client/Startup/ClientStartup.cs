@@ -8,7 +8,10 @@ namespace [Owner].Module.[Module].Startup
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<I[Module]Service, [Module]Service>();
+            if (!services.Any(s => s.ServiceType == typeof(I[Module]Service)))
+            {
+                services.AddScoped<I[Module]Service, [Module]Service>();
+            }
         }
     }
 }
