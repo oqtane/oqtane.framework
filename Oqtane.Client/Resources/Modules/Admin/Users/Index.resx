@@ -513,6 +513,12 @@
   <data name="OIDC" xml:space="preserve">
     <value>OpenID Connect (OIDC)</value>
   </data>
+  <data name="RequireNonce.Text" xml:space="preserve">
+    <value>Require Nonce?</value>
+  </data>
+  <data name="RequireNonce.HelpText" xml:space="preserve">
+    <value>Specify the RequireNonce property for OpenID Connect Authentication.</value>
+  </data>
   <data name="SaveTokens.Text" xml:space="preserve">
     <value>Save Tokens?</value>
   </data>
