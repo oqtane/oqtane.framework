@@ -476,8 +476,26 @@ namespace Oqtane.Extensions
                     else
                     {
                         var logins = await _identityUserManager.GetLoginsAsync(identityuser);
-                        var login = logins.FirstOrDefault(item => item.LoginProvider == (providerType + ":" + alias.SiteId.ToString()));
-                        if (login == null)
+                        // check if any logins exist for this user and provider type for any site
+                        var login = logins.FirstOrDefault(item => item.LoginProvider.StartsWith(providerType));
+                        if (login != null || !bool.Parse(httpContext.GetSiteSettings().GetValue("ExternalLogin:VerifyUsers", "true")))
+                        {
+                            // external login using existing user account - link automatically
+                            user = _users.GetUser(identityuser.UserName);
+                            user.SiteId = alias.SiteId;
+
+                            var _notifications = httpContext.RequestServices.GetRequiredService<INotificationRepository>();
+                            string url = httpContext.Request.Scheme + "://" + alias.Name;
+                            string body = "You Recently Used An External Account To Sign In To Our Site.\n\n" + url + "\n\nThank You!";
+                            var notification = new Notification(user.SiteId, user, "User Account Notification", body);
+                            _notifications.AddNotification(notification);
+
+                            // add user login
+                            await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(providerType + ":" + user.SiteId.ToString(), id, providerName));
+
+                            _logger.Log(user.SiteId, LogLevel.Information, "ExternalLogin", Enums.LogFunction.Create, "External Login Linkage Created For User {Username} And Provider {Provider}", user.Username, providerName);
+                        }
+                        else
                         {
                             if (bool.Parse(httpContext.GetSiteSettings().GetValue("ExternalLogin:VerifyUsers", "true")))
                             {
@@ -496,27 +514,10 @@ namespace Oqtane.Extensions
                             }
                             else
                             {
-                                // external login using existing user account - link automatically
-                                user = _users.GetUser(identityuser.UserName);
-                                user.SiteId = alias.SiteId;
-
-                                var _notifications = httpContext.RequestServices.GetRequiredService<INotificationRepository>();
-                                string url = httpContext.Request.Scheme + "://" + alias.Name;
-                                string body = "You Recently Used An External Account To Sign In To Our Site.\n\n" + url + "\n\nThank You!";
-                                var notification = new Notification(user.SiteId, user, "User Account Notification", body);
-                                _notifications.AddNotification(notification);
-
-                                // add user login
-                                await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(providerType + ":" + user.SiteId.ToString(), id, providerName));
-
-                                _logger.Log(user.SiteId, LogLevel.Information, "ExternalLogin", Enums.LogFunction.Create, "External Login Linkage Created For User {Username} And Provider {Provider}", user.Username, providerName);
+                                // provider keys do not match
+                                identity.Label = ExternalLoginStatus.ProviderKeyMismatch;
+                                _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "Provider Key Does Not Match For User {Username}. Login Denied.", identityuser.UserName);
                             }
-                        }
-                        else
-                        {
-                            // provider keys do not match
-                            identity.Label = ExternalLoginStatus.ProviderKeyMismatch;
-                            _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "Provider Key Does Not Match For User {Username}. Login Denied.", identityuser.UserName);
                         }
                     }
                 }
@@ -525,14 +526,34 @@ namespace Oqtane.Extensions
                 if (user != null)
                 {
                     // manage roles
+                    var _roles = httpContext.RequestServices.GetRequiredService<IRoleRepository>();
                     var _userRoles = httpContext.RequestServices.GetRequiredService<IUserRoleRepository>();
                     var userRoles = _userRoles.GetUserRoles(user.UserId, user.SiteId).ToList();
+
+                    // if user is signing in to a new site
+                    if (userRoles.Count == 0)
+                    {
+                        // add auto assigned roles to user for site
+                        var roles = _roles.GetRoles(user.SiteId).Where(item => item.IsAutoAssigned).ToList();
+                        foreach (var role in roles)
+                        {
+                            var userrole = new UserRole();
+                            userrole.UserId = user.UserId;
+                            userrole.RoleId = role.RoleId;
+                            userrole.EffectiveDate = null;
+                            userrole.ExpiryDate = null;
+                            userrole.IgnoreSecurityStamp = true;
+                            _userRoles.AddUserRole(userrole);
+                        }
+                        userRoles = _userRoles.GetUserRoles(user.UserId, user.SiteId).ToList();
+                    }
+
+                    // process any role claims
                     if (!string.IsNullOrEmpty(httpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimType", "")))
                     {
                         // external roles
                         if (claimsPrincipal.Claims.Any(item => item.Type == httpContext.GetSiteSettings().GetValue("ExternalLogin:RoleClaimType", "")))
                         {
-                            var _roles = httpContext.RequestServices.GetRequiredService<IRoleRepository>();
                             var allowhostrole = bool.Parse(httpContext.GetSiteSettings().GetValue("ExternalLogin:AllowHostRole", "false"));
                             var roles = _roles.GetRoles(user.SiteId, allowhostrole).ToList();
 
