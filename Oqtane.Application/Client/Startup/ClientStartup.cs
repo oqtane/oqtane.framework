@@ -8,7 +8,10 @@ namespace Oqtane.Application.Startup
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<IMyModuleService, MyModuleService>();
+            if (!services.Any(s => s.ServiceType == typeof(IMyModuleService)))
+            {
+                services.AddScoped<IMyModuleService, MyModuleService>();
+            }
         }
     }
 }
