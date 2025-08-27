@@ -314,6 +314,15 @@ else
                                         </select>
                                     </div>
                                 </div>
+                                <div class="row mb-1 align-items-center">
+                                    <Label Class="col-sm-3" For="requirenonce" HelpText="Specify if Nonce validation is required for the ID token (the default is true)" ResourceKey="RequireNonce">Require Nonce?</Label>
+                                    <div class="col-sm-9">
+                                        <select id="requirenonce" class="form-select" @bind="@_requirenonce" required>
+                                            <option value="true">@SharedLocalizer["Yes"]</option>
+                                            <option value="false">@SharedLocalizer["No"]</option>
+                                        </select>
+                                    </div>
+                                </div>
                             }
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="scopes" HelpText="A list of Scopes to request from the provider (separated by commas). If none are specified, standard Scopes will be used by default." ResourceKey="Scopes">Scopes:</Label>
@@ -413,18 +422,6 @@ else
                                     </select>
                                 </div>
                             </div>
-                            @if (_providertype == AuthenticationProviderTypes.OpenIDConnect)
-                            {
-                                <div class="row mb-1 align-items-center">
-                                    <Label Class="col-sm-3" For="requirenonce" HelpText="Specify the RequireNonce property for OpenID Connect Authentication." ResourceKey="RequireNonce">Require Nonce?</Label>
-                                    <div class="col-sm-9">
-                                        <select id="requirenonce" class="form-select" @bind="@_requirenonce" required>
-                                            <option value="true">@SharedLocalizer["Yes"]</option>
-                                            <option value="false">@SharedLocalizer["No"]</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            }
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="domainfilter" HelpText="Provide any email domain filter criteria (separated by commas). Domains to exclude should be prefixed with an exclamation point (!). For example 'microsoft.com,!hotmail.com' would include microsoft.com email addresses but not hotmail.com email addresses." ResourceKey="DomainFilter">Domain Filter:</Label>
                                 <div class="col-sm-9">
@@ -555,6 +552,7 @@ else
     private string _clientsecrettype = "password";
     private string _toggleclientsecret = string.Empty;
     private string _authresponsetype;
+    private string _requirenonce;
     private string _scopes;
     private string _parameters;
     private string _pkce;
@@ -569,7 +567,6 @@ else
     private string _synchronizeroles;
     private string _profileclaimtypes;
     private string _savetokens;
-    private string _requirenonce;
     private string _domainfilter;
     private string _createusers;
     private string _verifyusers;
@@ -642,6 +639,7 @@ else
         _clientsecret = SettingService.GetSetting(settings, "ExternalLogin:ClientSecret", "");
         _toggleclientsecret = SharedLocalizer["ShowPassword"];
         _authresponsetype = SettingService.GetSetting(settings, "ExternalLogin:AuthResponseType", "code");
+        _requirenonce = SettingService.GetSetting(settings, "ExternalLogin:RequireNonce", "true");
         _scopes = SettingService.GetSetting(settings, "ExternalLogin:Scopes", "");
         _parameters = SettingService.GetSetting(settings, "ExternalLogin:Parameters", "");
         _pkce = SettingService.GetSetting(settings, "ExternalLogin:PKCE", "false");
@@ -656,7 +654,6 @@ else
         _synchronizeroles = SettingService.GetSetting(settings, "ExternalLogin:SynchronizeRoles", "false");
         _profileclaimtypes = SettingService.GetSetting(settings, "ExternalLogin:ProfileClaimTypes", "");
         _savetokens = SettingService.GetSetting(settings, "ExternalLogin:SaveTokens", "false");
-        _requirenonce = SettingService.GetSetting(settings, "ExternalLogin:RequireNonce", "true");
         _domainfilter = SettingService.GetSetting(settings, "ExternalLogin:DomainFilter", "");
         _createusers = SettingService.GetSetting(settings, "ExternalLogin:CreateUsers", "true");
         _verifyusers = SettingService.GetSetting(settings, "ExternalLogin:VerifyUsers", "true");
@@ -764,6 +761,7 @@ else
                 settings = SettingService.SetSetting(settings, "ExternalLogin:ClientId", _clientid, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:ClientSecret", _clientsecret, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:AuthResponseType", _authresponsetype, true);
+                settings = SettingService.SetSetting(settings, "ExternalLogin:RequireNonce", _requirenonce, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:Scopes", _scopes, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:Parameters", _parameters, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:PKCE", _pkce, true);
@@ -776,7 +774,6 @@ else
                 settings = SettingService.SetSetting(settings, "ExternalLogin:SynchronizeRoles", _synchronizeroles, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:ProfileClaimTypes", _profileclaimtypes, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:SaveTokens", _savetokens, true);
-                settings = SettingService.SetSetting(settings, "ExternalLogin:RequireNonce", _requirenonce, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:DomainFilter", _domainfilter, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:CreateUsers", _createusers, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:VerifyUsers", _verifyusers, true);
