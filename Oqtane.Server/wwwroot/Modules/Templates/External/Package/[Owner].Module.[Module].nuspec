@@ -15,9 +15,10 @@
         <tags>oqtane module</tags>
         <releaseNotes></releaseNotes>
         <summary></summary>
-        <dependencies>
-            <dependency id="Oqtane.Framework" version="[FrameworkVersion]" />
-        </dependencies>
+        <packageTypes>
+            <packageType name="Dependency" />
+            <packageType name="Oqtane.Framework" version="[FrameworkVersion]" />
+        </packageTypes>
     </metadata>
     <files>
         <file src="..\Client\bin\Release\$targetframework$\$ProjectName$.Client.Oqtane.dll" target="lib\$targetframework$" />
