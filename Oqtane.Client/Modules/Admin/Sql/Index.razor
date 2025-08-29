@@ -200,7 +200,8 @@ else
 				if (tenant != null)
 				{
 					_tenant = tenant.Name;
-					_databasetype = _databases.FirstOrDefault(item => item.DBType == tenant.DBType && item.Name != "LocalDB").Name;
+                    // hack - there are 3 providers with SqlServerDatabase DBTypes - so we are choosing the last one in alphabetical order
+                    _databasetype = _databases.Where(item => item.DBType == tenant.DBType).OrderBy(item => item.Name).Last()?.Name;
 				}
 			}
 			else
@@ -211,7 +212,7 @@ else
 				}
 				else
 				{
-					_databasetype = "LocalDB";
+                    _databasetype = Constants.DefaultDBName;
 				}
 				_showConnectionString = false;
 				LoadDatabaseConfigComponent();
