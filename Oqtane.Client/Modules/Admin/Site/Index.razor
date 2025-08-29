@@ -665,7 +665,8 @@
                     if (tenant != null)
                     {
                         _tenant = tenant.Name;
-                        _database = _databases.Find(item => item.DBType == tenant.DBType && item.Name != "LocalDB")?.Name;
+                        // hack - there are 3 providers with SqlServerDatabase DBTypes - so we are choosing the last one in alphabetical order
+                        _database = _databases.Where(item => item.DBType == tenant.DBType).OrderBy(item => item.Name).Last()?.Name;
                         _connectionstring = tenant.DBConnectionString;
                     }
                 }
