@@ -93,11 +93,20 @@ namespace Oqtane.Infrastructure
                                 {
                                     id = node.InnerText;
                                 }
-                                // get framework dependency
-                                node = doc.SelectSingleNode("/package/metadata/dependencies/dependency[@id='Oqtane.Framework']");
+                                // get minimum framework version using packageType
+                                node = doc.SelectSingleNode("/package/metadata/packageTypes/packageType[@name='Oqtane.Framework']");
                                 if (node != null)
                                 {
                                     frameworkversion = node.Attributes["version"].Value;
+                                }
+                                if (string.IsNullOrEmpty(frameworkversion))
+                                {
+                                    // legacy packages used the dependency metadata
+                                    node = doc.SelectSingleNode("/package/metadata/dependencies/dependency[@id='Oqtane.Framework']");
+                                    if (node != null)
+                                    {
+                                        frameworkversion = node.Attributes["version"].Value;
+                                    }
                                 }
                                 reader.Close();
                                 break;
