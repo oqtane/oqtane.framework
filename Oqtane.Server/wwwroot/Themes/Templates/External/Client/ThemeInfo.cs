@@ -18,7 +18,7 @@ namespace [Owner].Theme.[Theme]
             {
 		// obtained from https://cdnjs.com/libraries
                 new Stylesheet(Constants.BootstrapStylesheetUrl, Constants.BootstrapStylesheetIntegrity, "anonymous"),
-                new Stylesheet("~/Theme.css"),
+                new Stylesheet("_content/[Owner].Theme.[Theme]/Theme.css"),
                 new Script(Constants.BootstrapScriptUrl, Constants.BootstrapScriptIntegrity, "anonymous")
             }
         };
