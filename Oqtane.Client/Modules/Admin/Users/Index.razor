@@ -115,6 +115,12 @@ else
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="cookiedomain" HelpText="If you would like to share cookies across subdomains you will need to specify a root domain with a leading dot (ie. '.example.com')" ResourceKey="CookieDomain">Cookie Domain:</Label>
+                            <div class="col-sm-9">
+                                <input id="cookiedomain" class="form-control" @bind="@_cookiedomain" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="cookieexpiration" HelpText="You can choose to use a custom authentication cookie expiration timespan for each site (e.g. '08:00:00' for 8 hours). The default is 14 days if not specified." ResourceKey="CookieExpiration">Cookie Expiration Timespan:</Label>
                             <div class="col-sm-9">
                                 <input id="cookieexpiration" class="form-control" @bind="@_cookieexpiration" />
@@ -525,6 +531,7 @@ else
     private string _requireconfirmedemail;
     private string _twofactor;
     private string _cookiename;
+    private string _cookiedomain;
     private string _cookieexpiration;
     private string _alwaysremember;
     private string _logouteverywhere;
@@ -600,6 +607,7 @@ else
         {
             _twofactor = SettingService.GetSetting(settings, "LoginOptions:TwoFactor", "false");
             _cookiename = SettingService.GetSetting(settings, "LoginOptions:CookieName", ".AspNetCore.Identity.Application");
+            _cookiedomain = SettingService.GetSetting(settings, "LoginOptions:CookieDomain", "");
             _cookieexpiration = SettingService.GetSetting(settings, "LoginOptions:CookieExpiration", "");
             _alwaysremember = SettingService.GetSetting(settings, "LoginOptions:AlwaysRemember", "false");
             _logouteverywhere = SettingService.GetSetting(settings, "LoginOptions:LogoutEverywhere", "false");
@@ -736,6 +744,7 @@ else
                 settings = SettingService.SetSetting(settings, "LoginOptions:RequireConfirmedEmail", _requireconfirmedemail, false);
                 settings = SettingService.SetSetting(settings, "LoginOptions:TwoFactor", _twofactor, false);
                 settings = SettingService.SetSetting(settings, "LoginOptions:CookieName", _cookiename, true);
+                settings = SettingService.SetSetting(settings, "LoginOptions:CookieDomain", _cookiedomain, true);
                 settings = SettingService.SetSetting(settings, "LoginOptions:CookieExpiration", _cookieexpiration, true);
                 settings = SettingService.SetSetting(settings, "LoginOptions:AlwaysRemember", _alwaysremember, false);
                 settings = SettingService.SetSetting(settings, "LoginOptions:LogoutEverywhere", _logouteverywhere, false);
