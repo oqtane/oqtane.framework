@@ -11,6 +11,7 @@ namespace Oqtane.Application.Server
     {
         public static void Main(string[] args)
         {
+            // defer server startup to Oqtane - do not modify
             var host = BuildWebHost(args);
             var databaseManager = host.Services.GetService<IDatabaseManager>();
             var install = databaseManager.Install();
