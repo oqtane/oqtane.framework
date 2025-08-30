@@ -549,4 +549,10 @@
   <data name="Deleted Users" xml:space="preserve">
     <value>Deleted Users</value>
   </data>
+  <data name="CookieDomain.Text" xml:space="preserve">
+    <value>Cookie Domain:</value>
+  </data>
+  <data name="CookieDomain.HelpText" xml:space="preserve">
+    <value>If you would like to share cookies across subdomains you will need to specify a root domain with a leading dot (ie. '.example.com')</value>
+  </data>
 </root>

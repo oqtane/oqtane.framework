@@ -31,6 +31,10 @@ namespace Oqtane.Extensions
             builder.AddSiteNamedOptions<CookieAuthenticationOptions>(Constants.AuthenticationScheme, (options, alias, sitesettings) =>
             {
                 options.Cookie.Name = sitesettings.GetValue("LoginOptions:CookieName", ".AspNetCore.Identity.Application");
+                if (!string.IsNullOrEmpty(sitesettings.GetValue("LoginOptions:CookieDomain", "")))
+                {
+                    options.Cookie.Domain = sitesettings.GetValue("LoginOptions:CookieDomain", "");
+                }
                 string cookieExpStr = sitesettings.GetValue("LoginOptions:CookieExpiration", "");
                 if (!string.IsNullOrEmpty(cookieExpStr) && TimeSpan.TryParse(cookieExpStr, out TimeSpan cookieExpTS))
                 {
