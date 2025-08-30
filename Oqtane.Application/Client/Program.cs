@@ -6,6 +6,7 @@ namespace Oqtane.Application.Client
     {
         static async Task Main(string[] args)
         {
+            // defer client startup to Oqtane - do not modify
             await Oqtane.Client.Program.Main(args);
         }
     }
