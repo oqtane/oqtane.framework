@@ -140,11 +140,20 @@ namespace Oqtane.Modules
             }
         }
 
-        // path method
+        // path methods
 
         public string ModulePath()
         {
             return PageState?.Alias.BaseUrl + "/Modules/" + GetType().Namespace + "/";
+        }
+
+        public string StaticAssetPath
+        {
+            get
+            {
+                // requires module to have implemented IModule
+                return PageState?.Alias.BaseUrl + "_content/" + ModuleState.ModuleDefinition?.PackageName + "/";
+            }
         }
 
         // fingerprint hash code for static assets
