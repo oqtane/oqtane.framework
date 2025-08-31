@@ -513,6 +513,12 @@
   <data name="OIDC" xml:space="preserve">
     <value>OpenID Connect (OIDC)</value>
   </data>
+  <data name="RequireNonce.Text" xml:space="preserve">
+    <value>Require Nonce?</value>
+  </data>
+  <data name="RequireNonce.HelpText" xml:space="preserve">
+    <value>Specify if Nonce validation is required for the ID token (the default is true)</value>
+  </data>
   <data name="SaveTokens.Text" xml:space="preserve">
     <value>Save Tokens?</value>
   </data>
@@ -542,5 +548,11 @@
   </data>
   <data name="Deleted Users" xml:space="preserve">
     <value>Deleted Users</value>
+  </data>
+  <data name="CookieDomain.Text" xml:space="preserve">
+    <value>Cookie Domain:</value>
+  </data>
+  <data name="CookieDomain.HelpText" xml:space="preserve">
+    <value>If you would like to share cookies across subdomains you will need to specify a root domain with a leading dot (ie. '.example.com')</value>
   </data>
 </root>

@@ -42,8 +42,8 @@ else
 
     public override List<Resource> Resources => new List<Resource>()
     {
-        new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" },
-        new Resource { ResourceType = ResourceType.Script, Url = ModulePath() + "Module.js" }
+        new Stylesheet("_content/[Owner].Module.[Module]/Module.css"),
+        new Script("_content/[Owner].Module.[Module]/Module.js")
     };
 
     List<[Module]> _[Module]s;

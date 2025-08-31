@@ -108,11 +108,20 @@ namespace Oqtane.Themes
             }
         }
 
-        // path method
+        // path methods
 
         public string ThemePath()
         {
             return PageState?.Alias.BaseUrl + "/Themes/" + GetType().Namespace + "/";
+        }
+
+        public string StaticAssetPath
+        {
+            get
+            {
+                // requires theme to have implemented ITheme
+                return PageState?.Alias.BaseUrl + "_content/" + ThemeState?.PackageName + "/";
+            }
         }
 
         // fingerprint hash code for static assets

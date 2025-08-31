@@ -3,7 +3,7 @@
   <metadata>
     <id>Oqtane.Application.Template</id>
     <version>6.1.6</version>
-    <title>Oqtane Application Solution For Blazor</title>
+    <title>Oqtane Application Template For Blazor</title>
     <authors>Shaun Walker</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>

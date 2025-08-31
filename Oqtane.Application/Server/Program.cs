@@ -1,17 +1,17 @@
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore;
-using Microsoft.Extensions.DependencyInjection;
-using Oqtane.Infrastructure;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Oqtane.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Oqtane.Application.AppHost
+namespace Oqtane.Application.Server
 {
     public class Program
     {
         public static void Main(string[] args)
         {
+            // defer server startup to Oqtane - do not modify
             var host = BuildWebHost(args);
             var databaseManager = host.Services.GetService<IDatabaseManager>();
             var install = databaseManager.Install();
@@ -20,7 +20,7 @@ namespace Oqtane.Application.AppHost
                 var filelogger = host.Services.GetRequiredService<ILogger<Program>>();
                 if (filelogger != null)
                 {
-                    filelogger.LogError($"[Oqtane.Application.AppHost.Program.Main] {install.Message}");
+                    filelogger.LogError($"[Oqtane.Application.Server.Program.Main] {install.Message}");
                 }
             }
             else
@@ -35,9 +35,8 @@ namespace Oqtane.Application.AppHost
                     .AddCommandLine(args)
                     .AddEnvironmentVariables()
                     .Build())
-                .UseStartup<Oqtane.Startup>()
+                .UseStartup<Startup>()
                 .ConfigureLocalizationSettings()
                 .Build();
     }
 }
-

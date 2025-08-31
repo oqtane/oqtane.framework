@@ -9,7 +9,7 @@ using Oqtane.Infrastructure;
 using Oqtane.Shared;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 
-namespace Oqtane
+namespace Oqtane.Application.Server
 {
     public class Startup
     {
@@ -32,11 +32,13 @@ namespace Oqtane
 
         public void ConfigureServices(IServiceCollection services)
         {
+            // defer server startup to Oqtane - do not modify
             services.AddOqtane(_configuration, _environment);
         }
 
         public void Configure(IApplicationBuilder app, IConfigurationRoot configuration, IWebHostEnvironment environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider, ISyncManager sync)
         {
+            // defer server startup to Oqtane - do not modify
             app.UseOqtane(configuration, environment, corsService, corsPolicyProvider, sync);
         }
     }
