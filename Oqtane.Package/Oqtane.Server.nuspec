@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Oqtane.Server</id>
-    <version>6.1.6</version>
+    <version>6.2.0</version>
     <authors>Shaun Walker</authors>
     <owners>.NET Foundation</owners>
     <title>Oqtane Framework</title>
@@ -12,14 +12,14 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
-    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v6.1.5</releaseNotes>
+    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v6.2.0</releaseNotes>
     <readme>readme.md</readme>
     <icon>icon.png</icon>
     <tags>oqtane</tags>
     <dependencies>
       <group targetFramework="net9.0">
-        <dependency id="Oqtane.Client" version="6.1.5" exclude="Build,Analyzers" />
-        <dependency id="Oqtane.Shared" version="6.1.5" exclude="Build,Analyzers" />
+        <dependency id="Oqtane.Client" version="6.2.0" exclude="Build,Analyzers" />
+        <dependency id="Oqtane.Shared" version="6.2.0" exclude="Build,Analyzers" />
         <dependency id="EFCore.NamingConventions" version="9.0.0" exclude="Build,Analyzers" />
         <dependency id="HtmlAgilityPack" version="1.12.2" exclude="Build,Analyzers" />
         <dependency id="MailKit" version="4.13.0" exclude="Build,Analyzers" />
@@ -35,7 +35,7 @@
         <dependency id="Microsoft.Extensions.Localization" version="9.0.8" exclude="Build,Analyzers" />
         <dependency id="MySql.Data" version="9.4.0" exclude="Build,Analyzers" />
         <dependency id="Npgsql.EntityFrameworkCore.PostgreSQL" version="9.0.4" exclude="Build,Analyzers" />
-        <dependency id="Pomelo.EntityFrameworkCore.MySql" version="9.0.0-preview.3.efcore.9.0.0" exclude="Build,Analyzers" />
+        <dependency id="Pomelo.EntityFrameworkCore.MySql" version="9.0.0" exclude="Build,Analyzers" />
         <dependency id="SQLitePCLRaw.bundle_e_sqlite3" version="3.0.1" exclude="Build,Analyzers" />
         <dependency id="SixLabors.ImageSharp" version="3.1.11" exclude="Build,Analyzers" />
         <dependency id="Swashbuckle.AspNetCore" version="9.0.3" exclude="Build,Analyzers" />
