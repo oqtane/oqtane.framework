@@ -33,6 +33,7 @@ namespace Oqtane.Models
             SettingsType = "";
             PackageName = "";
             Runtimes = "";
+            Databases = "";
             Template = "";
             Resources = null;
             IsAutoEnabled = true;
@@ -83,7 +84,10 @@ namespace Oqtane.Models
         public string License { get; set; }
 
         [NotMapped]
-        public string Runtimes { get; set; }
+        public string Runtimes { get; set; } // comma-delimited list of runtimes ie. Server, WebAssembly
+
+        [NotMapped]
+        public string Databases { get; set; } // comma-delimited list of database names ie. SQLServer, SQLite
 
         [NotMapped]
         public string Dependencies { get; set; }

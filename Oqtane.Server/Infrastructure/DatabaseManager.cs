@@ -476,7 +476,7 @@ namespace Oqtane.Infrastructure
                                         {
                                             index = -1;
                                         }
-                                        if (index != (versions.Length - 1))
+                                        if (index != (versions.Length - 1) && ModuleSupportsDatabase(moduleDefinition.Databases, tenant.DBType))
                                         {
                                             for (var i = (index + 1); i < versions.Length; i++)
                                             {
@@ -788,6 +788,22 @@ namespace Oqtane.Infrastructure
                 databases += "]";
                 _configManager.AddOrUpdateSetting(SettingKeys.AvailableDatabasesSection, databases, true);
             }
+        }
+
+        private bool ModuleSupportsDatabase(string databases, string dbtype)
+        {
+            // check if module supports tenant database
+            if (!string.IsNullOrEmpty(databases))
+            {
+                foreach (var database in databases.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    if (dbtype.ToLower().Contains(database.ToLower()))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return string.IsNullOrEmpty(databases);
         }
     }
 }
