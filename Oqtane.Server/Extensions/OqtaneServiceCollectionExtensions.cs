@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Oqtane.Extensions;
@@ -32,6 +33,7 @@ using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Services;
 using Oqtane.Shared;
+using Radzen;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -193,7 +195,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<Oqtane.Shared.SiteState>();
             services.AddScoped<IInstallationService, InstallationService>();
             services.AddScoped<IModuleDefinitionService, ModuleDefinitionService>();
-            services.AddScoped<IThemeService, ThemeService>();
+            services.AddScoped<IThemeService, Oqtane.Services.ThemeService>();
             services.AddScoped<IAliasService, AliasService>();
             services.AddScoped<ITenantService, TenantService>();
             services.AddScoped<IPageService, PageService>();
@@ -208,7 +210,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<ILogService, LogService>();
             services.AddScoped<IJobService, JobService>();
             services.AddScoped<IJobLogService, JobLogService>();
-            services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<INotificationService, Oqtane.Services.NotificationService>();
             services.AddScoped<IFolderService, FolderService>();
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<ISiteTemplateService, SiteTemplateService>();
@@ -230,6 +232,12 @@ namespace Microsoft.Extensions.DependencyInjection
             // providers
             services.AddScoped<ITextEditor, Oqtane.Modules.Controls.QuillJSTextEditor>();
             services.AddScoped<ITextEditor, Oqtane.Modules.Controls.TextAreaTextEditor>();
+            services.AddScoped<ITextEditor, Oqtane.Modules.Controls.RadzenTextEditor>();
+
+            services.AddRadzenComponents();
+
+            var localizer = services.BuildServiceProvider().GetService<IStringLocalizer<Oqtane.Modules.Controls.RadzenTextEditor>>();
+            Oqtane.Modules.Controls.RadzenEditorDefinitions.Localizer = localizer;
 
             return services;
         }
