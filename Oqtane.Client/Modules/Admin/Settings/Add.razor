@@ -197,11 +197,11 @@
     {
         validated = true;
         var interop = new Interop(JSRuntime);
-        if (await interop.FormValid(form))
+        if (await interop.FormValid(form) && _entityName != "-" && int.TryParse(_entityId, out int entityId))
         {
             var setting = new Setting();
             setting.EntityName = _entityName;
-            setting.EntityId = int.Parse(_entityId);
+            setting.EntityId = entityId;
             setting.SettingName = _settingName;
             setting.SettingValue = _settingValue;
             setting.IsPrivate = (bool.Parse(_isPrivate));
