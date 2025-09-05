@@ -114,18 +114,26 @@ else
 
     private async Task StartJob(int jobId)
     {
-        try
+        Job _job = await JobService.GetJobAsync(jobId);
+        if (!_job.IsEnabled)
         {
-			await JobService.StartJobAsync(jobId);
-            await logger.LogInformation("Job Started {JobId}", jobId);
-            AddModuleMessage(Localizer["Message.Job.Start"], MessageType.Success);
-			_jobs = await JobService.GetJobsAsync();
-            StateHasChanged();
+            AddModuleMessage(Localizer["Message.Job.Disabled"], MessageType.Warning);
         }
-        catch (Exception ex)
+        else
         {
-            await logger.LogError(ex, "Error Starting Job {JobId} {Error}", jobId, ex.Message);
-            AddModuleMessage(Localizer["Error.Job.Start"], MessageType.Error);
+            try
+            {
+                await JobService.StartJobAsync(jobId);
+                await logger.LogInformation("Job Started {JobId}", jobId);
+                AddModuleMessage(Localizer["Message.Job.Start"], MessageType.Success);
+                _jobs = await JobService.GetJobsAsync();
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Starting Job {JobId} {Error}", jobId, ex.Message);
+                AddModuleMessage(Localizer["Error.Job.Start"], MessageType.Error);
+            }
         }
     }
 
