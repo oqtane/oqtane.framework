@@ -183,4 +183,7 @@
   <data name="Refresh.Text" xml:space="preserve">
     <value>Refresh</value>
   </data>
+  <data name="Message.Job.Disabled" xml:space="preserve">
+    <value>The job cannot be started while in the disabled state.</value>
+  </data>
 </root>
