@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 
 namespace Oqtane.Modules.Controls
 {
-    public class RadzenEditorInterop
+    public class RadzenTextEditorInterop
     {
         private readonly IJSRuntime _jsRuntime;
 
-        public RadzenEditorInterop(IJSRuntime jsRuntime)
+        public RadzenTextEditorInterop(IJSRuntime jsRuntime)
         {
             _jsRuntime = jsRuntime;
         }
