@@ -177,14 +177,14 @@
 </div>
 
 @code {
-    public string Name => "QuillJS";
+    public string Name => "QuillJS Text Editor";
 
     private string resourceType = "Oqtane.Modules.Controls.QuillJSTextEditor, Oqtane.Client";
 
     private bool _settingsLoaded;
     private bool _initialized = false;
 
-    private QuillEditorInterop _interop;
+    private QuillJSTextEditorInterop _interop;
     private FileManager _fileManager;
     private string _activetab = "Rich";
     private bool _allowSettings = false;
@@ -246,14 +246,14 @@
 
     public override List<Resource> Resources { get; set; } = new List<Resource>()
     {
-        new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill.min.js", Location = ResourceLocation.Body },
-        new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-blot-formatter.min.js", Location = ResourceLocation.Body },
-        new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-interop.js", Location = ResourceLocation.Body }
+        new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/texteditors/quilljs/quill.min.js", Location = ResourceLocation.Body },
+        new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/texteditors/quilljs/quill-blot-formatter.min.js", Location = ResourceLocation.Body },
+        new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/texteditors/quilljs/quill-interop.js", Location = ResourceLocation.Body }
     };
 
     protected override void OnInitialized()
     {
-        _interop = new QuillEditorInterop(JSRuntime);
+        _interop = new QuillJSTextEditorInterop(JSRuntime);
 
         if (string.IsNullOrEmpty(Placeholder))
         {
@@ -277,7 +277,7 @@
 		{
             // include CSS theme
             var interop = new Interop(JSRuntime);
-            await interop.IncludeLink("", "stylesheet", $"{PageState?.Alias.BaseUrl}/css/quill/quill.{_theme}.css", "text/css", "", "", "");
+            await interop.IncludeLink("", "stylesheet", $"{PageState?.Alias.BaseUrl}/css/texteditors/quilljs/quill.{_theme}.css", "text/css", "", "", "");
         }
 
         await base.OnAfterRenderAsync(firstRender);

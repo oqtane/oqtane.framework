@@ -85,8 +85,10 @@ namespace Oqtane.Shared
         public const string DefaultSearchProviderName = "DatabaseSearchProvider";
 
         public static readonly string[] InternalPagePaths = { "login", "register", "reset", "404" };
-        public const string DefaultTextEditor = "Oqtane.Modules.Controls.QuillJSTextEditor, Oqtane.Client";
-        //Obtained from https://cdnjs.com/libraries/bootstrap
+
+        public const string DefaultTextEditor = "Oqtane.Modules.Controls.RadzenTextEditor, Oqtane.Client";
+
+        // obtained from https://cdnjs.com/libraries/bootstrap
         public const string BootstrapScriptUrl = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/js/bootstrap.bundle.min.js";
         public const string BootstrapScriptIntegrity = "sha512-Tc0i+vRogmX4NN7tuLbQfBxa8JkfUSAxSFVzmU31nVdHyiHElPPy2cWfFacmCJKw0VqovrzKhdd2TSTMdAxp2g==";
         public const string BootstrapStylesheetUrl = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css";
