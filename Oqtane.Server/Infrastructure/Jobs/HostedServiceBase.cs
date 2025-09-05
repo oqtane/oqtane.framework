@@ -252,8 +252,8 @@ namespace Oqtane.Infrastructure
                         Job job = jobs.GetJobs().Where(item => item.JobType == jobTypeName).FirstOrDefault();
                         if (job != null)
                         {
-                            // reset in case this job was forcefully terminated previously 
-                            job.IsStarted = true;
+                            // reset in case this job was enabled and forcefully terminated previously
+                            job.IsStarted = job.IsEnabled;
                             job.IsExecuting = false;
                             jobs.UpdateJob(job);
                         }
