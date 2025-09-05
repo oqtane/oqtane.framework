@@ -248,6 +248,22 @@ namespace Oqtane.Controllers
             }
         }
 
+        // GET: api/<controller>/entitynames
+        [HttpGet("entitynames")]
+        [Authorize(Roles = RoleNames.Host)]
+        public IEnumerable<string> GetEntityNames()
+        {
+            return _settings.GetEntityNames();
+        }
+
+        // GET: api/<controller>/entityids?entityname=x
+        [HttpGet("entityids")]
+        [Authorize(Roles = RoleNames.Host)]
+        public IEnumerable<int> GetEntityIds(string entityName)
+        {
+            return _settings.GetEntityIds(entityName);
+        }
+
         // DELETE api/<controller>/clear
         [HttpDelete("clear")]
         [Authorize(Roles = RoleNames.Admin)]
@@ -297,6 +313,7 @@ namespace Oqtane.Controllers
                     }
                     break;
                 case EntityNames.Site:
+                case EntityNames.Role:
                     if (permissionName == PermissionNames.Edit)
                     {
                         authorized = User.IsInRole(RoleNames.Admin);
@@ -326,8 +343,14 @@ namespace Oqtane.Controllers
                     authorized = true;
                     if (permissionName == PermissionNames.Edit)
                     {
-                        authorized = _userPermissions.IsAuthorized(User, _alias.SiteId, entityName, entityId, permissionName) ||
-                            _userPermissions.IsAuthorized(User, _alias.SiteId, entityName, -1, PermissionNames.Write, RoleNames.Admin);
+                        if (entityId == -1)
+                        {
+                            authorized = User.IsInRole(entityName.ToLower().StartsWith("master:") ? RoleNames.Host : RoleNames.Admin);
+                        }
+                        else
+                        {
+                            authorized = _userPermissions.IsAuthorized(User, _alias.SiteId, entityName, entityId, permissionName);
+                        }
                     }
                     break;
             }
@@ -347,6 +370,7 @@ namespace Oqtane.Controllers
                     filter = !User.IsInRole(RoleNames.Host);
                     break;
                 case EntityNames.Site:
+                case EntityNames.Role:
                     filter = !User.IsInRole(RoleNames.Admin);
                     break;
                 case EntityNames.Page:
@@ -365,7 +389,7 @@ namespace Oqtane.Controllers
                     }
                     break;
                 default: // custom entity
-                    filter = !User.IsInRole(RoleNames.Admin) && !_userPermissions.IsAuthorized(User, _alias.SiteId, entityName, entityId, PermissionNames.Edit);
+                    filter = !User.IsInRole(entityName.ToLower().StartsWith("master:") ? RoleNames.Host : RoleNames.Admin) && !_userPermissions.IsAuthorized(User, _alias.SiteId, entityName, entityId, PermissionNames.Edit);
                     break;
             }
             return filter;

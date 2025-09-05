@@ -1,0 +1,122 @@
+@namespace Oqtane.Modules.Admin.Settings
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject ISettingService SettingService
+@inject IStringLocalizer<Edit> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+<form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+    <div class="container">
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="entityName" HelpText="Entity Name" ResourceKey="EntityName">Entity:</Label>
+            <div class="col-sm-9">
+                <input id="entityName" class="form-control" @bind="@_entityName" maxlength="256" disabled />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="entityId" HelpText="Entity Id" ResourceKey="EntityId">Id:</Label>
+            <div class="col-sm-9">
+                <input id="entityId" class="form-control" @bind="@_entityId" maxlength="256" disabled />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="settingName" HelpText="Setting Name" ResourceKey="SettingName">Name:</Label>
+            <div class="col-sm-9">
+                <input id="settingName" class="form-control" @bind="@_settingName" maxlength="256" disabled />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="settingValue" HelpText="Setting Value" ResourceKey="SettingValue">Value:</Label>
+            <div class="col-sm-9">
+                <input id="SettingValue" class="form-control" @bind="@_settingValue" maxlength="256" />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="isPrivate" HelpText="Private" ResourceKey="IsPrivate">Private?</Label>
+            <div class="col-sm-9">
+                <select id="isPrivate" class="form-select" @bind="@_isPrivate">
+                    <option value="True">@SharedLocalizer["Yes"]</option>
+                    <option value="False">@SharedLocalizer["No"]</option>
+                </select>
+            </div>
+        </div>
+        <br /><br />
+        <button type="button" class="btn btn-success" @onclick="SaveSetting">@SharedLocalizer["Save"]</button>
+        <NavLink class="btn btn-secondary" href="@PageState.ReturnUrl">@SharedLocalizer["Cancel"]</NavLink>
+        <br /><br />
+        <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
+    </div>
+</form>
+
+@code {
+    private ElementReference form;
+    private bool validated = false;
+
+    private int _settingId;
+    private string _entityName;
+    private string _entityId;
+    private string _settingName;
+    private string _settingValue;
+    private string _isPrivate;
+    private string _createdby;
+    private DateTime _createdon;
+    private string _modifiedby;
+    private DateTime _modifiedon;
+
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _settingId = int.Parse(PageState.QueryString["id"]);
+        _entityName = PageState.QueryString["entity"];
+
+        try
+        {
+            var setting = await SettingService.GetSettingAsync(_entityName, _settingId);
+            if (setting != null)
+            {
+                _entityId = setting.EntityId.ToString();
+                _settingName = setting.SettingName;
+                _settingValue = setting.SettingValue;
+                _isPrivate = setting.IsPrivate.ToString();
+                _createdby = setting.CreatedBy;
+                _createdon = setting.CreatedOn;
+                _modifiedby = setting.ModifiedBy;
+                _modifiedon = setting.ModifiedOn;
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Setting {SettingId} {Error}", _settingId, ex.Message);
+            AddModuleMessage(Localizer["Error.LoadSetting"], MessageType.Error);
+        }
+    }
+
+    private async Task SaveSetting()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
+        {
+            var setting = await SettingService.GetSettingAsync(_entityName, _settingId);
+            setting.SettingValue = _settingValue;
+            setting.IsPrivate = (_isPrivate != null && Boolean.Parse(_isPrivate));
+
+            try
+            {
+                setting = await SettingService.UpdateSettingAsync(setting);
+                await logger.LogInformation("Setting Saved {Setting}", setting);
+                NavigationManager.NavigateTo(PageState.ReturnUrl);
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Saving Setting {Setting} {Error}", setting, ex.Message);
+                AddModuleMessage(Localizer["Error.SaveSetting"], MessageType.Error);
+            }
+        }
+        else
+        {
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+        }
+    }
+}
