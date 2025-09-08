@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
 using System.IO;
 using System.Text.RegularExpressions;
+using Oqtane.Migrations.Tenant;
 
 namespace Oqtane.Controllers
 {
@@ -269,11 +270,13 @@ namespace Oqtane.Controllers
         // POST api/<controller>/import?settings=x
         [HttpPost("import")]
         [Authorize(Roles = RoleNames.Host)]
-        public bool Import(string settings)
+        public Result Import([FromBody] Result settings)
         {
-            if (!string.IsNullOrEmpty(settings))
+            if (ModelState.IsValid && !string.IsNullOrEmpty(settings.Message))
             {
-                using (StringReader reader = new StringReader(settings))
+                int rows = 0;
+
+                using (StringReader reader = new StringReader(settings.Message))
                 {
                     // regex to split by comma - ignoring commas within double quotes
                     string pattern = ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
@@ -316,17 +319,23 @@ namespace Oqtane.Controllers
                                 setting.IsPrivate = isPrivate;
                                 _settings.UpdateSetting(setting);
                             }
+                            rows++;
                         }
                     }
                 }
 
-                return true;
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Settings Imported {Settings}", settings.Message);
+                settings.Message = $"{rows} Settings Imported";
+                settings.Success = true;
+                return settings;
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Settings Import Attempt {Settings}", settings);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Settings Import Attempt {Settings}", settings.Message);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                return false;
+                settings.Message = "";
+                settings.Success = false;
+                return settings;
             }
         }
 

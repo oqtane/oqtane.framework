@@ -31,8 +31,8 @@
             if (!string.IsNullOrEmpty(_settings))
             {
                 ShowProgressIndicator();
-                var success = await SettingService.ImportSettingsAsync(_settings);
-                if (success)
+                var result = await SettingService.ImportSettingsAsync(new Result { Message = _settings });
+                if (result.Success)
                 {
                     AddModuleMessage(Localizer["Message.Import.Success"], MessageType.Success);
                 }
