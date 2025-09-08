@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Oqtane.Controllers
 {
@@ -262,6 +264,70 @@ namespace Oqtane.Controllers
         public IEnumerable<int> GetEntityIds(string entityName)
         {
             return _settings.GetEntityIds(entityName);
+        }
+
+        // POST api/<controller>/import?settings=x
+        [HttpPost("import")]
+        [Authorize(Roles = RoleNames.Host)]
+        public bool Import(string settings)
+        {
+            if (!string.IsNullOrEmpty(settings))
+            {
+                using (StringReader reader = new StringReader(settings))
+                {
+                    // regex to split by comma - ignoring commas within double quotes
+                    string pattern = ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
+                    string row;
+
+                    while ((row = reader.ReadLine()) != null)
+                    {
+                        List<string> cols = new List<string>();
+                        string col = "";
+                        int startIndex = 0;
+
+                        MatchCollection matches = Regex.Matches(row, pattern);
+                        foreach (Match match in matches)
+                        {
+                            col = row.Substring(startIndex, match.Index - startIndex);
+                            if (col.StartsWith("\"") && col.EndsWith("\""))
+                            {
+                               col = col.Substring(1, col.Length - 2).Replace("\"\"", "\"");
+                            }
+                            cols.Add(col.Trim());
+                            startIndex = match.Index + match.Length;
+                        }
+                        col = row.Substring(startIndex);
+                        if (col.StartsWith("\"") && col.EndsWith("\""))
+                        {
+                            col = col.Substring(1, col.Length - 2).Replace("\"\"", "\"");
+                        }
+                        cols.Add(col.Trim());
+
+                        if (cols.Count == 5 && cols[0].ToLower() != "entity" && int.TryParse(cols[1], out int entityId) && bool.TryParse(cols[4], out bool isPrivate))
+                        {
+                            var setting = _settings.GetSetting(cols[0], entityId, cols[2]);
+                            if (setting == null)
+                            {
+                                _settings.AddSetting(new Setting { EntityName = cols[0], EntityId = entityId, SettingName = cols[2], SettingValue = cols[3], IsPrivate = isPrivate });
+                            }
+                            else
+                            {
+                                setting.SettingValue = cols[3];
+                                setting.IsPrivate = isPrivate;
+                                _settings.UpdateSetting(setting);
+                            }
+                        }
+                    }
+                }
+
+                return true;
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Settings Import Attempt {Settings}", settings);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return false;
+            }
         }
 
         // DELETE api/<controller>/clear
