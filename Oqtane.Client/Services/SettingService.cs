@@ -258,7 +258,7 @@ namespace Oqtane.Services
         /// </summary>
         /// <param name="settings"></param>
         /// <returns></returns>
-        Task<bool> ImportSettingsAsync(string settings);
+        Task<Result> ImportSettingsAsync(Result settings);
 
         /// <summary>
         /// Gets the value of the given settingName (key) from the given key-value dictionary 
@@ -524,9 +524,9 @@ namespace Oqtane.Services
             return await GetJsonAsync<List<int>>($"{Apiurl}/entityids?entityname={entityName}");
         }
 
-        public async Task<bool> ImportSettingsAsync(string settings)
+        public async Task<Result> ImportSettingsAsync(Result settings)
         {
-            return await PostJsonAsync<bool>($"{Apiurl}/import?settings={settings}", true);
+            return await PostJsonAsync<Result>($"{Apiurl}/import", settings);
         }
 
         public string GetSetting(Dictionary<string, string> settings, string settingName, string defaultValue)
