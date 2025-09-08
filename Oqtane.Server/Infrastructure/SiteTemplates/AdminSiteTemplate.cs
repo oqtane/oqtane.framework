@@ -833,6 +833,34 @@ namespace Oqtane.Infrastructure.SiteTemplates
                     }
                 }
             });
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Setting Management",
+                Parent = "Admin",
+                Order = 67,
+                Path = "admin/settings",
+                Icon = Icons.Cog,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                PermissionList = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, RoleNames.Host, true),
+                    new Permission(PermissionNames.Edit, RoleNames.Host, true)
+                },
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Settings.Index).ToModuleDefinitionName(), Title = "Setting Management", Pane = PaneNames.Default,
+                        PermissionList = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, RoleNames.Host, true),
+                            new Permission(PermissionNames.Edit, RoleNames.Host, true)
+                        },
+                        Content = ""
+                    }
+                }
+            });
 
             return pageTemplates;
         }
