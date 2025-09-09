@@ -20,7 +20,7 @@ rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\runtimes\iossimulator-ar
 rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\runtimes\iossimulator-x64"
 rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\runtimes\iossimulator-x86"
 setlocal ENABLEDELAYEDEXPANSION
-set retain=Placeholder.txt
+set retain=Radzen.Blazor
 for /D %%i in ("..\Oqtane.Server\bin\Release\net9.0\publish\wwwroot\_content\*") do (
 set /A found=0
 for %%j in (%retain%) do (
