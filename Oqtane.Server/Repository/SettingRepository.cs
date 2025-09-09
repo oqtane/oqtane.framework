@@ -1,9 +1,14 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
+using Oqtane.Modules.Admin.Users;
 using Oqtane.Shared;
 
 namespace Oqtane.Repository
@@ -19,6 +24,9 @@ namespace Oqtane.Repository
         Setting GetSetting(string entityName, int entityId, string settingName);
         void DeleteSetting(string entityName, int settingId);
         void DeleteSettings(string entityName, int entityId);
+        IEnumerable<string> GetEntityNames();
+        IEnumerable<int> GetEntityIds(string entityName);
+
         string GetSettingValue(IEnumerable<Setting> settings, string settingName, string defaultValue);
         string GetSettingValue(string entityName, int entityId, string settingName, string defaultValue);
     }
@@ -190,6 +198,18 @@ namespace Oqtane.Repository
             ManageCache(entityName);
         }
 
+        public IEnumerable<string> GetEntityNames()
+        {
+            using var db = _tenantContextFactory.CreateDbContext();
+            return db.Setting.Select(item => item.EntityName).Distinct().OrderBy(item => item).ToList();
+        }
+        public IEnumerable<int> GetEntityIds(string entityName)
+        {
+            using var db = _tenantContextFactory.CreateDbContext();
+            return db.Setting.Where(item => item.EntityName == entityName)
+                .Select(item => item.EntityId).Distinct().OrderBy(item => item).ToList();
+        }
+
         public string GetSettingValue(IEnumerable<Setting> settings, string settingName, string defaultValue)
         {
             var setting = settings.FirstOrDefault(item => item.SettingName == settingName);
@@ -218,7 +238,9 @@ namespace Oqtane.Repository
 
         private bool IsMaster(string EntityName)
         {
-            return (EntityName == EntityNames.ModuleDefinition || EntityName == EntityNames.Host);
+            return EntityName == EntityNames.Host || EntityName == EntityNames.Job ||
+                EntityName == EntityNames.ModuleDefinition || EntityName == EntityNames.Theme ||
+                EntityName.ToLower().StartsWith("master:");
         }
 
         private void ManageCache(string EntityName)

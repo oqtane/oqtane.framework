@@ -56,7 +56,7 @@
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="options" HelpText="A comma delimited list of options the user can select from" ResourceKey="Options">Options: </Label>
+            <Label Class="col-sm-3" For="options" HelpText="A comma delimited list of options. Options can contain a key and value if they are seperated by a colon (ie. key:value). You can also dynamically load your options from custom Settings (ie. 'EntityName:Countries')." ResourceKey="Options">Options: </Label>
             <div class="col-sm-9">
                 <input id="options" class="form-control" @bind="@_options" maxlength="2000" />
             </div>

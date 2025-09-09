@@ -71,25 +71,42 @@ namespace Oqtane.Infrastructure
             {
                 try
                 {
-                    // iterate through files
+                    // open nupkg as zip archive
                     using (ZipArchive archive = ZipFile.OpenRead(packagename))
                     {
+                        string id = "";
                         string frameworkversion = "";
+
                         // locate nuspec
                         foreach (ZipArchiveEntry entry in archive.Entries)
                         {
                             if (entry.FullName.ToLower().EndsWith(".nuspec"))
                             {
                                 // open nuspec
-                                XmlTextReader reader = new XmlTextReader(entry.Open());
+                                var reader = new XmlTextReader(entry.Open());
                                 reader.Namespaces = false; // remove namespace
-                                XmlDocument doc = new XmlDocument();
+                                var doc = new XmlDocument();
                                 doc.Load(reader);
-                                // get framework dependency
-                                XmlNode node = doc.SelectSingleNode("/package/metadata/dependencies/dependency[@id='Oqtane.Framework']");
+                                // get id
+                                var node = doc.SelectSingleNode("/package/metadata/id");
+                                if (node != null)
+                                {
+                                    id = node.InnerText;
+                                }
+                                // get minimum framework version using packageType
+                                node = doc.SelectSingleNode("/package/metadata/packageTypes/packageType[@name='Oqtane.Framework']");
                                 if (node != null)
                                 {
                                     frameworkversion = node.Attributes["version"].Value;
+                                }
+                                if (string.IsNullOrEmpty(frameworkversion))
+                                {
+                                    // legacy packages used the dependency metadata
+                                    node = doc.SelectSingleNode("/package/metadata/dependencies/dependency[@id='Oqtane.Framework']");
+                                    if (node != null)
+                                    {
+                                        frameworkversion = node.Attributes["version"].Value;
+                                    }
                                 }
                                 reader.Close();
                                 break;
@@ -109,13 +126,16 @@ namespace Oqtane.Infrastructure
                                 string filename = "";
 
                                 // evaluate entry root folder
-                                switch (entry.FullName.Split('/')[0])
+                                switch (entry.FullName.Split('/')[0].ToLower())
                                 {
                                     case "lib": // lib/net*/...
                                         filename = ExtractFile(entry, binPath, 2);
                                         break;
                                     case "wwwroot": // wwwroot/...
                                         filename = ExtractFile(entry, webRootPath, 1);
+                                        break;
+                                    case "staticwebassets": // staticwebassets/...
+                                        filename = ExtractFile(entry, Path.Combine(webRootPath, Path.Combine("_content", id)), 1);
                                         break;
                                     case "runtimes": // runtimes/name/...
                                         filename = ExtractFile(entry, binPath, 0);

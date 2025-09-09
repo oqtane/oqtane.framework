@@ -1,0 +1,226 @@
+@namespace Oqtane.Modules.Admin.Settings
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject ISettingService SettingService
+@inject IStringLocalizer<Edit> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+<form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+    <div class="container">
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="entityName" HelpText="Entity Name" ResourceKey="EntityName">Entity:</Label>
+            <div class="col-sm-9">
+                <div class="input-group">
+                    @if (_entityNameElement == "input")
+                    {
+                        <input id="entityName" class="form-control" @bind="@_entityName" maxlength="256" required />
+                    }
+                    else
+                    {
+                        <select class="form-select custom-select" value="@_entityName" @onchange="(e => EntityNameChanged(e))">
+                            <option value="-">&lt;@Localizer["Select Entity"]&gt;</option>
+                            @foreach (var entityName in _entityNames)
+                            {
+                                <option value="@entityName">@entityName</option>
+                            }
+                        </select>
+                    }
+                    <button type="button" class="btn btn-secondary" @onclick="@EntityNameClicked" tabindex="-1">@_entityNameTitle</button>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="entityId" HelpText="Entity Id" ResourceKey="EntityId">Id:</Label>
+            <div class="col-sm-9">
+                <div class="input-group">
+                    @if (_entityIdElement == "input")
+                    {
+                        <input id="entityId" class="form-control" @bind="@_entityId" maxlength="256" required />
+                    }
+                    else
+                    {
+                        <select class="form-select custom-select" @bind="@_entityId">
+                            <option value="-">&lt;@Localizer["Select Id"]&gt;</option>
+                            @foreach (var entityId in _entityIds)
+                            {
+                                <option value="@entityId">@entityId</option>
+                            }
+                        </select>
+                    }
+                    <button type="button" class="btn btn-secondary" @onclick="@EntityIdClicked" tabindex="-1">@_entityIdTitle</button>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="settingName" HelpText="Setting Name" ResourceKey="SettingName">Name:</Label>
+            <div class="col-sm-9">
+                <input id="settingName" class="form-control" @bind="@_settingName" maxlength="256" required />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="settingValue" HelpText="Setting Value" ResourceKey="SettingValue">Value:</Label>
+            <div class="col-sm-9">
+                <input id="SettingValue" class="form-control" @bind="@_settingValue" maxlength="256" />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="isPrivate" HelpText="Private" ResourceKey="IsPrivate">Private?</Label>
+            <div class="col-sm-9">
+                <select id="isPrivate" class="form-select" @bind="@_isPrivate">
+                    <option value="True">@SharedLocalizer["Yes"]</option>
+                    <option value="False">@SharedLocalizer["No"]</option>
+                </select>
+            </div>
+        </div>
+        <br /><br />
+        <button type="button" class="btn btn-success" @onclick="SaveSetting">@SharedLocalizer["Save"]</button>
+        <NavLink class="btn btn-secondary" href="@PageState.ReturnUrl">@SharedLocalizer["Cancel"]</NavLink>
+    </div>
+</form>
+
+@code {
+    private ElementReference form;
+    private bool validated = false;
+
+    private string _entityName = "-";
+    private List<string> _entityNames = new List<string>();
+    private string _entityNameElement = "select";
+    private string _entityNameTitle = "";
+    private string _entityId = "-";
+    private List<int> _entityIds = new List<int>();
+    private string _entityIdElement = "select";
+    private string _entityIdTitle = "";
+    private string _settingName = "";
+    private string _settingValue = "";
+    private string _isPrivate = "True";
+
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _entityNameTitle = Localizer["Input"];
+            _entityIdTitle = Localizer["Input"];
+
+            // default entity names
+            _entityNames.Add(EntityNames.Host);
+            _entityNames.Add(EntityNames.Job);
+            _entityNames.Add(EntityNames.ModuleDefinition);
+            _entityNames.Add(EntityNames.Theme);
+            _entityNames.Add(EntityNames.Tenant);
+            _entityNames.Add(EntityNames.Site);
+            _entityNames.Add(EntityNames.Role);
+            _entityNames.Add(EntityNames.Page);
+            _entityNames.Add(EntityNames.Module);
+            _entityNames.Add(EntityNames.Folder);
+            _entityNames.Add(EntityNames.User);
+            _entityNames.Add(EntityNames.Visitor);
+
+            // custom entity names
+            var entityNames = await SettingService.GetEntityNamesAsync();
+            foreach (var entityName in entityNames)
+            {
+                if (!_entityNames.Contains(entityName))
+                {
+                    _entityNames.Add(entityName);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Setting {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.LoadSetting"], MessageType.Error);
+        }
+    }
+
+    private void EntityNameClicked()
+    {
+        if (_entityNameElement == "select")
+        {
+            _entityName = "";
+            _entityNameElement = "input";
+            _entityNameTitle = Localizer["Select"];
+            _entityId = "";
+            _entityIdElement = "input";
+            _entityIdTitle = Localizer["Select"];
+        }
+        else
+        {
+            _entityName = "-";
+            _entityNameElement = "select";
+            _entityNameTitle = Localizer["Input"];
+        }
+    }
+
+    private void EntityIdClicked()
+    {
+        if (_entityIdElement == "select")
+        {
+            _entityId = "";
+            _entityIdElement = "input";
+            _entityIdTitle = Localizer["Select"];
+        }
+        else
+        {
+            _entityId = "-";
+            _entityIdElement = "select";
+            _entityIdTitle = Localizer["Input"];
+        }
+    }
+
+    private async void EntityNameChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            _entityName = e.Value.ToString();
+            _entityId = "-";
+            _entityIdElement = "select";
+            _entityIdTitle = Localizer["Input"];
+            if (_entityName != "-")
+            {
+                _entityIds = await SettingService.GetEntityIdsAsync(_entityName);
+            }
+            else
+            {
+                _entityIds = new List<int>();
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error On EntityNameChanged");
+        }
+    }
+
+    private async Task SaveSetting()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form) && _entityName != "-" && int.TryParse(_entityId, out int entityId))
+        {
+            var setting = new Setting();
+            setting.EntityName = _entityName;
+            setting.EntityId = entityId;
+            setting.SettingName = _settingName;
+            setting.SettingValue = _settingValue;
+            setting.IsPrivate = (bool.Parse(_isPrivate));
+
+            try
+            {
+                setting = await SettingService.AddSettingAsync(setting);
+                await logger.LogInformation("Setting Saved {Setting}", setting);
+                NavigationManager.NavigateTo(PageState.ReturnUrl);
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Saving Setting {Setting} {Error}", setting, ex.Message);
+                AddModuleMessage(Localizer["Error.SaveSetting"], MessageType.Error);
+            }
+        }
+        else
+        {
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+        }
+    }
+}

@@ -646,8 +646,6 @@
             var typename = "";
             if (module.ModuleDefinition != null)
             {
-                resources = AddResources(resources, module.ModuleDefinition.Resources, ResourceLevel.Module, alias, "Modules", Utilities.GetTypeName(module.ModuleDefinition.ModuleDefinitionName), module.ModuleDefinition.Fingerprint, site.RenderMode);
-
                 // handle default action
                 if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
                 {
@@ -692,7 +690,11 @@
                 var moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
                 if (moduleobject != null)
                 {
-                    resources = AddResources(resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, module.ModuleDefinition?.Fingerprint, site.RenderMode);
+                    if (module.ModuleDefinition != null)
+                    {
+                        resources = AddResources(resources, module.ModuleDefinition.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, module.ModuleDefinition.Fingerprint, moduleobject.RenderMode);
+                    }
+                    resources = AddResources(resources, moduleobject.Resources, ResourceLevel.Module, alias, "Modules", moduletype.Namespace, module.ModuleDefinition?.Fingerprint, moduleobject.RenderMode);
 
                     // settings components are dynamically loaded within the framework Settings module
                     if (action.ToLower() == "settings" && module.ModuleDefinition != null)

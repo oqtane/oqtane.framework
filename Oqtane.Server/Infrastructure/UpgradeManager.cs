@@ -87,6 +87,9 @@ namespace Oqtane.Infrastructure
                     case "6.1.5":
                         Upgrade_6_1_5(tenant, scope);
                         break;
+                    case "6.2.0":
+                        Upgrade_6_2_0(tenant, scope);
+                        break;
                 }
             }
         }
@@ -557,6 +560,43 @@ namespace Oqtane.Infrastructure
             RemoveAssemblies(tenant, assemblies, "6.1.5");
         }
 
+        private void Upgrade_6_2_0(Tenant tenant, IServiceScope scope)
+        {
+            var pageTemplates = new List<PageTemplate>
+            {
+                new PageTemplate
+                {
+                    Update = false,
+                    Name = "Setting Management",
+                    Parent = "Admin",
+                    Order = 67,
+                    Path = "admin/settings",
+                    Icon = Icons.Cog,
+                    IsNavigation = false,
+                    IsPersonalizable = false,
+                    PermissionList = new List<Permission>
+                    {
+                        new Permission(PermissionNames.View, RoleNames.Host, true),
+                        new Permission(PermissionNames.Edit, RoleNames.Host, true)
+                    },
+                    PageTemplateModules = new List<PageTemplateModule>
+                    {
+                        new PageTemplateModule
+                        {
+                            ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Settings.Index).ToModuleDefinitionName(), Title = "Setting Management", Pane = PaneNames.Default,
+                            PermissionList = new List<Permission>
+                            {
+                                new Permission(PermissionNames.View, RoleNames.Host, true),
+                                new Permission(PermissionNames.Edit, RoleNames.Host, true)
+                            },
+                            Content = ""
+                        }
+                    }
+                }
+            };
+
+            AddPagesToSites(scope, tenant, pageTemplates);
+        }
 
         private void AddPagesToSites(IServiceScope scope, Tenant tenant, List<PageTemplate> pageTemplates)
         {

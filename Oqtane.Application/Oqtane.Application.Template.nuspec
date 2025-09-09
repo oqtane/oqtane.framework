@@ -2,18 +2,18 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>Oqtane.Application.Template</id>
-    <version>6.1.5</version>
-    <title>Oqtane Application Solution For Blazor</title>
+    <version>6.2.0</version>
+    <title>Oqtane Application Template For Blazor</title>
     <authors>Shaun Walker</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
-    <icon>Build/icon.png</icon>
+    <icon>icon.png</icon>
     <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
     <description>Oqtane is an open source CMS and Application Framework that provides advanced functionality for developing web, mobile, and desktop applications on .NET. It leverages Blazor to compose a fully dynamic digital experience which can be hosted on Static Blazor, Blazor Server, Blazor WebAssembly, or Blazor Hybrid (via .NET MAUI).</description>
     <language>en-US</language>
     <tags>Web ASP.NET Blazor Oqtane Modular Multi-Tenant "Open Source" "SQL Server" MySQL PostgreSQL SQLite</tags>
-    <readme>AppHost/README.md</readme>
+    <readme>README.md</readme>
     <packageTypes>
       <packageType name="Template" />
     </packageTypes>

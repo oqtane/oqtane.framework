@@ -14,7 +14,7 @@
 <div class="container">
     <div class="row">
         <div class="mx-auto text-center">
-            <img src="oqtane-black.png" />
+            <img src="installer-logo.png" />
             <div style="font-weight: bold">@SharedLocalizer["Version"] @Constants.Version (.NET @Environment.Version.Major)</div>
         </div>
     </div>
@@ -182,7 +182,7 @@
         }
         else
         {
-            _databaseName = "LocalDB";
+            _databaseName = Constants.DefaultDBName;
         }
         LoadDatabaseConfigComponent();
 
@@ -269,8 +269,8 @@
                         SiteName = Constants.DefaultSite,
                         Register = _register,
                         SiteTemplate = _template,
-                        RenderMode = RenderModes.Static,
-                        Runtime = Runtimes.Server
+                        RenderMode = "", // provided by appsettings.json
+                        Runtime = "" // provided by appsettings.json
                     };
 
                 var installation = await InstallationService.Install(config);

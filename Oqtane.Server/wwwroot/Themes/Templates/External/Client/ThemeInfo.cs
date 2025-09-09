@@ -16,11 +16,10 @@ namespace [Owner].Theme.[Theme]
             ContainerSettingsType = "[Owner].Theme.[Theme].ContainerSettings, [Owner].Theme.[Theme].Client.Oqtane",
             Resources = new List<Resource>()
             {
-		        // obtained from https://cdnjs.com/libraries
-                new StyleSheet(Constants.BootstrapStylesheetUrl, Constants.BootstrapStylesheetIntegrity, "anonymous"),
-                new Resource { ResourceType = ResourceType.Stylesheet, Url = "~/Theme.css" },
+		// obtained from https://cdnjs.com/libraries
+                new Stylesheet(Constants.BootstrapStylesheetUrl, Constants.BootstrapStylesheetIntegrity, "anonymous"),
+                new Stylesheet("_content/[Owner].Theme.[Theme]/Theme.css"),
                 new Script(Constants.BootstrapScriptUrl, Constants.BootstrapScriptIntegrity, "anonymous")
-
             }
         };
 

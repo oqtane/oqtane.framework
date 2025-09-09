@@ -16,8 +16,8 @@ namespace Oqtane.Application.MyTheme
             ContainerSettingsType = "Oqtane.Application.MyTheme.ContainerSettings, Oqtane.Application.Client.Oqtane",
             Resources = new List<Resource>()
             {
-                new Script(Constants.BootstrapStylesheetUrl, Constants.BootstrapStylesheetIntegrity, "anonymous"),
-                new Resource { ResourceType = ResourceType.Stylesheet, Url = "~/Theme.css" },
+                new Stylesheet(Constants.BootstrapStylesheetUrl, Constants.BootstrapStylesheetIntegrity, "anonymous"),
+                new Stylesheet("~/Theme.css"),
                 new Script(Constants.BootstrapScriptUrl, Constants.BootstrapScriptIntegrity, "anonymous")
             }
         };

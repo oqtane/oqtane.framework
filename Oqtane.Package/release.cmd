@@ -1,12 +1,12 @@
 del "*.nupkg"
 del "*.zip"
+rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish"
 dotnet clean -c Release ..\Oqtane.sln 
 dotnet build -c Release ..\Oqtane.sln
 nuget.exe pack Oqtane.Client.nuspec
 nuget.exe pack Oqtane.Server.nuspec
 nuget.exe pack Oqtane.Shared.nuspec                  
 nuget.exe pack Oqtane.Framework.nuspec
-rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish"
 dotnet publish ..\Oqtane.Server\Oqtane.Server.csproj /p:Configuration=Release
 rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\Content"
 rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\wwwroot\Content"
@@ -20,7 +20,7 @@ rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\runtimes\iossimulator-ar
 rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\runtimes\iossimulator-x64"
 rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish\runtimes\iossimulator-x86"
 setlocal ENABLEDELAYEDEXPANSION
-set retain=Placeholder.txt
+set retain=Radzen.Blazor
 for /D %%i in ("..\Oqtane.Server\bin\Release\net9.0\publish\wwwroot\_content\*") do (
 set /A found=0
 for %%j in (%retain%) do (
@@ -55,6 +55,5 @@ dotnet clean -c Release ..\Oqtane.Updater.sln
 dotnet build -c Release ..\Oqtane.Updater.sln
 dotnet publish ..\Oqtane.Updater\Oqtane.Updater.csproj /p:Configuration=Release
 nuget.exe pack Oqtane.Updater.nuspec
-nuget.exe pack ..\Oqtane.Application\Oqtane.Application.Template.nuspec
 pause 
 

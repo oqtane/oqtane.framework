@@ -35,7 +35,7 @@
 
     public override List<Resource> Resources => new List<Resource>()
     {
-        new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" }
+        new Stylesheet("_content/[Owner].Module.[Module]/Module.css")
     };
 
     private ElementReference form;

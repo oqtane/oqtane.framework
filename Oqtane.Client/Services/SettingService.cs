@@ -241,6 +241,26 @@ namespace Oqtane.Services
         Task DeleteSettingAsync(string entityName, int settingId);
 
         /// <summary>
+        /// Gets list of unique entity names
+        /// </summary>
+        /// <returns></returns>
+        Task<List<string>> GetEntityNamesAsync();
+
+        /// <summary>
+        /// Gets a list of unique entity IDs for the given entity name
+        /// </summary>
+        /// <param name="entityName"></param>
+        /// <returns></returns>
+        Task<List<int>> GetEntityIdsAsync(string entityName);
+
+        /// <summary>
+        /// Imports a list of settings
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <returns></returns>
+        Task<Result> ImportSettingsAsync(Result settings);
+
+        /// <summary>
         /// Gets the value of the given settingName (key) from the given key-value dictionary 
         /// </summary>
         /// <param name="settings"></param>
@@ -494,6 +514,20 @@ namespace Oqtane.Services
             await DeleteAsync($"{Apiurl}/{settingId}/{entityName}");
         }
 
+        public async Task<List<string>> GetEntityNamesAsync()
+        {
+            return await GetJsonAsync<List<string>>($"{Apiurl}/entitynames");
+        }
+
+        public async Task<List<int>> GetEntityIdsAsync(string entityName)
+        {
+            return await GetJsonAsync<List<int>>($"{Apiurl}/entityids?entityname={entityName}");
+        }
+
+        public async Task<Result> ImportSettingsAsync(Result settings)
+        {
+            return await PostJsonAsync<Result>($"{Apiurl}/import", settings);
+        }
 
         public string GetSetting(Dictionary<string, string> settings, string settingName, string defaultValue)
         {
