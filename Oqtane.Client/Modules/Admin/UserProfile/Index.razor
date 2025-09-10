@@ -124,7 +124,6 @@
                                         @if (!string.IsNullOrEmpty(p.Autocomplete))
                                         {
                                             <select id="@p.Name" class="form-select" @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete">
-                                                <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
                                                 @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                                                 {
                                                     var values = option.Split(':');
@@ -144,7 +143,6 @@
                                         else
                                         {
                                             <select id="@p.Name" class="form-select" @onchange="@(e => ProfileChanged(e, p.Name))">
-                                                <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
                                                 @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                                                 {
                                                     var values = option.Split(':');
@@ -417,7 +415,8 @@
                 if (profile.Options.ToLower().StartsWith("entityname:"))
                 {
                     var options = await SettingService.GetSettingsAsync(profile.Options.Substring(11), -1);
-                    profile.Options = string.Join(",", options.Select(kvp => $"{kvp.Key}:{kvp.Value}"));
+                    options.Add("", $"<{SharedLocalizer["Not Specified"]}>");
+                    profile.Options = string.Join(",", options.OrderBy(item => item.Value).Select(kvp => $"{kvp.Key}:{kvp.Value}"));
                 }
             }
             _timezones = TimeZoneService.GetTimeZones();
