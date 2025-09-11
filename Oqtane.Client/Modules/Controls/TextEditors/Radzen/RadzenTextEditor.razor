@@ -161,7 +161,7 @@
     {
         await editor.SaveSelectionAsync();
 
-        var result = await DialogService.OpenAsync<FileManagerDialog>(Localizer["DialogTitle.SelectImage"], new Dictionary<string, object>
+        var result = await DialogService.OpenAsync<RadzenFileManagerDialog>(Localizer["DialogTitle.SelectImage"], new Dictionary<string, object>
         {
             { "Filters", PageState.Site.ImageFiles }
         });
