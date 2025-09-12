@@ -12,7 +12,7 @@
     "type": "project"
   },
   "identity": "Oqtane.Application.Template",
-  "name": "Oqtane Application Solution For Blazor",
+  "name": "Oqtane Application Template For Blazor",
   "shortName": "oqtane-app",
   "sourceName": "Oqtane.Application",
   "preferNameDirectory": true
