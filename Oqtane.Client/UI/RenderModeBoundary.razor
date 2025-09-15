@@ -12,7 +12,7 @@
             {
                 @if (!string.IsNullOrEmpty(_messageContent) && _messagePosition == "top")
                 {
-                    <ModuleMessage Message="@_messageContent" Type="@_messageType" Parent="@this" />
+                    <ModuleMessage Message="@_messageContent" Type="@_messageType" Parent="@this" Action="@_action" />
                 }
                 @DynamicComponent
                 @if (_progressIndicator)
@@ -21,7 +21,7 @@
                 }
                 @if (!string.IsNullOrEmpty(_messageContent) && _messagePosition == "bottom")
                 {
-                    <ModuleMessage Message="@_messageContent" Type="@_messageType" Parent="@this" />
+                    <ModuleMessage Message="@_messageContent" Type="@_messageType" Parent="@this" Action="@_action" />
                 }
             }
         }
@@ -45,6 +45,7 @@
     private string _messageContent;
     private MessageType _messageType;
     private string _messagePosition;
+    private string _action;
     private bool _progressIndicator = false;
     private string _error;
 
@@ -105,13 +106,22 @@
 
     public void AddModuleMessage(string message, MessageType type, string position)
     {
-        if (message != _messageContent
-            || type != _messageType
-            || position != _messagePosition)
+        AddModuleMessage(message, type, "top", "");
+    }
+
+    public void AddModuleMessage(string message, string action, MessageType type)
+    {
+        AddModuleMessage(message, type, "top", action);
+    }
+
+    public void AddModuleMessage(string message, MessageType type, string position, string action)
+    {
+        if (message != _messageContent || type != _messageType || position != _messagePosition || action != _action)
         {
             _messageContent = message;
             _messageType = type;
             _messagePosition = position;
+            _action = action;
             _progressIndicator = false;
 
             StateHasChanged();
