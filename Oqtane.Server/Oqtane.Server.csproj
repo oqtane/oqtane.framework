@@ -21,6 +21,7 @@
     <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
     <CompressionEnabled>false</CompressionEnabled>
     <StaticWebAssetsFingerprintContent>false</StaticWebAssetsFingerprintContent>
+    <StaticWebAssetBasePath>/</StaticWebAssetBasePath>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="wwwroot\Modules\Templates\**" />

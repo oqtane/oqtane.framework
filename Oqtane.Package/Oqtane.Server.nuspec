@@ -50,6 +50,12 @@
   <files>
     <file src="..\Oqtane.Server\bin\Release\net9.0\Oqtane.Server.dll" target="lib\net9.0" /> 
     <file src="..\Oqtane.Server\bin\Release\net9.0\Oqtane.Server.pdb" target="lib\net9.0" /> 
+    <file src="..\Oqtane.Server\obj\Release\net9.0\staticwebassets\msbuild.Oqtane.Server.Microsoft.AspNetCore.StaticWebAssetEndpoints.props" target="build\Microsoft.AspNetCore.StaticWebAssetEndpoints.props" />
+    <file src="..\Oqtane.Server\obj\Release\net9.0\staticwebassets\msbuild.Oqtane.Server.Microsoft.AspNetCore.StaticWebAssets.props" target="build\Microsoft.AspNetCore.StaticWebAssets.props" />
+    <file src="..\Oqtane.Server\obj\Release\net9.0\staticwebassets\msbuild.build.Oqtane.Server.props" target="build\Oqtane.Server.props" />
+    <file src="..\Oqtane.Server\obj\Release\net9.0\staticwebassets\msbuild.buildMultiTargeting.Oqtane.Server.props" target="buildMultiTargeting\Oqtane.Server.props" />
+    <file src="..\Oqtane.Server\obj\Release\net9.0\staticwebassets\msbuild.buildTransitive.Oqtane.Server.props" target="buildTransitive\Oqtane.Server.props" />
+    <file src="..\Oqtane.Server\wwwroot\**\*" target="staticwebassets" />
     <file src="icon.png" target="" />
     <file src="readme.md" target="" />
   </files>
