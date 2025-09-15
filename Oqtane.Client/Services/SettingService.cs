@@ -429,49 +429,20 @@ namespace Oqtane.Services
 
         public async Task UpdateSettingsAsync(Dictionary<string, string> settings, string entityName, int entityId)
         {
-            var settingsList = await GetSettingsAsync(entityName, entityId, "");
+            var settingsList = new List<Setting>();
 
             foreach (KeyValuePair<string, string> kvp in settings)
             {
-                string value = kvp.Value;
-                bool modified = false;
-                bool isprivate = false;
-
-                // manage settings modified with SetSetting method
-                if (value.StartsWith("[Private]"))
-                {
-                    modified = true;
-                    isprivate = true;
-                    value = value.Substring(9);                  
-                }
-                if (value.StartsWith("[Public]"))
-                {
-                    modified = true;
-                    isprivate = false;
-                    value = value.Substring(8);                   
-                }
-
-                Setting setting = settingsList.FirstOrDefault(item => item.SettingName.Equals(kvp.Key, StringComparison.OrdinalIgnoreCase));
-                if (setting == null)
-                {
-                    setting = new Setting();
-                    setting.EntityName = entityName;
-                    setting.EntityId = entityId;
-                    setting.SettingName = kvp.Key;
-                    setting.SettingValue = value;
-                    setting.IsPrivate = isprivate;
-                    setting = await AddSettingAsync(setting);
-                }
-                else
-                {
-                    if (setting.SettingValue != value || (modified && setting.IsPrivate != isprivate))
-                    {
-                        setting.SettingValue = value;
-                        setting.IsPrivate = isprivate;
-                        setting = await UpdateSettingAsync(setting);
-                    }
-                }
+                var setting = new Setting();
+                setting.EntityName = entityName;
+                setting.EntityId = entityId;
+                setting.SettingName = kvp.Key;
+                setting.SettingValue = kvp.Value;
+                setting.IsPrivate = true;
+                settingsList.Add(setting);
             }
+
+            await PutJsonAsync<List<Setting>>($"{Apiurl}/{entityName}/{entityId}", settingsList);
         }
 
         public async Task AddOrUpdateSettingAsync(string entityName, int entityId, string settingName, string settingValue, bool isPrivate)
