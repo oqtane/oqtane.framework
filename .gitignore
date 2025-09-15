@@ -35,4 +35,4 @@ Oqtane.Server/wwwroot/Themes/*
 !Oqtane.Server/wwwroot/Themes/Oqtane.Themes.*
 !Oqtane.Server/wwwroot/Themes/Templates
 Oqtane.Server/wwwroot/Themes/Templates/*
-Oqtane.Server/wwwroot/Themes/Templates/External
+!Oqtane.Server/wwwroot/Themes/Templates/External
