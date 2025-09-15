@@ -379,7 +379,17 @@ namespace Oqtane.Modules
 
         public void AddModuleMessage(string message, MessageType type, string position)
         {
-            RenderModeBoundary.AddModuleMessage(message, type, position);
+            AddModuleMessage(message, type, "top", "");
+        }
+
+        public void AddModuleMessage(string message, string action, MessageType type)
+        {
+            AddModuleMessage(message, type, "top", action);
+        }
+
+        public void AddModuleMessage(string message, MessageType type, string position, string action)
+        {
+            RenderModeBoundary.AddModuleMessage(message, type, position, action);
         }
 
         public void ClearModuleMessage()
