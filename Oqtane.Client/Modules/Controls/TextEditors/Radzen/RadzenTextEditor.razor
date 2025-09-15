@@ -178,7 +178,7 @@
     {
         await editor.SaveSelectionAsync();
 
-        var result = await DialogService.OpenAsync<SettingsDialog>(Localizer["Settings"], null, new DialogOptions { Width = "650px" });
+        var result = await DialogService.OpenAsync<RadzenTextEditorSettingsDialog>(Localizer["Settings"], null, new DialogOptions { Width = "650px" });
         if (result == true)
         {
             NavigationManager.NavigateTo(NavigationManager.Uri);
