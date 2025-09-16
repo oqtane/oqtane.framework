@@ -33,8 +33,10 @@ cd MyCompany.MyProject
 dotnet build
 cd Server
 dotnet run
-browse to http://localhost:5001
 ```
+
+Browse to http://localhost:5001 to run the application (the Install Wizard will be displayed the first time).
+To develop/debug, open the MyCompany.MyProject.sln file in the root folder and hit F5.
 
 **Installing using source code from the Dev/Master branch:**
 
