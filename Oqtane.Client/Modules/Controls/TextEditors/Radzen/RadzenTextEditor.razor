@@ -51,8 +51,8 @@
 
     public override List<Resource> Resources { get; set; } = new List<Resource>()
     {
-        new Resource { ResourceType = ResourceType.Script, Url = "_content/Radzen.Blazor/Radzen.Blazor.js", Location = ResourceLocation.Body },
-        new Resource { ResourceType = ResourceType.Script, Url = "js/texteditors/radzen/radzen-interop.js", Location = ResourceLocation.Body }
+        new Script("_content/Radzen.Blazor/Radzen.Blazor.js"),
+        new Script("js/texteditors/radzen/radzen-interop.js")
     };
 
     protected override void OnInitialized()

@@ -18,7 +18,7 @@ namespace Oqtane.Modules.HtmlText
             SettingsType = "Oqtane.Modules.HtmlText.Settings, Oqtane.Client",
             Resources = new List<Resource>()
             {
-                new Resource { ResourceType = ResourceType.Stylesheet, Url = "~/Module.css" }
+                new Stylesheet("~/Module.css")
             }
         };
     }
