@@ -22,7 +22,19 @@ Microsoft's Public Cloud (requires an Azure account)
 A free ASP.NET hosting account. No hidden fees. No credit card required.  
 [![Deploy to MonsterASP.NET](https://www.oqtane.org/files/Public/MonsterASPNET.png)](https://www.monsterasp.net/) 
 
-# Getting Started (Version 6)
+# Getting Started (Version 6.2+)
+
+**Installing using the Oqtane Application Template:**
+
+```
+dotnet new install Oqtane.Application.Template
+dotnet new oqtane-app -o MyCompany.MyProject 
+cd MyCompany.MyProject
+dotnet build
+cd Server
+dotnet run
+browse to http://localhost:5001
+```
 
 **Installing using source code from the Dev/Master branch:**
 
