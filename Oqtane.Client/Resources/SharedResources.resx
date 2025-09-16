@@ -477,4 +477,7 @@
   <data name="Path" xml:space="preserve">
     <value>Path</value>
   </data>
+  <data name="Installed" xml:space="preserve">
+    <value>Installed</value>
+  </data>
 </root>
