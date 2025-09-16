@@ -4,7 +4,7 @@
 
 @if (!string.IsNullOrEmpty(Message))
 {
-    @if (_action == "Alert")
+    @if (_style == MessageStyle.Alert)
     {
         <div class="@_classname alert-dismissible fade show mb-3" role="alert">
             @((MarkupString)Message)
@@ -26,7 +26,7 @@
         </div>
     }
 
-    @if (_action == "Toast")
+    @if (_style == MessageStyle.Toast)
     {
         <div class="app-modulemessage-toast bottom-0 end-0">
             <div class="@_classname alert-dismissible fade show mb-3" role="alert">
@@ -54,7 +54,7 @@
 @code {
     private string _message = string.Empty;
     private string _classname = string.Empty;
-    private string _action = string.Empty;
+    private MessageStyle _style;
 
     [Parameter]
     public string Message { get; set; }
@@ -63,7 +63,7 @@
     public MessageType Type { get; set; }
 
     [Parameter]
-    public string Action { get; set; } // Alert (default) or Toast
+    public MessageStyle Style { get; set; } = MessageStyle.Alert;
 
     [Parameter]
     public RenderModeBoundary Parent { get; set; }
@@ -74,11 +74,10 @@
         if (!string.IsNullOrEmpty(_message))
         {
             _classname = GetMessageType(Type);
-            _action = Action;
-            if (string.IsNullOrEmpty(_action)) _action = "Toast"; // default
+            _style = Style;
             if (Type == MessageType.Error)
             {
-                _action = "Alert"; // errors should always be displayed as alerts
+                _style = MessageStyle.Alert; // errors should always be displayed as alerts
             }
         }
     }
