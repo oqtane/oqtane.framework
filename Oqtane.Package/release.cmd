@@ -1,7 +1,3 @@
-del "*.nupkg"
-del "*.zip"
-rmdir /Q/S "..\Oqtane.Server\bin\Release\net9.0\publish"
-dotnet clean -c Release ..\Oqtane.sln 
 dotnet build -c Release ..\Oqtane.sln
 nuget.exe pack Oqtane.Client.nuspec
 nuget.exe pack Oqtane.Server.nuspec
@@ -44,7 +40,6 @@ if "%%~nxi" == "%%j" set /A found=1
 )
 if not !found! == 1 rmdir /Q/S "%%i"
 )
-del "..\Oqtane.Server\bin\Release\net9.0\publish\Oqtane.Server.staticwebassets.endpoints.json"
 del "..\Oqtane.Server\bin\Release\net9.0\publish\appsettings.json"
 ren "..\Oqtane.Server\bin\Release\net9.0\publish\appsettings.release.json" "appsettings.json"
 C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe ".\install.ps1"
