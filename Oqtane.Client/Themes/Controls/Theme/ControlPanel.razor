@@ -15,13 +15,13 @@
         <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
         @if (PageState.EditMode)
         {
-            <button type="submit" class="btn @ButtonClass active" aria-pressed="true" autocomplete="off">
+            <button type="submit" class="app-editmode btn @ButtonClass active" aria-pressed="true" autocomplete="off">
                 <span class="oi oi-pencil"></span>
             </button>
         }
         else
         {
-            <button type="submit" class="btn @ButtonClass" aria-pressed="false" autocomplete="off">
+            <button type="submit" class="app-editmode btn @ButtonClass" aria-pressed="false" autocomplete="off">
                 <span class="oi oi-pencil"></span>
             </button>
         }
