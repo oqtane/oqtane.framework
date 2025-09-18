@@ -12,7 +12,7 @@
             {
                 @if (!string.IsNullOrEmpty(_messageContent) && _messagePosition == "top")
                 {
-                    <ModuleMessage Message="@_messageContent" Type="@_messageType" Parent="@this" />
+                    <ModuleMessage Message="@_messageContent" Type="@_messageType" Parent="@this" Style="@_messageStyle" />
                 }
                 @DynamicComponent
                 @if (_progressIndicator)
@@ -21,7 +21,7 @@
                 }
                 @if (!string.IsNullOrEmpty(_messageContent) && _messagePosition == "bottom")
                 {
-                    <ModuleMessage Message="@_messageContent" Type="@_messageType" Parent="@this" />
+                    <ModuleMessage Message="@_messageContent" Type="@_messageType" Parent="@this" Style="@_messageStyle" />
                 }
             }
         }
@@ -45,6 +45,7 @@
     private string _messageContent;
     private MessageType _messageType;
     private string _messagePosition;
+    private MessageStyle _messageStyle;
     private bool _progressIndicator = false;
     private string _error;
 
@@ -87,6 +88,7 @@
                     _messageContent = string.Format(Localizer["Error.Module.InvalidName"], Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0));
                     _messageType = MessageType.Error;
                     _messagePosition = "top";
+                    _messageStyle = MessageStyle.Alert;
                 }
             }
             else
@@ -94,6 +96,7 @@
                 _messageContent = string.Format(Localizer["Error.Module.InvalidType"], ModuleState.ModuleDefinitionName);
                 _messageType = MessageType.Error;
                 _messagePosition = "top";
+                _messageStyle = MessageStyle.Alert;
             }
         }
     }
@@ -105,13 +108,22 @@
 
     public void AddModuleMessage(string message, MessageType type, string position)
     {
-        if (message != _messageContent
-            || type != _messageType
-            || position != _messagePosition)
+        AddModuleMessage(message, type, position, MessageStyle.Alert);
+    }
+
+    public void AddModuleMessage(string message, MessageType type, MessageStyle style)
+    {
+        AddModuleMessage(message, type, "top", style);
+    }
+
+    public void AddModuleMessage(string message, MessageType type, string position, MessageStyle style)
+    {
+        if (message != _messageContent || type != _messageType || position != _messagePosition || style != _messageStyle)
         {
             _messageContent = message;
             _messageType = type;
             _messagePosition = position;
+            _messageStyle = style;
             _progressIndicator = false;
 
             StateHasChanged();

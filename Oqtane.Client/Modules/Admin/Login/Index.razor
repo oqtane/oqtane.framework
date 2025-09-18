@@ -94,7 +94,7 @@ else
 
     public override List<Resource> Resources => new List<Resource>()
     {
-        new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" }
+        new Stylesheet(ModulePath() + "Module.css")
     };
 
     protected override async Task OnInitializedAsync()

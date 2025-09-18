@@ -1,0 +1,22 @@
+.rz-text-editor {
+    outline: none !important;
+}
+
+.rz-html-editor-dropdown-items,
+.rz-popup,
+.rz-editor-dialog-wrapper {
+    z-index: 9999 !important;
+}
+
+.rz-html-editor-dropdown-items .rz-html-editor-dropdown-item,
+.rz-html-editor-dropdown-items .rz-html-editor-dropdown-item > * {
+    color: var(--rz-editor-button-color);
+}
+.rz-text-editor .rz-html-editor-dropdown .rz-html-editor-dropdown-value,
+.rz-text-editor .rz-html-editor-dropdown .rz-html-editor-dropdown-trigger,
+.rz-text-editor .rz-html-editor-colorpicker .rz-html-editor-color {
+    color: var(--rz-editor-button-color);
+}
+.rz-text-editor .rz-colorpicker.rz-state-disabled {
+    border: none !important;
+}

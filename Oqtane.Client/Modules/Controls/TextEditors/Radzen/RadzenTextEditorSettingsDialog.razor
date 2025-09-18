@@ -1,0 +1,222 @@
+@namespace Oqtane.Modules.Controls
+@using System.IO
+@using Radzen
+@using Radzen.Blazor
+@inherits ModuleControlBase
+@inject DialogService DialogService
+@inject Radzen.ThemeService ThemeService
+@inject ISettingService SettingService
+@inject IRadzenEditorSettingService EditorSettingService
+@inject IStringLocalizer<Oqtane.Modules.Controls.RadzenTextEditor> Localizer
+
+<div class="row">
+    <div class="col-12 col-sm-3">
+        @Localizer["Scope"]
+    </div>
+    <div class="col-12 col-sm-9">
+        <RadzenRadioButtonList @bind-Value="@_settingScope" TValue="int" Change="OnScopeChanged">
+            <Items>
+                <RadzenRadioButtonListItem Text="@Localizer["Site"]" Value="0" />
+                <RadzenRadioButtonListItem Text="@Localizer["Module"]" Value="1" />
+            </Items>
+        </RadzenRadioButtonList>
+    </div>
+</div>
+<div class="row mt-2">
+    <div class="col-12 col-sm-3">
+        @Localizer["Theme"]
+    </div>
+    <div class="col-12 col-sm-9">
+        <RadzenDropDown @bind-Value="_theme" TValue="string" Data="@_themes" Style="width: 100%;">
+            <Template>
+                <span>@Localizer[$"theme.{context}"]</span>
+            </Template>
+        </RadzenDropDown>
+    </div>
+</div>
+<div class="row mt-2">
+    <div class="col-12 col-sm-3">
+        @Localizer["Background"]
+    </div>
+    <div class="col-12 col-sm-9">
+        <RadzenDropDown @bind-Value="_background" TValue="string" Data="_backgroundColors" Style="width: 100%;">
+            <Template>
+                <span>@Localizer[context]</span>
+            </Template>
+        </RadzenDropDown>
+    </div>
+</div>
+<div class="row mt-2">
+    <div class="col-12 col-sm-3">
+        @Localizer["Toolbar"]
+    </div>
+    <div class="col-12 col-sm-9">
+        <div class="row">
+            <div class="col-12 col-sm-7">
+                <RadzenDropDown TValue="string" @bind-Value="_addToolbarItem" Data="@RadzenEditorDefinitions.ToolbarItems.Keys" Style="width: 100%;">
+                </RadzenDropDown>
+            </div>
+            <div class="col-12 col-sm-5 text-end">
+                <button type="button" class="btn btn-primary" @onclick="AddToolbarItem">@Localizer["Add"]</button>
+                <button type="button" class="btn btn-secondary" @onclick="ResetToolbarItem">@Localizer["Reset"]</button>
+            </div>
+        </div>
+        <div class="row mt-2" style="max-height: 500px; overflow-y: scroll;">
+            <div class="col">
+                <RadzenDropZoneContainer TItem="ToolbarItem" Data="_toolbarItems"
+                                         ItemSelector="@((i, z) => true)"
+                                         CanDrop="@((i) => true)"
+                                         Drop="OnToolbarItemDrop"
+                                         ItemRender="OnToolbarItemRender">
+                    <ChildContent>
+                        <RadzenDropZone TItem="ToolbarItem" class="rounded">
+                        </RadzenDropZone>
+                    </ChildContent>
+                    <Template>
+                        <div>
+                            <strong>@context.Name</strong>
+                            <RadzenButton Icon="delete" Click="@((e) => DeleteToolbarItem(context))" Size="ButtonSize.ExtraSmall" ButtonStyle="ButtonStyle.Light" />
+                        </div>
+                    </Template>
+                </RadzenDropZoneContainer>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mt-2 text-end">
+    <RadzenButton Text="OK" Click=@OnOkClick />
+    <RadzenButton Text="Cancel" Click=@OnCancelClick ButtonStyle="ButtonStyle.Secondary" />
+</div>
+
+@code {
+    private readonly IList<string> _themes = new List<string>
+    {
+        "default",
+        "dark",
+        "material",
+        "material-dark",
+        "standard",
+        "standard-dark",
+        "humanistic",
+        "humanistic-dark",
+        "software",
+        "software-dark"
+    };
+    private readonly IList<string> _backgroundColors = new List<string> { "Default", "Light", "Dark" };
+
+    private int _settingScope;
+    private string _theme;
+    private string _background;
+    private IList<ToolbarItem> _toolbarItems = new List<ToolbarItem>();
+    private string _addToolbarItem;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _settingScope = await EditorSettingService.GetSettingScopeAsync(ModuleState.ModuleId);
+
+        await LoadSettings();
+    }
+
+    private async Task<RadzenEditorSetting> LoadSettingsFromModule()
+    {
+        return await EditorSettingService.LoadSettingsFromModuleAsync(ModuleState.ModuleId);
+    }
+
+    private async Task<RadzenEditorSetting> LoadSettingsFromSite()
+    {
+        return await EditorSettingService.LoadSettingsFromSiteAsync(PageState.Site.SiteId);
+    }
+
+    private async Task LoadSettings()
+    {
+        var editorSetting = _settingScope == 1 ? await LoadSettingsFromModule() : await LoadSettingsFromSite();
+        _theme = editorSetting.Theme;
+        _background = editorSetting.Background;
+        _toolbarItems = editorSetting.ToolbarItems.Split(',').Select((v, i) =>
+        {
+            return new ToolbarItem { Key = i, Name = v };
+        }).ToList();
+    }
+
+    private async Task OnScopeChanged()
+    {
+        await LoadSettings();
+
+        StateHasChanged();
+    }
+
+    private void AddToolbarItem()
+    {
+        if (!string.IsNullOrEmpty(_addToolbarItem))
+        {
+            _toolbarItems.Add(new ToolbarItem { Key = _toolbarItems.Count, Name = _addToolbarItem });
+            _addToolbarItem = string.Empty;
+
+            StateHasChanged();
+        }
+    }
+
+    private void ResetToolbarItem()
+    {
+        _toolbarItems = RadzenEditorDefinitions.DefaultToolbarItems.Split(',').Select((v, i) =>
+        {
+            return new ToolbarItem { Key = i, Name = v };
+        }).ToList();
+
+        StateHasChanged();
+    }
+
+    private void DeleteToolbarItem(ToolbarItem item)
+    {
+        _toolbarItems.Remove(item);
+
+        StateHasChanged();
+    }
+
+    private void OnCancelClick()
+    {
+        DialogService.Close(false);
+    }
+
+    private async Task OnOkClick()
+    {
+        var editorSetting = new RadzenEditorSetting
+        {
+            Theme =  _theme,
+            Background = _background,
+            ToolbarItems = string.Join(",", _toolbarItems.Select(i => i.Name))
+        };
+        await EditorSettingService.UpdateSettingScopeAsync(ModuleState.ModuleId, _settingScope);
+        if (_settingScope ==  1)
+        {
+            await EditorSettingService.SaveModuleSettingsAsync(ModuleState.ModuleId, editorSetting);
+        }
+        else
+        {
+            await EditorSettingService.SaveSiteSettingsAsync(PageState.Site.SiteId, editorSetting);
+        }
+
+        DialogService.Close(true);
+    }
+
+    private void OnToolbarItemDrop(RadzenDropZoneItemEventArgs<ToolbarItem> args)
+    {
+        if (args.ToItem != null && args.ToItem.Key != args.Item.Key)
+        {
+            _toolbarItems.Remove(args.Item);
+            _toolbarItems.Insert(_toolbarItems.IndexOf(args.ToItem), args.Item);
+        }
+    }
+
+    private void OnToolbarItemRender(RadzenDropZoneItemRenderEventArgs<ToolbarItem> args)
+    {
+        args.Attributes.Add("class", "rz-card rz-variant-flat rz-background-color-primary-lighter rz-color-on-primary-lighter rz-p-2 d-inline-block ms-1 mt-1");
+    }
+
+    public class ToolbarItem
+    {
+        public int Key { get; set; }
+
+        public string Name { get; set; }
+    }
+}

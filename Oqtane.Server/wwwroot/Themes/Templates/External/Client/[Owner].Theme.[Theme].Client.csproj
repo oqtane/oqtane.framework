@@ -10,6 +10,7 @@
     <Copyright>[Owner]</Copyright>
     <AssemblyName>[Owner].Theme.[Theme].Client.Oqtane</AssemblyName>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <StaticWebAssetsFingerprintContent>false</StaticWebAssetsFingerprintContent>
   </PropertyGroup>
 
   <ItemGroup>

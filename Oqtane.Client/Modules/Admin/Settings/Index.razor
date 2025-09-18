@@ -1,0 +1,146 @@
+@namespace Oqtane.Modules.Admin.Settings
+@inherits ModuleBase
+@inject ISettingService SettingService
+@inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+<div class="container">
+    <div class="row mb-1 align-items-center">
+        <div class="col-sm-4">
+            <ActionLink Action="Add" Text="Add Setting" Security="SecurityAccessLevel.Host" ResourceKey="AddSetting" ReturnUrl="@(NavigateUrl(PageState.Page.Path, AddUrlParameters(_entityName, _entityId)))" />
+            <ActionLink Action="ImportSettings" Text="Import" Class="btn btn-secondary ms-1" Security="SecurityAccessLevel.Host" ResourceKey="ImportSettings" ReturnUrl="@(NavigateUrl(PageState.Page.Path, AddUrlParameters(_entityName, _entityId)))" />
+        </div>
+        <div class="col-sm-4">
+            <select class="form-select custom-select" value="@_entityName" @onchange="(e => EntityNameChanged(e))">
+                <option value="-">&lt;@Localizer["Select Entity"]&gt;</option>
+                @foreach (var entityName in _entityNames)
+                {
+                    <option value="@entityName">@entityName</option>
+                }
+            </select>
+        </div>
+        <div class="col-sm-4">
+            <select class="form-select custom-select" value="@_entityId" @onchange="(e => EntityIdChanged(e))">
+                <option value="-">&lt;@Localizer["Select Id"]&gt;</option>
+                @foreach (var entityId in _entityIds)
+                {
+                    <option value="@entityId">@entityId</option>
+                }
+            </select>
+        </div>
+    </div>
+</div>
+<br />
+
+<Pager Items="@_settings" SearchProperties="SettingName,SettingValue">
+    <Header>
+        <th style="width: 1px;">&nbsp;</th>
+        <th style="width: 1px;">&nbsp;</th>
+        <th>@Localizer["Name"]</th>
+        <th>@Localizer["Value"]</th>
+    </Header>
+    <Row>
+        <td><ActionLink Action="Edit" Text="Edit" Parameters="@($"entity={context.EntityName}&id={context.SettingId}")" Security="SecurityAccessLevel.Host" ResourceKey="EditSetting" ReturnUrl="@(NavigateUrl(PageState.Page.Path, AddUrlParameters(_entityName, _entityId)))" /></td>
+        <td><ActionDialog Header="Delete Setting" Message="@string.Format(Localizer["Confirm.DeleteSetting"], context.SettingName)" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteSetting(context))" ResourceKey="DeleteSetting" /></td>
+        <td>@context.SettingName</td>
+        <td>@context.SettingValue</td>
+    </Row>
+</Pager>
+
+@code {
+    private string _entityName = "-";
+    private List<string> _entityNames = new List<string>();
+    private string _entityId = "-";
+    private List<int> _entityIds = new List<int>();
+    private List<Setting> _settings = new List<Setting>();
+
+    public override string UrlParametersTemplate => "/{entityname}/{entityid}";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _entityNames = await SettingService.GetEntityNamesAsync();
+
+        if (UrlParameters.ContainsKey("entityname"))
+        {
+            _entityName = UrlParameters["entityname"];
+            await GetEntityIds();
+        }
+        if (UrlParameters.ContainsKey("entityid"))
+        {
+            _entityId = UrlParameters["entityid"];
+            await GetSettings();
+        }
+    }
+
+    private async Task GetEntityIds()
+    {
+        if (_entityName != "-")
+        {
+            _entityIds = await SettingService.GetEntityIdsAsync(_entityName);
+        }
+        else
+        {
+            _entityIds = new List<int>();
+        }
+    }
+
+    private async Task GetSettings()
+    {
+        if (_entityName != "-" && _entityId != "-")
+        {
+            _settings = await SettingService.GetSettingsAsync(_entityName, int.Parse(_entityId), "");
+            _settings = _settings.OrderBy(item => item.SettingName).ToList();
+        }
+        else
+        {
+            _settings = new List<Setting>();
+        }
+    }
+
+    private async void EntityNameChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            _entityName = e.Value.ToString();
+            _entityId = "-";
+            await GetEntityIds();
+            await GetSettings();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error On EntityNameChanged");
+        }
+    }
+
+    private async void EntityIdChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            _entityId = e.Value.ToString();
+            await GetSettings();
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+            await logger.LogError(ex, "Error On EntityIdChanged");
+		}
+	}
+    
+    private async Task DeleteSetting(Setting setting)
+    {
+        try
+        {
+            await SettingService.DeleteSettingAsync(setting.EntityName, setting.EntityId, setting.SettingName);
+            await logger.LogInformation("Setting Deleted {Setting}", setting);
+            await GetSettings();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Setting {Setting} {Error}", setting, ex.Message);
+            AddModuleMessage(Localizer["Error.DeleteSetting"], MessageType.Error);
+        }
+    }
+}

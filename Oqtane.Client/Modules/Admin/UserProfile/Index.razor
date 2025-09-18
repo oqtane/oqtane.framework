@@ -126,13 +126,16 @@
                                             <select id="@p.Name" class="form-select" @onchange="@(e => ProfileChanged(e, p.Name))" autocomplete="@p.Autocomplete">
                                                 @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                                                 {
-                                                    @if (GetProfileValue(p.Name, "") == option || (GetProfileValue(p.Name, "") == "" && p.DefaultValue == option))
+                                                    var values = option.Split(':');
+                                                    var name = values[0];
+                                                    var value = values.Length > 1 ? values[1] : values[0];
+                                                    @if (GetProfileValue(p.Name, "") == name || (GetProfileValue(p.Name, "") == "" && p.DefaultValue == name))
                                                     {
-                                                        <option value="@option" selected>@option</option>
+                                                        <option value="@name" selected>@value</option>
                                                     }
                                                     else
                                                     {
-                                                        <option value="@option">@option</option>
+                                                        <option value="@name">@value</option>
                                                     }
                                                 }
                                             </select>
@@ -142,13 +145,16 @@
                                             <select id="@p.Name" class="form-select" @onchange="@(e => ProfileChanged(e, p.Name))">
                                                 @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                                                 {
-                                                    @if (GetProfileValue(p.Name, "") == option || (GetProfileValue(p.Name, "") == "" && p.DefaultValue == option))
+                                                    var values = option.Split(':');
+                                                    var name = values[0];
+                                                    var value = values.Length > 1 ? values[1] : values[0];
+                                                    @if (GetProfileValue(p.Name, "") == name || (GetProfileValue(p.Name, "") == "" && p.DefaultValue == name))
                                                     {
-                                                        <option value="@option" selected>@option</option>
+                                                        <option value="@name" selected>@value</option>
                                                     }
                                                     else
                                                     {
-                                                        <option value="@option">@option</option>
+                                                        <option value="@name">@value</option>
                                                     }
                                                 }
                                             </select>
@@ -404,6 +410,15 @@
             _togglepassword = SharedLocalizer["ShowPassword"];
             _allowtwofactor = (SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:TwoFactor", "false") == "true");
             _profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
+            foreach (var profile in _profiles)
+            {
+                if (profile.Options.ToLower().StartsWith("entityname:"))
+                {
+                    var options = await SettingService.GetSettingsAsync(profile.Options.Substring(11), -1);
+                    options.Add("", $"<{SharedLocalizer["Not Specified"]}>");
+                    profile.Options = string.Join(",", options.OrderBy(item => item.Value).Select(kvp => $"{kvp.Key}:{kvp.Value}"));
+                }
+            }
             _timezones = TimeZoneService.GetTimeZones();
 
             if (PageState.User != null)

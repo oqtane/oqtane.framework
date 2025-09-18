@@ -241,6 +241,26 @@ namespace Oqtane.Services
         Task DeleteSettingAsync(string entityName, int settingId);
 
         /// <summary>
+        /// Gets list of unique entity names
+        /// </summary>
+        /// <returns></returns>
+        Task<List<string>> GetEntityNamesAsync();
+
+        /// <summary>
+        /// Gets a list of unique entity IDs for the given entity name
+        /// </summary>
+        /// <param name="entityName"></param>
+        /// <returns></returns>
+        Task<List<int>> GetEntityIdsAsync(string entityName);
+
+        /// <summary>
+        /// Imports a list of settings
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <returns></returns>
+        Task<Result> ImportSettingsAsync(Result settings);
+
+        /// <summary>
         /// Gets the value of the given settingName (key) from the given key-value dictionary 
         /// </summary>
         /// <param name="settings"></param>
@@ -409,49 +429,20 @@ namespace Oqtane.Services
 
         public async Task UpdateSettingsAsync(Dictionary<string, string> settings, string entityName, int entityId)
         {
-            var settingsList = await GetSettingsAsync(entityName, entityId, "");
+            var settingsList = new List<Setting>();
 
             foreach (KeyValuePair<string, string> kvp in settings)
             {
-                string value = kvp.Value;
-                bool modified = false;
-                bool isprivate = false;
-
-                // manage settings modified with SetSetting method
-                if (value.StartsWith("[Private]"))
-                {
-                    modified = true;
-                    isprivate = true;
-                    value = value.Substring(9);                  
-                }
-                if (value.StartsWith("[Public]"))
-                {
-                    modified = true;
-                    isprivate = false;
-                    value = value.Substring(8);                   
-                }
-
-                Setting setting = settingsList.FirstOrDefault(item => item.SettingName.Equals(kvp.Key, StringComparison.OrdinalIgnoreCase));
-                if (setting == null)
-                {
-                    setting = new Setting();
-                    setting.EntityName = entityName;
-                    setting.EntityId = entityId;
-                    setting.SettingName = kvp.Key;
-                    setting.SettingValue = value;
-                    setting.IsPrivate = isprivate;
-                    setting = await AddSettingAsync(setting);
-                }
-                else
-                {
-                    if (setting.SettingValue != value || (modified && setting.IsPrivate != isprivate))
-                    {
-                        setting.SettingValue = value;
-                        setting.IsPrivate = isprivate;
-                        setting = await UpdateSettingAsync(setting);
-                    }
-                }
+                var setting = new Setting();
+                setting.EntityName = entityName;
+                setting.EntityId = entityId;
+                setting.SettingName = kvp.Key;
+                setting.SettingValue = kvp.Value;
+                setting.IsPrivate = true;
+                settingsList.Add(setting);
             }
+
+            await PutJsonAsync<List<Setting>>($"{Apiurl}/{entityName}/{entityId}", settingsList);
         }
 
         public async Task AddOrUpdateSettingAsync(string entityName, int entityId, string settingName, string settingValue, bool isPrivate)
@@ -494,6 +485,20 @@ namespace Oqtane.Services
             await DeleteAsync($"{Apiurl}/{settingId}/{entityName}");
         }
 
+        public async Task<List<string>> GetEntityNamesAsync()
+        {
+            return await GetJsonAsync<List<string>>($"{Apiurl}/entitynames");
+        }
+
+        public async Task<List<int>> GetEntityIdsAsync(string entityName)
+        {
+            return await GetJsonAsync<List<int>>($"{Apiurl}/entityids?entityname={entityName}");
+        }
+
+        public async Task<Result> ImportSettingsAsync(Result settings)
+        {
+            return await PostJsonAsync<Result>($"{Apiurl}/import", settings);
+        }
 
         public string GetSetting(Dictionary<string, string> settings, string settingName, string defaultValue)
         {

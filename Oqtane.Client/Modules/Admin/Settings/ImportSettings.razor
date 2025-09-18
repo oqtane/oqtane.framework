@@ -1,0 +1,56 @@
+@namespace Oqtane.Modules.Admin.Settings
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject ISettingService SettingService
+@inject IStringLocalizer<ImportSettings> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+<div class="container">
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="settings" HelpText="Provide settings in comma delimited format using the column template specified" ResourceKey="Settings">Settings:</Label>
+        <div class="col-sm-9">
+            <textarea id="settings" class="form-control" @bind="@_settings" rows="5" required></textarea>
+        </div>
+    </div>
+</div>
+<br />
+<button type="button" class="btn btn-success" @onclick="Import">@Localizer["Import"]</button>&nbsp;
+<NavLink class="btn btn-secondary" href="@PageState.ReturnUrl">@SharedLocalizer["Cancel"]</NavLink>
+
+@code {
+    private string _settings = "Entity,Id,Name,Value,Private\n";
+
+    public override string Title => "Import Settings";
+
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+
+    private async Task Import()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(_settings))
+            {
+                ShowProgressIndicator();
+                var result = await SettingService.ImportSettingsAsync(new Result { Message = _settings });
+                if (result.Success)
+                {
+                    AddModuleMessage(Localizer["Message.Import.Success"], MessageType.Success);
+                }
+                else
+                {
+                    AddModuleMessage(Localizer["Message.Import.Failure"], MessageType.Error);
+                }
+                HideProgressIndicator();
+            }
+            else
+            {
+                AddModuleMessage(Localizer["Message.Import.Validation"], MessageType.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Importing Settings {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Import"], MessageType.Error);
+        }
+    }
+}

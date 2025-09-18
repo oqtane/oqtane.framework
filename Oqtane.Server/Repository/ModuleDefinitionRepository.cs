@@ -196,6 +196,7 @@ namespace Oqtane.Repository
             if (siteId != -1)
             {
                 var siteKey = _tenants.GetAlias().SiteKey;
+                var dbType = _tenants.GetTenant().DBType;
                 var assemblies = new List<string>();
 
                 // get all module definition permissions for site
@@ -217,6 +218,22 @@ namespace Oqtane.Repository
                     else
                     {
                         moduledefinition.IsEnabled = moduledefinition.IsAutoEnabled;
+                    }
+
+                    // check if module supports tenant database
+                    if (moduledefinition.IsEnabled)
+                    {
+                        moduledefinition.IsEnabled = string.IsNullOrEmpty(moduledefinition.Databases);
+                        if (!string.IsNullOrEmpty(moduledefinition.Databases))
+                        {
+                            foreach (var database in moduledefinition.Databases.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                            {
+                                if (dbType.ToLower().Contains(database.ToLower()))
+                                {
+                                    moduledefinition.IsEnabled = true;
+                                }
+                            }
+                        }
                     }
 
                     if (moduledefinition.IsEnabled)

@@ -101,13 +101,20 @@
                                             <small>@SharedLocalizer["Search.By"]:</small> <strong><a href="@context.OwnerUrl" target="new">@context.Owner</a></strong><br />
                                             @(context.Description.Length > 400 ? (context.Description.Substring(0, 400) + "...") : context.Description)<br />
                                             <br />
-                                            @if (!string.IsNullOrEmpty(context.PackageUrl))
+                                            @if (_moduledefinitions.Exists(item => item.PackageName == context.PackageId))
                                             {
-                                                <button type="button" class="btn btn-primary" @onclick=@(async () => await GetPackage(context.PackageId, context.Version))>@SharedLocalizer["Download"]</button>
+                                                <button type="button" class="btn btn-info">@SharedLocalizer["Installed"]</button>
                                             }
-                                            @if (context.Price != null && !string.IsNullOrEmpty(context.PaymentUrl))
+                                            else
                                             {
-                                                <a class="btn btn-success ms-2" style="text-decoration: none !important" href="@context.PaymentUrl" target="_new">@SharedLocalizer["Buy"]</a>
+                                                @if (!string.IsNullOrEmpty(context.PackageUrl))
+                                                {
+                                                    <button type="button" class="btn btn-primary" @onclick=@(async () => await GetPackage(context.PackageId, context.Version))>@SharedLocalizer["Download"]</button>
+                                                }
+                                                @if (context.Price != null && !string.IsNullOrEmpty(context.PaymentUrl))
+                                                {
+                                                    <a class="btn btn-success ms-2" style="text-decoration: none !important" href="@context.PaymentUrl" target="_new">@SharedLocalizer["Buy"]</a>
+                                                }
                                             }
                                             <br />
                                         </div>
@@ -171,6 +178,7 @@
 
 @code {
     private bool _initialized = false;
+    private List<ModuleDefinition> _moduledefinitions;
     private int _page = 1;
     private List<Package> _packages;
     private string _price = "free";
@@ -187,7 +195,8 @@
     {
         try
         {
-            await LoadModuleDefinitions();
+            _moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
+            await LoadPackages();
             _initialized = true;
         }
         catch (Exception ex)
@@ -197,24 +206,10 @@
         }
     }
 
-    private async Task LoadModuleDefinitions()
+    private async Task LoadPackages()
     {
         ShowProgressIndicator();
-
-        var moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
         _packages = await PackageService.GetPackagesAsync("module", _search, _price, "", _sort);
-
-        if (_packages != null)
-        {
-            foreach (Package package in _packages.ToArray())
-            {
-                if (moduledefinitions.Exists(item => item.PackageName == package.PackageId))
-                {
-                    _packages.Remove(package);
-                }
-            }
-        }
-
         HideProgressIndicator();
     }
 
@@ -222,25 +217,25 @@
     {
         _price = price;
         _sort = "popularity";
-        await LoadModuleDefinitions();
+        await LoadPackages();
         StateHasChanged();
     }
 
     private async Task Search()
     {
-        await LoadModuleDefinitions();
+        await LoadPackages();
     }
 
     private async Task Reset()
     {
         _page = 1;
         _search = "";
-        await LoadModuleDefinitions();
+        await LoadPackages();
     }
 
     private async Task Refresh()
     {
-        await LoadModuleDefinitions();
+        await LoadPackages();
     }
 
     private void OnPageChange(int page)
@@ -251,7 +246,7 @@
     private async void SortChanged(ChangeEventArgs e)
     {
         _sort = (string)e.Value;
-        await LoadModuleDefinitions();
+        await LoadPackages();
     }
 
     private void HideModal()
@@ -310,6 +305,6 @@
 
     private void OnUpload()
     {
-        AddModuleMessage(string.Format(Localizer["Success.Module.Download"], NavigateUrl("admin/system")), MessageType.Success);
+        AddModuleMessage(string.Format(Localizer["Success.Module.Upload"], NavigateUrl("admin/system")), MessageType.Success);
     }
 }

@@ -31,11 +31,11 @@ namespace Oqtane.Security
                         var userManager = context.HttpContext.RequestServices.GetService(typeof(IUserManager)) as IUserManager;
                         var user = userManager.GetUser(context.Principal.UserId(), alias.SiteId); // cached
 
-                        // check if user is valid, not deleted, has roles, and security stamp has not changed
-                        if (user != null && !user.IsDeleted && !string.IsNullOrEmpty(user.Roles) && context.Principal.SecurityStamp() == user.SecurityStamp)
+                        // check if user is valid, not deleted, has roles, and security stamp has not changed for this tenant
+                        if (user != null && !user.IsDeleted && !string.IsNullOrEmpty(user.Roles) && (context.Principal.SecurityStamp() == user.SecurityStamp || context.Principal.SiteKey() != alias.SiteKey))
                         {
-                            // validate sitekey in case user has changed sites in installation
-                            if (context.Principal.SiteKey() != alias.SiteKey || !context.Principal.Roles().Any())
+                            // validate security stamp and sitekey (in case user has changed tenants/sites in installation)
+                            if (context.Principal.SecurityStamp() != user.SecurityStamp || context.Principal.SiteKey() != alias.SiteKey || !context.Principal.Roles().Any())
                             {
                                 // refresh principal
                                 var identity = UserSecurity.CreateClaimsIdentity(alias, user);
