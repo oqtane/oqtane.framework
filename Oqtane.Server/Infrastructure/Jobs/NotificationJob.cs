@@ -143,64 +143,68 @@ namespace Oqtane.Infrastructure
                             List<Notification> notifications = notificationRepository.GetNotifications(site.SiteId, -1, -1).ToList();
                             foreach (Notification notification in notifications)
                             {
-                                // get sender and receiver information from user object if not provided
-                                if ((string.IsNullOrEmpty(notification.FromEmail) || string.IsNullOrEmpty(notification.FromDisplayName)) && notification.FromUserId != null)
+                                var fromEmail = notification.FromEmail ?? "";
+                                var fromName = notification.FromDisplayName ?? "";
+                                var toEmail = notification.ToEmail ?? "";
+                                var toName = notification.ToDisplayName ?? "";
+
+                                // get sender and receiver information from user information if available
+                                if ((string.IsNullOrEmpty(fromEmail) || string.IsNullOrEmpty(fromName)) && notification.FromUserId != null)
                                 {
                                     var user = userRepository.GetUser(notification.FromUserId.Value);
                                     if (user != null)
                                     {
-                                        notification.FromEmail = (string.IsNullOrEmpty(notification.FromEmail)) ? user.Email : notification.FromEmail;
-                                        notification.FromDisplayName = (string.IsNullOrEmpty(notification.FromDisplayName)) ? user.DisplayName : notification.FromDisplayName;
+                                        fromEmail = string.IsNullOrEmpty(fromEmail) ? user.Email ?? "" : fromEmail;
+                                        fromName = string.IsNullOrEmpty(fromName) ? user.DisplayName ?? "" : fromName;
                                     }
                                 }
-                                if ((string.IsNullOrEmpty(notification.ToEmail) || string.IsNullOrEmpty(notification.ToDisplayName)) && notification.ToUserId != null)
+                                if ((string.IsNullOrEmpty(toEmail) || string.IsNullOrEmpty(toName)) && notification.ToUserId != null)
                                 {
                                     var user = userRepository.GetUser(notification.ToUserId.Value);
                                     if (user != null)
                                     {
-                                        notification.ToEmail = (string.IsNullOrEmpty(notification.ToEmail)) ? user.Email : notification.ToEmail;
-                                        notification.ToDisplayName = (string.IsNullOrEmpty(notification.ToDisplayName)) ? user.DisplayName : notification.ToDisplayName;
+                                        toEmail = string.IsNullOrEmpty(toEmail) ? user.Email ?? "" : toEmail;
+                                        toName = string.IsNullOrEmpty(toName) ? user.DisplayName ?? "" : toName;
                                     }
                                 }
 
-                                // validate recipient
-                                if (string.IsNullOrEmpty(notification.ToEmail) || !MailboxAddress.TryParse(notification.ToEmail, out _))
+                                // create mailbox addresses
+                                MailboxAddress to = null;
+                                MailboxAddress from = null;
+                                var error = "";
+
+                                // sender
+                                if (settingRepository.GetSettingValue(settings, "SMTPRelay", "False") != "True")
                                 {
-                                    log += $"NotificationId: {notification.NotificationId} - Has Missing Or Invalid Recipient {notification.ToEmail}<br />";
-                                    notification.IsDeleted = true;
-                                    notificationRepository.UpdateNotification(notification);
+                                    fromEmail = settingRepository.GetSettingValue(settings, "SMTPSender", "");
+                                    fromName = !string.IsNullOrEmpty(fromName) ? fromName : site.Name;
                                 }
-                                else
+                                try
+                                {
+                                    from = new MailboxAddress(fromName, fromEmail);
+                                }
+                                catch
+                                {
+                                    // parse error creating sender mailbox address
+                                    error += $" Invalid Sender: {fromName} &lt;{fromEmail}&gt;";
+                                }
+
+                                // recipient
+                                try
+                                {
+                                    to = new MailboxAddress(toName, toEmail);
+                                }
+                                catch
+                                {
+                                    // parse error creating recipient mailbox address
+                                    error += $" Invalid Recipient: {toName} &lt;{toEmail}&gt;";
+                                }
+
+                                if (from != null && to != null)
                                 {
                                     MimeMessage mailMessage = new MimeMessage();
-
-                                    // sender
-                                    if (settingRepository.GetSettingValue(settings, "SMTPRelay", "False") == "True" && !string.IsNullOrEmpty(notification.FromEmail))
-                                    {
-                                        if (!string.IsNullOrEmpty(notification.FromDisplayName))
-                                        {
-                                            mailMessage.From.Add(new MailboxAddress(notification.FromDisplayName, notification.FromEmail));
-                                        }
-                                        else
-                                        {
-                                            mailMessage.From.Add(new MailboxAddress("", notification.FromEmail));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        mailMessage.From.Add(new MailboxAddress((!string.IsNullOrEmpty(notification.FromDisplayName)) ? notification.FromDisplayName : site.Name,
-                                                                                settingRepository.GetSettingValue(settings, "SMTPSender", "")));
-                                    }
-
-                                    // recipient
-                                    if (!string.IsNullOrEmpty(notification.ToDisplayName))
-                                    {
-                                        mailMessage.To.Add(new MailboxAddress(notification.ToDisplayName, notification.ToEmail));
-                                    }
-                                    else
-                                    {
-                                        mailMessage.To.Add(new MailboxAddress("", notification.ToEmail));
-                                    }
+                                    mailMessage.From.Add(from);
+                                    mailMessage.To.Add(to);
 
                                     // subject
                                     mailMessage.Subject = notification.Subject;
@@ -231,13 +235,19 @@ namespace Oqtane.Infrastructure
                                     catch (Exception ex)
                                     {
                                         // error
-                                        log += $"NotificationId: {notification.NotificationId} - {ex.Message}<br />";
+                                        log += $"Error Sending Notification Id: {notification.NotificationId} - {ex.Message}<br />";
                                     }
                                 }
+                                else
+                                {
+                                    log += $"Notification Id: {notification.NotificationId} - Has An {error} And Has Been Deleted<br />";
+                                    notification.IsDeleted = true;
+                                    notificationRepository.UpdateNotification(notification);
+                                }
                             }
-                            await client.DisconnectAsync(true);
                             log += "Notifications Delivered: " + sent + "<br />";
                         }
+                        await client.DisconnectAsync(true);
                     }
                 }
                 else
