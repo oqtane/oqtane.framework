@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -10,16 +11,17 @@ namespace Oqtane.Repository
     }
     public class MigrationHistoryRepository : IMigrationHistoryRepository
     {
-        private MasterDBContext _db;
+        private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
 
-        public MigrationHistoryRepository(MasterDBContext context)
+        public MigrationHistoryRepository(IDbContextFactory<TenantDBContext> dbContextFactory)
         {
-            _db = context;
+            _dbContextFactory = dbContextFactory;
         }
 
         public IEnumerable<MigrationHistory> GetMigrationHistory()
         {
-            return _db.MigrationHistory.ToList();
+            using var db = _dbContextFactory.CreateDbContext();
+            return db.MigrationHistory.ToList();
         }
     }
 }

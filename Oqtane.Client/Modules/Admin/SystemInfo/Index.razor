@@ -3,6 +3,7 @@
 @inject ISystemService SystemService
 @inject IInstallationService InstallationService
 @inject IMigrationHistoryService MigrationHistoryService
+@inject ITenantService TenantService
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -174,11 +175,19 @@
             <button type="button" class="btn btn-danger" @onclick="ClearLog">@Localizer["Clear"]</button>
         </TabPanel>
         <TabPanel Name="Migrations" Heading="Migrations" ResourceKey="Migrations">
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="tenant" HelpText="The name of the current database. Note that this is not the physical database name but rather the tenant name which is used within the framework to identify a database." ResourceKey="Tenant">Database: </Label>
+                    <div class="col-sm-9">
+                        <input id="tenant" class="form-control" @bind="@_tenant" readonly />
+                    </div>
+                </div>
+            </div>
             <Pager Items="@_history" SearchProperties="MigrationId">
                 <Header>
-                <th>@Localizer["Migration"]</th>
-                <th>@Localizer["Date"]</th>
-                <th>@Localizer["Version"]</th>
+                    <th>@Localizer["Migration"]</th>
+                    <th>@Localizer["Date"]</th>
+                    <th>@Localizer["Version"]</th>
                 </Header>
                 <Row>
                     <td>@context.MigrationId</td>
@@ -219,6 +228,7 @@
 
     private string _log = string.Empty;
 
+    private string _tenant = string.Empty;
     private List<MigrationHistory> _history;
 
     protected override async Task OnInitializedAsync()
@@ -259,6 +269,8 @@
             _log = systeminfo["Log"].ToString();
         }
 
+        var tenants = await TenantService.GetTenantsAsync();
+        _tenant = tenants.Find(item => item.TenantId == PageState.Site.TenantId).Name;
         _history = await MigrationHistoryService.GetMigrationHistoryAsync();
 
         _initialized = true;
