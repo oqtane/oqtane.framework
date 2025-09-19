@@ -171,7 +171,7 @@ namespace Oqtane.Infrastructure
                                 // create mailbox addresses
                                 MailboxAddress to = null;
                                 MailboxAddress from = null;
-                                var error = "";
+                                var mailboxAddressValidationError = "";
 
                                 // sender
                                 if (settingRepository.GetSettingValue(settings, "SMTPRelay", "False") != "True")
@@ -181,25 +181,41 @@ namespace Oqtane.Infrastructure
                                 }
                                 try
                                 {
-                                    from = new MailboxAddress(fromName, fromEmail);
+                                    // exception handler is necessary because of https://github.com/jstedfast/MimeKit/issues/1186
+                                    if (MailboxAddress.TryParse(fromEmail, out _))
+                                    {
+                                        from = new MailboxAddress(fromName, fromEmail);
+                                    }
                                 }
                                 catch
                                 {
                                     // parse error creating sender mailbox address
-                                    error += $" Invalid Sender: {fromName} &lt;{fromEmail}&gt;";
+                                }
+                                if (from == null)
+                                {
+
+                                    mailboxAddressValidationError += $" Invalid Sender: {fromName} &lt;{fromEmail}&gt;";
                                 }
 
                                 // recipient
                                 try
                                 {
-                                    to = new MailboxAddress(toName, toEmail);
+                                    // exception handler is necessary because of https://github.com/jstedfast/MimeKit/issues/1186
+                                    if (MailboxAddress.TryParse(toEmail, out _))
+                                    {
+                                        to = new MailboxAddress(toName, toEmail);
+                                    }
                                 }
                                 catch
                                 {
                                     // parse error creating recipient mailbox address
-                                    error += $" Invalid Recipient: {toName} &lt;{toEmail}&gt;";
+                                }
+                                if (to == null)
+                                {
+                                    mailboxAddressValidationError += $" Invalid Recipient: {toName} &lt;{toEmail}&gt;";
                                 }
 
+                                // if mailbox addresses are valid
                                 if (from != null && to != null)
                                 {
                                     // create mail message
@@ -210,7 +226,7 @@ namespace Oqtane.Infrastructure
                                     // subject
                                     mailMessage.Subject = notification.Subject;
 
-                                    //body
+                                    // body
                                     var bodyText = notification.Body;
 
                                     if (!bodyText.Contains('<') || !bodyText.Contains('>'))
@@ -235,17 +251,18 @@ namespace Oqtane.Infrastructure
                                     }
                                     catch (Exception ex)
                                     {
-                                        // error
                                         log += $"Error Sending Notification Id: {notification.NotificationId} - {ex.Message}<br />";
                                     }
                                 }
                                 else
                                 {
-                                    log += $"Notification Id: {notification.NotificationId} Has An {error} And Has Been Deleted<br />";
+                                    // invalid mailbox address
+                                    log += $"Notification Id: {notification.NotificationId} Has An {mailboxAddressValidationError} And Has Been Deleted<br />";
                                     notification.IsDeleted = true;
                                     notificationRepository.UpdateNotification(notification);
                                 }
                             }
+
                             log += "Notifications Delivered: " + sent + "<br />";
                         }
 
