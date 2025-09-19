@@ -318,4 +318,10 @@
   <data name="Version" xml:space="preserve">
     <value>Framework Version</value>
   </data>
+  <data name="Tenant.Text" xml:space="preserve">
+    <value>Database:</value>
+  </data>
+  <data name="Tenant.HelpText" xml:space="preserve">
+    <value>The name of the current database. Note that this is not the physical database name but rather the tenant name which is used within the framework to identify a database.</value>
+  </data>
 </root>
