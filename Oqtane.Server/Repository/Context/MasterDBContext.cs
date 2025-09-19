@@ -69,6 +69,7 @@ namespace Oqtane.Repository
         public virtual DbSet<JobLog> JobLog { get; set; }
         public virtual DbSet<Setting> Setting { get; set; }
         public virtual DbSet<Theme> Theme { get; set; }
+        public virtual DbSet<MigrationHistory> MigrationHistory { get; set; }
 
         public override int SaveChanges()
         {
