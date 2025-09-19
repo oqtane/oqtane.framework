@@ -103,7 +103,7 @@ namespace Oqtane.Infrastructure
                                 break;
                         }
 
-                        await client.ConnectAsync(settingRepository.GetSettingValue(settings, "SMTPHost", ""), 
+                        await client.ConnectAsync(settingRepository.GetSettingValue(settings, "SMTPHost", ""),
                                 int.Parse(settingRepository.GetSettingValue(settings, "SMTPPort", "")),
                                 secureSocketOptions);
 
@@ -177,7 +177,7 @@ namespace Oqtane.Infrastructure
                                 if (settingRepository.GetSettingValue(settings, "SMTPRelay", "False") != "True")
                                 {
                                     fromEmail = settingRepository.GetSettingValue(settings, "SMTPSender", "");
-                                    fromName = !string.IsNullOrEmpty(fromName) ? fromName : site.Name;
+                                    fromName = string.IsNullOrEmpty(fromName) ? site.Name : fromName;
                                 }
                                 try
                                 {
@@ -202,6 +202,7 @@ namespace Oqtane.Infrastructure
 
                                 if (from != null && to != null)
                                 {
+                                    // create mail message
                                     MimeMessage mailMessage = new MimeMessage();
                                     mailMessage.From.Add(from);
                                     mailMessage.To.Add(to);
@@ -240,13 +241,14 @@ namespace Oqtane.Infrastructure
                                 }
                                 else
                                 {
-                                    log += $"Notification Id: {notification.NotificationId} - Has An {error} And Has Been Deleted<br />";
+                                    log += $"Notification Id: {notification.NotificationId} Has An {error} And Has Been Deleted<br />";
                                     notification.IsDeleted = true;
                                     notificationRepository.UpdateNotification(notification);
                                 }
                             }
                             log += "Notifications Delivered: " + sent + "<br />";
                         }
+
                         await client.DisconnectAsync(true);
                     }
                 }
