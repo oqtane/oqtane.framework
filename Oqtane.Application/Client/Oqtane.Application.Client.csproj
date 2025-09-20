@@ -2,12 +2,14 @@
 
 	<PropertyGroup>
 		<TargetFramework>net9.0</TargetFramework>
+		<OutputType>Exe</OutputType>
 		<Version>1.0.0</Version>
 		<AssemblyName>Oqtane.Application.Client.Oqtane</AssemblyName>
-		<NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
+		<IsPackable>true</IsPackable>
 		<StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
-		<BlazorWebAssemblyEnableLinking>false</BlazorWebAssemblyEnableLinking>
 		<BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
+		<PublishTrimmed>false</PublishTrimmed>
+		<BlazorEnableCompression>false</BlazorEnableCompression>
 	</PropertyGroup>
 
 	<ItemGroup>

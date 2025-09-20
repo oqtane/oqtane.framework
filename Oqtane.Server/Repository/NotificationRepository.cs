@@ -144,14 +144,14 @@ namespace Oqtane.Repository
             // delete notifications in batches of 100 records
             var count = 0;
             var purgedate = DateTime.UtcNow.AddDays(-age);
-            var notifications = db.Notification.Where(item => item.SiteId == siteId && item.FromUserId == null && item.IsDelivered && item.DeliveredOn < purgedate)
+            var notifications = db.Notification.Where(item => item.SiteId == siteId && item.FromUserId == null && (item.IsDeleted || item.IsDelivered && item.DeliveredOn < purgedate))
                 .OrderBy(item => item.DeliveredOn).Take(100).ToList();
             while (notifications.Count > 0)
             {
                 count += notifications.Count;
                 db.Notification.RemoveRange(notifications);
                 db.SaveChanges();
-                notifications = db.Notification.Where(item => item.SiteId == siteId && item.FromUserId == null && item.IsDelivered && item.DeliveredOn < purgedate)
+                notifications = db.Notification.Where(item => item.SiteId == siteId && item.FromUserId == null && (item.IsDeleted || item.IsDelivered && item.DeliveredOn < purgedate))
                 .OrderBy(item => item.DeliveredOn).Take(100).ToList();
             }
             return count;

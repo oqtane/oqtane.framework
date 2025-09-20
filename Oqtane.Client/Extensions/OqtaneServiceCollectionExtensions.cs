@@ -56,6 +56,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<ILocalizationCookieService, LocalizationCookieService>();
             services.AddScoped<ICookieConsentService, CookieConsentService>();
             services.AddScoped<ITimeZoneService, TimeZoneService>();
+            services.AddScoped<IMigrationHistoryService, MigrationHistoryService>();
             services.AddScoped<IOutputCacheService, OutputCacheService>();
 
             // providers
