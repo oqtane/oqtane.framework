@@ -2,6 +2,7 @@
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IProfileService ProfileService
+@inject ISettingService SettingService
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -56,9 +57,25 @@
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="options" HelpText="A comma delimited list of options. Options can contain a key and value if they are seperated by a colon (ie. key:value). You can also dynamically load your options from custom Settings (ie. 'EntityName:Countries')." ResourceKey="Options">Options: </Label>
+            <Label Class="col-sm-3" For="options" HelpText="A comma delimited list of options. Options can contain a key and value if they are seperated by a colon (ie. key:value). You can also dynamically load your options from Settings." ResourceKey="Options">Options: </Label>
             <div class="col-sm-9">
-                <input id="options" class="form-control" @bind="@_options" maxlength="2000" />
+                <div class="input-group">
+                    @if (_optiontype == "Settings")
+                    {
+                        <input id="options" class="form-control" @bind="@_options" maxlength="2000" />
+                    }
+                    else
+                    {
+                        <select id="entityName" class="form-select" @bind="@_options">
+                            <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                            @foreach (var entityname in _entitynames)
+                            {
+                                <option value="@entityname">@entityname</option>
+                            }
+                        </select>
+                    }
+                    <button type="button" class="btn btn-secondary" @onclick="ToggleOptionType">@Localizer[_optiontype]</button>
+                </div>
             </div>
         </div>
         <div class="row mb-1 align-items-center">
@@ -95,7 +112,7 @@
     <br />
     <button type="button" class="btn btn-success" @onclick="SaveProfile">@SharedLocalizer["Save"]</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-        @if (PageState.QueryString.ContainsKey("id"))
+    @if (PageState.QueryString.ContainsKey("id"))
     {
         <br />
         <br />
@@ -116,6 +133,8 @@
     private string _rows = "1";
     private string _defaultvalue = string.Empty;
     private string _options = string.Empty;
+    private string _optiontype = "Settings";
+    private List<string> _entitynames;
     private string _validation = string.Empty;
     private string _autocomplete = string.Empty;
     private string _isrequired = "False";
@@ -133,6 +152,8 @@
     {
         try
         {
+            _entitynames = await SettingService.GetEntityNamesAsync();
+
             if (PageState.QueryString.ContainsKey("id"))
             {
                 _profileid = Int32.Parse(PageState.QueryString["id"]);
@@ -148,6 +169,11 @@
                     _rows = profile.Rows.ToString();
                     _defaultvalue = profile.DefaultValue;
                     _options = profile.Options;
+                    if (_options.StartsWith("EntityName:"))
+                    {
+                        _optiontype = "Options";
+                        _options = _options.Substring(11);
+                    }
                     _validation = profile.Validation;
                     _autocomplete = profile.Autocomplete;
                     _isrequired = profile.IsRequired.ToString();
@@ -163,6 +189,18 @@
         {
             await logger.LogError(ex, "Error Loading Profile {ProfileId} {Error}", _profileid, ex.Message);
             AddModuleMessage(Localizer["Error.Profile.Load"], MessageType.Error);
+        }
+    }
+
+    private void ToggleOptionType()
+    {
+        if (_optiontype == "Options")
+        {
+            _optiontype = "Settings";
+        }
+        else
+        {
+            _optiontype = "Options";
         }
     }
 
@@ -193,7 +231,14 @@
                 profile.MaxLength = int.Parse(_maxlength);
                 profile.Rows = int.Parse(_rows);
                 profile.DefaultValue = _defaultvalue;
-                profile.Options = _options;
+                if (_optiontype == "Options" && !string.IsNullOrEmpty(_options))
+                {
+                    profile.Options = "EntityName:" + _options;
+                }
+                else
+                {
+                    profile.Options = _options;
+                }
                 profile.Validation = _validation;
                 profile.Autocomplete = _autocomplete;
                 profile.IsRequired = (_isrequired == null ? false : Boolean.Parse(_isrequired));
