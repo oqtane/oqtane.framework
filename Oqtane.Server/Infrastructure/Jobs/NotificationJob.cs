@@ -179,38 +179,22 @@ namespace Oqtane.Infrastructure
                                     fromEmail = settingRepository.GetSettingValue(settings, "SMTPSender", "");
                                     fromName = string.IsNullOrEmpty(fromName) ? site.Name : fromName;
                                 }
-                                try
+                                if (MailboxAddress.TryParse(fromEmail, out from))
                                 {
-                                    // exception handler is necessary because of https://github.com/jstedfast/MimeKit/issues/1186
-                                    if (MailboxAddress.TryParse(fromEmail, out _))
-                                    {
-                                        from = new MailboxAddress(fromName, fromEmail);
-                                    }
+                                    from.Name = fromName;
                                 }
-                                catch
-                                {
-                                    // parse error creating sender mailbox address
-                                }
-                                if (from == null)
+                                else
                                 {
 
                                     mailboxAddressValidationError += $" Invalid Sender: {fromName} &lt;{fromEmail}&gt;";
                                 }
 
                                 // recipient
-                                try
+                                if (MailboxAddress.TryParse(toEmail, out to))
                                 {
-                                    // exception handler is necessary because of https://github.com/jstedfast/MimeKit/issues/1186
-                                    if (MailboxAddress.TryParse(toEmail, out _))
-                                    {
-                                        to = new MailboxAddress(toName, toEmail);
-                                    }
+                                    to.Name = toName;
                                 }
-                                catch
-                                {
-                                    // parse error creating recipient mailbox address
-                                }
-                                if (to == null)
+                                else
                                 {
                                     mailboxAddressValidationError += $" Invalid Recipient: {toName} &lt;{toEmail}&gt;";
                                 }
