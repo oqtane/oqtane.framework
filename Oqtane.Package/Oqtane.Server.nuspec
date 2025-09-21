@@ -27,7 +27,7 @@
         <dependency id="Microsoft.Extensions.Localization" version="9.0.9" exclude="Build,Analyzers" />
         <dependency id="Microsoft.AspNetCore.Authentication.OpenIdConnect" version="9.0.9" exclude="Build,Analyzers" />
         <dependency id="SixLabors.ImageSharp" version="3.1.11" exclude="Build,Analyzers" />
-        <dependency id="HtmlAgilityPack" version="1.12.2" exclude="Build,Analyzers" />
+        <dependency id="HtmlAgilityPack" version="1.12.3" exclude="Build,Analyzers" />
         <dependency id="Swashbuckle.AspNetCore" version="9.0.4" exclude="Build,Analyzers" />
         <dependency id="MailKit" version="4.13.0" exclude="Build,Analyzers" />
         <dependency id="MySql.Data" version="9.4.0" exclude="Build,Analyzers" />
