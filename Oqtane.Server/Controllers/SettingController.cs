@@ -308,7 +308,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>/entitynames
         [HttpGet("entitynames")]
-        [Authorize(Roles = RoleNames.Host)]
+        [Authorize(Roles = RoleNames.Admin)]
         public IEnumerable<string> GetEntityNames()
         {
             return _settings.GetEntityNames();
@@ -316,7 +316,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>/entityids?entityname=x
         [HttpGet("entityids")]
-        [Authorize(Roles = RoleNames.Host)]
+        [Authorize(Roles = RoleNames.Admin)]
         public IEnumerable<int> GetEntityIds(string entityName)
         {
             return _settings.GetEntityIds(entityName);
