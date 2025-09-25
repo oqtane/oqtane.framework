@@ -592,9 +592,17 @@
                 {
                     _faviconfileid = site.FaviconFileId.Value;
                 }
-                _themes = ThemeService.GetThemeControls(PageState.Site.Themes);
+                var themes = new List<Theme>();
+                foreach (var theme in PageState.Site.Themes)
+                {
+                    if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Utilize, theme.PermissionList))
+                    {
+                        themes.Add(theme);
+                    }
+                }
+                _themes = ThemeService.GetThemeControls(themes);
                 _themetype = (!string.IsNullOrEmpty(site.DefaultThemeType)) ? site.DefaultThemeType : Constants.DefaultTheme;
-                _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
+                _containers = ThemeService.GetContainerControls(themes, _themetype);
                 _containertype = (!string.IsNullOrEmpty(site.DefaultContainerType)) ? site.DefaultContainerType : Constants.DefaultContainer;
                 _admincontainertype = (!string.IsNullOrEmpty(site.AdminContainerType)) ? site.AdminContainerType : Constants.DefaultAdminContainer;
                 _cookieconsent = SettingService.GetSetting(settings, "CookieConsent", string.Empty);

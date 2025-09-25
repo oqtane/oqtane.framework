@@ -14,7 +14,7 @@
 @if (_initialized)
 {
 	<TabStrip>
-        <TabPanel Name="Definition" ResourceKey="Definition" Heading="Definition">
+        <TabPanel Name="Module" ResourceKey="Module" Heading="Module">
 			<form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
 				<div class="container">
 					<div class="row mb-1 align-items-center">
@@ -236,11 +236,10 @@
     private DateTime _createdon;
     private string _modifiedby;
     private DateTime _modifiedon;
-    private List<Page> _pagesWithModules;
 
-#pragma warning disable 649
     private PermissionGrid _permissionGrid;
-#pragma warning restore 649
+
+    private List<Page> _pagesWithModules;
 
     private List<Package> _packages;
     private List<Language> _languages;

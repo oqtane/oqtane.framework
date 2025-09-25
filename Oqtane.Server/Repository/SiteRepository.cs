@@ -135,7 +135,7 @@ namespace Oqtane.Repository
                         if (site != null)
                         {
                             // initialize theme Assemblies
-                            site.Themes = _themeRepository.GetThemes().ToList();
+                            site.Themes = _themeRepository.GetThemes(site.SiteId).ToList();
 
                             // initialize module Assemblies
                             var moduleDefinitions = _moduleDefinitionRepository.GetModuleDefinitions(alias.SiteId);
