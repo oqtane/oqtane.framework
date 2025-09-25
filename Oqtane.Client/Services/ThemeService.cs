@@ -17,8 +17,9 @@ namespace Oqtane.Services
         /// <summary>
         /// Returns a list of available themes
         /// </summary>
+        /// <param name="siteId"></param>
         /// <returns></returns>
-        Task<List<Theme>> GetThemesAsync();
+        Task<List<Theme>> GetThemesAsync(int siteId);
 
         /// <summary>
         /// Returns a specific theme
@@ -69,9 +70,10 @@ namespace Oqtane.Services
         /// <summary>
         /// Deletes a theme
         /// </summary>
-        /// <param name="themeName"></param>
+        /// <param name="themeId"></param>
+        /// <param name="siteId"></param>
         /// <returns></returns>
-        Task DeleteThemeAsync(string themeName);
+        Task DeleteThemeAsync(int themeId, int siteId);
 
         /// <summary>
         /// Creates a new theme
@@ -103,9 +105,9 @@ namespace Oqtane.Services
 
         private string ApiUrl => CreateApiUrl("Theme");
 
-        public async Task<List<Theme>> GetThemesAsync()
+        public async Task<List<Theme>> GetThemesAsync(int siteId)
         {
-            List<Theme> themes = await GetJsonAsync<List<Theme>>(ApiUrl);
+            List<Theme> themes = await GetJsonAsync<List<Theme>>($"{ApiUrl}?siteid={siteId}");
             return themes.OrderBy(item => item.Name).ToList();
         }
         public async Task<Theme> GetThemeAsync(int themeId, int siteId)
@@ -139,9 +141,9 @@ namespace Oqtane.Services
             await PutJsonAsync($"{ApiUrl}/{theme.ThemeId}", theme);
         }
 
-        public async Task DeleteThemeAsync(string themeName)
+        public async Task DeleteThemeAsync(int themeId, int siteId)
         {
-            await DeleteAsync($"{ApiUrl}/{themeName}");
+            await DeleteAsync($"{ApiUrl}/{themeId}?siteid={siteId}");
         }
 
         public async Task<Theme> CreateThemeAsync(Theme theme)

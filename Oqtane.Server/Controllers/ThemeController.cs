@@ -14,6 +14,9 @@ using System.Text.Json;
 using System.Net;
 using System;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection.Metadata;
+using Oqtane.Security;
+using System.Security.Policy;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
@@ -26,30 +29,50 @@ namespace Oqtane.Controllers
         private readonly IInstallationManager _installationManager;
         private readonly IWebHostEnvironment _environment;
         private readonly ITenantManager _tenantManager;
+        private readonly IUserPermissions _userPermissions;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
         private readonly IServiceProvider _serviceProvider;
 
-        public ThemeController(IThemeRepository themes, IInstallationManager installationManager, IWebHostEnvironment environment, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger, IServiceProvider serviceProvider)
+        public ThemeController(IThemeRepository themes, IInstallationManager installationManager, IWebHostEnvironment environment, ITenantManager tenantManager, IUserPermissions userPermissions, ISyncManager syncManager, ILogManager logger, IServiceProvider serviceProvider)
         {
             _themes = themes;
             _installationManager = installationManager;
             _environment = environment;
             _tenantManager = tenantManager;
+            _userPermissions = userPermissions;
             _syncManager = syncManager;
             _logger = logger;
             _alias = tenantManager.GetAlias();
             _serviceProvider = serviceProvider;
         }
 
-        // GET: api/<controller>
+        // GET: api/<controller>?siteid=x
         [HttpGet]
         [Authorize(Roles = RoleNames.Registered)]
-        public IEnumerable<Theme> Get()
+        public IEnumerable<Theme> Get(string siteid)
         {
-            return _themes.GetThemes();
-        }
+            int SiteId;
+            if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
+            {
+                List<Theme> themes = new List<Theme>();
+                foreach (Theme theme in _themes.GetThemes(SiteId))
+                {
+                    if (_userPermissions.IsAuthorized(User, PermissionNames.Utilize, theme.PermissionList))
+                    {
+                        themes.Add(theme);
+                    }
+                }
+                return themes;
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Theme Get Attempt {SiteId}", siteid);
+                HttpContext.Response.StatusCode = (int) HttpStatusCode.Forbidden;
+                return null;
+            }
+}
 
         // GET api/<controller>/5?siteid=x
         [HttpGet("{id}")]
@@ -58,7 +81,24 @@ namespace Oqtane.Controllers
             int SiteId;
             if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
             {
-                return _themes.GetTheme(id, SiteId);
+                Theme theme = _themes.GetTheme(id, SiteId);
+                if (theme != null && _userPermissions.IsAuthorized(User, PermissionNames.Utilize, theme.PermissionList))
+                {
+                    return theme;
+                }
+                else
+                {
+                    if (theme != null)
+                    {
+                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Theme Get Attempt {ThemeId} {SiteId}", id, siteid);
+                        HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    }
+                    else
+                    {
+                        HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    }
+                    return null;
+                }
             }
             else
             {
@@ -86,14 +126,13 @@ namespace Oqtane.Controllers
             }
         }
 
-        // DELETE api/<controller>/xxx
+        // DELETE api/<controller>/5?siteid=x
         [HttpDelete("{themename}")]
         [Authorize(Roles = RoleNames.Host)]
-        public void Delete(string themename)
+        public void Delete(int id, int siteid)
         {
-            List<Theme> themes = _themes.GetThemes().ToList();
-            Theme theme = themes.Where(item => item.ThemeName == themename).FirstOrDefault();
-            if (theme != null && Utilities.GetAssemblyName(theme.ThemeName) != Constants.ClientId)
+            Theme theme = _themes.GetTheme(id, siteid);
+            if (theme != null && theme.SiteId == _alias.SiteId && Utilities.GetAssemblyName(theme.ThemeName) != Constants.ClientId)
             {
                 // remove theme assets
                 if (_installationManager.UninstallPackage(theme.PackageName))
@@ -126,7 +165,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Theme Delete Attempt {Themename}", themename);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Theme Delete Attempt {ThemeId} {SiteId}", id, siteid);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
