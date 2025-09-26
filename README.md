@@ -35,7 +35,7 @@ cd Server
 dotnet run
 ```
 
-- Browse to http://localhost:5001 to run the application (the Install Wizard will be displayed the first time)
+- Browse to http://localhost:5001 to run the application (an Installation Wizard screen will be displayed the first time you run the application)
 - To develop/debug the application, open the MyCompany.MyProject.sln file in the root folder and hit F5
 
 **Installing using source code from the Dev/Master branch:**
@@ -47,8 +47,6 @@ dotnet run
 - Clone (or download) the Oqtane Master or Dev branch source code to your local system.
 
 - Open the **Oqtane.sln** solution file.
-
-- **Important:** Rebuild the entire solution before running it (ie. Build / Rebuild Solution).
   
 - Make sure you specify Oqtane.Server as the Startup Project.
 
