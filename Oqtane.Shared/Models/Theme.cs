@@ -95,6 +95,9 @@ namespace Oqtane.Models
         public List<ThemeControl> Containers { get; set; }
 
         [NotMapped]
+        public List<Permission> PermissionList { get; set; }
+
+        [NotMapped]
         public string Template { get; set; }
 
         [NotMapped]

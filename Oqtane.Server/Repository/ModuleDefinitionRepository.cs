@@ -386,6 +386,7 @@ namespace Oqtane.Repository
                         moduledefinition.Categories = "Common";
                     }
 
+                    // default permissions
                     if (moduledefinition.Categories == "Admin")
                     {
                         var shortName = moduledefinition.ModuleDefinitionName.Replace("Oqtane.Modules.Admin.", "").Replace(", Oqtane.Client", "");
@@ -455,18 +456,21 @@ namespace Oqtane.Repository
         private List<Permission> ClonePermissions(int siteId, List<Permission> permissionList)
         {
             var permissions = new List<Permission>();
-            foreach (var p in permissionList)
+            if (permissionList != null)
             {
-                var permission = new Permission();
-                permission.SiteId = siteId;
-                permission.EntityName = p.EntityName;
-                permission.EntityId = p.EntityId;
-                permission.PermissionName = p.PermissionName;
-                permission.RoleId = null;
-                permission.RoleName = p.RoleName;
-                permission.UserId = p.UserId;
-                permission.IsAuthorized = p.IsAuthorized;
-                permissions.Add(permission);
+                foreach (var p in permissionList)
+                {
+                    var permission = new Permission();
+                    permission.SiteId = siteId;
+                    permission.EntityName = p.EntityName;
+                    permission.EntityId = p.EntityId;
+                    permission.PermissionName = p.PermissionName;
+                    permission.RoleId = null;
+                    permission.RoleName = p.RoleName;
+                    permission.UserId = p.UserId;
+                    permission.IsAuthorized = p.IsAuthorized;
+                    permissions.Add(permission);
+                }
             }
             return permissions;
         }

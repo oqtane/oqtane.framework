@@ -9,7 +9,7 @@ cd MyCompany.MyProject
 dotnet build
 cd Server
 dotnet run
-browse to http://localhost:5001
+browse to Url
 ```
 
 When using this approach you do not need to have a local copy of the oqtane.framework source code - you simply utilize Oqtane as a standard application dependency.

@@ -195,7 +195,7 @@
     {
         try
         {
-            _themes = await ThemeService.GetThemesAsync();
+            _themes = await ThemeService.GetThemesAsync(PageState.Site.SiteId);
             await LoadPackages();
             _initialized = true;
         }

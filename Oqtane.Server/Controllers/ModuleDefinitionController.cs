@@ -252,7 +252,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized ModuleDefinition Delete Attempt {ModuleDefinitionId}", id);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized ModuleDefinition Delete Attempt {ModuleDefinitionId} {SiteId}", id, siteid);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
