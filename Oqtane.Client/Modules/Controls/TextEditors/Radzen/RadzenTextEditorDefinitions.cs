@@ -33,7 +33,7 @@ namespace Oqtane.Modules.Controls
             { "InsertImage", (builder, sequence) => CreateFragment(builder, sequence, "InsertImage", "RadzenHtmlEditorCustomTool", "InsertImage", "image") },
             { "Italic", (builder, sequence) => CreateFragment(builder, sequence, "Italic", "RadzenHtmlEditorItalic") },
             { "Justify", (builder, sequence) => CreateFragment(builder, sequence, "Justify", "RadzenHtmlEditorJustify") },
-            { "Link", (builder, sequence) => CreateFragment(builder, sequence, "Link", "RadzenHtmlEditorLink") },
+            { "Link", (builder, sequence) => CreateFragment(builder, sequence, "InsertLink", "RadzenHtmlEditorCustomTool", "InsertLink", "insert_link") },
             { "OrderedList", (builder, sequence) => CreateFragment(builder, sequence, "OrderedList", "RadzenHtmlEditorOrderedList") },
             { "Outdent", (builder, sequence) => CreateFragment(builder, sequence, "Outdent", "RadzenHtmlEditorOutdent") },
             { "Redo", (builder, sequence) => CreateFragment(builder, sequence, "Redo", "RadzenHtmlEditorRedo") },

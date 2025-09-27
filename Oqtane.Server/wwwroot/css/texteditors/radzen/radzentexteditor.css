@@ -20,3 +20,23 @@
 .rz-text-editor .rz-colorpicker.rz-state-disabled {
     border: none !important;
 }
+.rz-text-editor-dialog .rz-html-editor-dialog-item select{
+    border: var(--rz-input-border);
+    border-block-end: var(--rz-input-border-block-end);
+    border-radius: var(--rz-input-border-radius);
+    box-shadow: var(--rz-input-shadow);
+    background-color: var(--rz-input-background-color);
+    padding-block: var(--rz-input-padding-block);
+    padding-inline: var(--rz-input-padding-inline);
+    font-size: var(--rz-input-font-size);
+    color: var(--rz-input-value-color);
+}
+.rz-text-editor-dialog .rz-html-editor-dialog-item select:hover, .rz-text-edit-dialog .rz-html-editor-dialog-item select:active {
+    box-shadow: var(--rz-input-hover-shadow);
+    background-color: var(--rz-input-hover-background-color);
+    border: var(--rz-input-hover-border);
+    border-block-end: var(--rz-input-hover-border-block-end);
+}
+.rz-text-editor-dialog .alert form{
+    display: none;
+}
