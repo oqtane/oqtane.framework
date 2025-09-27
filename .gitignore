@@ -36,3 +36,7 @@ Oqtane.Server/wwwroot/Themes/*
 !Oqtane.Server/wwwroot/Themes/Templates
 Oqtane.Server/wwwroot/Themes/Templates/*
 !Oqtane.Server/wwwroot/Themes/Templates/External
+
+
+#Ignore vscode AI rules
+.github/instructions/codacy.instructions.md
