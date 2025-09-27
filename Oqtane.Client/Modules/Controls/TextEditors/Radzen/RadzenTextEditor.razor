@@ -147,13 +147,17 @@
 
     private async Task OnExecute(HtmlEditorExecuteEventArgs args)
     {
-        if (args.CommandName == "InsertImage")
+        switch(args.CommandName)
         {
-            await InsertImage(args.Editor);
-        }
-        else if (args.CommandName == "Settings")
-        {
-            await UpdateSettings(args.Editor);
+            case "InsertImage":
+                await InsertImage(args.Editor);
+                break;
+            case "InsertLink":
+                await InsertLink(args.Editor);
+                break;
+            case "Settings":
+                await UpdateSettings(args.Editor);
+                break;
         }
     }
 
@@ -164,7 +168,24 @@
         var result = await DialogService.OpenAsync<RadzenFileManagerDialog>(Localizer["DialogTitle.SelectImage"], new Dictionary<string, object>
         {
             { "Filters", PageState.Site.ImageFiles }
-        });
+        }, new DialogOptions { CssClass = "rz-text-editor-dialog" });
+
+        await editor.RestoreSelectionAsync();
+
+        if (result != null)
+        {
+            await editor.ExecuteCommandAsync(HtmlEditorCommands.InsertHtml, result);
+        }
+    }
+
+    private async Task InsertLink(RadzenHtmlEditor editor)
+    {
+        await editor.SaveSelectionAsync();
+
+        var result = await DialogService.OpenAsync<RadzenInsertLinkDialog>(Localizer["DialogTitle.InsertLink"], new Dictionary<string, object>
+        {
+            { "Editor", editor }
+        }, new DialogOptions { CssClass = "rz-text-editor-dialog" });
 
         await editor.RestoreSelectionAsync();
 

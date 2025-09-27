@@ -1,19 +1,23 @@
 @namespace Oqtane.Modules.Controls
-@using System.IO
 @using Radzen
 @using Radzen.Blazor
 @inject DialogService DialogService
 @inject IStringLocalizer<Oqtane.Modules.Controls.RadzenTextEditor> Localizer
 
-<div class="d-flex">
+@if (!string.IsNullOrEmpty(_message))
+{
+    <div class="rz-html-editor-dialog-item">
+        <div class="alert alert-warning alert-dismissible fade show mb-3" role="alert">
+            @((MarkupString)_message)
+        </div>
+    </div>
+}
+<div class="rz-html-editor-dialog-item">
     <FileManager @ref="_fileManager" Filter="@Filters" />
 </div>
-<div class="d-flex">
-    <ModuleMessage Message="@_message" Type="MessageType.Warning"></ModuleMessage>
-</div>
-<div class="mt-1 text-end">
-    <RadzenButton Text="OK" Click=@OnOkClick />
-    <RadzenButton Text="Cancel" Click=@OnCancelClick ButtonStyle="ButtonStyle.Secondary" />
+<div class="rz-html-editor-dialog-buttons">
+    <RadzenButton Text="@Localizer["InsertImage"]" Click="InsertImage" />
+    <RadzenButton Text="@Localizer["Cancel"]" Click="() => DialogService.Close()" ButtonStyle="ButtonStyle.Secondary" />
 </div>
 @code {
     private FileManager _fileManager;
@@ -22,12 +26,7 @@
     [Parameter]
     public string Filters { get; set; }
 
-    private void OnCancelClick()
-    {
-        DialogService.Close(null);
-    }
-
-    private void OnOkClick()
+    private void InsertImage()
     {
         _message = string.Empty;
         var file = _fileManager.GetFile();
