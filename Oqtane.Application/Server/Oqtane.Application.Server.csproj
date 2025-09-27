@@ -23,7 +23,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Oqtane.Server" Version="6.2.1" />
+    <ProjectReference Include="../../Oqtane.Server/Oqtane.Server.csproj" />
+    <ProjectReference Include="../../Oqtane.Client/Oqtane.Client.csproj" />
+    <ProjectReference Include="../../Oqtane.Shared/Oqtane.Shared.csproj" />
   </ItemGroup>
 	
 </Project>
