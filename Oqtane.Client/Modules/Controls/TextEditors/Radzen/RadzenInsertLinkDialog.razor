@@ -97,7 +97,7 @@
         if(file != null)
         {
             _linkAttributes.Href = file.Url;
-            if (string.IsNullOrWhiteSpace(_linkAttributes.InnerText) && _linkTextEditable)
+            if ((string.IsNullOrWhiteSpace(_linkAttributes.InnerText) || _linkAttributes.InnerText == _previousFile?.Name) && _linkTextEditable)
             {
                 _linkAttributes.InnerText = file.Name;
             }
