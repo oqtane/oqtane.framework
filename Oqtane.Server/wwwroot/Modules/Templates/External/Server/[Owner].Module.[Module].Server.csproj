@@ -11,6 +11,7 @@
     <Copyright>[Owner]</Copyright>
     <AssemblyName>[Owner].Module.[Module].Server.Oqtane</AssemblyName>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <StaticWebAssetsFingerprintContent>false</StaticWebAssetsFingerprintContent>
   </PropertyGroup>
 
   <ItemGroup>

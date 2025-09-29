@@ -443,8 +443,16 @@
                 {
                     _themetype = PageState.Site.DefaultThemeType;
                 }
-                _themes = ThemeService.GetThemeControls(PageState.Site.Themes);
-                _containers = ThemeService.GetContainerControls(PageState.Site.Themes, _themetype);
+                var themes = new List<Theme>();
+                foreach (var theme in PageState.Site.Themes)
+                {
+                    if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Utilize, theme.PermissionList))
+                    {
+                        themes.Add(theme);
+                    }
+                }
+                _themes = ThemeService.GetThemeControls(themes);
+                _containers = ThemeService.GetContainerControls(themes, _themetype);
                 _containertype = _page.DefaultContainerType;
                 if (string.IsNullOrEmpty(_containertype))
                 {

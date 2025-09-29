@@ -4,35 +4,52 @@
 
 @if (!string.IsNullOrEmpty(Message))
 {
-    <div class="@_classname alert-dismissible fade show mb-3" role="alert">
-        @((MarkupString)Message)
-        @if (Type == MessageType.Error && PageState != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-        {
-            <NavLink class="ms-2" href="@NavigateUrl("admin/log")">View Details</NavLink>
-        }
-        @if (ModuleState != null)
-        {
-            @if (ModuleState.RenderMode == RenderModes.Static)
+    @if (_style == MessageStyle.Alert)
+    {
+        <div class="@_classname alert-dismissible fade show mb-3" role="alert">
+            @((MarkupString)Message)
+            @if (Type == MessageType.Error && PageState != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
             {
-                <a href="@NavigationManager.Uri" class="btn-close" data-dismiss="alert" aria-label="close"></a>
+                <NavLink class="ms-2" href="@NavigateUrl("admin/log")">View Details</NavLink>
             }
-            else
-            {
-                <button type="button" class="btn-close" data-dismiss="alert" aria-label="close" @onclick="CloseMessage"></button>
-            }
-        }
-    </div>
+            <form method="post" class="app-form-inline" @formname="ModuleMessageForm" @onsubmit="CloseMessage" data-enhance>
+                <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                <button type="submit" class="btn-close" data-dismiss="alert" aria-label="close"></button>
+            </form>
+        </div>
+    }
+
+    @if (_style == MessageStyle.Toast)
+    {
+        <div class="app-modulemessage-toast bottom-0 end-0">
+            <div class="@_classname alert-dismissible fade show mb-3" role="alert">
+                @((MarkupString)Message)
+                @if (Type == MessageType.Error && PageState != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                {
+                    <NavLink class="ms-2" href="@NavigateUrl("admin/log")">View Details</NavLink>
+                }
+                <form method="post" class="app-form-inline" @formname="ModuleMessageForm" @onsubmit="CloseMessage" data-enhance>
+                    <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                    <button type="submit" class="btn-close" data-dismiss="alert" aria-label="close"></button>
+                </form>
+            </div>
+        </div>
+    }
 }
 
 @code {
     private string _message = string.Empty;
     private string _classname = string.Empty;
+    private MessageStyle _style;
 
     [Parameter]
     public string Message { get; set; }
 
     [Parameter]
     public MessageType Type { get; set; }
+
+    [Parameter]
+    public MessageStyle Style { get; set; } = MessageStyle.Alert;
 
     [Parameter]
     public RenderModeBoundary Parent { get; set; }
@@ -43,6 +60,11 @@
         if (!string.IsNullOrEmpty(_message))
         {
             _classname = GetMessageType(Type);
+            _style = Style;
+            if (Type == MessageType.Error)
+            {
+                _style = MessageStyle.Alert; // errors should always be displayed as alerts
+            }
         }
     }
 
@@ -67,9 +89,10 @@
 
         return classname;
     }
-    private void CloseMessage(MouseEventArgs e)
+
+    private void CloseMessage()
     {
-        if(Parent != null)
+        if (Parent != null)
         {
             Parent.DismissMessage();
         }

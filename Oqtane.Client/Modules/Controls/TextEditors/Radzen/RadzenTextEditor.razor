@@ -51,8 +51,8 @@
 
     public override List<Resource> Resources { get; set; } = new List<Resource>()
     {
-        new Resource { ResourceType = ResourceType.Script, Url = "_content/Radzen.Blazor/Radzen.Blazor.js", Location = ResourceLocation.Body },
-        new Resource { ResourceType = ResourceType.Script, Url = "js/texteditors/radzen/radzen-interop.js", Location = ResourceLocation.Body }
+        new Script("_content/Radzen.Blazor/Radzen.Blazor.js"),
+        new Script("js/texteditors/radzen/radzen-interop.js")
     };
 
     protected override void OnInitialized()
@@ -147,13 +147,17 @@
 
     private async Task OnExecute(HtmlEditorExecuteEventArgs args)
     {
-        if (args.CommandName == "InsertImage")
+        switch(args.CommandName)
         {
-            await InsertImage(args.Editor);
-        }
-        else if (args.CommandName == "Settings")
-        {
-            await UpdateSettings(args.Editor);
+            case "InsertImage":
+                await InsertImage(args.Editor);
+                break;
+            case "InsertLink":
+                await InsertLink(args.Editor);
+                break;
+            case "Settings":
+                await UpdateSettings(args.Editor);
+                break;
         }
     }
 
@@ -161,10 +165,27 @@
     {
         await editor.SaveSelectionAsync();
 
-        var result = await DialogService.OpenAsync<FileManagerDialog>(Localizer["DialogTitle.SelectImage"], new Dictionary<string, object>
+        var result = await DialogService.OpenAsync<RadzenFileManagerDialog>(Localizer["DialogTitle.SelectImage"], new Dictionary<string, object>
         {
             { "Filters", PageState.Site.ImageFiles }
-        });
+        }, new DialogOptions { CssClass = "rz-text-editor-dialog" });
+
+        await editor.RestoreSelectionAsync();
+
+        if (result != null)
+        {
+            await editor.ExecuteCommandAsync(HtmlEditorCommands.InsertHtml, result);
+        }
+    }
+
+    private async Task InsertLink(RadzenHtmlEditor editor)
+    {
+        await editor.SaveSelectionAsync();
+
+        var result = await DialogService.OpenAsync<RadzenInsertLinkDialog>(Localizer["DialogTitle.InsertLink"], new Dictionary<string, object>
+        {
+            { "Editor", editor }
+        }, new DialogOptions { CssClass = "rz-text-editor-dialog" });
 
         await editor.RestoreSelectionAsync();
 
@@ -178,7 +199,7 @@
     {
         await editor.SaveSelectionAsync();
 
-        var result = await DialogService.OpenAsync<SettingsDialog>(Localizer["Settings"], null, new DialogOptions { Width = "650px" });
+        var result = await DialogService.OpenAsync<RadzenTextEditorSettingsDialog>(Localizer["Settings"], null, new DialogOptions { Width = "650px" });
         if (result == true)
         {
             NavigationManager.NavigateTo(NavigationManager.Uri);

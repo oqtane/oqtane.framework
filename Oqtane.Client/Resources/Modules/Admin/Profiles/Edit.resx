@@ -157,7 +157,7 @@
     <value>The default value for this profile item</value>
   </data>
   <data name="Options.HelpText" xml:space="preserve">
-    <value>A comma delimited list of options. Options can contain a key and value if they are seperated by a colon (ie. key:value). You can also dynamically load your options from custom Settings (ie. 'EntityName:Countries').</value>
+    <value>A comma delimited list of options. Options can contain a key and value if they are seperated by a colon (ie. key:value). You can also dynamically load your options from Settings.</value>
   </data>
   <data name="Required.HelpText" xml:space="preserve">
     <value>Should a user be required to provide a value for this profile item?</value>
@@ -200,5 +200,11 @@
   </data>
   <data name="Autocomplete.Text" xml:space="preserve">
     <value>Autocomplete: </value>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>Options</value>
+  </data>
+    <data name="Settings" xml:space="preserve">
+    <value>Settings</value>
   </data>
 </root>

@@ -216,7 +216,7 @@ else
             _tenantid = _tenants.First(item => item.Name == TenantNames.Master).TenantId.ToString();
         }
         _urls = PageState.Alias.Name;
-        _themeList = await ThemeService.GetThemesAsync();
+        _themeList = await ThemeService.GetThemesAsync(PageState.Site.SiteId);
         _themes = ThemeService.GetThemeControls(_themeList);
         if (_themes.Any(item => item.TypeName == Constants.DefaultTheme))
         {

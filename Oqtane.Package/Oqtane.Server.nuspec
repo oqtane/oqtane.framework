@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Oqtane.Server</id>
-    <version>6.2.0</version>
+    <version>6.2.1</version>
     <authors>Shaun Walker</authors>
     <owners>.NET Foundation</owners>
     <title>Oqtane Framework</title>
@@ -12,33 +12,33 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
-    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v6.2.0</releaseNotes>
+    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v6.2.1</releaseNotes>
     <readme>readme.md</readme>
     <icon>icon.png</icon>
     <tags>oqtane</tags>
     <dependencies>
       <group targetFramework="net9.0">
-        <dependency id="Oqtane.Client" version="6.2.0" exclude="Build,Analyzers" />
-        <dependency id="Oqtane.Shared" version="6.2.0" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.AspNetCore.Components.WebAssembly.Server" version="9.0.8" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.AspNetCore.Identity.EntityFrameworkCore" version="9.0.8" exclude="Build,Analyzers" />
+        <dependency id="Oqtane.Client" version="6.2.1" exclude="Build,Analyzers" />
+        <dependency id="Oqtane.Shared" version="6.2.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.AspNetCore.Components.WebAssembly.Server" version="9.0.9" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.AspNetCore.Identity.EntityFrameworkCore" version="9.0.9" exclude="Build,Analyzers" />
         <dependency id="Microsoft.Data.SqlClient" version="6.1.1" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.EntityFrameworkCore" version="9.0.8" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.Localization" version="9.0.8" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.AspNetCore.Authentication.OpenIdConnect" version="9.0.8" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore" version="9.0.9" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Localization" version="9.0.9" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.AspNetCore.Authentication.OpenIdConnect" version="9.0.9" exclude="Build,Analyzers" />
         <dependency id="SixLabors.ImageSharp" version="3.1.11" exclude="Build,Analyzers" />
-        <dependency id="HtmlAgilityPack" version="1.12.2" exclude="Build,Analyzers" />
-        <dependency id="Swashbuckle.AspNetCore" version="9.0.4" exclude="Build,Analyzers" />
-        <dependency id="MailKit" version="4.13.0" exclude="Build,Analyzers" />
+        <dependency id="HtmlAgilityPack" version="1.12.3" exclude="Build,Analyzers" />
+        <dependency id="Swashbuckle.AspNetCore" version="9.0.5" exclude="Build,Analyzers" />
+        <dependency id="MailKit" version="4.14.0" exclude="Build,Analyzers" />
         <dependency id="MySql.Data" version="9.4.0" exclude="Build,Analyzers" />
         <dependency id="Pomelo.EntityFrameworkCore.MySql" version="9.0.0" exclude="Build,Analyzers" />
         <dependency id="EFCore.NamingConventions" version="9.0.0" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.EntityFrameworkCore.Relational" version="9.0.8" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore.Relational" version="9.0.9" exclude="Build,Analyzers" />
         <dependency id="Npgsql.EntityFrameworkCore.PostgreSQL" version="9.0.4" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.EntityFrameworkCore.Sqlite" version="9.0.8" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Data.Sqlite.Core" version="9.0.8" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore.Sqlite" version="9.0.9" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Data.Sqlite.Core" version="9.0.9" exclude="Build,Analyzers" />
         <dependency id="SQLitePCLRaw.bundle_e_sqlite3" version="3.0.2" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="9.0.8" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="9.0.9" exclude="Build,Analyzers" />
       </group>
     </dependencies>
     <frameworkReferences>
@@ -50,6 +50,12 @@
   <files>
     <file src="..\Oqtane.Server\bin\Release\net9.0\Oqtane.Server.dll" target="lib\net9.0" /> 
     <file src="..\Oqtane.Server\bin\Release\net9.0\Oqtane.Server.pdb" target="lib\net9.0" /> 
+    <file src="..\Oqtane.Server\obj\Release\net9.0\staticwebassets\msbuild.Oqtane.Server.Microsoft.AspNetCore.StaticWebAssetEndpoints.props" target="build\Microsoft.AspNetCore.StaticWebAssetEndpoints.props" />
+    <file src="..\Oqtane.Server\obj\Release\net9.0\staticwebassets\msbuild.Oqtane.Server.Microsoft.AspNetCore.StaticWebAssets.props" target="build\Microsoft.AspNetCore.StaticWebAssets.props" />
+    <file src="..\Oqtane.Server\obj\Release\net9.0\staticwebassets\msbuild.build.Oqtane.Server.props" target="build\Oqtane.Server.props" />
+    <file src="..\Oqtane.Server\obj\Release\net9.0\staticwebassets\msbuild.buildMultiTargeting.Oqtane.Server.props" target="buildMultiTargeting\Oqtane.Server.props" />
+    <file src="..\Oqtane.Server\obj\Release\net9.0\staticwebassets\msbuild.buildTransitive.Oqtane.Server.props" target="buildTransitive\Oqtane.Server.props" />
+    <file src="..\Oqtane.Server\wwwroot\**\*" exclude="..\Oqtane.Server\wwwroot\Modules\Templates\**;..\Oqtane.Server\wwwroot\Themes\Templates\**" target="staticwebassets" />
     <file src="icon.png" target="" />
     <file src="readme.md" target="" />
   </files>

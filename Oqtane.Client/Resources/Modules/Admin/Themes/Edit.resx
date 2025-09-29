@@ -180,4 +180,10 @@
   <data name="View License" xml:space="preserve">
     <value>View License</value>
   </data>
+  <data name="Theme.Heading" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="Permissions.Heading" xml:space="preserve">
+    <value>Permissions</value>
+  </data>
 </root>

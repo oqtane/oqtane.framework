@@ -40,6 +40,9 @@
                     {
                         <Pager Items="@_searchResults?.Results"
                                 Format="Grid"
+                                PageSize="@_pageSize"
+                                DisplayPages="@_displayPages"
+                                CurrentPage="@_currentPage"
                                 Columns="1"
                                 Toolbar="Bottom"
                                 Parameters="@($"q={_keywords}")">
@@ -66,6 +69,7 @@
 
 @code {
     public override string RenderMode => RenderModes.Static;
+    private const string SearchDefaultPageSize = "10";
 
     private string _includeEntities;
     private string _excludeEntities;
@@ -75,6 +79,8 @@
     private string _sortField;
     private string _sortOrder;
     private string _bodyLength;
+    private string _currentPage = "0";
+    private string _displayPages = "7";
     
     private string _keywords;
     private SearchResults _searchResults;
@@ -89,10 +95,15 @@
         _excludeEntities = SettingService.GetSetting(ModuleState.Settings, "SearchResults_ExcludeEntities", "");
         _fromDate = SettingService.GetSetting(ModuleState.Settings, "SearchResults_FromDate", DateTime.MinValue.ToString());
         _toDate = SettingService.GetSetting(ModuleState.Settings, "SearchResults_ToDate", DateTime.MaxValue.ToString());
-        _pageSize = SettingService.GetSetting(ModuleState.Settings, "SearchResults_PageSize", int.MaxValue.ToString());
+        _pageSize = SettingService.GetSetting(ModuleState.Settings, "SearchResults_PageSize", SearchDefaultPageSize);
         _sortField = SettingService.GetSetting(ModuleState.Settings, "SearchResults_SortField", "Relevance");
         _sortOrder = SettingService.GetSetting(ModuleState.Settings, "SearchResults_SortOrder", "Descending");
         _bodyLength = SettingService.GetSetting(ModuleState.Settings, "SearchResults_BodyLength", "255");
+
+        if (PageState.QueryString.ContainsKey("p"))
+        {
+            _currentPage = PageState.QueryString["p"];
+        }
 
         if (_keywords == null && PageState.QueryString.ContainsKey("q"))
         {
@@ -122,7 +133,7 @@
                 ExcludeEntities = _excludeEntities,
                 FromDate = (!string.IsNullOrEmpty(_fromDate)) ? DateTime.Parse(_fromDate) : DateTime.MinValue,
                 ToDate = (!string.IsNullOrEmpty(_toDate)) ? DateTime.Parse(_toDate) : DateTime.MaxValue,
-                PageSize = (!string.IsNullOrEmpty(_pageSize)) ? int.Parse(_pageSize) : int.MaxValue,
+                PageSize = int.MaxValue,
                 PageIndex = 0,
                 SortField = (!string.IsNullOrEmpty(_sortField)) ? (SearchSortField)Enum.Parse(typeof(SearchSortField), _sortField) : SearchSortField.Relevance,
                 SortOrder = (!string.IsNullOrEmpty(_sortOrder)) ? (SearchSortOrder)Enum.Parse(typeof(SearchSortOrder), _sortOrder) : SearchSortOrder.Descending,

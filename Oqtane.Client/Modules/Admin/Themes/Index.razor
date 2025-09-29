@@ -78,7 +78,7 @@ else
     {
         try
         {
-            _themes = await ThemeService.GetThemesAsync();
+            _themes = await ThemeService.GetThemesAsync(PageState.Site.SiteId);
             _packages = await PackageService.GetPackageUpdatesAsync("theme");
         }
         catch (Exception ex)
@@ -161,7 +161,7 @@ else
     {
         try
         {
-            await ThemeService.DeleteThemeAsync(Theme.ThemeName);
+            await ThemeService.DeleteThemeAsync(Theme.ThemeId, PageState.Site.SiteId);
             AddModuleMessage(Localizer["Success.Theme.Delete"], MessageType.Success);
             NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, true));
         }

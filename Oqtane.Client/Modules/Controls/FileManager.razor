@@ -345,11 +345,11 @@
         try
         {
             FolderId = int.Parse((string)e.Value);
-            await OnSelectFolder.InvokeAsync(FolderId);
             FileId = -1;
             GetFolderPermission();
             await SetImage();
             await GetFiles();
+            await OnSelectFolder.InvokeAsync(FolderId);
             StateHasChanged();
         }
         catch (Exception ex)
@@ -364,11 +364,11 @@
     {
         _message = string.Empty;
         FileId = int.Parse((string)e.Value);
+        await SetImage();
     #pragma warning disable CS0618
         await OnSelect.InvokeAsync(FileId);
     #pragma warning restore CS0618
         await OnSelectFile.InvokeAsync(FileId);
-        await SetImage();
         StateHasChanged();
     }
 
@@ -460,13 +460,14 @@
                             }
                         }
 
+                        await SetImage();
+
                         await OnUpload.InvokeAsync(FileId);
 #pragma warning disable CS0618
                         await OnSelect.InvokeAsync(FileId);
 #pragma warning restore CS0618
                         await OnSelectFile.InvokeAsync(FileId);
 
-                        await SetImage();
                         await GetFiles();
                         StateHasChanged();
                     }
@@ -518,12 +519,13 @@
             }
 
             FileId = -1;
+            await SetImage();
+
 #pragma warning disable CS0618
             await OnSelect.InvokeAsync(FileId);
 #pragma warning restore CS0618
             await OnSelectFile.InvokeAsync(FileId);
 
-            await SetImage();
             await GetFiles();
             StateHasChanged();
         }

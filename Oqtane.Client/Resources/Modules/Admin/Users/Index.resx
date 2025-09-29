@@ -555,4 +555,10 @@
   <data name="CookieDomain.HelpText" xml:space="preserve">
     <value>If you would like to share cookies across subdomains you will need to specify a root domain with a leading dot (ie. '.example.com')</value>
   </data>
+  <data name="SingleLogout.Text" xml:space="preserve">
+    <value>Allow Single Logout?</value>
+  </data>
+  <data name="SingleLogout.HelpText" xml:space="preserve">
+    <value>Specify if users should be logged out of both the application and provider (the default is false indicating they will only be logged out of the application)</value>
+  </data>
 </root>

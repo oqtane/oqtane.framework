@@ -1,0 +1,148 @@
+@namespace Oqtane.Modules.Controls
+@using Radzen
+@using Radzen.Blazor
+@using System.Text
+@inject DialogService DialogService
+@inject IStringLocalizer<Oqtane.Modules.Controls.RadzenTextEditor> Localizer
+
+@if (_linkAttributes != null)
+{
+    @if (!string.IsNullOrWhiteSpace(_message))
+    {
+        <div class="rz-html-editor-dialog-item">
+            <div class="alert alert-warning alert-dismissible fade show mb-3" role="alert">
+                @((MarkupString)_message)
+            </div>
+        </div>
+    }
+    <div class="rz-html-editor-dialog-item">
+        <RadzenDropDown TValue="int" class="form-control" PopupStyle="color: var(--rz-input-value-color);" @bind-Value="_linkType" Data="_linkTypes" TextProperty="Value" ValueProperty="Key" />
+    </div>
+    @if (_linkType == 0)
+    {
+        <div class="rz-html-editor-dialog-item">
+            <RadzenTextBox class="form-control" @bind-Value="@_linkAttributes.Href" Placeholder="@Localizer["WebAddress"]" />
+        </div>
+    }
+    else
+    {
+        <div class="rz-html-editor-dialog-item">
+            <FileManager @ref="_fileManager" OnSelectFile="SelectFile" OnSelectFolder="SelectFile" />
+        </div>
+    }
+    @if (_linkTextEditable)
+    {
+        <div class="rz-html-editor-dialog-item">
+            <RadzenTextBox class="form-control" @bind-Value="@_linkAttributes.InnerText" Placeholder="@Localizer["LinkText"]" />
+        </div>
+    }
+    <div class="rz-html-editor-dialog-item">
+        <RadzenDropDown TValue="bool" class="form-control" PopupStyle="color: var(--rz-input-value-color);" @bind-Value="_blank" Data="_linkTargets" TextProperty="Value" ValueProperty="Key" />
+    </div>
+}
+<div class="rz-html-editor-dialog-buttons">
+    <RadzenButton Text=@Localizer["InsertLink"] Click="InsertLink" />
+    <RadzenButton Text=@Localizer["Cancel"] Click="() => DialogService.Close()" ButtonStyle="ButtonStyle.Secondary" />
+</div>
+
+@code {
+    class LinkAttributes
+    {
+        public string InnerText { get; set; }
+        public string InnerHtml { get; set; }
+        public string Href { get; set; }
+        public string Target { get; set; }
+    }
+
+    [Parameter]
+    public RadzenHtmlEditor Editor { get; set; }
+
+    private IDictionary<int, string> _linkTypes;
+    private IDictionary<bool, string> _linkTargets;
+    private LinkAttributes _linkAttributes;
+    private bool _blank;
+    private int _linkType;
+    private string _message;
+    private bool _linkTextEditable;
+    private FileManager _fileManager;
+    private File _previousFile;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        _linkAttributes = await Editor.GetSelectionAttributes<LinkAttributes>("a", new[] { "innerText", "href", "target" });
+        if (_linkAttributes.Target == "_blank")
+        {
+            _blank = true;
+        }
+
+        _linkTextEditable = string.IsNullOrWhiteSpace(_linkAttributes.InnerHtml) || _linkAttributes.InnerHtml == "<br>";
+
+        _linkTypes = new Dictionary<int, string>
+        {
+            { 0, Localizer["WebLink"] },
+            { 1, Localizer["FileLink"] }
+        };
+
+        _linkTargets = new Dictionary<bool, string>
+        {
+            { false, Localizer["OpenInCurrentWindow"] },
+            { true, Localizer["OpenInNewWindow"] }
+        };
+    }
+
+    private void SelectFile()
+    {
+        var file = _fileManager.GetFile();
+        if(file != null)
+        {
+            _linkAttributes.Href = file.Url;
+            if ((string.IsNullOrWhiteSpace(_linkAttributes.InnerText) || _linkAttributes.InnerText == _previousFile?.Name) && _linkTextEditable)
+            {
+                _linkAttributes.InnerText = file.Name;
+            }
+        }
+        else
+        {
+            _linkAttributes.Href = string.Empty;
+            if (_linkAttributes.InnerText == _previousFile?.Name)
+            {
+                _linkAttributes.InnerText = string.Empty;
+            }
+        }
+        _previousFile = file;
+
+        StateHasChanged();
+    }
+
+    private void InsertLink()
+    {
+        _message = string.Empty;
+        if (string.IsNullOrWhiteSpace(_linkAttributes.Href))
+        {
+            _message = _linkType == 1 ? Localizer["Message.Require.File"] : Localizer["Message.Require.WebAddress"];
+        }
+        else if (string.IsNullOrWhiteSpace(_linkAttributes.InnerText) && _linkTextEditable)
+        {
+            _message = Localizer["Message.Require.LinkText"];
+        }
+
+        if (string.IsNullOrWhiteSpace(_message))
+        {
+            var html = new StringBuilder();
+            html.AppendFormat("<a href=\"{0}\"", _linkAttributes.Href);
+            if (_blank)
+            {
+                html.Append(" target=\"_blank\"");
+            }
+
+            html.AppendFormat(">{0}</a>", string.IsNullOrWhiteSpace(_linkAttributes.InnerText) ? _linkAttributes.InnerHtml : _linkAttributes.InnerText);
+
+            DialogService.Close(html.ToString());
+        }
+        else
+        {
+            StateHasChanged();
+        }
+    }
+}

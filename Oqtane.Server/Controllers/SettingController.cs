@@ -17,6 +17,8 @@ using Microsoft.Extensions.Options;
 using System.IO;
 using System.Text.RegularExpressions;
 using Oqtane.Migrations.Tenant;
+using Google.Protobuf.WellKnownTypes;
+using System;
 
 namespace Oqtane.Controllers
 {
@@ -204,7 +206,60 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Add Or Update Setting For EntityName {EntityName} EntityId {EntityId} SettingName {SettingName}", entityName, entityId, settingName);
+                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Add Or Update Setting For {EntityName}:{EntityId}", entityName, entityId);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            }
+        }
+
+        // PUT api/<controller>/site/1
+        [HttpPut("{entityName}/{entityId}")]
+        public void Put(string entityName, int entityId, [FromBody] List<Setting> settings)
+        {
+            if (ModelState.IsValid && IsAuthorized(entityName,entityId, PermissionNames.Edit))
+            {
+                var existingSettings = _settings.GetSettings(entityName, entityId).ToList();
+                foreach (Setting setting in settings)
+                {
+                    bool modified = false;
+
+                    // manage settings modified with SetSetting method
+                    if (setting.SettingValue.StartsWith("[Private]"))
+                    {
+                        modified = true;
+                        setting.IsPrivate = true;
+                        setting.SettingValue = setting.SettingValue.Substring(9);
+                    }
+                    if (setting.SettingValue.StartsWith("[Public]"))
+                    {
+                        modified = true;
+                        setting.IsPrivate = false;
+                        setting.SettingValue = setting.SettingValue.Substring(8);
+                    }
+
+                    Setting existingSetting = existingSettings.FirstOrDefault(item => item.SettingName.Equals(setting.SettingName, StringComparison.OrdinalIgnoreCase));
+                    if (existingSetting == null)
+                    {
+                        _settings.AddSetting(setting);
+                        AddSyncEvent(setting.EntityName, setting.EntityId, setting.SettingId, SyncEventActions.Create);
+                        _logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Created {Setting}", setting);
+
+                    }
+                    else
+                    {
+                        if (existingSetting.SettingValue != setting.SettingValue || (modified && existingSetting.IsPrivate != setting.IsPrivate))
+                        {
+                            existingSetting.SettingValue = setting.SettingValue;
+                            existingSetting.IsPrivate = setting.IsPrivate;
+                            _settings.UpdateSetting(existingSetting);
+                            AddSyncEvent(setting.EntityName, setting.EntityId, setting.SettingId, SyncEventActions.Update);
+                            _logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Updated {Setting}", setting);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Settings For {EntityName}:{EntityId}", entityName, entityId);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
@@ -253,7 +308,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>/entitynames
         [HttpGet("entitynames")]
-        [Authorize(Roles = RoleNames.Host)]
+        [Authorize(Roles = RoleNames.Admin)]
         public IEnumerable<string> GetEntityNames()
         {
             return _settings.GetEntityNames();
@@ -261,7 +316,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>/entityids?entityname=x
         [HttpGet("entityids")]
-        [Authorize(Roles = RoleNames.Host)]
+        [Authorize(Roles = RoleNames.Admin)]
         public IEnumerable<int> GetEntityIds(string entityName)
         {
             return _settings.GetEntityIds(entityName);

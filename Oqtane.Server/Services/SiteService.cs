@@ -144,7 +144,7 @@ namespace Oqtane.Services
                 }
 
                 // themes
-                site.Themes = _themes.FilterThemes(_themes.GetThemes().ToList());
+                site.Themes = _themes.FilterThemes(_themes.GetThemes(site.SiteId).ToList());
 
                 // installation date used for fingerprinting static assets
                 site.Fingerprint = Utilities.GenerateSimpleHash(_configManager.GetSetting("InstallationDate", DateTime.UtcNow.ToString("yyyyMMddHHmm")));

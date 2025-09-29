@@ -7,13 +7,80 @@
     "Blazor",
     "Oqtane"
   ],
+  "name": "Oqtane Application Template",
+  "shortName": "oqtane-app",
+  "defaultName": "MyCompany.MyProject",
+  "identity": "Oqtane.Application.Template",
   "tags": {
     "language": "C#",
-    "type": "project"
+    "type": "solution",
+    "editorTreatAs":"solution"
   },
-  "identity": "Oqtane.Application.Template",
-  "name": "Oqtane Application Solution For Blazor",
-  "shortName": "oqtane-app",
   "sourceName": "Oqtane.Application",
-  "preferNameDirectory": true
+  "preferNameDirectory": true,
+  "guids": [
+    "04B05448-788F-433D-92C0-FED35122D45A",
+    "AA8E58A1-CD09-4208-BF66-A8BB341FD669",
+    "18D73F73-D7BE-4388-85BA-FBD9AC96FCA2"
+  ],
+  "symbols": {
+    "Framework": {
+      "type": "parameter",
+      "description": "The target framework for the project",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "net9.0",
+          "description": "Target net9.0"
+        }
+      ],
+      "replaces": "net9.0",
+      "defaultValue": "net9.0"
+    },
+    "HttpPort": {
+      "type": "parameter",
+      "datatype": "integer",
+      "description": "Port number to use for the HTTP endpoint in launchSettings.json."
+    },
+    "HttpPortGenerated": {
+      "type": "generated",
+      "generator": "port"
+    },
+    "HttpPortReplacer": {
+      "type": "generated",
+      "generator": "coalesce",
+      "parameters": {
+        "sourceVariableName": "HttpPort",
+        "fallbackVariableName": "HttpPortGenerated"
+      },
+      "replaces": "44358"
+    },
+    "HttpsPort": {
+      "type": "parameter",
+      "datatype": "integer",
+      "description": "Port number to use for the HTTPS endpoint in launchSettings.json."
+    },
+    "HttpsPortGenerated": {
+      "type": "generated",
+      "generator": "port",
+      "parameters": {
+        "low": 44300,
+        "high": 44399
+      }
+    },
+    "HttpsPortReplacer": {
+      "type": "generated",
+      "generator": "coalesce",
+      "parameters": {
+        "sourceVariableName": "HttpsPort",
+        "fallbackVariableName": "HttpsPortGenerated"
+      },
+      "replaces": "44359"
+    }
+  },
+  "primaryOutputs": [
+    {
+      "path": "Oqtane.Application.sln"
+    }
+  ]
 }
