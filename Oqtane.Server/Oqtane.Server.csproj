@@ -2,6 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <RootNamespace>Oqtane</RootNamespace>
+    <IsPackable>true</IsPackable>
     <DefineConstants>$(DefineConstants);OQTANE</DefineConstants>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
