@@ -65,6 +65,7 @@
     private string _message;
     private bool _linkTextEditable;
     private FileManager _fileManager;
+    private File _previousFile;
 
     protected override async Task OnInitializedAsync()
     {
@@ -93,11 +94,24 @@
     private void SelectFile()
     {
         var file = _fileManager.GetFile();
-        var url = file != null ? file.Url : string.Empty;
-        var text = file != null && _linkTextEditable ? file.Name : string.Empty;
+        if(file != null)
+        {
+            _linkAttributes.Href = file.Url;
+            if ((string.IsNullOrWhiteSpace(_linkAttributes.InnerText) || _linkAttributes.InnerText == _previousFile?.Name) && _linkTextEditable)
+            {
+                _linkAttributes.InnerText = file.Name;
+            }
+        }
+        else
+        {
+            _linkAttributes.Href = string.Empty;
+            if (_linkAttributes.InnerText == _previousFile?.Name)
+            {
+                _linkAttributes.InnerText = string.Empty;
+            }
+        }
+        _previousFile = file;
 
-        _linkAttributes.Href = url;
-        _linkAttributes.InnerText = text;
         StateHasChanged();
     }
 
