@@ -1,5 +1,8 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -8,6 +11,7 @@ using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Managers;
 using Oqtane.Shared;
+using Radzen.Blazor.Markdown;
 
 namespace Oqtane.Pages
 {
@@ -28,6 +32,9 @@ namespace Oqtane.Pages
 
         public async Task<IActionResult> OnPostAsync(string returnurl, string everywhere)
         {
+            returnurl = (returnurl == null) ? "/" : returnurl;
+            returnurl = (!returnurl.StartsWith("/")) ? "/" + returnurl : returnurl;
+
             if (HttpContext.User != null)
             {
                 var alias = HttpContext.GetAlias();
@@ -43,13 +50,25 @@ namespace Oqtane.Pages
                     _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Logout For Username {Username}", user.Username);
                 }
 
-                await HttpContext.SignOutAsync(Constants.AuthenticationScheme);
+                var authenticationProperties = new AuthenticationProperties
+                {
+                    RedirectUri = returnurl 
+                };
+
+                var authenticationSchemes = new List<string>();
+                authenticationSchemes.Add(Constants.AuthenticationScheme);
+                if (HttpContext.GetSiteSettings().GetValue("ExternalLogin:ProviderType", "") == AuthenticationProviderTypes.OpenIDConnect &&
+                    HttpContext.GetSiteSettings().GetValue("ExternalLogin:SingleLogout", "false") == "true")
+                {
+                    authenticationSchemes.Add(AuthenticationProviderTypes.OpenIDConnect);
+                }
+
+                return SignOut(authenticationProperties, authenticationSchemes.ToArray());
             }
-
-            returnurl = (returnurl == null) ? "/" : returnurl;
-            returnurl = (!returnurl.StartsWith("/")) ? "/" + returnurl : returnurl;
-
-            return LocalRedirect(Url.Content("~" + returnurl));
+            else
+            {
+                return LocalRedirect(Url.Content("~" + returnurl));
+            }
         }
     }
 }
