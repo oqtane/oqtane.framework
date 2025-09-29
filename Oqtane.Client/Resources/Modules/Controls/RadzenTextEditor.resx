@@ -237,8 +237,8 @@
   <data name="FileLink" xml:space="preserve">
     <value>File Link</value>
   </data>
-  <data name="OpenInExistingWindow" xml:space="preserve">
-    <value>Open In Existing Window</value>
+  <data name="OpenInCurrentWindow" xml:space="preserve">
+    <value>Open In Current Window</value>
   </data>
   <data name="Message.Require.WebAddress" xml:space="preserve">
     <value>The Web Address is Empty</value>
