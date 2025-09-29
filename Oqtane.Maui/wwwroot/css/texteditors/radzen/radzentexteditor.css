@@ -1,0 +1,42 @@
+.rz-text-editor {
+    outline: none !important;
+}
+
+.rz-html-editor-dropdown-items,
+.rz-popup,
+.rz-editor-dialog-wrapper {
+    z-index: 9999 !important;
+}
+
+.rz-html-editor-dropdown-items .rz-html-editor-dropdown-item,
+.rz-html-editor-dropdown-items .rz-html-editor-dropdown-item > * {
+    color: var(--rz-editor-button-color);
+}
+.rz-text-editor .rz-html-editor-dropdown .rz-html-editor-dropdown-value,
+.rz-text-editor .rz-html-editor-dropdown .rz-html-editor-dropdown-trigger,
+.rz-text-editor .rz-html-editor-colorpicker .rz-html-editor-color {
+    color: var(--rz-editor-button-color);
+}
+.rz-text-editor .rz-colorpicker.rz-state-disabled {
+    border: none !important;
+}
+.rz-text-editor-dialog .rz-html-editor-dialog-item select{
+    border: var(--rz-input-border);
+    border-block-end: var(--rz-input-border-block-end);
+    border-radius: var(--rz-input-border-radius);
+    box-shadow: var(--rz-input-shadow);
+    background-color: var(--rz-input-background-color);
+    padding-block: var(--rz-input-padding-block);
+    padding-inline: var(--rz-input-padding-inline);
+    font-size: var(--rz-input-font-size);
+    color: var(--rz-input-value-color);
+}
+.rz-text-editor-dialog .rz-html-editor-dialog-item select:hover, .rz-text-edit-dialog .rz-html-editor-dialog-item select:active {
+    box-shadow: var(--rz-input-hover-shadow);
+    background-color: var(--rz-input-hover-background-color);
+    border: var(--rz-input-hover-border);
+    border-block-end: var(--rz-input-hover-border-block-end);
+}
+.rz-text-editor-dialog .alert form{
+    display: none;
+}
