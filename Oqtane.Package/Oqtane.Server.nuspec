@@ -55,7 +55,7 @@
     <file src="..\Oqtane.Server\obj\Release\net9.0\staticwebassets\msbuild.build.Oqtane.Server.props" target="build\Oqtane.Server.props" />
     <file src="..\Oqtane.Server\obj\Release\net9.0\staticwebassets\msbuild.buildMultiTargeting.Oqtane.Server.props" target="buildMultiTargeting\Oqtane.Server.props" />
     <file src="..\Oqtane.Server\obj\Release\net9.0\staticwebassets\msbuild.buildTransitive.Oqtane.Server.props" target="buildTransitive\Oqtane.Server.props" />
-    <file src="..\Oqtane.Server\wwwroot\**\*" target="staticwebassets" />
+    <file src="..\Oqtane.Server\wwwroot\**\*" exclude="..\Oqtane.Server\wwwroot\Modules\Templates\**;..\Oqtane.Server\wwwroot\Themes\Templates\**" target="staticwebassets" />
     <file src="icon.png" target="" />
     <file src="readme.md" target="" />
   </files>
