@@ -216,4 +216,37 @@
   <data name="Reset" xml:space="preserve">
     <value>Reset</value>
   </data>
+  <data name="InsertLink" xml:space="preserve">
+    <value>Insert Link</value>
+  </data>
+  <data name="DialogTitle.InsertLink" xml:space="preserve">
+    <value>Insert Link</value>
+  </data>
+  <data name="WebAddress" xml:space="preserve">
+    <value>Enter Web Address</value>
+  </data>
+  <data name="LinkText" xml:space="preserve">
+    <value>Enter Link Text</value>
+  </data>
+  <data name="OpenInNewWindow" xml:space="preserve">
+    <value>Open In New Window</value>
+  </data>
+  <data name="WebLink" xml:space="preserve">
+    <value>Web Link</value>
+  </data>
+  <data name="FileLink" xml:space="preserve">
+    <value>File Link</value>
+  </data>
+  <data name="OpenInCurrentWindow" xml:space="preserve">
+    <value>Open In Current Window</value>
+  </data>
+  <data name="Message.Require.WebAddress" xml:space="preserve">
+    <value>The Web Address is Empty</value>
+  </data>
+  <data name="Message.Require.LinkText" xml:space="preserve">
+    <value>The Link Text is Empty</value>
+  </data>
+  <data name="Message.Require.File" xml:space="preserve">
+    <value>You Must Select a File</value>
+  </data>
 </root>

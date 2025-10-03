@@ -329,6 +329,15 @@ else
                                         </select>
                                     </div>
                                 </div>
+                                <div class="row mb-1 align-items-center">
+                                    <Label Class="col-sm-3" For="singlelogout" HelpText="Specify if users should be logged out of both the application and provider (the default is false indicating they will only be logged out of the application)" ResourceKey="SingleLogout">Use Single Logout?</Label>
+                                    <div class="col-sm-9">
+                                        <select id="singlelogout" class="form-select" @bind="@_singlelogout" required>
+                                            <option value="true">@SharedLocalizer["Yes"]</option>
+                                            <option value="false">@SharedLocalizer["No"]</option>
+                                        </select>
+                                    </div>
+                                </div>
                             }
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="scopes" HelpText="A list of Scopes to request from the provider (separated by commas). If none are specified, standard Scopes will be used by default." ResourceKey="Scopes">Scopes:</Label>
@@ -560,6 +569,7 @@ else
     private string _toggleclientsecret = string.Empty;
     private string _authresponsetype;
     private string _requirenonce;
+    private string _singlelogout;
     private string _scopes;
     private string _parameters;
     private string _pkce;
@@ -648,6 +658,7 @@ else
         _toggleclientsecret = SharedLocalizer["ShowPassword"];
         _authresponsetype = SettingService.GetSetting(settings, "ExternalLogin:AuthResponseType", "code");
         _requirenonce = SettingService.GetSetting(settings, "ExternalLogin:RequireNonce", "true");
+        _singlelogout = SettingService.GetSetting(settings, "ExternalLogin:SingleLogout", "false");
         _scopes = SettingService.GetSetting(settings, "ExternalLogin:Scopes", "");
         _parameters = SettingService.GetSetting(settings, "ExternalLogin:Parameters", "");
         _pkce = SettingService.GetSetting(settings, "ExternalLogin:PKCE", "false");
@@ -771,6 +782,7 @@ else
                 settings = SettingService.SetSetting(settings, "ExternalLogin:ClientSecret", _clientsecret, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:AuthResponseType", _authresponsetype, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:RequireNonce", _requirenonce, true);
+                settings = SettingService.SetSetting(settings, "ExternalLogin:SingleLogout", _singlelogout, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:Scopes", _scopes, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:Parameters", _parameters, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:PKCE", _pkce, true);

@@ -1,0 +1,17 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Configurations>Debug;Release</Configurations>
+    <Version>6.2.1</Version>
+    <Product>Oqtane</Product>
+    <Authors>Shaun Walker</Authors>
+    <Company>.NET Foundation</Company>
+    <Description>CMS and Application Framework for Blazor and .NET MAUI</Description>
+    <Copyright>.NET Foundation</Copyright>
+    <PackageProjectUrl>https://www.oqtane.org</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/oqtane/oqtane.framework/blob/dev/LICENSE</PackageLicenseUrl>
+    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v6.2.1</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/oqtane/oqtane.framework</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+  </PropertyGroup>
+</Project>
