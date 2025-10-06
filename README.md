@@ -26,6 +26,8 @@ A free ASP.NET hosting account. No hidden fees. No credit card required.
 
 **Installing using the Oqtane Application Template:**
 
+(Note that "MyCompany.MyProject" can be replaced with your own unique company and project name)
+
 ```
 dotnet new install Oqtane.Application.Template
 dotnet new oqtane-app -o MyCompany.MyProject 
@@ -35,8 +37,8 @@ cd Server
 dotnet run
 ```
 
-- Browse to http://localhost:5001 to run the application (an Installation Wizard screen will be displayed the first time you run the application)
-- To develop/debug the application, open the MyCompany.MyProject.sln file in the root folder and hit F5
+- Browse to the Url specified to run the application (an Installation Wizard screen will be displayed the first time you run the application)
+- To develop/debug the application in an IDE, open the *.sln file in the root folder and hit F5
 
 **Installing using source code from the Dev/Master branch:**
 
