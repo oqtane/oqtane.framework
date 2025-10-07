@@ -13,8 +13,10 @@
   <ItemGroup>
     <Compile Remove="wwwroot\Modules\Templates\**" />
     <Compile Remove="wwwroot\Themes\Templates\**" />
+    <Compile Remove="wwwroot\_content\*\**" />
     <Content Remove="wwwroot\Modules\Templates\**" />
     <Content Remove="wwwroot\Themes\Templates\**" />
+    <Content Remove="wwwroot\_content\*\**" />
     <EmbeddedResource Remove="wwwroot\Modules\Templates\**" />
     <EmbeddedResource Remove="wwwroot\Themes\Templates\**" />
   </ItemGroup>
