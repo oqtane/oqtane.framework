@@ -118,7 +118,7 @@
 
     public void AddModuleMessage(string message, MessageType type, string position, MessageStyle style)
     {
-        if (message != _messageContent || type != _messageType || position != _messagePosition || style != _messageStyle)
+        if (message != _messageContent || type != _messageType || position != _messagePosition || style != _messageStyle || style == MessageStyle.Toast)
         {
             _messageContent = message;
             _messageType = type;
