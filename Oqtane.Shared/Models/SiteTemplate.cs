@@ -105,6 +105,7 @@ namespace Oqtane.Models
             };
             Settings = new List<Setting>();
             Content = "";
+            FromPagePath = "";
         }
 
         public string ModuleDefinitionName { get; set; }
@@ -118,6 +119,7 @@ namespace Oqtane.Models
         public List<Permission> PermissionList { get; set; }
         public List<Setting> Settings { get; set; }
         public string Content { get; set; }
+        public string FromPagePath { get; set; } // for modules shared across pages
 
         [Obsolete("The ModulePermissions property is deprecated. Use PermissionList instead", false)]
         public string ModulePermissions
