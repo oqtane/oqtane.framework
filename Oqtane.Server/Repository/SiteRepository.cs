@@ -168,7 +168,7 @@ namespace Oqtane.Repository
                         var attribute = (SiteMigrationAttribute)Attribute.GetCustomAttribute(type, typeof(SiteMigrationAttribute));
                         if (attribute.AliasName == "*" || attribute.AliasName == alias.Name)
                         {
-                            if (string.IsNullOrEmpty(site.Version) || Version.Parse(attribute.Version) > Version.Parse(site.Version))
+                            if (string.IsNullOrEmpty(site.Version) || attribute.Version == "*" || Version.Parse(attribute.Version) > Version.Parse(site.Version))
                             {
                                 try
                                 {
@@ -176,14 +176,14 @@ namespace Oqtane.Repository
                                     if (obj != null)
                                     {
                                         obj.Up(site, alias);
-                                        _logger.Log(LogLevel.Information, "Site Migration", LogFunction.Other, "Site Migrated Successfully To Version {version} For {Alias}", version, alias.Name);
+                                        _logger.Log(LogLevel.Information, "Site Migration", LogFunction.Other, "Site Migrated Successfully For {Alias} And Version {version}", alias.Name, attribute.Version);
                                     }
                                 }
                                 catch (Exception ex)
                                 {
-                                    _logger.Log(LogLevel.Error, "Site Migration", LogFunction.Other, ex, "An Error Occurred Executing Site Migration {Type} For {Alias} And Version {Version}", type, alias.Name, version);
+                                    _logger.Log(LogLevel.Error, "Site Migration", LogFunction.Other, ex, "An Error Occurred Executing Site Migration {Type} For {Alias} And Version {Version}", type, alias.Name, attribute.Version);
                                 }
-                                if (string.IsNullOrEmpty(version) || Version.Parse(attribute.Version) > Version.Parse(version))
+                                if (attribute.Version != "*" && (string.IsNullOrEmpty(version) || Version.Parse(attribute.Version) > Version.Parse(version)))
                                 {
                                     version = attribute.Version;
                                 }
@@ -490,7 +490,27 @@ namespace Oqtane.Repository
                                     }
                                     else
                                     {
-                                        var module = _moduleRepository.AddModule(pageModule.Module);
+                                        Module module = null;
+                                        if (pageTemplateModule.FromPagePath != "")
+                                        {
+                                            // used for modules shared across pages
+                                            var pagePath = pageTemplateModule.FromPagePath;
+                                            pagePath = (pagePath.ToLower() == "home") ? "" : pagePath;
+                                            pagePath = (pagePath == "/") ? "" : pagePath;
+                                            if (pages.Any(item => item.Path.ToLower() == pagePath.ToLower()))
+                                            {
+                                                var pageId = pages.First(item => item.Path.ToLower() == pagePath.ToLower()).PageId;
+                                                if (pageModules.Any(item => item.PageId == pageId && item.Module.ModuleDefinitionName == pageTemplateModule.ModuleDefinitionName && item.Title.ToLower() == pageTemplateModule.Title.ToLower()))
+                                                {
+                                                    module = pageModules.FirstOrDefault(item => item.PageId == pageId && item.Module.ModuleDefinitionName == pageTemplateModule.ModuleDefinitionName && item.Title.ToLower() == pageTemplateModule.Title.ToLower()).Module;
+                                                }
+                                            }
+                                        }
+                                        if (module == null)
+                                        {
+                                            module = _moduleRepository.AddModule(pageModule.Module);
+                                        }
+
                                         pageModule.ModuleId = module.ModuleId;
                                         pageModule.Module = null; // remove tracking
                                         _pageModuleRepository.AddPageModule(pageModule);
