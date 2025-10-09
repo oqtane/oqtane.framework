@@ -3,31 +3,29 @@
 @inject IStringLocalizer<Login> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<span class="app-login">
-    @if (PageState.User != null)
+@if (PageState.User != null)
+{
+    @if (PageState.Runtime == Runtime.Hybrid)
     {
-        @if (PageState.Runtime == Runtime.Hybrid)
-        {
-            <button type="button" class="@CssClass" @onclick="LogoutUser">@Localizer["Logout"]</button>
-        }
-        else
-        {
-            <form method="post" class="app-form-inline" action="@logouturl" @formname="LogoutForm">
-                <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
-                <input type="hidden" name="returnurl" value="@returnurl" />
-                <input type="hidden" name="everywhere" value="@everywhere" />
-                <button type="submit" class="@CssClass">@Localizer["Logout"]</button>
-            </form>
-        }
+        <button type="button" class="@CssClass app-login" @onclick="LogoutUser">@Localizer["Logout"]</button>
     }
     else
     {
-        @if (ShowLogin)
-        {
-            <a href="@loginurl" class="@CssClass">@SharedLocalizer["Login"]</a>
-        }
+        <form method="post" class="app-form-inline app-login" action="@logouturl" @formname="LogoutForm">
+            <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+            <input type="hidden" name="returnurl" value="@returnurl" />
+            <input type="hidden" name="everywhere" value="@everywhere" />
+            <button type="submit" class="@CssClass">@Localizer["Logout"]</button>
+        </form>
     }
-</span>
+}
+else
+{
+    @if (ShowLogin)
+    {
+        <a href="@loginurl" class="@CssClass app-login">@SharedLocalizer["Login"]</a>
+    }
+}
 
 @code
 {
