@@ -17,7 +17,7 @@ namespace Oqtane.Themes.OqtaneTheme
             Resources = new List<Resource>()
             {
 		        // obtained from https://cdnjs.com/libraries/bootswatch
-                new Stylesheet("https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.7/cyborg/bootstrap.min.css", "sha512-/LQFzDeXqysGQ/POl5YOEjgVZH1BmqDHvshhnFIChf50bMGQ470qhUrsecD9MRCUwzwqRoshwAbmA2oTW4I6Yg==", "anonymous"),
+                new Stylesheet("https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.8/cyborg/bootstrap.min.css", "sha512-Sq+1MhDgkXwshbeZBKh8j5N7bjn56Jg40kyGm27FoBYEBPksAG+GcRwLEHT/UL4F/WdYUCl65IAQiGTANnBzLg==", "anonymous"),
                 new Stylesheet("~/Theme.css"),
                 new Script(Constants.BootstrapScriptUrl, Constants.BootstrapScriptIntegrity, "anonymous")
             }
