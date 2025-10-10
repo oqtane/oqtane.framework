@@ -30,12 +30,12 @@
       "datatype": "choice",
       "choices": [
         {
-          "choice": "net9.0",
-          "description": "Target net9.0"
+          "choice": "net10.0",
+          "description": "Target net10.0"
         }
       ],
-      "replaces": "net9.0",
-      "defaultValue": "net9.0"
+      "replaces": "net10.0",
+      "defaultValue": "net10.0"
     },
     "HttpPort": {
       "type": "parameter",
