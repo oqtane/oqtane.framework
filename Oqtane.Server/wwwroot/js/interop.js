@@ -437,6 +437,15 @@ Oqtane.Interop = {
     formValid: function (formRef) {
         return formRef.checkValidity();
     },
+    getValidationMessages: function (formRef) {
+        return [...formRef.querySelectorAll(":invalid")].reduce((list, item) => {
+            if (item.dataset.validationMessage) {
+                list.push(item.dataset.validationMessage);
+            }
+
+            return list;
+        }, []);
+    },
     setElementAttribute: function (id, attribute, value) {
         var element = document.getElementById(id);
         if (element !== null) {

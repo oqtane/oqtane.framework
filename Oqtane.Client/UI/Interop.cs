@@ -286,6 +286,20 @@ namespace Oqtane.UI
             }
         }
 
+        public ValueTask<IList<string>> GetValidationMessages(ElementReference form)
+        {
+            try
+            {
+                return _jsRuntime.InvokeAsync<IList<string>>(
+                    "Oqtane.Interop.getValidationMessages",
+                    form);
+            }
+            catch
+            {
+                return new ValueTask<IList<string>>(Task.FromResult((IList<string>)null));
+            }
+        }
+
         public Task SetElementAttribute(string id, string attribute, string value)
         {
             try
