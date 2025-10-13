@@ -507,6 +507,10 @@ namespace Oqtane.Infrastructure
                                         }
                                     }
                                 }
+                                else
+                                {
+                                    result.Message = "An Error Occurred Installing " + moduleDefinition.Name + " - ServerManagerType " + moduleDefinition.ServerManagerType + " Does Not Exist";
+                                }
                             }
 
                             if (string.IsNullOrEmpty(result.Message) && moduleDefinition.Version != versions[versions.Length - 1])
