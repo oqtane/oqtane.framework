@@ -226,7 +226,8 @@ namespace Oqtane.Controllers
                 if (theme.Template.ToLower().Contains("internal"))
                 {
                     rootPath = Utilities.PathCombine(rootFolder.FullName, Path.DirectorySeparatorChar.ToString());
-                    theme.ThemeName = theme.ThemeName + ", Oqtane.Client";
+                    var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
+                    theme.ThemeName = theme.ThemeName + ", " + assemblyName.Replace(".Server", ".Client");
                 }
                 else
                 {
