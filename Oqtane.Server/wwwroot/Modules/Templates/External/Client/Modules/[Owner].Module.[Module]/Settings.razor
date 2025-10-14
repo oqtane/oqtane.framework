@@ -35,8 +35,8 @@
     {
         try
         {
-            Dictionary<string, string> settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
-            SettingService.SetSetting(settings, "SettingName", _value);
+            var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+            settings = SettingService.SetSetting(settings, "SettingName", _value);
             await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
         }
         catch (Exception ex)
