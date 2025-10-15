@@ -1,0 +1,50 @@
+@namespace [Owner].Theme.[Theme]
+@inherits ModuleBase
+@implements Oqtane.Interfaces.ISettingsControl
+@inject ISettingService SettingService
+@attribute [OqtaneIgnore]
+
+<div class="container">
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="title" ResourceKey="Title" ResourceType="@resourceType" HelpText="Specify If The Module Title Should Be Displayed">Display Title?</Label>
+        <div class="col-sm-9">
+            <select id="title" class="form-select" @bind="@_title">
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+@code {
+	private string resourceType = "[Owner].Theme.[Theme].ContainerSettings, [Owner].Theme.[Theme].Client.Oqtane"; // for localization
+    private string _title = "true";
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+
+            _title = SettingService.GetSetting(ModuleState.Settings, GetType().Namespace + ":Title", "true");
+
+        }
+        catch (Exception ex)
+        {
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
+    public async Task UpdateSettings()
+    {
+        try
+        {
+			var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+            settings = SettingService.SetSetting(settings, GetType().Namespace + ":Title", _title);
+            await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+        }
+        catch (Exception ex)
+        {
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+}
