@@ -1,0 +1,6 @@
+{
+  "Title": "Default Module Template",
+  "Type": "Internal",
+  "Version": "10.0.0",
+  "Namespace": "[Owner].Module.[Module]"
+}
