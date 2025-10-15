@@ -57,6 +57,10 @@ namespace Oqtane.Themes.Controls
 
                 actionList.Add(new ActionViewModel { Name = "" });
 
+                actionList.Add(new ActionViewModel { Icon = Icons.CloudDownload, Name = Localizer["ExportSettings"], Action = async (u, m) => await EditUrlAsync(u, m.ModuleId, "ExportSettings") });
+
+                actionList.Add(new ActionViewModel { Name = "" });
+
                 if (ModuleState.PaneModuleIndex > 0)
                 {
                     actionList.Add(new ActionViewModel { Icon = Icons.DataTransferUpload, Name = Localizer["MoveToTop"], Action = async (s, m) => await MoveTop(s, m) });
@@ -159,9 +163,9 @@ namespace Oqtane.Themes.Controls
             return url;
         }
 
-        private Task<string> EditUrlAsync(string url, int moduleId, string import)
+        private Task<string> EditUrlAsync(string url, int moduleId, string action)
         {
-            url = Utilities.EditUrl(PageState.Alias.Path, PageState.Page.Path, moduleId, import, "returnurl=" + WebUtility.UrlEncode(url));
+            url = Utilities.EditUrl(PageState.Alias.Path, PageState.Page.Path, moduleId, action, "returnurl=" + WebUtility.UrlEncode(url));
             return Task.FromResult(url);
         }
 

@@ -1,10 +1,11 @@
 using System;
-using Oqtane.Models;
-using System.Threading.Tasks;
-using System.Net.Http;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
+
 using Oqtane.Documentation;
+using Oqtane.Models;
 using Oqtane.Shared;
 
 namespace Oqtane.Services
@@ -254,6 +255,13 @@ namespace Oqtane.Services
         Task<List<int>> GetEntityIdsAsync(string entityName);
 
         /// <summary>
+        /// Exports a list of settings as a comma delimited format string
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <returns></returns>
+        Task<string> ExportSettingsAsync(string entityName, int entityId);
+
+        /// <summary>
         /// Imports a list of settings
         /// </summary>
         /// <param name="settings"></param>
@@ -493,6 +501,24 @@ namespace Oqtane.Services
         public async Task<List<int>> GetEntityIdsAsync(string entityName)
         {
             return await GetJsonAsync<List<int>>($"{Apiurl}/entityids?entityname={entityName}");
+        }
+
+        public async Task<string> ExportSettingsAsync(string entityName, int entityId)
+        {
+            var settings = await GetSettingsAsync(entityName, entityId, "");
+            var exported = "";
+
+            if (settings != null)
+            {
+                var sw = new System.IO.StringWriter();
+                foreach (var setting in settings.OrderBy(item => item.SettingName))
+                {
+                    sw.WriteLine($"{setting.EntityName},{setting.EntityId},\"{setting.SettingName}\",\"{setting.SettingValue}\",{setting.IsPrivate}");
+                }
+                exported = sw.ToString();
+            }
+
+            return exported;
         }
 
         public async Task<Result> ImportSettingsAsync(Result settings)

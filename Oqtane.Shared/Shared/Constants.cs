@@ -27,7 +27,7 @@ namespace Oqtane.Shared
         public const string UrlParametersDelimiter = "!";
 
         // Default Module Actions are reserved and should not be used by modules
-        public static readonly string[] DefaultModuleActions = new[] { "Settings", "Import", "Export" };
+        public static readonly string[] DefaultModuleActions = new[] { "Settings", "Import", "Export", "ExportSettings" };
         public static readonly string DefaultModuleActionsTemplate = "Oqtane.Modules.Admin.Modules." + ActionToken + ", Oqtane.Client";
 
         public const string AdminDashboardModule = "Oqtane.Modules.Admin.Dashboard, Oqtane.Client";

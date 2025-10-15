@@ -1,0 +1,39 @@
+@namespace Oqtane.Modules.Admin.Modules
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject ISettingService SettingService
+@inject IStringLocalizer<ExportSettings> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+<div class="container">
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="settings" HelpText="Select the Export option and you will be able to view the module settings" ResourceKey="Settings">Settings: </Label>
+        <div class="col-sm-9">
+            <textarea id="settings" class="form-control" @bind="@_settings" rows="5" readonly></textarea>
+        </div>
+    </div>
+</div>
+<br />
+<button type="button" class="btn btn-success" @onclick="ExportText">@Localizer["Export"]</button>
+<NavLink class="btn btn-secondary" href="@PageState.ReturnUrl">@SharedLocalizer["Cancel"]</NavLink>
+
+@code {
+    private string _settings = string.Empty;
+
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
+    public override string Title => "Export Settings";
+
+    private async Task ExportText()
+    {
+        try
+        {
+            _settings = await SettingService.ExportSettingsAsync(EntityNames.Module, ModuleState.ModuleId);
+            AddModuleMessage(Localizer["Success.Settings.Export"], MessageType.Success);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Exporting Module Settings {ModuleId} {Error}", ModuleState.ModuleId, ex.Message);
+            AddModuleMessage(Localizer["Error.Settings.Export"], MessageType.Error);
+        }
+    }
+}

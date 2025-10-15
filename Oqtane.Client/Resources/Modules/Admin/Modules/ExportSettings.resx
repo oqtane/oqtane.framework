@@ -117,37 +117,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="DeleteModule" xml:space="preserve">
-    <value>Delete Module</value>
+  <data name="Export" xml:space="preserve">
+    <value>Export</value>
   </data>
-  <data name="ExportContent" xml:space="preserve">
-    <value>Export Content</value>
+  <data name="Settings.HelpText" xml:space="preserve">
+    <value>Select the Export option and you will be able to view the module content</value>
   </data>
-  <data name="ExportSettings" xml:space="preserve">
-    <value>Export Settings</value>
+  <data name="Settings.Text" xml:space="preserve">
+    <value>Settings: </value>
   </data>
-  <data name="ImportContent" xml:space="preserve">
-    <value>Import Content</value>
+  <data name="Error.Settings.Export" xml:space="preserve">
+    <value>Error Exporting Module Settings</value>
   </data>
-  <data name="ManageSettings" xml:space="preserve">
-    <value>Manage Settings</value>
-  </data>
-  <data name="MoveDown" xml:space="preserve">
-    <value>Move Down</value>
-  </data>
-  <data name="MoveToBottom" xml:space="preserve">
-    <value>Move To Bottom</value>
-  </data>
-  <data name="MoveToTop" xml:space="preserve">
-    <value>Move To Top</value>
-  </data>
-  <data name="MoveUp" xml:space="preserve">
-    <value>MoveUp</value>
-  </data>
-  <data name="PublishModule" xml:space="preserve">
-    <value>Publish Module</value>
-  </data>
-  <data name="UnpublishModule" xml:space="preserve">
-    <value>Unpublish Module</value>
+  <data name="Success.Settings.Export" xml:space="preserve">
+    <value>Settings Exported Successfully</value>
   </data>
 </root>
