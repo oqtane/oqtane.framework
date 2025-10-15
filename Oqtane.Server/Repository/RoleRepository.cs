@@ -20,10 +20,12 @@ namespace Oqtane.Repository
     public class RoleRepository : IRoleRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
+        private readonly ISettingRepository _settings;
 
-        public RoleRepository(IDbContextFactory<TenantDBContext> dbContextFactory)
+        public RoleRepository(IDbContextFactory<TenantDBContext> dbContextFactory, ISettingRepository settings)
         {
             _dbContextFactory = dbContextFactory;
+            _settings = settings;
         }
             
         public IEnumerable<Role> GetRoles(int siteId)
@@ -97,10 +99,7 @@ namespace Oqtane.Repository
             }
 
             //remove settings for role
-            foreach (var setting in db.Setting.Where(item => item.EntityName == EntityNames.Role && item.EntityId == roleId))
-            {
-                db.Setting.Remove(setting);
-            }
+            _settings.DeleteSettings(EntityNames.Role, roleId);
 
             Role role = db.Role.Find(roleId);
             db.Role.Remove(role);
