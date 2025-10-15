@@ -12,6 +12,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\Modules\Templates\**" />
+    <Compile Remove="wwwroot\Themes\Templates\**" />
+    <Content Remove="wwwroot\Modules\Templates\**" />
+    <Content Remove="wwwroot\Themes\Templates\**" />
+    <EmbeddedResource Remove="wwwroot\Modules\Templates\**" />
+    <EmbeddedResource Remove="wwwroot\Themes\Templates\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.0-rc.2.25502.107" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.0-rc.2.25502.107" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0-rc.2.25502.107" />
