@@ -366,13 +366,16 @@ namespace Oqtane.Controllers
                             var setting = _settings.GetSetting(cols[0], entityId, cols[2]);
                             if (setting == null)
                             {
-                                _settings.AddSetting(new Setting { EntityName = cols[0], EntityId = entityId, SettingName = cols[2], SettingValue = cols[3], IsPrivate = isPrivate });
+                                setting = new Setting { EntityName = cols[0], EntityId = entityId, SettingName = cols[2], SettingValue = cols[3], IsPrivate = isPrivate };
+                                _settings.AddSetting(setting);
+                                AddSyncEvent(setting.EntityName, setting.EntityId, setting.SettingId, SyncEventActions.Create);
                             }
                             else
                             {
                                 setting.SettingValue = cols[3];
                                 setting.IsPrivate = isPrivate;
                                 _settings.UpdateSetting(setting);
+                                AddSyncEvent(setting.EntityName, setting.EntityId, setting.SettingId, SyncEventActions.Update);
                             }
                             rows++;
                         }
