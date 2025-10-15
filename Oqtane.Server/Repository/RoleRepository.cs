@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
@@ -93,6 +94,12 @@ namespace Oqtane.Repository
             foreach (var permission in db.Permission.Where(item => item.RoleId == roleId))
             {
                 db.Permission.Remove(permission);
+            }
+
+            //remove settings for role
+            foreach (var setting in db.Setting.Where(item => item.EntityName == EntityNames.Role && item.EntityId == roleId))
+            {
+                db.Setting.Remove(setting);
             }
 
             Role role = db.Role.Find(roleId);
