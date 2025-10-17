@@ -53,14 +53,19 @@ namespace Oqtane.Services
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class ProfileService : ServiceBase, IProfileService
     {
-        public ProfileService(HttpClient http, SiteState siteState) : base(http, siteState) { }
+        private readonly IProfileCategoryService _profileCategoryService;
+        public ProfileService(IProfileCategoryService profileCategoryService, HttpClient http, SiteState siteState) : base(http, siteState)
+        {
+            _profileCategoryService = profileCategoryService;
+        }
 
         private string Apiurl => CreateApiUrl("Profile");
 
         public async Task<List<Profile>> GetProfilesAsync(int siteId)
         {
             List<Profile> profiles = await GetJsonAsync<List<Profile>>($"{Apiurl}?siteid={siteId}");
-            return profiles.OrderBy(item => item.ViewOrder).ToList();
+            var profileCategories = await _profileCategoryService.GetProfileCategoriesAsync(siteId);
+            return profiles.OrderBy(i => profileCategories.IndexOf(i.Category)).ThenBy(i => i.ViewOrder).ToList();
         }
 
         public async Task<Profile> GetProfileAsync(int profileId)

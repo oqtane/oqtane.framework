@@ -1,0 +1,96 @@
+@namespace Oqtane.Modules.Admin.Profiles
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IProfileCategoryService ProfileCategoryService
+@inject IStringLocalizer<Categories> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+@if (_profileCategories == null)
+{
+    <p><em>@SharedLocalizer["Loading"]</em></p>
+}
+else
+{
+    <div class="categories-list">
+        @for (var i =  0; i < _profileCategories.Count; i++)
+        {
+            var category = _profileCategories[i];
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-9 fw-bold">
+                            @category
+                        </div>
+                        <div class="col-3 text-end">
+                            <button class="btn btn-primary" @onclick="() => MoveDown(category)" disabled="@(i == _profileCategories.Count - 1)"><i class="app-fas oi oi-arrow-bottom" /></button>
+                            <button class="btn btn-primary" @onclick="() => MoveUp(category)" disabled="@(i == 0)"><i class="app-fas oi oi-arrow-top" /></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="actions mt-1 text-end">
+        <button type="button" class="btn btn-success" @onclick="SaveProfile">@SharedLocalizer["Save"]</button>
+        <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+    </div>
+}
+
+@code {
+
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
+
+    private List<string> _profileCategories;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _profileCategories = await ProfileCategoryService.GetProfileCategoriesAsync(PageState.Site.SiteId);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Profile Categories {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.ProfileCategory.Load"], MessageType.Error);
+        }
+    }
+
+    private void MoveDown(string category)
+    {
+        var index = _profileCategories.IndexOf(category);
+        if(index < _profileCategories.Count - 1)
+        {
+            _profileCategories.RemoveAt(index);
+            _profileCategories.Insert(index + 1, category);
+
+            StateHasChanged();
+        }
+    }
+
+    private void MoveUp(string category)
+    {
+        var index = _profileCategories.IndexOf(category);
+        if(index > 0)
+        {
+            _profileCategories.RemoveAt(index);
+            _profileCategories.Insert(index - 1, category);
+
+            StateHasChanged();
+        }
+    }
+
+    private async Task SaveProfile()
+    {
+        try
+        {
+            await ProfileCategoryService.UpdateProfileCategoriesAsync(PageState.Site.SiteId, _profileCategories);
+
+            NavigationManager.NavigateTo(NavigateUrl());
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Saving Profile Categories {Categories} {Error}", _profileCategories, ex.Message);
+            AddModuleMessage(Localizer["Error.ProfileCategory.Save"], MessageType.Error);
+        }
+    }
+}

@@ -34,6 +34,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IPageModuleService, PageModuleService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IProfileService, ProfileService>();
+            services.AddScoped<IProfileCategoryService, ProfileCategoryService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IUserRoleService, UserRoleService>();
             services.AddScoped<ISettingService, SettingService>();

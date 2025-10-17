@@ -10,7 +10,8 @@
 }
 else
 {
-	<ActionLink Action="Add" Text="Add Profile" Security="SecurityAccessLevel.Edit" ResourceKey="AddProfile" />
+    <ActionLink Action="Add" Text="Add Profile" Security="SecurityAccessLevel.Edit" ResourceKey="AddProfile" />
+    <ActionLink Action="Categories" Text="Sort Profile Categories" Security="SecurityAccessLevel.Edit" ResourceKey="SortProfileCategories" />
 
     <Pager Items="@_profiles" SearchProperties="Title,Category">
         <Header>
