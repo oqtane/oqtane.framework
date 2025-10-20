@@ -299,6 +299,27 @@ namespace Oqtane.Migrations.EntityBuilders
             return table.Column<Guid>(name: RewriteName(name), nullable: nullable, defaultValue: defaultValue);
         }
 
+        // binary
+        public void AddBinaryColumn(string name, int length, bool nullable = false, bool unicode = true)
+        {
+            _migrationBuilder.AddColumn<byte[]>(RewriteName(name), RewriteName(EntityTableName), maxLength: length, nullable: nullable, unicode: unicode, schema: Schema);
+        }
+
+        public void AddBinaryColumn(string name, int length, bool nullable, bool unicode, string defaultValue)
+        {
+            _migrationBuilder.AddColumn<byte[]>(RewriteName(name), RewriteName(EntityTableName), maxLength: length, nullable: nullable, unicode: unicode, defaultValue: defaultValue, schema: Schema);
+        }
+
+        protected OperationBuilder<AddColumnOperation> AddBinaryColumn(ColumnsBuilder table, string name, int length, bool nullable = false, bool unicode = true)
+        {
+            return table.Column<byte[]>(name: RewriteName(name), maxLength: length, nullable: nullable, unicode: unicode);
+        }
+
+        protected OperationBuilder<AddColumnOperation> AddBinaryColumn(ColumnsBuilder table, string name, int length, bool nullable, bool unicode, string defaultValue)
+        {
+            return table.Column<byte[]>(name: RewriteName(name), maxLength: length, nullable: nullable, unicode: unicode, defaultValue: defaultValue);
+        }
+
         // alter string
         public void AlterStringColumn(string name, int length, bool nullable = false, bool unicode = true, string index = "")
         {
