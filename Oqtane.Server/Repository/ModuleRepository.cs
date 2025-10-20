@@ -110,9 +110,12 @@ namespace Oqtane.Repository
                     ModuleDefinition moduledefinition = moduledefinitions.FirstOrDefault(item => item.ModuleDefinitionName == module.ModuleDefinitionName);
                     if (moduledefinition != null)
                     {
+                        var settings = _settings.GetSettings(EntityNames.Module, moduleId);
+
                         ModuleContent modulecontent = new ModuleContent();
                         modulecontent.ModuleDefinitionName = moduledefinition.ModuleDefinitionName;
                         modulecontent.Version = moduledefinition.Version;
+                        modulecontent.Settings = settings.Where(item => !item.IsPrivate).ToDictionary(x => x.SettingName, x => x.SettingValue);
                         modulecontent.Content = "";
 
                         if (moduledefinition.ServerManagerType != "")
@@ -122,7 +125,7 @@ namespace Oqtane.Repository
                             {
                                 try
                                 {
-                                    module.Settings = _settings.GetSettings(EntityNames.Module, moduleId).ToDictionary(x => x.SettingName, x => x.SettingValue);
+                                    module.Settings = settings.ToDictionary(x => x.SettingName, x => x.SettingValue);
                                     var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
                                     modulecontent.Content = ((IPortable)moduleobject).ExportModule(module);
                                 }
@@ -160,6 +163,29 @@ namespace Oqtane.Repository
                         ModuleContent modulecontent = JsonSerializer.Deserialize<ModuleContent>(content.Replace("\n", ""));
                         if (modulecontent.ModuleDefinitionName == moduledefinition.ModuleDefinitionName)
                         {
+                            var settings = _settings.GetSettings(EntityNames.Module, moduleId);
+
+                            if (modulecontent.Settings != null)
+                            {
+                                foreach (var kvp in modulecontent.Settings)
+                                {
+                                    var setting = settings.FirstOrDefault(item => item.SettingName == kvp.Key);
+                                    if (setting == null)
+                                    {
+                                        setting = new Setting { EntityName = EntityNames.Module, EntityId = moduleId, SettingName = kvp.Key, SettingValue = kvp.Value, IsPrivate = false };
+                                        _settings.AddSetting(setting);
+                                    }
+                                    else
+                                    {
+                                        if (setting.SettingValue != kvp.Value)
+                                        {
+                                            setting.SettingValue = kvp.Value;
+                                            _settings.UpdateSetting(setting);
+                                        }
+                                    }
+                                }
+                            }
+
                             if (moduledefinition.ServerManagerType != "")
                             {
                                 Type moduletype = Type.GetType(moduledefinition.ServerManagerType);
