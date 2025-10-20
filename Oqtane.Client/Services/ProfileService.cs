@@ -60,7 +60,7 @@ namespace Oqtane.Services
         public async Task<List<Profile>> GetProfilesAsync(int siteId)
         {
             List<Profile> profiles = await GetJsonAsync<List<Profile>>($"{Apiurl}?siteid={siteId}");
-            return profiles.OrderBy(item => item.Category).ThenBy(item => item.ViewOrder).ToList();
+            return profiles.OrderBy(item => item.ViewOrder).ToList();
         }
 
         public async Task<Profile> GetProfileAsync(int profileId)
