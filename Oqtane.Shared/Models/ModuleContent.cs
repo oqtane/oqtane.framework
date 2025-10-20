@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Oqtane.Models
 {
     /// <summary>
@@ -14,6 +16,11 @@ namespace Oqtane.Models
         /// Version of the <see cref="ModuleDefinition"/> which is used here. _It's not the version of the Content_
         /// </summary>
         public string Version { get; set; }
+
+        /// <summary>
+        /// Serialized Settings of the module for import/export.
+        /// </summary>
+        public Dictionary<string, string> Settings { get; set; }
 
         /// <summary>
         /// Serialized Content of the module for import/export.
