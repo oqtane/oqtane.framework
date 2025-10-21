@@ -366,6 +366,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 // User settings
                 options.User.RequireUniqueEmail = false;
                 options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+
+                // Stores settings
+                options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
             });
 
             // overrides defined in appsettings
