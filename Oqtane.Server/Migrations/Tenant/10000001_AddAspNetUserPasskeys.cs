@@ -18,6 +18,7 @@ namespace Oqtane.Migrations.Tenant
         {
             var aspNetUserPasskeysEntityBuilder = new AspNetUserPasskeysEntityBuilder(migrationBuilder, ActiveDatabase);
             aspNetUserPasskeysEntityBuilder.Create();
+            aspNetUserPasskeysEntityBuilder.AddIndex("IX_AspNetUserPasskeys_UserId", "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
