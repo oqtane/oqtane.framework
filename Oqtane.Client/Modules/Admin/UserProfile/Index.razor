@@ -455,6 +455,9 @@
                     _folderid = folder.FolderId;
                 }
 
+                _imagefiles = SettingService.GetSetting(PageState.Site.Settings, "ImageFiles", Constants.ImageFiles);
+                _imagefiles = (string.IsNullOrEmpty(_imagefiles)) ? Constants.ImageFiles : _imagefiles;
+
                 if (PageState.User.PhotoFileId != null)
                 {
                     _photofileid = PageState.User.PhotoFileId.Value;
@@ -467,9 +470,6 @@
                 }
 
                 _userSettings = PageState.User.Settings;
-                var sitesettings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-                _imagefiles = SettingService.GetSetting(_userSettings, "ImageFiles", Constants.ImageFiles);
-                _imagefiles = (string.IsNullOrEmpty(_imagefiles)) ? Constants.ImageFiles : _imagefiles;
 
                 await LoadNotificationsAsync();
 
