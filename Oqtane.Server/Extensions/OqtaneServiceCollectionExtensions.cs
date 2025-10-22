@@ -171,7 +171,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddOqtaneDbContext(this IServiceCollection services)
         {
             services.AddDbContext<MasterDBContext>(options => { }, ServiceLifetime.Transient);
-            services.AddDbContext<TenantDBContext>(options => { }, ServiceLifetime.Scoped);
+            services.AddDbContext<TenantDBContext>(options => { }, ServiceLifetime.Transient);
             services.AddDbContextFactory<TenantDBContext>(opt => { }, ServiceLifetime.Transient);
             return services;
         }
