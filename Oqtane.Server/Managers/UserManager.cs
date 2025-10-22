@@ -369,6 +369,15 @@ namespace Oqtane.Managers
             IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
             if (identityuser != null)
             {
+                try
+                {
+                    var passKeysFunctional = await _identityUserManager.GetPasskeysAsync(identityuser);
+                }
+                catch (Exception ex)
+                {
+                    var error = ex.ToString();
+                }
+
                 var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, true);
                 if (result.Succeeded)
                 {

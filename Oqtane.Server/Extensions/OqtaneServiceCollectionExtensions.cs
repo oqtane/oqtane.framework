@@ -84,7 +84,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.Cookie.HttpOnly = true;
             });
 
-            services.AddIdentityCore<IdentityUser>(options => { })
+            services.AddIdentityCore<IdentityUser>(options =>
+                {
+                    // must be set prior to AddEntityFrameworkStores
+                    options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
+                })
                 .AddEntityFrameworkStores<TenantDBContext>()
                 .AddSignInManager()
                 .AddDefaultTokenProviders()
@@ -167,7 +171,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddOqtaneDbContext(this IServiceCollection services)
         {
             services.AddDbContext<MasterDBContext>(options => { }, ServiceLifetime.Transient);
-            services.AddDbContext<TenantDBContext>(options => { }, ServiceLifetime.Transient);
+            services.AddDbContext<TenantDBContext>(options => { }, ServiceLifetime.Scoped);
             services.AddDbContextFactory<TenantDBContext>(opt => { }, ServiceLifetime.Transient);
             return services;
         }
@@ -366,9 +370,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 // User settings
                 options.User.RequireUniqueEmail = false;
                 options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-
-                // Stores settings
-                options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
             });
 
             // overrides defined in appsettings

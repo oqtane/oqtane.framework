@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
@@ -19,7 +18,7 @@ using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
-    public class DBContextBase :  IdentityUserContext<IdentityUser>
+    public class DBContextBase :  DbContext
     {
         private readonly ITenantManager _tenantManager;
         private readonly IHttpContextAccessor _accessor;
@@ -75,8 +74,6 @@ namespace Oqtane.Repository
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-
-            ActiveDatabase.UpdateIdentityStoreTableNames(builder);
         }
 
         public override int SaveChanges()
