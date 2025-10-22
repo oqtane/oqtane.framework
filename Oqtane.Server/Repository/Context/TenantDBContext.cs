@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Databases.Interfaces;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
@@ -41,6 +42,14 @@ namespace Oqtane.Repository
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.ReplaceService<IMigrationsAssembly, MultiDatabaseMigrationsAssembly>();
+
+            // specify the SchemaVersion for .NET Identity as it is not being persisted when using AddIdentityCore()
+            var services = new ServiceCollection();
+            services.AddIdentityCore<IdentityUser>(options =>
+            {
+                options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
+            });
+            optionsBuilder.UseApplicationServiceProvider(services.BuildServiceProvider());
 
             if (string.IsNullOrEmpty(_connectionString))
             {

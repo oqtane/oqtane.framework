@@ -84,11 +84,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.Cookie.HttpOnly = true;
             });
 
-            services.AddIdentityCore<IdentityUser>(options =>
-                {
-                    // must be set prior to AddEntityFrameworkStores
-                    options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
-                })
+            services.AddIdentityCore<IdentityUser>(options => { })
                 .AddEntityFrameworkStores<TenantDBContext>()
                 .AddSignInManager()
                 .AddDefaultTokenProviders()
