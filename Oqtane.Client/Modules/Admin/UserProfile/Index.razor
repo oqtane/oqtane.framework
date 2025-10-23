@@ -97,7 +97,7 @@
             <br /><br />
             @if (_allowtwofactor)
             {
-                <Section Name="MFA" Heading="Multi-Factor Authentication" ResourceKey="MFA" Expanded="true">
+                <Section Name="MFA" Heading="Multi-Factor Authentication" ResourceKey="MFA">
                     <div class="container">
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="twofactor" HelpText="Indicates if you are using two factor authentication. Two factor authentication requires you to enter a verification code sent via email after you sign in." ResourceKey="TwoFactor"></Label>
@@ -111,11 +111,34 @@
                     </div>
                 </Section>
             }
-            <Section Name="External" Heading="External Login" ResourceKey="External" Expanded="true">
+            <Section Name="External" Heading="External Login" ResourceKey="External">
             </Section>
-            <Section Name="Passkeys" Heading="Passkeys" ResourceKey="Passkeys" Expanded="true">
+            <Section Name="Passkeys" Heading="Passkeys" ResourceKey="Passkeys">
+                <button type="button" class="btn btn-primary" @onclick="AddPasskey">@SharedLocalizer["Add"]</button>
+                <Pager Items="@_passkeys">
+                    <Header>
+                        <th style="width: 1px;">&nbsp;</th>
+                        <th style="width: 1px;">&nbsp;</th>
+                        <th>@Localizer["Passkey"]</th>
+                    </Header>
+                    <Row>
+                        @if (context.CredentialId != _passkeyId)
+                        {
+                            <td><button type="button" class="btn btn-primary" @onclick="@(() => EditPasskey(context))">@SharedLocalizer["Edit"]</button></td>
+                            <td><ActionDialog Action="Delete" OnClick="@(async () => await DeletePasskey(context))" ResourceKey="DeleteAlias" Class="btn btn-danger" Header="Delete Alias" Message="@string.Format(Localizer["Confirm.Passkey.Delete", context.CredentialId])" /></td>
+                            <td>@context.Name</td>
+                        }
+                        else
+                        {
+                            <td><button type="button" class="btn btn-success" @onclick="@(async () => await SavePasskey())">@SharedLocalizer["Save"]</button></td>
+                            <td><button type="button" class="btn btn-secondary" @onclick="@(async () => await CancelPasskey())">@SharedLocalizer["Cancel"]</button></td>
+                            <td><input id="aliasname" class="form-control" @bind="@_passkeyName" /></td>
+                        }
+                    </Row>
+                </Pager>
+                <br /><br />
             </Section>
-            <Section Name="Logout" Heading="Logout" ResourceKey="Logout" Expanded="true">
+            <Section Name="Logout" Heading="Logout" ResourceKey="Logout">
                 <button type="button" class="btn btn-danger" @onclick="Logout">@Localizer["Logout Everywhere"]</button>
             </Section>
             <br />
@@ -411,6 +434,10 @@
     private File _photo = null;
     private string _imagefiles = string.Empty;
 
+    private List<Passkey> _passkeys;
+    private byte[] _passkeyId;
+    private string _passkeyName = string.Empty;
+
     private List<Profile> _profiles;
     private Dictionary<string, string> _userSettings;
     private string _category = string.Empty;
@@ -603,6 +630,51 @@
         }
     }
 
+    private async Task GetPasskeys()
+    {
+        _passkeys = await UserService.GetPasskeysAsync();
+    }
+    
+    private async Task AddPasskey()
+    {
+        _passkeyName = $"{PageState.User.DisplayName}{_passkeys.Count + 1}"; // set default name
+        await UserService.AddPasskeyAsync(new Passkey { Name = _passkeyName, CredentialJson = "" });
+        await GetPasskeys();
+        StateHasChanged();
+    }
+
+    private void EditPasskey(Passkey passkey)
+    {
+        _passkeyId = passkey.CredentialId;
+        _passkeyName = passkey.Name;
+        StateHasChanged();
+    }
+
+    private async Task DeletePasskey(Passkey passkey)
+    {
+        await UserService.DeletePasskeyAsync(passkey.CredentialId);
+        await GetPasskeys();
+        StateHasChanged();
+    }
+
+    private async Task SavePasskey()
+    {
+        if (!string.IsNullOrEmpty(_passkeyName))
+        {
+            await UserService.UpdatePasskeyAsync(new Passkey { CredentialId = _passkeyId, Name = _passkeyName });
+            await GetPasskeys();
+            _passkeyName = "";
+            StateHasChanged();
+        }
+    }
+
+    private async Task CancelPasskey()
+    {
+        await GetPasskeys();
+        _passkeyName = "";
+        StateHasChanged();
+    }
+    
     private bool ValidateProfiles()
     {
         foreach (Profile profile in _profiles)

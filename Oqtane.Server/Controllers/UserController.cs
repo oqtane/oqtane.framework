@@ -463,5 +463,55 @@ namespace Oqtane.Controllers
                 return null;
             }
         }
+
+        // GET: api/<controller>/passkey
+        [HttpGet("passkey")]
+        [Authorize]
+        public async Task<IEnumerable<Passkey>> GetPasskeys()
+        {
+            return await _userManager.GetPasskeys(_userPermissions.GetUser(User).UserId);
+        }
+
+        // POST api/<controller>/passkey
+        [HttpPost("passkey")]
+        [Authorize]
+        public async Task AddPasskey([FromBody] Passkey passkey)
+        {
+            if (ModelState.IsValid)
+            {
+                passkey.UserId = _userPermissions.GetUser(User).UserId;
+                await _userManager.AddPasskey(passkey);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Passkey Post Attempt {PassKey}", passkey);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            }
+        }
+
+        // PUT api/<controller>/passkey
+        [HttpPut("passkey")]
+        [Authorize]
+        public async Task UpdatePasskey([FromBody] Passkey passkey)
+        {
+            if (ModelState.IsValid)
+            {
+                passkey.UserId = _userPermissions.GetUser(User).UserId;
+                await _userManager.UpdatePasskey(passkey);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Passkey Put Attempt {PassKey}", passkey);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            }
+        }
+
+        // DELETE api/<controller>/passkey?id=x
+        [HttpDelete("passkey")]
+        [Authorize]
+        public async Task DeletePasskey(byte[] id)
+        {
+            await _userManager.DeletePasskey(_userPermissions.GetUser(User).UserId, id);
+        }
     }
 }
