@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Policy;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
@@ -35,6 +36,10 @@ namespace Oqtane.Managers
         Task<UserValidateResult> ValidateUser(string username, string email, string password);
         Task<bool> ValidatePassword(string password);
         Task<Dictionary<string, string>> ImportUsers(int siteId, string filePath, bool notify);
+        Task<List<Passkey>> GetPasskeys(int userId);
+        Task AddPasskey(Passkey passkey);
+        Task UpdatePasskey(Passkey passkey);
+        Task DeletePasskey(int userId, byte[] credentialId);
     }
 
     public class UserManager : IUserManager
@@ -369,15 +374,6 @@ namespace Oqtane.Managers
             IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
             if (identityuser != null)
             {
-                try
-                {
-                    var passKeysFunctional = await _identityUserManager.GetPasskeysAsync(identityuser);
-                }
-                catch (Exception ex)
-                {
-                    var error = ex.ToString();
-                }
-
                 var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, true);
                 if (result.Succeeded)
                 {
@@ -826,6 +822,73 @@ namespace Oqtane.Managers
             result.Add("Users", users.ToString());
 
             return result;
+        }
+
+        public async Task<List<Passkey>> GetPasskeys(int userId)
+        {
+            var passkeys = new List<Passkey>();
+            var user = _users.GetUser(userId);
+            if (user != null)
+            {
+                var identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+                if (identityuser != null)
+                {
+                    var userpasskeys = await _identityUserManager.GetPasskeysAsync(identityuser);
+                    foreach (var userpasskey in userpasskeys)
+                    {
+                        passkeys.Add(new Passkey { CredentialId = userpasskey.CredentialId, Name = userpasskey.Name, UserId = userId });
+                    }
+                }
+            }
+            return passkeys;
+        }
+
+        public async Task AddPasskey(Passkey passkey)
+        {
+            var user = _users.GetUser(passkey.UserId);
+            if (user != null)
+            {
+                var identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+                if (identityuser != null)
+                {
+                    var attestationResult = await _identitySignInManager.PerformPasskeyAttestationAsync(passkey.CredentialJson);
+                    if (attestationResult.Succeeded)
+                    {
+                        var addPasskeyResult = await _identityUserManager.AddOrUpdatePasskeyAsync(identityuser, attestationResult.Passkey);
+                    }
+                }
+            }
+        }
+
+        public async Task UpdatePasskey(Passkey passkey)
+        {
+            var user = _users.GetUser(passkey.UserId);
+            if (user != null)
+            {
+                var identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+                if (identityuser != null)
+                {
+                    var userPasskeyInfo = await _identityUserManager.GetPasskeyAsync(identityuser, passkey.CredentialId);
+                    if (userPasskeyInfo != null)
+                    {
+                        userPasskeyInfo.Name = passkey.Name;
+                        await _identityUserManager.AddOrUpdatePasskeyAsync(identityuser, userPasskeyInfo);
+                    }
+                }
+            }
+        }
+
+        public async Task DeletePasskey(int userId, byte[] credentialId)
+        {
+            var user = _users.GetUser(userId);
+            if (user != null)
+            {
+                var identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+                if (identityuser != null)
+                {
+                    await _identityUserManager.RemovePasskeyAsync(identityuser, credentialId);
+                }
+            }
         }
     }
 }
