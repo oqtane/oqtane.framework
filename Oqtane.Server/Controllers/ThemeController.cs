@@ -127,7 +127,7 @@ namespace Oqtane.Controllers
         }
 
         // DELETE api/<controller>/5?siteid=x
-        [HttpDelete("{themename}")]
+        [HttpDelete("{id}")]
         [Authorize(Roles = RoleNames.Host)]
         public void Delete(int id, int siteid)
         {

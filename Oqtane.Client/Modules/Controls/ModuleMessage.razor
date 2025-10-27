@@ -21,8 +21,8 @@
 
     @if (_style == MessageStyle.Toast)
     {
-        <div class="app-modulemessage-toast bottom-0 end-0">
-            <div class="@_classname alert-dismissible fade show mb-3" role="alert">
+        <div class="app-modulemessage-toast bottom-0 end-0" @key="DateTime.UtcNow">
+            <div class="@_classname alert-dismissible fade show mb-3 rounded-end-0" role="alert">
                 @((MarkupString)Message)
                 @if (Type == MessageType.Error && PageState != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
                 {
