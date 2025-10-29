@@ -52,7 +52,7 @@ else
                     </div>
                     <button type="button" class="btn btn-secondary col-12 mt-4" @onclick="Forgot">@Localizer["ForgotPassword"]</button>
 
-                    @if (_allowpasskeys)
+                    @if (_allowpasskeys && PageState.Route.Scheme == "https")
                     {
                         <hr class="app-rule mt-3" />
                         <button type="button" class="btn btn-primary col-12 mt-2" @onclick="Passkey">@Localizer["Passkey"]</button>
