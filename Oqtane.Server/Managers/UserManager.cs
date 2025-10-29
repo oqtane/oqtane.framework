@@ -4,9 +4,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Security.Policy;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Localization;
 using Oqtane.Enums;
@@ -36,10 +36,11 @@ namespace Oqtane.Managers
         Task<UserValidateResult> ValidateUser(string username, string email, string password);
         Task<bool> ValidatePassword(string password);
         Task<Dictionary<string, string>> ImportUsers(int siteId, string filePath, bool notify);
-        Task<List<Passkey>> GetPasskeys(int userId);
-        Task AddPasskey(Passkey passkey);
-        Task UpdatePasskey(Passkey passkey);
+        Task<List<UserPasskey>> GetPasskeys(int userId);
+        Task UpdatePasskey(UserPasskey passkey);
         Task DeletePasskey(int userId, byte[] credentialId);
+        Task<List<UserLogin>> GetLogins(int userId);
+        Task DeleteLogin(int userId, string provider, string key);
     }
 
     public class UserManager : IUserManager
@@ -824,9 +825,9 @@ namespace Oqtane.Managers
             return result;
         }
 
-        public async Task<List<Passkey>> GetPasskeys(int userId)
+        public async Task<List<UserPasskey>> GetPasskeys(int userId)
         {
-            var passkeys = new List<Passkey>();
+            var passkeys = new List<UserPasskey>();
             var user = _users.GetUser(userId);
             if (user != null)
             {
@@ -836,31 +837,14 @@ namespace Oqtane.Managers
                     var userpasskeys = await _identityUserManager.GetPasskeysAsync(identityuser);
                     foreach (var userpasskey in userpasskeys)
                     {
-                        passkeys.Add(new Passkey { CredentialId = userpasskey.CredentialId, Name = userpasskey.Name, UserId = userId });
+                        passkeys.Add(new UserPasskey { CredentialId = userpasskey.CredentialId, Name = userpasskey.Name, UserId = userId });
                     }
                 }
             }
             return passkeys;
         }
 
-        public async Task AddPasskey(Passkey passkey)
-        {
-            var user = _users.GetUser(passkey.UserId);
-            if (user != null)
-            {
-                var identityuser = await _identityUserManager.FindByNameAsync(user.Username);
-                if (identityuser != null)
-                {
-                    var attestationResult = await _identitySignInManager.PerformPasskeyAttestationAsync(passkey.CredentialJson);
-                    if (attestationResult.Succeeded)
-                    {
-                        var addPasskeyResult = await _identityUserManager.AddOrUpdatePasskeyAsync(identityuser, attestationResult.Passkey);
-                    }
-                }
-            }
-        }
-
-        public async Task UpdatePasskey(Passkey passkey)
+        public async Task UpdatePasskey(UserPasskey passkey)
         {
             var user = _users.GetUser(passkey.UserId);
             if (user != null)
@@ -887,6 +871,38 @@ namespace Oqtane.Managers
                 if (identityuser != null)
                 {
                     await _identityUserManager.RemovePasskeyAsync(identityuser, credentialId);
+                }
+            }
+        }
+
+        public async Task<List<UserLogin>> GetLogins(int userId)
+        {
+            var logins = new List<UserLogin>();
+            var user = _users.GetUser(userId);
+            if (user != null)
+            {
+                var identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+                if (identityuser != null)
+                {
+                    var userlogins = await _identityUserManager.GetLoginsAsync(identityuser);
+                    foreach (var userlogin in userlogins)
+                    {
+                        logins.Add(new UserLogin { Provider = userlogin.LoginProvider, Key = userlogin.ProviderKey, Name = userlogin.ProviderDisplayName });
+                    }
+                }
+            }
+            return logins;
+        }
+
+        public async Task DeleteLogin(int userId, string provider, string key)
+        {
+            var user = _users.GetUser(userId);
+            if (user != null)
+            {
+                var identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+                if (identityuser != null)
+                {
+                    await _identityUserManager.RemoveLoginAsync(identityuser, provider, key);
                 }
             }
         }

@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Oqtane.Enums;
 using Oqtane.Models;
 using Oqtane.Shared;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Oqtane.Services
 {
@@ -204,6 +206,17 @@ namespace Oqtane.Services
         {
             var response = await GetHttpClient().PostAsync(uri, null);
             await CheckResponse(response, uri);
+        }
+
+        protected async Task<string> PostStringAsync(string uri)
+        {
+            var response = await GetHttpClient().PostAsync(uri, null);
+            if (await CheckResponse(response, uri) && ValidateJsonContent(response.Content))
+            {
+                var result = await response.Content.ReadAsStringAsync();
+                return result;
+            }
+            return default;
         }
 
         protected async Task<T> PostJsonAsync<T>(string uri, T value)

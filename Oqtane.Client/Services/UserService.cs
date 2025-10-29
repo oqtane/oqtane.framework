@@ -1,11 +1,12 @@
-using Oqtane.Shared;
-using Oqtane.Models;
+using System.Buffers.Text;
+using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Oqtane.Documentation;
-using System.Net;
-using System.Collections.Generic;
 using Microsoft.Extensions.Localization;
+using Oqtane.Documentation;
+using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
@@ -177,21 +178,14 @@ namespace Oqtane.Services
         /// Get passkeys for a user
         /// </summary>
         /// <returns></returns>
-        Task<List<Passkey>> GetPasskeysAsync();
-
-        /// <summary>
-        /// Add a user passkey
-        /// </summary>
-        /// <param name="passkey"></param>
-        /// <returns></returns>
-        Task<Passkey> AddPasskeyAsync(Passkey passkey);
+        Task<List<UserPasskey>> GetPasskeysAsync();
 
         /// <summary>
         /// Update a user passkey
         /// </summary>
         /// <param name="passkey"></param>
         /// <returns></returns>
-        Task<Passkey> UpdatePasskeyAsync(Passkey passkey);
+        Task<UserPasskey> UpdatePasskeyAsync(UserPasskey passkey);
 
         /// <summary>
         /// Delete a user passkey
@@ -199,6 +193,20 @@ namespace Oqtane.Services
         /// <param name="credentialId"></param>
         /// <returns></returns>
         Task DeletePasskeyAsync(byte[] credentialId);
+
+        /// <summary>
+        /// Get logins for a user
+        /// </summary>
+        /// <returns></returns>
+        Task<List<UserLogin>> GetLoginsAsync();
+
+        /// <summary>
+        /// Delete a user login
+        /// </summary>
+        /// <param name="provider"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        Task DeleteLoginAsync(string provider, string key);
     }
 
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
@@ -330,24 +338,29 @@ namespace Oqtane.Services
             return await PostJsonAsync<Dictionary<string, string>>($"{Apiurl}/import?siteid={siteId}&fileid={fileId}&notify={notify}", null);
         }
 
-        public async Task<List<Passkey>> GetPasskeysAsync()
+        public async Task<List<UserPasskey>> GetPasskeysAsync()
         {
-            return await GetJsonAsync<List<Passkey>>($"{Apiurl}/passkey");
+            return await GetJsonAsync<List<UserPasskey>>($"{Apiurl}/passkey");
         }
 
-        public async Task<Passkey> AddPasskeyAsync(Passkey passkey)
+        public async Task<UserPasskey> UpdatePasskeyAsync(UserPasskey passkey)
         {
-            return await PostJsonAsync<Passkey>($"{Apiurl}/passkey", passkey);
-        }
-
-        public async Task<Passkey> UpdatePasskeyAsync(Passkey passkey)
-        {
-            return await PutJsonAsync<Passkey>($"{Apiurl}/passkey", passkey);
+            return await PutJsonAsync<UserPasskey>($"{Apiurl}/passkey", passkey);
         }
 
         public async Task DeletePasskeyAsync(byte[] credentialId)
         {
-            await DeleteAsync($"{Apiurl}/passkey?id={credentialId}");
+            await DeleteAsync($"{Apiurl}/passkey?id={Base64Url.EncodeToString(credentialId)}");
+        }
+
+        public async Task<List<UserLogin>> GetLoginsAsync()
+        {
+            return await GetJsonAsync<List<UserLogin>>($"{Apiurl}/login");
+        }
+
+        public async Task DeleteLoginAsync(string provider, string key)
+        {
+            await DeleteAsync($"{Apiurl}/login?provider={provider}&key={key}");
         }
     }
 }

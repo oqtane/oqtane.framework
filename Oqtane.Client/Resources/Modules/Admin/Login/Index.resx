@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ForgotPassword" xml:space="preserve">
-    <value>Forgot Password</value>
+    <value>Forgot Password?</value>
   </data>
   <data name="Success.Account.Verified" xml:space="preserve">
     <value>User Account Email Address Verified Successfully. You Can Now Login With Your Username And Password.</value>
@@ -230,5 +230,8 @@
   </data>
   <data name="Register" xml:space="preserve">
     <value>Register as new user?</value>
+  </data>
+  <data name="Passkey" xml:space="preserve">
+    <value>Use Passkey</value>
   </data>
 </root>
