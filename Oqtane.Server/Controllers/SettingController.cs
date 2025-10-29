@@ -218,11 +218,10 @@ namespace Oqtane.Controllers
                 var existingSettings = _settings.GetSettings(entityName, entityId).ToList();
                 foreach (Setting setting in settings)
                 {
-                    // note that setting.SettingId will be 0 if the Settings were converted from a Dictionary in the SettingService
                     Setting existing = existingSettings.FirstOrDefault(item => item.SettingName.Equals(setting.SettingName, StringComparison.OrdinalIgnoreCase));
                     if (existing == null)
                     {
-                        if (setting.SettingId == -1) setting.SettingId = 0;
+                        setting.SettingId = 0; // initialize
                         existing = _settings.AddSetting(setting);
                         AddSyncEvent(existing.EntityName, existing.EntityId, existing.SettingId, SyncEventActions.Create);
                         _logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Created {Setting}", existing);
@@ -230,6 +229,7 @@ namespace Oqtane.Controllers
                     }
                     else
                     {
+                        // note that setting.SettingId will be 0 or -1 if the Settings were converted from a Dictionary in the SettingService
                         if (existing.SettingValue != setting.SettingValue || (existing.IsPrivate != setting.IsPrivate && setting.SettingId != 0))
                         {
                             existing.SettingValue = setting.SettingValue;
