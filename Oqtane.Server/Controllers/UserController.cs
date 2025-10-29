@@ -1,19 +1,21 @@
-using Microsoft.AspNetCore.Mvc;
+using System.Buffers.Text;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Models;
-using System.Threading.Tasks;
-using System.Linq;
-using System.Security.Claims;
-using Oqtane.Shared;
-using System.Net;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Oqtane.Enums;
+using Oqtane.Extensions;
 using Oqtane.Infrastructure;
+using Oqtane.Managers;
+using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Security;
-using Oqtane.Extensions;
-using Oqtane.Managers;
-using System.Collections.Generic;
+using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
@@ -467,32 +469,15 @@ namespace Oqtane.Controllers
         // GET: api/<controller>/passkey
         [HttpGet("passkey")]
         [Authorize]
-        public async Task<IEnumerable<Passkey>> GetPasskeys()
+        public async Task<IEnumerable<UserPasskey>> GetPasskeys()
         {
             return await _userManager.GetPasskeys(_userPermissions.GetUser(User).UserId);
-        }
-
-        // POST api/<controller>/passkey
-        [HttpPost("passkey")]
-        [Authorize]
-        public async Task AddPasskey([FromBody] Passkey passkey)
-        {
-            if (ModelState.IsValid)
-            {
-                passkey.UserId = _userPermissions.GetUser(User).UserId;
-                await _userManager.AddPasskey(passkey);
-            }
-            else
-            {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Passkey Post Attempt {PassKey}", passkey);
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-            }
         }
 
         // PUT api/<controller>/passkey
         [HttpPut("passkey")]
         [Authorize]
-        public async Task UpdatePasskey([FromBody] Passkey passkey)
+        public async Task UpdatePasskey([FromBody] UserPasskey passkey)
         {
             if (ModelState.IsValid)
             {
@@ -509,9 +494,25 @@ namespace Oqtane.Controllers
         // DELETE api/<controller>/passkey?id=x
         [HttpDelete("passkey")]
         [Authorize]
-        public async Task DeletePasskey(byte[] id)
+        public async Task DeletePasskey(string id)
         {
-            await _userManager.DeletePasskey(_userPermissions.GetUser(User).UserId, id);
+            await _userManager.DeletePasskey(_userPermissions.GetUser(User).UserId, Base64Url.DecodeFromChars(id));
+        }
+
+        // GET: api/<controller>/login
+        [HttpGet("login")]
+        [Authorize]
+        public async Task<IEnumerable<UserLogin>> GetLogins()
+        {
+            return await _userManager.GetLogins(_userPermissions.GetUser(User).UserId);
+        }
+
+        // DELETE api/<controller>/login?provider=x&key=y
+        [HttpDelete("login")]
+        [Authorize]
+        public async Task DeleteLogin(string provider, string key)
+        {
+            await _userManager.DeleteLogin(_userPermissions.GetUser(User).UserId, provider, key);
         }
     }
 }

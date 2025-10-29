@@ -168,9 +168,6 @@
   <data name="DeleteNotification.Message" xml:space="preserve">
     <value>Are You Sure You Wish To Delete This Notification?</value>
   </data>
-  <data name="Identity.Name" xml:space="preserve">
-    <value>Identity</value>
-  </data>
   <data name="Confirm.HelpText" xml:space="preserve">
     <value>If you are changing your password you must enter it again to confirm it matches the value entered above</value>
   </data>
@@ -211,7 +208,7 @@
     <value>Indicates if you are using two factor authentication. Two factor authentication requires you to enter a verification code sent via email after you sign in.</value>
   </data>
   <data name="TwoFactor.Text" xml:space="preserve">
-    <value>Two Factor?</value>
+    <value>Use Two Factor?</value>
   </data>
   <data name="DeleteAllNotifications.Header" xml:space="preserve">
     <value>Clear Notifications</value>
@@ -248,5 +245,41 @@
   </data>
   <data name="TimeZone.HelpText" xml:space="preserve">
     <value>Your time zone</value>
+  </data>
+  <data name="Identity.Heading" xml:space="preserve">
+    <value>Identity</value>
+  </data>
+  <data name="Security.Heading" xml:space="preserve">
+    <value>Security</value>
+  </data>
+  <data name="MFA.Heading" xml:space="preserve">
+    <value>Multi-Factor Authenticationxxx</value>
+  </data>
+  <data name="Passkeys.Heading" xml:space="preserve">
+    <value>Passkeys</value>
+  </data>
+  <data name="Logins.Heading" xml:space="preserve">
+    <value>Logins</value>
+  </data>
+  <data name="Passkey" xml:space="preserve">
+    <value>Passkey</value>
+  </data>
+  <data name="DeletePasskey.Header" xml:space="preserve">
+    <value>Delete Passkey</value>
+  </data>
+  <data name="Confirm.Passkey.Delete" xml:space="preserve">
+    <value>Are You Sure You Wish To Delete {0}?</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="DeleteLogin.Header" xml:space="preserve">
+    <value>Delete Login</value>
+  </data>
+  <data name="Confirm.Login.Delete" xml:space="preserve">
+    <value>Are You Sure You Wish To Delete {0}?</value>
+  </data>
+  <data name="Message.Passkey.Insecure" xml:space="preserve">
+    <value>Passkeys Can Only Be Created Using a Secure Browser Connection</value>
   </data>
 </root>

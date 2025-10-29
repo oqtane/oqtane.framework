@@ -3,7 +3,7 @@ namespace Oqtane.Models
     /// <summary>
     /// Passkey properties 
     /// </summary>
-    public class Passkey
+    public class UserPasskey
     {
         /// <summary>
         ///  the credential ID for this passkey 

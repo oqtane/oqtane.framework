@@ -516,5 +516,17 @@ Oqtane.Interop = {
                 }
             }
         }
+    },
+    createCredential: async function (optionsResponse) {
+        const optionsJson = JSON.parse(optionsResponse);
+        const options = PublicKeyCredential.parseCreationOptionsFromJSON(optionsJson);
+        const credential = await navigator.credentials.create({ publicKey: options });
+        return JSON.stringify(credential);
+    },
+    requestCredential: async function (optionsResponse) {
+        const optionsJson = JSON.parse(optionsResponse);
+        const options = PublicKeyCredential.parseRequestOptionsFromJSON(optionsJson);
+        const credential = await navigator.credentials.get({ publicKey: options, undefined });
+        return JSON.stringify(credential);
     }
 };

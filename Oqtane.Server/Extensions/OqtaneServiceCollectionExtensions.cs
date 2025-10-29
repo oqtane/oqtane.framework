@@ -102,7 +102,8 @@ namespace Microsoft.Extensions.DependencyInjection
             })
             .AddCookie(Constants.AuthenticationScheme)
             .AddOpenIdConnect(AuthenticationProviderTypes.OpenIDConnect, options => { })
-            .AddOAuth(AuthenticationProviderTypes.OAuth2, options => { });
+            .AddOAuth(AuthenticationProviderTypes.OAuth2, options => { })
+            .AddTwoFactorUserIdCookie();
 
             services.ConfigureOqtaneCookieOptions();
             services.ConfigureOqtaneAuthenticationOptions(configuration);

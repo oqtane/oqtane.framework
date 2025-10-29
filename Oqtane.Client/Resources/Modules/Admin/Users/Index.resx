@@ -561,4 +561,10 @@
   <data name="SingleLogout.HelpText" xml:space="preserve">
     <value>Specify if users should be logged out of both the application and provider (the default is false indicating they will only be logged out of the application)</value>
   </data>
+  <data name="Passkeys.Text" xml:space="preserve">
+    <value>Allow Passkeys?</value>
+  </data>
+  <data name="Passkeys.HelpText" xml:space="preserve">
+    <value>Do you want to allow users to login using passkeys (ie. passwordless authentication using WebAuthn/FIDO2)?</value>
+  </data>
 </root>
