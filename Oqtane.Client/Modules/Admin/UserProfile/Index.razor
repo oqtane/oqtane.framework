@@ -121,7 +121,7 @@
                     }
                     else
                     {
-                        <ModuleMessage Type="MessageType.Warning" Message="@Localizer["Message.Passkey.Insecure"]" />
+                        <ModuleMessage Type="MessageType.Warning" Message="@Localizer["Message.Passkeys.Insecure"]" />
                     }
                     @if (_passkeys != null && _passkeys.Count > 0)
                     {
@@ -147,6 +147,10 @@
                             </Row>
                         </Pager>
                     }
+                    else
+                    {
+                        <div>@Localizer["Message.Passkeys.None"]</div>
+                    }
                 </Section>
                 <br />
             }
@@ -165,6 +169,10 @@
                                 <td>@context.Name</td>
                             </Row>
                         </Pager>
+                    }
+                    else
+                    {
+                        <div>@Localizer["Message.Logins.None"]</div>
                     }
                 </Section>
                 <br />
@@ -370,7 +378,7 @@
                 else
                 {
                     <div class="no-notifications-text">
-                        @Localizer["NoNotificationsReceived.Text"]
+                        @Localizer["NoNotificationsReceived"]
                     </div>
                 }
             }
@@ -434,7 +442,7 @@
                 else
                 {
                     <div class="no-notifications-text">
-                        @Localizer["NoNotificationsSent.Text"]
+                        @Localizer["NoNotificationsSent"]
                     </div>
                 }
             }
