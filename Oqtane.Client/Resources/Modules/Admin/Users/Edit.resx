@@ -123,9 +123,6 @@
   <data name="Message.Password.Complexity" xml:space="preserve">
     <value>Password Provided Does Not Meet The Complexity Policy</value>
   </data>
-  <data name="Identity.Name" xml:space="preserve">
-    <value>Identity</value>
-  </data>
   <data name="Confirm.Delete" xml:space="preserve">
     <value>Is Deleted?</value>
   </data>
@@ -221,5 +218,8 @@
   </data>
   <data name="Confirmed.HelpText" xml:space="preserve">
     <value>Indicates if the user's email is verified</value>
+  </data>
+  <data name="Security.Heading" xml:space="preserve">
+    <value>Security</value>
   </data>
 </root>
