@@ -222,4 +222,34 @@
   <data name="Security.Heading" xml:space="preserve">
     <value>Security</value>
   </data>
+  <data name="Passkeys.Heading" xml:space="preserve">
+    <value>Passkeys</value>
+  </data>
+  <data name="Logins.Heading" xml:space="preserve">
+    <value>Logins</value>
+  </data>
+  <data name="Passkey" xml:space="preserve">
+    <value>Passkey</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="DeletePasskey.Header" xml:space="preserve">
+    <value>Delete Passkey</value>
+  </data>
+  <data name="DeleteLogin.Header" xml:space="preserve">
+    <value>Delete Login</value>
+  </data>
+  <data name="Confirm.Passkey.Delete" xml:space="preserve">
+    <value>Are You Sure You Wish To Delete {0}?</value>
+  </data>
+  <data name="Confirm.Login.Delete" xml:space="preserve">
+    <value>Are You Sure You Wish To Delete {0}?</value>
+  </data>
+  <data name="Message.Passkeys.None" xml:space="preserve">
+    <value>You Have Not Created Any Passkeys</value>
+  </data>
+  <data name="Message.Logins.None" xml:space="preserve">
+    <value>You Do Not Have Any External Logins For This Site</value>
+  </data>
 </root>

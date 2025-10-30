@@ -33,7 +33,6 @@ namespace Oqtane.Managers
         Task ForgotPassword(User user);
         Task<User> ResetPassword(User user, string token);
         User VerifyTwoFactor(User user, string token);
-        Task<User> LinkExternalAccount(User user, string token, string type, string key, string name);
         Task<UserValidateResult> ValidateUser(string username, string email, string password);
         Task<bool> ValidatePassword(string password);
         Task<Dictionary<string, string>> ImportUsers(int siteId, string filePath, bool notify);
@@ -41,6 +40,7 @@ namespace Oqtane.Managers
         Task UpdatePasskey(UserPasskey passkey);
         Task DeletePasskey(int userId, byte[] credentialId);
         Task<List<UserLogin>> GetLogins(int userId, int siteId);
+        Task<User> AddLogin(User user, string token, string type, string key, string name);
         Task DeleteLogin(int userId, string provider, string key);
     }
 
@@ -588,29 +588,6 @@ namespace Oqtane.Managers
             }
             return user;
         }
-
-        public async Task<User> LinkExternalAccount(User user, string token, string type, string key, string name)
-        {
-            IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
-            if (identityuser != null && !string.IsNullOrEmpty(token))
-            {
-                var result = await _identityUserManager.ConfirmEmailAsync(identityuser, token);
-                if (result.Succeeded)
-                {
-                    // make LoginProvider multi-tenant aware
-                    type += ":" + user.SiteId.ToString();
-                    await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(type, key, name));
-                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "External Login Linkage Successful For {Username} And Provider {Provider}", user.Username, type);
-                }
-                else
-                {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "External Login Linkage Failed For {Username} - Error {Error}", user.Username, string.Join(" ", result.Errors.ToList().Select(e => e.Description)));
-                    user = null;
-                }
-            }
-            return user;
-        }
-
         public async Task<UserValidateResult> ValidateUser(string username, string email, string password)
         {
             var validateResult = new UserValidateResult { Succeeded = true };
@@ -901,6 +878,29 @@ namespace Oqtane.Managers
             }
             return logins;
         }
+
+        public async Task<User> AddLogin(User user, string token, string type, string key, string name)
+        {
+            IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+            if (identityuser != null && !string.IsNullOrEmpty(token))
+            {
+                var result = await _identityUserManager.ConfirmEmailAsync(identityuser, token);
+                if (result.Succeeded)
+                {
+                    // make LoginProvider multi-tenant aware
+                    type += ":" + user.SiteId.ToString();
+                    await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(type, key, name));
+                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "External Login Linkage Successful For {Username} And Provider {Provider}", user.Username, type);
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "External Login Linkage Failed For {Username} - Error {Error}", user.Username, string.Join(" ", result.Errors.ToList().Select(e => e.Description)));
+                    user = null;
+                }
+            }
+            return user;
+        }
+
 
         public async Task DeleteLogin(int userId, string provider, string key)
         {
