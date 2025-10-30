@@ -49,7 +49,7 @@ namespace Oqtane.Pages
                                     Name = identityuser.UserName,
                                     DisplayName = identityuser.UserName
                                 });
-                                returnurl += $"?options={WebUtility.UrlEncode(creationOptionsJson)}";
+                                returnurl += (!returnurl.Contains("?") ? "?" : "&") + $"options={WebUtility.UrlEncode(creationOptionsJson)}";
                             }
                             else
                             {
@@ -70,8 +70,18 @@ namespace Oqtane.Pages
                                 var attestationResult = await _identitySignInManager.PerformPasskeyAttestationAsync(credential);
                                 if (attestationResult.Succeeded)
                                 {
-                                    attestationResult.Passkey.Name = identityuser.UserName + "'s Passkey";
-                                    var addPasskeyResult = await _identityUserManager.AddOrUpdatePasskeyAsync(identityuser, attestationResult.Passkey);
+                                    var user = _userManager.GetUser(User.Identity.Name, HttpContext.GetAlias().SiteId);
+                                    if (user != null && !user.IsDeleted && UserSecurity.ContainsRole(user.Roles, RoleNames.Registered))
+                                    {
+                                        // setting a default name and including a SiteId prefix for multi-tenancy
+                                        var name = (!string.IsNullOrEmpty(user.DisplayName)) ? user.DisplayName : user.Username;
+                                        attestationResult.Passkey.Name = HttpContext.GetAlias().SiteId + ":" + name + "'s Passkey";
+                                        var addPasskeyResult = await _identityUserManager.AddOrUpdatePasskeyAsync(identityuser, attestationResult.Passkey);
+                                    }
+                                    else
+                                    {
+                                        _logger.Log(LogLevel.Information, this, LogFunction.Security, "Passkey Validation Failed - User {Username} Is Deleted Or Is Not A Registered User For The Site", User.Identity.Name);
+                                    }
                                 }
                                 else
                                 {
@@ -113,7 +123,7 @@ namespace Oqtane.Pages
                                 }
                                 else
                                 {
-                                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "Passkey Login Failed For User {Username}", User.Identity.Name);
+                                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "Passkey Login Failed - User {Username} Is Deleted Or Is Not A Registered User For The Site", User.Identity.Name);
                                 }
                             }
                             else

@@ -37,7 +37,7 @@ namespace Oqtane.Managers
         Task<UserValidateResult> ValidateUser(string username, string email, string password);
         Task<bool> ValidatePassword(string password);
         Task<Dictionary<string, string>> ImportUsers(int siteId, string filePath, bool notify);
-        Task<List<UserPasskey>> GetPasskeys(int userId);
+        Task<List<UserPasskey>> GetPasskeys(int userId, int siteId);
         Task UpdatePasskey(UserPasskey passkey);
         Task DeletePasskey(int userId, byte[] credentialId);
         Task<List<UserLogin>> GetLogins(int userId, int siteId);
@@ -826,7 +826,7 @@ namespace Oqtane.Managers
             return result;
         }
 
-        public async Task<List<UserPasskey>> GetPasskeys(int userId)
+        public async Task<List<UserPasskey>> GetPasskeys(int userId, int siteId)
         {
             var passkeys = new List<UserPasskey>();
             var user = _users.GetUser(userId);
@@ -838,7 +838,11 @@ namespace Oqtane.Managers
                     var userpasskeys = await _identityUserManager.GetPasskeysAsync(identityuser);
                     foreach (var userpasskey in userpasskeys)
                     {
-                        passkeys.Add(new UserPasskey { CredentialId = userpasskey.CredentialId, Name = userpasskey.Name, UserId = userId });
+                        // passkey name is prefixed with SiteId for multi-tenancy
+                        if (userpasskey.Name.StartsWith($"{siteId}:"))
+                        {
+                            passkeys.Add(new UserPasskey { CredentialId = userpasskey.CredentialId, Name = userpasskey.Name.Split(':')[1], UserId = userId });
+                        }
                     }
                 }
             }

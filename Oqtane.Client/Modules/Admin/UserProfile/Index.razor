@@ -115,14 +115,7 @@
             @if (_allowpasskeys)
             {
                 <Section Name="Passkeys" Heading="Passkeys" ResourceKey="Passkeys">
-                    @if (PageState.Route.Scheme == "https")
-                    {
-                        <button type="button" class="btn btn-primary" @onclick="AddPasskey">@SharedLocalizer["Add"]</button>
-                    }
-                    else
-                    {
-                        <ModuleMessage Type="MessageType.Warning" Message="@Localizer["Message.Passkeys.Insecure"]" />
-                    }
+                    <button type="button" class="btn btn-primary" @onclick="AddPasskey">@SharedLocalizer["Add"]</button>
                     @if (_passkeys != null && _passkeys.Count > 0)
                     {
                         <Pager Items="@_passkeys">
@@ -669,7 +662,7 @@
     {
         // post back to the Passkey page so that the cookies are set correctly
         var interop = new Interop(JSRuntime);
-        var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, operation = "create", returnurl = NavigateUrl() };
+        var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, operation = "create", returnurl = NavigateUrl(PageState.Page.Path, "tab=Security") };
         string url = Utilities.TenantUrl(PageState.Alias, "/pages/passkey/");
         await interop.SubmitForm(url, fields);
     }
@@ -694,14 +687,14 @@
                     }
                     else
                     {
-                        await logger.LogError("Error Adding Passkey");
-                        AddModuleMessage(Localizer["Error.Passkey"], MessageType.Error);
+                        await logger.LogError("Passkey Could Not Be Created");
+                        AddModuleMessage(Localizer["Error.Passkey.Fail"], MessageType.Warning);
                     }
                 }
                 catch (Exception ex)
                 {
-                    await logger.LogError(ex, "Error Adding Passkey");
-                    AddModuleMessage(Localizer["Error.Passkey"], MessageType.Error);
+                    await logger.LogError(ex, "Passkey Could Not Be Created");
+                    AddModuleMessage(Localizer["Error.Passkey.Fail"], MessageType.Warning);
                 }
             }
         }

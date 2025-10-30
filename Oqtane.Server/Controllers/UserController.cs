@@ -471,7 +471,7 @@ namespace Oqtane.Controllers
         [Authorize]
         public async Task<IEnumerable<UserPasskey>> GetPasskeys()
         {
-            return await _userManager.GetPasskeys(_userPermissions.GetUser(User).UserId);
+            return await _userManager.GetPasskeys(_userPermissions.GetUser(User).UserId, _tenantManager.GetAlias().SiteId);
         }
 
         // PUT api/<controller>/passkey
@@ -481,6 +481,8 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
+                // passkey name is prefixed with SiteId for multi-tenancy
+                passkey.Name = $"{_tenantManager.GetAlias().SiteId}:" + passkey.Name;
                 passkey.UserId = _userPermissions.GetUser(User).UserId;
                 await _userManager.UpdatePasskey(passkey);
             }
