@@ -654,7 +654,7 @@
     {
         if (_allowpasskeys)
         {
-            _passkeys = await UserService.GetPasskeysAsync();
+            _passkeys = await UserService.GetPasskeysAsync(PageState.User.UserId);
         }
     }
 
@@ -709,7 +709,7 @@
 
     private async Task DeletePasskey(UserPasskey passkey)
     {
-        await UserService.DeletePasskeyAsync(passkey.CredentialId);
+        await UserService.DeletePasskeyAsync(PageState.User.UserId, passkey.CredentialId);
         await GetPasskeys();
         StateHasChanged();
     }
@@ -718,7 +718,7 @@
     {
         if (!string.IsNullOrEmpty(_passkeyName))
         {
-            await UserService.UpdatePasskeyAsync(new UserPasskey { CredentialId = _passkeyId, Name = _passkeyName });
+            await UserService.UpdatePasskeyAsync(new UserPasskey { CredentialId = _passkeyId, Name = _passkeyName, UserId = PageState.User.UserId });
             await GetPasskeys();
             _passkeyName = "";
             StateHasChanged();
@@ -736,13 +736,13 @@
     {
         if (_allowexternallogin)
         {
-            _logins = await UserService.GetLoginsAsync();
+            _logins = await UserService.GetLoginsAsync(PageState.User.UserId);
         }
     }
 
     private async Task DeleteLogin(UserLogin login)
     {
-        await UserService.DeleteLoginAsync(login.Provider, login.Key);
+        await UserService.DeleteLoginAsync(PageState.User.UserId, login.Provider, login.Key);
         await GetLogins();
         StateHasChanged();
     }

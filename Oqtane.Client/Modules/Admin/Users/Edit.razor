@@ -103,6 +103,53 @@
                     </div>
                 </div>
             </div>
+            <br /><br />
+            @if (_allowpasskeys)
+            {
+                <Section Name="Passkeys" Heading="Passkeys" ResourceKey="Passkeys">
+                    @if (_passkeys != null && _passkeys.Count > 0)
+                    {
+                        <Pager Items="@_passkeys">
+                            <Header>
+                            <th style="width: 1px;">&nbsp;</th>
+                            <th>@Localizer["Passkey"]</th>
+                            </Header>
+                            <Row>
+                                <td><ActionDialog Action="Delete" OnClick="@(async () => await DeletePasskey(context))" ResourceKey="DeletePasskey" Class="btn btn-danger" Header="Delete Passkey" Message="@string.Format(Localizer["Confirm.Passkey.Delete", context.Name])" /></td>
+                                <td>@context.Name</td>
+                            </Row>
+                        </Pager>
+                    }
+                    else
+                    {
+                        <div>@Localizer["Message.Passkeys.None"]</div>
+                    }
+                </Section>
+                <br />
+            }
+            @if (_allowexternallogin)
+            {
+                <Section Name="Logins" Heading="Logins" ResourceKey="Logins">
+                    @if (_logins != null && _logins.Count > 0)
+                    {
+                        <Pager Items="@_logins">
+                            <Header>
+                            <th style="width: 1px;">&nbsp;</th>
+                            <th>@Localizer["Login"]</th>
+                            </Header>
+                            <Row>
+                                <td><ActionDialog Action="Delete" OnClick="@(async () => await DeleteLogin(context))" ResourceKey="DeleteLogin" Class="btn btn-danger" Header="Delete Login" Message="@string.Format(Localizer["Confirm.Login.Delete", context.Name])" /></td>
+                                <td>@context.Name</td>
+                            </Row>
+                        </Pager>
+                    }
+                    else
+                    {
+                        <div>@Localizer["Message.Logins.None"]</div>
+                    }
+                </Section>
+                <br />
+            }
         </TabPanel>
         <TabPanel Name="Profile" Heading="Profile" ResourceKey="Profile">
             <div class="container">
@@ -173,23 +220,29 @@
 }
 
 @code {
-    private List<Models.TimeZone> _timezones;
     private bool _initialized = false;
-    private string _passwordrequirements;
+    private bool _allowpasskeys = false;
+    private bool _allowexternallogin = false;
+
     private int _userid;
     private string _username = string.Empty;
-    private string _password = string.Empty;
-    private string _passwordtype = "password";
-    private string _togglepassword = string.Empty;
-    private string _confirm = string.Empty;
     private string _email = string.Empty;
     private string _confirmed = string.Empty;
     private string _displayname = string.Empty;
+    private List<Models.TimeZone> _timezones;
     private string _timezoneid = string.Empty;
     private string _isdeleted;
     private string _lastlogin;
     private string _lastipaddress;
     private bool _ishost = false;
+
+    private string _passwordrequirements;
+    private string _password = string.Empty;
+    private string _passwordtype = "password";
+    private string _togglepassword = string.Empty;
+    private string _confirm = string.Empty;
+    private List<UserPasskey> _passkeys;
+    private List<UserLogin> _logins;
 
     private List<Profile> _profiles;
     private Dictionary<string, string> _settings;
@@ -208,19 +261,8 @@
     {
         try
         {
-            _passwordrequirements = await UserService.GetPasswordRequirementsAsync(PageState.Site.SiteId);
-            _togglepassword = SharedLocalizer["ShowPassword"];
-            _profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
-            foreach (var profile in _profiles)
-            {
-                if (profile.Options.ToLower().StartsWith("entityname:"))
-                {
-                    var options = await SettingService.GetSettingsAsync(profile.Options.Substring(11), -1);
-                    options.Add("", $"<{SharedLocalizer["Not Specified"]}>");
-                    profile.Options = string.Join(",", options.OrderBy(item => item.Value).Select(kvp => $"{kvp.Key}:{kvp.Value}"));
-                }
-            }
-            _timezones = TimeZoneService.GetTimeZones();
+            _allowpasskeys = (SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:Passkeys", "false") == "true");
+            _allowexternallogin = (SettingService.GetSetting(PageState.Site.Settings, "ExternalLogin:ProviderType", "") != "") ? true : false;
 
             if (PageState.QueryString.ContainsKey("id") && int.TryParse(PageState.QueryString["id"], out int UserId))
             {
@@ -232,13 +274,30 @@
                     _email = user.Email;
                     _confirmed = user.EmailConfirmed.ToString();
                     _displayname = user.DisplayName;
+                    _timezones = TimeZoneService.GetTimeZones();
                     _timezoneid = PageState.User.TimeZoneId;
                     _isdeleted = user.IsDeleted.ToString();
                     _lastlogin = string.Format("{0:MMM dd yyyy HH:mm:ss}", UtcToLocal(user.LastLoginOn));
                     _lastipaddress = user.LastIPAddress;
                     _ishost = UserSecurity.ContainsRole(user.Roles, RoleNames.Host);
 
-                    _settings = user.Settings;
+                    _passwordrequirements = await UserService.GetPasswordRequirementsAsync(PageState.Site.SiteId);
+                    _togglepassword = SharedLocalizer["ShowPassword"];
+                    await GetPasskeys();
+                    await GetLogins();
+
+                    _profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
+                    foreach (var profile in _profiles)
+                    {
+                        if (profile.Options.ToLower().StartsWith("entityname:"))
+                        {
+                            var options = await SettingService.GetSettingsAsync(profile.Options.Substring(11), -1);
+                            options.Add("", $"<{SharedLocalizer["Not Specified"]}>");
+                            profile.Options = string.Join(",", options.OrderBy(item => item.Value).Select(kvp => $"{kvp.Key}:{kvp.Value}"));
+                        }
+                    }
+                   _settings = user.Settings;
+
                     _createdby = user.CreatedBy;
                     _createdon = user.CreatedOn;
                     _modifiedby = user.ModifiedBy;
@@ -358,6 +417,35 @@
         }
     }
 
+    private async Task GetPasskeys()
+    {
+        if (_allowpasskeys)
+        {
+            _passkeys = await UserService.GetPasskeysAsync(_userid);
+        }
+    }
+    private async Task DeletePasskey(UserPasskey passkey)
+    {
+        await UserService.DeletePasskeyAsync(_userid, passkey.CredentialId);
+        await GetPasskeys();
+        StateHasChanged();
+    }
+    
+    private async Task GetLogins()
+    {
+        if (_allowexternallogin)
+        {
+            _logins = await UserService.GetLoginsAsync(_userid);
+        }
+    }
+
+    private async Task DeleteLogin(UserLogin login)
+    {
+        await UserService.DeleteLoginAsync(_userid, login.Provider, login.Key);
+        await GetLogins();
+        StateHasChanged();
+    }
+    
     private bool ValidateProfiles()
     {
         foreach (Profile profile in _profiles)

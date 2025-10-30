@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
+using System.Security.Policy;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -240,8 +241,8 @@ namespace Oqtane.Controllers
             }
         }
 
-        // POST api/<controller>/login
-        [HttpPost("login")]
+        // POST api/<controller>/signin
+        [HttpPost("signin")]
         public async Task<User> Login([FromBody] User user, bool setCookie, bool isPersistent)
         {
             if (ModelState.IsValid)
@@ -327,22 +328,6 @@ namespace Oqtane.Controllers
                 user.IsAuthenticated = false;
             }
 
-            return user;
-        }
-
-        // POST api/<controller>/link
-        [HttpPost("link")]
-        public async Task<User> Link([FromBody] User user, string token, string type, string key, string name)
-        {
-            if (ModelState.IsValid)
-            {
-                user = await _userManager.LinkExternalAccount(user, token, type, key, name);
-            }
-            else
-            {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "External Login Linkage Failed For {Username} And Token {Token}", user.Username, token);
-                user = null;
-            }
             return user;
         }
 
@@ -466,12 +451,21 @@ namespace Oqtane.Controllers
             }
         }
 
-        // GET: api/<controller>/passkey
+        // GET: api/<controller>/passkey?id=x
         [HttpGet("passkey")]
         [Authorize]
-        public async Task<IEnumerable<UserPasskey>> GetPasskeys()
+        public async Task<IEnumerable<UserPasskey>> GetPasskeys(int id)
         {
-            return await _userManager.GetPasskeys(_userPermissions.GetUser(User).UserId, _tenantManager.GetAlias().SiteId);
+            if (_userPermissions.IsAuthorized(User, _tenantManager.GetAlias().SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) || _userPermissions.GetUser(User).UserId == id)
+            {
+                return await _userManager.GetPasskeys(id, _tenantManager.GetAlias().SiteId);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Passkey Get Attempt {UserId} {SiteId}", id, _tenantManager.GetAlias().SiteId);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return null;
+            }
         }
 
         // PUT api/<controller>/passkey
@@ -481,10 +475,17 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                // passkey name is prefixed with SiteId for multi-tenancy
-                passkey.Name = $"{_tenantManager.GetAlias().SiteId}:" + passkey.Name;
-                passkey.UserId = _userPermissions.GetUser(User).UserId;
-                await _userManager.UpdatePasskey(passkey);
+                if (_userPermissions.IsAuthorized(User, _tenantManager.GetAlias().SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) || _userPermissions.GetUser(User).UserId == passkey.UserId)
+                {
+                    // passkey name is prefixed with SiteId for multi-tenancy
+                    passkey.Name = $"{_tenantManager.GetAlias().SiteId}:" + passkey.Name;
+                    await _userManager.UpdatePasskey(passkey);
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Passkey Put Attempt {PassKey}", passkey);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                }
             }
             else
             {
@@ -493,28 +494,70 @@ namespace Oqtane.Controllers
             }
         }
 
-        // DELETE api/<controller>/passkey?id=x
+        // DELETE api/<controller>/passkey?id=x&credential=y
         [HttpDelete("passkey")]
         [Authorize]
-        public async Task DeletePasskey(string id)
+        public async Task DeletePasskey(int id, string credential)
         {
-            await _userManager.DeletePasskey(_userPermissions.GetUser(User).UserId, Base64Url.DecodeFromChars(id));
+            if (_userPermissions.IsAuthorized(User, _tenantManager.GetAlias().SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) || _userPermissions.GetUser(User).UserId == id)
+            {
+                await _userManager.DeletePasskey(id, Base64Url.DecodeFromChars(credential));
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Passkey Delete Attempt {UserId} {Credential}", id, credential);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            }
         }
 
-        // GET: api/<controller>/login
+        // GET: api/<controller>/login?id=x
         [HttpGet("login")]
         [Authorize]
-        public async Task<IEnumerable<UserLogin>> GetLogins()
+        public async Task<IEnumerable<UserLogin>> GetLogins(int id)
         {
-            return await _userManager.GetLogins(_userPermissions.GetUser(User).UserId, _tenantManager.GetAlias().SiteId);
+            if (_userPermissions.IsAuthorized(User, _tenantManager.GetAlias().SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) || _userPermissions.GetUser(User).UserId == id)
+            {
+                return await _userManager.GetLogins(id, _tenantManager.GetAlias().SiteId);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Login Get Attempt {UserId} {SiteId}", id, _tenantManager.GetAlias().SiteId);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return null;
+            }
         }
 
-        // DELETE api/<controller>/login?provider=x&key=y
+        // PUT api/<controller>/login
+        [HttpPost("login")]
+        public async Task<User> AddLogin([FromBody] User user, string token, string type, string key, string name)
+        {
+            if (ModelState.IsValid)
+            {
+                user = await _userManager.AddLogin(user, token, type, key, name);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Login Post Attempt {Username} {Token}", user.Username, token);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                user = null;
+            }
+            return user;
+        }
+
+        // DELETE api/<controller>/login?id=x&provider=y&key=z
         [HttpDelete("login")]
         [Authorize]
-        public async Task DeleteLogin(string provider, string key)
+        public async Task DeleteLogin(int id, string provider, string key)
         {
-            await _userManager.DeleteLogin(_userPermissions.GetUser(User).UserId, provider, key);
+            if (_userPermissions.IsAuthorized(User, _tenantManager.GetAlias().SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) || _userPermissions.GetUser(User).UserId == id)
+            {
+                await _userManager.DeleteLogin(id, provider, key);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Login Delete Attempt {UserId} {Provider} {Key}", id, provider, key);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            }
         }
     }
 }
