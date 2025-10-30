@@ -22,7 +22,7 @@ namespace Oqtane.Modules
         private Dictionary<string, string> _urlparameters;
         private bool _scriptsloaded = false;
 
-        protected Logger logger => _logger ?? (_logger = new Logger(this));
+        public Logger logger => _logger ?? (_logger = new Logger(this));
 
         [Inject]
         protected ILogService LoggingService { get; set; }
