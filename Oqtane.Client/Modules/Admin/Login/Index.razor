@@ -52,7 +52,7 @@ else
                     </div>
                     <button type="button" class="btn btn-secondary col-12 mt-4" @onclick="Forgot">@Localizer["ForgotPassword"]</button>
 
-                    @if (_allowpasskeys && PageState.Route.Scheme == "https")
+                    @if (_allowpasskeys)
                     {
                         <hr class="app-rule mt-3" />
                         <button type="button" class="btn btn-primary col-12 mt-2" @onclick="Passkey">@Localizer["Passkey"]</button>
@@ -116,7 +116,7 @@ else
         {
             _allowexternallogin = (SettingService.GetSetting(PageState.Site.Settings, "ExternalLogin:ProviderType", "") != "") ? true : false;
             _allowsitelogin = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AllowSiteLogin", "true"));
-            _allowpasskeys = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AllowPasskeys", "false"));
+            _allowpasskeys = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:Passkeys", "false"));
             _alwaysremember = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AlwaysRemember", "false"));
 
             if (!string.IsNullOrEmpty(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:RegisterUrl", "")))
@@ -365,14 +365,14 @@ else
                 }
                 else
                 {
-                    await logger.LogError("Error Logging In With Passkey");
-                    AddModuleMessage(Localizer["Error.Passkey"], MessageType.Error);
+                    await logger.LogError("Passkey Login Was Not Successful");
+                    AddModuleMessage(Localizer["Error.Passkey.Fail"], MessageType.Warning);
                 }
             }
             catch (Exception ex)
             {
-                await logger.LogError(ex, "Error Logging In With Passkey");
-                AddModuleMessage(Localizer["Error.Passkey"], MessageType.Error);
+                await logger.LogError(ex, "Passkey Login Was Not Successful");
+                AddModuleMessage(Localizer["Error.Passkey.Fail"], MessageType.Warning);
             }
             return;
         }

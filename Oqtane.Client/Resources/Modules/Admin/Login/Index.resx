@@ -234,4 +234,7 @@
   <data name="Passkey" xml:space="preserve">
     <value>Use Passkey</value>
   </data>
+  <data name="Error.Passkey.Fail" xml:space="preserve">
+    <value>Passkey Login Was Not Successful</value>
+  </data>
 </root>

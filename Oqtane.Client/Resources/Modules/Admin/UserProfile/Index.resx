@@ -279,13 +279,13 @@
   <data name="Confirm.Login.Delete" xml:space="preserve">
     <value>Are You Sure You Wish To Delete {0}?</value>
   </data>
-  <data name="Message.Passkeys.Insecure" xml:space="preserve">
-    <value>Passkeys Can Only Be Created Using a Secure Browser Connection</value>
-  </data>
   <data name="Message.Passkeys.None" xml:space="preserve">
     <value>You Have Not Created Any Passkeys</value>
   </data>
   <data name="Message.Logins.None" xml:space="preserve">
     <value>You Do Not Have Any External Logins For This Site</value>
+  </data>
+  <data name="Error.Passkey.Fail" xml:space="preserve">
+    <value>Passkey Could Not Be Created</value>
   </data>
 </root>
