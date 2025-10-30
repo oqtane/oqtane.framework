@@ -504,7 +504,7 @@ namespace Oqtane.Controllers
         [Authorize]
         public async Task<IEnumerable<UserLogin>> GetLogins()
         {
-            return await _userManager.GetLogins(_userPermissions.GetUser(User).UserId);
+            return await _userManager.GetLogins(_userPermissions.GetUser(User).UserId, _tenantManager.GetAlias().SiteId);
         }
 
         // DELETE api/<controller>/login?provider=x&key=y

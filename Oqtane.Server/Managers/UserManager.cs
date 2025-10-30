@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Policy;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -39,7 +40,7 @@ namespace Oqtane.Managers
         Task<List<UserPasskey>> GetPasskeys(int userId);
         Task UpdatePasskey(UserPasskey passkey);
         Task DeletePasskey(int userId, byte[] credentialId);
-        Task<List<UserLogin>> GetLogins(int userId);
+        Task<List<UserLogin>> GetLogins(int userId, int siteId);
         Task DeleteLogin(int userId, string provider, string key);
     }
 
@@ -875,7 +876,7 @@ namespace Oqtane.Managers
             }
         }
 
-        public async Task<List<UserLogin>> GetLogins(int userId)
+        public async Task<List<UserLogin>> GetLogins(int userId, int siteId)
         {
             var logins = new List<UserLogin>();
             var user = _users.GetUser(userId);
@@ -887,7 +888,10 @@ namespace Oqtane.Managers
                     var userlogins = await _identityUserManager.GetLoginsAsync(identityuser);
                     foreach (var userlogin in userlogins)
                     {
-                        logins.Add(new UserLogin { Provider = userlogin.LoginProvider, Key = userlogin.ProviderKey, Name = userlogin.ProviderDisplayName });
+                        if (userlogin.LoginProvider.EndsWith(":" + siteId.ToString()))
+                        {
+                            logins.Add(new UserLogin { Provider = userlogin.LoginProvider, Key = userlogin.ProviderKey, Name = userlogin.ProviderDisplayName });
+                        }
                     }
                 }
             }
