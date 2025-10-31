@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
@@ -62,7 +63,14 @@ namespace Oqtane.Themes.Controls
             // verify anonymous users can access current page
             if (UserSecurity.IsAuthorized(null, PermissionNames.View, PageState.Page.PermissionList) && Utilities.IsEffectiveAndNotExpired(PageState.Page.EffectiveDate, PageState.Page.ExpiryDate))
             {
-                returnurl = PageState.Route.PathAndQuery;
+                if (PageState.Route.Action != Constants.DefaultAction && PageState.Modules.Any() && PageState.Modules.First().SecurityAccessLevel > SecurityAccessLevel.View)
+                {
+                    returnurl = PageState.Route.PagePath;
+                }
+                else
+                {
+                    returnurl = PageState.Route.PathAndQuery;
+                }
             }
             else
             {
