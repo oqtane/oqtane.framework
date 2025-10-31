@@ -226,7 +226,7 @@
     <value>Passkeys</value>
   </data>
   <data name="Logins.Heading" xml:space="preserve">
-    <value>Logins</value>
+    <value>External Logins</value>
   </data>
   <data name="Passkey" xml:space="preserve">
     <value>Passkey</value>

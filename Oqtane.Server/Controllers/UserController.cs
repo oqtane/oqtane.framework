@@ -521,7 +521,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Login Get Attempt {UserId} {SiteId}", id, _tenantManager.GetAlias().SiteId);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized External Login Get Attempt {UserId} {SiteId}", id, _tenantManager.GetAlias().SiteId);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
@@ -537,7 +537,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Login Post Attempt {Username} {Token}", user.Username, token);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized External Login Post Attempt {Username} {Token}", user.Username, token);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 user = null;
             }
@@ -555,7 +555,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Login Delete Attempt {UserId} {Provider} {Key}", id, provider, key);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized External Login Delete Attempt {UserId} {Provider} {Key}", id, provider, key);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
