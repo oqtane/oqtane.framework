@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Server\Oqtane.Application.Server.csproj" DefaultStartup="true" />
+  <Project Path="Client\Oqtane.Application.Client.csproj" />
+  <Project Path="Shared\Oqtane.Application.Shared.csproj" />
+</Solution>
