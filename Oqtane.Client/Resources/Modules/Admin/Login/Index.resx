@@ -127,7 +127,7 @@
     <value>User Account Email Address Could Not Be Verified. Please Contact Your Administrator For Further Instructions.</value>
   </data>
   <data name="Success.Account.Linked" xml:space="preserve">
-    <value>User Account Linked Successfully. You Can Now Login With Your External Login Below.</value>
+    <value>External Login Linked Successfully. You Can Now Login.</value>
   </data>
   <data name="Message.Account.NotLinked" xml:space="preserve">
     <value>External Login Could Not Be Linked. Please Contact Your Administrator For Further Instructions.</value>
