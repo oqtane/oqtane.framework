@@ -27,7 +27,6 @@
     }
     <TabStrip>
         <TabPanel Name="Identity" ResourceKey="Identity">
-            <ModuleMessage Message="@_passwordrequirements" Type="MessageType.Info" />
             <div class="container">
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="username" HelpText="Your username. Note that this field can not be modified." ResourceKey="Username"></Label>
@@ -35,36 +34,6 @@
                         <input id="username" class="form-control" @bind="@_username" readonly />
                     </div>
                 </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="password" HelpText="If you wish to change your password you can enter it here. Please choose a sufficiently secure password." ResourceKey="Password"></Label>
-                    <div class="col-sm-9">
-                        <div class="input-group">
-                            <input id="password" type="@_passwordtype" class="form-control" @bind="@_password" autocomplete="new-password" />
-                            <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="confirm" HelpText="If you are changing your password you must enter it again to confirm it matches" ResourceKey="Confirm"></Label>
-                    <div class="col-sm-9">
-                        <div class="input-group">
-                            <input id="confirm" type="@_passwordtype" class="form-control" @bind="@_confirm" autocomplete="new-password" />
-                            <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
-                        </div>
-                    </div>
-                </div>
-                @if (_allowtwofactor)
-                {
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="twofactor" HelpText="Indicates if you are using two factor authentication. Two factor authentication requires you to enter a verification code sent via email after you sign in." ResourceKey="TwoFactor"></Label>
-                        <div class="col-sm-9">
-                            <select id="twofactor" class="form-select" @bind="@_twofactor" required>
-                                <option value="True">@SharedLocalizer["Yes"]</option>
-                                <option value="False">@SharedLocalizer["No"]</option>
-                            </select>
-                        </div>
-                    </div>
-                }
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="email" HelpText="Your email address where you wish to receive notifications" ResourceKey="Email"></Label>
                     <div class="col-sm-9">
@@ -99,7 +68,80 @@
             <br />
             <button type="button" class="btn btn-success" @onclick="Save">@SharedLocalizer["Save"]</button>
             <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
-            <button type="button" class="btn btn-danger" @onclick="Logout">@Localizer["Logout Everywhere"]</button>
+        </TabPanel>
+        <TabPanel Name="Security" ResourceKey="Security">
+            <ModuleMessage Message="@_passwordrequirements" Type="MessageType.Info" />
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="password" HelpText="If you wish to change your password you can enter it here. Please choose a sufficiently secure password." ResourceKey="Password"></Label>
+                    <div class="col-sm-9">
+                        <div class="input-group">
+                            <input id="password" type="@_passwordtype" class="form-control" @bind="@_password" autocomplete="new-password" />
+                            <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="confirm" HelpText="If you are changing your password you must enter it again to confirm it matches" ResourceKey="Confirm"></Label>
+                    <div class="col-sm-9">
+                        <div class="input-group">
+                            <input id="confirm" type="@_passwordtype" class="form-control" @bind="@_confirm" autocomplete="new-password" />
+                            <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <button type="button" class="btn btn-success" @onclick="Save">@SharedLocalizer["Save"]</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
+            <br /><br />
+            @if (_allowtwofactor)
+            {
+                <Section Name="MFA" Heading="Multi-Factor Authentication" ResourceKey="MFA">
+                    <div class="container">
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="twofactor" HelpText="Indicates if you are using two factor authentication. Two factor authentication requires you to enter a verification code sent via email after you sign in." ResourceKey="TwoFactor"></Label>
+                            <div class="col-sm-9">
+                                <select id="twofactor" class="form-select" @bind="@_twofactor" required>
+                                    <option value="True">@SharedLocalizer["Yes"]</option>
+                                    <option value="False">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </Section>
+            }
+            <Section Name="External" Heading="External Login" ResourceKey="External">
+            </Section>
+            <Section Name="Passkeys" Heading="Passkeys" ResourceKey="Passkeys">
+                <button type="button" class="btn btn-primary" @onclick="AddPasskey">@SharedLocalizer["Add"]</button>
+                <Pager Items="@_passkeys">
+                    <Header>
+                        <th style="width: 1px;">&nbsp;</th>
+                        <th style="width: 1px;">&nbsp;</th>
+                        <th>@Localizer["Passkey"]</th>
+                    </Header>
+                    <Row>
+                        @if (context.CredentialId != _passkeyId)
+                        {
+                            <td><button type="button" class="btn btn-primary" @onclick="@(() => EditPasskey(context))">@SharedLocalizer["Edit"]</button></td>
+                            <td><ActionDialog Action="Delete" OnClick="@(async () => await DeletePasskey(context))" ResourceKey="DeleteAlias" Class="btn btn-danger" Header="Delete Alias" Message="@string.Format(Localizer["Confirm.Passkey.Delete", context.CredentialId])" /></td>
+                            <td>@context.Name</td>
+                        }
+                        else
+                        {
+                            <td><button type="button" class="btn btn-success" @onclick="@(async () => await SavePasskey())">@SharedLocalizer["Save"]</button></td>
+                            <td><button type="button" class="btn btn-secondary" @onclick="@(async () => await CancelPasskey())">@SharedLocalizer["Cancel"]</button></td>
+                            <td><input id="aliasname" class="form-control" @bind="@_passkeyName" /></td>
+                        }
+                    </Row>
+                </Pager>
+                <br /><br />
+            </Section>
+            <Section Name="Logout" Heading="Logout" ResourceKey="Logout">
+                <button type="button" class="btn btn-danger" @onclick="Logout">@Localizer["Logout Everywhere"]</button>
+            </Section>
+            <br />
         </TabPanel>
         <TabPanel Name="Profile" ResourceKey="Profile">
             <div class="container">
@@ -392,6 +434,10 @@
     private File _photo = null;
     private string _imagefiles = string.Empty;
 
+    private List<Passkey> _passkeys;
+    private byte[] _passkeyId;
+    private string _passkeyName = string.Empty;
+
     private List<Profile> _profiles;
     private Dictionary<string, string> _userSettings;
     private string _category = string.Empty;
@@ -436,6 +482,9 @@
                     _folderid = folder.FolderId;
                 }
 
+                _imagefiles = SettingService.GetSetting(PageState.Site.Settings, "ImageFiles", Constants.ImageFiles);
+                _imagefiles = (string.IsNullOrEmpty(_imagefiles)) ? Constants.ImageFiles : _imagefiles;
+
                 if (PageState.User.PhotoFileId != null)
                 {
                     _photofileid = PageState.User.PhotoFileId.Value;
@@ -448,9 +497,6 @@
                 }
 
                 _userSettings = PageState.User.Settings;
-                var sitesettings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-                _imagefiles = SettingService.GetSetting(_userSettings, "ImageFiles", Constants.ImageFiles);
-                _imagefiles = (string.IsNullOrEmpty(_imagefiles)) ? Constants.ImageFiles : _imagefiles;
 
                 await LoadNotificationsAsync();
 
@@ -584,6 +630,51 @@
         }
     }
 
+    private async Task GetPasskeys()
+    {
+        _passkeys = await UserService.GetPasskeysAsync();
+    }
+    
+    private async Task AddPasskey()
+    {
+        _passkeyName = $"{PageState.User.DisplayName}{_passkeys.Count + 1}"; // set default name
+        await UserService.AddPasskeyAsync(new Passkey { Name = _passkeyName, CredentialJson = "" });
+        await GetPasskeys();
+        StateHasChanged();
+    }
+
+    private void EditPasskey(Passkey passkey)
+    {
+        _passkeyId = passkey.CredentialId;
+        _passkeyName = passkey.Name;
+        StateHasChanged();
+    }
+
+    private async Task DeletePasskey(Passkey passkey)
+    {
+        await UserService.DeletePasskeyAsync(passkey.CredentialId);
+        await GetPasskeys();
+        StateHasChanged();
+    }
+
+    private async Task SavePasskey()
+    {
+        if (!string.IsNullOrEmpty(_passkeyName))
+        {
+            await UserService.UpdatePasskeyAsync(new Passkey { CredentialId = _passkeyId, Name = _passkeyName });
+            await GetPasskeys();
+            _passkeyName = "";
+            StateHasChanged();
+        }
+    }
+
+    private async Task CancelPasskey()
+    {
+        await GetPasskeys();
+        _passkeyName = "";
+        StateHasChanged();
+    }
+    
     private bool ValidateProfiles()
     {
         foreach (Profile profile in _profiles)

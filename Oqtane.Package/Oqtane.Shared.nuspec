@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Oqtane.Shared</id>
-    <version>6.2.1</version>
+    <version>10.0.0</version>
     <authors>Shaun Walker</authors>
     <owners>.NET Foundation</owners>
     <title>Oqtane Framework</title>
@@ -12,24 +12,23 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
-    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v6.2.1</releaseNotes>
+    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v10.0.0</releaseNotes>
     <readme>readme.md</readme>
     <icon>icon.png</icon>
     <tags>oqtane</tags>
     <dependencies>
-      <group targetFramework="net9.0">
-        <dependency id="Microsoft.EntityFrameworkCore" version="9.0.9" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.EntityFrameworkCore.Relational" version="9.0.9" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.DependencyInjection.Abstractions" version="9.0.9" exclude="Build,Analyzers" />
+      <group targetFramework="net10.0">
+        <dependency id="Microsoft.EntityFrameworkCore" version="10.0.0-rc.2.25502.107" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore.Relational" version="10.0.0-rc.2.25502.107" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.DependencyInjection.Abstractions" version="10.0.0-rc.2.25502.107" exclude="Build,Analyzers" />
         <dependency id="NodaTime" version="3.2.2" exclude="Build,Analyzers" />
         <dependency id="System.ComponentModel.Annotations" version="5.0.0" exclude="Build,Analyzers" />
-        <dependency id="System.Text.Json" version="9.0.9" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>
   <files>
-    <file src="..\Oqtane.Shared\bin\Release\net9.0\Oqtane.Shared.dll" target="lib\net9.0" />
-    <file src="..\Oqtane.Shared\bin\Release\net9.0\Oqtane.Shared.pdb" target="lib\net9.0" />
+    <file src="..\Oqtane.Shared\bin\Release\net10.0\Oqtane.Shared.dll" target="lib\net10.0" />
+    <file src="..\Oqtane.Shared\bin\Release\net10.0\Oqtane.Shared.pdb" target="lib\net10.0" />
     <file src="icon.png" target="" />
     <file src="readme.md" target="" />
   </files>

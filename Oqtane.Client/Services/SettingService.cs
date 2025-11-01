@@ -434,11 +434,26 @@ namespace Oqtane.Services
             foreach (KeyValuePair<string, string> kvp in settings)
             {
                 var setting = new Setting();
+                setting.SettingId = 0;
                 setting.EntityName = entityName;
                 setting.EntityId = entityId;
                 setting.SettingName = kvp.Key;
                 setting.SettingValue = kvp.Value;
-                setting.IsPrivate = true;
+
+                // manage settings modified with SetSetting method
+                if (setting.SettingValue.StartsWith("[Private]"))
+                {
+                    setting.SettingValue = setting.SettingValue.Substring(9);
+                    setting.IsPrivate = true;
+                    setting.SettingId = -1; // indicates IsPrivate was explicitly set 
+                }
+                if (setting.SettingValue.StartsWith("[Public]"))
+                {
+                    setting.SettingValue = setting.SettingValue.Substring(8);
+                    setting.IsPrivate = false;
+                    setting.SettingId = -1; // indicates IsPrivate was explicitly set 
+                }
+
                 settingsList.Add(setting);
             }
 

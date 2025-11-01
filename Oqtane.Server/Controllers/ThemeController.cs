@@ -226,7 +226,8 @@ namespace Oqtane.Controllers
                 if (theme.Template.ToLower().Contains("internal"))
                 {
                     rootPath = Utilities.PathCombine(rootFolder.FullName, Path.DirectorySeparatorChar.ToString());
-                    theme.ThemeName = theme.ThemeName + ", Oqtane.Client";
+                    var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
+                    theme.ThemeName = theme.ThemeName + ", " + assemblyName.Replace(".Server", ".Client");
                 }
                 else
                 {
@@ -304,8 +305,8 @@ namespace Oqtane.Controllers
                     return new Dictionary<string, object>()
                             {
                                 { "FrameworkVersion", Constants.Version },
-                                { "ClientReference", $"<Reference Include=\"Oqtane.Client\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net9.0\\Oqtane.Client.dll</HintPath></Reference>" },
-                                { "SharedReference", $"<Reference Include=\"Oqtane.Shared\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net9.0\\Oqtane.Shared.dll</HintPath></Reference>" },
+                                { "ClientReference", $"<Reference Include=\"Oqtane.Client\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net10.0\\Oqtane.Client.dll</HintPath></Reference>" },
+                                { "SharedReference", $"<Reference Include=\"Oqtane.Shared\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net10.0\\Oqtane.Shared.dll</HintPath></Reference>" },
                             };
                 });
             }

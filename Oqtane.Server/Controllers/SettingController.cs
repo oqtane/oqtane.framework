@@ -16,8 +16,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
 using System.IO;
 using System.Text.RegularExpressions;
-using Oqtane.Migrations.Tenant;
-using Google.Protobuf.WellKnownTypes;
 using System;
 
 namespace Oqtane.Controllers
@@ -220,39 +218,24 @@ namespace Oqtane.Controllers
                 var existingSettings = _settings.GetSettings(entityName, entityId).ToList();
                 foreach (Setting setting in settings)
                 {
-                    bool modified = false;
-
-                    // manage settings modified with SetSetting method
-                    if (setting.SettingValue.StartsWith("[Private]"))
+                    Setting existing = existingSettings.FirstOrDefault(item => item.SettingName.Equals(setting.SettingName, StringComparison.OrdinalIgnoreCase));
+                    if (existing == null)
                     {
-                        modified = true;
-                        setting.IsPrivate = true;
-                        setting.SettingValue = setting.SettingValue.Substring(9);
-                    }
-                    if (setting.SettingValue.StartsWith("[Public]"))
-                    {
-                        modified = true;
-                        setting.IsPrivate = false;
-                        setting.SettingValue = setting.SettingValue.Substring(8);
-                    }
-
-                    Setting existingSetting = existingSettings.FirstOrDefault(item => item.SettingName.Equals(setting.SettingName, StringComparison.OrdinalIgnoreCase));
-                    if (existingSetting == null)
-                    {
-                        _settings.AddSetting(setting);
-                        AddSyncEvent(setting.EntityName, setting.EntityId, setting.SettingId, SyncEventActions.Create);
-                        _logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Created {Setting}", setting);
+                        existing = _settings.AddSetting(setting);
+                        AddSyncEvent(existing.EntityName, existing.EntityId, existing.SettingId, SyncEventActions.Create);
+                        _logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Created {Setting}", existing);
 
                     }
                     else
                     {
-                        if (existingSetting.SettingValue != setting.SettingValue || (modified && existingSetting.IsPrivate != setting.IsPrivate))
+                        // note that SettingId will pnly be 0 if the Settings were converted from a Dictionary in the SettingService
+                        if (existing.SettingValue != setting.SettingValue || (existing.IsPrivate != setting.IsPrivate && setting.SettingId != 0))
                         {
-                            existingSetting.SettingValue = setting.SettingValue;
-                            existingSetting.IsPrivate = setting.IsPrivate;
-                            _settings.UpdateSetting(existingSetting);
-                            AddSyncEvent(setting.EntityName, setting.EntityId, setting.SettingId, SyncEventActions.Update);
-                            _logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Updated {Setting}", setting);
+                            existing.SettingValue = setting.SettingValue;
+                            existing.IsPrivate = setting.IsPrivate;
+                            existing = _settings.UpdateSetting(existing);
+                            AddSyncEvent(existing.EntityName, existing.EntityId, existing.SettingId, SyncEventActions.Update);
+                            _logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Updated {Setting}", existing);
                         }
                     }
                 }
@@ -366,13 +349,16 @@ namespace Oqtane.Controllers
                             var setting = _settings.GetSetting(cols[0], entityId, cols[2]);
                             if (setting == null)
                             {
-                                _settings.AddSetting(new Setting { EntityName = cols[0], EntityId = entityId, SettingName = cols[2], SettingValue = cols[3], IsPrivate = isPrivate });
+                                setting = new Setting { EntityName = cols[0], EntityId = entityId, SettingName = cols[2], SettingValue = cols[3], IsPrivate = isPrivate };
+                                _settings.AddSetting(setting);
+                                AddSyncEvent(setting.EntityName, setting.EntityId, setting.SettingId, SyncEventActions.Create);
                             }
                             else
                             {
                                 setting.SettingValue = cols[3];
                                 setting.IsPrivate = isPrivate;
                                 _settings.UpdateSetting(setting);
+                                AddSyncEvent(setting.EntityName, setting.EntityId, setting.SettingId, SyncEventActions.Update);
                             }
                             rows++;
                         }

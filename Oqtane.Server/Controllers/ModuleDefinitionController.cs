@@ -132,8 +132,9 @@ namespace Oqtane.Controllers
                 if (moduleDefinition.Template.ToLower().Contains("internal"))
                 {
                     rootPath = Utilities.PathCombine(rootFolder.FullName, Path.DirectorySeparatorChar.ToString());
-                    moduleDefinition.ServerManagerType = moduleDefinition.ModuleDefinitionName + ".Manager." + moduleDefinition.Name + "Manager, Oqtane.Server";
-                    moduleDefinition.ModuleDefinitionName = moduleDefinition.ModuleDefinitionName + ", Oqtane.Client";
+                    var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
+                    moduleDefinition.ServerManagerType = moduleDefinition.ModuleDefinitionName + ".Manager." + moduleDefinition.Name + "Manager, " + assemblyName;
+                    moduleDefinition.ModuleDefinitionName = moduleDefinition.ModuleDefinitionName + ", " + assemblyName.Replace(".Server", ".Client");
                 }
                 else
                 {
@@ -350,9 +351,9 @@ namespace Oqtane.Controllers
                     return new Dictionary<string, object>()
                             {
                                 { "FrameworkVersion", Constants.Version },
-                                { "ClientReference", $"<Reference Include=\"Oqtane.Client\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net9.0\\Oqtane.Client.dll</HintPath></Reference>" },
-                                { "ServerReference", $"<Reference Include=\"Oqtane.Server\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net9.0\\Oqtane.Server.dll</HintPath></Reference>" },
-                                { "SharedReference", $"<Reference Include=\"Oqtane.Shared\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net9.0\\Oqtane.Shared.dll</HintPath></Reference>" },
+                                { "ClientReference", $"<Reference Include=\"Oqtane.Client\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net10.0\\Oqtane.Client.dll</HintPath></Reference>" },
+                                { "ServerReference", $"<Reference Include=\"Oqtane.Server\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net10.0\\Oqtane.Server.dll</HintPath></Reference>" },
+                                { "SharedReference", $"<Reference Include=\"Oqtane.Shared\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net10.0\\Oqtane.Shared.dll</HintPath></Reference>" },
                             };
                 });
             }
