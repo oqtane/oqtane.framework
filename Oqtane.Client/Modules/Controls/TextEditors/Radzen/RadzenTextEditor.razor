@@ -17,7 +17,7 @@
 <RadzenTheme Theme="@RadzenEditorDefinitions.DefaultTheme" />
 <RadzenComponents />
 <RadzenHtmlEditor @ref="_editor" Visible="_visible" Placeholder="@Placeholder" style="@($"height: {Height}px;")"
-                  @bind-Value="_value" Execute="OnExecute" class="rz-text-editor">
+                  @bind-Value="_value" Execute="OnExecute" class="rz-text-editor app-editor-resizable">
     <ChildContent>
         @_toolbar
         @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
