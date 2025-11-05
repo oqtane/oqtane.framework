@@ -22,10 +22,8 @@
         <dependency id="Oqtane.Shared" version="10.0.0" exclude="Build,Analyzers" />
         <dependency id="Microsoft.AspNetCore.Components.WebAssembly.Server" version="10.0.0-rc.2.25502.107" exclude="Build,Analyzers" />
         <dependency id="Microsoft.AspNetCore.Identity.EntityFrameworkCore" version="10.0.0-rc.2.25502.107" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Data.SqlClient" version="6.1.1" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.EntityFrameworkCore" version="10.0.0-rc.2.25502.107" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.Localization" version="10.0.0-rc.2.25502.107" exclude="Build,Analyzers" />
         <dependency id="Microsoft.AspNetCore.Authentication.OpenIdConnect" version="10.0.0-rc.2.25502.107" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore.Relational" version="10.0.0-rc.2.25502.107" exclude="Build,Analyzers" />
         <dependency id="SixLabors.ImageSharp" version="3.1.11" exclude="Build,Analyzers" />
         <dependency id="HtmlAgilityPack" version="1.12.3" exclude="Build,Analyzers" />
         <dependency id="Swashbuckle.AspNetCore" version="9.0.5" exclude="Build,Analyzers" />
@@ -33,11 +31,9 @@
         <dependency id="MySql.Data" version="9.4.0" exclude="Build,Analyzers" />
         <dependency id="Pomelo.EntityFrameworkCore.MySql" version="9.0.0" exclude="Build,Analyzers" />
         <dependency id="EFCore.NamingConventions" version="9.0.0" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.EntityFrameworkCore.Relational" version="10.0.0-rc.2.25502.107" exclude="Build,Analyzers" />
         <dependency id="Npgsql.EntityFrameworkCore.PostgreSQL" version="9.0.4" exclude="Build,Analyzers" />
         <dependency id="Microsoft.EntityFrameworkCore.Sqlite" version="10.0.0-rc.2.25502.107" exclude="Build,Analyzers" />
         <dependency id="Microsoft.Data.Sqlite.Core" version="10.0.0-rc.2.25502.107" exclude="Build,Analyzers" />
-        <dependency id="SQLitePCLRaw.bundle_e_sqlite3" version="3.0.2" exclude="Build,Analyzers" />
         <dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="10.0.0-rc.2.25502.107" exclude="Build,Analyzers" />
       </group>
     </dependencies>

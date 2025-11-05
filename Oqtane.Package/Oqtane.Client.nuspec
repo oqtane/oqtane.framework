@@ -21,6 +21,7 @@
         <dependency id="Oqtane.Shared" version="10.0.0" exclude="Build,Analyzers" />
         <dependency id="Microsoft.AspNetCore.Components.WebAssembly" version="10.0.0-rc.2.25502.107" exclude="Build,Analyzers" />
         <dependency id="Microsoft.AspNetCore.Components.WebAssembly.Authentication" version="10.0.0-rc.2.25502.107" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Localization" version="10.0.0-rc.2.25502.107" exclude="Build,Analyzers" />
         <dependency id="Microsoft.Extensions.Http" version="10.0.0-rc.2.25502.107" exclude="Build,Analyzers" />
         <dependency id="Radzen.Blazor" version="7.4.3" exclude="Build,Analyzers" />
       </group>
