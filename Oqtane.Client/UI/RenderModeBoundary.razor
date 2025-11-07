@@ -1,4 +1,7 @@
 @namespace Oqtane.UI
+@using System.Reflection
+@using Module = Oqtane.Models.Module
+@inject IServiceProvider ServiceProvider
 @inject SiteState ComponentSiteState
 @inject IStringLocalizer<ModuleInstance> Localizer
 @inject ILogService LoggingService
@@ -67,37 +70,49 @@
     {
         if (ShouldRender())
         {
-            if (!string.IsNullOrEmpty(ModuleState.ModuleType))
-            {
-                ModuleType = Type.GetType(ModuleState.ModuleType);
-                if (ModuleType != null)
-                {
-                    // repopulate the SiteState service based on the values passed in the SiteState parameter (this is how state is marshalled across the render mode boundary)
-                    ComponentSiteState.Hydrate(SiteState);
-
-                    DynamicComponent = builder =>
-                    {
-                        builder.OpenComponent(0, ModuleType);
-                        builder.AddAttribute(1, "RenderModeBoundary", this);
-                        builder.CloseComponent();
-                    };
-                }
-                else
-                {
-                    // module does not exist with typename specified
-                    _messageContent = string.Format(Localizer["Error.Module.InvalidName"], Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0));
-                    _messageType = MessageType.Error;
-                    _messagePosition = "top";
-                    _messageStyle = MessageStyle.Alert;
-                }
-            }
-            else
+            if (string.IsNullOrEmpty(ModuleState.ModuleType))
             {
                 _messageContent = string.Format(Localizer["Error.Module.InvalidType"], ModuleState.ModuleDefinitionName);
                 _messageType = MessageType.Error;
                 _messagePosition = "top";
                 _messageStyle = MessageStyle.Alert;
+
+                return;
             }
+
+            ModuleType = Type.GetType(ModuleState.ModuleType);
+            var moduleName = Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0);
+            if (ModuleType == null)
+            {
+                // module does not exist with typename specified
+                _messageContent = string.Format(Localizer["Error.Module.InvalidName"], moduleName);
+                _messageType = MessageType.Error;
+                _messagePosition = "top";
+                _messageStyle = MessageStyle.Alert;
+
+                return;
+            }
+
+            if (!ValidateModuleTypeInjectedServices(ModuleType, out IList<string> missingServices))
+            {
+                // module type is not valid for instantiation
+                _messageContent = string.Format(Localizer["Error.Module.InvalidInjectedServices"], string.Join(",", missingServices));
+                _messageType = MessageType.Error;
+                _messagePosition = "top";
+                _messageStyle = MessageStyle.Alert;
+
+                return;
+            }
+
+            // repopulate the SiteState service based on the values passed in the SiteState parameter (this is how state is marshalled across the render mode boundary)
+            ComponentSiteState.Hydrate(SiteState);
+
+            DynamicComponent = builder =>
+            {
+                builder.OpenComponent(0, ModuleType);
+                builder.AddAttribute(1, "RenderModeBoundary", this);
+                builder.CloseComponent();
+            };
         }
     }
 
@@ -164,5 +179,27 @@
     {
         _error = "";
         base.Recover();
+    }
+
+    private bool ValidateModuleTypeInjectedServices(Type moduleType, out IList<string> missingServices)
+    {
+        missingServices = new List<string>();
+
+        var properties = Utilities.GetPropertiesIncludingInherited(moduleType, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        foreach(var property in properties)
+        {
+            var injectAttribute = property.GetCustomAttribute(typeof(InjectAttribute));
+            if (injectAttribute != null)
+            {
+                var serviceType = property.PropertyType;
+                var service = ServiceProvider.GetService(serviceType);
+                if (serviceType != null && service == null)
+                {
+                    missingServices.Add(Utilities.GetTypeNameLastSegment(serviceType.FullName, 0));
+                }
+            }
+        }
+
+        return !missingServices.Any();
     }
 }
