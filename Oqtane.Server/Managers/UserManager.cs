@@ -7,6 +7,7 @@ using System.Net;
 using System.Security.Policy;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Localization;
 using Oqtane.Enums;
@@ -32,14 +33,15 @@ namespace Oqtane.Managers
         Task ForgotPassword(User user);
         Task<User> ResetPassword(User user, string token);
         User VerifyTwoFactor(User user, string token);
-        Task<User> LinkExternalAccount(User user, string token, string type, string key, string name);
         Task<UserValidateResult> ValidateUser(string username, string email, string password);
         Task<bool> ValidatePassword(string password);
         Task<Dictionary<string, string>> ImportUsers(int siteId, string filePath, bool notify);
-        Task<List<Passkey>> GetPasskeys(int userId);
-        Task AddPasskey(Passkey passkey);
-        Task UpdatePasskey(Passkey passkey);
+        Task<List<UserPasskey>> GetPasskeys(int userId, int siteId);
+        Task UpdatePasskey(UserPasskey passkey);
         Task DeletePasskey(int userId, byte[] credentialId);
+        Task<List<UserLogin>> GetLogins(int userId, int siteId);
+        Task<User> AddLogin(User user, string token, string type, string key, string name);
+        Task DeleteLogin(int userId, string provider, string key);
     }
 
     public class UserManager : IUserManager
@@ -586,29 +588,6 @@ namespace Oqtane.Managers
             }
             return user;
         }
-
-        public async Task<User> LinkExternalAccount(User user, string token, string type, string key, string name)
-        {
-            IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
-            if (identityuser != null && !string.IsNullOrEmpty(token))
-            {
-                var result = await _identityUserManager.ConfirmEmailAsync(identityuser, token);
-                if (result.Succeeded)
-                {
-                    // make LoginProvider multi-tenant aware
-                    type += ":" + user.SiteId.ToString();
-                    await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(type, key, name));
-                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "External Login Linkage Successful For {Username} And Provider {Provider}", user.Username, type);
-                }
-                else
-                {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "External Login Linkage Failed For {Username} - Error {Error}", user.Username, string.Join(" ", result.Errors.ToList().Select(e => e.Description)));
-                    user = null;
-                }
-            }
-            return user;
-        }
-
         public async Task<UserValidateResult> ValidateUser(string username, string email, string password)
         {
             var validateResult = new UserValidateResult { Succeeded = true };
@@ -824,9 +803,9 @@ namespace Oqtane.Managers
             return result;
         }
 
-        public async Task<List<Passkey>> GetPasskeys(int userId)
+        public async Task<List<UserPasskey>> GetPasskeys(int userId, int siteId)
         {
-            var passkeys = new List<Passkey>();
+            var passkeys = new List<UserPasskey>();
             var user = _users.GetUser(userId);
             if (user != null)
             {
@@ -836,31 +815,18 @@ namespace Oqtane.Managers
                     var userpasskeys = await _identityUserManager.GetPasskeysAsync(identityuser);
                     foreach (var userpasskey in userpasskeys)
                     {
-                        passkeys.Add(new Passkey { CredentialId = userpasskey.CredentialId, Name = userpasskey.Name, UserId = userId });
+                        // passkey name is prefixed with SiteId for multi-tenancy
+                        if (userpasskey.Name.StartsWith($"{siteId}:"))
+                        {
+                            passkeys.Add(new UserPasskey { CredentialId = userpasskey.CredentialId, Name = userpasskey.Name.Split(':')[1], UserId = userId });
+                        }
                     }
                 }
             }
             return passkeys;
         }
 
-        public async Task AddPasskey(Passkey passkey)
-        {
-            var user = _users.GetUser(passkey.UserId);
-            if (user != null)
-            {
-                var identityuser = await _identityUserManager.FindByNameAsync(user.Username);
-                if (identityuser != null)
-                {
-                    var attestationResult = await _identitySignInManager.PerformPasskeyAttestationAsync(passkey.CredentialJson);
-                    if (attestationResult.Succeeded)
-                    {
-                        var addPasskeyResult = await _identityUserManager.AddOrUpdatePasskeyAsync(identityuser, attestationResult.Passkey);
-                    }
-                }
-            }
-        }
-
-        public async Task UpdatePasskey(Passkey passkey)
+        public async Task UpdatePasskey(UserPasskey passkey)
         {
             var user = _users.GetUser(passkey.UserId);
             if (user != null)
@@ -887,6 +853,64 @@ namespace Oqtane.Managers
                 if (identityuser != null)
                 {
                     await _identityUserManager.RemovePasskeyAsync(identityuser, credentialId);
+                }
+            }
+        }
+
+        public async Task<List<UserLogin>> GetLogins(int userId, int siteId)
+        {
+            var logins = new List<UserLogin>();
+            var user = _users.GetUser(userId);
+            if (user != null)
+            {
+                var identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+                if (identityuser != null)
+                {
+                    var userlogins = await _identityUserManager.GetLoginsAsync(identityuser);
+                    foreach (var userlogin in userlogins)
+                    {
+                        if (userlogin.LoginProvider.EndsWith(":" + siteId.ToString()))
+                        {
+                            logins.Add(new UserLogin { Provider = userlogin.LoginProvider, Key = userlogin.ProviderKey, Name = userlogin.ProviderDisplayName });
+                        }
+                    }
+                }
+            }
+            return logins;
+        }
+
+        public async Task<User> AddLogin(User user, string token, string type, string key, string name)
+        {
+            IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+            if (identityuser != null && !string.IsNullOrEmpty(token))
+            {
+                var result = await _identityUserManager.ConfirmEmailAsync(identityuser, token);
+                if (result.Succeeded)
+                {
+                    // make LoginProvider multi-tenant aware
+                    type += ":" + user.SiteId.ToString();
+                    await _identityUserManager.AddLoginAsync(identityuser, new UserLoginInfo(type, key, name));
+                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "External Login Linkage Successful For {Username} And Provider {Provider}", user.Username, type);
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "External Login Linkage Failed For {Username} - Error {Error}", user.Username, string.Join(" ", result.Errors.ToList().Select(e => e.Description)));
+                    user = null;
+                }
+            }
+            return user;
+        }
+
+
+        public async Task DeleteLogin(int userId, string provider, string key)
+        {
+            var user = _users.GetUser(userId);
+            if (user != null)
+            {
+                var identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+                if (identityuser != null)
+                {
+                    await _identityUserManager.RemoveLoginAsync(identityuser, provider, key);
                 }
             }
         }

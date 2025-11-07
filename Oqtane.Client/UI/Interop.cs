@@ -417,5 +417,30 @@ namespace Oqtane.UI
                 return Task.CompletedTask;
             }
         }
+
+        public ValueTask<string> CreateCredential(string optionsResponse)
+        {
+            try
+            {
+                return _jsRuntime.InvokeAsync<string>("Oqtane.Interop.createCredential", optionsResponse);
+            }
+            catch
+            {
+                return new ValueTask<string>(Task.FromResult(string.Empty));
+            }
+        }
+
+        public ValueTask<string> RequestCredential(string optionsResponse)
+        {
+            try
+            {
+                return _jsRuntime.InvokeAsync<string>("Oqtane.Interop.requestCredential", optionsResponse);
+            }
+            catch
+            {
+                return new ValueTask<string>(Task.FromResult(string.Empty));
+            }
+        }
+
     }
 }

@@ -26,7 +26,7 @@
         <br />
     }
     <TabStrip>
-        <TabPanel Name="Identity" ResourceKey="Identity">
+        <TabPanel Name="Identity" Heading="Identity" ResourceKey="Identity">
             <div class="container">
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="username" HelpText="Your username. Note that this field can not be modified." ResourceKey="Username"></Label>
@@ -69,7 +69,7 @@
             <button type="button" class="btn btn-success" @onclick="Save">@SharedLocalizer["Save"]</button>
             <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
         </TabPanel>
-        <TabPanel Name="Security" ResourceKey="Security">
+        <TabPanel Name="Security" Heading="Security" ResourceKey="Security">
             <ModuleMessage Message="@_passwordrequirements" Type="MessageType.Info" />
             <div class="container">
                 <div class="row mb-1 align-items-center">
@@ -110,40 +110,71 @@
                         </div>
                     </div>
                 </Section>
+                <br />
             }
-            <Section Name="External" Heading="External Login" ResourceKey="External">
-            </Section>
-            <Section Name="Passkeys" Heading="Passkeys" ResourceKey="Passkeys">
-                <button type="button" class="btn btn-primary" @onclick="AddPasskey">@SharedLocalizer["Add"]</button>
-                <Pager Items="@_passkeys">
-                    <Header>
-                        <th style="width: 1px;">&nbsp;</th>
-                        <th style="width: 1px;">&nbsp;</th>
-                        <th>@Localizer["Passkey"]</th>
-                    </Header>
-                    <Row>
-                        @if (context.CredentialId != _passkeyId)
-                        {
-                            <td><button type="button" class="btn btn-primary" @onclick="@(() => EditPasskey(context))">@SharedLocalizer["Edit"]</button></td>
-                            <td><ActionDialog Action="Delete" OnClick="@(async () => await DeletePasskey(context))" ResourceKey="DeleteAlias" Class="btn btn-danger" Header="Delete Alias" Message="@string.Format(Localizer["Confirm.Passkey.Delete", context.CredentialId])" /></td>
-                            <td>@context.Name</td>
-                        }
-                        else
-                        {
-                            <td><button type="button" class="btn btn-success" @onclick="@(async () => await SavePasskey())">@SharedLocalizer["Save"]</button></td>
-                            <td><button type="button" class="btn btn-secondary" @onclick="@(async () => await CancelPasskey())">@SharedLocalizer["Cancel"]</button></td>
-                            <td><input id="aliasname" class="form-control" @bind="@_passkeyName" /></td>
-                        }
-                    </Row>
-                </Pager>
-                <br /><br />
-            </Section>
-            <Section Name="Logout" Heading="Logout" ResourceKey="Logout">
-                <button type="button" class="btn btn-danger" @onclick="Logout">@Localizer["Logout Everywhere"]</button>
-            </Section>
+            @if (_allowpasskeys)
+            {
+                <Section Name="Passkeys" Heading="Passkeys" ResourceKey="Passkeys">
+                    <button type="button" class="btn btn-primary" @onclick="AddPasskey">@SharedLocalizer["Add"]</button>
+                    @if (_passkeys != null && _passkeys.Count > 0)
+                    {
+                        <Pager Items="@_passkeys">
+                            <Header>
+                                <th style="width: 1px;">&nbsp;</th>
+                                <th style="width: 1px;">&nbsp;</th>
+                                <th>@Localizer["Passkey"]</th>
+                            </Header>
+                            <Row>
+                                @if (context.CredentialId != _passkeyId)
+                                {
+                                    <td><button type="button" class="btn btn-primary" @onclick="@(() => EditPasskey(context))">@SharedLocalizer["Edit"]</button></td>
+                                    <td><ActionDialog Action="Delete" OnClick="@(async () => await DeletePasskey(context))" ResourceKey="DeletePasskey" Class="btn btn-danger" Header="Delete Passkey" Message="@string.Format(Localizer["Confirm.Passkey.Delete", context.Name])" /></td>
+                                    <td>@context.Name</td>
+                                }
+                                else
+                                {
+                                    <td><button type="button" class="btn btn-success" @onclick="@(async () => await SavePasskey())">@SharedLocalizer["Save"]</button></td>
+                                    <td><button type="button" class="btn btn-secondary" @onclick="@(async () => await CancelPasskey())">@SharedLocalizer["Cancel"]</button></td>
+                                    <td><input id="passkeyname" class="form-control" @bind="@_passkeyName" /></td>
+                                }
+                            </Row>
+                        </Pager>
+                    }
+                    else
+                    {
+                        <div>@Localizer["Message.Passkeys.None"]</div>
+                    }
+                </Section>
+                <br />
+            }
+            @if (_allowexternallogin)
+            {
+                <Section Name="Logins" Heading="Logins" ResourceKey="Logins">
+                    @if (_logins != null && _logins.Count > 0)
+                    {
+                        <Pager Items="@_logins">
+                            <Header>
+                                <th style="width: 1px;">&nbsp;</th>
+                                <th>@Localizer["Login"]</th>
+                            </Header>
+                            <Row>
+                                <td><ActionDialog Action="Delete" OnClick="@(async () => await DeleteLogin(context))" ResourceKey="DeleteLogin" Class="btn btn-danger" Header="Delete Login" Message="@string.Format(Localizer["Confirm.Login.Delete", context.Name])" /></td>
+                                <td>@context.Name</td>
+                            </Row>
+                        </Pager>
+                    }
+                    else
+                    {
+                        <div>@Localizer["Message.Logins.None"]</div>
+                    }
+                </Section>
+                <br />
+            }
+            <br />
+            <button type="button" class="btn btn-danger" @onclick="Logout">@Localizer["Logout Everywhere"]</button>
             <br />
         </TabPanel>
-        <TabPanel Name="Profile" ResourceKey="Profile">
+        <TabPanel Name="Profile" Heading="Profile" ResourceKey="Profile">
             <div class="container">
                 <div class="row mb-1 align-items-center">
                     @foreach (Profile profile in _profiles)
@@ -272,11 +303,11 @@
             <button type="button" class="btn btn-success" @onclick="Save">@SharedLocalizer["Save"]</button>
             <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
         </TabPanel>
-        <TabPanel Name="Notifications" ResourceKey="Notifications">
+        <TabPanel Name="Notifications" Heading="Notifications" ResourceKey="Notifications">
             <ActionLink Action="Add" Text="Send Notification" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="SendNotification" ReturnUrl="@NavigateUrl(PageState.Page.Path, "tab=Notifications")" />
             <br />
             <br />
-            <select class="form-select" @onchange="(e => FilterChanged(e))">
+            <select class="form-select" @onchange="(e => FilterNotifications(e))">
                 <option value="to">@Localizer["Inbox"]</option>
                 <option value="from">@Localizer["Items.Sent"]</option>
             </select>
@@ -295,7 +326,7 @@
                         </Header>
                         <Row>
                             <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" ReturnUrl="@NavigateUrl(PageState.Page.Path, "tab=Notifications")" /></td>
-                            <td><ActionDialog Header="Delete Notification" Message="Are You Sure You Wish To Delete This Notification?" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" ResourceKey="DeleteNotification" /></td>
+                            <td><ActionDialog Header="Delete Notification" Message="Are You Sure You Wish To Delete This Notification?" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await DeleteNotification(context))" EditMode="false" ResourceKey="DeleteNotification" /></td>
 
                             @if (context.IsRead)
                             {
@@ -340,7 +371,7 @@
                 else
                 {
                     <div class="no-notifications-text">
-                        @Localizer["NoNotificationsReceived.Text"]
+                        @Localizer["NoNotificationsReceived"]
                     </div>
                 }
             }
@@ -358,7 +389,7 @@
                         </Header>
                         <Row>
                             <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" ReturnUrl="@NavigateUrl(PageState.Page.Path, "tab=Notifications")" /></td>
-                            <td><ActionDialog Header="Delete Notification" Message="Are You Sure You Wish To Delete This Notification?" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" ResourceKey="DeleteNotification" /></td>
+                            <td><ActionDialog Header="Delete Notification" Message="Are You Sure You Wish To Delete This Notification?" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await DeleteNotification(context))" EditMode="false" ResourceKey="DeleteNotification" /></td>
 
                             @if (context.IsRead)
                             {
@@ -404,7 +435,7 @@
                 else
                 {
                     <div class="no-notifications-text">
-                        @Localizer["NoNotificationsSent.Text"]
+                        @Localizer["NoNotificationsSent"]
                     </div>
                 }
             }
@@ -415,15 +446,14 @@
 }
 
 @code {
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
+
     private bool _initialized = false;
-    private string _passwordrequirements;
-    private string _username = string.Empty;
-    private string _password = string.Empty;
-    private string _passwordtype = "password";
-    private string _togglepassword = string.Empty;
-    private string _confirm = string.Empty;
     private bool _allowtwofactor = false;
-    private string _twofactor = "False";
+    private bool _allowpasskeys = false;
+    private bool _allowexternallogin = false;
+
+    private string _username = string.Empty;
     private string _email = string.Empty;
     private string _displayname = string.Empty;
     private FileManager _filemanager;
@@ -434,9 +464,16 @@
     private File _photo = null;
     private string _imagefiles = string.Empty;
 
-    private List<Passkey> _passkeys;
+    private string _passwordrequirements;
+    private string _password = string.Empty;
+    private string _passwordtype = "password";
+    private string _togglepassword = string.Empty;
+    private string _confirm = string.Empty;
+    private string _twofactor = "False";
+    private List<UserPasskey> _passkeys;
     private byte[] _passkeyId;
     private string _passkeyName = string.Empty;
+    private List<UserLogin> _logins;
 
     private List<Profile> _profiles;
     private Dictionary<string, string> _userSettings;
@@ -446,45 +483,29 @@
     private List<Notification> _notifications;
     private string _notificationSummary = string.Empty;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
-
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            _passwordrequirements = await UserService.GetPasswordRequirementsAsync(PageState.Site.SiteId);
-            _togglepassword = SharedLocalizer["ShowPassword"];
             _allowtwofactor = (SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:TwoFactor", "false") == "true");
-            _profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
-            foreach (var profile in _profiles)
-            {
-                if (profile.Options.ToLower().StartsWith("entityname:"))
-                {
-                    var options = await SettingService.GetSettingsAsync(profile.Options.Substring(11), -1);
-                    options.Add("", $"<{SharedLocalizer["Not Specified"]}>");
-                    profile.Options = string.Join(",", options.OrderBy(item => item.Value).Select(kvp => $"{kvp.Key}:{kvp.Value}"));
-                }
-            }
-            _timezones = TimeZoneService.GetTimeZones();
+            _allowpasskeys = (SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:Passkeys", "false") == "true");
+            _allowexternallogin = (SettingService.GetSetting(PageState.Site.Settings, "ExternalLogin:ProviderType", "") != "") ? true : false;
 
             if (PageState.User != null)
             {
+                // identity section
                 _username = PageState.User.Username;
-                _twofactor = PageState.User.TwoFactorRequired.ToString();
                 _email = PageState.User.Email;
                 _displayname = PageState.User.DisplayName;
-                _timezoneid = PageState.User.TimeZoneId;
-
-                // get user folder
+                _timezones = TimeZoneService.GetTimeZones();
+                _timezoneid = PageState.User.TimeZoneId;     
                 var folder = await FolderService.GetFolderAsync(ModuleState.SiteId, PageState.User.FolderPath);
                 if (folder != null)
                 {
                     _folderid = folder.FolderId;
                 }
-
                 _imagefiles = SettingService.GetSetting(PageState.Site.Settings, "ImageFiles", Constants.ImageFiles);
                 _imagefiles = (string.IsNullOrEmpty(_imagefiles)) ? Constants.ImageFiles : _imagefiles;
-
                 if (PageState.User.PhotoFileId != null)
                 {
                     _photofileid = PageState.User.PhotoFileId.Value;
@@ -496,8 +517,27 @@
                     _photo = null;
                 }
 
+                // security section
+                _passwordrequirements = await UserService.GetPasswordRequirementsAsync(PageState.Site.SiteId);
+                _togglepassword = SharedLocalizer["ShowPassword"];
+                _twofactor = PageState.User.TwoFactorRequired.ToString();
+                await GetPasskeys();
+                await GetLogins();
+
+                // profile section
+                _profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
+                foreach (var profile in _profiles)
+                {
+                    if (profile.Options.ToLower().StartsWith("entityname:"))
+                    {
+                        var options = await SettingService.GetSettingsAsync(profile.Options.Substring(11), -1);
+                        options.Add("", $"<{SharedLocalizer["Not Specified"]}>");
+                        profile.Options = string.Join(",", options.OrderBy(item => item.Value).Select(kvp => $"{kvp.Key}:{kvp.Value}"));
+                    }
+                }
                 _userSettings = PageState.User.Settings;
 
+                // notification section
                 await LoadNotificationsAsync();
 
                 _initialized = true;
@@ -514,22 +554,7 @@
         }
     }
 
-    private async Task LoadNotificationsAsync()
-    {
-        _notifications = await NotificationService.GetNotificationsAsync(PageState.Site.SiteId, _filter, PageState.User.UserId);
-        _notifications = _notifications.Where(item => item.DeletedBy != PageState.User.Username).ToList();
-    }
-
-    private string GetProfileValue(string SettingName, string DefaultValue)
-    {
-        string value = SettingService.GetSetting(_userSettings, SettingName, DefaultValue);
-        if (value.Contains("]"))
-        {
-            value = value.Substring(value.IndexOf("]") + 1);
-        }
-        return value;
-    }
-
+    // identity methods
     private async Task Save()
     {
         try
@@ -604,6 +629,124 @@
         }
     }
 
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo(PageState.ReturnUrl);
+    }
+
+    // security methods
+
+    private void TogglePassword()
+    {
+        if (_passwordtype == "password")
+        {
+            _passwordtype = "text";
+            _togglepassword = SharedLocalizer["HidePassword"];
+        }
+        else
+        {
+            _passwordtype = "password";
+            _togglepassword = SharedLocalizer["ShowPassword"];
+        }
+    }
+
+    private async Task GetPasskeys()
+    {
+        if (_allowpasskeys)
+        {
+            _passkeys = await UserService.GetPasskeysAsync(PageState.User.UserId);
+        }
+    }
+
+    private async Task AddPasskey()
+    {
+        // post back to the Passkey page so that the cookies are set correctly
+        var interop = new Interop(JSRuntime);
+        var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, operation = "create", returnurl = NavigateUrl(PageState.Page.Path, "tab=Security") };
+        string url = Utilities.TenantUrl(PageState.Alias, "/pages/passkey/");
+        await interop.SubmitForm(url, fields);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // user has initiated a passkey addition
+            if (PageState.QueryString.ContainsKey("options"))
+            {
+                try
+                {
+                    var interop = new Interop(JSRuntime);
+                    var credential = await interop.CreateCredential(WebUtility.UrlDecode(PageState.QueryString["options"]));
+                    if (!string.IsNullOrEmpty(credential))
+                    {
+                        // post back to the Passkey page so that the cookies are set correctly
+                        var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, operation = "validate", credential = credential, returnurl = NavigateUrl(PageState.Page.Path, "tab=Security") };
+                        string url = Utilities.TenantUrl(PageState.Alias, "/pages/passkey/");
+                        await interop.SubmitForm(url, fields);
+                    }
+                    else
+                    {
+                        await logger.LogError("Passkey Could Not Be Created");
+                        AddModuleMessage(Localizer["Error.Passkey.Fail"], MessageType.Warning);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await logger.LogError(ex, "Passkey Could Not Be Created");
+                    AddModuleMessage(Localizer["Error.Passkey.Fail"], MessageType.Warning);
+                }
+            }
+        }
+    }
+
+   private void EditPasskey(UserPasskey passkey)
+    {
+        _passkeyId = passkey.CredentialId;
+        _passkeyName = passkey.Name;
+        StateHasChanged();
+    }
+
+    private async Task DeletePasskey(UserPasskey passkey)
+    {
+        await UserService.DeletePasskeyAsync(PageState.User.UserId, passkey.CredentialId);
+        await GetPasskeys();
+        StateHasChanged();
+    }
+
+    private async Task SavePasskey()
+    {
+        if (!string.IsNullOrEmpty(_passkeyName))
+        {
+            await UserService.UpdatePasskeyAsync(new UserPasskey { CredentialId = _passkeyId, Name = _passkeyName, UserId = PageState.User.UserId });
+            await GetPasskeys();
+            _passkeyName = "";
+            StateHasChanged();
+        }
+    }
+
+    private async Task CancelPasskey()
+    {
+        await GetPasskeys();
+        _passkeyName = "";
+        StateHasChanged();
+    }
+
+    private async Task GetLogins()
+    {
+        if (_allowexternallogin)
+        {
+            _logins = await UserService.GetLoginsAsync(PageState.User.UserId);
+        }
+    }
+
+    private async Task DeleteLogin(UserLogin login)
+    {
+        await UserService.DeleteLoginAsync(PageState.User.UserId, login.Provider, login.Key);
+        await GetLogins();
+        StateHasChanged();
+    }
+
     private async Task Logout()
     {
         await logger.LogInformation("User Logout Everywhere For Username {Username}", PageState.User?.Username);
@@ -630,51 +773,24 @@
         }
     }
 
-    private async Task GetPasskeys()
-    {
-        _passkeys = await UserService.GetPasskeysAsync();
-    }
-    
-    private async Task AddPasskey()
-    {
-        _passkeyName = $"{PageState.User.DisplayName}{_passkeys.Count + 1}"; // set default name
-        await UserService.AddPasskeyAsync(new Passkey { Name = _passkeyName, CredentialJson = "" });
-        await GetPasskeys();
-        StateHasChanged();
-    }
+    // profile methods
 
-    private void EditPasskey(Passkey passkey)
+    private string GetProfileValue(string SettingName, string DefaultValue)
     {
-        _passkeyId = passkey.CredentialId;
-        _passkeyName = passkey.Name;
-        StateHasChanged();
-    }
-
-    private async Task DeletePasskey(Passkey passkey)
-    {
-        await UserService.DeletePasskeyAsync(passkey.CredentialId);
-        await GetPasskeys();
-        StateHasChanged();
-    }
-
-    private async Task SavePasskey()
-    {
-        if (!string.IsNullOrEmpty(_passkeyName))
+        string value = SettingService.GetSetting(_userSettings, SettingName, DefaultValue);
+        if (value.Contains("]"))
         {
-            await UserService.UpdatePasskeyAsync(new Passkey { CredentialId = _passkeyId, Name = _passkeyName });
-            await GetPasskeys();
-            _passkeyName = "";
-            StateHasChanged();
+            value = value.Substring(value.IndexOf("]") + 1);
         }
+        return value;
     }
 
-    private async Task CancelPasskey()
+    private void ProfileChanged(ChangeEventArgs e, string SettingName)
     {
-        await GetPasskeys();
-        _passkeyName = "";
-        StateHasChanged();
+        var value = (string)e.Value;
+        _userSettings = SettingService.SetSetting(_userSettings, SettingName, value);
     }
-    
+
     private bool ValidateProfiles()
     {
         foreach (Profile profile in _profiles)
@@ -706,18 +822,22 @@
         return true;
     }
 
-    private void Cancel()
+    // notification methods
+
+    private async Task LoadNotificationsAsync()
     {
-        NavigationManager.NavigateTo(PageState.ReturnUrl);
+        _notifications = await NotificationService.GetNotificationsAsync(PageState.Site.SiteId, _filter, PageState.User.UserId);
+        _notifications = _notifications.Where(item => item.DeletedBy != PageState.User.Username).ToList();
     }
 
-    private void ProfileChanged(ChangeEventArgs e, string SettingName)
+    private async void FilterNotifications(ChangeEventArgs e)
     {
-        var value = (string)e.Value;
-        _userSettings = SettingService.SetSetting(_userSettings, SettingName, value);
+        _filter = (string)e.Value;
+        await LoadNotificationsAsync();
+        StateHasChanged();
     }
 
-    private async Task Delete(Notification Notification)
+    private async Task DeleteNotification(Notification Notification)
     {
         try
         {
@@ -740,13 +860,6 @@
             await logger.LogError(ex, "Error Deleting Notification {Notification} {Error}", Notification, ex.Message);
             AddModuleMessage(ex.Message, MessageType.Error);
         }
-    }
-
-    private async void FilterChanged(ChangeEventArgs e)
-    {
-        _filter = (string)e.Value;
-        await LoadNotificationsAsync();
-        StateHasChanged();
     }
 
     private async Task DeleteAllNotifications()
@@ -778,20 +891,6 @@
             await logger.LogError(ex, "Error Deleting Notifications {Error}", ex.Message);
             AddModuleMessage(ex.Message, MessageType.Error);
             HideProgressIndicator();
-        }
-    }
-
-    private void TogglePassword()
-    {
-        if (_passwordtype == "password")
-        {
-            _passwordtype = "text";
-            _togglepassword = SharedLocalizer["HidePassword"];
-        }
-        else
-        {
-            _passwordtype = "password";
-            _togglepassword = SharedLocalizer["ShowPassword"];
         }
     }
 }

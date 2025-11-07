@@ -1,4 +1,4 @@
-dotnet build -c Release ..\Oqtane.sln
+dotnet build -c Release ..\Oqtane.slnx
 nuget.exe pack Oqtane.Client.nuspec
 nuget.exe pack Oqtane.Server.nuspec
 nuget.exe pack Oqtane.Shared.nuspec                  
@@ -23,7 +23,7 @@ C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe ".\install.ps1"
 del "..\Oqtane.Server\bin\Release\net10.0\publish\appsettings.json"
 del "..\Oqtane.Server\bin\Release\net10.0\publish\web.config"
 C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe ".\upgrade.ps1"
-dotnet build -c Release ..\Oqtane.Updater.sln
+dotnet build -c Release ..\Oqtane.Updater.slnx
 dotnet publish ..\Oqtane.Updater\Oqtane.Updater.csproj /p:Configuration=Release
 nuget.exe pack Oqtane.Updater.nuspec
 nuget.exe pack ..\Oqtane.Application\Oqtane.Application.Template.nuspec -NoDefaultExcludes

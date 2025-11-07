@@ -5,6 +5,7 @@
     <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
     <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+    <WasmFingerprintAssets>false</WasmFingerprintAssets>
   </PropertyGroup>
   
   <ItemGroup>

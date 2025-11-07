@@ -3,6 +3,7 @@
 @using System.Text.RegularExpressions
 @using Radzen
 @using Radzen.Blazor
+@using System.Reflection
 
 @namespace Oqtane.Modules.Controls
 @inherits ModuleControlBase
@@ -17,7 +18,7 @@
 <RadzenTheme Theme="@RadzenEditorDefinitions.DefaultTheme" />
 <RadzenComponents />
 <RadzenHtmlEditor @ref="_editor" Visible="_visible" Placeholder="@Placeholder" style="@($"height: {Height}px;")"
-                  @bind-Value="_value" Execute="OnExecute" class="rz-text-editor">
+                  @bind-Value="_value" Execute="OnExecute" class="rz-text-editor app-editor-resizable">
     <ChildContent>
         @_toolbar
         @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
@@ -92,6 +93,17 @@
                         break;
                 }
                 await _interop.SetBackgroundColor(_editor.Element, backgroundColor);
+            }
+
+            var subscribers = GetEventSubscribers(DialogService, "OnOpen");
+            var dialogSubscibers = subscribers?.Where(s => s.Method.DeclaringType == typeof(RadzenDialog)) ?? Enumerable.Empty<Delegate>();
+            if (dialogSubscibers.Count() > 1)
+            {
+                //clean the event to avoid multiple RadzenDialog instances subscribing to the event
+                dialogSubscibers.Skip(1).ToList().ForEach(s =>
+                {
+                    DialogService.OnOpen -= s as Action<string, Type, Dictionary<string, object>, DialogOptions>;
+                });
             }
         }
     }
@@ -211,5 +223,24 @@
     private async void OnDialogOpened(string title, Type componentType, Dictionary<string, object> parameters, DialogOptions options)
     {
         await _interop.UpdateDialogLayout(_editor.Element);
+    }
+
+    private Delegate[] GetEventSubscribers(object target, string eventName)
+    {
+        var type = target.GetType();
+        var eventField = type.GetField(eventName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+        if (eventField == null)
+        {
+            return null;
+        }
+
+        var eventDelegate = eventField.GetValue(target) as Delegate;
+        if (eventDelegate == null)
+        {
+            return new Delegate[0];
+        }
+
+        return eventDelegate.GetInvocationList();
     }
 }
