@@ -127,6 +127,6 @@
     <value>An Unexpected Error Has Occurred</value>
   </data>
   <data name="Error.Module.InvalidInjectedServices" xml:space="preserve">
-    <value>Missing Service(s): {0}</value>
+    <value>Missing service(s): {0}. Please make sure they have been registered correctly.</value>
   </data>
 </root>

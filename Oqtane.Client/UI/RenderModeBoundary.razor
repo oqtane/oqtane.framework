@@ -5,6 +5,7 @@
 @inject SiteState ComponentSiteState
 @inject IStringLocalizer<ModuleInstance> Localizer
 @inject ILogService LoggingService
+@inject ISystemService SystemService
 @inherits ErrorBoundary
 
 <CascadingValue Value="@PageState" IsFixed="true">
@@ -66,7 +67,7 @@
         return PageState?.RenderId == ModuleState?.RenderId;
     }
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
         if (ShouldRender())
         {
@@ -93,7 +94,9 @@
                 return;
             }
 
-            if (!ValidateModuleTypeInjectedServices(ModuleType, out IList<string> missingServices))
+            //only validate the services injection in development environment
+            var systeminfo = await SystemService.GetSystemInfoAsync("environment");
+            if (Convert.ToString(systeminfo["Environment"]) == "Development" && !ValidateModuleTypeInjectedServices(ModuleType, out IList<string> missingServices))
             {
                 // module type is not valid for instantiation
                 _messageContent = string.Format(Localizer["Error.Module.InvalidInjectedServices"], string.Join(",", missingServices));
