@@ -124,7 +124,7 @@ Oqtane.Interop = {
         }
     },
     includeScript: function (id, src, integrity, crossorigin, type, content, location, dataAttributes) {
-        var script;
+        var script = null;
         if (src !== "") {
             script = document.querySelector("script[src=\"" + CSS.escape(src) + "\"]");
         }
@@ -140,7 +140,7 @@ Oqtane.Interop = {
                 }
             }
         }
-        if (script !== null) {
+        if (script instanceof HTMLScriptElement) {
             script.remove();
             script = null;
         }
