@@ -5,7 +5,7 @@
              x:Class="Oqtane.Maui.MainPage"
              BackgroundColor="{DynamicResource PageBackgroundColor}">
 
-    <BlazorWebView HostPage="wwwroot/index.html">
+    <BlazorWebView WebResourceRequested="BlazorWebView_WebResourceRequested" HostPage="wwwroot/index.html">
         <BlazorWebView.RootComponents>
             <RootComponent Selector="head::after" ComponentType="{x:Type local:Head}" />
             <RootComponent Selector="#app" ComponentType="{x:Type local:Main}" />
