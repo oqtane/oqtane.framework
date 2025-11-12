@@ -26,15 +26,30 @@ public static class MauiProgram
 		builder.Services.AddBlazorWebViewDeveloperTools();
         #endif
 
-        var apiurl = LoadAppSettings(); 
+        var apiurl = LoadAppSettings();
 
         if (!string.IsNullOrEmpty(apiurl))
         {
-            var httpClient = new HttpClient { BaseAddress = new Uri(GetBaseUrl(apiurl)) };
+#if DEBUG && ANDROID
+            var httpClient = new HttpClient(DevHttpsConnectionHelper.GetPlatformMessageHandler()) { BaseAddress = new Uri(GetBaseUrl(apiurl)) };
+#else
+            var httpClient = new HttpClient() { BaseAddress = new Uri(GetBaseUrl(apiurl)) };
+#endif
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(Shared.Constants.MauiUserAgent);
             httpClient.DefaultRequestHeaders.Add(Shared.Constants.MauiAliasPath, GetUrlPath(apiurl).Replace("/", ""));
             builder.Services.AddSingleton(httpClient);
+
+#if DEBUG && ANDROID
+            builder.Services.ConfigureHttpClientDefaults(conf =>
+            {
+                conf.ConfigurePrimaryHttpMessageHandler(() =>
+                {
+                    return DevHttpsConnectionHelper.GetPlatformMessageHandler();
+                });
+            });
+#else
             builder.Services.AddHttpClient(); // IHttpClientFactory for calling remote services via RemoteServiceBase
+#endif
 
             // dynamically load client assemblies
             LoadClientAssemblies(httpClient, apiurl);
