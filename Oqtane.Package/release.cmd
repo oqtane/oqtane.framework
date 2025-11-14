@@ -1,4 +1,5 @@
 dotnet build -c Release ..\Oqtane.slnx
+FixProps.exe
 nuget.exe pack Oqtane.Client.nuspec
 nuget.exe pack Oqtane.Server.nuspec
 nuget.exe pack Oqtane.Shared.nuspec                  
