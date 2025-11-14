@@ -136,7 +136,7 @@
     <value>You Must Provide A Valid Description (ie. No Punctuation)</value>
   </data>
   <data name="OwnerName.HelpText" xml:space="preserve">
-    <value>Enter the name of the organization who is developing this module. It should not contain spaces or punctuation or contain the word "oqtane".</value>
+    <value>Enter the name of the organization who is developing this module. It should not contain spaces or punctuation or contain the word "oqtane". If you are using an Internal template then make sure the owner matches the name of the project.</value>
   </data>
   <data name="ModuleName.HelpText" xml:space="preserve">
     <value>Enter a name for this module. It should not contain spaces or punctuation or contain the word "oqtane".</value>
