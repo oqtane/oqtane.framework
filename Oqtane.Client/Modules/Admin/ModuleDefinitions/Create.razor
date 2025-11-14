@@ -127,11 +127,18 @@
                     if (string.IsNullOrEmpty(_description)) _description = _module;
                     if (IsValidXML(_description))
                     {
+                        if (_type == "Internal")
+                        {
+                            AddModuleMessage(Localizer["Success.Module.Create.Internal"], MessageType.Success);
+                        }
                         var template = _templates.FirstOrDefault(item => item.Name == _template);
                         var moduleDefinition = new ModuleDefinition { Owner = _owner, Name = _module, Description = _description, Template = _template, Version = _reference, ModuleDefinitionName = template.Namespace };
                         moduleDefinition = await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition);
-                        GetLocation();
-                        AddModuleMessage(string.Format(Localizer["Success.Module.Create"], NavigateUrl("admin/system")), MessageType.Success);
+                        if (_type == "External")
+                        {
+                            GetLocation();
+                            AddModuleMessage(string.Format(Localizer["Success.Module.Create.External"], NavigateUrl("admin/system")), MessageType.Success);
+                        }
                     }
                     else
                     {

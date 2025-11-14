@@ -89,8 +89,8 @@
             AddModuleMessage(Localizer["Info.Theme.CreatorIntent"], MessageType.Info);
         }
     }
-	
-	protected override async Task OnParametersSetAsync()
+
+    protected override async Task OnParametersSetAsync()
     {
         try
         {
@@ -109,11 +109,18 @@
         {
             if (IsValid(_owner) && IsValid(_theme) && _owner != _theme && _template != "-")
             {
+                if (_type == "Internal")
+                {
+                    AddModuleMessage(Localizer["Success.Theme.Create.Internal"], MessageType.Success);
+                }
                 var template = _templates.FirstOrDefault(item => item.Name == _template);
                 var theme = new Theme { Owner = _owner, Name = _theme, Template = _template, Version = _reference, ThemeName = template.Namespace };
                 theme = await ThemeService.CreateThemeAsync(theme);
-                GetLocation();
-                AddModuleMessage(string.Format(Localizer["Success.Theme.Create"], NavigateUrl("admin/system")), MessageType.Success);
+                if (_type == "External")
+                {
+                    GetLocation();
+                    AddModuleMessage(string.Format(Localizer["Success.Theme.Create.External"], NavigateUrl("admin/system")), MessageType.Success);
+                }
             }
             else
             {
