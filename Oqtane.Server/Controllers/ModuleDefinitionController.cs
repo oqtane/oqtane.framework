@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -133,9 +132,8 @@ namespace Oqtane.Controllers
                 if (moduleDefinition.Template.ToLower().Contains("internal"))
                 {
                     rootPath = Utilities.PathCombine(rootFolder.FullName, Path.DirectorySeparatorChar.ToString());
-                    var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
-                    moduleDefinition.ServerManagerType = moduleDefinition.ModuleDefinitionName + ".Manager." + moduleDefinition.Name + "Manager, " + assemblyName;
-                    moduleDefinition.ModuleDefinitionName = moduleDefinition.ModuleDefinitionName + ", " + assemblyName.Replace(".Server", ".Client");
+                    moduleDefinition.ServerManagerType = moduleDefinition.ModuleDefinitionName + ".Manager." + moduleDefinition.Name + "Manager, " + moduleDefinition.Owner + ".Server.Oqtane";
+                    moduleDefinition.ModuleDefinitionName = moduleDefinition.ModuleDefinitionName + ", " + moduleDefinition.Owner + ".Client.Oqtane";
                 }
                 else
                 {
