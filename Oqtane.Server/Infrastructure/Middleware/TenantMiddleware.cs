@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Repository;
 using Oqtane.Shared;
-using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 
 namespace Oqtane.Infrastructure
 {

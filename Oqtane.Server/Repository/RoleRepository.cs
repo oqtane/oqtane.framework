@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
@@ -19,10 +20,12 @@ namespace Oqtane.Repository
     public class RoleRepository : IRoleRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
+        private readonly ISettingRepository _settings;
 
-        public RoleRepository(IDbContextFactory<TenantDBContext> dbContextFactory)
+        public RoleRepository(IDbContextFactory<TenantDBContext> dbContextFactory, ISettingRepository settings)
         {
             _dbContextFactory = dbContextFactory;
+            _settings = settings;
         }
             
         public IEnumerable<Role> GetRoles(int siteId)
@@ -94,6 +97,9 @@ namespace Oqtane.Repository
             {
                 db.Permission.Remove(permission);
             }
+
+            //remove settings for role
+            _settings.DeleteSettings(EntityNames.Role, roleId);
 
             Role role = db.Role.Find(roleId);
             db.Role.Remove(role);

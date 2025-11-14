@@ -168,7 +168,7 @@ namespace Oqtane.Repository
                         var attribute = (SiteMigrationAttribute)Attribute.GetCustomAttribute(type, typeof(SiteMigrationAttribute));
                         if (attribute.AliasName == "*" || attribute.AliasName == alias.Name)
                         {
-                            if (string.IsNullOrEmpty(site.Version) || Version.Parse(attribute.Version) > Version.Parse(site.Version))
+                            if (string.IsNullOrEmpty(site.Version) || attribute.Version == "*" || Version.Parse(attribute.Version) > Version.Parse(site.Version))
                             {
                                 try
                                 {
@@ -176,14 +176,14 @@ namespace Oqtane.Repository
                                     if (obj != null)
                                     {
                                         obj.Up(site, alias);
-                                        _logger.Log(LogLevel.Information, "Site Migration", LogFunction.Other, "Site Migrated Successfully To Version {version} For {Alias}", version, alias.Name);
+                                        _logger.Log(LogLevel.Information, "Site Migration", LogFunction.Other, "Site Migrated Successfully For {Alias} And Version {version}", alias.Name, attribute.Version);
                                     }
                                 }
                                 catch (Exception ex)
                                 {
-                                    _logger.Log(LogLevel.Error, "Site Migration", LogFunction.Other, ex, "An Error Occurred Executing Site Migration {Type} For {Alias} And Version {Version}", type, alias.Name, version);
+                                    _logger.Log(LogLevel.Error, "Site Migration", LogFunction.Other, ex, "An Error Occurred Executing Site Migration {Type} For {Alias} And Version {Version}", type, alias.Name, attribute.Version);
                                 }
-                                if (string.IsNullOrEmpty(version) || Version.Parse(attribute.Version) > Version.Parse(version))
+                                if (attribute.Version != "*" && (string.IsNullOrEmpty(version) || Version.Parse(attribute.Version) > Version.Parse(version)))
                                 {
                                     version = attribute.Version;
                                 }
@@ -251,21 +251,21 @@ namespace Oqtane.Repository
             _roleRepository.AddRole(new Role {SiteId = site.SiteId, Name = RoleNames.Admin, Description = RoleNames.Admin, IsAutoAssigned = false, IsSystem = true});
 
             _profileRepository.AddProfile(new Profile
-            { SiteId = site.SiteId, Name = "FirstName", Title = "First Name", Description = "Your First Or Given Name", Category = "Name", ViewOrder = 1, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "", Rows = 1 });
+            { SiteId = site.SiteId, Name = "FirstName", Title = "First Name", Description = "Your First Or Given Name", Category = "Name", ViewOrder = 10, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "", Rows = 1 });
             _profileRepository.AddProfile(new Profile
-            { SiteId = site.SiteId, Name = "LastName", Title = "Last Name", Description = "Your Last Or Family Name", Category = "Name", ViewOrder = 2, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "", Rows = 1 });
+            { SiteId = site.SiteId, Name = "LastName", Title = "Last Name", Description = "Your Last Or Family Name", Category = "Name", ViewOrder = 20, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "", Rows = 1 });
             _profileRepository.AddProfile(new Profile
-            { SiteId = site.SiteId, Name = "Street", Title = "Street", Description = "Street Or Building Address", Category = "Address", ViewOrder = 3, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "", Rows = 1 });
+            { SiteId = site.SiteId, Name = "Street", Title = "Street", Description = "Street Or Building Address", Category = "Address", ViewOrder = 30, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "", Rows = 1 });
             _profileRepository.AddProfile(new Profile 
-            { SiteId = site.SiteId, Name = "City", Title = "City", Description = "City", Category = "Address", ViewOrder = 4, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "", Rows = 1 });
+            { SiteId = site.SiteId, Name = "City", Title = "City", Description = "City", Category = "Address", ViewOrder = 40, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "", Rows = 1 });
             _profileRepository.AddProfile(new Profile
-            { SiteId = site.SiteId, Name = "Region", Title = "Region", Description = "State Or Province", Category = "Address", ViewOrder = 5, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "", Rows = 1 });
+            { SiteId = site.SiteId, Name = "Region", Title = "Region", Description = "State Or Province", Category = "Address", ViewOrder = 50, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "", Rows = 1 });
             _profileRepository.AddProfile(new Profile
-            { SiteId = site.SiteId, Name = "Country", Title = "Country", Description = "Country", Category = "Address", ViewOrder = 6, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "", Rows = 1 });
+            { SiteId = site.SiteId, Name = "Country", Title = "Country", Description = "Country", Category = "Address", ViewOrder = 60, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "", Rows = 1 });
             _profileRepository.AddProfile(new Profile
-            { SiteId = site.SiteId, Name = "PostalCode", Title = "Postal Code", Description = "Postal Code Or Zip Code", Category = "Address", ViewOrder = 7, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "", Rows = 1 });
+            { SiteId = site.SiteId, Name = "PostalCode", Title = "Postal Code", Description = "Postal Code Or Zip Code", Category = "Address", ViewOrder = 70, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "", Rows = 1 });
             _profileRepository.AddProfile(new Profile
-            { SiteId = site.SiteId, Name = "Phone", Title = "Phone Number", Description = "Phone Number", Category = "Contact", ViewOrder = 8, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "", Rows = 1 });
+            { SiteId = site.SiteId, Name = "Phone", Title = "Phone Number", Description = "Phone Number", Category = "Contact", ViewOrder = 80, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "", Rows = 1 });
 
             Folder folder = _folderRepository.AddFolder(new Folder
             {
@@ -490,7 +490,27 @@ namespace Oqtane.Repository
                                     }
                                     else
                                     {
-                                        var module = _moduleRepository.AddModule(pageModule.Module);
+                                        Module module = null;
+                                        if (pageTemplateModule.FromPagePath != "")
+                                        {
+                                            // used for modules shared across pages
+                                            var pagePath = pageTemplateModule.FromPagePath;
+                                            pagePath = (pagePath.ToLower() == "home") ? "" : pagePath;
+                                            pagePath = (pagePath == "/") ? "" : pagePath;
+                                            if (pages.Any(item => item.Path.ToLower() == pagePath.ToLower()))
+                                            {
+                                                var pageId = pages.First(item => item.Path.ToLower() == pagePath.ToLower()).PageId;
+                                                if (pageModules.Any(item => item.PageId == pageId && item.Module.ModuleDefinitionName == pageTemplateModule.ModuleDefinitionName && item.Title.ToLower() == pageTemplateModule.Title.ToLower()))
+                                                {
+                                                    module = pageModules.FirstOrDefault(item => item.PageId == pageId && item.Module.ModuleDefinitionName == pageTemplateModule.ModuleDefinitionName && item.Title.ToLower() == pageTemplateModule.Title.ToLower()).Module;
+                                                }
+                                            }
+                                        }
+                                        if (module == null)
+                                        {
+                                            module = _moduleRepository.AddModule(pageModule.Module);
+                                        }
+
                                         pageModule.ModuleId = module.ModuleId;
                                         pageModule.Module = null; // remove tracking
                                         _pageModuleRepository.AddPageModule(pageModule);

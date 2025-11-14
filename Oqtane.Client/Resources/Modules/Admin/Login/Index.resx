@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ForgotPassword" xml:space="preserve">
-    <value>Forgot Password</value>
+    <value>Forgot Password?</value>
   </data>
   <data name="Success.Account.Verified" xml:space="preserve">
     <value>User Account Email Address Verified Successfully. You Can Now Login With Your Username And Password.</value>
@@ -127,7 +127,7 @@
     <value>User Account Email Address Could Not Be Verified. Please Contact Your Administrator For Further Instructions.</value>
   </data>
   <data name="Success.Account.Linked" xml:space="preserve">
-    <value>User Account Linked Successfully. You Can Now Login With Your External Login Below.</value>
+    <value>External Login Linked Successfully. You Can Now Login.</value>
   </data>
   <data name="Message.Account.NotLinked" xml:space="preserve">
     <value>External Login Could Not Be Linked. Please Contact Your Administrator For Further Instructions.</value>
@@ -230,5 +230,11 @@
   </data>
   <data name="Register" xml:space="preserve">
     <value>Register as new user?</value>
+  </data>
+  <data name="Passkey" xml:space="preserve">
+    <value>Use Passkey</value>
+  </data>
+  <data name="Error.Passkey.Fail" xml:space="preserve">
+    <value>Passkey Login Was Not Successful</value>
   </data>
 </root>

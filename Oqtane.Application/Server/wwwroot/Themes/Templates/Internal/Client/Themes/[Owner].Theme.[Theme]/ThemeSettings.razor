@@ -1,0 +1,140 @@
+@namespace [Owner].Theme.[Theme]
+@inherits ModuleBase
+@implements Oqtane.Interfaces.ISettingsControl
+@inject ISettingService SettingService
+@inject IStringLocalizer<ThemeSettings> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+    @attribute [OqtaneIgnore]
+
+    <div class="container">
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="scope" ResourceKey="Scope" ResourceType="@resourceType" HelpText="Specify if the settings are applicable to this page or the entire site.">Setting Scope:</Label>
+            <div class="col-sm-9">
+                <select id="scope" class="form-select" value="@_scope" @onchange="(e => ScopeChanged(e))">
+                    @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
+                    {
+                    <option value="site">@Localizer["Site"]</option>
+                    }
+                    <option value="page">@Localizer["Page"]</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="login" ResourceKey="Login" ResourceType="@resourceType" HelpText="Specify if a Login option should be displayed. Note that this option does not prevent the login page from being accessible via a direct url.">Show Login?</Label>
+            <div class="col-sm-9">
+                <select id="login" class="form-select" @bind="@_login">
+                    <option value="-">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                    <option value="true">@SharedLocalizer["Yes"]</option>
+                    <option value="false">@SharedLocalizer["No"]</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="register" ResourceKey="Register" ResourceType="@resourceType" HelpText="Specify if a Register option should be displayed. Note that this option is also dependent on the Allow Registration option in Site Settings.">Show Register?</Label>
+            <div class="col-sm-9">
+                <select id="register" class="form-select" @bind="@_register">
+                    <option value="-">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                    <option value="true">@SharedLocalizer["Yes"]</option>
+                    <option value="false">@SharedLocalizer["No"]</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    @code {
+        private int pageId = -1;
+        private string resourceType = "[Owner].Theme.[Theme].ThemeSettings, [Owner].Theme.[Theme].Client.Oqtane"; // for localization
+        private string _scope = "page";
+        private string _login = "-";
+        private string _register = "-";
+
+        protected override async Task OnInitializedAsync()
+        {
+            if (PageState.QueryString.ContainsKey("id"))
+            {
+                pageId = int.Parse(PageState.QueryString["id"]);
+            }
+
+            try
+            {
+                await LoadSettings();
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Loading Settings {Error}", ex.Message);
+                AddModuleMessage("Error Loading Settings", MessageType.Error);
+            }
+        }
+
+        private async Task LoadSettings()
+        {
+            if (_scope == "site")
+            {
+                var settings = PageState.Site.Settings;
+                _login = SettingService.GetSetting(settings, GetType().Namespace + ":Login", "true");
+                _register = SettingService.GetSetting(settings, GetType().Namespace + ":Register", "true");
+            }
+            else
+            {
+                var settings = await SettingService.GetPageSettingsAsync(pageId);
+                settings = SettingService.MergeSettings(PageState.Site.Settings, settings);
+                _login = SettingService.GetSetting(settings, GetType().Namespace + ":Login", "-");
+                _register = SettingService.GetSetting(settings, GetType().Namespace + ":Register", "-");
+            }
+            await Task.Yield();
+        }
+
+        private async Task ScopeChanged(ChangeEventArgs eventArgs)
+        {
+            try
+            {
+                _scope = (string)eventArgs.Value;
+                await LoadSettings();
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Loading Settings {Error}", ex.Message);
+                AddModuleMessage("Error Loading Settings", MessageType.Error);
+            }
+        }
+
+        public async Task UpdateSettings()
+        {
+            try
+            {
+                if (_scope == "site")
+                {
+                    var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+                    if (_login != "-")
+                    {
+                        settings = SettingService.SetSetting(settings, GetType().Namespace + ":Login", _login);
+                    }
+
+                    if (_register != "-")
+                    {
+                        settings = SettingService.SetSetting(settings, GetType().Namespace + ":Register", _register);
+                    }
+                    await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
+                }
+                else
+                {
+                    var settings = await SettingService.GetPageSettingsAsync(pageId);
+                    if (_login != "-")
+                    {
+                        settings = SettingService.SetSetting(settings, GetType().Namespace + ":Login", _login);
+                    }
+                    if (_register != "-")
+                    {
+                        settings = SettingService.SetSetting(settings, GetType().Namespace + ":Register", _register);
+                    }
+                    await SettingService.UpdatePageSettingsAsync(settings, pageId);
+                }
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Saving Settings {Error}", ex.Message);
+                AddModuleMessage("Error Saving Settings", MessageType.Error);
+            }
+        }
+    }

@@ -136,7 +136,7 @@
     <value>You Must Provide A Valid Description (ie. No Punctuation)</value>
   </data>
   <data name="OwnerName.HelpText" xml:space="preserve">
-    <value>Enter the name of the organization who is developing this module. It should not contain spaces or punctuation or contain the word "oqtane".</value>
+    <value>Enter the name of the organization who is developing this module. It should not contain spaces or punctuation or contain the word "oqtane". If you are using an Internal template then make sure the owner matches the name of the project.</value>
   </data>
   <data name="ModuleName.HelpText" xml:space="preserve">
     <value>Enter a name for this module. It should not contain spaces or punctuation or contain the word "oqtane".</value>
@@ -168,7 +168,10 @@
   <data name="Location.Text" xml:space="preserve">
     <value>Location: </value>
   </data>
-  <data name="Success.Module.Create" xml:space="preserve">
+  <data name="Success.Module.Create.Internal" xml:space="preserve">
+    <value>The Source Code For Your Module Has Been Created In Your Solution And Must Be Compiled In Order To Make It Functional</value>
+  </data>
+  <data name="Success.Module.Create.External" xml:space="preserve">
     <value>The Source Code For Your Module Has Been Created At The Location Specified Below And Must Be Compiled In Order To Make It Functional. Once It Has Been Compiled You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Activate The Module.</value>
   </data>
 </root>

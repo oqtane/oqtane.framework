@@ -22,7 +22,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Interfaces;
@@ -102,7 +102,8 @@ namespace Microsoft.Extensions.DependencyInjection
             })
             .AddCookie(Constants.AuthenticationScheme)
             .AddOpenIdConnect(AuthenticationProviderTypes.OpenIDConnect, options => { })
-            .AddOAuth(AuthenticationProviderTypes.OAuth2, options => { });
+            .AddOAuth(AuthenticationProviderTypes.OAuth2, options => { })
+            .AddTwoFactorUserIdCookie();
 
             services.ConfigureOqtaneCookieOptions();
             services.ConfigureOqtaneAuthenticationOptions(configuration);

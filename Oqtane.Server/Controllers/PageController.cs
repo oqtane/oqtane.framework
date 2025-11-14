@@ -216,6 +216,13 @@ namespace Oqtane.Controllers
                     page.UserId = int.Parse(userid);
                     page = _pages.AddPage(page);
 
+                    // copy parent page settings
+                    var settings = _settings.GetSettings(EntityNames.Page, parent.PageId);
+                    foreach (var setting in settings)
+                    {
+                        _settings.AddSetting(new Setting { EntityName = EntityNames.Page, EntityId = page.PageId, SettingName = setting.SettingName, SettingValue = setting.SettingValue, IsPrivate = setting.IsPrivate });
+                    }
+
                     // copy modules
                     List<PageModule> pagemodules = _pageModules.GetPageModules(page.SiteId).ToList();
                     foreach (PageModule pm in pagemodules.Where(item => item.PageId == parent.PageId && !item.IsDeleted))
@@ -258,8 +265,7 @@ namespace Oqtane.Controllers
                     _syncManager.AddSyncEvent(_alias, EntityNames.Site, page.SiteId, SyncEventActions.Refresh);
 
                     // set user personalized page path
-                    var setting = new Setting { EntityName = EntityNames.User, EntityId = page.UserId.Value, SettingName = $"PersonalizedPagePath:{page.SiteId}:{parent.PageId}", SettingValue = path, IsPrivate = false };
-                    _settings.AddSetting(setting);
+                    _settings.AddSetting(new Setting { EntityName = EntityNames.User, EntityId = page.UserId.Value, SettingName = $"PersonalizedPagePath:{page.SiteId}:{parent.PageId}", SettingValue = path, IsPrivate = false });
                     _syncManager.AddSyncEvent(_alias, EntityNames.User, user.UserId, SyncEventActions.Update);
                 }
             }

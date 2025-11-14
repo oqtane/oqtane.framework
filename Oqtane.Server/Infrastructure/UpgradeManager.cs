@@ -7,15 +7,11 @@ using Oqtane.Infrastructure.SiteTemplates;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
-using Oqtane.UI;
-using Org.BouncyCastle.Pqc.Crypto.Lms;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata;
-using System.Runtime.Serialization;
 
 namespace Oqtane.Infrastructure
 {
@@ -103,24 +99,6 @@ namespace Oqtane.Infrastructure
 
         private void Upgrade_2_0_2(Tenant tenant, IServiceScope scope)
         {
-            if (tenant.Name == TenantNames.Master)
-            {
-                // remove Internal module template files as they are no longer supported
-                var internalTemplatePath = Utilities.PathCombine(_environment.WebRootPath, "Modules", "Templates", "Internal", Path.DirectorySeparatorChar.ToString());
-                if (Directory.Exists(internalTemplatePath))
-                {
-                    try
-                    {
-                        Directory.Delete(internalTemplatePath, true);
-                    }
-                    catch (Exception ex)
-                    {
-                        // error deleting directory
-                        _filelogger.LogError(Utilities.LogMessage(this, $"Oqtane Error: Error In 2.0.2 Upgrade Logic - {ex}"));
-                    }
-                }
-            }
-
             // initialize SiteGuid
             try
             {

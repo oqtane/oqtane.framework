@@ -1,11 +1,12 @@
-using Oqtane.Shared;
-using Oqtane.Models;
+using System.Buffers.Text;
+using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Oqtane.Documentation;
-using System.Net;
-using System.Collections.Generic;
 using Microsoft.Extensions.Localization;
+using Oqtane.Documentation;
+using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
@@ -147,17 +148,6 @@ namespace Oqtane.Services
         Task<string> GetPersonalAccessTokenAsync();
 
         /// <summary>
-        /// Link an external login with a local user account
-        /// </summary>
-        /// <param name="user">The <see cref="User"/> we're verifying</param>
-        /// <param name="token">A Hash value in the URL which verifies this user got the e-mail (containing this token)</param>
-        /// <param name="type">External Login provider type</param>
-        /// <param name="key">External Login provider key</param>
-        /// <param name="name">External Login provider display name</param>
-        /// <returns></returns>
-        Task<User> LinkUserAsync(User user, string token, string type, string key, string name);
-
-        /// <summary>
         /// Get password requirements for site
         /// </summary>
         /// <param name="siteId">ID of a <see cref="Site"/></param>
@@ -172,6 +162,55 @@ namespace Oqtane.Services
         /// <param name="notify">Indicates if new users should be notified by email</param>
         /// <returns></returns>
         Task<Dictionary<string, string>> ImportUsersAsync(int siteId, int fileId, bool notify);
+
+        /// <summary>
+        /// Get passkeys for a user
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        Task<List<UserPasskey>> GetPasskeysAsync(int userId);
+
+        /// <summary>
+        /// Update a user passkey
+        /// </summary>
+        /// <param name="passkey"></param>
+        /// <returns></returns>
+        Task<UserPasskey> UpdatePasskeyAsync(UserPasskey passkey);
+
+        /// <summary>
+        /// Delete a user passkey
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="credentialId"></param>
+        /// <returns></returns>
+        Task DeletePasskeyAsync(int userId, byte[] credentialId);
+
+        /// <summary>
+        /// Get logins for a user
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        Task<List<UserLogin>> GetLoginsAsync(int userId);
+
+        /// <summary>
+        /// Link an external login with a local user account
+        /// </summary>
+        /// <param name="user">The <see cref="User"/> we're verifying</param>
+        /// <param name="token">A Hash value in the URL which verifies this user got the e-mail (containing this token)</param>
+        /// <param name="type">External Login provider type</param>
+        /// <param name="key">External Login provider key</param>
+        /// <param name="name">External Login provider display name</param>
+        /// <returns></returns>
+        Task<User> AddLoginAsync(User user, string token, string type, string key, string name);
+
+        /// <summary>
+        /// Delete a user login
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="provider"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        Task DeleteLoginAsync(int userId, string provider, string key);
     }
 
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
@@ -218,7 +257,7 @@ namespace Oqtane.Services
 
         public async Task<User> LoginUserAsync(User user, bool setCookie, bool isPersistent)
         {
-            return await PostJsonAsync<User>($"{Apiurl}/login?setcookie={setCookie}&persistent={isPersistent}", user);
+            return await PostJsonAsync<User>($"{Apiurl}/signin?setcookie={setCookie}&persistent={isPersistent}", user);
         }
 
         public async Task LogoutUserAsync(User user)
@@ -271,11 +310,6 @@ namespace Oqtane.Services
             return await GetStringAsync($"{Apiurl}/personalaccesstoken");
         }
 
-        public async Task<User> LinkUserAsync(User user, string token, string type, string key, string name)
-        {
-            return await PostJsonAsync<User>($"{Apiurl}/link?token={token}&type={type}&key={key}&name={name}", user);
-        }
-
         public async Task<string> GetPasswordRequirementsAsync(int siteId)
         {
             var requirements = await GetJsonAsync<Dictionary<string, string>>($"{Apiurl}/passwordrequirements/{siteId}");
@@ -301,6 +335,36 @@ namespace Oqtane.Services
         public async Task<Dictionary<string, string>> ImportUsersAsync(int siteId, int fileId, bool notify)
         {
             return await PostJsonAsync<Dictionary<string, string>>($"{Apiurl}/import?siteid={siteId}&fileid={fileId}&notify={notify}", null);
+        }
+
+        public async Task<List<UserPasskey>> GetPasskeysAsync(int userId)
+        {
+            return await GetJsonAsync<List<UserPasskey>>($"{Apiurl}/passkey?id={userId}");
+        }
+
+        public async Task<UserPasskey> UpdatePasskeyAsync(UserPasskey passkey)
+        {
+            return await PutJsonAsync<UserPasskey>($"{Apiurl}/passkey", passkey);
+        }
+
+        public async Task DeletePasskeyAsync(int userId, byte[] credentialId)
+        {
+            await DeleteAsync($"{Apiurl}/passkey?id={userId}&credential={Base64Url.EncodeToString(credentialId)}");
+        }
+
+        public async Task<List<UserLogin>> GetLoginsAsync(int userId)
+        {
+            return await GetJsonAsync<List<UserLogin>>($"{Apiurl}/login?id={userId}");
+        }
+
+        public async Task<User> AddLoginAsync(User user, string token, string type, string key, string name)
+        {
+            return await PostJsonAsync<User>($"{Apiurl}/login?token={token}&type={type}&key={key}&name={name}", user);
+        }
+
+        public async Task DeleteLoginAsync(int userId, string provider, string key)
+        {
+            await DeleteAsync($"{Apiurl}/login?id={userId}&provider={provider}&key={key}");
         }
     }
 }

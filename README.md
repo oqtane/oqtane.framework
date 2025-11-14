@@ -12,7 +12,7 @@ Oqtane is being developed based on some fundamental principles which are outline
 
 # Latest Release
 
-[6.2.1](https://github.com/oqtane/oqtane.framework/releases/tag/v6.2.1) was released on September 29, 2025 and is a maintenance release including 65 pull requests by 6 different contributors, pushing the total number of project commits all-time over 7100. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
+[10.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v10.0.0) was released on November 14, 2025 and is a maintenance release including 77 pull requests by 6 different contributors, pushing the total number of project commits all-time over 7300. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
 # Try It Now!
 
@@ -22,9 +22,11 @@ Microsoft's Public Cloud (requires an Azure account)
 A free ASP.NET hosting account. No hidden fees. No credit card required.  
 [![Deploy to MonsterASP.NET](https://www.oqtane.org/files/Public/MonsterASPNET.png)](https://www.monsterasp.net/) 
 
-# Getting Started (Version 6.2+)
+# Getting Started (Version 10.0.0+)
 
 **Installing using the Oqtane Application Template:**
+
+(Note that "MyCompany.MyProject" can be replaced with your own unique company and project name)
 
 ```
 dotnet new install Oqtane.Application.Template
@@ -35,20 +37,18 @@ cd Server
 dotnet run
 ```
 
-- Browse to http://localhost:5001 to run the application (an Installation Wizard screen will be displayed the first time you run the application)
-- To develop/debug the application, open the MyCompany.MyProject.sln file in the root folder and hit F5
+- Browse to the Url specified to run the application (an Installation Wizard screen will be displayed the first time you run the application)
+- To develop/debug the application in an IDE, open the *.sln file in the root folder and hit F5
 
 **Installing using source code from the Dev/Master branch:**
 
-- Install Latest **[.NET  9.0 SDK](https://dotnet.microsoft.com/en-us/download)**.
+- Install Latest **[.NET  10.0 SDK](https://dotnet.microsoft.com/en-us/download)**.
 
-- Install the latest edition (v17.12 or higher) of [Visual Studio 2022](https://visualstudio.microsoft.com/downloads) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you wish to use LocalDB for development ( not a requirement as Oqtane supports SQLite, mySQL, and PostgreSQL ) you must also install the **Data storage and processing**.  
+- Install the latest edition of [Visual Studio 2026](https://visualstudio.microsoft.com/downloads) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you wish to use LocalDB for development ( not a requirement as Oqtane supports SQLite, mySQL, and PostgreSQL ) you must also install the **Data storage and processing**.  
 
 - Clone (or download) the Oqtane Master or Dev branch source code to your local system.
 
-- Open the **Oqtane.sln** solution file.
-  
-- Make sure you specify Oqtane.Server as the Startup Project.
+- Open the **Oqtane.slnx** solution file (make sure you specify Oqtane.Server as the Startup Project)
 
 - Run the application... an Installation Wizard screen will be displayed which will allow you to configure your preferred database and create a host user account.
 
@@ -103,6 +103,10 @@ Connect with other developers, get support, and share ideas by joining the Oqtan
 
 # Roadmap
 This project is open source, and therefore is a work in progress...
+
+[10.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v10.0.0) (Nov 14, 2025)
+- [x] Migration to .NET 10
+- [x] Passkey Authentication
 
 [6.2.1](https://github.com/oqtane/oqtane.framework/releases/tag/v6.2.1) (Sep 29, 2025)
 - [x] Stabilization improvements

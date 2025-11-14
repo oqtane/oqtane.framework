@@ -395,7 +395,7 @@ namespace Oqtane.Infrastructure
                             var connectionString = _configManager.GetSetting($"{SettingKeys.ConnectionStringsSection}:{tenant.DBConnectionString}", "");
                             if (!string.IsNullOrEmpty(connectionString))
                             {
-                                using (var tenantDbContext = new TenantDBContext(DBContextDependencies))
+                                using (var tenantDbContext = new TenantDBContext(new DbContextOptions<TenantDBContext>(), DBContextDependencies))
                                 {
                                     AddEFMigrationsHistory(sql, connectionString, tenant.DBType, tenant.Version, false);
                                     // push latest model into database
@@ -506,6 +506,10 @@ namespace Oqtane.Infrastructure
                                             }
                                         }
                                     }
+                                }
+                                else
+                                {
+                                    result.Message = "An Error Occurred Installing " + moduleDefinition.Name + " - ServerManagerType " + moduleDefinition.ServerManagerType + " Does Not Exist";
                                 }
                             }
 

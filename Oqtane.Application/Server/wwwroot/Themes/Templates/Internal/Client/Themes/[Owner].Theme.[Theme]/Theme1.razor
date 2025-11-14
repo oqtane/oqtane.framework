@@ -1,0 +1,118 @@
+@namespace [Owner].Theme.[Theme]
+@inherits ThemeBase
+@inject ISettingService SettingService
+
+<main role="main">
+    <nav class="navbar navbar-dark bg-primary fixed-top">
+        <Logo /><Menu Orientation="Horizontal" />
+        <div class="controls ms-auto">
+            <div class="controls-group"><UserProfile ShowRegister="@_register" /> <Login ShowLogin="@_login"  /> <ControlPanel ButtonClass="btn-outline-light" /></div>
+        </div>
+    </nav>
+    <div class="content">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <Pane Name="@PaneNames.Admin" />
+                </div>
+            </div>
+        </div>
+        <Pane Name="Top Full Width" />
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <Pane Name="Top 100%" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <Pane Name="Left 50%" />
+                </div>
+                <div class="col-md-6">
+                    <Pane Name="Right 50%" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <Pane Name="Left 33%" />
+                </div>
+                <div class="col-md-4">
+                    <Pane Name="Center 33%" />
+                </div>
+                <div class="col-md-4">
+                    <Pane Name="Right 33%" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <Pane Name="Left Outer 25%" />
+                </div>
+                <div class="col-md-3">
+                    <Pane Name="Left Inner 25%" />
+                </div>
+                <div class="col-md-3">
+                    <Pane Name="Right Inner 25%" />
+                </div>
+                <div class="col-md-3">
+                    <Pane Name="Right Outer 25%" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <Pane Name="Left 25%" />
+                </div>
+                <div class="col-md-6">
+                    <Pane Name="Center 50%" />
+                </div>
+                <div class="col-md-3">
+                    <Pane Name="Right 25%" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-8">
+                    <Pane Name="Left Sidebar 66%" />
+                </div>
+                <div class="col-md-4">
+                    <Pane Name="Right Sidebar 33%" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <Pane Name="Left Sidebar 33%" />
+                </div>
+                <div class="col-md-8">
+                    <Pane Name="Right Sidebar 66%" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <Pane Name="Bottom 100%" />
+                </div>
+            </div>
+        </div>
+        <Pane Name="Bottom Full Width" />
+    </div>
+</main>
+
+@code {
+    public override string Name => "Theme1";
+
+    public override string Panes => PaneNames.Admin + ",Top Full Width,Top 100%,Left 50%,Right 50%,Left 33%,Center 33%,Right 33%,Left Outer 25%,Left Inner 25%,Right Inner 25%,Right Outer 25%,Left 25%,Center 50%,Right 25%,Left Sidebar 66%,Right Sidebar 33%,Left Sidebar 33%,Right Sidebar 66%,Bottom 100%,Bottom Full Width";
+    
+    private bool _login = true;
+    private bool _register = true;
+
+    protected override void OnParametersSet()
+    {
+        try
+        {
+            var settings = SettingService.MergeSettings(PageState.Site.Settings, PageState.Page.Settings);
+            _login = bool.Parse(SettingService.GetSetting(settings, GetType().Namespace + ":Login", "true"));
+            _register = bool.Parse(SettingService.GetSetting(settings, GetType().Namespace + ":Register", "true"));
+        }
+        catch
+        {
+            // error loading theme settings
+        }
+    }
+}

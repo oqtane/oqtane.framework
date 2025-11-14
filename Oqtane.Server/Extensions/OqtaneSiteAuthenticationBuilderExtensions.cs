@@ -676,12 +676,12 @@ namespace Oqtane.Extensions
                         var _syncManager = httpContext.RequestServices.GetRequiredService<ISyncManager>();
                         _syncManager.AddSyncEvent(alias, EntityNames.User, user.UserId, "Login");
 
-                        _logger.Log(LogLevel.Information, "ExternalLogin", Enums.LogFunction.Security, "External User Login Successful For {Username} From IP Address {IPAddress} Using Provider {Provider}", user.Username, httpContext.Connection.RemoteIpAddress.ToString(), providerName);
+                        _logger.Log(LogLevel.Information, "ExternalLogin", Enums.LogFunction.Security, "External Login Successful For {Username} From IP Address {IPAddress} Using Provider {Provider}", user.Username, httpContext.Connection.RemoteIpAddress.ToString(), providerName);
                     }
                     else
                     {
                         identity.Label = ExternalLoginStatus.AccessDenied;
-                        _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "External User Login Denied For {Username}. User Account Is Deleted Or Not An Active Member Of Site {SiteId}.", user.Username, user.SiteId);
+                        _logger.Log(LogLevel.Error, "ExternalLogin", Enums.LogFunction.Security, "External Login Denied For {Username}. User Account Is Deleted Or Not An Active Member Of Site {SiteId}.", user.Username, user.SiteId);
                     }
                 }
             }

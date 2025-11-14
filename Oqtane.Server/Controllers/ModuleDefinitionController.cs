@@ -1,20 +1,20 @@
+using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
-using Oqtane.Models;
-using Oqtane.Shared;
-using Microsoft.AspNetCore.Authorization;
 using System.IO;
-using System.Reflection;
 using System.Linq;
+using System.Net;
+using System.Reflection;
+using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
+using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Security;
-using System;
-using Microsoft.Extensions.DependencyInjection;
-using System.Text.Json;
-using System.Net;
+using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
@@ -132,8 +132,8 @@ namespace Oqtane.Controllers
                 if (moduleDefinition.Template.ToLower().Contains("internal"))
                 {
                     rootPath = Utilities.PathCombine(rootFolder.FullName, Path.DirectorySeparatorChar.ToString());
-                    moduleDefinition.ServerManagerType = moduleDefinition.ModuleDefinitionName + ".Manager." + moduleDefinition.Name + "Manager, Oqtane.Server";
-                    moduleDefinition.ModuleDefinitionName = moduleDefinition.ModuleDefinitionName + ", Oqtane.Client";
+                    moduleDefinition.ServerManagerType = moduleDefinition.ModuleDefinitionName + ".Manager." + moduleDefinition.Name + "Manager, " + moduleDefinition.Owner + ".Server.Oqtane";
+                    moduleDefinition.ModuleDefinitionName = moduleDefinition.ModuleDefinitionName + ", " + moduleDefinition.Owner + ".Client.Oqtane";
                 }
                 else
                 {
@@ -270,9 +270,10 @@ namespace Oqtane.Controllers
                 foreach (string directory in Directory.GetDirectories(templatePath))
                 {
                     string name = directory.Replace(templatePath, "");
-                    if (System.IO.File.Exists(Path.Combine(directory, "template.json")))
+                    var manifest = Directory.GetFiles(directory, "*.json");
+                    if (manifest.Any())
                     {
-                        var template = JsonSerializer.Deserialize<Template>(System.IO.File.ReadAllText(Path.Combine(directory, "template.json")));
+                        var template = JsonSerializer.Deserialize<Template>(System.IO.File.ReadAllText(manifest[0]));
                         template.Name = name;
                         template.Location = "";
                         if (template.Type.ToLower() != "internal")
@@ -350,9 +351,9 @@ namespace Oqtane.Controllers
                     return new Dictionary<string, object>()
                             {
                                 { "FrameworkVersion", Constants.Version },
-                                { "ClientReference", $"<Reference Include=\"Oqtane.Client\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net9.0\\Oqtane.Client.dll</HintPath></Reference>" },
-                                { "ServerReference", $"<Reference Include=\"Oqtane.Server\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net9.0\\Oqtane.Server.dll</HintPath></Reference>" },
-                                { "SharedReference", $"<Reference Include=\"Oqtane.Shared\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net9.0\\Oqtane.Shared.dll</HintPath></Reference>" },
+                                { "ClientReference", $"<Reference Include=\"Oqtane.Client\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net10.0\\Oqtane.Client.dll</HintPath></Reference>" },
+                                { "ServerReference", $"<Reference Include=\"Oqtane.Server\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net10.0\\Oqtane.Server.dll</HintPath></Reference>" },
+                                { "SharedReference", $"<Reference Include=\"Oqtane.Shared\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net10.0\\Oqtane.Shared.dll</HintPath></Reference>" },
                             };
                 });
             }

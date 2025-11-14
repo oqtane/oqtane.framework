@@ -205,7 +205,7 @@
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
         "siteConfig": {
           "webSocketsEnabled": true,
-          "netFrameworkVersion": "v9.0"
+          "netFrameworkVersion": "v10.0"
         }
       },
       "dependsOn": [
@@ -220,7 +220,7 @@
 	  "apiVersion": "2024-04-01",
 	  "name": "[concat(parameters('BlazorWebsiteName'), '/ZipDeploy')]",
           "properties": {
-	    "packageUri": "https://github.com/oqtane/oqtane.framework/releases/download/v6.2.1/Oqtane.Framework.6.2.1.Install.zip"
+	    "packageUri": "https://github.com/oqtane/oqtane.framework/releases/download/v10.0.0/Oqtane.Framework.10.0.0.Install.zip"
           },
           "dependsOn": [
             "[resourceId('Microsoft.Web/sites', parameters('BlazorWebsiteName'))]"

@@ -5,19 +5,17 @@
 @inject IStringLocalizer<UserProfile> Localizer
 @inject NavigationManager NavigationManager
 
-<span class="app-profile">
-    @if (PageState.User != null)
+@if (PageState.User != null)
+{
+    <a href="@_profileurl" class="@CssClass app-profile">@PageState.User.Username</a>
+}
+else
+{
+    @if (ShowRegister && PageState.Site.AllowRegistration)
     {
-        <a href="@_profileurl" class="@CssClass">@PageState.User.Username</a>
+        <a href="@_registerurl" class="@CssClass app-profile">@Localizer["Register"]</a>
     }
-    else
-    {
-        @if (ShowRegister && PageState.Site.AllowRegistration)
-        {
-            <a href="@_registerurl" class="@CssClass">@Localizer["Register"]</a>
-        }
-    }
-</span>
+}
 
 @code {
 

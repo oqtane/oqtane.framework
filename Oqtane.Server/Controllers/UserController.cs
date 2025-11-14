@@ -1,19 +1,22 @@
-using Microsoft.AspNetCore.Mvc;
+using System.Buffers.Text;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Security.Claims;
+using System.Security.Policy;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Models;
-using System.Threading.Tasks;
-using System.Linq;
-using System.Security.Claims;
-using Oqtane.Shared;
-using System.Net;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Oqtane.Enums;
+using Oqtane.Extensions;
 using Oqtane.Infrastructure;
+using Oqtane.Managers;
+using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Security;
-using Oqtane.Extensions;
-using Oqtane.Managers;
-using System.Collections.Generic;
+using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
@@ -238,8 +241,8 @@ namespace Oqtane.Controllers
             }
         }
 
-        // POST api/<controller>/login
-        [HttpPost("login")]
+        // POST api/<controller>/signin
+        [HttpPost("signin")]
         public async Task<User> Login([FromBody] User user, bool setCookie, bool isPersistent)
         {
             if (ModelState.IsValid)
@@ -325,22 +328,6 @@ namespace Oqtane.Controllers
                 user.IsAuthenticated = false;
             }
 
-            return user;
-        }
-
-        // POST api/<controller>/link
-        [HttpPost("link")]
-        public async Task<User> Link([FromBody] User user, string token, string type, string key, string name)
-        {
-            if (ModelState.IsValid)
-            {
-                user = await _userManager.LinkExternalAccount(user, token, type, key, name);
-            }
-            else
-            {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "External Login Linkage Failed For {Username} And Token {Token}", user.Username, token);
-                user = null;
-            }
             return user;
         }
 
@@ -461,6 +448,115 @@ namespace Oqtane.Controllers
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Import Attempt {SiteId} {FileId}", siteid, fileid);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
+            }
+        }
+
+        // GET: api/<controller>/passkey?id=x
+        [HttpGet("passkey")]
+        [Authorize]
+        public async Task<IEnumerable<UserPasskey>> GetPasskeys(int id)
+        {
+            if (_userPermissions.IsAuthorized(User, _tenantManager.GetAlias().SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) || _userPermissions.GetUser(User).UserId == id)
+            {
+                return await _userManager.GetPasskeys(id, _tenantManager.GetAlias().SiteId);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Passkey Get Attempt {UserId} {SiteId}", id, _tenantManager.GetAlias().SiteId);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return null;
+            }
+        }
+
+        // PUT api/<controller>/passkey
+        [HttpPut("passkey")]
+        [Authorize]
+        public async Task UpdatePasskey([FromBody] UserPasskey passkey)
+        {
+            if (ModelState.IsValid)
+            {
+                if (_userPermissions.IsAuthorized(User, _tenantManager.GetAlias().SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) || _userPermissions.GetUser(User).UserId == passkey.UserId)
+                {
+                    // passkey name is prefixed with SiteId for multi-tenancy
+                    passkey.Name = $"{_tenantManager.GetAlias().SiteId}:" + passkey.Name;
+                    await _userManager.UpdatePasskey(passkey);
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Passkey Put Attempt {PassKey}", passkey);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                }
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Passkey Put Attempt {PassKey}", passkey);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            }
+        }
+
+        // DELETE api/<controller>/passkey?id=x&credential=y
+        [HttpDelete("passkey")]
+        [Authorize]
+        public async Task DeletePasskey(int id, string credential)
+        {
+            if (_userPermissions.IsAuthorized(User, _tenantManager.GetAlias().SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) || _userPermissions.GetUser(User).UserId == id)
+            {
+                await _userManager.DeletePasskey(id, Base64Url.DecodeFromChars(credential));
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Passkey Delete Attempt {UserId} {Credential}", id, credential);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            }
+        }
+
+        // GET: api/<controller>/login?id=x
+        [HttpGet("login")]
+        [Authorize]
+        public async Task<IEnumerable<UserLogin>> GetLogins(int id)
+        {
+            if (_userPermissions.IsAuthorized(User, _tenantManager.GetAlias().SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) || _userPermissions.GetUser(User).UserId == id)
+            {
+                return await _userManager.GetLogins(id, _tenantManager.GetAlias().SiteId);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized External Login Get Attempt {UserId} {SiteId}", id, _tenantManager.GetAlias().SiteId);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return null;
+            }
+        }
+
+        // PUT api/<controller>/login
+        [HttpPost("login")]
+        public async Task<User> AddLogin([FromBody] User user, string token, string type, string key, string name)
+        {
+            if (ModelState.IsValid)
+            {
+                user = await _userManager.AddLogin(user, token, type, key, name);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized External Login Post Attempt {Username} {Token}", user.Username, token);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                user = null;
+            }
+            return user;
+        }
+
+        // DELETE api/<controller>/login?id=x&provider=y&key=z
+        [HttpDelete("login")]
+        [Authorize]
+        public async Task DeleteLogin(int id, string provider, string key)
+        {
+            if (_userPermissions.IsAuthorized(User, _tenantManager.GetAlias().SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) || _userPermissions.GetUser(User).UserId == id)
+            {
+                await _userManager.DeleteLogin(id, provider, key);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized External Login Delete Attempt {UserId} {Provider} {Key}", id, provider, key);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
     }

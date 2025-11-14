@@ -23,11 +23,11 @@
     <files>
         <file src="..\Client\bin\Release\$targetframework$\$projectname$.Client.Oqtane.dll" target="lib\$targetframework$" />
         <file src="..\Client\bin\Release\$targetframework$\$projectname$.Client.Oqtane.pdb" target="lib\$targetframework$" />
-        <file src="..\Client\obj\Release\net9.0\staticwebassets\msbuild.$ProjectName$.Microsoft.AspNetCore.StaticWebAssetEndpoints.props" target="build\Microsoft.AspNetCore.StaticWebAssetEndpoints.props" />
-        <file src="..\Client\obj\Release\net9.0\staticwebassets\msbuild.$ProjectName$.Microsoft.AspNetCore.StaticWebAssets.props" target="build\Microsoft.AspNetCore.StaticWebAssets.props" />
-        <file src="..\Client\obj\Release\net9.0\staticwebassets\msbuild.build.$ProjectName$.props" target="build\$ProjectName$.props" />
-        <file src="..\Client\obj\Release\net9.0\staticwebassets\msbuild.buildMultiTargeting.$ProjectName$.props" target="buildMultiTargeting\$ProjectName$.props" />
-        <file src="..\Client\obj\Release\net9.0\staticwebassets\msbuild.buildTransitive.$ProjectName$.props" target="buildTransitive\$ProjectName$.props" />
+        <file src="..\Client\obj\Release\$targetframework$\staticwebassets\msbuild.$ProjectName$.Microsoft.AspNetCore.StaticWebAssetEndpoints.props" target="build\Microsoft.AspNetCore.StaticWebAssetEndpoints.props" />
+        <file src="..\Client\obj\Release\$targetframework$\staticwebassets\msbuild.$ProjectName$.Microsoft.AspNetCore.StaticWebAssets.props" target="build\Microsoft.AspNetCore.StaticWebAssets.props" />
+        <file src="..\Client\obj\Release\$targetframework$\staticwebassets\msbuild.build.$ProjectName$.props" target="build\$ProjectName$.props" />
+        <file src="..\Client\obj\Release\$targetframework$\staticwebassets\msbuild.buildMultiTargeting.$ProjectName$.props" target="buildMultiTargeting\$ProjectName$.props" />
+        <file src="..\Client\obj\Release\$targetframework$\staticwebassets\msbuild.buildTransitive.$ProjectName$.props" target="buildTransitive\$ProjectName$.props" />
         <file src="..\Client\wwwroot\**\*.*" target="staticwebassets" />
         <file src="icon.png" target="" />
     </files>

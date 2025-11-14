@@ -18,11 +18,6 @@
   },
   "sourceName": "Oqtane.Application",
   "preferNameDirectory": true,
-  "guids": [
-    "04B05448-788F-433D-92C0-FED35122D45A",
-    "AA8E58A1-CD09-4208-BF66-A8BB341FD669",
-    "18D73F73-D7BE-4388-85BA-FBD9AC96FCA2"
-  ],
   "symbols": {
     "Framework": {
       "type": "parameter",
@@ -30,12 +25,12 @@
       "datatype": "choice",
       "choices": [
         {
-          "choice": "net9.0",
-          "description": "Target net9.0"
+          "choice": "net10.0",
+          "description": "Target net10.0"
         }
       ],
-      "replaces": "net9.0",
-      "defaultValue": "net9.0"
+      "replaces": "net10.0",
+      "defaultValue": "net10.0"
     },
     "HttpPort": {
       "type": "parameter",
@@ -80,7 +75,7 @@
   },
   "primaryOutputs": [
     {
-      "path": "Oqtane.Application.sln"
+      "path": "Oqtane.Application.slnx"
     }
   ]
 }
