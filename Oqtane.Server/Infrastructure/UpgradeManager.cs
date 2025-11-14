@@ -99,24 +99,6 @@ namespace Oqtane.Infrastructure
 
         private void Upgrade_2_0_2(Tenant tenant, IServiceScope scope)
         {
-            if (tenant.Name == TenantNames.Master)
-            {
-                // remove Internal module template files as they are no longer supported
-                var internalTemplatePath = Utilities.PathCombine(_environment.WebRootPath, "Modules", "Templates", "Internal", Path.DirectorySeparatorChar.ToString());
-                if (Directory.Exists(internalTemplatePath))
-                {
-                    try
-                    {
-                        Directory.Delete(internalTemplatePath, true);
-                    }
-                    catch (Exception ex)
-                    {
-                        // error deleting directory
-                        _filelogger.LogError(Utilities.LogMessage(this, $"Oqtane Error: Error In 2.0.2 Upgrade Logic - {ex}"));
-                    }
-                }
-            }
-
             // initialize SiteGuid
             try
             {
