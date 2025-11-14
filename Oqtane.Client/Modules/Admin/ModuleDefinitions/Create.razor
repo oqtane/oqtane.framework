@@ -84,7 +84,7 @@
     private List<Template> _templates;
     private string _template = "-";
     private string _minversion = "2.0.0";
-    private string _type = "External";
+    private string _type = "";
     private string[] _versions;
     private string _reference = "local";
     private string _location = string.Empty;
@@ -185,7 +185,7 @@
         else
         {
             _minversion = "2.0.0";
-            _type = "-";
+            _type = "";
         }
         GetLocation();
     }
