@@ -183,9 +183,10 @@ namespace Oqtane.Controllers
                 foreach (string directory in Directory.GetDirectories(templatePath))
                 {
                     string name = directory.Replace(templatePath, "");
-                    if (System.IO.File.Exists(Path.Combine(directory, "template.json")))
+                    var manifest = Directory.GetFiles(directory, "*.json");
+                    if (manifest.Any())
                     {
-                        var template = JsonSerializer.Deserialize<Template>(System.IO.File.ReadAllText(Path.Combine(directory, "template.json")));
+                        var template = JsonSerializer.Deserialize<Template>(System.IO.File.ReadAllText(manifest[0]));
                         template.Name = name;
                         template.Location = "";
                         if (template.Type.ToLower() != "internal")
