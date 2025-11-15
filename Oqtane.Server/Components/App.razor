@@ -169,7 +169,11 @@
                     }
                     if (page == null || page.IsDeleted)
                     {
-                        HandlePageNotFound(site, page, route);
+                        if(HandlePageNotFound(site, page, route))
+                        {
+                            _pageState?.Refresh = false;
+                            return;
+                        }
                     }
                     else
                     {
@@ -286,7 +290,7 @@
         }
     }
 
-    private void HandlePageNotFound(Site site, Page page, Route route)
+    private bool HandlePageNotFound(Site site, Page page, Route route)
     {
         // page not found - look for url mapping
         var urlMapping = UrlMappingRepository.GetUrlMapping(site.SiteId, route.PagePath);
@@ -301,9 +305,12 @@
             if (route.PagePath != "404")
             {
                 // redirect to 404 page
-                NavigationManager.NavigateTo(route.SiteUrl + "/404", true);
+                NavigationManager.NotFound();
+                return true;
             }
         }
+
+        return false;
     }
 
     private void TrackVisitor(int SiteId)

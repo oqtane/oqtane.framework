@@ -10,6 +10,7 @@ namespace Oqtane.Infrastructure
     public interface ITenantManager
     {
         Alias GetAlias();
+        Alias GetAliasFromRequestPath(HttpRequest request, string path);
         Tenant GetTenant();
         void SetAlias(Alias alias);
         void SetAlias(int tenantId, int siteId);
@@ -46,32 +47,41 @@ namespace Oqtane.Infrastructure
                 var httpcontext = _httpContextAccessor.HttpContext;
                 if (httpcontext != null)
                 {
-                    // legacy support for client api requests which would include the alias as a path prefix ( ie. {alias}/api/[controller] )
-                    int aliasId;
-                    string[] segments = httpcontext.Request.Path.Value.Split('/', StringSplitOptions.RemoveEmptyEntries);
-                    if (segments.Length > 1 && Shared.Constants.ReservedRoutes.Contains(segments[1]) && int.TryParse(segments[0], out aliasId))
-                    {
-                        alias = _aliasRepository.GetAliases().ToList().FirstOrDefault(item => item.AliasId == aliasId);
-                    }
-
-                    // resolve alias based on host name and path
-                    if (alias == null)
-                    {
-                        string name = httpcontext.Request.Host.Value + httpcontext.Request.Path;
-                        alias = _aliasRepository.GetAlias(name);
-                    }
-
-                    // if there is a match save it
+                    alias = GetAliasFromRequestPath(httpcontext.Request, httpcontext.Request.Path.Value);
                     if (alias != null)
                     {
-                        alias.Protocol = (httpcontext.Request.IsHttps) ? "https://" : "http://";
-                        alias.BaseUrl = "";
-                        if (httpcontext.Request.Headers.ContainsKey("User-Agent") && httpcontext.Request.Headers["User-Agent"] == Shared.Constants.MauiUserAgent)
-                        {
-                            alias.BaseUrl = alias.Protocol + alias.Name.Replace("/" + alias.Path, "");
-                        }
                         _siteState.Alias = alias;
                     }
+                }
+            }
+
+            return alias;
+        }
+
+        public Alias GetAliasFromRequestPath(HttpRequest request, string path)
+        {
+            Alias alias = null;
+            string[] segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length > 1 && Shared.Constants.ReservedRoutes.Contains(segments[1]) && int.TryParse(segments[0], out int aliasId))
+            {
+                alias = _aliasRepository.GetAliases().ToList().FirstOrDefault(item => item.AliasId == aliasId);
+            }
+
+            // resolve alias based on host name and path
+            if (alias == null)
+            {
+                string name = request.Host.Value + path;
+                alias = _aliasRepository.GetAlias(name);
+            }
+
+            // if there is a match save it
+            if (alias != null)
+            {
+                alias.Protocol = request.IsHttps ? "https://" : "http://";
+                alias.BaseUrl = "";
+                if (request.Headers.ContainsKey("User-Agent") && request.Headers["User-Agent"] == Shared.Constants.MauiUserAgent)
+                {
+                    alias.BaseUrl = alias.Protocol + alias.Name.Replace("/" + alias.Path, "");
                 }
             }
 
