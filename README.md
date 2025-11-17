@@ -197,7 +197,7 @@ This project is open source, and therefore is a work in progress...
 ➡️ Full list and older versions can be found in the [docs roadmap](https://docs.oqtane.org/guides/roadmap/index.html)
 
 # Background
-Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Oqtane is a native Blazor application written from the ground up using modern .NET Core technology and a Single Page Application (SPA) architecture. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly themes, and extensibility via third party modules.
+Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and was inspired by his earlier efforts creating the DotNetNuke web application framework for the .NET Framework. Oqtane is a native Blazor application written from the ground up using modern .NET Core technology and a Single Page Application (SPA) architecture. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly themes, and extensibility via third party modules.
 
 # Reference Implementations
 
