@@ -42,7 +42,7 @@ dotnet run
 ```
 
 - Browse to the Url specified to run the application (an Installation Wizard screen will be displayed the first time you run the application)
-- To develop/debug the application in an IDE, open the *.sln file in the root folder and hit F5
+- To develop/debug the application in an IDE, open the *.slnx file in the root folder and hit F5
 
 **Installing using source code from the Dev/Master branch:**
 
