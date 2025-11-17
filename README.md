@@ -26,7 +26,11 @@ A free ASP.NET hosting account. No hidden fees. No credit card required.
 
 **Installing using the Oqtane Application Template:**
 
-(Note that "MyCompany.MyProject" can be replaced with your own unique company and project name)
+If you have an older version of the Oqtane Application Template installed and want to use the latest, use the following .NERT CLI command to uninstall the old version:
+```
+dotnet new uninstall Oqtane.Application.Template
+```
+To install the Oqtane Application Template and create a new project, use the following .NET CLI commands (note that "MyCompany.MyProject" can be replaced with your own unique company and project name):
 
 ```
 dotnet new install Oqtane.Application.Template
