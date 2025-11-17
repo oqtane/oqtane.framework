@@ -50,7 +50,10 @@ dotnet run
 
 - Install the latest edition of [Visual Studio 2026](https://visualstudio.microsoft.com/downloads) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you wish to use LocalDB for development ( not a requirement as Oqtane supports SQLite, mySQL, and PostgreSQL ) you must also install the **Data storage and processing**.  
 
-- Clone (or download) the Oqtane Master or Dev branch source code to your local system.
+- Clone (or download) the Oqtane source code to your local system:
+
+  - Dev Branch: git clone https://github.com/oqtane/oqtane.framework
+  - Master Branch: git clone --single-branch --branch master https://github.com/oqtane/oqtane.framework
 
 - Open the **Oqtane.slnx** solution file (make sure you specify Oqtane.Server as the Startup Project)
 
