@@ -1,8 +1,11 @@
 using System;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -65,6 +68,7 @@ namespace Oqtane.Extensions
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseAntiforgery();
+            app.UseNotFoundResponse();
 
             // execute any IServerStartup logic
             app.ConfigureOqtaneAssemblies(environment);
@@ -146,5 +150,76 @@ namespace Oqtane.Extensions
 
         public static IApplicationBuilder UseExceptionMiddleWare(this IApplicationBuilder builder)
           => builder.UseMiddleware<ExceptionMiddleware>();
+
+        public static IApplicationBuilder UseNotFoundResponse(this IApplicationBuilder app)
+        {
+            const string notFoundRoute = "/404";
+            app.UseStatusCodePagesWithReExecute(notFoundRoute, createScopeForStatusCodePages: true);
+
+            app.Use(async (context, next) =>
+            {
+                var path = context.Request.Path.Value ?? string.Empty;
+                if (ShouldSkipStatusCodeReExecution(path))
+                {
+                    var feature = context.Features.Get<IStatusCodePagesFeature>();
+                    feature?.Enabled = false;
+                }
+
+                await next();
+            });
+
+            app.Use(async (context, next) =>
+            {
+                var feature = context.Features.Get<IStatusCodeReExecuteFeature>();
+                var handled = false;
+                if (feature != null
+                        && context.Response.StatusCode == (int)HttpStatusCode.NotFound
+                        && notFoundRoute.Equals(context.Request.Path.Value, StringComparison.OrdinalIgnoreCase))
+                {
+                    var alias = context.GetAlias();
+                    if (!string.IsNullOrEmpty(alias?.Path))
+                    {
+                        var originalPath = context.Request.Path;
+                        context.Request.Path = new PathString($"/{alias.Path}{notFoundRoute}");
+                        try
+                        {
+                            handled = true;
+                            await next();
+                        }
+                        finally
+                        {
+                            context.Request.Path = originalPath;
+                        }
+                    }
+                }
+
+                if (!handled)
+                {
+                    await next();
+                }
+            });
+
+            return app;
+        }
+
+        static bool ShouldSkipStatusCodeReExecution(string path)
+        {
+            return path.Contains("/api/", StringComparison.OrdinalIgnoreCase) ||
+                   path.StartsWith("/_framework/", StringComparison.OrdinalIgnoreCase) ||
+                   path.StartsWith("/_content/", StringComparison.OrdinalIgnoreCase) ||
+                   HasStaticFileExtension(path);
+        }
+
+        static bool HasStaticFileExtension(string path)
+        {
+            var extension = Path.GetExtension(path);
+            if (string.IsNullOrEmpty(extension))
+            {
+                return false;
+            }
+
+            var staticExtensions = new[] { ".js", ".css", ".map", ".json", ".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp", ".ico", ".woff", ".woff2", ".ttf", ".eot", ".otf", ".mp4", ".webm", ".ogg", ".mp3", ".wav", ".pdf", ".txt", ".xml" };
+            return staticExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase);
+        }
     }
 }
