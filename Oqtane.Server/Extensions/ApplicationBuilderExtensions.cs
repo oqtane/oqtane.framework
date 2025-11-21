@@ -159,7 +159,7 @@ namespace Oqtane.Extensions
             app.Use(async (context, next) =>
             {
                 var path = context.Request.Path.Value ?? string.Empty;
-                if (ShouldSkipStatusCodeReExecution(path))
+                if (string.IsNullOrEmpty(path) || ShouldSkipStatusCodeReExecution(path))
                 {
                     var feature = context.Features.Get<IStatusCodePagesFeature>();
                     feature?.Enabled = false;
@@ -204,22 +204,12 @@ namespace Oqtane.Extensions
 
         static bool ShouldSkipStatusCodeReExecution(string path)
         {
-            return path.Contains("/api/", StringComparison.OrdinalIgnoreCase) ||
-                   path.StartsWith("/_framework/", StringComparison.OrdinalIgnoreCase) ||
-                   path.StartsWith("/_content/", StringComparison.OrdinalIgnoreCase) ||
-                   HasStaticFileExtension(path);
+            return Constants.ReservedRoutes.Any(item => path.Contains("/" + item + "/")) || HasStaticFileExtension(path);
         }
 
         static bool HasStaticFileExtension(string path)
         {
-            var extension = Path.GetExtension(path);
-            if (string.IsNullOrEmpty(extension))
-            {
-                return false;
-            }
-
-            var staticExtensions = new[] { ".js", ".css", ".map", ".json", ".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp", ".ico", ".woff", ".woff2", ".ttf", ".eot", ".otf", ".mp4", ".webm", ".ogg", ".mp3", ".wav", ".pdf", ".txt", ".xml" };
-            return staticExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase);
+            return !string.IsNullOrEmpty(Path.GetExtension(path));
         }
     }
 }
