@@ -1,6 +1,7 @@
 @namespace Oqtane.Modules.Admin.ModuleDefinitions
 @inherits ModuleBase
 @using System.Text.RegularExpressions
+@using System.Reflection
 @inject NavigationManager NavigationManager
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject IModuleService ModuleService
@@ -84,7 +85,7 @@
     private List<Template> _templates;
     private string _template = "-";
     private string _minversion = "2.0.0";
-    private string _type = "External";
+    private string _type = "";
     private string[] _versions;
     private string _reference = "local";
     private string _location = string.Empty;
@@ -96,6 +97,16 @@
         if (!NavigationManager.BaseUri.Contains("localhost:"))
         {
             AddModuleMessage(Localizer["Info.Module.Development"], MessageType.Info);
+        }
+        else
+        {
+            var entryAssemblyName = Assembly.GetEntryAssembly().GetName().Name;
+            if (entryAssemblyName.EndsWith(".Oqtane"))
+            {
+                // Oqtane Application assemblies end with .Server.Oqtane or .Client.Oqtane
+                string[] segments = entryAssemblyName.Split('.');
+                _owner = string.Join(".", segments, 0, segments.Length - 2);
+            }
         }
     }
 
@@ -127,11 +138,18 @@
                     if (string.IsNullOrEmpty(_description)) _description = _module;
                     if (IsValidXML(_description))
                     {
+                        if (_type == "Internal")
+                        {
+                            AddModuleMessage(Localizer["Success.Module.Create.Internal"], MessageType.Success);
+                        }
                         var template = _templates.FirstOrDefault(item => item.Name == _template);
                         var moduleDefinition = new ModuleDefinition { Owner = _owner, Name = _module, Description = _description, Template = _template, Version = _reference, ModuleDefinitionName = template.Namespace };
                         moduleDefinition = await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition);
-                        GetLocation();
-                        AddModuleMessage(string.Format(Localizer["Success.Module.Create"], NavigateUrl("admin/system")), MessageType.Success);
+                        if (_type == "External")
+                        {
+                            GetLocation();
+                            AddModuleMessage(string.Format(Localizer["Success.Module.Create.External"], NavigateUrl("admin/system")), MessageType.Success);
+                        }
                     }
                     else
                     {
@@ -178,7 +196,7 @@
         else
         {
             _minversion = "2.0.0";
-            _type = "External";
+            _type = "";
         }
         GetLocation();
     }

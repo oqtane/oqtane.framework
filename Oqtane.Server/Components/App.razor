@@ -170,6 +170,7 @@
                     if (page == null || page.IsDeleted)
                     {
                         HandlePageNotFound(site, page, route);
+                        return;
                     }
                     else
                     {
@@ -248,6 +249,7 @@
                         IsInternalNavigation = false,
                         RenderId = Guid.NewGuid(),
                         Refresh = true,
+                        StatusCode = Context.Response.StatusCode,
                         AllowCookies = _allowCookies
                     };
                 }
@@ -300,8 +302,16 @@
         {
             if (route.PagePath != "404")
             {
-                // redirect to 404 page
-                NavigationManager.NavigateTo(route.SiteUrl + "/404", true);
+                // handle not found request in static mode
+                if(_renderMode == RenderModes.Static)
+                {
+                    NavigationManager.NotFound();
+                }
+                else
+                {
+                    // redirect to 404 page
+                    NavigationManager.NavigateTo(route.SiteUrl + "/404", true);
+                }
             }
         }
     }

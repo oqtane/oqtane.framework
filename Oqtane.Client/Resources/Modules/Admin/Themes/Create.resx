@@ -141,14 +141,17 @@
   <data name="Info.Theme.CreatorIntent" xml:space="preserve">
     <value>Please Note That The Theme Creator Is Only Intended To Be Used In A Development Environment</value>
   </data>
-  <data name="Success.Theme.Create" xml:space="preserve">
-    <value>The Source Code For Your Theme Has Been Created At The Location Specified Below And Must Be Compiled In Order To Make It Functional. Once It Has Been Compiled You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Activate The Module.</value>
+  <data name="Success.Theme.Create.Internal" xml:space="preserve">
+    <value>The Source Code For Your Theme Has Been Created In Your Solution And Must Be Compiled In Order To Make It Functional</value>
+  </data>
+  <data name="Success.Theme.Create.External" xml:space="preserve">
+    <value>The Source Code For Your Theme Has Been Created At The Location Specified Below And Must Be Compiled In Order To Make It Functional. Once It Has Been Compiled You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Activate The Theme.</value>
   </data>
   <data name="Message.Required.ValidName" xml:space="preserve">
     <value>You Must Provide A Valid Owner Name And Theme Name ( ie. No Punctuation Or Spaces And The Values Cannot Be The Same ) And Choose A Template</value>
   </data>
   <data name="OwnerName.HelpText" xml:space="preserve">
-    <value>Enter the name of the organization who is developing this theme. It should not contain spaces or punctuation.</value>
+    <value>Enter the name of the organization who is developing this theme. It should not contain spaces or punctuation or contain the word "oqtane". If you are using an Internal template then make sure the owner matches the name of the project.</value>
   </data>
   <data name="ThemeName.HelpText" xml:space="preserve">
     <value>Enter a name for this theme. It should not contain spaces or punctuation.</value>

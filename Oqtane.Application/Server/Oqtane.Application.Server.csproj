@@ -9,6 +9,7 @@
     <CompressionEnabled>false</CompressionEnabled>
     <StaticWebAssetsFingerprintContent>false</StaticWebAssetsFingerprintContent>
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+    <RequiresAspNetWebAssets>true</RequiresAspNetWebAssets>
   </PropertyGroup>
 
   <ItemGroup>
