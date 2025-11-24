@@ -460,6 +460,11 @@ namespace Oqtane.Modules
 
         public string ReplaceTokens(string content, object obj)
         {
+            // check for null or empty content
+            if (string.IsNullOrEmpty(content))
+            {
+                return content;
+            }
             // Using StringBuilder avoids the performance penalty of repeated string allocations
             // that occur with string.Replace or string concatenation inside loops.
             var sb = new StringBuilder();
