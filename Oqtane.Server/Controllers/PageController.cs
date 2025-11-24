@@ -265,7 +265,19 @@ namespace Oqtane.Controllers
                     _syncManager.AddSyncEvent(_alias, EntityNames.Site, page.SiteId, SyncEventActions.Refresh);
 
                     // set user personalized page path
-                    _settings.AddSetting(new Setting { EntityName = EntityNames.User, EntityId = page.UserId.Value, SettingName = $"PersonalizedPagePath:{page.SiteId}:{parent.PageId}", SettingValue = path, IsPrivate = false });
+                    var settingName = $"PersonalizedPagePath:{page.SiteId}:{parent.PageId}";
+                    var pathSetting = _settings.GetSetting(EntityNames.User, page.UserId.Value, settingName);
+                    if(pathSetting == null)
+                    {
+                        pathSetting = new Setting { EntityName = EntityNames.User, EntityId = page.UserId.Value, SettingName = settingName, SettingValue = path, IsPrivate = false };
+                        _settings.AddSetting(pathSetting);
+                    }
+                    else
+                    {
+                        pathSetting.SettingValue = path;
+                        _settings.UpdateSetting(pathSetting);
+                    }
+
                     _syncManager.AddSyncEvent(_alias, EntityNames.User, user.UserId, SyncEventActions.Update);
                 }
             }
