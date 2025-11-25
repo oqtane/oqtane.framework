@@ -279,7 +279,7 @@ namespace Oqtane.Managers
                     await _identityUserManager.UpdateAsync(identityuser); // security stamp not updated
                 }
 
-                if (bool.Parse(_settings.GetSettingValue(EntityNames.Site, alias.SiteId, "LoginOptions:RequireConfirmedEmail", "true")))
+                if (bool.Parse(_settings.GetSettingValue(EntityNames.Site, alias.SiteId, "LoginOptions:RequireConfirmedEmail", "true")) && !user.IsDeleted)
                 {
                     if (user.EmailConfirmed)
                     {
