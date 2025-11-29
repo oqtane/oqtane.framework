@@ -60,7 +60,7 @@
         }
         @((MarkupString)_headResources)
     </head>
-    <body>
+    <body data-enhance-nav="@_enhancedNavigation.ToString().ToLower()">
         @if (string.IsNullOrEmpty(_message))
         {
             @if (_renderMode == RenderModes.Static)
@@ -97,6 +97,7 @@
     private string _renderMode = RenderModes.Interactive;
     private string _runtime = Runtimes.Server;
     private bool _prerender = true;
+    private bool _enhancedNavigation = true;
     private string _fingerprint = "";
     private int _visitorId = -1;
     private string _antiForgeryToken = "";
@@ -141,6 +142,7 @@
                     _renderMode = site.RenderMode;
                     _runtime = site.Runtime;
                     _prerender = site.Prerender;
+                    _enhancedNavigation = site.EnhancedNavigation;
                     _fingerprint = site.Fingerprint;
 
                     var cookieConsentSettings = SettingService.GetSetting(site.Settings, "CookieConsent", string.Empty);

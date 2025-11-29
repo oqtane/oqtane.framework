@@ -116,6 +116,11 @@ namespace Oqtane.Models
         public bool Hybrid { get; set; }
 
         /// <summary>
+        /// Indicates if enhanced navigation should be used with static rendering
+        /// </summary>
+        public bool EnhancedNavigation { get; set; }
+
+        /// <summary>
         /// Keeps track of site configuration changes and is used by the ISiteMigration interface
         /// </summary>
         public string Version { get; set; }
@@ -222,6 +227,7 @@ namespace Oqtane.Models
                 Runtime = Runtime,
                 Prerender = Prerender,
                 Hybrid = Hybrid,
+                EnhancedNavigation = EnhancedNavigation,
                 Version = Version,
                 HomePageId = HomePageId,
                 HeadContent = HeadContent,
