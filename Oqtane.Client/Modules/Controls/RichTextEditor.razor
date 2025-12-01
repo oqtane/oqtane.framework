@@ -7,7 +7,7 @@
 @inject ISettingService SettingService
 @inject IStringLocalizer<RichTextEditor> Localizer 
 
-<div class="row" style="margin-bottom: 50px;">
+<div class="row" style="@_style">
     <div class="col">
         @_textEditorComponent
     </div>
@@ -17,6 +17,8 @@
     private string _textEditorType;
     private RenderFragment _textEditorComponent;
     private ITextEditor _textEditor;
+
+    private string _style = "margin-bottom: 50px;";
 
     [Parameter]
     public string Content { get; set; }
@@ -30,6 +32,9 @@
     [Parameter]
     public string Provider { get; set; }
 
+    [Parameter]
+    public string Style { get; set; } // optional
+
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object> AdditionalAttributes { get; set; } = new Dictionary<string, object>();
 
@@ -40,6 +45,12 @@
 
     protected override void OnParametersSet()
     {
+
+        if (!string.IsNullOrEmpty(Style))
+        {
+            _style = Style;
+        }
+
         _textEditorComponent = (builder) =>
         {
             CreateTextEditor(builder);
