@@ -186,7 +186,7 @@ namespace Oqtane.Infrastructure
                                     var mailboxAddressValidationError = "";
 
                                     // sender
-                                    if (settingRepository.GetSettingValue(settings, "SMTPRelay", "False") != "True")
+                                    if (settingRepository.GetSettingValue(settings, "SMTPRelay", "False") == "True")
                                     {
                                         fromEmail = settingRepository.GetSettingValue(settings, "SMTPSender", "");
                                         fromName = string.IsNullOrEmpty(fromName) ? site.Name : fromName;
