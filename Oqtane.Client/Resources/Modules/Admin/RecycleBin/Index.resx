@@ -204,7 +204,7 @@
   <data name="Success.Page.Delete" xml:space="preserve">
     <value>Page Deleted Successfully</value>
   </data>
-  <data name="Success.Pages.Deleted" xml:space="preserve">
+  <data name="Success.Pages.Delete" xml:space="preserve">
     <value>All Pages Deleted Successfully</value>
   </data>
   <data name="Success.Module.Restore" xml:space="preserve">
