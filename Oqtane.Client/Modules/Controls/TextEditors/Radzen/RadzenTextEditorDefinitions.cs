@@ -31,6 +31,7 @@ namespace Oqtane.Modules.Controls
             { "FormatBlock", (builder, sequence) => CreateFragment(builder, sequence, "FormatBlock", "RadzenHtmlEditorFormatBlock") },
             { "Indent", (builder, sequence) => CreateFragment(builder, sequence, "Indent", "RadzenHtmlEditorIndent") },
             { "InsertImage", (builder, sequence) => CreateFragment(builder, sequence, "InsertImage", "RadzenHtmlEditorCustomTool", "InsertImage", "image") },
+            { "Bold", (builder, sequence) => CreateFragment(builder, sequence, "Italic", "RadzenHtmlEditorBold") },
             { "Italic", (builder, sequence) => CreateFragment(builder, sequence, "Italic", "RadzenHtmlEditorItalic") },
             { "Justify", (builder, sequence) => CreateFragment(builder, sequence, "Justify", "RadzenHtmlEditorJustify") },
             { "Link", (builder, sequence) => CreateFragment(builder, sequence, "InsertLink", "RadzenHtmlEditorCustomTool", "InsertLink", "insert_link") },
