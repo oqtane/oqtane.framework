@@ -683,7 +683,7 @@
                 {
                     var tenants = await TenantService.GetTenantsAsync();
                     var _databases = await DatabaseService.GetDatabasesAsync();
-                    var tenant = tenants.Find(item => item.TenantId == site.TenantId);
+                    var tenant = tenants.Find(item => item.TenantId == PageState.Alias.TenantId);
                     if (tenant != null)
                     {
                         _tenant = tenant.Name;
@@ -886,17 +886,17 @@
         try
         {
             var aliases = await AliasService.GetAliasesAsync();
-            if (aliases.Any(item => item.SiteId != PageState.Site.SiteId || item.TenantId != PageState.Site.TenantId))
+            if (aliases.Any(item => item.SiteId != PageState.Site.SiteId || item.TenantId != PageState.Alias.TenantId))
             {
                 await SiteService.DeleteSiteAsync(PageState.Site.SiteId);
                 await logger.LogInformation("Site Deleted {SiteId}", PageState.Site.SiteId);
 
-                foreach (Alias alias in aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Site.TenantId))
+                foreach (Alias alias in aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Alias.TenantId))
                 {
                     await AliasService.DeleteAliasAsync(alias.AliasId);
                 }
 
-                var redirect = aliases.First(item => item.SiteId != PageState.Site.SiteId || item.TenantId != PageState.Site.TenantId);
+                var redirect = aliases.First(item => item.SiteId != PageState.Site.SiteId || item.TenantId != PageState.Alias.TenantId);
                 NavigationManager.NavigateTo(PageState.Uri.Scheme + "://" + redirect.Name, true);
             }
             else
@@ -993,7 +993,7 @@
         if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
         {
             _aliases = await AliasService.GetAliasesAsync();
-            _aliases = _aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Site.TenantId).OrderBy(item => item.AliasId).ToList();
+            _aliases = _aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Alias.TenantId).OrderBy(item => item.AliasId).ToList();
         }
     }
 
@@ -1046,7 +1046,7 @@
                 {
                     if (_aliasid == 0)
                     {
-                        alias = new Alias { SiteId = PageState.Site.SiteId, TenantId = PageState.Site.TenantId, Name = _aliasname, IsDefault = bool.Parse(_defaultalias) };
+                        alias = new Alias { SiteId = PageState.Site.SiteId, TenantId = PageState.Alias.TenantId, Name = _aliasname, IsDefault = bool.Parse(_defaultalias) };
                         await AliasService.AddAliasAsync(alias);
                     }
                     else
