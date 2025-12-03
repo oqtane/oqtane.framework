@@ -148,6 +148,8 @@ namespace Oqtane.Services
 
                 // installation date used for fingerprinting static assets
                 site.Fingerprint = Utilities.GenerateSimpleHash(_configManager.GetSetting("InstallationDate", DateTime.UtcNow.ToString("yyyyMMddHHmm")));
+
+                site.TenantId = alias.TenantId;
             }
             else
             {
@@ -181,7 +183,7 @@ namespace Oqtane.Services
             {
                 var alias = _tenantManager.GetAlias();
                 var current = _sites.GetSite(site.SiteId, false);
-                if (site.SiteId == alias.SiteId && site.TenantId == alias.TenantId && current != null)
+                if (site.SiteId == alias.SiteId && current != null)
                 {
                     site = _sites.UpdateSite(site);
                     _syncManager.AddSyncEvent(alias, EntityNames.Site, site.SiteId, SyncEventActions.Update);

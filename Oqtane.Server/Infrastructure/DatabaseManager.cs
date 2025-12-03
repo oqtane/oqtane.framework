@@ -579,7 +579,6 @@ namespace Oqtane.Infrastructure
 
                             site = new Site
                             {
-                                TenantId = tenant.TenantId,
                                 Name = install.SiteName,
                                 LogoFileId = null,
                                 FaviconFileId = null,
@@ -596,7 +595,8 @@ namespace Oqtane.Infrastructure
                                 RenderMode = rendermode,
                                 Runtime = runtime,
                                 Prerender = (rendermode == RenderModes.Interactive),
-                                Hybrid = false
+                                Hybrid = false,
+                                TenantId = tenant.TenantId
                             };
                             site = sites.AddSite(site);
 
