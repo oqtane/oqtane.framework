@@ -193,6 +193,12 @@ namespace Oqtane.Models
         public List<Theme> Themes { get; set; }
 
         /// <summary>
+        /// Current user
+        /// </summary>
+        [NotMapped]
+        public User User { get; set; }
+
+        /// <summary>
         /// fingerprint for framework static assets
         /// </summary>
         [NotMapped]
@@ -246,6 +252,7 @@ namespace Oqtane.Models
                 Pages = Pages.ConvertAll(page => page.Clone()),
                 Languages = Languages.ConvertAll(language => language.Clone()),
                 Themes = Themes,
+                User = User.Clone(),
                 Fingerprint = Fingerprint,
                 TenantId = TenantId
             };

@@ -29,8 +29,6 @@ namespace Oqtane.UI
         public bool Refresh {  get; set; }
         public bool AllowCookies { get; set; }
 
-        public int? StatusCode { get; set; }
-
         public List<Page> Pages
         {
             get { return Site?.Pages; }
@@ -65,8 +63,7 @@ namespace Oqtane.UI
                 IsInternalNavigation = IsInternalNavigation,
                 RenderId = RenderId,
                 Refresh = Refresh,
-                AllowCookies = AllowCookies,
-                StatusCode = StatusCode
+                AllowCookies = AllowCookies
             };
         }
     }

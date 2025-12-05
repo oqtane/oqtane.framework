@@ -60,7 +60,7 @@
         }
         @((MarkupString)_headResources)
     </head>
-    <body data-enhance-nav="@_enhancedNavigation.ToString().ToLower()">
+    <body @attributes="_bodyAttributes">
         @if (string.IsNullOrEmpty(_message))
         {
             @if (_renderMode == RenderModes.Static)
@@ -97,7 +97,7 @@
     private string _renderMode = RenderModes.Interactive;
     private string _runtime = Runtimes.Server;
     private bool _prerender = true;
-    private bool _enhancedNavigation = true;
+    Dictionary<string, object> _bodyAttributes { get; set; } = new();
     private string _fingerprint = "";
     private int _visitorId = -1;
     private string _antiForgeryToken = "";
@@ -142,7 +142,10 @@
                     _renderMode = site.RenderMode;
                     _runtime = site.Runtime;
                     _prerender = site.Prerender;
-                    _enhancedNavigation = site.EnhancedNavigation;
+                    if (_renderMode == RenderModes.Static && !site.EnhancedNavigation)
+                    {
+                        _bodyAttributes.Add("data-enhance-nav", "false");
+                    }
                     _fingerprint = site.Fingerprint;
 
                     var cookieConsentSettings = SettingService.GetSetting(site.Settings, "CookieConsent", string.Empty);
@@ -234,7 +237,7 @@
                         Site = site,
                         Page = page,
                         Modules = modules,
-                        User = null,
+                        User = site.User,
                         Uri = new Uri(url, UriKind.Absolute),
                         Route = route,
                         QueryString = Utilities.ParseQueryString(route.Query),
@@ -251,7 +254,6 @@
                         IsInternalNavigation = false,
                         RenderId = Guid.NewGuid(),
                         Refresh = true,
-                        StatusCode = Context.Response.StatusCode,
                         AllowCookies = _allowCookies
                     };
                 }
