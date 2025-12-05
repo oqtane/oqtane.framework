@@ -8,6 +8,18 @@ namespace Oqtane.Extensions
     {
         // extension methods cannot be properties - the methods below must include a () suffix when referenced
 
+        public static bool IsAuthenticated(this ClaimsPrincipal claimsPrincipal)
+        {
+            if (claimsPrincipal.Identity != null)
+            {
+                return claimsPrincipal.Identity.IsAuthenticated;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public static string Username(this ClaimsPrincipal claimsPrincipal)
         {
             if (claimsPrincipal.HasClaim(item => item.Type == ClaimTypes.Name))
