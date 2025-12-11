@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Oqtane.Client" Version="10.0.0" />
+    <PackageReference Include="Oqtane.Client" Version="10.0.1" />
   </ItemGroup>
 
 </Project>
