@@ -13,7 +13,7 @@
             {
                 string url = NavigateUrl(p.Path);
                 <div class="col-md-2 mx-auto text-center my-3">
-                    <NavLink class="nav-link text-body" href="@url" Match="NavLinkMatch.All">
+                    <NavLink class="nav-link text-body" href="@url" Match="NavLinkMatch.All" @attributes="_attributes">
                         <h2><span class="@p.Icon" aria-hidden="true"></span></h2>
                         <div class="lead">@((MarkupString)SharedLocalizer[p.Name].ToString().Replace(" ", "<br />"))</div>
                     </NavLink>
@@ -24,13 +24,19 @@
 }
 
 @code {
-	private List<Page> _pages;
+    Dictionary<string, object> _attributes { get; set; } = new();
+    private List<Page> _pages;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
     public override string RenderMode => RenderModes.Static;
 
 	protected override void OnInitialized()
 	{
+        if (PageState.RenderMode == RenderModes.Static && !PageState.Site.EnhancedNavigation)
+        {
+            _attributes.Add("data-enhance-nav", "true"); // Admin Dashboard utilizes enhanced navigation 
+        }
+
 		var admin = PageState.Pages.FirstOrDefault(item => item.Path == "admin");
 		if (admin != null)
 		{
