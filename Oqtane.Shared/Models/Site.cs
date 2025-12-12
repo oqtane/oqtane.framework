@@ -252,7 +252,7 @@ namespace Oqtane.Models
                 Pages = Pages.ConvertAll(page => page.Clone()),
                 Languages = Languages.ConvertAll(language => language.Clone()),
                 Themes = Themes,
-                User = User.Clone(),
+                User = User?.Clone(),
                 Fingerprint = Fingerprint,
                 TenantId = TenantId
             };
