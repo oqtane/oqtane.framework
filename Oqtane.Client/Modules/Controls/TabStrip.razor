@@ -96,16 +96,22 @@
     /// <returns>True if user is authorized to see this tab, false otherwise</returns>
     private bool IsAuthorized(TabPanel tabPanel)
     {
-        // Step 1: Host and Admin bypass all restrictions
-        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host) ||
-            UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
+        // Step 1: Check for Host-only restriction
+        if (tabPanel.Security == SecurityAccessLevel.Host)
+        {
+            // Only Host users can access Host-level security tabs (Admin users are excluded)
+            return UserSecurity.IsAuthorized(PageState.User, RoleNames.Host);
+        }
+
+        // Step 2: Admin bypass all other restrictions
+        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
         {
             return true;
         }
 
         var authorized = false;
 
-        // Step 2: Check standard SecurityAccessLevel
+        // Step 3: Check standard SecurityAccessLevel
         switch (tabPanel.Security)
         {
             case null:
@@ -120,15 +126,18 @@
             case SecurityAccessLevel.Edit:
                 authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList);
                 break;
+            case SecurityAccessLevel.Host:
+                authorized = UserSecurity.IsAuthorized(PageState.User, RoleNames.Host);
+                break;
         }
 
-        // Step 3: Check RoleName if provided (additional requirement)
+        // Step 4: Check RoleName if provided (additional requirement)
         if (authorized && !string.IsNullOrEmpty(tabPanel.RoleName))
         {
             authorized = UserSecurity.IsAuthorized(PageState.User, tabPanel.RoleName);
         }
 
-        // Step 4: Check PermissionName if provided (additional requirement)
+        // Step 5: Check PermissionName if provided (additional requirement)
         if (authorized && !string.IsNullOrEmpty(tabPanel.PermissionName))
         {
             authorized = UserSecurity.IsAuthorized(PageState.User, tabPanel.PermissionName, ModuleState.PermissionList);
