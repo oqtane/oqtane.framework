@@ -30,6 +30,12 @@ else
     [Parameter]
     public SecurityAccessLevel? Security { get; set; } // optional - can be used to specify SecurityAccessLevel
 
+    [Parameter]
+    public string RoleName { get; set; } // optional - can be used to specify Role allowed to view this tab
+
+    [Parameter]
+    public string PermissionName { get; set; } // optional - can be used to specify Permission allowed to view this tab
+
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
