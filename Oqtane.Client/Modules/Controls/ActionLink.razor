@@ -8,17 +8,17 @@
 {
     if (Disabled)
     {
-        <NavLink class="@($"{_classname} disabled")" href="@_url" style="@_style">@((MarkupString)_iconSpan) @_text</NavLink>
+        <NavLink class="@($"{_classname} disabled")" title="@AltText" href="@_url" style="@_style">@((MarkupString)_iconSpan) @_text</NavLink>
 	}
 	else
 	{
 		if (OnClick == null)
 		{
-			<NavLink class="@_classname" href="@_url" style="@_style">@((MarkupString)_iconSpan) @_text</NavLink>
+            <NavLink class="@_classname" title="@AltText" href="@_url" style="@_style">@((MarkupString)_iconSpan) @_text</NavLink>
 		}
 		else
 		{
-			<button type="button" class="@_classname" style="@_style" onclick="@OnClick">@((MarkupString)_iconSpan) @_text</button>
+            <button type="button" class="@_classname" title="@AltText" style="@_style" onclick="@OnClick">@((MarkupString)_iconSpan) @_text</button>
 		}
 	}
 }
@@ -41,6 +41,9 @@
 
     [Parameter]
     public string Text { get; set; } // optional - defaults to Action if not specified
+
+    [Parameter]
+    public string AltText { get; set; } // optional 
 
     [Parameter]
     public int ModuleId { get; set; } = -1; // optional - allows the link to target a specific moduleid
