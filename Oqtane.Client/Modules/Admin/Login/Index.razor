@@ -14,93 +14,133 @@
 }
 else
 {
-    @if (!twofactor)
-    {
-        <form @ref="login" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
-            <div class="Oqtane-Modules-Admin-Login" @onkeypress="@(e => KeyPressed(e))">
-                @if (_allowexternallogin)
-                {
-                    <button type="button" class="btn btn-primary col-12" @onclick="ExternalLogin">@Localizer["Use"] @PageState.Site.Settings["ExternalLogin:ProviderName"]</button>
-                    <hr class="app-rule mt-3 mb-2" />
-                }
-                @if (_allowsitelogin)
-                {
-                    <div class="form-group text-center">
-                        <Label Class="control-label" For="username" HelpText="Please enter your Username" ResourceKey="Username">Username:</Label>
-                        <input id="username" type="text" @ref="username" class="form-control" placeholder="@Localizer["Username.Placeholder"]" @bind="@_username" @bind:event="oninput" required />
-                    </div>
-                    <div class="form-group text-center mt-2">
-                        <Label Class="control-label" For="password" HelpText="Please enter your Password" ResourceKey="Password">Password:</Label>
-                        <div class="input-group">
-                            <input id="password" type="@_passwordtype" name="Password" class="form-control" placeholder="@Localizer["Password.Placeholder"]" @bind="@_password" @bind:event="oninput" required />
-                            <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
-                        </div>
-                    </div>
-                    @if (!_alwaysremember)
+    <form @ref="login" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+        <div class="Oqtane-Modules-Admin-Login" @onkeypress="@(e => KeyPressed(e))">
+            @switch (_action)
+            {
+                case "Login":
+                    @if (_allowexternallogin)
                     {
+                        <button type="button" class="btn btn-primary col-12" @onclick="ExternalLogin">@Localizer["Use"] @PageState.Site.Settings["ExternalLogin:ProviderName"]</button>
+                        <hr class="app-rule mt-3 mb-2" />
+                    }
+                    @if (_allowsitelogin)
+                    {
+                        <div class="form-group text-center">
+                            <Label Class="control-label" For="username" HelpText="Please enter your Username" ResourceKey="Username">Username:</Label>
+                            <input id="username" type="text" @ref="username" class="form-control" placeholder="@Localizer["Username.Placeholder"]" @bind="@_username" @bind:event="oninput" required />
+                        </div>
                         <div class="form-group text-center mt-2">
-                            <div>
-                                <input id="remember" type="checkbox" class="form-check-input" @bind="@_remember" />
-                                <Label Class="control-label" For="remember" HelpText="Specify if you would like to be signed back in automatically the next time you visit this site" ResourceKey="Remember">Remember Me?</Label>
+                            <Label Class="control-label" For="password" HelpText="Please enter your Password" ResourceKey="Password">Password:</Label>
+                            <div class="input-group">
+                                <input id="password" type="@_passwordtype" @ref="password" name="Password" class="form-control" placeholder="@Localizer["Password.Placeholder"]" @bind="@_password" @bind:event="oninput" required />
+                                <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglepassword</button>
                             </div>
                         </div>
+                        @if (!_alwaysremember)
+                        {
+                            <div class="form-group text-center mt-2">
+                                <div>
+                                    <input id="remember" type="checkbox" class="form-check-input" @bind="@_remember" />
+                                    <Label Class="control-label" For="remember" HelpText="Specify if you would like to be signed back in automatically the next time you visit this site" ResourceKey="Remember">Stay Signed In?</Label>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="btn-group mt-2 col-12" role="group">
+                            <button type="button" class="btn btn-primary col-6" @onclick="Login">@SharedLocalizer["Login"]</button>
+                            <button type="button" class="btn btn-secondary col-6" @onclick="CancelLogin">@SharedLocalizer["Cancel"]</button>
+                        </div>
+
+                        <button type="button" class="btn btn-secondary col-12 mt-4" @onclick="@(() => SetAction("ForgotPassword"))">@Localizer["ForgotPassword"]</button>
                     }
 
-                    <div class="btn-group mt-2 col-12" role="group">
-                        <button type="button" class="btn btn-primary col-6" @onclick="Login">@SharedLocalizer["Login"]</button>
-                        <button type="button" class="btn btn-secondary col-6" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
-                    </div>
-                    <button type="button" class="btn btn-secondary col-12 mt-4" @onclick="Forgot">@Localizer["ForgotPassword"]</button>
+                    @if (_allowloginlink)
+                    {
+                        <hr class="app-rule mt-3" />
+                        <button type="button" class="btn btn-primary col-12 mt-2" @onclick="@(() => SetAction("LoginLink"))">@Localizer["UseLoginLink"]</button>
+                    }
 
                     @if (_allowpasskeys)
                     {
                         <hr class="app-rule mt-3" />
-                        <button type="button" class="btn btn-primary col-12 mt-2" @onclick="Passkey">@Localizer["Passkey"]</button>
+                        <button type="button" class="btn btn-primary col-12 mt-2" @onclick="PasskeyLogin">@Localizer["Passkey"]</button>
                     }
 
                     @if (PageState.Site.AllowRegistration)
-                    { 
+                    {
                         <hr class="app-rule mt-3" />
                         <div class="text-center mt-2">
                             <NavLink href="@_registerurl">@Localizer["Register"]</NavLink>
                         </div>
                     }
-                }
-            </div>
-        </form>
-    }
-    else
-    {
-        <form @ref="login" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
-            <div class="container Oqtane-Modules-Admin-Login">
-                <div class="form-group">
-                    <Label Class="control-label" For="code" HelpText="Please enter the secure verification code which was sent to you by email" ResourceKey="Code">Verification Code:</Label>
-                    <input id="code" class="form-control" @bind="@_code" placeholder="@Localizer["Code.Placeholder"]" maxlength="6" required />
-                </div>
-                <br />
-                <button type="button" class="btn btn-primary" @onclick="Login">@SharedLocalizer["Login"]</button>
-                <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Cancel"]</button>
-            </div>
-        </form>
-    }
+                    break;
+                case "ForgotPassword":
+                    <div class="form-group text-center">
+                        <Label Class="control-label" For="username" HelpText="Please enter your Username" ResourceKey="Username">Username:</Label>
+                        <input id="username" type="text" class="form-control" placeholder="@Localizer["Username.Placeholder"]" @bind="@_username" @bind:event="oninput" required />
+                    </div>
+                    <div class="btn-group mt-4 col-12" role="group">
+                        <button type="button" class="btn btn-primary col-6" @onclick="ForgotPassword">@SharedLocalizer["Send"]</button>
+                        <button type="button" class="btn btn-secondary col-6" @onclick="@(() => SetAction("Login"))">@SharedLocalizer["Cancel"]</button>
+                    </div>
+                    <button type="button" class="btn btn-secondary col-12 mt-4" @onclick="@(() => SetAction("ForgotUsername"))">@Localizer["ForgotUsername"]</button>
+                    break;
+                case "ForgotUsername":
+                    <div class="form-group text-center">
+                        <Label Class="control-label" For="email" HelpText="Please enter your Email" ResourceKey="Email">Email:</Label>
+                        <input id="email" type="text" class="form-control" placeholder="@Localizer["Email.Placeholder"]" @bind="@_email" required />
+                    </div>
+                    <div class="btn-group mt-4 col-12" role="group">
+                        <button type="button" class="btn btn-primary col-6" @onclick="ForgotUsername">@SharedLocalizer["Send"]</button>
+                        <button type="button" class="btn btn-secondary col-6" @onclick="@(() => SetAction("Login"))">@SharedLocalizer["Cancel"]</button>
+                    </div>
+                    break;
+                case "LoginLink":
+                    <div class="form-group text-center">
+                        <Label Class="control-label" For="email" HelpText="Please enter your Email" ResourceKey="Email">Email:</Label>
+                        <input id="email" type="text" class="form-control" placeholder="@Localizer["Email.Placeholder"]" @bind="@_email" required />
+                    </div>
+                    <div class="btn-group mt-4 col-12" role="group">
+                        <button type="button" class="btn btn-primary col-6" @onclick="LoginLink">@SharedLocalizer["Send"]</button>
+                        <button type="button" class="btn btn-secondary col-6" @onclick="@(() => SetAction("Login"))">@SharedLocalizer["Cancel"]</button>
+                    </div>
+                    break;
+                case "TwoFactor":
+                    <div class="form-group">
+                        <Label Class="control-label" For="code" HelpText="Please enter the secure verification code which was sent to you by email" ResourceKey="Code">Verification Code:</Label>
+                        <input id="code" class="form-control" @bind="@_code" placeholder="@Localizer["Code.Placeholder"]" maxlength="6" required />
+                    </div>
+                    <div class="btn-group mt-4 col-12" role="group">
+                        <button type="button" class="btn btn-primary" @onclick="Login">@SharedLocalizer["Login"]</button>
+                        <button type="button" class="btn btn-secondary" @onclick="@(() => SetAction("Login"))">@SharedLocalizer["Cancel"]</button>
+                    </div>
+                    break;
+            }
+        </div>
+    </form>
 }
 
 @code {
-    private bool _allowsitelogin = true;
+    private string _action = "Login";
     private bool _allowexternallogin = false;
+    private bool _allowsitelogin = true;
+    private bool _allowloginlink = false;
     private bool _allowpasskeys = false;
+
     private ElementReference login;
     private bool validated = false;
-    private bool twofactor = false;
     private string _username = string.Empty;
     private ElementReference username;
     private string _password = string.Empty;
     private string _passwordtype = "password";
     private string _togglepassword = string.Empty;
+    private ElementReference password;
     private bool _remember = false;
     private bool _alwaysremember = false;
-    private string _code = string.Empty;
     private string _registerurl = string.Empty;
+    private string _email = string.Empty;
+    private string _code = string.Empty;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
     public override bool? Prerender => true;
@@ -116,6 +156,7 @@ else
         {
             _allowexternallogin = (SettingService.GetSetting(PageState.Site.Settings, "ExternalLogin:ProviderType", "") != "") ? true : false;
             _allowsitelogin = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AllowSiteLogin", "true"));
+            _allowloginlink = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:LoginLink", "false"));
             _allowpasskeys = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:Passkeys", "false"));
             _alwaysremember = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AlwaysRemember", "false"));
 
@@ -186,6 +227,45 @@ else
         }
     }
 
+    private async Task KeyPressed(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter" || e.Code == "NumpadEnter")
+        {
+            switch (_action)
+            {
+                case "Login":
+                    await Login();
+                    break;
+            }
+        }
+    }
+
+    private void SetAction(string action)
+    {
+        _action = action;
+        ClearModuleMessage();
+        StateHasChanged();
+    }
+
+    private void ExternalLogin()
+    {
+        NavigationManager.NavigateTo(Utilities.TenantUrl(PageState.Alias, "/pages/external?returnurl=" + WebUtility.UrlEncode(PageState.ReturnUrl)), true);
+    }
+
+    private void TogglePassword()
+    {
+        if (_passwordtype == "password")
+        {
+            _passwordtype = "text";
+            _togglepassword = SharedLocalizer["HidePassword"];
+        }
+        else
+        {
+            _passwordtype = "password";
+            _togglepassword = SharedLocalizer["ShowPassword"];
+        }
+    }
+
     private async Task Login()
     {
         try
@@ -197,7 +277,7 @@ else
                 var hybrid = (PageState.Runtime == Shared.Runtime.Hybrid);
                 var user = new User { SiteId = PageState.Site.SiteId, Username = _username, Password = _password, LastIPAddress = SiteState.RemoteIPAddress};
 
-                if (!twofactor)
+                if (_action == "Login")
                 { 
                     _remember = _alwaysremember || _remember;
                     user = await UserService.LoginUserAsync(user, hybrid, _remember);
@@ -233,13 +313,13 @@ else
                 {
                     if (SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:TwoFactor", "false") == "required" || (user != null && user.TwoFactorRequired))
                     {
-                        twofactor = true;
+                        _action = "TwoFactor";
                         validated = false;
                         AddModuleMessage(Localizer["Message.TwoFactor"], MessageType.Info);
                     }
                     else
                     {
-                        if (!twofactor)
+                        if (_action != "TwoFactor")
                         {
                             await logger.LogInformation(LogFunction.Security, "Login Failed For Username {Username}", _username);
                             AddModuleMessage(Localizer["Error.Login.Fail"], MessageType.Error);
@@ -264,23 +344,32 @@ else
         }
     }
 
-    private void Cancel()
+    private void CancelLogin()
     {
         NavigationManager.NavigateTo(PageState.ReturnUrl);
     }
 
-    private async Task Forgot()
+    private async Task PasskeyLogin()
+    {
+        // post back to the Passkey page so that the cookies are set correctly
+        var interop = new Interop(JSRuntime);
+        var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, operation = "request", returnurl = NavigateUrl() };
+        string url = Utilities.TenantUrl(PageState.Alias, "/pages/passkey/");
+        await interop.SubmitForm(url, fields);
+    }
+
+    private async Task ForgotPassword()
     {
         try
         {
-            if (_username != string.Empty)
+            if (!string.IsNullOrEmpty(_username))
             {
-                var user = await UserService.GetUserAsync(_username, PageState.Site.SiteId);
+                var user = new User { Username = _username };
+                user = await UserService.ForgotPasswordAsync(user);
                 if (user != null)
                 {
-                    await UserService.ForgotPasswordAsync(user);
                     await logger.LogInformation(LogFunction.Security, "Password Reset Notification Sent For Username {Username}", _username);
-                    AddModuleMessage(Localizer["Message.ForgotUser"], MessageType.Info);
+                    AddModuleMessage(Localizer["Message.ForgotPassword"], MessageType.Info);
                 }
                 else
                 {
@@ -289,10 +378,8 @@ else
             }
             else
             {
-                AddModuleMessage(Localizer["Message.ForgotPassword"], MessageType.Info);
+                AddModuleMessage(Localizer["Message.Required.UserInfo"], MessageType.Warning);
             }
-
-            StateHasChanged();
         }
         catch (Exception ex)
         {
@@ -301,49 +388,64 @@ else
         }
     }
 
-    private void Reset()
+    private async Task ForgotUsername()
     {
-        twofactor = false;
-        _username = "";
-        _password = "";
-        ClearModuleMessage();
-        StateHasChanged();
-    }
-
-    private async Task KeyPressed(KeyboardEventArgs e)
-    {
-        if (e.Code == "Enter" || e.Code == "NumpadEnter")
+        try
         {
-            await Login();
+            if (!string.IsNullOrEmpty(_email))
+            {
+                var user = new User { Email = _email };
+                user = await UserService.ForgotUsernameAsync(user);
+                if (user != null)
+                {
+                    AddModuleMessage(Localizer["Message.ForgotUsername"], MessageType.Info);
+                    await logger.LogInformation(LogFunction.Security, "Username Reminder Notification Sent For Email {Email}", _email);
+                }
+                else
+                {
+                    AddModuleMessage(Localizer["Message.UserDoesNotExist"], MessageType.Warning);
+                }
+            }
+            else
+            {
+                AddModuleMessage(Localizer["Message.Required.UserInfo"], MessageType.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Sending Username Reminder {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.ForgotUsername"], MessageType.Error);
         }
     }
 
-    private void TogglePassword()
+    private async Task LoginLink()
     {
-        if (_passwordtype == "password")
+        try
         {
-            _passwordtype = "text";
-            _togglepassword = SharedLocalizer["HidePassword"];
+            if (!string.IsNullOrEmpty(_email))
+            {
+                var user = new User { Email = _email };
+                user = await UserService.SendLoginLinkAsync(user);
+                if (user != null)
+                {
+                    AddModuleMessage(Localizer["Message.SendLoginLink"], MessageType.Info);
+                    await logger.LogInformation(LogFunction.Security, "Login Link Sent To Email {Email}", _email);
+                }
+                else
+                {
+                    AddModuleMessage(Localizer["Message.UserDoesNotExist"], MessageType.Warning);
+                }
+            }
+            else
+            {
+                AddModuleMessage(Localizer["Message.Required.UserInfo"], MessageType.Warning);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            _passwordtype = "password";
-            _togglepassword = SharedLocalizer["ShowPassword"];
+            await logger.LogError(ex, "Error Sending Login Link {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.SendLoginLink"], MessageType.Error);
         }
-    }
-
-    private void ExternalLogin()
-    {
-        NavigationManager.NavigateTo(Utilities.TenantUrl(PageState.Alias, "/pages/external?returnurl=" + WebUtility.UrlEncode(PageState.ReturnUrl)), true);
-    }
-
-    private async Task Passkey()
-    {
-        // post back to the Passkey page so that the cookies are set correctly
-        var interop = new Interop(JSRuntime);
-        var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, operation = "request", returnurl = NavigateUrl() };
-        string url = Utilities.TenantUrl(PageState.Alias, "/pages/passkey/");
-        await interop.SubmitForm(url, fields);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -377,11 +479,21 @@ else
             return;
         }
 
-        if (firstRender && PageState.User == null && _allowsitelogin)
+        if (firstRender && PageState.User == null && _allowsitelogin && _action == "Login")
         {
-            if (!string.IsNullOrEmpty(username.Id)) // ensure username is visible in UI
+            if (string.IsNullOrEmpty(_username))
             {
-                await username.FocusAsync();
+                if (!string.IsNullOrEmpty(username.Id)) // ensure username is visible in UI
+                {
+                    await username.FocusAsync();
+                }
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(password.Id)) // ensure password is visible in UI
+                {
+                    await password.FocusAsync();
+                }
             }
         }
 

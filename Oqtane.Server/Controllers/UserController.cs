@@ -296,12 +296,24 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>/forgot
         [HttpPost("forgot")]
-        public async Task Forgot([FromBody] User user)
+        public async Task<User> Forgot([FromBody] User user)
         {
             if (ModelState.IsValid)
             {
-                await _userManager.ForgotPassword(user);
+                return await _userManager.ForgotPassword(user);
             }
+            return null;
+        }
+
+        // POST api/<controller>/forgotusername
+        [HttpPost("forgotusername")]
+        public async Task<User> ForgotUsername([FromBody] User user)
+        {
+            if (ModelState.IsValid)
+            {
+                return await _userManager.ForgotUsername(user);
+            }
+            return null;
         }
 
         // POST api/<controller>/reset
@@ -558,6 +570,17 @@ namespace Oqtane.Controllers
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized External Login Delete Attempt {UserId} {Provider} {Key}", id, provider, key);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
+        }
+
+        // POST api/<controller>/loginlink
+        [HttpPost("loginlink")]
+        public async Task<User> SendLoginLink([FromBody] User user)
+        {
+            if (ModelState.IsValid)
+            {
+                return await _userManager.SendLoginLink(user);
+            }
+            return null;
         }
     }
 }

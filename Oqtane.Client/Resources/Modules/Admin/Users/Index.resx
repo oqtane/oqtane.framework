@@ -567,4 +567,10 @@
   <data name="Passkeys.HelpText" xml:space="preserve">
     <value>Do you want to allow users to login using passkeys (ie. passwordless authentication using WebAuthn/FIDO2)?</value>
   </data>
+  <data name="LoginLink.Text" xml:space="preserve">
+    <value>Allow Login Link?</value>
+  </data>
+  <data name="LoginLink.HelpText" xml:space="preserve">
+    <value>Do you want to allow users to login using a time sensitive link sent by email?</value>
+  </data>
 </root>
