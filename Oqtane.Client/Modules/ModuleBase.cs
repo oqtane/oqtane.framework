@@ -372,6 +372,11 @@ namespace Oqtane.Modules
         }
 
         // UI methods
+        private static readonly string RenderModeBoundaryErrorMessage =
+            "RenderModeBoundary is not available. This method requires a RenderModeBoundary parameter. " +
+            "If you are using child components, ensure you pass the RenderModeBoundary property to the child component: " +
+            "<ChildComponent RenderModeBoundary=\"RenderModeBoundary\" />";
+
         public void AddModuleMessage(string message, MessageType type)
         {
             AddModuleMessage(message, type, "top");
@@ -389,21 +394,37 @@ namespace Oqtane.Modules
 
         public void AddModuleMessage(string message, MessageType type, string position, MessageStyle style)
         {
+            if (RenderModeBoundary == null)
+            {
+                throw new InvalidOperationException(RenderModeBoundaryErrorMessage);
+            }
             RenderModeBoundary.AddModuleMessage(message, type, position, style);
         }
 
         public void ClearModuleMessage()
         {
+            if (RenderModeBoundary == null)
+            {
+                throw new InvalidOperationException(RenderModeBoundaryErrorMessage);
+            }
             RenderModeBoundary.AddModuleMessage("", MessageType.Undefined);
         }
 
         public void ShowProgressIndicator()
         {
+            if (RenderModeBoundary == null)
+            {
+                throw new InvalidOperationException(RenderModeBoundaryErrorMessage);
+            }
             RenderModeBoundary.ShowProgressIndicator();
         }
 
         public void HideProgressIndicator()
         {
+            if (RenderModeBoundary == null)
+            {
+                throw new InvalidOperationException(RenderModeBoundaryErrorMessage);
+            }
             RenderModeBoundary.HideProgressIndicator();
         }
 
