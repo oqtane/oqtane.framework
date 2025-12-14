@@ -965,7 +965,7 @@ namespace Oqtane.Managers
                 IdentityUser identityuser = await _identityUserManager.FindByEmailAsync(user.Email);
                 if (identityuser != null)
                 {
-                    var token = await _identityUserManager.GenerateTwoFactorTokenAsync(identityuser, "Email");
+                    var token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
 
                     var alias = _tenantManager.GetAlias();
                     user = GetUser(identityuser.UserName, alias.SiteId);
