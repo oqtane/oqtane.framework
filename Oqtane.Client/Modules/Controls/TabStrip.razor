@@ -84,12 +84,37 @@
         }
     }
 
+    /// <summary>
+    /// Determines if a tab should be visible based on user permissions.
+    /// Authorization hierarchy:
+    /// 1. Host and Admin roles ALWAYS have access (bypass all checks)
+    /// 2. Check standard SecurityAccessLevel (View, Edit, etc.)
+    /// 3. If RoleName specified AND user is not Admin/Host, check RoleName
+    /// 4. If PermissionName specified AND user is not Admin/Host, check PermissionName
+    /// </summary>
+    /// <param name="tabPanel">The tab panel to check authorization for</param>
+    /// <returns>True if user is authorized to see this tab, false otherwise</returns>
     private bool IsAuthorized(TabPanel tabPanel)
     {
+        // Step 1: Check for Host-only restriction
+        if (tabPanel.Security == SecurityAccessLevel.Host)
+        {
+            // Only Host users can access Host-level security tabs (Admin users are excluded)
+            return UserSecurity.IsAuthorized(PageState.User, RoleNames.Host);
+        }
+
+        // Step 2: Admin bypass all other restrictions
+        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
+        {
+            return true;
+        }
+
         var authorized = false;
+
+        // Step 3: Check standard SecurityAccessLevel
         switch (tabPanel.Security)
         {
-            case null: // security not specified - assume SecurityAccessLevel.Anonymous
+            case null:
                 authorized = true;
                 break;
             case SecurityAccessLevel.Anonymous:
@@ -101,13 +126,23 @@
             case SecurityAccessLevel.Edit:
                 authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList);
                 break;
-            case SecurityAccessLevel.Admin:
-                authorized = UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin);
-                break;
             case SecurityAccessLevel.Host:
                 authorized = UserSecurity.IsAuthorized(PageState.User, RoleNames.Host);
                 break;
         }
+
+        // Step 4: Check RoleName if provided (additional requirement)
+        if (authorized && !string.IsNullOrEmpty(tabPanel.RoleName))
+        {
+            authorized = UserSecurity.IsAuthorized(PageState.User, tabPanel.RoleName);
+        }
+
+        // Step 5: Check PermissionName if provided (additional requirement)
+        if (authorized && !string.IsNullOrEmpty(tabPanel.PermissionName))
+        {
+            authorized = UserSecurity.IsAuthorized(PageState.User, tabPanel.PermissionName, ModuleState.PermissionList);
+        }
+
         return authorized;
     }
 }
