@@ -121,7 +121,19 @@
     <value>Dear [UserDisplayName]&lt;br&gt;&lt;br&gt;You recently requested to reset your password. Please use the link below to complete the process: &lt;b&gt;&lt;a href="[URL]"&gt;&lt;br&gt;&lt;br&gt;Click here to Reset Password&lt;/a&gt;&lt;/b&gt;&lt;br&gt;&lt;br&gt;Please note that the link is only valid for 24 hours so if you are unable to take action within that time period, you should initiate another password reset on the site.&lt;br&gt;&lt;br&gt;If you did not request to reset your password you can safely ignore this message.&lt;br&gt;&lt;br&gt;Thank You!&lt;br&gt;[SiteName] Team</value>
   </data>
   <data name="ForgotPasswordEmailSubject" xml:space="preserve">
-    <value>Password Reset Notification Sent For [SiteName]</value>
+    <value>Password Reset Notification For [SiteName]</value>
+  </data>
+  <data name="ForgotUsernameEmailBody" xml:space="preserve">
+    <value>Dear [UserDisplayName]&lt;br&gt;&lt;br&gt;You recently requested a username reminder. Please use the link below to complete the process: &lt;b&gt;&lt;a href="[URL]"&gt;&lt;br&gt;&lt;br&gt;Click here to Login&lt;/a&gt;&lt;/b&gt;&lt;br&gt;&lt;br&gt;If you did not request a username reminder you can safely ignore this message.&lt;br&gt;&lt;br&gt;Thank You!&lt;br&gt;[SiteName] Team</value>
+  </data>
+  <data name="ForgotUsernameEmailSubject" xml:space="preserve">
+    <value>Forgotten Username Reminder For [SiteName]</value>
+  </data>
+  <data name="LoginLinkEmailBody" xml:space="preserve">
+    <value>Dear [UserDisplayName]&lt;br&gt;&lt;br&gt;You recently requested a login link. Please use the link below to complete the process: &lt;b&gt;&lt;a href="[URL]"&gt;&lt;br&gt;&lt;br&gt;Click here to Login&lt;/a&gt;&lt;/b&gt;&lt;br&gt;&lt;br&gt;Please note that the link is only valid for 10 minutes so if you are unable to take action within that time period, you should initiate another login link request on the site.&lt;br&gt;&lt;br&gt;If you did not request a login link you can safely ignore this message.&lt;br&gt;&lt;br&gt;Thank You!&lt;br&gt;[SiteName] Team</value>
+  </data>
+  <data name="LoginLinkEmailSubject" xml:space="preserve">
+    <value>Login Link Notification For [SiteName]</value>
   </data>
   <data name="NoVerificationEmailBody" xml:space="preserve">
     <value>Dear [UserDisplayName],&lt;br&gt;&lt;br&gt;A user account has been successfully created for you with the username &lt;b&gt;[Username]&lt;/b&gt;. Please &lt;b&gt;&lt;a href="[URL]"&gt;click here to login&lt;/a&gt;&lt;/b&gt;. If you do not know your password, use the forgot password option on the login page to reset your account.&lt;br&gt;&lt;br&gt;Thank You!&lt;br&gt;[SiteName] Team</value>

@@ -120,6 +120,12 @@
   <data name="ForgotPassword" xml:space="preserve">
     <value>Forgot Password?</value>
   </data>
+  <data name="ForgotUsername" xml:space="preserve">
+    <value>Forgot Username?</value>
+  </data>
+  <data name="UseLoginLink" xml:space="preserve">
+    <value>Use Login Link</value>
+  </data>
   <data name="Success.Account.Verified" xml:space="preserve">
     <value>User Account Email Address Verified Successfully. You Can Now Login With Your Username And Password.</value>
   </data>
@@ -142,16 +148,19 @@
     <value>You Are Already Signed In</value>
   </data>
   <data name="Message.ForgotPassword" xml:space="preserve">
-    <value>Please Enter The Username Related To Your Account And Then Select The Forgot Password Option Again</value>
-  </data>
-  <data name="Message.ForgotUser" xml:space="preserve">
     <value>Please Check The Email Address Associated To Your User Account For A Password Reset Notification</value>
   </data>
+  <data name="Message.ForgotUsername" xml:space="preserve">
+    <value>Please Check Your Email For A Username Reminder Notification</value>
+  </data>
+  <data name="Message.SendLoginLink" xml:space="preserve">
+    <value>A Login Link Has Been Sent To Your Email Address. The Link Is Only Valid For A Limited Amount Of Time.</value>
+  </data>
   <data name="Message.UserDoesNotExist" xml:space="preserve">
-    <value>User Does Not Exist</value>
+    <value>User Does Not Exist For Criteria Specified</value>
   </data>
   <data name="Code.HelpText" xml:space="preserve">
-    <value>Please Enter The Secure Verification Code Which Was Sent To You By Email.</value>
+    <value>Please enter the secure verification code which was sent to you by email</value>
   </data>
   <data name="Code.Placeholder" xml:space="preserve">
     <value>Verification Code</value>
@@ -166,7 +175,7 @@
     <value>A Secure Verification Code Has Been Sent To Your Email Address. Please Enter The Code That You Received. If You Do Not Receive The Code Or You Have Lost Access To Your Email, Please Contact Your Administrator.</value>
   </data>
   <data name="Password.HelpText" xml:space="preserve">
-    <value>Please Enter The Password Related To Your Account. Remember That Passwords Are Case Sensitive. If You Attempt Unsuccessfully To Log In To Your Account Multiple Times, You Will Be Locked Out For A Period Of Time.</value>
+    <value>Please enter the password related to your account. Remember that passwords are sase sensitive. If you attempt to login to your account multiple times unsuccessfully, you will be locked out for a period of time.</value>
   </data>
   <data name="Password.Placeholder" xml:space="preserve">
     <value>Password</value>
@@ -175,13 +184,13 @@
     <value>Password:</value>
   </data>
   <data name="Remember.HelpText" xml:space="preserve">
-    <value>Specify If You Would Like To Be Signed Back In Automatically The Next Time You Visit This Site</value>
+    <value>Specify if you would like to be signed back in automatically the next time you visit this site</value>
   </data>
   <data name="Remember.Text" xml:space="preserve">
-    <value>Remember Me?</value>
+    <value>Stay Signed In?</value>
   </data>
   <data name="Username.HelpText" xml:space="preserve">
-    <value>Please Enter The Username Related To Your Account</value>
+    <value>Please enter the username related to your account</value>
   </data>
   <data name="Username.Placeholder" xml:space="preserve">
     <value>Username</value>
@@ -201,7 +210,13 @@
   <data name="Error.ResetPassword" xml:space="preserve">
     <value>Error Resetting Password</value>
   </data>
-  <data name="ExternalLoginStatus.DuplicateEmail" xml:space="preserve">
+  <data name="Error.ForgotUsername" xml:space="preserve">
+    <value>Error Sending Username Reminder</value>
+  </data>
+  <data name="Error.SendLoginLink" xml:space="preserve">
+    <value>Error Sending Login Link</value>
+  </data>
+    <data name="ExternalLoginStatus.DuplicateEmail" xml:space="preserve">
     <value>Multiple User Accounts Already Exist With The Email Address Of Your External Login. Please Contact Your Administrator For Further Instructions.</value>
   </data>
   <data name="ExternalLoginStatus.MissingClaims" xml:space="preserve">
@@ -228,6 +243,9 @@
   <data name="ExternalLoginStatus.ReviewClaims" xml:space="preserve">
     <value>The Review Claims Option Was Enabled In External Login Settings. Please Visit The Event Log To View The Claims Returned By The Provider.</value>
   </data>
+  <data name="ExternalLoginStatus.LoginLinkFailed" xml:space="preserve">
+    <value>Login Links Are Time Sensitive. Please Request Another Login Link To Complete The Login Process.</value>
+  </data>
   <data name="Register" xml:space="preserve">
     <value>Register as new user?</value>
   </data>
@@ -236,5 +254,14 @@
   </data>
   <data name="Error.Passkey.Fail" xml:space="preserve">
     <value>Passkey Login Was Not Successful</value>
+  </data>
+    <data name="Email.HelpText" xml:space="preserve">
+    <value>Please enter the email address related to your account</value>
+  </data>
+    <data name="Email.Placeholder" xml:space="preserve">
+    <value>Email Address</value>
+  </data>
+    <data name="Email.Text" xml:space="preserve">
+    <value>Email:</value>
   </data>
 </root>

@@ -99,6 +99,15 @@ else
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="loginlink" HelpText="Do you want to allow users to login using a time sensitive link sent by email" ResourceKey="LoginLink">Allow Login Link?</Label>
+                            <div class="col-sm-9">
+                                <select id="loginlink" class="form-select" @bind="@_loginlink">
+                                    <option value="true">@SharedLocalizer["Yes"]</option>
+                                    <option value="false">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="passkeys" HelpText="Do you want to allow users to login using passkeys (ie. passwordless authentication using WebAuthn/FIDO2)" ResourceKey="Passkeys">Allow Passkeys?</Label>
                             <div class="col-sm-9">
                                 <select id="passkeys" class="form-select" @bind="@_passkeys">
@@ -547,6 +556,7 @@ else
     private string _registerurl;
     private string _profileurl;
     private string _requireconfirmedemail;
+    private string _loginlink;
     private string _passkeys;
     private string _twofactor;
     private string _cookiename;
@@ -625,6 +635,7 @@ else
             _registerurl = SettingService.GetSetting(settings, "LoginOptions:RegisterUrl", "");
             _profileurl = SettingService.GetSetting(settings, "LoginOptions:ProfileUrl", "");
             _requireconfirmedemail = SettingService.GetSetting(settings, "LoginOptions:RequireConfirmedEmail", "true");
+            _loginlink = SettingService.GetSetting(settings, "LoginOptions:LoginLink", "false");
             _passkeys = SettingService.GetSetting(settings, "LoginOptions:Passkeys", "false");
             _twofactor = SettingService.GetSetting(settings, "LoginOptions:TwoFactor", "false");
             _cookiename = SettingService.GetSetting(settings, "LoginOptions:CookieName", ".AspNetCore.Identity.Application");
@@ -764,6 +775,7 @@ else
                 settings = SettingService.SetSetting(settings, "LoginOptions:RegisterUrl", _registerurl, false);
                 settings = SettingService.SetSetting(settings, "LoginOptions:ProfileUrl", _profileurl, false);
                 settings = SettingService.SetSetting(settings, "LoginOptions:RequireConfirmedEmail", _requireconfirmedemail, false);
+                settings = SettingService.SetSetting(settings, "LoginOptions:LoginLink", _loginlink, false);
                 settings = SettingService.SetSetting(settings, "LoginOptions:Passkeys", _passkeys, false);
                 settings = SettingService.SetSetting(settings, "LoginOptions:TwoFactor", _twofactor, false);
                 settings = SettingService.SetSetting(settings, "LoginOptions:CookieName", _cookiename, true);

@@ -101,7 +101,14 @@ namespace Oqtane.Services
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        Task ForgotPasswordAsync(User user);
+        Task<User> ForgotPasswordAsync(User user);
+
+        /// <summary>
+        /// Trigger a forgot-username e-mail for this <see cref="User"/>. 
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        Task<User> ForgotUsernameAsync(User user);
 
         /// <summary>
         /// Reset the password of this <see cref="User"/>
@@ -211,6 +218,13 @@ namespace Oqtane.Services
         /// <param name="key"></param>
         /// <returns></returns>
         Task DeleteLoginAsync(int userId, string provider, string key);
+
+        /// <summary>
+        /// Send a login link
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        Task<User> SendLoginLinkAsync(User user);
     }
 
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
@@ -275,9 +289,14 @@ namespace Oqtane.Services
             return await PostJsonAsync<User>($"{Apiurl}/verify?token={token}", user);
         }
 
-        public async Task ForgotPasswordAsync(User user)
+        public async Task<User> ForgotPasswordAsync(User user)
         {
-            await PostJsonAsync($"{Apiurl}/forgot", user);
+            return await PostJsonAsync<User>($"{Apiurl}/forgot", user);
+        }
+
+        public async Task<User> ForgotUsernameAsync(User user)
+        {
+            return await PostJsonAsync<User>($"{Apiurl}/forgotusername", user);
         }
 
         public async Task<User> ResetPasswordAsync(User user, string token)
@@ -365,6 +384,11 @@ namespace Oqtane.Services
         public async Task DeleteLoginAsync(int userId, string provider, string key)
         {
             await DeleteAsync($"{Apiurl}/login?id={userId}&provider={provider}&key={key}");
+        }
+
+        public async Task<User> SendLoginLinkAsync(User user)
+        {
+            return await PostJsonAsync<User>($"{Apiurl}/loginlink", user);
         }
     }
 }
