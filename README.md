@@ -12,7 +12,7 @@ Oqtane is being developed based on some fundamental principles which are outline
 
 # Latest Release
 
-[10.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v10.0.0) was released on November 14, 2025 and is a major release including 77 pull requests by 6 different contributors, pushing the total number of project commits all-time over 7300. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
+[10.0.1](https://github.com/oqtane/oqtane.framework/releases/tag/v10.0.1) was released on December 15, 2025 and is a major release including 38 pull requests by 5 different contributors, pushing the total number of project commits all-time over 7400. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
 # Try It Now!
 
@@ -110,6 +110,9 @@ Connect with other developers, get support, and share ideas by joining the Oqtan
 
 # Roadmap
 This project is open source, and therefore is a work in progress...
+
+[10.0.1](https://github.com/oqtane/oqtane.framework/releases/tag/v10.0.1) (Dec 15, 2025)
+- [x] Stabilization improvements
 
 [10.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v10.0.0) (Nov 14, 2025)
 - [x] Migration to .NET 10
