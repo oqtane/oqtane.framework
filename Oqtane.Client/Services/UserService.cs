@@ -97,11 +97,18 @@ namespace Oqtane.Services
         Task<User> VerifyEmailAsync(User user, string token);
 
         /// <summary>
-        /// Trigger a forgot-password e-mail for this <see cref="User"/>. 
+        /// Trigger a forgot-password e-mail. 
         /// </summary>
-        /// <param name="user"></param>
+        /// <param name="username"></param>
         /// <returns></returns>
-        Task ForgotPasswordAsync(User user);
+        Task<bool> ForgotPasswordAsync(string username);
+
+        /// <summary>
+        /// Trigger a username reminder e-mail. 
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns></returns>
+        Task<bool> ForgotUsernameAsync(string email);
 
         /// <summary>
         /// Reset the password of this <see cref="User"/>
@@ -211,6 +218,13 @@ namespace Oqtane.Services
         /// <param name="key"></param>
         /// <returns></returns>
         Task DeleteLoginAsync(int userId, string provider, string key);
+
+        /// <summary>
+        /// Send a login link
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns></returns>
+        Task<bool> SendLoginLinkAsync(string email);
     }
 
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
@@ -275,9 +289,14 @@ namespace Oqtane.Services
             return await PostJsonAsync<User>($"{Apiurl}/verify?token={token}", user);
         }
 
-        public async Task ForgotPasswordAsync(User user)
+        public async Task<bool> ForgotPasswordAsync(string username)
         {
-            await PostJsonAsync($"{Apiurl}/forgot", user);
+            return await GetJsonAsync<bool>($"{Apiurl}/forgotpassword/{WebUtility.UrlEncode(username)}");
+        }
+
+        public async Task<bool> ForgotUsernameAsync(string email)
+        {
+            return await GetJsonAsync<bool>($"{Apiurl}/forgotusername/{WebUtility.UrlEncode(email)}");
         }
 
         public async Task<User> ResetPasswordAsync(User user, string token)
@@ -365,6 +384,11 @@ namespace Oqtane.Services
         public async Task DeleteLoginAsync(int userId, string provider, string key)
         {
             await DeleteAsync($"{Apiurl}/login?id={userId}&provider={provider}&key={key}");
+        }
+
+        public async Task<bool> SendLoginLinkAsync(string email)
+        {
+            return await GetJsonAsync<bool>($"{Apiurl}/loginlink/{WebUtility.UrlEncode(email)}");
         }
     }
 }

@@ -60,7 +60,7 @@
         }
         @((MarkupString)_headResources)
     </head>
-    <body>
+    <body @attributes="_bodyAttributes">
         @if (string.IsNullOrEmpty(_message))
         {
             @if (_renderMode == RenderModes.Static)
@@ -97,6 +97,7 @@
     private string _renderMode = RenderModes.Interactive;
     private string _runtime = Runtimes.Server;
     private bool _prerender = true;
+    Dictionary<string, object> _bodyAttributes { get; set; } = new();
     private string _fingerprint = "";
     private int _visitorId = -1;
     private string _antiForgeryToken = "";
@@ -141,6 +142,10 @@
                     _renderMode = site.RenderMode;
                     _runtime = site.Runtime;
                     _prerender = site.Prerender;
+                    if (_renderMode == RenderModes.Static && !site.EnhancedNavigation)
+                    {
+                        _bodyAttributes.Add("data-enhance-nav", "false");
+                    }
                     _fingerprint = site.Fingerprint;
 
                     var cookieConsentSettings = SettingService.GetSetting(site.Settings, "CookieConsent", string.Empty);
@@ -170,6 +175,7 @@
                     if (page == null || page.IsDeleted)
                     {
                         HandlePageNotFound(site, page, route);
+                        return;
                     }
                     else
                     {
@@ -231,7 +237,7 @@
                         Site = site,
                         Page = page,
                         Modules = modules,
-                        User = null,
+                        User = site.User,
                         Uri = new Uri(url, UriKind.Absolute),
                         Route = route,
                         QueryString = Utilities.ParseQueryString(route.Query),
@@ -300,8 +306,16 @@
         {
             if (route.PagePath != "404")
             {
-                // redirect to 404 page
-                NavigationManager.NavigateTo(route.SiteUrl + "/404", true);
+                // handle not found request in static mode
+                if(_renderMode == RenderModes.Static)
+                {
+                    NavigationManager.NotFound();
+                }
+                else
+                {
+                    // redirect to 404 page
+                    NavigationManager.NavigateTo(route.SiteUrl + "/404", true);
+                }
             }
         }
     }

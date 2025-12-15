@@ -35,11 +35,11 @@
     {
         if (Disabled)
         {
-            <button type="button" class="@Class" disabled>@((MarkupString)_openIconSpan) @_openText</button>
+            <button type="button" class="@Class" title="@AltText" disabled>@((MarkupString)_openIconSpan) @_openText</button>
         }
         else
         {
-            <button type="button" class="@Class" @onclick="DisplayModal">@((MarkupString)_openIconSpan) @_openText</button>
+            <button type="button" class="@Class" title="@AltText" @onclick="DisplayModal">@((MarkupString)_openIconSpan) @_openText</button>
         }
     }
 }
@@ -83,13 +83,13 @@ else
     {
         if (Disabled)
         {
-            <button type="button" class="@Class" disabled>@((MarkupString)_openIconSpan) @_openText</button>
+            <button type="button" title="@AltText" class="@Class" disabled>@((MarkupString)_openIconSpan) @_openText</button>
         }
         else
         {
             <form method="post" class="app-form-inline" @formname="@($"ActionDialogActionForm:{ModuleState.PageModuleId}:{Id}")" @onsubmit="DisplayModal" data-enhance>
                 <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
-                <button type="submit" class="@Class">@((MarkupString)_openIconSpan) @_openText</button>
+                <button type="submit" title="@AltText" class="@Class">@((MarkupString)_openIconSpan) @_openText</button>
             </form>
         }
     }
@@ -112,6 +112,9 @@ else
 
     [Parameter]
     public string Text { get; set; } // optional - defaults to Action if not specified
+    
+    [Parameter]
+    public string AltText { get; set; } // optional
 
     [Parameter]
     public string Action { get; set; } // optional

@@ -33,7 +33,7 @@ else
             </div>
             <br />
 
-            <Pager Items="@users" RowClass="align-middle" SearchProperties="User.Username,User.Email,User.DisplayName">
+            <Pager Items="@users" CurrentPage="@_page.ToString()" OnPageChange="@((page) => _page = page)" RowClass="align-middle" SearchProperties="User.Username,User.Email,User.DisplayName">
                 <Header>
                     <th style="width: 1px;">&nbsp;</th>
                     <th style="width: 1px;">&nbsp;</th>
@@ -60,9 +60,46 @@ else
                 </Row>
             </Pager>
         </TabPanel>
-        <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings" Security="SecurityAccessLevel.Admin">
+        <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings" Security="SecurityAccessLevel.Host">
             <div class="container">
                 <Section Name="User" Heading="User Settings" ResourceKey="UserSettings">
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="allowsitelogin" HelpText="Do you want to allow users to sign in using a username and password that is managed locally on this site? Note that you should only disable this option if you have already successfully configured an alternative login method, or else you may lock yourself out of the site." ResourceKey="AllowSiteLogin">Allow Local Login?</Label>
+                        <div class="col-sm-9">
+                            <select id="allowsitelogin" class="form-select" @bind="@_allowsitelogin">
+                                <option value="true">@SharedLocalizer["Yes"]</option>
+                                <option value="false">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="twofactor" HelpText="Do you want users to use two factor authentication? Note that you should use the Disabled option until you have successfully verified that the Notification Job in Scheduled Jobs is enabled and your SMTP options in Site Settings are configured or else you will lock yourself out." ResourceKey="TwoFactor">Use 2FA?</Label>
+                        <div class="col-sm-9">
+                            <select id="twofactor" class="form-select" @bind="@_twofactor">
+                                <option value="false">@Localizer["Disabled"]</option>
+                                <option value="true">@Localizer["Optional"]</option>
+                                <option value="required">@Localizer["Required"]</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="loginlink" HelpText="Do you want to allow users to login using a time sensitive link sent by email" ResourceKey="LoginLink">Allow Login Link?</Label>
+                        <div class="col-sm-9">
+                            <select id="loginlink" class="form-select" @bind="@_loginlink">
+                                <option value="true">@SharedLocalizer["Yes"]</option>
+                                <option value="false">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="passkeys" HelpText="Do you want to allow users to login using passkeys (ie. passwordless authentication using WebAuthn/FIDO2)" ResourceKey="Passkeys">Allow Passkeys?</Label>
+                        <div class="col-sm-9">
+                            <select id="passkeys" class="form-select" @bind="@_passkeys">
+                                <option value="true">@SharedLocalizer["Yes"]</option>
+                                <option value="false">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="allowregistration" HelpText="Do you want anonymous visitors to be able to register for an account on the site" ResourceKey="AllowRegistration">Allow User Registration?</Label>
                         <div class="col-sm-9">
@@ -72,466 +109,432 @@ else
                             </select>
                         </div>
                     </div>
-                    @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                    @if (_allowregistration == "true")
                     {
-                        @if (_allowregistration == "true")
-                        {
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="registerurl" HelpText="Optionally provide a custom registration url" ResourceKey="RegisterUrl">Register Url:</Label>
-                                <div class="col-sm-9">
-                                    <input id="registerurl" class="form-control" @bind="@_registerurl" />
-                                </div>
-                            </div>
-                        }
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="profileurl" HelpText="Optionally provide a custom profile url" ResourceKey="ProfileUrl">Profile Url:</Label>
+                            <Label Class="col-sm-3" For="registerurl" HelpText="Optionally provide a custom registration url" ResourceKey="RegisterUrl">Register Url:</Label>
                             <div class="col-sm-9">
-                                <input id="profileurl" class="form-control" @bind="@_profileurl" />
-                            </div>
-                        </div>
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="requireconfirmedemail" HelpText="Do you want to require registered users to verify their email address before they are allowed to log in?" ResourceKey="RequireConfirmedEmail">Require Verified Email?</Label>
-                            <div class="col-sm-9">
-                                <select id="requireconfirmedemail" class="form-select" @bind="@_requireconfirmedemail">
-                                    <option value="true">@SharedLocalizer["Yes"]</option>
-                                    <option value="false">@SharedLocalizer["No"]</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="passkeys" HelpText="Do you want to allow users to login using passkeys (ie. passwordless authentication using WebAuthn/FIDO2)" ResourceKey="Passkeys">Allow Passkeys?</Label>
-                            <div class="col-sm-9">
-                                <select id="passkeys" class="form-select" @bind="@_passkeys">
-                                    <option value="true">@SharedLocalizer["Yes"]</option>
-                                    <option value="false">@SharedLocalizer["No"]</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="twofactor" HelpText="Do you want users to use two factor authentication? Note that you should use the Disabled option until you have successfully verified that the Notification Job in Scheduled Jobs is enabled and your SMTP options in Site Settings are configured or else you will lock yourself out." ResourceKey="TwoFactor">Two Factor Authentication?</Label>
-                            <div class="col-sm-9">
-                                <select id="twofactor" class="form-select" @bind="@_twofactor">
-                                    <option value="false">@Localizer["Disabled"]</option>
-                                    <option value="true">@Localizer["Optional"]</option>
-                                    <option value="required">@Localizer["Required"]</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="cookiename" HelpText="You can choose to use a custom authentication cookie name for each site. However please be aware that if you want to share an authentication cookie between sites on the same domain they need to use a consistent cookie name. Also be aware that changing the authentication cookie name will logout all current users." ResourceKey="CookieName">Cookie Name:</Label>
-                            <div class="col-sm-9">
-                                <input id="cookiename" class="form-control" @bind="@_cookiename" />
-                            </div>
-                        </div>
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="cookiedomain" HelpText="If you would like to share cookies across subdomains you will need to specify a root domain with a leading dot (ie. '.example.com')" ResourceKey="CookieDomain">Cookie Domain:</Label>
-                            <div class="col-sm-9">
-                                <input id="cookiedomain" class="form-control" @bind="@_cookiedomain" />
-                            </div>
-                        </div>
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="cookieexpiration" HelpText="You can choose to use a custom authentication cookie expiration timespan for each site (e.g. '08:00:00' for 8 hours). The default is 14 days if not specified." ResourceKey="CookieExpiration">Cookie Expiration Timespan:</Label>
-                            <div class="col-sm-9">
-                                <input id="cookieexpiration" class="form-control" @bind="@_cookieexpiration" />
-                            </div>
-                        </div>
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="alwaysremember" HelpText="Enabling this option will set a permanent cookie in conjunction with the Cookie Expiration Timespan, which will automatically sign in users the next time they visit the site. By default the site will use session cookies." ResourceKey="AlwaysRemember">Always Remember User?</Label>
-                            <div class="col-sm-9">
-                                <select id="alwaysremember" class="form-select" @bind="@_alwaysremember">
-                                    <option value="true">@SharedLocalizer["Yes"]</option>
-                                    <option value="false">@SharedLocalizer["No"]</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="logouteverywhere" HelpText="Do you want users to be logged out of every active session on any device, or only their current session?" ResourceKey="LogoutEverywhere">Logout Everywhere?</Label>
-                            <div class="col-sm-9">
-                                <select id="logouteverywhere" class="form-select" @bind="@_logouteverywhere">
-                                    <option value="true">@SharedLocalizer["Yes"]</option>
-                                    <option value="false">@SharedLocalizer["No"]</option>
-                                </select>
+                                <input id="registerurl" class="form-control" @bind="@_registerurl" />
                             </div>
                         </div>
                     }
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="requireconfirmedemail" HelpText="Do you want to require registered users to verify their email address before they are allowed to log in?" ResourceKey="RequireConfirmedEmail">Require Verified Email?</Label>
+                        <div class="col-sm-9">
+                            <select id="requireconfirmedemail" class="form-select" @bind="@_requireconfirmedemail">
+                                <option value="true">@SharedLocalizer["Yes"]</option>
+                                <option value="false">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="profileurl" HelpText="Optionally provide a custom profile url" ResourceKey="ProfileUrl">Profile Url:</Label>
+                        <div class="col-sm-9">
+                            <input id="profileurl" class="form-control" @bind="@_profileurl" />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="cookiename" HelpText="You can choose to use a custom authentication cookie name for each site. However please be aware that if you want to share an authentication cookie between sites on the same domain they need to use a consistent cookie name. Also be aware that changing the authentication cookie name will logout all current users." ResourceKey="CookieName">Cookie Name:</Label>
+                        <div class="col-sm-9">
+                            <input id="cookiename" class="form-control" @bind="@_cookiename" />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="cookiedomain" HelpText="If you would like to share cookies across subdomains you will need to specify a root domain with a leading dot (ie. '.example.com')" ResourceKey="CookieDomain">Cookie Domain:</Label>
+                        <div class="col-sm-9">
+                            <input id="cookiedomain" class="form-control" @bind="@_cookiedomain" />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="cookieexpiration" HelpText="You can choose to use a custom authentication cookie expiration timespan for each site (e.g. '08:00:00' for 8 hours). The default is 14 days if not specified." ResourceKey="CookieExpiration">Cookie Expiration Timespan:</Label>
+                        <div class="col-sm-9">
+                            <input id="cookieexpiration" class="form-control" @bind="@_cookieexpiration" />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="alwaysremember" HelpText="Enabling this option will set a permanent cookie in conjunction with the Cookie Expiration Timespan, which will automatically sign in users the next time they visit the site. By default the site will use session cookies." ResourceKey="AlwaysRemember">Always Remember User?</Label>
+                        <div class="col-sm-9">
+                            <select id="alwaysremember" class="form-select" @bind="@_alwaysremember">
+                                <option value="true">@SharedLocalizer["Yes"]</option>
+                                <option value="false">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="logouteverywhere" HelpText="Do you want users to be logged out of every active session on any device, or only their current session?" ResourceKey="LogoutEverywhere">Logout Everywhere?</Label>
+                        <div class="col-sm-9">
+                            <select id="logouteverywhere" class="form-select" @bind="@_logouteverywhere">
+                                <option value="true">@SharedLocalizer["Yes"]</option>
+                                <option value="false">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
+                    </div>
                 </Section>
-                @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-                {
-                    <Section Name="Password" Heading="Password Settings" ResourceKey="PasswordSettings">
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="minimumlength" HelpText="The Minimum Length For A Password" ResourceKey="RequiredLength">Minimum Length:</Label>
-                            <div class="col-sm-9">
-                                <input id="minimumlength" class="form-control" @bind="@_minimumlength" required />
-                            </div>
-                        </div>					
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="uniquecharacters" HelpText="The Minimum Number Of Unique Characters Which A Password Must Contain" ResourceKey="UniqueCharacters">Unique Characters:</Label>
-                            <div class="col-sm-9">
-                                <input id="uniquecharacters" class="form-control" @bind="@_uniquecharacters" required />
-                            </div>
-                        </div>					
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="requiredigit" HelpText="Indicate If Passwords Must Contain A Digit" ResourceKey="RequireDigit">Require Digit?</Label>
-                            <div class="col-sm-9">
-                                <select id="requiredigit" class="form-select" @bind="@_requiredigit" required>
-                                    <option value="true">@SharedLocalizer["Yes"]</option>
-                                    <option value="false">@SharedLocalizer["No"]</option>
+                <Section Name="Password" Heading="Password Settings" ResourceKey="PasswordSettings">
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="minimumlength" HelpText="The Minimum Length For A Password" ResourceKey="RequiredLength">Minimum Length:</Label>
+                        <div class="col-sm-9">
+                            <input id="minimumlength" class="form-control" @bind="@_minimumlength" required />
+                        </div>
+                    </div>					
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="uniquecharacters" HelpText="The Minimum Number Of Unique Characters Which A Password Must Contain" ResourceKey="UniqueCharacters">Unique Characters:</Label>
+                        <div class="col-sm-9">
+                            <input id="uniquecharacters" class="form-control" @bind="@_uniquecharacters" required />
+                        </div>
+                    </div>					
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="requiredigit" HelpText="Indicate If Passwords Must Contain A Digit" ResourceKey="RequireDigit">Require Digit?</Label>
+                        <div class="col-sm-9">
+                            <select id="requiredigit" class="form-select" @bind="@_requiredigit" required>
+                                <option value="true">@SharedLocalizer["Yes"]</option>
+                                <option value="false">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
+                    </div>					
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="requireupper" HelpText="Indicate If Passwords Must Contain An Upper Case Character" ResourceKey="RequireUpper">Require Uppercase?</Label>
+                        <div class="col-sm-9">
+                            <select id="requireupper" class="form-select" @bind="@_requireupper" required>
+                                <option value="true">@SharedLocalizer["Yes"]</option>
+                                <option value="false">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
+                    </div>					
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="requirelower" HelpText="Indicate If Passwords Must Contain A Lower Case Character" ResourceKey="RequireLower">Require Lowercase?</Label>
+                        <div class="col-sm-9">
+                            <select id="requirelower" class="form-select" @bind="@_requirelower" required>
+                                <option value="true">@SharedLocalizer["Yes"]</option>
+                                <option value="false">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="requirepunctuation" HelpText="Indicate if Passwords Must Contain A Non-alphanumeric Character (ie. Punctuation)" ResourceKey="RequirePunctuation">Require Punctuation?</Label>
+                        <div class="col-sm-9">
+                            <select id="requirepunctuation" class="form-select" @bind="@_requirepunctuation" required>
+                                <option value="true">@SharedLocalizer["Yes"]</option>
+                                <option value="false">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
+                    </div>					
+                </Section>
+                <Section Name="Lockout" Heading="Lockout Settings" ResourceKey="LockoutSettings">
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="maximum" HelpText="The Maximum Number Of Sign In Attempts Before A User Is Locked Out" ResourceKey="MaximumFailures">Maximum Failures:</Label>
+                        <div class="col-sm-9">
+                            <input id="maximum" class="form-control" @bind="@_maximumfailures" required />
+                        </div>
+                    </div>					
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="lockoutduration" HelpText="The Number Of Minutes A User Should Be Locked Out" ResourceKey="LockoutDuration">Lockout Duration:</Label>
+                        <div class="col-sm-9">
+                            <input id="lockoutduration" class="form-control" @bind="@_lockoutduration" required />
+                        </div>
+                    </div>					
+                </Section>
+                <Section Name="ExternalLogin" Heading="External Login Settings" ResourceKey="ExternalLoginSettings">
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="provider" HelpText="Select the external login provider" ResourceKey="Provider">Provider:</Label>
+                        <div class="col-sm-9">
+                            <div class="input-group">
+                                <select id="provider" class="form-select" value="@_provider" @onchange="(e => ProviderChanged(e))">
+                                    @foreach (var provider in Shared.ExternalLoginProviders.Providers)
+                                    {
+                                        <option value="@provider.Name">@Localizer[provider.Name]</option>
+                                    }
                                 </select>
+                                @if (!string.IsNullOrEmpty(_providerurl))
+                                {
+                                    <a href="@_providerurl" class="btn btn-secondary" target="_new">@Localizer["Info"]</a>
+                                }
                             </div>
-                        </div>					
+
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="providertype" HelpText="Select the external login provider type" ResourceKey="ProviderType">Provider Type:</Label>
+                        <div class="col-sm-9">
+                            <select id="providertype" class="form-select" value="@_providertype" @onchange="(e => ProviderTypeChanged(e))">
+                                <option value="" selected>&lt;@Localizer["Not Specified"]&gt;</option>
+                                <option value="@AuthenticationProviderTypes.OpenIDConnect">@Localizer["OIDC"]</option>
+                                <option value="@AuthenticationProviderTypes.OAuth2">@Localizer["OAuth2"]</option>
+                            </select>
+                        </div>
+                    </div>		
+                    @if (_providertype != "")
+                    {
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="requireupper" HelpText="Indicate If Passwords Must Contain An Upper Case Character" ResourceKey="RequireUpper">Require Uppercase?</Label>
+                            <Label Class="col-sm-3" For="providername" HelpText="Specify a friendly name for the external login provider which will be displayed on the Login page" ResourceKey="ProviderName">Provider Name:</Label>
                             <div class="col-sm-9">
-                                <select id="requireupper" class="form-select" @bind="@_requireupper" required>
-                                    <option value="true">@SharedLocalizer["Yes"]</option>
-                                    <option value="false">@SharedLocalizer["No"]</option>
-                                </select>
+                                <input id="providername" class="form-control" @bind="@_providername" />
                             </div>
-                        </div>					
+                        </div>
+                    }
+                    @if (_providertype == AuthenticationProviderTypes.OpenIDConnect)
+                    {
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="requirelower" HelpText="Indicate If Passwords Must Contain A Lower Case Character" ResourceKey="RequireLower">Require Lowercase?</Label>
+                            <Label Class="col-sm-3" For="authority" HelpText="The Authority Url or Issuer Url associated with the OpenID Connect provider" ResourceKey="Authority">Authority:</Label>
                             <div class="col-sm-9">
-                                <select id="requirelower" class="form-select" @bind="@_requirelower" required>
-                                    <option value="true">@SharedLocalizer["Yes"]</option>
-                                    <option value="false">@SharedLocalizer["No"]</option>
-                                </select>
+                                <input id="authority" class="form-control" @bind="@_authority" />
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="requirepunctuation" HelpText="Indicate if Passwords Must Contain A Non-alphanumeric Character (ie. Punctuation)" ResourceKey="RequirePunctuation">Require Punctuation?</Label>
+                            <Label Class="col-sm-3" For="metadataurl" HelpText="The discovery endpoint for obtaining metadata for this provider. Only specify if the OpenID Connect provider does not use the standard approach (ie. /.well-known/openid-configuration)" ResourceKey="MetadataUrl">Metadata Url:</Label>
                             <div class="col-sm-9">
-                                <select id="requirepunctuation" class="form-select" @bind="@_requirepunctuation" required>
-                                    <option value="true">@SharedLocalizer["Yes"]</option>
-                                    <option value="false">@SharedLocalizer["No"]</option>
-                                </select>
+                                <input id="metadataurl" class="form-control" @bind="@_metadataurl" />
                             </div>
-                        </div>					
-                    </Section>
-                    <Section Name="Lockout" Heading="Lockout Settings" ResourceKey="LockoutSettings">
+                        </div>
+                    }
+                    @if (_providertype == AuthenticationProviderTypes.OAuth2)
+                    {
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="maximum" HelpText="The Maximum Number Of Sign In Attempts Before A User Is Locked Out" ResourceKey="MaximumFailures">Maximum Failures:</Label>
+                            <Label Class="col-sm-3" For="authorizationurl" HelpText="The endpoint for obtaining an Authorization Code" ResourceKey="AuthorizationUrl">Authorization Url:</Label>
                             <div class="col-sm-9">
-                                <input id="maximum" class="form-control" @bind="@_maximumfailures" required />
+                                <input id="authorizationurl" class="form-control" @bind="@_authorizationurl" />
                             </div>
-                        </div>					
+                        </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="lockoutduration" HelpText="The Number Of Minutes A User Should Be Locked Out" ResourceKey="LockoutDuration">Lockout Duration:</Label>
+                            <Label Class="col-sm-3" For="tokenurl" HelpText="The endpoint for obtaining an Auth Token" ResourceKey="TokenUrl">Token Url:</Label>
                             <div class="col-sm-9">
-                                <input id="lockoutduration" class="form-control" @bind="@_lockoutduration" required />
+                                <input id="tokenurl" class="form-control" @bind="@_tokenurl" />
                             </div>
-                        </div>					
-                    </Section>
-                    <Section Name="ExternalLogin" Heading="External Login Settings" ResourceKey="ExternalLoginSettings">
+                        </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="provider" HelpText="Select the external login provider" ResourceKey="Provider">Provider:</Label>
+                            <Label Class="col-sm-3" For="userinfourl" HelpText="The endpoint for obtaining user information. This should be an API or Page Url which contains the users email address." ResourceKey="UserInfoUrl">User Info Url:</Label>
+                            <div class="col-sm-9">
+                                <input id="userinfourl" class="form-control" @bind="@_userinfourl" />
+                            </div>
+                        </div>
+                    }
+                    @if (_providertype != "")
+                    {
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="clientid" HelpText="The Client ID from the provider" ResourceKey="ClientID">Client ID:</Label>
+                            <div class="col-sm-9">
+                                <input id="clientid" class="form-control" @bind="@_clientid" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="clientsecret" HelpText="The Client Secret from the provider" ResourceKey="ClientSecret">Client Secret:</Label>
                             <div class="col-sm-9">
                                 <div class="input-group">
-                                    <select id="provider" class="form-select" value="@_provider" @onchange="(e => ProviderChanged(e))">
-                                        @foreach (var provider in Shared.ExternalLoginProviders.Providers)
-                                        {
-                                            <option value="@provider.Name">@Localizer[provider.Name]</option>
-                                        }
-                                    </select>
-                                    @if (!string.IsNullOrEmpty(_providerurl))
-                                    {
-                                        <a href="@_providerurl" class="btn btn-secondary" target="_new">@Localizer["Info"]</a>
-                                    }
+                                    <input type="@_clientsecrettype" id="clientsecret" class="form-control" @bind="@_clientsecret" />
+                                    <button type="button" class="btn btn-secondary" @onclick="@ToggleClientSecret">@_toggleclientsecret</button>
                                 </div>
-
                             </div>
                         </div>
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="providertype" HelpText="Select the external login provider type" ResourceKey="ProviderType">Provider Type:</Label>
-                            <div class="col-sm-9">
-                                <select id="providertype" class="form-select" value="@_providertype" @onchange="(e => ProviderTypeChanged(e))">
-                                    <option value="" selected>&lt;@Localizer["Not Specified"]&gt;</option>
-                                    <option value="@AuthenticationProviderTypes.OpenIDConnect">@Localizer["OIDC"]</option>
-                                    <option value="@AuthenticationProviderTypes.OAuth2">@Localizer["OAuth2"]</option>
-                                </select>
-                            </div>
-                        </div>		
-                        @if (_providertype != "")
-                        {
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="providername" HelpText="Specify a friendly name for the external login provider which will be displayed on the Login page" ResourceKey="ProviderName">Provider Name:</Label>
-                                <div class="col-sm-9">
-                                    <input id="providername" class="form-control" @bind="@_providername" />
-                                </div>
-                            </div>
-                        }
                         @if (_providertype == AuthenticationProviderTypes.OpenIDConnect)
                         {
                             <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="authority" HelpText="The Authority Url or Issuer Url associated with the OpenID Connect provider" ResourceKey="Authority">Authority:</Label>
+                                <Label Class="col-sm-3" For="authresponsetype" HelpText="Specify the authorization response type. The default is Authorization Code which is considered to be the most secure option based on the latest OAuth specification." ResourceKey="AuthResponseType">Authorization Response Type:</Label>
                                 <div class="col-sm-9">
-                                    <input id="authority" class="form-control" @bind="@_authority" />
+                                    <select id="authresponsetype" class="form-select" @bind="@_authresponsetype" required>
+                                        <option value="code">@Localizer["AuthFlow.Code"]</option>
+                                        <option value="code id_token">@Localizer["AuthFlow.CodeIdToken"]</option>
+                                        <option value="code id_token token">@Localizer["AuthFlow.CodeIdTokenToken"]</option>
+                                        <option value="code token">@Localizer["AuthFlow.CodeToken"]</option>
+                                        <option value="id_token">@Localizer["AuthFlow.IdToken"]</option>
+                                        <option value="id_token token">@Localizer["AuthFlow.IdTokenToken"]</option>
+                                        <option value="token">@Localizer["AuthFlow.Token"]</option>
+                                        <option value="none">@Localizer["AuthFlow.None"]</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="metadataurl" HelpText="The discovery endpoint for obtaining metadata for this provider. Only specify if the OpenID Connect provider does not use the standard approach (ie. /.well-known/openid-configuration)" ResourceKey="MetadataUrl">Metadata Url:</Label>
+                                <Label Class="col-sm-3" For="requirenonce" HelpText="Specify if Nonce validation is required for the ID token (the default is true)" ResourceKey="RequireNonce">Require Nonce?</Label>
                                 <div class="col-sm-9">
-                                    <input id="metadataurl" class="form-control" @bind="@_metadataurl" />
+                                    <select id="requirenonce" class="form-select" @bind="@_requirenonce" required>
+                                        <option value="true">@SharedLocalizer["Yes"]</option>
+                                        <option value="false">@SharedLocalizer["No"]</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="singlelogout" HelpText="Specify if users should be logged out of both the application and provider (the default is false indicating they will only be logged out of the application)" ResourceKey="SingleLogout">Use Single Logout?</Label>
+                                <div class="col-sm-9">
+                                    <select id="singlelogout" class="form-select" @bind="@_singlelogout" required>
+                                        <option value="true">@SharedLocalizer["Yes"]</option>
+                                        <option value="false">@SharedLocalizer["No"]</option>
+                                    </select>
                                 </div>
                             </div>
                         }
-                        @if (_providertype == AuthenticationProviderTypes.OAuth2)
-                        {
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="authorizationurl" HelpText="The endpoint for obtaining an Authorization Code" ResourceKey="AuthorizationUrl">Authorization Url:</Label>
-                                <div class="col-sm-9">
-                                    <input id="authorizationurl" class="form-control" @bind="@_authorizationurl" />
-                                </div>
-                            </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="tokenurl" HelpText="The endpoint for obtaining an Auth Token" ResourceKey="TokenUrl">Token Url:</Label>
-                                <div class="col-sm-9">
-                                    <input id="tokenurl" class="form-control" @bind="@_tokenurl" />
-                                </div>
-                            </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="userinfourl" HelpText="The endpoint for obtaining user information. This should be an API or Page Url which contains the users email address." ResourceKey="UserInfoUrl">User Info Url:</Label>
-                                <div class="col-sm-9">
-                                    <input id="userinfourl" class="form-control" @bind="@_userinfourl" />
-                                </div>
-                            </div>
-                        }
-                        @if (_providertype != "")
-                        {
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="clientid" HelpText="The Client ID from the provider" ResourceKey="ClientID">Client ID:</Label>
-                                <div class="col-sm-9">
-                                    <input id="clientid" class="form-control" @bind="@_clientid" />
-                                </div>
-                            </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="clientsecret" HelpText="The Client Secret from the provider" ResourceKey="ClientSecret">Client Secret:</Label>
-                                <div class="col-sm-9">
-                                    <div class="input-group">
-                                        <input type="@_clientsecrettype" id="clientsecret" class="form-control" @bind="@_clientsecret" />
-                                        <button type="button" class="btn btn-secondary" @onclick="@ToggleClientSecret">@_toggleclientsecret</button>
-                                    </div>
-                                </div>
-                            </div>
-                            @if (_providertype == AuthenticationProviderTypes.OpenIDConnect)
-                            {
-                                <div class="row mb-1 align-items-center">
-                                    <Label Class="col-sm-3" For="authresponsetype" HelpText="Specify the authorization response type. The default is Authorization Code which is considered to be the most secure option based on the latest OAuth specification." ResourceKey="AuthResponseType">Authorization Response Type:</Label>
-                                    <div class="col-sm-9">
-                                        <select id="authresponsetype" class="form-select" @bind="@_authresponsetype" required>
-                                            <option value="code">@Localizer["AuthFlow.Code"]</option>
-                                            <option value="code id_token">@Localizer["AuthFlow.CodeIdToken"]</option>
-                                            <option value="code id_token token">@Localizer["AuthFlow.CodeIdTokenToken"]</option>
-                                            <option value="code token">@Localizer["AuthFlow.CodeToken"]</option>
-                                            <option value="id_token">@Localizer["AuthFlow.IdToken"]</option>
-                                            <option value="id_token token">@Localizer["AuthFlow.IdTokenToken"]</option>
-                                            <option value="token">@Localizer["AuthFlow.Token"]</option>
-                                            <option value="none">@Localizer["AuthFlow.None"]</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="row mb-1 align-items-center">
-                                    <Label Class="col-sm-3" For="requirenonce" HelpText="Specify if Nonce validation is required for the ID token (the default is true)" ResourceKey="RequireNonce">Require Nonce?</Label>
-                                    <div class="col-sm-9">
-                                        <select id="requirenonce" class="form-select" @bind="@_requirenonce" required>
-                                            <option value="true">@SharedLocalizer["Yes"]</option>
-                                            <option value="false">@SharedLocalizer["No"]</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="row mb-1 align-items-center">
-                                    <Label Class="col-sm-3" For="singlelogout" HelpText="Specify if users should be logged out of both the application and provider (the default is false indicating they will only be logged out of the application)" ResourceKey="SingleLogout">Use Single Logout?</Label>
-                                    <div class="col-sm-9">
-                                        <select id="singlelogout" class="form-select" @bind="@_singlelogout" required>
-                                            <option value="true">@SharedLocalizer["Yes"]</option>
-                                            <option value="false">@SharedLocalizer["No"]</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            }
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="scopes" HelpText="A list of Scopes to request from the provider (separated by commas). If none are specified, standard Scopes will be used by default." ResourceKey="Scopes">Scopes:</Label>
-                                <div class="col-sm-9">
-                                    <input id="scopes" class="form-control" @bind="@_scopes" />
-                                </div>
-                            </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="parameters" HelpText="Optionally specify any additional parameters as name/value pairs to send to the provider (separated by commas if there are multiple)." ResourceKey="Parameters">Parameters:</Label>
-                                <div class="col-sm-9">
-                                    <input id="parameters" class="form-control" @bind="@_parameters" />
-                                </div>
-                            </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="pkce" HelpText="Indicate if the provider supports Proof Key for Code Exchange (PKCE)" ResourceKey="PKCE">Use PKCE?</Label>
-                                <div class="col-sm-9">
-                                    <select id="pkce" class="form-select" @bind="@_pkce" required>
-                                        <option value="true">@SharedLocalizer["Yes"]</option>
-                                        <option value="false">@SharedLocalizer["No"]</option>
-                                    </select>
-                                </div>
-                            </div>					
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="redirecturl" HelpText="The Redirect Url (or Callback Url) which usually needs to be registered with the provider" ResourceKey="RedirectUrl">Redirect Url:</Label>
-                                <div class="col-sm-9">
-                                    <input id="redirecturl" class="form-control" @bind="@_redirecturl" readonly />
-                                </div>
-                            </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="reviewclaims" HelpText="This option will record the full list of Claims returned by the Provider in the Event Log. It should only be used for testing purposes. External Login will be restricted when this option is enabled." ResourceKey="ReviewClaims">Review Claims?</Label>
-                                <div class="col-sm-9">
-                                    <div class="input-group">
-                                        <select id="reviewclaims" class="form-select" @bind="@_reviewclaims" required>
-                                            <option value="true">@SharedLocalizer["Yes"]</option>
-                                            <option value="false">@SharedLocalizer["No"]</option>
-                                        </select>
-                                        @if (_reviewclaims == "true")
-                                        {
-                                            <a href="@_externalloginurl" target="_blank" class="btn btn-secondary">@SharedLocalizer["Test"]</a>
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="identifierclaimtype" HelpText="Specify the type name of the unique user identifier claim provided by the provider. The default value is 'sub'." ResourceKey="IdentifierClaimType">Identifier Claim:</Label>
-                                <div class="col-sm-9">
-                                    <input id="identifierclaimtype" class="form-control" @bind="@_identifierclaimtype" />
-                                </div>
-                            </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="nameclaimtype" HelpText="Optionally specify the type name of the user's name claim provided by the provider. The typical value is 'name'." ResourceKey="NameClaimType">Name Claim:</Label>
-                                <div class="col-sm-9">
-                                    <input id="nameclaimtype" class="form-control" @bind="@_nameclaimtype" />
-                                </div>
-                            </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="emailclaimtype" HelpText="Optionally specify the type name of the email address claim provided by the provider. The typical value is 'email'," ResourceKey="EmailClaimType">Email Claim:</Label>
-                                <div class="col-sm-9">
-                                    <input id="emailclaimtype" class="form-control" @bind="@_emailclaimtype" />
-                                </div>
-                            </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="roleclaimtype" HelpText="The name of the roles claim provided by the provider" ResourceKey="RoleClaimType">Roles Claim:</Label>
-                                <div class="col-sm-9">
-                                    <input id="roleclaimtype" class="form-control" @bind="@_roleclaimtype" />
-                                </div>
-                            </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="roleclaimmappings" HelpText="Optionally provide a comma delimited list of role names provided by the identity provider, as well as mappings to your site roles." ResourceKey="RoleClaimMappings">Role Claim Mappings:</Label>
-                                <div class="col-sm-9">
-                                    <input id="roleclaimmappings" class="form-control" @bind="@_roleclaimmappings" />
-                                </div>
-                            </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="synchronizeroles" HelpText="This option will add or remove role assignments so that the site roles exactly match the roles provided by the identity provider" ResourceKey="SynchronizeRoles">Synchronize Roles?</Label>
-                                <div class="col-sm-9">
-                                    <div class="input-group">
-                                        <select id="synchronizeroles" class="form-select" @bind="@_synchronizeroles" required>
-                                            <option value="true">@SharedLocalizer["Yes"]</option>
-                                            <option value="false">@SharedLocalizer["No"]</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="profileclaimtypes" HelpText="A comma delimited list of user profile claims provided by the provider, as well as mappings to your user profile definition. For example if the provider includes a 'given_name' claim and you have a 'FirstName' user profile definition you should specify 'given_name:FirstName'." ResourceKey="ProfileClaimTypes">User Profile Claims:</Label>
-                                <div class="col-sm-9">
-                                    <input id="profileclaimtypes" class="form-control" @bind="@_profileclaimtypes" />
-                                </div>
-                            </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="savetokens" HelpText="Specify whether access and refresh tokens should be saved after a successful login. The default is false to reduce the size of the authentication cookie." ResourceKey="SaveTokens">Save Tokens?</Label>
-                                <div class="col-sm-9">
-                                    <select id="savetokens" class="form-select" @bind="@_savetokens" required>
-                                        <option value="true">@SharedLocalizer["Yes"]</option>
-                                        <option value="false">@SharedLocalizer["No"]</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="domainfilter" HelpText="Provide any email domain filter criteria (separated by commas). Domains to exclude should be prefixed with an exclamation point (!). For example 'microsoft.com,!hotmail.com' would include microsoft.com email addresses but not hotmail.com email addresses." ResourceKey="DomainFilter">Domain Filter:</Label>
-                                <div class="col-sm-9">
-                                    <input id="domainfilter" class="form-control" @bind="@_domainfilter" />
-                                </div>
-                            </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="createusers" HelpText="Do you want new users to be created automatically? If you disable this option, users must already be registered on the site in order to sign in with their external login." ResourceKey="CreateUsers">Create New Users?</Label>
-                                <div class="col-sm-9">
-                                    <select id="createusers" class="form-select" @bind="@_createusers">
-                                        <option value="true">@SharedLocalizer["Yes"]</option>
-                                        <option value="false">@SharedLocalizer["No"]</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="verifyusers" HelpText="Do you want existing users to perform an additional email verification step to link their external login? If you disable this option, existing users will be linked automatically." ResourceKey="VerifyUsers">Verify Existing Users?</Label>
-                                <div class="col-sm-9">
-                                    <select id="verifyusers" class="form-select" @bind="@_verifyusers">
-                                        <option value="true">@SharedLocalizer["Yes"]</option>
-                                        <option value="false">@SharedLocalizer["No"]</option>
-                                    </select>
-                                </div>
-                            </div>
-                            @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-                            {
-                                <div class="row mb-1 align-items-center">
-                                    <Label Class="col-sm-3" For="allowhostrole" HelpText="Indicate if host roles are supported from the identity provider. Please use caution with this option as it allows the host user to administrate every site within your installation." ResourceKey="AllowHostRole">Allow Host Role?</Label>
-                                    <div class="col-sm-9">
-                                        <select id="allowhostrole" class="form-select" @bind="@_allowhostrole" required>
-                                            <option value="true">@SharedLocalizer["Yes"]</option>
-                                            <option value="false">@SharedLocalizer["No"]</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="row mb-1 align-items-center">
-                                    <Label Class="col-sm-3" For="allowsitelogin" HelpText="Do you want to allow users to sign in using a username and password that is managed locally on this site? Note that you should only disable this option if you have already sucessfully configured an external login provider, or else you may lock yourself out of the site." ResourceKey="AllowSiteLogin">Allow Local Login?</Label>
-                                    <div class="col-sm-9">
-                                        <select id="allowsitelogin" class="form-select" @bind="@_allowsitelogin">
-                                            <option value="true">@SharedLocalizer["Yes"]</option>
-                                            <option value="false">@SharedLocalizer["No"]</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            }
-                        }
-                    </Section>
-                    <Section Name="Token" Heading="Token Settings" ResourceKey="TokenSettings">
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="jwtsecret" HelpText="If you want to want to provide API access, please specify a secret which will be used to encrypt your tokens. The secret should be 16 characters or more to ensure optimal security. Please note that if you change this secret, all existing tokens will become invalid and will need to be regenerated." ResourceKey="Secret">Secret:</Label>
+                            <Label Class="col-sm-3" For="scopes" HelpText="A list of Scopes to request from the provider (separated by commas). If none are specified, standard Scopes will be used by default." ResourceKey="Scopes">Scopes:</Label>
+                            <div class="col-sm-9">
+                                <input id="scopes" class="form-control" @bind="@_scopes" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="parameters" HelpText="Optionally specify any additional parameters as name/value pairs to send to the provider (separated by commas if there are multiple)." ResourceKey="Parameters">Parameters:</Label>
+                            <div class="col-sm-9">
+                                <input id="parameters" class="form-control" @bind="@_parameters" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="pkce" HelpText="Indicate if the provider supports Proof Key for Code Exchange (PKCE)" ResourceKey="PKCE">Use PKCE?</Label>
+                            <div class="col-sm-9">
+                                <select id="pkce" class="form-select" @bind="@_pkce" required>
+                                    <option value="true">@SharedLocalizer["Yes"]</option>
+                                    <option value="false">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
+                        </div>					
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="redirecturl" HelpText="The Redirect Url (or Callback Url) which usually needs to be registered with the provider" ResourceKey="RedirectUrl">Redirect Url:</Label>
+                            <div class="col-sm-9">
+                                <input id="redirecturl" class="form-control" @bind="@_redirecturl" readonly />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="reviewclaims" HelpText="This option will record the full list of Claims returned by the Provider in the Event Log. It should only be used for testing purposes. External Login will be restricted when this option is enabled." ResourceKey="ReviewClaims">Review Claims?</Label>
                             <div class="col-sm-9">
                                 <div class="input-group">
-                                    <input type="@_secrettype" id="jwtsecret" class="form-control" @bind="@_secret" />
-                                    <button type="button" class="btn btn-secondary" @onclick="@ToggleSecret">@_togglesecret</button>
+                                    <select id="reviewclaims" class="form-select" @bind="@_reviewclaims" required>
+                                        <option value="true">@SharedLocalizer["Yes"]</option>
+                                        <option value="false">@SharedLocalizer["No"]</option>
+                                    </select>
+                                    @if (_reviewclaims == "true")
+                                    {
+                                        <a href="@_externalloginurl" target="_blank" class="btn btn-secondary">@SharedLocalizer["Test"]</a>
+                                    }
                                 </div>
                             </div>
-                        </div>					
+                        </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="issuer" HelpText="Optionally provide the issuer of the token" ResourceKey="Issuer">Issuer:</Label>
+                            <Label Class="col-sm-3" For="identifierclaimtype" HelpText="Specify the type name of the unique user identifier claim provided by the provider. The default value is 'sub'." ResourceKey="IdentifierClaimType">Identifier Claim:</Label>
                             <div class="col-sm-9">
-                                <input id="issuer" class="form-control" @bind="@_issuer" />
+                                <input id="identifierclaimtype" class="form-control" @bind="@_identifierclaimtype" />
                             </div>
-                        </div>					
+                        </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="audience" HelpText="Optionally provide the audience for the token" ResourceKey="Audience">Audience:</Label>
+                            <Label Class="col-sm-3" For="nameclaimtype" HelpText="Optionally specify the type name of the user's name claim provided by the provider. The typical value is 'name'." ResourceKey="NameClaimType">Name Claim:</Label>
                             <div class="col-sm-9">
-                                <input id="audience" class="form-control" @bind="@_audience" />
+                                <input id="nameclaimtype" class="form-control" @bind="@_nameclaimtype" />
                             </div>
-                        </div>					
+                        </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="lifetime" HelpText="The number of minutes for which a token should be valid" ResourceKey="Lifetime">Lifetime:</Label>
+                            <Label Class="col-sm-3" For="emailclaimtype" HelpText="Optionally specify the type name of the email address claim provided by the provider. The typical value is 'email'," ResourceKey="EmailClaimType">Email Claim:</Label>
                             <div class="col-sm-9">
-                                <input id="lifetime" class="form-control" @bind="@_lifetime" />
+                                <input id="emailclaimtype" class="form-control" @bind="@_emailclaimtype" />
                             </div>
-                        </div>					
+                        </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="token" HelpText="Select the Create Token button to generate a long-lived access token (valid for 1 year). Be sure to store this token in a safe location as you will not be able to access it in the future." ResourceKey="Token">Access Token:</Label>
+                            <Label Class="col-sm-3" For="roleclaimtype" HelpText="The name of the roles claim provided by the provider" ResourceKey="RoleClaimType">Roles Claim:</Label>
+                            <div class="col-sm-9">
+                                <input id="roleclaimtype" class="form-control" @bind="@_roleclaimtype" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="roleclaimmappings" HelpText="Optionally provide a comma delimited list of role names provided by the identity provider, as well as mappings to your site roles." ResourceKey="RoleClaimMappings">Role Claim Mappings:</Label>
+                            <div class="col-sm-9">
+                                <input id="roleclaimmappings" class="form-control" @bind="@_roleclaimmappings" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="synchronizeroles" HelpText="This option will add or remove role assignments so that the site roles exactly match the roles provided by the identity provider" ResourceKey="SynchronizeRoles">Synchronize Roles?</Label>
                             <div class="col-sm-9">
                                 <div class="input-group">
-                                    <input id="token" class="form-control" @bind="@_token" />
-                                    <button type="button" class="btn btn-secondary" @onclick="@CreateToken">@Localizer["CreateToken"]</button>
+                                    <select id="synchronizeroles" class="form-select" @bind="@_synchronizeroles" required>
+                                        <option value="true">@SharedLocalizer["Yes"]</option>
+                                        <option value="false">@SharedLocalizer["No"]</option>
+                                    </select>
                                 </div>
                             </div>
-                        </div>					
-                    </Section>
-                }
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="profileclaimtypes" HelpText="A comma delimited list of user profile claims provided by the provider, as well as mappings to your user profile definition. For example if the provider includes a 'given_name' claim and you have a 'FirstName' user profile definition you should specify 'given_name:FirstName'." ResourceKey="ProfileClaimTypes">User Profile Claims:</Label>
+                            <div class="col-sm-9">
+                                <input id="profileclaimtypes" class="form-control" @bind="@_profileclaimtypes" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="savetokens" HelpText="Specify whether access and refresh tokens should be saved after a successful login. The default is false to reduce the size of the authentication cookie." ResourceKey="SaveTokens">Save Tokens?</Label>
+                            <div class="col-sm-9">
+                                <select id="savetokens" class="form-select" @bind="@_savetokens" required>
+                                    <option value="true">@SharedLocalizer["Yes"]</option>
+                                    <option value="false">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="domainfilter" HelpText="Provide any email domain filter criteria (separated by commas). Domains to exclude should be prefixed with an exclamation point (!). For example 'microsoft.com,!hotmail.com' would include microsoft.com email addresses but not hotmail.com email addresses." ResourceKey="DomainFilter">Domain Filter:</Label>
+                            <div class="col-sm-9">
+                                <input id="domainfilter" class="form-control" @bind="@_domainfilter" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="createusers" HelpText="Do you want new users to be created automatically? If you disable this option, users must already be registered on the site in order to sign in with their external login." ResourceKey="CreateUsers">Create New Users?</Label>
+                            <div class="col-sm-9">
+                                <select id="createusers" class="form-select" @bind="@_createusers">
+                                    <option value="true">@SharedLocalizer["Yes"]</option>
+                                    <option value="false">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="verifyusers" HelpText="Do you want existing users to perform an additional email verification step to link their external login? If you disable this option, existing users will be linked automatically." ResourceKey="VerifyUsers">Verify Existing Users?</Label>
+                            <div class="col-sm-9">
+                                <select id="verifyusers" class="form-select" @bind="@_verifyusers">
+                                    <option value="true">@SharedLocalizer["Yes"]</option>
+                                    <option value="false">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
+                        </div>
+                        @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                        {
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="allowhostrole" HelpText="Indicate if host roles are supported from the identity provider. Please use caution with this option as it allows the host user to administrate every site within your installation." ResourceKey="AllowHostRole">Allow Host Role?</Label>
+                                <div class="col-sm-9">
+                                    <select id="allowhostrole" class="form-select" @bind="@_allowhostrole" required>
+                                        <option value="true">@SharedLocalizer["Yes"]</option>
+                                        <option value="false">@SharedLocalizer["No"]</option>
+                                    </select>
+                                </div>
+                            </div>
+                        }
+                    }
+                </Section>
+                <Section Name="Token" Heading="Token Settings" ResourceKey="TokenSettings">
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="jwtsecret" HelpText="If you want to want to provide API access, please specify a secret which will be used to encrypt your tokens. The secret should be 16 characters or more to ensure optimal security. Please note that if you change this secret, all existing tokens will become invalid and will need to be regenerated." ResourceKey="Secret">Secret:</Label>
+                        <div class="col-sm-9">
+                            <div class="input-group">
+                                <input type="@_secrettype" id="jwtsecret" class="form-control" @bind="@_secret" />
+                                <button type="button" class="btn btn-secondary" @onclick="@ToggleSecret">@_togglesecret</button>
+                            </div>
+                        </div>
+                    </div>					
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="issuer" HelpText="Optionally provide the issuer of the token" ResourceKey="Issuer">Issuer:</Label>
+                        <div class="col-sm-9">
+                            <input id="issuer" class="form-control" @bind="@_issuer" />
+                        </div>
+                    </div>					
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="audience" HelpText="Optionally provide the audience for the token" ResourceKey="Audience">Audience:</Label>
+                        <div class="col-sm-9">
+                            <input id="audience" class="form-control" @bind="@_audience" />
+                        </div>
+                    </div>					
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="lifetime" HelpText="The number of minutes for which a token should be valid" ResourceKey="Lifetime">Lifetime:</Label>
+                        <div class="col-sm-9">
+                            <input id="lifetime" class="form-control" @bind="@_lifetime" />
+                        </div>
+                    </div>					
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="token" HelpText="Select the Create Token button to generate a long-lived access token (valid for 1 year). Be sure to store this token in a safe location as you will not be able to access it in the future." ResourceKey="Token">Access Token:</Label>
+                        <div class="col-sm-9">
+                            <div class="input-group">
+                                <input id="token" class="form-control" @bind="@_token" />
+                                <button type="button" class="btn btn-secondary" @onclick="@CreateToken">@Localizer["CreateToken"]</button>
+                            </div>
+                        </div>
+                    </div>					
+                </Section>
             </div>
             <br />
             <button type="button" class="btn btn-success" @onclick="SaveSiteSettings">@SharedLocalizer["Save"]</button>
@@ -542,13 +545,16 @@ else
 @code {
     private List<UserRole> users;
     private string _deleted = "false";
+    private int _page = 1;
 
+    private string _allowsitelogin;
+    private string _twofactor;
+    private string _loginlink;
+    private string _passkeys;
     private string _allowregistration;
     private string _registerurl;
-    private string _profileurl;
     private string _requireconfirmedemail;
-    private string _passkeys;
-    private string _twofactor;
+    private string _profileurl;
     private string _cookiename;
     private string _cookiedomain;
     private string _cookieexpiration;
@@ -598,7 +604,6 @@ else
     private string _createusers;
     private string _verifyusers;
     private string _allowhostrole;
-    private string _allowsitelogin;
 
     private string _secret;
     private string _secrettype = "password";
@@ -622,11 +627,13 @@ else
 
         if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
         {
-            _registerurl = SettingService.GetSetting(settings, "LoginOptions:RegisterUrl", "");
-            _profileurl = SettingService.GetSetting(settings, "LoginOptions:ProfileUrl", "");
-            _requireconfirmedemail = SettingService.GetSetting(settings, "LoginOptions:RequireConfirmedEmail", "true");
-            _passkeys = SettingService.GetSetting(settings, "LoginOptions:Passkeys", "false");
+            _allowsitelogin = SettingService.GetSetting(settings, "LoginOptions:AllowSiteLogin", "true");
             _twofactor = SettingService.GetSetting(settings, "LoginOptions:TwoFactor", "false");
+            _loginlink = SettingService.GetSetting(settings, "LoginOptions:LoginLink", "false");
+            _passkeys = SettingService.GetSetting(settings, "LoginOptions:Passkeys", "false");
+            _registerurl = SettingService.GetSetting(settings, "LoginOptions:RegisterUrl", "");
+            _requireconfirmedemail = SettingService.GetSetting(settings, "LoginOptions:RequireConfirmedEmail", "true");
+            _profileurl = SettingService.GetSetting(settings, "LoginOptions:ProfileUrl", "");
             _cookiename = SettingService.GetSetting(settings, "LoginOptions:CookieName", ".AspNetCore.Identity.Application");
             _cookiedomain = SettingService.GetSetting(settings, "LoginOptions:CookieDomain", "");
             _cookieexpiration = SettingService.GetSetting(settings, "LoginOptions:CookieExpiration", "");
@@ -688,7 +695,6 @@ else
         _createusers = SettingService.GetSetting(settings, "ExternalLogin:CreateUsers", "true");
         _verifyusers = SettingService.GetSetting(settings, "ExternalLogin:VerifyUsers", "true");
         _allowhostrole = SettingService.GetSetting(settings, "ExternalLogin:AllowHostRole", "false");
-        _allowsitelogin = SettingService.GetSetting(settings, "LoginOptions:AllowSiteLogin", "true");
     }
 
     private async Task LoadUsersAsync()
@@ -753,19 +759,21 @@ else
     {
         try
         {
-            var site = PageState.Site;
-            site.AllowRegistration = bool.Parse(_allowregistration);
-            await SiteService.UpdateSiteAsync(site);
-
-            var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
-
             if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
             {
-                settings = SettingService.SetSetting(settings, "LoginOptions:RegisterUrl", _registerurl, false);
-                settings = SettingService.SetSetting(settings, "LoginOptions:ProfileUrl", _profileurl, false);
-                settings = SettingService.SetSetting(settings, "LoginOptions:RequireConfirmedEmail", _requireconfirmedemail, false);
-                settings = SettingService.SetSetting(settings, "LoginOptions:Passkeys", _passkeys, false);
+                var site = PageState.Site;
+                site.AllowRegistration = bool.Parse(_allowregistration);
+                await SiteService.UpdateSiteAsync(site);
+
+                var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
+
+                settings = SettingService.SetSetting(settings, "LoginOptions:AllowSiteLogin", _allowsitelogin, false);
                 settings = SettingService.SetSetting(settings, "LoginOptions:TwoFactor", _twofactor, false);
+                settings = SettingService.SetSetting(settings, "LoginOptions:LoginLink", _loginlink, false);
+                settings = SettingService.SetSetting(settings, "LoginOptions:Passkeys", _passkeys, false);
+                settings = SettingService.SetSetting(settings, "LoginOptions:RegisterUrl", _registerurl, false);
+                settings = SettingService.SetSetting(settings, "LoginOptions:RequireConfirmedEmail", _requireconfirmedemail, false);
+                settings = SettingService.SetSetting(settings, "LoginOptions:ProfileUrl", _profileurl, false);
                 settings = SettingService.SetSetting(settings, "LoginOptions:CookieName", _cookiename, true);
                 settings = SettingService.SetSetting(settings, "LoginOptions:CookieDomain", _cookiedomain, true);
                 settings = SettingService.SetSetting(settings, "LoginOptions:CookieExpiration", _cookieexpiration, true);
@@ -811,16 +819,15 @@ else
                 settings = SettingService.SetSetting(settings, "ExternalLogin:CreateUsers", _createusers, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:VerifyUsers", _verifyusers, true);
                 settings = SettingService.SetSetting(settings, "ExternalLogin:AllowHostRole", _allowhostrole, true);
-                settings = SettingService.SetSetting(settings, "LoginOptions:AllowSiteLogin", _allowsitelogin, false);
 
                 settings = SettingService.SetSetting(settings, "JwtOptions:Secret", _secret, true);
                 settings = SettingService.SetSetting(settings, "JwtOptions:Issuer", _issuer, true);
                 settings = SettingService.SetSetting(settings, "JwtOptions:Audience", _audience, true);
                 settings = SettingService.SetSetting(settings, "JwtOptions:Lifetime", _lifetime, true);
-            }
 
-            await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
-            await SettingService.ClearSiteSettingsCacheAsync();
+                await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
+                await SettingService.ClearSiteSettingsCacheAsync();
+            }
 
             if (!string.IsNullOrEmpty(_secret))
             {

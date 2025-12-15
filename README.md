@@ -12,7 +12,7 @@ Oqtane is being developed based on some fundamental principles which are outline
 
 # Latest Release
 
-[10.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v10.0.0) was released on November 14, 2025 and is a maintenance release including 77 pull requests by 6 different contributors, pushing the total number of project commits all-time over 7300. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
+[10.0.1](https://github.com/oqtane/oqtane.framework/releases/tag/v10.0.1) was released on December 15, 2025 and is a major release including 38 pull requests by 5 different contributors, pushing the total number of project commits all-time over 7400. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
 # Try It Now!
 
@@ -26,7 +26,11 @@ A free ASP.NET hosting account. No hidden fees. No credit card required.
 
 **Installing using the Oqtane Application Template:**
 
-(Note that "MyCompany.MyProject" can be replaced with your own unique company and project name)
+If you have an older version of the Oqtane Application Template installed and want to use the latest, use the following .NET CLI command to uninstall the old version:
+```
+dotnet new uninstall Oqtane.Application.Template
+```
+To install the Oqtane Application Template and create a new project, use the following .NET CLI commands (note that "MyCompany.MyProject" can be replaced with your own unique company and project name):
 
 ```
 dotnet new install Oqtane.Application.Template
@@ -38,7 +42,7 @@ dotnet run
 ```
 
 - Browse to the Url specified to run the application (an Installation Wizard screen will be displayed the first time you run the application)
-- To develop/debug the application in an IDE, open the *.sln file in the root folder and hit F5
+- To develop/debug the application in an IDE, open the *.slnx file in the root folder and hit F5
 
 **Installing using source code from the Dev/Master branch:**
 
@@ -46,7 +50,10 @@ dotnet run
 
 - Install the latest edition of [Visual Studio 2026](https://visualstudio.microsoft.com/downloads) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you wish to use LocalDB for development ( not a requirement as Oqtane supports SQLite, mySQL, and PostgreSQL ) you must also install the **Data storage and processing**.  
 
-- Clone (or download) the Oqtane Master or Dev branch source code to your local system.
+- Clone (or download) the Oqtane source code to your local system:
+
+  - Dev Branch: git clone https://github.com/oqtane/oqtane.framework
+  - Master Branch: git clone --single-branch --branch master https://github.com/oqtane/oqtane.framework
 
 - Open the **Oqtane.slnx** solution file (make sure you specify Oqtane.Server as the Startup Project)
 
@@ -81,7 +88,7 @@ dotnet run
 
 - If you have already installed a previous version of Oqtane and you wish to do a clean database install, simply reset the DefaultConnection value in the Oqtane.Server\appsettings.json file to "". This will trigger a re-install when you run the application which will execute the database installation.
    
-- If you want to submit pull requests make sure you install the [Github Extension For Visual Studio](https://visualstudio.github.com/). It is recommended you ignore any local changes you have made to the appsettings.json file before you submit a pull request. To automate this activity, open a command prompt and navigate to the /Oqtane.Server/ folder and enter the command "git update-index --skip-worktree appsettings.json" 
+- If you want to submit pull requests it is recommended you ignore any local changes you have made to the appsettings.json file before you submit a pull request. To automate this activity, open a command prompt and navigate to the /Oqtane.Server/ folder and enter the command "git update-index --skip-worktree appsettings.json" 
 
 **Video Series**
 
@@ -103,6 +110,9 @@ Connect with other developers, get support, and share ideas by joining the Oqtan
 
 # Roadmap
 This project is open source, and therefore is a work in progress...
+
+[10.0.1](https://github.com/oqtane/oqtane.framework/releases/tag/v10.0.1) (Dec 15, 2025)
+- [x] Stabilization improvements
 
 [10.0.0](https://github.com/oqtane/oqtane.framework/releases/tag/v10.0.0) (Nov 14, 2025)
 - [x] Migration to .NET 10
@@ -190,7 +200,7 @@ This project is open source, and therefore is a work in progress...
 ➡️ Full list and older versions can be found in the [docs roadmap](https://docs.oqtane.org/guides/roadmap/index.html)
 
 # Background
-Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Oqtane is a native Blazor application written from the ground up using modern .NET Core technology and a Single Page Application (SPA) architecture. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly themes, and extensibility via third party modules.
+Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and was inspired by his earlier efforts creating the DotNetNuke web application framework for the .NET Framework. Oqtane is a native Blazor application written from the ground up using modern .NET Core technology and a Single Page Application (SPA) architecture. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly themes, and extensibility via third party modules.
 
 # Reference Implementations
 

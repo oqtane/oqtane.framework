@@ -158,11 +158,17 @@
 
         // verify user is authenticated for current site
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        if (authState.User.Identity.IsAuthenticated && authState.User.Claims.Any(item => item.Type == Constants.SiteKeyClaimType && item.Value == SiteState.Alias.SiteKey))
+        if (authState.User.IsAuthenticated() && authState.User.SiteKey() == SiteState.Alias.SiteKey)
         {
-            // get user
-            var userid = int.Parse(authState.User.Claims.First(item => item.Type == ClaimTypes.NameIdentifier).Value);
-            user = await UserService.GetUserAsync(userid, SiteState.Alias.SiteId);
+            if (PageState == null || PageState.User == null || PageState.User.UserId != authState.User.UserId())
+            {
+                // get user
+                user = await UserService.GetUserAsync(authState.User.UserId(), SiteState.Alias.SiteId);
+            }
+            else
+            {
+                user = PageState.User;
+            }
             if (user != null)
             {
                 user.IsAuthenticated = authState.User.Identity.IsAuthenticated;

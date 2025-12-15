@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Modules.HtmlText.Repository;
@@ -7,11 +10,9 @@ using Oqtane.Repository;
 using Oqtane.Shared;
 using Oqtane.Migrations.Framework;
 using Oqtane.Documentation;
-using System.Linq;
 using Oqtane.Interfaces;
-using System.Collections.Generic;
-using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 
 // ReSharper disable ConvertToUsingDeclaration
 
@@ -23,15 +24,21 @@ namespace Oqtane.Modules.HtmlText.Manager
         private readonly IHtmlTextRepository _htmlText;
         private readonly IDBContextDependencies _DBContextDependencies;
         private readonly ISqlRepository _sqlRepository;
+        private readonly ITenantManager _tenantManager;
+        private readonly IMemoryCache _cache;
 
         public HtmlTextManager(
             IHtmlTextRepository htmlText,
             IDBContextDependencies DBContextDependencies,
-            ISqlRepository sqlRepository)
+            ISqlRepository sqlRepository,
+            ITenantManager tenantManager,
+            IMemoryCache cache)
         {
             _htmlText = htmlText;
             _DBContextDependencies = DBContextDependencies;
             _sqlRepository = sqlRepository;
+            _tenantManager = tenantManager;
+            _cache = cache;
         }
 
         public string ExportModule(Module module)
@@ -71,6 +78,13 @@ namespace Oqtane.Modules.HtmlText.Manager
             htmlText.ModuleId = module.ModuleId;
             htmlText.Content = content;
             _htmlText.AddHtmlText(htmlText);
+
+            //clear the cache for the module
+            var alias = _tenantManager.GetAlias();
+            if(alias != null)
+            {
+                _cache.Remove($"HtmlText:{alias.SiteKey}:{module.ModuleId}");
+            }
         }
 
         public bool Install(Tenant tenant, string version)

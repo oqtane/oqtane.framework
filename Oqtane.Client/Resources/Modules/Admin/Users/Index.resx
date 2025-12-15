@@ -217,7 +217,7 @@
     <value>Unique Characters:</value>
   </data>
   <data name="AllowSiteLogin.HelpText" xml:space="preserve">
-    <value>Do you want to allow users to sign in using a username and password that is managed locally on this site? Note that you should only disable this option if you have already sucessfully configured an external login provider, or else you may lock yourself out of the site.</value>
+    <value>Do you want to allow users to sign in using a username and password that is managed locally on this site? Note that you should only disable this option if you have already successfully configured an alternate login method, or else you may lock yourself out of the site.</value>
   </data>
   <data name="AllowSiteLogin.Text" xml:space="preserve">
     <value>Allow Local Login?</value>
@@ -370,7 +370,7 @@
     <value>Do you want users to use two factor authentication? Note that you should use the Disabled option until you have successfully verified that the Notification Job in Scheduled Jobs is enabled and your SMTP options in Site Settings are configured or else you will lock yourself out.</value>
   </data>
   <data name="TwoFactor.Text" xml:space="preserve">
-    <value>Two Factor Authentication?</value>
+    <value>Use 2FA?</value>
   </data>
   <data name="RequireConfirmedEmail.HelpText" xml:space="preserve">
     <value>Do you want to require registered users to verify their email address before they are allowed to log in?</value>
@@ -566,5 +566,11 @@
   </data>
   <data name="Passkeys.HelpText" xml:space="preserve">
     <value>Do you want to allow users to login using passkeys (ie. passwordless authentication using WebAuthn/FIDO2)?</value>
+  </data>
+  <data name="LoginLink.Text" xml:space="preserve">
+    <value>Allow Login Link?</value>
+  </data>
+  <data name="LoginLink.HelpText" xml:space="preserve">
+    <value>Do you want to allow users to login using a time sensitive link sent by email?</value>
   </data>
 </root>

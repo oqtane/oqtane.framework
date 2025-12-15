@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
-using System.Security.Policy;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -294,14 +293,18 @@ namespace Oqtane.Controllers
             return user;
         }
 
-        // POST api/<controller>/forgot
-        [HttpPost("forgot")]
-        public async Task Forgot([FromBody] User user)
+        // GET api/<controller>/forgotpassword/x
+        [HttpGet("forgotpassword/{username}")]
+        public async Task<bool> ForgotPassword(string username)
         {
-            if (ModelState.IsValid)
-            {
-                await _userManager.ForgotPassword(user);
-            }
+            return await _userManager.ForgotPassword(username);
+        }
+
+        // GET api/<controller>/forgotusername/x
+        [HttpGet("forgotusername/{email}")]
+        public async Task<bool> ForgotUsername(string email)
+        {
+            return await _userManager.ForgotUsername(email);
         }
 
         // POST api/<controller>/reset
@@ -558,6 +561,13 @@ namespace Oqtane.Controllers
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized External Login Delete Attempt {UserId} {Provider} {Key}", id, provider, key);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
+        }
+
+        // GET api/<controller>/loginlink/x
+        [HttpGet("loginlink/{email}")]
+        public async Task<bool> SendLoginLink(string email)
+        {
+            return await _userManager.SendLoginLink(email);
         }
     }
 }

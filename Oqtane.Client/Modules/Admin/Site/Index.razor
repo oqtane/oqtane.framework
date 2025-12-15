@@ -411,6 +411,18 @@
                             </select>
                         </div>
                     </div>
+                    @if (_rendermode == RenderModes.Static)
+                    {
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="enhancednavigation" HelpText="Indicates if enhanced navigation should be used with static rendering" ResourceKey="EnhancedNavigation">Enhanced Navigation: </Label>
+                            <div class="col-sm-9">
+                                <select id="enhancednavigation" class="form-select" @bind="@_enhancednavigation" required>
+                                    <option value="True">@SharedLocalizer["Yes"]</option>
+                                    <option value="False">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
+                        </div>
+                    }
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="runtime" HelpText="The render mode for UI components which require interactivity" ResourceKey="Runtime">Interactivity: </Label>
                         <div class="col-sm-9">
@@ -537,6 +549,7 @@
     private string _defaultalias;
 
     private string _rendermode = RenderModes.Interactive;
+    private string _enhancednavigation = "True";
     private string _runtime = Runtimes.Server;
     private string _prerender = "True";
     private string _hybrid = "False";
@@ -660,6 +673,7 @@
 
                 // hosting model
                 _rendermode = site.RenderMode;
+                _enhancednavigation = site.EnhancedNavigation.ToString();
                 _runtime = site.Runtime;
                 _prerender = site.Prerender.ToString();
                 _hybrid = site.Hybrid.ToString();
@@ -669,7 +683,7 @@
                 {
                     var tenants = await TenantService.GetTenantsAsync();
                     var _databases = await DatabaseService.GetDatabasesAsync();
-                    var tenant = tenants.Find(item => item.TenantId == site.TenantId);
+                    var tenant = tenants.Find(item => item.TenantId == PageState.Alias.TenantId);
                     if (tenant != null)
                     {
                         _tenant = tenant.Name;
@@ -807,13 +821,11 @@
                         // hosting model
                         if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
                         {
-                            if (site.RenderMode != _rendermode || site.Runtime != _runtime || site.Prerender != bool.Parse(_prerender) || site.Hybrid != bool.Parse(_hybrid))
-                            {
-                                site.RenderMode = _rendermode;
-                                site.Runtime = _runtime;
-                                site.Prerender = bool.Parse(_prerender);
-                                site.Hybrid = bool.Parse(_hybrid);
-                            }
+                            site.RenderMode = _rendermode;
+                            site.EnhancedNavigation = bool.Parse(_enhancednavigation);
+                            site.Runtime = _runtime;
+                            site.Prerender = bool.Parse(_prerender);
+                            site.Hybrid = bool.Parse(_hybrid);
                         }
 
                         site = await SiteService.UpdateSiteAsync(site);
@@ -874,17 +886,17 @@
         try
         {
             var aliases = await AliasService.GetAliasesAsync();
-            if (aliases.Any(item => item.SiteId != PageState.Site.SiteId || item.TenantId != PageState.Site.TenantId))
+            if (aliases.Any(item => item.SiteId != PageState.Site.SiteId || item.TenantId != PageState.Alias.TenantId))
             {
                 await SiteService.DeleteSiteAsync(PageState.Site.SiteId);
                 await logger.LogInformation("Site Deleted {SiteId}", PageState.Site.SiteId);
 
-                foreach (Alias alias in aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Site.TenantId))
+                foreach (Alias alias in aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Alias.TenantId))
                 {
                     await AliasService.DeleteAliasAsync(alias.AliasId);
                 }
 
-                var redirect = aliases.First(item => item.SiteId != PageState.Site.SiteId || item.TenantId != PageState.Site.TenantId);
+                var redirect = aliases.First(item => item.SiteId != PageState.Site.SiteId || item.TenantId != PageState.Alias.TenantId);
                 NavigationManager.NavigateTo(PageState.Uri.Scheme + "://" + redirect.Name, true);
             }
             else
@@ -981,7 +993,7 @@
         if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
         {
             _aliases = await AliasService.GetAliasesAsync();
-            _aliases = _aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Site.TenantId).OrderBy(item => item.AliasId).ToList();
+            _aliases = _aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Alias.TenantId).OrderBy(item => item.AliasId).ToList();
         }
     }
 
@@ -1034,7 +1046,7 @@
                 {
                     if (_aliasid == 0)
                     {
-                        alias = new Alias { SiteId = PageState.Site.SiteId, TenantId = PageState.Site.TenantId, Name = _aliasname, IsDefault = bool.Parse(_defaultalias) };
+                        alias = new Alias { SiteId = PageState.Site.SiteId, TenantId = PageState.Alias.TenantId, Name = _aliasname, IsDefault = bool.Parse(_defaultalias) };
                         await AliasService.AddAliasAsync(alias);
                     }
                     else

@@ -271,7 +271,7 @@
         }
 
         var tenants = await TenantService.GetTenantsAsync();
-        _tenant = tenants.Find(item => item.TenantId == PageState.Site.TenantId).Name;
+        _tenant = tenants.Find(item => item.TenantId == PageState.Alias.TenantId).Name;
         _history = await MigrationHistoryService.GetMigrationHistoryAsync();
 
         _initialized = true;

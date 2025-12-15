@@ -4,6 +4,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -748,6 +750,75 @@ namespace Oqtane.Shared
                 }
                 return hash.ToString("X8");
             }
+        }
+
+        public static IEnumerable<PropertyInfo> GetPropertiesIncludingInherited(Type type, BindingFlags bindingFlags)
+        {
+            var dictionary = new Dictionary<string, object>(StringComparer.Ordinal);
+
+            var currentType = type;
+            while (currentType != null)
+            {
+                var properties = currentType.GetProperties(bindingFlags | BindingFlags.DeclaredOnly);
+                foreach (var property in properties)
+                {
+                    if (!dictionary.TryGetValue(property.Name, out var others))
+                    {
+                        dictionary.Add(property.Name, property);
+                    }
+                    else if (!IsInheritedProperty(property, others))
+                    {
+                        List<PropertyInfo> many;
+                        if (others is PropertyInfo single)
+                        {
+                            many = new List<PropertyInfo> { single };
+                            dictionary[property.Name] = many;
+                        }
+                        else
+                        {
+                            many = (List<PropertyInfo>)others;
+                        }
+                        many.Add(property);
+                    }
+                }
+
+                currentType = currentType.BaseType;
+            }
+
+            foreach (var item in dictionary)
+            {
+                if (item.Value is PropertyInfo property)
+                {
+                    yield return property;
+                    continue;
+                }
+
+                var list = (List<PropertyInfo>)item.Value;
+                var count = list.Count;
+                for (var i = 0; i < count; i++)
+                {
+                    yield return list[i];
+                }
+            }
+        }
+
+        private static bool IsInheritedProperty(PropertyInfo property, object others)
+        {
+            if (others is PropertyInfo single)
+            {
+                return single.GetMethod?.GetBaseDefinition() == property.GetMethod?.GetBaseDefinition();
+            }
+
+            var many = (List<PropertyInfo>)others;
+            foreach (var other in CollectionsMarshal.AsSpan(many))
+            {
+                if (other.GetMethod?.GetBaseDefinition() == property.GetMethod?.GetBaseDefinition())
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         [Obsolete("ContentUrl(Alias alias, int fileId) is deprecated. Use FileUrl(Alias alias, int fileId) instead.", false)]

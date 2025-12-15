@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace Oqtane.Models
 {
@@ -128,5 +130,34 @@ namespace Oqtane.Models
         /// </summary>
         [NotMapped]
         public Dictionary<string, string> Settings { get; set; }
+
+        public User Clone()
+        {
+            return new User
+            {
+                UserId = UserId,
+                Username = Username,
+                DisplayName = DisplayName,
+                Email = Email,
+                TimeZoneId = TimeZoneId,
+                PhotoFileId = PhotoFileId,
+                LastLoginOn = LastLoginOn,
+                LastIPAddress = LastIPAddress,
+                TwoFactorRequired = TwoFactorRequired,
+                TwoFactorCode = TwoFactorCode,
+                TwoFactorExpiry = TwoFactorExpiry,
+                SecurityStamp = SecurityStamp,
+                SiteId = SiteId,
+                Roles = Roles,
+                DeletedBy = DeletedBy,
+                DeletedOn = DeletedOn,
+                IsDeleted = IsDeleted,
+                Password = Password,
+                IsAuthenticated = IsAuthenticated,
+                EmailConfirmed = EmailConfirmed,
+                SuppressNotification = SuppressNotification,
+                Settings = Settings.ToDictionary(setting => setting.Key, setting => setting.Value)
+            };
+        }
     }
 }

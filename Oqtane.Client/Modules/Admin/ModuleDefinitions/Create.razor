@@ -1,6 +1,7 @@
 @namespace Oqtane.Modules.Admin.ModuleDefinitions
 @inherits ModuleBase
 @using System.Text.RegularExpressions
+@using System.Reflection
 @inject NavigationManager NavigationManager
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject IModuleService ModuleService
@@ -96,6 +97,16 @@
         if (!NavigationManager.BaseUri.Contains("localhost:"))
         {
             AddModuleMessage(Localizer["Info.Module.Development"], MessageType.Info);
+        }
+        else
+        {
+            var entryAssemblyName = Assembly.GetEntryAssembly().GetName().Name;
+            if (entryAssemblyName.EndsWith(".Oqtane"))
+            {
+                // Oqtane Application assemblies end with .Server.Oqtane or .Client.Oqtane
+                string[] segments = entryAssemblyName.Split('.');
+                _owner = string.Join(".", segments, 0, segments.Length - 2);
+            }
         }
     }
 

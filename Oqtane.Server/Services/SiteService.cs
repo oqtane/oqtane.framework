@@ -13,6 +13,7 @@ using Oqtane.Enums;
 using Oqtane.Shared;
 using System.Globalization;
 using Oqtane.Extensions;
+using Oqtane.Managers;
 
 namespace Oqtane.Services
 {
@@ -25,6 +26,7 @@ namespace Oqtane.Services
         private readonly IPageModuleRepository _pageModules;
         private readonly IModuleDefinitionRepository _moduleDefinitions;
         private readonly ILanguageRepository _languages;
+        private readonly IUserManager _userManager;
         private readonly IUserPermissions _userPermissions;
         private readonly ISettingRepository _settings;
         private readonly ITenantManager _tenantManager;
@@ -35,7 +37,7 @@ namespace Oqtane.Services
         private readonly IHttpContextAccessor _accessor;
         private readonly string _private = "[PRIVATE]";
 
-        public ServerSiteService(ISiteRepository sites, IPageRepository pages, IThemeRepository themes, IPageModuleRepository pageModules, IModuleDefinitionRepository moduleDefinitions, ILanguageRepository languages, IUserPermissions userPermissions, ISettingRepository settings, ITenantManager tenantManager, ISyncManager syncManager, IConfigManager configManager, ILogManager logger, IMemoryCache cache, IHttpContextAccessor accessor)
+        public ServerSiteService(ISiteRepository sites, IPageRepository pages, IThemeRepository themes, IPageModuleRepository pageModules, IModuleDefinitionRepository moduleDefinitions, ILanguageRepository languages, IUserManager userManager, IUserPermissions userPermissions, ISettingRepository settings, ITenantManager tenantManager, ISyncManager syncManager, IConfigManager configManager, ILogManager logger, IMemoryCache cache, IHttpContextAccessor accessor)
         {
             _sites = sites;
             _pages = pages;
@@ -43,6 +45,7 @@ namespace Oqtane.Services
             _pageModules = pageModules;
             _moduleDefinitions = moduleDefinitions;
             _languages = languages;
+            _userManager = userManager;
             _userPermissions = userPermissions;
             _settings = settings;
             _tenantManager = tenantManager;
@@ -101,6 +104,12 @@ namespace Oqtane.Services
             }
             site.Languages = site.Languages.OrderBy(item => item.Name).ToList();
 
+            // get user
+            if (_accessor.HttpContext.User.IsAuthenticated())
+            {
+                site.User = _userManager.GetUser(_accessor.HttpContext.User.UserId(), site.SiteId);
+            }
+
             return Task.FromResult(site);
         }
 
@@ -148,6 +157,8 @@ namespace Oqtane.Services
 
                 // installation date used for fingerprinting static assets
                 site.Fingerprint = Utilities.GenerateSimpleHash(_configManager.GetSetting("InstallationDate", DateTime.UtcNow.ToString("yyyyMMddHHmm")));
+
+                site.TenantId = alias.TenantId;
             }
             else
             {
@@ -181,7 +192,7 @@ namespace Oqtane.Services
             {
                 var alias = _tenantManager.GetAlias();
                 var current = _sites.GetSite(site.SiteId, false);
-                if (site.SiteId == alias.SiteId && site.TenantId == alias.TenantId && current != null)
+                if (site.SiteId == alias.SiteId && current != null)
                 {
                     site = _sites.UpdateSite(site);
                     _syncManager.AddSyncEvent(alias, EntityNames.Site, site.SiteId, SyncEventActions.Update);
