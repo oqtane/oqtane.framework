@@ -9,8 +9,8 @@ namespace Oqtane.Extensions
 {
     public static class CacheExtensions
     {
-        private static AsyncKeyedLocker<string> _locker = new();
-        private static string _cachekeys = "cachekeys";
+        private static readonly AsyncKeyedLocker<string> _locker = new();
+        private const string _cachekeys = "cachekeys";
 
         public static TItem GetOrCreate<TItem>(this IMemoryCache cache, string key, Func<ICacheEntry, TItem> factory, bool track)
         {
