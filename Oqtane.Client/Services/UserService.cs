@@ -291,12 +291,12 @@ namespace Oqtane.Services
 
         public async Task<bool> ForgotPasswordAsync(string username)
         {
-            return await GetJsonAsync<bool>($"{Apiurl}/forgotpassword?name={username}");
+            return await GetJsonAsync<bool>($"{Apiurl}/forgotpassword/{WebUtility.UrlEncode(username)}");
         }
 
         public async Task<bool> ForgotUsernameAsync(string email)
         {
-            return await GetJsonAsync<bool>($"{Apiurl}/forgotusername?email={email}");
+            return await GetJsonAsync<bool>($"{Apiurl}/forgotusername/{WebUtility.UrlEncode(email)}");
         }
 
         public async Task<User> ResetPasswordAsync(User user, string token)
@@ -388,7 +388,7 @@ namespace Oqtane.Services
 
         public async Task<bool> SendLoginLinkAsync(string email)
         {
-            return await GetJsonAsync<bool>($"{Apiurl}/loginlink?email={email}");
+            return await GetJsonAsync<bool>($"{Apiurl}/loginlink/{WebUtility.UrlEncode(email)}");
         }
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
-using System.Security.Policy;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -294,15 +293,15 @@ namespace Oqtane.Controllers
             return user;
         }
 
-        // GET api/<controller>/forgotpassword?name=x
-        [HttpGet("forgotpassword")]
-        public async Task<bool> ForgotPassword(string name)
+        // GET api/<controller>/forgotpassword/x
+        [HttpGet("forgotpassword/{username}")]
+        public async Task<bool> ForgotPassword(string username)
         {
-            return await _userManager.ForgotPassword(name);
+            return await _userManager.ForgotPassword(username);
         }
 
-        // GET api/<controller>/forgotusername?email=x
-        [HttpGet("forgotusername")]
+        // GET api/<controller>/forgotusername/x
+        [HttpGet("forgotusername/{email}")]
         public async Task<bool> ForgotUsername(string email)
         {
             return await _userManager.ForgotUsername(email);
@@ -564,8 +563,8 @@ namespace Oqtane.Controllers
             }
         }
 
-        // GET api/<controller>/loginlink?email=x
-        [HttpGet("loginlink")]
+        // GET api/<controller>/loginlink/x
+        [HttpGet("loginlink/{email}")]
         public async Task<bool> SendLoginLink(string email)
         {
             return await _userManager.SendLoginLink(email);
