@@ -104,6 +104,12 @@ namespace Oqtane.Services
             }
             site.Languages = site.Languages.OrderBy(item => item.Name).ToList();
 
+            // get user
+            if (_accessor.HttpContext.User.IsAuthenticated())
+            {
+                site.User = _userManager.GetUser(_accessor.HttpContext.User.UserId(), site.SiteId);
+            }
+
             return Task.FromResult(site);
         }
 
@@ -148,12 +154,6 @@ namespace Oqtane.Services
 
                 // themes
                 site.Themes = _themes.FilterThemes(_themes.GetThemes(site.SiteId).ToList());
-
-                // user
-                if (_accessor.HttpContext.User.IsAuthenticated())
-                {
-                    site.User = _userManager.GetUser(_accessor.HttpContext.User.UserId(), site.SiteId);
-                }
 
                 // installation date used for fingerprinting static assets
                 site.Fingerprint = Utilities.GenerateSimpleHash(_configManager.GetSetting("InstallationDate", DateTime.UtcNow.ToString("yyyyMMddHHmm")));
