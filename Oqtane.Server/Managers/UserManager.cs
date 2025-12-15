@@ -985,7 +985,7 @@ namespace Oqtane.Managers
                         _notifications.AddNotification(notification);
 
                         _logger.Log(LogLevel.Information, this, LogFunction.Security, "Login Link Notification Sent To {Email}", user.Email);
-                        return true; // minimal object
+                        return true;
                     }
                 }
 
