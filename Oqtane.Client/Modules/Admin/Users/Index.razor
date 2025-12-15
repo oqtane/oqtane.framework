@@ -33,7 +33,7 @@ else
             </div>
             <br />
 
-            <Pager Items="@users" RowClass="align-middle" SearchProperties="User.Username,User.Email,User.DisplayName">
+            <Pager Items="@users" CurrentPage="@_page.ToString()" OnPageChange="@((page) => _page = page)" RowClass="align-middle" SearchProperties="User.Username,User.Email,User.DisplayName">
                 <Header>
                     <th style="width: 1px;">&nbsp;</th>
                     <th style="width: 1px;">&nbsp;</th>
@@ -551,6 +551,7 @@ else
 @code {
     private List<UserRole> users;
     private string _deleted = "false";
+    private int _page = 1;
 
     private string _allowregistration;
     private string _registerurl;
