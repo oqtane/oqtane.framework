@@ -18,14 +18,12 @@ namespace Oqtane.Pages
     {
         private readonly UserManager<IdentityUser> _identityUserManager;
         private readonly SignInManager<IdentityUser> _identitySignInManager;
-        private readonly IUserManager _userManager;
         private readonly ILogManager _logger;
 
-        public LoginLinkModel(UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, IUserManager userManager, ILogManager logger)
+        public LoginLinkModel(UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ILogManager logger)
         {
             _identityUserManager = identityUserManager;
             _identitySignInManager = identitySignInManager;
-            _userManager = userManager;
             _logger = logger;
         }
 
@@ -41,8 +39,8 @@ namespace Oqtane.Pages
                 IdentityUser identityuser = await _identityUserManager.FindByNameAsync(name);
                 if (identityuser != null)
                 {
-                    var user = _userManager.GetUser(identityuser.UserName, HttpContext.GetAlias().SiteId);
-                    if (user != null && user.TwoFactorCode == token && DateTime.UtcNow < user.TwoFactorExpiry)
+                    var result = await _identityUserManager.ConfirmEmailAsync(identityuser, token);
+                    if (result.Succeeded)
                     {
                         await _identitySignInManager.SignInAsync(identityuser, false);
                         _logger.Log(LogLevel.Information, this, LogFunction.Security, "Login Link Successful For User {Username}", name);

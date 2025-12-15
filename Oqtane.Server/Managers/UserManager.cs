@@ -973,10 +973,6 @@ namespace Oqtane.Managers
 
                         var alias = _tenantManager.GetAlias();
                         var user = GetUser(identityuser.UserName, alias.SiteId);
-                        user.TwoFactorCode = token;
-                        user.TwoFactorExpiry = DateTime.UtcNow.AddMinutes(10);
-                        _users.UpdateUser(user);
-
                         string url = alias.Protocol + alias.Name + "/pages/loginlink?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
                         string siteName = _sites.GetSite(alias.SiteId).Name;
                         string subject = _localizer["LoginLinkEmailSubject"];
