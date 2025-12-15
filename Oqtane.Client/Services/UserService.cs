@@ -97,18 +97,18 @@ namespace Oqtane.Services
         Task<User> VerifyEmailAsync(User user, string token);
 
         /// <summary>
-        /// Trigger a forgot-password e-mail for this <see cref="User"/>. 
+        /// Trigger a forgot-password e-mail. 
         /// </summary>
-        /// <param name="user"></param>
+        /// <param name="username"></param>
         /// <returns></returns>
-        Task<User> ForgotPasswordAsync(User user);
+        Task<bool> ForgotPasswordAsync(string username);
 
         /// <summary>
-        /// Trigger a forgot-username e-mail for this <see cref="User"/>. 
+        /// Trigger a username reminder e-mail. 
         /// </summary>
-        /// <param name="user"></param>
+        /// <param name="email"></param>
         /// <returns></returns>
-        Task<User> ForgotUsernameAsync(User user);
+        Task<bool> ForgotUsernameAsync(string email);
 
         /// <summary>
         /// Reset the password of this <see cref="User"/>
@@ -222,9 +222,9 @@ namespace Oqtane.Services
         /// <summary>
         /// Send a login link
         /// </summary>
-        /// <param name="user"></param>
+        /// <param name="email"></param>
         /// <returns></returns>
-        Task<User> SendLoginLinkAsync(User user);
+        Task<bool> SendLoginLinkAsync(string email);
     }
 
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
@@ -289,14 +289,14 @@ namespace Oqtane.Services
             return await PostJsonAsync<User>($"{Apiurl}/verify?token={token}", user);
         }
 
-        public async Task<User> ForgotPasswordAsync(User user)
+        public async Task<bool> ForgotPasswordAsync(string username)
         {
-            return await PostJsonAsync<User>($"{Apiurl}/forgot", user);
+            return await GetJsonAsync<bool>($"{Apiurl}/forgotpassword?name={username}");
         }
 
-        public async Task<User> ForgotUsernameAsync(User user)
+        public async Task<bool> ForgotUsernameAsync(string email)
         {
-            return await PostJsonAsync<User>($"{Apiurl}/forgotusername", user);
+            return await GetJsonAsync<bool>($"{Apiurl}/forgotusername?email={email}");
         }
 
         public async Task<User> ResetPasswordAsync(User user, string token)
@@ -386,9 +386,9 @@ namespace Oqtane.Services
             await DeleteAsync($"{Apiurl}/login?id={userId}&provider={provider}&key={key}");
         }
 
-        public async Task<User> SendLoginLinkAsync(User user)
+        public async Task<bool> SendLoginLinkAsync(string email)
         {
-            return await PostJsonAsync<User>($"{Apiurl}/loginlink", user);
+            return await GetJsonAsync<bool>($"{Apiurl}/loginlink?email={email}");
         }
     }
 }

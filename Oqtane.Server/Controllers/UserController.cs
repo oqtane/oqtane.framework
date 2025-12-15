@@ -294,26 +294,18 @@ namespace Oqtane.Controllers
             return user;
         }
 
-        // POST api/<controller>/forgot
-        [HttpPost("forgot")]
-        public async Task<User> Forgot([FromBody] User user)
+        // GET api/<controller>/forgotpassword?name=x
+        [HttpGet("forgotpassword")]
+        public async Task<bool> ForgotPassword(string name)
         {
-            if (ModelState.IsValid)
-            {
-                return await _userManager.ForgotPassword(user);
-            }
-            return null;
+            return await _userManager.ForgotPassword(name);
         }
 
-        // POST api/<controller>/forgotusername
-        [HttpPost("forgotusername")]
-        public async Task<User> ForgotUsername([FromBody] User user)
+        // GET api/<controller>/forgotusername?email=x
+        [HttpGet("forgotusername")]
+        public async Task<bool> ForgotUsername(string email)
         {
-            if (ModelState.IsValid)
-            {
-                return await _userManager.ForgotUsername(user);
-            }
-            return null;
+            return await _userManager.ForgotUsername(email);
         }
 
         // POST api/<controller>/reset
@@ -572,15 +564,11 @@ namespace Oqtane.Controllers
             }
         }
 
-        // POST api/<controller>/loginlink
-        [HttpPost("loginlink")]
-        public async Task<User> SendLoginLink([FromBody] User user)
+        // GET api/<controller>/loginlink?email=x
+        [HttpGet("loginlink")]
+        public async Task<bool> SendLoginLink(string email)
         {
-            if (ModelState.IsValid)
-            {
-                return await _userManager.SendLoginLink(user);
-            }
-            return null;
+            return await _userManager.SendLoginLink(email);
         }
     }
 }
