@@ -243,6 +243,9 @@ else
     private void SetAction(string action)
     {
         _action = action;
+        _username = "";
+        _password = "";
+        _email = "";
         ClearModuleMessage();
         StateHasChanged();
     }
@@ -364,9 +367,7 @@ else
         {
             if (!string.IsNullOrEmpty(_username))
             {
-                var user = new User { Username = _username };
-                user = await UserService.ForgotPasswordAsync(user);
-                if (user != null)
+                if (await UserService.ForgotPasswordAsync(_username))
                 {
                     await logger.LogInformation(LogFunction.Security, "Password Reset Notification Sent For Username {Username}", _username);
                     AddModuleMessage(Localizer["Message.ForgotPassword"], MessageType.Info);
@@ -394,9 +395,7 @@ else
         {
             if (!string.IsNullOrEmpty(_email))
             {
-                var user = new User { Email = _email };
-                user = await UserService.ForgotUsernameAsync(user);
-                if (user != null)
+                if (await UserService.ForgotUsernameAsync(_email))
                 {
                     AddModuleMessage(Localizer["Message.ForgotUsername"], MessageType.Info);
                     await logger.LogInformation(LogFunction.Security, "Username Reminder Notification Sent For Email {Email}", _email);
@@ -424,9 +423,7 @@ else
         {
             if (!string.IsNullOrEmpty(_email))
             {
-                var user = new User { Email = _email };
-                user = await UserService.SendLoginLinkAsync(user);
-                if (user != null)
+                if (await UserService.SendLoginLinkAsync(_email))
                 {
                     AddModuleMessage(Localizer["Message.SendLoginLink"], MessageType.Info);
                     await logger.LogInformation(LogFunction.Security, "Login Link Sent To Email {Email}", _email);
