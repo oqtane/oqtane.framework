@@ -593,6 +593,7 @@ namespace Oqtane.Infrastructure
                                 Runtime = runtime,
                                 Prerender = (rendermode == RenderModes.Interactive),
                                 Hybrid = false,
+                                EnhancedNavigation = true,
                                 TenantId = tenant.TenantId
                             };
                             site = sites.AddSite(site);
