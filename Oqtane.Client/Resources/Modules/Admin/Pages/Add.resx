@@ -267,4 +267,7 @@
   <data name="ExpiryDate.Text" xml:space="preserve">
     <value>Expiry Date: </value>
   </data>
+  <data name="Message.Required.Name" xml:space="preserve">
+    <value>You Must Provide Page Name</value>
+  </data>
 </root>
