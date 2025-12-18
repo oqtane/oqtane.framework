@@ -127,6 +127,7 @@ else
     private bool _allowsitelogin = true;
     private bool _allowloginlink = false;
     private bool _allowpasskeys = false;
+    private string _returnurl = string.Empty;
 
     private ElementReference login;
     private bool validated = false;
@@ -168,6 +169,9 @@ else
             {
                 _registerurl = NavigateUrl("register");
             }
+
+            // PageState.ReturnUrl is not specified if user navigated directly to login page
+            _returnurl = (!string.IsNullOrEmpty(PageState.ReturnUrl)) ? PageState.ReturnUrl : PageState.Alias.Path;
 
             _togglepassword = SharedLocalizer["ShowPassword"];
 
@@ -216,7 +220,7 @@ else
             {
                 if (PageState.QueryString.ContainsKey("status"))
                 {
-                    AddModuleMessage(Localizer["ExternalLoginStatus." + PageState.QueryString["status"]], MessageType.Info);
+                    AddModuleMessage(Localizer["ExternalLoginStatus." + PageState.QueryString["status"]], MessageType.Warning);
                 }
             }
         }
@@ -252,7 +256,7 @@ else
 
     private void ExternalLogin()
     {
-        NavigationManager.NavigateTo(Utilities.TenantUrl(PageState.Alias, "/pages/external?returnurl=" + WebUtility.UrlEncode(PageState.ReturnUrl)), true);
+        NavigationManager.NavigateTo(Utilities.TenantUrl(PageState.Alias, "/pages/external?returnurl=" + WebUtility.UrlEncode(_returnurl)), true);
     }
 
     private void TogglePassword()
@@ -294,20 +298,17 @@ else
                 {
                     await logger.LogInformation(LogFunction.Security, "Login Successful For {Username} From IP Address {IPAddress}", _username, SiteState.RemoteIPAddress);
 
-                    // return url is not specified if user navigated directly to login page
-                    var returnurl = (!string.IsNullOrEmpty(PageState.ReturnUrl)) ? PageState.ReturnUrl : PageState.Alias.Path;
-
                     if (hybrid)
                     {
                         // hybrid apps utilize an interactive login
                         var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
                         authstateprovider.NotifyAuthenticationChanged();
-                        NavigationManager.NavigateTo(NavigateUrl(returnurl, true));
+                        NavigationManager.NavigateTo(NavigateUrl(_returnurl, true));
                     }
                     else
                     {
                         // post back to the Login page so that the cookies are set correctly
-                        var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, username = _username, password = _password, remember = _remember, returnurl = WebUtility.UrlEncode(returnurl) };
+                        var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, username = _username, password = _password, remember = _remember, returnurl = WebUtility.UrlEncode(_returnurl) };
                         string url = Utilities.TenantUrl(PageState.Alias, "/pages/login/");
                         await interop.SubmitForm(url, fields);
                     }
@@ -349,14 +350,14 @@ else
 
     private void CancelLogin()
     {
-        NavigationManager.NavigateTo(PageState.ReturnUrl);
+        NavigationManager.NavigateTo(_returnurl);
     }
 
     private async Task PasskeyLogin()
     {
         // post back to the Passkey page so that the cookies are set correctly
         var interop = new Interop(JSRuntime);
-        var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, operation = "request", returnurl = NavigateUrl() };
+        var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, operation = "request", returnurl = _returnurl };
         string url = Utilities.TenantUrl(PageState.Alias, "/pages/passkey/");
         await interop.SubmitForm(url, fields);
     }
@@ -423,7 +424,7 @@ else
         {
             if (!string.IsNullOrEmpty(_email))
             {
-                if (await UserService.SendLoginLinkAsync(_email))
+                if (await UserService.SendLoginLinkAsync(_email, _returnurl))
                 {
                     AddModuleMessage(Localizer["Message.SendLoginLink"], MessageType.Info);
                     await logger.LogInformation(LogFunction.Security, "Login Link Sent To Email {Email}", _email);
@@ -457,8 +458,7 @@ else
                 if (!string.IsNullOrEmpty(credential))
                 {
                     // post back to the Passkey page so that the cookies are set correctly
-                    var returnurl = (!string.IsNullOrEmpty(PageState.ReturnUrl)) ? PageState.ReturnUrl : PageState.Alias.Path + "/";
-                    var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, operation = "login", credential = credential, returnurl = returnurl };
+                    var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, operation = "login", credential = credential, returnurl = _returnurl };
                     string url = Utilities.TenantUrl(PageState.Alias, "/pages/passkey/");
                     await interop.SubmitForm(url, fields);
                 }
@@ -497,7 +497,7 @@ else
         // redirect logged in user to specified page
         if (PageState.User != null && !UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
         {
-            NavigationManager.NavigateTo(PageState.ReturnUrl);
+            NavigationManager.NavigateTo(_returnurl);
         }
     }
 }

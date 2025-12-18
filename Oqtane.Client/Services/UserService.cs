@@ -224,7 +224,7 @@ namespace Oqtane.Services
         /// </summary>
         /// <param name="email"></param>
         /// <returns></returns>
-        Task<bool> SendLoginLinkAsync(string email);
+        Task<bool> SendLoginLinkAsync(string email, string returnurl);
     }
 
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
@@ -386,9 +386,9 @@ namespace Oqtane.Services
             await DeleteAsync($"{Apiurl}/login?id={userId}&provider={provider}&key={key}");
         }
 
-        public async Task<bool> SendLoginLinkAsync(string email)
+        public async Task<bool> SendLoginLinkAsync(string email, string returnurl)
         {
-            return await GetJsonAsync<bool>($"{Apiurl}/loginlink/{WebUtility.UrlEncode(email)}");
+            return await GetJsonAsync<bool>($"{Apiurl}/loginlink/{WebUtility.UrlEncode(email)}/{WebUtility.UrlEncode(returnurl)}");
         }
     }
 }
