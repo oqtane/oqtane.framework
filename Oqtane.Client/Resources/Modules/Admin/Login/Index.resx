@@ -246,6 +246,9 @@
   <data name="ExternalLoginStatus.LoginLinkFailed" xml:space="preserve">
     <value>Login Links Are Time Sensitive. Please Request Another Login Link To Complete The Login Process.</value>
   </data>
+  <data name="ExternalLoginStatus.PasskeyFailed" xml:space="preserve">
+    <value>Passkey Login Was Unsuccessful. Please Ensure You Selected The Correct Passkey For This Site.</value>
+  </data>
   <data name="Register" xml:space="preserve">
     <value>Register as new user?</value>
   </data>

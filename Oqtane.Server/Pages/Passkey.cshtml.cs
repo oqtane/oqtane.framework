@@ -10,6 +10,7 @@ using Oqtane.Infrastructure;
 using Oqtane.Managers;
 using Oqtane.Security;
 using Oqtane.Shared;
+using Oqtane.UI;
 
 namespace Oqtane.Pages
 {
@@ -103,7 +104,7 @@ namespace Oqtane.Pages
                         {
                             identityuser = null;
                             var requestOptionsJson = await _identitySignInManager.MakePasskeyRequestOptionsAsync(identityuser);
-                            returnurl += $"?options={WebUtility.UrlEncode(requestOptionsJson)}";
+                            returnurl = HttpContext.GetAlias().Path + $"/login?options={WebUtility.UrlEncode(requestOptionsJson)}&returnurl={WebUtility.UrlEncode(returnurl)}";
                         }
                         else
                         {
@@ -129,6 +130,7 @@ namespace Oqtane.Pages
                             else
                             {
                                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Passkey Login Failed - Invalid Credential");
+                                returnurl = HttpContext.GetAlias().Path + $"/login?status={ExternalLoginStatus.PasskeyFailed}&returnurl={WebUtility.UrlEncode(returnurl)}";
                             }
                         }
                         else

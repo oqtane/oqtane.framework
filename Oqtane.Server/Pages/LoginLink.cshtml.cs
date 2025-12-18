@@ -27,38 +27,45 @@ namespace Oqtane.Pages
             _logger = logger;
         }
 
-        public async Task<IActionResult> OnGetAsync(string name, string token)
+        public async Task<IActionResult> OnGetAsync(string name, string token, string returnurl)
         {
-            var returnurl = "/login";
+            returnurl = (returnurl == null) ? "" : WebUtility.UrlDecode(returnurl);
 
             if (bool.Parse(HttpContext.GetSiteSettings().GetValue("LoginOptions:LoginLink", "false")) &&
-                !User.Identity.IsAuthenticated && !string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(token))
+                !string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(token))
             {
                 var validuser = false;
 
-                IdentityUser identityuser = await _identityUserManager.FindByNameAsync(name);
-                if (identityuser != null)
+                if (!User.Identity.IsAuthenticated)
                 {
-                    var result = await _identityUserManager.ConfirmEmailAsync(identityuser, token);
-                    if (result.Succeeded)
+                    IdentityUser identityuser = await _identityUserManager.FindByNameAsync(name);
+                    if (identityuser != null)
                     {
-                        await _identitySignInManager.SignInAsync(identityuser, false);
-                        _logger.Log(LogLevel.Information, this, LogFunction.Security, "Login Link Successful For User {Username}", name);
-                        validuser = true;
-                        returnurl = "/";
+                        var result = await _identityUserManager.ConfirmEmailAsync(identityuser, token);
+                        if (result.Succeeded)
+                        {
+                            await _identitySignInManager.SignInAsync(identityuser, false);
+                            _logger.Log(LogLevel.Information, this, LogFunction.Security, "Login Link Successful For User {Username}", name);
+                            validuser = true;
+                        }
                     }
                 }
 
                 if (!validuser)
                 {
                     _logger.Log(LogLevel.Error, this, LogFunction.Security, "Login Link Failed For User {Username}", name);
-                    returnurl += $"?status={ExternalLoginStatus.LoginLinkFailed}";
+                    returnurl = HttpContext.GetAlias().Path + $"/login?status={ExternalLoginStatus.LoginLinkFailed}";
                 }
             }
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Login Link Attempt For User {Username}", name);
-                returnurl = "/";
+                returnurl = HttpContext.GetAlias().Path;
+            }
+
+            if (!returnurl.StartsWith("/"))
+            {
+                returnurl = "/" + returnurl;
             }
 
             return LocalRedirect(Url.Content("~" + returnurl));
