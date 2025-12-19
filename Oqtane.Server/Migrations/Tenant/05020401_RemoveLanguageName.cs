@@ -16,8 +16,11 @@ namespace Oqtane.Migrations.Tenant
 
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            var languageEntityBuilder = new LanguageEntityBuilder(migrationBuilder, ActiveDatabase);
-            languageEntityBuilder.DropColumn("Name");
+            if (ActiveDatabase.Name != "Sqlite")
+            {
+                var languageEntityBuilder = new LanguageEntityBuilder(migrationBuilder, ActiveDatabase);
+                languageEntityBuilder.DropColumn("Name");
+            }
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

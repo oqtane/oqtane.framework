@@ -18,7 +18,10 @@ namespace Oqtane.Migrations.Tenant
         {
             var siteEntityBuilder = new SiteEntityBuilder(migrationBuilder, ActiveDatabase);
             siteEntityBuilder.DropIndex("IX_Site"); // TenantId, Name
-            siteEntityBuilder.DropColumn("TenantId");
+            if (ActiveDatabase.Name != "Sqlite")
+            {
+                siteEntityBuilder.DropColumn("TenantId");
+            }
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
