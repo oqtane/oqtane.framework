@@ -309,4 +309,7 @@
   <data name="UpdateModulePermissions.HelpText" xml:space="preserve">
     <value>Specify if changes made to page permissions should be propagated to the modules on this page</value>
   </data>
+  <data name="Theme.Heading" xml:space="preserve">
+    <value>Theme</value>
+  </data>
 </root>

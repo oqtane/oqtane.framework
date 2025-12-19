@@ -225,9 +225,6 @@
   <data name="Personalizable.Text" xml:space="preserve">
     <value>Personalizable? </value>
   </data>
-  <data name="Appearance.Name" xml:space="preserve">
-    <value>Appearance</value>
-  </data>
   <data name="HeadContent.HelpText" xml:space="preserve">
     <value>Optionally enter content to be included in the page head (ie. meta, link, or script tags)</value>
   </data>
@@ -253,7 +250,7 @@
     <value>Permissions</value>
   </data>
   <data name="Theme.Heading" xml:space="preserve">
-    <value>Theme Settings</value>
+    <value>Theme</value>
   </data>
   <data name="EffectiveDate.HelpText" xml:space="preserve">
     <value>The date that this page is active</value>
@@ -266,5 +263,8 @@
   </data>
   <data name="ExpiryDate.Text" xml:space="preserve">
     <value>Expiry Date: </value>
+  </data>
+  <data name="Appearance.Heading" xml:space="preserve">
+    <value>Appearance</value>
   </data>
 </root>
