@@ -16,7 +16,7 @@
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="name" HelpText="Enter the page name" ResourceKey="Name">Name: </Label>
                         <div class="col-sm-9">
-                            <input id="name" class="form-control" @bind="@_name" maxlength="50" required />
+                            <input id="name" class="form-control" @bind="@_name" maxlength="100" required />
                         </div>
                     </div>
                     @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
@@ -81,21 +81,9 @@
                         </div>
                     }
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="navigation" HelpText="Select whether the page is part of the site navigation or hidden" ResourceKey="Navigation">Navigation? </Label>
+                        <Label Class="col-sm-3" For="title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used." ResourceKey="Title">Title: </Label>
                         <div class="col-sm-9">
-                            <select id="navigation" class="form-select" @bind="@_isnavigation" required>
-                                <option value="True">@SharedLocalizer["Yes"]</option>
-                                <option value="False">@SharedLocalizer["No"]</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="clickable" HelpText="Select whether the link in the site navigation is enabled or disabled" ResourceKey="Clickable">Clickable? </Label>
-                        <div class="col-sm-9">
-                            <select id="clickable" class="form-select" @bind="@_isclickable" required>
-                                <option value="True">@SharedLocalizer["Yes"]</option>
-                                <option value="False">@SharedLocalizer["No"]</option>
-                            </select>
+                            <input id="title" class="form-control" @bind="@_title" maxlength="200" />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
@@ -111,27 +99,6 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="icon" HelpText="Optionally provide an icon class name for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Label>
-                        <div class="col-sm-8">
-                            <InputList Value="@_icon" ValueChanged="IconChanged" DataList="@_icons" ResourceKey="Icon" ResourceType="@_iconresources" />
-                        </div>
-                        <div class="col-sm-1">
-                            <i class="@_icon"></i>
-                        </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="effectiveDate" HelpText="The date that this page is active" ResourceKey="EffectiveDate">Effective Date: </Label>
-                        <div class="col-sm-9">
-                            <input type="date" id="effectiveDate" class="form-control" @bind="@_effectivedate" />
-                        </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="expiryDate" HelpText="The date that this page expires" ResourceKey="ExpiryDate">Expiry Date: </Label>
-                        <div class="col-sm-9">
-                            <input type="date" id="expiryDate" class="form-control" @bind="@_expirydate" />
-                        </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content" ResourceKey="Personalizable">Personalizable? </Label>
                         <div class="col-sm-9">
                             <select id="personalizable" class="form-select" @bind="@_ispersonalizable" required>
@@ -141,15 +108,8 @@
                         </div>
                     </div>
                 </div>
-
-                <Section Name="Appearance" ResourceKey="Appearance" Heading=@Localizer["Appearance.Name"]>
+                <Section Name="Theme" Heading="Theme" ResourceKey="Theme">
                     <div class="container">
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used." ResourceKey="Title">Title: </Label>
-                            <div class="col-sm-9">
-                                <input id="title" class="form-control" @bind="@_title" maxlength="200" />
-                            </div>
-                        </div>
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="theme" HelpText="Select the theme for this page" ResourceKey="Theme">Theme: </Label>
                             <div class="col-sm-9">
@@ -177,6 +137,49 @@
                                         <option value="@container.TypeName">@container.Name</option>
                                     }
                                 </select>
+                            </div>
+                        </div>
+                    </div>
+                </Section>
+                <Section Name="Appearance" Heading="Appearance" ResourceKey="Appearance">
+                    <div class="container">
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="icon" HelpText="Optionally provide an icon class name for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Label>
+                            <div class="col-sm-8">
+                                <InputList Value="@_icon" ValueChanged="IconChanged" DataList="@_icons" ResourceKey="Icon" ResourceType="@_iconresources" />
+                            </div>
+                            <div class="col-sm-1">
+                                <i class="@_icon"></i>
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="navigation" HelpText="Select whether the page is part of the site navigation or hidden" ResourceKey="Navigation">Navigation? </Label>
+                            <div class="col-sm-9">
+                                <select id="navigation" class="form-select" @bind="@_isnavigation" required>
+                                    <option value="True">@SharedLocalizer["Yes"]</option>
+                                    <option value="False">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="clickable" HelpText="Select whether the link in the site navigation is enabled or disabled" ResourceKey="Clickable">Clickable? </Label>
+                            <div class="col-sm-9">
+                                <select id="clickable" class="form-select" @bind="@_isclickable" required>
+                                    <option value="True">@SharedLocalizer["Yes"]</option>
+                                    <option value="False">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="effectiveDate" HelpText="The date that this page is active" ResourceKey="EffectiveDate">Effective Date: </Label>
+                            <div class="col-sm-9">
+                                <input type="date" id="effectiveDate" class="form-control" @bind="@_effectivedate" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="expiryDate" HelpText="The date that this page expires" ResourceKey="ExpiryDate">Expiry Date: </Label>
+                            <div class="col-sm-9">
+                                <input type="date" id="expiryDate" class="form-control" @bind="@_expirydate" />
                             </div>
                         </div>
                     </div>
