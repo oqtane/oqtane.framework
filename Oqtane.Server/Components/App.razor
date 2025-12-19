@@ -294,8 +294,11 @@
 
     private void HandlePageNotFound(Site site, Page page, Route route)
     {
+        // referrer will only be set if the link originated externally
+        string referrer = (Context.Request.Headers[HeaderNames.Referer] != StringValues.Empty) ? Context.Request.Headers[HeaderNames.Referer] : "";
+
         // page not found - look for url mapping
-        var urlMapping = UrlMappingRepository.GetUrlMapping(site.SiteId, route.PagePath);
+        var urlMapping = UrlMappingRepository.GetUrlMapping(site.SiteId, route.PagePath, referrer);
         if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
         {
             // redirect to mapped url
