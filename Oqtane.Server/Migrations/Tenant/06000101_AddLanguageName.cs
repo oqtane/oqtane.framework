@@ -16,7 +16,7 @@ namespace Oqtane.Migrations.Tenant
 
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // Name column was removed in 5.2.4 however SQLite does not support column removal so it had to be restored
+            // Name column was removed in 5.2.4 however SQLite did not support column removal so it had to be restored
             if (ActiveDatabase.Name != "Sqlite")
             {
                 var languageEntityBuilder = new LanguageEntityBuilder(migrationBuilder, ActiveDatabase);

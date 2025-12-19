@@ -31,12 +31,15 @@ namespace Oqtane.Database.Sqlite
 
         public override void DropColumn(MigrationBuilder builder, string name, string table)
         {
-            // not implemented as SQLite does not support dropping columns
+            // SQLite supports dropping columns starting with version 3.35.0 but EF Core does not implement it yet
+            // note that a column cannot be dropped if it has a UNIQUE constraint, is part of a PRIMARY KEY, is indexed, or is referenced by other parts of the schema
+            builder.Sql($"ALTER TABLE {table} DROP COLUMN {name};");
         }
 
         public override void AlterStringColumn(MigrationBuilder builder, string name, string table, int length, bool nullable, bool unicode, string index)
         {
             // not implemented as SQLite does not support altering columns
+            // note that column length does not need to be modified as SQLite uses a TEXT type which utilizes variable length strings
         }
 
         public override string ConcatenateSql(params string[] values)
