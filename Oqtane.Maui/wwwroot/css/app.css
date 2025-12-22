@@ -273,6 +273,11 @@ app {
     min-height: 250px;
 }
 
+.app-editor-resizable {
+    resize: vertical;
+    overflow: auto;
+}
+
 .app-logo .navbar-brand {
     padding: 5px 20px 5px 20px;
 }
