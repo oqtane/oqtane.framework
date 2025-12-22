@@ -1,8 +1,8 @@
 @namespace Oqtane.Themes.Controls
 
-@if (ComponentType != null)
+@if (_menuType != null)
 {
-    <DynamicComponent Type="@ComponentType"></DynamicComponent>
+    <DynamicComponent Type="@_menuType" Parameters="@Attributes"></DynamicComponent>
 }
 
 @code{
@@ -12,7 +12,10 @@
     [Parameter]
     public string MenuType { get; set; }
 
-    public Type ComponentType { get; set; }
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
+
+    private Type _menuType;
 
     protected override void OnInitialized()
     {
@@ -28,6 +31,6 @@
             }
         }
 
-        ComponentType = Type.GetType(MenuType);
+        _menuType = Type.GetType(MenuType);
     }
 }
