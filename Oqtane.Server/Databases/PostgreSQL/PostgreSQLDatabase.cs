@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Globalization;
+using System.Linq;
 using EFCore.NamingConventions.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -108,36 +109,40 @@ namespace Oqtane.Database.PostgreSQL
 
         public override void UpdateIdentityStoreTableNames(ModelBuilder builder)
         {
-            foreach(var entity in builder.Model.GetEntityTypes())
+            foreach (var entity in builder.Model.GetEntityTypes())
             {
-                var tableName = entity.GetTableName();
-                if (tableName.StartsWith("AspNetUser"))
+                // the IdentityPasskeyData entity was introduced in .NET 10 and is not mapped to a database table so should be ignored
+                if (entity.ClrType.Name != "IdentityPasskeyData")
                 {
-                    // replace table name
-                    entity.SetTableName(RewriteName(entity.GetTableName()));
-
-                    // replace column names
-                    foreach(var property in entity.GetProperties())
+                    var tableName = entity.GetTableName();
+                    if (tableName.StartsWith("AspNetUser"))
                     {
-                        property.SetColumnName(RewriteName(property.Name));
-                    }
+                        // replace table name
+                        entity.SetTableName(RewriteName(entity.GetTableName()));
 
-                    // replace key names
-                    foreach(var key in entity.GetKeys())
-                    {
-                        key.SetName(RewriteName(key.GetName()));
-                    }
+                        // replace column names
+                        foreach (var property in entity.GetProperties())
+                        {
+                            property.SetColumnName(RewriteName(property.Name));
+                        }
 
-                    // replace foreign key names
-                    foreach (var key in entity.GetForeignKeys())
-                    {
-                        key.PrincipalKey.SetName(RewriteName(key.PrincipalKey.GetName()));
-                    }
+                        // replace key names
+                        foreach (var key in entity.GetKeys())
+                        {
+                            key.SetName(RewriteName(key.GetName()));
+                        }
 
-                    // replace index names
-                    foreach (var index in entity.GetIndexes())
-                    {
-                        index.SetDatabaseName(RewriteName(index.GetDatabaseName()));
+                        // replace foreign key names
+                        foreach (var key in entity.GetForeignKeys())
+                        {
+                            key.PrincipalKey.SetName(RewriteName(key.PrincipalKey.GetName()));
+                        }
+
+                        // replace index names
+                        foreach (var index in entity.GetIndexes())
+                        {
+                            index.SetDatabaseName(RewriteName(index.GetDatabaseName()));
+                        }
                     }
                 }
             }
