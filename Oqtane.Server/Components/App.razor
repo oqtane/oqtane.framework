@@ -71,7 +71,7 @@
             {
                 <Routes PageState="@_pageState" RenderMode="@_renderMode" Runtime="@_runtime" AntiForgeryToken="@_antiForgeryToken" AuthorizationToken="@_authorizationToken" Platform="@_platform" @rendermode="InteractiveRenderMode.GetInteractiveRenderMode(_runtime, _prerender)" />
             }
-
+            <script src="_content/Radzen.Blazor/Radzen.Blazor.js?v=@(typeof(Radzen.Colors).Assembly.GetName().Version)"></script> 
             <script src="_framework/blazor.web.js"></script>
             <script src="js/app.js?v=@_fingerprint"></script>
             <script src="js/loadjs.min.js?v=@_fingerprint"></script>
