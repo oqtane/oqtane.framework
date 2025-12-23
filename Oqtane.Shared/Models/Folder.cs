@@ -68,13 +68,6 @@ namespace Oqtane.Models
         public string CacheControl { get; set; }
 
         /// <summary>
-        /// Deprecated
-        /// Note that this property still exists in the database because columns cannot be dropped in SQLite
-        /// Therefore the property must be retained/mapped even though the framework no longer uses it
-        /// </summary>
-        public bool? IsDeleted { get; set; }
-
-        /// <summary>
         /// TODO: todoc what would this contain?
         /// </summary>
         [NotMapped]
@@ -109,6 +102,11 @@ namespace Oqtane.Models
                 PermissionList = JsonSerializer.Deserialize<List<Permission>>(value);
             }
         }
+
+        [Obsolete("The IsDeleted property is deprecated. Soft delete of folders is not supported.", false)]
+        [NotMapped]
+        [JsonIgnore] // exclude from API payload
+        public bool? IsDeleted { get; set; }
 
         #endregion
     }

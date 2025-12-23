@@ -34,7 +34,6 @@ namespace Oqtane.Modules.Admin.Files.Manager
                 if (folder.ModifiedOn >= lastIndexedOn)
                 {
                     changed = true;
-                    removed = folder.IsDeleted.Value;
                 }
 
                 var files = _fileRepository.GetFiles(folder.FolderId);
@@ -78,7 +77,7 @@ namespace Oqtane.Modules.Admin.Files.Manager
                             Permissions = $"{EntityNames.Folder}:{folder.FolderId}",
                             ContentModifiedBy = file.ModifiedBy,
                             ContentModifiedOn = file.ModifiedOn,
-                            IsDeleted = (removed || file.IsDeleted.Value)
+                            IsDeleted = (removed)
                         };
                         searchContents.Add(searchContent);
                     }

@@ -41,7 +41,7 @@ namespace Oqtane.Managers
         Task<List<UserLogin>> GetLogins(int userId, int siteId);
         Task<User> AddLogin(User user, string token, string type, string key, string name);
         Task DeleteLogin(int userId, string provider, string key);
-        Task<bool> SendLoginLink(string email);
+        Task<bool> SendLoginLink(string email, string returnurl);
     }
 
     public class UserManager : IUserManager
@@ -960,7 +960,7 @@ namespace Oqtane.Managers
             }
         }
 
-        public async Task<bool> SendLoginLink(string email)
+        public async Task<bool> SendLoginLink(string email, string returnurl)
         {
             try
             {
@@ -973,7 +973,7 @@ namespace Oqtane.Managers
 
                         var alias = _tenantManager.GetAlias();
                         var user = GetUser(identityuser.UserName, alias.SiteId);
-                        string url = alias.Protocol + alias.Name + "/pages/loginlink?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
+                        string url = alias.Protocol + alias.Name + "/pages/loginlink?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token) + "&returnurl=" + WebUtility.UrlEncode(returnurl);
                         string siteName = _sites.GetSite(alias.SiteId).Name;
                         string subject = _localizer["LoginLinkEmailSubject"];
                         subject = subject.Replace("[SiteName]", siteName);

@@ -34,6 +34,11 @@ namespace Oqtane.Models
         public int Requests { get; set; }
 
         /// <summary>
+        /// Last referrer to the Url (only set if linked to externally)
+        /// </summary>
+        public string Referrer { get; set; }
+
+        /// <summary>
         /// Date when the url was first requested for the site
         /// </summary>
         public DateTime CreatedOn { get; set; }

@@ -51,7 +51,6 @@ namespace Oqtane.Repository
         public Folder AddFolder(Folder folder)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            folder.IsDeleted = false;
             db.Folder.Add(folder);
             db.SaveChanges();
             _permissions.UpdatePermissions(folder.SiteId, EntityNames.Folder, folder.FolderId, folder.PermissionList);

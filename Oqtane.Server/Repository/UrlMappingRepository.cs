@@ -14,6 +14,7 @@ namespace Oqtane.Repository
         UrlMapping GetUrlMapping(int urlMappingId);
         UrlMapping GetUrlMapping(int urlMappingId, bool tracking);
         UrlMapping GetUrlMapping(int siteId, string url);
+        UrlMapping GetUrlMapping(int siteId, string url, string referrer);
         void DeleteUrlMapping(int urlMappingId);
         int DeleteUrlMappings(int siteId, int age);
     }
@@ -79,6 +80,11 @@ namespace Oqtane.Repository
 
         public UrlMapping GetUrlMapping(int siteId, string url)
         {
+            return GetUrlMapping(siteId, url, "");
+        }
+
+        public UrlMapping GetUrlMapping(int siteId, string url, string referrer)
+        {
             using var db = _dbContextFactory.CreateDbContext();
             url = (url.StartsWith("/")) ? url.Substring(1) : url;
             url = (url.Length > 750) ? url.Substring(0, 750) : url;
@@ -93,6 +99,7 @@ namespace Oqtane.Repository
                     urlMapping.Url = url;
                     urlMapping.MappedUrl = "";
                     urlMapping.Requests = 1;
+                    urlMapping.Referrer = referrer;
                     urlMapping.CreatedOn = DateTime.UtcNow;
                     urlMapping.RequestedOn = DateTime.UtcNow;
                     try
@@ -109,6 +116,10 @@ namespace Oqtane.Repository
             {
                 urlMapping.Requests += 1;
                 urlMapping.RequestedOn = DateTime.UtcNow;
+                if (!string.IsNullOrEmpty(referrer))
+                {
+                    urlMapping.Referrer = referrer;
+                }
                 urlMapping = UpdateUrlMapping(urlMapping);
             }
             return urlMapping;

@@ -72,7 +72,6 @@ namespace Oqtane.Repository
         public File AddFile(File file)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            file.IsDeleted = false;
             db.File.Add(file);
             db.SaveChanges();
             file.Folder = _folderRepository.GetFolder(file.FolderId);

@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -11,7 +9,6 @@ using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Managers;
 using Oqtane.Shared;
-using Radzen.Blazor.Markdown;
 
 namespace Oqtane.Pages
 {

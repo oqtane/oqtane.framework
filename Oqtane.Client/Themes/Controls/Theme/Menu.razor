@@ -1,20 +1,36 @@
-﻿@namespace Oqtane.Themes.Controls
+@namespace Oqtane.Themes.Controls
 
-@switch (Orientation)
+@if (_menuType != null)
 {
-    case "Horizontal":
-        <MenuHorizontal/>
-        break;
-    default: // Vertical
-    {
-        <MenuVertical/>
-        break;
-    }
+    <DynamicComponent Type="@_menuType" Parameters="@Attributes"></DynamicComponent>
 }
 
 @code{
-
     [Parameter]
     public string Orientation { get; set; }
 
+    [Parameter]
+    public string MenuType { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
+
+    private Type _menuType;
+
+    protected override void OnInitialized()
+    {
+        if (string.IsNullOrEmpty(MenuType) && !string.IsNullOrEmpty(Orientation))
+        {
+            if (Orientation == "Horizontal")
+            {
+                MenuType = "Oqtane.Themes.Controls.MenuHorizontal, Oqtane.Client";
+            }
+            else
+            {
+                MenuType = "Oqtane.Themes.Controls.MenuVertical, Oqtane.Client";
+            }
+        }
+
+        _menuType = Type.GetType(MenuType);
+    }
 }

@@ -90,7 +90,7 @@ namespace Oqtane.Controllers
             else
             {
                 // suppress unauthorized visitor logging as it is usually caused by clients that do not support cookies or private browsing sessions
-                if (entityName != EntityNames.Visitor) 
+                if (FormatName(entityName) != EntityNames.Visitor) 
                 {
                     _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Settings For EntityName {EntityName} And EntityId {EntityId}", entityName, entityId);
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
@@ -114,7 +114,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                if (setting != null && entityName != EntityNames.Visitor)
+                if (setting != null && FormatName(entityName) != EntityNames.Visitor)
                 {
                     _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access SettingId {SettingId} For EntityName {EntityName} ", id, entityName);
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
@@ -139,7 +139,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                if (setting.EntityName != EntityNames.Visitor)
+                if (FormatName(setting.EntityName) != EntityNames.Visitor)
                 {
                     _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add Setting {Setting}", setting);
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
@@ -161,7 +161,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                if (setting.EntityName != EntityNames.Visitor)
+                if (FormatName(setting.EntityName) != EntityNames.Visitor)
                 {
                     _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Setting {Setting}", setting);
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
@@ -261,7 +261,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                if (entityName != EntityNames.Visitor)
+                if (FormatName(entityName) != EntityNames.Visitor)
                 {
                     _logger.Log(LogLevel.Error, this, LogFunction.Delete, "Setting Does Not Exist Or User Not Authorized To Delete Setting For EntityName {EntityName} EntityId {EntityId} SettingName {SettingName}", entityName, entityId, settingName);
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
@@ -282,7 +282,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                if (entityName != EntityNames.Visitor)
+                if (FormatName(entityName) != EntityNames.Visitor)
                 {
                     _logger.Log(LogLevel.Error, this, LogFunction.Delete, "Setting Does Not Exist Or User Not Authorized To Delete Setting For SettingId {SettingId} For EntityName {EntityName} ", id, entityName);
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
@@ -408,19 +408,21 @@ namespace Oqtane.Controllers
         private bool IsAuthorized(string entityName, int entityId, string permissionName)
         {
             bool authorized = false;
+
             if (entityName == EntityNames.PageModule)
             {
                 entityName = EntityNames.Module;
                 entityId = _pageModules.GetPageModule(entityId).ModuleId;
             }
-            switch (entityName)
+
+            switch (FormatName(entityName))
             {
                 case EntityNames.Tenant:
                 case EntityNames.ModuleDefinition:
                 case EntityNames.Host:
                 case EntityNames.Job:
                 case EntityNames.Theme:
-                    if (permissionName == PermissionNames.Edit)
+                    if (FormatName(permissionName) == PermissionNames.Edit)
                     {
                         authorized = User.IsInRole(RoleNames.Host);
                     }
@@ -431,7 +433,7 @@ namespace Oqtane.Controllers
                     break;
                 case EntityNames.Site:
                 case EntityNames.Role:
-                    if (permissionName == PermissionNames.Edit)
+                    if (FormatName(permissionName) == PermissionNames.Edit)
                     {
                         authorized = User.IsInRole(RoleNames.Admin);
                     }
@@ -458,7 +460,7 @@ namespace Oqtane.Controllers
                     break;
                 default: // custom entity
                     authorized = true;
-                    if (permissionName == PermissionNames.Edit)
+                    if (FormatName(permissionName) == PermissionNames.Edit)
                     {
                         if (entityId == -1)
                         {
@@ -477,7 +479,7 @@ namespace Oqtane.Controllers
         private bool FilterPrivate(string entityName, int entityId)
         {
             bool filter = false;
-            switch (entityName)
+            switch (FormatName(entityName))
             {
                 case EntityNames.Tenant:
                 case EntityNames.ModuleDefinition:
@@ -526,9 +528,9 @@ namespace Oqtane.Controllers
 
         private void AddSyncEvent(string EntityName, int EntityId, int SettingId, string Action)
         {
-            _syncManager.AddSyncEvent(_alias, EntityName + "Setting", SettingId, Action);
+            _syncManager.AddSyncEvent(_alias, FormatName(EntityName) + "Setting", SettingId, Action);
 
-            switch (EntityName)
+            switch (FormatName(EntityName))
             {
                 case EntityNames.Module:
                 case EntityNames.Page:
@@ -539,6 +541,16 @@ namespace Oqtane.Controllers
                     _syncManager.AddSyncEvent(_alias, EntityName, EntityId, SyncEventActions.Update);
                     break;
             }
+        }
+
+        private string FormatName(string name)
+        {
+            if (!string.IsNullOrEmpty(name))
+            {
+                // entity names and permission names are case sensitive
+                name = name.Substring(0, 1).ToUpper() + name.Substring(1).ToLower();
+            }
+            return name;
         }
     }
 }

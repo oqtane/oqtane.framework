@@ -7,21 +7,17 @@ using Oqtane.Repository;
 namespace Oqtane.Migrations.Tenant
 {
     [DbContext(typeof(TenantDBContext))]
-    [Migration("Tenant.10.00.01.02")]
-    public class RemoveSiteTenantId : MultiDatabaseMigration
+    [Migration("Tenant.10.00.02.03")]
+    public class AddUrlMappingReferrer : MultiDatabaseMigration
     {
-        public RemoveSiteTenantId(IDatabase database) : base(database)
+        public AddUrlMappingReferrer(IDatabase database) : base(database)
         {
         }
 
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            var siteEntityBuilder = new SiteEntityBuilder(migrationBuilder, ActiveDatabase);
-            siteEntityBuilder.DropIndex("IX_Site"); // TenantId, Name
-            if (ActiveDatabase.Name != "Sqlite")
-            {
-                siteEntityBuilder.DropColumn("TenantId");
-            }
+            var urlMappingEntityBuilder = new UrlMappingEntityBuilder(migrationBuilder, ActiveDatabase);
+            urlMappingEntityBuilder.AddStringColumn("Referrer", 2048);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

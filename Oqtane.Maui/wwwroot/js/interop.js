@@ -124,7 +124,7 @@ Oqtane.Interop = {
         }
     },
     includeScript: function (id, src, integrity, crossorigin, type, content, location, dataAttributes) {
-        var script;
+        var script = null;
         if (src !== "") {
             script = document.querySelector("script[src=\"" + CSS.escape(src) + "\"]");
         }
@@ -140,7 +140,7 @@ Oqtane.Interop = {
                 }
             }
         }
-        if (script !== null) {
+        if (script instanceof HTMLScriptElement) {
             script.remove();
             script = null;
         }
@@ -516,5 +516,17 @@ Oqtane.Interop = {
                 }
             }
         }
+    },
+    createCredential: async function (optionsResponse) {
+        const optionsJson = JSON.parse(optionsResponse);
+        const options = PublicKeyCredential.parseCreationOptionsFromJSON(optionsJson);
+        const credential = await navigator.credentials.create({ publicKey: options });
+        return JSON.stringify(credential);
+    },
+    requestCredential: async function (optionsResponse) {
+        const optionsJson = JSON.parse(optionsResponse);
+        const options = PublicKeyCredential.parseRequestOptionsFromJSON(optionsJson);
+        const credential = await navigator.credentials.get({ publicKey: options, undefined });
+        return JSON.stringify(credential);
     }
 };

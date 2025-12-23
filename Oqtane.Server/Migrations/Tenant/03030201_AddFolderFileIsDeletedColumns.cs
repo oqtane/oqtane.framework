@@ -16,7 +16,7 @@ namespace Oqtane.Migrations.Tenant
 
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // IsDeleted columns were removed in 3.2.2 however SQLite does not support column removal so they had to be restored
+            // IsDeleted columns were removed in 3.2.2 however SQLite did not support column removal so they had to be restored
             if (ActiveDatabase.Name != "Sqlite")
             {
                 var folderEntityBuilder = new FolderEntityBuilder(migrationBuilder, ActiveDatabase);

@@ -114,9 +114,9 @@
             }
             @if (_allowpasskeys)
             {
-                <Section Name="Passkeys" Heading="Passkeys" ResourceKey="Passkeys">
+                <Section Name="Passkeys" Heading="Passkeys" ResourceKey="Passkeys" Expanded="@((_passkeys.Count > 0).ToString())">
                     <button type="button" class="btn btn-primary" @onclick="AddPasskey">@SharedLocalizer["Add"]</button>
-                    @if (_passkeys != null && _passkeys.Count > 0)
+                    @if (_passkeys.Count > 0)
                     {
                         <Pager Items="@_passkeys">
                             <Header>
@@ -142,15 +142,15 @@
                     }
                     else
                     {
-                        <div>@Localizer["Message.Passkeys.None"]</div>
+                        <div class="mt-2">@Localizer["Message.Passkeys.None"]</div>
                     }
                 </Section>
                 <br />
             }
             @if (_allowexternallogin)
             {
-                <Section Name="Logins" Heading="Logins" ResourceKey="Logins">
-                    @if (_logins != null && _logins.Count > 0)
+                <Section Name="Logins" Heading="Logins" ResourceKey="Logins" Expanded="@((_logins.Count > 0).ToString())">
+                    @if (_logins.Count > 0)
                     {
                         <Pager Items="@_logins">
                             <Header>
@@ -165,7 +165,7 @@
                     }
                     else
                     {
-                        <div>@Localizer["Message.Logins.None"]</div>
+                        <div class="mt-2">@Localizer["Message.Logins.None"]</div>
                     }
                 </Section>
                 <br />
