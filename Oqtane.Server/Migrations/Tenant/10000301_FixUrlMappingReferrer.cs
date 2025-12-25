@@ -1,3 +1,4 @@
+using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Oqtane.Databases.Interfaces;
@@ -17,8 +18,7 @@ namespace Oqtane.Migrations.Tenant
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             var urlMappingEntityBuilder = new UrlMappingEntityBuilder(migrationBuilder, ActiveDatabase);
-            urlMappingEntityBuilder.DropColumn("Referrer");
-            urlMappingEntityBuilder.AddStringColumn("Referrer", 2048, true); // must be nullable
+            urlMappingEntityBuilder.AddStringColumn("Referrer", 2048, true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
