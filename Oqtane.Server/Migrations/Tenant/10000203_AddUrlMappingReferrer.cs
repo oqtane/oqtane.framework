@@ -16,8 +16,8 @@ namespace Oqtane.Migrations.Tenant
 
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            var urlMappingEntityBuilder = new UrlMappingEntityBuilder(migrationBuilder, ActiveDatabase);
-            urlMappingEntityBuilder.AddStringColumn("Referrer", 2048);
+            // the original 10.00.02.03 migration was missing the nullable property specification
+            // this would cause it to fail on upgrade so the migration logic was moved to 10.00.03.01
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
