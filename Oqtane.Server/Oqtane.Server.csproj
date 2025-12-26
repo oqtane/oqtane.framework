@@ -27,6 +27,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <PackageReference Include="AsyncKeyedLock" Version="7.1.8" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.1" />
