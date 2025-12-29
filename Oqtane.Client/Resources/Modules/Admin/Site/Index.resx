@@ -343,10 +343,10 @@
     <value>Home Page:</value>
   </data>
   <data name="SmtpRelay.HelpText" xml:space="preserve">
-    <value>Only specify this option if you have properly configured an SMTP Relay Service to route your outgoing mail. This option will send notifications from the user's email rather than from the Email Sender specified above.</value>
+    <value>This option will send notifications directly from the user's email rather than from the Email Sender specified below. This option should only be used with an Open Relay (ie. an SMTP server that forwards email to any destination without verifying the sender's identity) or an internal environment where all email is sent from the same domain.</value>
   </data>
   <data name="SmtpRelay.Text" xml:space="preserve">
-    <value>Relay Configured?</value>
+    <value>Use Open Relay?</value>
   </data>
   <data name="SiteMap.HelpText" xml:space="preserve">
     <value>The site map url for this site which can be submitted to search engines for indexing. The sitemap is cached for 5 minutes and the cache can be manually cleared.</value>
