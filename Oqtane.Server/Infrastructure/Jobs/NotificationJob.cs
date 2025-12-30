@@ -160,7 +160,7 @@ namespace Oqtane.Infrastructure
                                     var toEmail = notification.ToEmail ?? "";
                                     var toName = notification.ToDisplayName ?? "";
 
-                                    // get sender and receiver information from user information if available
+                                    // get sender from user information if "from" email or name not specified and user id is available
                                     if ((string.IsNullOrEmpty(fromEmail) || string.IsNullOrEmpty(fromName)) && notification.FromUserId != null)
                                     {
                                         var user = userRepository.GetUser(notification.FromUserId.Value);
@@ -170,6 +170,7 @@ namespace Oqtane.Infrastructure
                                             fromName = string.IsNullOrEmpty(fromName) ? user.DisplayName ?? "" : fromName;
                                         }
                                     }
+                                    // get recipient from user information if "to" email or name not specified and user id is available
                                     if ((string.IsNullOrEmpty(toEmail) || string.IsNullOrEmpty(toName)) && notification.ToUserId != null)
                                     {
                                         var user = userRepository.GetUser(notification.ToUserId.Value);
@@ -185,26 +186,25 @@ namespace Oqtane.Infrastructure
                                     MailboxAddress from = null;
                                     var mailboxAddressValidationError = "";
 
-                                    // sender
-                                    if ((settingRepository.GetSettingValue(settings, "SMTPRelay", "False") == "True") && string.IsNullOrEmpty(fromEmail))
+                                    // SMTP Sender should always be used if site is not using an Open Relay or if the "from" email address is not specified (ie. system messages)
+                                    if (settingRepository.GetSettingValue(settings, "SMTPRelay", "False") != "True" || string.IsNullOrEmpty(fromEmail))
                                     {
                                         fromEmail = settingRepository.GetSettingValue(settings, "SMTPSender", "");
                                         fromName = string.IsNullOrEmpty(fromName) ? site.Name : fromName;
                                     }
                                     if (MailboxAddress.TryParse(fromEmail, out from))
                                     {
-                                        from.Name = fromName;
+                                        from.Name = fromName; //override with "from" name set previously
                                     }
                                     else
                                     {
-
                                         mailboxAddressValidationError += $" Invalid Sender: {fromName} &lt;{fromEmail}&gt;";
                                     }
 
                                     // recipient
                                     if (MailboxAddress.TryParse(toEmail, out to))
                                     {
-                                        to.Name = toName;
+                                        to.Name = toName; //override with "to" name set previously
                                     }
                                     else
                                     {
