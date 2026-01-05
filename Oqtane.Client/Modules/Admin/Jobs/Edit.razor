@@ -197,7 +197,7 @@
 			}
 			catch (Exception ex)
 			{
-				await logger.LogError(ex, "Error Udate Job {Job} {Error}", job, ex.Message);
+				await logger.LogError(ex, "Error Updating Job {Job} {Error}", job, ex.Message);
 				AddModuleMessage(Localizer["Error.Job.Update"], MessageType.Error);
 			}
 		}
