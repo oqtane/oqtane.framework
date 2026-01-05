@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using MySql.Data.MySqlClient;
+using MySql.EntityFrameworkCore.Metadata;
 using Oqtane.Databases;
 
 namespace Oqtane.Database.MySQL
@@ -25,7 +26,7 @@ namespace Oqtane.Database.MySQL
 
         public override OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name)
         {
-            return table.Column<int>(name: name, nullable: false).Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
+            return table.Column<int>(name: name, nullable: false).Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn);
         }
 
         public override string ConcatenateSql(params string[] values)
@@ -96,7 +97,7 @@ namespace Oqtane.Database.MySQL
 
         public override DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString)
         {
-            return optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+            return optionsBuilder.UseMySQL(connectionString);
         }
 
         private void PrepareCommand(MySqlConnection conn, MySqlCommand cmd, string query)
