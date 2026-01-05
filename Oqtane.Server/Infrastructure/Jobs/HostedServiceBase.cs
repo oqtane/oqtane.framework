@@ -50,6 +50,8 @@ namespace Oqtane.Infrastructure
 
             while (!stoppingToken.IsCancellationRequested)
             {
+                var startTime = DateTime.UtcNow;
+
                 using (var scope = _serviceScopeFactory.CreateScope())
                 {
                     IConfigurationRoot _config = scope.ServiceProvider.GetRequiredService<IConfigurationRoot>();
@@ -162,7 +164,7 @@ namespace Oqtane.Infrastructure
                                     jobLogs.UpdateJobLog(log);
 
                                     // update the job
-                                    job.NextExecution = CalculateNextExecution(NextExecution, job);
+                                    job.NextExecution = CalculateNextExecution(startTime, job);
                                     if (job.Frequency == "O") // one time
                                     {
                                         job.EndDate = DateTime.UtcNow;
@@ -194,6 +196,7 @@ namespace Oqtane.Infrastructure
 
         private DateTime CalculateNextExecution(DateTime nextExecution, Job job)
         {
+            var checkStartTime = false;
             switch (job.Frequency)
             {
                 case "m": // minutes
@@ -204,31 +207,26 @@ namespace Oqtane.Infrastructure
                     break;
                 case "d": // days
                     nextExecution = nextExecution.AddDays(job.Interval);
-                    if (job.StartDate != null && job.StartDate.Value.TimeOfDay.TotalSeconds != 0)
-                    {
-                        // set the start time
-                        nextExecution = nextExecution.Date.Add(job.StartDate.Value.TimeOfDay);
-                    }
+                    checkStartTime = true;
                     break;
                 case "w": // weeks
                     nextExecution = nextExecution.AddDays(job.Interval * 7);
-                    if (job.StartDate != null && job.StartDate.Value.TimeOfDay.TotalSeconds != 0)
-                    {
-                        // set the start time
-                        nextExecution = nextExecution.Date.Add(job.StartDate.Value.TimeOfDay);
-                    }
+                    checkStartTime = true;
                     break;
                 case "M": // months
                     nextExecution = nextExecution.AddMonths(job.Interval);
-                    if (job.StartDate != null && job.StartDate.Value.TimeOfDay.TotalSeconds != 0)
-                    {
-                        // set the start time
-                        nextExecution = nextExecution.Date.Add(job.StartDate.Value.TimeOfDay);
-                    }
+                    checkStartTime = true;
                     break;
                 case "O": // one time
                     break;
             }
+
+            if(checkStartTime && job.StartDate != null && job.StartDate.Value.TimeOfDay.TotalSeconds != 0)
+            {
+                // set the start time
+                nextExecution = nextExecution.Date.Add(job.StartDate.Value.TimeOfDay);
+            }
+
             if (nextExecution < DateTime.UtcNow)
             {
                 nextExecution = DateTime.UtcNow;
