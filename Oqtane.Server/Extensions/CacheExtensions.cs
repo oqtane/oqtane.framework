@@ -1,3 +1,4 @@
+using AsyncKeyedLock;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
@@ -8,13 +9,21 @@ namespace Oqtane.Extensions
 {
     public static class CacheExtensions
     {
-        private static string _cachekeys = "cachekeys";
+        private static readonly AsyncKeyedLocker<string> _locker = new();
+        private const string _cachekeys = "cachekeys";
 
         public static TItem GetOrCreate<TItem>(this IMemoryCache cache, string key, Func<ICacheEntry, TItem> factory, bool track)
         {
-            if (!cache.TryGetValue(key, out object result))
+            if (cache.TryGetValue(key, out TItem result))
             {
-                using ICacheEntry entry = cache.CreateEntry(key);
+                return result;
+            }
+
+            using var _ = _locker.Lock(key);
+
+            if (!cache.TryGetValue(key, out result))
+            {
+                using var entry = cache.CreateEntry(key);
                 result = factory(entry);
                 entry.Value = result;
 
@@ -24,14 +33,21 @@ namespace Oqtane.Extensions
                 }
             }
 
-            return (TItem)result;
+            return result;
         }
 
         public static async Task<TItem> GetOrCreateAsync<TItem>(this IMemoryCache cache, string key, Func<ICacheEntry, Task<TItem>> factory, bool track)
         {
-            if (!cache.TryGetValue(key, out object result))
+            if (cache.TryGetValue(key, out TItem result))
             {
-                using ICacheEntry entry = cache.CreateEntry(key);
+                return result;
+            }
+
+            using var _ = await _locker.LockAsync(key);
+
+            if (!cache.TryGetValue(key, out result))
+            {
+                using var entry = cache.CreateEntry(key);
                 result = await factory(entry).ConfigureAwait(false);
                 entry.Value = result;
 
@@ -41,7 +57,7 @@ namespace Oqtane.Extensions
                 }
             }
 
-            return (TItem)result;
+            return result;
         }
 
         private static void TrackCacheKey(IMemoryCache cache, string key)
