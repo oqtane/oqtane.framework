@@ -195,4 +195,10 @@
   <data name="Message.StartEndDateError" xml:space="preserve">
     <value>Start Date cannot be after End Date.</value>
   </data>
+  <data name="JobNotEditable" xml:space="preserve">
+    <value>The job properties is not able to be modified because it's enabled or running in progress.</value>
+  </data>
+  <data name="Execute" xml:space="preserve">
+    <value>Execute</value>
+  </data>
 </root>
