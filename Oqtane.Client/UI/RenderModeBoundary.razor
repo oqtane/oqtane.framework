@@ -16,7 +16,7 @@
             {
                 @if (!string.IsNullOrEmpty(_messageContent) && _messagePosition == "top")
                 {
-                    <ModuleMessage Message="@_messageContent" Type="@_messageType" Parent="@this" Style="@_messageStyle" />
+                    <ModuleMessage @key="_messageVersionTop" Message="@_messageContent" Type="@_messageType" Parent="@this" Style="@_messageStyle" />
                 }
                 @DynamicComponent
                 @if (_progressIndicator)
@@ -25,7 +25,7 @@
                 }
                 @if (!string.IsNullOrEmpty(_messageContent) && _messagePosition == "bottom")
                 {
-                    <ModuleMessage Message="@_messageContent" Type="@_messageType" Parent="@this" Style="@_messageStyle" />
+                    <ModuleMessage @key="_messageVersionBottom" Message="@_messageContent" Type="@_messageType" Parent="@this" Style="@_messageStyle" />
                 }
             }
         }
@@ -52,6 +52,8 @@
     private MessageStyle _messageStyle;
     private bool _progressIndicator = false;
     private string _error;
+    private string _messageVersionTop = Guid.NewGuid().ToString();
+    private string _messageVersionBottom = Guid.NewGuid().ToString();
 
     [Parameter]
     public SiteState SiteState { get; set; }
@@ -142,6 +144,18 @@
             _messagePosition = position;
             _messageStyle = style;
             _progressIndicator = false;
+
+            if (style == MessageStyle.Toast && !string.IsNullOrEmpty(_messageContent))
+            {
+                if (_messagePosition == "top")
+                {
+                    _messageVersionTop = Guid.NewGuid().ToString();
+                }
+                else if (_messagePosition == "bottom")
+                {
+                    _messageVersionBottom = Guid.NewGuid().ToString();
+                }
+            }
 
             StateHasChanged();
         }
