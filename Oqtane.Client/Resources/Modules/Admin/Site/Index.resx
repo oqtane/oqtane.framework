@@ -343,10 +343,10 @@
     <value>Home Page:</value>
   </data>
   <data name="SmtpRelay.HelpText" xml:space="preserve">
-    <value>This option will send notifications directly from the user's email rather than from the Email Sender specified below. This option should only be used with an Open Relay (ie. an SMTP server that forwards email to any destination without verifying the sender's identity) or an internal environment where all email is sent from the same domain.</value>
+    <value>This option will send email directly from the sender's unique email address rather than from the authorized Email Sender specified below. This option should only be used when the SMTP service has been configured with SPF/DKIM/DMARC for each unique sender, or else the email will be identified as malicious spoofing.</value>
   </data>
   <data name="SmtpRelay.Text" xml:space="preserve">
-    <value>Use Open Relay?</value>
+    <value>Allow Sender Delegation?</value>
   </data>
   <data name="SiteMap.HelpText" xml:space="preserve">
     <value>The site map url for this site which can be submitted to search engines for indexing. The sitemap is cached for 5 minutes and the cache can be manually cleared.</value>

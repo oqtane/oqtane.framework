@@ -265,7 +265,7 @@
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="relay" HelpText="This option will send notifications directly from the user's email rather than from the Email Sender specified below. This option should only be used with an Open Relay (ie. an SMTP server that forwards email to any destination without verifying the sender's identity) or an internal environment where all email is sent from the same domain." ResourceKey="SmtpRelay">Use Open Relay? </Label>
+                            <Label Class="col-sm-3" For="relay" HelpText="This option will send email directly from the sender's unique email address rather than from the authorized Email Sender specified below. This option should only be used when the SMTP service has been configured with SPF/DKIM/DMARC for each unique sender, or else the email will be identified as malicious spoofing." ResourceKey="SmtpRelay">Allow Sender Delegation? </Label>
                             <div class="col-sm-9">
                                 <select id="relay" class="form-select" @bind="@_smtprelay" required>
                                     <option value="True">@SharedLocalizer["Yes"]</option>
