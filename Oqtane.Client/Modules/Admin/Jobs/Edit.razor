@@ -11,26 +11,24 @@
         <div class="container">
             @if (!_editable)
             {
-                <div class="alert alert-warning alert-dismissible fade show mb-3 custom" role="alert">
-                    @Localizer["JobNotEditable"]
-                </div>
+                <ModuleMessage Message="@Localizer["JobNotEditable"]" Type="MessageType.Warning" />
             }
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="name" HelpText="Enter the job name" ResourceKey="Name">Name: </Label>
-                <div class="col-sm-9">
-                    <input id="name" class="form-control" @bind="@_name" maxlength="200" required />
-                </div>
-            </div>
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="type" HelpText="The fully qualified job type name" ResourceKey="Type">Type: </Label>
                 <div class="col-sm-9">
-                    <input id="type" class="form-control" @bind="@_jobType" readonly />
+                    <input id="type" class="form-control" @bind="@_jobType" required disabled />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="name" HelpText="Enter the job name" ResourceKey="Name">Name: </Label>
+                <div class="col-sm-9">
+                    <input id="name" class="form-control" @bind="@_name" maxlength="200" required disabled="@(!_editable)" />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="enabled" HelpText="Select whether you want the job enabled or not" ResourceKey="Enabled">Enabled? </Label>
                 <div class="col-sm-9">
-                    <select id="enabled" class="form-select" @bind="@_isEnabled" required>
+                    <select id="enabled" class="form-select" @bind="@_isEnabled" required disabled="@(!_editable)">
                         <option value="True">@SharedLocalizer["Yes"]</option>
                         <option value="False">@SharedLocalizer["No"]</option>
                     </select>
@@ -83,17 +81,20 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="next" HelpText="Optionally modify the date and time when this job should execute next" ResourceKey="NextExecution">Next Execution: </Label>
+                <Label Class="col-sm-3" For="next" HelpText="The date and time when this job will execute next. This value cannot be modified. Use the settings above to control the execution of the job." ResourceKey="NextExecution">Next Execution: </Label>
                 <div class="col-sm-9">
-                    <input id="next" class="form-control" @bind="@_nextDate" readonly />
+                    <input id="next" class="form-control" @bind="@_nextDate" disabled />
                 </div>
             </div>
         </div>
         <br />
-        <button type="button" class="btn btn-success" @onclick="SaveJob">@SharedLocalizer["Save"]</button>
-        @if (!_editable)
+        @if (_editable)
         {
-            <button type="button" class="btn btn-danger ms-1" @onclick="ExecuteJob">@SharedLocalizer["Execute"]</button>
+            <button type="button" class="btn btn-success" @onclick="SaveJob">@SharedLocalizer["Save"]</button>
+        }
+        else
+        {
+            <button type="button" class="btn btn-danger" @onclick="DisableJob">@Localizer["Disable"]</button>            
         }
         <NavLink class="btn btn-secondary ms-1" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
         <br />
@@ -128,6 +129,11 @@
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnInitializedAsync()
+    {
+        await LoadJob();
+    }
+
+    protected async Task LoadJob()
     {
         try
         {
@@ -165,23 +171,15 @@
 
     private async Task SaveJob()
     {
-        if (!Utilities.ValidateEffectiveExpiryDates(_startDate, _endDate))
+        try
         {
-            AddModuleMessage(Localizer["Message.StartEndDateError"], MessageType.Warning);
-            return;
-        }
-        validated = true;
-        var interop = new Interop(JSRuntime);
-        if (await interop.FormValid(form))
-        {
-            var job = await JobService.GetJobAsync(_jobId);
-            job.Name = _name;
-            job.JobType = _jobType;
-            var enabledChanged = job.IsEnabled != Boolean.Parse(_isEnabled);
-            job.IsEnabled = Boolean.Parse(_isEnabled);
-
-            if (_editable)
+            var interop = new Interop(JSRuntime);
+            if (await interop.FormValid(form))
             {
+                var job = await JobService.GetJobAsync(_jobId);
+                job.Name = _name;
+                job.IsEnabled = bool.Parse(_isEnabled);
+
                 job.Frequency = _frequency;
                 if (job.Frequency == "O") // once
                 {
@@ -191,6 +189,7 @@
                 {
                     job.Interval = int.Parse(_interval);
                 }
+
                 job.StartDate = _startDate.HasValue && _startTime.HasValue
                     ? LocalToUtc(_startDate.GetValueOrDefault().Date.Add(_startTime.GetValueOrDefault().TimeOfDay))
                     : null;
@@ -200,80 +199,63 @@
                     : null;
 
                 job.RetentionHistory = int.Parse(_retentionHistory);
-            }
 
-            if (!job.IsEnabled)
-            {
-                job.NextExecution = null;
-            }
-            else if (enabledChanged)
-            {
-                job.NextExecution = null;
-                if(job.StartDate != null && job.StartDate < DateTime.UtcNow)
+                if (!job.IsEnabled || Utilities.ValidateEffectiveExpiryDates(job.StartDate, job.EndDate))
                 {
-                    var startDate = DateTime.UtcNow;
-                    if ((job.Frequency == "d" || job.Frequency == "w" || job.Frequency == "M") && job.StartDate.Value.TimeOfDay.TotalSeconds != 0)
+                    if (!job.IsEnabled || (job.StartDate >= DateTime.UtcNow || job.StartDate == null))
                     {
-                        // set the start time
-                        startDate = startDate.Date.Add(job.StartDate.Value.TimeOfDay);
-                        if(startDate < DateTime.UtcNow)
-                        {
-                            switch (job.Frequency)
-                            {
-                                case "d":
-                                    startDate = startDate.AddDays(job.Interval);
-                                    break;
-                                case "w":
-                                    startDate = startDate.AddDays(job.Interval * 7);
-                                    break;
-                                case "M":
-                                    startDate = startDate.AddMonths(job.Interval);
-                                    break;
-                            }
-                        }
+                        job.NextExecution = null;
+                        job = await JobService.UpdateJobAsync(job);
+                        await logger.LogInformation("Job Updated {Job}", job);
+                        NavigationManager.NavigateTo(NavigateUrl());
                     }
-
-                    job.StartDate = startDate;
+                    else
+                    {
+                        AddModuleMessage(Localizer["Message.StartDateError"], MessageType.Warning);
+                    }
+                }
+                else
+                {
+                    AddModuleMessage(Localizer["Message.StartEndDateError"], MessageType.Warning);
                 }
             }
-
-            await PerformSaveJobAction(job);
-            NavigationManager.NavigateTo(NavigateUrl());
-        }
-        else
-        {
-            AddModuleMessage(Localizer["Message.Required.JobInfo"], MessageType.Warning);
-        }
-    }
-
-    private async Task ExecuteJob()
-    {
-        var job = await JobService.GetJobAsync(_jobId);
-        if (job != null)
-        {
-            job.NextExecution = null;
-
-            await PerformSaveJobAction(job);
-
-            if(!job.IsStarted)
+            else
             {
-                await JobService.StartJobAsync(_jobId);
+                AddModuleMessage(Localizer["Message.Required.JobInfo"], MessageType.Warning);
             }
-
-            NavigationManager.NavigateTo(NavigateUrl());
-        }
-    }
-
-    private async Task PerformSaveJobAction(Job job)
-    {
-        try
-        {
-            job = await JobService.UpdateJobAsync(job);
-            await logger.LogInformation("Job Updated {Job}", job);
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Updating Job {Job} {Error}", job, ex.Message);
+            await logger.LogError(ex, "Error Updating Job {JobId} {Error}", _jobId, ex.Message);
+            AddModuleMessage(Localizer["Error.Job.Update"], MessageType.Error);
+        }
+    }
+
+    private async Task DisableJob()
+    {
+        try
+        {
+            var job = await JobService.GetJobAsync(_jobId);
+            if (job != null)
+            {
+                if (job.IsExecuting)
+                {
+                    AddModuleMessage(Localizer["Message.ExecutingError"], MessageType.Warning);
+                }
+                else
+                {
+                    job.IsEnabled = false;
+                    job.NextExecution = null;
+                    job = await JobService.UpdateJobAsync(job);
+                    await logger.LogInformation("Job Updated {Job}", job);
+                    await LoadJob();
+                    StateHasChanged();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Updating Job {JobId} {Error}", _jobId, ex.Message);
             AddModuleMessage(Localizer["Error.Job.Update"], MessageType.Error);
         }
     }
