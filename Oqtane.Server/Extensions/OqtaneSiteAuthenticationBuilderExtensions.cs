@@ -84,16 +84,13 @@ namespace Oqtane.Extensions
                     options.Events.OnRemoteFailure = OnRemoteFailure;
                     if (sitesettings.GetValue("ExternalLogin:Parameters", "") != "")
                     {
-                        options.Events = new OpenIdConnectEvents
+                        options.Events.OnRedirectToIdentityProvider = context =>
                         {
-                            OnRedirectToIdentityProvider = context =>
+                            foreach (var parameter in sitesettings.GetValue("ExternalLogin:Parameters", "").Split(","))
                             {
-                                foreach (var parameter in sitesettings.GetValue("ExternalLogin:Parameters", "").Split(","))
-                                {
-                                    context.ProtocolMessage.SetParameter(parameter.Split("=")[0], parameter.Split("=")[1]);
-                                }
-                                return Task.FromResult(0);
+                                context.ProtocolMessage.SetParameter(parameter.Split("=")[0], parameter.Split("=")[1]);
                             }
+                            return Task.FromResult(0);
                         };
                     }
                 }
