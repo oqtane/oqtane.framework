@@ -160,7 +160,7 @@ namespace Oqtane.Infrastructure
                                     var toEmail = notification.ToEmail ?? "";
                                     var toName = notification.ToDisplayName ?? "";
 
-                                    // get sender from user information if "from" email or name not specified and user id is available
+                                    // get sender from user information if "from" email or name is not specified and user id is available
                                     if ((string.IsNullOrEmpty(fromEmail) || string.IsNullOrEmpty(fromName)) && notification.FromUserId != null)
                                     {
                                         var user = userRepository.GetUser(notification.FromUserId.Value);
@@ -170,7 +170,19 @@ namespace Oqtane.Infrastructure
                                             fromName = string.IsNullOrEmpty(fromName) ? user.DisplayName ?? "" : fromName;
                                         }
                                     }
-                                    // get recipient from user information if "to" email or name not specified and user id is available
+
+                                    // preserve reply to
+                                    var replyToEmail = fromEmail;
+                                    var replyToName = fromName;
+
+                                    // SMTP Sender should always be used when Sender Delegation is disabled (default) or if the "from" email address is not specified (ie. system messages)
+                                    if (settingRepository.GetSettingValue(settings, "SMTPRelay", "False") != "True" || string.IsNullOrEmpty(fromEmail))
+                                    {
+                                        fromEmail = settingRepository.GetSettingValue(settings, "SMTPSender", "");
+                                        fromName = string.IsNullOrEmpty(fromName) ? site.Name : fromName;
+                                    }
+
+                                    // get recipient from user information if "to" email or name is not specified and user id is available
                                     if ((string.IsNullOrEmpty(toEmail) || string.IsNullOrEmpty(toName)) && notification.ToUserId != null)
                                     {
                                         var user = userRepository.GetUser(notification.ToUserId.Value);
@@ -182,16 +194,12 @@ namespace Oqtane.Infrastructure
                                     }
 
                                     // create mailbox addresses
-                                    MailboxAddress to = null;
                                     MailboxAddress from = null;
+                                    MailboxAddress to = null;
+                                    MailboxAddress replyTo = null;
                                     var mailboxAddressValidationError = "";
 
-                                    // SMTP Sender should always be used if site is not using an Open Relay or if the "from" email address is not specified (ie. system messages)
-                                    if (settingRepository.GetSettingValue(settings, "SMTPRelay", "False") != "True" || string.IsNullOrEmpty(fromEmail))
-                                    {
-                                        fromEmail = settingRepository.GetSettingValue(settings, "SMTPSender", "");
-                                        fromName = string.IsNullOrEmpty(fromName) ? site.Name : fromName;
-                                    }
+                                    // sender
                                     if (MailboxAddress.TryParse(fromEmail, out from))
                                     {
                                         from.Name = fromName; //override with "from" name set previously
@@ -199,6 +207,15 @@ namespace Oqtane.Infrastructure
                                     else
                                     {
                                         mailboxAddressValidationError += $" Invalid Sender: {fromName} &lt;{fromEmail}&gt;";
+                                    }
+
+                                    // reply to
+                                    if (!string.IsNullOrEmpty(replyToEmail) && replyToEmail != fromEmail)
+                                    {
+                                        if (MailboxAddress.TryParse(replyToEmail, out replyTo))
+                                        {
+                                            replyTo.Name = replyToName; //override with "replyToName" name set previously
+                                        }
                                     }
 
                                     // recipient
@@ -218,6 +235,10 @@ namespace Oqtane.Infrastructure
                                         MimeMessage mailMessage = new MimeMessage();
                                         mailMessage.From.Add(from);
                                         mailMessage.To.Add(to);
+                                        if (replyTo != null)
+                                        {
+                                            mailMessage.ReplyTo.Add(replyTo);
+                                        }
 
                                         // subject
                                         mailMessage.Subject = notification.Subject;
