@@ -129,18 +129,15 @@ namespace Oqtane.Extensions
                     options.Events.OnRemoteFailure = OnRemoteFailure;
                     if (sitesettings.GetValue("ExternalLogin:Parameters", "") != "")
                     {
-                        options.Events = new OAuthEvents
+                        options.Events.OnRedirectToAuthorizationEndpoint = context =>
                         {
-                            OnRedirectToAuthorizationEndpoint = context =>
+                            var url = context.RedirectUri;
+                            foreach (var parameter in sitesettings.GetValue("ExternalLogin:Parameters", "").Split(","))
                             {
-                                var url = context.RedirectUri;
-                                foreach (var parameter in sitesettings.GetValue("ExternalLogin:Parameters", "").Split(","))
-                                {
-                                    url += (!url.Contains("?")) ? "?" + parameter : "&" + parameter;
-                                }
-                                context.Response.Redirect(url);
-                                return Task.FromResult(0);
+                                url += (!url.Contains("?")) ? "?" + parameter : "&" + parameter;
                             }
+                            context.Response.Redirect(url);
+                            return Task.FromResult(0);
                         };
                     }
                 }
