@@ -222,6 +222,14 @@ else
                 {
                     AddModuleMessage(Localizer["ExternalLoginStatus." + PageState.QueryString["status"]], MessageType.Warning);
                 }
+                else
+                {
+                    if (_allowexternallogin && !_allowsitelogin)
+                    {
+                        // external login
+                        ExternalLogin();
+                    }
+                }
             }
         }
         catch (Exception ex)
