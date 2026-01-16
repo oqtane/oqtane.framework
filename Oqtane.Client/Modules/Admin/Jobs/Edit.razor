@@ -248,8 +248,7 @@
                     job.NextExecution = null;
                     job = await JobService.UpdateJobAsync(job);
                     await logger.LogInformation("Job Updated {Job}", job);
-                    await LoadJob();
-                    StateHasChanged();
+                    NavigationManager.NavigateTo(NavigateUrl());
                 }
             }
         }
