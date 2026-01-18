@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
+using Oqtane.Security;
 using Oqtane.Shared;
 
 namespace Oqtane.Repository
@@ -55,8 +56,8 @@ namespace Oqtane.Repository
             }
 
             // add folder for user
-            var folder = _folders.GetFolder(user.SiteId, "Users/");
-            if (folder != null)
+            var folder = _folders.GetFolder(user.SiteId, $"Users/{user.UserId}/");
+            if (folder == null)
             {
                 _folders.AddFolder(new Folder
                 {
@@ -82,13 +83,18 @@ namespace Oqtane.Repository
             var roles = _roles.GetRoles(user.SiteId).Where(item => item.IsAutoAssigned).ToList();
             foreach (var role in roles)
             {
-                var userrole = new UserRole();
-                userrole.UserId = user.UserId;
-                userrole.RoleId = role.RoleId;
-                userrole.EffectiveDate = null;
-                userrole.ExpiryDate = null;
-                userrole.IgnoreSecurityStamp = true;
-                _userroles.AddUserRole(userrole);
+                var userroleexists = _userroles.GetUserRole(user.UserId, role.RoleId, false);
+                if (userroleexists == null)
+                {
+                    var userrole = new UserRole();
+                    userrole.UserId = user.UserId;
+                    userrole.RoleId = role.RoleId;
+                    userrole.EffectiveDate = null;
+                    userrole.ExpiryDate = null;
+                    userrole.IgnoreSecurityStamp = true;
+                    _userroles.AddUserRole(userrole);
+                }
+
             }
 
             return user;
