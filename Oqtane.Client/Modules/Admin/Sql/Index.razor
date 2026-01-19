@@ -209,6 +209,10 @@ else
                     {
                         _databasetype = _connection.Substring(_connection.LastIndexOf(" (") + 2).Replace(")", "");
                     }
+                    else
+                    {
+                        _databasetype = $"Connection Needs To Be Renamed: '{_connection} (Type)'";
+                    }
                 }
             }
             else
