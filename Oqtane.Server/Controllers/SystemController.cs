@@ -128,7 +128,7 @@ namespace Oqtane.Controllers
                     }
                     break;
                 default:
-                    _configManager.AddOrUpdateSetting(key, value, false);
+                    _configManager.AddOrUpdateSetting(key, value, true);
                     break;
             }
         }
