@@ -211,7 +211,14 @@ else
                     }
                     else
                     {
-                        _databasetype = $"Connection Needs To Be Renamed: '{_connection} (Type)'";
+                        if (_databases.Exists(item => item.IsDefault))
+                        {
+                            _databasetype = _databases.Find(item => item.IsDefault).Name;
+                        }
+                        else
+                        {
+                            _databasetype = Constants.DefaultDBName;
+                        }
                     }
                 }
             }
