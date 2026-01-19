@@ -156,4 +156,10 @@
   <data name="Backup.HelpText" xml:space="preserve">
     <value>Specify if you want to backup files during the upgrade process. Disabling this option will reduce the time required for the upgrade.</value>
   </data>
+  <data name="Version.Text" xml:space="preserve">
+    <value>Version:</value>
+  </data>
+  <data name="Version.HelpText" xml:space="preserve">
+    <value>Select the framework upgrade version</value>
+  </data>
 </root>
