@@ -258,15 +258,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="relay" HelpText="This option will send email directly from the sender's unique email address rather than from the authorized Email Sender specified below. This option should only be used when the SMTP service has been configured with SPF/DKIM/DMARC for each unique sender, or else the email will be identified as malicious spoofing." ResourceKey="SmtpRelay">Allow Sender Delegation? </Label>
-                            <div class="col-sm-9">
-                                <select id="relay" class="form-select" @bind="@_smtprelay" required>
-                                    <option value="True">@SharedLocalizer["Yes"]</option>
-                                    <option value="False">@SharedLocalizer["No"]</option>
-                                </select>
-                            </div>
-                        </div>
                     }
                     else
                     {
@@ -528,7 +519,6 @@
     private string _togglesmtpclientsecret = string.Empty;
     private string _smtpscopes = string.Empty;
     private string _smtpsender = string.Empty;
-    private string _smtprelay = "False";
     private int _retention = 30;
 
     private string _pwaisenabled;
@@ -647,7 +637,6 @@
                     _togglesmtpclientsecret = SharedLocalizer["ShowPassword"];
                     _smtpscopes = SettingService.GetSetting(settings, "SMTPScopes", string.Empty);
                     _smtpsender = SettingService.GetSetting(settings, "SMTPSender", string.Empty);
-                    _smtprelay = SettingService.GetSetting(settings, "SMTPRelay", "False");
                     _retention = int.Parse(SettingService.GetSetting(settings, "NotificationRetention", "30"));
                 }
 
@@ -840,7 +829,6 @@
                             settings = SettingService.SetSetting(settings, "SMTPClientSecret", _smtpclientsecret, true);
                             settings = SettingService.SetSetting(settings, "SMTPScopes", _smtpscopes, true);
                             settings = SettingService.SetSetting(settings, "SMTPSender", _smtpsender, true);
-                            settings = SettingService.SetSetting(settings, "SMTPRelay", _smtprelay, true);
                             settings = SettingService.SetSetting(settings, "NotificationRetention", _retention.ToString(), true);
 
                             if (_smtpenabled == "True")

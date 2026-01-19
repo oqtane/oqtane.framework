@@ -170,17 +170,7 @@ namespace Oqtane.Infrastructure
                                             fromName = string.IsNullOrEmpty(fromName) ? user.DisplayName ?? "" : fromName;
                                         }
                                     }
-
-                                    // preserve reply to
-                                    var replyToEmail = fromEmail;
-                                    var replyToName = fromName;
-
-                                    // SMTP Sender should always be used when Sender Delegation is disabled (default) or if the "from" email address is not specified (ie. system messages)
-                                    if (settingRepository.GetSettingValue(settings, "SMTPRelay", "False") != "True" || string.IsNullOrEmpty(fromEmail))
-                                    {
-                                        fromEmail = settingRepository.GetSettingValue(settings, "SMTPSender", "");
-                                        fromName = string.IsNullOrEmpty(fromName) ? site.Name : fromName;
-                                    }
+                                    fromName = string.IsNullOrEmpty(fromName) ? site.Name : fromName;
 
                                     // get recipient from user information if "to" email or name is not specified and user id is available
                                     if ((string.IsNullOrEmpty(toEmail) || string.IsNullOrEmpty(toName)) && notification.ToUserId != null)
@@ -199,29 +189,29 @@ namespace Oqtane.Infrastructure
                                     MailboxAddress replyTo = null;
                                     var mailboxAddressValidationError = "";
 
-                                    // sender
-                                    if (MailboxAddress.TryParse(fromEmail, out from))
+                                    // always send from SMTP Sender
+                                    if (MailboxAddress.TryParse(settingRepository.GetSettingValue(settings, "SMTPSender", ""), out from))
                                     {
-                                        from.Name = fromName; //override with "from" name set previously
+                                        from.Name = fromName; 
                                     }
                                     else
                                     {
-                                        mailboxAddressValidationError += $" Invalid Sender: {fromName} &lt;{fromEmail}&gt;";
+                                        mailboxAddressValidationError += $" Invalid Sender: {fromName} &lt;{settingRepository.GetSettingValue(settings, "SMTPSender", "")}&gt;";
                                     }
 
                                     // reply to
-                                    if (!string.IsNullOrEmpty(replyToEmail) && replyToEmail != fromEmail)
+                                    if (!string.IsNullOrEmpty(fromEmail) && fromEmail != from.Address)
                                     {
-                                        if (MailboxAddress.TryParse(replyToEmail, out replyTo))
+                                        if (MailboxAddress.TryParse(fromEmail, out replyTo))
                                         {
-                                            replyTo.Name = replyToName; //override with "replyToName" name set previously
+                                            replyTo.Name = fromName; 
                                         }
                                     }
 
                                     // recipient
                                     if (MailboxAddress.TryParse(toEmail, out to))
                                     {
-                                        to.Name = toName; //override with "to" name set previously
+                                        to.Name = toName; 
                                     }
                                     else
                                     {
