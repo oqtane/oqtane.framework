@@ -181,13 +181,23 @@ namespace Oqtane.Managers
                 succeeded = true;
                 if (!user.IsAuthenticated)
                 {
-                    var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, false);
-                    succeeded = result.Succeeded;
-                    if (!succeeded)
+                    // validate if the user already exists for the site
+                    succeeded = string.IsNullOrEmpty(GetUser(user.Username, user.SiteId).Roles);
+                    if (succeeded)
                     {
-                        errors = "Password Not Valid For User";
+                        // a user is registering for a new site - ensure their password is valid
+                        var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, false);
+                        succeeded = result.Succeeded;
+                        if (!succeeded)
+                        {
+                            errors = "User Already Exists In Installation But Cannot Be Added To A Site Because The Password Provided Is Not Valid";
+                        }
+                        user.EmailConfirmed = succeeded;
                     }
-                    user.EmailConfirmed = succeeded;
+                    else
+                    {
+                        errors = "User Already Exists In Site";
+                    }
                 }
             }
 
