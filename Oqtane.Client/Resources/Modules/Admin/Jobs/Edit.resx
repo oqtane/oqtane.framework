@@ -139,7 +139,7 @@
     <value>Error Updating Job</value>
   </data>
   <data name="Message.Required.JobInfo" xml:space="preserve">
-    <value>You Must Provide The Job Name, Type, Frequency, and Retention</value>
+    <value>You Must Provide The Job Name, Frequency, and Retention</value>
   </data>
   <data name="Name.HelpText" xml:space="preserve">
     <value>Enter the job name</value>
@@ -154,7 +154,7 @@
     <value>Select how often you want the job to run</value>
   </data>
   <data name="Starting.HelpText" xml:space="preserve">
-    <value>Optionally enter the date and time when this job should start executing</value>
+    <value>Optionally enter the date and time when this job should start executing. If no date or time is specified, the job will execute immediately.</value>
   </data>
   <data name="Ending.HelpText" xml:space="preserve">
     <value>Optionally enter the date and time when this job should stop executing</value>
@@ -163,7 +163,7 @@
     <value>Number of log entries to retain for this job</value>
   </data>
   <data name="NextExecution.HelpText" xml:space="preserve">
-    <value>Optionally modify the date and time when this job should execute next</value>
+    <value>The date and time when this job will execute next. This value cannot be modified. Use the settings above to control the execution of the job.</value>
   </data>
   <data name="Type.Text" xml:space="preserve">
     <value>Type: </value>
@@ -193,6 +193,15 @@
     <value>Execute Once</value>
   </data>
   <data name="Message.StartEndDateError" xml:space="preserve">
-    <value>Start Date cannot be after End Date.</value>
+    <value>The Start Date Cannot Be Later Than The End Date</value>
+  </data>
+  <data name="Message.StartDateError" xml:space="preserve">
+    <value>The Start Date Cannot Be Prior To The Current Date</value>
+  </data>
+  <data name="Message.ExecutingError" xml:space="preserve">
+    <value>The Job Is Currently Executing. You Must Wait Until The Job Has Completed.</value>
+  </data>
+  <data name="JobNotEditable" xml:space="preserve">
+    <value>The Job Cannot Be Modified As It Is Currently Enabled. You Must Disable The Job To Change Its Settings.</value>
   </data>
 </root>

@@ -198,40 +198,26 @@ namespace Oqtane.Infrastructure
             {
                 case "m": // minutes
                     nextExecution = nextExecution.AddMinutes(job.Interval);
+                    if (nextExecution < DateTime.UtcNow) nextExecution = DateTime.UtcNow;
                     break;
                 case "H": // hours
                     nextExecution = nextExecution.AddHours(job.Interval);
+                    if (nextExecution < DateTime.UtcNow) nextExecution = DateTime.UtcNow;
                     break;
                 case "d": // days
+                    nextExecution = DateTime.UtcNow.Date.Add(nextExecution.TimeOfDay); // preserve time of day
                     nextExecution = nextExecution.AddDays(job.Interval);
-                    if (job.StartDate != null && job.StartDate.Value.TimeOfDay.TotalSeconds != 0)
-                    {
-                        // set the start time
-                        nextExecution = nextExecution.Date.Add(job.StartDate.Value.TimeOfDay);
-                    }
                     break;
                 case "w": // weeks
+                    nextExecution = DateTime.UtcNow.Date.Add(nextExecution.TimeOfDay); // preserve time of day
                     nextExecution = nextExecution.AddDays(job.Interval * 7);
-                    if (job.StartDate != null && job.StartDate.Value.TimeOfDay.TotalSeconds != 0)
-                    {
-                        // set the start time
-                        nextExecution = nextExecution.Date.Add(job.StartDate.Value.TimeOfDay);
-                    }
                     break;
                 case "M": // months
+                    nextExecution = DateTime.UtcNow.Date.Add(nextExecution.TimeOfDay); // preserve time of day
                     nextExecution = nextExecution.AddMonths(job.Interval);
-                    if (job.StartDate != null && job.StartDate.Value.TimeOfDay.TotalSeconds != 0)
-                    {
-                        // set the start time
-                        nextExecution = nextExecution.Date.Add(job.StartDate.Value.TimeOfDay);
-                    }
                     break;
                 case "O": // one time
                     break;
-            }
-            if (nextExecution < DateTime.UtcNow)
-            {
-                nextExecution = DateTime.UtcNow;
             }
             return nextExecution;
         }

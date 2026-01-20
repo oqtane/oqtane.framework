@@ -144,7 +144,6 @@ else
     private string _code = string.Empty;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
-    public override bool? Prerender => true;
 
     public override List<Resource> Resources => new List<Resource>()
     {
@@ -221,6 +220,14 @@ else
                 if (PageState.QueryString.ContainsKey("status"))
                 {
                     AddModuleMessage(Localizer["ExternalLoginStatus." + PageState.QueryString["status"]], MessageType.Warning);
+                }
+                else
+                {
+                    if (_allowexternallogin && !_allowsitelogin)
+                    {
+                        // external login
+                        ExternalLogin();
+                    }
                 }
             }
         }

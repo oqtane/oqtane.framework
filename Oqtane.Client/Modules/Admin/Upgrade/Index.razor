@@ -11,11 +11,22 @@
 {
     <TabStrip>
         <TabPanel Name="Download" ResourceKey="Download">
-            @if (_package != null && _upgradeavailable)
+            @if (_versions.Count > 0 && _upgradeable)
             {
                 <div class="container">
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" HelpText="Specify if you want to backup files during the upgrade process. Disabling this option will reduce the time required for the upgrade." ResourceKey="Backup">Backup Files? </Label>
+                        <Label Class="col-sm-3" For="version" HelpText="Select the framework upgrade version" ResourceKey="Version">Version: </Label>
+                        <div class="col-sm-9">
+                            <select id="backup" class="form-select" @bind="@_version">
+                                @foreach (var version in _versions)
+                                {
+                                    <option value="@version">@version</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="backup" HelpText="Specify if you want to backup files during the upgrade process. Disabling this option will reduce the time required for the upgrade." ResourceKey="Backup">Backup Files? </Label>
                         <div class="col-sm-9">
                             <select id="backup" class="form-select" @bind="@_backup">
                                 <option value="True">@SharedLocalizer["Yes"]</option>
@@ -27,7 +38,7 @@
                 <br />
                 @if (!_downloaded)
                 {
-                    <button type="button" class="btn btn-primary" @onclick=@(async () => await Download(Constants.PackageId, @_package.Version))>@SharedLocalizer["Download"] @_package.Version</button>
+                    <button type="button" class="btn btn-primary" @onclick=@(async () => await Download(Constants.PackageId, _version))>@SharedLocalizer["Download"] @_version</button>
                 }
                 else
                 {
@@ -66,8 +77,9 @@
 @code {
     private bool _initialized = false;
     private bool _downloaded = false;
-    private Package _package;
-    private bool _upgradeavailable = false;
+    private List<string> _versions = new List<string>();
+    private string _version;
+    private bool _upgradeable = false;
     private string _backup = "True";
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
@@ -84,18 +96,18 @@
             {
                 AddModuleMessage(Localizer["Disclaimer.Text"], MessageType.Warning);
 
-                List<Package> packages = await PackageService.GetPackagesAsync("framework", "", "", "");
+                var packages = await PackageService.GetPackagesAsync("framework", "", "", "");
                 if (packages != null)
                 {
-                    _package = packages.Where(item => item.PackageId.StartsWith(Constants.PackageId)).FirstOrDefault();
-                    if (_package != null)
+                    _version = packages.First(item => item.PackageId.StartsWith(Constants.PackageId)).Version;
+                    foreach (var version in Constants.ReleaseVersions.Split(','))
                     {
-                        _upgradeavailable = (Version.Parse(_package.Version).CompareTo(Version.Parse(Constants.Version)) > 0);
+                        if (Version.Parse(version).CompareTo(Version.Parse(Constants.Version)) > 0)
+                        {
+                            _versions.Add(version);
+                        }
                     }
-                    else
-                    {
-                        _package = new Package { Name = Constants.PackageId, Version = Constants.Version };
-                    }
+                    _upgradeable = (Version.Parse(_version).CompareTo(Version.Parse(Constants.Version)) > 0);
                 }
                 _initialized = true;
             }

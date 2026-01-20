@@ -83,14 +83,14 @@ else
 		{
 			@if (_connection != "-")
 			{
-				@if (!string.IsNullOrEmpty(_tenant))
-				{
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="databasetype" HelpText="The database type" ResourceKey="DatabaseType">Type: </Label>
-                        <div class="col-sm-9">
-                            <input id="databasetype" class="form-control" @bind="@_databasetype" readonly />
-                        </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="databasetype" HelpText="The database type" ResourceKey="DatabaseType">Type: </Label>
+                    <div class="col-sm-9">
+                        <input id="databasetype" class="form-control" @bind="@_databasetype" readonly />
                     </div>
+                </div>
+                @if (!string.IsNullOrEmpty(_tenant))
+                {
                     <div class="row mb-1 align-items-center">
 						<Label Class="col-sm-3" For="tenant" HelpText="The database using this connection" ResourceKey="Tenant">Database: </Label>
 						<div class="col-sm-9">
@@ -150,130 +150,149 @@ else
 }
 
 @code {
-	private string _connection = "-";
-	private Dictionary<string, object> _connections;
-	private List<Tenant> _tenants;
-	private List<Database> _databases;
+    private string _connection = "-";
+    private Dictionary<string, object> _connections;
+    private List<Tenant> _tenants;
+    private List<Database> _databases;
 
-	private string _name = string.Empty;
-	private string _databasetype = string.Empty;
-	private Type _databaseConfigType;
-	private object _databaseConfig;
-	private RenderFragment DatabaseConfigComponent { get; set; }
-	private bool _showConnectionString = false;
-	private string _tenant = string.Empty;
-	private string _connectionstring = string.Empty;
-	private string _connectionstringtype = "password";
-	private string _connectionstringtoggle = string.Empty;
-	private string _sql = string.Empty;
-	private List<Dictionary<string, string>> _results;
+    private string _name = string.Empty;
+    private string _databasetype = string.Empty;
+    private Type _databaseConfigType;
+    private object _databaseConfig;
+    private RenderFragment DatabaseConfigComponent { get; set; }
+    private bool _showConnectionString = false;
+    private string _tenant = string.Empty;
+    private string _connectionstring = string.Empty;
+    private string _connectionstringtype = "password";
+    private string _connectionstringtoggle = string.Empty;
+    private string _sql = string.Empty;
+    private List<Dictionary<string, string>> _results;
 
-	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-	protected override async Task OnInitializedAsync()
-	{
-		try
-		{
-			_connections = await SystemService.GetSystemInfoAsync("connectionstrings");
-			_tenants = await TenantService.GetTenantsAsync();
-			_databases = await DatabaseService.GetDatabasesAsync();
-			_connectionstringtoggle = SharedLocalizer["ShowPassword"];
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Loading Tenants {Error}", ex.Message);
-			AddModuleMessage(ex.Message, MessageType.Error);
-		}
-	}
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _connections = await SystemService.GetSystemInfoAsync("connectionstrings");
+            _tenants = await TenantService.GetTenantsAsync();
+            _databases = await DatabaseService.GetDatabasesAsync();
+            _connectionstringtoggle = SharedLocalizer["ShowPassword"];
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Tenants {Error}", ex.Message);
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
 
-	private async void ConnectionChanged(ChangeEventArgs e)
-	{
-		try
-		{
-			_connection = (string)e.Value;
-			if (_connection != "-" && _connection != "+")
-			{
-				_connectionstring = _connections[_connection].ToString();
-				_tenant = "";
-				_databasetype = "";
-				var tenant = _tenants.FirstOrDefault(item => item.DBConnectionString == _connection);
-				if (tenant != null)
-				{
-					_tenant = tenant.Name;
+    private async void ConnectionChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            _connection = (string)e.Value;
+            if (_connection != "-" && _connection != "+")
+            {
+                _connectionstring = _connections[_connection].ToString();
+                _tenant = "";
+                _databasetype = "";
+                var tenant = _tenants.FirstOrDefault(item => item.DBConnectionString == _connection);
+                if (tenant != null)
+                {
+                    _tenant = tenant.Name;
                     // hack - there are 3 providers with SqlServerDatabase DBTypes - so we are choosing the last one in alphabetical order
                     _databasetype = _databases.Where(item => item.DBType == tenant.DBType).OrderBy(item => item.Name).Last()?.Name;
-				}
-			}
-			else
-			{
-				if (_databases.Exists(item => item.IsDefault))
-				{
-					_databasetype = _databases.Find(item => item.IsDefault).Name;
-				}
-				else
-				{
+                }
+                else
+                {
+                    if (_connection.Contains(" ("))
+                    {
+                        _databasetype = _connection.Substring(_connection.LastIndexOf(" (") + 2).Replace(")", "");
+                    }
+                    else
+                    {
+                        if (_databases.Exists(item => item.IsDefault))
+                        {
+                            _databasetype = _databases.Find(item => item.IsDefault).Name;
+                        }
+                        else
+                        {
+                            _databasetype = Constants.DefaultDBName;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (_databases.Exists(item => item.IsDefault))
+                {
+                    _databasetype = _databases.Find(item => item.IsDefault).Name;
+                }
+                else
+                {
                     _databasetype = Constants.DefaultDBName;
-				}
-				_showConnectionString = false;
-				LoadDatabaseConfigComponent();
-			}
-			StateHasChanged();
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Loading Connection {Connection} {Error}", _connection, ex.Message);
-			AddModuleMessage(ex.Message, MessageType.Error);
-		}
-	}
+                }
+                _showConnectionString = false;
+                LoadDatabaseConfigComponent();
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Connection {Connection} {Error}", _connection, ex.Message);
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
 
-	private void DatabaseTypeChanged(ChangeEventArgs eventArgs)
-	{
-		try
-		{
-			_databasetype = (string)eventArgs.Value;
-			_showConnectionString = false;
-			LoadDatabaseConfigComponent();
-		}
-		catch
-		{
-			AddModuleMessage(Localizer["Error.Database.LoadConfig"], MessageType.Error);
-		}
-	}
+    private void DatabaseTypeChanged(ChangeEventArgs eventArgs)
+    {
+        try
+        {
+            _databasetype = (string)eventArgs.Value;
+            _showConnectionString = false;
+            LoadDatabaseConfigComponent();
+        }
+        catch
+        {
+            AddModuleMessage(Localizer["Error.Database.LoadConfig"], MessageType.Error);
+        }
+    }
 
-	private void LoadDatabaseConfigComponent()
-	{
-		var database = _databases.SingleOrDefault(d => d.Name == _databasetype);
-		if (database != null)
-		{
-			_databaseConfigType = Type.GetType(database.ControlType);
-			DatabaseConfigComponent = builder =>
-			{
-				builder.OpenComponent(0, _databaseConfigType);
-				builder.AddComponentReferenceCapture(1, inst => { _databaseConfig = Convert.ChangeType(inst, _databaseConfigType); });
-				builder.CloseComponent();
-			};
-		}
-	}
+    private void LoadDatabaseConfigComponent()
+    {
+        var database = _databases.SingleOrDefault(d => d.Name == _databasetype);
+        if (database != null)
+        {
+            _databaseConfigType = Type.GetType(database.ControlType);
+            DatabaseConfigComponent = builder =>
+            {
+                builder.OpenComponent(0, _databaseConfigType);
+                builder.AddComponentReferenceCapture(1, inst => { _databaseConfig = Convert.ChangeType(inst, _databaseConfigType); });
+                builder.CloseComponent();
+            };
+        }
+    }
 
-	private void ShowConnectionString()
-	{
-		if (_databaseConfig is IDatabaseConfigControl databaseConfigControl)
-		{
-			_connectionstring = databaseConfigControl.GetConnectionString();
-		}
-		_showConnectionString = !_showConnectionString;
-	}
+    private void ShowConnectionString()
+    {
+        if (_databaseConfig is IDatabaseConfigControl databaseConfigControl)
+        {
+            _connectionstring = databaseConfigControl.GetConnectionString();
+        }
+        _showConnectionString = !_showConnectionString;
+    }
 
-	private async Task Add()
-	{
-		var connectionstring = _connectionstring;
-		if (!_showConnectionString && _databaseConfig is IDatabaseConfigControl databaseConfigControl)
-		{
-			connectionstring = databaseConfigControl.GetConnectionString();
-		}
-		if (!string.IsNullOrEmpty(_name) && !string.IsNullOrEmpty(connectionstring))
-		{
-			var settings = new Dictionary<string, object>();
+    private async Task Add()
+    {
+        var connectionstring = _connectionstring;
+        if (!_showConnectionString && _databaseConfig is IDatabaseConfigControl databaseConfigControl)
+        {
+            connectionstring = databaseConfigControl.GetConnectionString();
+        }
+        if (!string.IsNullOrEmpty(_name) && !string.IsNullOrEmpty(connectionstring))
+        {
+            _name = _name + " (" + _databasetype +")";
+            var settings = new Dictionary<string, object>();
 			settings.Add($"{SettingKeys.ConnectionStringsSection}:{_name}", connectionstring);
 			await SystemService.UpdateSystemInfoAsync(settings);
 			_connections = await SystemService.GetSystemInfoAsync("connectionstrings");

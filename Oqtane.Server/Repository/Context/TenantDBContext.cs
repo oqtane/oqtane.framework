@@ -43,14 +43,6 @@ namespace Oqtane.Repository
         {
             optionsBuilder.ReplaceService<IMigrationsAssembly, MultiDatabaseMigrationsAssembly>();
 
-            // specify the SchemaVersion for .NET Identity as it is not being persisted when using AddIdentityCore()
-            var services = new ServiceCollection();
-            services.AddIdentityCore<IdentityUser>(options =>
-            {
-                options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
-            });
-            optionsBuilder.UseApplicationServiceProvider(services.BuildServiceProvider());
-
             if (string.IsNullOrEmpty(_connectionString))
             {
                 Tenant tenant = _tenantManager.GetTenant();
@@ -74,6 +66,22 @@ namespace Oqtane.Repository
                 var type = Type.GetType(_databaseType);
                 ActiveDatabase = Activator.CreateInstance(type) as IDatabase;
             }
+
+            // specify the SchemaVersion for .NET Identity as it is not being persisted when using AddIdentityCore()
+            var services = new ServiceCollection();
+            services.AddIdentityCore<IdentityUser>(options =>
+            {
+                if (!string.IsNullOrEmpty(_databaseType) && _databaseType.ToLower().Contains("mysql"))
+                {
+                    // MySQL does not support some of the newer features of .NET Identity (ie. Passkeys)
+                    options.Stores.SchemaVersion = IdentitySchemaVersions.Version2;
+                }
+                else
+                {
+                    options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
+                }
+            });
+            optionsBuilder.UseApplicationServiceProvider(services.BuildServiceProvider());
 
             if (!string.IsNullOrEmpty(_connectionString) && ActiveDatabase != null)
             {

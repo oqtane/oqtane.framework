@@ -78,9 +78,6 @@ namespace Oqtane.Infrastructure
                     case "5.2.1":
                         Upgrade_5_2_1(tenant, scope);
                         break;
-                    case "6.1.0":
-                        Upgrade_6_1_0(tenant, scope);
-                        break;
                     case "6.1.1":
                         Upgrade_6_1_1(tenant, scope);
                         break;
@@ -92,6 +89,9 @@ namespace Oqtane.Infrastructure
                         break;
                     case "6.2.1":
                         Upgrade_6_2_1(tenant, scope);
+                        break;
+                    case "10.0.4":
+                        Upgrade_10_0_4(tenant, scope);
                         break;
                 }
             }
@@ -447,16 +447,6 @@ namespace Oqtane.Infrastructure
             AddPagesToSites(scope, tenant, pageTemplates);
         }
 
-        private void Upgrade_6_1_0(Tenant tenant, IServiceScope scope)
-        {
-            // remove MySql.EntityFrameworkCore package (replaced by Pomelo.EntityFrameworkCore.MySql)
-            string[] assemblies = {
-                "MySql.EntityFrameworkCore.dll"
-            };
-
-            RemoveAssemblies(tenant, assemblies, "6.1.0");
-        }
-
         private void Upgrade_6_1_1(Tenant tenant, IServiceScope scope)
         {
             var localizer = scope.ServiceProvider.GetRequiredService<IStringLocalizer<AdminSiteTemplate>>();
@@ -600,6 +590,16 @@ namespace Oqtane.Infrastructure
             };
 
             RemoveFiles(tenant, files, "6.2.1");
+        }
+
+        private void Upgrade_10_0_4(Tenant tenant, IServiceScope scope)
+        {
+            // remove Pomelo.EntityFrameworkCore.MySql package (replaced by MySql.EntityFrameworkCore)
+            string[] assemblies = {
+                "Pomelo.EntityFrameworkCore.MySql.dll"
+            };
+
+            RemoveAssemblies(tenant, assemblies, "10.0.4");
         }
 
         private void AddPagesToSites(IServiceScope scope, Tenant tenant, List<PageTemplate> pageTemplates)

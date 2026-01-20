@@ -18,7 +18,7 @@
 		<ApplicationId>com.oqtane.maui</ApplicationId>
     
 		<!-- Versions -->
-		<ApplicationDisplayVersion>10.0.3</ApplicationDisplayVersion>
+		<ApplicationDisplayVersion>10.0.4</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
@@ -54,11 +54,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.1" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Localization" Version="10.0.1" />
-		<PackageReference Include="System.Net.Http.Json" Version="10.0.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Localization" Version="10.0.2" />
+		<PackageReference Include="System.Net.Http.Json" Version="10.0.2" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />

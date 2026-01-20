@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Oqtane.Server</id>
-    <version>10.0.3</version>
+    <version>10.0.4</version>
     <authors>Shaun Walker</authors>
     <owners>.NET Foundation</owners>
     <title>Oqtane Framework</title>
@@ -12,29 +12,29 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
-    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v10.0.3</releaseNotes>
+    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v10.0.4</releaseNotes>
     <readme>readme.md</readme>
     <icon>icon.png</icon>
     <tags>oqtane</tags>
     <dependencies>
       <group targetFramework="net10.0">
-        <dependency id="Oqtane.Client" version="10.0.1" exclude="Build,Analyzers" />
-        <dependency id="Oqtane.Shared" version="10.0.1" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.AspNetCore.Components.WebAssembly.Server" version="10.0.1" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.AspNetCore.Identity.EntityFrameworkCore" version="10.0.1" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.AspNetCore.Authentication.OpenIdConnect" version="10.0.1" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.EntityFrameworkCore.Relational" version="10.0.1" exclude="Build,Analyzers" />
+        <dependency id="Oqtane.Client" version="10.0.4" exclude="Build,Analyzers" />
+        <dependency id="Oqtane.Shared" version="10.0.4" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.AspNetCore.Components.WebAssembly.Server" version="10.0.2" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.AspNetCore.Identity.EntityFrameworkCore" version="10.0.2" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.AspNetCore.Authentication.OpenIdConnect" version="10.0.2" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore.Relational" version="10.0.2" exclude="Build,Analyzers" />
         <dependency id="SixLabors.ImageSharp" version="3.1.12" exclude="Build,Analyzers" />
         <dependency id="HtmlAgilityPack" version="1.12.4" exclude="Build,Analyzers" />
-        <dependency id="Swashbuckle.AspNetCore" version="10.0.1" exclude="Build,Analyzers" />
+        <dependency id="Swashbuckle.AspNetCore" version="10.1.0" exclude="Build,Analyzers" />
         <dependency id="MailKit" version="4.14.1" exclude="Build,Analyzers" />
         <dependency id="MySql.Data" version="9.5.0" exclude="Build,Analyzers" />
-        <dependency id="Pomelo.EntityFrameworkCore.MySql" version="9.0.0" exclude="Build,Analyzers" />
-        <dependency id="EFCore.NamingConventions" version="10.0.0-rc.2" exclude="Build,Analyzers" />
+        <dependency id="MySql.EntityFrameworkCore" version="10.0.0-rc" exclude="Build,Analyzers" />
+        <dependency id="EFCore.NamingConventions" version="10.0.0" exclude="Build,Analyzers" />
         <dependency id="Npgsql.EntityFrameworkCore.PostgreSQL" version="10.0.0" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.EntityFrameworkCore.Sqlite" version="10.0.1" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Data.Sqlite.Core" version="10.0.1" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="10.0.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore.Sqlite" version="10.0.2" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Data.Sqlite.Core" version="10.0.2" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="10.0.2" exclude="Build,Analyzers" />
       </group>
     </dependencies>
     <frameworkReferences>

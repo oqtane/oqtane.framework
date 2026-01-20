@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>Oqtane.Application.Template</id>
-    <version>10.0.3</version>
+    <version>10.0.4</version>
     <title>Oqtane Application Template For Blazor</title>
     <authors>Shaun Walker</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>

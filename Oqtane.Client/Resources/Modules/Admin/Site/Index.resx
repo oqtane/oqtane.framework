@@ -132,9 +132,6 @@
   <data name="DefaultAdminContainer" xml:space="preserve">
     <value>Default Admin Container</value>
   </data>
-  <data name="Smtp.Required.EnableNotificationJob" xml:space="preserve">
-    <value>** Please Note That SMTP Requires The Notification Job To Be Enabled In Scheduled Jobs</value>
-  </data>
   <data name="Smtp.TestConfig" xml:space="preserve">
     <value>Test SMTP Configuration</value>
   </data>
@@ -341,12 +338,6 @@
   </data>
   <data name="HomePage.Text" xml:space="preserve">
     <value>Home Page:</value>
-  </data>
-  <data name="SmtpRelay.HelpText" xml:space="preserve">
-    <value>Only specify this option if you have properly configured an SMTP Relay Service to route your outgoing mail. This option will send notifications from the user's email rather than from the Email Sender specified above.</value>
-  </data>
-  <data name="SmtpRelay.Text" xml:space="preserve">
-    <value>Relay Configured?</value>
   </data>
   <data name="SiteMap.HelpText" xml:space="preserve">
     <value>The site map url for this site which can be submitted to search engines for indexing. The sitemap is cached for 5 minutes and the cache can be manually cleared.</value>
