@@ -220,7 +220,7 @@
 	  "apiVersion": "2024-04-01",
 	  "name": "[concat(parameters('BlazorWebsiteName'), '/ZipDeploy')]",
           "properties": {
-	    "packageUri": "https://github.com/oqtane/oqtane.framework/releases/download/v10.0.3/Oqtane.Framework.10.0.3.Install.zip"
+	    "packageUri": "https://github.com/oqtane/oqtane.framework/releases/download/v10.0.4/Oqtane.Framework.10.0.4.Install.zip"
           },
           "dependsOn": [
             "[resourceId('Microsoft.Web/sites', parameters('BlazorWebsiteName'))]"

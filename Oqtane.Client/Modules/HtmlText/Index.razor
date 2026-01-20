@@ -5,6 +5,15 @@
 @inject ISettingService SettingService
 @inject IStringLocalizer<Index> Localizer
 
+@for (int i = 1; i < 6; i++)
+{
+    string product = $"product{i}";
+    <div>
+        <input type="checkbox" id="@($"product{i}")" @onchange="@(() => ProductChanged(product))" />
+        <label for="@($"product{i}")">@GetLabel($"product{i}")</label>
+    </div>
+}
+
 @if (PageState.EditMode)
 {
     <div class="text-center mb-2">
@@ -24,7 +33,41 @@
 @code {
     private string content = "";
 
-    public override string RenderMode => RenderModes.Static;
+    //public override string RenderMode => RenderModes.Static;
+
+    Dictionary<string, string> _labels = new Dictionary<string, string> {
+        { ":product1", "成为顾问 (FIA)"},
+        { ":product2", "Market Shield Savings Plan (MS)"},
+        { ":product3", "Global Term Life Insurance"},
+        { ":product4", "Protection Advantage Universal Life Insurance"},
+        { ":product5", "Summit Indexed Universal Life Insurance"}
+    };
+
+    private List<string> _products = new List<string>();
+
+    private void ProductChanged(string product)
+    {
+        if (_products.Contains(product))
+        {
+            _products.Remove(product);
+        }
+        else
+        {
+            _products.Add(product);
+        }
+    }
+
+    private string GetLabel(string key)
+    {
+        if (_labels.ContainsKey($"{PageState.Alias.Path}:{key}"))
+        {
+            return _labels[$"{PageState.Alias.Path}:{key}"];
+        }
+        else
+        {
+            return "";
+        }
+    }
 
     protected override async Task OnParametersSetAsync()
     {
