@@ -778,6 +778,71 @@ namespace Oqtane.Controllers
             return System.IO.File.Exists(errorPath) ? PhysicalFile(errorPath, MimeUtilities.GetMimeType(errorPath)) : null;
         }
 
+        [HttpGet("image/{id}/optimize/{quality}/{recreate}")]
+        public IActionResult GetOptimizedImage(int id, int quality, string recreate)
+        {
+            var file = _files.GetFile(id);
+
+            var _ImageFiles = _settingRepository.GetSetting(EntityNames.Site, _alias.SiteId, "ImageFiles")?.SettingValue;
+            _ImageFiles = (string.IsNullOrEmpty(_ImageFiles)) ? Constants.ImageFiles : _ImageFiles;
+
+            if (file != null && file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.PermissionList))
+            {
+                if (_ImageFiles.Split(',').Contains(file.Extension.ToLower()))
+                {
+                    var filepath = _files.GetFilePath(file);
+                    if (System.IO.File.Exists(filepath))
+                    {
+                        if (!bool.TryParse(recreate, out _)) recreate = "false";
+
+                        string imagepath = filepath.Replace(Path.GetExtension(filepath), ".optimized.webp");
+                        if (!System.IO.File.Exists(imagepath) || bool.Parse(recreate))
+                        {
+                            imagepath = _imageService.OptimizeImageToWebp(filepath, quality, imagepath);
+                        }
+                        if (!string.IsNullOrEmpty(imagepath))
+                        {
+                            if (!string.IsNullOrEmpty(file.Folder.CacheControl))
+                            {
+                                HttpContext.Response.Headers.Append(HeaderNames.CacheControl, value: file.Folder.CacheControl);
+                            }
+                            return PhysicalFile(imagepath, file.GetMimeType());
+                        }
+                        else
+                        {
+                            _logger.Log(LogLevel.Error, this, LogFunction.Create, "Error Displaying Image For File {File} {Quality}", file, quality);
+                            HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                        }
+                    }
+                    else
+                    {
+                        _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {FileId} {FilePath}", id, filepath);
+                        HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    }
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "File Is Not An Image {File}", file);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                }
+            }
+            else
+            {
+                if (file != null)
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized File Access Attempt {FileId}", id);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                }
+                else
+                {
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                }
+            }
+
+            string errorPath = Path.Combine(GetFolderPath("wwwroot/images"), "error.png");
+            return System.IO.File.Exists(errorPath) ? PhysicalFile(errorPath, MimeUtilities.GetMimeType(errorPath)) : null;
+        }
+
         private string GetFolderPath(string folder)
         {
             return Utilities.PathCombine(_environment.ContentRootPath, folder);
