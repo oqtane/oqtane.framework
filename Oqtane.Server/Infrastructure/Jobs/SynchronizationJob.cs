@@ -113,7 +113,7 @@ namespace Oqtane.Infrastructure
 
             if (string.IsNullOrEmpty(log))
             {
-                log = "No Site Groups Require Replication<br />";
+                log = "No Site Groups Require Synchronization<br />";
             }
 
             return log;
