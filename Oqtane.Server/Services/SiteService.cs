@@ -21,6 +21,8 @@ namespace Oqtane.Services
     public class ServerSiteService : ISiteService
     {
         private readonly ISiteRepository _sites;
+        private readonly ISiteGroupRepository _siteGroups;
+        private readonly IAliasRepository _aliases;
         private readonly IPageRepository _pages;
         private readonly IThemeRepository _themes;
         private readonly IPageModuleRepository _pageModules;
@@ -37,9 +39,11 @@ namespace Oqtane.Services
         private readonly IHttpContextAccessor _accessor;
         private readonly string _private = "[PRIVATE]";
 
-        public ServerSiteService(ISiteRepository sites, IPageRepository pages, IThemeRepository themes, IPageModuleRepository pageModules, IModuleDefinitionRepository moduleDefinitions, ILanguageRepository languages, IUserManager userManager, IUserPermissions userPermissions, ISettingRepository settings, ITenantManager tenantManager, ISyncManager syncManager, IConfigManager configManager, ILogManager logger, IMemoryCache cache, IHttpContextAccessor accessor)
+        public ServerSiteService(ISiteRepository sites, ISiteGroupRepository siteGroups, IAliasRepository aliases, IPageRepository pages, IThemeRepository themes, IPageModuleRepository pageModules, IModuleDefinitionRepository moduleDefinitions, ILanguageRepository languages, IUserManager userManager, IUserPermissions userPermissions, ISettingRepository settings, ITenantManager tenantManager, ISyncManager syncManager, IConfigManager configManager, ILogManager logger, IMemoryCache cache, IHttpContextAccessor accessor)
         {
             _sites = sites;
+            _siteGroups = siteGroups;
+            _aliases = aliases;
             _pages = pages;
             _themes = themes;
             _pageModules = pageModules;
@@ -145,12 +149,7 @@ namespace Oqtane.Services
                 site.Settings.Add(Constants.PageManagementModule, modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.PageManagementModule).ModuleId.ToString());
 
                 // languages
-                site.Languages = _languages.GetLanguages(site.SiteId).ToList();
-                var defaultCulture = CultureInfo.GetCultureInfo(Constants.DefaultCulture);
-                if (!site.Languages.Exists(item => item.Code == defaultCulture.Name))
-                {
-                    site.Languages.Add(new Language { Code = defaultCulture.Name, Name = "", Version = Constants.Version, IsDefault = !site.Languages.Any(l => l.IsDefault) });
-                }
+                site.Languages = GetLanguages(site.SiteId, alias.TenantId);
 
                 // themes
                 site.Themes = _themes.FilterThemes(_themes.GetThemes(site.SiteId).ToList());
@@ -158,6 +157,7 @@ namespace Oqtane.Services
                 // installation date used for fingerprinting static assets
                 site.Fingerprint = Utilities.GenerateSimpleHash(_configManager.GetSetting("InstallationDate", DateTime.UtcNow.ToString("yyyyMMddHHmm")));
 
+                // set tenant
                 site.TenantId = alias.TenantId;
             }
             else
@@ -310,6 +310,39 @@ namespace Oqtane.Services
 
             return modules.OrderBy(item => item.PageId).ThenBy(item => item.Pane).ThenBy(item => item.Order).ToList();
         }
+
+        private List<Language> GetLanguages(int siteId, int tenantId)
+        {
+            var languages = new List<Language>();
+
+            var siteGroups = _siteGroups.GetSiteGroups();
+            if (siteGroups.Any(item => item.SiteId == siteId && item.SiteGroupDefinition.Localization))
+            {
+                var sites = _sites.GetSites().ToList();
+                var aliases = _aliases.GetAliases().ToList();
+
+                foreach (var siteGroupDefinitionId in siteGroups.Where(item => item.SiteId == siteId && item.SiteGroupDefinition.Localization).Select(item => item.SiteGroupDefinitionId).Distinct().ToList())
+                {
+                    foreach (var siteGroup in siteGroups.Where(item => item.SiteGroupDefinitionId == siteGroupDefinitionId))
+                    {
+                        var site = sites.FirstOrDefault(item => item.SiteId == siteGroup.SiteId);
+                        if (site != null && !string.IsNullOrEmpty(site.CultureCode))
+                        {
+                            if (!languages.Any(item => item.Code == site.CultureCode))
+                            {
+                                var alias = aliases.FirstOrDefault(item => item.SiteId == siteGroup.SiteId && item.TenantId == tenantId && item.IsDefault);
+                                if (alias != null)
+                                {
+                                    languages.Add(new Language { Code = site.CultureCode, Name = "", AliasName = alias.Name, IsDefault = true });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return languages;
+        } 
 
         [Obsolete("This method is deprecated.", false)]
         public void SetAlias(Alias alias)

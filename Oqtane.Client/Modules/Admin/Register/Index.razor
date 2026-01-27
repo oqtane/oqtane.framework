@@ -3,10 +3,11 @@
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
-@inject IStringLocalizer<Index> Localizer
-@inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject ISettingService SettingService
 @inject ITimeZoneService TimeZoneService
+@inject ILanguageService LanguageService
+@inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_initialized)
 {
@@ -71,6 +72,18 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="culture" HelpText="Your preferred language. Note that you will only be able to choose from languages supported on this site." ResourceKey="CultureCode">Language:</Label>
+                            <div class="col-sm-9">
+                                <select id="culture" class="form-select" @bind="@_culturecode">
+                                    <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                                    @foreach (var language in _languages)
+                                    {
+                                        <option value="@language.Code">@language.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <br />
                     <button type="button" class="btn btn-primary" @onclick="Register">@Localizer["Register"]</button>
@@ -95,6 +108,8 @@
 @code {
     private bool _initialized = false;
     private List<Models.TimeZone> _timezones;
+    private IEnumerable<Models.Language> _languages;
+
     private string _passwordrequirements;
     private string _username = string.Empty;
     private ElementReference form;
@@ -106,6 +121,7 @@
     private string _email = string.Empty;
     private string _displayname = string.Empty;
     private string _timezoneid = string.Empty;
+    private string _culturecode = string.Empty;
     private bool _userCreated = false;
     private bool _allowsitelogin = true;
 
@@ -113,10 +129,13 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _timezones = TimeZoneService.GetTimeZones();
+        _languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId);            
+
         _passwordrequirements = await UserService.GetPasswordRequirementsAsync(PageState.Site.SiteId); 
         _allowsitelogin = bool.Parse(SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:AllowSiteLogin", "true"));
-        _timezones = TimeZoneService.GetTimeZones();
         _timezoneid = PageState.Site.TimeZoneId;
+        _culturecode = PageState.Site.CultureCode;
         _initialized = true;
     }
 
@@ -147,6 +166,7 @@
                             Email = _email,
                             DisplayName = (_displayname == string.Empty ? _username : _displayname),
                             TimeZoneId = _timezoneid,
+                            CultureCode = _culturecode,
 							PhotoFileId = null
                         };
                         user = await UserService.AddUserAsync(user);

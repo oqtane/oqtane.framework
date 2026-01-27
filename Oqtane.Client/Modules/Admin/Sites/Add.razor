@@ -6,7 +6,6 @@
 @inject ITenantService TenantService
 @inject IAliasService AliasService
 @inject ISiteService SiteService
-@inject IThemeService  ThemeService
 @inject ISiteTemplateService SiteTemplateService
 @inject IUserService UserService
 @inject IInstallationService InstallationService
@@ -29,33 +28,9 @@ else
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="alias" HelpText="The urls for the site (comman delimited). This can include domain names (ie. domain.com), subdomains (ie. sub.domain.com) or virtual folders (ie. domain.com/folder)." ResourceKey="Aliases">Urls: </Label>
+                <Label Class="col-sm-3" For="alias" HelpText="The primary url for the site. This can be a domain name (ie. domain.com), subdomain (ie. sub.domain.com) or a virtual folder (ie. domain.com/folder)." ResourceKey="Aliases">Url: </Label>
                 <div class="col-sm-9">
-                    <textarea id="alias" class="form-control" @bind="@_urls" rows="3" required></textarea>
-                </div>
-            </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="defaultTheme" HelpText="Select the default theme for the website" ResourceKey="DefaultTheme">Default Theme: </Label>
-                <div class="col-sm-9">
-                    <select id="defaultTheme" class="form-select" value="@_themetype" @onchange="(e => ThemeChanged(e))" required>
-                        <option value="-">&lt;@Localizer["Theme.Select"]&gt;</option>
-                        @foreach (var theme in _themes)
-                        {
-                            <option value="@theme.TypeName">@theme.Name</option>
-                        }
-                    </select>
-                </div>
-            </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="defaultContainer" HelpText="Select the default container for the site" ResourceKey="DefaultContainer">Default Container: </Label>
-                <div class="col-sm-9">
-                    <select id="defaultContainer" class="form-select" @bind="@_containertype" required>
-                        <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
-                        @foreach (var container in _containers)
-                        {
-                            <option value="@container.TypeName">@container.Name</option>
-                        }
-                    </select>
+                    <input id="alias" class="form-control" @bind="@_urls" required></input>
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
@@ -67,26 +42,6 @@ else
                         {
                             <option value="@siteTemplate.TypeName">@siteTemplate.Name</option>
                         }
-                    </select>
-                </div>
-            </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="rendermode" HelpText="The default render mode for the site" ResourceKey="Rendermode">Render Mode: </Label>
-                <div class="col-sm-9">
-                    <select id="rendermode" class="form-select" @bind="@_rendermode" required>
-                        <option value="@RenderModes.Interactive">@(SharedLocalizer["RenderMode" + @RenderModes.Interactive])</option>
-                        <option value="@RenderModes.Static">@(SharedLocalizer["RenderMode" + @RenderModes.Static])</option>
-                        <option value="@RenderModes.Headless">@(SharedLocalizer["RenderMode" + @RenderModes.Headless])</option>
-                    </select>
-                </div>
-            </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="runtime" HelpText="The render mode for UI components which require interactivity" ResourceKey="Runtime">Interactivity: </Label>
-                <div class="col-sm-9">
-                    <select id="runtime" class="form-select" @bind="@_runtime" required>
-                        <option value="@Runtimes.Server">@(SharedLocalizer["Runtime" + @Runtimes.Server])</option>
-                        <option value="@Runtimes.WebAssembly">@(SharedLocalizer["Runtime" + @Runtimes.WebAssembly])</option>
-                        <option value="@Runtimes.Auto">@(SharedLocalizer["Runtime" + @Runtimes.Auto])</option>
                     </select>
                 </div>
             </div>
@@ -186,9 +141,6 @@ else
     private bool _showConnectionString = false;
     private string _connectionString = string.Empty;
 
-    private List<Theme> _themeList;
-    private List<ThemeControl> _themes = new List<ThemeControl>();
-    private List<ThemeControl> _containers = new List<ThemeControl>();
     private List<SiteTemplate> _siteTemplates;
     private List<Tenant> _tenants;
     private string _tenantid = "-";
@@ -200,11 +152,7 @@ else
 
     private string _name = string.Empty;
     private string _urls = string.Empty;
-    private string _themetype = "-";
-    private string _containertype = "-";
     private string _sitetemplatetype = "-";
-    private string _rendermode = RenderModes.Static;
-    private string _runtime = Runtimes.Server;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
@@ -215,19 +163,11 @@ else
         {
             _tenantid = _tenants.First(item => item.Name == TenantNames.Master).TenantId.ToString();
         }
-        _urls = PageState.Alias.Name;
-        _themeList = await ThemeService.GetThemesAsync(PageState.Site.SiteId);
-        _themes = ThemeService.GetThemeControls(_themeList);
-        if (_themes.Any(item => item.TypeName == Constants.DefaultTheme))
-        {
-            _themetype = Constants.DefaultTheme;
-            _containers = ThemeService.GetContainerControls(_themeList, _themetype);
-            _containertype = _containers.First().TypeName;
-        }
+        _urls = PageState.Alias.Name + "/sitename";
         _siteTemplates = await SiteTemplateService.GetSiteTemplatesAsync();
-        if (_siteTemplates.Any(item => item.TypeName == Constants.DefaultSiteTemplate))
+        if (_siteTemplates.Any(item => item.TypeName == Constants.EmptySiteTemplate))
         {
-            _sitetemplatetype = Constants.DefaultSiteTemplate;
+            _sitetemplatetype = Constants.EmptySiteTemplate;
         }
 
         _databases = await DatabaseService.GetDatabasesAsync();
@@ -281,37 +221,13 @@ else
         StateHasChanged();
     }
 
-    private async void ThemeChanged(ChangeEventArgs e)
-    {
-        try
-        {
-            _themetype = (string)e.Value;
-            if (_themetype != "-")
-            {
-                _containers = ThemeService.GetContainerControls(_themeList, _themetype);
-                _containertype = _containers.First().TypeName;
-            }
-            else
-            {
-                _containers = new List<ThemeControl>();
-                _containertype = "-";
-            }
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Loading Containers For Theme {ThemeType} {Error}", _themetype, ex.Message);
-            AddModuleMessage(Localizer["Error.Theme.LoadContainers"], MessageType.Error);
-        }
-    }
-
     private async Task SaveSite()
     {
         validated = true;
         var interop = new Interop(JSRuntime);
         if (await interop.FormValid(form))
         {
-            if (_tenantid != "-" && _name != string.Empty && _urls != string.Empty && _themetype != "-" && _containertype != "-" && _sitetemplatetype != "-")
+            if (_tenantid != "-" && _name != string.Empty && _urls != string.Empty && _sitetemplatetype != "-")
             {
                 _urls = Regex.Replace(_urls, @"\r\n?|\n", ",");
                 var duplicates = new List<string>();
@@ -399,12 +315,12 @@ else
                     {
                         config.SiteName = _name;
                         config.Aliases = _urls;
-                        config.DefaultTheme = _themetype;
-                        config.DefaultContainer = _containertype;
+                        config.DefaultTheme = Constants.DefaultTheme;
+                        config.DefaultContainer = Constants.DefaultContainer;
                         config.DefaultAdminContainer = "";
                         config.SiteTemplate = _sitetemplatetype;
-                        config.RenderMode = _rendermode;
-                        config.Runtime = _runtime;
+                        config.RenderMode = RenderModes.Static;
+                        config.Runtime = Runtimes.Server;
                         config.Register = false;
 
                         ShowProgressIndicator();

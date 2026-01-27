@@ -252,4 +252,10 @@
   <data name="Message.Logins.None" xml:space="preserve">
     <value>You Do Not Have Any External Logins For This Site</value>
   </data>
+  <data name="CultureCode.Text" xml:space="preserve">
+    <value>Language:</value>
+  </data>
+  <data name="CultureCode.HelpText" xml:space="preserve">
+    <value>The user's preferred language. Note that you will only be able to choose from languages supported on this site.</value>
+  </data>
 </root>

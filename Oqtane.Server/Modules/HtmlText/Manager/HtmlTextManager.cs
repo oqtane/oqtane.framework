@@ -19,7 +19,7 @@ using Microsoft.Extensions.Caching.Memory;
 namespace Oqtane.Modules.HtmlText.Manager
 {
     [PrivateApi("Mark HtmlText classes as private, since it's not very useful in the public docs")]
-    public class HtmlTextManager : MigratableModuleBase, IInstallable, IPortable, ISearchable
+    public class HtmlTextManager : MigratableModuleBase, IInstallable, IPortable, ISynchronizable, ISearchable
     {
         private readonly IHtmlTextRepository _htmlText;
         private readonly IDBContextDependencies _DBContextDependencies;
@@ -41,7 +41,45 @@ namespace Oqtane.Modules.HtmlText.Manager
             _cache = cache;
         }
 
+        // IInstallable implementation
+        public bool Install(Tenant tenant, string version)
+        {
+            if (tenant.DBType == Constants.DefaultDBType && version == "1.0.1")
+            {
+                // version 1.0.0 used SQL scripts rather than migrations, so we need to seed the migration history table
+                _sqlRepository.ExecuteNonQuery(tenant, MigrationUtils.BuildInsertScript("HtmlText.01.00.00.00"));
+            }
+            return Migrate(new HtmlTextContext(_DBContextDependencies), tenant, MigrationType.Up);
+        }
+
+        public bool Uninstall(Tenant tenant)
+        {
+            return Migrate(new HtmlTextContext(_DBContextDependencies), tenant, MigrationType.Down);
+        }
+
+        // IPortable implementation
         public string ExportModule(Module module)
+        {
+            return GetModuleContent(module);
+        }
+
+        public void ImportModule(Module module, string content, string version)
+        {
+            SaveModuleContent(module, content, version);
+        }
+
+        // ISynchronizable implementation
+        public string ExtractModule(Module module)
+        {
+            return GetModuleContent(module);
+        }
+
+        public void LoadModule(Module module, string content, string version)
+        {
+            SaveModuleContent(module, content, version);
+        }
+
+        private string GetModuleContent(Module module)
         {
             string content = "";
             var htmltexts = _htmlText.GetHtmlTexts(module.ModuleId);
@@ -53,6 +91,23 @@ namespace Oqtane.Modules.HtmlText.Manager
             return content;
         }
 
+        private void SaveModuleContent(Module module, string content, string version)
+        {
+            content = WebUtility.HtmlDecode(content);
+            var htmlText = new Models.HtmlText();
+            htmlText.ModuleId = module.ModuleId;
+            htmlText.Content = content;
+            _htmlText.AddHtmlText(htmlText);
+
+            //clear the cache for the module
+            var alias = _tenantManager.GetAlias();
+            if (alias != null)
+            {
+                _cache.Remove($"HtmlText:{alias.SiteKey}:{module.ModuleId}");
+            }
+        }
+
+        // ISearchable implementation
         public Task<List<SearchContent>> GetSearchContentsAsync(PageModule pageModule, DateTime lastIndexedOn)
         {
             var searchContents = new List<SearchContent>();
@@ -69,37 +124,6 @@ namespace Oqtane.Modules.HtmlText.Manager
             }
 
             return Task.FromResult(searchContents);
-        }
-
-        public void ImportModule(Module module, string content, string version)
-        {
-            content = WebUtility.HtmlDecode(content);
-            var htmlText = new Models.HtmlText();
-            htmlText.ModuleId = module.ModuleId;
-            htmlText.Content = content;
-            _htmlText.AddHtmlText(htmlText);
-
-            //clear the cache for the module
-            var alias = _tenantManager.GetAlias();
-            if(alias != null)
-            {
-                _cache.Remove($"HtmlText:{alias.SiteKey}:{module.ModuleId}");
-            }
-        }
-
-        public bool Install(Tenant tenant, string version)
-        {
-            if (tenant.DBType == Constants.DefaultDBType && version == "1.0.1")
-            {
-                // version 1.0.0 used SQL scripts rather than migrations, so we need to seed the migration history table
-                _sqlRepository.ExecuteNonQuery(tenant, MigrationUtils.BuildInsertScript("HtmlText.01.00.00.00"));
-            }
-            return Migrate(new HtmlTextContext(_DBContextDependencies), tenant, MigrationType.Up);
-        }
-
-        public bool Uninstall(Tenant tenant)
-        {
-            return Migrate(new HtmlTextContext(_DBContextDependencies), tenant, MigrationType.Down);
         }
     }
 }

@@ -41,7 +41,9 @@ namespace Oqtane.Infrastructure
 
         public string[] GetSupportedCultures()
         {
-            return CultureInfo.GetCultures(CultureTypes.AllCultures).Select(item => item.Name).OrderBy(c => c).ToArray();
+            return CultureInfo.GetCultures(CultureTypes.AllCultures)
+                .Where(item => item.Name.Length == 2) // major languages only (this could be configurable)
+                .Select(item => item.Name).OrderBy(c => c).ToArray();
         }
 
         public string[] GetInstalledCultures()
