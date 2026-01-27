@@ -121,11 +121,23 @@ namespace Oqtane.Infrastructure
                             {
                                 if (settingRepository.GetSettingValue(settings, "SMTPAuthentication", "Basic") == "Basic")
                                 {
-                                    // it is possible to use basic without any authentication (not recommended)
                                     if (settingRepository.GetSettingValue(settings, "SMTPUsername", "") != "" && settingRepository.GetSettingValue(settings, "SMTPPassword", "") != "")
                                     {
-                                        await client.AuthenticateAsync(settingRepository.GetSettingValue(settings, "SMTPUsername", ""),
+                                        try
+                                        {
+                                            await client.AuthenticateAsync(settingRepository.GetSettingValue(settings, "SMTPUsername", ""),
                                             settingRepository.GetSettingValue(settings, "SMTPPassword", ""));
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            log += "SMTP Not Configured Properly In Site Settings - Basic Authentication Failed Using Username And Password - " + ex.Message + "<br />";
+                                            valid = false;
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        // it is possible to use basic without any authentication (not recommended)
                                     }
                                 }
                                 else

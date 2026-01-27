@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Oqtane.Documentation;
@@ -26,6 +27,9 @@ namespace Oqtane.Services
 
         private string Apiurl => CreateApiUrl("Localization");
 
-        public async Task<IEnumerable<Culture>> GetCulturesAsync(bool installed) => await GetJsonAsync<IEnumerable<Culture>>($"{Apiurl}?installed={installed}");
+        public async Task<IEnumerable<Culture>> GetCulturesAsync(bool installed)
+        {
+            return await GetJsonAsync<IEnumerable<Culture>>($"{Apiurl}?installed={installed}");
+        }
     }
 }

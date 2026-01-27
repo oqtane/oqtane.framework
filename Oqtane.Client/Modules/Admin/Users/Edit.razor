@@ -7,6 +7,7 @@
 @inject ISettingService SettingService
 @inject IFileService FileService
 @inject ITimeZoneService TimeZoneService
+@inject ILanguageService LanguageService
 @inject IServiceProvider ServiceProvider
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
@@ -51,6 +52,18 @@
                             @foreach (var timezone in _timezones)
                             {
                                 <option value="@timezone.Id">@timezone.DisplayName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="culture" HelpText="The user's preferred language. Note that you will only be able to choose from languages supported on this site." ResourceKey="CultureCode">Language:</Label>
+                    <div class="col-sm-9">
+                        <select id="culture" class="form-select" @bind="@_culturecode">
+                            <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                            @foreach (var language in _languages)
+                            {
+                                <option value="@language.Code">@language.Name</option>
                             }
                         </select>
                     </div>
@@ -224,13 +237,16 @@
     private bool _allowpasskeys = false;
     private bool _allowexternallogin = false;
 
+    private List<Models.TimeZone> _timezones;
+    private IEnumerable<Language> _languages;
+
     private int _userid;
     private string _username = string.Empty;
     private string _email = string.Empty;
     private string _confirmed = string.Empty;
     private string _displayname = string.Empty;
-    private List<Models.TimeZone> _timezones;
     private string _timezoneid = string.Empty;
+    private string _culturecode = string.Empty;
     private string _isdeleted;
     private string _lastlogin;
     private string _lastipaddress;
@@ -270,12 +286,15 @@
                 var user = await UserService.GetUserAsync(_userid, PageState.Site.SiteId);
                 if (user != null)
                 {
+                    _timezones = TimeZoneService.GetTimeZones();
+                    _languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId);
+
                     _username = user.Username;
                     _email = user.Email;
                     _confirmed = user.EmailConfirmed.ToString();
                     _displayname = user.DisplayName;
-                    _timezones = TimeZoneService.GetTimeZones();
                     _timezoneid = PageState.User.TimeZoneId;
+                    _culturecode = PageState.User.CultureCode;
                     _isdeleted = user.IsDeleted.ToString();
                     _lastlogin = string.Format("{0:MMM dd yyyy HH:mm:ss}", UtcToLocal(user.LastLoginOn));
                     _lastipaddress = user.LastIPAddress;
@@ -344,6 +363,7 @@
                         user.EmailConfirmed = bool.Parse(_confirmed);
                         user.DisplayName = string.IsNullOrWhiteSpace(_displayname) ? _username : _displayname;
                         user.TimeZoneId = _timezoneid;
+                        user.CultureCode = _culturecode;
                         if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
                         {
                             user.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));

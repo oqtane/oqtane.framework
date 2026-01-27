@@ -233,15 +233,8 @@
 
             if (page == null && route.PagePath == "") // naked path refers to site home page
             {
-                if (site.HomePageId != null)
-                {
-                    page = site.Pages.FirstOrDefault(item => item.PageId == site.HomePageId);
-                }
-                if (page == null)
-                {
-                    // fallback to use the first page in the collection
-                    page = site.Pages.FirstOrDefault();
-                }
+                // fallback to use the first page in the collection
+                page = site.Pages.FirstOrDefault();
             }
             if (page == null)
             {

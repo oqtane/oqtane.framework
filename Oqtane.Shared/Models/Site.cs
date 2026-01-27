@@ -27,6 +27,11 @@ namespace Oqtane.Models
         public string TimeZoneId { get; set; }
 
         /// <summary>
+        /// The default culture for the site (ie. en-US)
+        /// </summary>
+        public string CultureCode { get; set; }
+
+        /// <summary>
         /// Reference to a <see cref="File"/> which has the Logo for this site.
         /// Should be an image.
         /// The theme can then use this where needed. 
@@ -121,11 +126,6 @@ namespace Oqtane.Models
         public string Version { get; set; }
 
         /// <summary>
-        /// The home page of the site - the "/" path will be used by default if no home page is specified
-        /// </summary>
-        public int? HomePageId { get; set; }
-
-        /// <summary>
         /// Content to be included in the head of the page
         /// </summary>
         public string HeadContent { get; set; }
@@ -217,6 +217,7 @@ namespace Oqtane.Models
                 SiteId = SiteId,
                 Name = Name,
                 TimeZoneId = TimeZoneId,
+                CultureCode = CultureCode,
                 LogoFileId = LogoFileId,
                 FaviconFileId = FaviconFileId,
                 DefaultThemeType = DefaultThemeType,
@@ -235,7 +236,6 @@ namespace Oqtane.Models
                 Hybrid = Hybrid,
                 EnhancedNavigation = EnhancedNavigation,
                 Version = Version,
-                HomePageId = HomePageId,
                 HeadContent = HeadContent,
                 BodyContent = BodyContent,
                 IsDeleted = IsDeleted,
@@ -262,6 +262,10 @@ namespace Oqtane.Models
         [NotMapped]
         [Obsolete("This property is deprecated.", false)]
         public string DefaultLayoutType { get; set; }
+
+        [NotMapped]
+        [Obsolete("This property is deprecated.", false)]
+        public int? HomePageId { get; set; }
         #endregion
     }
 }

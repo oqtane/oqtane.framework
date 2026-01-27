@@ -41,6 +41,12 @@ namespace Oqtane.Models
         /// </summary>
         public string Version { get; set; }
 
+        [NotMapped]
+        /// <summary>
+        /// The primary alias name for the site with this language
+        /// </summary>
+        public string AliasName { get; set; }
+
         public Language Clone()
         {
             return new Language
@@ -50,7 +56,8 @@ namespace Oqtane.Models
                 Name = Name,
                 Code = Code,
                 IsDefault = IsDefault,
-                Version = Version
+                Version = Version,
+                AliasName = AliasName
             };
         }
     }
