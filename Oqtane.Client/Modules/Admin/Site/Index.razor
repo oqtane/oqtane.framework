@@ -577,9 +577,9 @@
         <br />
         <button type="button" class="btn btn-success" @onclick="SaveSite">@SharedLocalizer["Save"]</button>
         <ActionDialog Header="Delete Site" Message="@Localizer["Confirm.DeleteSite"]" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteSite())" ResourceKey="DeleteSite" />
-        @if (_siteGroupDefinitions.Any(item => item.PrimarySiteId == PageState.Site.SiteId && item.Synchronization))
+        @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host) && _siteGroupDefinitions.Any(item => item.PrimarySiteId == PageState.Site.SiteId && item.Synchronization))
         {
-            <button type="button" class="btn btn-primary ms-2" @onclick="SynchronizeSite">@Localizer["Synchronize"]</button>
+            <button type="button" class="btn btn-primary ms-1" @onclick="SynchronizeSite">@Localizer["Synchronize"]</button>
         }
         <br />
         <br />
