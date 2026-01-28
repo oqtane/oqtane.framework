@@ -28,8 +28,6 @@ namespace Oqtane.Migrations.EntityBuilders
             SiteGroupId = AddAutoIncrementColumn(table, "SiteGroupId");
             SiteGroupDefinitionId = AddIntegerColumn(table, "SiteGroupDefinitionId");
             SiteId = AddIntegerColumn(table, "SiteId");
-            Synchronize = AddBooleanColumn(table, "Synchronize");
-            NotifyRoleName = AddStringColumn(table, "NotifyRoleName", 256, true);
             SynchronizedOn = AddDateTimeColumn(table, "SynchronizedOn", true);
 
             AddAuditableColumns(table);
@@ -42,10 +40,6 @@ namespace Oqtane.Migrations.EntityBuilders
         public OperationBuilder<AddColumnOperation> SiteGroupDefinitionId { get; set; }
 
         public OperationBuilder<AddColumnOperation> SiteId { get; set; }
-
-        public OperationBuilder<AddColumnOperation> Synchronize { get; set; }
-
-        public OperationBuilder<AddColumnOperation> NotifyRoleName { get; set; }
 
         public OperationBuilder<AddColumnOperation> SynchronizedOn { get; set; }
     }

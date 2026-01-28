@@ -327,8 +327,8 @@
   <data name="AliasName.Text" xml:space="preserve">
     <value>Url:</value>
   </data>
-  <data name="AliasDefault" xml:space="preserve">
-    <value>Default?</value>
+  <data name="Default" xml:space="preserve">
+    <value>Default</value>
   </data>
   <data name="Confirm.Alias.Delete" xml:space="preserve">
     <value>Are You Sure You Wish To Delete {0}?</value>
@@ -540,18 +540,6 @@
   <data name="Update" xml:space="preserve">
     <value>Update</value>
   </data>
-  <data name="Approach.Text" xml:space="preserve">
-    <value>Synchronization:</value>
-  </data>
-  <data name="Approach.HelpText" xml:space="preserve">
-    <value>Specifies the synchronization approach from the primary site to the current site</value>
-  </data>
-  <data name="NotifyRole.Text" xml:space="preserve">
-    <value>Notify Role:</value>
-  </data>
-  <data name="NotifyRole.HelpText" xml:space="preserve">
-    <value>Optionally specifies a role in the current site whose users should be notified of content changes in the primary site</value>
-  </data>
   <data name="DeleteSiteGroup.Header" xml:space="preserve">
     <value>Delete Site Group</value>
   </data>
@@ -566,5 +554,17 @@
   </data>
   <data name="Synchronize" xml:space="preserve">
     <value>Synchronize</value>
+  </data>
+  <data name="Notify.Text" xml:space="preserve">
+    <value>Notify?</value>
+  </data>
+  <data name="Notify.HelpText" xml:space="preserve">
+    <value>Specifies if the site administrator of secondary sites should be notified of any synchronization activity</value>
+  </data>
+  <data name="Site.Text" xml:space="preserve">
+    <value>Site:</value>
+  </data>
+  <data name="Site.HelpText" xml:space="preserve">
+    <value>he sites in this tenant (database)</value>
   </data>
 </root>
