@@ -526,7 +526,7 @@
     <value>Localization?</value>
   </data>
   <data name="Localization.HelpText" xml:space="preserve">
-    <value>Specifies if each site that is part of the group contains content which is localized in a different language</value>
+    <value>Specifies if the content of the sites in the group are localized</value>
   </data>
   <data name="Primary" xml:space="preserve">
     <value>Primary</value>
@@ -559,12 +559,18 @@
     <value>Notify?</value>
   </data>
   <data name="Notify.HelpText" xml:space="preserve">
-    <value>Specifies if the site administrator of secondary sites should be notified of any synchronization activity</value>
+    <value>Specifies if the administrators of secondary sites should be notified of any synchronization activity</value>
   </data>
   <data name="Site.Text" xml:space="preserve">
     <value>Site:</value>
   </data>
   <data name="Site.HelpText" xml:space="preserve">
-    <value>he sites in this tenant (database)</value>
+    <value>The sites in this tenant (database)</value>
+  </data>
+  <data name="Synchronized.Text" xml:space="preserve">
+    <value>Synchronized:</value>
+  </data>
+  <data name="Synchronized.HelpText" xml:space="preserve">
+    <value>The date/time of the last synchronization for the site</value>
   </data>
 </root>

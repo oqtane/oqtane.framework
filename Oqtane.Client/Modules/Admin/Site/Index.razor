@@ -489,17 +489,20 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="notify" HelpText="Specifies if the site administrator of secondary sites should be notified of any synchronization activity" ResourceKey="Notify">Notify? </Label>
-                            <div class="col-sm-9">
-                                <select id="notify" class="form-select" @bind="@_notify">
-                                    <option value="False">@SharedLocalizer["No"]</option>
-                                    <option value="True">@SharedLocalizer["Yes"]</option>
-                                </select>
+                        @if (_synchronization != "False")
+                        {
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="notify" HelpText="Specifies if the administrators of secondary sites should be notified of any synchronization activity" ResourceKey="Notify">Notify? </Label>
+                                <div class="col-sm-9">
+                                    <select id="notify" class="form-select" @bind="@_notify">
+                                        <option value="False">@SharedLocalizer["No"]</option>
+                                        <option value="True">@SharedLocalizer["Yes"]</option>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
+                        }
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="localization" HelpText="Specifies if each site that is part of the group contains content which is localized in a different language" ResourceKey="Localization">Localization? </Label>
+                            <Label Class="col-sm-3" For="localization" HelpText="Specifies if the content of the sites in the group are localized" ResourceKey="Localization">Localization? </Label>
                             <div class="col-sm-9">
                                 <select id="localization" class="form-select" @bind="@_localization">
                                     <option value="True">@SharedLocalizer["Yes"]</option>
@@ -515,7 +518,6 @@
                             <div class="col-sm-9">
                                 <div class="input-group">
                                     <select id="site" class="form-select" value="@_siteId" @onchange="(e => SiteChanged(e))">
-                                        <option value="-1">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
                                         @foreach (var site in _sites)
                                         {
                                             <option value="@site.SiteId">@site.Name @((!string.IsNullOrEmpty(site.Fingerprint)) ? "(" + Localizer[site.Fingerprint] + ")" : "")</option>
@@ -525,7 +527,7 @@
                             </div>
                         </div>
                     }
-                    @if (_siteGroupDefinitionId != -1 && _siteId != -1)
+                    @if (_siteGroupDefinitionId != -1)
                     {
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="member" HelpText="Indicates if the current site is a member of the selected group" ResourceKey="GroupMember">Member? </Label>
@@ -537,6 +539,15 @@
                                 </select>
                             </div>
                         </div>
+                        @if (_member == "Secondary")
+                        {
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="synchronized" HelpText="The date/time of the last synchronization for the site" ResourceKey="Synchronized">Synchronized: </Label>
+                                <div class="col-sm-9">
+                                    <input id="synchronized" class="form-control" @bind="@_synchronized" disabled />
+                                </div>
+                            </div>
+                        }
                     }
                     <div class="row mb-1 align-items-center">
                         <div class="col-sm-3"></div>
@@ -666,12 +677,13 @@
     private List<SiteGroupDefinition> _siteGroupDefinitions = new List<SiteGroupDefinition>();
     private List<Site> _sites = new List<Site>();
     private int _siteGroupDefinitionId = -1;
-    private int _siteId = -1;
+    private int _siteId;
     private string _groupName = string.Empty;
     private string _synchronization = "Update";
     private string _notify = "True";
     private string _localization = "False";
     private string _member = "Primary";
+    private string _synchronized = string.Empty;
     private bool _addSiteGroupDefinition = false;
 
     private string _tenant = string.Empty;
@@ -1290,6 +1302,7 @@
                         if (siteGroup.SiteId == _siteId)
                         {
                             _member = site.Fingerprint;
+                            _synchronized = UtcToLocal(siteGroup.SynchronizedOn).ToString();
                         }
                     }
                 }
@@ -1301,24 +1314,22 @@
     private async void SiteChanged(ChangeEventArgs e)
     {
         _siteId = int.Parse(e.Value.ToString());
-        if (_siteId != -1)
+        var siteGroup = await SiteGroupService.GetSiteGroupAsync(_siteId, _siteGroupDefinitionId);
+        if (siteGroup != null)
         {
-            var siteGroup = await SiteGroupService.GetSiteGroupAsync(_siteId, _siteGroupDefinitionId);
-            if (siteGroup != null)
+            if (siteGroup.SiteGroupDefinition.PrimarySiteId == _siteId)
             {
-                if (siteGroup.SiteGroupDefinition.PrimarySiteId == _siteId)
-                {
-                    _member = "Primary";
-                }
-                else
-                {
-                    _member = "Secondary";
-                }
+                _member = "Primary";
             }
             else
             {
-                _member = "False";
+                _member = "Secondary";
             }
+            _synchronized = UtcToLocal(siteGroup.SynchronizedOn).ToString();
+        }
+        else
+        {
+            _member = "False";
         }
         StateHasChanged();
     }
@@ -1328,6 +1339,7 @@
         _groupName = "";
         _siteId = PageState.Site.SiteId;
         _member = "Primary";
+        _synchronized = "";
         _addSiteGroupDefinition = true;
     }
 
