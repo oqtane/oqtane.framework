@@ -21,6 +21,7 @@ namespace Oqtane.Migrations.Tenant
 
             var siteGroupEntityBuilder = new SiteGroupEntityBuilder(migrationBuilder, ActiveDatabase);
             siteGroupEntityBuilder.Create();
+            siteGroupEntityBuilder.AddIndex("IX_SiteGroup", new[] { "SiteId", "SiteGroupDefinitionId" }, true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

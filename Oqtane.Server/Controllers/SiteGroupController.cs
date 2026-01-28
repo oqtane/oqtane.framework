@@ -110,12 +110,12 @@ namespace Oqtane.Controllers
             if (siteGroup != null)
             {
                 _siteGroupRepository.DeleteSiteGroup(id);
-                _syncManager.AddSyncEvent(_alias, EntityNames.SiteGroup, siteGroup.SiteGroupDefinitionId, SyncEventActions.Delete);
-                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Site Group Deleted {SiteGroupDefinitionId}", id);
+                _syncManager.AddSyncEvent(_alias, EntityNames.SiteGroup, siteGroup.SiteGroupId, SyncEventActions.Delete);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Site Group Deleted {SiteGroupId}", id);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Site Group Delete Attempt {SiteGroupDefinitionId}", id);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Site Group Delete Attempt {SiteGroupId}", id);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }

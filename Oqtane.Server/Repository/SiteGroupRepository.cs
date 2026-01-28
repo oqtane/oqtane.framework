@@ -11,9 +11,9 @@ namespace Oqtane.Repository
         IEnumerable<SiteGroup> GetSiteGroups(int siteId, int siteGroupDefinitionId);
         SiteGroup AddSiteGroup(SiteGroup siteGroup);
         SiteGroup UpdateSiteGroup(SiteGroup siteGroup);
-        SiteGroup GetSiteGroup(int siteSiteGroupDefinitionId);
-        SiteGroup GetSiteGroup(int siteSiteGroupDefinitionId, bool tracking);
-        void DeleteSiteGroup(int siteSiteGroupDefinitionId);
+        SiteGroup GetSiteGroup(int siteSiteGroupId);
+        SiteGroup GetSiteGroup(int siteSiteGroupId, bool tracking);
+        void DeleteSiteGroup(int siteSiteGroupId);
     }
 
     public class SiteGroupRepository : ISiteGroupRepository
@@ -55,32 +55,32 @@ namespace Oqtane.Repository
             return SiteGroup;
         }
 
-        public SiteGroup GetSiteGroup(int SiteGroupDefinitionId)
+        public SiteGroup GetSiteGroup(int SiteGroupId)
         {
-            return GetSiteGroup(SiteGroupDefinitionId, true);
+            return GetSiteGroup(SiteGroupId, true);
         }
 
-        public SiteGroup GetSiteGroup(int SiteGroupDefinitionId, bool tracking)
+        public SiteGroup GetSiteGroup(int SiteGroupId, bool tracking)
         {
             using var db = _dbContextFactory.CreateDbContext();
             if (tracking)
             {
                 return db.SiteGroup
                     .Include(item => item.SiteGroupDefinition) // eager load
-                    .FirstOrDefault(item => item.SiteGroupDefinitionId == SiteGroupDefinitionId);
+                    .FirstOrDefault(item => item.SiteGroupId == SiteGroupId);
             }
             else
             {
                 return db.SiteGroup.AsNoTracking()
                     .Include(item => item.SiteGroupDefinition) // eager load 
-                    .FirstOrDefault(item => item.SiteGroupDefinitionId == SiteGroupDefinitionId);
+                    .FirstOrDefault(item => item.SiteGroupId == SiteGroupId);
             }
         }
 
-        public void DeleteSiteGroup(int SiteGroupDefinitionId)
+        public void DeleteSiteGroup(int SiteGroupId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            SiteGroup SiteGroup = db.SiteGroup.Find(SiteGroupDefinitionId);
+            SiteGroup SiteGroup = db.SiteGroup.Find(SiteGroupId);
             db.SiteGroup.Remove(SiteGroup);
             db.SaveChanges();
         }

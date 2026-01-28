@@ -399,7 +399,7 @@
                                         <option value="-1">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
                                         @foreach (var alias in _aliases)
                                         {
-                                            <option value="@alias.AliasId">@alias.Name</option>
+                                            <option value="@alias.AliasId">@alias.Name @((alias.IsDefault) ? "(" + Localizer["Default"] + ")" : "")</option>
                                         }
                                     </select>
                                     @if (!_addAlias)
@@ -473,69 +473,75 @@
                     }
                     @if (_siteGroupDefinitionId != -1 || _addSiteGroupDefinition)
                     {
-                        @if (!_addSiteGroupDefinition)
-                        {
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="member" HelpText="Indicates if the current site is a member of the selected group" ResourceKey="GroupMember">Member? </Label>
-                                <div class="col-sm-9">
-                                    <select id="member" class="form-select" value="@_member" @onchange="(e => MemberChanged(e))">
-                                        <option value="False">@SharedLocalizer["No"]</option>
-                                        <option value="Primary">@Localizer["Primary"]</option>
-                                        <option value="Secondary">@Localizer["Secondary"]</option>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="groupname" HelpText="Name of the site group" ResourceKey="GroupName">Group Name: </Label>
+                            <div class="col-sm-9">
+                                <input id="groupname" class="form-control" @bind="@_groupName" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="synchronization" HelpText="Specifies if the group supports content synchronization between the primary site and other sites in the group" ResourceKey="Synchronization">Synchronization? </Label>
+                            <div class="col-sm-9">
+                                <select id="synchronization" class="form-select" @bind="@_synchronization">
+                                    <option value="False">@SharedLocalizer["No"]</option>
+                                    <option value="Compare">@Localizer["Compare"]</option>
+                                    <option value="Update">@Localizer["Update"]</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="notify" HelpText="Specifies if the site administrator of secondary sites should be notified of any synchronization activity" ResourceKey="Notify">Notify? </Label>
+                            <div class="col-sm-9">
+                                <select id="notify" class="form-select" @bind="@_notify">
+                                    <option value="False">@SharedLocalizer["No"]</option>
+                                    <option value="True">@SharedLocalizer["Yes"]</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="localization" HelpText="Specifies if each site that is part of the group contains content which is localized in a different language" ResourceKey="Localization">Localization? </Label>
+                            <div class="col-sm-9">
+                                <select id="localization" class="form-select" @bind="@_localization">
+                                    <option value="True">@SharedLocalizer["Yes"]</option>
+                                    <option value="False">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
+                        </div>
+                    }
+                    @if (_siteGroupDefinitionId != -1)
+                    {
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="site" HelpText="The sites in this tenant (database)" ResourceKey="Site">Site: </Label>
+                            <div class="col-sm-9">
+                                <div class="input-group">
+                                    <select id="site" class="form-select" value="@_siteId" @onchange="(e => SiteChanged(e))">
+                                        <option value="-1">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                                        @foreach (var site in _sites)
+                                        {
+                                            <option value="@site.SiteId">@site.Name @((!string.IsNullOrEmpty(site.Fingerprint)) ? "(" + Localizer[site.Fingerprint] + ")" : "")</option>
+                                        }
                                     </select>
                                 </div>
                             </div>
-                        }
-                        @if (_member == "Primary")
-                        {
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="groupname" HelpText="Name of the site group" ResourceKey="GroupName">Group Name: </Label>
-                                <div class="col-sm-9">
-                                    <input id="groupname" class="form-control" @bind="@_groupName" />
-                                </div>
+                        </div>
+                    }
+                    @if (_siteGroupDefinitionId != -1 && _siteId != -1)
+                    {
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="member" HelpText="Indicates if the current site is a member of the selected group" ResourceKey="GroupMember">Member? </Label>
+                            <div class="col-sm-9">
+                                <select id="member" class="form-select" @bind="@_member">
+                                    <option value="False">@SharedLocalizer["No"]</option>
+                                    <option value="Primary">@Localizer["Primary"]</option>
+                                    <option value="Secondary">@Localizer["Secondary"]</option>
+                                </select>
                             </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="synchronization" HelpText="Specifies if the group supports content synchronization between the primary site and other sites in the group" ResourceKey="Synchronization">Synchronization? </Label>
-                                <div class="col-sm-9">
-                                    <select id="synchronization" class="form-select" @bind="@_synchronization">
-                                        <option value="True">@SharedLocalizer["Yes"]</option>
-                                        <option value="False">@SharedLocalizer["No"]</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="localization" HelpText="Specifies if each site that is part of the group contains content which is localized in a different language" ResourceKey="Localization">Localization? </Label>
-                                <div class="col-sm-9">
-                                    <select id="localization" class="form-select" @bind="@_localization">
-                                        <option value="True">@SharedLocalizer["Yes"]</option>
-                                        <option value="False">@SharedLocalizer["No"]</option>
-                                    </select>
-                                </div>
-                            </div>
-                        }
-                        @if (_member == "Secondary")
-                        {
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="synchronize" HelpText="Specifies the synchronization approach from the primary site to the current site" ResourceKey="Approach">Synchronization: </Label>
-                                <div class="col-sm-9">
-                                    <select id="synchronize" class="form-select" @bind="@_synchronize">
-                                        <option value="False">@Localizer["Compare"]</option>
-                                        <option value="True">@Localizer["Update"]</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="notifyrolename" HelpText="Optionally specifies a role in the current site whose users should be notified of content changes in the primary site" ResourceKey="NotifyRole">Notify Role: </Label>
-                                <div class="col-sm-9">
-                                    <input id="notifyrolename" class="form-control" @bind="@_notifyRoleName" />
-                                </div>
-                            </div>
-                        }
+                        </div>
                     }
                     <div class="row mb-1 align-items-center">
                         <div class="col-sm-3"></div>
                         <div class="col-sm-9">
-                            @if ((_siteGroupDefinitionId != -1 || _addSiteGroupDefinition) && _member != "False")
+                            @if ((_siteGroupDefinitionId != -1 || _addSiteGroupDefinition))
                             {
                                 <button type="button" class="btn btn-success me-2" @onclick="SaveSiteGroup">@SharedLocalizer["Save"]</button>
                             }
@@ -577,7 +583,7 @@
         <br />
         <button type="button" class="btn btn-success" @onclick="SaveSite">@SharedLocalizer["Save"]</button>
         <ActionDialog Header="Delete Site" Message="@Localizer["Confirm.DeleteSite"]" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteSite())" ResourceKey="DeleteSite" />
-        @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host) && _siteGroupDefinitions.Any(item => item.PrimarySiteId == PageState.Site.SiteId && item.Synchronization))
+        @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host) && _siteGroupDefinitions.Any(item => item.PrimarySiteId == PageState.Site.SiteId && item.Synchronization != null))
         {
             <button type="button" class="btn btn-primary ms-1" @onclick="SynchronizeSite">@Localizer["Synchronize"]</button>
         }
@@ -645,26 +651,27 @@
     private int _pwasplashiconfileid = -1;
     private FileManager _pwasplashiconfilemanager;
 
-    private List<Alias> _aliases;
-    private int _aliasid = -1;
-    private string _aliasname;
-    private string _defaultalias;
-    private bool _addAlias = false;
-
     private string _rendermode = RenderModes.Interactive;
     private string _enhancednavigation = "True";
     private string _runtime = Runtimes.Server;
     private string _prerender = "True";
     private string _hybrid = "False";
 
-    private List<Models.SiteGroupDefinition> _siteGroupDefinitions = new List<Models.SiteGroupDefinition>();
+    private List<Alias> _aliases;
+    private int _aliasid = -1;
+    private string _aliasname;
+    private string _defaultalias;
+    private bool _addAlias = false;
+
+    private List<SiteGroupDefinition> _siteGroupDefinitions = new List<SiteGroupDefinition>();
+    private List<Site> _sites = new List<Site>();
     private int _siteGroupDefinitionId = -1;
+    private int _siteId = -1;
     private string _groupName = string.Empty;
-    private string _member = "Primary";
-    private string _synchronization = "True";
-    private string _synchronize = "True";
-    private string _notifyRoleName = RoleNames.Admin;
+    private string _synchronization = "Update";
+    private string _notify = "True";
     private string _localization = "False";
+    private string _member = "Primary";
     private bool _addSiteGroupDefinition = false;
 
     private string _tenant = string.Empty;
@@ -1246,36 +1253,80 @@
             if (group != null)
             {
                 _groupName = group.Name;
-                _member = (group.PrimarySiteId == PageState.Site.SiteId) ? "Primary" : "Secondary";
-                _synchronization = group.Synchronization.ToString();
+                if (group.Synchronization == null)
+                {
+                    _synchronization = "False";
+                }
+                else
+                {
+                    _synchronization = (group.Synchronization.Value) ? "Update" : "Compare";
+                }
+                _notify = group.Notify.ToString();
                 _localization = group.Localization.ToString();
-            }
 
-            var siteGroup = await SiteGroupService.GetSiteGroupAsync(PageState.Site.SiteId, _siteGroupDefinitionId);
-            if (siteGroup != null)
-            {
-                _synchronize = siteGroup.Synchronize.ToString();
-                _notifyRoleName = siteGroup.NotifyRoleName;
-            }
-            else
-            {
+                if (_sites.Count == 0)
+                {
+                    _sites = await SiteService.GetSitesAsync();
+                }
+                _siteId = PageState.Site.SiteId;
                 _member = "False";
-                _synchronize = "True";
-                _notifyRoleName = RoleNames.Admin;
+
+                var siteGroups = await SiteGroupService.GetSiteGroupsAsync(-1, _siteGroupDefinitionId);
+                foreach (var site in _sites)
+                {
+                    site.Fingerprint = ""; // used as temporary state
+                    var siteGroup = siteGroups.FirstOrDefault(item => item.SiteId == site.SiteId);
+                    if (siteGroup != null)
+                    {
+                        if (group.PrimarySiteId == site.SiteId)
+                        {
+                            site.Fingerprint = "Primary";
+                        }
+                        else
+                        {
+                            site.Fingerprint = "Secondary";
+                        }
+
+                        if (siteGroup.SiteId == _siteId)
+                        {
+                            _member = site.Fingerprint;
+                        }
+                    }
+                }
             }
         }
         StateHasChanged();
     }
 
-    private async void MemberChanged(ChangeEventArgs e)
+    private async void SiteChanged(ChangeEventArgs e)
     {
-        _member = e.Value.ToString();
+        _siteId = int.Parse(e.Value.ToString());
+        if (_siteId != -1)
+        {
+            var siteGroup = await SiteGroupService.GetSiteGroupAsync(_siteId, _siteGroupDefinitionId);
+            if (siteGroup != null)
+            {
+                if (siteGroup.SiteGroupDefinition.PrimarySiteId == _siteId)
+                {
+                    _member = "Primary";
+                }
+                else
+                {
+                    _member = "Secondary";
+                }
+            }
+            else
+            {
+                _member = "False";
+            }
+        }
         StateHasChanged();
     }
 
     private async Task AddSiteGroup()
     {
         _groupName = "";
+        _siteId = PageState.Site.SiteId;
         _member = "Primary";
         _addSiteGroupDefinition = true;
     }
@@ -1284,6 +1335,10 @@
     {
         SiteGroupDefinition siteGroupDefinition = null;
 
+        bool? synchronization = null;
+        if (_synchronization == "Compare") synchronization = false;
+        if (_synchronization == "Update") synchronization = true;
+
         if (_siteGroupDefinitionId == -1)
         {
             if (!string.IsNullOrEmpty(_groupName))
@@ -1291,8 +1346,9 @@
                 siteGroupDefinition = new Models.SiteGroupDefinition
                 {
                     Name = _groupName,
-                    PrimarySiteId = PageState.Site.SiteId,
-                    Synchronization = bool.Parse(_synchronization),
+                    PrimarySiteId = _siteId,
+                    Synchronization = synchronization,
+                    Notify = bool.Parse(_notify),
                     Localization = bool.Parse(_localization),
                     Synchronize = false
                 };
@@ -1304,23 +1360,12 @@
             siteGroupDefinition = _siteGroupDefinitions.FirstOrDefault(item => item.SiteGroupDefinitionId == _siteGroupDefinitionId);
             if (siteGroupDefinition != null && !string.IsNullOrEmpty(_groupName))
             {
-                if (_member == "False")
-                {
-                    var siteGroup = await SiteGroupService.GetSiteGroupAsync(PageState.Site.SiteId, siteGroupDefinition.SiteGroupDefinitionId);
-                    if (siteGroup != null)
-                    {
-                        await SiteGroupService.DeleteSiteGroupAsync(siteGroup.SiteGroupId);
-                    }
-                    siteGroupDefinition = null;
-                }
-                else
-                {
-                    siteGroupDefinition.Name = _groupName;
-                    siteGroupDefinition.PrimarySiteId = (_member == "Primary") ? PageState.Site.SiteId : siteGroupDefinition.PrimarySiteId;
-                    siteGroupDefinition.Synchronization = bool.Parse(_synchronization);
-                    siteGroupDefinition.Localization = bool.Parse(_localization);
-                    siteGroupDefinition = await SiteGroupDefinitionService.UpdateSiteGroupDefinitionAsync(siteGroupDefinition);
-                }
+                siteGroupDefinition.Name = _groupName;
+                siteGroupDefinition.PrimarySiteId = (_member == "Primary") ? _siteId : siteGroupDefinition.PrimarySiteId;
+                siteGroupDefinition.Synchronization = synchronization;
+                siteGroupDefinition.Notify = bool.Parse(_notify);
+                siteGroupDefinition.Localization = bool.Parse(_localization);
+                siteGroupDefinition = await SiteGroupDefinitionService.UpdateSiteGroupDefinitionAsync(siteGroupDefinition);
             }
             else
             {
@@ -1330,23 +1375,22 @@
 
         if (siteGroupDefinition != null)
         {
-            var siteGroup = await SiteGroupService.GetSiteGroupAsync(PageState.Site.SiteId, siteGroupDefinition.SiteGroupDefinitionId);
+            var siteGroup = await SiteGroupService.GetSiteGroupAsync(_siteId, siteGroupDefinition.SiteGroupDefinitionId);
             if (siteGroup == null)
             {
                 siteGroup = new SiteGroup
                 {
                     SiteGroupDefinitionId = siteGroupDefinition.SiteGroupDefinitionId,
-                    SiteId = PageState.Site.SiteId,
-                    Synchronize = bool.Parse(_synchronize),
-                    NotifyRoleName= _notifyRoleName
+                    SiteId = _siteId
                 };
                 await SiteGroupService.AddSiteGroupAsync(siteGroup);
             }
             else
             {
-                siteGroup.Synchronize = bool.Parse(_synchronize);
-                siteGroup.NotifyRoleName = _notifyRoleName;
-                await SiteGroupService.UpdateSiteGroupAsync(siteGroup);
+                if (_member == "False")
+                {
+                    await SiteGroupService.DeleteSiteGroupAsync(siteGroup.SiteGroupId);
+                }
             }
 
             await LoadSiteGroups();
@@ -1396,7 +1440,7 @@
         }
 
         // mark secondary sites for synchronization
-        foreach (var group in _siteGroupDefinitions.Where(item => item.PrimarySiteId == PageState.Site.SiteId && item.Synchronization))
+        foreach (var group in _siteGroupDefinitions.Where(item => item.PrimarySiteId == PageState.Site.SiteId && item.Synchronization != null))
         {
             group.Synchronize = true;
             await SiteGroupDefinitionService.UpdateSiteGroupDefinitionAsync(group);

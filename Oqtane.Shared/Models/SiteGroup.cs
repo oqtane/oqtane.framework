@@ -21,16 +21,6 @@ namespace Oqtane.Models
         public int SiteId { get; set; }
 
         /// <summary>
-        /// Indicates if content should be synchronized for the site (false = compare, true = update)
-        /// </summary>
-        public bool Synchronize { get; set; }
-
-        /// <summary>
-        /// The role who should be notified of changes to the site (non-primary site only)
-        /// </summary>
-        public string NotifyRoleName { get; set; }
-
-        /// <summary>
         /// The last date/time the site was synchronized
         /// </summary>
         public DateTime? SynchronizedOn { get; set; }
