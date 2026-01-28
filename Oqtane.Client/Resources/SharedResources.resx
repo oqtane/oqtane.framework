@@ -204,6 +204,9 @@
   <data name="System Update" xml:space="preserve">
     <value>System Update</value>
   </data>
+  <data name="Setting Management" xml:space="preserve">
+    <value>Setting Management</value>
+  </data>
   <data name="Download" xml:space="preserve">
     <value>Download</value>
   </data>
