@@ -276,15 +276,39 @@
         var interop = new Interop(JSRuntime);
         if (await interop.FormValid(form))
         {
-
             if (!string.IsNullOrEmpty(_title))
             {
                 if (!Utilities.ValidateEffectiveExpiryDates(_effectivedate, _expirydate))
                 {
                     AddModuleMessage(SharedLocalizer["Message.EffectiveExpiryDateError"], MessageType.Warning);
                     return;
-                }                
+                }
+
+                // update module settings first
+                if (_moduleSettingsType != null)
+                {
+                    if (_moduleSettings is ISettingsControl moduleSettingsControl)
+                    {
+                        // module settings updated using explicit interface
+                        await moduleSettingsControl.UpdateSettings();
+                    }
+                    else
+                    {
+                        // legacy support - module settings updated by convention ( ie. by calling a public method named "UpdateSettings" in settings component )
+                        _moduleSettings?.GetType().GetMethod("UpdateSettings")?.Invoke(_moduleSettings, null);
+                    }
+                }
+
+                // update container settings
+                if (_containerSettingsType != null && _containerSettings is ISettingsControl containerSettingsControl)
+                {
+                    await containerSettingsControl.UpdateSettings();
+                }
+
+                // update page module
                 var pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
+                var pageId = pagemodule.PageId; // preserve
+                var pane = pagemodule.Pane; // preserve
                 pagemodule.PageId = int.Parse(_pageId);
                 pagemodule.Title = _title;
                 pagemodule.Pane = _pane;
@@ -302,32 +326,20 @@
                 pagemodule.Header = _header;
                 pagemodule.Footer = _footer;
                 await PageModuleService.UpdatePageModuleAsync(pagemodule);
-                await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
 
+                // update page module order if page or pane changed
+                if (pageId != pagemodule.PageId || pane != pagemodule.Pane)
+                {
+                    await PageModuleService.UpdatePageModuleOrderAsync(pageId, pane); // old page/pane
+                    await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane); // new page/pane
+                }
+
+                // update module
                 var module = await ModuleService.GetModuleAsync(ModuleState.ModuleId);
                 module.AllPages = bool.Parse(_allPages);
                 module.PageModuleId = ModuleState.PageModuleId;
                 module.PermissionList = _permissionGrid.GetPermissionList();
                 await ModuleService.UpdateModuleAsync(module);
-
-                if (_moduleSettingsType != null)
-                {
-                    if (_moduleSettings is ISettingsControl moduleSettingsControl)
-                    {
-                        // module settings updated using explicit interface
-                        await moduleSettingsControl.UpdateSettings();
-                    }
-                    else
-                    {
-                        // legacy support - module settings updated by convention ( ie. by calling a public method named "UpdateSettings" in settings component )
-                        _moduleSettings?.GetType().GetMethod("UpdateSettings")?.Invoke(_moduleSettings, null);
-                    }
-                }
-
-                if (_containerSettingsType != null && _containerSettings is ISettingsControl containerSettingsControl)
-                {
-                    await containerSettingsControl.UpdateSettings();
-                }
 
                 NavigationManager.NavigateTo(PageState.ReturnUrl);
             }
