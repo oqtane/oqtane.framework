@@ -484,23 +484,10 @@
                             <div class="col-sm-9">
                                 <select id="synchronization" class="form-select" @bind="@_synchronization">
                                     <option value="False">@SharedLocalizer["No"]</option>
-                                    <option value="Compare">@Localizer["Compare"]</option>
-                                    <option value="Update">@Localizer["Update"]</option>
+                                    <option value="True">@Localizer["Yes"]</option>
                                 </select>
                             </div>
                         </div>
-                        @if (_synchronization != "False")
-                        {
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="notify" HelpText="Specifies if the administrators of secondary sites should be notified of any synchronization activity" ResourceKey="Notify">Notify? </Label>
-                                <div class="col-sm-9">
-                                    <select id="notify" class="form-select" @bind="@_notify">
-                                        <option value="False">@SharedLocalizer["No"]</option>
-                                        <option value="True">@SharedLocalizer["Yes"]</option>
-                                    </select>
-                                </div>
-                            </div>
-                        }
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="localization" HelpText="Specifies if the content of the sites in the group are localized" ResourceKey="Localization">Localization? </Label>
                             <div class="col-sm-9">
@@ -539,14 +526,35 @@
                                 </select>
                             </div>
                         </div>
-                        @if (_member == "Secondary")
+                        @if (_member == "Secondary" && _synchronization == "True")
                         {
                             <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="synchronized" HelpText="The date/time of the last synchronization for the site" ResourceKey="Synchronized">Synchronized: </Label>
+                                <Label Class="col-sm-3" For="synchronize" HelpText="Specifies the synchronization approach between the primary site and the selected site" ResourceKey="Synchronize">Synchronize? </Label>
                                 <div class="col-sm-9">
-                                    <input id="synchronized" class="form-control" @bind="@_synchronized" disabled />
+                                    <select id="synchronize" class="form-select" @bind="@_synchronize">
+                                        <option value="False">@Localizer["Compare"]</option>
+                                        <option value="True">@Localizer["Update"]</option>
+                                    </select>
                                 </div>
                             </div>
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="notify" HelpText="Specifies if site administrators should be notified of any synchronization activity" ResourceKey="Notify">Notify? </Label>
+                                <div class="col-sm-9">
+                                    <select id="notify" class="form-select" @bind="@_notify">
+                                        <option value="False">@SharedLocalizer["No"]</option>
+                                        <option value="True">@SharedLocalizer["Yes"]</option>
+                                    </select>
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(_synchronized))
+                            {
+                                <div class="row mb-1 align-items-center">
+                                    <Label Class="col-sm-3" For="synchronized" HelpText="The date/time of the last synchronization for the site" ResourceKey="Synchronized">Synchronized: </Label>
+                                    <div class="col-sm-9">
+                                        <input id="synchronized" class="form-control" @bind="@_synchronized" disabled />
+                                    </div>
+                                </div>
+                            }
                         }
                     }
                     <div class="row mb-1 align-items-center">
@@ -594,7 +602,7 @@
         <br />
         <button type="button" class="btn btn-success" @onclick="SaveSite">@SharedLocalizer["Save"]</button>
         <ActionDialog Header="Delete Site" Message="@Localizer["Confirm.DeleteSite"]" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteSite())" ResourceKey="DeleteSite" />
-        @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host) && _siteGroupDefinitions.Any(item => item.PrimarySiteId == PageState.Site.SiteId && item.Synchronization != null))
+        @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host) && _siteGroupDefinitions.Any(item => item.PrimarySiteId == PageState.Site.SiteId && item.Synchronization))
         {
             <button type="button" class="btn btn-primary ms-1" @onclick="SynchronizeSite">@Localizer["Synchronize"]</button>
         }
@@ -679,10 +687,11 @@
     private int _siteGroupDefinitionId = -1;
     private int _siteId;
     private string _groupName = string.Empty;
-    private string _synchronization = "Update";
-    private string _notify = "True";
+    private string _synchronization = "True";
     private string _localization = "False";
     private string _member = "Primary";
+    private string _synchronize = "True";
+    private string _notify = "True";
     private string _synchronized = string.Empty;
     private bool _addSiteGroupDefinition = false;
 
@@ -1265,15 +1274,7 @@
             if (group != null)
             {
                 _groupName = group.Name;
-                if (group.Synchronization == null)
-                {
-                    _synchronization = "False";
-                }
-                else
-                {
-                    _synchronization = (group.Synchronization.Value) ? "Update" : "Compare";
-                }
-                _notify = group.Notify.ToString();
+                _synchronization = group.Synchronization.ToString();
                 _localization = group.Localization.ToString();
 
                 if (_sites.Count == 0)
@@ -1302,6 +1303,8 @@
                         if (siteGroup.SiteId == _siteId)
                         {
                             _member = site.Fingerprint;
+                            _synchronize = siteGroup.Synchronize.ToString();
+                            _notify = siteGroup.Notify.ToString();
                             _synchronized = UtcToLocal(siteGroup.SynchronizedOn).ToString();
                         }
                     }
@@ -1347,10 +1350,6 @@
     {
         SiteGroupDefinition siteGroupDefinition = null;
 
-        bool? synchronization = null;
-        if (_synchronization == "Compare") synchronization = false;
-        if (_synchronization == "Update") synchronization = true;
-
         if (_siteGroupDefinitionId == -1)
         {
             if (!string.IsNullOrEmpty(_groupName))
@@ -1359,8 +1358,7 @@
                 {
                     Name = _groupName,
                     PrimarySiteId = _siteId,
-                    Synchronization = synchronization,
-                    Notify = bool.Parse(_notify),
+                    Synchronization = bool.Parse(_synchronization),
                     Localization = bool.Parse(_localization),
                     Synchronize = false
                 };
@@ -1374,8 +1372,7 @@
             {
                 siteGroupDefinition.Name = _groupName;
                 siteGroupDefinition.PrimarySiteId = (_member == "Primary") ? _siteId : siteGroupDefinition.PrimarySiteId;
-                siteGroupDefinition.Synchronization = synchronization;
-                siteGroupDefinition.Notify = bool.Parse(_notify);
+                siteGroupDefinition.Synchronization = bool.Parse(_synchronization);
                 siteGroupDefinition.Localization = bool.Parse(_localization);
                 siteGroupDefinition = await SiteGroupDefinitionService.UpdateSiteGroupDefinitionAsync(siteGroupDefinition);
             }
@@ -1393,7 +1390,9 @@
                 siteGroup = new SiteGroup
                 {
                     SiteGroupDefinitionId = siteGroupDefinition.SiteGroupDefinitionId,
-                    SiteId = _siteId
+                    SiteId = _siteId,
+                    Synchronize = bool.Parse(_synchronize),
+                    Notify = bool.Parse(_notify)
                 };
                 await SiteGroupService.AddSiteGroupAsync(siteGroup);
             }
@@ -1402,6 +1401,12 @@
                 if (_member == "False")
                 {
                     await SiteGroupService.DeleteSiteGroupAsync(siteGroup.SiteGroupId);
+                }
+                else
+                {
+                    siteGroup.Synchronize = bool.Parse(_synchronize);
+                    siteGroup.Notify = bool.Parse(_notify);
+                    await SiteGroupService.UpdateSiteGroupAsync(siteGroup);
                 }
             }
 
@@ -1452,7 +1457,7 @@
         }
 
         // mark secondary sites for synchronization
-        foreach (var group in _siteGroupDefinitions.Where(item => item.PrimarySiteId == PageState.Site.SiteId && item.Synchronization != null))
+        foreach (var group in _siteGroupDefinitions.Where(item => item.PrimarySiteId == PageState.Site.SiteId && item.Synchronization))
         {
             group.Synchronize = true;
             await SiteGroupDefinitionService.UpdateSiteGroupDefinitionAsync(group);
