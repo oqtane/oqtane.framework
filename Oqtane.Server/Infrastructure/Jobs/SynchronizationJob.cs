@@ -420,6 +420,10 @@ namespace Oqtane.Infrastructure
         {
             var primaryPath = Path.Combine(folderRepository.GetFolderPath(primaryFolder), primaryFile.Name);
             var secondaryPath = Path.Combine(folderRepository.GetFolderPath(secondaryFolder), secondaryFile.Name);
+            if (!Directory.Exists(Path.GetDirectoryName(secondaryPath)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(secondaryPath));
+            }
             System.IO.File.Copy(primaryPath, secondaryPath, true);
         }
 
