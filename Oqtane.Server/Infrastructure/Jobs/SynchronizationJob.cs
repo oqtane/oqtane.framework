@@ -53,7 +53,7 @@ namespace Oqtane.Infrastructure
             var groups = siteGroupDefinitionRepository.GetSiteGroupDefinitions();
 
             // iterate through groups which need to be synchronized
-            foreach (var group in groups.Where(item => item.Synchronization != null && item.Synchronize))
+            foreach (var group in groups.Where(item => item.Synchronization && item.Synchronize))
             {
                 // get data
                 if (siteGroups == null)
@@ -177,7 +177,7 @@ namespace Oqtane.Infrastructure
                 secondarySite.DeletedOn = primarySite.DeletedOn;
 
                 var siteRepository = provider.GetRequiredService<ISiteRepository>();
-                if (siteGroup.SiteGroupDefinition.Synchronization.Value)
+                if (siteGroup.Synchronize)
                 {
                     siteRepository.UpdateSite(secondarySite);
                 }
@@ -195,7 +195,7 @@ namespace Oqtane.Infrastructure
                 syncManager.AddSyncEvent(alias, EntityNames.Site, secondarySite.SiteId, SyncEventActions.Refresh);
             }
 
-            if (!string.IsNullOrEmpty(log) && siteGroup.SiteGroupDefinition.Notify)
+            if (!string.IsNullOrEmpty(log) && siteGroup.Notify)
             {
                 // send change log to administrators
                 SendNotifications(provider, secondarySite.SiteId, secondarySite.Name, log);
@@ -244,7 +244,7 @@ namespace Oqtane.Infrastructure
 
                     if (role == null)
                     {
-                        if (siteGroup.SiteGroupDefinition.Synchronization.Value)
+                        if (siteGroup.Synchronize)
                         {
                             roleRepository.AddRole(secondaryRole);
                         }
@@ -252,7 +252,7 @@ namespace Oqtane.Infrastructure
                     }
                     else
                     {
-                        if (siteGroup.SiteGroupDefinition.Synchronization.Value)
+                        if (siteGroup.Synchronize)
                         {
                             roleRepository.UpdateRole(secondaryRole);
                         }
@@ -265,7 +265,7 @@ namespace Oqtane.Infrastructure
             // remove roles in the secondary site which do not exist in the primary site
             foreach (var secondaryRole in secondaryRoles.Where(item => !primaryRoles.Select(item => item.Name).Contains(item.Name)))
             {
-                if (siteGroup.SiteGroupDefinition.Synchronization.Value)
+                if (siteGroup.Synchronize)
                 {
                     roleRepository.DeleteRole(secondaryRole.RoleId);
                 }
@@ -323,7 +323,7 @@ namespace Oqtane.Infrastructure
 
                     if (folder == null)
                     {
-                        if (siteGroup.SiteGroupDefinition.Synchronization.Value)
+                        if (siteGroup.Synchronize)
                         {
                             folderRepository.AddFolder(secondaryFolder);
                         }
@@ -331,7 +331,7 @@ namespace Oqtane.Infrastructure
                     }
                     else
                     {
-                        if (siteGroup.SiteGroupDefinition.Synchronization.Value)
+                        if (siteGroup.Synchronize)
                         {
                             folderRepository.UpdateFolder(secondaryFolder);
                         }
@@ -370,7 +370,7 @@ namespace Oqtane.Infrastructure
 
                         if (file == null)
                         {
-                            if (siteGroup.SiteGroupDefinition.Synchronization.Value)
+                            if (siteGroup.Synchronize)
                             {
                                 fileRepository.AddFile(secondaryFile);
                                 ReplicateFile(folderRepository, primaryFolder, primaryFile, secondaryFolder, secondaryFile);
@@ -379,7 +379,7 @@ namespace Oqtane.Infrastructure
                         }
                         else
                         {
-                            if (siteGroup.SiteGroupDefinition.Synchronization.Value)
+                            if (siteGroup.Synchronize)
                             {
                                 fileRepository.UpdateFile(secondaryFile);
                                 ReplicateFile(folderRepository, primaryFolder, primaryFile, secondaryFolder, secondaryFile);
@@ -393,7 +393,7 @@ namespace Oqtane.Infrastructure
                 // remove files in the secondary site which do not exist in the primary site
                 foreach (var secondaryFile in secondaryFiles.Where(item => !primaryFiles.Select(item => item.Name).Contains(item.Name)))
                 {
-                    if (siteGroup.SiteGroupDefinition.Synchronization.Value)
+                    if (siteGroup.Synchronize)
                     {
                         fileRepository.DeleteFile(secondaryFile.FileId);
                         var secondaryPath = Path.Combine(folderRepository.GetFolderPath(secondaryFolder), secondaryFile.Name);
@@ -406,7 +406,7 @@ namespace Oqtane.Infrastructure
             // remove folders in the secondary site which do not exist in the primary site
             foreach (var secondaryFolder in secondaryFolders.Where(item => !primaryFolders.Select(item => item.Path).Contains(item.Path)))
             {
-                if (siteGroup.SiteGroupDefinition.Synchronization.Value)
+                if (siteGroup.Synchronize)
                 {
                     folderRepository.DeleteFolder(secondaryFolder.FolderId);
                 }
@@ -490,7 +490,7 @@ namespace Oqtane.Infrastructure
 
                     if (page == null)
                     {
-                        if (siteGroup.SiteGroupDefinition.Synchronization.Value)
+                        if (siteGroup.Synchronize)
                         {
                             secondaryPage = pageRepository.AddPage(secondaryPage);
                         }
@@ -498,7 +498,7 @@ namespace Oqtane.Infrastructure
                     }
                     else
                     {
-                        if (siteGroup.SiteGroupDefinition.Synchronization.Value)
+                        if (siteGroup.Synchronize)
                         {
                             secondaryPage = pageRepository.UpdatePage(secondaryPage);
                         }
@@ -558,7 +558,7 @@ namespace Oqtane.Infrastructure
                             if (module == null)
                             {
                                 // add new module
-                                if (siteGroup.SiteGroupDefinition.Synchronization.Value)
+                                if (siteGroup.Synchronize)
                                 {
                                     module = moduleRepository.AddModule(secondaryPageModule.Module);
                                     updateContent = true;
@@ -569,7 +569,7 @@ namespace Oqtane.Infrastructure
                             {
                                 secondaryPageModule.ModuleId = module.ModuleId;
                                 secondaryPageModule.Module = null; // remove tracking
-                                if (siteGroup.SiteGroupDefinition.Synchronization.Value)
+                                if (siteGroup.Synchronize)
                                 {
                                     secondaryPageModule = pageModuleRepository.AddPageModule(secondaryPageModule);
                                 }
@@ -582,7 +582,7 @@ namespace Oqtane.Infrastructure
                             // update existing module
                             if (primaryPageModule.Module.ModifiedOn > siteGroup.SynchronizedOn)
                             {
-                                if (siteGroup.SiteGroupDefinition.Synchronization.Value)
+                                if (siteGroup.Synchronize)
                                 {
                                     moduleRepository.UpdateModule(secondaryPageModule.Module);
                                     updateContent = true;
@@ -591,7 +591,7 @@ namespace Oqtane.Infrastructure
                             }
                             if (primaryPageModule.ModifiedOn > siteGroup.SynchronizedOn)
                             {
-                                if (siteGroup.SiteGroupDefinition.Synchronization.Value)
+                                if (siteGroup.Synchronize)
                                 {
                                     secondaryPageModule = pageModuleRepository.UpdatePageModule(secondaryPageModule);
                                 }
@@ -613,7 +613,7 @@ namespace Oqtane.Infrastructure
                                     var secondaryModuleContent = ((ISynchronizable)moduleObject).ExtractModule(secondaryPageModule.Module);
                                     if (primaryModuleContent != secondaryModuleContent)
                                     {
-                                        if (siteGroup.SiteGroupDefinition.Synchronization.Value)
+                                        if (siteGroup.Synchronize)
                                         {
                                             ((ISynchronizable)moduleObject).LoadModule(secondaryPageModule.Module, primaryModuleContent, primaryPageModule.Module.ModuleDefinition.Version);
                                         }
@@ -648,7 +648,7 @@ namespace Oqtane.Infrastructure
                 }
                 if (!primaryPageModules.Any(item => item.PageId == primaryPageId && item.Module.ModuleDefinitionName == secondaryPageModule.Module.ModuleDefinitionName && item.Title.ToLower() == secondaryPageModule.Title.ToLower()))
                 {
-                    if (siteGroup.SiteGroupDefinition.Synchronization.Value)
+                    if (siteGroup.Synchronize)
                     {
                         pageModuleRepository.DeletePageModule(secondaryPageModule.PageModuleId);
                     }
@@ -659,7 +659,7 @@ namespace Oqtane.Infrastructure
             // remove pages in the secondary site which do not exist in the primary site
             foreach (var secondaryPage in secondaryPages.Where(item => !primaryPages.Select(item => item.Path).Contains(item.Path)))
             {
-                if (siteGroup.SiteGroupDefinition.Synchronization.Value)
+                if (siteGroup.Synchronize)
                 {
                     pageRepository.DeletePage(secondaryPage.PageId);
                 }
@@ -710,7 +710,7 @@ namespace Oqtane.Infrastructure
                     secondarySetting.SettingName = primarySetting.SettingName;
                     secondarySetting.SettingValue = primarySetting.SettingValue;
                     secondarySetting.IsPrivate = primarySetting.IsPrivate;
-                    if (siteGroup.SiteGroupDefinition.Synchronization.Value && !excludedSettings.Any(item => item.EntityName == secondarySetting.EntityName && item.SettingName == secondarySetting.SettingName))
+                    if (siteGroup.Synchronize && !excludedSettings.Any(item => item.EntityName == secondarySetting.EntityName && item.SettingName == secondarySetting.SettingName))
                     {
                         settingRepository.AddSetting(secondarySetting);
                         updated = true;
@@ -722,7 +722,7 @@ namespace Oqtane.Infrastructure
                     {
                         secondarySetting.SettingValue = primarySetting.SettingValue;
                         secondarySetting.IsPrivate = primarySetting.IsPrivate;
-                        if (siteGroup.SiteGroupDefinition.Synchronization.Value && !excludedSettings.Any(item => item.EntityName == secondarySetting.EntityName && item.SettingName == secondarySetting.SettingName))
+                        if (siteGroup.Synchronize && !excludedSettings.Any(item => item.EntityName == secondarySetting.EntityName && item.SettingName == secondarySetting.SettingName))
                         {
                             settingRepository.UpdateSetting(secondarySetting);
                             updated = true;
@@ -735,7 +735,7 @@ namespace Oqtane.Infrastructure
             // any remaining secondary settings need to be deleted
             foreach (var secondarySetting in secondarySettings)
             {
-                if (siteGroup.SiteGroupDefinition.Synchronization.Value && !excludedSettings.Any(item => item.EntityName == secondarySetting.EntityName && item.SettingName == secondarySetting.SettingName))
+                if (siteGroup.Synchronize && !excludedSettings.Any(item => item.EntityName == secondarySetting.EntityName && item.SettingName == secondarySetting.SettingName))
                 {
                     settingRepository.DeleteSetting(secondarySetting.EntityName, secondarySetting.SettingId);
                     updated = true;

@@ -18,14 +18,9 @@ namespace Oqtane.Models
         public int PrimarySiteId { get; set; }
 
         /// <summary>
-        /// Indicates if the group supports synchronization (null = no, false = compare, true = update)
+        /// Indicates if the group supports synchronization
         /// </summary>
-        public bool? Synchronization { get; set; }
-
-        /// <summary>
-        /// Indicates if the site administrator should be notified of any synchronization activity
-        /// </summary>
-        public bool Notify { get; set; }
+        public bool Synchronization { get; set; }
 
         /// <summary>
         /// Specifies if the group needs to be synchronized

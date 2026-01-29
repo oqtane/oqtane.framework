@@ -559,7 +559,7 @@
     <value>Notify?</value>
   </data>
   <data name="Notify.HelpText" xml:space="preserve">
-    <value>Specifies if the administrators of secondary sites should be notified of any synchronization activity</value>
+    <value>Specifies if site administrators should be notified of any synchronization activity</value>
   </data>
   <data name="Site.Text" xml:space="preserve">
     <value>Site:</value>
@@ -572,5 +572,11 @@
   </data>
   <data name="Synchronized.HelpText" xml:space="preserve">
     <value>The date/time of the last synchronization for the site</value>
+  </data>
+  <data name="Synchronize.Text" xml:space="preserve">
+    <value>Synchronize?</value>
+  </data>
+  <data name="Synchronize.HelpText" xml:space="preserve">
+    <value>Specifies the synchronization approach between the primary site and the selected site</value>
   </data>
 </root>
