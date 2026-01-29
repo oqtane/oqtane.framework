@@ -419,12 +419,15 @@ namespace Oqtane.Infrastructure
         private void ReplicateFile(IFolderRepository folderRepository, Folder primaryFolder, Models.File primaryFile, Folder secondaryFolder, Models.File secondaryFile)
         {
             var primaryPath = Path.Combine(folderRepository.GetFolderPath(primaryFolder), primaryFile.Name);
-            var secondaryPath = Path.Combine(folderRepository.GetFolderPath(secondaryFolder), secondaryFile.Name);
-            if (!Directory.Exists(Path.GetDirectoryName(secondaryPath)))
+            if (System.IO.File.Exists(primaryPath))
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(secondaryPath));
+                var secondaryPath = Path.Combine(folderRepository.GetFolderPath(secondaryFolder), secondaryFile.Name);
+                if (!Directory.Exists(Path.GetDirectoryName(secondaryPath)))
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(secondaryPath));
+                }
+                System.IO.File.Copy(primaryPath, secondaryPath, true);
             }
-            System.IO.File.Copy(primaryPath, secondaryPath, true);
         }
 
         private string ReplicatePages(IServiceProvider provider, ISettingRepository settingRepository, ITenantManager tenantManager, SiteGroup siteGroup, int primarySiteId, int secondarySiteId)
@@ -577,7 +580,7 @@ namespace Oqtane.Infrastructure
                                 {
                                     secondaryPageModule = pageModuleRepository.AddPageModule(secondaryPageModule);
                                 }
-                                log += Log(siteGroup, $"Page Module Added: {module.Title} - {CreateLink(siteGroup.AliasName + secondaryPage.Path)}");
+                                log += Log(siteGroup, $"Module Instance Added: {module.Title} - {CreateLink(siteGroup.AliasName + secondaryPage.Path)}");
                                 secondaryPageModule.Module = module;
                             }
                         }
@@ -599,7 +602,7 @@ namespace Oqtane.Infrastructure
                                 {
                                     secondaryPageModule = pageModuleRepository.UpdatePageModule(secondaryPageModule);
                                 }
-                                log += Log(siteGroup, $"Page Module Updated: {secondaryPageModule.Title} - {CreateLink(siteGroup.AliasName + secondaryPage.Path)}");
+                                log += Log(siteGroup, $"Module Instance Updated: {secondaryPageModule.Title} - {CreateLink(siteGroup.AliasName + secondaryPage.Path)}");
                                 secondaryPageModules.Remove(pageModule);
                             }
                         }
@@ -656,7 +659,7 @@ namespace Oqtane.Infrastructure
                     {
                         pageModuleRepository.DeletePageModule(secondaryPageModule.PageModuleId);
                     }
-                    log += Log(siteGroup, $"Page Module Deleted: {secondaryPageModule.Title} - {CreateLink(siteGroup.AliasName + secondaryPageModule.Page.Path)}");
+                    log += Log(siteGroup, $"Module Instance Deleted: {secondaryPageModule.Title} - {CreateLink(siteGroup.AliasName + secondaryPageModule.Page.Path)}");
                 }
             }
 
