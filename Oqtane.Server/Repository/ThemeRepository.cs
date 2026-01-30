@@ -329,7 +329,7 @@ namespace Oqtane.Repository
                     {
                         foreach (var resource in theme.Resources)
                         {
-                            if (resource.Url.StartsWith("~"))
+                            if (!string.IsNullOrEmpty(resource.Url) && resource.Url.StartsWith("~"))
                             {
                                 resource.Url = resource.Url.Replace("~", "/Themes/" + Utilities.GetTypeName(theme.ThemeName) + "/").Replace("//", "/");
                             }
