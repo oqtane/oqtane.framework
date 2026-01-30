@@ -20,6 +20,7 @@
     <Content Remove="wwwroot\_content\*\**" />
     <EmbeddedResource Remove="wwwroot\Modules\Templates\**" />
     <EmbeddedResource Remove="wwwroot\Themes\Templates\**" />
+    <None Remove="wwwroot\Modules\Templates\**" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Scripts\MigrateMaster.sql" />
@@ -77,5 +78,9 @@
   <ItemGroup>
     <!-- extends watching group to include *.dll files and exclude the ones cause an infinite loop -->
     <Watch Include="**\*.dll" Exclude="**\Microsoft.EntityFrameworkCore.*.dll;**\Oqtane.Database.*.dll;" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Watch Remove="wwwroot\Modules\Templates\**" />
   </ItemGroup>
 </Project>
