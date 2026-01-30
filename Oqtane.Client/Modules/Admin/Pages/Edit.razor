@@ -576,6 +576,7 @@
                     await ScrollToPageTop();
                     return;
                 }
+
                 if (!string.IsNullOrEmpty(_themetype) && _containertype != "-")
                 {
                     string currentPath = _page.Path;
@@ -635,6 +636,13 @@
                         return;
                     }
 
+                    // update theme settings
+                    if (_themeSettingsType != null && _themeSettings is ISettingsControl themeSettingsControl)
+                    {
+                        await themeSettingsControl.UpdateSettings();
+                    }
+
+                    // default page properties
                     if (_insert != "=")
                     {
                         Page child;
@@ -688,7 +696,10 @@
                         _page.UpdateModulePermissions = bool.Parse(_updatemodulepermissions);
                     }
 
+                    // update page
                     _page = await PageService.UpdatePageAsync(_page);
+
+                    // update page order
                     await PageService.UpdatePageOrderAsync(_page.SiteId, _page.PageId, _page.ParentId);
                     if (_currentparentid == string.Empty)
                     {
@@ -697,11 +708,6 @@
                     else
                     {
                         await PageService.UpdatePageOrderAsync(_page.SiteId, _page.PageId, int.Parse(_currentparentid));
-                    }
-
-                    if (_themeSettingsType != null && _themeSettings is ISettingsControl themeSettingsControl)
-                    {
-                        await themeSettingsControl.UpdateSettings();
                     }
 
                     await logger.LogInformation("Page Saved {Page}", _page);
