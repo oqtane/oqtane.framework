@@ -501,11 +501,11 @@ namespace Oqtane.Shared
 
         public static string GetUrlPath(string url)
         {
-            if (url.Contains("?"))
+            if (!string.IsNullOrEmpty(url) && url.Contains("?"))
             {
                 url = url.Substring(0, url.IndexOf("?"));
             }
-            return url;
+            return url ?? "";
         }
 
         public static string LogMessage(object @class, string message)

@@ -543,8 +543,6 @@
         }
         else
         {
-            var url = (resource.Url.Contains("://")) ? resource.Url : alias.BaseUrl + resource.Url;
-
             var dataAttributes = "";
             if (!resource.DataAttributes.ContainsKey("data-reload"))
             {
@@ -566,12 +564,24 @@
                 }
             }
 
-            return "<script src=\"" + url + "\"" +
-                ((!string.IsNullOrEmpty(resource.Type)) ? " type=\"" + resource.Type + "\"" : "") +
-                ((!string.IsNullOrEmpty(resource.Integrity)) ? " integrity=\"" + resource.Integrity + "\"" : "") +
-                ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
-                ((!string.IsNullOrEmpty(dataAttributes)) ? dataAttributes : "") +
-                "></script>";
+            if (!string.IsNullOrEmpty(resource.Url))
+            {
+                var url = (string.IsNullOrEmpty(resource.Url) || resource.Url.Contains("://")) ? resource.Url : alias.BaseUrl + resource.Url;
+
+                return "<script src=\"" + url + "\"" +
+                    ((!string.IsNullOrEmpty(resource.Type)) ? " type=\"" + resource.Type + "\"" : "") +
+                    ((!string.IsNullOrEmpty(resource.Integrity)) ? " integrity=\"" + resource.Integrity + "\"" : "") +
+                    ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
+                    ((!string.IsNullOrEmpty(dataAttributes)) ? dataAttributes : "") +
+                    "></script>";
+            }
+            else
+            {
+                return "<script" +
+                    ((!string.IsNullOrEmpty(resource.Type)) ? " type=\"" + resource.Type + "\"" : "") +
+                    ((!string.IsNullOrEmpty(dataAttributes)) ? dataAttributes : "") +
+                    ">" + resource.Content + "</script>";
+            }
         }
     }
 
@@ -744,11 +754,11 @@
             {
                 if (rendermode == RenderModes.Static || resource.ResourceType == ResourceType.Stylesheet || resource.Level == ResourceLevel.Site)
                 {
-                    if (resource.Url.StartsWith("~"))
+                    if (!string.IsNullOrEmpty(resource.Url) && resource.Url.StartsWith("~"))
                     {
                         resource.Url = resource.Url.Replace("~", "/" + type + "/" + name + "/").Replace("//", "/");
                     }
-                    if (!resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
+                    if (!string.IsNullOrEmpty(resource.Url) && !resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
                     {
                         resource.Url = alias.BaseUrl + resource.Url;
                     }

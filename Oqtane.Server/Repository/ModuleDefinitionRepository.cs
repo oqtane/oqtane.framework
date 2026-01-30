@@ -364,7 +364,7 @@ namespace Oqtane.Repository
                     {
                         foreach (var resource in moduledefinition.Resources)
                         {
-                            if (resource.Url.StartsWith("~"))
+                            if (!string.IsNullOrEmpty(resource.Url) && resource.Url.StartsWith("~"))
                             {
                                 resource.Url = resource.Url.Replace("~", "/Modules/" + Utilities.GetTypeName(moduledefinition.ModuleDefinitionName) + "/").Replace("//", "/");
                             }

@@ -625,11 +625,11 @@
             {
                 if (resource.ResourceType == ResourceType.Stylesheet || resource.Level != ResourceLevel.Site)
                 {
-                    if (resource.Url.StartsWith("~"))
+                    if (!string.IsNullOrEmpty(resource.Url) && resource.Url.StartsWith("~"))
                     {
                         resource.Url = resource.Url.Replace("~", "/" + type + "/" + name + "/").Replace("//", "/");
                     }
-                    if (!resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
+                    if (!string.IsNullOrEmpty(resource.Url) && !resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
                     {
                         resource.Url = alias.BaseUrl + resource.Url;
                     }

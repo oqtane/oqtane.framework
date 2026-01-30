@@ -24,7 +24,7 @@ namespace Oqtane.Models
             get => _url;
             set
             {
-                _url = (value.Contains("://")) ? value : (!value.StartsWith("/") && !value.StartsWith("~") ? "/" : "") + value;
+                _url = (string.IsNullOrEmpty(value) || value.Contains("://")) ? value : (!value.StartsWith("/") && !value.StartsWith("~") ? "/" : "") + value;
             }
         }
 
