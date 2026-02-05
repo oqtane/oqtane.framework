@@ -79,6 +79,7 @@
 
             @((MarkupString)_scripts)
             @((MarkupString)_bodyResources)
+            @((MarkupString)_bodyContent)
             @if (_renderMode == RenderModes.Static)
             {
                 <page-script src="./js/reload.js?v=@_fingerprint"></page-script>
@@ -107,6 +108,7 @@
     private string _language = "en";
     private string _headResources = "";
     private string _bodyResources = "";
+    private string _bodyContent = "";
     private string _styleSheets = "";
     private string _scripts = "";
     private string _message = "";
@@ -190,6 +192,8 @@
                     var resources = await GetPageResources(alias, site, page, modules, int.Parse(route.ModuleId, CultureInfo.InvariantCulture), route.Action);
                     ManageStyleSheets(resources);
                     ManageScripts(resources, alias);
+                    AddBodyContent(site.BodyContent);
+                    AddBodyContent(page.BodyContent);
 
                     // generate scripts
                     if (site.PwaIsEnabled && site.PwaAppIconFileId != null && site.PwaSplashIconFileId != null)
@@ -804,6 +808,25 @@
                     AddScript(resource, alias);
                 }
             }
+        }
+    }
+
+    private void AddBodyContent(string content)
+    {
+        if (!string.IsNullOrEmpty(content))
+        {
+            var elements = content.Split('<', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var element in elements)
+            {
+                if (_renderMode == RenderModes.Static || (!element.ToLower().StartsWith("script") && !element.ToLower().StartsWith("/script")))
+                {
+                    if (!_bodyContent.Contains("<" + element) || element.StartsWith("/"))
+                    {
+                        _bodyContent += "<" + element;
+                    }
+                }
+            }
+            _bodyContent += "\n";
         }
     }
 }
