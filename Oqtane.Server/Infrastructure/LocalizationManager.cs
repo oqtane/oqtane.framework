@@ -14,6 +14,7 @@ namespace Oqtane.Infrastructure
         string GetDefaultCulture();
         string[] GetSupportedCultures();
         string[] GetInstalledCultures();
+        string[] GetNeutralCultures();
     }
 
     public class LocalizationManager : ILocalizationManager
@@ -42,7 +43,6 @@ namespace Oqtane.Infrastructure
         public string[] GetSupportedCultures()
         {
             return CultureInfo.GetCultures(CultureTypes.AllCultures)
-                .Where(item => item.Name.Length == 2) // major languages only (this could be configurable)
                 .Select(item => item.Name).OrderBy(c => c).ToArray();
         }
 
@@ -51,7 +51,14 @@ namespace Oqtane.Infrastructure
             return GetSatelliteAssemblyCultures();
         }
 
-        // method is static as it is called during startup
+        public string[] GetNeutralCultures()
+        {
+            return CultureInfo.GetCultures(CultureTypes.AllCultures)
+                .Where(item => item.IsNeutralCulture)
+                .Select(item => item.Name).OrderBy(c => c).ToArray();
+        }
+
+        // note: method is public and static as it is called during startup
         public static string[] GetSatelliteAssemblyCultures()
         {
             var cultures = new List<string>();
