@@ -721,7 +721,7 @@
             if (site != null)
             {
                 _timezones = TimeZoneService.GetTimeZones();
-                _cultures = await LocalizationService.GetCulturesAsync(false);
+                _cultures = await LocalizationService.GetNeutralCulturesAsync();
                 var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
 
                 _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
