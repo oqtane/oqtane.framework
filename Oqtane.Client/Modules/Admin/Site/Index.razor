@@ -533,7 +533,10 @@
                                 <div class="col-sm-9">
                                     <select id="synchronize" class="form-select" @bind="@_synchronize">
                                         <option value="False">@Localizer["Compare"]</option>
-                                        <option value="True">@Localizer["Update"]</option>
+                                        @if (_localization == "False")
+                                        {
+                                            <option value="True">@Localizer["Update"]</option>
+                                        }
                                     </select>
                                 </div>
                             </div>
@@ -1328,6 +1331,8 @@
             {
                 _member = "Secondary";
             }
+            _synchronize = siteGroup.Synchronize.ToString();
+            _notify = siteGroup.Notify.ToString();
             _synchronized = UtcToLocal(siteGroup.SynchronizedOn).ToString();
         }
         else
