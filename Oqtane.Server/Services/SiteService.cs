@@ -318,6 +318,7 @@ namespace Oqtane.Services
             var siteGroups = _siteGroups.GetSiteGroups();
             if (siteGroups.Any(item => item.SiteId == siteId && item.SiteGroupDefinition.Localization))
             {
+                // site is part of a localized site group - get all languages from the site group
                 var sites = _sites.GetSites().ToList();
                 var aliases = _aliases.GetAliases().ToList();
 
@@ -338,6 +339,16 @@ namespace Oqtane.Services
                             }
                         }
                     }
+                }
+            }
+            else
+            {
+                // use site languages
+                languages = _languages.GetLanguages(siteId).ToList();
+                var defaultCulture = CultureInfo.GetCultureInfo(Constants.DefaultCulture);
+                if (!languages.Exists(item => item.Code == defaultCulture.Name))
+                {
+                    languages.Add(new Language { Code = defaultCulture.Name, Name = "", Version = Constants.Version, IsDefault = !languages.Any(l => l.IsDefault) });
                 }
             }
 

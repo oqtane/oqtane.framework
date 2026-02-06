@@ -89,6 +89,10 @@ namespace Oqtane.Infrastructure
                             {
                                 siteGroup.SynchronizedOn = DateTime.MinValue;
                             }
+                            if (siteGroup.SiteGroupDefinition.Localization)
+                            {
+                                siteGroup.Synchronize = false; // when using localization, do not overwrite content
+                            }
 
                             // replicate site
                             var siteLog = ReplicateSite(provider, tenantManager, settingRepository, siteGroup, primarySite, secondarySite);
@@ -136,6 +140,7 @@ namespace Oqtane.Infrastructure
             if (primarySite.ModifiedOn > siteGroup.SynchronizedOn)
             {
                 secondarySite.TimeZoneId = primarySite.TimeZoneId;
+                secondarySite.CultureCode = primarySite.CultureCode;
                 if (secondarySite.LogoFileId != primarySite.LogoFileId)
                 {
                     secondarySite.LogoFileId = ResolveFileId(provider, primarySite.LogoFileId, secondarySite.SiteId);
@@ -181,7 +186,7 @@ namespace Oqtane.Infrastructure
                 {
                     siteRepository.UpdateSite(secondarySite);
                 }
-                log += Log(siteGroup, $"Secondary Site Updated: {secondarySite.Name}");
+                log += Log(siteGroup, $"Site Updated: {secondarySite.Name}");
             }
 
             // site settings

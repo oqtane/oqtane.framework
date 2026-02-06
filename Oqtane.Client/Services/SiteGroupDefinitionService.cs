@@ -20,6 +20,12 @@ namespace Oqtane.Services
         Task<List<SiteGroupDefinition>> GetSiteGroupDefinitionsAsync();
 
         /// <summary>
+        /// Get all <see cref="SiteGroupDefinition"/>s
+        /// </summary>
+        /// <returns></returns>
+        Task<List<SiteGroupDefinition>> GetSiteGroupDefinitionsAsync(int primarySiteId);
+
+        /// <summary>
         /// Get one specific <see cref="SiteGroupDefinition"/>
         /// </summary>
         /// <param name="siteGroupDefinitionId">ID-reference of a <see cref="SiteGroupDefinition"/></param>
@@ -57,7 +63,12 @@ namespace Oqtane.Services
 
         public async Task<List<SiteGroupDefinition>> GetSiteGroupDefinitionsAsync()
         {
-            return await GetJsonAsync<List<SiteGroupDefinition>>($"{Apiurl}", Enumerable.Empty<SiteGroupDefinition>().ToList());
+            return await GetSiteGroupDefinitionsAsync(-1);
+        }
+
+        public async Task<List<SiteGroupDefinition>> GetSiteGroupDefinitionsAsync(int primarySiteId)
+        {
+            return await GetJsonAsync<List<SiteGroupDefinition>>($"{Apiurl}?siteid={primarySiteId}", Enumerable.Empty<SiteGroupDefinition>().ToList());
         }
 
         public async Task<SiteGroupDefinition> GetSiteGroupDefinitionAsync(int siteGroupDefinitionId)

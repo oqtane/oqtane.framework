@@ -4,6 +4,11 @@
 @inject IPageService PageService
 @inject ISettingService SettingService
 
+@if (ShowLanguageSwitcher)
+{
+    <LanguageSwitcher ButtonClass="@ButtonClass" DropdownAlignment="@LanguageDropdownAlignment" />
+}
+
 @if (ShowEditMode && (_showEditMode || (PageState.Page.IsPersonalizable && PageState.User != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Registered))))
 {
     <form method="post" class="app-form-inline" @formname="EditModeForm" @onsubmit="@(async () => await ToggleEditMode(PageState.EditMode))" data-enhance>
@@ -48,11 +53,9 @@
     [Parameter]
     public string BodyClass { get; set; } = "offcanvas-body overflow-auto";
 
-    // deprecated in 10.1.0 - UI culture is set in user's profile
     [Parameter]
     public bool ShowLanguageSwitcher { get; set; } = true;
 
-    // deprecated in 10.1.0 - UI culture is set in user's profile
     [Parameter]
     public string LanguageDropdownAlignment { get; set; } = string.Empty; // Empty or Left or Right
 

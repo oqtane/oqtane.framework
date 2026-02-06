@@ -549,15 +549,18 @@
                                     </select>
                                 </div>
                             </div>
-                            @if (!string.IsNullOrEmpty(_synchronized))
-                            {
-                                <div class="row mb-1 align-items-center">
-                                    <Label Class="col-sm-3" For="synchronized" HelpText="The date/time of the last synchronization for the site" ResourceKey="Synchronized">Synchronized: </Label>
-                                    <div class="col-sm-9">
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="synchronized" HelpText="The date/time of the last synchronization for the site" ResourceKey="Synchronized">Synchronized: </Label>
+                                <div class="col-sm-9">
+                                    <div class="input-group">
                                         <input id="synchronized" class="form-control" @bind="@_synchronized" disabled />
-                                    </div>
+                                        @if (!string.IsNullOrEmpty(_synchronized))
+                                        {
+                                            <button type="button" class="btn btn-primary" @onclick="ResetSiteGroup">@SharedLocalizer["Reset"]</button>
+                                        }
                                 </div>
-                            }
+                                </div>
+                            </div>
                         }
                     }
                     <div class="row mb-1 align-items-center">
@@ -605,10 +608,6 @@
         <br />
         <button type="button" class="btn btn-success" @onclick="SaveSite">@SharedLocalizer["Save"]</button>
         <ActionDialog Header="Delete Site" Message="@Localizer["Confirm.DeleteSite"]" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteSite())" ResourceKey="DeleteSite" />
-        @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host) && _siteGroupDefinitions.Any(item => item.PrimarySiteId == PageState.Site.SiteId && item.Synchronization))
-        {
-            <button type="button" class="btn btn-primary ms-1" @onclick="SynchronizeSite">@Localizer["Synchronize"]</button>
-        }
         <br />
         <br />
         <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
@@ -1411,7 +1410,20 @@
                 {
                     siteGroup.Synchronize = bool.Parse(_synchronize);
                     siteGroup.Notify = bool.Parse(_notify);
+                    siteGroup.SynchronizedOn = string.IsNullOrEmpty(_synchronized) ? null : siteGroup.SynchronizedOn;
                     await SiteGroupService.UpdateSiteGroupAsync(siteGroup);
+                }
+            }
+
+            if (siteGroupDefinition.Synchronization)
+            {
+                // enable synchronization job if it is not enabled already
+                var jobs = await JobService.GetJobsAsync();
+                var job = jobs.FirstOrDefault(item => item.JobType == "Oqtane.Infrastructure.SynchronizationJob, Oqtane.Server");
+                if (job != null && !job.IsEnabled)
+                {
+                    job.IsEnabled = true;
+                    await JobService.UpdateJobAsync(job);
                 }
             }
 
@@ -1450,25 +1462,8 @@
         }
     }
 
-    private async Task SynchronizeSite()
+    private async Task ResetSiteGroup()
     {
-        // enable synchronization job if it is not enabled already
-        var jobs = await JobService.GetJobsAsync();
-        var job = jobs.FirstOrDefault(item => item.JobType == "Oqtane.Infrastructure.SynchronizationJob, Oqtane.Server");
-        if (job != null && !job.IsEnabled)
-        {
-            job.IsEnabled = true;
-            await JobService.UpdateJobAsync(job);
-        }
-
-        // mark secondary sites for synchronization
-        foreach (var group in _siteGroupDefinitions.Where(item => item.PrimarySiteId == PageState.Site.SiteId && item.Synchronization))
-        {
-            group.Synchronize = true;
-            await SiteGroupDefinitionService.UpdateSiteGroupDefinitionAsync(group);
-        }
-
-        AddModuleMessage(Localizer["Message.Site.Synchronize"], MessageType.Success);
-        await ScrollToPageTop();
+        _synchronized = "";
     }
 }

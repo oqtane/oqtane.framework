@@ -11,6 +11,7 @@
 @inject ILogService logger
 @inject ISettingService SettingService
 @inject IJSRuntime jsRuntime
+@inject ISiteGroupDefinitionService SiteGroupDefinitionService
 @inject IServiceProvider ServiceProvider
 @inject ILogService LoggingService
 @inject IStringLocalizer<ControlPanelInteractive> Localizer
@@ -34,6 +35,10 @@
                         <button type="button" data-bs-dismiss="offcanvas" class="btn btn-primary col-12" @onclick=@(async () => Navigate("Admin"))>@Localizer["AdminDash"]</button>
                     </div>
                 </div>
+                @if (_siteGroupDefinitions.Any(item => item.Synchronization))
+                {
+                    <button type="button" class="btn btn-success col-12 mt-1" @onclick="SynchronizeSite">@Localizer["Synchronize"]</button>
+                }
                 <hr class="app-rule" />
             }
             @if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
@@ -257,6 +262,7 @@
     private List<Page> _pages = new List<Page>();
     private List<Module> _modules = new List<Module>();
     private List<ThemeControl> _containers = new List<ThemeControl>();
+    private List<SiteGroupDefinition> _siteGroupDefinitions = new List<SiteGroupDefinition>();
 
     private string _category = "Common";
     private string _pane = "";
@@ -287,6 +293,7 @@
             _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Page.SiteId);
             _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(_category)).ToList();
             _categories = _allModuleDefinitions.SelectMany(m => m.Categories.Split(',', StringSplitOptions.RemoveEmptyEntries)).Distinct().Where(item => item != "Headless").ToList();
+            _siteGroupDefinitions = await SiteGroupDefinitionService.GetSiteGroupDefinitionsAsync(PageState.Site.SiteId);
         }
     }
 
@@ -630,5 +637,15 @@
     private void ClearMessage()
     {
         _message = "";
+    }
+
+    private async Task SynchronizeSite()
+    {
+        foreach (var group in _siteGroupDefinitions.Where(item => item.Synchronization))
+        {
+            group.Synchronize = true;
+            await SiteGroupDefinitionService.UpdateSiteGroupDefinitionAsync(group);
+        }
+        NavigationManager.NavigateTo(Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, ""), true);
     }
 }
