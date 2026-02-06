@@ -49,11 +49,11 @@ namespace Oqtane.Infrastructure
             List<Site> sites = null;
             List<Alias> aliases = null;
 
-            // get groups
-            var groups = siteGroupDefinitionRepository.GetSiteGroupDefinitions();
+            // get site groups
+            var siteGroupDefinitions = siteGroupDefinitionRepository.GetSiteGroupDefinitions();
 
-            // iterate through groups which need to be synchronized
-            foreach (var group in groups.Where(item => item.Synchronization && item.Synchronize))
+            // iterate through site groups which need to be synchronized
+            foreach (var siteGroupDefinition in siteGroupDefinitions.Where(item => item.Synchronization && item.Synchronize))
             {
                 // get data
                 if (siteGroups == null)
@@ -63,19 +63,19 @@ namespace Oqtane.Infrastructure
                     aliases = aliasRepository.GetAliases().ToList();
                 }
 
-                var aliasName = "https://" + aliases.First(item => item.TenantId == tenantManager.GetTenant().TenantId && item.SiteId == group.PrimarySiteId && item.IsDefault).Name;
-                log += $"Processing Primary Site: {sites.First(item => item.SiteId == group.PrimarySiteId).Name} - {CreateLink(aliasName)}<br />";
+                var aliasName = "https://" + aliases.First(item => item.TenantId == tenantManager.GetTenant().TenantId && item.SiteId == siteGroupDefinition.PrimarySiteId && item.IsDefault).Name;
+                log += $"Processing Primary Site: {sites.First(item => item.SiteId == siteGroupDefinition.PrimarySiteId).Name} - {CreateLink(aliasName)}<br />";
 
                 // get primary site
-                var primarySite = sites.FirstOrDefault(item => item.SiteId == group.PrimarySiteId);
+                var primarySite = sites.FirstOrDefault(item => item.SiteId == siteGroupDefinition.PrimarySiteId);
                 if (primarySite != null)
                 {
                     // update flag to prevent job from processing group again
-                    group.Synchronize = false;
-                    siteGroupDefinitionRepository.UpdateSiteGroupDefinition(group);
+                    siteGroupDefinition.Synchronize = false;
+                    siteGroupDefinitionRepository.UpdateSiteGroupDefinition(siteGroupDefinition);
 
-                    // iterate through sites in group
-                    foreach (var siteGroup in siteGroups.Where(item => item.SiteGroupDefinitionId == group.SiteGroupDefinitionId && item.SiteId != group.PrimarySiteId))
+                    // iterate through sites in site group
+                    foreach (var siteGroup in siteGroups.Where(item => item.SiteGroupDefinitionId == siteGroupDefinition.SiteGroupDefinitionId && item.SiteId != siteGroupDefinition.PrimarySiteId))
                     {
                         // get secondary site
                         var secondarySite = sites.FirstOrDefault(item => item.SiteId == siteGroup.SiteId);
@@ -105,13 +105,13 @@ namespace Oqtane.Infrastructure
                         }
                         else
                         {
-                            log += $"Site Group {group.Name} Has A SiteId {siteGroup.SiteId} Which Does Not Exist<br />";
+                            log += $"Site Group {siteGroupDefinition.Name} Has A SiteId {siteGroup.SiteId} Which Does Not Exist<br />";
                         }
                     }
                 }
                 else
                 {
-                    log += $"Site Group {group.Name} Has A PrimarySiteId {group.PrimarySiteId} Which Does Not Exist<br />";
+                    log += $"Site Group {siteGroupDefinition.Name} Has A PrimarySiteId {siteGroupDefinition.PrimarySiteId} Which Does Not Exist<br />";
                 }
             }
 

@@ -334,7 +334,7 @@ namespace Oqtane.Services
                                 var alias = aliases.FirstOrDefault(item => item.SiteId == siteGroup.SiteId && item.TenantId == tenantId && item.IsDefault);
                                 if (alias != null)
                                 {
-                                    languages.Add(new Language { Code = site.CultureCode, Name = "", AliasName = alias.Name, IsDefault = true });
+                                    languages.Add(new Language { Code = site.CultureCode, Name = "", AliasName = alias.Name, IsDefault = false });
                                 }
                             }
                         }
