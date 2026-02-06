@@ -552,9 +552,6 @@
   <data name="Message.Site.Synchronize" xml:space="preserve">
     <value>Site Submitted For Synchronization</value>
   </data>
-  <data name="Synchronize" xml:space="preserve">
-    <value>Synchronize</value>
-  </data>
   <data name="Notify.Text" xml:space="preserve">
     <value>Notify?</value>
   </data>
