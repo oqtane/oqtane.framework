@@ -4,7 +4,7 @@
 
 @namespace [Owner].Module.[Module]
 @inherits ModuleBase
-@inject I[Module]Service [Module]Service
+@inject I[Module]Service Client[Module]Service
 @inject NavigationManager NavigationManager
 @inject IStringLocalizer<Edit> Localizer
 
@@ -50,7 +50,7 @@
             if (PageState.Action == "Edit")
             {
                 _id = Int32.Parse(PageState.QueryString["id"]);
-                [Module] [Module] = await [Module]Service.Get[Module]Async(_id, ModuleState.ModuleId);
+                [Module] [Module] = await Client[Module]Service.Get[Module]Async(_id, ModuleState.ModuleId);
                 if ([Module] != null)
                 {
                     _name = [Module].Name;
@@ -81,14 +81,14 @@
                     [Module] [Module] = new [Module]();
                     [Module].ModuleId = ModuleState.ModuleId;
                     [Module].Name = _name;
-                    [Module] = await [Module]Service.Add[Module]Async([Module]);
+                    [Module] = await Client[Module]Service.Add[Module]Async([Module]);
                     await logger.LogInformation("[Module] Added {[Module]}", [Module]);
                 }
                 else
                 {
-                    [Module] [Module] = await [Module]Service.Get[Module]Async(_id, ModuleState.ModuleId);
+                    [Module] [Module] = await Client[Module]Service.Get[Module]Async(_id, ModuleState.ModuleId);
                     [Module].Name = _name;
-                    await [Module]Service.Update[Module]Async([Module]);
+                    await Client[Module]Service.Update[Module]Async([Module]);
                     await logger.LogInformation("[Module] Updated {[Module]}", [Module]);
                 }
                 NavigationManager.NavigateTo(NavigateUrl());
