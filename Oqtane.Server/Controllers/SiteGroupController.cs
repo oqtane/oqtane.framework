@@ -70,6 +70,7 @@ namespace Oqtane.Controllers
             {
                 siteGroup = _siteGroupRepository.AddSiteGroup(siteGroup);
                 _syncManager.AddSyncEvent(_alias, EntityNames.SiteGroup, siteGroup.SiteGroupDefinitionId, SyncEventActions.Create);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Site, siteGroup.SiteId, SyncEventActions.Refresh);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Site Group Added {SiteGroup}", siteGroup);
             }
             else
@@ -90,6 +91,7 @@ namespace Oqtane.Controllers
             {
                 siteGroup = _siteGroupRepository.UpdateSiteGroup(siteGroup);
                 _syncManager.AddSyncEvent(_alias, EntityNames.SiteGroup, siteGroup.SiteGroupDefinitionId, SyncEventActions.Update);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Site, siteGroup.SiteId, SyncEventActions.Refresh);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Site Group Updated {SiteGroup}", siteGroup);
             }
             else
@@ -111,6 +113,7 @@ namespace Oqtane.Controllers
             {
                 _siteGroupRepository.DeleteSiteGroup(id);
                 _syncManager.AddSyncEvent(_alias, EntityNames.SiteGroup, siteGroup.SiteGroupId, SyncEventActions.Delete);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Site, siteGroup.SiteId, SyncEventActions.Refresh);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Site Group Deleted {SiteGroupId}", id);
             }
             else
