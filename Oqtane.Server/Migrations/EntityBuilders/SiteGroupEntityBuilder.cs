@@ -12,25 +12,20 @@ namespace Oqtane.Migrations.EntityBuilders
     {
         private const string _entityTableName = "SiteGroup";
         private readonly PrimaryKey<SiteGroupEntityBuilder> _primaryKey = new("PK_SiteGroup", x => x.SiteGroupId);
-        private readonly ForeignKey<SiteGroupEntityBuilder> _groupForeignKey = new("FK_SiteGroup_SiteGroupDefinition", x => x.SiteGroupDefinitionId, "SiteGroupDefinition", "SiteGroupDefinitionId", ReferentialAction.Cascade);
-        private readonly ForeignKey<SiteGroupEntityBuilder> _siteForeignKey = new("FK_SiteGroup_Site", x => x.SiteId, "Site", "SiteId", ReferentialAction.Cascade);
 
         public SiteGroupEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;
-            ForeignKeys.Add(_groupForeignKey);
-            ForeignKeys.Add(_siteForeignKey);
         }
 
         protected override SiteGroupEntityBuilder BuildTable(ColumnsBuilder table)
         {
             SiteGroupId = AddAutoIncrementColumn(table, "SiteGroupId");
-            SiteGroupDefinitionId = AddIntegerColumn(table, "SiteGroupDefinitionId");
-            SiteId = AddIntegerColumn(table, "SiteId");
+            Name = AddStringColumn(table, "Name", 200);
+            Type = AddStringColumn(table, "Type", 50);
+            PrimarySiteId = AddIntegerColumn(table, "PrimarySiteId");
             Synchronize = AddBooleanColumn(table, "Synchronize");
-            Notify = AddBooleanColumn(table, "Notify");
-            SynchronizedOn = AddDateTimeColumn(table, "SynchronizedOn", true);
 
             AddAuditableColumns(table);
 
@@ -39,14 +34,12 @@ namespace Oqtane.Migrations.EntityBuilders
 
         public OperationBuilder<AddColumnOperation> SiteGroupId { get; set; }
 
-        public OperationBuilder<AddColumnOperation> SiteGroupDefinitionId { get; set; }
+        public OperationBuilder<AddColumnOperation> Name { get; set; }
 
-        public OperationBuilder<AddColumnOperation> SiteId { get; set; }
+        public OperationBuilder<AddColumnOperation> Type { get; set; }
+
+        public OperationBuilder<AddColumnOperation> PrimarySiteId { get; set; }
 
         public OperationBuilder<AddColumnOperation> Synchronize { get; set; }
-
-        public OperationBuilder<AddColumnOperation> Notify { get; set; }
-
-        public OperationBuilder<AddColumnOperation> SynchronizedOn { get; set; }
     }
 }
