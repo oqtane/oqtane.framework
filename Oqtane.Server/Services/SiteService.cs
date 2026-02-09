@@ -21,7 +21,7 @@ namespace Oqtane.Services
     public class ServerSiteService : ISiteService
     {
         private readonly ISiteRepository _sites;
-        private readonly ISiteGroupRepository _siteGroups;
+        private readonly ISiteGroupMemberRepository _siteGroupMembers;
         private readonly IAliasRepository _aliases;
         private readonly IPageRepository _pages;
         private readonly IThemeRepository _themes;
@@ -39,10 +39,10 @@ namespace Oqtane.Services
         private readonly IHttpContextAccessor _accessor;
         private readonly string _private = "[PRIVATE]";
 
-        public ServerSiteService(ISiteRepository sites, ISiteGroupRepository siteGroups, IAliasRepository aliases, IPageRepository pages, IThemeRepository themes, IPageModuleRepository pageModules, IModuleDefinitionRepository moduleDefinitions, ILanguageRepository languages, IUserManager userManager, IUserPermissions userPermissions, ISettingRepository settings, ITenantManager tenantManager, ISyncManager syncManager, IConfigManager configManager, ILogManager logger, IMemoryCache cache, IHttpContextAccessor accessor)
+        public ServerSiteService(ISiteRepository sites, ISiteGroupMemberRepository siteGroupMembers, IAliasRepository aliases, IPageRepository pages, IThemeRepository themes, IPageModuleRepository pageModules, IModuleDefinitionRepository moduleDefinitions, ILanguageRepository languages, IUserManager userManager, IUserPermissions userPermissions, ISettingRepository settings, ITenantManager tenantManager, ISyncManager syncManager, IConfigManager configManager, ILogManager logger, IMemoryCache cache, IHttpContextAccessor accessor)
         {
             _sites = sites;
-            _siteGroups = siteGroups;
+            _siteGroupMembers = siteGroupMembers;
             _aliases = aliases;
             _pages = pages;
             _themes = themes;
@@ -315,23 +315,23 @@ namespace Oqtane.Services
         {
             var languages = new List<Language>();
 
-            var siteGroups = _siteGroups.GetSiteGroups();
-            if (siteGroups.Any(item => item.SiteId == siteId && item.SiteGroupDefinition.Localization))
+            var siteGroupMembers = _siteGroupMembers.GetSiteGroupMembers();
+            if (siteGroupMembers.Any(item => item.SiteId == siteId && item.SiteGroup.Type == SiteGroupTypes.Localization))
             {
                 // site is part of a localized site group - get all languages from the site group
                 var sites = _sites.GetSites().ToList();
                 var aliases = _aliases.GetAliases().ToList();
 
-                foreach (var siteGroupDefinitionId in siteGroups.Where(item => item.SiteId == siteId && item.SiteGroupDefinition.Localization).Select(item => item.SiteGroupDefinitionId).Distinct().ToList())
+                foreach (var siteGroupId in siteGroupMembers.Where(item => item.SiteId == siteId && item.SiteGroup.Type == SiteGroupTypes.Localization).Select(item => item.SiteGroupId).Distinct().ToList())
                 {
-                    foreach (var siteGroup in siteGroups.Where(item => item.SiteGroupDefinitionId == siteGroupDefinitionId))
+                    foreach (var siteGroupMember in siteGroupMembers.Where(item => item.SiteGroupId == siteGroupId))
                     {
-                        var site = sites.FirstOrDefault(item => item.SiteId == siteGroup.SiteId);
+                        var site = sites.FirstOrDefault(item => item.SiteId == siteGroupMember.SiteId);
                         if (site != null && !string.IsNullOrEmpty(site.CultureCode))
                         {
                             if (!languages.Any(item => item.Code == site.CultureCode))
                             {
-                                var alias = aliases.FirstOrDefault(item => item.SiteId == siteGroup.SiteId && item.TenantId == tenantId && item.IsDefault);
+                                var alias = aliases.FirstOrDefault(item => item.SiteId == siteGroupMember.SiteId && item.TenantId == tenantId && item.IsDefault);
                                 if (alias != null)
                                 {
                                     languages.Add(new Language { Code = site.CultureCode, Name = "", AliasName = alias.Name, IsDefault = false });

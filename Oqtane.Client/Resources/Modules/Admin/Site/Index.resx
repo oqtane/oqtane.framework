@@ -498,35 +498,23 @@
   <data name="AliasName.HelpText" xml:space="preserve">
     <value>A url for this site. This can include domain names (ie. domain.com), subdomains (ie. sub.domain.com) or virtual folders (ie. domain.com/folder).</value>
   </data>
-  <data name="SiteGroups.Text" xml:space="preserve">
+  <data name="SiteGroupMembers.Text" xml:space="preserve">
     <value>Group:</value>
   </data>
-  <data name="SiteGroups.HelpText" xml:space="preserve">
+  <data name="SiteGroupMembers.HelpText" xml:space="preserve">
     <value>The site groups in this tenant (database)</value>
   </data>
-  <data name="GroupMember.Text" xml:space="preserve">
-    <value>Member?</value>
+  <data name="Primary.Text" xml:space="preserve">
+    <value>Primary?</value>
   </data>
-  <data name="GroupMember.HelpText" xml:space="preserve">
-    <value>Indicates if the current site is a member of the selected group</value>
+  <data name="Primary.HelpText" xml:space="preserve">
+    <value>Indicates if the selected site is the primary member of the site group</value>
   </data>
   <data name="GroupName.Text" xml:space="preserve">
     <value>Name:</value>
   </data>
   <data name="GroupName.HelpText" xml:space="preserve">
     <value>Name of the site group</value>
-  </data>
-  <data name="Synchronization.Text" xml:space="preserve">
-    <value>Synchronization?</value>
-  </data>
-  <data name="Synchronization.HelpText" xml:space="preserve">
-    <value>Specifies if the group supports content synchronization between the primary site and other sites in the group</value>
-  </data>
-  <data name="Localization.Text" xml:space="preserve">
-    <value>Localization?</value>
-  </data>
-  <data name="Localization.HelpText" xml:space="preserve">
-    <value>Specifies if the content of the sites in the group are localized</value>
   </data>
   <data name="Primary" xml:space="preserve">
     <value>Primary</value>
@@ -540,11 +528,11 @@
   <data name="Update" xml:space="preserve">
     <value>Update</value>
   </data>
-  <data name="DeleteSiteGroup.Header" xml:space="preserve">
-    <value>Delete Site Group</value>
+  <data name="DeleteSiteGroupMember.Header" xml:space="preserve">
+    <value>Delete Site Group Member</value>
   </data>
-  <data name="Confirm.SiteGroup.Delete" xml:space="preserve">
-    <value>Are You Sure You Wish To Delete {0}?</value>
+  <data name="Confirm.SiteGroupMember.Delete" xml:space="preserve">
+    <value>Are You Sure You Wish To Delete This Member From The Site Group?</value>
   </data>
   <data name="Message.Required.GroupName" xml:space="preserve">
     <value>Group Name Is Required</value>
@@ -559,21 +547,27 @@
     <value>Specifies if site administrators should be notified of any synchronization activity</value>
   </data>
   <data name="Site.Text" xml:space="preserve">
-    <value>Site:</value>
+    <value>Members:</value>
   </data>
   <data name="Site.HelpText" xml:space="preserve">
-    <value>The sites in this tenant (database)</value>
+    <value>The sites which are members of this site group</value>
   </data>
   <data name="Synchronized.Text" xml:space="preserve">
     <value>Synchronized:</value>
   </data>
+  <data name="GroupType.Text" xml:space="preserve">
+    <value>Type:</value>
+  </data>
+  <data name="GroupType.HelpText" xml:space="preserve">
+    <value>The site group type (ie. synchronization, localization)</value>
+  </data>
   <data name="Synchronized.HelpText" xml:space="preserve">
     <value>The date/time of the last synchronization for the site</value>
   </data>
-  <data name="Synchronize.Text" xml:space="preserve">
-    <value>Synchronize?</value>
+  <data name="Synchronization" xml:space="preserve">
+    <value>Synchronization</value>
   </data>
-  <data name="Synchronize.HelpText" xml:space="preserve">
-    <value>Specifies the synchronization approach between the primary site and the selected site</value>
+  <data name="Localization" xml:space="preserve">
+    <value>Localization</value>
   </data>
 </root>

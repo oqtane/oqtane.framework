@@ -8,12 +8,11 @@ namespace Oqtane.Repository
     public interface ISiteGroupRepository
     {
         IEnumerable<SiteGroup> GetSiteGroups();
-        IEnumerable<SiteGroup> GetSiteGroups(int siteId, int siteGroupDefinitionId);
         SiteGroup AddSiteGroup(SiteGroup siteGroup);
         SiteGroup UpdateSiteGroup(SiteGroup siteGroup);
-        SiteGroup GetSiteGroup(int siteSiteGroupId);
-        SiteGroup GetSiteGroup(int siteSiteGroupId, bool tracking);
-        void DeleteSiteGroup(int siteSiteGroupId);
+        SiteGroup GetSiteGroup(int siteGroupId);
+        SiteGroup GetSiteGroup(int siteGroupId, bool tracking);
+        void DeleteSiteGroup(int siteGroupId);
     }
 
     public class SiteGroupRepository : ISiteGroupRepository
@@ -24,64 +23,52 @@ namespace Oqtane.Repository
         {
             _dbContextFactory = dbContextFactory;
         }
-
+            
         public IEnumerable<SiteGroup> GetSiteGroups()
         {
-            return GetSiteGroups(-1, -1);
+            using var db = _dbContextFactory.CreateDbContext();
+            return db.SiteGroup.ToList();
         }
 
-        public IEnumerable<SiteGroup> GetSiteGroups(int siteId, int siteGroupDefinitionId)
+        public SiteGroup AddSiteGroup(SiteGroup siteGroup)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.SiteGroup
-                .Where(item => (siteId == -1 || item.SiteId == siteId) && (siteGroupDefinitionId == -1 || item.SiteGroupDefinitionId == siteGroupDefinitionId))
-                .Include(item => item.SiteGroupDefinition) // eager load
-                .ToList();
-        }
-
-        public SiteGroup AddSiteGroup(SiteGroup SiteGroup)
-        {
-            using var db = _dbContextFactory.CreateDbContext();
-            db.SiteGroup.Add(SiteGroup);
+            db.SiteGroup.Add(siteGroup);
             db.SaveChanges();
-            return SiteGroup;
+            return siteGroup;
         }
 
-        public SiteGroup UpdateSiteGroup(SiteGroup SiteGroup)
+        public SiteGroup UpdateSiteGroup(SiteGroup siteGroup)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            db.Entry(SiteGroup).State = EntityState.Modified;
+            db.Entry(siteGroup).State = EntityState.Modified;
             db.SaveChanges();
-            return SiteGroup;
+            return siteGroup;
         }
 
-        public SiteGroup GetSiteGroup(int SiteGroupId)
+        public SiteGroup GetSiteGroup(int siteGroupId)
         {
-            return GetSiteGroup(SiteGroupId, true);
+            return GetSiteGroup(siteGroupId, true);
         }
 
-        public SiteGroup GetSiteGroup(int SiteGroupId, bool tracking)
+        public SiteGroup GetSiteGroup(int siteGroupId, bool tracking)
         {
             using var db = _dbContextFactory.CreateDbContext();
             if (tracking)
             {
-                return db.SiteGroup
-                    .Include(item => item.SiteGroupDefinition) // eager load
-                    .FirstOrDefault(item => item.SiteGroupId == SiteGroupId);
+                return db.SiteGroup.FirstOrDefault(item => item.SiteGroupId == siteGroupId);
             }
             else
             {
-                return db.SiteGroup.AsNoTracking()
-                    .Include(item => item.SiteGroupDefinition) // eager load 
-                    .FirstOrDefault(item => item.SiteGroupId == SiteGroupId);
+                return db.SiteGroup.AsNoTracking().FirstOrDefault(item => item.SiteGroupId == siteGroupId);
             }
         }
 
-        public void DeleteSiteGroup(int SiteGroupId)
+        public void DeleteSiteGroup(int siteGroupId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            SiteGroup SiteGroup = db.SiteGroup.Find(SiteGroupId);
-            db.SiteGroup.Remove(SiteGroup);
+            SiteGroup group = db.SiteGroup.Find(siteGroupId);
+            db.SiteGroup.Remove(group);
             db.SaveChanges();
         }
     }

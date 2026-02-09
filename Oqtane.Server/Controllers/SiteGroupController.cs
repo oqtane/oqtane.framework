@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Security.Policy;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Oqtane.Enums;
@@ -27,18 +28,23 @@ namespace Oqtane.Controllers
             _alias = tenantManager.GetAlias();
         }
 
-        // GET: api/<controller>?siteid=x&groupid=y
+        // GET: api/<controller>?siteid=x
         [HttpGet]
-        [Authorize(Roles = RoleNames.Host)]
-        public IEnumerable<SiteGroup> Get(string siteid, string groupid)
+        [Authorize(Roles = RoleNames.Admin)]
+        public IEnumerable<SiteGroup> Get(string siteid)
         {
-            if (int.TryParse(siteid, out int SiteId) && int.TryParse(groupid, out int SiteGroupDefinitionId))
+            if (User.IsInRole(RoleNames.Host) || (int.TryParse(siteid, out int SiteId) && SiteId == _alias.SiteId))
             {
-                return _siteGroupRepository.GetSiteGroups(SiteId, SiteGroupDefinitionId).ToList();
+                var siteGroups = _siteGroupRepository.GetSiteGroups();
+                if (!User.IsInRole(RoleNames.Host))
+                {
+                    siteGroups = siteGroups.Where(item => item.PrimarySiteId == _alias.SiteId);
+                }
+                return siteGroups.ToList();
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Site Group Get Attempt for SiteId {SiteId} And SiteGroupDefinitionId {SiteGroupDefinitionId}", siteid, groupid);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Site Group Get Attempt {SiteId}", siteid);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
@@ -49,10 +55,10 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Host)]
         public SiteGroup Get(int id)
         {
-            var siteGroup = _siteGroupRepository.GetSiteGroup(id);
-            if (siteGroup != null)
+            var group = _siteGroupRepository.GetSiteGroup(id);
+            if (group != null)
             {
-                return siteGroup;
+                return group;
             }
             else
             {
@@ -69,13 +75,12 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 siteGroup = _siteGroupRepository.AddSiteGroup(siteGroup);
-                _syncManager.AddSyncEvent(_alias, EntityNames.SiteGroup, siteGroup.SiteGroupDefinitionId, SyncEventActions.Create);
-                _syncManager.AddSyncEvent(_alias, EntityNames.Site, siteGroup.SiteId, SyncEventActions.Refresh);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Site Group Added {SiteGroup}", siteGroup);
+                _syncManager.AddSyncEvent(_alias, EntityNames.SiteGroup, siteGroup.SiteGroupId, SyncEventActions.Create);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Site Group Added {Group}", siteGroup);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Site Group Post Attempt {SiteGroup}", siteGroup);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Site Group Post Attempt {Group}", siteGroup);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 siteGroup = null;
             }
@@ -84,19 +89,24 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize(Roles = RoleNames.Host)]
+        [Authorize(Roles = RoleNames.Admin)]
         public SiteGroup Put(int id, [FromBody] SiteGroup siteGroup)
         {
-            if (ModelState.IsValid && siteGroup.SiteGroupDefinitionId == id && _siteGroupRepository.GetSiteGroup(siteGroup.SiteGroupDefinitionId, false) != null)
+            if (ModelState.IsValid && siteGroup.SiteGroupId == id)
             {
+                if (!User.IsInRole(RoleNames.Host) && siteGroup.Synchronize)
+                {
+                    // admins can only update the synchronize field
+                    siteGroup = _siteGroupRepository.GetSiteGroup(siteGroup.SiteGroupId, false);
+                    siteGroup.Synchronize = true;
+                }
                 siteGroup = _siteGroupRepository.UpdateSiteGroup(siteGroup);
-                _syncManager.AddSyncEvent(_alias, EntityNames.SiteGroup, siteGroup.SiteGroupDefinitionId, SyncEventActions.Update);
-                _syncManager.AddSyncEvent(_alias, EntityNames.Site, siteGroup.SiteId, SyncEventActions.Refresh);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Site Group Updated {SiteGroup}", siteGroup);
+                _syncManager.AddSyncEvent(_alias, EntityNames.SiteGroup, siteGroup.SiteGroupId, SyncEventActions.Update);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Site Group Updated {Group}", siteGroup);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Site Group Put Attempt {SiteGroup}", siteGroup);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Site Group Put Attempt {Group}", siteGroup);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 siteGroup = null;
             }
@@ -113,12 +123,11 @@ namespace Oqtane.Controllers
             {
                 _siteGroupRepository.DeleteSiteGroup(id);
                 _syncManager.AddSyncEvent(_alias, EntityNames.SiteGroup, siteGroup.SiteGroupId, SyncEventActions.Delete);
-                _syncManager.AddSyncEvent(_alias, EntityNames.Site, siteGroup.SiteId, SyncEventActions.Refresh);
-                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Site Group Deleted {SiteGroupId}", id);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Site Group Deleted {siteGroupId}", id);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Site Group Delete Attempt {SiteGroupId}", id);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Site Group Delete Attempt {siteGroupId}", id);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
