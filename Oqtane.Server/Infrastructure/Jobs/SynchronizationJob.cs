@@ -83,7 +83,14 @@ namespace Oqtane.Infrastructure
                         if (secondarySite != null)
                         {
                             // get default alias for site
-                            siteGroupMember.AliasName = "https://" + aliases.First(item => item.TenantId == tenantManager.GetTenant().TenantId && item.SiteId == siteGroupMember.SiteId && item.IsDefault).Name;
+                            if (siteGroupMember.SiteGroup.Type == SiteGroupTypes.Synchronization)
+                            {
+                                siteGroupMember.AliasName = "https://" + aliases.First(item => item.TenantId == tenantManager.GetTenant().TenantId && item.SiteId == siteGroupMember.SiteId && item.IsDefault).Name;
+                            }
+                            else
+                            {
+                                siteGroupMember.AliasName = aliasName;
+                            }
 
                             // initialize SynchronizedOn
                             if (siteGroupMember.SynchronizedOn == null)
@@ -183,7 +190,7 @@ namespace Oqtane.Infrastructure
                     var siteRepository = provider.GetRequiredService<ISiteRepository>();
                     siteRepository.UpdateSite(secondarySite);
                 }
-                log += Log(siteGroupMember, $"Site Updated: {secondarySite.Name}");
+                log += Log(siteGroupMember, $"Site Updated: {secondarySite.Name} - {CreateLink(siteGroupMember.AliasName)}");
             }
 
             // site settings
