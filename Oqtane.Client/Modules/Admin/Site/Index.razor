@@ -480,10 +480,11 @@
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="grouptype" HelpText="The site group type (ie. synchronization, localization)" ResourceKey="GroupType">Type: </Label>
+                            <Label Class="col-sm-3" For="grouptype" HelpText="The site group type (ie. synchronization, comparison, localization)" ResourceKey="GroupType">Type: </Label>
                             <div class="col-sm-9">
                                 <select id="grouptype" class="form-select" @bind="@_groupType">
                                     <option value="@SiteGroupTypes.Synchronization">@Localizer[@SiteGroupTypes.Synchronization]</option>
+                                    <option value="@SiteGroupTypes.Comparison">@Localizer[@SiteGroupTypes.Comparison]</option>
                                     <option value="@SiteGroupTypes.Localization">@Localizer[SiteGroupTypes.Localization]</option>
                                 </select>
                             </div>
@@ -517,7 +518,7 @@
                     @if (_siteGroupId != -1 && _siteId != -1)
                     {
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="primary" HelpText="Indicates if the selected site is the primary member of the site group" ResourceKey="Primary">Primary? </Label>
+                            <Label Class="col-sm-3" For="primary" HelpText="Indicates if the selected member is the primary site of the site group" ResourceKey="Primary">Primary? </Label>
                             <div class="col-sm-9">
                                 <select id="primary" class="form-select" @bind="@_primary">
                                     <option value="False">@SharedLocalizer["No"]</option>
@@ -525,19 +526,10 @@
                                 </select>
                             </div>
                         </div>
-                        @if (_primary == "False" && _groupType == SiteGroupTypes.Synchronization)
+                        @if (_primary == "False" && (_groupType == SiteGroupTypes.Synchronization || _groupType == SiteGroupTypes.Comparison))
                         {
                             <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="notify" HelpText="Specifies if site administrators should be notified of any synchronization activity" ResourceKey="Notify">Notify? </Label>
-                                <div class="col-sm-9">
-                                    <select id="notify" class="form-select" @bind="@_notify">
-                                        <option value="False">@SharedLocalizer["No"]</option>
-                                        <option value="True">@SharedLocalizer["Yes"]</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="synchronized" HelpText="The date/time of the last synchronization for the site" ResourceKey="Synchronized">Synchronized: </Label>
+                                <Label Class="col-sm-3" For="synchronized" HelpText="The date/time when the site was last synchronized" ResourceKey="Synchronized">Synchronized: </Label>
                                 <div class="col-sm-9">
                                     <div class="input-group">
                                         <input id="synchronized" class="form-control" @bind="@_synchronized" disabled />
@@ -678,7 +670,6 @@
     private string _groupName = string.Empty;
     private string _groupType = SiteGroupTypes.Synchronization;
     private string _primary = "True";
-    private string _notify = "True";
     private string _synchronized = string.Empty;
     private bool _addSiteGroup = false;
     private bool _addSiteGroupMember = false;
@@ -1304,7 +1295,6 @@
             if (siteGroupMember != null)
             {
                 _primary = (siteGroupMember.SiteGroup.PrimarySiteId == _siteId) ? "True" : "False";
-                _notify = siteGroupMember.Notify.ToString();
                 _synchronized = UtcToLocal(siteGroupMember.SynchronizedOn).ToString();
             }
         }
@@ -1317,7 +1307,6 @@
         if (siteGroupMember != null)
         {
             _primary = (siteGroupMember.SiteGroup.PrimarySiteId == _siteId) ? "True" : "False";
-            _notify = siteGroupMember.Notify.ToString();
             _synchronized = UtcToLocal(siteGroupMember.SynchronizedOn).ToString();
         }
         StateHasChanged();
@@ -1338,29 +1327,33 @@
         _siteId = -1;
         await LoadSites();
     }
-    
+
     private async Task SaveSiteGroupMember()
     {
+        if (string.IsNullOrEmpty(_groupName))
+        {
+            AddModuleMessage(Localizer["Message.Required.GroupName"], MessageType.Warning);
+            await ScrollToPageTop();
+            return;
+        }
+
         SiteGroup siteGroup = null;
 
         if (_siteGroupId == -1)
         {
-            if (!string.IsNullOrEmpty(_groupName))
+            siteGroup = new SiteGroup
             {
-                siteGroup = new SiteGroup
-                {
-                    Name = _groupName,
-                    Type = _groupType,
-                    PrimarySiteId = _siteId,
-                    Synchronize = false
-                };
-                siteGroup = await SiteGroupService.AddSiteGroupAsync(siteGroup);
-            }
+                Name = _groupName,
+                Type = _groupType,
+                PrimarySiteId = _siteId,
+                Synchronize = false
+            };
+            siteGroup = await SiteGroupService.AddSiteGroupAsync(siteGroup);
         }
         else
         {
             siteGroup = _siteGroups.FirstOrDefault(item => item.SiteGroupId == _siteGroupId);
-            if (siteGroup != null && !string.IsNullOrEmpty(_groupName))
+            if (siteGroup != null)
             {
                 siteGroup.Name = _groupName;
                 siteGroup.Type = _groupType;
@@ -1375,22 +1368,23 @@
 
         if (siteGroup != null)
         {
-            var siteGroupMember = await SiteGroupMemberService.GetSiteGroupMemberAsync(_siteId, siteGroup.SiteGroupId);
-            if (siteGroupMember == null)
+            if (_siteId != -1)
             {
-                siteGroupMember = new SiteGroupMember
+                var siteGroupMember = await SiteGroupMemberService.GetSiteGroupMemberAsync(_siteId, siteGroup.SiteGroupId);
+                if (siteGroupMember == null)
                 {
-                    SiteGroupId = siteGroup.SiteGroupId,
-                    SiteId = _siteId,
-                    Notify = bool.Parse(_notify)
-                };
-                await SiteGroupMemberService.AddSiteGroupMemberAsync(siteGroupMember);
-            }
-            else
-            {
-                siteGroupMember.Notify = bool.Parse(_notify);
-                siteGroupMember.SynchronizedOn = string.IsNullOrEmpty(_synchronized) ? null : siteGroupMember.SynchronizedOn;
-                await SiteGroupMemberService.UpdateSiteGroupMemberAsync(siteGroupMember);
+                    siteGroupMember = new SiteGroupMember
+                    {
+                        SiteGroupId = siteGroup.SiteGroupId,
+                        SiteId = _siteId
+                    };
+                    await SiteGroupMemberService.AddSiteGroupMemberAsync(siteGroupMember);
+                }
+                else
+                {
+                    siteGroupMember.SynchronizedOn = string.IsNullOrEmpty(_synchronized) ? null : siteGroupMember.SynchronizedOn;
+                    await SiteGroupMemberService.UpdateSiteGroupMemberAsync(siteGroupMember);
+                }
             }
 
             if (siteGroup.Type == SiteGroupTypes.Synchronization)
@@ -1406,11 +1400,6 @@
             }
 
             await LoadSiteGroups();
-        }
-        else
-        {
-            AddModuleMessage(Localizer["Message.Required.GroupName"], MessageType.Warning);
-            await ScrollToPageTop();
         }
     }
 

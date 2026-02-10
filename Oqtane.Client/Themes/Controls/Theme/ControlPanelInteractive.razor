@@ -35,9 +35,10 @@
                         <button type="button" data-bs-dismiss="offcanvas" class="btn btn-primary col-12" @onclick=@(async () => Navigate("Admin"))>@Localizer["AdminDash"]</button>
                     </div>
                 </div>
-                @if (_siteGroups.Any(item => item.Type == SiteGroupTypes.Synchronization))
+                @if (_siteGroups.Any(item => item.Type == SiteGroupTypes.Synchronization || item.Type == SiteGroupTypes.Comparison))
                 {
-                    <button type="button" class="btn btn-success col-12 mt-1" @onclick="SynchronizeSite">@Localizer["Synchronize"]</button>
+                    <hr class="app-rule" />
+                    <button type="button" class="btn btn-secondary col-12 mt-1" @onclick="SynchronizeSite">@Localizer["Synchronize"]</button>
                 }
                 <hr class="app-rule" />
             }
@@ -641,7 +642,7 @@
 
     private async Task SynchronizeSite()
     {
-        foreach (var group in _siteGroups.Where(item => item.Type == SiteGroupTypes.Synchronization))
+        foreach (var group in _siteGroups.Where(item => item.Type == SiteGroupTypes.Synchronization || item.Type == SiteGroupTypes.Comparison))
         {
             group.Synchronize = true;
             await SiteGroupService.UpdateSiteGroupAsync(group);

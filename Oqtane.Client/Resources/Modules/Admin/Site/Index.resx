@@ -508,7 +508,7 @@
     <value>Primary?</value>
   </data>
   <data name="Primary.HelpText" xml:space="preserve">
-    <value>Indicates if the selected site is the primary member of the site group</value>
+    <value>Indicates if the selected member is the primary site of the site group</value>
   </data>
   <data name="GroupName.Text" xml:space="preserve">
     <value>Name:</value>
@@ -535,16 +535,10 @@
     <value>Are You Sure You Wish To Delete This Member From The Site Group?</value>
   </data>
   <data name="Message.Required.GroupName" xml:space="preserve">
-    <value>Group Name Is Required</value>
+    <value>Site Group Name Is Required</value>
   </data>
   <data name="Message.Site.Synchronize" xml:space="preserve">
     <value>Site Submitted For Synchronization</value>
-  </data>
-  <data name="Notify.Text" xml:space="preserve">
-    <value>Notify?</value>
-  </data>
-  <data name="Notify.HelpText" xml:space="preserve">
-    <value>Specifies if site administrators should be notified of any synchronization activity</value>
   </data>
   <data name="Site.Text" xml:space="preserve">
     <value>Members:</value>
@@ -559,15 +553,18 @@
     <value>Type:</value>
   </data>
   <data name="GroupType.HelpText" xml:space="preserve">
-    <value>The site group type (ie. synchronization, localization)</value>
+    <value>The site group type (ie. synchronization, comparison, localization)</value>
   </data>
   <data name="Synchronized.HelpText" xml:space="preserve">
-    <value>The date/time of the last synchronization for the site</value>
+    <value>The date/time when the site was last synchronized</value>
   </data>
   <data name="Synchronization" xml:space="preserve">
     <value>Synchronization</value>
   </data>
   <data name="Localization" xml:space="preserve">
     <value>Localization</value>
+  </data>
+  <data name="Comparison" xml:space="preserve">
+    <value>Comparison</value>
   </data>
 </root>

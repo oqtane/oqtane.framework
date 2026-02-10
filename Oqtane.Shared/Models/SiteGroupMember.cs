@@ -21,11 +21,6 @@ namespace Oqtane.Models
         public int SiteId { get; set; }
 
         /// <summary>
-        /// Indicates if the site administrator should be notified of any synchronization activity
-        /// </summary>
-        public bool Notify { get; set; }
-
-        /// <summary>
         /// The last date/time the site was synchronized
         /// </summary>
         public DateTime? SynchronizedOn { get; set; }
