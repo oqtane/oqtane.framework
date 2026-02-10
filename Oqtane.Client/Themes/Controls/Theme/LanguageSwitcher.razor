@@ -17,7 +17,7 @@
             {
                 @if (_contentLocalization)
                 {
-                    <a class="dropdown-item" href="@(PageState.Alias.Protocol + language.AliasName)">@language.Name</a>
+                    <a class="dropdown-item @(PageState.Site.CultureCode == language.Code ? "active" : String.Empty)" href="@(PageState.Alias.Protocol + language.AliasName)" data-enhance-nav="false">@language.Name</a>
                 }
                 else
                 {
