@@ -63,9 +63,9 @@ namespace Oqtane.Infrastructure
                     aliases = aliasRepository.GetAliases().ToList();
                 }
 
-                var aliasName = "https://" + aliases.First(item => item.TenantId == tenantManager.GetTenant().TenantId && item.SiteId == siteGroup.PrimarySiteId && item.IsDefault).Name;
+                var primaryAliasName = "https://" + aliases.First(item => item.TenantId == tenantManager.GetTenant().TenantId && item.SiteId == siteGroup.PrimarySiteId && item.IsDefault).Name;
                 log += (siteGroup.Type == SiteGroupTypes.Synchronization) ? "Synchronizing " : "Comparing ";
-                log += $"Primary Site: {sites.First(item => item.SiteId == siteGroup.PrimarySiteId).Name} - {CreateLink(aliasName)}<br />";
+                log += $"Primary Site: {sites.First(item => item.SiteId == siteGroup.PrimarySiteId).Name} - {CreateLink(primaryAliasName)}<br />";
 
                 // get primary site
                 var primarySite = sites.FirstOrDefault(item => item.SiteId == siteGroup.PrimarySiteId);
@@ -83,14 +83,8 @@ namespace Oqtane.Infrastructure
                         if (secondarySite != null)
                         {
                             // get default alias for site
-                            if (siteGroupMember.SiteGroup.Type == SiteGroupTypes.Synchronization)
-                            {
-                                siteGroupMember.AliasName = "https://" + aliases.First(item => item.TenantId == tenantManager.GetTenant().TenantId && item.SiteId == siteGroupMember.SiteId && item.IsDefault).Name;
-                            }
-                            else
-                            {
-                                siteGroupMember.AliasName = aliasName;
-                            }
+                            var secondaryAliasName = "https://" + aliases.First(item => item.TenantId == tenantManager.GetTenant().TenantId && item.SiteId == siteGroupMember.SiteId && item.IsDefault).Name;
+                            siteGroupMember.AliasName = (siteGroupMember.SiteGroup.Type == SiteGroupTypes.Synchronization) ? secondaryAliasName : primaryAliasName;
 
                             // initialize SynchronizedOn
                             if (siteGroupMember.SynchronizedOn == null)
@@ -100,12 +94,16 @@ namespace Oqtane.Infrastructure
 
                             // synchronize site
                             var siteLog = SynchronizeSite(provider, tenantManager, settingRepository, siteGroupMember, primarySite, secondarySite);
+                            if (string.IsNullOrEmpty(siteLog))
+                            {
+                                siteLog = (siteGroupMember.SynchronizedOn != DateTime.MinValue) ? "No Changes Identified<br />" : "Initialization Complete<br />";
+                            }
 
                             // set synchronized on date/time
                             siteGroupMember.SynchronizedOn = DateTime.UtcNow;
                             siteGroupMemberRepository.UpdateSiteGroupMember(siteGroupMember);
 
-                            log += $"With Secondary Site: {secondarySite.Name} - {CreateLink(siteGroupMember.AliasName)}<br />" + siteLog;
+                            log += $"With Secondary Site: {secondarySite.Name} - {CreateLink(secondaryAliasName)}<br />" + siteLog;
                         }
                         else
                         {
@@ -208,6 +206,7 @@ namespace Oqtane.Infrastructure
             {
                 // send change log to administrators
                 SendNotifications(provider, secondarySite.SiteId, secondarySite.Name, log);
+                log += Log(siteGroupMember, $"Change Log Sent To Administrators");
             }
 
             return log;
