@@ -2,7 +2,6 @@ using System.Linq;
 using Oqtane.Documentation;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Oqtane.Repository;
 
 namespace Oqtane.Modules.HtmlText.Repository
 {
@@ -19,12 +18,10 @@ namespace Oqtane.Modules.HtmlText.Repository
     public class HtmlTextRepository : IHtmlTextRepository, ITransientService
     {
         private readonly IDbContextFactory<HtmlTextContext> _factory;
-        private readonly IModuleRepository _moduleRepository;
 
-        public HtmlTextRepository(IDbContextFactory<HtmlTextContext> factory, IModuleRepository moduleRepository)
+        public HtmlTextRepository(IDbContextFactory<HtmlTextContext> factory)
         {
             _factory = factory;
-            _moduleRepository = moduleRepository;
         }
 
         public IEnumerable<Models.HtmlText> GetHtmlTexts(int moduleId)
@@ -44,11 +41,6 @@ namespace Oqtane.Modules.HtmlText.Repository
             using var db = _factory.CreateDbContext();
             db.HtmlText.Add(htmlText);
             db.SaveChanges();
-
-            // update module ModifiedOn date
-            var module = _moduleRepository.GetModule(htmlText.ModuleId);
-            _moduleRepository.UpdateModule(module);
-
             return htmlText;
         }
 
@@ -60,10 +52,6 @@ namespace Oqtane.Modules.HtmlText.Repository
             {
                 db.HtmlText.Remove(htmlText);
                 db.SaveChanges();
-
-                // update module ModifiedOn date
-                var module = _moduleRepository.GetModule(htmlText.ModuleId);
-                _moduleRepository.UpdateModule(module);
             }
         }
     }
