@@ -18,8 +18,8 @@
 @inject IJobService JobService
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject IOutputCacheService CacheService
-@inject ISiteGroupDefinitionService SiteGroupDefinitionService
 @inject ISiteGroupService SiteGroupService
+@inject ISiteGroupMemberService SiteGroupMemberService
 
 @if (_initialized)
 {
@@ -448,22 +448,22 @@
                     </div>
                 </div>
             </Section>
-            <Section Name="SiteGroups" Heading="Site Groups" ResourceKey="SiteGroups">
+            <Section Name="SiteGroupMembers" Heading="Site Groups" ResourceKey="SiteGroupMembers">
                 <div class="container">
-                    @if (!_addSiteGroupDefinition)
+                    @if (!_addSiteGroup)
                     {
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="group" HelpText="The site groups in this tenant (database)" ResourceKey="SiteGroups">Group: </Label>
+                            <Label Class="col-sm-3" For="group" HelpText="The site groups in this tenant (database)" ResourceKey="SiteGroupMembers">Group: </Label>
                             <div class="col-sm-9">
                                 <div class="input-group">
-                                    <select id="group" class="form-select" value="@_siteGroupDefinitionId" @onchange="(e => SiteGroupChanged(e))">
+                                    <select id="group" class="form-select" value="@_siteGroupId" @onchange="(e => SiteGroupChanged(e))">
                                         <option value="-1">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
-                                        @foreach (var siteGroupDefinition in _siteGroupDefinitions)
+                                        @foreach (var siteGroup in _siteGroups)
                                         {
-                                            <option value="@siteGroupDefinition.SiteGroupDefinitionId">@siteGroupDefinition.Name</option>
+                                            <option value="@siteGroup.SiteGroupId">@siteGroup.Name</option>
                                         }
                                     </select>
-                                    @if (!_addSiteGroupDefinition)
+                                    @if (!_addSiteGroup)
                                     {
                                         <button type="button" class="btn btn-primary" @onclick="AddSiteGroup">@SharedLocalizer["Add"]</button>
                                     }
@@ -471,109 +471,91 @@
                             </div>
                         </div>
                     }
-                    @if (_siteGroupDefinitionId != -1 || _addSiteGroupDefinition)
+                    @if (_siteGroupId != -1 || _addSiteGroup)
                     {
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="groupname" HelpText="Name of the site group" ResourceKey="GroupName">Group Name: </Label>
+                            <Label Class="col-sm-3" For="groupname" HelpText="Name of the site group" ResourceKey="GroupName">Name: </Label>
                             <div class="col-sm-9">
                                 <input id="groupname" class="form-control" @bind="@_groupName" />
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="synchronization" HelpText="Specifies if the group supports content synchronization between the primary site and other sites in the group" ResourceKey="Synchronization">Synchronization? </Label>
+                            <Label Class="col-sm-3" For="grouptype" HelpText="The site group type (ie. synchronization, comparison, localization)" ResourceKey="GroupType">Type: </Label>
                             <div class="col-sm-9">
-                                <select id="synchronization" class="form-select" @bind="@_synchronization">
-                                    <option value="False">@SharedLocalizer["No"]</option>
-                                    <option value="True">@Localizer["Yes"]</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="localization" HelpText="Specifies if the content of the sites in the group are localized" ResourceKey="Localization">Localization? </Label>
-                            <div class="col-sm-9">
-                                <select id="localization" class="form-select" @bind="@_localization">
-                                    <option value="True">@SharedLocalizer["Yes"]</option>
-                                    <option value="False">@SharedLocalizer["No"]</option>
+                                <select id="grouptype" class="form-select" @bind="@_groupType">
+                                    <option value="@SiteGroupTypes.Synchronization">@Localizer[@SiteGroupTypes.Synchronization]</option>
+                                    <option value="@SiteGroupTypes.Comparison">@Localizer[@SiteGroupTypes.Comparison]</option>
+                                    <option value="@SiteGroupTypes.Localization">@Localizer[SiteGroupTypes.Localization]</option>
                                 </select>
                             </div>
                         </div>
                     }
-                    @if (_siteGroupDefinitionId != -1)
+                    @if (_siteGroupId != -1)
                     {
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="site" HelpText="The sites in this tenant (database)" ResourceKey="Site">Site: </Label>
+                            <Label Class="col-sm-3" For="site" HelpText="The sites which are members of this site group" ResourceKey="Site">Members: </Label>
                             <div class="col-sm-9">
                                 <div class="input-group">
                                     <select id="site" class="form-select" value="@_siteId" @onchange="(e => SiteChanged(e))">
+                                        <option value="-1">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
                                         @foreach (var site in _sites)
                                         {
-                                            <option value="@site.SiteId">@site.Name @((!string.IsNullOrEmpty(site.Fingerprint)) ? "(" + Localizer[site.Fingerprint] + ")" : "")</option>
+                                            <option value="@site.SiteId">@site.Name</option>
                                         }
                                     </select>
+                                    @if (!_addSiteGroupMember)
+                                    {
+                                        <button type="button" class="btn btn-primary" @onclick="AddSiteGroupMember">@SharedLocalizer["Add"]</button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-primary" @onclick="AddSiteGroupMember">@SharedLocalizer["Select"]</button>
+                                    }
                                 </div>
                             </div>
                         </div>
                     }
-                    @if (_siteGroupDefinitionId != -1)
+                    @if (_siteGroupId != -1 && _siteId != -1)
                     {
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="member" HelpText="Indicates if the current site is a member of the selected group" ResourceKey="GroupMember">Member? </Label>
+                            <Label Class="col-sm-3" For="primary" HelpText="Indicates if the selected member is the primary site of the site group" ResourceKey="Primary">Primary? </Label>
                             <div class="col-sm-9">
-                                <select id="member" class="form-select" @bind="@_member">
+                                <select id="primary" class="form-select" @bind="@_primary">
                                     <option value="False">@SharedLocalizer["No"]</option>
-                                    <option value="Primary">@Localizer["Primary"]</option>
-                                    <option value="Secondary">@Localizer["Secondary"]</option>
+                                    <option value="True">@SharedLocalizer["Yes"]</option>
                                 </select>
                             </div>
                         </div>
-                        @if (_member == "Secondary" && _synchronization == "True")
+                        @if (_primary == "False" && (_groupType == SiteGroupTypes.Synchronization || _groupType == SiteGroupTypes.Comparison))
                         {
                             <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="synchronize" HelpText="Specifies the synchronization approach between the primary site and the selected site" ResourceKey="Synchronize">Synchronize? </Label>
+                                <Label Class="col-sm-3" For="synchronized" HelpText="The date/time when the site was last synchronized" ResourceKey="Synchronized">Synchronized: </Label>
                                 <div class="col-sm-9">
-                                    <select id="synchronize" class="form-select" @bind="@_synchronize">
-                                        <option value="False">@Localizer["Compare"]</option>
-                                        @if (_localization == "False")
-                                        {
-                                            <option value="True">@Localizer["Update"]</option>
-                                        }
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="notify" HelpText="Specifies if site administrators should be notified of any synchronization activity" ResourceKey="Notify">Notify? </Label>
-                                <div class="col-sm-9">
-                                    <select id="notify" class="form-select" @bind="@_notify">
-                                        <option value="False">@SharedLocalizer["No"]</option>
-                                        <option value="True">@SharedLocalizer["Yes"]</option>
-                                    </select>
-                                </div>
-                            </div>
-                            @if (!string.IsNullOrEmpty(_synchronized))
-                            {
-                                <div class="row mb-1 align-items-center">
-                                    <Label Class="col-sm-3" For="synchronized" HelpText="The date/time of the last synchronization for the site" ResourceKey="Synchronized">Synchronized: </Label>
-                                    <div class="col-sm-9">
+                                    <div class="input-group">
                                         <input id="synchronized" class="form-control" @bind="@_synchronized" disabled />
-                                    </div>
+                                        @if (!string.IsNullOrEmpty(_synchronized))
+                                        {
+                                            <button type="button" class="btn btn-primary" @onclick="ResetSiteGroupMember">@SharedLocalizer["Reset"]</button>
+                                        }
                                 </div>
-                            }
+                                </div>
+                            </div>
                         }
                     }
                     <div class="row mb-1 align-items-center">
                         <div class="col-sm-3"></div>
                         <div class="col-sm-9">
-                            @if ((_siteGroupDefinitionId != -1 || _addSiteGroupDefinition))
+                            @if ((_siteGroupId != -1 || _addSiteGroup))
                             {
-                                <button type="button" class="btn btn-success me-2" @onclick="SaveSiteGroup">@SharedLocalizer["Save"]</button>
+                                <button type="button" class="btn btn-success me-2" @onclick="SaveSiteGroupMember">@SharedLocalizer["Save"]</button>
                             }
-                            @if ((_siteGroupDefinitionId != -1 && !_addSiteGroupDefinition) && _member != "False")
+                            @if (_siteGroupId != -1 && !_addSiteGroup && _siteId != -1 && !_addSiteGroupMember)
                             {
-                                <ActionDialog Action="Delete" OnClick="@(async () => await DeleteSiteGroup())" ResourceKey="DeleteSiteGroup" Class="btn btn-danger" Header="Delete Site Group" Message="@string.Format(Localizer["Confirm.SiteGroup.Delete", _groupName])" />
+                                <ActionDialog Action="Delete" OnClick="@(async () => await DeleteSiteGroupMember())" ResourceKey="DeleteSiteGroupMember" Class="btn btn-danger" Header="Delete Site Group" Message="@Localizer["Confirm.SiteGroupMember.Delete"]" />
                             }
-                            @if (_addSiteGroupDefinition)
+                            @if (_addSiteGroup)
                             {
-                                <button type="button" class="btn btn-secondary" @onclick="CancelSiteGroup">@SharedLocalizer["Cancel"]</button>
+                                <button type="button" class="btn btn-secondary" @onclick="CancelSiteGroupMember">@SharedLocalizer["Cancel"]</button>
                             }
                         </div>
                     </div>
@@ -605,10 +587,6 @@
         <br />
         <button type="button" class="btn btn-success" @onclick="SaveSite">@SharedLocalizer["Save"]</button>
         <ActionDialog Header="Delete Site" Message="@Localizer["Confirm.DeleteSite"]" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteSite())" ResourceKey="DeleteSite" />
-        @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host) && _siteGroupDefinitions.Any(item => item.PrimarySiteId == PageState.Site.SiteId && item.Synchronization))
-        {
-            <button type="button" class="btn btn-primary ms-1" @onclick="SynchronizeSite">@Localizer["Synchronize"]</button>
-        }
         <br />
         <br />
         <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
@@ -685,18 +663,16 @@
     private string _defaultalias;
     private bool _addAlias = false;
 
-    private List<SiteGroupDefinition> _siteGroupDefinitions = new List<SiteGroupDefinition>();
+    private List<SiteGroup> _siteGroups = new List<SiteGroup>();
     private List<Site> _sites = new List<Site>();
-    private int _siteGroupDefinitionId = -1;
+    private int _siteGroupId = -1;
     private int _siteId;
     private string _groupName = string.Empty;
-    private string _synchronization = "True";
-    private string _localization = "False";
-    private string _member = "Primary";
-    private string _synchronize = "True";
-    private string _notify = "True";
+    private string _groupType = SiteGroupTypes.Synchronization;
+    private string _primary = "True";
     private string _synchronized = string.Empty;
-    private bool _addSiteGroupDefinition = false;
+    private bool _addSiteGroup = false;
+    private bool _addSiteGroupMember = false;
 
     private string _tenant = string.Empty;
     private string _database = string.Empty;
@@ -1262,82 +1238,76 @@
 
     private async Task LoadSiteGroups()
     {
-        _siteGroupDefinitions = await SiteGroupDefinitionService.GetSiteGroupDefinitionsAsync();
-        _siteGroupDefinitionId = -1;
-        _addSiteGroupDefinition = false;
+        _siteGroups = await SiteGroupService.GetSiteGroupsAsync();
+        _siteGroupId = -1;
+        _addSiteGroup = false;
         StateHasChanged();
     }
 
-    private async void SiteGroupChanged(ChangeEventArgs e)
+    private async Task SiteGroupChanged(ChangeEventArgs e)
     {
-        _siteGroupDefinitionId = int.Parse(e.Value.ToString());
-        if (_siteGroupDefinitionId != -1)
+        _siteGroupId = int.Parse(e.Value.ToString());
+        if (_siteGroupId != -1)
         {
-            var group = _siteGroupDefinitions.FirstOrDefault(item => item.SiteGroupDefinitionId == _siteGroupDefinitionId);
+            var group = _siteGroups.FirstOrDefault(item => item.SiteGroupId == _siteGroupId);
             if (group != null)
             {
                 _groupName = group.Name;
-                _synchronization = group.Synchronization.ToString();
-                _localization = group.Localization.ToString();
+                _groupType = group.Type;
+                _siteId = -1;
+                _primary = "False";
+                _addSiteGroupMember = false;
 
-                if (_sites.Count == 0)
-                {
-                    _sites = await SiteService.GetSitesAsync();
-                }
-                _siteId = PageState.Site.SiteId;
-                _member = "False";
-
-                var siteGroups = await SiteGroupService.GetSiteGroupsAsync(-1, _siteGroupDefinitionId);
-                foreach (var site in _sites)
-                {
-                    site.Fingerprint = ""; // used as temporary state
-                    var siteGroup = siteGroups.FirstOrDefault(item => item.SiteId == site.SiteId);
-                    if (siteGroup != null)
-                    {
-                        if (group.PrimarySiteId == site.SiteId)
-                        {
-                            site.Fingerprint = "Primary";
-                        }
-                        else
-                        {
-                            site.Fingerprint = "Secondary";
-                        }
-
-                        if (siteGroup.SiteId == _siteId)
-                        {
-                            _member = site.Fingerprint;
-                            _synchronize = siteGroup.Synchronize.ToString();
-                            _notify = siteGroup.Notify.ToString();
-                            _synchronized = UtcToLocal(siteGroup.SynchronizedOn).ToString();
-                        }
-                    }
-                }
+                await LoadSites();
             }
         }
         StateHasChanged();
     }
 
-    private async void SiteChanged(ChangeEventArgs e)
+    private async Task LoadSites()
     {
-        _siteId = int.Parse(e.Value.ToString());
-        var siteGroup = await SiteGroupService.GetSiteGroupAsync(_siteId, _siteGroupDefinitionId);
-        if (siteGroup != null)
+        var siteGroupMembers = await SiteGroupMemberService.GetSiteGroupMembersAsync(-1, _siteGroupId);
+
+        _sites = await SiteService.GetSitesAsync();
+        if (_addSiteGroupMember)
         {
-            if (siteGroup.SiteGroupDefinition.PrimarySiteId == _siteId)
-            {
-                _member = "Primary";
-            }
-            else
-            {
-                _member = "Secondary";
-            }
-            _synchronize = siteGroup.Synchronize.ToString();
-            _notify = siteGroup.Notify.ToString();
-            _synchronized = UtcToLocal(siteGroup.SynchronizedOn).ToString();
+            // include sites which are not members
+            _sites = _sites.ExceptBy(siteGroupMembers.Select(item => item.SiteId), item => item.SiteId).ToList();
         }
         else
         {
-            _member = "False";
+            // include sites which are members
+            _sites = _sites.Where(item => siteGroupMembers.Any(item2 => item2.SiteId == item.SiteId)).ToList();
+            var group = _siteGroups.FirstOrDefault(item => item.SiteGroupId == _siteGroupId);
+            foreach (var site in _sites)
+            {
+                if (group.PrimarySiteId == site.SiteId)
+                {
+                    site.Name += $" ({Localizer["Primary"]})";
+                }
+                else
+                {
+                    site.Name += $" ({Localizer["Secondary"]})";
+                }                
+            }
+
+            var siteGroupMember = siteGroupMembers.FirstOrDefault(item => item.SiteId == _siteId);
+            if (siteGroupMember != null)
+            {
+                _primary = (siteGroupMember.SiteGroup.PrimarySiteId == _siteId) ? "True" : "False";
+                _synchronized = UtcToLocal(siteGroupMember.SynchronizedOn).ToString();
+            }
+        }
+    }
+
+    private async Task SiteChanged(ChangeEventArgs e)
+    {
+        _siteId = int.Parse(e.Value.ToString());
+        var siteGroupMember = await SiteGroupMemberService.GetSiteGroupMemberAsync(_siteId, _siteGroupId);
+        if (siteGroupMember != null)
+        {
+            _primary = (siteGroupMember.SiteGroup.PrimarySiteId == _siteId) ? "True" : "False";
+            _synchronized = UtcToLocal(siteGroupMember.SynchronizedOn).ToString();
         }
         StateHasChanged();
     }
@@ -1346,129 +1316,121 @@
     {
         _groupName = "";
         _siteId = PageState.Site.SiteId;
-        _member = "Primary";
+        _primary = "True";
         _synchronized = "";
-        _addSiteGroupDefinition = true;
+        _addSiteGroup = true;
     }
 
-    private async Task SaveSiteGroup()
+    private async Task AddSiteGroupMember()
     {
-        SiteGroupDefinition siteGroupDefinition = null;
+        _addSiteGroupMember = !_addSiteGroupMember;
+        _siteId = -1;
+        await LoadSites();
+    }
 
-        if (_siteGroupDefinitionId == -1)
+    private async Task SaveSiteGroupMember()
+    {
+        if (string.IsNullOrEmpty(_groupName))
         {
-            if (!string.IsNullOrEmpty(_groupName))
+            AddModuleMessage(Localizer["Message.Required.GroupName"], MessageType.Warning);
+            await ScrollToPageTop();
+            return;
+        }
+
+        SiteGroup siteGroup = null;
+
+        if (_siteGroupId == -1)
+        {
+            siteGroup = new SiteGroup
             {
-                siteGroupDefinition = new Models.SiteGroupDefinition
-                {
-                    Name = _groupName,
-                    PrimarySiteId = _siteId,
-                    Synchronization = bool.Parse(_synchronization),
-                    Localization = bool.Parse(_localization),
-                    Synchronize = false
-                };
-                siteGroupDefinition = await SiteGroupDefinitionService.AddSiteGroupDefinitionAsync(siteGroupDefinition);
-            }
+                Name = _groupName,
+                Type = _groupType,
+                PrimarySiteId = _siteId,
+                Synchronize = false
+            };
+            siteGroup = await SiteGroupService.AddSiteGroupAsync(siteGroup);
         }
         else
         {
-            siteGroupDefinition = _siteGroupDefinitions.FirstOrDefault(item => item.SiteGroupDefinitionId == _siteGroupDefinitionId);
-            if (siteGroupDefinition != null && !string.IsNullOrEmpty(_groupName))
+            siteGroup = _siteGroups.FirstOrDefault(item => item.SiteGroupId == _siteGroupId);
+            if (siteGroup != null)
             {
-                siteGroupDefinition.Name = _groupName;
-                siteGroupDefinition.PrimarySiteId = (_member == "Primary") ? _siteId : siteGroupDefinition.PrimarySiteId;
-                siteGroupDefinition.Synchronization = bool.Parse(_synchronization);
-                siteGroupDefinition.Localization = bool.Parse(_localization);
-                siteGroupDefinition = await SiteGroupDefinitionService.UpdateSiteGroupDefinitionAsync(siteGroupDefinition);
+                siteGroup.Name = _groupName;
+                siteGroup.Type = _groupType;
+                siteGroup.PrimarySiteId = (_primary == "True") ? _siteId : siteGroup.PrimarySiteId;
+                siteGroup = await SiteGroupService.UpdateSiteGroupAsync(siteGroup);
             }
             else
             {
-                siteGroupDefinition = null;
+                siteGroup = null;
             }
         }
 
-        if (siteGroupDefinition != null)
+        if (siteGroup != null)
         {
-            var siteGroup = await SiteGroupService.GetSiteGroupAsync(_siteId, siteGroupDefinition.SiteGroupDefinitionId);
-            if (siteGroup == null)
+            if (_siteId != -1)
             {
-                siteGroup = new SiteGroup
+                var siteGroupMember = await SiteGroupMemberService.GetSiteGroupMemberAsync(_siteId, siteGroup.SiteGroupId);
+                if (siteGroupMember == null)
                 {
-                    SiteGroupDefinitionId = siteGroupDefinition.SiteGroupDefinitionId,
-                    SiteId = _siteId,
-                    Synchronize = bool.Parse(_synchronize),
-                    Notify = bool.Parse(_notify)
-                };
-                await SiteGroupService.AddSiteGroupAsync(siteGroup);
-            }
-            else
-            {
-                if (_member == "False")
-                {
-                    await SiteGroupService.DeleteSiteGroupAsync(siteGroup.SiteGroupId);
+                    siteGroupMember = new SiteGroupMember
+                    {
+                        SiteGroupId = siteGroup.SiteGroupId,
+                        SiteId = _siteId
+                    };
+                    await SiteGroupMemberService.AddSiteGroupMemberAsync(siteGroupMember);
                 }
                 else
                 {
-                    siteGroup.Synchronize = bool.Parse(_synchronize);
-                    siteGroup.Notify = bool.Parse(_notify);
-                    await SiteGroupService.UpdateSiteGroupAsync(siteGroup);
+                    siteGroupMember.SynchronizedOn = string.IsNullOrEmpty(_synchronized) ? null : siteGroupMember.SynchronizedOn;
+                    await SiteGroupMemberService.UpdateSiteGroupMemberAsync(siteGroupMember);
+                }
+            }
+
+            if (siteGroup.Type == SiteGroupTypes.Synchronization)
+            {
+                // enable synchronization job if it is not enabled already
+                var jobs = await JobService.GetJobsAsync();
+                var job = jobs.FirstOrDefault(item => item.JobType == "Oqtane.Infrastructure.SynchronizationJob, Oqtane.Server");
+                if (job != null && !job.IsEnabled)
+                {
+                    job.IsEnabled = true;
+                    await JobService.UpdateJobAsync(job);
                 }
             }
 
             await LoadSiteGroups();
         }
-        else
-        {
-            AddModuleMessage(Localizer["Message.Required.GroupName"], MessageType.Warning);
-            await ScrollToPageTop();
-        }
     }
 
-    private async Task CancelSiteGroup()
+    private async Task CancelSiteGroupMember()
     {
         _groupName = "";
         await LoadSiteGroups();
     }
 
-    private async Task DeleteSiteGroup()
+    private async Task DeleteSiteGroupMember()
     {
-        if (_siteGroupDefinitionId != -1)
+        if (_siteGroupId != -1)
         {
-            var siteGroup = await SiteGroupService.GetSiteGroupAsync(PageState.Site.SiteId, _siteGroupDefinitionId);
-            if (siteGroup != null)
+            var siteGroupMember = await SiteGroupMemberService.GetSiteGroupMemberAsync(PageState.Site.SiteId, _siteGroupId);
+            if (siteGroupMember != null)
             {
-                await SiteGroupService.DeleteSiteGroupAsync(siteGroup.SiteGroupDefinitionId);
+                await SiteGroupMemberService.DeleteSiteGroupMemberAsync(siteGroupMember.SiteGroupId);
             }
 
-            var siteGroups = await SiteGroupService.GetSiteGroupsAsync(-1, _siteGroupDefinitionId);
-            if (!siteGroups.Any())
+            var siteGroupMembers = await SiteGroupMemberService.GetSiteGroupMembersAsync(-1, _siteGroupId);
+            if (!siteGroupMembers.Any())
             {
-                await SiteGroupDefinitionService.DeleteSiteGroupDefinitionAsync(_siteGroupDefinitionId);
+                await SiteGroupService.DeleteSiteGroupAsync(_siteGroupId);
             }
 
             await LoadSiteGroups();
         }
     }
 
-    private async Task SynchronizeSite()
+    private async Task ResetSiteGroupMember()
     {
-        // enable synchronization job if it is not enabled already
-        var jobs = await JobService.GetJobsAsync();
-        var job = jobs.FirstOrDefault(item => item.JobType == "Oqtane.Infrastructure.SynchronizationJob, Oqtane.Server");
-        if (job != null && !job.IsEnabled)
-        {
-            job.IsEnabled = true;
-            await JobService.UpdateJobAsync(job);
-        }
-
-        // mark secondary sites for synchronization
-        foreach (var group in _siteGroupDefinitions.Where(item => item.PrimarySiteId == PageState.Site.SiteId && item.Synchronization))
-        {
-            group.Synchronize = true;
-            await SiteGroupDefinitionService.UpdateSiteGroupDefinitionAsync(group);
-        }
-
-        AddModuleMessage(Localizer["Message.Site.Synchronize"], MessageType.Success);
-        await ScrollToPageTop();
+        _synchronized = "";
     }
 }

@@ -224,7 +224,7 @@
     {
         <button type="button" class="btn btn-primary ms-1" @onclick="ImpersonateUser">@Localizer["Impersonate"]</button>
     }
-    @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host) && _isdeleted == "True")
+    @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host) && _candelete)
     {
         <ActionDialog Header="Delete User" Message="Are You Sure You Wish To Permanently Delete This User?" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger ms-1" OnClick="@(async () => await DeleteUser())" ResourceKey="DeleteUser" />
     }
@@ -251,6 +251,7 @@
     private string _lastlogin;
     private string _lastipaddress;
     private bool _ishost = false;
+    private bool _candelete = false;
 
     private string _passwordrequirements;
     private string _password = string.Empty;
@@ -296,6 +297,7 @@
                     _timezoneid = PageState.User.TimeZoneId;
                     _culturecode = PageState.User.CultureCode;
                     _isdeleted = user.IsDeleted.ToString();
+                    _candelete = user.IsDeleted;
                     _lastlogin = string.Format("{0:MMM dd yyyy HH:mm:ss}", UtcToLocal(user.LastLoginOn));
                     _lastipaddress = user.LastIPAddress;
                     _ishost = UserSecurity.ContainsRole(user.Roles, RoleNames.Host);

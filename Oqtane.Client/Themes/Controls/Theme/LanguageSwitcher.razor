@@ -6,22 +6,29 @@
 @inject ILocalizationCookieService LocalizationCookieService
 @inject NavigationManager NavigationManager
 
-@if (_supportedCultures?.Count() > 1)
+@if (PageState.Site.Languages.Count() > 1)
 {
     <div class="app-languages btn-group pe-1" role="group">
         <button id="btnCultures" type="button" class="btn @ButtonClass dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <span class="oi oi-globe"></span>
         </button>
         <div class="dropdown-menu @MenuAlignment" aria-labelledby="btnCultures">
-            @foreach (var culture in _supportedCultures)
+            @foreach (var language in PageState.Site.Languages)
             {
-                @if (PageState.RenderMode == RenderModes.Interactive)
+                @if (_contentLocalization)
                 {
-                    <a class="dropdown-item @(CultureInfo.CurrentUICulture.Name == culture.Name ? "active" : String.Empty)" href="#" @onclick="@(async e => await SetCultureAsync(culture.Name))" @onclick:preventDefault="true">@culture.DisplayName</a>
+                    <a class="dropdown-item @(PageState.Site.CultureCode == language.Code ? "active" : String.Empty)" href="@(PageState.Alias.Protocol + language.AliasName)" data-enhance-nav="false">@language.Name</a>
                 }
                 else
                 {
-                    <a class="dropdown-item @(CultureInfo.CurrentUICulture.Name == culture.Name ? "active" : String.Empty)" href="@NavigateUrl(PageState.Page.Path, "culture=" + culture.Name)" data-enhance-nav="false">@culture.DisplayName</a>
+                    @if (PageState.RenderMode == RenderModes.Interactive)
+                    {
+                        <a class="dropdown-item @(CultureInfo.CurrentUICulture.Name == language.Code ? "active" : String.Empty)" href="#" @onclick="@(async e => await SetCultureAsync(language.Code))" @onclick:preventDefault="true">@language.Name</a>
+                    }
+                    else
+                    {
+                        <a class="dropdown-item @(CultureInfo.CurrentUICulture.Name == language.Code ? "active" : String.Empty)" href="@NavigateUrl(PageState.Page.Path, "culture=" + language.Code)" data-enhance-nav="false">@language.Name</a>
+                    }
                 }
             }
         </div>
@@ -29,7 +36,7 @@
 }
 
 @code{
-    private IEnumerable<Culture> _supportedCultures;
+    private bool _contentLocalization;
     private string MenuAlignment = string.Empty;
 
     [Parameter]
@@ -41,12 +48,13 @@
     {
         MenuAlignment = DropdownAlignment.ToLower() == "right" ? "dropdown-menu-end" : string.Empty;
 
-        _supportedCultures = PageState.Languages.Select(l => new Culture { Name = l.Code, DisplayName = l.Name });
+        // if AliasName is populated it means the site is using content localization
+        _contentLocalization = PageState.Languages.Any(item => !string.IsNullOrEmpty(item.AliasName));
 
         if (PageState.QueryString.ContainsKey("culture"))
         {
             var culture = PageState.QueryString["culture"];
-            if (_supportedCultures.Any(item => item.Name == culture))
+            if (PageState.Site.Languages.Any(item => item.Code == culture))
             {
                 await LocalizationCookieService.SetLocalizationCookieAsync(culture);
             }

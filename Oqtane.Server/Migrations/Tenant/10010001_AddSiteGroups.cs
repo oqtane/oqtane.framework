@@ -16,12 +16,12 @@ namespace Oqtane.Migrations.Tenant
 
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            var siteGroupDefinitionEntityBuilder = new SiteGroupDefinitionEntityBuilder(migrationBuilder, ActiveDatabase);
-            siteGroupDefinitionEntityBuilder.Create();
-
             var siteGroupEntityBuilder = new SiteGroupEntityBuilder(migrationBuilder, ActiveDatabase);
             siteGroupEntityBuilder.Create();
-            siteGroupEntityBuilder.AddIndex("IX_SiteGroup", new[] { "SiteId", "SiteGroupDefinitionId" }, true);
+
+            var siteGroupMemberEntityBuilder = new SiteGroupMemberEntityBuilder(migrationBuilder, ActiveDatabase);
+            siteGroupMemberEntityBuilder.Create();
+            siteGroupMemberEntityBuilder.AddIndex("IX_SiteGroupMember", new[] { "SiteId", "SiteGroupId" }, true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
