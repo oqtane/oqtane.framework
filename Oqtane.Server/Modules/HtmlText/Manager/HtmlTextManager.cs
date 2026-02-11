@@ -60,38 +60,49 @@ namespace Oqtane.Modules.HtmlText.Manager
         // IPortable implementation
         public string ExportModule(Module module)
         {
-            return GetModuleContent(module);
-        }
-
-        public void ImportModule(Module module, string content, string version)
-        {
-            SaveModuleContent(module, content, version);
-        }
-
-        // ISynchronizable implementation
-        public string ExtractModule(Module module)
-        {
-            return GetModuleContent(module);
-        }
-
-        public void LoadModule(Module module, string content, string version)
-        {
-            SaveModuleContent(module, content, version);
-        }
-
-        private string GetModuleContent(Module module)
-        {
             string content = "";
-            var htmltexts = _htmlText.GetHtmlTexts(module.ModuleId);
-            if (htmltexts != null && htmltexts.Any())
+            var htmltext = GetModuleContent(module.ModuleId);
+            if (htmltext != null)
             {
-                var htmltext = htmltexts.OrderByDescending(item => item.CreatedOn).First();
                 content = WebUtility.HtmlEncode(htmltext.Content);
             }
             return content;
         }
 
-        private void SaveModuleContent(Module module, string content, string version)
+        public void ImportModule(Module module, string content, string version)
+        {
+            SaveModuleContent(module, content);
+        }
+
+        // ISynchronizable implementation
+        public string ExtractModule(Module module, DateTime lastSynchronizedOn)
+        {
+            string content = "";
+            var htmltext = GetModuleContent(module.ModuleId);
+            if (htmltext != null && htmltext.CreatedOn > lastSynchronizedOn)
+            {
+                content = WebUtility.HtmlEncode(htmltext.Content);
+            }
+            return content;
+        }
+
+        public void LoadModule(Module module, string content)
+        {
+            SaveModuleContent(module, content);
+        }
+
+        private Models.HtmlText GetModuleContent(int moduleId)
+        {
+            // get the most recent htmltext record for the module
+            var htmltexts = _htmlText.GetHtmlTexts(moduleId);
+            if (htmltexts != null && htmltexts.Any())
+            {
+                return htmltexts.OrderByDescending(item => item.CreatedOn).First();
+            }
+            return null;
+        }
+
+        private void SaveModuleContent(Module module, string content)
         {
             content = WebUtility.HtmlDecode(content);
             var htmlText = new Models.HtmlText();

@@ -1,3 +1,4 @@
+using System;
 using Oqtane.Models;
 
 namespace Oqtane.Modules
@@ -6,8 +7,8 @@ namespace Oqtane.Modules
     {
         // You Must Set The "ServerManagerType" In Your IModule Interface
 
-        string ExtractModule(Module module);
+        string ExtractModule(Module module, DateTime lastSynchronizedOn);
 
-        void LoadModule(Module module, string content, string version);
+        void LoadModule(Module module, string content);
     }
 }

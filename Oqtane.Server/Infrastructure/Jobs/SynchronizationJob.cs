@@ -16,9 +16,8 @@ namespace Oqtane.Infrastructure
         // JobType = "Oqtane.Infrastructure.SynchronizationJob, Oqtane.Server"
 
         // synchronization only supports sites in the same tenant (database)
-        // module title is used as a key to identify module instances on a page (ie. using "-" as a module title is problematic ie. content as configuration)
-        // relies on Module.ModifiedOn to be set if the module content changes (for efficiency)
-        // modules must implement ISynchronizable interface (new interface as IPortable was generally only implemented in an additive manner)
+        // module title is used as a key to identify module instances on a page
+        // modules must implement ISynchronizable interface
 
         // define settings that should not be synchronized (should be extensible in the future)
         List<Setting> excludedSettings = new List<Setting>() {
@@ -580,8 +579,6 @@ namespace Oqtane.Infrastructure
                         secondaryPageModule.Module.AllPages = false;
                         secondaryPageModule.Module.IsDeleted = false;
 
-                        var updateContent = false;
-
                         if (pageModule == null)
                         {
                             // check if module exists
@@ -592,7 +589,6 @@ namespace Oqtane.Infrastructure
                                 if (siteGroupMember.SiteGroup.Type == SiteGroupTypes.Synchronization)
                                 {
                                     module = moduleRepository.AddModule(secondaryPageModule.Module);
-                                    updateContent = true;
                                 }
                                 log += Log(siteGroupMember, $"Module Added: {secondaryPageModule.Title} - {CreateLink(siteGroupMember.AliasName + "/" + secondaryPage.Path)}");
                             }
@@ -617,7 +613,6 @@ namespace Oqtane.Infrastructure
                                 {
                                     moduleRepository.UpdateModule(secondaryPageModule.Module);
                                 }
-                                updateContent = true;
                                 log += Log(siteGroupMember, $"Module Updated: {secondaryPageModule.Title} - {CreateLink(siteGroupMember.AliasName + "/" + secondaryPage.Path)}");
                             }
                             if (primaryPageModule.ModifiedOn > siteGroupMember.SynchronizedOn)
@@ -629,31 +624,30 @@ namespace Oqtane.Infrastructure
                                 log += Log(siteGroupMember, $"Module Instance Updated: {secondaryPageModule.Title} - {CreateLink(siteGroupMember.AliasName + "/" + secondaryPage.Path)}");
                             }
                         }
+                    }
 
-                        // module content
-                        if (updateContent && primaryPageModule.Module.ModuleDefinition.ServerManagerType != "")
+                    // module content
+                    if (primaryPageModule.Module.ModuleDefinition.ServerManagerType != "")
+                    {
+                        Type moduleType = Type.GetType(primaryPageModule.Module.ModuleDefinition.ServerManagerType);
+                        if (moduleType != null && moduleType.GetInterface(nameof(ISynchronizable)) != null)
                         {
-                            Type moduleType = Type.GetType(primaryPageModule.Module.ModuleDefinition.ServerManagerType);
-                            if (moduleType != null && moduleType.GetInterface(nameof(ISynchronizable)) != null)
+                            try
                             {
-                                try
+                                var moduleObject = ActivatorUtilities.CreateInstance(provider, moduleType);
+                                var moduleContent = ((ISynchronizable)moduleObject).ExtractModule(primaryPageModule.Module, siteGroupMember.SynchronizedOn.Value);
+                                if (!string.IsNullOrEmpty(moduleContent))
                                 {
-                                    var moduleObject = ActivatorUtilities.CreateInstance(provider, moduleType);
-                                    var primaryModuleContent = ((ISynchronizable)moduleObject).ExtractModule(primaryPageModule.Module);
-                                    var secondaryModuleContent = ((ISynchronizable)moduleObject).ExtractModule(secondaryPageModule.Module);
-                                    if (primaryModuleContent != secondaryModuleContent)
+                                    if (siteGroupMember.SiteGroup.Type == SiteGroupTypes.Synchronization)
                                     {
-                                        if (siteGroupMember.SiteGroup.Type == SiteGroupTypes.Synchronization)
-                                        {
-                                            ((ISynchronizable)moduleObject).LoadModule(secondaryPageModule.Module, primaryModuleContent, primaryPageModule.Module.ModuleDefinition.Version);
-                                        }
-                                        log += Log(siteGroupMember, $"Module Content Updated: {secondaryPageModule.Title} - {CreateLink(siteGroupMember.AliasName + "/" + secondaryPage.Path)}");
+                                        ((ISynchronizable)moduleObject).LoadModule(secondaryPageModule.Module, moduleContent);
                                     }
+                                    log += Log(siteGroupMember, $"Module Content Updated: {secondaryPageModule.Title} - {CreateLink(siteGroupMember.AliasName + "/" + secondaryPage.Path)}");
                                 }
-                                catch
-                                {
-                                    // error exporting/importing
-                                }
+                            }
+                            catch
+                            {
+                                // error exporting/importing
                             }
                         }
                     }
