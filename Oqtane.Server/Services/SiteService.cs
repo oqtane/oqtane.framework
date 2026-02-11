@@ -329,13 +329,10 @@ namespace Oqtane.Services
                         var site = sites.FirstOrDefault(item => item.SiteId == siteGroupMember.SiteId);
                         if (site != null && !string.IsNullOrEmpty(site.CultureCode))
                         {
-                            if (!languages.Any(item => item.Code == site.CultureCode))
+                            var alias = aliases.FirstOrDefault(item => item.SiteId == siteGroupMember.SiteId && item.TenantId == tenantId && item.IsDefault);
+                            if (alias != null)
                             {
-                                var alias = aliases.FirstOrDefault(item => item.SiteId == siteGroupMember.SiteId && item.TenantId == tenantId && item.IsDefault);
-                                if (alias != null)
-                                {
-                                    languages.Add(new Language { Code = site.CultureCode, Name = "", AliasName = alias.Name, IsDefault = false });
-                                }
+                                languages.Add(new Language { Code = site.CultureCode, Name = "", AliasName = alias.Name, IsDefault = false });
                             }
                         }
                     }
