@@ -8,9 +8,9 @@ using Oqtane.Shared;
 namespace [Owner].Module.[Module].Services
 {
 
-    public class Client[Module]Service : ServiceBase, I[Module]Service
+    public class [Module]Service : ServiceBase, I[Module]Service
     {
-        public Client[Module]Service(HttpClient http, SiteState siteState) : base(http, siteState) { }
+        public [Module]Service(HttpClient http, SiteState siteState) : base(http, siteState) { }
 
         private string Apiurl => CreateApiUrl("[Module]");
 
