@@ -3,7 +3,7 @@
 
 @namespace [Owner].Module.[Module]
 @inherits ModuleBase
-@inject I[Module]Service [Module]Service
+@inject I[Module]Service Client[Module]Service
 @inject NavigationManager NavigationManager
 @inject IStringLocalizer<Index> Localizer
 
@@ -52,7 +52,7 @@ else
     {
         try
         {
-            _[Module]s = await [Module]Service.Get[Module]sAsync(ModuleState.ModuleId);
+            _[Module]s = await Client[Module]Service.Get[Module]sAsync(ModuleState.ModuleId);
         }
         catch (Exception ex)
         {
@@ -65,9 +65,9 @@ else
     {
         try
         {
-            await [Module]Service.Delete[Module]Async([Module].[Module]Id, ModuleState.ModuleId);
+            await Client[Module]Service.Delete[Module]Async([Module].[Module]Id, ModuleState.ModuleId);
             await logger.LogInformation("[Module] Deleted {[Module]}", [Module]);
-            _[Module]s = await [Module]Service.Get[Module]sAsync(ModuleState.ModuleId);
+            _[Module]s = await Client[Module]Service.Get[Module]sAsync(ModuleState.ModuleId);
             StateHasChanged();
         }
         catch (Exception ex)
