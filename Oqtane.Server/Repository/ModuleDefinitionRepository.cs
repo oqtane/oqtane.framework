@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Infrastructure;
@@ -420,6 +422,7 @@ namespace Oqtane.Repository
                 }
 
                 moduledefinition = moduledefinitions[index];
+
                 // actions
                 var modulecontrolobject = Activator.CreateInstance(modulecontroltype) as IModuleControl;
                 string actions = modulecontrolobject.Actions;
@@ -428,6 +431,73 @@ namespace Oqtane.Repository
                     foreach (string action in actions.Split(','))
                     {
                         moduledefinition.ControlTypeRoutes += (action + "=" + modulecontroltype.FullName + ", " + modulecontroltype.Assembly.GetName().Name + ";");
+                    }
+                }
+
+                // check for Page attribute
+                var routeAttributes = modulecontroltype.GetCustomAttributes(typeof(RouteAttribute), true).Cast<RouteAttribute>();
+                if (routeAttributes != null && routeAttributes.Any())
+                {
+                    var route = routeAttributes.First().Template;
+                    if (!string.IsNullOrEmpty(route))
+                    {
+                        // @page "/route" (note that nested routes are not permitted)
+                        var pageTemplate = new PageTemplate();
+                        pageTemplate.AliasName = "*";
+                        pageTemplate.Version = "*";
+                        pageTemplate.Name = route.Substring(1);
+                        pageTemplate.Update = false;
+                        pageTemplate.PageTemplateModules = new List<PageTemplateModule>()
+                        {
+                            new PageTemplateModule { Title = route.Substring(1), Order = 1 }
+                        };
+                        pageTemplate.PermissionList = new List<Permission>();
+
+                        // check for Authorize attributes
+                        var authorizeAttributes = modulecontroltype.GetCustomAttributes(typeof(AuthorizeAttribute), true).Cast<AuthorizeAttribute>();
+                        if (authorizeAttributes != null && authorizeAttributes.Any())
+                        {
+                            foreach (var authorizeAttribute in authorizeAttributes)
+                            {
+                                if (string.IsNullOrEmpty(authorizeAttribute.Roles))
+                                {
+                                    // [Authorize]
+                                    pageTemplate.PermissionList.Add(new Permission(PermissionNames.View, RoleNames.Registered, true));
+                                }
+                                else
+                                {
+                                    // [Authorize(Roles = "role1, permission:role2")]
+                                    foreach (var role in authorizeAttribute.Roles.Split(','))
+                                    {
+                                        var permissionName = PermissionNames.View;
+                                        var roleName = role.Trim();
+                                        if (roleName.Contains(":"))
+                                        {
+                                            permissionName = roleName.Substring(0, roleName.IndexOf(":") - 1);
+                                            roleName = roleName.Substring(roleName.IndexOf(":") + 1);
+                                        }
+                                        pageTemplate.PermissionList.Add(new Permission(permissionName, roleName, true));
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // default view permission 
+                            pageTemplate.PermissionList.Add(new Permission(PermissionNames.View, RoleNames.Everyone, true));
+                        }
+                        if (!pageTemplate.PermissionList.Any(item => item.PermissionName == PermissionNames.Edit && item.RoleName == RoleNames.Admin))
+                        {
+                            // default edit permission
+                            pageTemplate.PermissionList.Add(new Permission(PermissionNames.Edit, RoleNames.Admin, true));
+                        }
+
+                        if (moduledefinition.PageTemplates == null)
+                        {
+                            // use pagetemplate if not already defined in IModule
+                            moduledefinition.PageTemplates = new List<PageTemplate>();
+                            moduledefinition.PageTemplates.Add(pageTemplate);
+                        }
                     }
                 }
 
