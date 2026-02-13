@@ -445,15 +445,11 @@ namespace Oqtane.Repository
                         var pageTemplate = new PageTemplate();
                         pageTemplate.AliasName = "*";
                         pageTemplate.Version = "*";
-                        pageTemplate.Name = route.Substring(1);
+                        pageTemplate.Path = route.Substring(1);
                         pageTemplate.Update = false;
-                        pageTemplate.PageTemplateModules = new List<PageTemplateModule>()
-                        {
-                            new PageTemplateModule { Title = route.Substring(1), Order = 1 }
-                        };
-                        pageTemplate.PermissionList = new List<Permission>();
 
                         // check for Authorize attributes
+                        var permissionList = new List<Permission>();
                         var authorizeAttributes = modulecontroltype.GetCustomAttributes(typeof(AuthorizeAttribute), true).Cast<AuthorizeAttribute>();
                         if (authorizeAttributes != null && authorizeAttributes.Any())
                         {
@@ -462,7 +458,7 @@ namespace Oqtane.Repository
                                 if (string.IsNullOrEmpty(authorizeAttribute.Roles))
                                 {
                                     // [Authorize]
-                                    pageTemplate.PermissionList.Add(new Permission(PermissionNames.View, RoleNames.Registered, true));
+                                    permissionList.Add(new Permission(PermissionNames.View, RoleNames.Registered, true));
                                 }
                                 else
                                 {
@@ -476,25 +472,37 @@ namespace Oqtane.Repository
                                             permissionName = roleName.Substring(0, roleName.IndexOf(":") - 1);
                                             roleName = roleName.Substring(roleName.IndexOf(":") + 1);
                                         }
-                                        pageTemplate.PermissionList.Add(new Permission(permissionName, roleName, true));
+                                        permissionList.Add(new Permission(permissionName, roleName, true));
                                     }
                                 }
                             }
                         }
                         else
                         {
-                            // default view permission 
-                            pageTemplate.PermissionList.Add(new Permission(PermissionNames.View, RoleNames.Everyone, true));
+                            // view permission 
+                            permissionList.Add(new Permission(PermissionNames.View, RoleNames.Everyone, true));
                         }
-                        if (!pageTemplate.PermissionList.Any(item => item.PermissionName == PermissionNames.Edit && item.RoleName == RoleNames.Admin))
+                        // default permissions
+                        if (!permissionList.Any(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Admin))
                         {
-                            // default edit permission
-                            pageTemplate.PermissionList.Add(new Permission(PermissionNames.Edit, RoleNames.Admin, true));
+                            permissionList.Add(new Permission(PermissionNames.View, RoleNames.Admin, true));
                         }
+                        if (!permissionList.Any(item => item.PermissionName == PermissionNames.Edit && item.RoleName == RoleNames.Admin))
+                        {
+                            permissionList.Add(new Permission(PermissionNames.Edit, RoleNames.Admin, true));
+                        }
+                        pageTemplate.PermissionList = permissionList;
 
+                        // add module instance
+                        var pageTemplateModule = new PageTemplateModule();
+                        pageTemplateModule.Title = route.Substring(1);
+                        pageTemplateModule.PermissionList = permissionList;
+                        pageTemplate.PageTemplateModules = new List<PageTemplateModule>();
+                        pageTemplate.PageTemplateModules.Add(pageTemplateModule);
+
+                        // use pagetemplate if not already defined in IModule
                         if (moduledefinition.PageTemplates == null)
                         {
-                            // use pagetemplate if not already defined in IModule
                             moduledefinition.PageTemplates = new List<PageTemplate>();
                             moduledefinition.PageTemplates.Add(pageTemplate);
                         }
