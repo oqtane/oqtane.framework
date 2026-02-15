@@ -447,6 +447,7 @@ namespace Oqtane.Repository
                         pageTemplate.Version = "*";
                         pageTemplate.Path = route.Substring(1);
                         pageTemplate.Update = false;
+                        pageTemplate.PageTemplateModules = new List<PageTemplateModule>();
 
                         // check for Authorize attributes
                         var permissionList = new List<Permission>();
@@ -482,29 +483,33 @@ namespace Oqtane.Repository
                             // view permission 
                             permissionList.Add(new Permission(PermissionNames.View, RoleNames.Everyone, true));
                         }
-                        // default permissions
-                        if (!permissionList.Any(item => item.PermissionName == PermissionNames.View && item.RoleName == RoleNames.Admin))
+
+                        // assign page permissions
+                        foreach (var permission in permissionList)
                         {
-                            permissionList.Add(new Permission(PermissionNames.View, RoleNames.Admin, true));
+                            if (!pageTemplate.PermissionList.Any(item => item.PermissionName == permission.PermissionName && item.RoleName == permission.RoleName))
+                            {
+                                pageTemplate.PermissionList.Add(permission);
+                            }
                         }
-                        if (!permissionList.Any(item => item.PermissionName == PermissionNames.Edit && item.RoleName == RoleNames.Admin))
-                        {
-                            permissionList.Add(new Permission(PermissionNames.Edit, RoleNames.Admin, true));
-                        }
-                        pageTemplate.PermissionList = permissionList;
 
                         // add module instance
                         var pageTemplateModule = new PageTemplateModule();
                         pageTemplateModule.Title = route.Substring(1);
-                        pageTemplateModule.PermissionList = permissionList;
-                        pageTemplate.PageTemplateModules = new List<PageTemplateModule>();
+                        // assign module permissions
+                        foreach (var permission in permissionList)
+                        {
+                            if (!pageTemplateModule.PermissionList.Any(item => item.PermissionName == permission.PermissionName && item.RoleName == permission.RoleName))
+                            {
+                                pageTemplateModule.PermissionList.Add(permission.Clone());
+                            }
+                        }
                         pageTemplate.PageTemplateModules.Add(pageTemplateModule);
 
-                        // use pagetemplate if not already defined in IModule
+                        // if PageTemplates was not already defined in IModule
                         if (moduledefinition.PageTemplates == null)
                         {
-                            moduledefinition.PageTemplates = new List<PageTemplate>();
-                            moduledefinition.PageTemplates.Add(pageTemplate);
+                            moduledefinition.PageTemplates = new List<PageTemplate> { pageTemplate };
                         }
                     }
                 }
