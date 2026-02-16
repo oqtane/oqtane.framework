@@ -359,6 +359,7 @@ namespace Oqtane.Repository
                             }
                             pageTemplate.Path = (parent != null) ? parent.Path + "/" + pageTemplate.Name : pageTemplate.Name;
                         }
+                        // home page path can be specified with "home" or "/"
                         pageTemplate.Path = (pageTemplate.Path.ToLower() == "home") ? "" : pageTemplate.Path;
                         pageTemplate.Path = (pageTemplate.Path == "/") ? "" : pageTemplate.Path;
                         var page = pages.FirstOrDefault(item => item.Path.ToLower() == pageTemplate.Path.ToLower());
