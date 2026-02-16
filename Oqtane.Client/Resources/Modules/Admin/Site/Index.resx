@@ -400,7 +400,7 @@
     <value>Hybrid Enabled?</value>
   </data>
   <data name="Runtime.HelpText" xml:space="preserve">
-    <value>The render mode for UI components which require interactivity</value>
+    <value>The hosting model for UI components which require interactivity</value>
   </data>
   <data name="Runtime.Text" xml:space="preserve">
     <value>Interactivity:</value>

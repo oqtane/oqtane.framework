@@ -101,7 +101,7 @@ namespace Oqtane.Models
         public string RenderMode { get; set; }
 
         /// <summary>
-        /// The render mode for UI components which require interactivity ie. Server,WebAssembly,Auto
+        /// The hosting model for UI components which require interactivity ie. Server,WebAssembly,Auto
         /// </summary>
         public string Runtime { get; set; }
 
