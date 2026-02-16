@@ -123,29 +123,14 @@
   <data name="SqlServer" xml:space="preserve">
     <value>SQL Server</value>
   </data>
-  <data name="Container.Select" xml:space="preserve">
-    <value>Select Container</value>
-  </data>
-  <data name="DefaultContainer.Text" xml:space="preserve">
-    <value>Default Container: </value>
-  </data>
-  <data name="Theme.Select" xml:space="preserve">
-    <value>Select Theme</value>
-  </data>
   <data name="Aliases.HelpText" xml:space="preserve">
     <value>The primary url for the site. This can be a domain name (ie. domain.com), subdomain (ie. sub.domain.com) or a virtual folder (ie. domain.com/folder).</value>
-  </data>
-  <data name="DefaultContainer.HelpText" xml:space="preserve">
-    <value>Select the default container for the site</value>
   </data>
   <data name="Tenant.Text" xml:space="preserve">
     <value>Database: </value>
   </data>
   <data name="Aliases.Text" xml:space="preserve">
     <value>Url: </value>
-  </data>
-  <data name="DefaultTheme.Text" xml:space="preserve">
-    <value>Default Theme: </value>
   </data>
   <data name="SiteTemplate.Select" xml:space="preserve">
     <value>Select Site Template</value>
@@ -176,9 +161,6 @@
   </data>
   <data name="Name.HelpText" xml:space="preserve">
     <value>Enter the name of the site</value>
-  </data>
-  <data name="DefaultTheme.HelpText" xml:space="preserve">
-    <value>Select the default theme for the site</value>
   </data>
   <data name="SiteTemplate.HelpText" xml:space="preserve">
     <value>Select the site template</value>
@@ -222,12 +204,6 @@
   <data name="Error.Database.LoadConfig" xml:space="preserve">
     <value>Error loading Database Configuration Control</value>
   </data>
-  <data name="RenderMode.HelpText" xml:space="preserve">
-    <value>The default render mode for the site</value>
-  </data>
-  <data name="RenderMode.Text" xml:space="preserve">
-    <value>Render Mode: </value>
-  </data>
   <data name="ConnectionString.HelpText" xml:space="preserve">
     <value>Enter a complete connection string including all parameters and delimiters</value>
   </data>
@@ -239,11 +215,5 @@
   </data>
   <data name="EnterConnectionString" xml:space="preserve">
     <value>Enter Connection String</value>
-  </data>
-  <data name="Runtime.HelpText" xml:space="preserve">
-    <value>The render mode for UI components which require interactivity</value>
-  </data>
-  <data name="Runtime.Text" xml:space="preserve">
-    <value>Interactivity:</value>
   </data>
 </root>
