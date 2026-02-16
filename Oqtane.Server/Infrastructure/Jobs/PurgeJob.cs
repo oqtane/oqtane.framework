@@ -33,7 +33,6 @@ namespace Oqtane.Infrastructure
             var visitorRepository = provider.GetRequiredService<IVisitorRepository>();
             var notificationRepository = provider.GetRequiredService<INotificationRepository>();
             var urlMappingRepository = provider.GetRequiredService<IUrlMappingRepository>();
-            var installationManager = provider.GetRequiredService<IInstallationManager>();
 
             // iterate through sites for current tenant
             List<Site> sites = siteRepository.GetSites().ToList();
@@ -95,17 +94,6 @@ namespace Oqtane.Infrastructure
                 {
                     log += $"Error Purging Broken Urls - {ex.Message}<br />";
                 }
-            }
-
-            // register assemblies
-            try
-            {
-                var assemblies = installationManager.RegisterAssemblies();
-                log += "<br />" + assemblies.ToString() + " Assemblies Registered<br />";
-            }
-            catch (Exception ex)
-            {
-                log += $"<br />Error Registering Assemblies - {ex.Message}<br />";
             }
 
             return log;
