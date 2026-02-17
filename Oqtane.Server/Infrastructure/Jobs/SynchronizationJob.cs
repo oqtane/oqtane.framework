@@ -52,7 +52,7 @@ namespace Oqtane.Infrastructure
             var siteGroups = siteGroupRepository.GetSiteGroups();
 
             // iterate through site groups which need to be synchronized
-            foreach (var siteGroup in siteGroups.Where(item => item.Synchronize && (item.Type == SiteGroupTypes.Synchronization || item.Type == SiteGroupTypes.Comparison)))
+            foreach (var siteGroup in siteGroups.Where(item => item.Synchronize && (item.Type == SiteGroupTypes.Synchronization || item.Type == SiteGroupTypes.ChangeDetection)))
             {
                 // get data
                 if (siteGroupMembers == null)
@@ -201,7 +201,7 @@ namespace Oqtane.Infrastructure
                 syncManager.AddSyncEvent(alias, EntityNames.Site, secondarySite.SiteId, SyncEventActions.Refresh);
             }
 
-            if (!string.IsNullOrEmpty(log) && siteGroupMember.SiteGroup.Type == SiteGroupTypes.Comparison)
+            if (!string.IsNullOrEmpty(log) && siteGroupMember.SiteGroup.Type == SiteGroupTypes.ChangeDetection)
             {
                 // send change log to administrators
                 SendNotifications(provider, secondarySite.SiteId, secondarySite.Name, log);

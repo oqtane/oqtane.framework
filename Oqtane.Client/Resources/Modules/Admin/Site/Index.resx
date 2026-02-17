@@ -553,7 +553,7 @@
     <value>Type:</value>
   </data>
   <data name="GroupType.HelpText" xml:space="preserve">
-    <value>The site group type (ie. synchronization, comparison, localization)</value>
+    <value>Defines the specific behavior of the site group</value>
   </data>
   <data name="Synchronized.HelpText" xml:space="preserve">
     <value>The date/time when the site was last synchronized</value>
@@ -564,7 +564,7 @@
   <data name="Localization" xml:space="preserve">
     <value>Localization</value>
   </data>
-  <data name="Comparison" xml:space="preserve">
-    <value>Comparison</value>
+  <data name="ChangeDetection" xml:space="preserve">
+    <value>Change Detection</value>
   </data>
 </root>
