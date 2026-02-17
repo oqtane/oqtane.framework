@@ -1,18 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Oqtane.Infrastructure;
-using Oqtane.Models;
-using Oqtane.Modules.HtmlText.Repository;
 using System.Net;
-using Oqtane.Enums;
-using Oqtane.Repository;
-using Oqtane.Shared;
-using Oqtane.Migrations.Framework;
-using Oqtane.Documentation;
-using Oqtane.Interfaces;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
+using Oqtane.Documentation;
+using Oqtane.Enums;
+using Oqtane.Infrastructure;
+using Oqtane.Interfaces;
+using Oqtane.Migrations.Framework;
+using Oqtane.Models;
+using Oqtane.Modules.HtmlText.Repository;
+using Oqtane.Repository;
+using Oqtane.Shared;
 
 // ReSharper disable ConvertToUsingDeclaration
 
@@ -21,20 +21,15 @@ namespace Oqtane.Modules.HtmlText.Manager
     [PrivateApi("Mark HtmlText classes as private, since it's not very useful in the public docs")]
     public class HtmlTextManager : MigratableModuleBase, IInstallable, IPortable, ISynchronizable, ISearchable
     {
-        private readonly IHtmlTextRepository _htmlText;
+        private readonly IHtmlTextRepository _htmlTextRepository;
         private readonly IDBContextDependencies _DBContextDependencies;
         private readonly ISqlRepository _sqlRepository;
         private readonly ITenantManager _tenantManager;
         private readonly IMemoryCache _cache;
 
-        public HtmlTextManager(
-            IHtmlTextRepository htmlText,
-            IDBContextDependencies DBContextDependencies,
-            ISqlRepository sqlRepository,
-            ITenantManager tenantManager,
-            IMemoryCache cache)
+        public HtmlTextManager(IHtmlTextRepository htmlTextRepository, IDBContextDependencies DBContextDependencies, ISqlRepository sqlRepository, ITenantManager tenantManager, IMemoryCache cache)
         {
-            _htmlText = htmlText;
+            _htmlTextRepository = htmlTextRepository;
             _DBContextDependencies = DBContextDependencies;
             _sqlRepository = sqlRepository;
             _tenantManager = tenantManager;
@@ -61,7 +56,7 @@ namespace Oqtane.Modules.HtmlText.Manager
         public string ExportModule(Module module)
         {
             string content = "";
-            var htmltext = GetModuleContent(module.ModuleId);
+            var htmltext = _htmlTextRepository.GetHtmlText(module.ModuleId);
             if (htmltext != null)
             {
                 content = WebUtility.HtmlEncode(htmltext.Content);
@@ -78,7 +73,7 @@ namespace Oqtane.Modules.HtmlText.Manager
         public string ExtractModule(Module module, DateTime lastSynchronizedOn)
         {
             string content = "";
-            var htmltext = GetModuleContent(module.ModuleId);
+            var htmltext = _htmlTextRepository.GetHtmlText(module.ModuleId);
             if (htmltext != null && htmltext.CreatedOn > lastSynchronizedOn)
             {
                 content = WebUtility.HtmlEncode(htmltext.Content);
@@ -91,24 +86,13 @@ namespace Oqtane.Modules.HtmlText.Manager
             SaveModuleContent(module, content);
         }
 
-        private Models.HtmlText GetModuleContent(int moduleId)
-        {
-            // get the most recent htmltext record for the module
-            var htmltexts = _htmlText.GetHtmlTexts(moduleId);
-            if (htmltexts != null && htmltexts.Any())
-            {
-                return htmltexts.OrderByDescending(item => item.CreatedOn).First();
-            }
-            return null;
-        }
-
         private void SaveModuleContent(Module module, string content)
         {
             content = WebUtility.HtmlDecode(content);
             var htmlText = new Models.HtmlText();
             htmlText.ModuleId = module.ModuleId;
             htmlText.Content = content;
-            _htmlText.AddHtmlText(htmlText);
+            _htmlTextRepository.AddHtmlText(htmlText);
 
             //clear the cache for the module
             var alias = _tenantManager.GetAlias();
@@ -123,7 +107,7 @@ namespace Oqtane.Modules.HtmlText.Manager
         {
             var searchContents = new List<SearchContent>();
 
-            var htmltext = _htmlText.GetHtmlTexts(pageModule.ModuleId)?.OrderByDescending(item => item.CreatedOn).FirstOrDefault();
+            var htmltext = _htmlTextRepository.GetHtmlText(pageModule.ModuleId);
             if (htmltext != null && htmltext.CreatedOn >= lastIndexedOn)
             {
                 searchContents.Add(new SearchContent

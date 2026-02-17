@@ -11,7 +11,7 @@ namespace Oqtane.Modules.HtmlText.Repository
     public interface IHtmlTextRepository
     {
         IEnumerable<Models.HtmlText> GetHtmlTexts(int moduleId);
-        Models.HtmlText GetHtmlText(int htmlTextId);
+        Models.HtmlText GetHtmlText(int moduleId);
         Models.HtmlText AddHtmlText(Models.HtmlText htmlText);
         void DeleteHtmlText(int htmlTextId);
     }
@@ -34,17 +34,18 @@ namespace Oqtane.Modules.HtmlText.Repository
             return db.HtmlText.Where(item => item.ModuleId == moduleId).ToList();
         }
 
-        public Models.HtmlText GetHtmlText(int htmlTextId)
+        public Models.HtmlText GetHtmlText(int moduleId)
         {
             using var db = _factory.CreateDbContext();
-            return db.HtmlText.Find(htmlTextId);
+            return db.HtmlText.Where(item => item.ModuleId == moduleId)?
+                .OrderByDescending(item => item.CreatedOn).FirstOrDefault();
         }
 
         public Models.HtmlText AddHtmlText(Models.HtmlText htmlText)
         {
             using var db = _factory.CreateDbContext();
 
-            var versions = int.Parse(_settingRepository.GetSettingValue(EntityNames.Module, htmlText.ModuleId, "Versions", "3"));
+            var versions = int.Parse(_settingRepository.GetSettingValue(EntityNames.Module, htmlText.ModuleId, "Versions", "5"));
             if (versions > 0)
             {
                 var htmlTexts = db.HtmlText.Where(item => item.ModuleId == htmlText.ModuleId).OrderByDescending(item => item.CreatedOn).ToList();
