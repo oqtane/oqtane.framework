@@ -1,7 +1,9 @@
-using System.Linq;
-using Oqtane.Documentation;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Oqtane.Documentation;
+using Oqtane.Repository;
+using Oqtane.Shared;
 
 namespace Oqtane.Modules.HtmlText.Repository
 {
@@ -18,10 +20,12 @@ namespace Oqtane.Modules.HtmlText.Repository
     public class HtmlTextRepository : IHtmlTextRepository, ITransientService
     {
         private readonly IDbContextFactory<HtmlTextContext> _factory;
+        private readonly ISettingRepository _settingRepository;
 
-        public HtmlTextRepository(IDbContextFactory<HtmlTextContext> factory)
+        public HtmlTextRepository(IDbContextFactory<HtmlTextContext> factory, ISettingRepository settingRepository)
         {
             _factory = factory;
+            _settingRepository = settingRepository;
         }
 
         public IEnumerable<Models.HtmlText> GetHtmlTexts(int moduleId)
@@ -39,6 +43,17 @@ namespace Oqtane.Modules.HtmlText.Repository
         public Models.HtmlText AddHtmlText(Models.HtmlText htmlText)
         {
             using var db = _factory.CreateDbContext();
+
+            var versions = int.Parse(_settingRepository.GetSettingValue(EntityNames.Module, htmlText.ModuleId, "Versions", "3"));
+            if (versions > 0)
+            {
+                var htmlTexts = db.HtmlText.Where(item => item.ModuleId == htmlText.ModuleId).OrderByDescending(item => item.CreatedOn).ToList();
+                for (int i = versions - 1; i < htmlTexts.Count; i++)
+                {
+                    db.HtmlText.Remove(htmlTexts[i]);
+                }
+            }
+
             db.HtmlText.Add(htmlText);
             db.SaveChanges();
             return htmlText;

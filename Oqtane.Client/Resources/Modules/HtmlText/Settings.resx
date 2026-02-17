@@ -123,4 +123,10 @@
   <data name="DynamicTokens.Text" xml:space="preserve">
     <value>Dynamic Tokens?</value>
   </data>
+  <data name="Versions.HelpText" xml:space="preserve">
+    <value>The number of content versions to preserve (note that zero means unlimited)</value>
+  </data>
+  <data name="Versions.Text" xml:space="preserve">
+    <value>Versions:</value>
+  </data>
 </root>

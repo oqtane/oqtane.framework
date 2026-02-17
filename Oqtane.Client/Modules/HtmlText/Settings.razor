@@ -16,6 +16,12 @@
                 </select>
             </div>
         </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="versions" ResourceKey="Versions" ResourceType="@resourceType" HelpText="The number of content versions to preserve (note that zero means unlimited)">Versions: </Label>
+            <div class="col-sm-9">
+                <input id="versions" type="number" min="0" max="9" step="1" class="form-control" @bind="@_versions" />
+            </div>
+        </div>
     </div>
 </form>
 
@@ -26,12 +32,14 @@
     private bool validated = false;
 
     private string _dynamictokens;
+    private string _versions = "5";
 
     protected override void OnInitialized()
     {
         try
         {
             _dynamictokens = SettingService.GetSetting(ModuleState.Settings, "DynamicTokens", "false");
+            _versions = SettingService.GetSetting(ModuleState.Settings, "Versions", "3");
         }
         catch (Exception ex)
         {
@@ -45,6 +53,10 @@
         {
             var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
             settings = SettingService.SetSetting(settings, "DynamicTokens", _dynamictokens);
+            if (int.TryParse(_versions, out int versions) && versions >= 0 && versions <= 9)
+            {
+                settings = SettingService.SetSetting(settings, "Versions", versions.ToString());
+            }
             await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
         }
         catch (Exception ex)
