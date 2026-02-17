@@ -234,4 +234,10 @@
   <data name="Pages.Heading" xml:space="preserve">
     <value>Pages</value>
   </data>
+  <data name="Fingerprint.Text" xml:space="preserve">
+    <value>Fingerprint:</value>
+  </data>
+  <data name="Fingerprint.HelpText" xml:space="preserve">
+    <value>A unique identifier for the module's static resources. This value can be changed by clicking the Save option below (ie. cache busting).</value>
+  </data>
 </root>
