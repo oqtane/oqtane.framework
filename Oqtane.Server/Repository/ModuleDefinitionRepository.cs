@@ -113,7 +113,7 @@ namespace Oqtane.Repository
                 ModuleDefinition.Resources = moduleDefinition.Resources;
                 ModuleDefinition.IsEnabled = moduleDefinition.IsEnabled;
                 ModuleDefinition.PackageName = moduleDefinition.PackageName;
-                ModuleDefinition.Fingerprint = Utilities.GenerateSimpleHash(moduleDefinition.ModifiedOn.ToString("yyyyMMddHHmm"));
+                ModuleDefinition.Fingerprint = moduleDefinition.Fingerprint;
             }
 
             return ModuleDefinition;
@@ -186,6 +186,7 @@ namespace Oqtane.Repository
                 ModuleDefinition.CreatedOn = moduledefinition.CreatedOn;
                 ModuleDefinition.ModifiedBy = moduledefinition.ModifiedBy;
                 ModuleDefinition.ModifiedOn = moduledefinition.ModifiedOn;
+                ModuleDefinition.Fingerprint = Utilities.GenerateSimpleHash(moduledefinition.ModifiedOn.ToString("yyyyMMddHHmm"));
             }
 
             // any remaining module definitions are orphans
