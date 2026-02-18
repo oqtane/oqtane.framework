@@ -483,4 +483,7 @@
   <data name="Installed" xml:space="preserve">
     <value>Installed</value>
   </data>
+  <data name="Global Replace" xml:space="preserve">
+    <value>Global Replace</value>
+  </data>
 </root>

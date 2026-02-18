@@ -354,7 +354,7 @@ namespace Oqtane.Repository
                         moduledefinition = new ModuleDefinition
                         {
                             Name = Utilities.GetTypeNameLastSegment(modulecontroltype.Namespace, 0),
-                            Description = "Manage " + Utilities.GetTypeNameLastSegment(modulecontroltype.Namespace, 0),
+                            Description = Utilities.GetTypeNameLastSegment(modulecontroltype.Namespace, 0),
                             Categories = ((qualifiedModuleType.StartsWith("Oqtane.Modules.Admin.")) ? "Admin" : "")
                         };
                     }
@@ -433,6 +433,12 @@ namespace Oqtane.Repository
                     {
                         moduledefinition.ControlTypeRoutes += (action + "=" + modulecontroltype.FullName + ", " + modulecontroltype.Assembly.GetName().Name + ";");
                     }
+                }
+                // module title
+                if (modulecontroltype.Name == Constants.DefaultAction && !string.IsNullOrEmpty(modulecontrolobject.Title))
+                {
+                    moduledefinition.Name = modulecontrolobject.Title;
+                    moduledefinition.Description = "Manage " + moduledefinition.Name;
                 }
 
                 // check for Page attribute
