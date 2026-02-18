@@ -68,7 +68,7 @@ namespace Oqtane.Infrastructure
 
                 // get primary site
                 var primarySite = sites.FirstOrDefault(item => item.SiteId == siteGroup.PrimarySiteId);
-                if (primarySite != null)
+                if (primarySite != null && !primarySite.IsDeleted)
                 {
                     // update flag to prevent job from processing group again
                     siteGroup.Synchronize = false;
@@ -112,7 +112,7 @@ namespace Oqtane.Infrastructure
                 }
                 else
                 {
-                    log += $"Site Group {siteGroup.Name} Has A PrimarySiteId {siteGroup.PrimarySiteId} Which Does Not Exist<br />";
+                    log += $"Site Group {siteGroup.Name} Has A PrimarySiteId {siteGroup.PrimarySiteId} Which Does Not Exist Or Is Deleted<br />";
                 }
             }
 

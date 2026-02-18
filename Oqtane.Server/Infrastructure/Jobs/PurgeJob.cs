@@ -36,7 +36,7 @@ namespace Oqtane.Infrastructure
 
             // iterate through sites for current tenant
             List<Site> sites = siteRepository.GetSites().ToList();
-            foreach (Site site in sites)
+            foreach (Site site in sites.Where(item => !item.IsDeleted))
             {
                 log += "<br />Processing Site: " + site.Name + "<br />";
                 int count;

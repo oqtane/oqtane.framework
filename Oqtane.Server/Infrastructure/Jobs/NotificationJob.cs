@@ -38,7 +38,7 @@ namespace Oqtane.Infrastructure
 
             // iterate through sites for current tenant
             List<Site> sites = siteRepository.GetSites().ToList();
-            foreach (Site site in sites)
+            foreach (Site site in sites.Where(item => !item.IsDeleted))
             {
                 log += "Processing Notifications For Site: " + site.Name + "<br />";
 
@@ -48,7 +48,7 @@ namespace Oqtane.Infrastructure
                     // get site settings
                     var settings = settingRepository.GetSettings(EntityNames.Site, site.SiteId, EntityNames.Host, -1);
 
-                    if (!site.IsDeleted && settingRepository.GetSettingValue(settings, "SMTPEnabled", "True") == "True")
+                    if (settingRepository.GetSettingValue(settings, "SMTPEnabled", "True") == "True")
                     {
                         bool valid = true;
                         if (settingRepository.GetSettingValue(settings, "SMTPAuthentication", "Basic") == "Basic")
@@ -290,7 +290,7 @@ namespace Oqtane.Infrastructure
                     }
                     else
                     {
-                        log += "Site Deleted Or SMTP Disabled In Site Settings<br />";
+                        log += "SMTP Disabled In Site Settings<br />";
                     }
                 }
                 else
