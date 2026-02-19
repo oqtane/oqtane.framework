@@ -30,11 +30,41 @@ namespace Oqtane.Infrastructure
 
     public class ConfigManager : IConfigManager
     {
+        private static string appsettingsFilename = "appsettings.json";
+        private static string appsettingsPath = Directory.GetCurrentDirectory();
+        private const string appsettingsOverrideFilename = "appsettings.override.json";
         private readonly IConfigurationRoot _config;
 
         public ConfigManager(IConfigurationRoot config)
         {
             _config = config;
+            appsettingsPath = GetAdditionalAppsettingFilePath() ?? appsettingsPath;
+            appsettingsFilename = GetAdditionalAppsettingFilePath() != null ? appsettingsOverrideFilename : appsettingsFilename;
+        }
+        public static string GetAdditionalAppsettingFilePath()
+        {
+            var overrideSettingsPath = Environment.GetEnvironmentVariable(Constants.AppSettingsOverrideEnvironmentVariable);
+            if (!string.IsNullOrEmpty(overrideSettingsPath))
+            {
+                if (Directory.Exists(overrideSettingsPath))
+                {
+                    return overrideSettingsPath;
+                }
+            }
+            return null;
+        }
+        public static string GetAdditionalAppsettingFileName()
+        {
+            var overrideSettingsPath = GetAdditionalAppsettingFilePath();
+            if (!string.IsNullOrEmpty(overrideSettingsPath))
+            {
+                var filename = Path.Combine(overrideSettingsPath, appsettingsOverrideFilename);
+                if (File.Exists(filename))
+                {
+                    return filename;
+                }
+            }
+            return null;
         }
 
         public IConfigurationSection GetSection(string key)
@@ -74,14 +104,14 @@ namespace Oqtane.Infrastructure
 
         public void AddOrUpdateSetting<T>(string key, T value, bool reload)
         {
-            AddOrUpdateSetting("appsettings.json", key, value, reload);
+            AddOrUpdateSetting(appsettingsFilename, key, value, reload);
         }
 
         public void AddOrUpdateSetting<T>(string file, string key, T value, bool reload)
         {
             try
             {
-                var path = Path.Combine(Directory.GetCurrentDirectory(), file);
+                var path = Path.Combine(appsettingsPath, file);
                 JsonNode node = JsonNode.Parse(File.ReadAllText(path));
                 SetValueRecursively(node, key, value);
                 File.WriteAllText(path, JsonSerializer.Serialize(node, new JsonSerializerOptions() { WriteIndented = true }));
@@ -95,14 +125,14 @@ namespace Oqtane.Infrastructure
 
         public void RemoveSetting(string key, bool reload)
         {
-            RemoveSetting("appsettings.json", key, reload);
+            RemoveSetting(appsettingsFilename, key, reload);
         }
 
         public void RemoveSetting(string file, string key, bool reload)
         {
             try
             {
-                var path = Path.Combine(Directory.GetCurrentDirectory(), file);
+                var path = Path.Combine(appsettingsPath, file);
                 JsonNode node = JsonNode.Parse(File.ReadAllText(path));
                 RemovePropertyRecursively(node, key);
                 File.WriteAllText(path, JsonSerializer.Serialize(node, new JsonSerializerOptions() { WriteIndented = true }));
