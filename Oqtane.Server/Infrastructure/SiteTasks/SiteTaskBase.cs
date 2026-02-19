@@ -4,7 +4,7 @@ using Oqtane.Models;
 
 namespace Oqtane.Infrastructure
 {
-    public class JobTaskBase : IJobTask
+    public class SiteTaskBase : ISiteTask
     {
         public virtual string ExecuteTask(IServiceProvider provider, Site site, string parameters)
         {

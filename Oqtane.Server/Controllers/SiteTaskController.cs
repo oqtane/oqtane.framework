@@ -10,15 +10,15 @@ using Oqtane.Shared;
 namespace Oqtane.Controllers
 {
     [Route(ControllerRoutes.ApiRoute)]
-    public class JobTaskController : Controller
+    public class SiteTaskController : Controller
     {
-        private readonly IJobTaskRepository _jobTasks;
+        private readonly ISiteTaskRepository _siteTasks;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public JobTaskController(IJobTaskRepository jobTasks, ILogManager logger, ITenantManager tenantManager)
+        public SiteTaskController(ISiteTaskRepository siteTasks, ILogManager logger, ITenantManager tenantManager)
         {
-            _jobTasks = jobTasks;
+            _siteTasks = siteTasks;
             _logger = logger;
             _alias = tenantManager.GetAlias();
         }
@@ -26,12 +26,12 @@ namespace Oqtane.Controllers
         // GET api/<controller>/5
         [HttpGet("{id}")]
         [Authorize(Roles = RoleNames.Admin)]
-        public JobTask Get(int id)
+        public SiteTask Get(int id)
         {
-            var jobTask = _jobTasks.GetJobTask(id);
-            if (jobTask.SiteId == _alias.SiteId)
+            var siteTask = _siteTasks.GetSiteTask(id);
+            if (siteTask.SiteId == _alias.SiteId)
             {
-                return jobTask;
+                return siteTask;
             }
             else
             {
@@ -43,21 +43,21 @@ namespace Oqtane.Controllers
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = RoleNames.Admin)]
-        public JobTask Post([FromBody] JobTask jobTask)
+        public SiteTask Post([FromBody] SiteTask siteTask)
         {
-            if (ModelState.IsValid && jobTask.SiteId == _alias.SiteId)
+            if (ModelState.IsValid && siteTask.SiteId == _alias.SiteId)
             {
-                jobTask.IsCompleted = false;
-                jobTask = _jobTasks.AddJobTask(jobTask);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Job Task Added {JobTask}", jobTask);
+                siteTask.IsCompleted = false;
+                siteTask = _siteTasks.AddSiteTask(siteTask);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Site Task Added {SiteTask}", siteTask);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Job Task Post Attempt {JobTask}", jobTask);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Site Task Post Attempt {SiteTask}", siteTask);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                jobTask = null;
+                siteTask = null;
             }
-            return jobTask;
+            return siteTask;
         }
     }
 }

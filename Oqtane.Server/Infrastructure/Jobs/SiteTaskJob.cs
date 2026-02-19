@@ -7,11 +7,11 @@ using Oqtane.Repository;
 
 namespace Oqtane.Infrastructure
 {
-    public class TaskJob : HostedServiceBase
+    public class SiteTaskJob : HostedServiceBase
     {
-        public TaskJob(IServiceScopeFactory serviceScopeFactory) : base(serviceScopeFactory)
+        public SiteTaskJob(IServiceScopeFactory serviceScopeFactory) : base(serviceScopeFactory)
         {
-            Name = "Task Job";
+            Name = "Site Task Job";
             Frequency = "m"; // run every minute
             Interval = 1;
             IsEnabled = true;
@@ -33,8 +33,8 @@ namespace Oqtane.Infrastructure
                 log += $"Processing Site: {site.Name}<br />";
 
                 // get incomplete tasks for site
-                var jobTaskRepository = provider.GetRequiredService<IJobTaskRepository>();
-                var tasks = jobTaskRepository.GetJobTasks(site.SiteId).ToList();
+                var siteTaskRepository = provider.GetRequiredService<ISiteTaskRepository>();
+                var tasks = siteTaskRepository.GetSiteTasks(site.SiteId).ToList();
                 if (tasks != null && tasks.Any())
                 {
                     foreach (var task in tasks)
@@ -42,15 +42,15 @@ namespace Oqtane.Infrastructure
                         log += $"Executing Task: {task.Name}<br />";
 
                         Type taskType = Type.GetType(task.Type);
-                        if (taskType != null && taskType.GetInterface(nameof(IJobTask)) != null)
+                        if (taskType != null && taskType.GetInterface(nameof(ISiteTask)) != null)
                         {
                             try
                             {
                                 tenantManager.SetAlias(tenant.TenantId, site.SiteId);
 
                                 var taskObject = ActivatorUtilities.CreateInstance(provider, taskType);
-                                var taskLog = ((IJobTask)taskObject).ExecuteTask(provider, site, task.Parameters);
-                                taskLog += await ((IJobTask)taskObject).ExecuteTaskAsync(provider, site, task.Parameters);
+                                var taskLog = ((ISiteTask)taskObject).ExecuteTask(provider, site, task.Parameters);
+                                taskLog += await ((ISiteTask)taskObject).ExecuteTaskAsync(provider, site, task.Parameters);
 
                                 task.Status = taskLog;
                             }
@@ -66,7 +66,7 @@ namespace Oqtane.Infrastructure
 
                         // update task
                         task.IsCompleted = true;
-                        jobTaskRepository.UpdateJobTask(task);
+                        siteTaskRepository.UpdateSiteTask(task);
 
                         log += task.Status + "<br />";
                     }

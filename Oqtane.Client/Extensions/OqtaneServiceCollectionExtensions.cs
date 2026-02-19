@@ -41,7 +41,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<ILogService, LogService>();
             services.AddScoped<IJobService, JobService>();
             services.AddScoped<IJobLogService, JobLogService>();
-            services.AddScoped<IJobTaskService, JobTaskService>();
             services.AddScoped<INotificationService, Oqtane.Services.NotificationService>();
             services.AddScoped<IFolderService, FolderService>();
             services.AddScoped<IFileService, FileService>();
@@ -60,6 +59,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IMigrationHistoryService, MigrationHistoryService>();
             services.AddScoped<ISiteGroupService, SiteGroupService>();
             services.AddScoped<ISiteGroupMemberService, SiteGroupMemberService>();
+            services.AddScoped<ISiteTaskService, SiteTaskService>();
             services.AddScoped<IOutputCacheService, OutputCacheService>();
 
             // providers

@@ -4,7 +4,7 @@ using Oqtane.Models;
 
 namespace Oqtane.Infrastructure
 {
-    public interface IJobTask
+    public interface ISiteTask
     {
         string ExecuteTask(IServiceProvider provider, Site site, string parameters);
 

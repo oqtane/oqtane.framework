@@ -1,7 +1,7 @@
 @namespace Oqtane.Modules.Admin.Users
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
-@inject IJobTaskService JobTaskService
+@inject ISiteTaskService SiteTaskService
 @inject IStringLocalizer<Users> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -43,8 +43,8 @@
             var fileid = _filemanager.GetFileId();
             if (fileid != -1)
             {
-                var jobTask = new JobTask(PageState.Site.SiteId, "Import Users", "Oqtane.Infrastructure.ImportUsersTask, Oqtane.Server", $"{fileid}:{_notify}");               
-                await JobTaskService.AddJobTaskAsync(jobTask);
+                var siteTask = new SiteTask(PageState.Site.SiteId, "Import Users", "Oqtane.Infrastructure.ImportUsersTask, Oqtane.Server", $"{fileid}:{_notify}");               
+                await SiteTaskService.AddSiteTaskAsync(siteTask);
                 AddModuleMessage(Localizer["Message.Import.Success"], MessageType.Success);
             }
             else
