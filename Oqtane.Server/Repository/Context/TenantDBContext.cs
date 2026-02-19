@@ -136,5 +136,6 @@ namespace Oqtane.Repository
         public virtual DbSet<MigrationHistory> MigrationHistory { get; set; }
         public virtual DbSet<SiteGroup> SiteGroup { get; set; }
         public virtual DbSet<SiteGroupMember> SiteGroupMember { get; set; }
+        public virtual DbSet<JobTask> JobTask { get; set; }
     }
 }

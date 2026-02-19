@@ -3,7 +3,7 @@ using System;
 namespace Oqtane.Models
 {
     /// <summary>
-    /// Definition of a Job / Task which is run on the server.
+    /// Definition of a Job which is run on the server
     /// When Jobs run, they create a <see cref="JobLog"/>
     /// </summary>
     public class Job : ModelBase
