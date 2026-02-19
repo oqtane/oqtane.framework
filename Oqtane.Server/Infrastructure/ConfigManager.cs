@@ -31,6 +31,9 @@ namespace Oqtane.Infrastructure
 
     public class ConfigManager : IConfigManager
     {
+        private static string appsettingsFilename = "appsettings.json";
+        private static string appsettingsPath = Directory.GetCurrentDirectory();
+        private const string appsettingsOverrideFilename = "appsettings.override.json";
         private readonly IConfigurationRoot _config;
         private readonly IWebHostEnvironment _environment;
         private readonly ILogger<ConfigManager> _filelogger;
