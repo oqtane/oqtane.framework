@@ -21,18 +21,20 @@ namespace Oqtane.Infrastructure
         {
             var log = "";
 
+            // resolve services
             var tenantManager = provider.GetRequiredService<ITenantManager>();
+            var siteRepository = provider.GetRequiredService<ISiteRepository>();
+            var siteTaskRepository = provider.GetRequiredService<ISiteTaskRepository>();
+
             var tenant = tenantManager.GetTenant();
 
             // iterate through sites for current tenant
-            var siteRepository = provider.GetRequiredService<ISiteRepository>();
             var sites = siteRepository.GetSites().ToList();
             foreach (var site in sites.Where(item => !item.IsDeleted))
             {
                 log += $"Processing Site: {site.Name}<br />";
 
                 // get incomplete tasks for site
-                var siteTaskRepository = provider.GetRequiredService<ISiteTaskRepository>();
                 var tasks = siteTaskRepository.GetSiteTasks(site.SiteId).ToList();
                 if (tasks != null && tasks.Any())
                 {
