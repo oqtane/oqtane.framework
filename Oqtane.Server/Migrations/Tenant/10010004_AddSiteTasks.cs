@@ -8,16 +8,16 @@ namespace Oqtane.Migrations.Tenant
 {
     [DbContext(typeof(TenantDBContext))]
     [Migration("Tenant.10.01.00.04")]
-    public class AddJobTasks : MultiDatabaseMigration
+    public class AddSiteTasks : MultiDatabaseMigration
     {
-        public AddJobTasks(IDatabase database) : base(database)
+        public AddSiteTasks(IDatabase database) : base(database)
         {
         }
 
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            var jobTaskEntityBuilder = new JobTaskEntityBuilder(migrationBuilder, ActiveDatabase);
-            jobTaskEntityBuilder.Create();
+            var siteTaskEntityBuilder = new SiteTaskEntityBuilder(migrationBuilder, ActiveDatabase);
+            siteTaskEntityBuilder.Create();
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

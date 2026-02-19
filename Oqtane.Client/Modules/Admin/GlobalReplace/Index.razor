@@ -1,7 +1,7 @@
 @namespace Oqtane.Modules.Admin.GlobalReplace
 @using System.Text.Json
 @inherits ModuleBase
-@inject IJobTaskService JobTaskService
+@inject ISiteTaskService SiteTaskService
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -97,8 +97,8 @@
                     Content = bool.Parse(_content)
                 };
 
-                var jobTask = new JobTask(PageState.Site.SiteId, "Global Replace", "Oqtane.Infrastructure.GlobalReplaceTask, Oqtane.Server", JsonSerializer.Serialize(replace));
-                await JobTaskService.AddJobTaskAsync(jobTask);
+                var siteTask = new SiteTask(PageState.Site.SiteId, "Global Replace", "Oqtane.Infrastructure.GlobalReplaceTask, Oqtane.Server", JsonSerializer.Serialize(replace));
+                await SiteTaskService.AddSiteTaskAsync(siteTask);
 
                 AddModuleMessage(Localizer["Success.Save"], MessageType.Success);
             }

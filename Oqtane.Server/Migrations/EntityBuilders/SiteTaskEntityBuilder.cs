@@ -9,22 +9,22 @@ using Oqtane.Interfaces;
 
 namespace Oqtane.Migrations.EntityBuilders
 {
-    public class JobTaskEntityBuilder : AuditableBaseEntityBuilder<JobTaskEntityBuilder>
+    public class SiteTaskEntityBuilder : AuditableBaseEntityBuilder<SiteTaskEntityBuilder>
     {
-        private const string _entityTableName = "JobTask";
-        private readonly PrimaryKey<JobTaskEntityBuilder> _primaryKey = new("PK_JobTask", x => x.JobTaskId);
-        private readonly ForeignKey<JobTaskEntityBuilder> _siteForeignKey = new("FK_JobTask_Site", x => x.SiteId, "Site", "SiteId", ReferentialAction.Cascade);
+        private const string _entityTableName = "SiteTask";
+        private readonly PrimaryKey<SiteTaskEntityBuilder> _primaryKey = new("PK_SiteTask", x => x.SiteTaskId);
+        private readonly ForeignKey<SiteTaskEntityBuilder> _siteForeignKey = new("FK_SiteTask_Site", x => x.SiteId, "Site", "SiteId", ReferentialAction.Cascade);
 
-        public JobTaskEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
+        public SiteTaskEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;
             ForeignKeys.Add(_siteForeignKey);
         }
 
-        protected override JobTaskEntityBuilder BuildTable(ColumnsBuilder table)
+        protected override SiteTaskEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            JobTaskId = AddAutoIncrementColumn(table,"JobTaskId");
+            SiteTaskId = AddAutoIncrementColumn(table,"SiteTaskId");
             SiteId = AddIntegerColumn(table,"SiteId");
             Name = AddStringColumn(table, "Name", 200);
             Type = AddStringColumn(table, "Type", 200);
@@ -37,7 +37,7 @@ namespace Oqtane.Migrations.EntityBuilders
             return this;
         }
 
-        public OperationBuilder<AddColumnOperation> JobTaskId { get; private set; }
+        public OperationBuilder<AddColumnOperation> SiteTaskId { get; private set; }
 
         public OperationBuilder<AddColumnOperation> SiteId { get; private set; }
 

@@ -7,7 +7,7 @@ using Oqtane.Repository;
 
 namespace Oqtane.Infrastructure
 {
-    public class ImportUsersTask : JobTaskBase
+    public class ImportUsersTask : SiteTaskBase
     {
         public override async Task<string> ExecuteTaskAsync(IServiceProvider provider, Site site, string parameters)
         {

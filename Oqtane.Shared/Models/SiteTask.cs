@@ -1,16 +1,14 @@
-using System;
-
 namespace Oqtane.Models
 {
     /// <summary>
-    /// An instance of a Task which is executed by the TaskJob
+    /// An instance of a SiteTask which is executed by the SiteTaskJob
     /// </summary>
-    public class JobTask : ModelBase
+    public class SiteTask : ModelBase
     {
         /// <summary>
         /// Internal ID
         /// </summary>
-        public int JobTaskId { get; set; }
+        public int SiteTaskId { get; set; }
 
         /// <summary>
         /// Site where the Task should execute
@@ -43,9 +41,9 @@ namespace Oqtane.Models
         public string Status { get; set; }
 
         // constructors
-        public JobTask() { }
+        public SiteTask() { }
 
-        public JobTask(int siteId, string name, string type, string parameters)
+        public SiteTask(int siteId, string name, string type, string parameters)
         {
             SiteId = siteId;
             Name = name;

@@ -8,7 +8,7 @@ using Oqtane.Repository;
 
 namespace Oqtane.Infrastructure
 {
-    public class GlobalReplaceTask : JobTaskBase
+    public class GlobalReplaceTask : SiteTaskBase
     {
         public override string ExecuteTask(IServiceProvider provider, Site site, string parameters)
         {
