@@ -110,7 +110,7 @@ namespace Oqtane.Infrastructure
                         if (changed && globalReplace.Modules)
                         {
                             pageModuleRepository.UpdatePageModule(pageModule);
-                            log += $"Module Updated: {pageModule.Title} - /{page.Path}<br />";
+                            log += $"Module Updated: {pageModule.Title} Page: /{page.Path}<br />";
                         }
 
                         // module content
@@ -127,7 +127,7 @@ namespace Oqtane.Infrastructure
                                     {
                                         moduleContent = moduleContent.Replace(find, replace, comparisonType);
                                         ((IPortable)moduleObject).ImportModule(pageModule.Module, moduleContent, pageModule.Module.ModuleDefinition.Version);
-                                        log += $"Module Content Updated: {pageModule.Title} - /{page.Path}<br />";
+                                        log += $"Module Content Updated: {pageModule.Title} Page: /{page.Path}<br />";
                                     }
                                 }
                                 catch (Exception ex)
