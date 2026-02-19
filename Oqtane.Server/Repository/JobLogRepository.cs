@@ -61,8 +61,8 @@ namespace Oqtane.Repository
 
         public void DeleteJobLog(int jobLogId)
         {
-            JobLog joblog = _db.JobLog.Find(jobLogId);
-            _db.JobLog.Remove(joblog);
+            JobLog jobLog = _db.JobLog.Find(jobLogId);
+            _db.JobLog.Remove(jobLog);
             _db.SaveChanges();
         }
     }

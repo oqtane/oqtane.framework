@@ -418,42 +418,6 @@ namespace Oqtane.Controllers
             return requirements;
         }
 
-        // POST api/<controller>/import?siteid=x&fileid=y&notify=z
-        [HttpPost("import")]
-        [Authorize(Roles = RoleNames.Admin)]
-        public async Task<Dictionary<string, string>> Import(string siteid, string fileid, string notify)
-        {
-            if (int.TryParse(siteid, out int SiteId) && SiteId == _tenantManager.GetAlias().SiteId && int.TryParse(fileid, out int FileId) && bool.TryParse(notify, out bool Notify))
-            {
-                var file = _files.GetFile(FileId);
-                if (file != null)
-                {
-                    if (_userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.PermissionList))
-                    {
-                        return await _userManager.ImportUsers(SiteId, _files.GetFilePath(file), Notify);
-                    }
-                    else
-                    {
-                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Import Attempt {SiteId} {FileId}", siteid, fileid);
-                        HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                        return null;
-                    }
-                }
-                else
-                {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Import File Does Not Exist {SiteId} {FileId}", siteid, fileid);
-                    HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                    return null;
-                }
-            }
-            else
-            {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Import Attempt {SiteId} {FileId}", siteid, fileid);
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                return null;
-            }
-        }
-
         // GET: api/<controller>/passkey?id=x
         [HttpGet("passkey")]
         [Authorize]

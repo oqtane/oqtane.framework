@@ -154,7 +154,7 @@
     <value>Specify if module properties should be updated (ie. title, header, footer)</value>
   </data>
   <data name="Success.Save" xml:space="preserve">
-    <value>Your Global Replace Request Has Been Submitted And Will Be Executed Shortly</value>
+    <value>Your Global Replace Request Has Been Submitted And Will Be Executed Shortly. Please Be Patient.</value>
   </data>
   <data name="Error.Save" xml:space="preserve">
     <value>Error Saving Global Replace</value>

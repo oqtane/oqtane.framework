@@ -162,15 +162,6 @@ namespace Oqtane.Services
         Task<string> GetPasswordRequirementsAsync(int siteId);
 
         /// <summary>
-        /// Bulk import of users
-        /// </summary>
-        /// <param name="siteId">ID of a <see cref="Site"/></param>
-        /// <param name="fileId">ID of a <see cref="File"/></param>
-        /// <param name="notify">Indicates if new users should be notified by email</param>
-        /// <returns></returns>
-        Task<Dictionary<string, string>> ImportUsersAsync(int siteId, int fileId, bool notify);
-
-        /// <summary>
         /// Get passkeys for a user
         /// </summary>
         /// <param name="userId"></param>
@@ -349,11 +340,6 @@ namespace Oqtane.Services
 
             // format requirements
             return string.Format(passwordValidationCriteriaTemplate, minimumlength, uniquecharacters, digitRequirement, uppercaseRequirement, lowercaseRequirement, punctuationRequirement);
-        }
-
-        public async Task<Dictionary<string, string>> ImportUsersAsync(int siteId, int fileId, bool notify)
-        {
-            return await PostJsonAsync<Dictionary<string, string>>($"{Apiurl}/import?siteid={siteId}&fileid={fileId}&notify={notify}", null);
         }
 
         public async Task<List<UserPasskey>> GetPasskeysAsync(int userId)

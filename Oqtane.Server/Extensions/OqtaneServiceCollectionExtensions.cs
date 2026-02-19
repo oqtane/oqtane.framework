@@ -214,6 +214,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<ILogService, LogService>();
             services.AddScoped<IJobService, JobService>();
             services.AddScoped<IJobLogService, JobLogService>();
+            services.AddScoped<IJobTaskService, JobTaskService>();
             services.AddScoped<INotificationService, Oqtane.Services.NotificationService>();
             services.AddScoped<IFolderService, FolderService>();
             services.AddScoped<IFileService, FileService>();
@@ -274,6 +275,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<ILogRepository, LogRepository>();
             services.AddTransient<IJobRepository, JobRepository>();
             services.AddTransient<IJobLogRepository, JobLogRepository>();
+            services.AddTransient<IJobTaskRepository, JobTaskRepository>();
             services.AddTransient<INotificationRepository, NotificationRepository>();
             services.AddTransient<IFolderRepository, FolderRepository>();
             services.AddTransient<IFileRepository, FileRepository>();
