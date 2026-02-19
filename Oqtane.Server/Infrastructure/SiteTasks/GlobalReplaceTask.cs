@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Models;
@@ -123,9 +124,9 @@ namespace Oqtane.Infrastructure
                                 {
                                     var moduleObject = ActivatorUtilities.CreateInstance(provider, moduleType);
                                     var moduleContent = ((IPortable)moduleObject).ExportModule(pageModule.Module);
-                                    if (!string.IsNullOrEmpty(moduleContent) && moduleContent.Contains(find, comparisonType) && globalReplace.Content)
+                                    if (!string.IsNullOrEmpty(moduleContent) && moduleContent.Contains(WebUtility.HtmlEncode(find), comparisonType) && globalReplace.Content)
                                     {
-                                        moduleContent = moduleContent.Replace(find, replace, comparisonType);
+                                        moduleContent = moduleContent.Replace(WebUtility.HtmlEncode(find), WebUtility.HtmlEncode(replace), comparisonType);
                                         ((IPortable)moduleObject).ImportModule(pageModule.Module, moduleContent, pageModule.Module.ModuleDefinition.Version);
                                         log += $"Module Content Updated: {pageModule.Title} Page: /{page.Path}<br />";
                                     }
