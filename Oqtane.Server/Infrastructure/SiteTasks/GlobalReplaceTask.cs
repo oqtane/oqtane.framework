@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Repository;
+using Oqtane.Shared;
 
 namespace Oqtane.Infrastructure
 {
@@ -19,6 +20,8 @@ namespace Oqtane.Infrastructure
             var siteRepository = provider.GetRequiredService<ISiteRepository>();
             var pageRepository = provider.GetRequiredService<IPageRepository>();
             var pageModuleRepository = provider.GetRequiredService<IPageModuleRepository>();
+            var TenantManager = provider.GetRequiredService<ITenantManager>();
+            var syncManager = provider.GetRequiredService<ISyncManager>();
 
             if (!string.IsNullOrEmpty(parameters))
             {
@@ -28,6 +31,7 @@ namespace Oqtane.Infrastructure
                 var find = globalReplace.Find;
                 var replace = globalReplace.Replace;
                 var comparisonType = (globalReplace.CaseSensitive) ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+                var refresh = false;
 
                 log += $"Replacing: '{find}' With: '{replace}' Case Sensitive: {globalReplace.CaseSensitive}<br />";
 
@@ -53,6 +57,7 @@ namespace Oqtane.Infrastructure
                 {
                     siteRepository.UpdateSite(site);
                     log += $"Site Updated<br />";
+                    refresh = true;
                 }
 
                 var pages = pageRepository.GetPages(site.SiteId).ToList();
@@ -87,6 +92,7 @@ namespace Oqtane.Infrastructure
                     {
                         pageRepository.UpdatePage(page);
                         log += $"Page Updated: /{page.Path}<br />";
+                        refresh = true;
                     }
 
                     foreach (var pageModule in pageModules.Where(item => item.PageId == page.PageId))
@@ -112,6 +118,7 @@ namespace Oqtane.Infrastructure
                         {
                             pageModuleRepository.UpdatePageModule(pageModule);
                             log += $"Module Updated: {pageModule.Title} Page: /{page.Path}<br />";
+                            refresh = true;
                         }
 
                         // module content
@@ -138,6 +145,12 @@ namespace Oqtane.Infrastructure
                             }
                         }
                     }
+                }
+
+                if (refresh)
+                {
+                    // clear cache
+                    syncManager.AddSyncEvent(TenantManager.GetAlias(), EntityNames.Site, site.SiteId, SyncEventActions.Refresh);
                 }
             }
             else
