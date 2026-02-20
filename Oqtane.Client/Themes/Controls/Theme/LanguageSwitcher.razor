@@ -56,7 +56,7 @@
             var culture = PageState.QueryString["culture"];
             if (PageState.Site.Languages.Any(item => item.Code == culture))
             {
-                await LocalizationCookieService.SetLocalizationCookieAsync(culture);
+                await LocalizationCookieService.SetLocalizationCookieAsync(PageState.Site.CultureCode, culture);
             }
             NavigationManager.NavigateTo(NavigationManager.Uri.Replace($"?culture={culture}", ""));
         }
@@ -66,7 +66,7 @@
     {
         if (culture != CultureInfo.CurrentUICulture.Name)
         {
-            var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
+            var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(PageState.Site.CultureCode, culture));
             var interop = new Interop(JSRuntime);
             await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360, true, "Lax");
             NavigationManager.NavigateTo(NavigationManager.Uri, true);
