@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -13,6 +14,7 @@ using Oqtane.Enums;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
+using Oqtane.Providers;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Services;
@@ -32,8 +34,19 @@ namespace Oqtane.Pages
         private readonly Alias _alias;
         private readonly IImageService _imageService;
         private readonly ISettingRepository _settingRepository;
+        private readonly IFolderProviderFactory _folderProviderFactory;
 
-        public FilesModel(IWebHostEnvironment environment, IFileRepository files, IUserPermissions userPermissions, IUrlMappingRepository urlMappings, ISyncManager syncManager, ILogManager logger, ITenantManager tenantManager, IImageService imageService, ISettingRepository settingRepository)
+        public FilesModel(
+            IWebHostEnvironment environment,
+            IFileRepository files,
+            IUserPermissions userPermissions,
+            IUrlMappingRepository urlMappings,
+            ISyncManager syncManager,
+            ILogManager logger,
+            ITenantManager tenantManager,
+            IImageService imageService,
+            ISettingRepository settingRepository,
+            IFolderProviderFactory folderProviderFactory)
         {
             _environment = environment;
             _files = files;
@@ -44,9 +57,10 @@ namespace Oqtane.Pages
             _alias = tenantManager.GetAlias();
             _imageService = imageService;
             _settingRepository = settingRepository;
+            _folderProviderFactory = folderProviderFactory;
         }
 
-        public IActionResult OnGet(string path)
+        public async Task<IActionResult> OnGet(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
             {
@@ -87,7 +101,6 @@ namespace Oqtane.Pages
             if (file == null)
             {
                 // look for url mapping
-
                 var urlMapping = _urlMappings.GetUrlMapping(_alias.SiteId, "files/" + folderpath + filename);
                 if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
                 {
@@ -135,7 +148,6 @@ namespace Oqtane.Pages
 
             string etag = Convert.ToString(file.ModifiedOn.Ticks ^ file.Size, 16);
             string downloadName = file.Name;
-            string filepath = _files.GetFilePath(file);
 
             var header = "";
             if (HttpContext.Request.Headers.TryGetValue(HeaderNames.IfNoneMatch, out var ifNoneMatch))
@@ -149,9 +161,10 @@ namespace Oqtane.Pages
                 return Content(String.Empty);
             }
 
-            if (!System.IO.File.Exists(filepath))
+            var folderProvider = _folderProviderFactory.GetProvider(file.Folder.FolderConfigId);
+            if (!await folderProvider.FileExistsAsync(file.Folder, file.Name))
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {FilePath}", filepath);
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {Folder}{FilePath}", file.Folder.Path, file.Name);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
                 return BrokenFile();
             }
@@ -184,6 +197,7 @@ namespace Oqtane.Pages
                 isRequestingImageManipulation = true;
             }
 
+            Stream imageStream = null;
             if (isRequestingImageManipulation)
             {
                 var _ImageFiles = _settingRepository.GetSetting(EntityNames.Site, _alias.SiteId, "ImageFiles")?.SettingValue;
@@ -206,14 +220,15 @@ namespace Oqtane.Pages
                     height = file.ImageHeight;
                 }
 
-                string imagepath = filepath.Replace(Path.GetExtension(filepath), "." + width.ToString() + "x" + height.ToString() + "." + format);
-                if (!System.IO.File.Exists(imagepath) || bool.Parse(recreate))
+                
+                string imageName = file.Name.Replace(Path.GetExtension(file.Name), "." + width.ToString() + "x" + height.ToString() + "." + format);
+                if (!await folderProvider.FileExistsAsync(file.Folder, imageName) || bool.Parse(recreate))
                 {
                     // user has edit access to folder or folder supports the image size being created
                     if (_userPermissions.IsAuthorized(User, PermissionNames.Edit, file.Folder.PermissionList) ||
                         (!string.IsNullOrEmpty(file.Folder.ImageSizes) && (file.Folder.ImageSizes == "*" || file.Folder.ImageSizes.ToLower().Split(",").Contains(width.ToString() + "x" + height.ToString()))))
                     {
-                        imagepath = _imageService.CreateImage(filepath, width, height, mode, position, background, rotateStr, format, imagepath);
+                        imageStream = await _imageService.CreateImageAsync(file, width, height, mode, position, background, rotateStr, format, imageName);
                     }
                     else
                     {
@@ -223,28 +238,28 @@ namespace Oqtane.Pages
                     }
                 }
 
-                if (string.IsNullOrWhiteSpace(imagepath))
+                if (imageStream == null)
                 {
                     _logger.Log(LogLevel.Error, this, LogFunction.Create, "Error Displaying Image For File {File} {Width} {Height}", file, widthStr, heightStr);
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
                     return BrokenFile();
                 }
 
-                downloadName = file.Name.Replace(Path.GetExtension(filepath), "." + width.ToString() + "x" + height.ToString() + "." + format);
-                filepath = imagepath;
+                downloadName = file.Name.Replace(Path.GetExtension(file.Name), "." + width.ToString() + "x" + height.ToString() + "." + format);
             }
 
-            if (!System.IO.File.Exists(filepath))
+            if (!await folderProvider.FileExistsAsync(file.Folder, file.Name))
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {FilePath}", filepath);
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {Folder}{FilePath}", file.Folder.Path, file.Name);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
                 return BrokenFile();
             }
 
+            var stream = await folderProvider.GetFileStreamAsync(file);
             if (download)
             {
                 _syncManager.AddSyncEvent(_alias, EntityNames.File, file.FileId, "Download");
-                return PhysicalFile(filepath, MimeUtilities.GetMimeType(downloadName), downloadName);
+                return File(stream, MimeUtilities.GetMimeType(downloadName), downloadName);
             }
             else
             {
@@ -253,7 +268,7 @@ namespace Oqtane.Pages
                     HttpContext.Response.Headers.Append(HeaderNames.CacheControl, value: file.Folder.CacheControl);
                 }
                 HttpContext.Response.Headers.Append(HeaderNames.ETag, etag);
-                return PhysicalFile(filepath, MimeUtilities.GetMimeType(downloadName));
+                return File(stream, MimeUtilities.GetMimeType(downloadName));
             }
         }
 

@@ -1,0 +1,229 @@
+@namespace Oqtane.Modules.Admin.Files
+@using Microsoft.Extensions.DependencyInjection
+@inherits ModuleBase
+@inject ISettingService SettingService
+@inject IServiceProvider ServiceProvider
+@inject IFolderConfigService FolderConfigService
+@inject NavigationManager NavigationManager
+@inject IStringLocalizer<EditConfig> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+@if (_providers != null)
+{
+    <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="provider" HelpText="Select the folder provider." ResourceKey="Provider">Provider:</Label>
+                <div class="col-sm-9">
+                    @if (_folderConfigId > 0)
+                    {
+                        <input id="provider" class="form-control" readonly value="@_provider" />
+                    }
+                    else
+                    {
+                        <select id="provider" class="form-select" value="@_provider" @onchange="OnProviderChanged" required>
+                            @foreach (var item in _providers.Where(i => _folderConfigId > 0 || i.Key != Constants.DefaultFolderProvider))
+                            {
+                                <option value="@item.Key">@item.Value</option>
+                            }
+                        </select>
+                    }
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="configname" HelpText="Enter the folder config name." ResourceKey="ConfigName">Config Name:</Label>
+                <div class="col-sm-9">
+                    <input id="configname" class="form-control" @bind="_configName" required />
+                </div>
+            </div>
+            @_folderProviderSettingsFragment
+        </div>
+    </form>
+    <br />
+    <button type="button" class="btn btn-success" @onclick="SaveConfig">@SharedLocalizer["Save"]</button>
+    @((MarkupString)"&nbsp;")
+    <NavLink class="btn btn-secondary" href="@(ReturnUrl())">@SharedLocalizer["Cancel"]</NavLink>
+    @if (PageState.QueryString.ContainsKey("id"))
+    {
+        @((MarkupString)"&nbsp;")
+        <ActionDialog Header="Delete Folder Config" Message="Are You Sure You Wish To Delete This Folder Config?" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteConfig())" ResourceKey="DeleteConfig" />
+    }
+}
+
+@code {
+    private ElementReference form;
+    private bool validated = false;
+    private IDictionary<string, string> _providers;
+    private IEnumerable<FolderConfig> _folderConfigs;
+    private int _folderConfigId = -1;
+    private string _configName;
+    private string _provider;
+    private IFolderProviderSettingsControl _folderProviderSettingsControl;
+    private RenderFragment _folderProviderSettingsFragment;
+
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+
+    public override string Title => "Folder Config Management";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _providers = await FolderConfigService.GetProvidersAsync();
+            _folderConfigs = await FolderConfigService.GetFolderConfigsAsync(PageState.Site.SiteId);
+
+            //remove default provider from the list
+            _providers.Remove(Constants.DefaultFolderProvider);
+
+            if (PageState.QueryString.ContainsKey("id"))
+            {
+                _folderConfigId = Int32.Parse(PageState.QueryString["id"]);
+                var folderConfig = await FolderConfigService.GetFolderConfigAsync(_folderConfigId);
+                if (folderConfig != null)
+                {
+                    _configName = folderConfig.Name;
+                    _provider = folderConfig.Provider;
+                }
+            }
+            else
+            {
+                _provider = _providers.Keys.FirstOrDefault();
+            }
+
+            await LoadFolderProviderSettingsControl();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Folder Config {FolderConfigId} {Error}", _folderConfigId, ex.Message);
+            AddModuleMessage(Localizer["Error.FolderConfig.Load"], MessageType.Error);
+        }
+    }
+
+    private async Task SaveConfig()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
+        {
+            if (string.IsNullOrEmpty(_configName))
+            {
+                AddModuleMessage(Localizer["Message.Required.ConfigName"], MessageType.Warning);
+                return;
+            }
+
+            try
+            {
+                var folderConfig = _folderConfigId > 0 ? await FolderConfigService.GetFolderConfigAsync(_folderConfigId) : new FolderConfig();
+
+                // check for duplicate folder config names
+                if (_folderConfigs.Any(i => i.Name.Equals(_configName, StringComparison.OrdinalIgnoreCase) && i.FolderConfigId != _folderConfigId))
+                {
+                    AddModuleMessage(Localizer["Message.FolderConfig.Duplicate"], MessageType.Warning);
+                    return;
+                }
+
+                folderConfig.SiteId = PageState.Site.SiteId;
+                folderConfig.Name = _configName;
+                folderConfig.Provider = _provider;
+
+                if (_folderConfigId >  0)
+                {
+                    folderConfig = await FolderConfigService.UpdateFolderConfigAsync(folderConfig);
+                }
+                else
+                {
+                    folderConfig = await FolderConfigService.AddFolderConfigAsync(folderConfig);
+                    _folderConfigId = folderConfig.FolderConfigId;
+                }
+
+                var settings = await _folderProviderSettingsControl?.GetSettingsAsync();
+                if (settings != null)
+                {
+                    await FolderConfigService.SaveSettingsAsync(folderConfig.FolderConfigId, settings);
+                }
+
+                if (folderConfig != null)
+                {
+                    await logger.LogInformation("Folder Config Saved {FolderConfig}", folderConfig);
+                    NavigationManager.NavigateTo(ReturnUrl());
+                }
+                else
+                {
+                    AddModuleMessage(Localizer["Error.FolderConfig.Save"], MessageType.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Saving Folder Config {FolderConfigId} {Error}", _folderConfigId, ex.Message);
+                AddModuleMessage(Localizer["Error.FolderConfig.Save"], MessageType.Error);
+            }
+        }
+        else
+        {
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+        }
+    }
+
+    private async Task DeleteConfig()
+    {
+        try
+        {
+            await FolderConfigService.DeleteFolderConfigAsync(_folderConfigId);
+            await logger.LogInformation("Folder Config Deleted {FolderConfig}", _folderConfigId);
+            NavigationManager.NavigateTo(NavigateUrl());
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Folder Config {FolderConfig} {Error}", _folderConfigId, ex.Message);
+            AddModuleMessage(Localizer["Error.Folder.Delete"], MessageType.Error);
+        }
+    }
+
+    private async Task OnProviderChanged(ChangeEventArgs e)
+    {
+        _provider = e.Value.ToString();
+        await LoadFolderProviderSettingsControl();
+    }
+
+    private async Task LoadFolderProviderSettingsControl()
+    {
+        _folderProviderSettingsControl = null;
+        _folderProviderSettingsFragment = null;
+
+        var settingsControlType = await FolderConfigService.GetProviderSettingTypeAsync(_provider);
+        if (!string.IsNullOrEmpty(settingsControlType))
+        {
+            var type = Type.GetType(settingsControlType);
+            if (type != null && typeof(IFolderProviderSettingsControl).IsAssignableFrom(type))
+            {
+                var settings = await FolderConfigService.GetSettingsAsync(_folderConfigId);
+                _folderProviderSettingsFragment = builder =>
+                {
+                    var sequence = 0;
+                    builder.OpenComponent(sequence++, type);
+                    if (settings != null)
+                    {
+                        foreach (var key in settings.Keys)
+                        {
+                            builder.AddAttribute(sequence++, key, settings[key]);
+                        }
+                    }
+                    builder.AddComponentReferenceCapture(sequence++, e => _folderProviderSettingsControl = (IFolderProviderSettingsControl)e);
+
+                    builder.CloseComponent();
+                };
+            }
+        }
+    }
+
+    private string ReturnUrl()
+    {
+        var returnUrl = !string.IsNullOrEmpty(PageState.ReturnUrl) ? PageState.ReturnUrl : NavigateUrl();
+        if (!returnUrl.Contains("cid=") && _folderConfigId > 0)
+        {
+            var delimiter = returnUrl.Contains("?") ? "&" : "?";
+            returnUrl += $"{delimiter}cid={_folderConfigId}";
+        }
+        return returnUrl;
+    }
+}
