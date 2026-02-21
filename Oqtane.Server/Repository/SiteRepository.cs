@@ -61,7 +61,8 @@ namespace Oqtane.Repository
             ISettingRepository settingRepository,
             IServiceProvider serviceProvider,
             IConfigurationRoot config,
-            IServerStateManager serverState,
+            ITenantManager tenantManager,
+            ICacheManager cache,
             ILogManager logger,
             IFolderProviderFactory folderProviderFactory)
         {

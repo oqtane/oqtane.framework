@@ -61,9 +61,26 @@ namespace Oqtane.Managers
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly ICacheManager _cache;
+        private readonly IFolderProviderFactory _folderProviderFactory; 
         private readonly IStringLocalizer<UserManager> _localizer;
 
-        public UserManager(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, IProfileRepository profiles, ISettingRepository settings, ISiteRepository sites, ISyncManager syncManager, ILogManager logger, ICacheManager cache, IStringLocalizer<UserManager> localizer)
+        public UserManager(
+            IUserRepository users,
+            IRoleRepository roles,
+            IUserRoleRepository userRoles,
+            UserManager<IdentityUser> identityUserManager,
+            SignInManager<IdentityUser> identitySignInManager,
+            ITenantManager tenantManager,
+            INotificationRepository notifications,
+            IFolderRepository folders,
+            IProfileRepository profiles,
+            ISettingRepository settings,
+            ISiteRepository sites,
+            ISyncManager syncManager,
+            ILogManager logger,
+            ICacheManager cache,
+            IFolderProviderFactory folderProviderFactory,
+            IStringLocalizer<UserManager> localizer)
         {
             _users = users;
             _roles = roles;
