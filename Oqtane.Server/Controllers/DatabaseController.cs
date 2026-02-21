@@ -24,6 +24,11 @@ namespace Oqtane.Controllers
         public IEnumerable<Models.Database> Get()
         {
             var databases = _databaseOptions.Value;
+            if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+            {
+                // on non-Windows platforms, LocalDB is not supported, so remove it from the list of available databases
+                databases.RemoveAll(item => item.Name == "LocalDB");
+            }
             var master = _config.GetSetting(SettingKeys.DatabaseSection, SettingKeys.DatabaseTypeKey, "");
             if (master != "" && databases.Exists(item => item.DBType == master))
             {
