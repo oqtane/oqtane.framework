@@ -49,7 +49,10 @@ namespace Oqtane.Infrastructure.SiteTemplates
                     new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                 },
                 PageTemplateModules = new List<PageTemplateModule> {
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Welcome To Oqtane...", Pane = PaneNames.Default, 
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client",
+                        Title = "Welcome To Oqtane...",
+                        Pane = PaneNames.Default,
+                        Order = 1,
                         PermissionList = new List<Permission> {
                             new Permission(PermissionNames.View, RoleNames.Everyone, true),
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -60,7 +63,10 @@ namespace Oqtane.Infrastructure.SiteTemplates
                         "<p><a href=\"https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor\" target=\"_new\">Blazor</a> is a modern front-end web framework based on HTML, CSS, and C# that helps you build web applications faster. Blazor provides a component-based architecture with server-side rendering and full client-side interactivity in a single solution, where you can switch between server-side and client-side rendering modes and even mix them in the same web page. For desktop or mobile scenarios, Blazor Hybrid is part of .NET MAUI and uses a Web View to render components natively on all modern devices.</p>" +
                         "<p>Blazor is a feature of <a href=\"https://dotnet.microsoft.com/apps/aspnet\" target=\"_new\">ASP.NET</a>, the popular cross platform development framework from Microsoft that provides powerful tools and libraries for building modern software applications.</p>"
                     },
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "MIT License", Pane = PaneNames.Default,
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client",
+                        Title = "MIT License",
+                        Pane = PaneNames.Default,
+                        Order = 3,
                         PermissionList = new List<Permission> {
                             new Permission(PermissionNames.View, RoleNames.Everyone, true),
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -71,7 +77,10 @@ namespace Oqtane.Infrastructure.SiteTemplates
                         "<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>" +
                         "<p>THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>"
                     },
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Secure Content", Pane = PaneNames.Default,
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client",
+                        Title = "Secure Content",
+                        Pane = PaneNames.Default,
+                        Order = 5,
                         PermissionList = new List<Permission> {
                             new Permission(PermissionNames.View, RoleNames.Registered, true),
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -96,7 +105,10 @@ namespace Oqtane.Infrastructure.SiteTemplates
                     new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                 },
                 PageTemplateModules = new List<PageTemplateModule> {
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Secure Content", Pane = PaneNames.Default,
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client",
+                        Title = "Secure Content",
+                        Pane = PaneNames.Default,
+                        Order = 1,
                         PermissionList = new List<Permission> {
                             new Permission(PermissionNames.View, RoleNames.Registered, true),
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -121,7 +133,10 @@ namespace Oqtane.Infrastructure.SiteTemplates
                     new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                 },
                 PageTemplateModules = new List<PageTemplateModule> {
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "My Page", Pane = PaneNames.Default,
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client",
+                        Title = "My Page",
+                        Pane = PaneNames.Default,
+                        Order = 1,
                         PermissionList = new List<Permission> {
                             new Permission(PermissionNames.View, RoleNames.Everyone, true),
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
