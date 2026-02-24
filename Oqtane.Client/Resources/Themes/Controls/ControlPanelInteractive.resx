@@ -201,4 +201,7 @@
   <data name="Synchronize" xml:space="preserve">
     <value>Synchronize Site</value>
   </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Copy Page</value>
+  </data>
 </root>

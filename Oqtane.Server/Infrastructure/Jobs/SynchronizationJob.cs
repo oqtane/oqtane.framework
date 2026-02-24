@@ -17,7 +17,7 @@ namespace Oqtane.Infrastructure
 
         // synchronization only supports sites in the same tenant (database)
         // module title is used as a key to identify module instances on a page
-        // modules must implement ISynchronizable interface
+        // modules must implement ISynchronizable interface for content synchronization
         // change detection does not support deleted items as key values will usually be different due to localization
 
         // define settings that should not be synchronized (should be extensible in the future)
