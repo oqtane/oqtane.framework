@@ -368,7 +368,7 @@ namespace Oqtane.Infrastructure
                     log += SynchronizeSettings(settingRepository, siteGroupMember, EntityNames.Folder, primaryFolder.FolderId, secondaryFolder.FolderId);
 
                     // files
-                    log += SynchronizeFiles(provider, folderRepository, fileRepository, siteGroupMember, primaryFolder, secondaryFolder);
+                    log += await SynchronizeFiles(provider, folderProviderFactory, folderRepository, fileRepository, siteGroupMember, primaryFolder, secondaryFolder);
                 }
                 else // change detection
                 {
@@ -380,7 +380,7 @@ namespace Oqtane.Infrastructure
                         log += SynchronizeSettings(settingRepository, siteGroupMember, EntityNames.Folder, primaryFolder.FolderId, -1);
 
                         // files
-                        log += SynchronizeFiles(provider, folderRepository, fileRepository, siteGroupMember, primaryFolder, null);
+                        log += await SynchronizeFiles(provider, folderProviderFactory, folderRepository, fileRepository, siteGroupMember, primaryFolder, null);
                     }
                 }
             }
@@ -398,7 +398,7 @@ namespace Oqtane.Infrastructure
             return log;
         }
 
-        private string SynchronizeFiles(IServiceProvider provider, IFolderRepository folderRepository, IFileRepository fileRepository, SiteGroupMember siteGroupMember, Folder primaryFolder, Folder secondaryFolder)
+        private async Task<string> SynchronizeFiles(IServiceProvider provider, IFolderProviderFactory folderProviderFactory, IFolderRepository folderRepository, IFileRepository fileRepository, SiteGroupMember siteGroupMember, Folder primaryFolder, Folder secondaryFolder)
         {
             var log = "";
 
@@ -436,13 +436,13 @@ namespace Oqtane.Infrastructure
                         if (file == null)
                         {
                             fileRepository.AddFile(secondaryFile);
-                            SynchronizeFile(folderRepository, primaryFolder, primaryFile, secondaryFolder, secondaryFile);
+                            await SynchronizeFile(folderRepository, folderProviderFactory, primaryFolder, primaryFile, secondaryFolder, secondaryFile);
                             log += Log(siteGroupMember, $"File Added: {CreateLink(siteGroupMember.AliasName + "/" + secondaryFolder.Path + secondaryFile.Name)}");
                         }
                         else
                         {
                             fileRepository.UpdateFile(secondaryFile);
-                            SynchronizeFile(folderRepository, primaryFolder, primaryFile, secondaryFolder, secondaryFile);
+                            await SynchronizeFile(folderRepository, folderProviderFactory, primaryFolder, primaryFile, secondaryFolder, secondaryFile);
                             log += Log(siteGroupMember, $"File Updated: {CreateLink(siteGroupMember.AliasName + "/" + secondaryFolder.Path + secondaryFile.Name)}");
                         }
                     }
@@ -467,8 +467,8 @@ namespace Oqtane.Infrastructure
                 foreach (var secondaryFile in secondaryFiles)
                 {
                     fileRepository.DeleteFile(secondaryFile.FileId);
-                    var secondaryPath = Path.Combine(folderRepository.GetFolderPath(secondaryFolder), secondaryFile.Name);
-                    System.IO.File.Delete(secondaryPath);
+                    var folderProvider = folderProviderFactory.GetProvider(secondaryFolder.FolderConfigId);
+                    await folderProvider.DeleteFileAsync(secondaryFile);
                     log += Log(siteGroupMember, $"File Deleted: {CreateLink(siteGroupMember.AliasName + "/" + secondaryFolder.Path + secondaryFile.Name)}");
                 }
             }
