@@ -209,8 +209,7 @@ namespace Oqtane.Infrastructure
             if (siteGroupMember.SiteGroup.Type == SiteGroupTypes.ChangeDetection && !string.IsNullOrEmpty(log))
             {
                 // send change log to administrators
-                SendNotifications(provider, secondarySite.SiteId, secondarySite.Name, log);
-                log += Log(siteGroupMember, $"Change Log Sent To Administrators For Secondary Site: {secondarySite.Name}");
+                log += SendNotifications(provider, siteGroupMember, secondarySite.SiteId, secondarySite.Name, log);
             }
 
             return log;
@@ -849,16 +848,29 @@ namespace Oqtane.Infrastructure
             return log;
         }
 
-        private void SendNotifications(IServiceProvider provider, int siteId, string siteName, string log)
+        private string SendNotifications(IServiceProvider provider, SiteGroupMember siteGroupMember, int siteId, string siteName, string changeLog)
         {
             var userRoleRepository = provider.GetRequiredService<IUserRoleRepository>();
             var notificationRepository = provider.GetRequiredService<INotificationRepository>();
+            var log = "";
 
-            foreach (var userRole in userRoleRepository.GetUserRoles(RoleNames.Admin, siteId))
+            // get administrators for site
+            var userRoles = userRoleRepository.GetUserRoles(RoleNames.Admin, siteId);
+            if (userRoles != null && userRoles.Any())
             {
-                var notification = new Notification(siteId, userRole.User, $"{siteName} Change Log", log);
-                notificationRepository.AddNotification(notification);
+                foreach (var userRole in userRoles)
+                {
+                    var notification = new Notification(siteId, userRole.User, $"{siteName} Change Log", changeLog);
+                    notificationRepository.AddNotification(notification);
+                }
+                log += Log(siteGroupMember, $"Change Log Sent To Administrators For Secondary Site: {siteName}");
             }
+            else
+            {
+                log += Log(siteGroupMember, $"Error Sending Change Log - Secondary Site {siteName} Does Not Have Any Administrators Defined");
+            }
+
+            return log;
         }
 
         private string Log(SiteGroupMember siteGroupMember, string content)
