@@ -1,16 +1,15 @@
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Oqtane.Models;
-using Oqtane.Shared;
 using System.Linq;
-using Oqtane.Security;
 using System.Net;
+using System.Security;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
+using Oqtane.Models;
 using Oqtane.Repository;
-using System.Xml.Linq;
-using Microsoft.AspNetCore.Diagnostics;
+using Oqtane.Security;
+using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
@@ -498,6 +497,79 @@ namespace Oqtane.Controllers
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
-    }
 
+        // POST api/<controller>/5/6
+        [HttpPost("{fromPageId}/{toPageId}/{usePagePermissions}")]
+        [Authorize(Roles = RoleNames.Registered)]
+        public void Post(int fromPageId, int toPageId, bool usePagePermissions)
+        {
+            var fromPage = _pages.GetPage(fromPageId);
+            if (fromPage != null && fromPage.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, fromPage.PermissionList))
+            {
+                var toPage = _pages.GetPage(toPageId);
+                if (toPage != null && toPage.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, toPage.PermissionList))
+                {
+                    // copy modules
+                    List<PageModule> pageModules = _pageModules.GetPageModules(fromPage.SiteId).ToList();
+                    foreach (PageModule pm in pageModules.Where(item => item.PageId == fromPage.PageId && !item.Module.AllPages && !item.IsDeleted))
+                    {
+                        Module module = new Module();
+                        module.SiteId = fromPage.SiteId;
+                        module.PageId = toPageId;
+                        module.ModuleDefinitionName = pm.Module.ModuleDefinitionName;
+                        module.AllPages = false;
+                        if (usePagePermissions)
+                        {
+                            module.PermissionList = toPage.PermissionList;
+                        }
+                        else
+                        {
+                            module.PermissionList = pm.Module.PermissionList;
+                        }
+                        module.PermissionList = module.PermissionList.Select(item => new Permission
+                        {
+                            SiteId = item.SiteId,
+                            EntityName = EntityNames.Module,
+                            EntityId = -1,
+                            PermissionName = item.PermissionName,
+                            RoleName = item.RoleName,
+                            UserId = item.UserId,
+                            IsAuthorized = item.IsAuthorized,
+                        }).ToList();
+                        module = _modules.AddModule(module);
+
+                        string content = _modules.ExportModule(pm.ModuleId);
+                        if (content != "")
+                        {
+                            _modules.ImportModule(module.ModuleId, content);
+                        }
+
+                        PageModule pageModule = new PageModule();
+                        pageModule.PageId = toPageId;
+                        pageModule.ModuleId = module.ModuleId;
+                        pageModule.Title = pm.Title;
+                        pageModule.Pane = pm.Pane;
+                        pageModule.Order = pm.Order;
+                        pageModule.ContainerType = pm.ContainerType;
+                        pageModule.EffectiveDate = pm.EffectiveDate;
+                        pageModule.ExpiryDate = pm.ExpiryDate;
+                        pageModule.Header = pm.Header;
+                        pageModule.Footer = pm.Footer;
+
+                        _pageModules.AddPageModule(pageModule);
+                    }
+
+                    _syncManager.AddSyncEvent(_alias, EntityNames.Site, fromPage.SiteId, SyncEventActions.Refresh);
+                }
+                else
+                {
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                }
+            }
+            else
+            {
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            }
+        }
+    }
 }
