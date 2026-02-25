@@ -13,10 +13,16 @@ namespace Oqtane.Services
     public interface ILocalizationService
     {
         /// <summary>
-        /// Returns a collection of supported cultures
+        /// Returns a collection of supported or installed cultures
         /// </summary>
         /// <returns></returns>
         Task<IEnumerable<Culture>> GetCulturesAsync(bool installed);
+
+        /// <summary>
+        /// Returns a collection of neutral cultures
+        /// </summary>
+        /// <returns></returns>
+        Task<IEnumerable<Culture>> GetNeutralCulturesAsync();
     }
 
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
@@ -26,6 +32,14 @@ namespace Oqtane.Services
 
         private string Apiurl => CreateApiUrl("Localization");
 
-        public async Task<IEnumerable<Culture>> GetCulturesAsync(bool installed) => await GetJsonAsync<IEnumerable<Culture>>($"{Apiurl}?installed={installed}");
+        public async Task<IEnumerable<Culture>> GetCulturesAsync(bool installed)
+        {
+            return await GetJsonAsync<IEnumerable<Culture>>($"{Apiurl}?installed={installed}");
+        }
+
+        public async Task<IEnumerable<Culture>> GetNeutralCulturesAsync()
+        {
+            return await GetJsonAsync<IEnumerable<Culture>>($"{Apiurl}/neutral");
+        }
     }
 }

@@ -61,6 +61,12 @@
                                 {
                                     <input type="file" id="@_fileinputid" name="file" accept="@_filter" />
                                 }
+                                @if (MaxUploadFileSize > 0)
+                                {
+                                    <div class="row my-1">
+                                        <small class="fw-light">@string.Format(Localizer["File.MaxSize"], MaxUploadFileSize)</small>
+                                    </div>
+                                }
                             </div>
                             <div class="col-auto">
                                 <button type="button" class="btn btn-success" @onclick="UploadFiles">@SharedLocalizer["Upload"]</button>
@@ -162,6 +168,9 @@
 
     [Parameter]
     public int ChunkSize { get; set; } = 1; // optional - size of file chunks to upload in MB
+
+    [Parameter]
+    public int MaxUploadFileSize { get; set; } = -1; // optional - maximum upload file size in MB
 
     [Parameter]
     public EventCallback<int> OnUpload { get; set; } // optional - executes a method in the calling component when a file is uploaded
@@ -381,16 +390,39 @@
         if (uploads.Length > 0)
         {
             string restricted = "";
+            string tooLarge = "";
             foreach (var upload in uploads)
             {
-                var filename = upload.Split(':')[0];
+                var fileparts = upload.Split(':');
+                var filename = fileparts[0];
+
+                if (MaxUploadFileSize > 0)
+                {
+                    var filesizeBytes = long.Parse(fileparts[1]);
+                    var filesizeMB = (double)filesizeBytes / (1024 * 1024);
+                    if (filesizeMB > MaxUploadFileSize)
+                    {
+                        tooLarge += (tooLarge == "" ? "" : ",") + filename;
+                    }
+                }
+
                 var extension = (filename.LastIndexOf(".") != -1) ? filename.Substring(filename.LastIndexOf(".") + 1) : "";
                 if (!PageState.Site.UploadableFiles.Split(',').Contains(extension.ToLower()))
                 {
                     restricted += (restricted == "" ? "" : ",") + extension;
                 }
             }
-            if (restricted == "")
+            if (restricted != "")
+            {
+                _message = string.Format(Localizer["Message.File.Restricted"], restricted);
+                _messagetype = MessageType.Warning;
+            }
+            else if (tooLarge != "")
+            {
+                _message = string.Format(Localizer["Message.File.TooLarge"], tooLarge, MaxUploadFileSize);
+                _messagetype = MessageType.Warning;
+            }
+            else
             {
                 CancellationTokenSource tokenSource = new CancellationTokenSource();
 
@@ -489,11 +521,6 @@
                 finally {
                     tokenSource.Dispose();
                 }
-            }
-            else
-            {
-                _message = string.Format(Localizer["Message.File.Restricted"], restricted);
-                _messagetype = MessageType.Warning;
             }
         }
         else

@@ -168,4 +168,10 @@
   <data name="Confirmed.HelpText" xml:space="preserve">
     <value>Indicates if the user's email is verified</value>
   </data>
+  <data name="CultureCode.Text" xml:space="preserve">
+    <value>Language:</value>
+  </data>
+  <data name="CultureCode.HelpText" xml:space="preserve">
+    <value />
+  </data>
 </root>

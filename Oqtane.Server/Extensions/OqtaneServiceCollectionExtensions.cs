@@ -233,6 +233,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<ICookieConsentService, ServerCookieConsentService>();
             services.AddScoped<ITimeZoneService, TimeZoneService>();
             services.AddScoped<IMigrationHistoryService, MigrationHistoryService>();
+            services.AddScoped<ISiteGroupService, SiteGroupService>();
+            services.AddScoped<ISiteGroupMemberService, SiteGroupMemberService>();
+            services.AddScoped<ISiteTaskService, SiteTaskService>();
 
             // providers
             services.AddScoped<ITextEditor, Oqtane.Modules.Controls.QuillJSTextEditor>();
@@ -282,6 +285,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IUrlMappingRepository, UrlMappingRepository>();
             services.AddTransient<ISearchContentRepository, SearchContentRepository>();
             services.AddTransient<IMigrationHistoryRepository, MigrationHistoryRepository>();
+            services.AddTransient<ISiteGroupRepository, SiteGroupRepository>();
+            services.AddTransient<ISiteGroupMemberRepository, SiteGroupMemberRepository>();
+            services.AddTransient<ISiteTaskRepository, SiteTaskRepository>();
 
             // managers
             services.AddTransient<IDBContextDependencies, DBContextDependencies>();

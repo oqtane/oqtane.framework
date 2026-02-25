@@ -134,5 +134,8 @@ namespace Oqtane.Repository
         public virtual DbSet<SearchContentWord> SearchContentWord { get; set; }
         public virtual DbSet<SearchWord> SearchWord { get; set; }
         public virtual DbSet<MigrationHistory> MigrationHistory { get; set; }
+        public virtual DbSet<SiteGroup> SiteGroup { get; set; }
+        public virtual DbSet<SiteGroupMember> SiteGroupMember { get; set; }
+        public virtual DbSet<SiteTask> SiteTask { get; set; }
     }
 }

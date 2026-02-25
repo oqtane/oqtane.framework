@@ -1,0 +1,117 @@
+@namespace Oqtane.Modules.Admin.GlobalReplace
+@using System.Text.Json
+@inherits ModuleBase
+@inject ISiteTaskService SiteTaskService
+@inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+<div class="container">
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="find" HelpText="Specify the content which needs to be replaced" ResourceKey="Find">Find What: </Label>
+        <div class="col-sm-9">
+            <input id="find" class="form-control" @bind="@_find" />
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="replace" HelpText="Specify the replacement content" ResourceKey="Replace">Replace With: </Label>
+        <div class="col-sm-9">
+            <input id="replace" class="form-control" @bind="@_replace" />
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="casesensitive" HelpText="Specify if the replacement operation should be case sensitive" ResourceKey="CaseSensitive">Match Case? </Label>
+        <div class="col-sm-9">
+            <select id="casesensitive" class="form-select" @bind="@_caseSensitive">
+                <option value="True">@SharedLocalizer["Yes"]</option>
+                <option value="False">@SharedLocalizer["No"]</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="site" HelpText="Specify if site properties should be updated (ie. name, headcontent, bodycontent)" ResourceKey="Site">Site Properties? </Label>
+        <div class="col-sm-9">
+            <select id="site" class="form-select" @bind="@_site">
+                <option value="True">@SharedLocalizer["Yes"]</option>
+                <option value="False">@SharedLocalizer["No"]</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="pages" HelpText="Specify if page properties should be updated (ie. name, title, headcontent, bodycontent)" ResourceKey="Pages">Page Properties? </Label>
+        <div class="col-sm-9">
+            <select id="pages" class="form-select" @bind="@_pages">
+                <option value="True">@SharedLocalizer["Yes"]</option>
+                <option value="False">@SharedLocalizer["No"]</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="modules" HelpText="Specify if module properties should be updated (ie. title, header, footer)" ResourceKey="Modules">Module Properties? </Label>
+        <div class="col-sm-9">
+            <select id="modules" class="form-select" @bind="@_modules">
+                <option value="True">@SharedLocalizer["Yes"]</option>
+                <option value="False">@SharedLocalizer["No"]</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="content" HelpText="Specify if module content should be updated" ResourceKey="Content">Module Content? </Label>
+        <div class="col-sm-9">
+            <select id="content" class="form-select" @bind="@_content">
+                <option value="True">@SharedLocalizer["Yes"]</option>
+                <option value="False">@SharedLocalizer["No"]</option>
+            </select>
+        </div>
+    </div>
+</div>
+<br /><br />
+<ActionDialog Header="Global Replace" Message="This Operation is Permanent. Are You Sure You Wish To Proceed?" Action="Replace" Class="btn btn-primary" OnClick="@(async () => await Save())" ResourceKey="GlobalReplace" />
+<br /><br />
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    public override string Title => "Global Replace";
+
+    private string _find;
+    private string _replace;
+    private string _caseSensitive = "True";
+    private string _site = "True";
+    private string _pages = "True";
+    private string _modules = "True";
+    private string _content = "True";
+
+    private async Task Save()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(_find) && !string.IsNullOrEmpty(_replace))
+            {
+                var replace = new GlobalReplace
+                {
+                    Find = _find,
+                    Replace = _replace,
+                    CaseSensitive = bool.Parse(_caseSensitive),
+                    Site = bool.Parse(_site),
+                    Pages = bool.Parse(_pages),
+                    Modules = bool.Parse(_modules),
+                    Content = bool.Parse(_content)
+                };
+
+                var siteTask = new SiteTask(PageState.Site.SiteId, "Global Replace", "Oqtane.Infrastructure.GlobalReplaceTask, Oqtane.Server", JsonSerializer.Serialize(replace));
+                await SiteTaskService.AddSiteTaskAsync(siteTask);
+
+                AddModuleMessage(Localizer["Success.Save"], MessageType.Success);
+            }
+            else
+            {
+                AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Saving Global Replace Settings {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Save"], MessageType.Error);
+        }
+    }
+
+}

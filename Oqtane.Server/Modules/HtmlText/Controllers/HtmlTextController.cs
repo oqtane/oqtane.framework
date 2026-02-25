@@ -58,23 +58,6 @@ namespace Oqtane.Modules.HtmlText.Controllers
             }
         }
 
-        // GET api/<controller>/5/6
-        [HttpGet("{id}/{moduleId}")]
-        [Authorize(Policy = PolicyNames.ViewModule)]
-        public async Task<Models.HtmlText> Get(int id, int moduleId)
-        {
-            if (IsAuthorizedEntityId(EntityNames.Module, moduleId))
-            {
-                return await _htmlTextService.GetHtmlTextAsync(id, moduleId);
-            }
-            else
-            {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Html/Text Get Attempt {HtmlTextId}", id);
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                return null;
-            }
-        }
-
         // POST api/<controller>
         [HttpPost]
         [Authorize(Policy = PolicyNames.EditModule)]

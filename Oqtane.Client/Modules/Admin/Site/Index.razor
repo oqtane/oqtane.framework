@@ -11,12 +11,15 @@
 @inject IThemeService  ThemeService
 @inject ISettingService  SettingService
 @inject ITimeZoneService TimeZoneService
+@inject ILocalizationService LocalizationService
 @inject IServiceProvider ServiceProvider
 @inject IStringLocalizer<Index> Localizer
 @inject INotificationService NotificationService
 @inject IJobService JobService
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject IOutputCacheService CacheService
+@inject ISiteGroupService SiteGroupService
+@inject ISiteGroupMemberService SiteGroupMemberService
 
 @if (_initialized)
 {
@@ -29,28 +32,25 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="homepage" HelpText="Select the home page for the site (to be used if there is no page with a path of '/')" ResourceKey="HomePage">Home Page: </Label>
-                <div class="col-sm-9">
-                    <select id="homepage" class="form-select" @bind="@_homepageid" required>
-                        <option value="-">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
-                        @foreach (Page page in _pages)
-                        {
-                            if (UserSecurity.ContainsRole(page.PermissionList, PermissionNames.View, RoleNames.Everyone))
-                            {
-                                <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
-                            }
-                        }
-                    </select>
-                </div>
-            </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="timezone" HelpText="Your time zone" ResourceKey="TimeZone">Time Zone:</Label>
+                <Label Class="col-sm-3" For="timezone" HelpText="The default time zone for the site" ResourceKey="TimeZone">Time Zone:</Label>
                 <div class="col-sm-9">
                     <select id="timezone" class="form-select" @bind="@_timezoneid">
                         <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
                         @foreach (var timezone in _timezones)
                         {
                             <option value="@timezone.Id">@timezone.DisplayName</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="culture" HelpText="The default language of the site's content" ResourceKey="Culture">Language:</Label>
+                <div class="col-sm-9">
+                    <select id="culture" class="form-select" @bind="@_culturecode">
+                        <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                        @foreach (var culture in _cultures)
+                        {
+                            <option value="@culture.Name">@culture.DisplayName</option>
                         }
                     </select>
                 </div>
@@ -333,57 +333,6 @@
         </Section>
         @if (_aliases != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
         {
-            <Section Name="Aliases" Heading="Aliases" ResourceKey="Aliases">
-                <div class="container">
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="aliases" HelpText="The urls for the site. This can include domain names (ie. domain.com), subdomains (ie. sub.domain.com) or virtual folders (ie. domain.com/folder)." ResourceKey="Aliases">Aliases: </Label>
-                        <div class="col-sm-9">
-                            <button type="button" class="btn btn-primary" @onclick="AddAlias">@SharedLocalizer["Add"]</button>
-                            <Pager Items="@_aliases">
-                                <Header>
-                                    <th style="width: 1px;">&nbsp;</th>
-                                    <th style="width: 1px;">&nbsp;</th>
-                                    <th>@Localizer["AliasName"]</th>
-                                    <th>@Localizer["AliasDefault"]</th>
-                                </Header>
-                                <Row>
-                                    @if (context.AliasId != _aliasid)
-                                    {
-                                        <td>
-                                            @if (_aliasid == -1)
-                                            {
-                                                <button type="button" class="btn btn-primary" @onclick="@(() => EditAlias(context))">@SharedLocalizer["Edit"]</button>
-                                            }
-                                        </td>
-                                        <td>
-                                            @if (_aliasid == -1)
-                                            {
-                                                <ActionDialog Action="Delete" OnClick="@(async () => await DeleteAlias(context))" ResourceKey="DeleteAlias" Class="btn btn-danger" Header="Delete Alias" Message="@string.Format(Localizer["Confirm.Alias.Delete", context.Name])" />
-                                            }
-                                        </td>
-                                        <td>@context.Name</td>
-                                        <td>@((context.IsDefault) ? SharedLocalizer["Yes"] : SharedLocalizer["No"])</td>
-                                    }
-                                    else
-                                    {
-                                        <td><button type="button" class="btn btn-success" @onclick="@(async () => await SaveAlias())">@SharedLocalizer["Save"]</button></td>
-                                        <td><button type="button" class="btn btn-secondary" @onclick="@(async () => await CancelAlias())">@SharedLocalizer["Cancel"]</button></td>
-                                        <td>
-                                            <input id="aliasname" class="form-control" @bind="@_aliasname" />
-                                        </td>
-                                        <td>
-                                            <select id="defaultalias" class="form-select" @bind="@_defaultalias" required>
-                                                <option value="True">@SharedLocalizer["Yes"]</option>
-                                                <option value="False">@SharedLocalizer["No"]</option>
-                                            </select>
-                                        </td>
-                                    }
-                                </Row>
-                            </Pager>
-                        </div>
-                    </div>
-                </div>
-            </Section>
             <Section Name="Hosting" Heading="Hosting Model" ResourceKey="Hosting">
                 <div class="container">
                     <div class="row mb-1 align-items-center">
@@ -409,7 +358,7 @@
                         </div>
                     }
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="runtime" HelpText="The render mode for UI components which require interactivity" ResourceKey="Runtime">Interactivity: </Label>
+                        <Label Class="col-sm-3" For="runtime" HelpText="The hosting model for UI components which require interactivity" ResourceKey="Runtime">Interactivity: </Label>
                         <div class="col-sm-9">
                             <select id="runtime" class="form-select" @bind="@_runtime" required>
                                 <option value="@Runtimes.Server">@(SharedLocalizer["Runtime" + @Runtimes.Server])</option>
@@ -434,6 +383,180 @@
                                 <option value="True">@SharedLocalizer["Yes"]</option>
                                 <option value="False">@SharedLocalizer["No"]</option>
                             </select>
+                        </div>
+                    </div>
+                </div>
+            </Section>
+            <Section Name="Aliases" Heading="Urls" ResourceKey="Aliases">
+                <div class="container">
+                    @if (!_addAlias)
+                    {
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="aliases" HelpText="The urls for this site. This can include domain names (ie. domain.com), subdomains (ie. sub.domain.com) or virtual folders (ie. domain.com/folder)." ResourceKey="Aliases">Urls: </Label>
+                            <div class="col-sm-9">
+                                <div class="input-group">
+                                    <select id="aliases" class="form-select" value="@_aliasid" @onchange="(e => AliasChanged(e))">
+                                        <option value="-1">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                                        @foreach (var alias in _aliases)
+                                        {
+                                            <option value="@alias.AliasId">@alias.Name @((alias.IsDefault) ? "(" + Localizer["Default"] + ")" : "")</option>
+                                        }
+                                    </select>
+                                    @if (!_addAlias)
+                                    {
+                                        <button type="button" class="btn btn-primary" @onclick="AddAlias">@SharedLocalizer["Add"]</button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @if (_aliasid != -1 || _addAlias)
+                    {
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="aliasname" HelpText="A url for this site. This can include domain names (ie. domain.com), subdomains (ie. sub.domain.com) or virtual folders (ie. domain.com/folder)." ResourceKey="AliasName">Url: </Label>
+                            <div class="col-sm-9">
+                                <input id="aliasname" class="form-control" @bind="@_aliasname" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="defaultalias" HelpText="The default alias for the site. Requests for non-default aliases will be redirected to the default alias." ResourceKey="DefaultAlias">Default? </Label>
+                            <div class="col-sm-9">
+                                <select id="defaultalias" class="form-select" @bind="@_defaultalias">
+                                    <option value="True">@SharedLocalizer["Yes"]</option>
+                                    <option value="False">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
+                        </div>
+
+                    }
+                    <div class="row mb-1 align-items-center">
+                        <div class="col-sm-3"></div>
+                        <div class="col-sm-9">
+                            @if (_aliasid != -1 || _addAlias)
+                            {
+                                <button type="button" class="btn btn-success me-2" @onclick="SaveAlias">@SharedLocalizer["Save"]</button>
+                            }
+                            @if (_aliasid != -1 && !_addAlias)
+                            {
+                                <ActionDialog Action="Delete" OnClick="@(async () => await DeleteAlias())" ResourceKey="DeleteAlias" Class="btn btn-danger" Header="Delete Alias" Message="@string.Format(Localizer["Confirm.Alias.Delete", _aliasname])" />
+                            }
+                            @if (_addAlias)
+                            {
+                                <button type="button" class="btn btn-secondary" @onclick="CancelAlias">@SharedLocalizer["Cancel"]</button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </Section>
+            <Section Name="SiteGroupMembers" Heading="Site Groups" ResourceKey="SiteGroupMembers">
+                <div class="container">
+                    @if (!_addSiteGroup)
+                    {
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="group" HelpText="The site groups in this tenant (database)" ResourceKey="SiteGroupMembers">Group: </Label>
+                            <div class="col-sm-9">
+                                <div class="input-group">
+                                    <select id="group" class="form-select" value="@_siteGroupId" @onchange="(e => SiteGroupChanged(e))">
+                                        <option value="-1">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                                        @foreach (var siteGroup in _siteGroups)
+                                        {
+                                            <option value="@siteGroup.SiteGroupId">@siteGroup.Name</option>
+                                        }
+                                    </select>
+                                    @if (!_addSiteGroup)
+                                    {
+                                        <button type="button" class="btn btn-primary" @onclick="AddSiteGroup">@SharedLocalizer["Add"]</button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @if (_siteGroupId != -1 || _addSiteGroup)
+                    {
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="groupname" HelpText="Name of the site group" ResourceKey="GroupName">Name: </Label>
+                            <div class="col-sm-9">
+                                <input id="groupname" class="form-control" @bind="@_groupName" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="grouptype" HelpText="Defines the specific behavior of the site group" ResourceKey="GroupType">Type: </Label>
+                            <div class="col-sm-9">
+                                <select id="grouptype" class="form-select" @bind="@_groupType">
+                                    <option value="@SiteGroupTypes.Synchronization">@Localizer[@SiteGroupTypes.Synchronization]</option>
+                                    <option value="@SiteGroupTypes.ChangeDetection">@Localizer[@SiteGroupTypes.ChangeDetection]</option>
+                                    <option value="@SiteGroupTypes.Localization">@Localizer[SiteGroupTypes.Localization]</option>
+                                </select>
+                            </div>
+                        </div>
+                    }
+                    @if (_siteGroupId != -1)
+                    {
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="site" HelpText="The sites which are members of this site group" ResourceKey="Site">Members: </Label>
+                            <div class="col-sm-9">
+                                <div class="input-group">
+                                    <select id="site" class="form-select" value="@_siteId" @onchange="(e => SiteChanged(e))">
+                                        <option value="-1">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                                        @foreach (var site in _sites)
+                                        {
+                                            <option value="@site.SiteId">@site.Name</option>
+                                        }
+                                    </select>
+                                    @if (!_addSiteGroupMember)
+                                    {
+                                        <button type="button" class="btn btn-primary" @onclick="AddSiteGroupMember">@SharedLocalizer["Add"]</button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-primary" @onclick="AddSiteGroupMember">@SharedLocalizer["Select"]</button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @if (_siteGroupId != -1 && _siteId != -1)
+                    {
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="primary" HelpText="Indicates if the selected member is the primary site of the site group" ResourceKey="Primary">Primary? </Label>
+                            <div class="col-sm-9">
+                                <select id="primary" class="form-select" @bind="@_primary">
+                                    <option value="False">@SharedLocalizer["No"]</option>
+                                    <option value="True">@SharedLocalizer["Yes"]</option>
+                                </select>
+                            </div>
+                        </div>
+                        @if (_primary == "False" && !string.IsNullOrEmpty(_synchronized) && (_groupType == SiteGroupTypes.Synchronization || _groupType == SiteGroupTypes.ChangeDetection))
+                        {
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="synchronized" HelpText="The date/time when the site was last synchronized" ResourceKey="Synchronized">Synchronized: </Label>
+                                <div class="col-sm-9">
+                                    <div class="input-group">
+                                        <input id="synchronized" class="form-control" @bind="@_synchronized" disabled />
+                                        @if (!string.IsNullOrEmpty(_synchronized))
+                                        {
+                                            <button type="button" class="btn btn-primary" @onclick="ResetSiteGroupMember">@SharedLocalizer["Reset"]</button>
+                                        }
+                                </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    <div class="row mb-1 align-items-center">
+                        <div class="col-sm-3"></div>
+                        <div class="col-sm-9">
+                            @if ((_siteGroupId != -1 || _addSiteGroup))
+                            {
+                                <button type="button" class="btn btn-success me-2" @onclick="SaveSiteGroupMember">@SharedLocalizer["Save"]</button>
+                            }
+                            @if (_siteGroupId != -1 && !_addSiteGroup && _siteId != -1 && !_addSiteGroupMember)
+                            {
+                                <ActionDialog Action="Delete" OnClick="@(async () => await DeleteSiteGroupMember())" ResourceKey="DeleteSiteGroupMember" Class="btn btn-danger" Header="Delete Site Group" Message="@Localizer["Confirm.SiteGroupMember.Delete"]" />
+                            }
+                            @if (_addSiteGroup)
+                            {
+                                <button type="button" class="btn btn-secondary" @onclick="CancelSiteGroupMember">@SharedLocalizer["Cancel"]</button>
+                            }
                         </div>
                     </div>
                 </div>
@@ -478,10 +601,11 @@
     private List<ThemeControl> _containers = new List<ThemeControl>();
     private List<Page> _pages;
     private List<Models.TimeZone> _timezones;
+    private IEnumerable<Models.Culture> _cultures;
 
     private string _name = string.Empty;
-    private string _homepageid = "-";
     private string _timezoneid = string.Empty;
+    private string _culturecode = string.Empty;
     private string _isdeleted;
     private string _sitemap = "";
     private string _siteguid = "";
@@ -527,16 +651,28 @@
     private int _pwasplashiconfileid = -1;
     private FileManager _pwasplashiconfilemanager;
 
-    private List<Alias> _aliases;
-    private int _aliasid = -1;
-    private string _aliasname;
-    private string _defaultalias;
-
     private string _rendermode = RenderModes.Interactive;
     private string _enhancednavigation = "True";
     private string _runtime = Runtimes.Server;
     private string _prerender = "True";
     private string _hybrid = "False";
+
+    private List<Alias> _aliases;
+    private int _aliasid = -1;
+    private string _aliasname;
+    private string _defaultalias;
+    private bool _addAlias = false;
+
+    private List<SiteGroup> _siteGroups = new List<SiteGroup>();
+    private List<Site> _sites = new List<Site>();
+    private int _siteGroupId = -1;
+    private int _siteId;
+    private string _groupName = string.Empty;
+    private string _groupType = SiteGroupTypes.Synchronization;
+    private string _primary = "True";
+    private string _synchronized = string.Empty;
+    private bool _addSiteGroup = false;
+    private bool _addSiteGroupMember = false;
 
     private string _tenant = string.Empty;
     private string _database = string.Empty;
@@ -564,16 +700,14 @@
             if (site != null)
             {
                 _timezones = TimeZoneService.GetTimeZones();
+                _cultures = await LocalizationService.GetNeutralCulturesAsync();
                 var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
 
                 _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
 
                 _name = site.Name;
                 _timezoneid = site.TimeZoneId;
-                if (site.HomePageId != null)
-                {
-                    _homepageid = site.HomePageId.Value.ToString();
-                }
+                _culturecode = site.CultureCode;
                 _isdeleted = site.IsDeleted.ToString();
                 _sitemap = PageState.Alias.Protocol + PageState.Alias.Name + "/sitemap.xml";
                 _siteguid = site.SiteGuid;
@@ -652,7 +786,7 @@
                 }
 
                 // aliases
-                await GetAliases();
+                await LoadAliases();
 
                 // hosting model
                 _rendermode = site.RenderMode;
@@ -674,6 +808,12 @@
                         _database = _databases.Where(item => item.DBType == tenant.DBType).OrderBy(item => item.Name).Last()?.Name;
                         _connectionstring = tenant.DBConnectionString;
                     }
+                }
+
+                // site groups
+                if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                {
+                    await LoadSiteGroups();
                 }
 
                 // audit
@@ -743,7 +883,7 @@
                     {
                         site.Name = _name;
                         site.TimeZoneId = _timezoneid;
-                        site.HomePageId = (_homepageid != "-" ? int.Parse(_homepageid) : null);
+                        site.CultureCode = _culturecode;
                         site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
 
                         // appearance
@@ -992,95 +1132,100 @@
         }
     }
 
-    private async Task GetAliases()
+    private async Task LoadAliases()
     {
-        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+        _aliases = await AliasService.GetAliasesAsync();
+        _aliases = _aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Alias.TenantId).OrderBy(item => item.AliasId).ToList();
+        _aliasid = -1;
+        _addAlias = false;
+    }
+
+    private async void AliasChanged(ChangeEventArgs e)
+    {
+        _aliasid = int.Parse(e.Value.ToString());
+        if (_aliasid != -1)
         {
-            _aliases = await AliasService.GetAliasesAsync();
-            _aliases = _aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Alias.TenantId).OrderBy(item => item.AliasId).ToList();
+            var alias = _aliases.FirstOrDefault(item => item.AliasId == _aliasid);
+            if (alias != null)
+            {
+                _aliasname = alias.Name;
+                _defaultalias = alias.IsDefault.ToString();
+            }
         }
+        else
+        {
+            _aliasname = "";
+            _defaultalias = "False";
+        }
+        StateHasChanged();
     }
 
     private void AddAlias()
     {
-        _aliases.Add(new Alias { AliasId = 0, Name = "", IsDefault = false });
-        _aliasid = 0;
+        _aliasid = -1;
         _aliasname = "";
         _defaultalias = "False";
+        _addAlias = true;
         StateHasChanged();
     }
 
-    private void EditAlias(Alias alias)
+    private async Task DeleteAlias()
     {
-        _aliasid = alias.AliasId;
-        _aliasname = alias.Name;
-        _defaultalias = alias.IsDefault.ToString();
+        await AliasService.DeleteAliasAsync(_aliasid);
+        await LoadAliases();
         StateHasChanged();
-    }
-
-    private async Task DeleteAlias(Alias alias)
-    {
-        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-        {
-            await AliasService.DeleteAliasAsync(alias.AliasId);
-            await GetAliases();
-            StateHasChanged();
-        }
     }
 
     private async Task SaveAlias()
     {
-        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+        if (!string.IsNullOrEmpty(_aliasname))
         {
-            if (!string.IsNullOrEmpty(_aliasname))
+            var aliases = await AliasService.GetAliasesAsync();
+
+            int protocolIndex = _aliasname.IndexOf("://", StringComparison.OrdinalIgnoreCase);
+            if (protocolIndex != -1)
             {
-                var aliases = await AliasService.GetAliasesAsync();
+                _aliasname = _aliasname.Substring(protocolIndex + 3);
+            }
 
-                int protocolIndex = _aliasname.IndexOf("://", StringComparison.OrdinalIgnoreCase);
-                if (protocolIndex != -1)
+            var alias = aliases.FirstOrDefault(item => item.Name == _aliasname);
+
+            bool unique = (alias == null || alias.AliasId == _aliasid);
+
+            if (unique)
+            {
+                if (_aliasid == 0)
                 {
-                    _aliasname = _aliasname.Substring(protocolIndex + 3);
+                    alias = new Alias { SiteId = PageState.Site.SiteId, TenantId = PageState.Alias.TenantId, Name = _aliasname, IsDefault = bool.Parse(_defaultalias) };
+                    await AliasService.AddAliasAsync(alias);
                 }
-
-                var alias = aliases.FirstOrDefault(item => item.Name == _aliasname);
-
-                bool unique = (alias == null || alias.AliasId == _aliasid);
-
-                if (unique)
+                else
                 {
-                    if (_aliasid == 0)
+                    alias = _aliases.SingleOrDefault(item => item.AliasId == _aliasid);
+                    if (alias != null)
                     {
-                        alias = new Alias { SiteId = PageState.Site.SiteId, TenantId = PageState.Alias.TenantId, Name = _aliasname, IsDefault = bool.Parse(_defaultalias) };
-                        await AliasService.AddAliasAsync(alias);
+                        alias.Name = _aliasname;
+                        alias.IsDefault = bool.Parse(_defaultalias);
+                        await AliasService.UpdateAliasAsync(alias);
                     }
-                    else
-                    {
-                        alias = _aliases.SingleOrDefault(item => item.AliasId == _aliasid);
-                        if (alias != null)
-                        {
-                            alias.Name = _aliasname;
-                            alias.IsDefault = bool.Parse(_defaultalias);
-                            await AliasService.UpdateAliasAsync(alias);
-                        }
-                    }
+                }
 
-                    await GetAliases();
-                    _aliasid = -1;
-                    _aliasname = "";
-                    StateHasChanged();
-                }
-                else // Duplicate alias
-                {
-                    AddModuleMessage(Localizer["Message.Aliases.Taken"], MessageType.Warning);
-                    await ScrollToPageTop();
-                }
+                await LoadAliases();
+                _aliasid = -1;
+                _aliasname = "";
+                StateHasChanged();
+            }
+            else // Duplicate alias
+            {
+                AddModuleMessage(Localizer["Message.Aliases.Taken"], MessageType.Warning);
+                await ScrollToPageTop();
             }
         }
     }
 
     private async Task CancelAlias()
     {
-        await GetAliases();
+        await LoadAliases();
         _aliasid = -1;
         _aliasname = "";
         StateHasChanged();
@@ -1089,5 +1234,203 @@
     private async Task EvictSitemapOutputCache() {
         await CacheService.EvictByTag(Constants.SitemapOutputCacheTag);
         AddModuleMessage(Localizer["Success.SiteMap.CacheEvicted"], MessageType.Success);
+    }
+
+    private async Task LoadSiteGroups()
+    {
+        _siteGroups = await SiteGroupService.GetSiteGroupsAsync();
+        _siteGroupId = -1;
+        _addSiteGroup = false;
+        StateHasChanged();
+    }
+
+    private async Task SiteGroupChanged(ChangeEventArgs e)
+    {
+        _siteGroupId = int.Parse(e.Value.ToString());
+        if (_siteGroupId != -1)
+        {
+            var group = _siteGroups.FirstOrDefault(item => item.SiteGroupId == _siteGroupId);
+            if (group != null)
+            {
+                _groupName = group.Name;
+                _groupType = group.Type;
+                _siteId = -1;
+                _primary = "False";
+                _addSiteGroupMember = false;
+
+                await LoadSites();
+            }
+        }
+        StateHasChanged();
+    }
+
+    private async Task LoadSites()
+    {
+        var siteGroupMembers = await SiteGroupMemberService.GetSiteGroupMembersAsync(-1, _siteGroupId);
+
+        _sites = await SiteService.GetSitesAsync();
+        if (_addSiteGroupMember)
+        {
+            // include sites which are not members
+            _sites = _sites.ExceptBy(siteGroupMembers.Select(item => item.SiteId), item => item.SiteId).ToList();
+        }
+        else
+        {
+            // include sites which are members
+            _sites = _sites.Where(item => siteGroupMembers.Any(item2 => item2.SiteId == item.SiteId)).ToList();
+            var group = _siteGroups.FirstOrDefault(item => item.SiteGroupId == _siteGroupId);
+            foreach (var site in _sites)
+            {
+                if (group.PrimarySiteId == site.SiteId)
+                {
+                    site.Name += $" ({Localizer["Primary"]})";
+                }
+                else
+                {
+                    site.Name += $" ({Localizer["Secondary"]})";
+                }                
+            }
+
+            var siteGroupMember = siteGroupMembers.FirstOrDefault(item => item.SiteId == _siteId);
+            if (siteGroupMember != null)
+            {
+                _primary = (siteGroupMember.SiteGroup.PrimarySiteId == _siteId) ? "True" : "False";
+                _synchronized = UtcToLocal(siteGroupMember.SynchronizedOn).ToString();
+            }
+        }
+    }
+
+    private async Task SiteChanged(ChangeEventArgs e)
+    {
+        _siteId = int.Parse(e.Value.ToString());
+        var siteGroupMember = await SiteGroupMemberService.GetSiteGroupMemberAsync(_siteId, _siteGroupId);
+        if (siteGroupMember != null)
+        {
+            _primary = (siteGroupMember.SiteGroup.PrimarySiteId == _siteId) ? "True" : "False";
+            _synchronized = UtcToLocal(siteGroupMember.SynchronizedOn).ToString();
+        }
+        StateHasChanged();
+    }
+
+    private async Task AddSiteGroup()
+    {
+        _groupName = "";
+        _siteId = PageState.Site.SiteId;
+        _primary = "True";
+        _synchronized = "";
+        _addSiteGroup = true;
+    }
+
+    private async Task AddSiteGroupMember()
+    {
+        _addSiteGroupMember = !_addSiteGroupMember;
+        _siteId = -1;
+        await LoadSites();
+    }
+
+    private async Task SaveSiteGroupMember()
+    {
+        if (string.IsNullOrEmpty(_groupName))
+        {
+            AddModuleMessage(Localizer["Message.Required.GroupName"], MessageType.Warning);
+            await ScrollToPageTop();
+            return;
+        }
+
+        SiteGroup siteGroup = null;
+
+        if (_siteGroupId == -1)
+        {
+            siteGroup = new SiteGroup
+            {
+                Name = _groupName,
+                Type = _groupType,
+                PrimarySiteId = _siteId,
+                Synchronize = false
+            };
+            siteGroup = await SiteGroupService.AddSiteGroupAsync(siteGroup);
+        }
+        else
+        {
+            siteGroup = _siteGroups.FirstOrDefault(item => item.SiteGroupId == _siteGroupId);
+            if (siteGroup != null)
+            {
+                siteGroup.Name = _groupName;
+                siteGroup.Type = _groupType;
+                siteGroup.PrimarySiteId = (_primary == "True") ? _siteId : siteGroup.PrimarySiteId;
+                siteGroup = await SiteGroupService.UpdateSiteGroupAsync(siteGroup);
+            }
+            else
+            {
+                siteGroup = null;
+            }
+        }
+
+        if (siteGroup != null)
+        {
+            if (_siteId != -1)
+            {
+                var siteGroupMember = await SiteGroupMemberService.GetSiteGroupMemberAsync(_siteId, siteGroup.SiteGroupId);
+                if (siteGroupMember == null)
+                {
+                    siteGroupMember = new SiteGroupMember
+                    {
+                        SiteGroupId = siteGroup.SiteGroupId,
+                        SiteId = _siteId
+                    };
+                    await SiteGroupMemberService.AddSiteGroupMemberAsync(siteGroupMember);
+                }
+                else
+                {
+                    siteGroupMember.SynchronizedOn = string.IsNullOrEmpty(_synchronized) ? null : siteGroupMember.SynchronizedOn;
+                    await SiteGroupMemberService.UpdateSiteGroupMemberAsync(siteGroupMember);
+                }
+            }
+
+            if (siteGroup.Type == SiteGroupTypes.Synchronization)
+            {
+                // enable synchronization job if it is not enabled already
+                var jobs = await JobService.GetJobsAsync();
+                var job = jobs.FirstOrDefault(item => item.JobType == "Oqtane.Infrastructure.SynchronizationJob, Oqtane.Server");
+                if (job != null && !job.IsEnabled)
+                {
+                    job.IsEnabled = true;
+                    await JobService.UpdateJobAsync(job);
+                }
+            }
+
+            await LoadSiteGroups();
+        }
+    }
+
+    private async Task CancelSiteGroupMember()
+    {
+        _groupName = "";
+        await LoadSiteGroups();
+    }
+
+    private async Task DeleteSiteGroupMember()
+    {
+        if (_siteGroupId != -1)
+        {
+            var siteGroupMember = await SiteGroupMemberService.GetSiteGroupMemberAsync(PageState.Site.SiteId, _siteGroupId);
+            if (siteGroupMember != null)
+            {
+                await SiteGroupMemberService.DeleteSiteGroupMemberAsync(siteGroupMember.SiteGroupId);
+            }
+
+            var siteGroupMembers = await SiteGroupMemberService.GetSiteGroupMembersAsync(-1, _siteGroupId);
+            if (!siteGroupMembers.Any())
+            {
+                await SiteGroupService.DeleteSiteGroupAsync(_siteGroupId);
+            }
+
+            await LoadSiteGroups();
+        }
+    }
+
+    private async Task ResetSiteGroupMember()
+    {
+        _synchronized = "";
     }
 }

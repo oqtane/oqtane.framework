@@ -12,7 +12,7 @@ Oqtane is being developed based on some fundamental principles which are outline
 
 # Latest Release
 
-[10.0.4](https://github.com/oqtane/oqtane.framework/releases/tag/v10.0.4) was released on January 20, 2026 and is a maintenance release including 27 pull requests by 3 different contributors, pushing the total number of project commits all-time over 7500. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
+[10.1.0](https://github.com/oqtane/oqtane.framework/releases/tag/v10.1.0) was released on February 25, 2026 and is a maintenance release including 72 pull requests by 6 different contributors, pushing the total number of project commits all-time over 7600. The Oqtane framework continues to evolve at a rapid pace to meet the needs of .NET developers.
 
 # Try It Now!
 
@@ -110,6 +110,12 @@ Connect with other developers, get support, and share ideas by joining the Oqtan
 
 # Roadmap
 This project is open source, and therefore is a work in progress...
+
+[10.1.0](https://github.com/oqtane/oqtane.framework/releases/tag/v10.1.0) (Feb 25, 2026)
+- [x] Site Groups, Content Synchronization, Content Localization
+- [x] Global Replace
+- [x] Copy Page
+- [x] Site Tasks 
 
 [10.0.4](https://github.com/oqtane/oqtane.framework/releases/tag/v10.0.4) (Jan 20, 2026)
 - [x] Stabilization improvements

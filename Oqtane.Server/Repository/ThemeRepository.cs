@@ -99,7 +99,7 @@ namespace Oqtane.Repository
                 Theme.ContainerSettingsType = theme.ContainerSettingsType;
                 Theme.PackageName = theme.PackageName;
                 Theme.PermissionList = theme.PermissionList;
-                Theme.Fingerprint = Utilities.GenerateSimpleHash(theme.ModifiedOn.ToString("yyyyMMddHHmm"));
+                Theme.Fingerprint = theme.Fingerprint;
                 Themes.Add(Theme);
             }
 
@@ -165,6 +165,7 @@ namespace Oqtane.Repository
                 Theme.CreatedOn = theme.CreatedOn;
                 Theme.ModifiedBy = theme.ModifiedBy;
                 Theme.ModifiedOn = theme.ModifiedOn;
+                Theme.Fingerprint = Utilities.GenerateSimpleHash(theme.ModifiedOn.ToString("yyyyMMddHHmm"));
             }
 
             // any remaining themes are orphans
@@ -329,7 +330,7 @@ namespace Oqtane.Repository
                     {
                         foreach (var resource in theme.Resources)
                         {
-                            if (resource.Url.StartsWith("~"))
+                            if (!string.IsNullOrEmpty(resource.Url) && resource.Url.StartsWith("~"))
                             {
                                 resource.Url = resource.Url.Replace("~", "/Themes/" + Utilities.GetTypeName(theme.ThemeName) + "/").Replace("//", "/");
                             }

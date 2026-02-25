@@ -594,7 +594,8 @@ namespace Oqtane.Infrastructure
                                 Prerender = (rendermode == RenderModes.Interactive),
                                 Hybrid = false,
                                 EnhancedNavigation = true,
-                                TenantId = tenant.TenantId
+                                CultureCode = "en",
+                                TenantId = tenant.TenantId // required for site creation
                             };
                             site = sites.AddSite(site);
 

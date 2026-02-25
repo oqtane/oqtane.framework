@@ -8,6 +8,7 @@
     <Company>[Owner]</Company>
     <Description>[Description]</Description>
     <Copyright>[Owner]</Copyright>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <AssemblyName>[Owner].Module.[Module].Shared.Oqtane</AssemblyName>
   </PropertyGroup>
 

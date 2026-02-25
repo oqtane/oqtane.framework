@@ -11,6 +11,7 @@
 @inject ILogService logger
 @inject ISettingService SettingService
 @inject IJSRuntime jsRuntime
+@inject ISiteGroupService SiteGroupService
 @inject IServiceProvider ServiceProvider
 @inject ILogService LoggingService
 @inject IStringLocalizer<ControlPanelInteractive> Localizer
@@ -34,6 +35,11 @@
                         <button type="button" data-bs-dismiss="offcanvas" class="btn btn-primary col-12" @onclick=@(async () => Navigate("Admin"))>@Localizer["AdminDash"]</button>
                     </div>
                 </div>
+                @if (_siteGroups.Any(item => (item.Type == SiteGroupTypes.Synchronization || item.Type == SiteGroupTypes.ChangeDetection) && item.PrimarySiteId == PageState.Site.SiteId))
+                {
+                    <hr class="app-rule" />
+                    <button type="button" class="btn btn-secondary col-12 mt-1" @onclick="SynchronizeSite">@Localizer["Synchronize"]</button>
+                }
                 <hr class="app-rule" />
             }
             @if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
@@ -53,18 +59,29 @@
                         <button type="button" class="btn btn-danger col ms-1" @onclick="ConfirmDelete">@SharedLocalizer["Delete"]</button>
                     </div>
                 </div>
-                <div class="row d-flex">
-                    <div class="col">
-                        @if (UserSecurity.ContainsRole(PageState.Page.PermissionList, PermissionNames.View, RoleNames.Everyone))
-                        {
-                            <button type="button" class="btn btn-secondary col-12" @onclick=@(async () => Publish("unpublish"))>@Localizer["Page.Unpublish"]</button>
-                        }
-                        else
-                        {
-                            <button type="button" class="btn btn-secondary col-12" @onclick=@(async () => Publish("publish"))>@Localizer["Page.Publish"]</button>
-                        }
+                @if (PageState.Page.UserId == null)
+                {
+                    <div class="row d-flex mb-2">
+                        <div class="col">
+                            <button type="button" class="btn btn-secondary col-12" data-bs-dismiss="offcanvas" @onclick=@(async () => Navigate("Copy"))>@Localizer["Copy"]</button>
+                        </div>
                     </div>
-                </div>
+                }
+                @if (!PageState.Page.Path.StartsWith("admin/"))
+                {
+                    <div class="row d-flex">
+                        <div class="col">
+                            @if (UserSecurity.ContainsRole(PageState.Page.PermissionList, PermissionNames.View, RoleNames.Everyone))
+                            {
+                                <button type="button" class="btn btn-secondary col-12" @onclick=@(async () => Publish("unpublish"))>@Localizer["Page.Unpublish"]</button>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-secondary col-12" @onclick=@(async () => Publish("publish"))>@Localizer["Page.Publish"]</button>
+                            }
+                        </div>
+                    </div>
+                }
                 <hr class="app-rule" />
 
                 @if (_deleteConfirmation)
@@ -149,7 +166,7 @@
                                     <option value="@p.PageId">@p.Name</option>
                                 }
                             </select>
-                            <select class="form-select mt-1" @bind="@_moduleId">
+                            <select class="form-select mt-1" value="@_moduleId"  @onchange="(e => PageModuleChanged(e))">
                                 <option value="-">&lt;@Localizer["Module.Select"]&gt;</option>
                                 @foreach (Module module in _modules)
                                 {
@@ -257,6 +274,7 @@
     private List<Page> _pages = new List<Page>();
     private List<Module> _modules = new List<Module>();
     private List<ThemeControl> _containers = new List<ThemeControl>();
+    private List<SiteGroup> _siteGroups = new List<SiteGroup>();
 
     private string _category = "Common";
     private string _pane = "";
@@ -287,6 +305,7 @@
             _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Page.SiteId);
             _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(_category)).ToList();
             _categories = _allModuleDefinitions.SelectMany(m => m.Categories.Split(',', StringSplitOptions.RemoveEmptyEntries)).Distinct().Where(item => item != "Headless").ToList();
+            _siteGroups = await SiteGroupService.GetSiteGroupsAsync(PageState.Site.SiteId);
         }
     }
 
@@ -336,6 +355,20 @@
                 .ToList();
         }
         _moduleId = "-";
+        StateHasChanged();
+    }
+
+    private async Task PageModuleChanged(ChangeEventArgs e)
+    {
+        _moduleId = (string)e.Value;
+        if (_moduleId != "-")
+        {
+            _title = _modules.First(item => item.ModuleId == int.Parse(_moduleId)).Title;
+        }
+        else
+        {
+            _title = "";            
+        }
         StateHasChanged();
     }
 
@@ -488,7 +521,12 @@
             case "Edit":
                 // get page management moduleid
                 moduleId = int.Parse(PageState.Site.Settings[Constants.PageManagementModule]);
-                NavigationManager.NavigateTo(Utilities.EditUrl(PageState.Alias.Path, "admin/pages", moduleId, location, $"id={PageState.Page.PageId}&returnurl={WebUtility.UrlEncode(PageState.Route.PathAndQuery)}"));
+                NavigationManager.NavigateTo(Utilities.EditUrl(PageState.Alias.Path, "admin/pages", moduleId, "Edit", $"id={PageState.Page.PageId}&returnurl={WebUtility.UrlEncode(PageState.Route.PathAndQuery)}"));
+                break;
+            case "Copy":
+                // get page management moduleid
+                moduleId = int.Parse(PageState.Site.Settings[Constants.PageManagementModule]);
+                NavigationManager.NavigateTo(Utilities.EditUrl(PageState.Alias.Path, "admin/pages", moduleId, "Edit", $"id={PageState.Page.PageId}&copy=true&returnurl={WebUtility.UrlEncode(PageState.Route.PathAndQuery)}"));
                 break;
         }
     }
@@ -630,5 +668,15 @@
     private void ClearMessage()
     {
         _message = "";
+    }
+
+    private async Task SynchronizeSite()
+    {
+        foreach (var group in _siteGroups.Where(item => (item.Type == SiteGroupTypes.Synchronization || item.Type == SiteGroupTypes.ChangeDetection) && item.PrimarySiteId == PageState.Site.SiteId))
+        {
+            group.Synchronize = true;
+            await SiteGroupService.UpdateSiteGroupAsync(group);
+        }
+        NavigationManager.NavigateTo(Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, ""), true);
     }
 }

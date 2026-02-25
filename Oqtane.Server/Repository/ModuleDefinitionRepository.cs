@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Infrastructure;
@@ -111,7 +113,7 @@ namespace Oqtane.Repository
                 ModuleDefinition.Resources = moduleDefinition.Resources;
                 ModuleDefinition.IsEnabled = moduleDefinition.IsEnabled;
                 ModuleDefinition.PackageName = moduleDefinition.PackageName;
-                ModuleDefinition.Fingerprint = Utilities.GenerateSimpleHash(moduleDefinition.ModifiedOn.ToString("yyyyMMddHHmm"));
+                ModuleDefinition.Fingerprint = moduleDefinition.Fingerprint;
             }
 
             return ModuleDefinition;
@@ -184,6 +186,7 @@ namespace Oqtane.Repository
                 ModuleDefinition.CreatedOn = moduledefinition.CreatedOn;
                 ModuleDefinition.ModifiedBy = moduledefinition.ModifiedBy;
                 ModuleDefinition.ModifiedOn = moduledefinition.ModifiedOn;
+                ModuleDefinition.Fingerprint = Utilities.GenerateSimpleHash(moduledefinition.ModifiedOn.ToString("yyyyMMddHHmm"));
             }
 
             // any remaining module definitions are orphans
@@ -351,7 +354,7 @@ namespace Oqtane.Repository
                         moduledefinition = new ModuleDefinition
                         {
                             Name = Utilities.GetTypeNameLastSegment(modulecontroltype.Namespace, 0),
-                            Description = "Manage " + Utilities.GetTypeNameLastSegment(modulecontroltype.Namespace, 0),
+                            Description = Utilities.GetTypeNameLastSegment(modulecontroltype.Namespace, 0),
                             Categories = ((qualifiedModuleType.StartsWith("Oqtane.Modules.Admin.")) ? "Admin" : "")
                         };
                     }
@@ -364,7 +367,7 @@ namespace Oqtane.Repository
                     {
                         foreach (var resource in moduledefinition.Resources)
                         {
-                            if (resource.Url.StartsWith("~"))
+                            if (!string.IsNullOrEmpty(resource.Url) && resource.Url.StartsWith("~"))
                             {
                                 resource.Url = resource.Url.Replace("~", "/Modules/" + Utilities.GetTypeName(moduledefinition.ModuleDefinitionName) + "/").Replace("//", "/");
                             }
@@ -420,6 +423,7 @@ namespace Oqtane.Repository
                 }
 
                 moduledefinition = moduledefinitions[index];
+
                 // actions
                 var modulecontrolobject = Activator.CreateInstance(modulecontroltype) as IModuleControl;
                 string actions = modulecontrolobject.Actions;
@@ -428,6 +432,92 @@ namespace Oqtane.Repository
                     foreach (string action in actions.Split(','))
                     {
                         moduledefinition.ControlTypeRoutes += (action + "=" + modulecontroltype.FullName + ", " + modulecontroltype.Assembly.GetName().Name + ";");
+                    }
+                }
+                // module title
+                if (modulecontroltype.Name == Constants.DefaultAction && !string.IsNullOrEmpty(modulecontrolobject.Title))
+                {
+                    moduledefinition.Name = modulecontrolobject.Title;
+                    moduledefinition.Description = "Manage " + moduledefinition.Name;
+                }
+
+                // check for Page attribute
+                var routeAttributes = modulecontroltype.GetCustomAttributes(typeof(RouteAttribute), true).Cast<RouteAttribute>();
+                if (routeAttributes != null && routeAttributes.Any())
+                {
+                    var route = routeAttributes.First().Template;
+                    if (!string.IsNullOrEmpty(route))
+                    {
+                        // @page "/route" (note that nested routes are not permitted)
+                        var pageTemplate = new PageTemplate();
+                        pageTemplate.AliasName = "*";
+                        pageTemplate.Version = "*";
+                        pageTemplate.Path = route.Substring(1);
+                        pageTemplate.Update = false;
+                        pageTemplate.PageTemplateModules = new List<PageTemplateModule>();
+
+                        // check for Authorize attributes
+                        var permissionList = new List<Permission>();
+                        var authorizeAttributes = modulecontroltype.GetCustomAttributes(typeof(AuthorizeAttribute), true).Cast<AuthorizeAttribute>();
+                        if (authorizeAttributes != null && authorizeAttributes.Any())
+                        {
+                            foreach (var authorizeAttribute in authorizeAttributes)
+                            {
+                                if (string.IsNullOrEmpty(authorizeAttribute.Roles))
+                                {
+                                    // [Authorize]
+                                    permissionList.Add(new Permission(PermissionNames.View, RoleNames.Registered, true));
+                                }
+                                else
+                                {
+                                    // [Authorize(Roles = "role1, permission:role2")]
+                                    foreach (var role in authorizeAttribute.Roles.Split(','))
+                                    {
+                                        var permissionName = PermissionNames.View;
+                                        var roleName = role.Trim();
+                                        if (roleName.Contains(":"))
+                                        {
+                                            permissionName = roleName.Substring(0, roleName.IndexOf(":") - 1);
+                                            roleName = roleName.Substring(roleName.IndexOf(":") + 1);
+                                        }
+                                        permissionList.Add(new Permission(permissionName, roleName, true));
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // view permission 
+                            permissionList.Add(new Permission(PermissionNames.View, RoleNames.Everyone, true));
+                        }
+
+                        // assign page permissions
+                        foreach (var permission in permissionList)
+                        {
+                            if (!pageTemplate.PermissionList.Any(item => item.PermissionName == permission.PermissionName && item.RoleName == permission.RoleName))
+                            {
+                                pageTemplate.PermissionList.Add(permission);
+                            }
+                        }
+
+                        // add module instance
+                        var pageTemplateModule = new PageTemplateModule();
+                        pageTemplateModule.Title = route.Substring(1);
+                        // assign module permissions
+                        foreach (var permission in permissionList)
+                        {
+                            if (!pageTemplateModule.PermissionList.Any(item => item.PermissionName == permission.PermissionName && item.RoleName == permission.RoleName))
+                            {
+                                pageTemplateModule.PermissionList.Add(permission.Clone());
+                            }
+                        }
+                        pageTemplate.PageTemplateModules.Add(pageTemplateModule);
+
+                        // if PageTemplates was not already defined in IModule
+                        if (moduledefinition.PageTemplates == null)
+                        {
+                            moduledefinition.PageTemplates = new List<PageTemplate> { pageTemplate };
+                        }
                     }
                 }
 

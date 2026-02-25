@@ -79,6 +79,7 @@
 
             @((MarkupString)_scripts)
             @((MarkupString)_bodyResources)
+            @((MarkupString)_bodyContent)
             @if (_renderMode == RenderModes.Static)
             {
                 <page-script src="./js/reload.js?v=@_fingerprint"></page-script>
@@ -107,6 +108,7 @@
     private string _language = "en";
     private string _headResources = "";
     private string _bodyResources = "";
+    private string _bodyContent = "";
     private string _styleSheets = "";
     private string _scripts = "";
     private string _message = "";
@@ -157,15 +159,8 @@
                     var page = site.Pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
                     if (page == null && route.PagePath == "") // naked path refers to site home page
                     {
-                        if (site.HomePageId != null)
-                        {
-                            page = site.Pages.FirstOrDefault(item => item.PageId == site.HomePageId);
-                        }
-                        if (page == null)
-                        {
-                            // fallback to use the first page in the collection
-                            page = site.Pages.FirstOrDefault();
-                        }
+                        // fallback to use the first page in the collection
+                        page = site.Pages.FirstOrDefault();
                     }
                     if (page == null)
                     {
@@ -193,41 +188,18 @@
                         await GetJwtToken(alias);
                     }
 
-                    // includes resources
+                    // include resources
                     var resources = await GetPageResources(alias, site, page, modules, int.Parse(route.ModuleId, CultureInfo.InvariantCulture), route.Action);
                     ManageStyleSheets(resources);
                     ManageScripts(resources, alias);
+                    AddBodyContent(site.BodyContent);
+                    AddBodyContent(page.BodyContent);
+                    ManageLocalization(site);
 
-                    // generate scripts
+                    // PWA script
                     if (site.PwaIsEnabled && site.PwaAppIconFileId != null && site.PwaSplashIconFileId != null)
                     {
                         _scripts += CreatePWAScript(alias, site, route);
-                    }
-
-                    // set culture if not specified
-                    string cultureCookie = Context.Request.Cookies[Shared.CookieRequestCultureProvider.DefaultCookieName];
-                    if (cultureCookie == null)
-                    {
-                        // get default language for site
-                        if (site.Languages.Any())
-                        {
-                            // use default language if specified otherwise use first language in collection
-                            cultureCookie = (site.Languages.Where(l => l.IsDefault).SingleOrDefault() ?? site.Languages.First()).Code;
-                        }
-                        else
-                        {
-                            // fallback language
-                            cultureCookie = LocalizationManager.GetDefaultCulture();
-                        }
-                        // convert language code to culture cookie format (ie. "c=en|uic=en")
-                        cultureCookie = Shared.CookieRequestCultureProvider.MakeCookieValue(new Models.RequestCulture(cultureCookie));
-                        SetLocalizationCookie(cultureCookie);
-                    }
-
-                    // set language for page
-                    if (!string.IsNullOrEmpty(cultureCookie))
-                    {
-                        _language = Shared.CookieRequestCultureProvider.ParseCookieValue(cultureCookie).Culture.Name;
                     }
 
                     // create initial PageState
@@ -550,8 +522,6 @@
         }
         else
         {
-            var url = (resource.Url.Contains("://")) ? resource.Url : alias.BaseUrl + resource.Url;
-
             var dataAttributes = "";
             if (!resource.DataAttributes.ContainsKey("data-reload"))
             {
@@ -573,12 +543,24 @@
                 }
             }
 
-            return "<script src=\"" + url + "\"" +
-                ((!string.IsNullOrEmpty(resource.Type)) ? " type=\"" + resource.Type + "\"" : "") +
-                ((!string.IsNullOrEmpty(resource.Integrity)) ? " integrity=\"" + resource.Integrity + "\"" : "") +
-                ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
-                ((!string.IsNullOrEmpty(dataAttributes)) ? dataAttributes : "") +
-                "></script>";
+            if (!string.IsNullOrEmpty(resource.Url))
+            {
+                var url = (string.IsNullOrEmpty(resource.Url) || resource.Url.Contains("://")) ? resource.Url : alias.BaseUrl + resource.Url;
+
+                return "<script src=\"" + url + "\"" +
+                    ((!string.IsNullOrEmpty(resource.Type)) ? " type=\"" + resource.Type + "\"" : "") +
+                    ((!string.IsNullOrEmpty(resource.Integrity)) ? " integrity=\"" + resource.Integrity + "\"" : "") +
+                    ((!string.IsNullOrEmpty(resource.CrossOrigin)) ? " crossorigin=\"" + resource.CrossOrigin + "\"" : "") +
+                    ((!string.IsNullOrEmpty(dataAttributes)) ? dataAttributes : "") +
+                    "></script>";
+            }
+            else
+            {
+                return "<script" +
+                    ((!string.IsNullOrEmpty(resource.Type)) ? " type=\"" + resource.Type + "\"" : "") +
+                    ((!string.IsNullOrEmpty(dataAttributes)) ? dataAttributes : "") +
+                    ">" + resource.Content + "</script>";
+            }
         }
     }
 
@@ -751,11 +733,11 @@
             {
                 if (rendermode == RenderModes.Static || resource.ResourceType == ResourceType.Stylesheet || resource.Level == ResourceLevel.Site)
                 {
-                    if (resource.Url.StartsWith("~"))
+                    if (!string.IsNullOrEmpty(resource.Url) && resource.Url.StartsWith("~"))
                     {
                         resource.Url = resource.Url.Replace("~", "/" + type + "/" + name + "/").Replace("//", "/");
                     }
-                    if (!resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
+                    if (!string.IsNullOrEmpty(resource.Url) && !resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
                     {
                         resource.Url = alias.BaseUrl + resource.Url;
                     }
@@ -801,6 +783,73 @@
                     AddScript(resource, alias);
                 }
             }
+        }
+    }
+
+    private void AddBodyContent(string content)
+    {
+        if (!string.IsNullOrEmpty(content))
+        {
+            var elements = content.Split('<', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var element in elements)
+            {
+                if (_renderMode == RenderModes.Static || (!element.ToLower().StartsWith("script") && !element.ToLower().StartsWith("/script")))
+                {
+                    if (!_bodyContent.Contains("<" + element) || element.StartsWith("/"))
+                    {
+                        _bodyContent += "<" + element;
+                    }
+                }
+            }
+            _bodyContent += "\n";
+        }
+    }
+
+    private void ManageLocalization(Site site)
+    {
+        // get user culture (ui localization)
+        var uiCulture = site?.User?.CultureCode;
+        if (string.IsNullOrEmpty(uiCulture))
+        {
+            // get default language for site
+            if (site.Languages.Any())
+            {
+                // use default language if specified otherwise use first language in collection
+                uiCulture = (site.Languages.Where(l => l.IsDefault).SingleOrDefault() ?? site.Languages.First()).Code;
+            }
+            else
+            {
+                // fallback language
+                uiCulture = LocalizationManager.GetDefaultCulture();
+            }
+        }
+        
+        // get site culture (content localization)
+        var culture = site?.CultureCode;
+        if (string.IsNullOrEmpty(culture))
+        {
+            culture = uiCulture;
+        }
+        _language = culture; // html element language attribute
+
+        // get culture cookie
+        string cultureCookie = Context.Request.Cookies[Shared.CookieRequestCultureProvider.DefaultCookieName];
+        if (cultureCookie != null)
+        {
+            // verify culture cookie (which could be inaccurate when using subfolders ie. domain.com/fr as cookies are based on domain)
+            var requestCulture = Shared.CookieRequestCultureProvider.ParseCookieValue(cultureCookie);
+            if (culture != requestCulture.Culture.Name || uiCulture != requestCulture.UICulture.Name)
+            {
+                // convert to culture cookie format (ie. "c=en|uic=en") and save cookie
+                cultureCookie = Shared.CookieRequestCultureProvider.MakeCookieValue(new Models.RequestCulture(culture, uiCulture));
+                SetLocalizationCookie(cultureCookie);
+            }
+        }
+        else
+        {
+            // convert to culture cookie format (ie. "c=en|uic=en") and save cookie
+            cultureCookie = Shared.CookieRequestCultureProvider.MakeCookieValue(new Models.RequestCulture(culture, uiCulture));
+            SetLocalizationCookie(cultureCookie);
         }
     }
 }

@@ -607,6 +607,34 @@ namespace Oqtane.Infrastructure.SiteTemplates
                     }
                 }
             });
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Global Replace",
+                Parent = "Admin",
+                Order = 23,
+                Path = "admin/replace",
+                Icon = Icons.LoopSquare,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                PermissionList = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, RoleNames.Admin, true),
+                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                },
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.GlobalReplace.Index).ToModuleDefinitionName(), Title = "Global Replace", Pane = PaneNames.Default,
+                        PermissionList = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, RoleNames.Admin, true),
+                            new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                        },
+                        Content = ""
+                    }
+                }
+            });
 
             // host pages (order starts at 51)
             pageTemplates.Add(new PageTemplate
