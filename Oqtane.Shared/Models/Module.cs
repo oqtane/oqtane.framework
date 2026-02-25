@@ -33,6 +33,11 @@ namespace Oqtane.Models
         /// </summary>
         public bool AllPages { get; set; }
 
+        /// <summary>
+        /// indicates if the module is shared across multiple pages (only set in specific scenarios to ensure performance)
+        /// </summary>
+        [NotMapped]
+        public bool IsShared { get; set; }
 
         /// <summary>
         /// Reference to the <see cref="ModuleDefinition"/> used for this module.

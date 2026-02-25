@@ -617,6 +617,7 @@ namespace Oqtane.Infrastructure
         private string SynchronizeModules(IServiceProvider provider, ISettingRepository settingRepository, IPageModuleRepository pageModuleRepository, IModuleRepository moduleRepository, SiteGroupMember siteGroupMember, List<PageModule> primaryPageModules, List<PageModule> secondaryPageModules, Page primaryPage, Page secondaryPage, int secondarySiteId)
         {
             var log = "";
+            var removePageModules = secondaryPageModules.Where(item => item.PageId == secondaryPage.PageId).ToList();
 
             // iterate through primary modules on primary page
             foreach (var primaryPageModule in primaryPageModules.Where(item => item.PageId == primaryPage.PageId))
@@ -651,7 +652,7 @@ namespace Oqtane.Infrastructure
 
                         if (pageModule == null)
                         {
-                            // check if module exists
+                            // check if module exists in site (ie. a shared instance)
                             var module = secondaryPageModules.FirstOrDefault(item => item.Module.ModuleDefinitionName == primaryPageModule.Module.ModuleDefinitionName && item.Title.ToLower() == primaryPageModule.Title.ToLower())?.Module;
                             if (module == null)
                             {
@@ -685,7 +686,7 @@ namespace Oqtane.Infrastructure
 
                     if (pageModule != null)
                     {
-                        secondaryPageModules.Remove(pageModule);
+                        removePageModules.Remove(pageModule);
                     }
 
                     // module settings
@@ -716,7 +717,7 @@ namespace Oqtane.Infrastructure
             if (siteGroupMember.SiteGroup.Type == SiteGroupTypes.Synchronization)
             {
                 // remove modules on the secondary page which do not exist on the primary page
-                foreach (var secondaryPageModule in secondaryPageModules.Where(item => item.PageId == secondaryPage.PageId))
+                foreach (var secondaryPageModule in removePageModules)
                 {
                     pageModuleRepository.DeletePageModule(secondaryPageModule.PageModuleId);
                     log += Log(siteGroupMember, $"Module Instance Deleted: {secondaryPageModule.Title} - {CreateLink(siteGroupMember.AliasName + "/" + secondaryPageModule.Page.Path)}");
