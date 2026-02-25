@@ -166,7 +166,7 @@
                                     <option value="@p.PageId">@p.Name</option>
                                 }
                             </select>
-                            <select class="form-select mt-1" @bind="@_moduleId">
+                            <select class="form-select mt-1" value="@_moduleId"  @onchange="(e => PageModuleChanged(e))">
                                 <option value="-">&lt;@Localizer["Module.Select"]&gt;</option>
                                 @foreach (Module module in _modules)
                                 {
@@ -355,6 +355,20 @@
                 .ToList();
         }
         _moduleId = "-";
+        StateHasChanged();
+    }
+
+    private async Task PageModuleChanged(ChangeEventArgs e)
+    {
+        _moduleId = (string)e.Value;
+        if (_moduleId != "-")
+        {
+            _title = _modules.First(item => item.ModuleId == int.Parse(_moduleId)).Title;
+        }
+        else
+        {
+            _title = "";            
+        }
         StateHasChanged();
     }
 
