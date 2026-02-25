@@ -73,27 +73,29 @@
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="page" HelpText="The page that the module is located on" ResourceKey="Page">Page: </Label>
+                            <Label Class="col-sm-3" For="page" HelpText="The page that the module is located on. Please note that shared modules cannot be moved to other pages." ResourceKey="Page">Page: </Label>
                             <div class="col-sm-9">
-                                <select id="page" class="form-select" @bind="@_pageId" required>
-                                    @if (PageState.Page.UserId != null)
-                                    {
+                                @if (PageState.Page.UserId != null || _isShared)
+                                {
+                                    <select id="page" class="form-select" @bind="@_pageId" required disabled>
                                         <option value="@PageState.Page.PageId">@(PageState.Page.Name)</option>
-                                    }
-                                    else
+                                    </select>                                    
+                                }
+                                else
+                                {
+                                    <select id="page" class="form-select" @bind="@_pageId" required>
+                                    @if (_pages != null)
                                     {
-                                        if (_pages != null)
+                                        foreach (Page p in _pages)
                                         {
-                                            foreach (Page p in _pages)
+                                            if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, p.PermissionList))
                                             {
-                                                if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, p.PermissionList))
-                                                {
-                                                    <option value="@p.PageId">@(new string('-', p.Level * 2))@(p.Name)</option>
-                                                }
+                                                <option value="@p.PageId">@(new string('-', p.Level * 2))@(p.Name)</option>
                                             }
                                         }
                                     }
-                                </select>
+                                    </select>
+                                }
                             </div>
                         </div>
                     </div>
@@ -161,6 +163,7 @@
     private string _pane;
     private string _containerType;
     private string _allPages = "false";
+    private bool _isShared = false;
     private string _header = "";
     private string _footer = "";
     private string _permissionNames = "";
@@ -207,6 +210,7 @@
         _expirydate = Utilities.UtcAsLocalDate(pagemodule.ExpiryDate);
 
         _allPages = pagemodule.Module.AllPages.ToString();
+        _isShared = pagemodule.Module.IsShared;
         createdby = pagemodule.Module.CreatedBy;
         createdon = pagemodule.Module.CreatedOn;
         modifiedby = pagemodule.Module.ModifiedBy;

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
 using Oqtane.Shared;
@@ -98,6 +99,7 @@ namespace Oqtane.Repository
                 var permissions = _permissions.GetPermissions(pagemodule.Module.SiteId, EntityNames.Module).ToList();
                 pagemodule = GetPageModule(pagemodule, moduledefinitions, permissions);
             }
+            pagemodule.Module.IsShared = db.PageModule.Count(item => item.ModuleId == pagemodule.ModuleId) > 1;
             return pagemodule;
         }
 
