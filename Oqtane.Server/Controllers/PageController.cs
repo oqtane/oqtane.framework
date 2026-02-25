@@ -513,35 +513,47 @@ namespace Oqtane.Controllers
                     List<PageModule> pageModules = _pageModules.GetPageModules(fromPage.SiteId).ToList();
                     foreach (PageModule pm in pageModules.Where(item => item.PageId == fromPage.PageId && !item.Module.AllPages && !item.IsDeleted))
                     {
-                        Module module = new Module();
-                        module.SiteId = fromPage.SiteId;
-                        module.PageId = toPageId;
-                        module.ModuleDefinitionName = pm.Module.ModuleDefinitionName;
-                        module.AllPages = false;
-                        if (usePagePermissions)
+                        Module module;
+
+                        // determine if module is a shared instance (ie. exists on other pages)
+                        if (!pageModules.Any(item => item.ModuleId == pm.ModuleId && item.PageId != fromPage.PageId))
                         {
-                            module.PermissionList = toPage.PermissionList;
+                            // create new module
+                            module = new Module();
+                            module.SiteId = fromPage.SiteId;
+                            module.PageId = toPageId;
+                            module.ModuleDefinitionName = pm.Module.ModuleDefinitionName;
+                            module.AllPages = false;
+                            if (usePagePermissions)
+                            {
+                                module.PermissionList = toPage.PermissionList;
+                            }
+                            else
+                            {
+                                module.PermissionList = pm.Module.PermissionList;
+                            }
+                            module.PermissionList = module.PermissionList.Select(item => new Permission
+                            {
+                                SiteId = item.SiteId,
+                                EntityName = EntityNames.Module,
+                                EntityId = -1,
+                                PermissionName = item.PermissionName,
+                                RoleName = item.RoleName,
+                                UserId = item.UserId,
+                                IsAuthorized = item.IsAuthorized,
+                            }).ToList();
+
+                            module = _modules.AddModule(module);
+                            string content = _modules.ExportModule(pm.ModuleId);
+                            if (content != "")
+                            {
+                                _modules.ImportModule(module.ModuleId, content);
+                            }
                         }
                         else
                         {
-                            module.PermissionList = pm.Module.PermissionList;
-                        }
-                        module.PermissionList = module.PermissionList.Select(item => new Permission
-                        {
-                            SiteId = item.SiteId,
-                            EntityName = EntityNames.Module,
-                            EntityId = -1,
-                            PermissionName = item.PermissionName,
-                            RoleName = item.RoleName,
-                            UserId = item.UserId,
-                            IsAuthorized = item.IsAuthorized,
-                        }).ToList();
-                        module = _modules.AddModule(module);
-
-                        string content = _modules.ExportModule(pm.ModuleId);
-                        if (content != "")
-                        {
-                            _modules.ImportModule(module.ModuleId, content);
+                            // use existing module
+                            module = pm.Module;
                         }
 
                         PageModule pageModule = new PageModule();

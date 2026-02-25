@@ -225,7 +225,10 @@
                     <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
                     <br />
                     <br />
-                    <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
+                    @if (!_copy)
+                    {
+                        <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
+                    }
                 </TabPanel>
                 <TabPanel Name="Permissions" ResourceKey="Permissions" Heading="Permissions">
                     <div class="container">
