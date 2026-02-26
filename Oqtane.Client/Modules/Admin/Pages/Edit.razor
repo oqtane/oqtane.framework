@@ -46,7 +46,7 @@
                                 <Label Class="col-sm-3" For="move" HelpText="Select the location where you would like the page to be moved in relation to other pages" ResourceKey="Move">Move: </Label>
                                 <div class="col-sm-9">
                                     <select id="move" class="form-select" @bind="@_insert" required>
-                                        @if (_parentid == _currentparentid)
+                                        @if (_parentid == _currentparentid && !_copy)
                                         {
                                             <option value="=">&lt;@Localizer["ThisLocation.Keep"]&gt;</option>
                                         }
@@ -225,7 +225,10 @@
                     <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
                     <br />
                     <br />
-                    <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
+                    @if (!_copy)
+                    {
+                        <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
+                    }
                 </TabPanel>
                 <TabPanel Name="Permissions" ResourceKey="Permissions" Heading="Permissions">
                     <div class="container">
@@ -241,36 +244,40 @@
                                     <option value="False">@SharedLocalizer["No"]</option>
                                 </select>
                             </div>
-                        </div>
+                        </div>                            
                         <br />
                         <button type="button" class="btn btn-success" @onclick="SavePage">@SharedLocalizer["Save"]</button>
                         <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
                     </div>
                 </TabPanel>
-                <TabPanel Name="PageModules" Heading="Modules" ResourceKey="PageModules">
-                    <Pager Items="_pageModules">
-                        <Header>
+                @if (!_copy)
+                {
+                    <TabPanel Name="PageModules" Heading="Modules" ResourceKey="PageModules">
+                        <Pager Items="_pageModules">
+                            <Header>
                             <th style="width: 1px;">&nbsp;</th>
                             <th style="width: 1px;">&nbsp;</th>
                             <th>@Localizer["ModuleTitle"]</th>
                             <th>@Localizer["ModuleDefinition"]</th>
-                        </Header>
-                        <Row>
-                            <td><ActionLink Action="Settings" Text="Edit" Path="@_actualpath" ModuleId="@context.ModuleId" Security="SecurityAccessLevel.Edit" PermissionList="@context.PermissionList" ResourceKey="ModuleSettings" /></td>
-                            <td><ActionDialog Header="Delete Module" Message="Are You Sure You Wish To Delete This Module?" Action="Delete" Security="SecurityAccessLevel.Edit" PermissionList="@context.PermissionList" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" /></td>
-                            <td>@context.Title</td>
-                            <td>@context.ModuleDefinition?.Name</td>
-                        </Row>
-                    </Pager>
-                </TabPanel>
-                @if (_themeSettingsType != null)
-                {
-                    <TabPanel Name="ThemeSettings" Heading="Theme Settings" ResourceKey="ThemeSettings">
-                        @_themeSettingsComponent
-                        <br />
-                        <button type="button" class="btn btn-success" @onclick="SavePage">@SharedLocalizer["Save"]</button>
-                        <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
+                            </Header>
+                            <Row>
+                                <td><ActionLink Action="Settings" Text="Edit" Path="@_actualpath" ModuleId="@context.ModuleId" Security="SecurityAccessLevel.Edit" PermissionList="@context.PermissionList" ResourceKey="ModuleSettings" /></td>
+                                <td><ActionDialog Header="Delete Module" Message="Are You Sure You Wish To Delete This Module?" Action="Delete" Security="SecurityAccessLevel.Edit" PermissionList="@context.PermissionList" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" /></td>
+                                <td>@context.Title</td>
+                                <td>@context.ModuleDefinition?.Name</td>
+                            </Row>
+                        </Pager>
                     </TabPanel>
+                    @if (_themeSettingsType != null)
+                    {
+                        <TabPanel Name="ThemeSettings" Heading="Theme Settings" ResourceKey="ThemeSettings">
+                            @_themeSettingsComponent
+                            <br />
+                            <button type="button" class="btn btn-success" @onclick="SavePage">@SharedLocalizer["Save"]</button>
+                            <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
+                        </TabPanel>
+                    }
+
                 }
             </TabStrip>
         }
@@ -349,6 +356,7 @@
     private List<ThemeControl> _containers = new List<ThemeControl>();
     private List<Page> _pages;
     private int _pageId;
+    private bool _copy = false;
     private string _name;
     private string _currentparentid;
     private string _parentid = "-1";
@@ -394,6 +402,10 @@
         {
             _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
             _pageId = Int32.Parse(PageState.QueryString["id"]);
+            if (PageState.QueryString.ContainsKey("copy"))
+            {
+                _copy = bool.Parse(PageState.QueryString["copy"]);
+            }
             _page = await PageService.GetPageAsync(_pageId);
             _icons = await SystemService.GetIconsAsync();
             _iconresources = Utilities.GetFullTypeName(typeof(IconResources).AssemblyQualifiedName);
@@ -413,7 +425,7 @@
                 _children = new List<Page>();
                 foreach (Page p in _pages.Where(item => (_parentid == "-1" && item.ParentId == null) || (item.ParentId == int.Parse(_parentid, CultureInfo.InvariantCulture))))
                 {
-                    if (p.PageId != _pageId && UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
+                    if ((p.PageId != _pageId || _copy) && UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.PermissionList))
                     {
                         _children.Add(p);
                     }
@@ -439,6 +451,12 @@
                 _effectivedate = Utilities.UtcAsLocalDate(_page.EffectiveDate);
                 _expirydate = Utilities.UtcAsLocalDate(_page.ExpiryDate);
                 _ispersonalizable = _page.IsPersonalizable.ToString();
+
+                if (_copy)
+                {
+                    _insert = ">";
+                    _childid = _page.PageId;
+                }
 
                 // appearance
                 _title = _page.Title;
@@ -470,6 +488,19 @@
                 // permissions
                 _permissions = _page.PermissionList;
                 _updatemodulepermissions = "True";
+                if (_copy)
+                {
+                    _permissions = _page.PermissionList.Select(item => new Permission
+                    {
+                        SiteId = item.SiteId,
+                        EntityName = item.EntityName,
+                        EntityId = -1,
+                        PermissionName = item.PermissionName,
+                        RoleName = item.RoleName,
+                        UserId = item.UserId,
+                        IsAuthorized = item.IsAuthorized,
+                    }).ToList();
+                }
 
                 // page modules
                 var modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId);
@@ -484,6 +515,13 @@
                 _deletedon = _page.DeletedOn;
 
                 ThemeSettings();
+
+                if (_copy)
+                {
+                    _name = "";
+                    _path = "";
+                }
+
                 _initialized = true;
             }
             else
@@ -554,7 +592,7 @@
                     builder.OpenComponent(0, _themeSettingsType);
                     builder.AddAttribute(1, "RenderModeBoundary", RenderModeBoundary);
                     builder.AddComponentReferenceCapture(2, inst => { _themeSettings = Convert.ChangeType(inst, _themeSettingsType); });
-                    
+
                     builder.CloseComponent();
                 };
             }
@@ -580,6 +618,13 @@
                 if (!string.IsNullOrEmpty(_themetype) && _containertype != "-")
                 {
                     string currentPath = _page.Path;
+
+                    if (_copy)
+                    {
+                        _page = new Page();
+                        _page.SiteId = PageState.Site.SiteId;
+                        currentPath = "";
+                    }
 
                     _page.Name = _name;
 
@@ -696,8 +741,19 @@
                         _page.UpdateModulePermissions = bool.Parse(_updatemodulepermissions);
                     }
 
-                    // update page
-                    _page = await PageService.UpdatePageAsync(_page);
+                    if (_copy)
+                    {
+                        // create page
+                        _page = await PageService.AddPageAsync(_page);
+                        await PageService.CopyPageAsync(_pageId, _page.PageId, bool.Parse(_updatemodulepermissions));
+                        await logger.LogInformation("Page Added {Page}", _page);
+                    }
+                    else
+                    {
+                        // update page
+                        _page = await PageService.UpdatePageAsync(_page);
+                        await logger.LogInformation("Page Saved {Page}", _page);
+                    }
 
                     // update page order
                     await PageService.UpdatePageOrderAsync(_page.SiteId, _page.PageId, _page.ParentId);
@@ -710,7 +766,6 @@
                         await PageService.UpdatePageOrderAsync(_page.SiteId, _page.PageId, int.Parse(_currentparentid));
                     }
 
-                    await logger.LogInformation("Page Saved {Page}", _page);
                     if (!string.IsNullOrEmpty(PageState.ReturnUrl))
                     {
                         NavigationManager.NavigateTo(PageState.ReturnUrl, true); // redirect to page being edited and reload

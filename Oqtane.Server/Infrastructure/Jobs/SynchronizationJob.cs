@@ -19,7 +19,7 @@ namespace Oqtane.Infrastructure
 
         // synchronization only supports sites in the same tenant (database)
         // module title is used as a key to identify module instances on a page
-        // modules must implement ISynchronizable interface
+        // modules must implement ISynchronizable interface for content synchronization
         // change detection does not support deleted items as key values will usually be different due to localization
 
         // define settings that should not be synchronized (should be extensible in the future)
@@ -211,8 +211,7 @@ namespace Oqtane.Infrastructure
             if (siteGroupMember.SiteGroup.Type == SiteGroupTypes.ChangeDetection && !string.IsNullOrEmpty(log))
             {
                 // send change log to administrators
-                SendNotifications(provider, secondarySite.SiteId, secondarySite.Name, log);
-                log += Log(siteGroupMember, $"Change Log Sent To Administrators For Secondary Site: {secondarySite.Name}");
+                log += SendNotifications(provider, siteGroupMember, secondarySite.SiteId, secondarySite.Name, log);
             }
 
             return log;
@@ -623,6 +622,7 @@ namespace Oqtane.Infrastructure
         private string SynchronizeModules(IServiceProvider provider, ISettingRepository settingRepository, IPageModuleRepository pageModuleRepository, IModuleRepository moduleRepository, SiteGroupMember siteGroupMember, List<PageModule> primaryPageModules, List<PageModule> secondaryPageModules, Page primaryPage, Page secondaryPage, int secondarySiteId)
         {
             var log = "";
+            var removePageModules = secondaryPageModules.Where(item => item.PageId == secondaryPage.PageId).ToList();
 
             // iterate through primary modules on primary page
             foreach (var primaryPageModule in primaryPageModules.Where(item => item.PageId == primaryPage.PageId))
@@ -657,7 +657,7 @@ namespace Oqtane.Infrastructure
 
                         if (pageModule == null)
                         {
-                            // check if module exists
+                            // check if module exists in site (ie. a shared instance)
                             var module = secondaryPageModules.FirstOrDefault(item => item.Module.ModuleDefinitionName == primaryPageModule.Module.ModuleDefinitionName && item.Title.ToLower() == primaryPageModule.Title.ToLower())?.Module;
                             if (module == null)
                             {
@@ -691,7 +691,7 @@ namespace Oqtane.Infrastructure
 
                     if (pageModule != null)
                     {
-                        secondaryPageModules.Remove(pageModule);
+                        removePageModules.Remove(pageModule);
                     }
 
                     // module settings
@@ -722,7 +722,7 @@ namespace Oqtane.Infrastructure
             if (siteGroupMember.SiteGroup.Type == SiteGroupTypes.Synchronization)
             {
                 // remove modules on the secondary page which do not exist on the primary page
-                foreach (var secondaryPageModule in secondaryPageModules.Where(item => item.PageId == secondaryPage.PageId))
+                foreach (var secondaryPageModule in removePageModules)
                 {
                     pageModuleRepository.DeletePageModule(secondaryPageModule.PageModuleId);
                     log += Log(siteGroupMember, $"Module Instance Deleted: {secondaryPageModule.Title} - {CreateLink(siteGroupMember.AliasName + "/" + secondaryPageModule.Page.Path)}");
@@ -854,16 +854,29 @@ namespace Oqtane.Infrastructure
             return log;
         }
 
-        private void SendNotifications(IServiceProvider provider, int siteId, string siteName, string log)
+        private string SendNotifications(IServiceProvider provider, SiteGroupMember siteGroupMember, int siteId, string siteName, string changeLog)
         {
             var userRoleRepository = provider.GetRequiredService<IUserRoleRepository>();
             var notificationRepository = provider.GetRequiredService<INotificationRepository>();
+            var log = "";
 
-            foreach (var userRole in userRoleRepository.GetUserRoles(RoleNames.Admin, siteId))
+            // get administrators for site
+            var userRoles = userRoleRepository.GetUserRoles(RoleNames.Admin, siteId);
+            if (userRoles != null && userRoles.Any())
             {
-                var notification = new Notification(siteId, userRole.User, $"{siteName} Change Log", log);
-                notificationRepository.AddNotification(notification);
+                foreach (var userRole in userRoles)
+                {
+                    var notification = new Notification(siteId, userRole.User, $"{siteName} Change Log", changeLog);
+                    notificationRepository.AddNotification(notification);
+                }
+                log += Log(siteGroupMember, $"Change Log Sent To Administrators For Secondary Site: {siteName}");
             }
+            else
+            {
+                log += Log(siteGroupMember, $"Error Sending Change Log - Secondary Site {siteName} Does Not Have Any Administrators Defined");
+            }
+
+            return log;
         }
 
         private string Log(SiteGroupMember siteGroupMember, string content)
