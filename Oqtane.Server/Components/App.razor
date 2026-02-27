@@ -266,10 +266,8 @@
 
     private void HandlePageNotFound(Site site, Page page, Route route)
     {
-        string useragent = (Context.Request.Headers[HeaderNames.UserAgent] != StringValues.Empty) ? Context.Request.Headers[HeaderNames.UserAgent] : "(none)";
-        useragent = (useragent.Length > 256) ? useragent.Substring(0, 256) : useragent;
-
         // filter
+        string useragent = (Context.Request.Headers[HeaderNames.UserAgent] != StringValues.Empty) ? Context.Request.Headers[HeaderNames.UserAgent] : "(none)";
         var settings = Context.GetSiteSettings();
         var filter = settings.GetValue("VisitorFilter", Constants.DefaultVisitorFilter);
         foreach (string term in filter.ToLower().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray())
