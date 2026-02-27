@@ -130,7 +130,7 @@ else
 
     private async Task LoadModuleDefinitions()
     {
-        _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(_category)).ToList();
+        _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Split(',', StringSplitOptions.RemoveEmptyEntries).Contains(_category)).ToList();
         _packages = await PackageService.GetPackageUpdatesAsync("module");
     }
 

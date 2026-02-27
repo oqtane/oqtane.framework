@@ -303,7 +303,7 @@
             _containers = ThemeService.GetContainerControls(PageState.Site.Themes, PageState.Page.ThemeType);
             _containerType = PageState.Site.DefaultContainerType;
             _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Page.SiteId);
-            _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(_category)).ToList();
+            _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Split(',', StringSplitOptions.RemoveEmptyEntries).Contains(_category)).ToList();
             _categories = _allModuleDefinitions.SelectMany(m => m.Categories.Split(',', StringSplitOptions.RemoveEmptyEntries)).Distinct().Where(item => item != "Headless").ToList();
             _siteGroups = await SiteGroupService.GetSiteGroupsAsync(PageState.Site.SiteId);
         }
@@ -312,7 +312,7 @@
     private void CategoryChanged(ChangeEventArgs e)
     {
         _category = (string)e.Value;
-        _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(_category)).ToList();
+        _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Split(',', StringSplitOptions.RemoveEmptyEntries).Contains(_category)).ToList();
         _moduleDefinitionName = "-";
         _message = "";
     }
