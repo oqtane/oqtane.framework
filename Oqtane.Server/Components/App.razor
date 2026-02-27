@@ -266,6 +266,30 @@
 
     private void HandlePageNotFound(Site site, Page page, Route route)
     {
+        string useragent = (Context.Request.Headers[HeaderNames.UserAgent] != StringValues.Empty) ? Context.Request.Headers[HeaderNames.UserAgent] : "(none)";
+        useragent = (useragent.Length > 256) ? useragent.Substring(0, 256) : useragent;
+
+        // filter
+        var settings = Context.GetSiteSettings();
+        var filter = settings.GetValue("VisitorFilter", Constants.DefaultVisitorFilter);
+        foreach (string term in filter.ToLower().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray())
+        {
+            if (_remoteIPAddress.ToLower().Contains(term) || useragent.ToLower().Contains(term))
+            {
+                // handle not found request in static mode
+                if (_renderMode == RenderModes.Static)
+                {
+                    NavigationManager.NotFound();
+                }
+                else
+                {
+                    // redirect to 404 page
+                    NavigationManager.NavigateTo(route.SiteUrl + "/404", true);
+                }
+                return;
+            }
+        }
+        
         // referrer will only be set if the link originated externally
         string referrer = (Context.Request.Headers[HeaderNames.Referer] != StringValues.Empty) ? Context.Request.Headers[HeaderNames.Referer] : "";
 
@@ -564,23 +588,6 @@
         }
     }
 
-    private void SetLocalizationCookie(string cookieValue)
-    {
-        var cookieOptions = new Microsoft.AspNetCore.Http.CookieOptions
-        {
-            Expires = DateTimeOffset.UtcNow.AddYears(1),
-            SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax, // Set SameSite attribute
-            Secure = true, // Ensure the cookie is only sent over HTTPS
-            HttpOnly = false // cookie is updated using JS Interop in Interactive render mode
-        };
-
-        Context.Response.Cookies.Append(
-            Shared.CookieRequestCultureProvider.DefaultCookieName,
-            cookieValue,
-            cookieOptions
-        );
-    }
-
     private async Task<List<Resource>> GetPageResources(Alias alias, Site site, Page page, List<Module> modules, int moduleid, string action)
     {
         var resources = new List<Resource>();
@@ -851,5 +858,22 @@
             cultureCookie = Shared.CookieRequestCultureProvider.MakeCookieValue(new Models.RequestCulture(culture, uiCulture));
             SetLocalizationCookie(cultureCookie);
         }
+    }
+
+    private void SetLocalizationCookie(string cookieValue)
+    {
+        var cookieOptions = new Microsoft.AspNetCore.Http.CookieOptions
+        {
+            Expires = DateTimeOffset.UtcNow.AddYears(1),
+            SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax, // Set SameSite attribute
+            Secure = true, // Ensure the cookie is only sent over HTTPS
+            HttpOnly = false // cookie is updated using JS Interop in Interactive render mode
+        };
+
+        Context.Response.Cookies.Append(
+            Shared.CookieRequestCultureProvider.DefaultCookieName,
+            cookieValue,
+            cookieOptions
+        );
     }
 }
