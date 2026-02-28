@@ -18,6 +18,7 @@ namespace Oqtane.Shared
         public const string DefaultTheme = "Oqtane.Themes.OqtaneTheme.Default, Oqtane.Client";
         public const string DefaultContainer = "Oqtane.Themes.OqtaneTheme.Container, Oqtane.Client";
         public const string DefaultAdminContainer = "Oqtane.Themes.AdminContainer, Oqtane.Client";
+        public const string DefaultFolderProvider = "Default";
 
         public const string ActionToken = "{Action}";
         public const string DefaultAction = "Index";
