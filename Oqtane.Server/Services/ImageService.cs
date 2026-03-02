@@ -90,6 +90,32 @@ namespace Oqtane.Services
             return imagepath;
         }
 
+        public string OptimizeImageToWebp(string filepath, int quality, string imagepath)
+        {
+            try
+            {
+                if (quality < 0) quality = 0;
+                else if (quality > 100) quality = 100;
+
+                using (var stream = new FileStream(filepath, FileMode.Open, FileAccess.Read))
+                {
+                    stream.Position = 0;
+                    using (var image = Image.Load(stream))
+                    {
+                        var encoder = GetWebpEncoder(transparent: true, quality);
+                        image.SaveAsWebp(imagepath, encoder);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, ex, "Error Optimizing Image To Webp For File {FilePath} {Quality} {Error}", filepath, quality, ex.Message);
+                imagepath = "";
+            }
+
+            return imagepath;
+        }
+
         private static IImageEncoder GetEncoder(string format, bool transparent)
         {
             return format switch
@@ -111,12 +137,12 @@ namespace Oqtane.Services
             };
         }
 
-        private static WebpEncoder GetWebpEncoder(bool transparent)
+        private static WebpEncoder GetWebpEncoder(bool transparent, int quality = IImageService.DefaultQuality)
         {
             return new WebpEncoder()
             {
                 FileFormat = WebpFileFormatType.Lossy,
-                Quality = 60,
+                Quality = quality,
                 TransparentColorMode = transparent ? WebpTransparentColorMode.Preserve : WebpTransparentColorMode.Clear,
             };
         }
