@@ -28,7 +28,14 @@
         <file src="..\Client\obj\Release\$targetframework$\staticwebassets\msbuild.build.$ProjectName$.props" target="build\$ProjectName$.props" />
         <file src="..\Client\obj\Release\$targetframework$\staticwebassets\msbuild.buildMultiTargeting.$ProjectName$.props" target="buildMultiTargeting\$ProjectName$.props" />
         <file src="..\Client\obj\Release\$targetframework$\staticwebassets\msbuild.buildTransitive.$ProjectName$.props" target="buildTransitive\$ProjectName$.props" />
-        <file src="..\Client\wwwroot\**\*.*" target="staticwebassets" />
+        
+        <!-- Theme static assets (explicit or folder-based) -->
+        <file src="..\Server\wwwroot\Module.css" target="staticwebassets\_content\$ProjectName$\" /> 
+        <file src="..\Server\wwwroot\Module.js" target="staticwebassets\_content\$ProjectName$\" />
+
+        <!-- UI framework assets (example: MudBlazor) --> 
+        <!-- <file src="..\Server\wwwroot\_content\MudBlazor\**\*.*" target="staticwebassets\_content\MudBlazor\" /> -->
+
         <file src="icon.png" target="" />
     </files>
 </package>
