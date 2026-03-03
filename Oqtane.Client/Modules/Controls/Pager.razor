@@ -458,21 +458,19 @@
             _displayPages = int.Parse(DisplayPages);
         }
 
-        if (PageState.QueryString.ContainsKey("page") && int.TryParse(PageState.QueryString["page"], out int page))
+        // Prefer an explicit CurrentPage parameter when provided by the parent.
+        // Fallback to the query string only if CurrentPage is not supplied.
+        int? requestedPage = null;
+        if (!string.IsNullOrEmpty(CurrentPage) && int.TryParse(CurrentPage, out int currentParsed))
         {
-            _page = page;
+            requestedPage = currentParsed;
         }
-        else
+        else if (PageState.QueryString.ContainsKey("page") && int.TryParse(PageState.QueryString["page"], out int pageFromQuery))
         {
-            if (!string.IsNullOrEmpty(CurrentPage))
-            {
-                _page = int.Parse(CurrentPage);
-            }
-            else
-            {
-                _page = 1;
-            }
+            requestedPage = pageFromQuery;
         }
+
+        _page = requestedPage ?? 1;
         if (_page < 1) _page = 1;
 
         _startPage = 0;
