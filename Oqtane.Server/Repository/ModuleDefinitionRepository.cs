@@ -448,11 +448,20 @@ namespace Oqtane.Repository
                     var route = routeAttributes.First().Template;
                     if (!string.IsNullOrEmpty(route))
                     {
-                        // @page "/route" (note that nested routes are not permitted)
+                        // @page "/path" or @page "alias/path" (note that nested paths are not permitted)
                         var pageTemplate = new PageTemplate();
-                        pageTemplate.AliasName = "*";
+                        if (route.StartsWith("/"))
+                        {
+                            pageTemplate.AliasName = "*"; // all sites
+                            pageTemplate.Path = route.Substring(1);
+                        }
+                        else // route contains an alias name
+                        {
+                            var lastSlash = route.LastIndexOf('/');
+                            pageTemplate.AliasName = route.Substring(0, lastSlash);
+                            pageTemplate.Path = route.Substring(lastSlash + 1);
+                        }
                         pageTemplate.Version = "*";
-                        pageTemplate.Path = route.Substring(1);
                         pageTemplate.Update = false;
                         pageTemplate.PageTemplateModules = new List<PageTemplateModule>();
 
