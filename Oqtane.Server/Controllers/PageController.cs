@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Oqtane.Enums;
@@ -509,6 +508,20 @@ namespace Oqtane.Controllers
                 var toPage = _pages.GetPage(toPageId);
                 if (toPage != null && toPage.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, toPage.PermissionList))
                 {
+                    // copy page settings
+                    var settings = _settings.GetSettings(EntityNames.Page, fromPage.PageId).ToList();
+                    foreach (var setting in settings)
+                    {
+                        _settings.AddSetting(new Setting
+                        {
+                            EntityName = setting.EntityName,
+                            EntityId = toPage.PageId,
+                            SettingName = setting.SettingName,
+                            SettingValue = setting.SettingValue,
+                            IsPrivate = setting.IsPrivate
+                        });
+                    }
+
                     // copy modules
                     List<PageModule> pageModules = _pageModules.GetPageModules(fromPage.SiteId).ToList();
                     foreach (PageModule pm in pageModules.Where(item => item.PageId == fromPage.PageId && !item.Module.AllPages && !item.IsDeleted))
@@ -544,6 +557,8 @@ namespace Oqtane.Controllers
                             }).ToList();
 
                             module = _modules.AddModule(module);
+
+                            // copy module content (includes settings)
                             string content = _modules.ExportModule(pm.ModuleId);
                             if (content != "")
                             {
