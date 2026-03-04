@@ -20,7 +20,8 @@ namespace Oqtane.Infrastructure
             var siteRepository = provider.GetRequiredService<ISiteRepository>();
             var pageRepository = provider.GetRequiredService<IPageRepository>();
             var pageModuleRepository = provider.GetRequiredService<IPageModuleRepository>();
-            var TenantManager = provider.GetRequiredService<ITenantManager>();
+            var settingRepository = provider.GetRequiredService<ISettingRepository>();
+            var tenantManager = provider.GetRequiredService<ITenantManager>();
             var syncManager = provider.GetRequiredService<ISyncManager>();
 
             if (!string.IsNullOrEmpty(parameters))
@@ -59,6 +60,14 @@ namespace Oqtane.Infrastructure
                     log += $"Site Updated<br />";
                     refresh = true;
                 }
+                if (globalReplace.Site)
+                {
+                    if (UpdateSettings(settingRepository, EntityNames.Site, site.SiteId, find, replace, comparisonType))
+                    {
+                        log += $"Site Settings Updated<br />";
+                        refresh = true;
+                    }
+                }
 
                 var pages = pageRepository.GetPages(site.SiteId).ToList();
                 var pageModules = pageModuleRepository.GetPageModules(site.SiteId).ToList();
@@ -94,6 +103,14 @@ namespace Oqtane.Infrastructure
                         log += $"Page Updated: /{page.Path}<br />";
                         refresh = true;
                     }
+                    if (globalReplace.Pages)
+                    {
+                        if (UpdateSettings(settingRepository, EntityNames.Page, page.PageId, find, replace, comparisonType))
+                        {
+                            log += $"Page Settings Updated<br />";
+                            refresh = true;
+                        }
+                    }
 
                     foreach (var pageModule in pageModules.Where(item => item.PageId == page.PageId))
                     {
@@ -119,6 +136,14 @@ namespace Oqtane.Infrastructure
                             pageModuleRepository.UpdatePageModule(pageModule);
                             log += $"Module Updated: {pageModule.Title} Page: /{page.Path}<br />";
                             refresh = true;
+                        }
+                        if (globalReplace.Modules)
+                        {
+                            if (UpdateSettings(settingRepository, EntityNames.Module, pageModule.ModuleId, find, replace, comparisonType))
+                            {
+                                log += $"Module Settings Updated<br />";
+                                refresh = true;
+                            }
                         }
 
                         // module content
@@ -150,7 +175,7 @@ namespace Oqtane.Infrastructure
                 if (refresh)
                 {
                     // clear cache
-                    syncManager.AddSyncEvent(TenantManager.GetAlias(), EntityNames.Site, site.SiteId, SyncEventActions.Refresh);
+                    syncManager.AddSyncEvent(tenantManager.GetAlias(), EntityNames.Site, site.SiteId, SyncEventActions.Refresh);
                 }
             }
             else
@@ -159,6 +184,22 @@ namespace Oqtane.Infrastructure
             }
 
             return log;
+        }
+
+        private bool UpdateSettings(ISettingRepository settingRepository, string entityName, int entityId, string find, string replace, StringComparison comparisonType)
+        {
+            var changed = false;
+            var settings = settingRepository.GetSettings(entityName, entityId).ToList();
+            foreach (var setting in settings)
+            {
+                if (setting.SettingValue != null && setting.SettingValue.Contains(find, comparisonType))
+                {
+                    setting.SettingValue = setting.SettingValue.Replace(find, replace, comparisonType);
+                    settingRepository.UpdateSetting(setting);
+                    changed = true;
+                }
+            }
+            return changed;
         }
     }
 }
