@@ -374,6 +374,14 @@
     [Parameter]
     public string PaginationAlignment { get; set; } = "center"; // Alignment of the Page Numbering start, center, end
 
+    /// <summary>
+    /// Opt-in: when true the component will prefer the parent-supplied `CurrentPage` parameter
+    /// over the `page` value in the query string. Default `false` preserves existing behavior
+    /// where the query string overrides `CurrentPage`.
+    /// </summary>
+    [Parameter]
+    public bool UseParentCurrentPage { get; set; } = false;
+
     private IEnumerable<TableItem> ItemList { get; set; }
 
     protected override void OnInitialized()
@@ -458,16 +466,31 @@
             _displayPages = int.Parse(DisplayPages);
         }
 
-        // Prefer an explicit CurrentPage parameter when provided by the parent.
-        // Fallback to the query string only if CurrentPage is not supplied.
+        // Decide requested page based on UseParentCurrentPage flag.
+        // Default (UseParentCurrentPage == false): query string overrides CurrentPage (existing behavior).
         int? requestedPage = null;
-        if (!string.IsNullOrEmpty(CurrentPage) && int.TryParse(CurrentPage, out int currentParsed))
+
+        if (UseParentCurrentPage)
         {
-            requestedPage = currentParsed;
+            if (!string.IsNullOrEmpty(CurrentPage) && int.TryParse(CurrentPage, out int currentParsed))
+            {
+                requestedPage = currentParsed;
+            }
+            else if (PageState.QueryString.ContainsKey("page") && int.TryParse(PageState.QueryString["page"], out int pageFromQuery))
+            {
+                requestedPage = pageFromQuery;
+            }
         }
-        else if (PageState.QueryString.ContainsKey("page") && int.TryParse(PageState.QueryString["page"], out int pageFromQuery))
+        else
         {
-            requestedPage = pageFromQuery;
+            if (PageState.QueryString.ContainsKey("page") && int.TryParse(PageState.QueryString["page"], out int pageFromQuery))
+            {
+                requestedPage = pageFromQuery;
+            }
+            else if (!string.IsNullOrEmpty(CurrentPage) && int.TryParse(CurrentPage, out int currentParsed))
+            {
+                requestedPage = currentParsed;
+            }
         }
 
         _page = requestedPage ?? 1;
