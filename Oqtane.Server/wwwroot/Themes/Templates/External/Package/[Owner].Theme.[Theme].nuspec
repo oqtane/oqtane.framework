@@ -30,9 +30,8 @@
         <file src="..\Client\obj\Release\$targetframework$\staticwebassets\msbuild.buildTransitive.$ProjectName$.props" target="buildTransitive\$ProjectName$.props" />
         
         <!-- Theme static assets (explicit or folder-based) -->
-        <file src="..\Server\wwwroot\Module.css" target="staticwebassets\_content\$ProjectName$\" /> 
-        <file src="..\Server\wwwroot\Module.js" target="staticwebassets\_content\$ProjectName$\" />
-
+        <file src="..\Server\wwwroot\**\*" exclude="..\Server\wwwroot\_content\**" target="staticwebassets" />
+   
         <!-- UI framework assets (example: MudBlazor) --> 
         <!-- <file src="..\Server\wwwroot\_content\MudBlazor\**\*.*" target="staticwebassets\_content\MudBlazor\" /> -->
 
