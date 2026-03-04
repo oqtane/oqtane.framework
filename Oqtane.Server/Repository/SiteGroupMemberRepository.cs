@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
+using Radzen;
 
 namespace Oqtane.Repository
 {
@@ -51,6 +52,7 @@ namespace Oqtane.Repository
         {
             using var db = _dbContextFactory.CreateDbContext();
             db.Entry(siteGroupMember).State = EntityState.Modified;
+            db.Entry(siteGroupMember.SiteGroup).State = EntityState.Unchanged; // prevent update of linked entity
             db.SaveChanges();
             return siteGroupMember;
         }
