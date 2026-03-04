@@ -1413,10 +1413,13 @@
     {
         if (_siteGroupId != -1)
         {
-            var siteGroupMember = await SiteGroupMemberService.GetSiteGroupMemberAsync(PageState.Site.SiteId, _siteGroupId);
-            if (siteGroupMember != null)
+            if (_siteId != -1)
             {
-                await SiteGroupMemberService.DeleteSiteGroupMemberAsync(siteGroupMember.SiteGroupId);
+                var siteGroupMember = await SiteGroupMemberService.GetSiteGroupMemberAsync(_siteId, _siteGroupId);
+                if (siteGroupMember != null)
+                {
+                    await SiteGroupMemberService.DeleteSiteGroupMemberAsync(siteGroupMember.SiteGroupMemberId);
+                }
             }
 
             var siteGroupMembers = await SiteGroupMemberService.GetSiteGroupMembersAsync(-1, _siteGroupId);
