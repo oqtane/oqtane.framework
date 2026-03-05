@@ -535,7 +535,7 @@ namespace Oqtane.Repository
                                 if (!string.IsNullOrEmpty(pageTemplateModule.Content))
                                 {
                                     var module = _moduleRepository.GetModule(pageModule.ModuleId);
-                                    module.IPortable = "Site Template";
+                                    module.IPortableContext = "Site Template";
                                     if (!_moduleRepository.ImportModule(module, pageTemplateModule.Content))
                                     {
                                         if (alias != null)
