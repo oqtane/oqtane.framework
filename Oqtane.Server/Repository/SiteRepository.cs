@@ -532,27 +532,15 @@ namespace Oqtane.Repository
                                         _logger.Log(LogLevel.Error, "Site Template", LogFunction.Other, ex, "Error Processing Page Module {PageModule}", pageModule);
                                     }
                                 }
-
-                                if (pageTemplateModule.Content != "" && moduleDefinition.ServerManagerType != "")
+                                if (!string.IsNullOrEmpty(pageTemplateModule.Content))
                                 {
-                                    Type moduletype = Type.GetType(moduleDefinition.ServerManagerType);
-                                    if (moduletype != null && moduletype.GetInterface(nameof(IPortable)) != null)
+                                    var module = _moduleRepository.GetModule(pageModule.ModuleId);
+                                    module.IPortable = "Site Template";
+                                    if (!_moduleRepository.ImportModule(module, pageTemplateModule.Content))
                                     {
-                                        try
+                                        if (alias != null)
                                         {
-                                            var module = _moduleRepository.GetModule(pageModule.ModuleId);
-                                            if (module != null)
-                                            {
-                                                var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
-                                                ((IPortable)moduleobject).ImportModule(module, pageTemplateModule.Content, moduleDefinition.Version);
-                                            }
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            if (alias != null)
-                                            {
-                                                _logger.Log(LogLevel.Error, "Site Template", LogFunction.Other, ex, "Error Importing Content For {ModuleDefinitionName}", pageTemplateModule.ModuleDefinitionName);
-                                            }
+                                            _logger.Log(LogLevel.Error, "Site Template", LogFunction.Other, "Error Importing Content For {ModuleDefinitionName}", pageTemplateModule.ModuleDefinitionName);
                                         }
                                     }
                                 }
