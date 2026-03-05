@@ -4,7 +4,6 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Models;
-using Oqtane.Modules;
 using Oqtane.Repository;
 using Oqtane.Shared;
 
@@ -20,6 +19,7 @@ namespace Oqtane.Infrastructure
             var siteRepository = provider.GetRequiredService<ISiteRepository>();
             var pageRepository = provider.GetRequiredService<IPageRepository>();
             var pageModuleRepository = provider.GetRequiredService<IPageModuleRepository>();
+            var moduleRepository = provider.GetRequiredService<IModuleRepository>();
             var settingRepository = provider.GetRequiredService<ISettingRepository>();
             var tenantManager = provider.GetRequiredService<ITenantManager>();
             var syncManager = provider.GetRequiredService<ISyncManager>();
@@ -147,26 +147,15 @@ namespace Oqtane.Infrastructure
                         }
 
                         // module content
-                        if (pageModule.Module.ModuleDefinition != null && pageModule.Module.ModuleDefinition.ServerManagerType != "")
+                        if (globalReplace.Content)
                         {
-                            Type moduleType = Type.GetType(pageModule.Module.ModuleDefinition.ServerManagerType);
-                            if (moduleType != null && moduleType.GetInterface(nameof(IPortable)) != null)
+                            pageModule.Module.IPortable = "Global Replace";
+                            var content = moduleRepository.ExportModule(pageModule.Module);
+                            if (!string.IsNullOrEmpty(content) && content.Contains(WebUtility.HtmlEncode(find), comparisonType))
                             {
-                                try
-                                {
-                                    var moduleObject = ActivatorUtilities.CreateInstance(provider, moduleType);
-                                    var moduleContent = ((IPortable)moduleObject).ExportModule(pageModule.Module);
-                                    if (!string.IsNullOrEmpty(moduleContent) && moduleContent.Contains(WebUtility.HtmlEncode(find), comparisonType) && globalReplace.Content)
-                                    {
-                                        moduleContent = moduleContent.Replace(WebUtility.HtmlEncode(find), WebUtility.HtmlEncode(replace), comparisonType);
-                                        ((IPortable)moduleObject).ImportModule(pageModule.Module, moduleContent, pageModule.Module.ModuleDefinition.Version);
-                                        log += $"Module Content Updated: {pageModule.Title} Page: /{page.Path}<br />";
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    log += $"Error Processing Module {pageModule.Module.ModuleDefinition.Name} - {ex.Message}<br />";
-                                }
+                                content = content.Replace(WebUtility.HtmlEncode(find), WebUtility.HtmlEncode(replace), comparisonType);
+                                moduleRepository.ImportModule(pageModule.Module, content);
+                                log += $"Module Content Updated: {pageModule.Title} Page: /{page.Path}<br />";
                             }
                         }
                     }

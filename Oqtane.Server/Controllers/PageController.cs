@@ -558,11 +558,13 @@ namespace Oqtane.Controllers
 
                             module = _modules.AddModule(module);
 
-                            // copy module content (includes settings)
-                            string content = _modules.ExportModule(pm.ModuleId);
+                            // deep copy module content (includes settings)
+                            pm.Module.IPortable = "Copy Page";
+                            string content = _modules.ExportModule(pm.Module);
                             if (content != "")
                             {
-                                _modules.ImportModule(module.ModuleId, content);
+                                module.IPortable = "Copy Page";
+                                _modules.ImportModule(module, content);
                             }
                         }
                         else
