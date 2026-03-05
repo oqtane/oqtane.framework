@@ -132,7 +132,7 @@ namespace Oqtane.Repository
                             {
                                 try
                                 {
-                                    module.IPortable = "Export Module";
+                                    module.IPortableContext = "Export Module";
                                     module.Settings = settings.ToDictionary(x => x.SettingName, x => x.SettingValue);
                                     var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
                                     modulecontent.Content = ((IPortable)moduleobject).ExportModule(module);
@@ -206,7 +206,7 @@ namespace Oqtane.Repository
                                 {
                                     try
                                     {
-                                        module.IPortable = "Import Module";
+                                        module.IPortableContext = "Import Module";
                                         module.Settings = _settings.GetSettings(EntityNames.Module, module.ModuleId).ToDictionary(x => x.SettingName, x => x.SettingValue);
                                         var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
                                         ((IPortable)moduleobject).ImportModule(module, modulecontent.Content, modulecontent.Version);

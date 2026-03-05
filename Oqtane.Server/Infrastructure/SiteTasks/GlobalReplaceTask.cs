@@ -149,7 +149,7 @@ namespace Oqtane.Infrastructure
                         // module content
                         if (globalReplace.Content)
                         {
-                            pageModule.Module.IPortable = "Global Replace";
+                            pageModule.Module.IPortableContext = "Global Replace";
                             var content = moduleRepository.ExportModule(pageModule.Module);
                             if (!string.IsNullOrEmpty(content) && content.Contains(WebUtility.HtmlEncode(find), comparisonType))
                             {

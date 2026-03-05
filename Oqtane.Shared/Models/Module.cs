@@ -43,7 +43,7 @@ namespace Oqtane.Models
         /// Specifies the scenario where the IPortable interface is being invoked
         /// </summary>
         [NotMapped]
-        public string IPortable { get; set; }
+        public string IPortableContext { get; set; }
 
         /// <summary>
         /// Reference to the <see cref="ModuleDefinition"/> used for this module.
