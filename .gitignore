@@ -13,14 +13,21 @@ msbuild.binlog
 _ReSharper.Caches
 .DS_Store
 
+# appsettings - exclude all environment-specific files except the safe release template
 Oqtane.Server/appsettings.json
+Oqtane.Server/appsettings.*.json
+!Oqtane.Server/appsettings.release.json
+Oqtane.Application/Server/appsettings.json
+Oqtane.Application/Server/appsettings.*.json
+
 Oqtane.Server/Data
+Oqtane.Server/Logs
 
 Oqtane.Server/Properties/PublishProfiles/FolderProfile.pubxml
 Oqtane.Server/Content
 Oqtane.Server/Packages
 Oqtane.Server/wwwroot/Content
-Oqtane.Server/wwwroot/Packages/*.log
+Oqtane.Server/wwwroot/Packages
 
 Oqtane.Server/wwwroot/_content/*
 !Oqtane.Server/wwwroot/_content/Placeholder.txt
