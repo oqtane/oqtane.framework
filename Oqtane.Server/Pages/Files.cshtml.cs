@@ -48,7 +48,7 @@ namespace Oqtane.Pages
 
         public IActionResult OnGet(string path)
         {
-            if (string.IsNullOrWhiteSpace(path))
+            if (string.IsNullOrWhiteSpace(path) || _alias == null)
             {
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return BrokenFile();

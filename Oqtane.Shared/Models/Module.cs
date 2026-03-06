@@ -40,6 +40,12 @@ namespace Oqtane.Models
         public bool IsShared { get; set; }
 
         /// <summary>
+        /// Specifies the scenario where the IPortable interface is being invoked
+        /// </summary>
+        [NotMapped]
+        public string IPortableContext { get; set; }
+
+        /// <summary>
         /// Reference to the <see cref="ModuleDefinition"/> used for this module.
         /// </summary>
         [NotMapped]

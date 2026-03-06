@@ -4,7 +4,6 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Models;
-using Oqtane.Modules;
 using Oqtane.Repository;
 using Oqtane.Shared;
 
@@ -20,7 +19,9 @@ namespace Oqtane.Infrastructure
             var siteRepository = provider.GetRequiredService<ISiteRepository>();
             var pageRepository = provider.GetRequiredService<IPageRepository>();
             var pageModuleRepository = provider.GetRequiredService<IPageModuleRepository>();
-            var TenantManager = provider.GetRequiredService<ITenantManager>();
+            var moduleRepository = provider.GetRequiredService<IModuleRepository>();
+            var settingRepository = provider.GetRequiredService<ISettingRepository>();
+            var tenantManager = provider.GetRequiredService<ITenantManager>();
             var syncManager = provider.GetRequiredService<ISyncManager>();
 
             if (!string.IsNullOrEmpty(parameters))
@@ -59,6 +60,14 @@ namespace Oqtane.Infrastructure
                     log += $"Site Updated<br />";
                     refresh = true;
                 }
+                if (globalReplace.Site)
+                {
+                    if (UpdateSettings(settingRepository, EntityNames.Site, site.SiteId, find, replace, comparisonType))
+                    {
+                        log += $"Site Settings Updated<br />";
+                        refresh = true;
+                    }
+                }
 
                 var pages = pageRepository.GetPages(site.SiteId).ToList();
                 var pageModules = pageModuleRepository.GetPageModules(site.SiteId).ToList();
@@ -94,6 +103,14 @@ namespace Oqtane.Infrastructure
                         log += $"Page Updated: /{page.Path}<br />";
                         refresh = true;
                     }
+                    if (globalReplace.Pages)
+                    {
+                        if (UpdateSettings(settingRepository, EntityNames.Page, page.PageId, find, replace, comparisonType))
+                        {
+                            log += $"Page Settings Updated<br />";
+                            refresh = true;
+                        }
+                    }
 
                     foreach (var pageModule in pageModules.Where(item => item.PageId == page.PageId))
                     {
@@ -120,28 +137,24 @@ namespace Oqtane.Infrastructure
                             log += $"Module Updated: {pageModule.Title} Page: /{page.Path}<br />";
                             refresh = true;
                         }
+                        if (globalReplace.Modules)
+                        {
+                            if (UpdateSettings(settingRepository, EntityNames.Module, pageModule.ModuleId, find, replace, comparisonType))
+                            {
+                                log += $"Module Settings Updated<br />";
+                                refresh = true;
+                            }
+                        }
 
                         // module content
-                        if (pageModule.Module.ModuleDefinition != null && pageModule.Module.ModuleDefinition.ServerManagerType != "")
+                        if (globalReplace.Content)
                         {
-                            Type moduleType = Type.GetType(pageModule.Module.ModuleDefinition.ServerManagerType);
-                            if (moduleType != null && moduleType.GetInterface(nameof(IPortable)) != null)
+                            var content = moduleRepository.ExportModule(pageModule.Module, "Global Replace");
+                            if (!string.IsNullOrEmpty(content) && content.Contains(WebUtility.HtmlEncode(find), comparisonType))
                             {
-                                try
-                                {
-                                    var moduleObject = ActivatorUtilities.CreateInstance(provider, moduleType);
-                                    var moduleContent = ((IPortable)moduleObject).ExportModule(pageModule.Module);
-                                    if (!string.IsNullOrEmpty(moduleContent) && moduleContent.Contains(WebUtility.HtmlEncode(find), comparisonType) && globalReplace.Content)
-                                    {
-                                        moduleContent = moduleContent.Replace(WebUtility.HtmlEncode(find), WebUtility.HtmlEncode(replace), comparisonType);
-                                        ((IPortable)moduleObject).ImportModule(pageModule.Module, moduleContent, pageModule.Module.ModuleDefinition.Version);
-                                        log += $"Module Content Updated: {pageModule.Title} Page: /{page.Path}<br />";
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    log += $"Error Processing Module {pageModule.Module.ModuleDefinition.Name} - {ex.Message}<br />";
-                                }
+                                content = content.Replace(WebUtility.HtmlEncode(find), WebUtility.HtmlEncode(replace), comparisonType);
+                                moduleRepository.ImportModule(pageModule.Module, content, "Global Replace");
+                                log += $"Module Content Updated: {pageModule.Title} Page: /{page.Path}<br />";
                             }
                         }
                     }
@@ -150,7 +163,7 @@ namespace Oqtane.Infrastructure
                 if (refresh)
                 {
                     // clear cache
-                    syncManager.AddSyncEvent(TenantManager.GetAlias(), EntityNames.Site, site.SiteId, SyncEventActions.Refresh);
+                    syncManager.AddSyncEvent(tenantManager.GetAlias(), EntityNames.Site, site.SiteId, SyncEventActions.Refresh);
                 }
             }
             else
@@ -159,6 +172,22 @@ namespace Oqtane.Infrastructure
             }
 
             return log;
+        }
+
+        private bool UpdateSettings(ISettingRepository settingRepository, string entityName, int entityId, string find, string replace, StringComparison comparisonType)
+        {
+            var changed = false;
+            var settings = settingRepository.GetSettings(entityName, entityId).ToList();
+            foreach (var setting in settings)
+            {
+                if (setting.SettingValue != null && setting.SettingValue.Contains(find, comparisonType))
+                {
+                    setting.SettingValue = setting.SettingValue.Replace(find, replace, comparisonType);
+                    settingRepository.UpdateSetting(setting);
+                    changed = true;
+                }
+            }
+            return changed;
         }
     }
 }
