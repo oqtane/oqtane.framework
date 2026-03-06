@@ -5,4 +5,11 @@ ProjectName=$2
 
 cp -f "../Client/bin/Debug/$TargetFramework/$ProjectName$.Client.Oqtane.dll" "../../[RootFolder]/Oqtane.Server/bin/Debug/$TargetFramework/"
 cp -f "../Client/bin/Debug/$TargetFramework/$ProjectName$.Client.Oqtane.pdb" "../../[RootFolder]/Oqtane.Server/bin/Debug/$TargetFramework/"
-cp -rf "../Client/wwwroot/"* "../../[RootFolder]/Oqtane.Server/wwwroot/_content/%ProjectName%/"
+
+## Copy module assets but exclude UI framework assets
+rsync -av --exclude '_content' "../Server/wwwroot/" "../../../Oqtane.Server/wwwroot/_content/$ProjectName/"
+
+## Copy MudBlazor assets if present 
+# if [ -d "../Server/wwwroot/_content/MudBlazor" ]; then 
+# rsync -av "../Server/wwwroot/_content/MudBlazor/" "../../../Oqtane.Server/wwwroot/_content/MudBlazor/" 
+# fi

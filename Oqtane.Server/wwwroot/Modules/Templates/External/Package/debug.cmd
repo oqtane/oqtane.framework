@@ -8,4 +8,11 @@ XCOPY "..\Server\bin\Debug\%TargetFramework%\%ProjectName%.Server.Oqtane.dll" ".
 XCOPY "..\Server\bin\Debug\%TargetFramework%\%ProjectName%.Server.Oqtane.pdb" "..\..\[RootFolder]\Oqtane.Server\bin\Debug\%TargetFramework%\" /Y
 XCOPY "..\Shared\bin\Debug\%TargetFramework%\%ProjectName%.Shared.Oqtane.dll" "..\..\[RootFolder]\Oqtane.Server\bin\Debug\%TargetFramework%\" /Y
 XCOPY "..\Shared\bin\Debug\%TargetFramework%\%ProjectName%.Shared.Oqtane.pdb" "..\..\[RootFolder]\Oqtane.Server\bin\Debug\%TargetFramework%\" /Y
-XCOPY "..\Server\wwwroot\*" "..\..\[RootFolder]\Oqtane.Server\wwwroot\_content\%ProjectName%\" /Y /S /I
+
+REM Copy module assets (exclude Third-party assets)
+ROBOCOPY "..\Server\wwwroot" "..\..\..\..\Oqtane.Server\wwwroot\_content\%ProjectName%" /E /XD _content
+
+REM Copy UI framework assets (example: MudBlazor)
+@REM IF EXIST "..\Server\wwwroot\_content\MudBlazor" (
+@REM     ROBOCOPY "..\Server\wwwroot\_content\MudBlazor" "..\..\..\..\Oqtane.Server\wwwroot\_content\MudBlazor" /E
+@REM )
