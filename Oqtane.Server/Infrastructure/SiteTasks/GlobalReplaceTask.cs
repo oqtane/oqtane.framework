@@ -149,12 +149,11 @@ namespace Oqtane.Infrastructure
                         // module content
                         if (globalReplace.Content)
                         {
-                            pageModule.Module.IPortableContext = "Global Replace";
-                            var content = moduleRepository.ExportModule(pageModule.Module);
+                            var content = moduleRepository.ExportModule(pageModule.Module, "Global Replace");
                             if (!string.IsNullOrEmpty(content) && content.Contains(WebUtility.HtmlEncode(find), comparisonType))
                             {
                                 content = content.Replace(WebUtility.HtmlEncode(find), WebUtility.HtmlEncode(replace), comparisonType);
-                                moduleRepository.ImportModule(pageModule.Module, content);
+                                moduleRepository.ImportModule(pageModule.Module, content, "Global Replace");
                                 log += $"Module Content Updated: {pageModule.Title} Page: /{page.Path}<br />";
                             }
                         }

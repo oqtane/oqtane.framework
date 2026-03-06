@@ -20,9 +20,9 @@ namespace Oqtane.Repository
         Module GetModule(int moduleId, bool tracking);
         void DeleteModule(int moduleId);
         string ExportModule(int moduleId);
-        string ExportModule(Module module);
+        string ExportModule(Module module, string IPortableContext);
         bool ImportModule(int moduleId, string content);
-        bool ImportModule(Module module, string content);
+        bool ImportModule(Module module, string content, string IPortableContext);
     }
 
     public class ModuleRepository : IModuleRepository
@@ -103,10 +103,10 @@ namespace Oqtane.Repository
         public string ExportModule(int moduleId)
         {
             Module module = GetModule(moduleId);
-            return ExportModule(module);
+            return ExportModule(module, "Export Module");
         }
 
-        public string ExportModule(Module module)
+        public string ExportModule(Module module, string IPortableContext)
         {
             string content = "";
             try
@@ -132,6 +132,7 @@ namespace Oqtane.Repository
                             {
                                 try
                                 {
+                                    module.IPortableContext = IPortableContext;
                                     module.Settings = settings.ToDictionary(x => x.SettingName, x => x.SettingValue);
                                     var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
                                     modulecontent.Content = ((IPortable)moduleobject).ExportModule(module);
@@ -158,10 +159,10 @@ namespace Oqtane.Repository
         public bool ImportModule(int moduleId, string content)
         {
             Module module = GetModule(moduleId);
-            return ImportModule(module, content);
+            return ImportModule(module, content, "Import Module");
         }
 
-        public bool ImportModule(Module module, string content)
+        public bool ImportModule(Module module, string content, string IPortableContext)
         {
             bool success = false;
             try
@@ -216,6 +217,7 @@ namespace Oqtane.Repository
                                 {
                                     try
                                     {
+                                        module.IPortableContext = IPortableContext;
                                         module.Settings = _settings.GetSettings(EntityNames.Module, module.ModuleId).ToDictionary(x => x.SettingName, x => x.SettingValue);
                                         var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
                                         ((IPortable)moduleobject).ImportModule(module, modulecontent.Content, modulecontent.Version);

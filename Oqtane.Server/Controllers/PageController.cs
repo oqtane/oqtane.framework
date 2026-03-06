@@ -239,12 +239,10 @@ namespace Oqtane.Controllers
                         module = _modules.AddModule(module);
 
                         // deep copy module content (includes settings)
-                        pm.Module.IPortableContext = "Copy Page";
-                        string content = _modules.ExportModule(pm.Module);
+                        string content = _modules.ExportModule(pm.Module, "Copy Page");
                         if (content != "")
                         {
-                            module.IPortableContext = "Copy Page";
-                            _modules.ImportModule(module, content);
+                            _modules.ImportModule(module, content, "Copy Page");
                         }
 
                         PageModule pagemodule = new PageModule();
@@ -562,12 +560,10 @@ namespace Oqtane.Controllers
                             module = _modules.AddModule(module);
 
                             // deep copy module content (includes settings)
-                            pm.Module.IPortableContext = "Copy Page";
-                            string content = _modules.ExportModule(pm.Module);
+                            string content = _modules.ExportModule(pm.Module, "Copy Page");
                             if (content != "")
                             {
-                                module.IPortableContext = "Copy Page";
-                                _modules.ImportModule(module, content);
+                                _modules.ImportModule(module, content, "Copy Page");
                             }
                         }
                         else
