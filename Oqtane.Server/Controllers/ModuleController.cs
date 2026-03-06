@@ -264,7 +264,8 @@ namespace Oqtane.Controllers
                 _userPermissions.IsAuthorized(User, module.SiteId, EntityNames.Folder, folderid, PermissionNames.Edit) && !string.IsNullOrEmpty(filename))
             {
                 // get content
-                var content = _modules.ExportModule(moduleid);
+                module.IPortableContext = "Export Module";
+                var content = _modules.ExportModule(module);
 
                 // get folder
                 var folder = _folders.GetFolder(folderid, false);
@@ -317,7 +318,8 @@ namespace Oqtane.Controllers
             var module = _modules.GetModule(moduleid);
             if (ModelState.IsValid && module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, module.SiteId, EntityNames.Page, pageid, PermissionNames.Edit))
             {
-                success = _modules.ImportModule(moduleid, content);
+                module.IPortableContext = "Import Module";
+                success = _modules.ImportModule(module, content);
                 if (success)
                 {
                     _logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Content Imported {ModuleId}", moduleid);
