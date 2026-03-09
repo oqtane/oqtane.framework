@@ -18,8 +18,6 @@ namespace Oqtane.Repository
         Folder GetFolder(int folderId, bool tracking);
         Folder GetFolder(int siteId, string path);
         void DeleteFolder(int folderId);
-        string GetFolderPath(int folderId);
-        string GetFolderPath(Folder folder);
     }
 
     public class FolderRepository : IFolderRepository
@@ -41,7 +39,7 @@ namespace Oqtane.Repository
         {
             using var db = _dbContextFactory.CreateDbContext();
             var permissions = _permissions.GetPermissions(siteId, EntityNames.Folder).ToList();
-            var folders = db.Folder.Where(item => item.SiteId == siteId).ToList();
+            var folders = db.Folder.Include(i => i.FolderConfig).Where(item => item.SiteId == siteId).ToList();
             foreach (var folder in folders)
             {
                 folder.PermissionList = permissions.Where(item => item.EntityId == folder.FolderId).ToList();
@@ -94,6 +92,8 @@ namespace Oqtane.Repository
         public Folder AddFolder(Folder folder)
         {
             using var db = _dbContextFactory.CreateDbContext();
+            //build the mapped path
+            folder.MappedPath = BuildMappedPath(folder);
             db.Folder.Add(folder);
             db.SaveChanges();
             _permissions.UpdatePermissions(folder.SiteId, EntityNames.Folder, folder.FolderId, folder.PermissionList);
@@ -103,6 +103,8 @@ namespace Oqtane.Repository
         public Folder UpdateFolder(Folder folder)
         {
             using var db = _dbContextFactory.CreateDbContext();
+            //build the mapped path
+            folder.MappedPath = BuildMappedPath(folder);
             db.Entry(folder).State = EntityState.Modified;
             db.SaveChanges();
             _permissions.UpdatePermissions(folder.SiteId, EntityNames.Folder, folder.FolderId, folder.PermissionList);
@@ -120,11 +122,11 @@ namespace Oqtane.Repository
             Folder folder;
             if (tracking)
             {
-                folder = db.Folder.Find(folderId);
+                folder = db.Folder.Include(i => i.FolderConfig).FirstOrDefault(item => item.FolderId == folderId);
             }
             else
             {
-                folder = db.Folder.AsNoTracking().Where(item => item.FolderId == folderId).FirstOrDefault();
+                folder = db.Folder.AsNoTracking().Include(i => i.FolderConfig).Where(item => item.FolderId == folderId).FirstOrDefault();
             }
             if (folder != null)
             {
@@ -136,7 +138,7 @@ namespace Oqtane.Repository
         public Folder GetFolder(int siteId, string path)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            var folder = db.Folder.Where(item => item.SiteId == siteId && item.Path == path).FirstOrDefault();
+            var folder = db.Folder.Include(i => i.FolderConfig).Where(item => item.SiteId == siteId && item.Path == path).FirstOrDefault();
             if (folder != null)
             {
                 folder.PermissionList = _permissions.GetPermissions(folder.SiteId, EntityNames.Folder, folder.FolderId)?.ToList();
@@ -153,27 +155,20 @@ namespace Oqtane.Repository
             db.SaveChanges();
         }
 
-        public string GetFolderPath(int folderId)
+        private string BuildMappedPath(Folder folder)
         {
-            using var db = _dbContextFactory.CreateDbContext();
-            var folder = db.Folder.Find(folderId);
-            return GetFolderPath(folder);
-        }
-
-        public string GetFolderPath(Folder folder)
-        {
-            string path = "";
-            switch (folder.Type)
+            var path = string.Empty;
+            if(folder.ParentId != null)
             {
-                case FolderTypes.Private:
-                    path = Utilities.PathCombine(_environment.ContentRootPath, "Content", "Tenants", _tenants.GetTenant().TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
-                    break;
-                case FolderTypes.Public:
-                    path = Utilities.PathCombine(_environment.WebRootPath, "Content", "Tenants", _tenants.GetTenant().TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
-                    break;
+                var parentFolder = GetFolder(folder.ParentId.Value);
+                if (parentFolder != null)
+                {
+                    var folderName = folder.Path.Split('/', StringSplitOptions.RemoveEmptyEntries).Last();
+                    path = parentFolder.FolderConfigId != folder.FolderConfigId ? string.Empty : $"{parentFolder.MappedPath}{folderName}/";
+                }
             }
+
             return path;
         }
-
     }
 }

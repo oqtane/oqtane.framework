@@ -641,8 +641,34 @@ namespace Oqtane.Infrastructure
             };
 
             AddPagesToSites(scope, tenant, pageTemplates);
+            UpgradeFolderConfigs(scope, tenant);
         }
 
+        private void UpgradeFolderConfigs(IServiceScope scope, Tenant tenant)
+        {
+            //add default folder provider
+            var folderConfigs = scope.ServiceProvider.GetRequiredService<IFolderConfigRepository>();
+            var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
+            var folders = scope.ServiceProvider.GetRequiredService<IFolderRepository>();
+            foreach (var site in sites.GetSites().ToList())
+            {
+                var folderConfig = new FolderConfig
+                {
+                    SiteId = site.SiteId,
+                    Name = Constants.DefaultFolderProvider,
+                    Provider = Constants.DefaultFolderProvider
+                };
+
+                folderConfig = folderConfigs.AddFolderConfig(folderConfig);
+
+                //update folders to use default folder provider
+                foreach (var folder in folders.GetFolders(site.SiteId).ToList())
+                {
+                    folder.FolderConfigId = folderConfig.FolderConfigId;
+                    folders.UpdateFolder(folder);
+                }
+            }
+        }
 
         private void AddPagesToSites(IServiceScope scope, Tenant tenant, List<PageTemplate> pageTemplates)
         {
