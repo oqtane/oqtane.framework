@@ -1194,7 +1194,7 @@
 
             if (unique)
             {
-                if (_aliasid == 0)
+                if (_aliasid == -1)
                 {
                     alias = new Alias { SiteId = PageState.Site.SiteId, TenantId = PageState.Alias.TenantId, Name = _aliasname, IsDefault = bool.Parse(_defaultalias) };
                     await AliasService.AddAliasAsync(alias);
