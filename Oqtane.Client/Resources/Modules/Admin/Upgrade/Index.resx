@@ -148,18 +148,12 @@
     <value>You Cannot Perform A System Update In A Development Environment</value>
   </data>
   <data name="Disclaimer.Text" xml:space="preserve">
-    <value>Please Note That The System Update Capability Is A Simplified Upgrade Process Intended For Small To Medium Sized Installations. For Larger Enterprise Installations You Will Want To Use A Manual Upgrade Process.</value>
+    <value>Please Note That The System Update Capability Is A Simplified Upgrade Process Intended For Small To Medium Sized Installations. For Enterprise Installations And Microsoft Azure Installations You Will Want To Use A Manual Upgrade Process.</value>
   </data>
   <data name="Backup.Text" xml:space="preserve">
     <value>Backup Files?</value>
   </data>
   <data name="Backup.HelpText" xml:space="preserve">
     <value>Specify if you want to backup files during the upgrade process. Disabling this option will reduce the time required for the upgrade.</value>
-  </data>
-  <data name="Version.Text" xml:space="preserve">
-    <value>Version:</value>
-  </data>
-  <data name="Version.HelpText" xml:space="preserve">
-    <value>Select the framework upgrade version</value>
   </data>
 </root>
