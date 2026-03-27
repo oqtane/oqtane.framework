@@ -298,7 +298,8 @@
                     }
                     else
                     {
-                        // legacy support - module settings updated by convention ( ie. by calling a public method named "UpdateSettings" in settings component )
+                        // legacy approach - module settings updated by convention (ie. by calling a public method named "UpdateSettings" in settings component)
+                        // this method should be removed however the ISettingsControl declaration was not added to the default module template until version 10.1.2
                         _moduleSettings?.GetType().GetMethod("UpdateSettings")?.Invoke(_moduleSettings, null);
                     }
                 }
