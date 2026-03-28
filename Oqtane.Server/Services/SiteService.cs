@@ -101,6 +101,10 @@ namespace Oqtane.Services
             }
             site.Pages = pages;
 
+            // site languages can depend on localization-group membership, member cultures, and member aliases.
+            // Rebuild them for every request instead of relying on the cached site snapshot.
+            site.Languages = GetLanguages(site.SiteId, alias.TenantId);
+
             // get language display name for user
             foreach (Language language in site.Languages)
             {
