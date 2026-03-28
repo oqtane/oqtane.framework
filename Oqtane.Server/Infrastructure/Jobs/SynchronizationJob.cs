@@ -325,6 +325,7 @@ namespace Oqtane.Infrastructure
                     if (folder == null || primaryFolder.ModifiedOn > siteGroupMember.SynchronizedOn)
                     {
                         // set all properties
+                        secondaryFolder.Path = primaryFolder.Path;
                         secondaryFolder.ParentId = null;
                         if (primaryFolder.ParentId != null)
                         {
