@@ -66,8 +66,11 @@ namespace Oqtane.Models
                     Action = ModuleId.Substring(pos + 1);
                     Action = (!string.IsNullOrEmpty(Action)) ? Action : Constants.DefaultAction;
                     ModuleId = ModuleId.Substring(0, pos);
-                    ModuleId = (int.TryParse(ModuleId, out _)) ? ModuleId : "-1";
                 }
+            }
+            if (!int.TryParse(ModuleId, out _))
+            {
+                ModuleId = "-1";
             }
             if (PagePath.StartsWith("/"))
             {
