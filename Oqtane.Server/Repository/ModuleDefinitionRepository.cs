@@ -461,6 +461,12 @@ namespace Oqtane.Repository
                             pageTemplate.AliasName = route.Substring(0, lastSlash);
                             pageTemplate.Path = route.Substring(lastSlash + 1);
                         }
+                        // path can contain a suffix indicating the page order "Path:1"
+                        if (pageTemplate.Path.Contains(":"))
+                        {
+                            pageTemplate.Order = int.Parse(pageTemplate.Path.Split(":")[1]);
+                            pageTemplate.Path = pageTemplate.Path.Split(":")[0];
+                        }
                         pageTemplate.Version = "*";
                         pageTemplate.Update = false;
                         pageTemplate.PageTemplateModules = new List<PageTemplateModule>();
