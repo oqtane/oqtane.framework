@@ -195,13 +195,24 @@ namespace Oqtane.Services
                 if (site.SiteId == alias.SiteId && current != null)
                 {
                     site = _sites.UpdateSite(site);
+
                     _syncManager.AddSyncEvent(alias, EntityNames.Site, site.SiteId, SyncEventActions.Update);
-                    string action = SyncEventActions.Refresh;
-                    if (current.RenderMode != site.RenderMode || current.Runtime != site.Runtime)
+
+                    string action = (current.RenderMode != site.RenderMode || current.Runtime != site.Runtime) ? SyncEventActions.Reload : SyncEventActions.Refresh;
+                    if (current.CultureCode != site.CultureCode)
                     {
-                        action = SyncEventActions.Reload;
+                        // when a culture code changes, all sites in the tenant need to be refreshed
+                        foreach (var siteId in _sites.GetSites().Select(item => item.SiteId))
+                        {
+                            _syncManager.AddSyncEvent(alias, EntityNames.Site, siteId, action);
+                        }
                     }
-                    _syncManager.AddSyncEvent(alias, EntityNames.Site, site.SiteId, action);
+                    else
+                    {
+                        // refresh current site
+                        _syncManager.AddSyncEvent(alias, EntityNames.Site, site.SiteId, action);
+                    }
+
                     _logger.Log(site.SiteId, LogLevel.Information, this, LogFunction.Update, "Site Updated {Site}", site);
                 }
                 else
