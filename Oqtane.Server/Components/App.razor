@@ -194,7 +194,7 @@
                     ManageScripts(resources, alias);
                     AddBodyContent(site.BodyContent);
                     AddBodyContent(page.BodyContent);
-                    ManageLocalization(site);
+                    _language = ManageLocalization(alias, site);
 
                     // PWA script
                     if (site.PwaIsEnabled && site.PwaAppIconFileId != null && site.PwaSplashIconFileId != null)
@@ -287,7 +287,7 @@
                 return;
             }
         }
-        
+
         // referrer will only be set if the link originated externally
         string referrer = (Context.Request.Headers[HeaderNames.Referer] != StringValues.Empty) ? Context.Request.Headers[HeaderNames.Referer] : "";
 
@@ -810,52 +810,67 @@
         }
     }
 
-    private void ManageLocalization(Site site)
+    private string ManageLocalization(Alias alias, Site site)
     {
+        // get site culture (content localization)
+        var culture = site.CultureCode;
+        if (string.IsNullOrEmpty(culture))
+        {
+            // use fallback language
+            culture = LocalizationManager.GetDefaultCulture();
+        }
+
+        // determine if site is using content localization
+        var contentLocalization = site.Languages.Any(item => !string.IsNullOrEmpty(item.AliasName));
+
         // get user culture (ui localization)
-        var uiCulture = site?.User?.CultureCode;
+        var uiCulture = site.User?.CultureCode;
+        // if user has not specified a UI culture
         if (string.IsNullOrEmpty(uiCulture))
         {
-            // get default language for site
-            if (site.Languages.Any())
+            // if not using content localization
+            if (!contentLocalization)
             {
                 // use default language if specified otherwise use first language in collection
                 uiCulture = (site.Languages.Where(l => l.IsDefault).SingleOrDefault() ?? site.Languages.First()).Code;
             }
             else
             {
-                // fallback language
-                uiCulture = LocalizationManager.GetDefaultCulture();
+                // use site culture
+                uiCulture = culture;
             }
         }
-        
-        // get site culture (content localization)
-        var culture = site?.CultureCode;
-        if (string.IsNullOrEmpty(culture))
+        else
         {
-            culture = uiCulture;
+            // if not using content localization and UI culture is not supported by site
+            if (!contentLocalization && !site.Languages.Any(item => item.Code == uiCulture))
+            {
+                // use site culture
+                uiCulture = culture;                
+            }
         }
-        _language = culture; // html element language attribute
 
         // get culture cookie
         string cultureCookie = Context.Request.Cookies[Shared.CookieRequestCultureProvider.DefaultCookieName];
-        if (cultureCookie != null)
+        if (cultureCookie == null)
         {
-            // verify culture cookie (which could be inaccurate when using subfolders ie. domain.com/fr as cookies are based on domain)
+            // convert to culture cookie format (ie. "c=en|uic=en") and save cookie
+            cultureCookie = Shared.CookieRequestCultureProvider.MakeCookieValue(new Models.RequestCulture(culture, uiCulture));
+            SetLocalizationCookie(cultureCookie);
+        }
+        else
+        {
+            // validate the culture cookie
             var requestCulture = Shared.CookieRequestCultureProvider.ParseCookieValue(cultureCookie);
-            if (culture != requestCulture.Culture.Name || uiCulture != requestCulture.UICulture.Name)
+            if (requestCulture.Culture.Name != culture || requestCulture.UICulture.Name != uiCulture)
             {
                 // convert to culture cookie format (ie. "c=en|uic=en") and save cookie
                 cultureCookie = Shared.CookieRequestCultureProvider.MakeCookieValue(new Models.RequestCulture(culture, uiCulture));
                 SetLocalizationCookie(cultureCookie);
             }
         }
-        else
-        {
-            // convert to culture cookie format (ie. "c=en|uic=en") and save cookie
-            cultureCookie = Shared.CookieRequestCultureProvider.MakeCookieValue(new Models.RequestCulture(culture, uiCulture));
-            SetLocalizationCookie(cultureCookie);
-        }
+
+        return culture; // html element language attribute for page
     }
 
     private void SetLocalizationCookie(string cookieValue)
