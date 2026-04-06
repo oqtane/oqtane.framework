@@ -862,7 +862,7 @@
         {
             // validate the culture cookie
             var requestCulture = Shared.CookieRequestCultureProvider.ParseCookieValue(cultureCookie);
-            if (requestCulture.Culture.Name != culture || requestCulture.UICulture.Name != uiCulture)
+            if (requestCulture?.Culture.Name != culture || requestCulture?.UICulture.Name != uiCulture)
             {
                 // convert to culture cookie format (ie. "c=en|uic=en") and save cookie
                 cultureCookie = Shared.CookieRequestCultureProvider.MakeCookieValue(new Models.RequestCulture(culture, uiCulture));
