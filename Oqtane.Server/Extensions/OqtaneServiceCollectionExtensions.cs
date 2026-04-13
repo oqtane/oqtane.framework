@@ -563,16 +563,16 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var defaultCacheEntryOptions = new FusionCacheEntryOptions();
 
-            if (string.IsNullOrEmpty(configuration.GetConnectionString("FusionCacheSettings")))
-            {
-                defaultCacheEntryOptions = configuration.GetSection("FusionCacheSettings").Get<FusionCacheEntryOptions>();
-            }
-            else
+            if (string.IsNullOrEmpty(configuration.GetConnectionString("CacheSettings")))
             {
                 defaultCacheEntryOptions.Duration = TimeSpan.FromMinutes(30);
             }
+            else
+            {
+                defaultCacheEntryOptions = configuration.GetSection("CacheSettings").Get<FusionCacheEntryOptions>();
+            }
 
-            if (string.IsNullOrEmpty(configuration.GetConnectionString("Redis")))
+            if (string.IsNullOrEmpty(configuration.GetConnectionString("RedisCache")))
             {
                 // use memory cache (L1 only)
                 services.AddFusionCache()
@@ -591,12 +591,12 @@ namespace Microsoft.Extensions.DependencyInjection
                     .WithSerializer(new FusionCacheSystemTextJsonSerializer())
                     .WithDistributedCache(new RedisCache(new RedisCacheOptions
                     {
-                        Configuration = configuration.GetConnectionString("Redis"),
+                        Configuration = configuration.GetConnectionString("RedisCache"),
                     }))
                     // backplane is only needed in a multi-instance environment
                     .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
                     {
-                        Configuration = configuration.GetConnectionString("Redis")
+                        Configuration = configuration.GetConnectionString("RedisCache")
                     }));
             }
             return services;
