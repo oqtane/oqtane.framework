@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Documentation;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
@@ -12,6 +11,7 @@ using Oqtane.Models;
 using Oqtane.Modules.HtmlText.Repository;
 using Oqtane.Repository;
 using Oqtane.Shared;
+using ZiggyCreatures.Caching.Fusion;
 
 // ReSharper disable ConvertToUsingDeclaration
 
@@ -24,9 +24,9 @@ namespace Oqtane.Modules.HtmlText.Manager
         private readonly IDBContextDependencies _DBContextDependencies;
         private readonly ISqlRepository _sqlRepository;
         private readonly ITenantManager _tenantManager;
-        private readonly IMemoryCache _cache;
+        private readonly IFusionCache _cache;
 
-        public HtmlTextManager(IHtmlTextRepository htmlTextRepository, IDBContextDependencies DBContextDependencies, ISqlRepository sqlRepository, ITenantManager tenantManager, IMemoryCache cache)
+        public HtmlTextManager(IHtmlTextRepository htmlTextRepository, IDBContextDependencies DBContextDependencies, ISqlRepository sqlRepository, ITenantManager tenantManager, IFusionCache cache)
         {
             _htmlTextRepository = htmlTextRepository;
             _DBContextDependencies = DBContextDependencies;

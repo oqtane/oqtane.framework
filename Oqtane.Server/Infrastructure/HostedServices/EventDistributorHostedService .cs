@@ -1,14 +1,15 @@
-using System.Threading.Tasks;
-using System.Threading;
-using Microsoft.Extensions.Hosting;
-using Oqtane.Models;
 using System;
-using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Caching.Memory;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Oqtane.Models;
 using Oqtane.Shared;
+using ZiggyCreatures.Caching.Fusion;
 
 namespace Oqtane.Infrastructure
 {
@@ -16,10 +17,10 @@ namespace Oqtane.Infrastructure
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ISyncManager _syncManager;
-        private readonly IMemoryCache _cache;
+        private readonly IFusionCache _cache;
         private readonly ILogger<EventDistributorHostedService> _filelogger;
 
-        public EventDistributorHostedService(IServiceProvider serviceProvider, ISyncManager syncManager, IMemoryCache cache, ILogger<EventDistributorHostedService> filelogger)
+        public EventDistributorHostedService(IServiceProvider serviceProvider, ISyncManager syncManager, IFusionCache cache, ILogger<EventDistributorHostedService> filelogger)
         {
             _serviceProvider = serviceProvider;
             _syncManager = syncManager;
@@ -29,7 +30,7 @@ namespace Oqtane.Infrastructure
 
         void EntityChanged(object sender, SyncEvent syncEvent)
         {
-            List<Type> eventSubscribers = _cache.GetOrCreate($"eventsubscribers", entry =>
+            List<Type> eventSubscribers = _cache.GetOrSet($"eventsubscribers", entry =>
             {
                 eventSubscribers = new List<Type>();
                 var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
@@ -40,9 +41,9 @@ namespace Oqtane.Infrastructure
                         eventSubscribers.Add(type);
                     }
                 }
-                entry.Priority = CacheItemPriority.NeverRemove;
                 return eventSubscribers;
-            });
+            },
+            options => options.SetPriority(CacheItemPriority.NeverRemove));
 
             foreach (var type in eventSubscribers)
             {
