@@ -1,15 +1,14 @@
-using Microsoft.Extensions.Caching.Memory;
-using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Shared;
+using ZiggyCreatures.Caching.Fusion;
 
 namespace Oqtane.Infrastructure.EventSubscribers
 {
     public class CacheInvalidationEventSubscriber : IEventSubscriber
     {
-        private readonly IMemoryCache _cache;
+        private readonly IFusionCache _cache;
 
-        public CacheInvalidationEventSubscriber(IMemoryCache cache)
+        public CacheInvalidationEventSubscriber(IFusionCache cache)
         {
             _cache = cache;
         }

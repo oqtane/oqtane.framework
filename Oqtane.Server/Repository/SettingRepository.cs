@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
+using ZiggyCreatures.Caching.Fusion;
 
 namespace Oqtane.Repository
 {
@@ -31,9 +31,9 @@ namespace Oqtane.Repository
         private readonly IDbContextFactory<TenantDBContext> _tenantContextFactory;
         private MasterDBContext _master;
         private readonly ITenantManager _tenantManager;
-        private readonly IMemoryCache _cache;
+        private readonly IFusionCache _cache;
 
-        public SettingRepository(IDbContextFactory<TenantDBContext> tenantContextFactory, MasterDBContext master, ITenantManager tenantManager, IMemoryCache cache)
+        public SettingRepository(IDbContextFactory<TenantDBContext> tenantContextFactory, MasterDBContext master, ITenantManager tenantManager, IFusionCache cache)
         {
             _tenantContextFactory = tenantContextFactory;
             _master = master;

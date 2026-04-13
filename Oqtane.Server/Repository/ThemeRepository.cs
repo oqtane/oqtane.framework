@@ -10,6 +10,7 @@ using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.Themes;
+using ZiggyCreatures.Caching.Fusion;
 
 namespace Oqtane.Repository
 {
@@ -25,14 +26,14 @@ namespace Oqtane.Repository
     public class ThemeRepository : IThemeRepository
     {
         private MasterDBContext _db;
-        private readonly IMemoryCache _cache;
+        private readonly IFusionCache _cache;
         private readonly IPermissionRepository _permissions;
         private readonly ITenantManager _tenants;
         private readonly ISettingRepository _settings;
         private readonly IServerStateManager _serverState;
         private readonly string settingprefix = "SiteEnabled:";
 
-        public ThemeRepository(MasterDBContext context, IMemoryCache cache, IPermissionRepository permissions, ITenantManager tenants, ISettingRepository settings, IServerStateManager serverState)
+        public ThemeRepository(MasterDBContext context, IFusionCache cache, IPermissionRepository permissions, ITenantManager tenants, ISettingRepository settings, IServerStateManager serverState)
         {
             _db = context;
             _cache = cache;
@@ -109,11 +110,11 @@ namespace Oqtane.Repository
         private List<Theme> LoadThemes(int siteId)
         {
             // get themes
-            List<Theme> themes = _cache.GetOrCreate($"themes:{_tenants.GetAlias().SiteKey}", entry =>
+            List<Theme> themes = _cache.GetOrSet($"themes:{_tenants.GetAlias().SiteKey}", entry =>
             {
-                entry.Priority = CacheItemPriority.NeverRemove;
                 return ProcessThemes(siteId);
-            });
+            },
+            options => options.SetPriority(CacheItemPriority.NeverRemove));
 
             return themes;
         }

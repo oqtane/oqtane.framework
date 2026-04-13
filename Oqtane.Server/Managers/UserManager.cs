@@ -6,7 +6,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Localization;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
@@ -14,6 +13,7 @@ using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Shared;
+using ZiggyCreatures.Caching.Fusion;
 
 namespace Oqtane.Managers
 {
@@ -59,10 +59,10 @@ namespace Oqtane.Managers
         private readonly ISiteRepository _sites;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
-        private readonly IMemoryCache _cache;
+        private readonly IFusionCache _cache;
         private readonly IStringLocalizer<UserManager> _localizer;
 
-        public UserManager(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, IProfileRepository profiles, ISettingRepository settings, ISiteRepository sites, ISyncManager syncManager, ILogManager logger, IMemoryCache cache, IStringLocalizer<UserManager> localizer)
+        public UserManager(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, IProfileRepository profiles, ISettingRepository settings, ISiteRepository sites, ISyncManager syncManager, ILogManager logger, IFusionCache cache, IStringLocalizer<UserManager> localizer)
         {
             _users = users;
             _roles = roles;
@@ -84,9 +84,8 @@ namespace Oqtane.Managers
         public User GetUser(int userid, int siteid)
         {
             var alias = _tenantManager.GetAlias();
-            return _cache.GetOrCreate($"user:{userid}:{alias.SiteKey}", entry =>
+            return _cache.GetOrSet($"user:{userid}:{alias.SiteKey}", entry =>
             {
-                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                 User user = _users.GetUser(userid);
                 if (user != null)
                 {

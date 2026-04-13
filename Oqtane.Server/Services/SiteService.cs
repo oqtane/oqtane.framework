@@ -73,8 +73,10 @@ namespace Oqtane.Services
         public Task<Site> GetSiteAsync(int siteId)
         {
             var alias = _tenantManager.GetAlias();
-            var site = _cache.GetOrSet($"site:{alias.SiteKey}",
-                _ => GetSite(siteId));
+            var site = _cache.GetOrSet($"site:{alias.SiteKey}", entry =>
+            {
+                return GetSite(siteId);
+            });
 
             // clone object so that cache is not mutated
             site = site.Clone();
@@ -249,8 +251,10 @@ namespace Oqtane.Services
         public Task<List<Module>> GetModulesAsync(int siteId, int pageId)
         {
             var alias = _tenantManager.GetAlias();
-            var modules = _cache.GetOrSet($"modules:{alias.SiteKey}",
-                _ => GetPageModules(siteId));
+            var modules = _cache.GetOrSet($"modules:{alias.SiteKey}", entry =>
+            {
+                return GetPageModules(siteId);
+            });
 
             // clone object so that cache is not mutated
             modules = modules.ConvertAll(module => module.Clone());

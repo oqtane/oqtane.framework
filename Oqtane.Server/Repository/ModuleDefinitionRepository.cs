@@ -12,6 +12,7 @@ using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Shared;
+using ZiggyCreatures.Caching.Fusion;
 
 namespace Oqtane.Repository
 {
@@ -28,14 +29,14 @@ namespace Oqtane.Repository
     public class ModuleDefinitionRepository : IModuleDefinitionRepository
     {
         private MasterDBContext _db;
-        private readonly IMemoryCache _cache;
+        private readonly IFusionCache _cache;
         private readonly IPermissionRepository _permissions;
         private readonly ITenantManager _tenants;
         private readonly ISettingRepository _settings;
         private readonly IServerStateManager _serverState;
         private readonly string settingprefix = "SiteEnabled:";
 
-        public ModuleDefinitionRepository(MasterDBContext context, IMemoryCache cache, IPermissionRepository permissions, ITenantManager tenants, ISettingRepository settings, IServerStateManager serverState)
+        public ModuleDefinitionRepository(MasterDBContext context, IFusionCache cache, IPermissionRepository permissions, ITenantManager tenants, ISettingRepository settings, IServerStateManager serverState)
         {
             _db = context;
             _cache = cache;
@@ -125,11 +126,11 @@ namespace Oqtane.Repository
             List<ModuleDefinition> moduleDefinitions;
             if (siteId != -1)
             {
-                moduleDefinitions = _cache.GetOrCreate($"moduledefinitions:{_tenants.GetAlias().SiteKey}", entry =>
+                moduleDefinitions = _cache.GetOrSet($"moduledefinitions:{_tenants.GetAlias().SiteKey}", entry =>
                 {
-                    entry.Priority = CacheItemPriority.NeverRemove;
                     return ProcessModuleDefinitions(siteId);
-                });
+                },
+                options => options.SetPriority(CacheItemPriority.NeverRemove));
             }
             else // called during startup
             {
