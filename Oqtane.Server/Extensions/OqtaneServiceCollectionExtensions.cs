@@ -584,7 +584,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.AddFusionCache()
                     .WithDefaultEntryOptions(defaultCacheEntryOptions)
                     .WithOptions(options => {
-                        // use installationid as a unique prefix so that a single Redis service can be shared
+                        // use installationid as a unique prefix so that a single Redis service can be shared by multiple Oqtane installations
                         options.CacheKeyPrefix = configuration.GetSection("InstallationId").Value;
                         options.BackplaneChannelPrefix = configuration.GetSection("InstallationId").Value;
                     })
