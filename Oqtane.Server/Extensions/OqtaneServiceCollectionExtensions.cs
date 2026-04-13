@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Localization;
@@ -34,6 +35,9 @@ using Oqtane.Security;
 using Oqtane.Services;
 using Oqtane.Shared;
 using Radzen;
+using ZiggyCreatures.Caching.Fusion;
+using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
+using ZiggyCreatures.Caching.Fusion.Serialization.SystemTextJson;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -61,12 +65,12 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )
-            services.AddHttpClients();
-
             // register singleton scoped core services
             services.AddSingleton(configuration)
                 .AddOqtaneSingletonServices();
+
+            // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )
+            services.AddHttpClients();
 
             // install any modules or themes ( this needs to occur BEFORE the assemblies are loaded into the app domain )
             InstallationManager.InstallPackages(environment.WebRootPath, environment.ContentRootPath);
@@ -126,6 +130,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     });
             });
 
+            services.AddCaching(configuration);
             services.AddOutputCache();
 
             services.AddMvc(options =>
@@ -156,41 +161,6 @@ namespace Microsoft.Extensions.DependencyInjection
             });
             services.TryAddSwagger(configuration);
 
-            return services;
-        }
-
-        public static IServiceCollection AddOqtaneAssemblies(this IServiceCollection services)
-        {
-            LoadAssemblies();
-            LoadSatelliteAssemblies();
-            services.AddOqtaneServices();
-
-            return services;
-        }
-
-        public static IServiceCollection AddOqtaneDbContext(this IServiceCollection services)
-        {
-            services.AddDbContext<MasterDBContext>(options => { }, ServiceLifetime.Transient);
-            services.AddDbContext<TenantDBContext>(options => { }, ServiceLifetime.Transient);
-            services.AddDbContextFactory<TenantDBContext>(opt => { }, ServiceLifetime.Transient);
-            return services;
-        }
-
-        public static OqtaneSiteOptionsBuilder AddOqtaneSiteOptions(this IServiceCollection services)
-        {
-            return new OqtaneSiteOptionsBuilder(services);
-        }
-
-        public static IServiceCollection AddOqtaneSingletonServices(this IServiceCollection services)
-        {
-            services.AddSingleton<IInstallationManager, InstallationManager>();
-            services.AddSingleton<ISyncManager, SyncManager>();
-            services.AddSingleton<IDatabaseManager, DatabaseManager>();
-            services.AddSingleton<IConfigManager, ConfigManager>();
-            services.AddSingleton<ILoggerProvider, FileLoggerProvider>();
-            services.AddSingleton<AutoValidateAntiforgeryTokenFilter>();
-            services.AddSingleton<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
-            services.AddSingleton<IServerStateManager, ServerStateManager>();
             return services;
         }
 
@@ -246,6 +216,61 @@ namespace Microsoft.Extensions.DependencyInjection
 
             var localizer = services.BuildServiceProvider().GetService<IStringLocalizer<Oqtane.Modules.Controls.RadzenTextEditor>>();
             Oqtane.Modules.Controls.RadzenEditorDefinitions.Localizer = localizer;
+
+            return services;
+        }
+        public static IServiceCollection AddOqtaneSingletonServices(this IServiceCollection services)
+        {
+            services.AddSingleton<IInstallationManager, InstallationManager>();
+            services.AddSingleton<ISyncManager, SyncManager>();
+            services.AddSingleton<IDatabaseManager, DatabaseManager>();
+            services.AddSingleton<IConfigManager, ConfigManager>();
+            services.AddSingleton<ILoggerProvider, FileLoggerProvider>();
+            services.AddSingleton<AutoValidateAntiforgeryTokenFilter>();
+            services.AddSingleton<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
+            services.AddSingleton<IServerStateManager, ServerStateManager>();
+            return services;
+        }
+
+        public static IServiceCollection AddHttpClients(this IServiceCollection services)
+        {
+            if (!services.Any(x => x.ServiceType == typeof(HttpClient)))
+            {
+                services.AddScoped(provider =>
+                {
+                    var client = new HttpClient(new HttpClientHandler { UseCookies = false });
+                    var httpContextAccessor = provider.GetRequiredService<IHttpContextAccessor>();
+                    if (httpContextAccessor.HttpContext != null)
+                    {
+                        client.BaseAddress = new Uri(httpContextAccessor.HttpContext.Request.Scheme + "://" + httpContextAccessor.HttpContext.Request.Host);
+                        // set the cookies to allow HttpClient API calls to be authenticated
+                        foreach (var cookie in httpContextAccessor.HttpContext.Request.Cookies)
+                        {
+                            client.DefaultRequestHeaders.Add("Cookie", cookie.Key + "=" + WebUtility.UrlEncode(cookie.Value));
+                        }
+                    }
+
+                    return client;
+                });
+            }
+
+            // register a named IHttpClientFactory
+            services.AddHttpClient("oqtane", (provider, client) =>
+            {
+                var httpContextAccessor = provider.GetRequiredService<IHttpContextAccessor>();
+                if (httpContextAccessor.HttpContext != null)
+                {
+                    client.BaseAddress = new Uri(httpContextAccessor.HttpContext.Request.Scheme + "://" + httpContextAccessor.HttpContext.Request.Host);
+                    // set the cookies to allow HttpClient API calls to be authenticated
+                    foreach (var cookie in httpContextAccessor.HttpContext.Request.Cookies)
+                    {
+                        client.DefaultRequestHeaders.Add("Cookie", cookie.Key + "=" + WebUtility.UrlEncode(cookie.Value));
+                    }
+                }
+            });
+
+            // IHttpClientFactory for calling remote services via RemoteServiceBase (not named = default)
+            services.AddHttpClient();
 
             return services;
         }
@@ -308,192 +333,12 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        public static IServiceCollection ConfigureOqtaneCookieOptions(this IServiceCollection services)
+        public static IServiceCollection AddOqtaneAssemblies(this IServiceCollection services)
         {
-            // note that ConfigureApplicationCookie internally uses an ApplicationScheme of "Identity.Application"
-            services.ConfigureApplicationCookie(options =>
-            {
-                options.Cookie.HttpOnly = true;
-                options.Cookie.SameSite = SameSiteMode.Lax;
-                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-                options.LoginPath = "/login"; // overrides .NET Identity default of /Account/Login
-                options.Events.OnRedirectToLogin = context =>
-                {
-                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                    return Task.CompletedTask;
-                };
-                options.Events.OnRedirectToAccessDenied = context =>
-                {
-                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                    return Task.CompletedTask;
-                };
-                options.Events.OnRedirectToLogout = context =>
-                {
-                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                    return Task.CompletedTask;
-                };
-                options.Events.OnValidatePrincipal = PrincipalValidator.ValidateAsync;
-            });
+            LoadAssemblies();
+            LoadSatelliteAssemblies();
+            services.AddOqtaneServices();
 
-            return services;
-        }
-
-        public static IServiceCollection ConfigureOqtaneAuthenticationOptions(this IServiceCollection services, IConfigurationRoot Configuration)
-        {
-            // prevent remapping of claims
-            JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
-
-            // settings defined in appsettings
-            services.Configure<OAuthOptions>(Configuration);
-            services.Configure<OpenIdConnectOptions>(Configuration);
-
-            return services;
-        }
-
-        public static IServiceCollection ConfigureOqtaneIdentityOptions(this IServiceCollection services, IConfigurationRoot Configuration)
-        {
-            // default settings
-            services.Configure<IdentityOptions>(options =>
-            {
-                // Password settings
-                options.Password.RequireDigit = true;
-                options.Password.RequiredLength = 6;
-                options.Password.RequireNonAlphanumeric = true;
-                options.Password.RequireUppercase = true;
-                options.Password.RequireLowercase = true;
-                options.Password.RequiredUniqueChars = 1;
-
-                // Lockout settings
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-                options.Lockout.MaxFailedAccessAttempts = 5;
-                options.Lockout.AllowedForNewUsers = false;
-
-                // SignIn settings
-                options.SignIn.RequireConfirmedEmail = false;
-                options.SignIn.RequireConfirmedAccount = false;
-                options.SignIn.RequireConfirmedPhoneNumber = false;
-
-                // User settings
-                options.User.RequireUniqueEmail = false;
-                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-            });
-
-            // overrides defined in appsettings
-            services.Configure<IdentityOptions>(Configuration);
-
-            return services;
-        }
-
-        public static IServiceCollection AddHttpClients(this IServiceCollection services)
-        {
-            if (!services.Any(x => x.ServiceType == typeof(HttpClient)))
-            {
-                services.AddScoped(provider =>
-                {
-                    var client = new HttpClient(new HttpClientHandler { UseCookies = false });
-                    var httpContextAccessor = provider.GetRequiredService<IHttpContextAccessor>();
-                    if (httpContextAccessor.HttpContext != null)
-                    {
-                        client.BaseAddress = new Uri(httpContextAccessor.HttpContext.Request.Scheme + "://" + httpContextAccessor.HttpContext.Request.Host);
-                        // set the cookies to allow HttpClient API calls to be authenticated
-                        foreach (var cookie in httpContextAccessor.HttpContext.Request.Cookies)
-                        {
-                            client.DefaultRequestHeaders.Add("Cookie", cookie.Key + "=" + WebUtility.UrlEncode(cookie.Value));
-                        }
-                    }
-
-                    return client;
-                });
-            }
-
-            // register a named IHttpClientFactory
-            services.AddHttpClient("oqtane", (provider, client) =>
-            {
-                var httpContextAccessor = provider.GetRequiredService<IHttpContextAccessor>();
-                if (httpContextAccessor.HttpContext != null)
-                {
-                    client.BaseAddress = new Uri(httpContextAccessor.HttpContext.Request.Scheme + "://" + httpContextAccessor.HttpContext.Request.Host);
-                    // set the cookies to allow HttpClient API calls to be authenticated
-                    foreach (var cookie in httpContextAccessor.HttpContext.Request.Cookies)
-                    {
-                        client.DefaultRequestHeaders.Add("Cookie", cookie.Key + "=" + WebUtility.UrlEncode(cookie.Value));
-                    }
-                }
-            });
-
-            // IHttpClientFactory for calling remote services via RemoteServiceBase (not named = default)
-            services.AddHttpClient();
-
-            return services;
-        }
-
-        public static IServiceCollection TryAddSwagger(this IServiceCollection services, IConfigurationRoot configuration)
-        {
-            if (configuration.GetSection("UseSwagger").Value != "false")
-            {
-                services.AddSwaggerGen(c =>
-                {
-                    c.SwaggerDoc(Constants.Version, new OpenApiInfo { Title = Constants.PackageId, Version = Constants.Version });
-                });
-            }
-
-            return services;
-        }
-
-        private static IServiceCollection AddOqtaneServices(this IServiceCollection services)
-        {
-            if (services is null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
-
-            var hostedServiceType = typeof(IHostedService);
-
-            var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
-            foreach (var assembly in assemblies)
-            {
-                // dynamically register module scoped services (ie. client service classes)
-                var implementationTypes = assembly.GetInterfaces<IService>();
-                foreach (var implementationType in implementationTypes)
-                {
-                    if (implementationType.AssemblyQualifiedName != null)
-                    {
-                        var serviceType = Type.GetType(implementationType.AssemblyQualifiedName.Replace(implementationType.Name, $"I{implementationType.Name}"));
-                        services.AddScoped(serviceType ?? implementationType, implementationType);
-                    }
-                }
-
-                // dynamically register module transient services (ie. server DBContext, repository classes)
-                implementationTypes = assembly.GetInterfaces<ITransientService>();
-                foreach (var implementationType in implementationTypes)
-                {
-                    if (implementationType.AssemblyQualifiedName != null)
-                    {
-                        var serviceType = Type.GetType(implementationType.AssemblyQualifiedName.Replace(implementationType.Name, $"I{implementationType.Name}"));
-                        services.AddTransient(serviceType ?? implementationType, implementationType);
-                    }
-                }
-
-                // dynamically register hosted services
-                var serviceTypes = assembly.GetTypes(hostedServiceType);
-                foreach (var serviceType in serviceTypes)
-                {
-                    if (!services.Any(item => item.ServiceType == serviceType))
-                    {
-                        services.AddSingleton(hostedServiceType, serviceType);
-                    }
-                }
-
-                // dynamically register server startup services
-                assembly.GetInstances<IServerStartup>()
-                    .ToList()
-                    .ForEach(x => x.ConfigureServices(services));
-
-                // dynamically register client startup services (these services will only be used when running on Blazor Server)
-                assembly.GetInstances<IClientStartup>()
-                    .ToList()
-                    .ForEach(x => x.ConfigureServices(services));
-            }
             return services;
         }
 
@@ -555,6 +400,63 @@ namespace Microsoft.Extensions.DependencyInjection
             }
         }
 
+        private static IServiceCollection AddOqtaneServices(this IServiceCollection services)
+        {
+            if (services is null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
+            var hostedServiceType = typeof(IHostedService);
+
+            var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
+            foreach (var assembly in assemblies)
+            {
+                // dynamically register module scoped services (ie. client service classes)
+                var implementationTypes = assembly.GetInterfaces<IService>();
+                foreach (var implementationType in implementationTypes)
+                {
+                    if (implementationType.AssemblyQualifiedName != null)
+                    {
+                        var serviceType = Type.GetType(implementationType.AssemblyQualifiedName.Replace(implementationType.Name, $"I{implementationType.Name}"));
+                        services.AddScoped(serviceType ?? implementationType, implementationType);
+                    }
+                }
+
+                // dynamically register module transient services (ie. server DBContext, repository classes)
+                implementationTypes = assembly.GetInterfaces<ITransientService>();
+                foreach (var implementationType in implementationTypes)
+                {
+                    if (implementationType.AssemblyQualifiedName != null)
+                    {
+                        var serviceType = Type.GetType(implementationType.AssemblyQualifiedName.Replace(implementationType.Name, $"I{implementationType.Name}"));
+                        services.AddTransient(serviceType ?? implementationType, implementationType);
+                    }
+                }
+
+                // dynamically register hosted services
+                var serviceTypes = assembly.GetTypes(hostedServiceType);
+                foreach (var serviceType in serviceTypes)
+                {
+                    if (!services.Any(item => item.ServiceType == serviceType))
+                    {
+                        services.AddSingleton(hostedServiceType, serviceType);
+                    }
+                }
+
+                // dynamically register server startup services
+                assembly.GetInstances<IServerStartup>()
+                    .ToList()
+                    .ForEach(x => x.ConfigureServices(services));
+
+                // dynamically register client startup services (these services will only be used when running on Blazor Server)
+                assembly.GetInstances<IClientStartup>()
+                    .ToList()
+                    .ForEach(x => x.ConfigureServices(services));
+            }
+            return services;
+        }
+
         private static Assembly ResolveDependencies(AssemblyLoadContext context, AssemblyName name)
         {
             var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location) + Path.DirectorySeparatorChar + name.Name + ".dll";
@@ -568,5 +470,149 @@ namespace Microsoft.Extensions.DependencyInjection
             }
         }
 
+        public static IServiceCollection AddOqtaneDbContext(this IServiceCollection services)
+        {
+            services.AddDbContext<MasterDBContext>(options => { }, ServiceLifetime.Transient);
+            services.AddDbContext<TenantDBContext>(options => { }, ServiceLifetime.Transient);
+            services.AddDbContextFactory<TenantDBContext>(opt => { }, ServiceLifetime.Transient);
+            return services;
+        }
+
+        public static IServiceCollection ConfigureOqtaneIdentityOptions(this IServiceCollection services, IConfigurationRoot Configuration)
+        {
+            // default settings
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Password settings
+                options.Password.RequireDigit = true;
+                options.Password.RequiredLength = 6;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequiredUniqueChars = 1;
+
+                // Lockout settings
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = false;
+
+                // SignIn settings
+                options.SignIn.RequireConfirmedEmail = false;
+                options.SignIn.RequireConfirmedAccount = false;
+                options.SignIn.RequireConfirmedPhoneNumber = false;
+
+                // User settings
+                options.User.RequireUniqueEmail = false;
+                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+            });
+
+            // overrides defined in appsettings
+            services.Configure<IdentityOptions>(Configuration);
+
+            return services;
+        }
+
+        public static IServiceCollection ConfigureOqtaneCookieOptions(this IServiceCollection services)
+        {
+            // note that ConfigureApplicationCookie internally uses an ApplicationScheme of "Identity.Application"
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SameSite = SameSiteMode.Lax;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                options.LoginPath = "/login"; // overrides .NET Identity default of /Account/Login
+                options.Events.OnRedirectToLogin = context =>
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Task.CompletedTask;
+                };
+                options.Events.OnRedirectToAccessDenied = context =>
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Task.CompletedTask;
+                };
+                options.Events.OnRedirectToLogout = context =>
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Task.CompletedTask;
+                };
+                options.Events.OnValidatePrincipal = PrincipalValidator.ValidateAsync;
+            });
+
+            return services;
+        }
+
+        public static IServiceCollection ConfigureOqtaneAuthenticationOptions(this IServiceCollection services, IConfigurationRoot Configuration)
+        {
+            // prevent remapping of claims
+            JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+
+            // settings defined in appsettings
+            services.Configure<OAuthOptions>(Configuration);
+            services.Configure<OpenIdConnectOptions>(Configuration);
+
+            return services;
+        }
+
+        public static OqtaneSiteOptionsBuilder AddOqtaneSiteOptions(this IServiceCollection services)
+        {
+            return new OqtaneSiteOptionsBuilder(services);
+        }
+
+        public static IServiceCollection AddCaching(this IServiceCollection services, IConfiguration configuration)
+        {
+            var defaultCacheEntryOptions = new FusionCacheEntryOptions();
+
+            if (string.IsNullOrEmpty(configuration.GetConnectionString("FusionCacheSettings")))
+            {
+                defaultCacheEntryOptions = configuration.GetSection("FusionCacheSettings").Get<FusionCacheEntryOptions>();
+            }
+            else
+            {
+                defaultCacheEntryOptions.Duration = TimeSpan.FromMinutes(30);
+            }
+
+            if (string.IsNullOrEmpty(configuration.GetConnectionString("Redis")))
+            {
+                // use memory cache (L1 only)
+                services.AddFusionCache()
+                    .WithDefaultEntryOptions(defaultCacheEntryOptions);
+            }
+            else
+            {
+                // use memory cache (L1) with Redis distributed cache (L2) and Redis backplane for synchronization across instances
+                services.AddFusionCache()
+                    .WithDefaultEntryOptions(defaultCacheEntryOptions)
+                    .WithOptions(options => {
+                        // use installationid as a unique prefix so that a single Redis service can be shared
+                        options.CacheKeyPrefix = configuration.GetSection("InstallationId").Value;
+                        options.BackplaneChannelPrefix = configuration.GetSection("InstallationId").Value;
+                    })
+                    .WithSerializer(new FusionCacheSystemTextJsonSerializer())
+                    .WithDistributedCache(new RedisCache(new RedisCacheOptions
+                    {
+                        Configuration = configuration.GetConnectionString("Redis"),
+                    }))
+                    // backplane is only needed in a multi-instance environment
+                    .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
+                    {
+                        Configuration = configuration.GetConnectionString("Redis")
+                    }));
+            }
+            return services;
+        }
+
+        public static IServiceCollection TryAddSwagger(this IServiceCollection services, IConfigurationRoot configuration)
+        {
+            if (configuration.GetSection("UseSwagger").Value != "false")
+            {
+                services.AddSwaggerGen(c =>
+                {
+                    c.SwaggerDoc(Constants.Version, new OpenApiInfo { Title = Constants.PackageId, Version = Constants.Version });
+                });
+            }
+
+            return services;
+        }
     }
 }
