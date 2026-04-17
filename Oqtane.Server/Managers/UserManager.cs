@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Policy;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Localization;
@@ -388,16 +389,18 @@ namespace Oqtane.Managers
                 var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, true);
                 if (result.Succeeded)
                 {
-                    var LastIPAddress = user.LastIPAddress ?? "";
+                    var lastIPAddress = user.LastIPAddress ?? ""; // preserve IP Address
 
-                    user = _users.GetUser(user.Username);
+                    user = GetUser(user.Username, user.SiteId);
                     if (!user.IsDeleted)
                     {
-                        var alias = _tenantManager.GetAlias();
-                        string siteName = _sites.GetSite(alias.SiteId).Name;
-                        var twoFactorRequired = _settings.GetSettingValue(EntityNames.Site, alias.SiteId, "LoginOptions:TwoFactor", "false") == "required" || user.TwoFactorRequired;
-                        if (twoFactorRequired)
+                        // get site settings
+                        var settings = _settings.GetSettings(EntityNames.Site, user.SiteId);
+
+                        // check 2 factor authentication
+                        if (_settings.GetSettingValue(settings, "LoginOptions:TwoFactor", "false") == "required" || user.TwoFactorRequired)
                         {
+                            string siteName = _sites.GetSite(user.SiteId).Name;
                             var token = await _identityUserManager.GenerateTwoFactorTokenAsync(identityuser, "Email");
                             user.TwoFactorCode = token;
                             user.TwoFactorExpiry = DateTime.UtcNow.AddMinutes(10);
@@ -408,7 +411,7 @@ namespace Oqtane.Managers
                             body = body.Replace("[UserDisplayName]", user.DisplayName);
                             body = body.Replace("[SiteName]", siteName);
                             body = body.Replace("[Token]", token);
-                            var notification = new Notification(alias.SiteId, user, subject, body);
+                            var notification = new Notification(user.SiteId, user, subject, body);
                             _notifications.AddNotification(notification);
 
                             _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Verification Notification Sent For {Username}", user.Username);
@@ -416,38 +419,37 @@ namespace Oqtane.Managers
                         }
                         else
                         {
-                            if (!bool.Parse(_settings.GetSettingValue(EntityNames.Site, alias.SiteId, "LoginOptions:RequireConfirmedEmail", "true")) || await _identityUserManager.IsEmailConfirmedAsync(identityuser))
+                            // check email confirmation
+                            if (!bool.Parse(_settings.GetSettingValue(settings, "LoginOptions:RequireConfirmedEmail", "true")) || await _identityUserManager.IsEmailConfirmedAsync(identityuser))
                             {
-                                user = GetUser(identityuser.UserName, alias.SiteId);
-                                if (user != null)
+                                // ensure user is registered for site
+                                if (UserSecurity.ContainsRole(user.Roles, RoleNames.Registered))
                                 {
-                                    // ensure user is registered for site
-                                    if (UserSecurity.ContainsRole(user.Roles, RoleNames.Registered))
-                                    {
-                                        user.IsAuthenticated = true;
-                                        user.LastLoginOn = DateTime.UtcNow;
-                                        user.LastIPAddress = LastIPAddress;
-                                        _users.UpdateUser(user);
-                                        _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful For {Username} From IP Address {IPAddress}", user.Username, LastIPAddress);
+                                    user.IsAuthenticated = true;
+                                    user.LastLoginOn = DateTime.UtcNow;
+                                    user.LastIPAddress = lastIPAddress;
+                                    _users.UpdateUser(user);
+                                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful For {Username} From IP Address {IPAddress}", user.Username, lastIPAddress);
 
-                                        _syncManager.AddSyncEvent(alias, EntityNames.User, user.UserId, "Login");
+                                    _syncManager.AddSyncEvent(_tenantManager.GetAlias(), EntityNames.User, user.UserId, "Login");
 
-                                        if (setCookie)
-                                        {
-                                            await _identitySignInManager.SignInAsync(identityuser, isPersistent);
-                                        }
-                                    }
-                                    else
+                                    if (setCookie)
                                     {
-                                        _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Denied - User {Username} Is Not An Active Member Of Site {SiteId}", user.Username, alias.SiteId);
+                                        await _identitySignInManager.SignInAsync(identityuser, isPersistent);
                                     }
+                                }
+                                else
+                                {
+                                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Denied - User {Username} Is Not An Active Member Of Site {SiteId}", user.Username, user.SiteId);
                                 }
                             }
                             else
                             {
                                 _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Denied - User Email Address Not Verified For {Username}", user.Username);
 
-                                // send verification email again
+                                // send verification email
+                                var alias = _tenantManager.GetAlias();
+                                string siteName = _sites.GetSite(user.SiteId).Name;
                                 string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
                                 string url = alias.Protocol + alias.Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
                                 string subject = _localizer["VerificationEmailSubject"];
@@ -464,24 +466,25 @@ namespace Oqtane.Managers
                     else
                     {
                         _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Failed - Account Deleted {Username}", user.Username);
+                        user = new User { SiteId = user.SiteId, Username = user.Username, IsAuthenticated = false };
                     }
                 }
                 else
                 {
                     if (result.IsLockedOut)
                     {
+                        user = GetUser(user.Username, user.SiteId);
                         var alias = _tenantManager.GetAlias();
-                        user = _users.GetUser(user.Username);
+                        string siteName = _sites.GetSite(user.SiteId).Name;
                         string token = await _identityUserManager.GeneratePasswordResetTokenAsync(identityuser);
                         string url = alias.Protocol + alias.Name + "/reset?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
-                        string siteName = _sites.GetSite(alias.SiteId).Name;
                         string subject = _localizer["UserLockoutEmailSubject"];
                         subject = subject.Replace("[SiteName]", siteName);
                         string body = _localizer["UserLockoutEmailBody"].Value;
                         body = body.Replace("[UserDisplayName]", user.DisplayName);
                         body = body.Replace("[URL]", url);
                         body = body.Replace("[SiteName]", siteName);
-                        var notification = new Notification(alias.SiteId, user, subject, body);
+                        var notification = new Notification(user.SiteId, user, subject, body);
                         _notifications.AddNotification(notification);
                         _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Lockout Notification Sent For {Username}", user.Username);
                     }
@@ -489,6 +492,7 @@ namespace Oqtane.Managers
                     {
                         _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Failed {Username}", user.Username);
                     }
+                    user = new User { SiteId = user.SiteId, Username = user.Username, IsAuthenticated = false };
                 }
             }
 
