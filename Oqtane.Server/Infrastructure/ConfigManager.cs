@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Oqtane.Shared;
 
@@ -31,10 +32,12 @@ namespace Oqtane.Infrastructure
     public class ConfigManager : IConfigManager
     {
         private readonly IConfigurationRoot _config;
+        private readonly IWebHostEnvironment _environment;
 
-        public ConfigManager(IConfigurationRoot config)
+        public ConfigManager(IConfigurationRoot config, IWebHostEnvironment environment)
         {
             _config = config;
+            _environment = environment;
         }
 
         public IConfigurationSection GetSection(string key)
@@ -72,9 +75,19 @@ namespace Oqtane.Infrastructure
             return settings;
         }
 
+        private string GetConfigFile()
+        {
+            var filename = $"appsettings.{_environment.EnvironmentName}.json";
+            if (_environment.EnvironmentName == "Development" || !File.Exists(Path.Combine(Directory.GetCurrentDirectory(), filename)))
+            {
+                filename = "appsettings.json";
+            }
+            return filename;
+        }
+
         public void AddOrUpdateSetting<T>(string key, T value, bool reload)
         {
-            AddOrUpdateSetting("appsettings.json", key, value, reload);
+            AddOrUpdateSetting(GetConfigFile(), key, value, reload);
         }
 
         public void AddOrUpdateSetting<T>(string file, string key, T value, bool reload)
@@ -95,7 +108,7 @@ namespace Oqtane.Infrastructure
 
         public void RemoveSetting(string key, bool reload)
         {
-            RemoveSetting("appsettings.json", key, reload);
+            RemoveSetting(GetConfigFile(), key, reload);
         }
 
         public void RemoveSetting(string file, string key, bool reload)
