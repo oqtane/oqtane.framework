@@ -213,7 +213,4 @@
   <data name="Instance.HelpText" xml:space="preserve">
     <value>The web instance on the server that was affected</value>
   </data>
-  <data name="DefaultInstance" xml:space="preserve">
-    <value>Default Instance</value>
-  </data>
 </root>
