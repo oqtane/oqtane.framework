@@ -190,7 +190,7 @@
                 _instance = log.Instance;
                 if (string.IsNullOrEmpty(_instance))
                 {
-                    _instance = Localizer["DefaultInstance"];
+                    _instance = SharedLocalizer["DefaultInstance"];
                 }
 				_initialized = true;
             }
