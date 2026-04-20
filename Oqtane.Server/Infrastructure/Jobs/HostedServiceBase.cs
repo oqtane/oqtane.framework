@@ -135,6 +135,8 @@ namespace Oqtane.Infrastructure
                                     log.FinishDate = null;
                                     log.Succeeded = false;
                                     log.Notes = "";
+                                    log.Server = Environment.MachineName;
+                                    log.Instance = Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID") ?? "";
                                     log = jobLogs.AddJobLog(log);
 
                                     // execute the job

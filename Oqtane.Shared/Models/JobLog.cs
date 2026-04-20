@@ -33,9 +33,19 @@ namespace Oqtane.Models
         public bool? Succeeded { get; set; }
 
         /// <summary>
-        /// Additional protocol information that was left after the <see cref="Job"/> ran.
+        /// Any log information that was generated while the <see cref="Job"/> executed
         /// </summary>
         public string Notes { get; set; }
+
+        /// <summary>
+        /// Machine name of the server that executed this job
+        /// </summary>
+        public string Server { get; set; }
+
+        /// <summary>
+        /// In a scale-out environment this contains the environment WEBSITE_INSTANCE_ID, otherwise it is blank
+        /// </summary>
+        public string Instance { get; set; }
 
         /// <summary>
         /// Reference to the Job. 
