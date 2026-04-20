@@ -136,7 +136,7 @@
     <value>The function that was performed</value>
   </data>
   <data name="Category.HelpText" xml:space="preserve">
-    <value>The fully qualified type type that was affected</value>
+    <value>The fully qualified type name that was affected</value>
   </data>
   <data name="Page.HelpText" xml:space="preserve">
     <value>The page that was affected</value>
@@ -206,5 +206,14 @@
   </data>
   <data name="Error.Log.Load" xml:space="preserve">
     <value>Error Loading Log</value>
+  </data>
+  <data name="Instance.Text" xml:space="preserve">
+    <value>Instance:</value>
+  </data>
+  <data name="Instance.HelpText" xml:space="preserve">
+    <value>The web instance on the server that was affected</value>
+  </data>
+  <data name="DefaultInstance" xml:space="preserve">
+    <value>Default Instance</value>
   </data>
 </root>

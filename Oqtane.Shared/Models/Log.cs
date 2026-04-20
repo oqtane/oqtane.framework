@@ -38,16 +38,33 @@ namespace Oqtane.Models
         public int? UserId { get; set; }
 
         /// <summary>
-        /// Url if relevant for this log entry.
+        /// Url if relevant for this log entry
         /// </summary>
         public string Url { get; set; }
 
         /// <summary>
-        /// Name of the server that created this entry
+        /// Machine name of the server that created this entry
         /// </summary>
         public string Server { get; set; }
-        public string Category { get; set; } // usually the full typename of the 
+
+        /// <summary>
+        /// In a scale-out environment this contains the environment WEBSITE_INSTANCE_ID, otherwise it is blank
+        /// </summary>
+        public string Instance { get; set; }
+
+        /// <summary>
+        /// The fully qualified type name that created the log entry
+        /// </summary>
+        public string Category { get; set; }
+
+        /// <summary>
+        /// Usually the class name or component name where the log entry was created
+        /// </summary>
         public string Feature { get; set; }
+
+        /// <summary>
+        /// The main purpose of the method where the log entry was created ie. Create, Read, Update, Delete, Security, Other
+        /// </summary>
         public string Function { get; set; }
 
         /// <summary>
