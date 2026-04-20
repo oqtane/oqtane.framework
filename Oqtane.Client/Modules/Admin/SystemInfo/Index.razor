@@ -42,12 +42,15 @@
                         <input id="machinename" class="form-control" @bind="@_machinename" readonly />
                     </div>
                 </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="instance" HelpText="Instance" ResourceKey="Instance">Instance: </Label>
-                    <div class="col-sm-9">
-                        <input id="instance" class="form-control" @bind="@_instance" readonly />
+                @if (!string.IsNullOrEmpty(_instance))
+                {
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="instance" HelpText="Instance" ResourceKey="Instance">Instance: </Label>
+                        <div class="col-sm-9">
+                            <input id="instance" class="form-control" @bind="@_instance" readonly />
+                        </div>
                     </div>
-                </div>
+                }
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="ipaddress" HelpText="Server IP Address" ResourceKey="IPAddress">IP Address: </Label>
                     <div class="col-sm-9">
@@ -251,10 +254,6 @@
             _process = systeminfo["Process"].ToString();
             _machinename = systeminfo["MachineName"].ToString();
             _instance = systeminfo["Instance"].ToString();
-            if (string.IsNullOrEmpty(_instance))
-            {
-                _instance = SharedLocalizer["DefaultInstance"];
-            }
             _ipaddress = systeminfo["IPAddress"].ToString();
             _environment = systeminfo["Environment"].ToString();
             _contentrootpath = systeminfo["ContentRootPath"].ToString();

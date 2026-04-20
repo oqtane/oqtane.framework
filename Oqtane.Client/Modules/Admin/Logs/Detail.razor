@@ -108,12 +108,15 @@
                 <input id="server" class="form-control" @bind="@_server" readonly />
             </div>
         </div>
-        <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="instance" HelpText="The web instance on the server that was affected" ResourceKey="Instance">Instance: </Label>
-            <div class="col-sm-9">
-                <input id="instance" class="form-control" @bind="@_instance" readonly />
+        @if (!string.IsNullOrEmpty(_instance))
+        {
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="instance" HelpText="The web instance on the server that was affected" ResourceKey="Instance">Instance: </Label>
+                <div class="col-sm-9">
+                    <input id="instance" class="form-control" @bind="@_instance" readonly />
+                </div>
             </div>
-        </div>
+        }
     </div>
 }
 <NavLink class="btn btn-secondary" href="@CloseUrl()">@SharedLocalizer["Cancel"]</NavLink>
@@ -188,10 +191,6 @@
                 _properties = log.Properties;
                 _server = log.Server;
                 _instance = log.Instance;
-                if (string.IsNullOrEmpty(_instance))
-                {
-                    _instance = SharedLocalizer["DefaultInstance"];
-                }
 				_initialized = true;
             }
         }
