@@ -1,7 +1,12 @@
 @namespace Oqtane.Modules.Admin.Files
+@using Microsoft.Extensions.DependencyInjection
 @inherits ModuleBase
 @inject IFolderService FolderService
 @inject IFileService FileService
+@inject ISettingService SettingService
+@inject IServiceProvider ServiceProvider
+@inject IFolderConfigService FolderConfigService
+@inject IFolderProviderFactory FolderProviderFactory
 @inject NavigationManager NavigationManager
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
@@ -23,11 +28,11 @@
                             }
                             else
                             {
-                                <select id="parent" class="form-select" @bind="@_parentId" required>
-                                @foreach (Folder folder in _folders)
-                                {
-                                    <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
-                                }
+                                <select id="parent" class="form-select" value="@_parentId" required @onchange="(e) => OnParentChanged(int.Parse(e.Value.ToString()))">
+                                    @foreach (Folder folder in _folders)
+                                    {
+                                        <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                                    }
                                 </select>
                             }
                         </div>
@@ -45,10 +50,38 @@
                             }
                         </div>
                     </div>
+                    @if (_parentId != -1)
+                    {
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="folderconfig" HelpText="Select the folder config." ResourceKey="FolderConfig">Folder Config:</Label>
+                            <div class="col">
+                                @if (!_folderConfigEditable)
+                                {
+                                    <input id="folderconfig" class="form-control" readonly value="@(_folderConfigs.FirstOrDefault(i => i.FolderConfigId == _folderConfigId)?.Name)" />
+                                }
+                                else
+                                {
+                                    <select id="folderconfig" class="form-select" value="@_folderConfigId" @onchange="(e) => OnConfigChanged(int.Parse(e.Value.ToString()))">
+                                        @foreach (var item in _folderConfigs)
+                                        {
+                                            <option value="@item.FolderConfigId">@item.Name</option>
+                                        }
+                                    </select>
+                                }
+                            </div>
+                            @if (_folderConfigEditable)
+                            {
+                                <div class="col-sm-3 text-end">
+                                    <ActionLink Action="EditConfig" class="btn btn-primary" Text="Add New Config" ResourceKey="AddNewConfig" Disabled="@(!_canAddNewConfig)" ReturnUrl="@PageState.Uri.PathAndQuery" />
+                                    <ActionLink Action="EditConfig" class="btn btn-primary ms-1" Text="Edit Config" ResourceKey="EditConfig" Parameters="@($"id={_folderConfigId}")" Disabled="@(_folderConfigId == _defaultFolderConfigId)" ReturnUrl="@PageState.Uri.PathAndQuery" />
+                                </div>
+                            }
+                        </div>
+                    }
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="type" HelpText="Select the folder type. Private folders are only accessible by authorized users. Public folders can be accessed by all users" ResourceKey="Type">Type: </Label>
                         <div class="col-sm-9">
-                            @if (PageState.QueryString.ContainsKey("id"))
+                            @if (!_folderTypeEditable)
                             {
                                 <input id="type" class="form-control" readonly @bind="@_type" />
                             }
@@ -122,6 +155,12 @@
     private string _cachecontrol = string.Empty;
     private string _imagesizes = string.Empty;
     private bool _isSystem;
+    private IEnumerable<FolderConfig> _folderConfigs;
+    private bool _canAddNewConfig = false;
+    private int _folderConfigId = -1;
+    private int _defaultFolderConfigId;
+    private bool _folderConfigEditable = false;
+    private bool _folderTypeEditable = false;
     private List<Permission> _permissions = null;
     private string _createdBy;
     private DateTime _createdOn;
@@ -134,13 +173,16 @@
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-    public override string Title => "Folder Management"; 
+    public override string Title => "Folder Management";
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
+            _folderConfigs = await FolderConfigService.GetFolderConfigsAsync(PageState.Site.SiteId);
             _folders = await FolderService.GetFoldersAsync(PageState.Site.SiteId);
+            _canAddNewConfig = (await FolderConfigService.GetProvidersAsync()).Any(i => i.Key != Constants.DefaultFolderProvider);
+            _defaultFolderConfigId = await FolderConfigService.GetDefaultConfigIdAsync();
 
             if (PageState.QueryString.ContainsKey("id"))
             {
@@ -151,6 +193,7 @@
                     _parentId = folder.ParentId ?? -1;
                     _name = folder.Name;
                     _type = folder.Type;
+                    _folderConfigId = folder.FolderConfigId;
                     _capacity = folder.Capacity.ToString();
                     _cachecontrol = folder.CacheControl;
                     _imagesizes = folder.ImageSizes;
@@ -160,11 +203,31 @@
                     _createdOn = folder.CreatedOn;
                     _modifiedBy = folder.ModifiedBy;
                     _modifiedOn = folder.ModifiedOn;
+
+                    var parentFolder = _folders.FirstOrDefault(i => i.FolderId == _parentId);
+                    _folderConfigEditable = false;
+                    _folderTypeEditable = false;
                 }
             }
             else
             {
-                _parentId = _folders[0].FolderId;
+                _folderConfigEditable = true;
+                _folderTypeEditable = true;
+                _folderConfigId = await FolderConfigService.GetDefaultConfigIdAsync();
+
+                if (PageState.QueryString.ContainsKey("pid") && int.TryParse(PageState.QueryString["pid"], out int pid))
+                {
+                    OnParentChanged(pid);
+                }
+                else
+                {
+                    OnParentChanged(_folders[0].FolderId);
+                }
+            }
+
+            if(PageState.QueryString.ContainsKey("cid") && int.TryParse(PageState.QueryString["cid"], out int cid))
+            {
+                OnConfigChanged(cid);
             }
         }
         catch (Exception ex)
@@ -194,6 +257,7 @@
 
             try
             {
+                ShowProgressIndicator();
                 Folder folder;
 
                 if (_folderId != -1)
@@ -224,6 +288,7 @@
                 folder.SiteId = PageState.Site.SiteId;
                 folder.Name = _name;
                 folder.Type = _type;
+                folder.FolderConfigId = _folderConfigId;
                 folder.Capacity = int.Parse(_capacity);
                 folder.CacheControl = _cachecontrol;
                 folder.ImageSizes = _imagesizes;
@@ -254,6 +319,10 @@
                 await logger.LogError(ex, "Error Saving Folder {FolderId} {Error}", _folderId, ex.Message);
                 AddModuleMessage(Localizer["Error.Folder.Save"], MessageType.Error);
             }
+            finally
+            {
+                HideProgressIndicator();
+            }
         }
         else
         {
@@ -265,6 +334,8 @@
     {
         try
         {
+            ShowProgressIndicator();
+
             bool isparent = false;
             foreach (Folder folder in _folders)
             {
@@ -289,6 +360,41 @@
         {
             await logger.LogError(ex, "Error Deleting Folder {Folder} {Error}", _folderId, ex.Message);
             AddModuleMessage(Localizer["Error.Folder.Delete"], MessageType.Error);
+        }
+        finally
+        {
+            HideProgressIndicator();
+        }
+    }
+
+    private void OnParentChanged(int parentId)
+    {
+        _parentId = parentId;
+        _folderConfigEditable = false;
+        var parentFolder = _folders.FirstOrDefault(f => f.FolderId == _parentId);
+        if (parentFolder != null)
+        {
+            _folderConfigEditable = parentFolder.FolderConfig.Provider == Constants.DefaultFolderProvider;
+
+            OnConfigChanged(parentFolder.FolderConfigId);
+        }
+    }
+
+    private void OnConfigChanged(int folderConfigId)
+    {
+        _folderConfigId = folderConfigId;
+        
+        var folderProvider = FolderProviderFactory.GetProvider(_folderConfigId);
+        if (!folderProvider.SupportsPrivateFolders)
+        {
+            _type = FolderTypes.Public;
+            _folderTypeEditable = false;
+        }
+        else
+        {
+            var parentFolder = _folders.FirstOrDefault(f => f.FolderId == _parentId);
+            _type = parentFolder.Type;
+            _folderTypeEditable = true;
         }
     }
 }

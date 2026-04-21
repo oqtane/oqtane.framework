@@ -9,6 +9,7 @@ using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Modules;
+using Oqtane.Providers;
 using Oqtane.Shared;
 using Module = Oqtane.Models.Module;
 
@@ -43,11 +44,25 @@ namespace Oqtane.Repository
         private readonly IConfigurationRoot _config;
         private readonly IServerStateManager _serverState;
         private readonly ILogManager _logger;
+        private readonly IFolderProviderFactory _folderProviderFactory;
         private static readonly object _lock = new object();
 
-        public SiteRepository(IDbContextFactory<TenantDBContext> factory, IRoleRepository roleRepository, IProfileRepository profileRepository, IFolderRepository folderRepository, IPageRepository pageRepository,
-            IModuleRepository moduleRepository, IPageModuleRepository pageModuleRepository, IModuleDefinitionRepository moduleDefinitionRepository, IThemeRepository themeRepository, ISettingRepository settingRepository,
-            IServiceProvider serviceProvider, IConfigurationRoot config, IServerStateManager serverState, ILogManager logger)
+        public SiteRepository(
+            IDbContextFactory<TenantDBContext> factory,
+            IRoleRepository roleRepository,
+            IProfileRepository profileRepository,
+            IFolderRepository folderRepository,
+            IPageRepository pageRepository,
+            IModuleRepository moduleRepository,
+            IPageModuleRepository pageModuleRepository,
+            IModuleDefinitionRepository moduleDefinitionRepository,
+            IThemeRepository themeRepository,
+            ISettingRepository settingRepository,
+            IServiceProvider serviceProvider,
+            IConfigurationRoot config,
+            IServerStateManager serverState,
+            ILogManager logger,
+            IFolderProviderFactory folderProviderFactory)
         {
             _factory = factory;
             _roleRepository = roleRepository;
@@ -63,6 +78,7 @@ namespace Oqtane.Repository
             _config = config;
             _serverState = serverState;
             _logger = logger;
+            _folderProviderFactory = folderProviderFactory;
         }
 
         public IEnumerable<Site> GetSites()
@@ -269,15 +285,17 @@ namespace Oqtane.Repository
 
             Folder folder = _folderRepository.AddFolder(new Folder
             {
-                SiteId = site.SiteId, ParentId = null, Name = "Root", Type = FolderTypes.Private, Path = "", Order = 1, ImageSizes = "", Capacity = 0, IsSystem = true,
-                PermissionList = new List<Permission>
-                {
-                    new Permission(PermissionNames.Browse, RoleNames.Admin, true),
-                    new Permission(PermissionNames.View, RoleNames.Everyone, true),
-                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
-                }
-            });
-            _folderRepository.AddFolder(new Folder { SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Public", Type = FolderTypes.Public, Path = "Public/", Order = 1, ImageSizes = "", Capacity = 0, IsSystem = false,
+                SiteId = site.SiteId,
+                ParentId = null,
+                Name = "Root",
+                Type = FolderTypes.Private,
+                Path = "",
+                MappedPath = "",
+                Order = 1,
+                ImageSizes = "",
+                Capacity = 0,
+                IsSystem = true,
+                FolderConfigId = _folderProviderFactory.GetDefaultConfigId(site.SiteId),
                 PermissionList = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),
@@ -287,7 +305,37 @@ namespace Oqtane.Repository
             });
             _folderRepository.AddFolder(new Folder
             {
-                SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Users", Type = FolderTypes.Private, Path = "Users/", Order = 3, ImageSizes = "", Capacity = 0, IsSystem = true,
+                SiteId = site.SiteId,
+                ParentId = folder.FolderId,
+                Name = "Public",
+                Type = FolderTypes.Public,
+                Path = "Public/",
+                MappedPath = "Public/",
+                Order = 1,
+                ImageSizes = "",
+                Capacity = 0,
+                IsSystem = false,
+                FolderConfigId = _folderProviderFactory.GetDefaultConfigId(site.SiteId),
+                PermissionList = new List<Permission>
+                {
+                    new Permission(PermissionNames.Browse, RoleNames.Admin, true),
+                    new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                }
+            });
+            _folderRepository.AddFolder(new Folder
+            {
+                SiteId = site.SiteId,
+                ParentId = folder.FolderId,
+                Name = "Users",
+                Type = FolderTypes.Private,
+                Path = "Users/",
+                MappedPath = "Users/",
+                Order = 3,
+                ImageSizes = "",
+                Capacity = 0,
+                IsSystem = true,
+                FolderConfigId = _folderProviderFactory.GetDefaultConfigId(site.SiteId),
                 PermissionList = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),

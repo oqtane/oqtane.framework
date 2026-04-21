@@ -11,6 +11,7 @@ using Microsoft.Extensions.Localization;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
+using Oqtane.Providers;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Shared;
@@ -35,7 +36,7 @@ namespace Oqtane.Managers
         User VerifyTwoFactor(User user, string token);
         Task<UserValidateResult> ValidateUser(string username, string email, string password);
         Task<bool> ValidatePassword(string password);
-        Task<Dictionary<string, string>> ImportUsers(int siteId, string filePath, bool notify);
+        Task<Dictionary<string, string>> ImportUsers(int siteId, Models.File file, bool notify);
         Task<List<UserPasskey>> GetPasskeys(int userId, int siteId);
         Task UpdatePasskey(UserPasskey passkey);
         Task DeletePasskey(int userId, byte[] credentialId);
@@ -79,6 +80,7 @@ namespace Oqtane.Managers
             _syncManager = syncManager;
             _logger = logger;
             _cache = cache;
+            _folderProviderFactory = folderProviderFactory;
             _localizer = localizer;
         }
 
@@ -345,10 +347,9 @@ namespace Oqtane.Managers
             var folder = _folders.GetFolder(siteid, $"Users/{userid}/");
             if (folder != null)
             {
-                if (Directory.Exists(_folders.GetFolderPath(folder)))
-                {
-                    Directory.Delete(_folders.GetFolderPath(folder), true);
-                }
+                var folderProvider = _folderProviderFactory.GetProvider(folder.FolderConfigId);
+                await folderProvider.DeleteFolderAsync(folder);
+
                 _folders.DeleteFolder(folder.FolderId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Folder Deleted {Folder}", folder);
             }
@@ -677,13 +678,13 @@ namespace Oqtane.Managers
             return result.Succeeded;
         }
 
-        public async Task<Dictionary<string, string>> ImportUsers(int siteId, string filePath, bool notify)
+        public async Task<Dictionary<string, string>> ImportUsers(int siteId, Models.File file, bool notify)
         {
             var success = true;
             int rows = 0;
             int users = 0;
-
-            if (System.IO.File.Exists(filePath))
+            var folderProvider = _folderProviderFactory.GetProvider(file.Folder.FolderConfigId);
+            if (await folderProvider.FileExistsAsync(file.Folder, file.Name))
             {
                 var roles = _roles.GetRoles(siteId).ToList();
                 var profiles = _profiles.GetProfiles(siteId).ToList();
@@ -691,7 +692,7 @@ namespace Oqtane.Managers
                 try
                 {
                     string row = "";
-                    using (var reader = new StreamReader(filePath))
+                    using (var reader = new StreamReader(await folderProvider.GetFileStreamAsync(file)))
                     {
                         // header row
                         if (reader.Peek() > -1)
@@ -844,13 +845,13 @@ namespace Oqtane.Managers
                 catch (Exception ex)
                 {
                     success = false;
-                    _logger.Log(LogLevel.Error, this, LogFunction.Create, ex, "Error Importing User Import File {SiteId} {FilePath} {Notify}", siteId, filePath, notify);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Create, ex, "Error Importing User Import File {SiteId} {Folder}{FilePath} {Notify}", siteId, file.Folder.Path, file.Name, notify);
                 }
             }
             else
             {
                 success = false;
-                _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Import File Does Not Exist {FilePath}", filePath);
+                _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Import File Does Not Exist {Folder}{FilePath}", file.Folder.Path, file.Name);
             }
 
             // return results
