@@ -48,7 +48,7 @@
     {
         MenuAlignment = DropdownAlignment.ToLower() == "right" ? "dropdown-menu-end" : string.Empty;
 
-        // if AliasName is populated it means the site is using content localization
+        // determine if site is using content localization
         _contentLocalization = PageState.Languages.Any(item => !string.IsNullOrEmpty(item.AliasName));
 
         if (PageState.QueryString.ContainsKey("culture"))

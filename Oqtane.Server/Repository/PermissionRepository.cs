@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
-using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Shared;
+using ZiggyCreatures.Caching.Fusion;
 
 namespace Oqtane.Repository
 {
@@ -26,10 +26,10 @@ namespace Oqtane.Repository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
         private readonly IRoleRepository _roles;
-        private readonly IMemoryCache _cache;
+        private readonly IFusionCache _cache;
         private readonly SiteState _siteState;
 
-        public PermissionRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IRoleRepository roles, IMemoryCache cache, SiteState siteState)
+        public PermissionRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IRoleRepository roles, IFusionCache cache, SiteState siteState)
         {
             _dbContextFactory = dbContextFactory;
             _roles = roles;
@@ -43,7 +43,7 @@ namespace Oqtane.Repository
             var alias = _siteState?.Alias;
             if (alias != null)
             {
-                return _cache.GetOrCreate($"permissions:{alias.TenantId}:{siteId}:{entityName}", entry =>
+                return _cache.GetOrSet($"permissions:{alias.TenantId}:{siteId}:{entityName}", entry =>
                 {
                     var roles = _roles.GetRoles(siteId, true).ToList();
                     var permissions = db.Permission.Where(item => item.SiteId == siteId).Where(item => item.EntityName == entityName).ToList();
@@ -55,7 +55,6 @@ namespace Oqtane.Repository
                         }
                     }
                     permissions = permissions.Where(item => item.UserId != null || item.RoleName != null).ToList();
-                    entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                     return permissions;
                 });
             }

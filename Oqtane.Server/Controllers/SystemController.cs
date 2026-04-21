@@ -36,6 +36,7 @@ namespace Oqtane.Controllers
                     systeminfo.Add("OSVersion", Environment.OSVersion.ToString());
                     systeminfo.Add("Process", (Environment.Is64BitProcess) ? "64 Bit" : "32 Bit");
                     systeminfo.Add("MachineName", Environment.MachineName);
+                    systeminfo.Add("Instance", Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID") ?? "");
                     systeminfo.Add("WorkingSet", Environment.WorkingSet.ToString());
                     systeminfo.Add("TickCount", Environment.TickCount64.ToString());
                     systeminfo.Add("ContentRootPath", _environment.ContentRootPath);

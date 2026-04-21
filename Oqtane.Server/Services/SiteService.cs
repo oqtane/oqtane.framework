@@ -4,7 +4,6 @@ using System.Linq;
 using System.Collections.Generic;
 using System;
 using Oqtane.Documentation;
-using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Security;
@@ -14,6 +13,7 @@ using Oqtane.Shared;
 using System.Globalization;
 using Oqtane.Extensions;
 using Oqtane.Managers;
+using ZiggyCreatures.Caching.Fusion;
 
 namespace Oqtane.Services
 {
@@ -35,11 +35,11 @@ namespace Oqtane.Services
         private readonly ISyncManager _syncManager;
         private readonly IConfigManager _configManager;
         private readonly ILogManager _logger;
-        private readonly IMemoryCache _cache;
+        private readonly IFusionCache _cache;
         private readonly IHttpContextAccessor _accessor;
         private readonly string _private = "[PRIVATE]";
 
-        public ServerSiteService(ISiteRepository sites, ISiteGroupMemberRepository siteGroupMembers, IAliasRepository aliases, IPageRepository pages, IThemeRepository themes, IPageModuleRepository pageModules, IModuleDefinitionRepository moduleDefinitions, ILanguageRepository languages, IUserManager userManager, IUserPermissions userPermissions, ISettingRepository settings, ITenantManager tenantManager, ISyncManager syncManager, IConfigManager configManager, ILogManager logger, IMemoryCache cache, IHttpContextAccessor accessor)
+        public ServerSiteService(ISiteRepository sites, ISiteGroupMemberRepository siteGroupMembers, IAliasRepository aliases, IPageRepository pages, IThemeRepository themes, IPageModuleRepository pageModules, IModuleDefinitionRepository moduleDefinitions, ILanguageRepository languages, IUserManager userManager, IUserPermissions userPermissions, ISettingRepository settings, ITenantManager tenantManager, ISyncManager syncManager, IConfigManager configManager, ILogManager logger, IFusionCache cache, IHttpContextAccessor accessor)
         {
             _sites = sites;
             _siteGroupMembers = siteGroupMembers;
@@ -73,9 +73,8 @@ namespace Oqtane.Services
         public Task<Site> GetSiteAsync(int siteId)
         {
             var alias = _tenantManager.GetAlias();
-            var site = _cache.GetOrCreate($"site:{alias.SiteKey}", entry =>
+            var site = _cache.GetOrSet($"site:{alias.SiteKey}", entry =>
             {
-                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                 return GetSite(siteId);
             });
 
@@ -195,13 +194,24 @@ namespace Oqtane.Services
                 if (site.SiteId == alias.SiteId && current != null)
                 {
                     site = _sites.UpdateSite(site);
+
                     _syncManager.AddSyncEvent(alias, EntityNames.Site, site.SiteId, SyncEventActions.Update);
-                    string action = SyncEventActions.Refresh;
-                    if (current.RenderMode != site.RenderMode || current.Runtime != site.Runtime)
+
+                    string action = (current.RenderMode != site.RenderMode || current.Runtime != site.Runtime) ? SyncEventActions.Reload : SyncEventActions.Refresh;
+                    if (current.CultureCode != site.CultureCode)
                     {
-                        action = SyncEventActions.Reload;
+                        // when a culture code changes, all sites in the tenant need to be refreshed
+                        foreach (var siteId in _sites.GetSites().Select(item => item.SiteId))
+                        {
+                            _syncManager.AddSyncEvent(alias, EntityNames.Site, siteId, action);
+                        }
                     }
-                    _syncManager.AddSyncEvent(alias, EntityNames.Site, site.SiteId, action);
+                    else
+                    {
+                        // refresh current site
+                        _syncManager.AddSyncEvent(alias, EntityNames.Site, site.SiteId, action);
+                    }
+
                     _logger.Log(site.SiteId, LogLevel.Information, this, LogFunction.Update, "Site Updated {Site}", site);
                 }
                 else
@@ -241,9 +251,8 @@ namespace Oqtane.Services
         public Task<List<Module>> GetModulesAsync(int siteId, int pageId)
         {
             var alias = _tenantManager.GetAlias();
-            var modules = _cache.GetOrCreate($"modules:{alias.SiteKey}", entry =>
+            var modules = _cache.GetOrSet($"modules:{alias.SiteKey}", entry =>
             {
-                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                 return GetPageModules(siteId);
             });
 

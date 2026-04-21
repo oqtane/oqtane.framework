@@ -31,7 +31,7 @@ namespace Oqtane.Providers
         {
             await using var scope = scopeFactory.CreateAsyncScope();
             var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
-            tenantManager.SetTenant(authState.User.TenantId());
+            tenantManager.SetAlias(authState.User.TenantId(), authState.User.SiteId());
             var userManager = scope.ServiceProvider.GetRequiredService<IUserManager>();
             var user = userManager.GetUser(authState.User.Identity.Name, authState.User.SiteId());
             if (user == null || user.IsDeleted)

@@ -328,6 +328,7 @@ namespace Oqtane.Infrastructure
                     if (folder == null || primaryFolder.ModifiedOn > siteGroupMember.SynchronizedOn)
                     {
                         // set all properties
+                        secondaryFolder.Path = primaryFolder.Path;
                         secondaryFolder.ParentId = null;
                         if (primaryFolder.ParentId != null)
                         {
@@ -622,7 +623,11 @@ namespace Oqtane.Infrastructure
         private string SynchronizeModules(IServiceProvider provider, ISettingRepository settingRepository, IPageModuleRepository pageModuleRepository, IModuleRepository moduleRepository, SiteGroupMember siteGroupMember, List<PageModule> primaryPageModules, List<PageModule> secondaryPageModules, Page primaryPage, Page secondaryPage, int secondarySiteId)
         {
             var log = "";
-            var removePageModules = secondaryPageModules.Where(item => item.PageId == secondaryPage.PageId).ToList();
+            var removePageModules = new List<PageModule>();
+            if (secondaryPage != null)
+            {
+                removePageModules = secondaryPageModules.Where(item => item.PageId == secondaryPage.PageId).ToList();
+            }
 
             // iterate through primary modules on primary page
             foreach (var primaryPageModule in primaryPageModules.Where(item => item.PageId == primaryPage.PageId))

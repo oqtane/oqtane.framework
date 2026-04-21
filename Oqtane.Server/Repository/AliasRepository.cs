@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Models;
 using Oqtane.Shared;
+using ZiggyCreatures.Caching.Fusion;
 
 namespace Oqtane.Repository
 {
@@ -22,9 +22,9 @@ namespace Oqtane.Repository
     public class AliasRepository : IAliasRepository
     {
         private MasterDBContext _db;
-        private readonly IMemoryCache _cache;
+        private readonly IFusionCache _cache;
 
-        public AliasRepository(MasterDBContext context, IMemoryCache cache)
+        public AliasRepository(MasterDBContext context, IFusionCache cache)
         {
             _db = context;
             _cache = cache;
@@ -32,9 +32,8 @@ namespace Oqtane.Repository
 
         public IEnumerable<Alias> GetAliases()
         {
-            return _cache.GetOrCreate("aliases", entry =>
+            return _cache.GetOrSet("aliases", entry =>
             {
-                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                 return _db.Alias.ToList();
             });
         }

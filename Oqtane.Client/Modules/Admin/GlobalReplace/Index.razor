@@ -28,7 +28,7 @@
         </div>
     </div>
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="site" HelpText="Specify if site properties should be updated (ie. name, headcontent, bodycontent)" ResourceKey="Site">Site Properties? </Label>
+        <Label Class="col-sm-3" For="site" HelpText="Specify if site information should be updated (ie. name, head content, body content, settings)" ResourceKey="Site">Site Info? </Label>
         <div class="col-sm-9">
             <select id="site" class="form-select" @bind="@_site">
                 <option value="True">@SharedLocalizer["Yes"]</option>
@@ -37,7 +37,7 @@
         </div>
     </div>
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="pages" HelpText="Specify if page properties should be updated (ie. name, title, headcontent, bodycontent)" ResourceKey="Pages">Page Properties? </Label>
+        <Label Class="col-sm-3" For="pages" HelpText="Specify if page information should be updated (ie. name, title, head content, body content, settings)" ResourceKey="Pages">Page Info? </Label>
         <div class="col-sm-9">
             <select id="pages" class="form-select" @bind="@_pages">
                 <option value="True">@SharedLocalizer["Yes"]</option>
@@ -46,7 +46,7 @@
         </div>
     </div>
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="modules" HelpText="Specify if module properties should be updated (ie. title, header, footer)" ResourceKey="Modules">Module Properties? </Label>
+        <Label Class="col-sm-3" For="modules" HelpText="Specify if module information should be updated (ie. title, header, footer, settings)" ResourceKey="Modules">Module Info? </Label>
         <div class="col-sm-9">
             <select id="modules" class="form-select" @bind="@_modules">
                 <option value="True">@SharedLocalizer["Yes"]</option>

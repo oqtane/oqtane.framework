@@ -250,10 +250,10 @@
     <value>IP Address:</value>
   </data>
   <data name="MachineName.HelpText" xml:space="preserve">
-    <value>Server Machine Name</value>
+    <value>Machine Name of the Server</value>
   </data>
   <data name="MachineName.Text" xml:space="preserve">
-    <value>Machine Name:</value>
+    <value>Server:</value>
   </data>
   <data name="WebRootPath.HelpText" xml:space="preserve">
     <value>Server Web Root Path</value>
@@ -323,5 +323,11 @@
   </data>
   <data name="Tenant.HelpText" xml:space="preserve">
     <value>The name of the current database. Note that this is not the physical database name but rather the tenant name which is used within the framework to identify a database.</value>
+  </data>
+  <data name="Instance.Text" xml:space="preserve">
+    <value>Instance:</value>
+  </data>
+  <data name="Instance.HelpText" xml:space="preserve">
+    <value>The web instance identifier</value>
   </data>
 </root>

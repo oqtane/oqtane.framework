@@ -37,11 +37,20 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="machinename" HelpText="Machine Name" ResourceKey="MachineName">Machine Name: </Label>
+                    <Label Class="col-sm-3" For="machinename" HelpText="Machine Name of the Server" ResourceKey="MachineName">Server: </Label>
                     <div class="col-sm-9">
                         <input id="machinename" class="form-control" @bind="@_machinename" readonly />
                     </div>
                 </div>
+                @if (!string.IsNullOrEmpty(_instance))
+                {
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="instance" HelpText="Instance" ResourceKey="Instance">Instance: </Label>
+                        <div class="col-sm-9">
+                            <input id="instance" class="form-control" @bind="@_instance" readonly />
+                        </div>
+                    </div>
+                }
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="ipaddress" HelpText="Server IP Address" ResourceKey="IPAddress">IP Address: </Label>
                     <div class="col-sm-9">
@@ -211,6 +220,7 @@
     private string _osversion = string.Empty;
     private string _process = string.Empty;
     private string _machinename = string.Empty;
+    private string _instance = string.Empty;
     private string _ipaddress = string.Empty;
     private string _environment = string.Empty;
     private string _contentrootpath = string.Empty;
@@ -243,6 +253,7 @@
             _osversion = systeminfo["OSVersion"].ToString();
             _process = systeminfo["Process"].ToString();
             _machinename = systeminfo["MachineName"].ToString();
+            _instance = systeminfo["Instance"].ToString();
             _ipaddress = systeminfo["IPAddress"].ToString();
             _environment = systeminfo["Environment"].ToString();
             _contentrootpath = systeminfo["ContentRootPath"].ToString();

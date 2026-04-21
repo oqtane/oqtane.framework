@@ -130,16 +130,16 @@
     <value>Specify if module content should be updated</value>
   </data>
   <data name="Pages.Text" xml:space="preserve">
-    <value>Page Properties?</value>
+    <value>Page Info?</value>
   </data>
   <data name="Pages.HelpText" xml:space="preserve">
-    <value>Specify if page properties should be updated (ie. name, title, headcontent, bodycontent)</value>
+    <value>Specify if page information should be updated (ie. name, title, head content, body content settings)</value>
   </data>
   <data name="Site.Text" xml:space="preserve">
-    <value>Site Properties?</value>
+    <value>Site Info?</value>
   </data>
   <data name="Site.HelpText" xml:space="preserve">
-    <value>Specify if site properties should be updated (ie. name, headcontent, bodycontent)</value>
+    <value>Specify if site information should be updated (ie. name, head content, body content, settings)</value>
   </data>
   <data name="Replace.Text" xml:space="preserve">
     <value>Replace With:</value>
@@ -148,10 +148,10 @@
     <value>Specify the replacement content</value>
   </data>
   <data name="Modules.Text" xml:space="preserve">
-    <value>Module Properties?</value>
+    <value>Module Info?</value>
   </data>
   <data name="Modules.HelpText" xml:space="preserve">
-    <value>Specify if module properties should be updated (ie. title, header, footer)</value>
+    <value>Specify if module information should be updated (ie. title, header, footer settings)</value>
   </data>
   <data name="Success.Save" xml:space="preserve">
     <value>Your Global Replace Request Has Been Submitted And Will Be Executed Shortly. Please Be Patient.</value>

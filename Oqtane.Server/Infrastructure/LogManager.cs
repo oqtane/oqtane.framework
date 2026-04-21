@@ -134,6 +134,7 @@ namespace Oqtane.Infrastructure
             {
                 log.LogDate = DateTime.UtcNow;
                 log.Server = Environment.MachineName;
+                log.Instance = Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID") ?? "";
                 log.MessageTemplate = log.Message;
                 log = ProcessStructuredLog(log);
                 try
