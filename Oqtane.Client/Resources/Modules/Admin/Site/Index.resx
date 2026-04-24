@@ -567,4 +567,10 @@
   <data name="ChangeDetection" xml:space="preserve">
     <value>Change Detection</value>
   </data>
+  <data name="AppleTouchIcon.Text" xml:space="preserve">
+    <value>Apple Touch Icon: </value>
+  </data>
+  <data name="AppleTouchIcon.HelpText" xml:space="preserve">
+    <value>Specify an Apple Touch Icon. The format for the image must be 180×180 pixels in size. The format of the image must be PNG.</value>
+  </data>
 </root>

@@ -159,6 +159,12 @@
                         <FileManager FileId="@_faviconfileid" Filter="ico,png,gif" @ref="_faviconfilemanager" />
                     </div>
                 </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="appletouchicon" HelpText="Specify an Apple Touch Icon" ResourceKey="AppleTouchIcon">Apple Touch Icon: </Label>
+                    <div class="col-sm-9">
+                        <FileManager FileId="@_appletouchiconfileid" Filter="png" @ref="_appletouchiconfilemanager" />
+                    </div>
+                </div>
             </div>
         </Section>
         <Section Name="Functionality" Heading="Functionality" ResourceKey="Functionality">
@@ -615,6 +621,8 @@
     private FileManager _logofilemanager;
     private int _faviconfileid = -1;
     private FileManager _faviconfilemanager;
+    private int _appletouchiconfileid = -1;
+    private FileManager _appletouchiconfilemanager;
     private string _themetype = "";
     private string _containertype = "";
     private string _admincontainertype = "";
@@ -723,6 +731,12 @@
                 {
                     _faviconfileid = site.FaviconFileId.Value;
                 }
+
+                if (site.AppleTouchIconFileId != null)
+                {
+                    _appletouchiconfileid = site.AppleTouchIconFileId.Value;
+                }
+
                 var themes = new List<Theme>();
                 foreach (var theme in PageState.Site.Themes)
                 {
@@ -902,6 +916,12 @@
                         if (site.FaviconFileId != faviconFieldId)
                         {
                             site.FaviconFileId = faviconFieldId;
+                        }
+                        int? appleTouchIconFileId = _appletouchiconfilemanager.GetFileId();
+                        if (appleTouchIconFileId == -1) appleTouchIconFileId = null;
+                        if (site.AppleTouchIconFileId != appleTouchIconFileId)
+                        {
+                            site.AppleTouchIconFileId = appleTouchIconFileId;
                         }
                         if (site.DefaultThemeType != _themetype)
                         {

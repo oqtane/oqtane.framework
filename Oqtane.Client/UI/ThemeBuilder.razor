@@ -43,6 +43,12 @@
             headcontent += $"<link id=\"app-favicon\" rel=\"icon\" type=\"image/x-icon\" href=\"favicon.ico\" />\n";
         }
 
+        // apple touch icon
+        if (PageState.Site.AppleTouchIconFileId != null)
+        {
+            headcontent += $"<link id=\"app-apple-touch-icon\" rel=\"apple-touch-icon\" href=\"{Utilities.FileUrl(PageState.Alias, PageState.Site.AppleTouchIconFileId.Value)}\" />\n";
+        }
+
         // head content
         if (!string.IsNullOrEmpty(PageState.Site.HeadContent))
         {

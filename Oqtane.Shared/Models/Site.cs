@@ -46,6 +46,13 @@ namespace Oqtane.Models
         public int? FaviconFileId { get; set; }
 
         /// <summary>
+        /// Reference to a <see cref="File"/> which has the Apple Touch Icon for this site.
+        /// Should be an image. 
+        /// The theme can then use this where needed.
+        /// </summary>
+        public int? AppleTouchIconFileId { get; set; }
+
+        /// <summary>
         /// Default theme for the site
         /// </summary>
         public string DefaultThemeType { get; set; }
