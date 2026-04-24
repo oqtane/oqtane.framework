@@ -227,6 +227,7 @@ namespace Oqtane.Models
                 CultureCode = CultureCode,
                 LogoFileId = LogoFileId,
                 FaviconFileId = FaviconFileId,
+                AppleTouchIconFileId = AppleTouchIconFileId,
                 DefaultThemeType = DefaultThemeType,
                 DefaultContainerType = DefaultContainerType,
                 AdminContainerType = AdminContainerType,

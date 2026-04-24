@@ -580,6 +580,7 @@ namespace Oqtane.Infrastructure
                                 Name = install.SiteName,
                                 LogoFileId = null,
                                 FaviconFileId = null,
+                                AppleTouchIconFileId = null,
                                 PwaIsEnabled = false,
                                 PwaAppIconFileId = null,
                                 PwaSplashIconFileId = null,

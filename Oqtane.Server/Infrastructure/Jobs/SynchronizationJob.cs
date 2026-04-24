@@ -151,7 +151,11 @@ namespace Oqtane.Infrastructure
                     }
                     if (secondarySite.FaviconFileId != primarySite.FaviconFileId)
                     {
-                        secondarySite.FaviconFileId = ResolveFileId(provider, primarySite.FaviconFileId, secondarySite.SiteId); ;
+                        secondarySite.FaviconFileId = ResolveFileId(provider, primarySite.FaviconFileId, secondarySite.SiteId);
+                    }
+                    if (secondarySite.AppleTouchIconFileId != primarySite.AppleTouchIconFileId)
+                    {
+                        secondarySite.AppleTouchIconFileId = ResolveFileId(provider, primarySite.AppleTouchIconFileId, secondarySite.SiteId);
                     }
                     secondarySite.DefaultThemeType = primarySite.DefaultThemeType;
                     secondarySite.DefaultContainerType = primarySite.DefaultContainerType;
@@ -159,11 +163,11 @@ namespace Oqtane.Infrastructure
                     secondarySite.PwaIsEnabled = primarySite.PwaIsEnabled;
                     if (secondarySite.PwaAppIconFileId != primarySite.PwaAppIconFileId)
                     {
-                        secondarySite.PwaAppIconFileId = ResolveFileId(provider, primarySite.PwaAppIconFileId, secondarySite.SiteId); ;
+                        secondarySite.PwaAppIconFileId = ResolveFileId(provider, primarySite.PwaAppIconFileId, secondarySite.SiteId);
                     }
                     if (secondarySite.PwaSplashIconFileId != primarySite.PwaSplashIconFileId)
                     {
-                        secondarySite.PwaSplashIconFileId = ResolveFileId(provider, primarySite.PwaSplashIconFileId, secondarySite.SiteId); ;
+                        secondarySite.PwaSplashIconFileId = ResolveFileId(provider, primarySite.PwaSplashIconFileId, secondarySite.SiteId);
                     }
                     secondarySite.AllowRegistration = primarySite.AllowRegistration;
                     secondarySite.VisitorTracking = primarySite.VisitorTracking;
