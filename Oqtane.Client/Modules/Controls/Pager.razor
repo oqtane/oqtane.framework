@@ -10,9 +10,16 @@
     {
         @if (!string.IsNullOrEmpty(SearchProperties))
         {
-            <form autocomplete="off">
+            <form autocomplete="off" @onsubmit:preventDefault="true">
                 <div class="input-group my-3 @SearchBoxClass">
-                    <input type="text" id="pagersearch" class="form-control" placeholder=@string.Format(Localizer["SearchPlaceholder"], FormatSearchProperties()) @bind="@_search" />
+                    @* <input type="text" id="pagersearch" class="form-control" placeholder=@string.Format(Localizer["SearchPlaceholder"], FormatSearchProperties()) @bind="@_search" @onkeydown="HandleSearchKeyDown" /> *@
+                    <input type="text"
+                           id="pagersearch"
+                           class="form-control"
+                           placeholder=@string.Format(Localizer["SearchPlaceholder"], FormatSearchProperties())
+                           @bind-value="_search"
+                           @bind-value:event="oninput"
+                           @onkeydown="HandleSearchKeyDown" />
                     <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>
                     <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
                 </div>
@@ -72,10 +79,16 @@
     {
         @if (!string.IsNullOrEmpty(SearchProperties))
         {
-            <form method="post" autocomplete="off" @formname="PagerForm" @onsubmit="Search" data-enhance>
+            <form method="post" autocomplete="off" @formname="PagerForm" @onsubmit="Search" @onsubmit:preventDefault="true" data-enhance>
                 <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                 <div class="input-group my-3 @SearchBoxClass">
-                    <input type="text" id="pagersearch" name="_search" class="form-control" placeholder=@string.Format(Localizer["SearchPlaceholder"], FormatSearchProperties()) @bind="@_search" />
+                    <input type="text"
+                           id="pagersearch"
+                           class="form-control"
+                           placeholder=@string.Format(Localizer["SearchPlaceholder"], FormatSearchProperties())
+                           @bind-value="_search"
+                           @bind-value:event="oninput"
+                           @onkeydown="HandleSearchKeyDown" />
                     <button type="submit" class="btn btn-primary">@SharedLocalizer["Search"]</button>
                     <a class="btn btn-secondary" href="@PageUrl(1, "")">@SharedLocalizer["Reset"]</a>
                 </div>
@@ -634,5 +647,13 @@
             }
         }
         return PageState.Route.AbsolutePath + Utilities.CreateQueryString(parameters);
+    }
+
+    private void HandleSearchKeyDown(Microsoft.AspNetCore.Components.Web.KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(_search))
+        {
+            Search();
+        }
     }
 }
