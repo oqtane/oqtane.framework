@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Oqtane.Models;
 using Oqtane.Shared;
-using ZiggyCreatures.Caching.Fusion;
 
 namespace Oqtane.Infrastructure
 {
@@ -17,10 +15,10 @@ namespace Oqtane.Infrastructure
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ISyncManager _syncManager;
-        private readonly IFusionCache _cache;
+        private readonly ICacheManager _cache;
         private readonly ILogger<EventDistributorHostedService> _filelogger;
 
-        public EventDistributorHostedService(IServiceProvider serviceProvider, ISyncManager syncManager, IFusionCache cache, ILogger<EventDistributorHostedService> filelogger)
+        public EventDistributorHostedService(IServiceProvider serviceProvider, ISyncManager syncManager, ICacheManager cache, ILogger<EventDistributorHostedService> filelogger)
         {
             _serviceProvider = serviceProvider;
             _syncManager = syncManager;
@@ -30,7 +28,7 @@ namespace Oqtane.Infrastructure
 
         void EntityChanged(object sender, SyncEvent syncEvent)
         {
-            List<Type> eventSubscribers = _cache.GetOrSet($"eventsubscribers", entry =>
+            List<Type> eventSubscribers = _cache.GetCache("eventsubscribers", entry =>
             {
                 eventSubscribers = new List<Type>();
                 var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
@@ -42,8 +40,7 @@ namespace Oqtane.Infrastructure
                     }
                 }
                 return eventSubscribers;
-            },
-            options => options.SetPriority(CacheItemPriority.NeverRemove));
+            }, TimeSpan.Zero);
 
             foreach (var type in eventSubscribers)
             {

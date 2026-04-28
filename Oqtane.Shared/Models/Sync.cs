@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
 {
@@ -17,5 +18,17 @@ namespace Oqtane.Models
         public int EntityId { get; set; }
         public string Action { get; set; }
         public DateTime ModifiedOn { get; set; }
+
+        /// <summary>
+        /// Unique key used for identifying a site within a runtime process (ie. cache, file system, etc...)
+        /// </summary>
+        [NotMapped]
+        public string SiteKey
+        {
+            get
+            {
+                return TenantId.ToString() + ":" + SiteId.ToString();
+            }
+        }
     }
 }

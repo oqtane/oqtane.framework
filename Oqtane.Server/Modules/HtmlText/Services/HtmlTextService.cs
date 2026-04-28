@@ -10,7 +10,6 @@ using Oqtane.Models;
 using Oqtane.Modules.HtmlText.Repository;
 using Oqtane.Security;
 using Oqtane.Shared;
-using ZiggyCreatures.Caching.Fusion;
 
 namespace Oqtane.Modules.HtmlText.Services
 {
@@ -19,12 +18,12 @@ namespace Oqtane.Modules.HtmlText.Services
     {
         private readonly IHtmlTextRepository _htmlTextRepository;
         private readonly IUserPermissions _userPermissions;
-        private readonly IFusionCache _cache;
+        private readonly ICacheManager _cache;
         private readonly ILogManager _logger;
         private readonly IHttpContextAccessor _accessor;
         private readonly Alias _alias;
 
-        public ServerHtmlTextService(IHtmlTextRepository htmlTextRepository, IUserPermissions userPermissions, IFusionCache cache, ITenantManager tenantManager, ILogManager logger, IHttpContextAccessor accessor)
+        public ServerHtmlTextService(IHtmlTextRepository htmlTextRepository, IUserPermissions userPermissions, ICacheManager cache, ITenantManager tenantManager, ILogManager logger, IHttpContextAccessor accessor)
         {
             _htmlTextRepository = htmlTextRepository;
             _userPermissions = userPermissions;
@@ -51,7 +50,7 @@ namespace Oqtane.Modules.HtmlText.Services
         {
             if (_userPermissions.IsAuthorized(_accessor.HttpContext.User, _alias.SiteId, EntityNames.Module, moduleId, PermissionNames.View))
             {
-                return Task.FromResult(_cache.GetOrSet($"HtmlText:{_alias.SiteKey}:{moduleId}", entry =>
+                return Task.FromResult(_cache.GetCache(_alias, $"htmltext:{moduleId}", entry =>
                 {
                     return _htmlTextRepository.GetHtmlText(moduleId);
                 }));
@@ -96,7 +95,7 @@ namespace Oqtane.Modules.HtmlText.Services
 
         private void ClearCache(int moduleId)
         {
-            _cache.Remove($"HtmlText:{_alias.SiteKey}:{moduleId}");
+            _cache.RemoveCache(_alias, $"htmltext:{moduleId}");
         }
     }
 }

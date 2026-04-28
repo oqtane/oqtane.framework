@@ -5,12 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.Themes;
-using ZiggyCreatures.Caching.Fusion;
 
 namespace Oqtane.Repository
 {
@@ -26,14 +24,14 @@ namespace Oqtane.Repository
     public class ThemeRepository : IThemeRepository
     {
         private MasterDBContext _db;
-        private readonly IFusionCache _cache;
+        private readonly ICacheManager _cache;
         private readonly IPermissionRepository _permissions;
         private readonly ITenantManager _tenants;
         private readonly ISettingRepository _settings;
         private readonly IServerStateManager _serverState;
         private readonly string settingprefix = "SiteEnabled:";
 
-        public ThemeRepository(MasterDBContext context, IFusionCache cache, IPermissionRepository permissions, ITenantManager tenants, ISettingRepository settings, IServerStateManager serverState)
+        public ThemeRepository(MasterDBContext context, ICacheManager cache, IPermissionRepository permissions, ITenantManager tenants, ISettingRepository settings, IServerStateManager serverState)
         {
             _db = context;
             _cache = cache;
@@ -72,7 +70,7 @@ namespace Oqtane.Repository
                 _settings.UpdateSetting(setting);
             }
 
-            _cache.Remove($"themes:{_tenants.GetAlias().SiteKey}");
+            _cache.RemoveCache(_tenants.GetAlias(), "themes");
         }
 
         public void DeleteTheme(int themeId)
@@ -81,7 +79,7 @@ namespace Oqtane.Repository
             _settings.DeleteSettings(EntityNames.Theme, themeId);
             _db.Theme.Remove(theme);
             _db.SaveChanges();
-            _cache.Remove($"themes:{_tenants.GetAlias().SiteKey}");
+            _cache.RemoveCache(_tenants.GetAlias(), "themes");
         }
 
         public List<Theme> FilterThemes(List<Theme> themes)
@@ -110,11 +108,10 @@ namespace Oqtane.Repository
         private List<Theme> LoadThemes(int siteId)
         {
             // get themes
-            List<Theme> themes = _cache.GetOrSet($"themes:{_tenants.GetAlias().SiteKey}", entry =>
+            List<Theme> themes = _cache.GetCache(_tenants.GetAlias(), "themes", entry =>
             {
                 return ProcessThemes(siteId);
-            },
-            options => options.SetPriority(CacheItemPriority.NeverRemove));
+            }, TimeSpan.Zero);
 
             return themes;
         }

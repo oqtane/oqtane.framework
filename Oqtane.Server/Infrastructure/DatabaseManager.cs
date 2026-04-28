@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Extensions;
@@ -15,7 +14,6 @@ using Oqtane.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using ZiggyCreatures.Caching.Fusion;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertToUsingDeclaration
@@ -35,11 +33,11 @@ namespace Oqtane.Infrastructure
     {
         private readonly IConfigManager _config;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly IFusionCache _cache;
+        private readonly ICacheManager _cache;
         private readonly IConfigManager _configManager;
         private readonly ILogger<DatabaseManager> _filelogger;
 
-        public DatabaseManager(IConfigManager config, IServiceScopeFactory serviceScopeFactory, IFusionCache cache, IConfigManager configManager, ILogger<DatabaseManager> filelogger)
+        public DatabaseManager(IConfigManager config, IServiceScopeFactory serviceScopeFactory, ICacheManager cache, IConfigManager configManager, ILogger<DatabaseManager> filelogger)
         {
             _config = config;
             _serviceScopeFactory = serviceScopeFactory;
@@ -333,7 +331,7 @@ namespace Oqtane.Infrastructure
                             };
                             db.Tenant.Add(tenant);
                             db.SaveChanges();
-                            _cache.Remove("tenants");
+                            _cache.RemoveCache("tenants");
                         }
                         else
                         {
@@ -363,7 +361,7 @@ namespace Oqtane.Infrastructure
                             db.SaveChanges();
                         }
 
-                        _cache.Remove("aliases");
+                        _cache.RemoveCache("aliases");
                     }
             }
 

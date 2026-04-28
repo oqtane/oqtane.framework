@@ -14,7 +14,6 @@ using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Shared;
-using ZiggyCreatures.Caching.Fusion;
 
 namespace Oqtane.Managers
 {
@@ -60,10 +59,10 @@ namespace Oqtane.Managers
         private readonly ISiteRepository _sites;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
-        private readonly IFusionCache _cache;
+        private readonly ICacheManager _cache;
         private readonly IStringLocalizer<UserManager> _localizer;
 
-        public UserManager(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, IProfileRepository profiles, ISettingRepository settings, ISiteRepository sites, ISyncManager syncManager, ILogManager logger, IFusionCache cache, IStringLocalizer<UserManager> localizer)
+        public UserManager(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, IProfileRepository profiles, ISettingRepository settings, ISiteRepository sites, ISyncManager syncManager, ILogManager logger, ICacheManager cache, IStringLocalizer<UserManager> localizer)
         {
             _users = users;
             _roles = roles;
@@ -84,8 +83,7 @@ namespace Oqtane.Managers
 
         public User GetUser(int userid, int siteid)
         {
-            var alias = _tenantManager.GetAlias();
-            return _cache.GetOrSet($"user:{userid}:{alias.SiteKey}", entry =>
+            return _cache.GetCache(_tenantManager.GetAlias(), $"user:{userid}", entry =>
             {
                 User user = _users.GetUser(userid);
                 if (user != null)
