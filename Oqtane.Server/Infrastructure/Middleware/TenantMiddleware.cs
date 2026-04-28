@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Oqtane.Repository;
 using Oqtane.Shared;
-using ZiggyCreatures.Caching.Fusion;
 
 namespace Oqtane.Infrastructure
 {
@@ -34,8 +33,8 @@ namespace Oqtane.Infrastructure
                     context.Items.Add(Constants.HttpContextAliasKey, alias);
 
                     // save site settings in HttpContext
-                    var cache = context.RequestServices.GetService(typeof(IFusionCache)) as IFusionCache;
-                    var sitesettings = cache.GetOrSet(Constants.HttpContextSiteSettingsKey + alias.SiteKey, entry =>
+                    var cache = context.RequestServices.GetService(typeof(ICacheManager)) as ICacheManager;
+                    var sitesettings = cache.GetCache(alias, Constants.HttpContextSiteSettingsKey, entry =>
                     {
                         var settingRepository = context.RequestServices.GetService(typeof(ISettingRepository)) as ISettingRepository;
                         return settingRepository.GetSettings(EntityNames.Site, alias.SiteId, EntityNames.Host, -1)

@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
-using ZiggyCreatures.Caching.Fusion;
 
 namespace Oqtane.Repository
 {
@@ -31,9 +30,9 @@ namespace Oqtane.Repository
         private readonly IRoleRepository _roles;
         private readonly ITenantManager _tenantManager;
         private readonly UserManager<IdentityUser> _identityUserManager;
-        private readonly IFusionCache _cache;
+        private readonly ICacheManager _cache;
 
-        public UserRoleRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IRoleRepository roles, ITenantManager tenantManager, UserManager<IdentityUser> identityUserManager, IFusionCache cache)
+        public UserRoleRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IRoleRepository roles, ITenantManager tenantManager, UserManager<IdentityUser> identityUserManager, ICacheManager cache)
         {
             _dbContextFactory = dbContextFactory;
             _roles = roles;
@@ -53,8 +52,7 @@ namespace Oqtane.Repository
 
         public IEnumerable<UserRole> GetUserRoles(int userId, int siteId)
         {
-            var alias = _tenantManager.GetAlias();
-            return _cache.GetOrSet($"userroles:{userId}:{alias.SiteKey}", entry =>
+            return _cache.GetCache(_tenantManager.GetAlias(), $"userroles:{userId}", entry =>
             {
                 using var db = _dbContextFactory.CreateDbContext();
                 return db.UserRole
@@ -206,12 +204,8 @@ namespace Oqtane.Repository
 
         private void RefreshCache(int userId)
         {
-            var alias = _tenantManager.GetAlias();
-            if (alias != null)
-            {
-                _cache.Remove($"user:{userId}:{alias.SiteKey}");
-                _cache.Remove($"userroles:{userId}:{alias.SiteKey}");
-            }
+            _cache.RemoveCache(_tenantManager.GetAlias(), $"user:{userId}");
+            _cache.RemoveCache(_tenantManager.GetAlias(), $"userroles:{userId}");
         }
     }
 }

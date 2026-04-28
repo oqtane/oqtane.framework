@@ -599,6 +599,9 @@ namespace Microsoft.Extensions.DependencyInjection
                         Configuration = configuration.GetConnectionString("RedisCache")
                     }));
             }
+
+            services.AddSingleton<ICacheManager, CacheManager>();
+
             return services;
         }
 

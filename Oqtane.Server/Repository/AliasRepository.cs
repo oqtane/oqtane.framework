@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
-using ZiggyCreatures.Caching.Fusion;
 
 namespace Oqtane.Repository
 {
@@ -22,9 +22,9 @@ namespace Oqtane.Repository
     public class AliasRepository : IAliasRepository
     {
         private MasterDBContext _db;
-        private readonly IFusionCache _cache;
+        private readonly ICacheManager _cache;
 
-        public AliasRepository(MasterDBContext context, IFusionCache cache)
+        public AliasRepository(MasterDBContext context, ICacheManager cache)
         {
             _db = context;
             _cache = cache;
@@ -32,7 +32,7 @@ namespace Oqtane.Repository
 
         public IEnumerable<Alias> GetAliases()
         {
-            return _cache.GetOrSet("aliases", entry =>
+            return _cache.GetCache("aliases", entry =>
             {
                 return _db.Alias.ToList();
             });
@@ -43,7 +43,7 @@ namespace Oqtane.Repository
             alias.Name = alias.Name.Contains("://") ? alias.Name.Substring(alias.Name.IndexOf("://") + 3).ToLower() : alias.Name.ToLower();
             _db.Alias.Add(alias);
             _db.SaveChanges();
-            _cache.Remove("aliases");
+            _cache.RemoveCache("aliases");
             return alias;
         }
 
@@ -52,7 +52,7 @@ namespace Oqtane.Repository
             alias.Name = alias.Name.Contains("://") ? alias.Name.Substring(alias.Name.IndexOf("://") + 3).ToLower() : alias.Name.ToLower();
             _db.Entry(alias).State = EntityState.Modified;
             _db.SaveChanges();
-            _cache.Remove("aliases");
+            _cache.RemoveCache("aliases");
             return alias;
         }
 
@@ -120,7 +120,7 @@ namespace Oqtane.Repository
         {
             Alias alias = _db.Alias.Find(aliasId);
             _db.Alias.Remove(alias);
-            _cache.Remove("aliases");
+            _cache.RemoveCache("aliases");
             _db.SaveChanges();
         }
     }

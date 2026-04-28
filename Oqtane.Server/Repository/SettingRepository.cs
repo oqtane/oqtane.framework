@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
-using ZiggyCreatures.Caching.Fusion;
 
 namespace Oqtane.Repository
 {
@@ -31,9 +30,9 @@ namespace Oqtane.Repository
         private readonly IDbContextFactory<TenantDBContext> _tenantContextFactory;
         private MasterDBContext _master;
         private readonly ITenantManager _tenantManager;
-        private readonly IFusionCache _cache;
+        private readonly ICacheManager _cache;
 
-        public SettingRepository(IDbContextFactory<TenantDBContext> tenantContextFactory, MasterDBContext master, ITenantManager tenantManager, IFusionCache cache)
+        public SettingRepository(IDbContextFactory<TenantDBContext> tenantContextFactory, MasterDBContext master, ITenantManager tenantManager, ICacheManager cache)
         {
             _tenantContextFactory = tenantContextFactory;
             _master = master;
@@ -240,9 +239,9 @@ namespace Oqtane.Repository
 
         private void ManageCache(string EntityName)
         {
-            if (EntityName == EntityNames.Site && _tenantManager.GetAlias() != null)
+            if (EntityName == EntityNames.Site)
             {
-                _cache.Remove(Constants.HttpContextSiteSettingsKey + _tenantManager.GetAlias().SiteKey);
+                _cache.RemoveCache(_tenantManager.GetAlias(), Constants.HttpContextSiteSettingsKey);
             }
         }
     }
