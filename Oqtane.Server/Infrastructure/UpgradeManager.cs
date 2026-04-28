@@ -1,3 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -7,11 +13,6 @@ using Oqtane.Infrastructure.SiteTemplates;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 
 namespace Oqtane.Infrastructure
 {
@@ -95,6 +96,9 @@ namespace Oqtane.Infrastructure
                         break;
                     case "10.1.0":
                         Upgrade_10_1_0(tenant, scope);
+                        break;
+                    case "10.2.0":
+                        Upgrade_10_2_0(tenant, scope);
                         break;
                 }
             }
@@ -667,6 +671,14 @@ namespace Oqtane.Infrastructure
                     folder.FolderConfigId = folderConfig.FolderConfigId;
                     folders.UpdateFolder(folder);
                 }
+            }
+        }
+        private void Upgrade_10_2_0(Tenant tenant, IServiceScope scope)
+        {
+            if (tenant.Name == TenantNames.Master)
+            {
+                // prevent verbose logging to the console by ZiggyCreatures.Caching.Fusion library
+                _configManager.AddOrUpdateSetting("Logging:LogLevel:ZiggyCreatures.Caching.Fusion", "Warning", true);
             }
         }
 
