@@ -18,8 +18,6 @@ rmdir /Q /S "..\Oqtane.Server\bin\Release\net10.0\publish\runtimes\iossimulator-
 rmdir /Q /S "..\Oqtane.Server\bin\Release\net10.0\publish\runtimes\iossimulator-x86"
 rmdir /Q /S "..\Oqtane.Server\bin\Release\net10.0\publish\wwwroot\Modules\Templates"
 rmdir /Q /S "..\Oqtane.Server\bin\Release\net10.0\publish\wwwroot\Themes\Templates"
-del "..\Oqtane.Server\bin\Release\net10.0\publish\appsettings.json"
-ren "..\Oqtane.Server\bin\Release\net10.0\publish\appsettings.release.json" "appsettings.json"
 C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe ".\install.ps1"
 del "..\Oqtane.Server\bin\Release\net10.0\publish\appsettings.json"
 del "..\Oqtane.Server\bin\Release\net10.0\publish\web.config"
