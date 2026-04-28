@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Oqtane.Infrastructure;
 using Oqtane.Models;
-using ZiggyCreatures.Caching.Fusion;
 
 namespace Oqtane.Repository
 {
@@ -20,9 +20,9 @@ namespace Oqtane.Repository
     public class JobRepository : IJobRepository
     {
         private MasterDBContext _db;
-        private readonly IFusionCache _cache;
+        private readonly ICacheManager _cache;
 
-        public JobRepository(MasterDBContext context, IFusionCache cache)
+        public JobRepository(MasterDBContext context, ICacheManager cache)
         {
             _db = context;
             _cache = cache;
@@ -30,7 +30,7 @@ namespace Oqtane.Repository
 
         public IEnumerable<Job> GetJobs()
         {
-            return _cache.GetOrSet("jobs", entry =>
+            return _cache.GetCache("jobs", entry =>
             {
                 // remove any jobs which have been uninstalled
                 foreach (var job in _db.Job.ToList())
@@ -48,7 +48,7 @@ namespace Oqtane.Repository
         {
             _db.Job.Add(job);
             _db.SaveChanges();
-            _cache.Remove("jobs");
+            _cache.RemoveCache("jobs");
             return job;
         }
 
@@ -56,7 +56,7 @@ namespace Oqtane.Repository
         {
             _db.Entry(job).State = EntityState.Modified;
             _db.SaveChanges();
-            _cache.Remove("jobs");
+            _cache.RemoveCache("jobs");
             return job;
         }
 
@@ -83,7 +83,7 @@ namespace Oqtane.Repository
             Job job = _db.Job.Find(jobId);
             _db.Job.Remove(job);
             _db.SaveChanges();
-            _cache.Remove("jobs");
+            _cache.RemoveCache("jobs");
         }
     }
 }

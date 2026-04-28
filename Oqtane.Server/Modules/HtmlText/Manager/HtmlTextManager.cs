@@ -11,7 +11,6 @@ using Oqtane.Models;
 using Oqtane.Modules.HtmlText.Repository;
 using Oqtane.Repository;
 using Oqtane.Shared;
-using ZiggyCreatures.Caching.Fusion;
 
 // ReSharper disable ConvertToUsingDeclaration
 
@@ -24,9 +23,9 @@ namespace Oqtane.Modules.HtmlText.Manager
         private readonly IDBContextDependencies _DBContextDependencies;
         private readonly ISqlRepository _sqlRepository;
         private readonly ITenantManager _tenantManager;
-        private readonly IFusionCache _cache;
+        private readonly ICacheManager _cache;
 
-        public HtmlTextManager(IHtmlTextRepository htmlTextRepository, IDBContextDependencies DBContextDependencies, ISqlRepository sqlRepository, ITenantManager tenantManager, IFusionCache cache)
+        public HtmlTextManager(IHtmlTextRepository htmlTextRepository, IDBContextDependencies DBContextDependencies, ISqlRepository sqlRepository, ITenantManager tenantManager, ICacheManager cache)
         {
             _htmlTextRepository = htmlTextRepository;
             _DBContextDependencies = DBContextDependencies;
@@ -94,11 +93,7 @@ namespace Oqtane.Modules.HtmlText.Manager
             _htmlTextRepository.AddHtmlText(htmlText);
 
             //clear the cache for the module
-            var alias = _tenantManager.GetAlias();
-            if (alias != null)
-            {
-                _cache.Remove($"HtmlText:{alias.SiteKey}:{module.ModuleId}");
-            }
+            _cache.RemoveCache(_tenantManager.GetAlias(), $"htmltext:{module.ModuleId}");
         }
 
         // ISearchable implementation

@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
-using ZiggyCreatures.Caching.Fusion;
 
 namespace Oqtane.Repository
 {
@@ -19,9 +19,9 @@ namespace Oqtane.Repository
     public class TenantRepository : ITenantRepository
     {
         private MasterDBContext _db;
-        private readonly IFusionCache _cache;
+        private readonly ICacheManager _cache;
 
-        public TenantRepository(MasterDBContext context, IFusionCache cache)
+        public TenantRepository(MasterDBContext context, ICacheManager cache)
         {
             _db = context;
             _cache = cache;
@@ -29,7 +29,7 @@ namespace Oqtane.Repository
 
         public IEnumerable<Tenant> GetTenants()
         {
-            return _cache.GetOrSet("tenants", entry =>
+            return _cache.GetCache("tenants", entry =>
             {
                 return _db.Tenant.ToList();
             });
@@ -39,7 +39,7 @@ namespace Oqtane.Repository
         {
             _db.Tenant.Add(tenant);
             _db.SaveChanges();
-            _cache.Remove("tenants");
+            _cache.RemoveCache("tenants");
             return tenant;
         }
 
@@ -54,7 +54,7 @@ namespace Oqtane.Repository
             
             _db.Entry(tenant).State = EntityState.Modified;
             _db.SaveChanges();
-            _cache.Remove("tenants");
+            _cache.RemoveCache("tenants");
             return tenant;
         }
 
@@ -72,7 +72,7 @@ namespace Oqtane.Repository
                 _db.SaveChanges();
             }
 
-            _cache.Remove("tenants");
+            _cache.RemoveCache("tenants");
         }
     }
 }
