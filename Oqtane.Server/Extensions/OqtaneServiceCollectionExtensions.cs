@@ -566,6 +566,9 @@ namespace Microsoft.Extensions.DependencyInjection
             if (string.IsNullOrEmpty(configuration.GetConnectionString("CacheSettings")))
             {
                 defaultCacheEntryOptions.Duration = TimeSpan.FromMinutes(30);
+                defaultCacheEntryOptions.IsFailSafeEnabled = true;
+                defaultCacheEntryOptions.FailSafeMaxDuration = TimeSpan.FromMinutes(60);
+                defaultCacheEntryOptions.FailSafeThrottleDuration = TimeSpan.FromMinutes(5);
             }
             else
             {
