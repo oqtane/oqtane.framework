@@ -570,19 +570,28 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var defaultCacheEntryOptions = new FusionCacheEntryOptions();
 
-            if (string.IsNullOrEmpty(configuration.GetConnectionString("CacheSettings")))
+            var cacheSettings = configuration.GetSection("Caching");
+            if (!cacheSettings.GetChildren().Any())
             {
+                // use default settings
                 defaultCacheEntryOptions.Duration = TimeSpan.FromMinutes(30);
                 defaultCacheEntryOptions.IsFailSafeEnabled = true;
                 defaultCacheEntryOptions.FailSafeMaxDuration = TimeSpan.FromMinutes(60);
-                defaultCacheEntryOptions.FailSafeThrottleDuration = TimeSpan.FromMinutes(5);
+                defaultCacheEntryOptions.FailSafeThrottleDuration = TimeSpan.FromMinutes(3);
             }
             else
             {
-                defaultCacheEntryOptions = configuration.GetSection("CacheSettings").Get<FusionCacheEntryOptions>();
+                // use settings defined in appsettings (managed in System Info)
+                defaultCacheEntryOptions.Duration = TimeSpan.FromMinutes(cacheSettings.GetValue<int>("Duration"));
+                defaultCacheEntryOptions.IsFailSafeEnabled = cacheSettings.GetValue<bool>("FailSafe");
+                if (defaultCacheEntryOptions.IsFailSafeEnabled)
+                {
+                    defaultCacheEntryOptions.FailSafeMaxDuration = TimeSpan.FromMinutes(defaultCacheEntryOptions.Duration.TotalMinutes * 2);
+                    defaultCacheEntryOptions.FailSafeThrottleDuration = TimeSpan.FromMinutes(defaultCacheEntryOptions.Duration.TotalMinutes / 10);
+                }
             }
 
-            if (string.IsNullOrEmpty(configuration.GetConnectionString("RedisCache")))
+            if (!cacheSettings.GetValue<bool>("Distributed") || string.IsNullOrEmpty(configuration.GetConnectionString("DistributedCache")))
             {
                 // use memory cache (L1 only)
                 services.AddFusionCache()
@@ -590,24 +599,41 @@ namespace Microsoft.Extensions.DependencyInjection
             }
             else
             {
-                // use memory cache (L1) with Redis distributed cache (L2) and Redis backplane for synchronization across instances
-                services.AddFusionCache()
+                if (!cacheSettings.GetValue<bool>("ScaleOut"))
+                {
+                    // use memory cache (L1) with distributed cache (L2)
+                    services.AddFusionCache()
                     .WithDefaultEntryOptions(defaultCacheEntryOptions)
                     .WithOptions(options => {
-                        // use installationid as a unique prefix so that a single Redis service can be shared by multiple Oqtane installations
+                        // use installationid as a unique prefix so that a single distributed cache service can be shared by multiple Oqtane installations
+                        options.CacheKeyPrefix = configuration.GetSection("InstallationId").Value;
+                    })
+                    .WithSerializer(new FusionCacheSystemTextJsonSerializer())
+                    .WithDistributedCache(new RedisCache(new RedisCacheOptions
+                    {
+                        Configuration = configuration.GetConnectionString("DistributedCache"),
+                    }));
+                }
+                else
+                {
+                    // use memory cache (L1) with distributed cache (L2) and backplane for synchronization across instances
+                    services.AddFusionCache()
+                    .WithDefaultEntryOptions(defaultCacheEntryOptions)
+                    .WithOptions(options => {
+                        // use installationid as a unique prefix so that a single distributed cache service can be shared by multiple Oqtane installations
                         options.CacheKeyPrefix = configuration.GetSection("InstallationId").Value;
                         options.BackplaneChannelPrefix = configuration.GetSection("InstallationId").Value;
                     })
                     .WithSerializer(new FusionCacheSystemTextJsonSerializer())
                     .WithDistributedCache(new RedisCache(new RedisCacheOptions
                     {
-                        Configuration = configuration.GetConnectionString("RedisCache"),
+                        Configuration = configuration.GetConnectionString("DistributedCache"),
                     }))
-                    // backplane is only needed in a multi-instance environment
                     .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
                     {
-                        Configuration = configuration.GetConnectionString("RedisCache")
+                        Configuration = configuration.GetConnectionString("DistributedCache")
                     }));
+                }
             }
 
             services.AddSingleton<ICacheManager, CacheManager>();
