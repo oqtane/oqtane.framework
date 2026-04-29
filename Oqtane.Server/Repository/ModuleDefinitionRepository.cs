@@ -127,7 +127,7 @@ namespace Oqtane.Repository
                 moduleDefinitions = _cache.GetCache(_tenants.GetAlias(), "moduledefinitions", entry =>
                 {
                     return ProcessModuleDefinitions(siteId);
-                }, TimeSpan.Zero);
+                }, TimeSpan.MaxValue);
             }
             else // called during startup
             {
