@@ -150,9 +150,6 @@
   <data name="ServerTime.Text" xml:space="preserve">
     <value>Server Date/Time: </value>
   </data>
-  <data name="RestartApplication.Header" xml:space="preserve">
-    <value>Restart Application</value>
-  </data>
   <data name="RestartApplication.Message" xml:space="preserve">
     <value>Are You Sure You Wish To Restart The Application?</value>
   </data>
@@ -301,10 +298,10 @@
     <value>Specify The Email Address Of The User Account Used For Interacting With The Package Manager Service. This Account Is Used For Managing Packages Across Multiple Installations.</value>
   </data>
   <data name="CacheControl.Text" xml:space="preserve">
-    <value>Static Asset Caching:</value>
+    <value>Static Asset Cache-Control:</value>
   </data>
   <data name="CacheControl.HelpText" xml:space="preserve">
-    <value>Provide a Cache-Control directive for static assets. For example 'public, max-age=60' indicates that static assets should be cached for 60 seconds. A blank value indicates caching is not enabled.</value>
+    <value>Provide a Cache-Control directive for static assets. For example 'public, max-age=60' indicates that static assets should be cached for 60 seconds. A blank value indicates caching for static assets is not enabled.</value>
   </data>
   <data name="Endpoints" xml:space="preserve">
     <value>API Endpoints</value>
@@ -329,5 +326,44 @@
   </data>
   <data name="Instance.HelpText" xml:space="preserve">
     <value>The web instance identifier</value>
+  </data>
+  <data name="CacheDuration.Text" xml:space="preserve">
+    <value>Cache Duration:</value>
+  </data>
+  <data name="CacheDuration.HelpText" xml:space="preserve">
+    <value>The amount of time (in minutes) when a cache item is considered to be expired</value>
+  </data>
+  <data name="RestartApplication.Header" xml:space="preserve">
+    <value>Restart Application</value>
+  </data>
+  <data name="DistributedCache.Text" xml:space="preserve">
+    <value>Using Distributed Cache?</value>
+  </data>
+  <data name="DistributedCache.HelpText" xml:space="preserve">
+    <value>Specify if you are using a distributed cache service such as Redis or Garnet</value>
+  </data>
+  <data name="DistributedConnection.Text" xml:space="preserve">
+    <value>Connection String:</value>
+  </data>
+  <data name="DistributedConnection.HelpText" xml:space="preserve">
+    <value>Provide the connection string for the distributed cache service</value>
+  </data>
+  <data name="ScaleOut.Text" xml:space="preserve">
+    <value>Using Scale Out?</value>
+  </data>
+  <data name="ScaleOut.HelpText" xml:space="preserve">
+    <value>Specify if you are using a scale out approach which includes multiple web instances</value>
+  </data>
+  <data name="Caching.Heading" xml:space="preserve">
+    <value>Caching</value>
+  </data>
+  <data name="Marketplace.Heading" xml:space="preserve">
+    <value>Marketplace</value>
+  </data>
+  <data name="FailSafe.Text" xml:space="preserve">
+    <value>Use Fail Safe?</value>
+  </data>
+  <data name="FailSafe.HelpText" xml:space="preserve">
+    <value>Specify if you wish to temporarily reuse an expired value if a problem occurs when loading data</value>
   </data>
 </root>

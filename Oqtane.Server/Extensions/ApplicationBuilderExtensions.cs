@@ -48,7 +48,7 @@ namespace Oqtane.Extensions
                 OnPrepareResponse = (ctx) =>
                 {
                     // static asset caching
-                    var cachecontrol = configuration.GetSection("CacheControl");
+                    var cachecontrol = configuration.GetSection("Caching:Cache-Control");
                     if (!string.IsNullOrEmpty(cachecontrol.Value))
                     {
                         ctx.Context.Response.Headers.Append(HeaderNames.CacheControl, cachecontrol.Value);
