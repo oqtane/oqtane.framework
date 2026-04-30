@@ -54,7 +54,7 @@ namespace Oqtane.Controllers
                     systeminfo.Add("Logging:LogLevel:Default", _configManager.GetSetting("Logging:LogLevel:Default", "Information"));
                     systeminfo.Add("Logging:LogLevel:Notify", _configManager.GetSetting("Logging:LogLevel:Notify", "Error"));
                     systeminfo.Add("UseSwagger", _configManager.GetSetting("UseSwagger", "true"));
-                    systeminfo.Add("Caching:Duration", _configManager.GetSetting("Caching:Duration", "30"));
+                    systeminfo.Add("Caching:Duration", _configManager.GetSetting("Caching:Duration", "10"));
                     systeminfo.Add("Caching:FailSafe", _configManager.GetSetting("Caching:FailSafe", "True"));
                     systeminfo.Add("Caching:Distributed", _configManager.GetSetting("Caching:Distributed", "False"));
                     systeminfo.Add("ConnectionStrings:DistributedCache", _configManager.GetSetting("ConnectionStrings:DistributedCache", ""));
