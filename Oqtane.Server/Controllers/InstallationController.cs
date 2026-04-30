@@ -112,7 +112,7 @@ namespace Oqtane.Controllers
         private List<ClientAssembly> GetAssemblyList()
         {
             var alias = _tenantManager.GetAlias();
-            return _cache.GetCache(alias, "assemblieslist", entry =>
+            return _cache.GetCache(alias, "AssembliesList", entry =>
             {
                 var assemblyList = new List<ClientAssembly>();
 
@@ -185,7 +185,7 @@ namespace Oqtane.Controllers
             var alias = _tenantManager.GetAlias();
             if (list == "*")
             {
-                return _cache.GetCache(alias, "assemblies", entry =>
+                return _cache.GetCache(alias, "Assemblies", entry =>
                 {
                     return GetZIP(list, alias);
                 });

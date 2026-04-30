@@ -93,7 +93,7 @@ namespace Oqtane.Modules.HtmlText.Manager
             _htmlTextRepository.AddHtmlText(htmlText);
 
             //clear the cache for the module
-            _cache.RemoveCache(_tenantManager.GetAlias(), $"htmltext:{module.ModuleId}");
+            _cache.RemoveCache(_tenantManager.GetAlias(), $"HtmlText:{module.ModuleId}");
         }
 
         // ISearchable implementation

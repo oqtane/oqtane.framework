@@ -70,7 +70,7 @@ namespace Oqtane.Repository
                 _settings.UpdateSetting(setting);
             }
 
-            _cache.RemoveCache(_tenants.GetAlias(), "themes");
+            _cache.RemoveCache(_tenants.GetAlias(), "Themes");
         }
 
         public void DeleteTheme(int themeId)
@@ -79,7 +79,7 @@ namespace Oqtane.Repository
             _settings.DeleteSettings(EntityNames.Theme, themeId);
             _db.Theme.Remove(theme);
             _db.SaveChanges();
-            _cache.RemoveCache(_tenants.GetAlias(), "themes");
+            _cache.RemoveCache(_tenants.GetAlias(), "Themes");
         }
 
         public List<Theme> FilterThemes(List<Theme> themes)
@@ -108,7 +108,7 @@ namespace Oqtane.Repository
         private List<Theme> LoadThemes(int siteId)
         {
             // get themes
-            List<Theme> themes = _cache.GetCache(_tenants.GetAlias(), "themes", entry =>
+            List<Theme> themes = _cache.GetCache(_tenants.GetAlias(), "Themes", entry =>
             {
                 return ProcessThemes(siteId);
             }, TimeSpan.MaxValue, TimeSpan.MinValue); // skip distributed caching as app restart must reload themes

@@ -28,7 +28,7 @@ namespace Oqtane.Infrastructure
 
         void EntityChanged(object sender, SyncEvent syncEvent)
         {
-            List<Type> eventSubscribers = _cache.GetCache("eventsubscribers", entry =>
+            List<Type> eventSubscribers = _cache.GetCache("EventSubscribers", entry =>
             {
                 eventSubscribers = new List<Type>();
                 var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();

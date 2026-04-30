@@ -85,7 +85,7 @@ namespace Oqtane.Managers
 
         public User GetUser(int userid, int siteid)
         {
-            return _cache.GetCache(_tenantManager.GetAlias(), $"user:{userid}", entry =>
+            return _cache.GetCache(_tenantManager.GetAlias(), $"User:{userid}", entry =>
             {
                 User user = _users.GetUser(userid);
                 if (user != null)
