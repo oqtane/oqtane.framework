@@ -568,6 +568,13 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IServiceCollection AddCaching(this IServiceCollection services, IConfiguration configuration)
         {
+            var fusionCacheOptions = new FusionCacheOptions
+            {
+                // use installationid as a unique prefix so that a single distributed cache service can be shared by multiple Oqtane installations
+                CacheKeyPrefix = configuration.GetSection("InstallationId").Value + ":",
+                BackplaneChannelPrefix = configuration.GetSection("InstallationId").Value + ":"
+            };
+
             var defaultCacheEntryOptions = new FusionCacheEntryOptions();
 
             var cacheSettings = configuration.GetSection("Caching");
@@ -593,48 +600,57 @@ namespace Microsoft.Extensions.DependencyInjection
                 defaultCacheEntryOptions.DistributedCacheDuration = TimeSpan.FromMinutes(cacheSettings.GetValue<int>("Duration") * 3);
             }
 
-            if (!cacheSettings.GetValue<bool>("Distributed") || string.IsNullOrEmpty(configuration.GetConnectionString("DistributedCache")))
+            if (!cacheSettings.GetValue<bool>("Distributed") && !cacheSettings.GetValue<bool>("ScaleOut"))
             {
                 // use memory cache (L1 only)
                 services.AddFusionCache()
+                    .WithOptions(fusionCacheOptions)
                     .WithDefaultEntryOptions(defaultCacheEntryOptions);
             }
             else
             {
-                if (!cacheSettings.GetValue<bool>("ScaleOut"))
-                {
-                    // use memory cache (L1) with distributed cache (L2)
-                    services.AddFusionCache()
-                    .WithDefaultEntryOptions(defaultCacheEntryOptions)
-                    .WithOptions(options => {
-                        // use installationid as a unique prefix so that a single distributed cache service can be shared by multiple Oqtane installations
-                        options.CacheKeyPrefix = configuration.GetSection("InstallationId").Value + ":";
-                    })
-                    .WithSerializer(new FusionCacheSystemTextJsonSerializer())
-                    .WithDistributedCache(new RedisCache(new RedisCacheOptions
-                    {
-                        Configuration = configuration.GetConnectionString("DistributedCache"),
-                    }));
-                }
-                else
+                if (cacheSettings.GetValue<bool>("Distributed") && cacheSettings.GetValue<bool>("ScaleOut"))
                 {
                     // use memory cache (L1) with distributed cache (L2) and backplane for synchronization across instances
                     services.AddFusionCache()
-                    .WithDefaultEntryOptions(defaultCacheEntryOptions)
-                    .WithOptions(options => {
-                        // use installationid as a unique prefix so that a single distributed cache service can be shared by multiple Oqtane installations
-                        options.CacheKeyPrefix = configuration.GetSection("InstallationId").Value + ":";
-                        options.BackplaneChannelPrefix = configuration.GetSection("InstallationId").Value + ":";
-                    })
-                    .WithSerializer(new FusionCacheSystemTextJsonSerializer())
-                    .WithDistributedCache(new RedisCache(new RedisCacheOptions
+                        .WithOptions(fusionCacheOptions)
+                        .WithDefaultEntryOptions(defaultCacheEntryOptions)
+                        .WithSerializer(new FusionCacheSystemTextJsonSerializer())
+                        .WithDistributedCache(new RedisCache(new RedisCacheOptions
+                        {
+                            Configuration = configuration.GetConnectionString("DistributedCache")
+                        }))
+                        .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
+                        {
+                            Configuration = configuration.GetConnectionString("DistributedCache")
+                        }));
+                }
+                else
+                {
+                    if (cacheSettings.GetValue<bool>("ScaleOut"))
                     {
-                        Configuration = configuration.GetConnectionString("DistributedCache"),
-                    }))
-                    .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
+                        // use memory cache (L1) with backplane for synchronization across instances
+                        services.AddFusionCache()
+                            .WithOptions(fusionCacheOptions)
+                            .WithDefaultEntryOptions(defaultCacheEntryOptions)
+                            .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
+                            {
+                                Configuration = configuration.GetConnectionString("DistributedCache")
+                            }));
+
+                    }
+                    else
                     {
-                        Configuration = configuration.GetConnectionString("DistributedCache")
-                    }));
+                        // use memory cache (L1) with distributed cache (L2)
+                        services.AddFusionCache()
+                            .WithOptions(fusionCacheOptions)
+                            .WithDefaultEntryOptions(defaultCacheEntryOptions)
+                            .WithSerializer(new FusionCacheSystemTextJsonSerializer())
+                            .WithDistributedCache(new RedisCache(new RedisCacheOptions
+                            {
+                                Configuration = configuration.GetConnectionString("DistributedCache")
+                            }));
+                    }
                 }
             }
 

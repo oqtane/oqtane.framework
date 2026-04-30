@@ -340,7 +340,7 @@
     <value>Using Distributed Cache?</value>
   </data>
   <data name="DistributedCache.HelpText" xml:space="preserve">
-    <value>Specify if you are using a distributed cache service such as Redis or Garnet</value>
+    <value>Specify if you are using a distributed cache service</value>
   </data>
   <data name="DistributedConnection.Text" xml:space="preserve">
     <value>Connection String:</value>
@@ -352,7 +352,7 @@
     <value>Using Scale Out?</value>
   </data>
   <data name="ScaleOut.HelpText" xml:space="preserve">
-    <value>Specify if you are using a scale out approach which includes multiple web instances</value>
+    <value>Specify if you are using a scale out approach which includes multiple web instances. A distributed cache service is required for synchronization in this scenario.</value>
   </data>
   <data name="Caching.Heading" xml:space="preserve">
     <value>Caching</value>

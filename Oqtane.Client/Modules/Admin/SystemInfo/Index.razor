@@ -164,7 +164,7 @@
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="distributedcache" HelpText="Specify if you are using a distributed cache service such as Redis or Garnet" ResourceKey="DistributedCache">Using Distributed Cache? </Label>
+                            <Label Class="col-sm-3" For="distributedcache" HelpText="Specify if you are using a distributed cache service" ResourceKey="DistributedCache">Using Distributed Cache? </Label>
                             <div class="col-sm-9">
                                 <select id="distributedcache" class="form-select" value="@_distributedcache" @onchange="(e => DistributedCacheChanged(e))">
                                     <option value="True">@SharedLocalizer["Yes"]</option>
@@ -172,21 +172,21 @@
                                 </select>
                             </div>
                         </div>
-                        @if (_distributedcache == "True")
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="scaleout" HelpText="Specify if you are using a scale out approach which includes multiple web instances. A distributed cache service is required for synchronization in this scenario." ResourceKey="ScaleOut">Using Scale Out? </Label>
+                            <div class="col-sm-9">
+                                <select id="scaleout" class="form-select" value="@_scaleout" @onchange="(e => ScaleOutChanged(e))">
+                                    <option value="True">@SharedLocalizer["Yes"]</option>
+                                    <option value="False">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
+                        </div>
+                        @if (_distributedcache == "True" || _scaleout == "True")
                         {
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="distributedconnection" HelpText="Provide the connection string for the distributed cache service" ResourceKey="DistributedConnection">Connection String: </Label>
                                 <div class="col-sm-9">
                                     <input id="distributedconnection" class="form-control" @bind="@_distributedconnection" />
-                                </div>
-                            </div>
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="scaleout" HelpText="Specify if you are using a scale out approach which includes multiple web instances" ResourceKey="ScaleOut">Using Scale Out? </Label>
-                                <div class="col-sm-9">
-                                    <select id="scaleout" class="form-select" @bind="_scaleout">
-                                        <option value="True">@SharedLocalizer["Yes"]</option>
-                                        <option value="False">@SharedLocalizer["No"]</option>
-                                    </select>
                                 </div>
                             </div>
                         }
@@ -289,8 +289,8 @@
     private string _cacheduration = string.Empty;
     private string _failsafe = "True";
     private string _distributedcache = "False";
-    private string _distributedconnection = string.Empty;
     private string _scaleout = "False";
+    private string _distributedconnection = string.Empty;
     private string _cachecontrol = string.Empty;
 
     private string _packageregistryurl = string.Empty;
@@ -333,8 +333,8 @@
             _cacheduration = systeminfo["Caching:Duration"].ToString();
             _distributedcache = systeminfo["Caching:Distributed"].ToString();
             _failsafe = systeminfo["Caching:FailSafe"].ToString();
-            _distributedconnection = systeminfo["ConnectionStrings:DistributedCache"].ToString();
             _scaleout = systeminfo["Caching:ScaleOut"].ToString();
+            _distributedconnection = systeminfo["ConnectionStrings:DistributedCache"].ToString();
             _cachecontrol = systeminfo["Caching:Cache-Control"].ToString();
 
             _packageregistryurl = systeminfo["PackageRegistryUrl"].ToString();
@@ -367,9 +367,9 @@
 
             settings.Add("Caching:Duration", _cacheduration);
             settings.Add("Caching:FailSafe", _failsafe);
-            settings.Add("Caching:Distributed", (string.IsNullOrEmpty(_distributedconnection)) ? "False" : "True");
+            settings.Add("Caching:Distributed", (_distributedcache == "True" && !string.IsNullOrEmpty(_distributedconnection)) ? "True" : "False");
+            settings.Add("Caching:ScaleOut", (_scaleout == "True" && !string.IsNullOrEmpty(_distributedconnection)) ? "True" : "False");
             settings.Add("ConnectionStrings:DistributedCache", _distributedconnection);
-            settings.Add("Caching:ScaleOut", (string.IsNullOrEmpty(_distributedconnection)) ? "False" : _scaleout);
             settings.Add("Caching:Cache-Control", _cachecontrol);
 
             settings.Add("PackageRegistryUrl", _packageregistryurl);
@@ -423,4 +423,9 @@
         StateHasChanged();
     }
 
+    private void ScaleOutChanged(ChangeEventArgs e)
+    {
+        _scaleout = (string)e.Value;
+        StateHasChanged();
+    }
 }
