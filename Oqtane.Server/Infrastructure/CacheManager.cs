@@ -21,9 +21,9 @@ namespace Oqtane.Infrastructure
             return GetCache(null, key, factory);
         }
 
-        public T GetCache<T>(string key, Func<CancellationToken,T> factory, TimeSpan duration)
+        public T GetCache<T>(string key, Func<CancellationToken,T> factory, TimeSpan? memoryCacheDuration, TimeSpan? distributedCacheDuration)
         {
-            return GetCache(null, key, factory, duration);
+            return GetCache(null, key, factory, memoryCacheDuration, distributedCacheDuration);
         }
 
         public void RemoveCache(string key)
@@ -38,11 +38,11 @@ namespace Oqtane.Infrastructure
                 ct => factory(ct));
         }
 
-        public T GetCache<T>(Alias alias, string key, Func<CancellationToken, T> factory, TimeSpan duration)
+        public T GetCache<T>(Alias alias, string key, Func<CancellationToken, T> factory, TimeSpan? memoryCacheDuration, TimeSpan? distributedCacheDuration)
         {
             return _cache.GetOrSet(FormatKey(alias, key),
                 ct => factory(ct),
-                duration);
+                SetOptions(memoryCacheDuration, distributedCacheDuration));
         }
 
         public void RemoveCache(Alias alias, string key)
@@ -56,9 +56,9 @@ namespace Oqtane.Infrastructure
             return await GetCacheAsync(null, key, factory);
         }
 
-        public async Task<T> GetCacheAsync<T>(string key, Func<CancellationToken, Task<T>> factory, TimeSpan duration)
+        public async Task<T> GetCacheAsync<T>(string key, Func<CancellationToken, Task<T>> factory, TimeSpan? memoryCacheDuration, TimeSpan? distributedCacheDuration)
         {
-            return await GetCacheAsync(null, key, factory, duration);
+            return await GetCacheAsync(null, key, factory, memoryCacheDuration, distributedCacheDuration);
         }
 
         public async Task RemoveCacheAsync(string key)
@@ -73,11 +73,11 @@ namespace Oqtane.Infrastructure
                 async ct => await factory(ct));
         }
 
-        public async Task<T> GetCacheAsync<T>(Alias alias, string key, Func<CancellationToken, Task<T>> factory, TimeSpan duration)
+        public async Task<T> GetCacheAsync<T>(Alias alias, string key, Func<CancellationToken, Task<T>> factory, TimeSpan? memoryCacheDuration, TimeSpan? distributedCacheDuration)
         {
             return await _cache.GetOrSetAsync(FormatKey(alias, key),
                 async ct => await factory(ct),
-                duration);
+                SetOptions(memoryCacheDuration, distributedCacheDuration));
         }
 
         public async Task RemoveCacheAsync(Alias alias, string key)
@@ -92,6 +92,21 @@ namespace Oqtane.Infrastructure
                 key = $"sitekey:{alias.SiteKey}:{key}";
             }
             return key;
+        }
+
+        private FusionCacheEntryOptions SetOptions(TimeSpan? memoryCacheDuration, TimeSpan? distributedCacheDuration)
+        {
+            var options = new FusionCacheEntryOptions();
+            options.MemoryCacheDuration = memoryCacheDuration; // infinite = TimeSpan.MaxValue
+            if (distributedCacheDuration == TimeSpan.MinValue)
+            {
+                options.SetSkipDistributedCache(true, true);
+            }
+            else
+            {
+                options.DistributedCacheDuration = distributedCacheDuration;
+            }
+            return options;
         }
     }
 }

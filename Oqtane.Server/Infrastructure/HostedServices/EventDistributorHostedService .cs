@@ -40,7 +40,7 @@ namespace Oqtane.Infrastructure
                     }
                 }
                 return eventSubscribers;
-            }, TimeSpan.MaxValue);
+            }, TimeSpan.MaxValue, TimeSpan.MaxValue);
 
             foreach (var type in eventSubscribers)
             {
