@@ -576,8 +576,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 // use default settings
                 defaultCacheEntryOptions.MemoryCacheDuration = TimeSpan.FromMinutes(10);
                 defaultCacheEntryOptions.IsFailSafeEnabled = true;
-                defaultCacheEntryOptions.FailSafeMaxDuration = TimeSpan.FromMinutes(20);
-                defaultCacheEntryOptions.FailSafeThrottleDuration = TimeSpan.FromMinutes(1);
+                defaultCacheEntryOptions.FailSafeMaxDuration = TimeSpan.FromMinutes(30);
+                defaultCacheEntryOptions.FailSafeThrottleDuration = TimeSpan.FromMinutes(2);
                 defaultCacheEntryOptions.DistributedCacheDuration = TimeSpan.FromMinutes(30);
             }
             else
@@ -587,10 +587,10 @@ namespace Microsoft.Extensions.DependencyInjection
                 defaultCacheEntryOptions.IsFailSafeEnabled = cacheSettings.GetValue<bool>("FailSafe");
                 if (defaultCacheEntryOptions.IsFailSafeEnabled)
                 {
-                    defaultCacheEntryOptions.FailSafeMaxDuration = TimeSpan.FromMinutes(defaultCacheEntryOptions.Duration.TotalMinutes * 2);
-                    defaultCacheEntryOptions.FailSafeThrottleDuration = TimeSpan.FromMinutes(defaultCacheEntryOptions.Duration.TotalMinutes / 10);
+                    defaultCacheEntryOptions.FailSafeMaxDuration = TimeSpan.FromMinutes(cacheSettings.GetValue<int>("Duration") * 3);
+                    defaultCacheEntryOptions.FailSafeThrottleDuration = TimeSpan.FromMinutes(cacheSettings.GetValue<int>("Duration") / 5);
                 }
-                defaultCacheEntryOptions.DistributedCacheDuration = TimeSpan.FromMinutes(defaultCacheEntryOptions.Duration.TotalMinutes * 3);
+                defaultCacheEntryOptions.DistributedCacheDuration = TimeSpan.FromMinutes(cacheSettings.GetValue<int>("Duration") * 3);
             }
 
             if (!cacheSettings.GetValue<bool>("Distributed") || string.IsNullOrEmpty(configuration.GetConnectionString("DistributedCache")))
