@@ -30,7 +30,7 @@ namespace Oqtane.Repository
 
         public IEnumerable<Job> GetJobs()
         {
-            return _cache.GetCache("jobs", entry =>
+            return _cache.GetCache("Jobs", entry =>
             {
                 // remove any jobs which have been uninstalled
                 foreach (var job in _db.Job.ToList())
@@ -48,7 +48,7 @@ namespace Oqtane.Repository
         {
             _db.Job.Add(job);
             _db.SaveChanges();
-            _cache.RemoveCache("jobs");
+            _cache.RemoveCache("Jobs");
             return job;
         }
 
@@ -56,7 +56,7 @@ namespace Oqtane.Repository
         {
             _db.Entry(job).State = EntityState.Modified;
             _db.SaveChanges();
-            _cache.RemoveCache("jobs");
+            _cache.RemoveCache("Jobs");
             return job;
         }
 
@@ -83,7 +83,7 @@ namespace Oqtane.Repository
             Job job = _db.Job.Find(jobId);
             _db.Job.Remove(job);
             _db.SaveChanges();
-            _cache.RemoveCache("jobs");
+            _cache.RemoveCache("Jobs");
         }
     }
 }

@@ -50,7 +50,7 @@ namespace Oqtane.Modules.HtmlText.Services
         {
             if (_userPermissions.IsAuthorized(_accessor.HttpContext.User, _alias.SiteId, EntityNames.Module, moduleId, PermissionNames.View))
             {
-                return Task.FromResult(_cache.GetCache(_alias, $"htmltext:{moduleId}", entry =>
+                return Task.FromResult(_cache.GetCache(_alias, $"HtmlText:{moduleId}", entry =>
                 {
                     return _htmlTextRepository.GetHtmlText(moduleId);
                 }));
@@ -95,7 +95,7 @@ namespace Oqtane.Modules.HtmlText.Services
 
         private void ClearCache(int moduleId)
         {
-            _cache.RemoveCache(_alias, $"htmltext:{moduleId}");
+            _cache.RemoveCache(_alias, $"HtmlText:{moduleId}");
         }
     }
 }

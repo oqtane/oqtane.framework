@@ -331,7 +331,7 @@ namespace Oqtane.Infrastructure
                             };
                             db.Tenant.Add(tenant);
                             db.SaveChanges();
-                            _cache.RemoveCache("tenants");
+                            _cache.RemoveCache("Tenants");
                         }
                         else
                         {
@@ -361,7 +361,7 @@ namespace Oqtane.Infrastructure
                             db.SaveChanges();
                         }
 
-                        _cache.RemoveCache("aliases");
+                        _cache.RemoveCache("Aliases");
                     }
             }
 

@@ -52,7 +52,7 @@ namespace Oqtane.Repository
 
         public IEnumerable<UserRole> GetUserRoles(int userId, int siteId)
         {
-            return _cache.GetCache(_tenantManager.GetAlias(), $"userroles:{userId}", entry =>
+            return _cache.GetCache(_tenantManager.GetAlias(), $"UserRoles:{userId}", entry =>
             {
                 using var db = _dbContextFactory.CreateDbContext();
                 return db.UserRole
@@ -204,8 +204,8 @@ namespace Oqtane.Repository
 
         private void RefreshCache(int userId)
         {
-            _cache.RemoveCache(_tenantManager.GetAlias(), $"user:{userId}");
-            _cache.RemoveCache(_tenantManager.GetAlias(), $"userroles:{userId}");
+            _cache.RemoveCache(_tenantManager.GetAlias(), $"User:{userId}");
+            _cache.RemoveCache(_tenantManager.GetAlias(), $"UserRoles:{userId}");
         }
     }
 }

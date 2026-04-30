@@ -29,7 +29,7 @@ namespace Oqtane.Repository
 
         public IEnumerable<Tenant> GetTenants()
         {
-            return _cache.GetCache("tenants", entry =>
+            return _cache.GetCache("Tenants", entry =>
             {
                 return _db.Tenant.ToList();
             });
@@ -39,7 +39,7 @@ namespace Oqtane.Repository
         {
             _db.Tenant.Add(tenant);
             _db.SaveChanges();
-            _cache.RemoveCache("tenants");
+            _cache.RemoveCache("Tenants");
             return tenant;
         }
 
@@ -54,7 +54,7 @@ namespace Oqtane.Repository
             
             _db.Entry(tenant).State = EntityState.Modified;
             _db.SaveChanges();
-            _cache.RemoveCache("tenants");
+            _cache.RemoveCache("Tenants");
             return tenant;
         }
 
@@ -72,7 +72,7 @@ namespace Oqtane.Repository
                 _db.SaveChanges();
             }
 
-            _cache.RemoveCache("tenants");
+            _cache.RemoveCache("Tenants");
         }
     }
 }

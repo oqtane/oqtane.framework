@@ -72,7 +72,7 @@ namespace Oqtane.Services
         public Task<Site> GetSiteAsync(int siteId)
         {
             var alias = _tenantManager.GetAlias();
-            var site = _cache.GetCache(alias, "site", entry =>
+            var site = _cache.GetCache(alias, "Site", entry =>
             {
                 return GetSite(siteId);
             });
@@ -250,7 +250,7 @@ namespace Oqtane.Services
         public Task<List<Module>> GetModulesAsync(int siteId, int pageId)
         {
             var alias = _tenantManager.GetAlias();
-            var modules = _cache.GetCache(alias, "modules", entry =>
+            var modules = _cache.GetCache(alias, "Modules", entry =>
             {
                 return GetPageModules(siteId);
             });
