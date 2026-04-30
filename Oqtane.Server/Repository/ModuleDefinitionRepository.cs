@@ -78,7 +78,7 @@ namespace Oqtane.Repository
                 _settings.UpdateSetting(setting);
             }
 
-            _cache.RemoveCache(_tenants.GetAlias(), "moduledefinitions");
+            _cache.RemoveCache(_tenants.GetAlias(), "ModuleDefinitions");
         }
 
         public void DeleteModuleDefinition(int moduleDefinitionId)
@@ -87,7 +87,7 @@ namespace Oqtane.Repository
             _settings.DeleteSettings(EntityNames.ModuleDefinition, moduleDefinitionId);
             _db.ModuleDefinition.Remove(moduleDefinition);
             _db.SaveChanges();
-            _cache.RemoveCache(_tenants.GetAlias(), "moduledefinitions");
+            _cache.RemoveCache(_tenants.GetAlias(), "ModuleDefinitions");
         }
 
         public ModuleDefinition FilterModuleDefinition(ModuleDefinition moduleDefinition)
@@ -124,7 +124,7 @@ namespace Oqtane.Repository
             List<ModuleDefinition> moduleDefinitions;
             if (siteId != -1)
             {
-                moduleDefinitions = _cache.GetCache(_tenants.GetAlias(), "moduledefinitions", entry =>
+                moduleDefinitions = _cache.GetCache(_tenants.GetAlias(), "ModuleDefinitions", entry =>
                 {
                     return ProcessModuleDefinitions(siteId);
                 }, TimeSpan.MaxValue, TimeSpan.MinValue); // skip distributed caching as app restart must reload modules

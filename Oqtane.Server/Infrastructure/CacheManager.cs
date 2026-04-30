@@ -89,7 +89,7 @@ namespace Oqtane.Infrastructure
         {
             if (alias != null)
             {
-                key = $"sitekey:{alias.SiteKey}:{key}";
+                key = $"SiteKey:{alias.SiteKey}:{key}";
             }
             return key;
         }

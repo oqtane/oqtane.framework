@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
@@ -38,10 +39,10 @@ namespace Oqtane.Repository
         public IEnumerable<Permission> GetPermissions(int siteId, string entityName)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return _cache.GetCache(_tenantManager.GetAlias(), $"permissions:{entityName}", entry =>
+            return _cache.GetCache(_tenantManager.GetAlias(), $"Permissions:{entityName}", entry =>
             {
                 var roles = _roles.GetRoles(siteId, true).ToList();
-                var permissions = db.Permission.Where(item => item.SiteId == siteId).Where(item => item.EntityName == entityName).ToList();
+                var permissions = db.Permission.Where(item => item.SiteId == siteId && item.EntityName == entityName).ToList();
                 foreach (var permission in permissions)
                 {
                     if (permission.RoleId != null && string.IsNullOrEmpty(permission.RoleName))
@@ -187,7 +188,7 @@ namespace Oqtane.Repository
 
         private void ClearCache(string entityName)
         {
-            _cache.RemoveCache(_tenantManager.GetAlias(), $"permissions:{entityName}");
+            _cache.RemoveCache(_tenantManager.GetAlias(), $"Permissions:{entityName}");
         }
      }
 }
