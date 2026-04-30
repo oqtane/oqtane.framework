@@ -574,21 +574,23 @@ namespace Microsoft.Extensions.DependencyInjection
             if (!cacheSettings.GetChildren().Any())
             {
                 // use default settings
-                defaultCacheEntryOptions.Duration = TimeSpan.FromMinutes(30);
+                defaultCacheEntryOptions.MemoryCacheDuration = TimeSpan.FromMinutes(10);
                 defaultCacheEntryOptions.IsFailSafeEnabled = true;
-                defaultCacheEntryOptions.FailSafeMaxDuration = TimeSpan.FromMinutes(60);
-                defaultCacheEntryOptions.FailSafeThrottleDuration = TimeSpan.FromMinutes(3);
+                defaultCacheEntryOptions.FailSafeMaxDuration = TimeSpan.FromMinutes(20);
+                defaultCacheEntryOptions.FailSafeThrottleDuration = TimeSpan.FromMinutes(1);
+                defaultCacheEntryOptions.DistributedCacheDuration = TimeSpan.FromMinutes(30);
             }
             else
             {
                 // use settings defined in appsettings (managed in System Info)
-                defaultCacheEntryOptions.Duration = TimeSpan.FromMinutes(cacheSettings.GetValue<int>("Duration"));
+                defaultCacheEntryOptions.MemoryCacheDuration = TimeSpan.FromMinutes(cacheSettings.GetValue<int>("Duration"));
                 defaultCacheEntryOptions.IsFailSafeEnabled = cacheSettings.GetValue<bool>("FailSafe");
                 if (defaultCacheEntryOptions.IsFailSafeEnabled)
                 {
                     defaultCacheEntryOptions.FailSafeMaxDuration = TimeSpan.FromMinutes(defaultCacheEntryOptions.Duration.TotalMinutes * 2);
                     defaultCacheEntryOptions.FailSafeThrottleDuration = TimeSpan.FromMinutes(defaultCacheEntryOptions.Duration.TotalMinutes / 10);
                 }
+                defaultCacheEntryOptions.DistributedCacheDuration = TimeSpan.FromMinutes(defaultCacheEntryOptions.Duration.TotalMinutes * 3);
             }
 
             if (!cacheSettings.GetValue<bool>("Distributed") || string.IsNullOrEmpty(configuration.GetConnectionString("DistributedCache")))

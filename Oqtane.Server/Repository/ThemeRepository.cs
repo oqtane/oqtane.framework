@@ -111,7 +111,7 @@ namespace Oqtane.Repository
             List<Theme> themes = _cache.GetCache(_tenants.GetAlias(), "themes", entry =>
             {
                 return ProcessThemes(siteId);
-            }, TimeSpan.MaxValue);
+            }, TimeSpan.MaxValue, TimeSpan.MinValue); // skip distributed caching as app restart must reload themes
 
             return themes;
         }
