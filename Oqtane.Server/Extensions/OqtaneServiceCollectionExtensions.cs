@@ -601,7 +601,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     .WithDefaultEntryOptions(defaultCacheEntryOptions)
                     .WithOptions(options => {
                         // use installationid as a unique prefix so that a single distributed cache service can be shared by multiple Oqtane installations
-                        options.CacheKeyPrefix = configuration.GetSection("InstallationId").Value;
+                        options.CacheKeyPrefix = configuration.GetSection("InstallationId").Value + ":";
                     })
                     .WithSerializer(new FusionCacheSystemTextJsonSerializer())
                     .WithDistributedCache(new RedisCache(new RedisCacheOptions
@@ -616,8 +616,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     .WithDefaultEntryOptions(defaultCacheEntryOptions)
                     .WithOptions(options => {
                         // use installationid as a unique prefix so that a single distributed cache service can be shared by multiple Oqtane installations
-                        options.CacheKeyPrefix = configuration.GetSection("InstallationId").Value;
-                        options.BackplaneChannelPrefix = configuration.GetSection("InstallationId").Value;
+                        options.CacheKeyPrefix = configuration.GetSection("InstallationId").Value + ":";
+                        options.BackplaneChannelPrefix = configuration.GetSection("InstallationId").Value + ":";
                     })
                     .WithSerializer(new FusionCacheSystemTextJsonSerializer())
                     .WithDistributedCache(new RedisCache(new RedisCacheOptions
