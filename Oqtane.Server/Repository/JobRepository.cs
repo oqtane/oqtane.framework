@@ -12,6 +12,7 @@ namespace Oqtane.Repository
         IEnumerable<Job> GetJobs();
         Job AddJob(Job job);
         Job UpdateJob(Job job);
+        Job GetJob(string jobType);
         Job GetJob(int jobId);
         Job GetJob(int jobId, bool tracking);
         void DeleteJob(int jobId);
@@ -58,6 +59,11 @@ namespace Oqtane.Repository
             _db.SaveChanges();
             _cache.RemoveCache("Jobs");
             return job;
+        }
+
+        public Job GetJob(string jobType)
+        {
+            return GetJobs().Where(item => item.JobType == jobType).FirstOrDefault();
         }
 
         public Job GetJob(int jobId)
