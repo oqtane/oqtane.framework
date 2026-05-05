@@ -19,7 +19,7 @@ namespace Oqtane.Models
         public string Name { get; set; }
 
         /// <summary>
-        /// What kind of Job this is 
+        /// The fully qualified type name of the job
         /// </summary>
         public string JobType { get; set; }
 
