@@ -89,6 +89,7 @@ namespace Oqtane.Infrastructure
                                 job.Interval = jobObject.Interval;
                                 job.StartDate = jobObject.StartDate;
                                 job.EndDate = jobObject.EndDate;
+                                job.MaximumDuration = jobObject.MaximumDuration;
                                 job.RetentionHistory = jobObject.RetentionHistory;
                                 job.IsEnabled = jobObject.IsEnabled;
                                 job.IsStarted = true;
@@ -123,7 +124,7 @@ namespace Oqtane.Infrastructure
                                 }
 
                                 // auto healing if a job has been executing longer than the maximum duration (ie. due to an exception or forceful termination)
-                                if (job.IsExecuting && DateTime.UtcNow > NextExecution.AddMinutes(MaximumDuration))
+                                if (job.IsExecuting && DateTime.UtcNow > NextExecution.AddMinutes(job.MaximumDuration))
                                 {
                                     // reset job
                                     job.IsExecuting = false;

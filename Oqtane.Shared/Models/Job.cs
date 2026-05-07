@@ -65,8 +65,13 @@ namespace Oqtane.Models
         public DateTime? NextExecution { get; set; }
 
         /// <summary>
-        /// Todo: todoc - unsure what this does
+        /// The number of log entries to retain for this job
         /// </summary>
         public int RetentionHistory { get; set; }
+
+        /// <summary>
+        /// The maximum duration in minutes that the job is expected to run. If the job is still running after this time, it will assume the job terminated unexpectedly and it will reset itself automatically.
+        /// </summary>
+        public int MaximumDuration { get; set; }
     }
 }
