@@ -49,12 +49,6 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="retention" HelpText="Number of log entries to retain for this job" ResourceKey="RetentionLog">Retention Log (Items): </Label>
-                <div class="col-sm-9">
-                    <input id="retention" type="number" min="0" step="1" class="form-control" @bind="@_retentionHistory" maxlength="3" required disabled="@(!_editable)" />
-                </div>
-            </div>
-            <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="starting" HelpText="Optionally enter the date and time when this job should start executing" ResourceKey="Starting">Starting: </Label>
                 <div class="col-sm-9">
                     <div class="row">
@@ -78,6 +72,18 @@
                             <input id="ending" type="time" class="form-control" placeholder="hh:mm" @bind="@_endTime" required="@(_endDate.HasValue)" disabled="@(!_editable)" />
                         </div>
                     </div>
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="maximumduration" HelpText="The maximum duration in minutes that the job is expected to run. If the job is still running after this time, it will assume the job terminated unexpectedly and it will reset itself automatically." ResourceKey="MaximumDuration">Maximum Duration: </Label>
+                <div class="col-sm-9">
+                    <input id="maximumduration" type="number" min="0" step="1" class="form-control" @bind="@_maximumDuration" maxlength="3" required disabled="@(!_editable)" />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="retention" HelpText="Number of log entries to retain for this job" ResourceKey="RetentionLog">Retention Log (Items): </Label>
+                <div class="col-sm-9">
+                    <input id="retention" type="number" min="0" step="1" class="form-control" @bind="@_retentionHistory" maxlength="3" required disabled="@(!_editable)" />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
@@ -118,6 +124,7 @@
     private DateTime? _startTime = null;
     private DateTime? _endDate = null;
     private DateTime? _endTime = null;
+    private string _maximumDuration = string.Empty;
     private string _retentionHistory = string.Empty;
     private DateTime? _nextDate = null;
     private DateTime? _nextTime = null;
@@ -151,6 +158,7 @@
                 _startTime = UtcToLocal(job.StartDate);
                 _endDate = UtcToLocal(job.EndDate);
                 _endTime = UtcToLocal(job.EndDate);
+                _maximumDuration = job.MaximumDuration.ToString();
                 _retentionHistory = job.RetentionHistory.ToString();
                 _nextDate = UtcToLocal(job.NextExecution);
                 _nextTime = UtcToLocal(job.NextExecution);
@@ -198,6 +206,7 @@
                     ? LocalToUtc(_endDate.GetValueOrDefault().Date.Add(_endTime.GetValueOrDefault().TimeOfDay))
                     : null;
 
+                job.MaximumDuration = int.Parse(_maximumDuration);
                 job.RetentionHistory = int.Parse(_retentionHistory);
 
                 if (!job.IsEnabled || Utilities.ValidateEffectiveExpiryDates(job.StartDate, job.EndDate))
