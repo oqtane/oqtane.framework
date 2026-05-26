@@ -229,6 +229,10 @@
         if (ShowFolders)
         {
             _folders = await FolderService.GetFoldersAsync(ModuleState.SiteId);
+            if (_folders.Count == 1)
+            {
+                FolderId = _folders.First().FolderId;
+            }
         }
         else
         {
