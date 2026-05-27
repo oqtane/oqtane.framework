@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Oqtane.Enums;
 using Oqtane.Extensions;
@@ -87,8 +89,13 @@ namespace Oqtane.Pages
             if (file == null)
             {
                 // look for url mapping
+                var siteSettings = HttpContext.GetSiteSettings();
+                var captureBrokenUrls = (siteSettings.ContainsKey("CaptureBrokenUrls") ? bool.Parse(siteSettings["CaptureBrokenUrls"]) : false);
 
-                var urlMapping = _urlMappings.GetUrlMapping(_alias.SiteId, "files/" + folderpath + filename);
+                // referrer will only be set if the link originated externally
+                string referrer = (HttpContext.Request.Headers[HeaderNames.Referer] != StringValues.Empty) ? HttpContext.Request.Headers[HeaderNames.Referer] : "";
+
+                var urlMapping = _urlMappings.GetUrlMapping(_alias.SiteId, "files/" + folderpath + filename, referrer, captureBrokenUrls);
                 if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
                 {
                     var url = urlMapping.MappedUrl;
