@@ -582,7 +582,7 @@ namespace Oqtane.Infrastructure
                                 PwaAppIconFileId = null,
                                 PwaSplashIconFileId = null,
                                 AllowRegistration = false,
-                                CaptureBrokenUrls = true,
+                                CaptureBrokenUrls = false,
                                 VisitorTracking = true,
                                 DefaultThemeType = (!string.IsNullOrEmpty(install.DefaultTheme)) ? install.DefaultTheme : Constants.DefaultTheme,
                                 DefaultContainerType = (!string.IsNullOrEmpty(install.DefaultContainer)) ? install.DefaultContainer : Constants.DefaultContainer,
