@@ -84,6 +84,14 @@ namespace Oqtane.Infrastructure
             log.Url = "";
             if (_accessor.HttpContext != null)
             {
+                if (string.IsNullOrEmpty(log.RemoteIPAddress))
+                {
+                    log.RemoteIPAddress = _accessor.HttpContext.Connection.RemoteIpAddress?.ToString();
+                    if (log.RemoteIPAddress == "::1")
+                    {
+                        log.RemoteIPAddress = "127.0.0.1";
+                    }
+                }
                 HttpRequest request = _accessor.HttpContext.Request;
                 if (request != null)
                 {

@@ -94,7 +94,7 @@ namespace Oqtane.Themes.Controls
 
         protected async Task LogoutUser()
         {
-            await LoggingService.Log(PageState.Alias, PageState.Page.PageId, null, PageState.User?.UserId, GetType().AssemblyQualifiedName, "Logout", LogFunction.Security, LogLevel.Information, null, "User Logout For Username {Username}", PageState.User?.Username);
+            await LoggingService.Log(PageState.Alias, PageState.Page.PageId, null, PageState.User?.UserId, GetType().AssemblyQualifiedName, "Logout", PageState.RemoteIPAddress, LogFunction.Security, LogLevel.Information, null, "User Logout For Username {Username}", PageState.User?.Username);
 
             if (PageState.Runtime == Runtime.Hybrid)
             {
