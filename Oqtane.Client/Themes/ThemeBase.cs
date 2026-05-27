@@ -320,11 +320,10 @@ namespace Oqtane.Themes
 
         public async Task Log(Alias alias, LogLevel level, LogFunction function, Exception exception, string message, params object[] args)
         {
-            int pageId = PageState.Page.PageId;
             string category = GetType().AssemblyQualifiedName;
             string feature = Utilities.GetTypeNameLastSegment(category, 1);
 
-            await LoggingService.Log(alias, pageId, null, PageState.User?.UserId, category, feature, function, level, exception, message, args);
+            await LoggingService.Log(alias, PageState.Page.PageId, null, PageState.User?.UserId, category, feature, PageState.RemoteIPAddress, function, level, exception, message, args);
         }
 
         public class Logger

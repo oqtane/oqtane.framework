@@ -72,6 +72,24 @@ namespace Oqtane.Services
         /// <param name="args"></param>
         /// <returns></returns>
         Task Log(Alias alias, int? pageId, int? moduleId, int? userId, string category, string feature, LogFunction function, LogLevel level, Exception exception, string message, params object[] args);
+
+        /// <summary>
+        /// Creates a new log entry
+        /// </summary>
+        /// <param name="alias"></param>
+        /// <param name="pageId"></param>
+        /// <param name="moduleId"></param>
+        /// <param name="userId"></param>
+        /// <param name="category"></param>
+        /// <param name="feature"></param>
+        /// <param name="remoteIPAddress"></param>
+        /// <param name="function"></param>
+        /// <param name="level"></param>
+        /// <param name="exception"></param>
+        /// <param name="message"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        Task Log(Alias alias, int? pageId, int? moduleId, int? userId, string category, string feature, string remoteIPAddress, LogFunction function, LogLevel level, Exception exception, string message, params object[] args);
     }
 
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
@@ -110,6 +128,11 @@ namespace Oqtane.Services
 
         public async Task Log(Alias alias, int? pageId, int? moduleId, int? userId, string category, string feature, LogFunction function, LogLevel level, Exception exception, string message, params object[] args)
         {
+            await Log(null, pageId, moduleId, userId, category, feature, "", function, level, exception, message, args);
+        }
+
+        public async Task Log(Alias alias, int? pageId, int? moduleId, int? userId, string category, string feature, string remoteIPAddress, LogFunction function, LogLevel level, Exception exception, string message, params object[] args)
+        {
             Log log = new Log();
             if (alias == null)
             {
@@ -125,6 +148,7 @@ namespace Oqtane.Services
             log.Url = _navigationManager.Uri;
             log.Category = category;
             log.Feature = feature;
+            log.RemoteIPAddress = remoteIPAddress;
             log.Function = Enum.GetName(typeof(LogFunction), function);
             log.Level = Enum.GetName(typeof(LogLevel), level);
             if (exception != null)
