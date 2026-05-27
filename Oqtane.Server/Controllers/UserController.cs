@@ -527,8 +527,8 @@ namespace Oqtane.Controllers
             }
         }
 
-        // GET api/<controller>/loginlink/x/y
-        [HttpGet("loginlink/{email}/{returnurl}")]
+        // GET api/<controller>/loginlink/x?y
+        [HttpGet("loginlink/{email}")]
         public async Task<bool> SendLoginLink(string email, string returnurl)
         {
             return await _userManager.SendLoginLink(email, returnurl);
