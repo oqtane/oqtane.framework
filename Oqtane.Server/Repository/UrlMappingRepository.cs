@@ -14,7 +14,7 @@ namespace Oqtane.Repository
         UrlMapping GetUrlMapping(int urlMappingId);
         UrlMapping GetUrlMapping(int urlMappingId, bool tracking);
         UrlMapping GetUrlMapping(int siteId, string url);
-        UrlMapping GetUrlMapping(int siteId, string url, string referrer);
+        UrlMapping GetUrlMapping(int siteId, string url, string referrer, bool? captureBrokenUrls = null);
         void DeleteUrlMapping(int urlMappingId);
         int DeleteUrlMappings(int siteId, int age);
     }
@@ -83,25 +83,39 @@ namespace Oqtane.Repository
             return GetUrlMapping(siteId, url, "");
         }
 
-        public UrlMapping GetUrlMapping(int siteId, string url, string referrer)
+        public UrlMapping GetUrlMapping(int siteId, string url, string referrer, bool? captureBrokenUrl = null)
         {
             using var db = _dbContextFactory.CreateDbContext();
             url = (url.StartsWith("/")) ? url.Substring(1) : url;
             url = (url.Length > 750) ? url.Substring(0, 750) : url;
             var urlMapping = db.UrlMapping.Where(item => item.SiteId == siteId && item.Url == url).FirstOrDefault();
+
             if (urlMapping == null)
             {
-                var site = _sites.GetSite(siteId);
-                if (site.CaptureBrokenUrls)
+                bool capture;
+
+                if (captureBrokenUrl.HasValue)
                 {
-                    urlMapping = new UrlMapping();
-                    urlMapping.SiteId = siteId;
-                    urlMapping.Url = url;
-                    urlMapping.MappedUrl = "";
-                    urlMapping.Requests = 1;
-                    urlMapping.Referrer = referrer;
-                    urlMapping.CreatedOn = DateTime.UtcNow;
-                    urlMapping.RequestedOn = DateTime.UtcNow;
+                    capture = captureBrokenUrl.Value;
+                }
+                else
+                {
+                    var site = _sites.GetSite(siteId, false);
+                    capture = site.CaptureBrokenUrls;
+                }
+
+                if (capture)
+                {
+                    urlMapping = new UrlMapping
+                    {
+                        SiteId = siteId,
+                        Url = url,
+                        MappedUrl = "",
+                        Requests = 1,
+                        Referrer = referrer,
+                        CreatedOn = DateTime.UtcNow,
+                        RequestedOn = DateTime.UtcNow
+                    };
                     try
                     {
                         urlMapping = AddUrlMapping(urlMapping);
