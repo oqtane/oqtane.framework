@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Google.Protobuf.WellKnownTypes;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -653,6 +652,29 @@ namespace Oqtane.Infrastructure
             {
                 // prevent verbose logging to the console by ZiggyCreatures.Caching.Fusion library
                 _configManager.AddOrUpdateSetting("Logging:LogLevel:ZiggyCreatures.Caching.Fusion", "Warning", true);
+            }
+
+            // replicate some Site settings to the Settings table
+            var settingRepository = scope.ServiceProvider.GetRequiredService<ISettingRepository>();
+            var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
+            foreach (var site in sites.GetSites().ToList())
+            {
+                var settings = settingRepository.GetSettings(EntityNames.Site, site.SiteId).ToList();
+                if (!settings.Any(item => item.SettingName == "AllowRegistration"))
+                {
+                    var setting = new Setting { EntityName = EntityNames.Site, EntityId = site.SiteId, SettingName = "AllowRegistration", SettingValue = site.AllowRegistration.ToString(), IsPrivate = true };
+                    settingRepository.AddSetting(setting);
+                }
+                if (!settings.Any(item => item.SettingName == "CaptureBrokenUrls"))
+                {
+                    var setting = new Setting { EntityName = EntityNames.Site, EntityId = site.SiteId, SettingName = "CaptureBrokenUrls", SettingValue = site.CaptureBrokenUrls.ToString(), IsPrivate = true };
+                    settingRepository.AddSetting(setting);
+                }
+                if (!settings.Any(item => item.SettingName == "VisitorTracking"))
+                {
+                    var setting = new Setting { EntityName = EntityNames.Site, EntityId = site.SiteId, SettingName = "VisitorTracking", SettingValue = site.VisitorTracking.ToString(), IsPrivate = true };
+                    settingRepository.AddSetting(setting);
+                }
             }
         }
 

@@ -77,6 +77,7 @@ namespace Oqtane.Repository
             site.SiteGuid = Guid.NewGuid().ToString();
             db.Site.Add(site);
             db.SaveChanges();
+            ReplicateSiteSettings(site);
             CreateSite(site);
             return site;
         }
@@ -86,7 +87,18 @@ namespace Oqtane.Repository
             using var db = _factory.CreateDbContext();
             db.Entry(site).State = EntityState.Modified;
             db.SaveChanges();
+            ReplicateSiteSettings(site);
             return site;
+        }
+
+        private void ReplicateSiteSettings(Site site)
+        {
+            // some site properties should also be accessible as site settings
+            var settings = new List<Setting>();
+            settings.Add(new Setting { EntityName = EntityNames.Site, EntityId = site.SiteId, SettingName = "AllowRegistration", SettingValue = site.AllowRegistration.ToString(), IsPrivate = true });
+            settings.Add(new Setting { EntityName = EntityNames.Site, EntityId = site.SiteId, SettingName = "CaptureBrokenUrls", SettingValue = site.CaptureBrokenUrls.ToString(), IsPrivate = true });
+            settings.Add(new Setting { EntityName = EntityNames.Site, EntityId = site.SiteId, SettingName = "VisitorTracking", SettingValue = site.VisitorTracking.ToString(), IsPrivate = true });
+            UpdateSettings(EntityNames.Site, site.SiteId, settings);
         }
 
         public Site GetSite(int siteId)
