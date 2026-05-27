@@ -17,7 +17,7 @@ namespace Oqtane.Extensions
             return null;
         }
 
-        // this method should only be used in scenarios where HttpContent exists (ie. within Controllers)
+        // this method should only be used in scenarios where HttpContext exists (ie. within Controllers)
         public static Dictionary<string, string> GetSiteSettings(this HttpContext context)
         {
             if (context != null && context.Items.ContainsKey(Constants.HttpContextSiteSettingsKey))
