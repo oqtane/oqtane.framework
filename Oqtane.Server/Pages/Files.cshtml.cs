@@ -184,6 +184,13 @@ namespace Oqtane.Pages
                 isRequestingImageManipulation = true;
             }
 
+            bool recreate = false;
+
+            if (Request.Query.TryGetValue("recreate", out var recreateStr) && bool.TryParse(recreateStr, out var recreateBool) && recreateBool)
+            {
+                recreate = true;
+            }
+
             if (isRequestingImageManipulation)
             {
                 var _ImageFiles = _settingRepository.GetSetting(EntityNames.Site, _alias.SiteId, "ImageFiles")?.SettingValue;
@@ -196,9 +203,6 @@ namespace Oqtane.Pages
                     return BrokenFile();
                 }
 
-                Request.Query.TryGetValue("recreate", out var recreate);
-
-                if (!bool.TryParse(recreate, out _)) recreate = "false";
                 if (!_imageService.GetAvailableFormats().Contains(format.ToString())) format = "png";
                 if (width == 0 && height == 0)
                 {
@@ -207,7 +211,7 @@ namespace Oqtane.Pages
                 }
 
                 string imagepath = filepath.Replace(Path.GetExtension(filepath), "." + width.ToString() + "x" + height.ToString() + "." + format);
-                if (!System.IO.File.Exists(imagepath) || bool.Parse(recreate))
+                if (!System.IO.File.Exists(imagepath) || recreate)
                 {
                     // user has edit access to folder or folder supports the image size being created
                     if (_userPermissions.IsAuthorized(User, PermissionNames.Edit, file.Folder.PermissionList) ||
@@ -231,6 +235,33 @@ namespace Oqtane.Pages
                 }
 
                 downloadName = file.Name.Replace(Path.GetExtension(filepath), "." + width.ToString() + "x" + height.ToString() + "." + format);
+                filepath = imagepath;
+            }
+            //Image manipulation takes precedence over optimization
+            else if (Request.Query.TryGetValue("optimize", out var optimize) && bool.TryParse(optimize, out var optimizeBool) && optimizeBool)
+            {
+                var quality = IImageService.DefaultQuality;
+
+                if (Request.Query.TryGetValue("quality", out var qualityStr) && int.TryParse(qualityStr, out var qualityInt) && qualityInt >= 0 && qualityInt < 100)
+                {
+                    quality = qualityInt;
+                }
+
+                string imagepath = filepath.Replace(Path.GetExtension(filepath), ".optimized.webp");
+
+                if (!System.IO.File.Exists(imagepath) || recreate)
+                {
+                    imagepath = _imageService.OptimizeImageToWebp(filepath, quality, imagepath);
+                }
+
+                if (string.IsNullOrWhiteSpace(imagepath))
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Create, "Error Displaying Optimized Image For File {File}", file);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    return BrokenFile();
+                }
+
+                downloadName = file.Name.Replace(Path.GetExtension(filepath), ".optimized.webp");
                 filepath = imagepath;
             }
 
