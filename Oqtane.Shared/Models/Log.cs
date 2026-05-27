@@ -73,6 +73,11 @@ namespace Oqtane.Models
         public string Level { get; set; }
 
         /// <summary>
+        /// Remote IP Address related to this log entry
+        /// </summary>
+        public string RemoteIPAddress { get; set; }
+
+        /// <summary>
         /// Log Message
         /// </summary>
         public string Message { get; set; }
