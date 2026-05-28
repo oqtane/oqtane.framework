@@ -102,11 +102,13 @@ namespace Oqtane.Pages
 
             if (file == null)
             {
-                // look for url mapping
+                var siteSettings = HttpContext.GetSiteSettings();
+                var captureBrokenUrls = (siteSettings.ContainsKey("CaptureBrokenUrls") ? bool.Parse(siteSettings["CaptureBrokenUrls"]) : false);
+
                 // referrer will only be set if the link originated externally
                 string referrer = (HttpContext.Request.Headers[HeaderNames.Referer] != StringValues.Empty) ? HttpContext.Request.Headers[HeaderNames.Referer] : "";
 
-                var urlMapping = _urlMappings.GetUrlMapping(_alias.SiteId, "files/" + folderpath + filename, referrer, captureBrokenUrls);
+                var urlMapping = _urlMappings.GetUrlMapping(_alias.SiteId, "files/" + folderpath + filename, referrer);
                 if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
                 {
                     var url = urlMapping.MappedUrl;
