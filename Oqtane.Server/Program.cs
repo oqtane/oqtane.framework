@@ -18,7 +18,7 @@ namespace Oqtane.Server
             var builder = WebApplication.CreateBuilder(args);
 
             AppDomain.CurrentDomain.SetData(Constants.DataDirectory, Path.Combine(builder.Environment.ContentRootPath, "Data"));
-            var overrideSettings = ConfigManager.GetAdditionalAppsettingFileName();
+            var overrideSettings = ConfigManager.GetAppSettingsOverrideFilename();
             var configurationBuilder = new ConfigurationBuilder()
                 .SetBasePath(builder.Environment.ContentRootPath)
                 .AddJsonFile("appsettings.json", false, true)
