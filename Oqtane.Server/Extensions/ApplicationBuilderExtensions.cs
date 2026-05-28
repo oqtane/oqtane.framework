@@ -41,8 +41,13 @@ namespace Oqtane.Extensions
 
             // allow oqtane localization middleware
             app.UseOqtaneLocalization();
+            var installation = configuration.GetSection("Installation");
+            var useHttpsRedirection = installation.GetValue<bool>("UseHttpsRedirection");
+            if (useHttpsRedirection)
+            {
+                app.UseHttpsRedirection();
 
-            app.UseHttpsRedirection();
+            }
             app.UseStaticFiles(new StaticFileOptions
             {
                 OnPrepareResponse = (ctx) =>
@@ -125,7 +130,8 @@ namespace Oqtane.Extensions
             var defaultCulture = localizationManager.GetDefaultCulture();
             var supportedCultures = localizationManager.GetSupportedCultures();
 
-            app.UseRequestLocalization(options => {
+            app.UseRequestLocalization(options =>
+            {
                 options.SetDefaultCulture(defaultCulture)
                     .AddSupportedCultures(supportedCultures)
                     .AddSupportedUICultures(supportedCultures);

@@ -10,6 +10,7 @@
     <StaticWebAssetsFingerprintContent>false</StaticWebAssetsFingerprintContent>
     <StaticWebAssetBasePath>/</StaticWebAssetBasePath>
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="wwwroot\Modules\Templates\**" />
