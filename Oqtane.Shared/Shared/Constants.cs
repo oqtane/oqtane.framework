@@ -11,6 +11,8 @@ namespace Oqtane.Shared
         public const string UpdaterPackageId = "Oqtane.Updater";
         public const string PackageRegistryUrl = "https://www.oqtane.net";
 
+        public const string AppSettingsOverrideEnvironmentVariable = "OQTANE_APPSETTINGS_PATH";
+
         public const string DataDirectory = "DataDirectory";
         public const string DefaultDBName = "LocalDB";
         public const string DefaultDBType = "Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Server";
