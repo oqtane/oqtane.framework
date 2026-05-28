@@ -78,7 +78,7 @@ namespace Oqtane.Extensions
             // execute any IServerStartup logic
             app.ConfigureOqtaneAssemblies(environment);
 
-            if (configuration.GetSection("UseSwagger").Value != "false")
+            if (configuration.GetSection("UseSwagger").Value == "true")
             {
                 app.UseSwagger();
                 app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/" + Constants.Version + "/swagger.json", Constants.PackageId + " " + Constants.Version); });

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -31,40 +32,50 @@ namespace Oqtane.Infrastructure
 
     public class ConfigManager : IConfigManager
     {
-        private static string appsettingsFilename = "appsettings.json";
-        private static string appsettingsPath = Directory.GetCurrentDirectory();
-        private const string appsettingsOverrideFilename = "appsettings.override.json";
         private readonly IConfigurationRoot _config;
         private readonly IWebHostEnvironment _environment;
+
+        private static string appsettingsPath = "";
+        private static string appsettingsFilename = "";
 
         public ConfigManager(IConfigurationRoot config, IWebHostEnvironment environment)
         {
             _config = config;
-            appsettingsPath = GetAdditionalAppsettingFilePath() ?? appsettingsPath;
-            appsettingsFilename = GetAdditionalAppsettingFilePath() != null ? appsettingsOverrideFilename : appsettingsFilename;
-        }
-        public static string GetAdditionalAppsettingFilePath()
-        {
-            var overrideSettingsPath = Environment.GetEnvironmentVariable(Constants.AppSettingsOverrideEnvironmentVariable);
-            if (!string.IsNullOrEmpty(overrideSettingsPath))
+            _environment = environment;
+
+            appsettingsPath = GetAppSettingsOverridePath();
+            if (!string.IsNullOrEmpty(appsettingsPath))
             {
-                if (Directory.Exists(overrideSettingsPath))
+                appsettingsFilename = GetAppSettingsOverrideFilename();
+            }
+            if (string.IsNullOrEmpty(appsettingsFilename))
+            {
+                appsettingsPath = Directory.GetCurrentDirectory();
+                appsettingsFilename = $"appsettings.{_environment.EnvironmentName}.json";
+                if (_environment.EnvironmentName == "Development" || !File.Exists(Path.Combine(appsettingsPath, appsettingsFilename)))
                 {
-                    return overrideSettingsPath;
+                    appsettingsFilename = "appsettings.json"; // fallback
                 }
+            }
+        }
+
+        public static string GetAppSettingsOverridePath()
+        {
+            var appSettingsOverrideFilePath = Environment.GetEnvironmentVariable(Constants.AppSettingsOverrideEnvironmentVariable);
+            if (!string.IsNullOrEmpty(appSettingsOverrideFilePath) && Directory.Exists(appSettingsOverrideFilePath))
+            {
+                return appSettingsOverrideFilePath;
             }
             return null;
         }
-        public static string GetAdditionalAppsettingFileName()
+
+        public static string GetAppSettingsOverrideFilename()
         {
-            var overrideSettingsPath = GetAdditionalAppsettingFilePath();
-            if (!string.IsNullOrEmpty(overrideSettingsPath))
+            var appSettingsOverrideFilePath = GetAppSettingsOverridePath();
+            if (!string.IsNullOrEmpty(appSettingsOverrideFilePath))
             {
-                var filename = Path.Combine(overrideSettingsPath, appsettingsOverrideFilename);
-                if (File.Exists(filename))
-                {
-                    return filename;
-                }
+                var appSettingsOverrideFileName = Path.Combine(appSettingsOverrideFilePath, "appsettings.override.json");
+                return File.Exists(appSettingsOverrideFileName) ? appSettingsOverrideFileName : null;
             }
             return null;
         }
@@ -102,16 +113,6 @@ namespace Oqtane.Infrastructure
                 settings.Add(kvp.Key, kvp.Value);
             }
             return settings;
-        }
-
-        private string GetConfigFile()
-        {
-            var filename = $"appsettings.{_environment.EnvironmentName}.json";
-            if (_environment.EnvironmentName == "Development" || !File.Exists(Path.Combine(Directory.GetCurrentDirectory(), filename)))
-            {
-                filename = "appsettings.json";
-            }
-            return filename;
         }
 
         public void AddOrUpdateSetting<T>(string key, T value, bool reload)
