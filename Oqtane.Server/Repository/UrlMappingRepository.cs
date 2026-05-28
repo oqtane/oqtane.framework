@@ -15,7 +15,6 @@ namespace Oqtane.Repository
         UrlMapping GetUrlMapping(int urlMappingId, bool tracking);
         UrlMapping GetUrlMapping(int siteId, string url);
         UrlMapping GetUrlMapping(int siteId, string url, string referrer);
-        UrlMapping GetUrlMapping(int siteId, string url, string referrer, bool? captureBrokenUrls);
         void DeleteUrlMapping(int urlMappingId);
         int DeleteUrlMappings(int siteId, int age);
     }
@@ -86,11 +85,6 @@ namespace Oqtane.Repository
 
         public UrlMapping GetUrlMapping(int siteId, string url, string referrer)
         {
-            return GetUrlMapping(siteId, url, "", null);
-        }
-
-        public UrlMapping GetUrlMapping(int siteId, string url, string referrer, bool? captureBrokenUrl)
-        {
             using var db = _dbContextFactory.CreateDbContext();
             url = (url.StartsWith("/")) ? url.Substring(1) : url;
             url = (url.Length > 750) ? url.Substring(0, 750) : url;
@@ -98,19 +92,8 @@ namespace Oqtane.Repository
 
             if (urlMapping == null)
             {
-                bool capture;
-
-                if (captureBrokenUrl.HasValue)
-                {
-                    capture = captureBrokenUrl.Value;
-                }
-                else
-                {
-                    var site = _sites.GetSite(siteId, false);
-                    capture = site.CaptureBrokenUrls;
-                }
-
-                if (capture)
+                var site = _sites.GetSite(siteId);
+                if (site.CaptureBrokenUrls)
                 {
                     urlMapping = new UrlMapping
                     {
